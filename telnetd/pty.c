@@ -17,11 +17,8 @@
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA. */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "telnetd.h"
+#include <sys/wait.h>
 
 #ifdef AUTHENTICATION
 # include <libtelnet/auth.h>
@@ -39,8 +36,8 @@ do_auth ()
 
   if (autologin < auth_level)
     {
-      fatal(net, "Authorization failed");
-      exit(1);
+      fatal (net, "Authorization failed");
+      exit (1);
     }
 #endif
 }
@@ -82,7 +79,6 @@ startslave (char *host, int autologin, char *autoname)
 	  close (net);
 
 	setup_utmp (line);
-
 	start_login (host, autologin, line);
       }
 
@@ -90,6 +86,7 @@ startslave (char *host, int autologin, char *autoname)
   return master;
 }
   
+extern char **environ;
 /*
  * scrub_env()
  *
@@ -114,85 +111,68 @@ scrub_env ()
   *cpp2 = 0;
 }
 
-struct args
-{
-  int argc_size;
-  int argc;
-  char **argv;
-};
-
 void
-argv_add (struct args *ap, const char *value)
+argv_add (struct obstack *sp, char *value)
 {
-  if (ap->argc_size = 0)
-    {
-      ap->argc_size = 10;
-      ap->argc = 0;
-      ap->argv = xcalloc (10, sizeof (ap->argv[0]));
-    }
-  if (ap->argc >= ap->argc_size)
-    {
-      ap->argc_size += 10;
-      ap->argv = xrealloc (ap->argv,
-			   ap->argc_size * sizeof (ap->argv[0]));
-    }
-  ap->argv[ap->argc++] = value;
+  char *p = value ? xstrdup (value) : NULL;
+  obstack_grow (sp, &p, sizeof(char*));
 }
-
+  
 void
 start_login (char *host, int autologin, char *name)
 {
-  struct args a;
+  struct obstack stk;
+  char **argv;
   
   scrub_env ();
-  memset (&a, 0, sizeof a);
+  obstack_init (&stk);
 
-  argv_add (&a, path_login);
-  argv_add (&a, "-h");
-  argv_add (&a, host);
+  argv_add (&stk, path_login);
+  argv_add (&stk, "-h");
+  argv_add (&stk, host);
   
 #ifdef	SOLARIS
   {
     char *term = getenv ("TERM");
     if (term == NULL || term[0] == 0)
-      argv_add (&a, "-");
+      argv_add (&stk, "-");
     else
       {
 	char *tbuf = xmalloc (sizeof ("TERM=") + strlen (term));
 	strcat (strcpy (tbuf, "TERM="), term);
-	argv_add (&a, tbuf);
+	argv_add (&stk, tbuf);
       }
   }
 #endif
 
 #ifndef NO_LOGIN_P
-  argv_add (&a, "-p");
+  argv_add (&stk, "-p");
 #endif
 
-#ifdef LINEMODE
   /* Set the environment variable "LINEMODE" to indicate our linemode */
   if (lmodetype == REAL_LINEMODE)
     setenv ("LINEMODE", "real", 1);
   else if (lmodetype == KLUDGE_LINEMODE || lmodetype == KLUDGE_OK)
     setenv ("LINEMODE", "kludge", 1);
-#endif
 
 #ifdef AUTHENTICATION
   if (auth_level >= 0 && autologin == AUTH_VALID)
     {
-      argv_add (&a, "-f");
-      argv_add (&a, name);
+      argv_add (&stk, "-f");
+      argv_add (&stk, name);
     }
 #endif
   
-  if (getenv ("USER"))
+/*  if (getenv ("USER"))
     {
-      argv_add (&a, "--");
-      argv_add (&a, getenv ("USER"));
+      argv_add (&stk, "--");
+      argv_add (&stk, getenv ("USER"));
       unsetenv ("USER");
-    }
-  argv_add (&a, NULL);
-  execv (path_login, a.argv);
+      }*/
+  argv_add (&stk, NULL);
+
+  argv = (char**) obstack_finish (&stk);
+  execv (path_login, argv);
   syslog (LOG_ERR, "%s: %m\n", path_login);
   fatalperror (net, path_login);
 }
@@ -202,6 +182,14 @@ cleanup (int sig)
 {
   char *p;
 
+  if (sig)
+    {
+      int status;
+      pid_t pid = waitpid((pid_t)-1, &status, WNOHANG);
+      syslog (LOG_INFO, "child process %ld exited: %d",
+	      (long) pid, WEXITSTATUS(status));
+    }
+  
   p = line + sizeof (PATH_DEV) - 1;
   utmp_logout (p);
   chmod (line, 0644);
