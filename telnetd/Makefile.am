@@ -6,7 +6,7 @@ inetdaemon_PROGRAMS = @BUILD_TELNETD@
 
 EXTRA_PROGRAMS = telnetd
 
-telnetd_SOURCES = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat.c utility.c
+telnetd_SOURCES = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat.c utility.c pty.c
 
 noinst_HEADERS = defs.h ext.h telnetd.h
 
