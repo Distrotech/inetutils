@@ -27,15 +27,9 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1985, 1988, 1990, 1992, 1993, 1994\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
+#if 0
 static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
-#endif /* not lint */
+#endif
 
 /*
  * FTP server.
@@ -136,6 +130,8 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 extern int fclose __P ((FILE *));
 #endif
 
+extern char *__progname;
+
 /* Exported to ftpcmd.h.  */
 struct	sockaddr_in data_dest; /* Data port.  */
 struct	sockaddr_in his_addr;  /* Peer address.  */
@@ -178,8 +174,6 @@ static int login_attempts;       /* Number of failed login attempts.  */
 static int askpasswd;		 /* Had user command, ask for passwd.  */
 static char curname[10];	 /* Current USER name.  */
 static char ttyline[20];         /* Line to log in utmp.  */
-static char *program;            /* The invocation name of the program.  */
-
 
 
 #define NUM_SIMUL_OFF_TO_STRS 4
@@ -285,12 +279,12 @@ usage (int err)
 {
   if (err != 0)
     {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", program);
-      fprintf (stderr, "Try `%s --help' for more information.\n", program);
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", __progname);
+      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", program);
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", __progname);
       puts ("Internet File Transfer Protocol server.\n\n\
   -A, --anonymous-only      Server configure for anonymous service only\n\
   -D, --daemon              Start the ftpd standalone\n\
@@ -333,7 +327,9 @@ main(int argc, char *argv[], char **envp)
   extern char *localhost __P ((void));
   int option;
 
-  program = argv[0];
+#ifndef HAVE___PROGNAME
+  __progname = argv[0];
+#endif
 
 #ifdef HAVE_TZSET
   tzset(); /* In case no timezone database in ~ftp.  */
@@ -456,7 +452,7 @@ main(int argc, char *argv[], char **envp)
       if (getpeername (STDIN_FILENO, (struct sockaddr *)&his_addr,
 		       &addrlen) < 0)
 	{
-	  syslog (LOG_ERR, "getpeername (%s): %m", program);
+	  syslog (LOG_ERR, "getpeername (%s): %m", __progname);
 	  exit (1);
 	}
     }
@@ -476,7 +472,7 @@ main(int argc, char *argv[], char **envp)
     if (getsockname (STDIN_FILENO, (struct sockaddr *)&ctrl_addr,
 		     &addrlen) < 0)
       {
-	syslog (LOG_ERR, "getsockname (%s): %m", program);
+	syslog (LOG_ERR, "getsockname (%s): %m", __progname);
 	exit (1);
       }
   }

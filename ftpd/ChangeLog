@@ -1,3 +1,10 @@
+2000-10-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* ftpd.c: Remove PROGRAM, declare __PROGNAME. Remove COPYRIGHT
+	(it's in the header) and "#if 0"-out SCCSID.
+	(usage): Replace PROGRAM with __PROGNAME.
+	(main): Likewise. Also initialize __PROGNAME if not HAVE___PROGNAME.
+
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
 	* ftpd.c: New variable PROGRAM.
