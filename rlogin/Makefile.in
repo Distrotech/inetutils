@@ -18,7 +18,7 @@
 #
 
 srcdir = @srcdir@
-include ../config.mk
+include ../config.make
 
 all: rlogin
 rlogin: rlogin.o
