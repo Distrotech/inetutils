@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_TELNETD@
+inetdaemon_PROGRAMS = @telnetd_BUILD@
 
 EXTRA_PROGRAMS = telnetd
 
