@@ -1,0 +1,36 @@
+Notes about the compatibility to various system's ifconfig program.
+
+all systems
+
+	We don't support any protocol families but inet (version 4).
+	The systems command line interface is not completely implemented.
+
+
+i386-gnu-linux (net-tools)
+
+	Metric is reported as 1, we report it correctly as 0.
+	(The metric is the number of additional hops, not the number of
+	hops total -- the Linux kernel <= 2.4 returns the correct number
+	0, it's just net-tools that converts this to 1).
+
+	Uses the output format `net-tools'.  This does not report the
+	statistics as recorded in /proc/net/dev.  (The format of this file
+	is unsatisfying).
+
+
+hpux10.20
+
+	Uses the output format `unix'.  This might include more information
+	than is included in the output of the system ifconfig.  The
+	additional info is available with the system command lanscan
+	on HP-UX.
+
+
+sparc-sun-solaris-2.7
+
+	Uses the output format `unix'.
+
+
+alphaev56-dec-osf4.0g
+
+	Uses the output format `osf'.

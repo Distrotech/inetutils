@@ -1,0 +1,24 @@
+XXX Before check in:
+
+Rework changeif.c
+Implement flags support in changeif.c and options.c
+Fix and move if_index.c to libinetutils.
+Fix system.c, system.h stuff.
+
+XXX Some systems can provide more interfaces than SIOCGIFCONF/if_nameindex,
+    interfaces which are usually not UP but registered nevertheless.
+    (linux: /prov/net/dev). Some support for that?
+
+XXX Honour IFF_CANTCHANGE when working in flag setting in brdaddr,
+    dstaddr, etc.
+
+XXX We could put the option parsing (invocation of getopt_long) into a function
+    like parse_opt_rest, which could be used by system_parse_opt_rest to continue
+    parsing the options as usual after processing a not-option.
+
+XXX Is it necessary to merge long/short options intelligently?
+    For example, if a system specific option shadows a normal option?
+    Allow this?
+
+XXX To make ${join} work properly, it needs to know if there was some
+    output at all.
