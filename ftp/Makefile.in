@@ -1,0 +1,60 @@
+# Makefile for telnet
+#
+# Copyright (C) 1995 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+SHELL = /bin/sh
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+mandir = @mandir@
+man1dir = $(mandir)/man1
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+CC = @CC@
+DEFS = @DEFS@
+LIBS = @LIBS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+RM = @RM@
+
+OPTION_FLAGS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
+LDLIBS = -L../libtelnet -ltelnet -ltermcap $(LIBS)
+
+CFLAGS += $(OPTION_FLAGS) $(DEFS)
+
+telnet: authenc.o commands.o main.o network.o ring.o sys_bsd.o telnet.o \
+	terminal.o tn3270.o utilities.o
+
+install: installdirs telnet telnet.1
+	$(INSTALL_PROGRAM) telnet $(bindir)/telnet
+	$(INSTALL_DATA) telnet.1 $(man1dir)/telnet.1
+
+installdirs:
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
+
+clean:
+	$(RM) -f *.o telnet
+distclean: clean
+	$(RM) -f Makefile
