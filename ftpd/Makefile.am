@@ -5,3 +5,10 @@ ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c
 noinst_HEADERS = extern.h
 
 man_MANS = ftpd.8
+
+@PATHDEFS_MAKE@
+
+INCLUDES = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
+	$(PATHDEF_FTPLOGINMESG)
+
+LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet
