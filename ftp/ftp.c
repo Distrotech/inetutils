@@ -1061,8 +1061,7 @@ initconn()
 
 		if (sscanf(pasv,"%d,%d,%d,%d,%d,%d",
 			   &a0, &a1, &a2, &a3, &p0, &p1) != 6) {
-			printf("Passive mode address scan failure. "
-			       "Shouldn't happen!\n");
+			printf("Passive mode address scan failure. Shouldn't happen!\n");
 			goto bad;
 		}
 
