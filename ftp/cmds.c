@@ -60,25 +60,8 @@ static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <paths.h>
 
 #include "ftp_var.h"
-
-#ifndef HAVE_STRDUP
-static char *
-strdup (str)
-	char *str;
-{
-	char *dup;
-	if (str) {
-		dup = malloc (strlen (str) + 1);
-		if (dup)
-			strcpy (dup, str);
-	} else
-		dup = 0;
-	return dup;
-}
-#endif
 
 /* Returns true if STR is entirely lower case.  */
 static int
@@ -896,9 +879,9 @@ remglob(argv,doswitch)
 		return cp ? 0 : strdup (cp);
 	}
 	if (ftemp == NULL) {
-		char temp[sizeof _PATH_TMP + sizeof "XXXXXX"];
+		char temp[sizeof PATH_TMP + sizeof "XXXXXX"];
 
-		strcpy (temp, _PATH_TMP);
+		strcpy (temp, PATH_TMP);
 		strcat (temp, "XXXXXX");
 		mktemp (temp);
 
@@ -1423,7 +1406,7 @@ shell(argc, argv)
 		(void) signal(SIGQUIT, SIG_DFL);
 		shell = getenv("SHELL");
 		if (shell == NULL)
-			shell = _PATH_BSHELL;
+			shell = PATH_BSHELL;
 		namep = strrchr(shell,'/');
 		if (namep == NULL)
 			namep = shell;
@@ -1660,7 +1643,7 @@ do_umask(argc, argv)
 }
 
 void
-idle(argc, argv)
+site_idle(argc, argv)
 	int argc;
 	char *argv[];
 {
