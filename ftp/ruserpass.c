@@ -35,29 +35,48 @@
 static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include <ctype.h>
-#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
+#include <err.h>
 
 #include "ftp_var.h"
+
+extern char *localhost __P((void));
 
 static	int token __P((void));
 static	FILE *cfile;
 
+/* protect agains os headers */
+#undef	DEFAULT
 #define	DEFAULT	1
+#undef	LOGIN
 #define	LOGIN	2
+#undef	PASSWD
 #define	PASSWD	3
+#undef	ACCOUNT
 #define	ACCOUNT 4
+#undef  MACDEF
 #define MACDEF  5
+#undef	ID
 #define	ID	10
-#define	MACH	11
+#undef	MACHINE
+#define	MACHINE	11
 
 static char tokval[100];
 
@@ -70,7 +89,7 @@ static struct toktab {
 	{ "password",	PASSWD },
 	{ "passwd",	PASSWD },
 	{ "account",	ACCOUNT },
-	{ "machine",	MACH },
+	{ "machine",	MACHINE },
 	{ "macdef",	MACDEF },
 	{ NULL,		0 }
 };
@@ -80,22 +99,25 @@ ruserpass(host, aname, apass, aacct)
 	char *host, **aname, **apass, **aacct;
 {
 	char *hdir, buf[BUFSIZ], *tmp;
-	char myname[MAXHOSTNAMELEN], *mydomain;
+	char *myname = 0, *mydomain;
 	int t, i, c, usedefault = 0;
 	struct stat stb;
 
 	hdir = getenv("HOME");
 	if (hdir == NULL)
 		hdir = ".";
-	(void) sprintf(buf, "%s/.netrc", hdir);
+	snprintf (buf, sizeof buf, "%s/.netrc", hdir);
 	cfile = fopen(buf, "r");
 	if (cfile == NULL) {
 		if (errno != ENOENT)
 			warn("%s", buf);
 		return (0);
 	}
-	if (gethostname(myname, sizeof(myname)) < 0)
-		myname[0] = '\0';
+
+	myname = localhost ();
+	if (! myname)
+		myname = "";
+
 	if ((mydomain = strchr(myname, '.')) == NULL)
 		mydomain = "";
 next:
@@ -105,7 +127,7 @@ next:
 		usedefault = 1;
 		/* FALL THROUGH */
 
-	case MACH:
+	case MACHINE:
 		if (!usedefault) {
 			if (token() != ID)
 				continue;
@@ -131,7 +153,7 @@ next:
 			continue;
 		}
 	match:
-		while ((t = token()) && t != MACH && t != DEFAULT) switch(t) {
+		while ((t = token()) && t != MACHINE && t != DEFAULT) switch(t) {
 
 		case LOGIN:
 			if (token())
@@ -169,10 +191,9 @@ next:
 			}
 			break;
 		case MACDEF:
-			if (proxy) {
-				(void) fclose(cfile);
-				return (0);
-			}
+			if (proxy) 
+				goto done;
+
 			while ((c=getc(cfile)) != EOF && c == ' ' || c == '\t');
 			if (c == EOF || c == '\n') {
 				printf("Missing macdef name argument.\n");
@@ -235,9 +256,13 @@ next:
 	}
 done:
 	(void) fclose(cfile);
+	if (myname && *myname)
+		free (myname);
 	return (0);
 bad:
 	(void) fclose(cfile);
+	if (myname && *myname)
+		free (myname);
 	return (-1);
 }
 
