@@ -422,10 +422,18 @@ void
 usage()
 {
 
-	(void)fprintf(stderr,
-	    "usage: syslogd [-f conffile] [-m markinterval] [-p logpath]\n");
+	(void)fprintf(stderr, "Usage: syslogd [OPTION] ...\n\
+Start system log daemon.\n\
+  -f FILE       Read configuration from FILE instead from %s.\n\
+  -m INTERVAL   Log timestamp mark every INTERVAL seconds. If INTERVAL is 0,\n\
+                timestamps are disabled.\n\
+  -p FILE       Specify the pathname of an alternate log socket instead of\n\
+                the default %s .\n\
+  -V            Print version information and exit.", ConfFile, LogName);
+	fprintf(stderr, "\nReport bugs to <bug-gnu-utils@gnu.org>.\n"); 
 	exit(1);
 }
+
 
 /*
  * Take a raw input line, decode the message, and print the message
