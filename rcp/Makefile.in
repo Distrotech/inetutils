@@ -21,17 +21,17 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-INSTALL_TARGETS = $(bindir)/rcp $(man1dir)/rcp.1
-INST_PROG_FLAGS=-o root -m 04755
 SRCS = rcp.c util.c
 DISTFILES = $(SRCS) extern.h rcp.1
+
+INSTALL_TARGETS = $(bindir)/rcp $(man1dir)/rcp.1
+INST_PROG_FLAGS=-o root -m 04755
+OBJS = $(SRCS:.c=.o)
+CLEAN = rcp $(OBJS)
 
 CPPFLAGS += -D_PATH_CP=\"$(bindir)/cp\" -D_PATH_RSH=\"$(bindir)/rsh\"
 
 all: rcp
-rcp: $(SRCS:.c=.o)
-
-clean:
-	$(RM) -f *.o rcp 
+rcp: $(OBJS)
 
 include $(RULES)
