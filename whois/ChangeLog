@@ -1,3 +1,8 @@
+2000-07-06 Alain Magloire
+
+	* Makefile.am : change the rule to generate config.c
+	* gen-config-c: removed
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.
