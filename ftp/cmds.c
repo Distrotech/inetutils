@@ -613,7 +613,13 @@ mput(argc, argv)
 		}
 
 		memset(&gl, 0, sizeof(gl));
-		flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_TILDE;
+		flags = GLOB_NOCHECK;
+#ifdef GLOB_BRACE
+		flags |= GLOB_BRACE;
+#endif
+#ifdef GLOB_TILDE
+		flags |= GLOB_TILDE;
+#endif
 #ifdef GLOB_QUOTE
 		flags |= GLOB_QUOTE;
 #endif
