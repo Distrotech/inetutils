@@ -10,4 +10,4 @@ man_MANS = ftp.1
 
 INCLUDES = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils $(LIBGLOB)
