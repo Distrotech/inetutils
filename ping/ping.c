@@ -22,6 +22,8 @@ Boston, MA 02111-1307, USA. */
 #endif
 
 #include <stdio.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include "getopt.h"
 
 static void
@@ -72,5 +74,33 @@ main (int argc, char **argv)
             break;
           }
       }
+  if (argc - optind == 0) 
+    {
+      show_usage ();
+      exit (0);
+    }
+
   } 
+
+  {
+    struct sockaddr_in sin;
+    struct protoent *pp;
+    struct hostent *hp;
+
+    memset ((char *)&sin, 0, sizeof(sin));
+
+    if (!(pp = getprotobyname("icmp"))) {
+      fprintf (stderr, "ICMP not defined on this system.\n");
+      exit (1);
+    }
+
+    if (!(hp = gethostbyname (argv[1]))) {
+      fprintf (stderr, "Host not found.\n");
+      exit (0);
+    }
+
+    sin.sin_family = hp->h_addrtype;
+    memmove ((caddr_t)&sin.sin_addr, hp->h_addr_list[0], hp->h_length);
+    printf("The address is %s...\n", inet_ntoa(sin.sin_addr));
+  }
 }
