@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = 1.2d
 
-EXTRA_DIST = paths
+EXTRA_DIST = README-alpha paths
 
 SUBDIRS = headers libinetutils libtelnet glob \
 	inetd telnetd ftpd rshd rlogind uucpd rexecd syslogd tftpd talkd \
