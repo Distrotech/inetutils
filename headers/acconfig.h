@@ -50,6 +50,8 @@
 #undef HAVE_UTMP_UT_HOST
 /* Define this if struct utmp has a ut_tv field.  */
 #undef HAVE_UTMP_UT_TV
+/* Define this if struct wtmp has a ut_tv field.  */
+#undef HAVE_WTMP_UT_TV
 
 /* Define this if using Kerberos version 4.  */
 #undef KRB4
@@ -90,6 +92,9 @@
 /* Define this to be `int' if sig_atomic_t isn't declared by including
    <sys/types.h> & <signal.h> */
 #undef sig_atomic_t
+/* Define this to be `unsigned long' if sigset_t isn't declared by including
+   <sys/types.h> & <signal.h> */
+#undef sigset_t
 
 /* Define this if weak references of any sort are supported.  */
 #undef HAVE_WEAK_REFS
