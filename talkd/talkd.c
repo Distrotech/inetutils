@@ -38,13 +38,13 @@ static struct option long_options[] =
   /* Help options */
   {"version", no_argument, NULL, 'V'},
   {"license", no_argument, NULL, 'L'},
-  {"help",    no_argument, NULL, 'h'},
-  {"acl",  required_argument, NULL, 'a'},
-  {"debug",   no_argument, NULL, 'd'},
+  {"help", no_argument, NULL, 'h'},
+  {"acl", required_argument, NULL, 'a'},
+  {"debug", no_argument, NULL, 'd'},
   {"idle-timeout", required_argument, NULL, 'i'},
   {"timeout", required_argument, NULL, 't'},
   {"request-ttl", required_argument, NULL, 'r'},
-  {NULL,      no_argument, NULL, 0}
+  {NULL, no_argument, NULL, 0}
 };
 
 /* Configurable parameters: */
@@ -61,40 +61,51 @@ main(int argc, char *argv[])
   int c;
   char *acl_file = NULL;
 
- while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
+  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
-    switch (c)
-      {
-      case 'V':
-	show_version ();
-	exit (0);
-	break;
-      case 'L':
-	show_license ();
-	exit (0);
-      case 'h':
-	show_usage ();
-	exit (0);
-	break;
-      case 'a':
-	acl_file = optarg;
-	break;
-      case 'd':
-	debug++;
-	break;
-      case 't':
-	timeout = strtoul (optarg, NULL, 0);
-	break;
-      case 'i':
-	max_idle_time = strtoul (optarg, NULL, 0);
-	break;
-      case 'r':
-	max_request_ttl = strtoul (optarg, NULL, 0);
-	break;
-      default:
-	fprintf (stderr, "talkd: %c: not implemented\n", c);
-	exit (1);
-      }
+    {
+      switch (c)
+	{
+	case 'V':
+	  show_version ();
+	  exit (0);
+	  break;
+
+	case 'L':
+	  show_license ();
+	  exit (0);
+
+	case 'h':
+	  show_usage ();
+	  exit (0);
+	  break;
+
+	case 'a':
+	  acl_file = optarg;
+	  break;
+
+	case 'd':
+	  debug++;
+	  break;
+
+	case 't':
+	  timeout = strtoul (optarg, NULL, 0);
+	  break;
+
+	case 'i':
+	  max_idle_time = strtoul (optarg, NULL, 0);
+	  break;
+
+	case 'r':
+	  max_request_ttl = strtoul (optarg, NULL, 0);
+	  break;
+
+	default:
+	  fprintf (stderr, "talkd: %c: not implemented\n", c);
+	  exit (1);
+	}
+    }
+
   read_acl (acl_file);
   talkd_init ();
   talkd_run (0);
