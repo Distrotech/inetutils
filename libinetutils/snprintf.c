@@ -1,3 +1,41 @@
+
+/*
+   Unix snprintf implementation.
+   Version 1.1
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   
+   Revision History:
+
+   1.1:
+      *  added changes from Miles Bader
+      *  corrected a bug with %f
+      *  added support for %#g
+      *  added more comments :-)
+   1.0:
+      *  supporting must ANSI syntaxic_sugars
+   0.0:
+      *  suppot %s %c %d
+
+ THANKS(for the patches and ideas):
+     Miles Bader
+     Cyrille Rustom
+     Jacek Slabocewiz
+     Mike Parker(mouse)
+
+*/
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -30,8 +68,8 @@ int n;
  * Note: this not a real log10()
          I just need and approximation(integerpart) of x in:
           10^x ~= r
- * log_10(200) = 3;
- * log_10(250) = 3;
+ * log_10(200) = 2;
+ * log_10(250) = 2;
  */
 PRIVATE int
 #ifdef __STDC__
@@ -59,6 +97,7 @@ double r;
 /*
  * This function return the fraction part of a double
  * and set in ip the integral part.
+ * In many ways it resemble the modf() found on most Un*x
  */
 PRIVATE double
 #ifdef __STDC__
@@ -110,17 +149,18 @@ double * ip;
  */
 PRIVATE char *
 #ifdef __STDC__
-numtoa(double number, int base, char ** fract)
+numtoa(double number, int base, int precision, char ** fract)
 #else
-numtoa(number, base, fract)
+numtoa(number, base, precision, fract)
 double number;
 int base;
+int precision;
 char ** fract;
 #endif
 {
   register int i, j;
   double ip, fp; /* integer and fraction part */
-  double decimal;
+  double fraction;
   int digits = MAX_INT - 1;
   static char integral_part[MAX_INT];
   static char fraction_part[MAX_FRACT];
@@ -142,9 +182,8 @@ char ** fract;
     digits--; /* sign consume one digit */
   } 
 
-  decimal = integral(number, &ip);
+  fraction = integral(number, &ip);
   number = ip;
-
 /* do the integral part */
   if ( ip == 0.) {
     integral_part[0] = '0';
@@ -177,7 +216,7 @@ char ** fract;
     SWAP_INT(integral_part[i], integral_part[j]);  
 
 /* the fractionnal part */
-  for ( i = 0, fp = decimal; i < MAX_FRACT ; i++) {
+  for (i=0, fp=fraction; precision > 0 && i < MAX_FRACT ; i++, precision--	) {
     fraction_part[i] = (int)((fp + PRECISION)*10. + '0');
     if (! isdigit(fraction_part[i])) /* underflow ? */
       break;
@@ -302,11 +341,12 @@ double d;
 #endif
 {
   char *tmp, *tmp2;
+  int i;
 
-  d = ROUND(d, p);
-  tmp = dtoa(d, &tmp2);
-  /* calculate the padding. 1 for the dot */
   DEF_PREC(p);
+  d = ROUND(d, p);
+  tmp = dtoa(d, p->precision, &tmp2);
+  /* calculate the padding. 1 for the dot */
   p->width = p->width -
             ((d > 0. && p->justify == RIGHT) ? 1:0) -
             ((p->space == FOUND) ? 1:0) -
@@ -318,15 +358,18 @@ double d;
     PUT_CHAR(*tmp, p);
     tmp++;
   }
-  PUT_CHAR('.', p);  /* put the '.' */
-  for (; p->precision > 0 && *tmp2; p->precision--) {
+  if (p->precision != 0 || p->square == FOUND)
+    PUT_CHAR('.', p);  /* put the '.' */
+  if (*p->pf == 'g' || *p->pf == 'G') /* smash the trailing zeros */
+    for (i = strlen(tmp2) - 1; i >= 0 && tmp2[i] == '0'; i--)
+       tmp2[i] = '\0'; 
+  for (; *tmp2; tmp2++)
     PUT_CHAR(*tmp2, p); /* the fraction */
-    tmp2++;
-  }
+  
   PAD_LEFT(p);
 } 
 
-/* %e %E %g exponet representation */
+/* %e %E %g exponent representation */
 PRIVATE void
 #ifdef __STDC__
 exponent(struct DATA *p, double d)
@@ -337,32 +380,35 @@ double d;
 #endif
 {
   char *tmp, *tmp2;
-  int j;
+  int j, i;
 
+  DEF_PREC(p);
   j = log_10(d);
   d = d / pow_10(j);  /* get the Mantissa */
-  DEF_PREC(p);
   d = ROUND(d, p);                  
-  tmp = dtoa(d, &tmp2);
+  tmp = dtoa(d, p->precision, &tmp2);
   /* 1 for unit, 1 for the '.', 1 for 'e|E',
    * 1 for '+|-', 3 for 'exp' */
   /* calculate how much padding need */
-   p->width = p->width - 
-              ((d > 0. && p->justify == RIGHT) ? 1:0) -
-              ((p->space == FOUND) ? 1:0) - p->precision - 7;
-   PAD_RIGHT(p);
-   PUT_PLUS(d, p);
-   PUT_SPACE(d, p);
-   while (*tmp) {/* the integral */
-      PUT_CHAR(*tmp, p);
-      tmp++;
-   }
-   PUT_CHAR('.', p);  /* the '.' */
-   for (; p->precision > 0 && *tmp2; p->precision--) {
-     PUT_CHAR(*tmp2, p); /* the fraction */
-     tmp2++;
-   }
-   if (*p->pf == 'g' || *p->pf == 'e') { /* the exponent put the 'e|E' */
+  p->width = p->width - 
+             ((d > 0. && p->justify == RIGHT) ? 1:0) -
+             ((p->space == FOUND) ? 1:0) - p->precision - 7;
+  PAD_RIGHT(p);
+  PUT_PLUS(d, p);
+  PUT_SPACE(d, p);
+  while (*tmp) {/* the integral */
+    PUT_CHAR(*tmp, p);
+    tmp++;
+  }
+  if (p->precision != 0 || p->square == FOUND)
+    PUT_CHAR('.', p);  /* the '.' */
+  if (*p->pf == 'g' || *p->pf == 'G') /* smash the trailing zeros */
+    for (i = strlen(tmp2) - 1; i >= 0 && tmp2[i] == '0'; i--)
+       tmp2[i] = '\0'; 
+  for (; *tmp2; tmp2++)
+    PUT_CHAR(*tmp2, p); /* the fraction */
+
+  if (*p->pf == 'g' || *p->pf == 'e') { /* the exponent put the 'e|E' */
      PUT_CHAR('e', p);
    } else
      PUT_CHAR('E', p);
@@ -442,7 +488,7 @@ vsnprintf(char *string, size_t length, const char * format, va_list args)
 vsnprintf(string, length, format, args)
 char *string;
 size_t length;
-const char * format;
+char * format;
 va_list args;
 #endif
 {
@@ -591,7 +637,7 @@ snprintf(char *string, size_t length, const char * format, ...)
 snprintf(string, length, format, va_alist)
 char *string;
 size_t length;
-const char * format;
+char * format;
 va_dcl
 #endif
 {
@@ -624,13 +670,13 @@ void main()
   char holder[100];
   int i;
 
+/*
   printf("Suite of test for snprintf:\n");
   printf("a_format\n");
   printf("printf() format\n");
   printf("snprintf() format\n\n");
-
+*/
 /* Checking the field widths */
-  printf("Check field widths: \n");
 
   printf("/%%d/, 336\n");
   snprintf(holder, sizeof holder, "/%d/\n", 336);
@@ -654,7 +700,6 @@ void main()
 
 
 /* floating points */
-  printf("\nSome floating point combo: \n");
 
   printf("/%%f/, 1234.56\n");
   snprintf(holder, sizeof holder, "/%f/\n", 1234.56);
@@ -698,7 +743,6 @@ void main()
 
 #define BLURB "Outstanding acting !"
 /* strings precisions */
-  printf("\nStrings formating: \n");
 
   printf("/%%2s/, \"%s\"\n", BLURB);
   snprintf(holder, sizeof holder, "/%2s/\n", BLURB);
@@ -721,20 +765,18 @@ void main()
   printf("%s\n", holder);
 
 /* see some flags */
-  printf("\nMisc. flags: \n");
 
   printf("%%x %%X %%#x, 31, 31, 31\n");
   snprintf(holder, sizeof holder, "%x %X %#x\n", 31, 31, 31);
   printf("%x %X %#x\n", 31, 31, 31);
-  printf("%s", holder);
+  printf("%s\n", holder);
 
   printf("**%%d**%% d**%% d**, 42, 42, -42\n");
   snprintf(holder, sizeof holder, "**%d**% d**% d**\n", 42, 42, -42);
   printf("**%d**% d**% d**\n", 42, 42, -42);
-  printf("%s", holder);
+  printf("%s\n", holder);
 
 /* other flags */
-  printf("\nOther flags:\n");
 
   printf("/%%g/, 31.4\n");
   snprintf(holder, sizeof holder, "/%g/\n", 31.4);
@@ -754,7 +796,7 @@ void main()
   printf("abc%%n\n");
   printf("abc%n", &i); printf("%d\n", i);
   snprintf(holder, sizeof holder, "abc%n", &i);
-  printf("%s", holder); printf("%d\n", i);
+  printf("%s", holder); printf("%d\n\n", i);
   
   printf("%%*.*s --> 10.10\n");
   snprintf(holder, sizeof holder, "%*.*s\n", 10, 10, BLURB);
@@ -767,10 +809,10 @@ void main()
   printf("%s\n", holder);
 
 #define BIG "Hello this is a too big string for the buffer"
-  printf("A buffer to small of 10, trying to put this:\n");
-  printf("%s\n", BIG);
-  i = snprintf(holder, 10, "%s", BIG);
-  printf("Result: <%s>\n", holder);
-  printf("Return value of snprintf: %d\n", i);
+/*  printf("A buffer to small of 10, trying to put this:\n");*/
+  printf("<%%>, %s\n", BIG); 
+  i = snprintf(holder, 10, "%s\n", BIG);
+  printf("<%s>\n", BIG);
+  printf("<%s>\n", holder);
 }
 #endif

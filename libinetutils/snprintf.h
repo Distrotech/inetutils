@@ -1,8 +1,33 @@
-/* 
-Alain Magloire: alainm@rcsm.ee.mcgill.ca
+/*
+ Unix snprintf implementation.
+ Version 1.1
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   
+   Revision History:
 
-    IMPORTANT: this is just a SIMPLE version of snprintf for
-    for the systems that do not provide one
+   1.1:
+      *  added changes from Miles Bader
+      *  corrected a bug with %f
+      *  added support for %#g
+      *  added more comments :-)
+   1.0:
+      *  supporting must ANSI syntaxic_sugars(see below)
+   0.0:
+      *  suppot %s %c %d
+
     it understands:
       Integer:
         %lu %lu %u
@@ -13,7 +38,7 @@ Alain Magloire: alainm@rcsm.ee.mcgill.ca
         %g %G %e %E %f  double
       Strings:
         %s %c  string
-      %%   %
+        %%   %
 
     Formating conversion flags:
       - justify left
@@ -30,9 +55,14 @@ format:
 Return values:
   (sizeof_holder - 1)
 
-bugs:
- - not complying fully to ANSI std :-)
- - %#g or %#G will not cut the trailing zeros
+
+ THANKS(for the patches and ideas):
+     Miles Bader
+     Cyrille Rustom
+     Jacek Slabocewiz
+     Mike Parker(mouse)
+
+Alain Magloire: alainm@rcsm.ee.mcgill.ca
 */
 
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
@@ -76,15 +106,70 @@ bugs:
 
 /* 
  * numtoa() uses PRIVATE buffers to store the results,
- * you've been warn
+ * So this function is not reentrant
  */
-#define itoa(n) numtoa(n, 10, (char **)0) 
-#define otoa(n) numtoa(n, 8, (char **)0)
-#define htoa(n) numtoa(n, 16, (char **)0)
-#define dtoa(n, f) numtoa(n, 10, f)
+#define itoa(n) numtoa(n, 10, 0, (char **)0) 
+#define otoa(n) numtoa(n, 8, 0, (char **)0)
+#define htoa(n) numtoa(n, 16, 0, (char **)0)
+#define dtoa(n, p, f) numtoa(n, 10, p, f)
 
 #define SWAP_INT(a,b) {int t; t = (a); (a) = (b); (b) = t;}
 
+/* this struct holds everything we need */
+struct DATA {
+  int length;
+  char *holder;
+  int counter;
+#ifdef __STDC__
+  const char *pf;
+#else
+  char *pf;
+#endif
+/* FLAGS */
+  int width, precision;
+  int justify; char pad;
+  int square, space, star_w, star_p, a_long ;
+};
+
+#define PRIVATE static
+#define PUBLIC
+/* signature of the functions */
+#ifdef __STDC__
+/* the floating point stuff */
+  PRIVATE double pow_10(int);
+  PRIVATE int log_10(double);
+  PRIVATE double integral(double, double *);
+  PRIVATE char * numtoa(double, int, int, char **);
+
+/* for the format */
+  PRIVATE void conv_flag(char *, struct DATA *);
+  PRIVATE void floating(struct DATA *, double);
+  PRIVATE void exponent(struct DATA *, double);
+  PRIVATE void decimal(struct DATA *, double);
+  PRIVATE void octal(struct DATA *, double);
+  PRIVATE void hexa(struct DATA *, double);
+  PRIVATE void strings(struct DATA *, char *);
+
+#else
+/* the floating point stuff */
+  PRIVATE double pow_10();
+  PRIVATE int log_10();
+  PRIVATE double integral();
+  PRIVATE char * numtoa();
+
+/* for the format */
+  PRIVATE void conv_flag();
+  PRIVATE void floating();
+  PRIVATE void exponent();
+  PRIVATE void decimal();
+  PRIVATE void octal();
+  PRIVATE void hexa();
+  PRIVATE void strings();
+#endif
+
+/* those are defines specific to snprintf to hopefully
+ * make the code clearer :-)
+ */
 #define RIGHT 1
 #define LEFT  0
 #define NOT_FOUND -1
@@ -141,52 +226,3 @@ bugs:
               (p)->width = va_arg(args, int); \
             if ((p)->star_p == FOUND) \
               (p)->precision = va_arg(args, int)
-
-/* this struct holds everything we need */
-struct DATA {
-  int length;
-  char *holder;
-  int counter;
-  const char *pf;
-/* FLAGS */
-  int width, precision;
-  int justify; char pad;
-  int square, space, star_w, star_p, a_long ;
-};
-
-#define PRIVATE static
-#define PUBLIC
-/* signature of the functions */
-#ifdef __STDC__
-/* the floating point stuff */
-  PRIVATE double pow_10(int);
-  PRIVATE int log_10(double);
-  PRIVATE double integral(double, double *);
-  PRIVATE char * numtoa(double, int, char **);
-
-/* for the format */
-  PRIVATE void conv_flag(char *, struct DATA *);
-  PRIVATE void floating(struct DATA *, double);
-  PRIVATE void exponent(struct DATA *, double);
-  PRIVATE void decimal(struct DATA *, double);
-  PRIVATE void octal(struct DATA *, double);
-  PRIVATE void hexa(struct DATA *, double);
-  PRIVATE void strings(struct DATA *, char *);
-
-#else
-/* the floating point stuff */
-  PRIVATE double pow_10();
-  PRIVATE int log_10();
-  PRIVATE double integral();
-  PRIVATE char * numtoa();
-
-/* for the format */
-  PRIVATE void conv_flag();
-  PRIVATE void floating();
-  PRIVATE void exponent();
-  PRIVATE void decimal();
-  PRIVATE void octal();
-  PRIVATE void hexa();
-  PRIVATE void strings();
-#endif
-
