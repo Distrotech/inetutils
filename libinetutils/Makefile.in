@@ -24,12 +24,12 @@ include ../config.make
 SRCS = ttymsg.c version.c getopt.c getopt1.c stub_tgetent.c localhost.c
 DISTFILES = $(SRCS)
 
+OBJS = ttymsg.o version.o localhost.o @LIBOBJS@
+CLEAN = libinetutils.a $(OBJS)
+
 all: libinetutils.a
-libinetutils.a: ttymsg.o version.o localhost.o @LIBOBJS@
+libinetutils.a: $(OBJS)
 	$(AR) rcv $@ $?
 	$(RANLIB) $@
-
-clean:
-	$(RM) -f *.o libinetutils.a
 
 include $(RULES)
