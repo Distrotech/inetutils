@@ -247,6 +247,8 @@ AC_DEFUN([IU_CONFIG_PATHS], [
     elif test "`eval echo '$'{inetutils_cv_$iu_pathvar+set}`" = set; then
       # Cached value
       eval iu_val=\"'$'inetutils_cv_$iu_pathvar\"
+      # invert escaped $(...) notation used in autoconf cache
+      iu_val="`echo "$iu_val" | sed 's/@(/$(/g'`"
       iu_cached="(cached) "
     elif test "`eval echo '$'{inetutils_cv_hdr_$iu_pathvar+set}`" = set; then
       # Cached non-value
@@ -362,7 +364,9 @@ EOF
 	iu_pathdef="`echo $iu_path | sed 's/^PATH_/PATHDEF_/'`"
 	echo $iu_pathdef = -D$iu_path='\"'"$iu_val"'\"'
       fi
-      test "$iu_cached" || eval inetutils_cv_$iu_pathvar=\'"$iu_val"\'
+      # Put the value in the autoconf cache.  We replace $( with @( to avoid
+      # variable evaluation problems when autoconf reads the cache later.
+      test "$iu_cached" || eval inetutils_cv_$iu_pathvar=\'"`echo "$iu_val" | sed 's/\$(/@(/g'`"\'
     elif test "$iu_hdr"; then
       AC_MSG_RESULT(${iu_cached}from $iu_sym in $iu_hdr)
       test "$iu_cached" || eval inetutils_cv_hdr_$iu_pathvar=\'"$iu_hdr"\'
