@@ -41,6 +41,9 @@ static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#ifndef HAVE_OSOCKADDR
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <sgtty.h>
 #include <errno.h>
@@ -48,15 +51,49 @@ static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef HAVE_VIS_H
 #include <vis.h>
+#endif
 #include <paths.h>
 
-extern char hostname[];
+extern char *hostname;
+
+extern char *ttymsg ();
 
 /*
  * Announce an invitation to talk.
  */
 	
+#ifndef HAVE_VIS_H
+
+#define VIS_CSTYLE 0		/* dummy value */
+
+/* A simpler version of bsd's vis function.  */
+static void
+strvis (dst, src, ignored)
+     char *dst, *src;
+     int ignored;
+{
+  int ch;
+  while (*src)
+    switch (ch = *src++)
+      {
+      case '\b': *dst++ = '\\'; *dst++ = 'b'; break;
+      case '\n': *dst++ = '\\'; *dst++ = 'n'; break;
+      case '\t': *dst++ = '\\'; *dst++ = 't'; break;
+      case '\a': *dst++ = '\\'; *dst++ = 'a'; break;
+      case '\f': *dst++ = '\\'; *dst++ = 'f'; break;
+      case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
+      default:
+	if (isgraph (*src))
+	  *dst++ = ch;
+	else
+	  dst += sprintf (dst, "\\%03o", ch);
+      }
+  *dst = 0;
+}
+#endif /* !HAVE_VIS_H */
+
 /*
  * See if the user is accepting messages. If so, announce that 
  * a talk is requested.
