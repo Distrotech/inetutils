@@ -4,7 +4,7 @@ OMIT_DEPENDENCIES=crypt.h err.h getopt.h osockaddr.h paths.h poll.h syslog-int.h
 
 SUBDIRS=system
 
-bin_PROGRAMS = @BUILD_IFCONFIG@
+bin_PROGRAMS = @ifconfig_BUILD@
 
 EXTRA_PROGRAMS = ifconfig
 
