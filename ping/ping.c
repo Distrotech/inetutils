@@ -329,6 +329,13 @@ sig_int (int signal)
   stop = 1;
 }
 
+#ifndef timercmp
+# define timercmp(tvp, uvp, cmp)\
+               ((tvp)->tv_sec cmp (uvp)->tv_sec ||\
+               (tvp)->tv_sec == (uvp)->tv_sec &&\
+               (tvp)->tv_usec cmp (uvp)->tv_usec)
+#endif
+
 int
 ping_run (PING *ping, int (*finish)())
 {
@@ -387,7 +394,7 @@ ping_run (PING *ping, int (*finish)())
       if ((n = select (fdmax, &fdset, NULL, NULL, &timeout)) < 0)
 	{
 	  if (errno != EINTR)
-	    perror ("ping: select");
+	    perror ("select");
 	  continue;
 	}
       else if (n == 1)
@@ -398,12 +405,17 @@ ping_run (PING *ping, int (*finish)())
 	      gettimeofday (&now, NULL);
 	      t = &now;
 	    }
-	  if (ping->ping_count && ping->ping_num_recv >= ping->ping_count)
+	  if (ping->ping_count && ping->ping_num_xmit >= ping->ping_count)
+            { 
+              struct timeval tmp = last;
+              tmp.tv_sec += 10; /* FIXME: should I make it configurable? */
+              if (timercmp (&tmp, &now, <=))
 	    break;
+	}
 	}
       else
 	{
-	  if (!ping->ping_count || ping->ping_num_recv < ping->ping_count)
+	  if (!ping->ping_count || ping->ping_num_xmit < ping->ping_count)
 	    {
 	      send_echo (ping);
 	      if (!(options & OPT_QUIET) && options & OPT_FLOOD)
