@@ -1,5 +1,9 @@
 Tue Mar 24 00:28:27 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* tftpd/Makefile.am (noinst_HEADERS): Removed tftpsubs.h
+	
+	(LDADD): Added `-L../libinetutils -linetutils'.
+
 	* tftp/Makefile.am (tftp_SOURCES): Removed tftpsubs.c; that file
  	has been moved to ../libinetutils.
 	
