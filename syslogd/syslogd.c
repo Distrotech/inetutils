@@ -695,8 +695,8 @@ fprintlog(f, flags, msg)
 		v->iov_len = strlen(msg);
 	} else if (f->f_prevcount > 1) {
 		v->iov_base = repbuf;
-		sprintf(repbuf, "last message repeated %d times",
-			f->f_prevcount);
+		snprintf(repbuf, sizeof(repbuf),
+			"last message repeated %d times", f->f_prevcount);
 		v->iov_len = strlen(repbuf);
 	} else {
 		v->iov_base = f->f_prevline;
@@ -714,7 +714,7 @@ fprintlog(f, flags, msg)
 
 	case F_FORW:
 		dprintf(" %s\n", f->f_un.f_forw.f_hname);
-		sprintf(line, "<%d>%.15s %s", f->f_prevpri,
+		snprintf(line, sizeof(line), "<%d>%.15s %s", f->f_prevpri,
 			iov[0].iov_base, iov[4].iov_base);
 		l = strlen(line);
 		if (l > MAXLINE)
