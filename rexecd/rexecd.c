@@ -96,8 +96,8 @@ main(int argc, char **argv)
 
 	fromlen = sizeof (from);
 	if (getpeername(sockfd, (struct sockaddr *)&from, &fromlen) < 0) {
-		(void)fprintf(stderr,
-		    "rexecd: getpeername: %s\n", strerror(errno));
+		fprintf(stderr,
+			"rexecd: getpeername: %s\n", strerror(errno));
 		exit(1);
 	}
 	doit(sockfd, &from);
@@ -134,14 +134,14 @@ doit(int f, struct sockaddr_in *fromp)
 	char buf[BUFSIZ], sig;
 	int one = 1;
 
-	(void) signal(SIGINT, SIG_DFL);
-	(void) signal(SIGQUIT, SIG_DFL);
-	(void) signal(SIGTERM, SIG_DFL);
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
 	{ int t = open(_PATH_TTY, O_RDWR);
 	  if (t >= 0) {
 		ioctl(t, TIOCNOTTY, (char *)0);
-		(void) close(t);
+		close(t);
 	  }
 	}
 #endif
@@ -151,7 +151,7 @@ doit(int f, struct sockaddr_in *fromp)
 	    dup2(f, STDERR_FILENO);
 	}
 
-	(void) alarm(60);
+	alarm(60);
 	port = 0;
 	for (;;) {
 		char c;
@@ -161,18 +161,18 @@ doit(int f, struct sockaddr_in *fromp)
 			break;
 		port = port * 10 + c - '0';
 	}
-	(void) alarm(0);
+	alarm(0);
 	if (port != 0) {
 		s = socket(AF_INET, SOCK_STREAM, 0);
 		if (s < 0)
 			exit(1);
 		if (bind(s, (struct sockaddr *)&asin, sizeof (asin)) < 0)
 			exit(1);
-		(void) alarm(60);
+		alarm(60);
 		fromp->sin_port = htons(port);
 		if (connect(s, (struct sockaddr *)fromp, sizeof (*fromp)) < 0)
 			exit(1);
-		(void) alarm(0);
+		alarm(0);
 	}
 
 	user = getstr ("username");
@@ -193,23 +193,19 @@ doit(int f, struct sockaddr_in *fromp)
 			exit(1);
 		}
 	}
-	if (chdir(pwd->pw_dir) < 0) {
-		error("No remote directory.\n");
-		exit(1);
-	}
-	(void) write(STDERR_FILENO, "\0", 1);
+	write(STDERR_FILENO, "\0", 1);
 	if (port) {
-		(void) pipe(pv);
+		pipe(pv);
 		pid = fork();
 		if (pid == -1)  {
 			error("Try again.\n");
 			exit(1);
 		}
 		if (pid) {
-			(void) close(STDIN_FILENO);
-			(void) close(STDOUT_FILENO);
-			(void) close(STDERR_FILENO);
-			(void) close(f); (void) close(pv[1]);
+			close(STDIN_FILENO);
+			close(STDOUT_FILENO);
+			close(STDERR_FILENO);
+			close(f); close(pv[1]);
 			FD_ZERO(&readfrom);
 			FD_SET(s, &readfrom);
 			FD_SET(pv[0], &readfrom);
@@ -220,7 +216,7 @@ doit(int f, struct sockaddr_in *fromp)
 				ready = readfrom;
 				if (pv[0] > maxfd)
 				    maxfd = pv[0];
-				(void) select(maxfd + 1, (fd_set *)&ready,
+				select(maxfd + 1, (fd_set *)&ready,
 				    (fd_set *)NULL, (fd_set *)NULL,
 				    (struct timeval *)NULL);
 				if (FD_ISSET(s, &ready)) {
@@ -235,28 +231,32 @@ doit(int f, struct sockaddr_in *fromp)
 						shutdown(s, 1+1);
 						FD_CLR(pv[0], &readfrom);
 					} else
-						(void) write(s, buf, cc);
+						write(s, buf, cc);
 				}
 			} while (FD_ISSET(pv[0], &readfrom) ||
 				FD_ISSET(s, &readfrom));
 			exit(0);
 		}
 		setpgid (0, getpid());
-		(void) close(s); (void)close(pv[0]);
+		close(s);
+		close(pv[0]);
 		dup2(pv[1], STDERR_FILENO);
 	}
 	if (*pwd->pw_shell == '\0')
 		pwd->pw_shell = PATH_BSHELL;
 	if (f > 2)
-		(void) close(f);
-	(void) setegid((gid_t)pwd->pw_gid);
-	(void) setgid((gid_t)pwd->pw_gid);
+		close(f);
+	setegid((gid_t)pwd->pw_gid);
+	setgid((gid_t)pwd->pw_gid);
 #ifdef HAVE_INITGROUPS
 	initgroups(pwd->pw_name, pwd->pw_gid);
 #endif
-	(void) seteuid((uid_t)pwd->pw_uid);
-	(void) setuid((uid_t)pwd->pw_uid);
-	(void)strcat(path, PATH_DEFPATH);
+	setuid((uid_t)pwd->pw_uid);
+	if (chdir(pwd->pw_dir) < 0) {
+		error("No remote directory.\n");
+		exit(1);
+	}
+	strcat(path, PATH_DEFPATH);
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
 	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
