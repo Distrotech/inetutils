@@ -57,6 +57,10 @@ static char sccsid[] = "@(#)commands.c	8.2 (Berkeley) 12/15/93";
 #include <varargs.h>
 #include <errno.h>
 
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
 #include <arpa/telnet.h>
 
 #include "general.h"
@@ -68,24 +72,23 @@ static char sccsid[] = "@(#)commands.c	8.2 (Berkeley) 12/15/93";
 #include "types.h"
 
 #if !defined(CRAY) && !defined(sysV88)
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
 # if (defined(vax) || defined(tahoe) || defined(hp300)) && !defined(ultrix)
 # include <machine/endian.h>
 # endif /* vax */
 #endif /* !defined(CRAY) && !defined(sysV88) */
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-
-
-#ifndef       MAXHOSTNAMELEN
-#define       MAXHOSTNAMELEN 64
-#endif        MAXHOSTNAMELEN
+#endif
 
 #if	defined(IPPROTO_IP) && defined(IP_TOS)
 int tos = -1;
 #endif	/* defined(IPPROTO_IP) && defined(IP_TOS) */
 
 char	*hostname;
-static char _hostname[MAXHOSTNAMELEN];
+static char *_hostname = 0;
 
 extern char *getenv();
 
@@ -2304,8 +2307,18 @@ tn(argc, argv)
 	if (temp != (unsigned long) -1) {
 	    sin.sin_addr.s_addr = temp;
 	    sin.sin_family = AF_INET;
-	    (void) strcpy(_hostname, hostp);
-	    hostname = _hostname;
+
+	    if (_hostname)
+		free (_hostname);
+	    _hostname = malloc (strlen (hostp) + 1);
+	    if (_hostname) {
+		strcpy (_hostname, hostp);
+		hostname = _hostname;
+	    } else {
+		printf ("Can't allocate memory to copy hostname\n");
+		setuid(getuid());
+		return 0;
+	    }
 	} else {
 	    host = gethostbyname(hostp);
 	    if (host) {
@@ -2316,9 +2329,18 @@ tn(argc, argv)
 #else	/* defined(h_addr) */
 		memcpy((caddr_t)&sin.sin_addr, host->h_addr, host->h_length);
 #endif	/* defined(h_addr) */
-		strncpy(_hostname, host->h_name, sizeof(_hostname));
-		_hostname[sizeof(_hostname)-1] = '\0';
-		hostname = _hostname;
+
+		if (_hostname)
+		    free (_hostname);
+		_hostname = malloc (strlen (host->h_name) + 1);
+		if (_hostname) {
+		    strcpy (_hostname, host->h_name);
+		    hostname = _hostname;
+		} else {
+		    printf ("Can't allocate memory to copy hostname\n");
+		    setuid(getuid());
+		    return 0;
+		}
 	    } else {
 		herror(hostp);
 	        setuid(getuid());
