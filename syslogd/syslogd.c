@@ -253,12 +253,15 @@ int Debug;                      /* True if in debug mode.  */
 int AcceptRemote;               /* Receive messages that come via UDP.  */
 char **StripDomains;            /* Domains to be stripped before logging.  */
 char **LocalHosts;              /* Hosts to be logged by their hostname.  */
-int NoDetach;                   /* Don't run in background and detach from ctty. */
+int NoDetach;                   /* Don't run in background and detach
+				   from ctty. */
 int NoHops = 1;	                /* Bounce syslog messages for other hosts.  */
 int NoKLog;                     /* Don't attempt to log kernel device.  */
 int NoUnixAF;                   /* Don't listen to unix sockets. */
 int NoForward;                  /* Don't forward messages.  */
-time_t	now;                    /* Time use for mark and forward supending.  */
+time_t  now;                    /* Time use for mark and forward supending.  */
+int force_sync;                 /* GNU/Linux behaviour to sync on every line.
+				   This off by default. Set to 1 to enable.  */
 
 extern char *localhost __P ((void));
 
@@ -304,7 +307,8 @@ usage (int err)
   -p, --socket FILE  override default unix domain socket " PATH_LOG "\n\
   -a SOCKET          add unix socket to listen to (up to 19)\n\
   -r, --inet         receive remote messages via internet domain socket\n\
-      --no-unixaf    do not listen on unix domain sockets (overrides -a and -p)");
+      --no-unixaf    do not listen on unix domain sockets (overrides -a and -p\n\
+  -S, --sync         Force a file sync on every line");
 #ifdef PATH_KLOG
       puts ("\
       --no-klog      do not listen to kernel log device " PATH_KLOG);
@@ -337,6 +341,7 @@ static struct option long_options[] =
   { "no-klog", no_argument, 0, 'K' },
   { "no-forward", no_argument, 0, 'F' },
   { "no-unixaf", no_argument, 0, 'U' },
+  { "sync", no_argument, 0, 'S' },
   { "help", no_argument, 0, '&' },
   { "version", no_argument, 0, 'V' },
 #if 0 /* Not sure about the long name. Maybe move into conffile even.  */
@@ -364,7 +369,7 @@ main(int argc, char *argv[])
   /* Initiliaze PATH_LOG as the first element of the unix sockets array.  */
   add_funix (PATH_LOG);
 
-  while ((option = getopt_long (argc, argv, "a:dhf:l:m:np:rs:V",
+  while ((option = getopt_long (argc, argv, "a:dhf:l:m:np:rs:VS",
 			    long_options, 0)) != EOF)
     {
       switch(option)
@@ -427,6 +432,9 @@ main(int argc, char *argv[])
 	  NoUnixAF = 1;
 	  break;
 
+	case 'S': /* Sync on every line.  */
+	  force_sync = 1;
+	  break;
 	case '&': /* Usage.  */
 	  usage (0);
 	  /* Not reached.  */
@@ -901,7 +909,11 @@ printline(const char *hname, const char *msg)
       *q++ = c;
   *q = '\0';
 
-  logmsg (pri, line, hname, SYNC_FILE);
+  /* This for the default behaviour on GNU/Linux syslogd who
+     sync on every line.  */
+  if (force_sync)
+    logmsg (pri, line, hname, SYNC_FILE);
+  logmsg (pri, line, hname, 0);
 }
 
 /* Take a raw input line from /dev/klog, split and format similar to
@@ -1330,11 +1342,11 @@ wallmsg(struct filed *f, struct iovec *iov)
 
   while ((utp = getutxent ()) != NULL)
     {
-      if (utp->ut_user[0] == '\0')
-	continue;
-      if (utp->ut_type == LOGIN_PROCESS)
-	continue;
-      if (! strcmp (utp->ut_user, "LOGIN"))	/* Paranoia. */
+      /* We only want interrested to send to actual
+	 process, USER_PROCESS where somebody might listen. */
+      if (utp->ut_user[0] == '\0'
+	  || utp->ut_line[0] == '\0'
+	  || utp->ut_type != USER_PROCESS)
 	continue;
 
       strncpy (line, utp->ut_line, sizeof (utp->ut_line));

@@ -1,3 +1,13 @@
+2000-08-10  Alain Magloire
+
+	* syslogd.c (wallmsg):  Only check for the type USER_PROCESS
+	The others on GNU/Linux generate errors.  And we only need
+	to alert legitimate users that are login.
+	* syslogd.c : New option '-S, --sync' to behave like GNU/Linux
+	syslogd that sync on every line.  Syncing on every lines can
+	bring a machine to its knees if an application is trying to
+	be malicious.
+
 2000-08-10  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (main): When -d option is given, set NoDetach to 1.
