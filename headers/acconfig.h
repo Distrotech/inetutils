@@ -1,6 +1,6 @@
 /* inetutils-specific things to put in config.h.in
 
-  Copyright (C) 1996 Free Software Foundation, Inc.
+  Copyright (C) 1996, 1997 Free Software Foundation, Inc.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -66,6 +66,9 @@
 /* Define this if ERRNO is declared by <errno.h>.  */
 #undef HAVE_ERRNO_DECL
 
+/* Define this if ENVIRON is declared by <unistd.h> or <stdlib.h>.  */
+#undef HAVE_ENVIRON_DECL
+
 /* Define this if a definition of hstrerror is available.  */
 #undef HAVE_HSTRERROR
 
@@ -84,6 +87,10 @@
 /* Define this if sig_t is declared by including <sys/types.h> & <signal.h> */
 #undef HAVE_SIG_T
 
+/* Define this to be `int' if sig_atomic_t isn't declared by including
+   <sys/types.h> & <signal.h> */
+#undef sig_atomic_t
+
 /* Define this if weak references of any sort are supported.  */
 #undef HAVE_WEAK_REFS
 /* Define this if gcc-style weak references work: ... __attribute__ ((weak)) */
@@ -95,6 +102,9 @@
 
 /* Define this if crypt is declared by including <unistd.h>.  */
 #undef HAVE_CRYPT_DECL
+
+/* Define this if fclose is declared by including <stdio.h>.  */
+#undef HAVE_FCLOSE_DECL
 
 /* Define this if <paths.h> exists.  */
 #undef HAVE_PATHS_H
@@ -133,6 +143,33 @@
 
 #ifndef HAVE_SIG_T
 typedef RETSIGTYPE (*sig_t) ();
+#endif
+
+/* Define memory frobbing ops.  memmove is always defined, even if we have to
+   do so ourselves, as is memset.  bcopy, memcpy, & bzero are defined in
+   terms of those if necessary (since that can always be done with a macro). */
+
+#ifndef HAVE_BCOPY
+#define bcopy(f,t,z) memmove(t,f,z)
+#endif
+#ifndef HAVE_BZERO
+#define bzero(x,z) memset(x,0,z)
+#endif
+#ifndef HAVE_MEMCPY
+#define memcpy memmove
+#endif
+
+#if !defined(HAVE_MEMMOVE) || !defined(HAVE_MEMSET)
+/* Make sure size_t is defined */
+#include <sys/types.h>
+#endif
+#ifndef HAVE_MEMMOVE
+/* Declare our own silly version.  */
+extern void *memmove __P ((void *to, const void *from, size_t sz));
+#endif
+#ifndef HAVE_MEMSET
+/* Declare our own silly version.  */
+extern void memset __P ((void *mem, int val, size_t sz));
 #endif
 
 /* Defaults for PATH_ variables.  */
