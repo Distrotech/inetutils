@@ -329,13 +329,6 @@ sig_int (int signal)
   stop = 1;
 }
 
-#ifndef timercmp
-# define timercmp(tvp, uvp, cmp)\
-               ((tvp)->tv_sec cmp (uvp)->tv_sec ||\
-               (tvp)->tv_sec == (uvp)->tv_sec &&\
-               (tvp)->tv_usec cmp (uvp)->tv_usec)
-#endif
-
 int
 ping_run (PING *ping, int (*finish)())
 {
