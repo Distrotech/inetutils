@@ -152,7 +152,7 @@ ftpd_popen(program, type)
 		(void)close(pdes[0]);
 	}
 
-	fpid = malloc (sizeof (struct file_pid));
+	fpid = (struct file_pid *) malloc (sizeof (struct file_pid));
 	if (fpid) {
 		fpid->file = iop;
 		fpid->pid = pid;
