@@ -2203,7 +2203,9 @@ rmut()
 					continue;
 				(void) lseek(f, ((long)u)-((long)utmp), L_SET);
 				SCPYN(u->ut_name, "");
+#ifdef HAVE_UTMP_UT_HOST
 				SCPYN(u->ut_host, "");
+#endif
 				(void) time(&u->ut_time);
 				(void) write(f, (char *)u, sizeof(wtmp));
 				found++;
@@ -2217,7 +2219,11 @@ rmut()
 			SCPYN(wtmp.ut_line, line+5);
 			SCPYN(wtmp.ut_name, "");
 			SCPYN(wtmp.ut_host, "");
+#ifdef HAVE_WTMP_UT_TV
+			(void) time(&wtmp.ut_tv.tv_sec);
+#else
 			(void) time(&wtmp.ut_time);
+#endif
 			(void) write(f, (char *)&wtmp, sizeof(wtmp));
 			(void) close(f);
 		}
