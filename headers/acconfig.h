@@ -129,11 +129,11 @@
 #define	__P(args)	()	/* No prototypes.  */
 #endif
 
+#endif /* HAVE___P */
+
 #ifndef HAVE_SIG_T
 typedef RETSIGTYPE (*sig_t) ();
 #endif
-
-#endif /* HAVE___P */
 
 /* Defaults for PATH_ variables.  */
 #include <confpaths.h>
