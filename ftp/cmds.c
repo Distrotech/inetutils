@@ -125,6 +125,9 @@ jmp_buf	jabort;
 char   *mname;
 char   *home = "/";
 
+char *mapin = 0;
+char *mapout = 0;
+
 /*
  * `Another' gets another argument, and stores the new argc and argv.
  * It reverts to the top level (via main.c's intr()) on EOF/error.
@@ -693,7 +696,6 @@ usage:
 		code = -1;
 		return (0);
 	}
-	oldargv1 = argv[1];
 
 	local = globulize (argv[2]);
 	if (! local) {
@@ -823,19 +825,22 @@ mget(argc, argv)
 		}
 		if (mflag && confirm(argv[0], cp)) {
 			tp = cp;
-			if (mcase) {
-				for (tp2 = tmpbuf; ch = *tp++;)
-					*tp2++ = isupper(ch) ? tolower(ch) : ch;
-				tp = tmpbuf;
-			}
+			if (mcase && ! all_lower (tp))
+				tp = strdown (strdup (tp));
 			if (ntflag) {
-				tp = dotrans(tp);
+				char *new = dotrans (tp);
+				if (tp != cp)
+					free (tp);
+				tp = new;
 			}
 			if (mapflag) {
-				tp = domap(tp);
+				char *new = domap (tp);
+				if (tp != cp)
+					free (tp);
+				tp = new;
 			}
 			recvrequest("RETR", tp, cp, "w",
-			    tp != cp || !interactive);
+				    tp != cp || !interactive);
 			if (!mflag && fromatty) {
 				ointer = interactive;
 				interactive = 1;
@@ -844,7 +849,10 @@ mget(argc, argv)
 				}
 				interactive = ointer;
 			}
+			if (tp != cp)
+				free (tp);
 		}
+		free (cp);
 	}
 	(void) signal(SIGINT,oldintr);
 	mflag = 0;
@@ -855,6 +863,8 @@ remglob(argv,doswitch)
 	char *argv[];
 	int doswitch;
 {
+	int buf_len = 0, sofar = 0;
+	char *buf = 0;
 	char temp[16];
 	static FILE *ftemp = NULL;
 	static char **args;
@@ -1285,7 +1295,7 @@ ls(argc, argv)
 	int argc;
 	char *argv[];
 {
-	char *cmd;
+	char *cmd, *dest;
 
 	if (argc < 2)
 		argc++, argv[1] = NULL;
@@ -1745,7 +1755,11 @@ globulize(cp)
 	if (!doglob)
 		return strdup (cp);
 
-	flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
+	flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_TILDE;
+#ifdef GLOB_QUOTE
+	flags |= GLOB_QUOTE;
+#endif
+
 	memset(&gl, 0, sizeof(gl));
 	if (glob(cp, flags, NULL, &gl) ||
 	    gl.gl_pathc == 0) {
@@ -1977,7 +1991,7 @@ setnmap(argc, argv)
 
 static int
 cp_subst (from_p, to_p, toks, tp, te, tok0, buf_p, buf_len_p)
-char **from, **to;
+char **from_p, **to_p;
 char *tp[9], *te[9];
 int toks[9];
 char *tok0;
@@ -1992,7 +2006,7 @@ int *buf_len_p;
 		src = tok0;
 		src_len = strlen (tok0);
 	}
-	else if (toks[toknum = *from - '1']) {
+	else if (toks[toknum = **from_p - '1']) {
 		src = tp[toknum];
 		src_len = te[toknum] - src;
 	}
@@ -2061,7 +2075,7 @@ domap(name)
 	{
 		toks[toknum] = 0;
 	}
-	cp1 = new;
+	cp1 = buf;
 	*cp1 = '\0';
 	cp2 = mapout;
 	while (*cp2) {
@@ -2077,7 +2091,7 @@ LOOP:
 				if (*++cp2 == '$' && isdigit(*(cp2+1)))
 					cp_subst (&cp2, &cp1,
 						  toks, tp, te, name,
-						  &buf, &buf_len)
+						  &buf, &buf_len);
 				else {
 					while (*cp2 && *cp2 != ',' && 
 					    *cp2 != ']') {
@@ -2143,10 +2157,11 @@ LOOP:
 		cp2++;
 	}
 	*cp1 = '\0';
-	if (!*new)
-		strcpy (new, name);
 
-	return (new);
+	if (! *buf)
+		strcpy (buf, name);
+
+	return buf;
 }
 
 void
