@@ -73,6 +73,7 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <getopt.h>
 
 int	keepalive = 1;
 int	check_all;
