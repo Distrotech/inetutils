@@ -1,4 +1,6 @@
-2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+2002-04-28  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* configure.ac: Removed form feeds.
 
 	* Makefile.am (AUTOMAKE_OPTIONS): Require GNU Automake 1.6.
 
