@@ -65,6 +65,11 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
+#ifndef HAVE___PROGNAME
+	extern char *__progname;
+	__progname = argv[0];
+#endif
+
 	get_names(argc, argv);
 	init_display();
 	open_ctl();

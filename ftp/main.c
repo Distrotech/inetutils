@@ -130,6 +130,11 @@ main(argc, argv)
 	struct passwd *pw = NULL;
 	char *cp;
 
+#ifndef HAVE___PROGNAME
+	extern char *__progname;
+	__progname = argv[0];
+#endif
+
 	sp = getservbyname("ftp", "tcp");
 	if (sp == 0)
 		errx(1, "ftp/tcp: unknown service");

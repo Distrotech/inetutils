@@ -158,6 +158,11 @@ main(argc, argv)
 	char *host, *p, *user, term[1024];
 	struct sigaction sa;
 
+#ifndef HAVE___PROGNAME
+	extern char *__progname;
+	__progname = argv[0];
+#endif
+
 	argoff = dflag = 0;
 	one = 1;
 	host = user = NULL;
