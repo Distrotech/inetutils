@@ -70,8 +70,8 @@ int	passivemode;		/* passive mode enabled */
 char	*altarg;		/* argv[1] with no shell-like preprocessing  */
 char	ntin[17];		/* input translation table */
 char	ntout[17];		/* output translation table */
-char	*mapin;			/* input map template */
-char	*mapout;		/* output map template */
+extern	char *mapin;		/* input map template */
+extern	char *mapout;		/* output map template */
 char	typename[32];		/* name of file transfer type */
 int	type;			/* requested file transfer type */
 int	curtype;		/* current file transfer type */
