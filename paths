@@ -79,9 +79,9 @@ PATH_FTPLOGINMESG /etc/motd
 PATH_FTPUSERS	$(sysconfdir)/ftpusers
 PATH_FTPWELCOME $(sysconfdir)/ftpwelcome
 PATH_INETDCONF	$(sysconfdir)/inetd.conf
-PATH_UTMP	<utmp.h> <utmp.h>:UTMP_FILE $(localstatedir)/run/utmp search:utmp:/var/run:/etc
-PATH_WTMP	<utmp.h> <utmp.h>:WTMP_FILE $(localstatedir)/log/wtmp search:wtmp:/var/log:/etc
-PATH_LASTLOG	<utmp.h> $(localstatedir)/log/lastlog search:lastlog:/var/log:/etc
+PATH_UTMP	<utmp.h> <utmp.h>:UTMP_FILE $(localstatedir)/run/utmp search:utmp:/var/run:/var/adm:/etc
+PATH_WTMP	<utmp.h> <utmp.h>:WTMP_FILE $(localstatedir)/log/wtmp search:wtmp:/var/log:/var/adm:/etc
+PATH_LASTLOG	<utmp.h> $(localstatedir)/log/lastlog search:lastlog:/var/log:/var/adm:/etc
 PATH_LOG	<syslog.h> /dev/log
 PATH_KLOG	<syslog.h> /dev/klog no
 PATH_LOGCONF	$(sysconfdir)/syslog.conf
