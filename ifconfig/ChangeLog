@@ -1,3 +1,17 @@
+2001-02-27  Marcus Brinkmann  <marcus@gnu.org>
+
+	* system/linux.c (system_configure): Move return statement outside
+	of if-block.
+
+	* printif.h: Declare had_output.
+	* printif.c (had_output): New global variable.
+	(many functions): Whereever we output something, set had_output to 1.
+	(join): Remove variable first. New variable had_output_saved.
+	Clear had_output after storing it in had_output_saved. Use that to
+	determine if to print delimiter. Later on, restore had_output.
+	* system/linux.c (some functions): Whereever we output something,
+	set had_output to 1.
+
 2001-02-22  Marcus Brinkmann  <marcus@gnu.org>
 
 	* flags.c: Protect inclusion of config.h.

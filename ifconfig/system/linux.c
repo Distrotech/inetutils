@@ -322,6 +322,7 @@ system_fh_hwaddr (format_data_t form, int argc, char *argv[])
     }
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -358,6 +359,7 @@ system_fh_hwtype (format_data_t form, int argc, char *argv[])
     }
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -386,6 +388,7 @@ system_fh_txqlen (format_data_t form, int argc, char *argv[])
     put_int (form, argc, argv, form->ifr->ifr_qlen);
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -590,8 +593,7 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
       if (verbose)
 	printf ("Set txqlen value of `%s' to `%i'.\n",
 		ifr->ifr_name, ifr->ifr_qlen);
-      return 0;
 #endif
     }
+  return 0;
 }
-

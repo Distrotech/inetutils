@@ -33,6 +33,9 @@
 /* The column position of the cursor.  */
 extern int *column;
 
+/* Whenever you output something, set this to true.  */
+extern int had_output;
+
 struct format_data
 {
   char *name;	/* Name of interface as specified on the command line.  */

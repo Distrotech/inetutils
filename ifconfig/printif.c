@@ -57,6 +57,7 @@ FILE *ostream;	/* Either stdout or stderror.  */
 int column_stdout;	/* The column position of the cursor on stdout.  */
 int column_stderr;	/* The column position of the cursor on stderr.  */
 int *column = &column_stdout;	/* The column marker of ostream.  */
+int had_output;		/* True if we had any output.  */
 
 struct format_handle format_handles[] =
 {
@@ -113,6 +114,7 @@ put_char (format_data_t form, char c)
       (*column)++;
     }
   putc (c, ostream);
+  had_output = 1;
 }
 
 /* This is a simple print function, which tries to keep track of the
@@ -175,6 +177,7 @@ put_int (format_data_t form, int argc, char *argv[], int nr)
     fmt = "%i";
 
   *column += printf (fmt, nr);
+  had_output = 1;
 }
   
 void
@@ -283,6 +286,7 @@ format_handler (char *name, format_data_t form, int argc, char *argv[])
       *column += printf ("(");
       put_string (form, name);
       *column += printf (" unknown)");
+      had_output = 1;
     }
 }
 
@@ -329,20 +333,27 @@ fh_tab (format_data_t form, int argc, char *argv[])
 void
 fh_join (format_data_t form, int argc, char *argv[])
 {
-  int first = 1;
+  int had_output_saved = had_output;
   int count = 0;
 
   if (argc < 2)
     return;
- 
+
+  /* Suppress delimiter before first argument.  */
+  had_output = 0;
+
   while (++count < argc)
     {
-      if (!first)
-	put_string (form, argv[0]);
+      if (had_output)
+	{
+	  put_string (form, argv[0]);
+	  had_output = 0;
+	  had_output_saved = 1;
+	}
       form->format = argv[count];
       print_interfaceX (form, 0);
-      first = 0;
     }
+  had_output = had_output_saved;
 }
 
 void
@@ -445,6 +456,7 @@ fh_index (format_data_t form, int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
   *column += printf ("%i", index);
+  had_output = 1;
 }
 
 void
@@ -472,6 +484,7 @@ fh_addr (format_data_t form, int argc, char *argv[])
     put_addr (form, argc, argv, &form->ifr->ifr_addr);
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -500,6 +513,7 @@ fh_netmask (format_data_t form, int argc, char *argv[])
     put_addr (form, argc, argv, &form->ifr->ifr_netmask);
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -539,6 +553,7 @@ fh_brdaddr (format_data_t form, int argc, char *argv[])
     put_addr (form, argc, argv, &form->ifr->ifr_broadaddr);
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -578,6 +593,7 @@ fh_dstaddr (format_data_t form, int argc, char *argv[])
     put_addr (form, argc, argv, &form->ifr->ifr_dstaddr);
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -606,6 +622,7 @@ fh_mtu (format_data_t form, int argc, char *argv[])
     put_int (form, argc, argv, form->ifr->ifr_mtu);
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -634,6 +651,7 @@ fh_metric (format_data_t form, int argc, char *argv[])
     put_int (form, argc, argv, form->ifr->ifr_metric);
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 
@@ -672,6 +690,7 @@ fh_flags (format_data_t form, int argc, char *argv[])
     }
 #else
   *column += printf ("(not available)");
+  had_output = 1;
 #endif
 }
 

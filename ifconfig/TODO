@@ -19,6 +19,3 @@ XXX We could put the option parsing (invocation of getopt_long) into a function
 XXX Is it necessary to merge long/short options intelligently?
     For example, if a system specific option shadows a normal option?
     Allow this?
-
-XXX To make ${join} work properly, it needs to know if there was some
-    output at all.

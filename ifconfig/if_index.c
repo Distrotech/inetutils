@@ -155,9 +155,11 @@ map_interfaces()
 unsigned int
 if_nametoindex (const char *ifname)
 {
-  
-
+  /* XXX */
 #ifdef SIOCGIFNAME
+#endif
+}  
+
   
 #endif /* HAVE_IF_NAMEINDEX
 
