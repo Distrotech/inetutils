@@ -1,3 +1,139 @@
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd.c (main): Type of len changed from int to size_t.
+	(usage): Add -V option, make output consistent with other GNU tools.
+
+	* syslogd.8: Document "-V" option.
+
+	* syslogd.c (logmsg): Only accept priority if the exact bit
+	is set (instead of an inequality).
+	(cfline): negate_pri, excl_pri, pri_set, pri_clear: New variables.
+	Allow '!' and '=' prepended to priority specification to exclude
+	these resp. higher priorities.
+
+	* syslogd.c (printline): Add SYNC_FILE to logmsg
+	invocation for more reliability.
+	(struct filed): New member f_flags to hold new macro OMIT_SYNC.
+	(logmsg): Only fsync if OMIT_SYNC is not set.
+	(cfline): Clear f_flags at initialization.
+	Set OMIT_SYNC in f_flags if action is prepended by `-' in
+	the conf file. 
+
+	* syslog.conf.5: Document level modifiers '!' and '='.
+	Add `-' rule.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+
+Wed Feb 14 12:42:09 CST 1996:  Dr. Wettstein
+Allowed forwarding of messages received from remote hosts to
+be controlled by a command-line switch.  Specifying -h allows
+forwarding.  The default behavior is to disable forwarding of
+messages which were received from a remote host.
+
+	* syslogd.c: New global variable "NoHops".
+	(main): New option "-h" to clear NoHops.
+	(usage): Document new "-h" option.
+	(fprintlog): New argument (char *) from.
+	If from != LocalHostName and NoHops set, don't forward
+	message.
+	(logmsg): Add from argument to fprintlog invocation.
+	(domark): Likewise.
+	(die): Likewise.
+	(init): Likewise.
+
+	* syslogd.8: Document new "-h" option.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Wed Jul 26 18:57:23 MET DST 1995:  Martin Schulze
+The 'LocalDomain' and the hostname of a remote machine is
+converted to lower case, because the original caused some
+inconsistency, because the (at least my) nameserver did respond an
+fqdn containing of upper- _and_ lowercase letters while
+'LocalDomain' consisted only of lowercase letters and that didn't
+match.
+
+	* syslogd.c (main): Try harder to get the FQDN of
+	localhost and convert LocalDomain to lowercase. (This should
+	probably be in libinetutils).
+	(cvthname): Add "." to output strings.
+	Convert hostname to lowercase before comparing with LocalDomain.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Tue May 28 00:58:45 MET DST 1996:  Martin Schulze
+Corrected behaviour of blocking pipes - i.e. the whole system
+hung.  Michael Nonweiler <mrn20@hermes.cam.ac.uk> has sent us
+a patch to correct this.  A new logfile type F_PIPE has been
+introduced.
+
+	* syslogd.c: New macro F_PIPE.
+	(TypeNames): New logfile type PIPE.
+	(fprintlog): Support for F_PIPE added.
+	(init): Likewise.
+	(cfline): Likewise, use '|' in conf file.
+	(cfline): Open log files with O_CREAT and
+	permission 0644.
+
+	* syslog.conf.5: Add documentation for new logfile type PIPE.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Mon May 20 13:29:32 MET DST 1996:  Miquel van Smoorenburg <miquels@cistron.nl>
+Added continuation line support.
+
+	* syslogd.c (init): Add support for continuated lines
+          (implemented by Miquel van Smoorenburg <miquels@cistron.nl>).
+
+	* syslog.conf.5: Mention continuated line feature.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Mon Aug 21 22:10:35 MET DST 1995:  Martin Schulze
+Corrected a strange behavior during parsing of configuration
+file. The original BSD syslogd doesn't understand spaces as
+separators between specifier and action. This syslogd now
+understands them. The old behavior caused some confusion over
+the Linux community.
+
+	* syslogd.c (cfline): Allow space as delimiter.
+
+	* syslog.conf.5: Seperator can now be a space, too.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Thu Oct 26 13:14:06 MET 1995:  Martin Schulze
+Added another logfile type F_FORW_UNKN.  The problem I ran into
+was a name server that runs on my machine and a forwarder of
+kern.crit to another host.  The hosts address can only be
+fetched using the nameserver.  But named is started after
+syslogd, so syslogd complained.
+This logfile type will retry to get the address of the
+hostname ten times and then complain.  This should be enough to
+get the named up and running during boot sequence.
+Sat Jan 10 01:33:06 CET 1998: Martin Schulze <joey@infodrom.north.de>
+Fixed small bugs in F_FORW_UNKN meachanism.  Thanks to Torsten
+Neumann <torsten@londo.rhein-main.de> for pointing me to it.
+
+	* syslogd.c: INET_SUSPEND_TIME, INET_RETRY_MAX,
+	F_FORW_UNKN: New macros.
+	TypeNames: Add "FORW(UNKNOWN)". If gethostbyname fails for some host,
+	this type will retry INET_RETRY_TIMES times before it finally fails.
+	(fprintlog): New variable hp. Move clearing f_time inside every
+	case it is appropriate for. Add new case F_FORW_UNKN. New goto
+	target f_forw. Only clear f_prevcount if appropriate.
+	(init): Do not close f_file for F_FORW. Add debug output for
+	F_FORW_UNKN.
+	(cfline): If gethostbyname fails, set f_type to F_FORW_UNKN instead
+	giving up instantly.
+
 1999-06-08  Marcus Brinkmann  <brinkmd@debian.org>
 
 	* syslogd/syslogd.c (MAXSVLINE): Increase number.

@@ -1,3 +1,14 @@
+1999-10-03  Jeff Bailey  <jbailey@cr499794-a.crdva1.bc.wave.home.com>
+
+	* README-alpha: Update with CVS info and mailing list info.
+
+	* THANKS: Add Marcus Brinkman
+
+1999-09-13  Jeff Bailey  <jbailey@cr499794-a.crdva1.bc.wave.home.com>
+
+	* COPYING, INSTALL, aclocal.m4, install-sh, missing, mkinstalldirs:
+	Remove from CVS repository - They are automatically generated.
+
 1999-05-19 Alain Magloire
 	* configure.in : check for ptsname(), this will give
 	a hint to use SYSVR4 pseudo ptys handling.  particularly

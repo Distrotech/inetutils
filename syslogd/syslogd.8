@@ -39,6 +39,8 @@
 .Nd log systems messages
 .Sh SYNOPSIS
 .Nm syslogd
+.Op Fl V
+.Op Fl h
 .Op Fl f Ar config_file
 .Op Fl m Ar mark_interval
 .Op Fl p Ar log_socket
@@ -48,6 +50,11 @@ reads and logs messages to the system console, log files, other
 machines and/or users as specified by its configuration file.
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl V
+Print version number and exit.
+.It Fl h
+Enable forwarding remote messages. By default syslogd will not
+forward messages it receives from remote hosts.
 .It Fl f
 Specify the pathname of an alternate configuration file;
 the default is

@@ -57,7 +57,9 @@ The
 .Em selector
 field is separated from the
 .Em action
-field by one or more tab characters.
+field by one or more tab or space characters. A rule can be splitted in
+several lines if all lines except the last are terminated with a backslash
+(``\'').
 .Pp
 The
 .Em Selectors
@@ -136,6 +138,25 @@ An asterisk (``*'') can be used to specify all
 or all
 .Em levels .
 .Pp
+By default, a
+.Em level
+applies to all messages with the same or higher
+.Em level .
+The equal (``='') character can be prepended to a
+.Em level
+to restrict this line of the configuration file to messages
+with the very same
+.Em level .
+.Pp
+An exclamation mark (``!'') prepended to a
+.Em level
+or the asterisk means that this line of the configuration file does 
+.Em not
+apply to the specified level (and higher ones). In conjunction with
+the equal sign, you can exclude single
+.Em levels
+as well.
+.Pp
 The special
 .Em facility
 ``mark'' receives a message at priority ``info'' every 20 minutes
@@ -155,11 +176,21 @@ The
 field of each line specifies the action to be taken when the
 .Em selector
 field selects a message.
-There are four forms:
+There are five forms:
 .Bl -bullet
 .It
 A pathname (beginning with a leading slash).
 Selected messages are appended to the file.
+.Pp
+You may prepend a minus (``-'') to the path to omit syncing the file
+after each message log. This can cause data loss at system crashes, but
+increases performance for programs which use logging extensively.
+.It
+A named pipe (fifo), beginning with a vertical bar (``|'') followed
+by a pathname. The pipe must be created with
+.Xr mkfifo 8
+before syslogd reads its configuration file.
+This feature is especially useful fo debugging.
 .It
 A hostname (preceded by an at (``@'') sign).
 Selected messages are forwarded to the
