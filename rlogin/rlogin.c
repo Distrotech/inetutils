@@ -49,9 +49,19 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #include <config.h>
 #endif
 
+#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>
@@ -366,7 +376,8 @@ try_connect:
 		exit(1);
 
 	if (dflag &&
-	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, &one, sizeof(one)) < 0)
+	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, (char *) &one,
+		       sizeof(one)) < 0)
  		warn("setsockopt DEBUG (ignored)");
 
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
