@@ -1,5 +1,9 @@
 Thu Mar 26 00:08:39 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* Makefile.am (SUBDIRS): Added whois.
+	
+	(DISTCLEANFILES): Added `pathdefs.make paths.defs'.
+
 	* configure.in: Removed some old cruft related to the old system
  	of not building some directoies.
 	
@@ -22,7 +26,7 @@ Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 	* configure.in (AM_INIT_AUTOMAKE): Added a third argument to
  	suppress VERSION and PACKAGE symbols from appearing in config.h
 	
-	Added much code that was formerly in glob/Makefile.am, before I
+	Added much code that was formerly in glob/configure.in, before I
  	removed that file.
 	
 	Add glob/Makefile to the `AC_OUTPUT' call.
