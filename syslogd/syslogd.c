@@ -248,9 +248,6 @@ main(argc, argv)
 	else
 		setlinebuf(stdout);
 
-	consfile.f_type = F_CONSOLE;
-	consfile.f_un.f_fname = strdup (ctty);
-
 	errno = 0;
 	do {
 		if (LocalHostName) {
@@ -274,6 +271,9 @@ main(argc, argv)
 		LocalDomain = p;
 	} else
 		LocalDomain = "";
+
+	consfile.f_type = F_CONSOLE;
+	consfile.f_un.f_fname = strdup (ctty);
 
 	(void)signal(SIGTERM, die);
 	(void)signal(SIGINT, Debug ? die : SIG_IGN);
@@ -536,7 +536,7 @@ logmsg(pri, msg, from, flags)
 	if (!Initialized) {
 		f = &consfile;
 		f->f_file = open(ctty, O_WRONLY, 0);
-
+		f->f_prevhost = strdup (LocalHostName);
 		if (f->f_file >= 0) {
 			fprintlog(f, flags, msg);
 			(void)close(f->f_file);
@@ -1098,7 +1098,7 @@ cfline(line, f)
 		break;
 
 	case '/':
-		f->f_un.f_forw.f_hname = strdup (++p);
+		f->f_un.f_fname = strdup (p);
 		if ((f->f_file = open(p, O_WRONLY|O_APPEND, 0)) < 0) {
 			f->f_file = F_UNUSED;
 			logerror(p);
