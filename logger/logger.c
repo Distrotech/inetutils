@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1983, 1993
+ * Copyright (c) 1983, 1993, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,6 @@ static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 # include <syslog-int.h>
 #endif
 
-#include <version.h>
-
 int decode __P((char *, CODE *));
 int pencode __P((char *));
 static void usage __P((int));
@@ -93,7 +91,7 @@ usage (int err)
       --help          Display this help and exit\n\
       --version       Output version information and exit");
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
     }
   exit (err);
 }
@@ -153,7 +151,7 @@ main (int argc, char *argv[])
 	  /* Not reached.  */
 
 	case 'V': /* Version.  */
-	  printf ("syslog (%s) %s\n", inetutils_package, inetutils_version);
+	  printf ("syslog (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
           exit (0);
 
 	case '?':

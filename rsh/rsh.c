@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1983, 1990, 1993, 1994
+ * Copyright (c) 1983, 1990, 1993, 1994, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <version.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -81,8 +80,6 @@ int use_kerberos = 1, doencrypt;
 char dst_realm_buf[REALM_SZ], *dest_realm;
 extern char *krb_realmofhost();
 #endif
-
-#include "version.h"
 
 /*
  * rsh - remote shell
@@ -180,7 +177,7 @@ help (void)
       --help        give this help list");
   puts ("\
   -V, --version     print program version");
-  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
   exit (0);
 }
 
@@ -281,7 +278,7 @@ main (int argc, char **argv)
 	  help ();
 
 	case 'V':
-	  printf ("rsh (%s) %s\n", inetutils_package, inetutils_version);
+	  printf ("rsh (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	  exit (0);
 
 	case '?':

@@ -1,6 +1,6 @@
 /* syslogd - log system messages
  *
- * Copyright (c) 1983, 1988, 1993, 1994
+ * Copyright (c) 1983, 1988, 1993, 1994, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,8 +134,6 @@ typedef struct utmp UTMP;
 #ifndef HAVE_SYSLOG_INTERNAL
 # include <syslog-int.h>
 #endif
-
-#include <version.h>
 
 const char *ConfFile = PATH_LOGCONF; /* Default Configuration file.  */
 const char *PidFile = PATH_LOGPID; /* Default path to tuck pid.  */
@@ -331,7 +329,7 @@ usage (int err)
       --help         Display this help and exit\n\
   -V, --version      Output version information and exit");
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
     }
   exit (err);
 }
@@ -454,7 +452,7 @@ main (int argc, char *argv[])
 	  /* Not reached.  */
 
 	case 'V': /* Version.  */
-	  printf ("syslogd (%s) %s\n", inetutils_package, inetutils_version);
+	  printf ("syslogd (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	  exit (0);
 
 	case '?':
@@ -1773,12 +1771,12 @@ init (int signo)
     }
 
   if (AcceptRemote)
-    logmsg (LOG_SYSLOG | LOG_INFO, "syslogd (" inetutils_package \
-	    " " inetutils_version "): restart (remote reception)",
+    logmsg (LOG_SYSLOG | LOG_INFO, "syslogd (" PACKAGE_NAME \
+	    " " PACKAGE_VERSION "): restart (remote reception)",
 	    LocalHostName, ADDDATE);
   else
-    logmsg (LOG_SYSLOG | LOG_INFO, "syslogd (" inetutils_package \
-	    " " inetutils_version "): restart", LocalHostName, ADDDATE);
+    logmsg (LOG_SYSLOG | LOG_INFO, "syslogd (" PACKAGE_NAME \
+	    " " PACKAGE_VERSION "): restart", LocalHostName, ADDDATE);
   dbg_printf ("syslogd: restarted\n");
 }
 

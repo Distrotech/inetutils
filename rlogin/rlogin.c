@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1983, 1990, 1993
+ * Copyright (c) 1983, 1990, 1993, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <version.h>
 
 #include <sys/types.h>
 #include <sys/param.h>
@@ -303,7 +302,7 @@ main(int argc, char *argv[])
 #endif
 
 	case 'V':
-          printf ("rlogin (%s %s)\n", inetutils_package, inetutils_version);
+          printf ("rlogin (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
           exit (0);
 
 	case '?':
@@ -1191,7 +1190,7 @@ usage (int status)
   -V, --version     display program version");
       puts ("\
   -h, --help        display usage instructions");
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
     }
   exit (status);
 }

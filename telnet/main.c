@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1988, 1990, 1993
+ * Copyright (c) 1988, 1990, 1993, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,6 @@ static char sccsid[] = "@(#)main.c	8.3 (Berkeley) 5/30/95";
 #include "ring.h"
 #include "externs.h"
 #include "defines.h"
-
-#include "version.h"
 
 /* These values need to be the same as defined in libtelnet/kerberos5.c */
 /* Either define them in both places, or put in some common header file. */
@@ -133,7 +131,7 @@ help ()
       --help                 Give this help list\n\
   -V, --version              Print program version");
 
-  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
 
   exit (0);
 }
@@ -358,7 +356,7 @@ main(int argc, char *argv[])
 			help ();
 		case 'V':
 			printf ("telnet (%s) %s\n",
-				inetutils_package, inetutils_version);
+				PACKAGE_NAME, PACKAGE_VERSION);
 			exit (0);
 
 		case '?':

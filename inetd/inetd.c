@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1983, 1991, 1993, 1994
+ * Copyright (c) 1983, 1991, 1993, 1994, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,8 +126,6 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <sys/select.h>
 #endif
 #include <grp.h>
-
-#include <version.h>
 
 #define	TOOMANY		40		/* don't start more than TOOMANY */
 #define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */
@@ -264,7 +262,7 @@ usage (int err)
       --help                Display this help and exit\n\
   -V, --version             Output version information and exit");
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
     }
   exit (err);
 }
@@ -327,7 +325,7 @@ main (int argc, char *argv[], char *envp[])
 	  /* Not reached.  */
 
 	case 'V': /* Version.  */
-	  printf ("inetd (%s) %s\n", inetutils_package, inetutils_version);
+	  printf ("inetd (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	  exit (0);
 	  /* Not reached.  */
 

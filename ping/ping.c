@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -46,7 +46,6 @@
 #include <limits.h>
 
 #include "getopt.h"
-#include "version.h"
 #include <icmp.h>
 #include <ping.h>
 #include <ping_impl.h>
@@ -132,10 +131,10 @@ main (int argc, char **argv)
       switch (c)
 	{
 	case 'V':
-	  printf ("ping - %s %s\n", inetutils_package, inetutils_version);
+	  printf ("ping - %s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	  printf ("Copyright (C) 1998,2001 Free Software Foundation, Inc.\n");
-	  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", inetutils_package);
-	  printf ("You may redistribute copies of %s\n", inetutils_package);
+	  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", PACKAGE_NAME);
+	  printf ("You may redistribute copies of %s\n", PACKAGE_NAME);
 	  printf ("under the terms of the GNU General Public License.\n");
 	  printf ("For more information about these matters, ");
 	  printf ("see the files named COPYING.\n");
@@ -489,7 +488,7 @@ Options valid for --echo requests:\n\
 \n\
 Options marked with an * are available only to super-user\n\
 \n\
-report bugs to " inetutils_bugaddr ".\n\
+report bugs to " PACKAGE_BUGREPORT ".\n\
 ");
 }
 

@@ -26,7 +26,6 @@
 /* Application-specific */
 #include <data.h>
 #include <whois.h>
-#include <version.h>
 
 /* Global variables */
 int sockfd, verb = 0;
@@ -98,7 +97,7 @@ int main(int argc, char *argv[])
 	    fprintf(stderr, _("Version %s.\n\nReport bugs to %s.\n"),
 		    VERSION, "<md+whois@linux.it>");
 #else
-	    fprintf(stderr, "%s %s\n", inetutils_package, inetutils_version);
+	    fprintf(stderr, "%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 #endif
 	    exit(0);
 	default:

@@ -1,5 +1,5 @@
 /* - Ftp Server
- * Copyright (c) 1985, 1988, 1990, 1992, 1993, 1994
+ * Copyright (c) 1985, 1988, 1990, 1992, 1993, 1994, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,6 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <glob.h>
 
 #include "extern.h"
-#include "version.h"
 
 #ifndef LINE_MAX
 # define LINE_MAX 2048
@@ -320,7 +319,7 @@ usage (int err)
                                opie");
 #endif
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
     }
   exit (err);
 }
@@ -423,7 +422,7 @@ main(int argc, char *argv[], char **envp)
 	  /* Not reached.  */
 
 	case 'V': /* Version.  */
-	  printf ("ftpd (%s) %s\n", inetutils_package, inetutils_version);
+	  printf ("ftpd (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	  exit (0);
 
 	case '?':
@@ -536,7 +535,7 @@ main(int argc, char *argv[], char **envp)
   /* Tell them we're ready to roll.  */
   if (!no_version)
     reply (220, "%s FTP server (%s %s) ready.",
-	   hostname, inetutils_package, inetutils_version);
+	   hostname, PACKAGE_NAME, PACKAGE_VERSION);
   else
     reply (220, "%s FTP server ready.", hostname);
 
@@ -1422,7 +1421,7 @@ statcmd (void)
   lreply (211, "%s FTP server status:", hostname);
   if (!no_version)
     printf ("     ftpd (%s) %s\r\n",
-	    inetutils_package, inetutils_version);
+	    PACKAGE_NAME, PACKAGE_VERSION);
   printf ("     Connected to %s", cred.remotehost);
   if (!isdigit (cred.remotehost[0]))
     printf (" (%s)", inet_ntoa (his_addr.sin_addr));

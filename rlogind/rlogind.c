@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -20,7 +20,6 @@
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
-#include <version.h>
 
 #include <signal.h>
 #ifdef HAVE_SYS_FILIO_H
@@ -318,7 +317,7 @@ main (int argc, char *argv[])
 	  break;
 
 	case 'V':
-	  printf ("rlogind (%s %s)\n", inetutils_package, inetutils_version);
+	  printf ("rlogind (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
 	  exit (0);
 
 	case 'h':
@@ -1323,7 +1322,7 @@ usage()
 {
   printf ("%s\n"
 	 "Send bug reports to %s\n",
-	 usage_str, inetutils_bugaddr);
+	 usage_str, PACKAGE_BUGREPORT);
 }
 
 int volatile _st;

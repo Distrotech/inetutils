@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1988, 1989, 1992, 1993, 1994
+ * Copyright (c) 1988, 1989, 1992, 1993, 1994, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
-#include <version.h>
 
 #if !defined (__GNUC__) && defined (_AIX)
 #pragma alloca
@@ -189,7 +188,7 @@ main (int argc, char *argv[])
 	  break;
 
        case 'V':
-          printf ("rshd (%s %s)\n", inetutils_package, inetutils_version);
+          printf ("rshd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
           exit (0);
 
         case 'h':
@@ -1053,5 +1052,5 @@ help (void)
    -h, --help              Display usage instructions");
   puts ("\
    -V, --version           Display program version");
-  printf ("\nSend bug reports to %s\n", inetutils_bugaddr);
+  printf ("\nSend bug reports to %s\n", PACKAGE_BUGREPORT);
 }

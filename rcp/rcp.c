@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1983, 1990, 1992, 1993
+ * Copyright (c) 1983, 1990, 1992, 1993, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include <version.h>
 
 #include <sys/param.h>
 #include <sys/stat.h>
@@ -218,7 +217,7 @@ main (int argc, char *argv[])
 	break;
 
       case 'V':
-	printf ("rcp (%s) %s\n", inetutils_package, inetutils_version);
+	printf ("rcp (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	exit (0);
 	break;
 
@@ -1090,7 +1089,7 @@ help ()
       --help        give this help list");
   puts ("\
   -V, --version     print program version");
-  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
   exit (0);
 }
 

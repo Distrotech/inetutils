@@ -1,6 +1,6 @@
 /* options.c -- process the command line options
 
-   Copyright (C) 2001 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -23,7 +23,6 @@
 #include <config.h>
 #endif
 
-#include <version.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <errno.h>
@@ -210,7 +209,7 @@ Options are:\n\
 The system options provide an alternative, backward compatible command line\n\
 interface. It is discouraged and should not be used.");
 	}
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
     }
   exit (err);
 }
@@ -416,7 +415,7 @@ parse_opt (int argc, char *argv[])
           /* Not reached.  */
 
 	case 'V': /* Version.  */
-          printf ("ifconfig (%s) %s\n", inetutils_package, inetutils_version);
+          printf ("ifconfig (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
           exit (EXIT_SUCCESS);
 
         case '?':
