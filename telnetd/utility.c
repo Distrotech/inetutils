@@ -22,6 +22,9 @@
 #define SLC_NAMES
 #include "telnetd.h"
 #include <stdarg.h>
+#ifdef HAVE_TERMIO_H
+# include <termio.h>
+#endif
 
 #if defined(AUTHENTICATION) || defined(ENCRYPTION)
 # include <libtelnet/misc.h>
