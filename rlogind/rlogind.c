@@ -60,6 +60,9 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #include <sys/ioctl.h>
 #include <signal.h>
 #include <termios.h>
+#ifdef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
+#include <sys/time.h>
+#endif
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -80,10 +83,23 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
-#include <paths.h>
 
 #ifndef TIOCPKT_WINDOW
 #define TIOCPKT_WINDOW 0x80
+#endif
+
+/* `defaults' for tty settings.  */
+#ifndef TTYDEF_IFLAG
+#define	TTYDEF_IFLAG	(BRKINT | ISTRIP | ICRNL | IMAXBEL | IXON | IXANY)
+#endif
+#ifndef TTYDEF_OFLAG
+#ifndef OXTABS
+#define OXTABS 0
+#endif
+#define TTYDEF_OFLAG	(OPOST | ONLCR | OXTABS)
+#endif
+#ifndef TTYDEF_LFLAG
+#define TTYDEF_LFLAG	(ECHO | ICANON | ISIG | IEXTEN | ECHOE|ECHOKE|ECHOCTL)
 #endif
 
 #ifdef	KERBEROS
@@ -320,12 +336,12 @@ doit(f, fromp)
 				    hostname);
 #endif
 
-			execle(_PATH_LOGIN, "login", "-p",
+			execle(PATH_LOGIN, "login", "-p",
 			    "-h", hostname, "-f", "--", lusername, NULL, env);
 		} else
-			execle(_PATH_LOGIN, "login", "-p",
+			execle(PATH_LOGIN, "login", "-p",
 			    "-h", hostname, "--", lusername, NULL, env);
-		fatal(STDERR_FILENO, _PATH_LOGIN, 1);
+		fatal(STDERR_FILENO, PATH_LOGIN, 1);
 		/*NOTREACHED*/
 	}
 #ifdef	CRYPT
@@ -544,7 +560,7 @@ cleanup(signo)
 {
 	char *p;
 
-	p = line + sizeof(_PATH_DEV) - 1;
+	p = line + sizeof(PATH_DEV) - 1;
 	if (logout(p))
 		logwtmp(p, "", "");
 	(void)chmod(line, 0666);
