@@ -1,5 +1,5 @@
 /*   whois/main.c
-     Copyright (C) 1998, 2000 Free Software Foundation, Inc.
+     Copyright (C) 1998, 2000, 2002 Free Software Foundation, Inc.
 
      This program is free software; you can redistribute it and/or
      modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <fnmatch.h>
 #include <getopt.h>
 #include <sys/stat.h>
@@ -183,7 +182,7 @@ main(int argc, char *argv[])
 		    "-c, --config-file       Specify alternate config file.\n"
 		    "-h, --host, --server    Specify whois server.\n");
   } else if (version) {
-    fprintf(stderr, "%s %s\n", inetutils_package, inetutils_version);
+    fprintf(stderr, "%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   } else if ((optind + 1) != argc) {
     fprintf (stderr, "There must be exactly one non-option argument.\n");
     exit(1);

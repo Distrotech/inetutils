@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -19,7 +19,6 @@
 
 #include "telnetd.h"
 #include <getopt.h>
-#include <version.h>
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
@@ -617,10 +616,10 @@ print_hostinfo ()
 void
 telnetd_version ()
 {
-  printf ("telnetd - %s %s\n", inetutils_package, inetutils_version);
+  printf ("telnetd - %s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
   printf ("Copyright (C) 1998,2001,2002 Free Software Foundation, Inc.\n");
-  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", inetutils_package);
-  printf ("You may redistribute copies of %s\n", inetutils_package);
+  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", PACKAGE_NAME);
+  printf ("You may redistribute copies of %s\n", PACKAGE_NAME);
   printf ("under the terms of the GNU General Public License.\n");
   printf ("For more information about these matters, ");
   printf ("see the files named COPYING.\n");
