@@ -24,23 +24,6 @@
 # include <libtelnet/auth.h>
 #endif
 
-char *path_login = PATH_LOGIN;
-char line[256];
-
-void
-do_auth ()
-{
-#ifdef AUTHENTICATION
-  if (!autoname || !autoname[0])
-    autologin = 0;
-
-  if (autologin < auth_level)
-    {
-      fatal (net, "Authorization failed");
-      exit (1);
-    }
-#endif
-}
 
 void
 setup_utmp (char *line)
@@ -56,7 +39,16 @@ startslave (char *host, int autologin, char *autoname)
   pid_t pid;
   int master;
   
-  do_auth ();
+#ifdef AUTHENTICATION
+  if (!autoname || !autoname[0])
+    autologin = 0;
+
+  if (autologin < auth_level)
+    {
+      fatal (net, "Authorization failed");
+      exit (1);
+    }
+#endif
   pid = forkpty (&master, line, NULL, NULL);
   if (pid < 0)
     {
@@ -78,7 +70,9 @@ startslave (char *host, int autologin, char *autoname)
 	if (net > 2)
 	  close (net);
 
+#ifdef UTMPX
 	setup_utmp (line);
+#endif
 	start_login (host, autologin, line);
       }
 
@@ -112,42 +106,13 @@ scrub_env ()
 }
 
 void
-argv_add (struct obstack *sp, char *value)
-{
-  char *p = value ? xstrdup (value) : NULL;
-  obstack_grow (sp, &p, sizeof(char*));
-}
-  
-void
 start_login (char *host, int autologin, char *name)
 {
-  struct obstack stk;
+  char *cmd;
+  int argc;
   char **argv;
   
   scrub_env ();
-  obstack_init (&stk);
-
-  argv_add (&stk, path_login);
-  argv_add (&stk, "-h");
-  argv_add (&stk, host);
-  
-#ifdef	SOLARIS
-  {
-    char *term = getenv ("TERM");
-    if (term == NULL || term[0] == 0)
-      argv_add (&stk, "-");
-    else
-      {
-	char *tbuf = xmalloc (sizeof ("TERM=") + strlen (term));
-	strcat (strcpy (tbuf, "TERM="), term);
-	argv_add (&stk, tbuf);
-      }
-  }
-#endif
-
-#ifndef NO_LOGIN_P
-  argv_add (&stk, "-p");
-#endif
 
   /* Set the environment variable "LINEMODE" to indicate our linemode */
   if (lmodetype == REAL_LINEMODE)
@@ -155,26 +120,13 @@ start_login (char *host, int autologin, char *name)
   else if (lmodetype == KLUDGE_LINEMODE || lmodetype == KLUDGE_OK)
     setenv ("LINEMODE", "kludge", 1);
 
-#ifdef AUTHENTICATION
-  if (auth_level >= 0 && autologin == AUTH_VALID)
-    {
-      argv_add (&stk, "-f");
-      argv_add (&stk, name);
-    }
-#endif
-  
-/*  if (getenv ("USER"))
-    {
-      argv_add (&stk, "--");
-      argv_add (&stk, getenv ("USER"));
-      unsetenv ("USER");
-      }*/
-  argv_add (&stk, NULL);
-
-  argv = (char**) obstack_finish (&stk);
-  execv (path_login, argv);
-  syslog (LOG_ERR, "%s: %m\n", path_login);
-  fatalperror (net, path_login);
+  cmd = expand_line (login_invocation);
+  if (!cmd)
+    fatal (net, "can't expand login command line");
+  argcv_get (cmd, "", &argc, &argv);
+  execv (argv[0], argv);
+  syslog (LOG_ERR, "%s: %m\n", cmd);
+  fatalperror (net, cmd);
 }
 
 void
@@ -197,3 +149,5 @@ cleanup (int sig)
   shutdown (net, 2);
   exit (1);
 }
+
+  
