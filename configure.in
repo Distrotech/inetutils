@@ -145,7 +145,8 @@ AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
                  sys/ioctl_compat.h sys/cdefs.h sys/stream.h sys/mkdev.h \
 		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
 		 sys/proc.h sys/select.h sys/time.h sys/wait.h sys/resource.h \
-		 stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h vis.h)
+		 stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h \
+                 vis.h poll.h sys/poll.h)
 AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -155,12 +156,13 @@ AC_CHECK_LIB(bsd, revoke)
 
 AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
                fpathconf ftruncate \
-	       getcwd getspnam initgroups initsetproctitle killpg ptsname \
-               setegid seteuid \
+	       getcwd getmsg getspnam initgroups initsetproctitle killpg \
+               ptsname \
+               setegid seteuid setpgid \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
                utime uname \
-               updwtmp updwtmpx wait3 wait4)
+               updwtmp updwtmpx vhangup wait3 wait4)
 
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(getusershell herror memcmp memcpy memmove memset \
@@ -444,6 +446,7 @@ AC_CHECK_FUNC(getopt_long, ,
 # Supply a version of poll() if the libray is missing.
 # syslogd uses poll() unconditionnaly.
 AC_CHECK_FUNC(poll, ,
+  AC_DEFINE(HAVE_POLL_H)
   INCLUDES="$INCLUDES poll.h"
   LIBOBJS="$LIBOBJS poll.o")
 
@@ -596,7 +599,7 @@ AC_SUBST(inetdaemondir)
 PATHDEFS_MAKE=pathdefs.make
 PATHS_DEFS=paths.defs
 IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
-
+ 
 # Supply optional header files by linking a copy into the object include dir
 LINK_SRCS="$LINK_SRCS `for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
 LINK_DSTS="$LINK_DSTS `for I in $INCLUDES; do echo $ac_n ' 'include/$I$ac_c; done`"
@@ -626,7 +629,8 @@ case "$host" in
 esac
 
 AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
-ftp/Makefile ftpd/Makefile inetd/Makefile rcp/Makefile
+libicmp/Makefile ping/Makefile ftp/Makefile ftpd/Makefile inetd/Makefile
+rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile logger/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
