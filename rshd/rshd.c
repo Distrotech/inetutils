@@ -87,6 +87,11 @@ char *alloca ();
 #endif
 #include <pwd.h>
 #include <signal.h>
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -711,14 +716,9 @@ fail:
  * connected to client, or older clients will hang waiting for that
  * connection first.
  */
-#if __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 error(const char *fmt, ...)
 #else
 error(fmt, va_alist)
@@ -729,7 +729,7 @@ error(fmt, va_alist)
 	va_list ap;
 	int len;
 	char *bp, buf[BUFSIZ];
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
