@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_TALKD@
+inetdaemon_PROGRAMS = @talkd_BUILD@
 
 EXTRA_PROGRAMS = talkd
 
@@ -14,7 +14,7 @@ talkd_SOURCES = \
  table.c\
  talkd.c\
  intalkd.h
- 
+
 man_MANS = talkd.8
 
 @PATHDEFS_MAKE@
