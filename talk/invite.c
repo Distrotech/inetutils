@@ -40,6 +40,9 @@ static char sccsid[] = "@(#)invite.c	8.1 (Berkeley) 6/6/93";
 #include <sys/time.h>
 #include <signal.h>
 #include <netinet/in.h>
+#ifndef HAVE_OSOCKADDR
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <errno.h>
 #include <setjmp.h>
@@ -73,13 +76,12 @@ invite_remote()
 	itimer.it_interval = itimer.it_value;
 	if (listen(sockt, 5) != 0)
 		p_error("Error on attempt to listen for caller");
-#ifdef MSG_EOR
-	/* copy new style sockaddr to old, swap family (short in old) */
-	msg.addr = *(struct osockaddr *)&my_addr;  /* XXX new to old  style*/
-	msg.addr.sa_family = htons(my_addr.sin_family);
-#else
-	msg.addr = *(struct sockaddr *)&my_addr;
-#endif
+
+	msg.addr.sa_family = htons (my_addr.sin_family);
+	bcopy (msg.addr.sa_data,
+	       ((struct sockaddr *)&my_addr)->sa_data,
+	       sizeof ((struct sockaddr *)&my_addr)->sa_data);
+
 	msg.id_num = htonl(-1);		/* an impossible id_num */
 	invitation_waiting = 1;
 	announce_invite();
