@@ -87,10 +87,18 @@
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#ifndef	FILIO_H
 #include <sys/ioctl.h>
-#else
+#ifdef HAVE_SYS_FILIO_H
 #include <sys/filio.h>
+#endif
+#ifdef HAVE_SYS_STREAM_H
+#include <sys/stream.h>
+#endif
+#ifdef HAVE_SYS_TTY_H
+#include <sys/tty.h>
+#endif
+#ifdef HAVE_SYS_PTYVAR_H
+#include <sys/ptyvar.h>
 #endif
 
 #include <netinet/in.h>
@@ -98,7 +106,7 @@
 #include <arpa/telnet.h>
 
 #include <stdio.h>
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #include <signal.h>
@@ -131,7 +139,7 @@
 typedef unsigned char cc_t;
 #endif
 
-#ifdef	__STDC__
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
