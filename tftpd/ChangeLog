@@ -1,3 +1,7 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
 2001-11-02  Marcus Brinkmann  <marcus@212.23.136.22>
 
 	* tftpd.c: Prototype send_file, not sendfile.

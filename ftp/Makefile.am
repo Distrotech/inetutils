@@ -12,7 +12,7 @@ man_MANS = ftp.1
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
+INCLUDES = $(PATHDEF_TMP) $(PATHDEF_BSHELL) -I$(top_builddir)/include
 
 LDADD = -L../libinetutils -linetutils $(LIBGLOB) $(LIBTERMCAP)
 

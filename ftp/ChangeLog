@@ -1,3 +1,7 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add $(top_builddir)/include to INCLUDES
+
 2001-12-25  Alain Magloire
 
 	* cmds.c: Guard HAVE_MKSTEMP and use mktemp() has a fallback

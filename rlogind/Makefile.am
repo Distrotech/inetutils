@@ -12,7 +12,7 @@ man_MANS = rlogind.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_DEV) $(PATHDEF_LOGIN)
+INCLUDES = $(PATHDEF_DEV) $(PATHDEF_LOGIN) -I$(top_builddir)/include
 
 LIBUTIL = @LIBUTIL@
 

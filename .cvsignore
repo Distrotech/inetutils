@@ -8,3 +8,6 @@ paths.defs
 config.status
 aclocal.m4
 INSTALL
+include
+stamp-h.in
+config.h.in

@@ -1,3 +1,7 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
 2001-08-26   Alain Magloire
 
 	* inetd.c (main): Fixed memory overryn in main 8-).

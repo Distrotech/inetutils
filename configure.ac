@@ -19,11 +19,12 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-AC_INIT(inetd/inetd.c)
+AC_INIT
+AC_CONFIG_SRCDIR([inetd/inetd.c])
 
 # Versions of autoconf before 2.12 had bugs in autoheader that screwed up
 # the production of headers/config.h.in.
-AC_PREREQ(2.12)
+AC_PREREQ(2.52)
 
 AM_INIT_AUTOMAKE([inetutils], [1.3.2g], nodef)
 
@@ -34,7 +35,7 @@ AM_INIT_AUTOMAKE([inetutils], [1.3.2g], nodef)
 # If config.h.in needs to be regenerated (because of changes in configure.in
 # or headers/acconfig.h, use the command `autoheader -l headers'.
 #
-AM_CONFIG_HEADER(include/config.h:headers/config.h.in)
+AM_CONFIG_HEADER(config.h)
 
 # config.h turns this on, so make sure it's on for our tests too
 #CPPFLAGS=-D_BSD_SOURCE
@@ -136,7 +137,7 @@ AC_PATH_PROG(RM, rm, rm)
 # the code is ANSI C
 AM_C_PROTOTYPES
 AC_HEADER_STDC
-AC_CONST
+AC_C_CONST([])
 AC_C_CONST
 
 
@@ -233,7 +234,7 @@ AC_HEADER_DIRENT
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_ALLOCA
 AC_FUNC_SETVBUF_REVERSED
-AC_FUNC_VFORK
+AC_FUNC_FORK([])
 AC_FUNC_STRCOLL
 
 # See whether <syslog.h> will declare special internal stuff if we define
@@ -356,7 +357,15 @@ if test "$inetutils_cv_macro_fd_set_macros" = no; then
 fi
 
 # See if structure stat has a st_blksize member.
-AC_STRUCT_ST_BLKSIZE
+AC_DIAGNOSE([obsolete],[AC_STRUCT_ST_BLKSIZE:
+        your code should no longer depend upon `HAVE_ST_BLKSIZE', but
+        `HAVE_STRUCT_STAT_ST_BLKSIZE'.  Remove this warning and
+        the `AC_DEFINE' when you adjust the code.])
+AC_CHECK_MEMBERS([struct stat.st_blksize],[AC_DEFINE(HAVE_ST_BLKSIZE, 1,
+                            [Define if your `struct stat' has
+                             `st_blksize'.  Deprecated, use
+                             `HAVE_STRUCT_STAT_ST_BLKSIZE' instead.])])
+
 
 # See if stat includes sub-second time information (the st_?timespec form is
 # from bsd, and the st_?time_usec form is used by the hurd; the latter will
@@ -649,7 +658,14 @@ IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
 # Supply optional header files by linking a copy into the object include dir
 LINK_SRCS="$LINK_SRCS `for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
 LINK_DSTS="$LINK_DSTS `for I in $INCLUDES; do echo $ac_n ' 'include/$I$ac_c; done`"
-AC_LINK_FILES($LINK_SRCS, $LINK_DSTS)
+ac_sources="$LINK_SRCS"
+ac_dests="$LINK_DSTS"
+while test -n "$ac_sources"; do
+  set $ac_dests; ac_dest=$1; shift; ac_dests=$*
+  set $ac_sources; ac_source=$1; shift; ac_sources=$*
+  ac_config_links_1="$ac_config_links_1 $ac_dest:$ac_source"
+done
+AC_CONFIG_LINKS([$ac_config_links_1])
 
 AC_FUNC_MMAP
 
@@ -674,7 +690,7 @@ case "$host" in
   ;;
 esac
 
-AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
+AC_CONFIG_FILES([Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
 libicmp/Makefile ping/Makefile ftp/Makefile ftpd/Makefile inetd/Makefile
 rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
@@ -684,5 +700,6 @@ tftpd/Makefile uucpd/Makefile gwhois/Makefile libls/Makefile
 libicmp/Makefile ping/Makefile
 include/confpaths.h:headers/confpaths.h.in
 headers/Makefile include/version.h:headers/version.h.in
-doc/Makefile doc/rfc/Makefile)
+doc/Makefile doc/rfc/Makefile])
+AC_OUTPUT
 

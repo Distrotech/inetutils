@@ -1,5 +1,7 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
+INCLUDES = -I$(top_builddir)/include
+
 bin_PROGRAMS = @BUILD_RLOGIN@
 
 EXTRA_PROGRAMS = rlogin

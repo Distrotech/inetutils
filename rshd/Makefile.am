@@ -12,7 +12,7 @@ man_MANS = rshd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
+INCLUDES = $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH) -I$(top_builddir)/include
 
 LDADD = -L../libinetutils -linetutils
 

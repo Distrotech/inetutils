@@ -1,3 +1,9 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* rfc/.cvsignore: New file
+
+	* .cvsignore: New file
+
 2001-11-10  Alain Magloire
 
 	* ftp.texi: New file.

@@ -1,6 +1,4 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
-OMIT_DEPENDENCIES=crypt.h err.h getopt.h osockaddr.h paths.h poll.h syslog-int.h \
- tftpsubs.h
 
 bin_PROGRAMS = @BUILD_PING@
 EXTRA_PROGRAMS=ping
@@ -9,7 +7,7 @@ man_MANS = ping.8
 EXTRA_DIST = $(man_MANS)
 
 LDADD = -L../libinetutils -linetutils -lm -L../libicmp -licmp
-INCLUDES = -I$(top_srcdir)/libicmp
+INCLUDES = -I$(top_srcdir)/libicmp -I$(top_builddir)/include
 
 ping_SOURCES = ping.c \
  ping_echo.c \

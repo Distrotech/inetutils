@@ -2,6 +2,8 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 bin_PROGRAMS = @BUILD_WHOIS@
 
+INCLUDES = -I$(top_builddir)/include
+
 EXTRA_PROGRAMS = whois
 
 whois_SOURCES = whois.c

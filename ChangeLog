@@ -1,3 +1,27 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* configure.in: Reworked for autoconf 2.52 and renamed to
+	* configure.ac: this.
+
+	* autogen.sh: Don't point autoheader to headers/
+
+        * headers/acconfig.h: Move to ...
+	* acconfig.h: Here
+
+	* Makefile.am: Require Automake 1.5.  Add doc and doc/rfc to 
+	build tree.  Don't tell autoheader to look in headers/
+
+        I moved config.h to the top_builddir to overcome a bug in
+	autoconf that requires the config.h to be in the same 
+	directory as aclocal.m4
+
+	This meant that I also had to add
+	INCLUDES=-I$(top_builddir)/include.  The upshot is that make
+	distcheck now passes, even for $(srcdir)!=$(builddir)
+  
+	* .cvsignore: Add files relating moving config.h to
+	$(top_builddir)
+
 2001-12-25  Alain Magloire
 
 	* configure.in:  Add check for mkstemp ().

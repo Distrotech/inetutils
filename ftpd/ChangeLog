@@ -1,3 +1,9 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+	* .cvsignore: Add ftpcmd.c
+
 2001-11-03  Alain Magloire
 
 	* server_mode.c: [DEFPORT] defiine to 21.

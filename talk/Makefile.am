@@ -10,7 +10,7 @@ noinst_HEADERS = talk.h talk_ctl.h
 
 man_MANS = talk.1
 
-INCLUDES = $(NCURSES_INCLUDE)
+INCLUDES = $(NCURSES_INCLUDE) -I$(top_builddir)/include
 
 LDADD = $(LIBCURSES) -L../libinetutils -linetutils
 

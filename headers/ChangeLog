@@ -1,3 +1,7 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Don't refer to config.h.in anymore
+
 2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
 
 	* acconfig.h: Add macros for HAVE_UTMP_UT_PID, HAVE_UTMP_UT_ID,

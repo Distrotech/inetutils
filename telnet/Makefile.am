@@ -11,7 +11,7 @@ noinst_HEADERS = defines.h externs.h fdset.h general.h ring.h types.h
 
 man_MANS = telnet.1
 
-INCLUDES = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
+INCLUDES = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK -I$(top_builddir)/include
 
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@

@@ -1,3 +1,7 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
 2001-11-22  Sergey Poznyakoff
 
 	* rcp.c: Fixed syntax error: sizeof int. Should be:

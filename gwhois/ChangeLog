@@ -1,3 +1,9 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* .cvsignore: Add Generated headers
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
 2001-10-25  Sergey Poznyakoff
 
 	* Makefile.am: Added missing LDADD.

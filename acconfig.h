@@ -14,6 +14,10 @@
    Leave the following blank line there!!  Autoheader needs it.  */
 
 
+/* These two seem to be needed as of autoconf2.52 */
+#undef HAVE_FD_SET_MACROS
+#undef HAVE_HSTRERROR
+
 /* Define is you have PATH_RSH. */
 #undef TEEHEE
 
