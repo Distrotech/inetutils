@@ -1,5 +1,7 @@
 Fri Apr 10 11:13:51 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* Makefile.am (SUBDIRS): Added ping.
+
 	* configure.in: Call IU_ENABLE_CLIENT and AC_SUBST for whois.
 	
 	Update the comment above the AC_SUBST calls for BUILD_<whatever>;
