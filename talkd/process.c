@@ -127,7 +127,7 @@ do_announce (CTL_MSG *mp, CTL_RESPONSE *rp)
       return;
     }
 
-  hp = gethostbyaddr((char*)&((struct sockaddr_in *)(&mp->ctl_addr))->sin_addr,
+  hp = gethostbyaddr((char*)&os2sin_addr(mp->ctl_addr),
 		     sizeof (struct in_addr), AF_INET);
   if (!hp)
     {
@@ -238,3 +238,4 @@ find_user (char *name, char *tty)
   ENDUTENT ();
   return status;
 }
+
