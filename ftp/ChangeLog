@@ -1,3 +1,8 @@
+2005-01-13  Alfred M. Szmidt  <ams@gnu.org>
+
+	* cmds.c (setpeer): Changed type of PORT to `int'.  Check that the
+	port number isn't strictly greater than 65535.
+
 2003-11-01  Jeff Bailey  <jbailey@raspberryginger.com>
 
 	* ftp_var.h (MAXLINE): New define.

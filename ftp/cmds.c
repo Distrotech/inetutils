@@ -170,7 +170,7 @@ setpeer(argc, argv)
 	char *argv[];
 {
 	char *host;
-	short port;
+	int port;
 
 	if (connected) {
 		printf("Already connected to %s, use close first.\n",
@@ -188,7 +188,7 @@ setpeer(argc, argv)
 	port = sp->s_port;
 	if (argc > 2) {
 		port = atoi(argv[2]);
-		if (port <= 0) {
+		if (port <= 0 || port > 65535 ) {
 			printf("%s: bad port number-- %s\n", argv[1], argv[2]);
 			printf ("usage: %s host-name [port]\n", argv[0]);
 			code = -1;
