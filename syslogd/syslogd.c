@@ -933,7 +933,7 @@ die(signo)
 	}
 	if (signo) {
 		dprintf("syslogd: exiting on signal %d\n", signo);
-		(void)sprintf(buf, "exiting on signal %d", signo);
+		(void)snprintf(buf, sizeof(buf), "exiting on signal %d", signo);
 		errno = 0;
 		logerror(buf);
 	}
