@@ -1,21 +1,23 @@
-/* err.c --- 4.4BSD utility functions for error messages.
-Copyright (C) 1995, 1996 Free Software Foundation, Inc.
-This file was part of the GNU C Library.
+/* 4.4BSD utility functions for error messages.
 
-The GNU C Library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
+  Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 
-The GNU C Library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
+  This file was part of the GNU C Library.
 
-You should have received a copy of the GNU Library General Public
-License along with the GNU C Library; see the file COPYING.LIB.  If
-not, write to the Free Software Foundation, Inc., 675 Mass Ave,
-Cambridge, MA 02139, USA.  */
+  The GNU C Library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public License as
+  published by the Free Software Foundation; either version 2 of the
+  License, or (at your option) any later version.
+
+  The GNU C Library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
+
+  You should have received a copy of the GNU Library General Public
+  License along with the GNU C Library; see the file COPYING.LIB.  If
+  not, write to the Free Software Foundation, Inc., 675 Mass Ave,
+  Cambridge, MA 02139, USA.  */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -56,11 +58,11 @@ extern char *__progname;
 #define _VA(call, DECLS, INIT)						      \
 {									      \
   DECLS									      \
-  char *format;								      \
+  const char *format;							      \
   va_list ap;								      \
   va_start (ap);							      \
   INIT									      \
-  format = va_arg (ap, char *);						      \
+  format = va_arg (ap, const char *);					      \
   call;									      \
   va_end (ap);								      \
 }
@@ -71,7 +73,7 @@ extern char *__progname;
 
 void
 vwarnx (format, ap)
-     char *format;
+     const char *format;
      va_list ap;
 {
   if (__progname)
@@ -83,7 +85,7 @@ vwarnx (format, ap)
 
 void
 vwarn (format, ap)
-     char *format;
+     const char *format;
      va_list ap;
 {
   int error = errno;
@@ -101,7 +103,7 @@ vwarn (format, ap)
 
 void
 #ifdef HAVE_STDARG_H
-warn (char *format, ...)
+warn (const char *format, ...)
 #else
 warn (va_alist) va_dcl
 #endif
@@ -111,7 +113,7 @@ warn (va_alist) va_dcl
 
 void
 #ifdef HAVE_STDARG_H
-warnx (char *format, ...)
+warnx (const char *format, ...)
 #else
 warnx (va_alist) va_dcl
 #endif
@@ -122,7 +124,7 @@ warnx (va_alist) va_dcl
 void
 verr (status, format, ap)
      int status;
-     char *format;
+     const char *format;
      va_list ap;
 {
   vwarn (format, ap);
@@ -132,7 +134,7 @@ verr (status, format, ap)
 void
 verrx (status, format, ap)
      int status;
-     char *format;
+     const char *format;
      va_list ap;
 {
   vwarnx (format, ap);
@@ -141,7 +143,7 @@ verrx (status, format, ap)
 
 void
 #ifdef HAVE_STDARG_H
-err (int status, char *format, ...)
+err (int status, const char *format, ...)
 #else
 err (va_alist) va_dcl
 #endif
@@ -151,7 +153,7 @@ err (va_alist) va_dcl
 
 void
 #ifdef HAVE_STDARG_H
-errx (int status, char *format, ...)
+errx (int status, const char *format, ...)
 #else
 errx (va_alist) va_dcl
 #endif
