@@ -324,6 +324,12 @@
 /* If EWOULDBLOCK isn't defined by <errno.h>, define it here.  */
 #undef EWOULDBLOCK
 
+/* SOLARIS uses STREAM ptys and other funky things */
+#undef SOLARIS
+
+/* certain system must have an entry in utmpx before login work */
+#undef UTMPX
+
 @BOTTOM@
 
 #ifdef HAVE___P
