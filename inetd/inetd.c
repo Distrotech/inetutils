@@ -241,6 +241,75 @@ char 	*LastArg;
 
 char **config_files;
 
+
+/* Signal handling */
+
+#if defined(HAVE_SIGACTION)
+# define SIGSTATUS sigset_t
+#else
+# define SIGSTATUS long
+#endif
+
+void
+signal_set_handler (int signo, RETSIGTYPE (*handler) ())
+{
+#if defined(HAVE_SIGACTION)
+  struct sigaction sa;
+  memset ((char *)&sa, 0, sizeof(sa));
+  sigemptyset (&sa.sa_mask);
+  sigaddset (&sa.sa_mask, signo);
+#ifdef SA_RESTART
+  sa.sa_flags = SA_RESTART;
+#endif
+  sa.sa_handler = handler;
+  sigaction (signo, &sa, NULL);
+#elif defined(HAVE_SIGVEC)
+  struct sigvec sv;
+  memset (&sv, 0, sizeof(sv));
+  sv.sv_mask = SIGBLOCK;
+  sv.sv_handler = retry;
+  sigvec (signo, &sv, NULL);
+#else /* !HAVE_SIGVEC */
+  signal (signo, handler);
+#endif /* HAVE_SIGACTION */
+}
+
+void
+signal_block (SIGSTATUS *old_status)
+{
+#ifdef HAVE_SIGACTION
+  sigset_t sigs;
+  
+  sigemptyset (&sigs);
+  sigaddset (&sigs, SIGCHLD);
+  sigaddset (&sigs, SIGHUP);
+  sigaddset (&sigs, SIGALRM);
+  sigprocmask (SIG_BLOCK, &sigs, old_status);
+#else
+  long omask = sigblock (SIGBLOCK);
+  if (old_status)
+    *old_status = omask;
+#endif
+}
+
+void
+signal_unblock (SIGSTATUS *status)
+{
+#ifdef HAVE_SIGACTION
+  if (status)
+    sigprocmask (SIG_SETMASK, status, 0);
+  else
+    {
+      sigset_t empty;
+      sigemptyset (&empty);
+      sigprocmask (SIG_SETMASK, &empty, 0);
+    }
+#else
+  sigsetmask (status ? *status : 0);
+#endif
+}
+
+
 static void
 usage (int err)
 {
@@ -357,50 +426,11 @@ main (int argc, char *argv[], char *envp[])
 
   openlog ("inetd", LOG_PID | LOG_NOWAIT, LOG_DAEMON);
 
-#if defined(HAVE_SIGACTION)
-  {
-    struct sigaction sa;
-    memset ((char *)&sa, 0, sizeof(sa));
-    sigemptyset (&sa.sa_mask);
-    sigaddset (&sa.sa_mask, SIGCHLD);
-    sigaddset (&sa.sa_mask, SIGHUP);
-    sigaddset (&sa.sa_mask, SIGALRM);
-#ifdef SA_RESTART
-    sa.sa_flags = SA_RESTART;
-#endif
-    sa.sa_handler = retry;
-    sigaction (SIGALRM, &sa, (struct sigaction *)0);
-    config (0);
-    sa.sa_handler = config;
-    sigaction (SIGHUP, &sa, (struct sigaction *)0);
-    sa.sa_handler = reapchild;
-    sigaction (SIGCHLD, &sa, (struct sigaction *)0);
-    sa.sa_handler = SIG_IGN;
-    sigaction (SIGPIPE, &sa, (struct sigaction *)0);
-  }
-#elif defined(HAVE_SIGVEC)
-  {
-    struct sigvec sv;
-    memset (&sv, 0, sizeof(sv));
-    sv.sv_mask = SIGBLOCK;
-    sv.sv_handler = retry;
-    sigvec (SIGALRM, &sv, (struct sigvec *)0);
-    config (0);
-    sv.sv_handler = config;
-    sigvec (SIGHUP, &sv, (struct sigvec *)0);
-    sv.sv_handler = reapchild;
-    sigvec (SIGCHLD, &sv, (struct sigvec *)0);
-    sv.sv_mask = 0L;
-    sv.sv_handler = SIG_IGN;
-    sigvec (SIGPIPE, &sv, (struct sigvec *)0);
-  }
-#else /* !HAVE_SIGVEC */
-  signal (SIGALRM, retry);
+  signal_set_handler (SIGALRM, retry);
   config (0);
-  signal (SIGHUP, config);
-  signal (SIGCHLD, reapchild);
-  signal (SIGPIPE, SIG_IGN);
-#endif /* HAVE_SIGACTION */
+  signal_set_handler (SIGHUP, config);
+  signal_set_handler (SIGCHLD, reapchild);
+  signal_set_handler (SIGPIPE, SIG_IGN);
 
   {
     /* space for daemons to overwrite environment for ps */
@@ -419,33 +449,13 @@ main (int argc, char *argv[], char *envp[])
 
       if (nsock == 0)
 	{
-#ifdef HAVE_SIGACTION
-	  {
-	    sigset_t sigs;
-	    sigemptyset (&sigs);
-	    sigaddset (&sigs, SIGCHLD);
-	    sigaddset (&sigs, SIGHUP);
-	    sigaddset (&sigs, SIGALRM);
-	    sigprocmask (SIG_BLOCK, &sigs, 0);
-	  }
-#else
-	  sigblock (SIGBLOCK);
-#endif
+	  signal_block (NULL);
 	  while (nsock == 0)
 	    sigpause (0L);
-#ifdef HAVE_SIGACTION
-	  {
-	    sigset_t empty;
-	    sigemptyset (&empty);
-	    sigprocmask (SIG_SETMASK, &empty, 0);
-	  }
-#else
-	  sigsetmask (0L);
-#endif
+	  signal_unblock (NULL);
 	}
       readable = allsock;
-      if ((n = select (maxsock + 1, &readable, (fd_set *)0,
-		      (fd_set *)0, (struct timeval *)0)) <= 0)
+      if ((n = select (maxsock + 1, &readable, NULL, NULL, NULL)) <= 0)
 	{
 	  if (n < 0 && errno != EINTR)
 	    syslog (LOG_WARNING, "select: %m");
@@ -460,7 +470,7 @@ main (int argc, char *argv[], char *envp[])
 	      fprintf (stderr, "someone wants %s\n", sep->se_service);
 	    if (!sep->se_wait && sep->se_socktype == SOCK_STREAM)
 	      {
-		ctrl = accept (sep->se_fd, (struct sockaddr *)0, (int *)0);
+		ctrl = accept (sep->se_fd, NULL, NULL);
 		if (debug)
 		  fprintf (stderr, "accept, ctrl %d\n", ctrl);
 		if (ctrl < 0)
@@ -473,29 +483,19 @@ main (int argc, char *argv[], char *envp[])
 	      }
 	    else
 	      ctrl = sep->se_fd;
-#ifdef HAVE_SIGACTION
-	    {
-	      sigset_t sigs;
-	      sigemptyset (&sigs);
-	      sigaddset (&sigs, SIGCHLD);
-	      sigaddset (&sigs, SIGHUP);
-	      sigaddset (&sigs, SIGALRM);
-	      sigprocmask (SIG_BLOCK, &sigs, 0);
-	    }
-#else
-	    sigblock (SIGBLOCK);
-#endif
+
+	    signal_block (NULL);
 	    pid = 0;
 	    dofork = (sep->se_bi == 0 || sep->se_bi->bi_fork);
 	    if (dofork)
 	      {
 		if (sep->se_count++ == 0)
-		  gettimeofday (&sep->se_time, (struct timezone *)0);
+		  gettimeofday (&sep->se_time, NULL);
 		else if (sep->se_count >= toomany)
 		  {
 		    struct timeval now;
 
-		    gettimeofday (&now, (struct timezone *)0);
+		    gettimeofday (&now, NULL);
 		    if (now.tv_sec - sep->se_time.tv_sec > CNT_INTVL)
 		      {
 			sep->se_time = now;
@@ -507,15 +507,7 @@ main (int argc, char *argv[], char *envp[])
 				"%s/%s server failing (looping), service terminated",
 				sep->se_service, sep->se_proto);
 			close_sep (sep);
-#ifdef HAVE_SIGACTION
-			{
-			  sigset_t empty;
-			  sigemptyset (&empty);
-			  sigprocmask (SIG_SETMASK, &empty, 0);
-			}
-#else
-			sigsetmask (0L);
-#endif
+			signal_unblock (NULL);
 			if (!timingout)
 			  {
 			    timingout = 1;
@@ -531,15 +523,7 @@ main (int argc, char *argv[], char *envp[])
 		syslog (LOG_ERR, "fork: %m");
 		if (!sep->se_wait && sep->se_socktype == SOCK_STREAM)
 		  close (ctrl);
-#ifdef HAVE_SIGACTION
-		{
-		  sigset_t empty;
-		  sigemptyset (&empty);
-		  sigprocmask (SIG_SETMASK, &empty, 0);
-		}
-#else
-		sigsetmask (0L);
-#endif
+		signal_unblock (NULL);
 		sleep (1);
 		continue;
 	      }
@@ -552,15 +536,7 @@ main (int argc, char *argv[], char *envp[])
 		    nsock--;
 		  }
 	      }
-#ifdef HAVE_SIGACTION
-	    {
-	      sigset_t empty;
-	      sigemptyset (&empty);
-	      sigprocmask (SIG_SETMASK, &empty, 0);
-	    }
-#else
-	    sigsetmask (0L);
-#endif
+	    signal_unblock (NULL);
 	    if (pid == 0)
 	      {
 		if (debug && dofork)
@@ -645,7 +621,7 @@ reapchild (int signo)
   for (;;)
     {
 #ifdef HAVE_WAIT3
-      pid = wait3 (&status, WNOHANG, (struct rusage *)0);
+      pid = wait3 (&status, WNOHANG, NULL);
 #else
       pid = wait (&status);
 #endif
@@ -735,11 +711,8 @@ nextconfig (const char *file)
   struct servtab *sep, *cp, **sepp;
   struct passwd *pwd;
   FILE * fconfig;
-#ifdef HAVE_SIGACTION
-  sigset_t sigs, osigs;
-#else
-  long omask;
-#endif
+  SIGSTATUS sigstatus;
+  
   size_t line = 0;
   
   fconfig = setconfig (file);
@@ -766,15 +739,7 @@ nextconfig (const char *file)
 	{
 	  int i;
 
-#ifdef HAVE_SIGACTION
-	  sigemptyset (&sigs);
-	  sigaddset (&sigs, SIGCHLD);
-	  sigaddset (&sigs, SIGHUP);
-	  sigaddset (&sigs, SIGALRM);
-	  sigprocmask (SIG_BLOCK, &sigs, &osigs);
-#else
-	  omask = sigblock (SIGBLOCK);
-#endif
+	  signal_block (&sigstatus);
 	  /*
 	   * sep->se_wait may be holding the pid of a daemon
 	   * that we're waiting for.  If so, don't overwrite
@@ -794,11 +759,7 @@ nextconfig (const char *file)
 	  sep->se_argv = cp->se_argv;
 	  cp->se_argc = 0;
 	  cp->se_argv = NULL;
-#ifdef HAVE_SIGACTION
-	  sigprocmask (SIG_SETMASK, &osigs, 0);
-#else
-	  sigsetmask (omask);
-#endif
+	  signal_unblock (&sigstatus);
 	  freeconfig (cp);
 	  if (debug)
 	    print_service (file, "REDO", sep);
@@ -837,15 +798,7 @@ nextconfig (const char *file)
   /*
    * Purge anything not looked at above.
    */
-#ifdef HAVE_SIGACTION
-  sigemptyset (&sigs);
-  sigaddset (&sigs, SIGCHLD);
-  sigaddset (&sigs, SIGHUP);
-  sigaddset (&sigs, SIGALRM);
-  sigprocmask (SIG_BLOCK, &sigs, &osigs);
-#else
-  omask = sigblock (SIGBLOCK);
-#endif
+  signal_block (&sigstatus);
   sepp = &servtab;
   while ((sep = *sepp))
     {
@@ -862,11 +815,7 @@ nextconfig (const char *file)
       freeconfig (sep);
       free ((char *)sep);
     }
-#ifdef HAVE_SIGACTION
-  sigprocmask (SIG_SETMASK, &osigs, 0);
-#else
-  sigsetmask (omask);
-#endif
+  signal_unblock (&sigstatus);
 }
 
 void
@@ -956,36 +905,20 @@ struct servtab *
 enter (struct servtab *cp)
 {
   struct servtab *sep;
-#ifdef HAVE_SIGACTION
-  sigset_t sigs, osigs;
-#else
-  long omask;
-#endif
-
+  SIGSTATUS sigstatus;
+  
   sep = (struct servtab *)malloc (sizeof (*sep));
-  if (sep == (struct servtab *)0)
+  if (sep == NULL)
     {
       syslog (LOG_ERR, "Out of memory.");
       exit (-1);
     }
   *sep = *cp;
   sep->se_fd = -1;
-#ifdef HAVE_SIGACTION
-  sigemptyset (&sigs);
-  sigaddset (&sigs, SIGCHLD);
-  sigaddset (&sigs, SIGHUP);
-  sigaddset (&sigs, SIGALRM);
-  sigprocmask (SIG_BLOCK, &sigs, &osigs);
-#else
-  omask = sigblock (SIGBLOCK);
-#endif
+  signal_block (&sigstatus);
   sep->se_next = servtab;
   servtab = sep;
-#ifdef HAVE_SIGACTION
-  sigprocmask (SIG_SETMASK, &osigs, 0);
-#else
-  sigsetmask (omask);
-#endif
+  signal_unblock (&sigstatus);
   return sep;
 }
 
@@ -1189,7 +1122,7 @@ nextline (FILE *fd)
   char *cp;
 
   if (fgets (line, sizeof line, fd) == NULL)
-    return ((char *)0);
+    return NULL;
   cp = strchr (line, '\n');
   if (cp)
     *cp = '\0';
@@ -1391,7 +1324,7 @@ machtime (void)
 {
   struct timeval tv;
 
-  if (gettimeofday (&tv, (struct timezone *)0) < 0)
+  if (gettimeofday (&tv, NULL) < 0)
     {
       if (debug)
 	fprintf (stderr, "Unable to get time of day\n");
