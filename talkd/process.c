@@ -23,22 +23,22 @@ int find_user (char *name, char *tty);
 void do_announce (CTL_MSG *mp, CTL_RESPONSE *rp);
 
 int
-process_request(CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
+process_request (CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
 {
   CTL_MSG *ptr;
-  
+
   if (debug)
     {
       print_request ("process_request", msg);
     }
-  
+
   if (acl_match(msg, sa_in))
     {
       syslog (LOG_NOTICE, "dropping request: %s@%s",
 	      msg->l_name, inet_ntoa (sa_in->sin_addr));
       return 1;
     }
-  
+
   rp->vers = TALK_VERSION;
   rp->type = msg->type;
   rp->id_num = htonl (0);
@@ -48,7 +48,7 @@ process_request(CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
       rp->answer = BADVERSION;
       return 0;
     }
-  
+
   msg->id_num = ntohl (msg->id_num);
   msg->addr.sa_family = ntohs (msg->addr.sa_family);
   if (msg->addr.sa_family != AF_INET)
@@ -103,12 +103,12 @@ process_request(CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
     case DELETE:
       rp->answer = delete_invite (msg->id_num);
       break;
-      
+
     default:
       rp->answer = UNKNOWN_REQUEST;
       break;
     }
-  
+
   if (debug)
     print_response("process_request response", rp);
 }
@@ -126,7 +126,7 @@ do_announce (CTL_MSG *mp, CTL_RESPONSE *rp)
       rp->answer = result;
       return;
     }
-  
+
   hp = gethostbyaddr((char*)&((struct sockaddr_in *)(&mp->ctl_addr))->sin_addr,
 		     sizeof (struct in_addr), AF_INET);
   if (!hp)
@@ -156,7 +156,6 @@ do_announce (CTL_MSG *mp, CTL_RESPONSE *rp)
       rp->answer = SUCCESS;
     }
 }
-
 
 #ifdef HAVE_UTMP_H
 # include <utmp.h>
@@ -198,7 +197,7 @@ find_user (char *name, char *tty)
   while ((uptr = GETUTENT ()) != NULL)
     {
 #ifdef USER_PROCESS
-      if (uptr->ut_type != USER_PROCESS) 
+      if (uptr->ut_type != USER_PROCESS)
 	continue;
 #endif
       if (!strncmp (uptr->ut_name, name, sizeof(uptr->ut_name)))
@@ -239,4 +238,3 @@ find_user (char *name, char *tty)
   ENDUTENT ();
   return status;
 }
-

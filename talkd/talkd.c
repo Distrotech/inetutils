@@ -33,7 +33,7 @@ void talkd_init (void);
 void talkd_run (int fd);
 
 static char short_options[] = "VLha:di:r:t:";
-static struct option long_options[] = 
+static struct option long_options[] =
 {
   /* Help options */
   {"version", no_argument, NULL, 'V'},
@@ -60,7 +60,7 @@ main(int argc, char *argv[])
 {
   int c;
   char *acl_file = NULL;
-  
+
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
     switch (c)
@@ -105,8 +105,9 @@ talkd_init ()
 {
   if (getuid ())
     {
-      fprintf (stderr, "talkd: not super-user\n");
-      exit (1);
+      /* fprintf (stderr, "talkd: not super-user\n");
+	 exit (1);  */
+      syslog (LOG_NOTICE, "talkd: not super-user\n");
     }
 
   openlog ("talkd", LOG_PID, LOG_FACILITY);
@@ -123,7 +124,7 @@ time_t last_msg_time;
 void
 alarm_handler ()
 {
-  if (time (NULL) - last_msg_time >= max_idle_time)
+  if ((time (NULL) - last_msg_time) >= max_idle_time)
     exit(0);
   alarm (timeout);
 }
@@ -142,7 +143,7 @@ talkd_run (int fd)
       int len;
 
       len = sizeof sa_in;
-      rc = recvfrom(fd, &msg, sizeof msg, 0, (struct sockaddr *)&sa_in, &len);
+      rc = recvfrom (fd, &msg, sizeof msg, 0, (struct sockaddr *)&sa_in, &len);
       if (rc != sizeof msg)
 	{
 	  if (rc < 0 && errno != EINTR)
@@ -210,4 +211,3 @@ Informational options:\n\
   -L, --license          display license and exit\n\
   -V, --version          output version information and exit\n");
 }
-

@@ -1,3 +1,27 @@
+2001-10-28  Alain Magloire
+
+	Unfortunately some platforms, like QNX/Neutrino does not implement flow
+	control packet mode TIOCPKT.  If it is not defined, defined the other constant.
+	It should not affect the functionnality, but  server but will not be able to
+	process CTRL-Q CTRL-S.
+
+	* rlogind/rlogind.c: Check if TIOCPKT is defined, if not provide macros for
+	TIOCPKT, TIOCPKT_FLUSHWRITE, TIOCPKT_NOSTOP,TIOCPKT_DOSTOP, to be able to
+	compile.
+	New option:" -o, --allow-root", for many remote servers rlogin is the only
+	way to access the machine, let the flexibility to pass root.
+
+	* rlogin/rlogin.c: Define the  macros TIOCPKT_XXX.
+	(speed_translate): This did not work on QNX/Neutrino, since we were assuming
+	things that does not hold true.  We were assuming that B0, B50 etc .. were
+	ascending constant corresponding to 0, 1, etc ...  This is not portable
+	POSIX only says that cfgetispeed() return symbolic functions.  To correct
+	use approximatively the same code in telnet/sys_bsd.c.
+
+	* talkd/process.c (open_users_acl):  free (filename);
+	* talkd/talkd.c (talkd_init): Do not bail out if not root, Do we have
+	to be root?
+
 2001-10-25  Alain Magloire
 
 	* configure.in: Version to 1.3.2g.

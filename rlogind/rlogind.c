@@ -74,6 +74,16 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h> /* Needed for chmod() */
 
+/*
+  The TIOCPKT_* macros may not be implemented in the pty driver.
+  Defining them here allows the program to be compiled.  */
+#ifndef TIOCPKT
+# define TIOCPKT                 _IOW('t', 112, int)
+# define TIOCPKT_FLUSHWRITE      0x02
+# define TIOCPKT_NOSTOP          0x10
+# define TIOCPKT_DOSTOP          0x20
+#endif /*TIOCPKT*/
+
 #ifndef TIOCPKT_WINDOW
 # define TIOCPKT_WINDOW 0x80
 #endif
@@ -119,9 +129,10 @@ struct auth_data
   char *env[2];
 };
 
-static const char *short_options = "aD::d::hL::lnkp:rxVv";
+static const char *short_options = "aD::d::hkL:lnp:orxV";
 static struct option long_options[] =
 {
+  {"allow-root", no_argument, 0, 'o'},
   {"verify-hostname", no_argument, 0, 'a'},
   {"daemon", optional_argument, 0, 'd'},
   {"no-rhosts", no_argument, 0, 'l'},
@@ -137,6 +148,7 @@ static struct option long_options[] =
   {0, 0, 0, 0}
 };
 
+int allow_root = 0;
 int verify_hostname = 0;
 int keepalive = 1;
 #ifdef KERBEROS
@@ -254,6 +266,10 @@ main (int argc, char *argv[])
 	  break;
 #endif /* ENCRYPTION */
 #endif /* KERBEROS */
+
+	case 'o':
+	  allow_root = 1;
+	  break;
 
 	case 'p':
 	  port = strtoul (optarg, NULL, 10);
@@ -721,7 +737,7 @@ do_rlogin(int infd, struct auth_data *ap)
       syslog(LOG_ERR, "no passwd entry for %s", ap->lusername);
       fatal(infd, "Permission denied", 0);
     }
-  if (pwd->pw_uid == 0)
+  if (!allow_root && pwd->pw_uid == 0)
     {
       syslog(LOG_ERR, "root logins not permitted");
       fatal(infd, "Permission denied", 0);
@@ -1143,7 +1159,7 @@ static const char usage_str[] =
 "   -a, --verify-hostname   Ask hostname for verification\n"
 "   -d, --daemon            Daemon mode\n"
 "   -l, --no-rhosts         Ignore .rhosts file\n"
-"   -L, --local-domain NAME Set local domain name\n"
+"   -L, --local-domain=NAME Set local domain name\n"
 "   -n, --no-keepalive      Do not set SO_KEEPALIVE\n"
 #ifdef KERBEROS
 "   -k, --kerberos          Use kerberos IV authentication\n"
@@ -1154,8 +1170,9 @@ static const char usage_str[] =
 "   -D, --debug[=LEVEL]     Set debug level\n"
 "   -h, --help              Display usage instructions\n"
 "   -V, --version           Display program version\n"
+"   -o, --allow-root        Allow uid == 0 to login, disable by default\n"
 "   -p, --port PORT         Listen on given port (valid only in daemon mode)\n"
-"   -r, reverse-required    Require reverse resolving of a remote host IP\n";
+"   -r, --reverse-required  Require reverse resolving of a remote host IP\n";
 
 void
 usage()

@@ -115,6 +115,16 @@ int use_kerberos = 1, doencrypt;
 char dst_realm_buf[REALM_SZ], *dest_realm = NULL;
 #endif
 
+/*
+  The TIOCPKT_* macros may not be implemented in the pty driver.
+  Defining them here allows the program to be compiled.  */
+#ifndef TIOCPKT
+# define TIOCPKT                 _IOW('t', 112, int)
+# define TIOCPKT_FLUSHWRITE      0x02
+# define TIOCPKT_NOSTOP          0x10
+# define TIOCPKT_DOSTOP          0x20
+#endif /*TIOCPKT*/
+
 #ifndef TIOCPKT_WINDOW
 #define	TIOCPKT_WINDOW	0x80
 #endif
@@ -165,6 +175,7 @@ int		reader __P((sigset_t *));
 void		sendwindow __P((void));
 void		setsignal __P((int));
 int		speed __P((int));
+unsigned int    speed_translate __P ((unsigned int));
 void		sigwinch __P((int));
 void		stop __P((char));
 void		usage __P((void));
@@ -396,38 +407,86 @@ try_connect:
 	/*NOTREACHED*/
 }
 
-/* Returns the terminal speed for the file descriptor FD, or
-   SPEED_NOTATTY if FD is not associated with a terminal.  */
-#if BSD >= 198810
-int
-speed(int fd)
-{
-	struct termios tt;
+/* Some systems, like QNX/Neutrino , The constant B0, B50,.. maps
+   straigth to the actual speed, 0, 50, ..., where on other system like GNU/Linux
+   it maps to a const 0, 1, ... i.e the value are encoded.
+   cfgetispeed(), according to posix should return a constant value reprensenting the Baud.
+   So to be portable we have to the conversion ourselves.  */
+/* Some values are not not define by POSIX.  */
+#ifndef B7200
+#define B7200   B4800
+#endif
 
-	if (tcgetattr(fd, &tt) == 0)
-		return ((int) cfgetispeed(&tt));
-	else
-		return (SPEED_NOTATTY);
-}
-#else
-int    speeds[] = {	/* for older systems, B0 .. EXTB */
-	0, 50, 75, 110,
-	134, 150, 200, 300,
-	600, 1200, 1800, 2400,
-	4800, 9600, 19200, 38400
+#ifndef B14400
+#define B14400  B9600
+#endif
+
+#ifndef B19200
+# define B19200 B14400
+#endif
+
+#ifndef B28800
+#define B28800  B19200
+#endif
+
+#ifndef B38400
+# define B38400 B28800
+#endif
+
+#ifndef B57600
+#define B57600  B38400
+#endif
+
+#ifndef B76800
+#define B76800  B57600
+#endif
+
+#ifndef B115200
+#define B115200 B76800
+#endif
+
+#ifndef B230400
+#define B230400 B115200
+#endif
+struct termspeeds {
+        unsigned int speed;
+        unsigned int sym;
+} termspeeds[] = {
+        { 0,     B0 },     { 50,    B50 },   { 75,    B75 },
+        { 110,   B110 },   { 134,   B134 },  { 150,   B150 },
+        { 200,   B200 },   { 300,   B300 },  { 600,   B600 },
+        { 1200,  B1200 },  { 1800,  B1800 }, { 2400,  B2400 },
+        { 4800,   B4800 },   { 7200,  B7200 },  { 9600,   B9600 },
+        { 14400,  B14400 },  { 19200, B19200 }, { 28800,  B28800 },
+        { 38400,  B38400 },  { 57600, B57600 }, { 115200, B115200 },
+        { 230400, B230400 }, { -1,    B230400 }
 };
 
+unsigned int
+speed_translate (unsigned int sym)
+{
+  unsigned int i;
+  for (i = 0; i < (sizeof (termspeeds) / sizeof (*termspeeds)); i++) {
+    if (termspeeds[i].sym == sym)
+      return termspeeds[i].speed;
+  }
+  return 0;
+}
+
+/* Returns the terminal speed for the file descriptor FD, or
+   SPEED_NOTATTY if FD is not associated with a terminal.  */
 int
 speed(int fd)
 {
-	struct termios tt;
+  struct termios tt;
 
-	if (tcgetattr(fd, &tt) == 0)
-		return (speeds[(int)cfgetispeed(&tt)]);
-	else
-		return (SPEED_NOTATTY);
+  if (tcgetattr(fd, &tt) == 0) {
+    /* speed_t sp; */
+    unsigned int sp = cfgetispeed(&tt);
+    return speed_translate(sp);
+  }
+  return (SPEED_NOTATTY);
 }
-#endif
 
 pid_t child;
 struct termios deftt;

@@ -49,7 +49,7 @@ acl_t *acl_head, *acl_tail;
 #define DOTTED_QUAD_LEN 16
 
 int
-read_address(line_ptr, ptr)
+read_address (line_ptr, ptr)
      char **line_ptr;
      char *ptr;
 {
@@ -57,9 +57,9 @@ read_address(line_ptr, ptr)
   char *endp;
   unsigned int addr;
   int dotcount = 0;
-  
+
   for (endp = startp; *endp; endp++, ptr++)
-    if (!(isdigit (*endp) || *endp == '.')) 
+    if (!(isdigit (*endp) || *endp == '.'))
       break;
     else if (endp < startp + DOTTED_QUAD_LEN)
       {
@@ -114,7 +114,7 @@ netdef_parse (char *str)
 	  netmask = htonl (netmask);
 	}
     }
-  
+
   netdef = malloc (sizeof *netdef);
   if (!netdef)
     {
@@ -125,7 +125,7 @@ netdef_parse (char *str)
   netdef->next = NULL;
   netdef->ipaddr = ipaddr;
   netdef->netmask = netmask;
-  
+
   return netdef;
 }
 
@@ -136,7 +136,7 @@ read_acl (char *config_file)
   int line;
   char buf[128];
   char *ptr;
-  
+
   if (!config_file)
     return;
 
@@ -157,7 +157,7 @@ read_acl (char *config_file)
       regex_t re;
       netdef_t *head, *tail;
       acl_t *acl;
-      
+
       line++;
       len = strlen (ptr);
       if (len > 0 && ptr[len-1] == '\n')
@@ -193,7 +193,7 @@ read_acl (char *config_file)
 	  argcv_free (argc, argv);
 	  continue;
 	}
-	  
+
       head = tail = NULL;
       for (i = 2; i < argc; i++)
 	{
@@ -230,7 +230,7 @@ read_acl (char *config_file)
 	acl_tail->next = acl;
       acl_tail = acl;
     }
-      
+
   fclose (fp);
 }
 
@@ -240,12 +240,12 @@ open_users_acl (char *name)
   char *filename;
   struct passwd *pw;
   acl_t *mark;
-  
+
   pw = getpwnam (name);
   if (!pw)
     return NULL;
 
-  filename = malloc (strlen (pw->pw_dir) + 1 + sizeof (USER_ACL_NAME));
+  filename = malloc (strlen (pw->pw_dir) + sizeof (USER_ACL_NAME) + 2 /* Null and separator.  */);
   if (!filename)
     {
       syslog (LOG_ERR, "out of memory");
@@ -256,6 +256,7 @@ open_users_acl (char *name)
 
   mark = acl_tail;
   read_acl (filename);
+  free (filename);
   return mark;
 }
 
@@ -286,7 +287,7 @@ acl_free (acl_t *acl)
       acl = next;
     }
 }
-	
+
 void
 discard_acl (acl_t *mark)
 {
@@ -302,13 +303,13 @@ acl_match (CTL_MSG *msg, struct sockaddr_in *sa_in)
   acl_t *acl, *mark;
   unsigned int ip;
   int action = ACT_DENY;
-  
+
   mark = open_users_acl (msg->r_name);
   ip = sa_in->sin_addr.s_addr;
   for (acl = acl_head; acl; acl = acl->next)
     {
       netdef_t *net;
-      
+
       for (net = acl->netlist; net; net = net->next)
 	{
 	  if (net->ipaddr == (ip & net->netmask))
