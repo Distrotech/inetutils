@@ -28,7 +28,7 @@ logout.c logwtmp.c logwtmpko.c memmove.c memset.c openpty.c revoke.c \
 setenv.c setsig.c snprintf.c strdup.c strerror.c stub_tgetent.c ttymsg.c \
 version.c xmalloc.c
 
-DISTFILES = $(SRCS)
+DISTFILES = $(SRCS) snprintf.h
 
 OBJS = setsig.o ttymsg.o version.o localhost.o cleansess.o logwtmpko.o  \
        @LIBOBJS@ @ALLOCA@ xmalloc.o
