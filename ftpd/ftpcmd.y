@@ -86,48 +86,31 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #define NBBY CHAR_BIT
 #endif
 
-extern	struct sockaddr_in data_dest;
-extern  struct sockaddr_in his_addr;
-extern	int logged_in;
-extern	struct passwd *pw;
-extern	int guest;
-extern	int logging;
-extern	int type;
-extern	int form;
-extern	int debug;
-extern	int timeout;
-extern	int maxtimeout;
-extern  int pdata;
-extern	char *hostname, *remotehost;
-extern	char proctitle[];
-extern	int usedefault;
-extern  int transflag;
-extern  char tmpline[];
+off_t restart_point;
 
-off_t	restart_point;
+static char cbuf[512];           /* Command Buffer.  */
+static char *fromname;
+static int cmd_type;
+static int cmd_form;
+static int cmd_bytesz;
 
-static	int cmd_type;
-static	int cmd_form;
-static	int cmd_bytesz;
-char	cbuf[512];
-char	*fromname;
-
-struct tab {
-	char	*name;
-	short	token;
-	short	state;
-	short	implemented;	/* 1 if command is implemented */
-	char	*help;
+struct tab
+{
+  const char	*name;
+  short	token;
+  short	state;
+  short	implemented;	/* 1 if command is implemented */
+  const char	*help;
 };
 
-extern struct tab cmdtab[], sitetab[];
-
-static char	*copy __P((char *));
-static void	 help __P((struct tab *, char *));
-static struct tab *
-		 lookup __P((struct tab *, char *));
-static void	 sizecmd __P((char *));
-static int	 yylex __P((void));
+extern struct tab cmdtab[];
+extern struct tab sitetab[];
+static char *copy         __P ((char *));
+static void help          __P ((struct tab *, char *));
+static struct tab *lookup __P ((struct tab *, char *));
+static void sizecmd       __P ((char *));
+static int yylex          __P ((void));
+static void yyerror       __P ((const char *s));
 
 %}
 
@@ -504,7 +487,7 @@ cmd
 		}
 	| SYST CRLF
 		{
-		        char *type; /* The official rfc-defined os type.  */
+		        const char *sys_type; /* Official rfc-defined os type.  */
 			char *version = 0; /* A more specific type. */
 
 #ifdef HAVE_UNAME
@@ -524,16 +507,16 @@ cmd
 #endif
 
 #ifdef unix
-			type = "UNIX";
+			sys_type = "UNIX";
 #else
-			type = "UNKNOWN";
+			sys_type = "UNKNOWN";
 #endif
 
 			if (version)
 				reply(215, "%s Type: L%d Version: %s",
-				      type, NBBY, version);
+				      sys_type, NBBY, version);
 			else
-				reply(215, "%s Type: L%d", type, NBBY);
+				reply(215, "%s Type: L%d", sys_type, NBBY);
 
 #ifdef HAVE_UNAME
 			if (version)
@@ -600,8 +583,6 @@ cmd
 rcmd
 	: RNFR check_login SP pathname CRLF
 		{
-			char *renamefrom();
-
 			restart_point = (off_t) 0;
 			if ($2 && $4) {
 			    if (fromname != NULL)
@@ -825,8 +806,6 @@ check_login
 
 %%
 
-extern jmp_buf errcatch;
-
 #define	CMD	0	/* beginning of command */
 #define	ARGS	1	/* expect miscellaneous arguments */
 #define	STR1	2	/* expect SP followed by STRING */
@@ -989,7 +968,7 @@ telnet_fgets(char *s, int n, FILE *iop)
 void
 toolong(int signo)
 {
-
+  (void)signo;
 	reply(421,
 	    "Timeout (%d seconds): closing control connection.", timeout);
 	if (logging)
@@ -1243,12 +1222,12 @@ help(struct tab *ctab, char *s)
 {
 	struct tab *c;
 	int width, NCMDS;
-	char *type;
+	const char *help_type;
 
 	if (ctab == sitetab)
-		type = "SITE ";
+		help_type = "SITE ";
 	else
-		type = "";
+		help_type = "";
 	width = 0, NCMDS = 0;
 	for (c = ctab; c->name != NULL; c++) {
 		int len = strlen(c->name);
@@ -1263,7 +1242,7 @@ help(struct tab *ctab, char *s)
 		int columns, lines;
 
 		lreply(214, "The following %scommands are recognized %s.",
-		    type, "(* =>'s unimplemented)");
+		    help_type, "(* =>'s unimplemented)");
 		columns = 76 / width;
 		if (columns == 0)
 			columns = 1;
@@ -1295,9 +1274,9 @@ help(struct tab *ctab, char *s)
 		return;
 	}
 	if (c->implemented)
-		reply(214, "Syntax: %s%s %s", type, c->name, c->help);
+		reply(214, "Syntax: %s%s %s", help_type, c->name, c->help);
 	else
-		reply(214, "%s%-*s\t%s; unimplemented.", type, width,
+		reply(214, "%s%-*s\t%s; unimplemented.", help_type, width,
 		    c->name, c->help);
 }
 
@@ -1345,4 +1324,17 @@ sizecmd(char *filename)
 	default:
 		reply(504, "SIZE not implemented for Type %c.", "?AEIL"[type]);
 	}
+}
+
+/* ARGSUSED */
+static void
+yyerror(const char *s)
+{
+  char *cp;
+
+  (void)s;
+  cp = strchr(cbuf,'\n');
+  if (cp != NULL)
+    *cp = '\0';
+  reply(500, "'%s': command not understood.", cbuf);
 }

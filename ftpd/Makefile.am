@@ -6,7 +6,7 @@ inetdaemon_PROGRAMS = @BUILD_FTPD@
 
 EXTRA_PROGRAMS = ftpd
 
-ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c
+ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c pam.c conf.c server_mode.c
 
 noinst_HEADERS = extern.h
 

@@ -76,7 +76,7 @@ struct file_pid {
 struct file_pid *file_pids = 0;
 
 FILE *
-ftpd_popen(char *program, char *type)
+ftpd_popen(char *program, const char *type)
 {
 	char *cp;
 	FILE *iop;

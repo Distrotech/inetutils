@@ -29,38 +29,75 @@
  *	@(#)extern.h	8.2 (Berkeley) 4/4/94
  */
 
-void	blkfree __P((char **));
-char  **copyblk __P((char **));
-void	cwd __P((char *));
-void	delete __P((char *));
-void	dologout __P((int));
-void	fatal __P((char *));
-int	ftpd_pclose __P((FILE *));
-FILE   *ftpd_popen __P((char *, char *));
-char   *telnet_fgets __P((char *, int, FILE *));
-void	logwtmp __P((const char *, const char *, const char *));
-void	lreply __P((int, const char *, ...));
-void	makedir __P((char *));
-void	nack __P((char *));
-void	pass __P((char *));
-void	passive __P((void));
-void	perror_reply __P((int, char *));
-void	pwd __P((void));
-void	removedir __P((char *));
-void	renamecmd __P((char *, char *));
-char   *renamefrom __P((char *));
-void	reply __P((int, const char *, ...));
-void	retrieve __P((char *, char *));
-void	send_file_list __P((char *));
-void	setproctitle __P((const char *, ...));
-void	statcmd __P((void));
-void	statfilecmd __P((char *));
-void	store __P((char *, char *, int));
-void    toolong __P((int));
-void	upper __P((char *));
-void	user __P((char *));
-void	yyerror __P((char *));
+#include <stdio.h>
+#include <setjmp.h>
 
+extern void cwd            __P ((const char *));
+extern int  checkuser      __P ((const char *filename, const char *name));
+extern void delete         __P ((const char *));
+extern int  display_file   __P ((const char *name, int code));
+extern void dologout       __P ((int));
+extern void fatal          __P ((const char *));
+extern int  ftpd_pclose    __P ((FILE *));
+extern FILE *ftpd_popen    __P ((char *, const char *));
 #ifndef HAVE_GETUSERSHELL_DECL
-extern char * getusershell __P((void));
+extern char *getusershell  __P ((void));
 #endif
+extern void logwtmp        __P ((const char *, const char *, const char *));
+extern void lreply         __P ((int, const char *, ...));
+extern void makedir        __P ((const char *));
+extern void nack           __P ((const char *));
+extern void pass           __P ((char *));
+extern void passive        __P ((void));
+extern void perror_reply   __P ((int, const char *));
+extern void pwd            __P ((void));
+extern void removedir      __P ((const char *));
+extern void renamecmd      __P ((const char *, const char *));
+extern char *renamefrom    __P ((const char *));
+extern void reply          __P ((int, const char *, ...));
+extern void retrieve       __P ((const char *, const char *));
+extern void send_file_list __P ((const char *));
+extern void setproctitle   __P ((const char *, ...));
+extern void statcmd        __P ((void));
+extern void statfilecmd    __P ((const char *));
+extern void store          __P ((const char *, const char *, int));
+extern void toolong        __P ((int));
+extern char *telnet_fgets  __P ((char *, int, FILE *));
+extern void upper          __P ((char *));
+extern void user           __P ((const char *));
+
+/* Exported from pam.c */
+#ifdef WITH_PAM
+extern pam_handle_t *pamh;
+extern int PAM_accepted;
+extern char *PAM_username;
+extern char *PAM_password;
+extern char *PAM_message;
+#endif
+
+/* Exported from ftpd.c.  */
+jmp_buf  errcatch;
+extern struct sockaddr_in data_dest;
+extern struct sockaddr_in his_addr;
+extern int logged_in;
+extern struct passwd *pw;
+extern int guest;
+extern int logging;
+extern int type;
+extern int form;
+extern int debug;
+extern int timeout;
+extern int maxtimeout;
+extern int pdata;
+extern char *hostname;
+extern char *remotehost;
+extern char proctitle[];
+extern int usedefault;
+extern char tmpline[];
+
+/* Exported from ftpcmd.y.  */
+extern off_t restart_point;
+
+/* Exported from server_mode.c.  */
+extern int server_mode __P ((const char *pidfile,
+			     struct sockaddr_in *phis_addr));

@@ -1,3 +1,59 @@
+2000-08-11  Alain Magloire
+
+Audit: Coding style to comply to GNU style, cleanup the code
+to be ANSI C, provide the necessary prototypes, reinforce const
+policy for strings, move functions definitions only where
+they are use and make them static scope if possible, variables
+not exported are change to static scope, all function declarations
+are ANSI C and rely on ansi2knr for OS lacking, nuke non-portable
+semantics, POSIX functions/behaviour are followed intead of BSD.
+The definition for setproctitle is remove, this function is to
+machine dependant and we did not get it right, if the OS supplies
+we'll use it.  The approach later will be to provide a fairly
+portable of setproctitle() and get configure to the rigth thing, with
+AC_REPLACE_FUNC (setproctitle).
+
+	* ftpd.c: allow_severity, deny_severity should be guarded
+	with [HAVE_TCPD_H].
+	Move all globals to <extern.h>.
+	Remove [SETPROCTITLE] add [HAVE_SETPROCTITLE]
+	[HAVE_INITSETPROCTITLE], remove setproctitle () definition.
+	(main): SA_LEN () macro not portable remove.
+	Variable "quiet" change for "no_version".
+	(reapchild): Use waitpid ().
+	(user): Remove previous code handling of PAM.
+	and move the relevant pieces to sgetpwnam ().
+	(user): when strncpy ()ing curname make sure we
+	null terminate the string.
+	(user): complete_login () call removed form user ().
+	(delete): Use the portable S_ISDIR () marcro.
+	(main): Don't typecast signal () use SIG_ERR.
+	(display_file): New function.
+	(statcmd): Global variable mode, rename to the
+	more informative stru_mode, it was also shadowing a lot
+	of local variable mode, for fopen ().
+	(main):  Remove initialization of global
+	variables and initialize when defined.
+	(main): New option '-p' to override pid file.
+	(main): Adding SO_KEEPALIVE, to let the tcp/ip stack
+	detect when the connection been drop, IPTOS_LOWDELAY
+	for the control connection and IPTOS_THROUGHPUT for
+	the data connection.
+
+	* ftpcmd.y: Remove definition of yyerror () from ftpd.c
+	and move it to ftpcmd.y, result "cbuf" static scope.
+	Move all globals to <extern.h>.
+	Move declaration of cmdtab[] and sitetab[] to <extern.h>.
+
+	* conf.c: New file, define checkuser () and display_file ().
+
+	* pam.c: New file, define PAM related functions.
+
+	* wrap.c: New file, define TCPD related functions.
+
+	* server.c: New file, move all releate standalone function to
+	this module reapchild (), server_mode () and tcpd wrapper handling.
+
 2000-08-10  Michael Vogt <mvo@debian.org>
 
 	* ftpd/ftpd.c: cleaned up PAM code.
