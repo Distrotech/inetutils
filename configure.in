@@ -100,11 +100,11 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 sys/msgbuf.h krb.h des.h netinet/in_systm.h sys/filio.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
 		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
-		 arpa/nameser.h sys/sockio.h)
+		 arpa/nameser.h sys/sockio.h sys/sysmacros.h)
 
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       flock ftruncate wait3 memcpy bcopy bzero setsid cfsetspeed \
-	       strchr)
+	       strchr waitpid)
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok)
 
@@ -320,6 +320,7 @@ IU_CHECK_TYPE(struct lastlog, [#include <utmp.h>])
 IU_CHECK_STRUCT_FIELD(utmp, ut_type, [#include <utmp.h>])
 IU_CHECK_STRUCT_FIELD(utmp, ut_host, [#include <utmp.h>])
 IU_CHECK_STRUCT_FIELD(utmp, ut_tv, [#include <utmp.h>])
+IU_CHECK_STRUCT_FIELD(wtmp, ut_tv, [#include <utmp.h>])
 
 # See if the system has strerror, and replace it if not
 AC_CHECK_FUNC(strerror, , LIBOBJS="$LIBOBJS strerror.o")
@@ -360,6 +361,11 @@ AC_TYPE_SIGNAL
 IU_CHECK_TYPE(sig_t,
   [ #include <sys/types.h>
     #include <signal.h> ])
+# sigset_t is a set of signals (4.4BSD)
+IU_CHECK_TYPE(sigset_t,
+  [ #include <sys/types.h>
+    #include <signal.h> ]
+  :, AC_DEFINE(sigset_t, unsigned long))
 # I'm not sure what this is, but netbsd has it; just use int if necessary.
 IU_CHECK_TYPE(sig_atomic_t, 
   [ #include <sys/types.h>
