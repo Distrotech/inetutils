@@ -1,6 +1,6 @@
 # Configuration-derived make variables for inetutils
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ SHELL = /bin/sh
 # srcdir is defined in the individual makefiles
 top_srcdir = @top_srcdir@
 
-VPATH = $(srcdir)
+VPATH = $(srcdir) $(srcdir)/common
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -57,3 +57,13 @@ CPPFLAGS += $(DEFS)
 LDLIBS += $(LIBS)
 
 RULES=$(top_srcdir)/rules.make
+
+# Link or copy every file in $(DISTFILES) into $(DISTDIR)
+define LINK_DISTFILES
+  @for FILE in $(DISTFILES); do \
+    { ln 2>/dev/null $(srcdir)/$$FILE $(DISTDIR) \
+      && echo ln $(srcdir)/$$FILE $(DISTDIR); } \
+    || { echo cp -p $(srcdir)/$$FILE $(DISTDIR) \
+	 ; cp -p $(srcdir)/$$FILE $(DISTDIR); }; \
+ done
+endef
