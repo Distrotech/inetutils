@@ -4,7 +4,7 @@ inetdaemondir = @inetdaemondir@
 
 inetdaemon_PROGRAMS = @tftpd_BUILD@
 
-INCLUDES = -I$(top_builddir)/include
+INCLUDES = -I$(top_srcdir)/headers
 
 EXTRA_PROGRAMS = tftpd
 

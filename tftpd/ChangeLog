@@ -1,3 +1,8 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+	Added `-I$(top_srcdir)/headers'.
+
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* Makefile.am (inetdaemon_PROGRAMS): Use tftpd_BUILD instead of
