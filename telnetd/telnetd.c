@@ -939,6 +939,7 @@ telnet(f, p, host)
 	char	defent[TABBUFSIZ];
 	char	defstrs[TABBUFSIZ];
 #undef	TABBUFSIZ
+#undef HE /* Make sure its not defined as a macro. */
 	char *HE;
 	char *HN;
 	char *IM;
