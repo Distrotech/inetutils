@@ -1,3 +1,8 @@
+2004-12-28  Alfred M. Szmidt  <ams@gnu.org>
+
+	* NEWS: Added news entries for 1.4.3.  Based on suggestions from
+	Jeff Bailey and Simon Josefsson.
+
 2003-08-29  Jeff Bailey <jbailey@raspberryginger.com>
 
 	* paths: Support PATH_INETDPID.
