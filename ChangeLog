@@ -1,3 +1,30 @@
+Thu Jan 23 13:12:03 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (libinetutils_version): Change to `1.2i'.
+
+	* configure.in: Move general library tests before any function tests.
+
+	* telnetd/sys_term.c (login_tty): Use setpgid instead of setpgrp.
+
+	* telnet/commands.c: Protect includes with HAVE_..._H rather than
+	random system defines.
+	(tn): Protect declaration of htons with !HAVE_HTONS_DECL.
+	* configure.in (htons): Add new declaration check.
+	(AC_CHECK_HEADERS): Add sys/param.h, unistd.h, sys/file.h & fcntl.h.
+	* headers/acconfig.h (HAVE_HTONS_DECL): New define slot.
+
+	* telnetd/sys_term.c (wtmpf): Initialize from PATH_WTMP.
+	[!PARENT_DOES_UTMP] (utmpf): Initialize from PATH_UTMP.
+	[NEWINIT && HAVE_UTMP_H && HAVE_UTMP_UT_TV] (HAVE_WTMP_UT_TV): New macro.
+	[NEWINIT && HAVE_UTMPX_H && HAVE_UTMPX_UT_TV] (HAVE_WTMP_UT_TV): New macro.
+	* configure.in: Check for ut_tv in struct utmpx, not struct wtmp.
+	Only do tests using <utmp.h> / <utmpx.h> when they exist.
+
+	* headers/acconfig.h (HAVE_UTMPX_UT_TV): Renamed from HAVE_WTMP_UT_TV.
+	* telnetd/Makefile.in (CPPFLAGS): Add $(PATHDEF_UTMP) & $(PATHDEF_WTMP).
+
+	* libinetutils/stub_tgetent.c (tgetent): Add missing semi.
+
 Wed Jan 22 20:51:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.2h'.
