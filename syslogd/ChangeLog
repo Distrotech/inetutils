@@ -1,3 +1,8 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use syslogd_BUILD instead of
+	BUILD_SYSLOGD.
+
 2002-03-05  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (main): New variables KLINE and KLINE_LEN, to store

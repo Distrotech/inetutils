@@ -1,3 +1,8 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use talkd_BUILD instead of
+	BUILD_TALKD.
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES

@@ -1,3 +1,7 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+	* Makefile.am (noinst_LIBRARIES) Use libglob_BUILD instead of
+	  BUILD_LIBGLOB.
+
 2002-02-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* Makefile.am (INCLUDES): Added -I$(top_builddir)/include (needed

@@ -1,3 +1,12 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* herror.c [HAVE_H_ERRNO_DECL]: Renamed to HAVE_DECL_H_ERRNO.
+	* hstrerror.c [HAVE_H_ERRLIST_DECL]: Renamed to HAVE_DECL_H_ERRLIST.
+	* logwtmp.c [HAVE_ERRNO_DECL]: Renamed to HAVE_DECL_ERRNO.
+	* revoke: Likewise.
+	* setenv.c: Likewise.
+	[HAVE_ENVIRON_DECL]: Renamed to HAVE_DECL_ENVIRON.
+
 2002-04-07  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* utmp_logout.c (utmp_logout): Bugfix: gettimeofday() (and

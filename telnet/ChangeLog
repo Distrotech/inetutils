@@ -1,3 +1,9 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (bin_PROGRAMS): Use telnet_BUILD instead of BUILD_TELNET.
+	* authenc.c [HAVE_GETPASS_DECL]: Renamed to HAVE_DECL_GETPASS.
+	* commands.c [HAVE_HTONS_DECL]: Renamed to HAVE_DECL_HTONS.
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES

@@ -1,3 +1,9 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+        * Makefile.am (bin_PROGRAMS): Use ftp_BUILD instead of BUILD_FTP.
+        * ftp.c [HAVE_FCLOSE_DECL]: Renamed to HAVE_DECL_FCLOSE.
+        [HAVE_PCLOSE_DECL]: Renamed to HAVE_DECL_PCLOSE.
+
 2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* Makefile.am: Add READLINE variable.

@@ -1,3 +1,8 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use rlogind_BUILD instead of
+	BUILD_RLOGIND.
+
 2002-04-07  Sergey Poznyakoff  
 
 	* rlogind.c: Updated for use with Kerberos V.

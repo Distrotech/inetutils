@@ -1,3 +1,10 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+        * Makefile.am (inetdaemon_PROGRAMS): Use ftpd_BUILD instead of
+        BUILD_FTPD.
+        * extern.h [HAVE_GETUSERSHELL_DECL]: Renamed to HAVE_DECL_GETUSERSHELL.
+        * ftpd.c [HAVE_FCLOSE_DECL]: Renamed to HAVE_DECL_FCLOSE.
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
