@@ -18,17 +18,14 @@
 SHELL = /bin/sh
 
 srcdir = @srcdir@
+top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-bindir = @bindir@
-libdir = @libdir@
 libexecdir = @libexecdir@
 mandir = @mandir@
-man1dir = $(mandir)/man1
 man8dir = $(mandir)/man8
-man5dir = $(mandir)/man5
 
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -40,21 +37,20 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-TELNETD_FLAGS = -DISSUE_FILE=\"$(prefix)/etc/issue.net\" \
-	-DKLUDGELINEMODE -DDIAGNOSTICS \
-	-DAUTHENTICATE
-LDLIBS = -ltermcap -ltelnet
+OPTION_FLAGS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
+LDLIBS = -L../libtelnet -ltelnet -ltermcap $(LIBS)
 
-CFLAGS += $(TELNETD_FLAGS) @DEFS@
+CFLAGS += $(OPTION_FLAGS) $(DEFS)
 
-telnetd: telnetd.o state.o termstat.o slc.o sys_term.o utility.o \
-		global.o authenc.o logwtmp.o
+telnetd: authenc.o global.o slc.o state.o sys_term.o telnetd.o termstat.o \
+	utility.o
 
-install: telnetd
+install: installdirs telnetd $(srcdir)/telnetd.8
 	$(INSTALL_PROGRAM) telnetd $(libexecdir)/in.telnetd
 	$(INSTALL_DATA) $(srcdir)/telnetd.8 $(man8dir)
-	$(INSTALL_DATA) $(srcdir)/in.telnetd.8 $(man8dir)
-	$(INSTALL_DATA) $(srcdir)/issue.net.5 $(man5dir)
+
+installdirs:
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
 
 clean:
 	$(RM) -f *.o telnetd 
