@@ -573,6 +573,7 @@ speed (int fd)
 
 pid_t child;
 struct termios deftt;
+struct termios ixon_state;
 struct termios nott;
 
 void
@@ -1068,6 +1069,8 @@ mode (int f)
   switch (f)
     {
     case 0:
+      /* remember whether IXON is set, set it can be restore at mode(1). */
+      tcgetattr (0, &ixon_state);
       tcsetattr (0, TCSADRAIN, &deftt);
       break;
     case 1:
@@ -1083,6 +1086,12 @@ mode (int f)
 	  tt.c_cc[VSTOP] = _POSIX_VDISABLE;
 	  tt.c_cc[VSTART] = _POSIX_VDISABLE;
 	}
+      
+      if ((ixon_state.c_iflag & IXON) && ! eight)
+	tt.c_iflag |= IXON;
+      else
+	tt.c_iflag &= ~IXON;
+      
       tcsetattr(0, TCSADRAIN, &tt);
       break;
 
