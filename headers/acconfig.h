@@ -36,6 +36,9 @@
 /* Define this symbol if `struct lastlog' is defined in <utmp.h>.  */
 #undef HAVE_STRUCT_LASTLOG
 
+/* Define this this symbol if struct sockaddr_in has a sin_len field.  */
+#undef HAVE_SOCKADDR_IN_SIN_LEN
+
 /* Define this symbol if time fields in struct stat are of type `struct
    timespec', and called `st_mtimespec' &c.  */
 #undef HAVE_STAT_ST_MTIMESPEC
@@ -245,13 +248,39 @@ extern char *strrchr __P ((char *str, int ch));
 
 #ifndef HAVE_VSNPRINTF
 #include <sys/types.h>
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
 #endif
 extern int vsnprintf __P ((char *, size_t, const char *, va_list));
 #endif
+
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/types.h>
+#include <sys/param.h>
+#endif
+/* Get or fake the disk device blocksize.
+   Usually defined by sys/param.h (if at all).  */
+#if !defined(DEV_BSIZE) && defined(BSIZE)
+#define DEV_BSIZE BSIZE
+#endif
+#if !defined(DEV_BSIZE) && defined(BBSIZE) /* SGI */
+#define DEV_BSIZE BBSIZE
+#endif
+#ifndef DEV_BSIZE
+#define DEV_BSIZE 4096
+#endif
+
+/* Extract or fake data from a `struct stat'.
+   ST_BLKSIZE: Optimal I/O blocksize for the file, in bytes. */
+#ifndef HAVE_ST_BLKSIZE
+# define ST_BLKSIZE(statbuf) DEV_BSIZE
+#else /* HAVE_ST_BLKSIZE */
+/* Some systems, like Sequents, return st_blksize of 0 on pipes. */
+# define ST_BLKSIZE(statbuf) ((statbuf).st_blksize > 0 \
+                              ? (statbuf).st_blksize : DEV_BSIZE)
+#endif /* HAVE_ST_BLKSIZE */
 
 /* Defaults for PATH_ variables.  */
 #include <confpaths.h>
