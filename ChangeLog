@@ -2,8 +2,6 @@
 
 	* configure.ac: Update version to 1.4
 
-	* .cvsignore: Fix typo.
-	
 	* ROADMAP: New file
 
 2002-07-27  Marcus Brinkmann  <marcus@gnu.org>
