@@ -28,15 +28,9 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1983, 1988, 1993, 1994\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
+#if 0
 static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
-#endif /* not lint */
+#endif
 
 /*
  *  syslogd -- log system messages
@@ -233,7 +227,6 @@ int repeatinterval[] = { 30, 60 };	/* Number of seconds before flush.  */
 /* Delimiter in arguments to command line options `-s' and `-l'.  */
 #define LIST_DELIMITER	':'
 
-char *program;                  /* The invocation name of the program.  */
 char *LocalHostName;            /* Our hostname.  */
 char *LocalDomain;              /* Our local domain name.  */
 int finet = -1;                 /* Internet datagram socket fd.  */
@@ -258,6 +251,8 @@ int force_sync;                 /* GNU/Linux behaviour to sync on every line.
 				   This off by default. Set to 1 to enable.  */
 
 extern char *localhost __P ((void));
+extern int waitdaemon __P ((int nochdir, int noclose, int maxwait));
+extern char *__progname;
 
 void cfline __P ((const char *, struct filed *));
 const char *cvthname __P ((struct sockaddr_in *));
@@ -287,12 +282,12 @@ usage (int err)
 {
   if (err != 0)
     {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", program);
-      fprintf (stderr, "Try `%s --help' for more information.\n", program);
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", __progname);
+      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", program);
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", __progname);
       puts ("Log system messages.\n\n\
   -f, --rcfile=FILE  Override configuration file (default: " PATH_LOGCONF ")\n\
       --pidfile=FILE Override pidfile (default: " PATH_LOGPID ")\n\
@@ -359,7 +354,9 @@ main (int argc, char *argv[])
   struct pollfd *fdarray;
   unsigned long nfds = 0;
 
-  program = argv[0];
+#ifndef HAVE___PROGNAME
+  __progname = argv[0];
+#endif
 
   /* Initiliaze PATH_LOG as the first element of the unix sockets array.  */
   add_funix (PATH_LOG);
@@ -465,7 +462,7 @@ main (int argc, char *argv[])
       ppid = waitdaemon (0, 0, 30);
       if (ppid < 0)
 	{
-	  fprintf (stderr, "%s: could not become daemon\n", program);
+	  fprintf (stderr, "%s: could not become daemon\n", __progname);
 	  exit (1);
 	}
     }
@@ -480,7 +477,7 @@ main (int argc, char *argv[])
   if (LocalHostName == NULL)
     {
       fprintf (stderr, "%s: can't get local host name: %s\n",
-	       program, strerror (errno));
+	       __progname, strerror (errno));
       exit (2);
     }
   /* Get the domainname.  */
@@ -528,7 +525,7 @@ main (int argc, char *argv[])
   if (fdarray == NULL)
     {
       fprintf (stderr, "%s: can't allocate fd table: %s\n",
-	       program, strerror (errno));
+	       __progname, strerror (errno));
       exit (2);
     }
 
@@ -808,7 +805,7 @@ crunch_list (char **oldlist, char *list)
   oldlist = (char **) realloc (oldlist, (i + count + 1) * sizeof (*oldlist));
   if (oldlist == NULL)
     {
-      fprintf (stderr, "%s: can't allocate memory: %s", program,
+      fprintf (stderr, "%s: can't allocate memory: %s", __progname,
 	       strerror (errno));
       exit (1);
     }
@@ -825,7 +822,7 @@ crunch_list (char **oldlist, char *list)
       oldlist[count] = (char *) malloc ((q - p + 1) * sizeof(char));
       if (oldlist[count] == NULL)
 	{
-	  fprintf (stderr, "%s: can't allocate memory: %s", program,
+	  fprintf (stderr, "%s: can't allocate memory: %s", __progname,
 		   strerror (errno));
 	  exit (1);
 	}
@@ -837,7 +834,7 @@ crunch_list (char **oldlist, char *list)
   oldlist[count] = (char *) malloc ((strlen (p) + 1) * sizeof (char));
   if (oldlist[count] == NULL)
     {
-      fprintf (stderr, "%s: can't allocate memory: %s", program,
+      fprintf (stderr, "%s: can't allocate memory: %s", __progname,
 	       strerror (errno));
       exit(1);
     }
@@ -1502,7 +1499,7 @@ die (int signo)
   Initialized = was_initialized;
   if (signo)
     {
-      dbg_printf ("%s: exiting on signal %d\n", program, signo);
+      dbg_printf ("%s: exiting on signal %d\n", __progname, signo);
       snprintf (buf, sizeof (buf), "exiting on signal %d", signo);
       errno = 0;
       logerror (buf);

@@ -1,3 +1,15 @@
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: Remove PROGRAM, declare __PROGNAME.
+	Prototype waitdaemon(). Remove COPYRIGHT (it's in the
+	comment at the top). Replace "#ifndef lint" with "#if 0"
+	for SCCSID to avoid gcc warning.
+	(main): Initialize __PROGNAME if not HAVE___PROGNAME.
+	Use __PROGNAME instead PROGRAM.
+	(usage): Likewise.
+	(crunch_list): Likewise.
+	(die): Likewise.
+
 2000-08-16  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (usage): If err != 0, print Usage: ... line to stdout.
