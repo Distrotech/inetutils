@@ -1,7 +1,67 @@
+Mon Jan 20 20:35:53 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* rsh/rsh.c (main): Always use sigset_t & OSIGS & SIGS variables,
+	and pass a pointer to the talk function.
+	(talk): Always use a pointer for the OSIGS arg (was OMASK).
+	
+	* headers/acconfig.h (HAVE_UTMP_UT_TV, sigset_t): Add define slots.
+
+	* telnetd/sys_term.c (rmut): Use HAVE_WTMP_UT_TV rather than
+	HAVE_UTMPX_H || HAVE_UTMP_UT_TV.
+
+	* configure.in (sigset_t): New type replacement.
+	Add check for ut_tv field in struct wtmp.
+
 Wed Jan 15 16:52:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* ftpd/ftpd.c (makedir): Provide the absolute name of the new
 	directory in the reply, as per rfc959.
+
+Mon Jan 13 22:17:38 1997  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* configure.in (AC_CHECK_HEADERS): Add sys/sysmacros.h for solaris
+	to get the roundup() macro.  (AC_CHECK_FUNCS): Add waitpid().
+	* ftp/cmds.c: Don't declare "union wait status".  Its never used
+	and causes problems for posix sys/wait.h.  Consequently, pass 0 to
+	the wait() function.  Add an (ignored) int parameter to function
+	passed to signal().
+	* ftp/ftp.c: Likewise for functions passed to signal().
+	* ftp/main.c: Likewise for functions passed to signal().
+	* ftpd/popen.c: Add POSIX signal handling.
+	* inetd/inetd.c: Likewise.
+	* libinetutils/ttymsg.c: Likewise.
+	* rcp/rcp.c: Change macro MODEMASK to RCP_MODEMASK to avoid
+	conflict with solaris sys/vnode.h header.
+	* rcp/util.c: Include sys/sysmacros.h for solaris to get the
+	roundup() macro.
+	* rexecd/rexecd.c: Use O_RDWR instead of "2" in call to open().
+	* rlogind/rlogind.c: Don't define FD_SETSIZE, let OS headers do it.
+	* rsh/rsh.c: Add POSIX signal handling.
+	* rshd/rshd.c: Use O_RDWR instead of "2" in call to open().
+	* syslogd/syslogd.c: Test MSG_BSIZE, not HAVE_SYS_MSGBUF_H, when
+ 	deciding if we have MSG_BSIZE.  Add POSIX signal handling.
+  	Optionally use waitpid().  Also, don't declare "union wait status",
+  	its never used and causes problems for posix sys/wait.h.
+  	Consequently, pass 0 to the waitpid()/wait3() functions.
+	* talk/ctl_transact.c: Use fd_set not int for file descriptor set.
+	Also set mask with FD_SET, not an explicit bit shift operation.
+	* talk/init_disp.c: Fix POSIX signal handling.
+	* talk/invite.c: Cast 2nd arg of sendto() to (const char *).
+	* talk/msgs.c: Add an (ignored) int parameter to function
+	passed to signal().
+	* telnet/sys_bsd.c: Add POSIX signal handling.
+	* telnetd/sys_term.c: Check HAVE_UTMP_UT_HOST before using ut_host.
+	Also, check HAVE_UTMPX_H||HAVE_UTMP_UT_TV before using ut_tv field.
+	* telnetd/telnetd.c: Use O_RDWR instead of "2" in call to open().
+	* telnetd/termstat.c: Evaluate tty_istrapsig() not tty_istrapsig.
+	* tftp/tftp.c: Cast 2nd arg of sendto() to (const char *).  Also
+	cast 2nd arg of recvfrom() to (char *).
+	* tftpd/tftpd.c: Include sys/filio.h.  Use O_RDONLY & O_WRONLY
+ 	instead of "0" & "1" in call to open().  Add an (ignored) int
+ 	parameter to function passed to signal().  Cast the 2nd arg of
+	send() to (const char *).  Cast the 2nd arg ot recv to (char *).
+	* uucpd/uucpd.c: Include termios.h for decl of TIOCNOTTY on
+	solaris.  Also use O_RDWR instead of "2" in call to open().
 
 Mon Jan 13 14:06:24 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
