@@ -251,7 +251,7 @@ spx_send(ap)
 
 	input_chan_bindings->initiator_addrtype = GSS_C_AF_INET;
 	input_chan_bindings->initiator_address.length = 4;
-	address = (char *) malloc(4);
+	address = malloc(4);
 	input_chan_bindings->initiator_address.value = (char *) address;
 	address[0] = ((from_addr & 0xff000000) >> 24);
 	address[1] = ((from_addr & 0xff0000) >> 16);
@@ -259,7 +259,7 @@ spx_send(ap)
 	address[3] = (from_addr & 0xff);
 	input_chan_bindings->acceptor_addrtype = GSS_C_AF_INET;
 	input_chan_bindings->acceptor_address.length = 4;
-	address = (char *) malloc(4);
+	address = malloc(4);
 	input_chan_bindings->acceptor_address.value = (char *) address;
 	address[0] = ((to_addr & 0xff000000) >> 24);
 	address[1] = ((to_addr & 0xff0000) >> 16);
@@ -356,7 +356,7 @@ spx_is(ap, data, cnt)
 
 		input_chan_bindings->initiator_addrtype = GSS_C_AF_INET;
 		input_chan_bindings->initiator_address.length = 4;
-		address = (char *) malloc(4);
+		address = malloc(4);
 		input_chan_bindings->initiator_address.value = (char *) address;
 		address[0] = ((from_addr & 0xff000000) >> 24);
 		address[1] = ((from_addr & 0xff0000) >> 16);
@@ -364,7 +364,7 @@ spx_is(ap, data, cnt)
 		address[3] = (from_addr & 0xff);
 		input_chan_bindings->acceptor_addrtype = GSS_C_AF_INET;
 		input_chan_bindings->acceptor_address.length = 4;
-		address = (char *) malloc(4);
+		address = malloc(4);
 		input_chan_bindings->acceptor_address.value = (char *) address;
 		address[0] = ((to_addr & 0xff000000) >> 24);
 		address[1] = ((to_addr & 0xff0000) >> 16);
