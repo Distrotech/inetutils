@@ -353,7 +353,7 @@ traverse(argc, argv, options)
 
 	if ((ftsp =
 	    fts_open(argv, options, f_nosort ? NULL : mastercmp)) == NULL) {
-		fprintf(stderr, "fts_open: %s",argv[0], strerr(errno));
+		fprintf(stderr, "fts_open: %s",argv[0], strerror(errno));
 	        exit(1);
 	}
 
