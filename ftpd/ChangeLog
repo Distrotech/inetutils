@@ -1,4 +1,9 @@
-2000-07-30 Michael Vogt <mvo@debian.org>
+2000-07-30  Alain Magloire
+
+	* ftpd.c: protect initgroups() with HAVE_INITGROUPS
+
+2000-07-30  Michael Vogt <mvo@debian.org>
+
 	* ftpd.c(main): added TCP_WRAPPER support for daemon mode
 
 2000-07-26  Michael Vogt  <mvo@debian.org>
