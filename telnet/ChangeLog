@@ -1,3 +1,9 @@
+2001-10-25  Alain Magloire
+
+	* telnet/telnet.c: jmp_buf is an opaque struct/object we should
+	not try to initialize it, and in any case globals and static
+	variables are initialize to zeros, a prerequesite of ISO C.
+
 2001-08-17  Marcus Brinkmann  <marcus@gnu.org>
 
 	* sys_bsd.c (TerminalFlushOutput): New variable FLAGS.  Pass

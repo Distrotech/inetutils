@@ -10,54 +10,9 @@
 	* rlogin/Makefile.am: Rules to try install setuid root.
 	* rsh/Makefile.am: Rules to try install setuid root.
 
-2001-10-28  Alain Magloire
-
-	Unfortunately some platforms, like QNX/Neutrino does not implement flow
-	control packet mode TIOCPKT.  If it is not defined, provide the
-	constant. It should not affect the functionnality, but the server
-	will not be able to process CTRL-Q CTRL-S.
-
-	* rlogind/rlogind.c: Check if TIOCPKT is defined, if not provide
-	macros for TIOCPKT, TIOCPKT_FLUSHWRITE, TIOCPKT_NOSTOP,TIOCPKT_DOSTOP,
-	to be able to compile.
-	New option:" -o, --allow-root", for many remote servers rlogin is the
-	only way to access the machine, let the flexibility to pass root.
-
-	* rlogin/rlogin.c: Define the  macros TIOCPKT_XXX.
-	(speed_translate): This did not work on QNX/Neutrino, since we were
-	assuming things that does not hold true.  We were assuming that B0,
-	B50 etc .. were ascending constant corresponding to 0, 1, etc ...
-	This is not portable POSIX only says that cfgetispeed() return
-	symbolic functions. To correct use approximatively the same code in
-	telnet/sys_bsd.c.
-
-	* talkd/process.c (open_users_acl):  free (filename);
-	* talkd/talkd.c (talkd_init): Do not bail out if not root, Do we have
-	to be root?
-
 2001-10-25  Alain Magloire
 
 	* configure.in: Version to 1.3.2g.
-
-	* rlogind/rlogind.c (topdomain):  In badly configure systems (like
-	mine 8), there is no domainame, this case will cause a sigsegv.
-	Because, we take for granted that local_domain_name, will be
-	initialized correctly:
-	local_domain_name = topdomain()  // will return NULL.
-	Change topdomain() to return the original name on failure.
-
-	* syslogd/syslogd.c:  Use the same code in talkd/talkd.c to handle
-	utmp vs utmpx.
-	(wallmesg):  Use the macros when manipulating utmp functions.
-
-	* telnet/telnet.c: jmp_buf is an opaque struct/object we should
-	not try to initialize it, and in any case globals and static
-	variables are initialize to zeros, a prerequesite of ISO C.
-
-	* telnetd/telnetd.c: Remove stupid/obsolete hack, if an array
-	is declare const char *, you can not write(readonly) to it.  This
-	the way ISO C defines it, even if some compiler let it trough. Do
-	the right thing everytime not only for GCC.
 
 2001-10-25  Sergey Poznyakoff
 

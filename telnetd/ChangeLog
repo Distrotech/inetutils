@@ -1,3 +1,10 @@
+2001-10-25  Alain Magloire
+
+	* telnetd/telnetd.c: Remove stupid/obsolete hack, if an array
+	is declare const char *, you can not write(readonly) to it.  This
+	the way ISO C defines it, even if some compiler let it trough. Do
+	the right thing everytime not only for GCC.
+
 2001-07-26  Alain Magloire
 
 	The patch was provided by Eric Gillespie, Jr., it addresses

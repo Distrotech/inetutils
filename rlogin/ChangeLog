@@ -1,3 +1,18 @@
+2001-10-28  Alain Magloire
+
+	Unfortunately some platforms, like QNX/Neutrino does not implement flow
+	control packet mode TIOCPKT.  If it is not defined, provide the
+	constant. It should not affect the functionnality, but the server
+	will not be able to process CTRL-Q CTRL-S.
+
+	* rlogin/rlogin.c: Define the  macros TIOCPKT_XXX.
+	(speed_translate): This did not work on QNX/Neutrino, since we were
+	assuming things that does not hold true.  We were assuming that B0,
+	B50 etc .. were ascending constant corresponding to 0, 1, etc ...
+	This is not portable POSIX only says that cfgetispeed() return
+	symbolic functions. To correct use approximatively the same code in
+	telnet/sys_bsd.c.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

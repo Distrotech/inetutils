@@ -1,3 +1,9 @@
+2001-10-28  Alain Magloire
+
+	* talkd/process.c (open_users_acl):  free (filename);
+	* talkd/talkd.c (talkd_init): Do not bail out if not root, Do we have
+	to be root?
+
 2001-10-27  Sergey Poznyakoff
 
 	* acl.c: read_acl(): Initialize `head' to NULL (in case

@@ -1,3 +1,9 @@
+2001-10-25  Alain Magloire
+
+	* syslogd/syslogd.c:  Use the same code in talkd/talkd.c to handle
+	utmp vs utmpx.
+	(wallmesg):  Use the macros when manipulating utmp functions.
+
 2001-01-31  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (usage): Add missing parentheses in help text.

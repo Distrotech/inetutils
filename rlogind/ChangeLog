@@ -1,3 +1,25 @@
+2001-10-28  Alain Magloire
+
+	Unfortunately some platforms, like QNX/Neutrino does not implement flow
+	control packet mode TIOCPKT.  If it is not defined, provide the
+	constant. It should not affect the functionnality, but the server
+	will not be able to process CTRL-Q CTRL-S.
+
+	* rlogind/rlogind.c: Check if TIOCPKT is defined, if not provide
+	macros for TIOCPKT, TIOCPKT_FLUSHWRITE, TIOCPKT_NOSTOP,TIOCPKT_DOSTOP,
+	to be able to compile.
+	New option:" -o, --allow-root", for many remote servers rlogin is the
+	only way to access the machine, let the flexibility to pass root.
+
+2001-10-25  Alain Magloire
+
+	* rlogind/rlogind.c (topdomain):  In badly configure systems (like
+	mine 8), there is no domainame, this case will cause a sigsegv.
+	Because, we take for granted that local_domain_name, will be
+	initialized correctly:
+	local_domain_name = topdomain()  // will return NULL.
+	Change topdomain() to return the original name on failure.
+
 2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
 
 	* rlogind.c: Use ENCRYPTION instead of CRYPT.
