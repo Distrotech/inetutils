@@ -861,7 +861,10 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #ifdef HAVE_INITGROUPS
   initgroups (pwd->pw_name, pwd->pw_gid); /* BSD groups */
 #endif
-  seteuid ((uid_t)pwd->pw_uid);
+  /* It's not obvious that this is right, however, it was reported
+   * as a real bug, and this conforms to what the glibc manual says
+   * setuid should handle the seteuid as well.
+   * seteuid ((uid_t)pwd->pw_uid); */
   setuid ((uid_t)pwd->pw_uid);
 
   /* Set up an initial environment for the shell that we exec() */

@@ -1,3 +1,9 @@
+2002-09-02  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* rshd.c: We must not seteuid before we setuid.  If we do, we
+	don't have priviledges to complete the second operation.  Thanks
+	to Chris Ulherr <chris.ulherr@inet.com> for reporting this.
+
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* rshd.c <version.h>: Include removed.
