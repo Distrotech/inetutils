@@ -240,7 +240,7 @@ ipaddr2str (struct in_addr ina)
 struct icmp_diag {
   int type;
   char *text;
-  void (*fun) (struct ip *, icmphdr_t *, void *data);
+  void (*fun) (icmphdr_t *, void *data);
   void *data;
 };
 
@@ -317,11 +317,12 @@ print_ip_header (struct ip *ip)
 }
 
 void
-print_ip_data (struct ip *ip, icmphdr_t *icmp, void *data)
+print_ip_data (icmphdr_t *icmp, void *data)
 {
   int hlen;
   u_char *cp;
-
+  struct ip *ip = &icmp->icmp_ip;
+  
   print_ip_header (ip);
 
   hlen = ip->ip_hl << 2;
@@ -337,18 +338,18 @@ print_ip_data (struct ip *ip, icmphdr_t *icmp, void *data)
 }
 
 static void
-print_icmp (struct ip *ip, icmphdr_t *icmp, void *data)
+print_icmp (icmphdr_t *icmp, void *data)
 {
   print_icmp_code (icmp->icmp_code, data);
-  print_ip_data (ip, icmp, NULL);
+  print_ip_data (icmp, NULL);
 }
 
 static void
-print_parameterprob (struct ip *ip, icmphdr_t *icmp, void *data)
+print_parameterprob (icmphdr_t *icmp, void *data)
 {
   printf ("Parameter problem: IP address = %s\n",
 	  inet_ntoa (icmp->icmp_gwaddr));
-  print_ip_data (ip, icmp, data);
+  print_ip_data (icmp, data);
 }
 
 struct icmp_diag icmp_diag[] = {
@@ -395,7 +396,7 @@ print_icmp_header (struct sockaddr_in *from,
 	  if (p->text)
 	    printf ("%s\n", p->text);
 	  if (p->fun)
-	    p->fun (ip, icmp, p->data);
+	    p->fun (icmp, p->data);
 	  return;
 	}
     }
