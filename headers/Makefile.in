@@ -21,6 +21,7 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-DISTFILES = getopt.h version.h osockaddr.h
+DISTFILES = version.h acconfig.h config.h.in getopt.h osockaddr.h
+MAINTCLEAN = config.h.in
 
 include $(RULES)
