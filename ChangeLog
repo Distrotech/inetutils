@@ -1,5 +1,7 @@
 1997-09-15  Miles Bader  <miles@gnu.ai.mit.edu>
 
+	* libinetutils/localhost.c: Protect include of <malloc.h>.
+
 	* libinetutils/version.c (inetutils_version): Change to `1.3.1a'.
 
 	* libinetutils/ttymsg.c (ttymsg): Dynamically allocate DEVICE.
