@@ -1,0 +1,29 @@
+1999-06-08  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd/syslogd.c (MAXSVLINE): Increase number.
+	(cfline): Double size of ebuf.
+
+	* syslogd/syslogd.c (decode): Double buffer size.
+
+199-08-07  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd/syslogd.c (usage): Add -V option,
+	make output consistent with other GNU tools.
+
+1999-08-07  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Mon Oct 12 22:18:34 CEST 1998: Martin Schulze <joey@infodrom.north.de>
+Modified printline() to support 8bit characters - such as
+russion letters.  Thanks to Vladas Lapinskas <lapinskas@mail.iae.lt>.
+
+	* syslogd/syslogd.c (printline): Make eight bit clean for our
+	friends in Russia (and other).
+
+1999-06-08  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd/syslogd.c (fprintlog): Use snprintf instead of sprintf.
+	* syslogd/syslogd.c: Fixed typo in comment.
+	* syslogd/syslogd.c: Include <version.h>.
+	(main): Add option -V (version).
+

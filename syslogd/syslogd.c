@@ -54,7 +54,7 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
  *
  * Defined Constants:
  *
- * MAXLINE -- the maximimum line length that can be handled.
+ * MAXLINE -- the maximum line length that can be handled.
  * DEFUPRI -- the default priority for user messages
  * DEFSPRI -- the default priority for kernel messages
  *
@@ -122,6 +122,8 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+
+#include <version.h>
 
 char	*LogName = PATH_LOG;
 char	*ConfFile = PATH_LOGCONF;
@@ -248,7 +250,7 @@ main(argc, argv)
 	char line[MAXLINE + 1];
 #endif
 
-	while ((ch = getopt(argc, argv, "df:m:p:")) != EOF)
+	while ((ch = getopt(argc, argv, "df:m:p:V")) != EOF)
 		switch(ch) {
 		case 'd':		/* debug */
 			Debug++;
@@ -262,6 +264,10 @@ main(argc, argv)
 		case 'p':		/* path */
 			LogName = optarg;
 			break;
+		case 'V':
+			printf("syslogd (%s) %s\n", inetutils_package,
+				inetutils_version);
+			exit(0);
 		case '?':
 		default:
 			usage();
