@@ -20,10 +20,11 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(bindir)/syslog $(bindir)/logger $(man1dir)/syslog.1
+INSTALL_TARGETS = $(bindir)/syslog $(bindir)/logger $(man1dir)/syslog.1
+SRCS = syslog.c
+DISTFILES = $(SRCS) syslog.1 Makefile.in
 
 all: syslog
-syslog: syslog.o
 
 $(bindir)/logger: $(bindir)/syslog
 	ln $< $@
