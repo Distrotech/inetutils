@@ -1,118 +1,106 @@
-/* TODO: implement */
+/* Slightly modified version of libutil. There's probably
+   a better way to do this.
+   Adapted to inetutils by Bernhard Rosenkraenzer <bero@startrek.in-trier.de> */
+/* Copyright (c) 1990, 1993
+ *	The Regents of the University of California.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+#ifdef HAVE_CONFIG_H
+	#include <config.h>
+#endif
+#ifdef HAVE_SYS_CDEFS_H
+	#include <sys/cdefs.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#ifdef HAVE_TERMIOS_H
+	#include <termios.h>
+#endif
+#include <errno.h>
+#ifdef HAVE_UNISTD_H
+	#include <unistd.h>
+#endif
+#include <stdio.h>
+#ifdef HAVE_STRING_H
+	#include <string.h>
+#endif
+#include <grp.h>
 
-#if 0 
-
-	int
-getpty(ptynum)
-int *ptynum;
+int openpty(amaster, aslave, name, termp, winp)
+	int *amaster, *aslave;
+	char *name;
+	struct termios *termp;
+	struct winsize *winp;
 {
-	register int p;
-#ifdef	STREAMSPTY
-	int t;
-	char *ptsname();
+	char line[] = "/dev/ptyXX";
+	register const char *cp1, *cp2;
+	register int master, slave, ttygid;
+	struct group *gr;
 
-	p = open("/dev/ptmx", O_RDWR);
-	if (p > 0) {
-		grantpt(p);
-		unlockpt(p);
-		strcpy(line, ptsname(p));
-		return(p);
-	}
+	if ((gr = getgrnam("tty")) != NULL)
+		ttygid = gr->gr_gid;
+	else
+		ttygid = -1;
 
-#else	/* ! STREAMSPTY */
-#ifndef CRAY
-	register char *cp, *p1, *p2;
-	register int i;
-#if defined(sun) && defined(TIOCGPGRP) && BSD < 199207
-	int dummy;
-#endif
-
-#ifndef	__hpux
-	(void) sprintf(line, "/dev/ptyXX");
-	p1 = &line[8];
-	p2 = &line[9];
-#else
-	(void) sprintf(line, "/dev/ptym/ptyXX");
-	p1 = &line[13];
-	p2 = &line[14];
-#endif
-
-	for (cp = "pqrstuvwxyzPQRST"; *cp; cp++) {
-		struct stat stb;
-
-		*p1 = *cp;
-		*p2 = '0';
-		/*
-		 * This stat() check is just to keep us from
-		 * looping through all 256 combinations if there
-		 * aren't that many ptys available.
-		 */
-		if (stat(line, &stb) < 0)
-			break;
-		for (i = 0; i < 16; i++) {
-			*p2 = "0123456789abcdef"[i];
-			p = open(line, O_RDWR);
-			if (p > 0) {
-#ifndef	__hpux
+	for (cp1 = "pqrstuvwxyzPQRST"; *cp1; cp1++) {
+		line[8] = *cp1;
+		for (cp2 = "0123456789abcdef"; *cp2; cp2++) {
+			line[9] = *cp2;
+			if ((master = open(line, O_RDWR, 0)) == -1) {
+				if (errno == ENOENT)
+					return (-1);	/* out of ptys */
+			} else {
 				line[5] = 't';
-#else
-				for (p1 = &line[8]; *p1; p1++)
-					*p1 = *(p1+1);
-				line[9] = 't';
-#endif
-				chown(line, 0, 0);
-				chmod(line, 0600);
-#if defined(sun) && defined(TIOCGPGRP) && BSD < 199207
-				if (ioctl(p, TIOCGPGRP, &dummy) == 0
-				    || errno != EIO) {
-					chmod(line, 0666);
-					close(P);
-					line[5] = 'p';
-				} else
-#endif /* defined(sun) && defined(TIOCGPGRP) && BSD < 199207 */
-					return(p);
+				chown(line, getuid(), ttygid);
+				chmod(line, S_IRUSR|S_IWUSR|S_IWGRP);
+				revoke(line);
+				if ((slave = open(line, O_RDWR, 0)) != -1) {
+					*amaster = master;
+					*aslave = slave;
+					if (name)
+						strcpy(name, line);
+					if (termp)
+						(void) tcsetattr(slave, 
+							TCSAFLUSH, termp);
+					if (winp)
+						(void) ioctl(slave, TIOCSWINSZ, 
+							(char *)winp);
+					return (0);
+				}
+				(void) close(master);
+				line[5] = 'p';
 			}
 		}
 	}
-#else	/* CRAY */
-	extern lowpty, highpty;
-	struct stat sb;
-
-	for (*ptynum = lowpty; *ptynum <= highpty; (*ptynum)++) {
-		(void) sprintf(myline, "/dev/pty/%03d", *ptynum);
-		p = open(myline, O_RDWR);
-		if (p < 0)
-			continue;
-		(void) sprintf(line, "/dev/ttyp%03d", *ptynum);
-		/*
-		 * Here are some shenanigans to make sure that there
-		 * are no listeners lurking on the line.
-		 */
-		if(stat(line, &sb) < 0) {
-			(void) close(p);
-			continue;
-		}
-		if(sb.st_uid || sb.st_gid || sb.st_mode != 0600) {
-			chown(line, 0, 0);
-			chmod(line, 0600);
-			(void)close(p);
-			p = open(myline, O_RDWR);
-			if (p < 0)
-				continue;
-		}
-		/*
-		 * Now it should be safe...check for accessability.
-		 */
-		if (access(line, 6) == 0)
-			return(p);
-		else {
-			/* no tty side to pty so skip it */
-			(void) close(p);
-		}
-	}
-#endif	/* CRAY */
-#endif	/* STREAMSPTY */
-	return(-1);
+	errno = ENOENT;	/* out of ptys */
+	return (-1);
 }
-
-#endif

@@ -1,5 +1,8 @@
 /* Based on the rcmd.c.new file distributed with linux libc 5.4.19
-   Adapted to inetutils by Bernhard Rosenkraenzer <bero@startrek.in-trier.de> */
+   Adapted to inetutils by Bernhard Rosenkraenzer <bero@startrek.in-trier.de>
+
+   Note that a lot in this file is superfluous; hopefully it won't be a
+   problem for systems that need it for iruserok &c....  */
 /*
  * Copyright (c) 1983, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
@@ -34,7 +37,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-	#include <config.h>
+# include <config.h>
 #endif
 #include <pwd.h>
 #include <sys/file.h>
@@ -45,8 +48,13 @@
 #include <sys/param.h>
 #include <sys/socket.h>
 #ifdef HAVE_STRING_H
-	#include <string.h>
+# include <string.h>
 #endif
+#include <netinet/in.h>
+#ifdef HAVE_ARPA_NAMESER_H
+# include <arpa/nameser.h>
+#endif
+#include <netdb.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -311,7 +319,7 @@ iruserok(u_long raddr, int superuser, const char *ruser, const char *luser)
 	char pbuf[MAXPATHLEN];
 
 	first = 1;
-	hostf = superuser ? NULL : fopen(_PATH_HEQUIV, "r");
+	hostf = superuser ? NULL : fopen(PATH_HEQUIV, "r");
 again:
 	if (hostf) {
 		if (__ivaliduser(hostf, raddr, luser, ruser) == 0) {

@@ -35,17 +35,22 @@
 static char sccsid[] = "@(#)login_tty.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <utmp.h>
 
 int
 login_tty(fd)
 	int fd;
 {
+#ifdef HAVE_SETSID
 	(void) setsid();
+#endif
 #ifdef TIOCSCTTY
 	if (ioctl(fd, TIOCSCTTY, (char *)NULL) == -1)
 		return (-1);
