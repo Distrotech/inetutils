@@ -199,7 +199,7 @@ get_args (arg0, prompt, argc, argv)
   strcpy (line, arg0);
   strcat (line, " ");
 
-  printf(prompt);
+  printf("%s", prompt);
   fgets (line + arg0_len + 1, sizeof line - arg0_len - 1, stdin);
 
   makeargv();

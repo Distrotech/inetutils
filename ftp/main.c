@@ -338,7 +338,7 @@ cmdscanner(top)
 			break;
 #else
 		if (prompt) {
-			printf (prompt);
+			printf ("%s",prompt);
 			fflush(stdout);
 		}
 

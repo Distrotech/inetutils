@@ -101,7 +101,7 @@ local_des_read_pw_string(s,max,prompt,verify)
     if (ioctl(0,TIOCSETP,(char *)&tty_state) == -1)
 	return -1;
     while (!ok) {
-	(void) printf(prompt);
+	(void) printf("%s",prompt);
 	(void) fflush(stdout);
 	while (!fgets(s, max, stdin));
 
