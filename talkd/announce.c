@@ -109,7 +109,7 @@ announce(request, remote_machine)
 	struct stat stbuf;
 
 	(void)snprintf(full_tty, sizeof(full_tty),
-	    "%s%s", _PATH_DEV, request->r_tty);
+	    "%s%s", PATH_DEV, request->r_tty);
 	if (stat(full_tty, &stbuf) < 0 || (stbuf.st_mode&020) == 0)
 		return (PERMISSION_DENIED);
 	return (print_mesg(request->r_tty, tf, request, remote_machine));
