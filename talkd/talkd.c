@@ -99,8 +99,8 @@ main(argc, argv)
 		syslog(LOG_ERR, "localhost: %m");
 		_exit(1);
 	}
-	if (chdir(_PATH_DEV) < 0) {
-		syslog(LOG_ERR, "chdir: %s: %m", _PATH_DEV);
+	if (chdir(PATH_DEV) < 0) {
+		syslog(LOG_ERR, "chdir: %s: %m", PATH_DEV);
 		_exit(1);
 	}
 	if (argc > 1 && strcmp(argv[1], "-d") == 0)

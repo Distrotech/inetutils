@@ -118,7 +118,7 @@ char **argv;
 	}
 	if (fork())
 		exit(0);
-	if ((s=open(_PATH_TTY, 2)) >= 0){
+	if ((s=open(PATH_TTY, 2)) >= 0){
 		ioctl(s, TIOCNOTTY, (char *)0);
 		close(s);
 	}
