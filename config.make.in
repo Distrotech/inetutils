@@ -1,0 +1,33 @@
+SHELL = /bin/sh
+
+# srcdir is defined in the individual makefiles
+top_srcdir = @top_srcdir@
+
+VPATH = $(srcdir)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+includedir = @includedir@
+libdir = @libdir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+sysconfdir = @sysconfdir@
+localstatedir = @localstatedir@
+sharedstatedir = @sharedstatedir@
+mandir = @mandir@
+man1dir = $(mandir)/man1
+man8dir = $(mandir)/man8
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+CC = @CC@
+YACC = @YACC@
+DEFS = @DEFS@
+LIBS = @LIBS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+RM = @RM@
+
+CPPFLAGS += $(DEFS)
+LDLIBS += $(LIBS)
