@@ -2355,7 +2355,7 @@ tn(int argc, char *argv[])
 		return 0;
 	    }
 	} else {
-#ifndef HAVE_HTONS_DECL
+#ifndef HAVE_DECL_HTONS
 #ifndef htons
 	    u_short htons __P((unsigned short));
 #endif
