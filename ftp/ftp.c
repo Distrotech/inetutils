@@ -76,6 +76,11 @@ static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 
 #include "ftp_var.h"
 
+#ifndef HAVE_FCLOSE_DECL
+/* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
+extern int fclose __P ((FILE *));
+#endif
+
 extern int h_errno;
 
 struct	sockaddr_in hisctladdr;
