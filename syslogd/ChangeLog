@@ -1,5 +1,14 @@
 2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
 
+	* suslod.c: If HAVE_SYS_TYPES_H, include <sys/types> for pid_t.
+	New global variable fklog.
+	(main): Fix comment. Remove local variables fklog, sunx, sin.
+	(die): Close fklog if open.
+	(waitdaemon): Ansify.
+	(timedout): Likewise. Drop __unused attribute.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c (waitdaemon, timedout): New prototype and functions
 	from FreeBSD syslogd (rev 1.66).
 	(main): Remove conditional MSG_BSIZE on line variable.

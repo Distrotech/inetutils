@@ -114,6 +114,9 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 #include <stdarg.h>
 
 #include <version.h>
@@ -236,6 +239,7 @@ int	Debug;			/* debug flag */
 char	*LocalHostName = 0;	/* our hostname */
 char	*LocalDomain;		/* our local domain name */
 int	finet;			/* Internet datagram socket */
+int     fklog;                  /* Kernel log device. */
 int	LogPort;		/* port number for INET connections */
 int	Initialized = 0;	/* set when we have initialized ourselves */
 int	MarkInterval = 20 * 60;	/* interval between marks in seconds */
@@ -285,15 +289,15 @@ void   timedout __P((int));
 int
 main(int argc, char *argv[])
 {
-	int ch, i, fklog, l;
+	int ch, i, l;
 	size_t len;
-	struct sockaddr_un sunx, fromunix;
-	struct sockaddr_in sin, frominet;
+	struct sockaddr_un fromunix;
+	struct sockaddr_in frominet;
 	FILE *fp;
 	char *p;
 	char line[MAXLINE + 1];
 	struct timeval tv, *tvp;
-	pid_t ppid = 1;		/* 1: We run in daemon mode and didn't fork. */
+	pid_t ppid = 1;		/* 1: We run in debug mode and didn't fork. */
 
 	for (i = 0; i < MAXFUNIX; i++) {
 	  funix[i] = -1;
@@ -448,8 +452,7 @@ main(int argc, char *argv[])
 	}
 
 	/* Tell select to return immediately until boot messages are done. */
-
-        tvp = &tv;
+	tvp = &tv;
 	tv.tv_sec = tv.tv_usec = 0;
 
 	for (;;) {
@@ -713,8 +716,7 @@ crunch_list(char *list)
  * Set a timer so we don't hang forever if it wedges.
  */
 int
-waitdaemon(nochdir, noclose, maxwait)
-        int nochdir, noclose, maxwait;
+waitdaemon(int nochdir, int noclose, int maxwait)
 {
         int fd;
         int status;
@@ -775,8 +777,7 @@ waitdaemon(nochdir, noclose, maxwait)
  * see what happened.
  */
 void
-timedout(sig)
-        int sig __unused;
+timedout(int signo)
 {
         int left;
         left = alarm(0);
@@ -787,8 +788,6 @@ timedout(sig)
         } else
                 exit(0);
 }
-
-
 
 #if 0
 char *
@@ -1521,6 +1520,9 @@ die(int signo)
 		errno = 0;
 		logerror(buf);
 	}
+
+	/* Close the kernel log device. */
+	if (fklog >= 0) close(fklog);
 
 	/* Close the UNIX sockets. */
 	for (i = 0; i < nfunix; i++)
