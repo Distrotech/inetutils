@@ -98,7 +98,7 @@ ftpd_popen(program, type)
 	for (argc = 0, cp = program; argc < MAX_ARGC - 1; cp = NULL, argc++)
 		if (!(argv[argc] = strtok(cp, " \t\n")))
 			break;
-	argv[MAX_ARGV - 1] = NULL;
+	argv[MAX_ARGC - 1] = NULL;
 
 	/* glob each piece */
 	gargv[0] = argv[0];
