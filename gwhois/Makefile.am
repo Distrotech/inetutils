@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-bin_PROGRAMS = @BUILD_WHOIS@
+bin_PROGRAMS = @whois_BUILD@
 
 INCLUDES = -I$(top_builddir)/include
 
