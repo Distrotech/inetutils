@@ -94,7 +94,7 @@ help ()
   -c, --no-rc                Don't read the user's .telnetrc file\n\
   -d, --debug                Turn on debugging\n\
   -e CHAR, --escape=CHAR     Use CHAR as an escape character\n\
-  -E, --no-escape            Use no escape character\n
+  -E, --no-escape            Use no escape character\n\
   -K, --no-login             Don't automatically login to the remote system\n\
   -l USER, --user=USER       If the remote system understands the ENVIRON\n\
                              option, then USER will be sent to the remote\n\
@@ -104,13 +104,11 @@ help ()
   -n FILE, --trace=FILE      Record trace information into FILE\n\
   -r, --rlogin               Use a user-interface similar to rlogin\n\
   -S TOS, --tos=TOS          Use the IP type-of-service TOS\n\
-  -X ATYPE, --disable-auth=ATYPE   Disable type ATYPE authentication\n\
-");
+  -X ATYPE, --disable-auth=ATYPE   Disable type ATYPE authentication");
 
 #ifdef ENCRYPTION
   puts ("\
-  -x, --encrypt              Turns on encryption of the data stream if possible\n\
-");
+  -x, --encrypt              Encrypt the data stream, if possible");
 #endif
 
 #ifdef AUTHENTICATION
@@ -118,8 +116,7 @@ help ()
  When using Kerberos authentication:\n\
   -f, --fwd-credentials      Allow the the local credentials to be forwarded\n\
   -k REALM, --realm=REALM    Obtain tickets for the remote host in REALM\n\
-                             instead of the remote host's realm\n\
-");
+                             instead of the remote host's realm");
 #endif
 
 #if defined(TN3270) && defined(unix)
@@ -128,8 +125,7 @@ help ()
       -noasynch\n\
       -noasynctty\n\
       -noasyncnet\n\
-  -t LINE, --transcom=LINE\n\
-");
+  -t LINE, --transcom=LINE");
 #endif
 
 #if defined (ENCRYPTION) || defined (AUTHENTICATION) || defined (TN3270)
@@ -138,8 +134,7 @@ help ()
 
   puts ("\
       --help                 Give this help list\n\
-      --version              Print program version\n\
-");
+      --version              Print program version");
 
   exit (0);
 }
