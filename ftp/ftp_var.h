@@ -69,8 +69,8 @@ char	pasv[64];		/* passive port for proxy data connection */
 char	*altarg;		/* argv[1] with no shell-like preprocessing  */
 char	ntin[17];		/* input translation table */
 char	ntout[17];		/* output translation table */
-char	*mapin = 0;		/* input map template */
-char	*mapout = 0;		/* output map template */
+char	*mapin;			/* input map template */
+char	*mapout;		/* output map template */
 char	typename[32];		/* name of file transfer type */
 int	type;			/* requested file transfer type */
 int	curtype;		/* current file transfer type */
