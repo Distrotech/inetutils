@@ -172,7 +172,7 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
     fi
   fi])dnl
 
-dnl IU_LIB_NCURSES -- check for ncurses
+dnl IU_LIB_NCURSES -- check for, and configure, ncurses
 dnl
 AC_DEFUN([IU_LIB_NCURSES], [
   AC_ARG_ENABLE(ncurses,    [  --disable-ncurses       don't prefer -lncurses over -lcurses],
@@ -183,16 +183,35 @@ AC_DEFUN([IU_LIB_NCURSES], [
       # Use ncurses header files instead of the ordinary ones, if possible;
       # is there a better way of doing this, that avoids looking in specific
       # directories?
-      AC_CACHE_CHECK(for ncurses include dir,
-		     inetutils_cv_includedir_ncurses,
-	for D in /local/include /include /usr/local/include /usr/include; do
-	  if test -d $D/ncurses; then
-	    inetutils_cv_includedir_ncurses="$D/ncurses"
-	    break
-	  fi
-          test "$inetutils_cv_includedir_ncurses" \
-	    || inetutils_cv_includedir_ncurses=none
-	done)
+      AC_ARG_WITH(ncurses-include-dir,
+[  --with-ncurses-include-dir=DIR
+                          Set directory containing the include files for
+                          use with -lncurses, when it isn't installed as
+                          the default curses library.  If DIR is "none",
+                          then no special ncurses include files are used.
+  --without-ncurses-include-dir
+                          Equivalent to --with-ncurses-include-dir=none])dnl
+      if test "${with_ncurses_include_dir+set}" = set; then
+        AC_MSG_CHECKING(for ncurses include dir)
+	case "$with_ncurses_include_dir" in
+	  no|none)
+	    inetutils_cv_includedir_ncurses=none;;
+	  *)
+	    inetutils_cv_includedir_ncurses="$with_ncurses_include_dir";;
+	esac
+        AC_MSG_RESULT($inetutils_cv_includedir_ncurses)
+      else
+	AC_CACHE_CHECK(for ncurses include dir,
+		       inetutils_cv_includedir_ncurses,
+	  for D in $includedir $prefix/include /local/include /usr/local/include /include /usr/include; do
+	    if test -d $D/ncurses; then
+	      inetutils_cv_includedir_ncurses="$D/ncurses"
+	      break
+	    fi
+	    test "$inetutils_cv_includedir_ncurses" \
+	      || inetutils_cv_includedir_ncurses=none
+	  done)
+      fi
       if test "$inetutils_cv_includedir_ncurses" = none; then
         NCURSES_INCLUDE=""
       else
