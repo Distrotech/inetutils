@@ -771,36 +771,23 @@ int
 local_domain(h)
 	char *h;
 {
-	int is_local = 0;
-	char *localhost = 0;
-	size_t localhost_len = 0;
+	extern char *localhost ();
+	char *hostname = localhost ();
 
-	errno = 0;
-	do {
-		if (localhost) {
-		        localhost_len += localhost_len;
-			localhost = realloc (localhost, localhost_len);
-		} else {
-			localhost_len = 128; /* Initial guess */
-			localhost = malloc (localhost_len);
-		}
-		if (! localhost)
-		        return 0;
-	} while ((gethostname(localhost, localhost_len) == 0
-		  && ! memchr (localhost, '\0', localhost_len))
-		 || errno == ENAMETOOLONG);
-
-	if (! errno) {
-		char *p1 = topdomain(localhost);
-		char *p2 = topdomain(h);
+	if (! hostname)
+		return 0;
+	else {
+		int is_local = 0;
+		char *p1 = topdomain (hostname);
+		char *p2 = topdomain (h);
 
 		if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
 			is_local = 1;
+
+		free (hostname);
+
+		return is_local;
 	}
-
-	free (localhost);
-
-	return is_local;
 }
 
 char *
