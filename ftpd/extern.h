@@ -41,7 +41,7 @@ void	dologout __P((int));
 void	fatal __P((char *));
 int	ftpd_pclose __P((FILE *));
 FILE   *ftpd_popen __P((char *, char *));
-char   *getline __P((char *, int, FILE *));
+char   *telnet_fgets __P((char *, int, FILE *));
 void	logwtmp __P((char *, char *, char *));
 void	lreply __P((int, const char *, ...));
 void	makedir __P((char *));
