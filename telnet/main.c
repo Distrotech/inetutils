@@ -92,7 +92,7 @@ help ()
 {
   fprintf (stdout, USAGE, prompt);
 
-  puts ("\n\
+  puts ("Login to remote system HOST (optionally, on service port PORT)\n\n\
   -8, --binary               Use an 8-bit data path\n\
   -a, --login                Attempt automatic login\n\
   -c, --no-rc                Don't read the user's .telnetrc file\n\
@@ -135,7 +135,9 @@ help ()
 
   puts ("\
       --help                 Give this help list\n\
-      --version              Print program version");
+  -V, --version              Print program version");
+
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
 
   exit (0);
 }
@@ -357,7 +359,8 @@ main(argc, argv)
 		case '&':
 			help ();
 		case 'V':
-			puts (inetutils_version);
+			printf ("telnet (%s) %s\n",
+				inetutils_package, inetutils_version);
 			exit (0);
 
 		case '?':
