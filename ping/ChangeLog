@@ -1,3 +1,7 @@
+2001-11-01  Alain Magloire
+
+	* ping.8: New file.
+
 2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
 
 	* ping_echo.c: Removed restriction on hostname lengths in
