@@ -1210,21 +1210,7 @@ lcd(argc, argv)
 
 	free (dir);
 
-#ifdef HAVE_GETCWD_ZERO_SIZE
-	/* A size arg of zero means `as big as necessary.  */
-	dir = getcwd (0, 0);
-#else /* !HAVE_GETCWD_ZERO_SIZE */
-#ifdef PATH_MAX
-	dir = getcwd (0, PATH_MAX);
-#else /* !PATH_MAX */
-#ifdef MAXPATHLEN
-	dir = getcwd (0, MAXPATHLEN);
-#else /* !MAXPATHLEN */
-	dir = getcwd (0, 2048);
-#endif /* MAXPATHLEN */
-#endif /* PATH_MAX */
-#endif /* HAVE_GETCWD_ZERO_SIZE */
-
+	dir = xgetcwd ();
 	if (dir) {
 		printf("Local directory now %s\n", dir);
 		free (dir);

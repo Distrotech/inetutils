@@ -2,3 +2,4 @@
 	* ruserpass.c: MACH was define on Hurd.  We protect
 	the defines before using them, MACH was change to MACHINE.
 	Noted by the Hurd people(Bayley, Marcus)
+    	* cmds.c : use xgetcwd().
