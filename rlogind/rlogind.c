@@ -71,12 +71,9 @@
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
-#ifdef HAVE_STROPTS_H
-# include <stropts.h>
-#endif
 
 #ifndef TIOCPKT_WINDOW
-#define TIOCPKT_WINDOW 0x80
+# define TIOCPKT_WINDOW 0x80
 #endif
 
 /* `defaults' for tty settings.  */
@@ -100,16 +97,6 @@
 #endif /* KERBEROS */
 
 #define	ENVSIZE	(sizeof("TERM=")-1)	/* skip null for concatenation */
-
-#ifndef HAVE_GETMSG
-struct strbuf
-{
-  int maxlen;
-  int len;
-  char *buf;
-};
-int getmsg __P((int fd, struct strbuf *ctl, struct strbuf *dat, int *flags));
-#endif
 
 #ifndef DEFMAXCHILDREN
 # define DEFMAXCHILDREN 10   /* Default maximum number of children */
@@ -739,6 +726,7 @@ do_rlogin(int infd, struct auth_data *ap)
       syslog(LOG_ERR, "root logins not permitted");
       fatal(infd, "Permission denied", 0);
     }
+
   rc = iruserok (ap->from.sin_addr.s_addr, 0,
 		 ap->rusername, ap->lusername);
   if (rc)
@@ -1001,42 +989,34 @@ protocol(int f, int p)
       
       if (FD_ISSET (p, &ibits))
 	{
-	  char cbuf[1], dbuf[1024 + 1];
-	  struct strbuf ctl, dat;
-	  int flags, rc;
-
-	  ctl.maxlen = sizeof (cbuf);
-	  ctl.len = 0;
-	  ctl.buf = cbuf;
-	  dat.maxlen = sizeof (dbuf);
-	  dat.len = 0;
-	  dat.buf = dbuf;
-	  flags = 0;
-	  rc = getmsg (p, &ctl, &dat, &flags);
+	  char dbuf[1024 + 1];
+	  
+	  pcc = read (p, dbuf, sizeof(dbuf));
 
 	  pbp = dbuf;
-	  pcc = dat.len;
-	  if (rc < 0)
+	  if (pcc < 0)
 	    {
 	      if (errno == EWOULDBLOCK)
 		pcc = 0;
 	      else
 		break;
 	    }
-	  else if (ctl.len == 0)
+	  else if (pcc == 0)
 	    {
 	      break;
 	    }
-	  else if (cbuf[0] == 0)
+	  else if (dbuf[0] == 0)
 	    {
+	      pbp++;
+	      pcc--;
 	      IF_NOT_ENCRYPT(FD_SET(f, &obits));	/* try write */
 	    }
 	  else
 	    {
-	      if (pkcontrol(cbuf[0]))
+	      if (pkcontrol(dbuf[0]))
 		{
-		  cbuf[0] |= oobdata[0];
-		  send (f, &cbuf[0], 1, MSG_OOB);
+		  dbuf[0] |= oobdata[0];
+		  send (f, &dbuf[0], 1, MSG_OOB);
 		}
 	      pcc = 0;
 	    }
@@ -1151,34 +1131,6 @@ fatal (int f, char *msg, int syserr)
   write (f, buf, bp + len - buf);
   exit (1);
 }
-
-#ifndef HAVE_GETMSG
-
-int
-getmsg (int fd, struct strbuf *ctl, struct strbuf *dat, int *flags)
-{
-  char buf[1024];
-  int len;
-
-  len = read(fd, buf, sizeof(buf));
-  if (len <= 0)
-    {
-      syslog(LOG_ERR, "error reading from master fd: %s", strerror(errno));
-      return -1;
-    }
-  ctl->len = 1;
-  ctl->buf[0] = buf[0];
-
-  len--;
-  if (len > dat->maxlen)
-    len = dat->maxlen;
-
-  dat->len = len;
-  memcpy(dat->buf, buf+1, len);
-  return 0;
-}
-
-#endif
 
 static char usage_str[] =
 "usage: rlogind [options]\n"
