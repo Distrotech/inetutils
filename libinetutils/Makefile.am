@@ -11,7 +11,7 @@ libinetutils_a_SOURCES = argcv.c cleansess.c daemon.c des_rw.c kcmd.c krcmd.c \
 libinetutils_a_LIBADD = daemon.o @LIBOBJS@
 
 noinst_HEADERS = argcv.h snprintf.h pathmax.h regex.h
-EXTRA_DIST = regex.c
+EXTRA_DIST = regex.c obstack.c
 
 @PATHDEFS_MAKE@
 
