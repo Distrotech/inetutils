@@ -2,6 +2,10 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 noinst_LIBRARIES = libinetutils.a
 
+noinst_HEADERS = argcv.h
+
+EXTRA_DIST = logwtmp.c
+
 libinetutils_a_SOURCES = argcv.c cleansess.c daemon.c des_rw.c kcmd.c	\
 	krcmd.c localhost.c logwtmpko.c setsig.c tftpsubs.c ttymsg.c	\
 	utmp_init.c utmp_logout.c xalloc_die.c
