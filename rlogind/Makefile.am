@@ -12,6 +12,8 @@ man_MANS = rlogind.8
 
 INCLUDES = $(PATHDEF_DEV) $(PATHDEF_LOGIN)
 
-LDADD = -L../libinetutils -linetutils
+LIBUTIL = @LIBUTIL@
+
+LDADD = -L../libinetutils -linetutils $(LIBUTIL)
 
 EXTRA_DIST = $(man_MANS)

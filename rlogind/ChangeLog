@@ -1,0 +1,6 @@
+1999-05-19 Alain Magloire
+	* rlogind.c : make an utmp entry before exec(login);
+	remove entry in cleanup().
+
+1999-05-19  Jeff Bayley
+	* Makefile.am : add LIBUTIL, needed for the Hurd.
