@@ -20,6 +20,8 @@
 #include <intalkd.h>
 #include <pwd.h>
 #include <regex.h>
+#include <ctype.h>
+#include "argcv.h"
 
 typedef struct netdef netdef_t;
 
@@ -48,12 +50,11 @@ acl_t *acl_head, *acl_tail;
 
 #define DOTTED_QUAD_LEN 16
 
-int
+static int
 read_address (char **line_ptr, char *ptr)
 {
   char *startp = *line_ptr;
   char *endp;
-  unsigned int addr;
   int dotcount = 0;
 
   for (endp = startp; *endp; endp++, ptr++)
@@ -72,7 +73,7 @@ read_address (char **line_ptr, char *ptr)
   return dotcount;
 }
 
-netdef_t *
+static netdef_t *
 netdef_parse (char *str)
 {
   unsigned int ipaddr, netmask;
@@ -146,7 +147,7 @@ read_acl (char *config_file)
     }
 
   line = 0;
-  while (ptr = fgets (buf, sizeof buf, fp))
+  while ((ptr = fgets (buf, sizeof buf, fp)))
     {
       int len, i;
       int argc;
@@ -232,7 +233,7 @@ read_acl (char *config_file)
   fclose (fp);
 }
 
-acl_t *
+static acl_t *
 open_users_acl (char *name)
 {
   char *filename;
@@ -258,7 +259,7 @@ open_users_acl (char *name)
   return mark;
 }
 
-void
+static void
 netdef_free (netdef_t *netdef)
 {
   netdef_t *next;
@@ -271,7 +272,7 @@ netdef_free (netdef_t *netdef)
     }
 }
 
-void
+static void
 acl_free (acl_t *acl)
 {
   acl_t *next;
@@ -286,7 +287,7 @@ acl_free (acl_t *acl)
     }
 }
 
-void
+static void
 discard_acl (acl_t *mark)
 {
   if (mark)

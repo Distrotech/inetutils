@@ -111,6 +111,8 @@ process_request (CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
 
   if (debug)
     print_response("process_request response", rp);
+
+  return 0;
 }
 
 void

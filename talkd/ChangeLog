@@ -1,3 +1,36 @@
+2001-10-30  Alain Magloire
+
+	* Makefile.am:  Add -I ../libinetutils to have the argvc_xx()
+	protitypes.
+	* acl.c: add <ctype.h> we use isdigit()
+	add "argv.h" we use argv_xx() functions.
+	(read_address): Declared static and variable addr unuse nuked.
+	(netdef_parse): Declared static.
+	(open_users_acl): Declared static.
+	(netdef_free): Declared static.
+	(acl_free): Declared static.
+	(discard_acl): Declared static.
+	* announce.c (init_line format_line finish_line print_mesg):
+	Declared static.
+	* intalkd.h: Add prototypes for global functions.
+	* print.c (messages_types): Array declared const and static.
+	(answers): Array declared cnst and static.
+	(_xlat_num): Declared static.
+	(print_request): First argument declared const and should
+	have a return value.
+	(print_response): First argument declared const and should
+	have a return value.
+	* process.c (process_request): Bug, process did not have
+	a return value.
+	* table.c (lookup_request): Declared static and function
+	pointer with proper prototypes.
+	(fuzzy_comp): Declared static.
+	(exact_comp): Did not have a return value.
+	(delete_invite): Change prototype to correspond to
+	include/protocols/talkd.h wich want a unsinge long.
+	* talkd.c (main): Returned 0 for good measure.
+	(alarm_handler): It is a signal handler correct the prototype.
+
 2001-10-29  Sergey Poznyakoff
 
 	* acl.c: Fixed declaration of read_address(). Bugfix

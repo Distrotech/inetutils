@@ -98,11 +98,13 @@ main(int argc, char *argv[])
   read_acl (acl_file);
   talkd_init ();
   talkd_run (0);
+  return 0;
 }
 
 void
 talkd_init ()
 {
+  extern char * localhost(void);
   openlog ("talkd", LOG_PID, LOG_FACILITY);
   hostname = localhost ();
   if (!hostname)
@@ -114,9 +116,10 @@ talkd_init ()
 
 time_t last_msg_time;
 
-void
-alarm_handler ()
+static void
+alarm_handler (int err)
 {
+  (void)err;
   if ((time (NULL) - last_msg_time) >= max_idle_time)
     exit(0);
   alarm (timeout);

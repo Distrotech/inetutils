@@ -48,14 +48,14 @@ table_delete (table_t *ptr)
    Linear search: premature optimisation is the root of all
    Evil) */
 
-CTL_MSG *
-lookup_request (CTL_MSG *request, int (*comp)())
+static CTL_MSG *
+lookup_request (CTL_MSG *request, int (*comp)(table_t *, CTL_MSG *, time_t *))
 {
   table_t *ptr;
   time_t now;
-      
+
   time (&now);
-  
+
   if (debug)
     print_request ("lookup_request", request);
 
@@ -86,9 +86,10 @@ lookup_request (CTL_MSG *request, int (*comp)())
   return NULL;
 }
 
-int
+static int
 fuzzy_comp (table_t *ptr, CTL_MSG *request, time_t *unused)
 {
+  (void)unused;
   if (ptr->request.type == LEAVE_INVITE
       && strcmp(request->l_name, ptr->request.r_name) == 0
       && strcmp(request->r_name, ptr->request.l_name) == 0)
@@ -104,7 +105,7 @@ find_match (CTL_MSG *request)
   return lookup_request (request, fuzzy_comp);
 }
 
-int
+static int
 exact_comp (table_t *ptr, CTL_MSG *request, time_t *now)
 {
   if (request->type == ptr->request.type
@@ -166,11 +167,12 @@ insert_table (CTL_MSG *request, CTL_RESPONSE *response)
   ptr->prev = NULL;
   ptr->next = table;
   table = ptr;
+  return 0;
 }
 
 /* Delete the invitation with id 'id_num' */
 int
-delete_invite (int id_num)
+delete_invite (unsigned long id_num)
 {
   table_t *ptr;
 
@@ -182,6 +184,3 @@ delete_invite (int id_num)
       }
   return NOT_HERE;
 }
-
-
-  

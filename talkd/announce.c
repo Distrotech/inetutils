@@ -21,35 +21,12 @@
 #include <stdarg.h>
 #include <sys/uio.h>
 
-/* See if the user is accepting messages. If so, announce that
-   a talk is requested. */
-int
-announce (CTL_MSG *request, char *remote_machine)
-{
-  char *ttypath;
-  int len;
-  struct stat st;
-  int rc;
-
-  len = sizeof (PATH_DEV) + strlen (request->r_tty) + 1;
-  ttypath = malloc (len);
-  if (!ttypath)
-    {
-      syslog (LOG_CRIT, "out of memory");
-      exit (1);
-    }
-  sprintf (ttypath, "%s/%s", PATH_DEV, request->r_tty);
-  rc = stat (ttypath, &st);
-  free (ttypath);
-  if (rc < 0 || (st.st_mode & S_IWGRP) == 0)
-    return PERMISSION_DENIED;
-  return print_mesg (request->r_tty, request, remote_machine);
-}
-
 #undef MAX
 #define MAX(a,b) ( (a) > (b) ? (a) : (b) )
 #define N_LINES 5
 #define N_CHARS 256
+
+extern char * ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout);
 
 typedef struct
 {
@@ -60,13 +37,13 @@ typedef struct
   char buf[N_LINES*N_CHARS+3];
 } LINE;
 
-void
+static void
 init_line (LINE *lp)
 {
   memset (lp, 0, sizeof *lp);
 }
 
-void
+static void
 format_line (LINE *lp, const char *fmt, ...)
 {
   va_list ap;
@@ -81,7 +58,7 @@ format_line (LINE *lp, const char *fmt, ...)
   va_end (ap);
 }
 
-char *
+static char *
 finish_line (LINE *lp)
 {
   int i;
@@ -107,7 +84,7 @@ finish_line (LINE *lp)
   return lp->buf;
 }
 
-int
+static int
 print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
 {
   time_t t;
@@ -142,3 +119,27 @@ print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
   return SUCCESS;
 }
 
+/* See if the user is accepting messages. If so, announce that
+   a talk is requested. */
+int
+announce (CTL_MSG *request, char *remote_machine)
+{
+  char *ttypath;
+  int len;
+  struct stat st;
+  int rc;
+
+  len = sizeof (PATH_DEV) + strlen (request->r_tty) + 2;
+  ttypath = malloc (len);
+  if (!ttypath)
+    {
+      syslog (LOG_CRIT, "out of memory");
+      exit (1);
+    }
+  sprintf (ttypath, "%s/%s", PATH_DEV, request->r_tty);
+  rc = stat (ttypath, &st);
+  free (ttypath);
+  if (rc < 0 || (st.st_mode & S_IWGRP) == 0)
+    return PERMISSION_DENIED;
+  return print_mesg (request->r_tty, request, remote_machine);
+}

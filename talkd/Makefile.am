@@ -19,7 +19,7 @@ man_MANS = talkd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_DEV)
+INCLUDES = $(PATHDEF_DEV) -I${top_srcdir}/libinetutils
 
 LDADD = -L../libinetutils -linetutils
 
