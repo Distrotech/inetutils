@@ -1,5 +1,5 @@
 /* err.h --- 4.4BSD utility functions for error messages.
-Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 This file was part of the GNU C Library.
 
 The GNU C Library is free software; you can redistribute it and/or
@@ -25,17 +25,17 @@ Cambridge, MA 02139, USA.  */
 #endif
 
 /* Print FORMAT on stderr.  */
-extern void warn __P ((char *format, ...));
-extern void vwarn __P ((char *format, va_list));
+extern void warn __P ((const char *format, ...));
+extern void vwarn __P ((const char *format, va_list));
 
 /* Print "program: ", and FORMAT, and a newline, on stderr.  */
-extern void warnx __P ((char *format, ...));
-extern void vwarnx __P ((char *format, va_list));
+extern void warnx __P ((const char *format, ...));
+extern void vwarnx __P ((const char *format, va_list));
 
 /* Likewise, and then exit with STATUS.  */
-extern void err __P ((int __status, char *format, ...));
-extern void verr __P ((int __status, char *format, va_list));
-extern void errx __P ((int __status, char *format, ...));
-extern void verrx __P ((int __status, char *, va_list));
+extern void err __P ((int __status, const char *format, ...));
+extern void verr __P ((int __status, const char *format, va_list));
+extern void errx __P ((int __status, const char *format, ...));
+extern void verrx __P ((int __status, const char *, va_list));
 
 #endif	/* err.h */
