@@ -68,14 +68,6 @@ static char     sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
 #include "extern.h"
 #include "tftpsubs.h"
 
-#if !HAVE_DECL_ERRNO
-extern int      errno;
-#endif
-
-#if !HAVE_DECL_STRERROR
-extern const char *strerror __P ((int));
-#endif
-
 extern struct sockaddr_in peeraddr;	/* filled in by main */
 extern int      f;		/* the opened socket */
 extern int      trace;

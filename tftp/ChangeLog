@@ -1,3 +1,9 @@
+2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
+
+	* tftp.c: [!HAVE_DECL_ERRNO]: Removed extern declaration for
+	errno.
+	[!HAVE_DECL_STRERROR]: Removed extern declaration for strerror.
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (INCLUDES): Removed
