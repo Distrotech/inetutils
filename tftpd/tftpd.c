@@ -76,6 +76,10 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 
 #include "tftpsubs.h"
 
+#ifndef HAVE_STRERROR_DECL
+extern const char *strerror __P ((int));
+#endif
+
 #define	TIMEOUT		5
 
 #ifndef LOG_FTP
@@ -109,9 +113,9 @@ static struct dirlist {
 static int	suppress_naks;
 static int	logging;
 
-static char *errtomsg __P((int));
+static const char *errtomsg __P((int));
 static void  nak __P((int));
-static char *verifyhost __P((struct sockaddr_in *));
+static const char *verifyhost __P((struct sockaddr_in *));
 
 int
 main(argc, argv)
@@ -590,7 +594,7 @@ abort:
 
 struct errmsg {
 	int	e_code;
-	char	*e_msg;
+	const char *e_msg;
 } errmsgs[] = {
 	{ EUNDEF,	"Undefined error code" },
 	{ ENOTFOUND,	"File not found" },
@@ -603,7 +607,7 @@ struct errmsg {
 	{ -1,		0 }
 };
 
-static char *
+static const char *
 errtomsg(error)
 	int error;
 {
@@ -650,7 +654,7 @@ nak(error)
 		syslog(LOG_ERR, "nak: %m\n");
 }
 
-static char *
+static const char *
 verifyhost(fromp)
 	struct sockaddr_in *fromp;
 {
