@@ -1,0 +1,10 @@
+Makefile
+config.log
+Makefile.in
+configure
+config.cache
+pathdefs.make
+paths.defs
+config.status
+aclocal.m4
+

@@ -1,5 +1,10 @@
 2000-08-02 Jeff Bailey
 
+	* */.cvsignore: Mass add of .cvsignore files to beat CVS into
+	submission.
+
+2000-08-02 Jeff Bailey
+
 	* README-alpha: Advertise the new commit-inetutils@gnu.org mailing
 	list.
 

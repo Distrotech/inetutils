@@ -1,3 +1,7 @@
+2000-08-02 Jeff Bailey
+
+	* .cvsignore: Add generated file config.c
+
 2000-07-06 Alain Magloire
 
 	* Makefile.am : change the rule to generate config.c
