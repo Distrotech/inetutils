@@ -369,6 +369,8 @@ main (int argc, char *argv[])
   FILE *fp;
   char *p;
   char line[MAXLINE + 1];
+  char kline[MAXLINE + 1];
+  int kline_len = 0;
   pid_t ppid = 0;	/* We run in debug mode and didn't fork.  */
   struct pollfd *fdarray;
   unsigned long nfds = 0;
@@ -660,17 +662,69 @@ main (int argc, char *argv[])
 		continue;
 	    else if (fdarray[i].fd == fklog)
 	      {
+		/* Set to 1 if the kline possibly contains a log message.  */
+		int log_kline = 0;
+
 		/*dbg_printf ("klog message\n");*/
-		result = read (fdarray[i].fd, line, sizeof (line) - 1);
-		if (result > 0)
+
+		if (kline_len == sizeof (kline) - 1)
 		  {
-		    line[result] = '\0';
-		    printsys (line);
+		    /* We are trying to find the end of an earlier
+		       logged partial line.  */
+
+		    result = read (fdarray[i].fd, kline, sizeof (kline) - 1);
+		    if (result > 0)
+		      {
+			char *eol;
+
+			kline[result] = '\0';
+			eol = strchr (kline, '\n');
+			if (eol)
+			  {
+			    eol++;
+			    kline_len = result - (eol - kline);
+			    memmove (kline, eol, kline_len);
+			    log_kline = 1;
+			  }
+		      }
+		    else if (result < 0 && errno != EINTR)
+		      {
+			logerror ("klog");
+			fdarray[i].fd = fklog = -1;
+		      }
 		  }
-		else if (result < 0 && errno != EINTR)
+		else
 		  {
-		    logerror ("klog");
-		    fdarray[i].fd = fklog = -1;
+		    result = read (fdarray[i].fd, &kline[kline_len],
+				   sizeof (kline) - kline_len - 1);
+
+		    if (result > 0)
+		      {
+			kline_len += result;
+			log_kline = 1;
+		      }
+		    else if (result < 0 && errno != EINTR)
+		      {
+			logerror ("klog");
+			fdarray[i].fd = fklog = -1;
+		      }
+		  }
+
+		if (log_kline)
+		  {
+		    char *eol;
+		    
+		    kline[kline_len] = '\0';
+		    while ((eol = strchr (kline, '\n')))
+		      {
+			*(eol++) = '\0';
+			printsys (kline);
+			kline_len -= (eol - kline);
+			memmove (kline, eol, kline_len);
+		      }
+		    if (kline_len == sizeof (kline) - 1)
+		      /* Log the beginning of a partial line.  */
+		      printsys (kline);
 		  }
 	      }
 	    else if (fdarray[i].fd == finet)
@@ -701,11 +755,8 @@ main (int argc, char *argv[])
 		    line[result] = '\0';
 		    printline (LocalHostName, line);
 		  }
-		else if (result < 0)
-		  {
-		    if (errno != EINTR)
-		      logerror ("recvfrom unix");
-		  }
+		else if (result < 0 && errno != EINTR)
+		  logerror ("recvfrom unix");
 	      }
 	  }
 	else if (fdarray[i].revents & POLLNVAL)

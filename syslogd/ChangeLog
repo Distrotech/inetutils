@@ -1,3 +1,11 @@
+2002-03-05  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): New variables KLINE and KLINE_LEN, to store
+	partial lines from the kernel log device.  Collect partial lines
+	until we either have a maximum partial line or a full line.  Log
+	that, and all following lines collected so far, and in the case of
+	the maximum partial line skip the remainder of the current line.
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
