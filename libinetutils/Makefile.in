@@ -22,10 +22,10 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 SRCS = \
-__progname.c alloca.c cleansess.c daemon.c err.c forkpty.c getopt.c	 \
-getopt1.c hstrerror.c localhost.c login.c logout.c logwtmp.c logwtmpko.c \
-memmove.c memset.c openpty.c setenv.c snprintf.c strdup.c strerror.c	 \
-stub_tgetent.c ttymsg.c version.c
+__progname.c alloca.c cleansess.c daemon.c err.c forkpty.c getopt.c	  \
+getopt1.c hstrerror.c iruserok.c localhost.c login.c login_tty.c logout.c \
+logwtmp.c logwtmpko.c memmove.c memset.c openpty.c revoke.c setenv.c	  \
+snprintf.c strdup.c strerror.c stub_tgetent.c ttymsg.c version.c
 
 DISTFILES = $(SRCS)
 
@@ -33,7 +33,8 @@ OBJS = ttymsg.o version.o localhost.o cleansess.o logwtmpko.o @LIBOBJS@ @ALLOCA@
 CLEAN = libinetutils.a $(OBJS)
 
 CPPFLAGS += $(PATHDEF_DEVNULL) $(PATHDEF_TTY_PFX) \
-	$(PATHDEF_WTMP) $(PATHDEF_UTMP)
+	$(PATHDEF_WTMP) $(PATHDEF_UTMP) $(CPPFLAGS-$(<F))
+CPPFLAGS-iruserok.c = $(PATHDEF_HEQUIV)
 
 all: libinetutils.a
 libinetutils.a: $(OBJS)
