@@ -1,3 +1,27 @@
+Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* configure.in: Removed some old, commented-out cruft.
+	
+	Removed some old code related to the @DIRS@ hack; that code will
+ 	not be needed in the future.
+	
+	Reinstalled some code that deals with having both a `headers' and
+ 	`include' tree.
+	
+	Removed the iruserok from one of the two places where it appeared
+ 	in the AC_REPLACE_FUNCS tree.
+	
+	Reinstalled the line `AC_REPLACE_FUNCS(revoke)'; it had been
+ 	commented out, but I see no ChangeLog entry explaining why, and I
+ 	suspect that it should not have been commented out.
+	
+	Changed the message that was `checking for system glob is ok' to
+ 	`checking for ok system glob'.
+	
+	Call `AC_SUBST(VERSION)'.
+	
+	In the call to AC_OUTPUT, added version.h.
+
 Sun Mar 22 16:13:49 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* Makefile.am (SUBDIRS): Use an explicit list, rather than @DIRS@.
