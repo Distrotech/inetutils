@@ -1395,7 +1395,6 @@ shell(argc, argv)
 	pid_t pid;
 	sig_t old1, old2;
 	char shellnam[40], *shell, *namep;
-	union wait status;
 
 	old1 = signal (SIGINT, SIG_IGN);
 	old2 = signal (SIGQUIT, SIG_IGN);
@@ -1429,7 +1428,7 @@ shell(argc, argv)
 		exit(1);
 	}
 	if (pid > 0)
-		while (wait((int *)&status) != pid)
+		while (wait(0) != pid)
 			;
 	(void) signal(SIGINT, old1);
 	(void) signal(SIGQUIT, old2);
@@ -1797,7 +1796,8 @@ account(argc,argv)
 jmp_buf abortprox;
 
 void
-proxabort()
+proxabort(sig)
+  int sig;
 {
 
 	if (!proxy) {
