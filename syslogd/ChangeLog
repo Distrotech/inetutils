@@ -1,5 +1,10 @@
 2000-08-13  Alain Magloire
 
+	* syslogd.c (main): Error in the code the inet file descriptor
+	was not initialize correctely.
+
+2000-08-13  Alain Magloire
+
 	* syslogd.c (main):  New variable short_options.
 	Removed of reap_child() and SIGCHLD signal handler.
 	ttymsg() now double fork() and do itself the waitpid()

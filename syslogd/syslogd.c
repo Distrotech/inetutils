@@ -572,7 +572,7 @@ main (int argc, char *argv[])
       finet = create_inet_socket ();
       if (finet >= 0)
 	{
-	  fdarray[nfds].fd = funix[i].fd;
+	  fdarray[nfds].fd = finet;
 	  fdarray[nfds].events = POLLIN | POLLPRI;
 	  nfds++;
 	  dbg_printf ("Opened syslog UDP port.\n");
