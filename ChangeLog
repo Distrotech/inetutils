@@ -1,3 +1,13 @@
+2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
+	Patches by Alain: 
+	* libicmp(icmp_cksum.c,icmp_echo.c,icmp_timestamp.c,libping.c):
+		use <signal.h> instead of <sys/signal.h>,
+		truncate pid_t before using as ping_ident.
+	* libicmp/ping.h: changed type of ping_datalen to size_t.
+	* libicmp/icmp_address.c: icmp was used unitialized.
+	* ping(ping_address.c,ping_echo.c,ping_router.c,ping_timestamp.c):
+		<signal.h> -> <sys/signal.h>
+
 2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
 	* configure.in, Makefile.am: added libicmp and ping to build.
 	* ping/Makefile.am: use @BUILD_PING@ instead of directly
