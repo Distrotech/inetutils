@@ -1,5 +1,12 @@
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* ftpd/Makefile.am (INCLUDES): Added `$(PATHDEF_FTPWELCOME)
+ 	$(PATHDEF_FTPUSERS) $(PATHDEF_FTPLOGINMESG)'.
+	
+	(LDADD): Added `-L../libinetutils -L../libtelnet -linetutils -ltelnet'.
+	
+	Added the line `@PATHDEFS_MAKE@'.
+
 	* ftp/Makefile.am (LDADD): Added ../libinetutils -linetutils.
 
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed
