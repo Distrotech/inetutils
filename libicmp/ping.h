@@ -33,7 +33,7 @@ struct ping_data
   int    ping_interval;  /* Number of seconds to wait between sending pkts */
   struct sockaddr_in ping_dest; /* whom to ping */
   char   *ping_hostname;     /* Printable hostname */
-  int    ping_datalen;   /* Length of data */
+  size_t ping_datalen;   /* Length of data */
   int    ping_ident;     /* Our identifier */
                           
   ping_efp ping_event;   /* User-defined handler */
