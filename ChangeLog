@@ -1,5 +1,8 @@
 Thu Mar 26 20:40:06 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* telnet/main.c [ENCRYPTION || AUTHENTICATION || TN3270] (help):
+ 	Added a second arg to the call to `putc'.
+
 	* configure.in: Undo Jeff's previous change to this file, so that
  	changing the version number will not force me to wait 20+ minutes
  	(or so it seems) for the inetutils to be rebuilt after I change
