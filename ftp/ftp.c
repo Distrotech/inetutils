@@ -500,8 +500,6 @@ abortsend(sig)
 	longjmp(sendabort, 1);
 }
 
-#define HASHBYTES 1024
-
 void
 sendrequest(cmd, local, remote, printnames)
 	char *cmd, *local, *remote;
@@ -513,7 +511,7 @@ sendrequest(cmd, local, remote, printnames)
 	FILE *fin, *dout = 0, *popen();
 	int (*closefunc) __P((FILE *));
 	sig_t oldintr, oldintp;
-	long bytes = 0, hashbytes = HASHBYTES;
+	long bytes = 0, local_hashbytes=hashbytes;
 	char *lmode, buf[BUFSIZ], *bufp;
 
 	if (verbose && printnames) {
@@ -655,15 +653,15 @@ sendrequest(cmd, local, remote, printnames)
 				if ((d = write(fileno(dout), bufp, c)) <= 0)
 					break;
 			if (hash) {
-				while (bytes >= hashbytes) {
+				while (bytes >= local_hashbytes) {
 					(void) putchar('#');
-					hashbytes += HASHBYTES;
+					local_hashbytes += hashbytes;
 				}
 				(void) fflush(stdout);
 			}
 		}
 		if (hash && bytes > 0) {
-			if (bytes < HASHBYTES)
+			if (bytes < local_hashbytes)
 				(void) putchar('#');
 			(void) putchar('\n');
 			(void) fflush(stdout);
@@ -680,10 +678,10 @@ sendrequest(cmd, local, remote, printnames)
 	case TYPE_A:
 		while ((c = getc(fin)) != EOF) {
 			if (c == '\n') {
-				while (hash && (bytes >= hashbytes)) {
+				while (hash && (bytes >= local_hashbytes)) {
 					(void) putchar('#');
 					(void) fflush(stdout);
-					hashbytes += HASHBYTES;
+					local_hashbytes += hashbytes;
 				}
 				if (ferror(dout))
 					break;
@@ -698,7 +696,7 @@ sendrequest(cmd, local, remote, printnames)
 	/*		}                          			*/
 		}
 		if (hash) {
-			if (bytes < hashbytes)
+			if (bytes < local_hashbytes)
 				(void) putchar('#');
 			(void) putchar('\n');
 			(void) fflush(stdout);
@@ -771,7 +769,7 @@ recvrequest(cmd, local, remote, lmode, printnames)
 	int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
 	static int bufsize=0;
 	static char *buf;
-	long bytes = 0, hashbytes = HASHBYTES;
+	long bytes = 0, local_hashbytes = hashbytes;
 	struct timeval start, stop;
 	struct stat st;
 
@@ -891,15 +889,15 @@ recvrequest(cmd, local, remote, lmode, printnames)
 				break;
 			bytes += c;
 			if (hash) {
-				while (bytes >= hashbytes) {
+				while (bytes >= local_hashbytes) {
 					(void) putchar('#');
-					hashbytes += HASHBYTES;
+					local_hashbytes += hashbytes;
 				}
 				(void) fflush(stdout);
 			}
 		}
 		if (hash && bytes > 0) {
-			if (bytes < HASHBYTES)
+			if (bytes < local_hashbytes)
 				(void) putchar('#');
 			(void) putchar('\n');
 			(void) fflush(stdout);
@@ -942,10 +940,10 @@ done:
 			if (c == '\n')
 				bare_lfs++;
 			while (c == '\r') {
-				while (hash && (bytes >= hashbytes)) {
+				while (hash && (bytes >= local_hashbytes)) {
 					(void) putchar('#');
 					(void) fflush(stdout);
-					hashbytes += HASHBYTES;
+					local_hashbytes += hashbytes;
 				}
 				bytes++;
 				if ((c = getc(din)) != '\n' || tcrflag) {
@@ -970,7 +968,7 @@ break2:
 			printf("File may not have transferred correctly.\n");
 		}
 		if (hash) {
-			if (bytes < hashbytes)
+			if (bytes < local_hashbytes)
 				(void) putchar('#');
 			(void) putchar('\n');
 			(void) fflush(stdout);

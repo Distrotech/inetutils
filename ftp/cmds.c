@@ -1049,12 +1049,15 @@ sethash(argc, argv)
 	int argc;
 	char *argv[];
 {
-
+	if (argv[1] != NULL)
+		sscanf(argv[1], "%d", &hashbytes);
+	if (hashbytes <= 0)
+		hashbytes=1024;
 	hash = !hash;
 	printf("Hash mark printing %s", onoff(hash));
 	code = hash;
 	if (hash)
-		printf(" (%d bytes/hash mark)", 1024);
+		printf(" (%d bytes/hash mark)", hashbytes);
 	printf(".\n");
 }
 
@@ -1182,6 +1185,7 @@ lcd(argc, argv)
 	char *argv[];
 {
 	char *dir;
+	extern char *xgetcwd();
 
 	if (argc < 2)
 		argc++, argv[1] = home;

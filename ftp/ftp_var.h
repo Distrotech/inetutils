@@ -46,6 +46,7 @@
  */
 FTP_EXTERN int	trace;		/* trace packets exchanged */
 FTP_EXTERN int	hash;		/* print # for each buffer transferred */
+FTP_EXTERN int	hashbytes;	/* number of bytes per # printed */
 FTP_EXTERN int	sendport;	/* use PORT cmd for each data connection */
 FTP_EXTERN int	verbose;	/* print messages coming back from server */
 FTP_EXTERN int	connected;	/* connected to server */

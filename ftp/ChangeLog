@@ -1,3 +1,10 @@
+2000-07-07 Matt Roberds
+
+	* cmds.c/sethash(): read the optionnal argument for hash.
+	* ftp.1: update man page, hash take optional argument.
+	* ftp.c/sendrequests(): print hasbyte.
+	* ftp_var.h: hashbytes global var: number of bytes per # printed.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

@@ -304,10 +304,12 @@ That can be done by
 transferring a
 .Xr tar 1
 archive of the subtree (in binary mode).
-.It Ic hash
+.It Ic hash Op Ar size
 Toggle hash-sign (``#'') printing for each data block
 transferred.
-The size of a data block is 1024 bytes.
+The 
+.Ar size
+of a data block can optionally be specified.  If not given, it defaults to 1024 bytes.
 .It Ic help Op Ar command
 Print an informative message about the meaning of
 .Ar command  .
