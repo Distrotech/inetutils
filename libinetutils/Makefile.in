@@ -34,8 +34,12 @@ OBJS = setsig.o ttymsg.o version.o localhost.o cleansess.o logwtmpko.o  \
        @LIBOBJS@ @ALLOCA@
 CLEAN = libinetutils.a $(OBJS)
 
-CPPFLAGS += $(PATHDEF_DEVNULL) $(PATHDEF_TTY_PFX) \
-	$(PATHDEF_WTMP) $(PATHDEF_UTMP) $(CPPFLAGS-$(<F))
+CPPFLAGS-logout.c = $(PATHDEF_UTMP)
+CPPFLAGS-logwtmp.c = $(PATHDEF_WTMP)
+CPPFLAGS-logwtmpko.c = $(PATHDEF_WTMP)
+CPPFLAGS-ttymsg.c = $(PATHDEF_TTY_PFX)
+CPPFLAGS-cleansess.c = $(PATHDEF_TTY_PFX)
+CPPFLAGS-daemon.c = $(PATHDEF_DEVNULL)
 CPPFLAGS-iruserok.c = $(PATHDEF_HEQUIV)
 
 all: libinetutils.a
