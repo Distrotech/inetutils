@@ -70,7 +70,7 @@ fi
 
 _SAVE_LIBS="$LIBS"
 LIBS="$LIBUTIL $LIBS"
-AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp fpathconf tcgetattr)
+AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp fpathconf tcgetattr crypt)
 LIBS="$_SAVE_LIBS"
 
 # If there's no libtermcap, add a bogus version of tgetent to libinetutils,
@@ -112,6 +112,18 @@ AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
 
 if test "$enable_talk" = maybe; then
   enable_talk=$ac_cv_lib_curses_initscr
+fi
+
+AC_CACHE_CHECK(for EWOULDBLOCK in <errno.h>, inetutils_cv_macro_ewouldblock,
+AC_EGREP_CPP(HAVE_EWOULDBLOCK,
+[#include <errno.h>
+#ifdef EWOULDBLOCK
+HAVE_EWOULDBLOCK
+#endif],
+  [inetutils_cv_macro_ewouldblock=yes],
+  [inetutils_cv_macro_ewouldblock=no]))
+if test "$inetutils_cv_macro_ewouldblock" = no; then
+  AC_DEFINE(EWOULDBLOCK,EAGAIN)
 fi
 
 AC_CACHE_CHECK(for __P, inetutils_cv_macro___p,
