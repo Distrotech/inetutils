@@ -1,3 +1,18 @@
+Thu Mar 26 00:08:39 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* configure.in: Removed some old cruft related to the old system
+ 	of not building some directoies.
+	
+	Added calls to IU_ENABLE_SERVER and IU_ENABLE_CLIENT.
+	
+	Added checks for libtermcap, libreadline, and libopie.
+	
+	Generate whois/Makefile.
+
+	* acinclude.m4 (IU_ENABLE_FOO): New AC_DEFUN.
+	(IU_ENABLE_CLIENT): Likewise.
+	(IU_ENABLE_SERVER): Likewise.
+
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
 	* Ran the command for i in `grep man_MANS */Makefile.am|awk -F: '{
