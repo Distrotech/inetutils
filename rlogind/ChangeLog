@@ -1,5 +1,9 @@
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
-	* rlogind/rlogind.c: Rewritten from scratch. Implemented -a
+	* rlogind.c: use regular read() instead of getmsg() on the
+	master side of pty.
+
+2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	* rlogind.c: Rewritten from scratch. Implemented -a
 	(verify hostname) option. Added --reverse-required and
 	--daemon options. Kerberos code is not tested, though.
 
