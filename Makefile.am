@@ -9,6 +9,7 @@ SUBDIRS = headers libinetutils libtelnet glob \
 DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
 	include/stamp-h
 
+AUTOHEADER = @AUTOHEADER@ -l headers
 
 release:
 	$(MAKE) dist distdir=$(PACKAGE)`date +"%y%m%d"`
