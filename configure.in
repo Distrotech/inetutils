@@ -2,11 +2,17 @@
 
 AC_INIT(inetd/inetd.c)
 
+# All subdirectories, whether built or not
+SUBDIRS=common
+AC_SUBST(SUBDIRS)
+
 # These lists don't contain talk or talkd, which will get added later if nec.
 SERVERS='inetd ftpd telnetd rshd rlogind uucpd rexecd syslogd tftpd'
-CLIENTS='telnet ftp rsh rcp rlogin tftp ping logger'
+CLIENTS='telnet ftp rsh rcp rlogin tftp syslog'
 AC_SUBST(SERVERS)
 AC_SUBST(CLIENTS)
+
+SUBDIRS="$SUBDIRS $SERVERS $CLIENTS"
 
 AC_ARG_ENABLE(encryption, [  --enable-encryption     enable encryption],
 	      , enable_encryption=no)
@@ -45,8 +51,8 @@ if test "$enable_talk" != no; then
 fi
 AC_TYPE_SIGNAL
 
-if test "$enable_talk" = maybe -a "$ac_cv_lib_curses" != yes; then
-  enable_talk=no
+if test "$enable_talk" = maybe; then
+  enable_talk=$ac_cv_lib_curses
 fi
 
 AC_CACHE_CHECK(whether struct stat has timespec fields,
@@ -79,6 +85,8 @@ if test "$enable_talk" = yes; then
   SERVERS="$SERVERS talkd"
   CLIENTS="$CLIENTS talk"
 fi
+# Update SUBDIRS regardless
+SUBDIRS="$SUBDIRS talkd talk"
 
 SERVERS_OR_CLIENTS=
 if test "$enable_servers" = yes; then
@@ -103,10 +111,5 @@ if test "$enable_encryption" = yes -a "$ac_cv_lib_des" = yes; then
   AC_DEFINE(DES_ENCRYPTION)
 fi
 
-AC_OUTPUT(Makefile config.make
-	  inetd/Makefile libtelnet/Makefile telnetd/Makefile ftpd/Makefile
-	  rshd/Makefile rlogind/Makefile uucpd/Makefile rexecd/Makefile
-	  talkd/Makefile tftpd/Makefile syslogd/Makefile
-	  telnet/Makefile ftp/Makefile rsh/Makefile rcp/Makefile
-	  rlogin/Makefile talk/Makefile tftp/Makefile ping/Makefile
-	  logger/Makefile)
+SUBDIR_MAKEFILES="`for D in $SUBDIRS; do echo $ac_n " $D/Makefile$ac_c"; done`"
+AC_OUTPUT(Makefile config.make $SUBDIR_MAKEFILES)
