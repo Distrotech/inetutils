@@ -35,9 +35,10 @@ maintainer-clean:: clean
 dist:: $(DISTFILES)
 	$(LINK_DISTFILES)
 
+# The $USER test is for linux boxes with a broken whoami	
 $(bindir)/%: % $(bindir)
 	@if test -n "$(INST_PROG_FLAGS)" ; then \
-	  if test "`whoami`" = "root" ; then \
+	  if test "x`whoami`" = "xroot" -o "x$USER" = "xroot"; then \
 	    echo $(INSTALL_PROGRAM) $(INST_PROG_FLAGS) $(filter-out $(bindir),$<) $@ ; \
 	    $(INSTALL_PROGRAM) $(INST_PROG_FLAGS) $(filter-out $(bindir),$<) $@ ; \
 	  else \

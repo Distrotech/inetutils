@@ -1,3 +1,8 @@
+Sun Feb 23 13:22:41 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* rules.make ($(bindir)/%: % $(bindir)): Test $USER as well as the
+	output of whoami, for linux boxes with a broken whoami.
+
 Fri Feb 21 14:16:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/iruserok.c (iruserok): Dynamically allocate PBUF
