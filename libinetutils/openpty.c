@@ -175,11 +175,19 @@ ptys_open(int fdm, char * pts_name)
 		close(fds);
 		return -8;
 	}
+
 	if (ioctl(fdm, I_PUSH, "pckt") < 0) {
 		close(fdm);
 		close(fds);
 		return -8;
 	}
+	
+	if (ioctl(fdm, I_SRDOPT, RMSGN|RPROTDAT) < 0) {
+		close(fdm);
+		close(fds);
+		return -8;
+	}
+
 	return fds;
 #else
 	int gid;
