@@ -96,7 +96,9 @@ telnet_gets(prompt, result, length, echo)
 	int length;
 	int echo;
 {
+#ifndef HAVE_GETPASS_DECL
 	extern char *getpass();
+#endif
 	extern int globalmode;
 	int om = globalmode;
 	char *res;
