@@ -334,6 +334,7 @@
 #undef HAVE_STREAMSPTY
 
 /* Certain system must have an entry in utmpx before login work.  */
+#undef HAVE_UTMPX_H
 #undef UTMPX
 
 /*  For feature PAM.  */

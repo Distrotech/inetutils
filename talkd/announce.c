@@ -151,7 +151,7 @@ print_mesg(char *tty, CTL_MSG *request, char *remote_machine)
 	char line_buf[N_LINES][N_CHARS];
 	int sizes[N_LINES];
 	char big_buf[N_LINES*N_CHARS];
-	char *bptr, *lptr, *vis_user;
+	char *bptr, *lptr, *vis_user, *cp;
 	int i, j, max_size;
 
 	i = 0;
@@ -208,8 +208,11 @@ print_mesg(char *tty, CTL_MSG *request, char *remote_machine)
 	 * stack up processes trying to write messages to a tty
 	 * that is permanently blocked.
 	 */
-	if (ttymsg(&iovec, 1, tty, RING_WAIT - 5) != NULL)
+	if ((cp = ttymsg(&iovec, 1, tty, RING_WAIT - 5)) != NULL)
+	  {
+	    syslog(LOG_CRIT, "%s", cp);
 		return (FAILED);
+	  }
 
 	return (SUCCESS);
 }

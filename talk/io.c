@@ -74,11 +74,12 @@ talk()
 {
 	fd_set read_template, read_set;
 	int stdin_fd = fileno (stdin);
-	int nb, num_fds;
+	int i, nb, num_fds;
 	char buf[BUFSIZ];
 	struct timeval wait;
 
-	message("Connection established\007\007\007");
+	message("Connection established");
+	beep();
 	current_line = 0;
 
 	/*
@@ -118,7 +119,8 @@ talk()
 			 * curses's output routines would screw up
 			 */
 			ioctl(0, FIONREAD, (struct sgttyb *) &nb);
-			nb = read(0, buf, nb);
+			for (i = 0; i < nb; i++)
+				buf[i] = getch();
 			display(&my_win, buf, nb);
 			/* might lose data here because sockt is non-blocking */
 			write(sockt, buf, nb);

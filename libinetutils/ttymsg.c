@@ -74,16 +74,6 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
   if (iovcnt > (int)(sizeof (localiov) / sizeof (localiov[0])))
     return (char *)("too many iov's (change code in wall/ttymsg.c)");
 
-  /* we're watching for '/', ".", ".."  '/' --> somebody could specify
-     tty as ../etc/passwd ".", ".." those are not security related it's
-     just sanity checks.  */
-  if (strchr (line, '/'))
-    {
-      /* A slash is an attempt to break security... */
-      (void) snprintf (errbuf, sizeof(errbuf), "'/' in \"%s\"", line);
-      return (errbuf);
-    }
-
   device = malloc (sizeof PATH_TTY_PFX - 1 + strlen (line) + 1);
   if (! device)
     {
@@ -94,6 +84,13 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 
   strcpy (device, PATH_TTY_PFX);
   strcat (device, line);
+  normalize_path (device);
+  if (strncmp (device, PATH_TTY_PFX, strlen(PATH_TTY_PFX)))
+    {
+      /* An attempt to break security... */
+      snprintf (errbuf, sizeof(errbuf), "bad line name", line);
+      return (errbuf);
+    }
 
   /*
    * open will fail on slip lines or exclusive-use lines
@@ -244,3 +241,60 @@ fork2 (void)
 
   return -1;
 }
+
+char *
+normalize_path (char *path, const char *delim)
+{
+  int len;
+  char *p;
+  
+  if (!path)
+    return path;
+
+  len = strlen (path);
+
+  /* Empty string is returned as is */
+  if (len == 0)
+    return path;
+  
+  /* delete trailing delimiter if any */
+  if (len && path[len-1] == delim[0])
+    path[len-1] = 0;
+
+  /* Eliminate any /../ */
+  for (p = strchr (path, '.'); p; p = strchr (p, '.'))
+    {
+      if (p > path && p[-1] == delim[0])
+	{
+	  if (p[1] == '.' && (p[2] == 0 || p[2] == delim[0]))
+	    /* found */
+	    {
+	      char *q, *s;
+
+	      /* Find previous delimiter */
+	      for (q = p-2; *q != delim[0] && q >= path; q--)
+		;
+
+	      if (q < path)
+		break;
+	      /* Copy stuff */
+	      s = p + 2;
+	      p = q;
+	      while (*q++ = *s++)
+		;
+	      continue;
+	    }
+	}
+
+      p++;
+    }
+
+  if (path[0] == 0)
+    {
+      path[0] = delim[0];
+      path[1] = 0;
+    }
+  
+  return path;
+}
+	      

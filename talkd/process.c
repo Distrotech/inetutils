@@ -179,42 +179,49 @@ do_announce(register CTL_MSG *mp, CTL_RESPONSE *rp)
 int
 find_user(char *name, char *tty)
 {
-	struct utmp ubuf;
+	struct utmp *uptr;
 	int status;
-	FILE *fd;
 	struct stat statb;
-	char line[sizeof(ubuf.ut_line) + 1];
-	char ftty[sizeof(PATH_DEV) - 1 + sizeof(line)];
+	char ftty[sizeof(PATH_DEV) + sizeof(uptr->ut_line)];
+	time_t last_time = 0;
+	int notty;
 
-	if ((fd = fopen(PATH_UTMP, "r")) == NULL) {
-		fprintf(stderr, "talkd: can't read %s.\n", PATH_UTMP);
-		return (FAILED);
-	}
-#define SCMPN(a, b)	strncmp(a, b, sizeof (a))
+	notty = (*tty == '\0');
+
 	status = NOT_HERE;
-	(void) strcpy(ftty, PATH_DEV);
-	while (fread((char *) &ubuf, sizeof ubuf, 1, fd) == 1)
-		if (SCMPN(ubuf.ut_name, name) == 0) {
-			strncpy(line, ubuf.ut_line, sizeof(ubuf.ut_line));
-			line[sizeof(ubuf.ut_line)] = '\0';
-			if (*tty == '\0') {
-				status = PERMISSION_DENIED;
+	strcpy(ftty, PATH_DEV);
+	setutent();
+	while ((uptr = getutent())!=NULL) {
+#ifdef USER_PROCESS
+		if (uptr->ut_type!=USER_PROCESS) 
+			continue;
+#endif
+		if (!strncmp(uptr->ut_name, name, sizeof(uptr->ut_name))) {
+			if (notty) {
 				/* no particular tty was requested */
-				(void) strcpy(ftty + sizeof(PATH_DEV) - 1,
-				    line);
+				strncpy(ftty+5, uptr->ut_line, sizeof(ftty)-5);
+				ftty[sizeof(ftty)-1] = 0;
+
 				if (stat(ftty, &statb) == 0) {
-					if (!(statb.st_mode & 020))
+					if (!(statb.st_mode & S_IWGRP)) {
+					    if (status!=SUCCESS)
+						status = PERMISSION_DENIED;
 						continue;
-					(void) strcpy(tty, line);
+					}
+					if (statb.st_atime > last_time) {
+						last_time = statb.st_atime;
+						strcpy(tty, uptr->ut_line);
 					status = SUCCESS;
-					break;
 				}
+					continue;
 			}
-			if (strcmp(line, tty) == 0) {
+			}
+			if (!strcmp(uptr->ut_line, tty)) {
 				status = SUCCESS;
 				break;
 			}
 		}
-	fclose(fd);
-	return (status);
+		}
+	endutent();
+	return status;
 }

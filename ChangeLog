@@ -1,3 +1,28 @@
+2001-06-02  Sergey Poznyakoff
+
+	* libinetutils/ttymsg.c: Simple check for '/' in the line name is
+	way too week: it doesn't work for tty names like pts/2, which are
+	perfectly OK. Changed to more sophisticated one: all "./", "../"
+	references in the name are resolved and the resulting name is
+	compared with PATH_TTY_PFX. If it lies under it, everything's
+	Ok. Otherwise we just bail out and quit.
+	* talk/display.c: Added check for *text == '\a' to produce audible
+	bell.
+	* talk/io.c: changed \007's in initial message to beep() after
+	message(). On solaris's AT386 those \007 just produce ^G on
+	the screen.
+	Changed read(0, buf, nb) to getch() in loop. Reason: read()
+	returns raw data from console, thus pressing <enter> returns
+	'\r' which gets displayed on console as ^M, because display.c
+	is expecting to get '\n'. getch() returns '\n' and everything
+	goes smooth.
+	* talk/announce.c: syslog error message from ttymsg(). One never
+	knows...
+	* talkd/process.c: changed find_user(). Previous version returned
+	first console the remote party was logged onto. This one returns
+	the one where he currently is. This is a slightly modified version
+	of berkeley's find_user() dated 1997/04/06.
+
 2001-05-07  Jeff Bailey  <jbailey@oasis.zugzug.com>
 
 	* Makefile.am: Integrate ifconfig into build
@@ -6,8 +31,8 @@
 
 2001-03-14  Joachim Gabler <joga@sun.com>
 
-   * rlogind/rlogind.c: exec to /bin/login requires additional
-     parameters on SOLARIS
+	* rlogind/rlogind.c: exec to /bin/login requires additional
+	parameters on SOLARIS
 
 2001-02-09  Jeff Bailey  <jbailey@oasis.zugzug.com>
 

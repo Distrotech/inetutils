@@ -76,6 +76,12 @@ display(register xwin_t *win, register char *text, int size)
 			text++;
 			continue;
 		}
+		if (*text == '\a') {
+			beep();
+			wrefresh(curscr);
+			text++;
+			continue;
+		}
 		/* erase character */
 		if (*text == win->cerase) {
 			wmove(win->x_win, win->x_line, max(--win->x_col, 0));
