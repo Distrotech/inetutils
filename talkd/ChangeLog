@@ -1,10 +1,10 @@
 2001-10-30  Alain Magloire
 
 	* Makefile.am:  Add -I ../libinetutils to have the argvc_xx()
-	protitypes.
-	* acl.c: add <ctype.h> we use isdigit()
-	add "argv.h" we use argv_xx() functions.
-	(read_address): Declared static and variable addr unuse nuked.
+	prototypes.
+	* acl.c: Add <ctype.h> we use isdigit().
+	Add "argv.h" we use argv_xx() functions.
+	(read_address): Declared static and variable addr unused nuked.
 	(netdef_parse): Declared static.
 	(open_users_acl): Declared static.
 	(netdef_free): Declared static.
@@ -14,7 +14,7 @@
 	Declared static.
 	* intalkd.h: Add prototypes for global functions.
 	* print.c (messages_types): Array declared const and static.
-	(answers): Array declared cnst and static.
+	(answers): Array declared const and static.
 	(_xlat_num): Declared static.
 	(print_request): First argument declared const and should
 	have a return value.
@@ -27,9 +27,9 @@
 	(fuzzy_comp): Declared static.
 	(exact_comp): Did not have a return value.
 	(delete_invite): Change prototype to correspond to
-	include/protocols/talkd.h wich want a unsinge long.
+	include/protocols/talkd.h which wanted an unsinged long.
 	* talkd.c (main): Returned 0 for good measure.
-	(alarm_handler): It is a signal handler correct the prototype.
+	(alarm_handler): Proper signal handler prototype.
 
 2001-10-29  Sergey Poznyakoff
 
