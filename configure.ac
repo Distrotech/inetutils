@@ -27,7 +27,7 @@ AC_CONFIG_SRCDIR([inetd/inetd.c])
 AC_PREREQ(2.52)
 
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([inetutils], [1.3.2e], nodef)
+AM_INIT_AUTOMAKE([inetutils], [1.3.99a], nodef)
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
