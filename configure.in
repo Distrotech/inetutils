@@ -519,7 +519,7 @@ AC_SUBST(VERSION)
 # for example on certain system login(1) will not work if we
 # don't have an entry in utmpx.
 AC_CANONICAL_HOST
-case "$target" in
+case "$host" in
 *olaris*)
   AC_DEFINE(UTMPX)
   AC_DEFINE(SOLARIS)
