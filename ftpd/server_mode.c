@@ -93,7 +93,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
 
   /* Get port for ftp/tcp.  */
   sv = getservbyname ("ftp", "tcp");
-  port = (sv == NULL) ? DEFPORT : sv->s_port;
+  port = (sv == NULL) ? DEFPORT : ntohs(sv->s_port);
 
   /* Open socket, bind and start listen.  */
   ctl_sock = socket (AF_INET, SOCK_STREAM, 0);

@@ -1,3 +1,9 @@
+2002-09-20 Alain Magloire
+
+	* server_mode.c: getservbyname() returns the port number in network 
+	byte order, use ntohs(sv->s_port) for the conversion.
+	Patch From  Paul Poh <paul@paulpoh.com>
+
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* ftp.c: Checks for HAVE_DECL variables must read
