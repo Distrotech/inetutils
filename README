@@ -37,10 +37,15 @@ to control whether to build individual programs; if you explicitly specify
 whether to build a program, that will override the values specified by
 --disable-clients or --disable-servers.
 
-Note that all the manpages will be installed, regardless of which
+Notes:
+1) all the manpages will be installed, regardless of which
 programs are built.  The whois server list will also be installed.
 You can use `make install-exec' instead of `make install' if you do
 not want to install these files.
+
+2) All of the r* commands clients, rcp, rlogin, rsh, need to be
+install setuid root to work correctly they use priviledge ports
+for communication. 
 
 Some known deficiencies:
  o Many programs do not support long options, such as --version or --help.
