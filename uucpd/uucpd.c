@@ -69,7 +69,6 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <paths.h>
 #include <crypt.h>
 
 void dologin ();
@@ -95,7 +94,7 @@ char **argv;
 	struct servent *sp;
 #endif !BSDINETD
 	extern int errno;
-	int dologout();
+	void dologout();
 
 	environ = nenv;
 #ifdef BSDINETD
@@ -233,41 +232,26 @@ register int n;
 	return(-1);
 }
 
-#include <utmp.h>
 #ifdef BSD4_2
 #include <fcntl.h>
 #endif BSD4_2
 
-#define	SCPYN(a, b)	strncpy(a, b, sizeof (a))
-
-struct	utmp utmp;
-
+void
 dologout()
 {
-	union wait status;
-	int pid;
+  int status;
+  int pid;
 
-#ifdef BSDINETD
-	while ((pid=wait((int *)&status)) > 0) {
-#else  !BSDINETD
-	while ((pid=wait3((int *)&status,WNOHANG,0)) > 0) {
-#endif !BSDINETD
-
-#ifdef HAVE_LOGWTMP
-		char line[100];
-		sprintf(line, "uucp%.4d", pid);
-		logwtmp (line, "", "");
+#ifdef HAVE_WAIT3
+  while ((pid = wait3 (&status, WNOHANG, 0)) > 0)
 #else
-		int wtmp = open(_PATH_WTMP, O_WRONLY|O_APPEND);
-		if (wtmp >= 0) {
-			SCPYN(utmp.ut_name, "");
-			SCPYN(utmp.ut_host, "");
-			(void) time(&utmp.ut_time);
-			(void) write(wtmp, (char *)&utmp, sizeof (utmp));
-			(void) close(wtmp);
-		}
+  while ((pid = wait (&status)) > 0)
 #endif
-	}
+    {
+      char line[100];
+      sprintf(line, "uucp%.4d", pid);
+      logwtmp (line, "", "");
+    }
 }
 
 /*
@@ -293,23 +277,10 @@ dologin(pw, sin)
 
 	sprintf(line, "uucp%.4d", getpid());
 
-#ifdef HAVE_LOGWTMP
 	logwtmp (line, pw->pw_name, remotehost);
-#else
-	/* Do things the old bsd way.  */
-	wtmp = open(_PATH_WTMP, O_WRONLY|O_APPEND);
-	if (wtmp >= 0) {
-		/* hack, but must be unique and no tty line */
-		SCPYN(utmp.ut_line, line);
-		SCPYN(utmp.ut_name, pw->pw_name);
-		SCPYN(utmp.ut_host, remotehost);
-		time(&utmp.ut_time);
-		(void) write(wtmp, (char *)&utmp, sizeof (utmp));
-		(void) close(wtmp);
-	}
-#endif
 
-#ifdef _PATH_LASTLOG
+#if defined (_PATH_LASTLOG) && defined (HAVE_STRUCT_LASTLOG)
+#define	SCPYN(a, b)	strncpy(a, b, sizeof (a))
 	if ((f = open(_PATH_LASTLOG, O_RDWR)) >= 0) {
 		struct lastlog ll;
 
