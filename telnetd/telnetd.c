@@ -396,7 +396,8 @@ main(int argc, char **argv)
 		usage();
 		/* NOT REACHED */
 	    } else if (argc == 1) {
-		    if (sp = getservbyname(*argv, "tcp")) {
+		    sp = getservbyname(*argv, "tcp");
+		    if (sp) {
 			sin.sin_port = sp->s_port;
 		    } else {
 			sin.sin_port = atoi(*argv);

@@ -164,6 +164,8 @@ int ttyfd = -1;
 # endif
 #endif	/* USE_TERMIO */
 
+int cleanopen(char *);
+
 /*
  * init_termbuf()
  * copy_termbuf(cp)

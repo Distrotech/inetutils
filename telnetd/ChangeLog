@@ -1,3 +1,8 @@
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* sys_term.c: Add prototype for cleanopen().
+	* telnetd.c (main): Move assignment outside if condition.
+
 2000-08-08  Alain Magloire
 
 	* extern.h: rename interrupt() to interrupts() since it use
