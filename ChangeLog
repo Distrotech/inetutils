@@ -1,3 +1,8 @@
+2001-08-29  Marcus Brinkmann  <marcus@gnu.org>
+
+	* Makefile.am (SUBDIRS): Remove `ifconfig' for now
+	(see ifconfig/TODO for a list of items that need to be resolved).
+
 2001-08-26  Alain Magloire
 
 	Marco D'Itri whois is much more complete then the original
