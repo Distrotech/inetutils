@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <netdb.h>
 
-#if defined (HAVE_H_ERRLIST) && !defined (HAVE_H_ERRLIST_DECL)
+#if defined (HAVE_H_ERRLIST) && !defined (HAVE_DECL_H_ERRLIST)
 extern int h_nerrs;
 extern char *h_errlist[];
 #endif
