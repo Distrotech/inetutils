@@ -292,8 +292,10 @@ AC_DEFUN([IU_CONFIG_PATHS], [
 	  "<"*">"*)
 	    # <HEADER.h> and <HEADER.h>:SYMBOL -- look for SYMBOL in <HEADER.h>
 	    # SYMBOL defaults to _$iu_path (e.g., _PATH_FOO)
+	    changequote(,)	dnl Avoid problems with [ ] in regexps
 	    eval iu_hdr=\'`echo "$iu_try" |sed 's/:.*$//'`\'
 	    eval iu_sym=\'`echo "$iu_try" |sed -n 's/^<[^>]*>:\(.*\)$/\1/p'`\'
+	    changequote([,])
 	    test "$iu_sym" || iu_sym="_$iu_path"
 	    AC_EGREP_CPP(HAVE_$iu_sym,
 [#include ]$iu_hdr[
