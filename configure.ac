@@ -26,6 +26,7 @@ AC_CONFIG_SRCDIR([inetd/inetd.c])
 # the production of headers/config.h.in.
 AC_PREREQ(2.52)
 
+AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE([inetutils], [1.3.2g], nodef)
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
@@ -675,9 +676,9 @@ AC_SUBST(VERSION)
 # For example on certain system login(1) will not work if we
 # don't have an entry in utmpx.
 # Also for some OS they are better handle with STREAMS
-# AC_CANONICAL_HOST # already run with AC_AIX
 case "$host" in
 *olaris*)
+  AC_DEFINE(SOLARIS)
   AC_DEFINE(UTMPX)
   AC_DEFINE(SOLARIS)
   AC_DEFINE(HAVE_STREAMSPTY)
