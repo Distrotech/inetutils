@@ -163,7 +163,10 @@ doit(sinp)
 struct sockaddr_in *sinp;
 {
 	char user[64], passwd[64];
-	char *xpasswd, *crypt();
+	char *xpasswd;
+#ifdef HAVE_CRYPT
+	char *crypt();
+#endif
 	struct passwd *pw, *getpwnam();
 
 	alarm(60);
@@ -189,7 +192,11 @@ struct sockaddr_in *sinp;
 			fprintf(stderr, "passwd read\n");
 			return;
 		}
+#ifdef HAVE_CRYPT
 		xpasswd = crypt(passwd, pw->pw_passwd);
+#else
+		xpasswd = passwd;
+#endif
 		if (strcmp(xpasswd, pw->pw_passwd)) {
 			fprintf(stderr, "Login incorrect.");
 			return;
@@ -269,9 +276,10 @@ dologout()
 /*
  * Record login in wtmp file.
  */
+void
 dologin(pw, sin)
-struct passwd *pw;
-struct sockaddr_in *sin;
+     struct passwd *pw;
+     struct sockaddr_in *sin;
 {
 	char line[32];
 	char remotehost[32];
@@ -296,7 +304,7 @@ struct sockaddr_in *sin;
 	if (wtmp >= 0) {
 		/* hack, but must be unique and no tty line */
 		SCPYN(utmp.ut_line, line);
-		SCPYN(utmp.ut_name, );
+		SCPYN(utmp.ut_name, pw->pw_name);
 		SCPYN(utmp.ut_host, remotehost);
 		time(&utmp.ut_time);
 		(void) write(wtmp, (char *)&utmp, sizeof (utmp));

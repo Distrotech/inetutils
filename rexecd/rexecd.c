@@ -164,7 +164,11 @@ doit(f, fromp)
 	}
 	endpwent();
 	if (*pwd->pw_passwd != '\0') {
+#ifdef HAVE_CRYPT
 		namep = crypt(pass, pwd->pw_passwd);
+#else
+		namep = pass;
+#endif
 		if (strcmp(namep, pwd->pw_passwd)) {
 			error("Password incorrect.\n");
 			exit(1);
