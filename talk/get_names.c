@@ -50,7 +50,6 @@ static char sccsid[] = "@(#)get_names.c	8.1 (Berkeley) 6/6/93";
 
 char	*getlogin();
 char	*ttyname();
-char	*rindex();
 extern	CTL_MSG msg;
 
 /*
@@ -91,7 +90,7 @@ get_names(argc, argv)
 	}
 
 	/* check for, and strip out, the machine name of the target */
-	for (cp = argv[1]; *cp && !index("@:!.", *cp); cp++)
+	for (cp = argv[1]; *cp && !strchr ("@:!.", *cp); cp++)
 		;
 	if (*cp == '\0') {
 		/* this is a local to local talk */
