@@ -27,7 +27,7 @@ AC_CONFIG_SRCDIR([inetd/inetd.c])
 AC_PREREQ(2.52)
 
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([inetutils], [1.3.2g], nodef)
+AM_INIT_AUTOMAKE([inetutils], [1.3.2e], nodef)
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
@@ -177,6 +177,10 @@ AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
 AC_REPLACE_FUNCS(getpass getusershell herror memcmp memcpy memmove memset \
 	         setenv strdup strcasecmp strsignal waitpid poll)
 IU_INCLUDED_REGEX(libinetutils/regex.c)
+AC_CHECK_FUNC(_obstack_free, ,
+  INCLUDES="$INCLUDES obstack.h"
+  LIBOBJS="$LIBOBJS obstack.o")
+
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -639,11 +643,26 @@ AC_CHECK_FUNC(vsnprintf,
 # function in the GNU libreadline.
 #AC_CHECK_LIB(termcap, tputs)
 #AC_CHECK_LIB(readline, rl_bind_key,,, -ltermcap)
-AC_CHECK_LIB(readline, rl_bind_key,,, "$LIBTERMCAP")
+AC_CHECK_LIB(readline, rl_bind_key,
+             [LIBREADLINE=-lreadline
+              AC_DEFINE(HAVE_LIBREADLINE)],
+             [LIBREADLINE=], "$LIBTERMCAP")
+AC_SUBST(LIBREADLINE)
+AC_SUBST(LIBTERMCAP)
 
 AC_CHECK_LIB(opie, opiegenerator)
 
 AC_CHECK_LIB(z, gzdopen)
+
+# Check for termio-related types and defines
+IU_CHECK_TYPE(cc_t,
+ [ #if defined(HAVE_TERMIOS_H)
+   # include <termios.h>
+   #elif defined(HAVE_TERMIO_H)
+   # include <termio.h>
+   #else
+   # include <sgtty.h>
+   #endif ])
 
 # For now, we always use libexecdir; later we may want to vary where the
 # daemons go.
