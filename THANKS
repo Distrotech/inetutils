@@ -4,4 +4,4 @@ In particular:
   Kaveh R. Ghazi	 (Much porting work, esp. sunos/solaris)
   Alain Magloire	 (snprintf replacement & security fixes)
   Bernhard Rosenkraenzer (Linux port)
-  NIIBE Yutaka		 (security fixes & making talk finally work)
+  NIIBE Yutaka		 (Security fixes & making talk finally work)

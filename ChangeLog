@@ -1,4 +1,14 @@
+Mon Feb 24 00:19:06 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.2o'.
+
+	* libinetutils/snprintf.c, libinetutils/snprintf.h: Updated from
+	snprintf-1.1.
+
 Sun Feb 23 13:22:41 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* iumacros.m4 (IU_LIB_NCURSES): Add -with[out]-ncurses-include-dir
+	options.  Search $includedir and $prefix/include first in default list.
 
 	From NIIBE Yutaka <gniibe@mri.co.jp>:
 	* talk/ctl_transact.c (ctl_transact): Zero CTL_MASK before using.

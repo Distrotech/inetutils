@@ -1,8 +1,29 @@
-Release 1.2 is an attempt to be somewhat more portable, and reorganize the
-code to make porting a bit easier; it is still very BSD-specific.  A major
-bug in ftpd bug that prevents most logins from succeeding is fixed, as well
-as other, more minor, bugs.
+Inetutils NEWS -- history of user-visible changes
+Please send inetutils bug reports to bug-inetutils@gnu.ai.mit.edu.
 
-Release 1.1 is a minor release intended only for the GNU hurd.  This release
-adds checking for crypt at both compile and runtime (on systems where weak
-refs are supported).
+Release 1.2o:
+ More portable again than 1.2.  It is still very BSD-specific, but now
+ works on many popular systems, such as linux and sunos/solaris.
+ 
+ The talk program finally seems to work.
+
+ ftp now supports a --prompt option to force it to print a prompt, even
+ when not on a tty (this makes it possible to use ange-ftp with pipes).
+
+ rsh now supports long options.
+
+ Many security fixes have been made, so this release should be more secure
+ than previous ones.
+
+Release 1.2:
+ An attempt to be somewhat more portable, and reorganize the code to make
+ porting a bit easier; it is still very BSD-specific.
+
+ A major bug in ftpd bug that prevents most logins from succeeding is
+ fixed, as well as other, more minor, bugs.
+
+Release 1.1:
+ A minor release intended only for the GNU hurd.
+
+ This release adds checking for crypt at both compile and runtime (on
+ systems where weak refs are supported).
