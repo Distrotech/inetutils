@@ -105,13 +105,13 @@
 #define AUTH_KERBEROS_5 5
 
 #ifdef KERBEROS
-# define	SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
-# ifdef	KERBEROS_IV
+# define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
+# ifdef	KRB4
 #  include <kerberosIV/des.h>
 #  include <kerberosIV/krb.h>
 #  define kerberos_error_string(c) krb_err_txt[c]
 #  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_4
-# elif defined(KERBEROS_V)
+# elif defined(KRB5)
 #  include <krb5.h>
 #  include <kerberosIV/krb.h>
 #  define kerberos_error_string(c) error_message (c)
@@ -139,7 +139,7 @@ struct auth_data
   char *term;
   char *env[2];
 #ifdef KERBEROS
-#ifdef KERBEROS_V
+#ifdef KRB5
   int kerberos_version;
   krb5_principal client;
   krb5_context context;
@@ -772,7 +772,7 @@ do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
   int rc;
 
   err_msg = NULL;
-#ifdef KERBEROS_V
+#if defined(KRB5)
   if (kerberos == AUTH_KERBEROS_5)
     rc = do_krb5_login (infd, ap, err_msg);
   else
@@ -860,7 +860,7 @@ do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
   return 0;
 }
 
-#ifdef KERBEROS_V
+#ifdef KRB5
 int
 do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
 {
