@@ -282,7 +282,8 @@ login(host)
 }
 
 void
-cmdabort()
+cmdabort(sig)
+  int sig;
 {
 
 	printf("\n");
@@ -468,7 +469,8 @@ empty(mask, sec)
 jmp_buf	sendabort;
 
 void
-abortsend()
+abortsend(sig)
+  int sig;
 {
 
 	mflag = 0;
@@ -727,7 +729,8 @@ abort:
 jmp_buf	recvabort;
 
 void
-abortrecv()
+abortrecv(sig)
+  int sig;
 {
 
 	mflag = 0;
@@ -1233,7 +1236,8 @@ tvsub(tdiff, t1, t0)
 }
 
 void
-psabort()
+psabort(sig)
+  int sig;
 {
 
 	abrtflag++;
@@ -1341,7 +1345,8 @@ pswitch(flag)
 }
 
 void
-abortpt()
+abortpt(sig)
+  int sig;
 {
 
 	printf("\n");
