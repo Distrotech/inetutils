@@ -1,3 +1,9 @@
+2000-08-08  Michael Weiser
+
+	* process.c: Guard <utmp.h> utmpx.h> properly.
+	(find_user): Guard calls to setutent() or setutxent().
+	Use sizeof(PATH_DEV) instead of hardcoded numbers.
+
 2000-08-08 Alain Magloire
 
 	* announce.c: Uncoditionnaly undef max before use it as a macro.

@@ -171,7 +171,15 @@ do_announce(register CTL_MSG *mp, CTL_RESPONSE *rp)
 	}
 }
 
-#include <utmp.h>
+#ifdef HAVE_UTMP_H
+# include <utmp.h>
+#endif
+
+#ifdef UTMPX
+# ifdef HAVE_UTMPX_H
+#  include <utmpx.h>
+# endif
+#endif
 
 /*
  * Search utmp for the local user
@@ -179,7 +187,12 @@ do_announce(register CTL_MSG *mp, CTL_RESPONSE *rp)
 int
 find_user(char *name, char *tty)
 {
+#ifndef UTMPX
 	struct utmp *uptr;
+#else
+	struct utmpx *uptr;
+#endif /* !UTMPX */
+
 	int status;
 	struct stat statb;
 	char ftty[sizeof(PATH_DEV) + sizeof(uptr->ut_line)];
@@ -190,8 +203,18 @@ find_user(char *name, char *tty)
 
 	status = NOT_HERE;
 	strcpy(ftty, PATH_DEV);
+
+#ifndef UTMPX
 	setutent();
-	while ((uptr = getutent())!=NULL) {
+#else
+	setutxent();
+#endif /* !UTMPX */
+
+#ifndef UTMPX
+	while ((uptr = getutent()) != NULL) {
+#else
+	while ((uptr = getutxent()) != NULL) {
+#endif /* !UTMPX */
 #ifdef USER_PROCESS
 		if (uptr->ut_type!=USER_PROCESS) 
 			continue;
@@ -199,8 +222,10 @@ find_user(char *name, char *tty)
 		if (!strncmp(uptr->ut_name, name, sizeof(uptr->ut_name))) {
 			if (notty) {
 				/* no particular tty was requested */
-				strncpy(ftty+5, uptr->ut_line, sizeof(ftty)-5);
-				ftty[sizeof(ftty)-1] = 0;
+				strncpy(ftty + sizeof(PATH_DEV) - 1,
+					uptr->ut_line,
+					sizeof(ftty) - sizeof(PATH_DEV) - 1);
+				ftty[sizeof(ftty) - 1] = 0;
 
 				if (stat(ftty, &statb) == 0) {
 					if (!(statb.st_mode & S_IWGRP)) {
@@ -211,17 +236,23 @@ find_user(char *name, char *tty)
 					if (statb.st_atime > last_time) {
 						last_time = statb.st_atime;
 						strcpy(tty, uptr->ut_line);
-					status = SUCCESS;
-				}
+						status = SUCCESS;
+					}
 					continue;
-			}
+				}
 			}
 			if (!strcmp(uptr->ut_line, tty)) {
 				status = SUCCESS;
 				break;
 			}
 		}
-		}
+	}
+
+#ifndef UTMPX
 	endutent();
+#else
+	endutxent();
+#endif /* !UTMPX */
+
 	return status;
 }
