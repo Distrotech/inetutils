@@ -1,3 +1,8 @@
+2001-11-22  Sergey Poznyakoff
+
+	* rcp.c: Fixed syntax error: sizeof int. Should be:
+	sizeof(int).
+
 2001-11-10  Alain Magloire
 
 	* rcp.c (help): New function.

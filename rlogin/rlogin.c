@@ -470,7 +470,7 @@ main(int argc, char *argv[])
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
   {
     int one = IPTOS_LOWDELAY;
-    if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *)&one, sizeof int) < 0)
+    if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *)&one, sizeof (int)) < 0)
       warn ("setsockopt TOS (ignored)");
   }
 #endif

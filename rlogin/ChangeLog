@@ -1,3 +1,8 @@
+2001-11-22  Sergey Poznyakoff
+
+	* rlogin.c: Fixed syntax error: sizeof int. Should be:
+        sizeof(int).
+
 2001-11-03  Alain Magloire
 
 	* rlogin.c: Removed copyryght and sccsid.
