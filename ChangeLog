@@ -1,5 +1,12 @@
 Sun Mar 22 16:13:49 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* headers/Makefile.am (EXTRA_DIST): Renamed variable from
+ 	noinst_HEADERS.  Added tftpsubs.h.  Changed version.h to
+ 	version.h.in.
+	
+	(dist-hook): Added to distribute some files in the arpa and protocols
+	directories.
+
 	* inetd/Makefile.am (INCLUDES): Use $(PATHDEF_INETDCONF) instead
  	of the old hardcoded value.
 	
