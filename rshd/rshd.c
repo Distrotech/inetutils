@@ -76,7 +76,7 @@ int	sent_null;
 
 void	 doit __P((struct sockaddr_in *));
 void	 error __P((const char *, ...));
-void	 getstr __P((char *, int, char *));
+char	*getstr __P((char *));
 int	 local_domain __P((char *));
 char	*topdomain __P((char *));
 void	 usage __P((void));
@@ -198,8 +198,7 @@ doit(fromp)
 	int one = 1;
 	char *hostname, *errorstr, *errorhost;
 	char *cp, sig, buf[BUFSIZ];
-	char cmdbuf[NCARGS+1], locuser[16], remuser[16];
-	char remotehost[2 * MAXHOSTNAMELEN + 1];
+	char *cmdbuf, *locuser, *remuser;
 
 #ifdef	KERBEROS
 	AUTH_DAT	*kdata = (AUTH_DAT *) NULL;
@@ -336,33 +335,37 @@ doit(fromp)
 		if (!use_kerberos)
 #endif
 		if (check_all || local_domain(hp->h_name)) {
-			strncpy(remotehost, hp->h_name, sizeof(remotehost) - 1);
-			remotehost[sizeof(remotehost) - 1] = 0;
-			errorhost = remotehost;
-			hp = gethostbyname(remotehost);
-			if (hp == NULL) {
-				syslog(LOG_INFO,
-				    "Couldn't look up address for %s",
-				    remotehost);
-				errorstr =
-				"Couldn't look up address for your host (%s)\n";
-				hostname = inet_ntoa(fromp->sin_addr);
-			} else for (; ; hp->h_addr_list++) {
-				if (hp->h_addr_list[0] == NULL) {
-					syslog(LOG_NOTICE,
-					  "Host addr %s not listed for host %s",
-					    inet_ntoa(fromp->sin_addr),
-					    hp->h_name);
+			char *remotehost = alloca (strlen (hp->h_name) + 1);
+			if (! remotehost)
+				errorstr = "Out of memory\n";
+			else {
+				strcpy(remotehost, hp->h_name);
+				errorhost = remotehost;
+				hp = gethostbyname(remotehost);
+				if (hp == NULL) {
+					syslog(LOG_INFO,
+					    "Couldn't look up address for %s",
+					    remotehost);
 					errorstr =
-					    "Host address mismatch for %s\n";
+			       "Couldn't look up address for your host (%s)\n";
 					hostname = inet_ntoa(fromp->sin_addr);
-					break;
-				}
-				if (!bcmp(hp->h_addr_list[0],
-				    (caddr_t)&fromp->sin_addr,
-				    sizeof(fromp->sin_addr))) {
-					hostname = hp->h_name;
-					break;
+				} else for (; ; hp->h_addr_list++) {
+					if (hp->h_addr_list[0] == NULL) {
+						syslog(LOG_NOTICE,
+					 "Host addr %s not listed for host %s",
+						    inet_ntoa(fromp->sin_addr),
+						    hp->h_name);
+						errorstr =
+					      "Host address mismatch for %s\n";
+						hostname = inet_ntoa(fromp->sin_addr);
+						break;
+					}
+					if (!bcmp(hp->h_addr_list[0],
+					    (caddr_t)&fromp->sin_addr,
+					    sizeof(fromp->sin_addr))) {
+						hostname = hp->h_name;
+						break;
+					}
 				}
 			}
 		}
@@ -405,10 +408,10 @@ doit(fromp)
 		}
 	} else
 #endif
-		getstr(remuser, sizeof(remuser), "remuser");
+		remuser = getstr ("remuser");
 
-	getstr(locuser, sizeof(locuser), "locuser");
-	getstr(cmdbuf, sizeof(cmdbuf), "command");
+	locuser = getstr ("locuser");
+	cmdbuf = getstr ("command");
 	setpwent();
 	pwd = getpwnam(locuser);
 	if (pwd == NULL) {
@@ -715,22 +718,41 @@ error(fmt, va_alist)
 	(void)write(STDERR_FILENO, buf, len + strlen(bp));
 }
 
-void
-getstr(buf, cnt, err)
-	char *buf, *err;
-	int cnt;
+char *
+getstr(err)
+	char *err;
 {
-	char c;
+	size_t buf_len = 100;
+	char *buf = malloc (buf_len), *end = buf;
+
+	if (! buf)
 
 	do {
-		if (read(STDIN_FILENO, &c, 1) != 1)
-			exit(1);
-		*buf++ = c;
-		if (--cnt == 0) {
-			error("%s too long\n", err);
+		/* Oh this is efficient, oh yes.  [But what can be done?] */
+		int rd = read(STDIN_FILENO, end, 1);
+		if (rd <= 0) {
+			if (rd == 0)
+				error ("EOF reading %s\n", err);
+			else
+				perror (err);
 			exit(1);
 		}
-	} while (c != 0);
+
+		end += rd;
+		if ((buf + buf_len - end) < (buf_len >> 3)) {
+			/* Not very much room left in our buffer, grow it. */
+			size_t end_offs = end - buf;
+			buf_len += buf_len;
+			buf = realloc (buf, buf_len);
+			if (! buf) {
+				error ("Out of space reading %s\n", err);
+				exit (1);
+			}
+			end = buf + end_offs;
+		}
+	} while (*(end - 1));
+
+	return buf;
 }
 
 /*
@@ -745,16 +767,31 @@ int
 local_domain(h)
 	char *h;
 {
-	char localhost[MAXHOSTNAMELEN];
+	int is_local = 0;
 	char *p1, *p2;
+	char *localhost = 0;
+	size_t localhost_len = 0;
 
-	localhost[0] = 0;
-	(void) gethostname(localhost, sizeof(localhost));
+	do {
+		if (localhost)
+			localhost =
+			  realloc (localhost, localhost_len += localhost_len);
+		else {
+			localhost_len = 1024; /* Initial guess */
+			localhost = malloc (localhost_len);
+		}
+	} while (gethostname (localhost, localhost_len) == 0
+		 && ! memchr (localhost, '\0', localhost_len));
+
 	p1 = topdomain(localhost);
 	p2 = topdomain(h);
+
 	if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
-		return (1);
-	return (0);
+		is_local = 1;
+
+	free (localhost);
+
+	return is_local;
 }
 
 char *
