@@ -52,6 +52,8 @@ extern time_t max_idle_time;
 extern time_t max_request_ttl;
 extern char *hostname;
 
+#define os2sin_addr(cp) (((struct sockaddr_in *)&(cp))->sin_addr)
+
 CTL_MSG *find_request (CTL_MSG *request);
 CTL_MSG *find_match (CTL_MSG *request);
 int process_request(CTL_MSG *mp, struct sockaddr_in *sa_in, CTL_RESPONSE *rp);
