@@ -18,7 +18,7 @@
 #
 
 srcdir = @srcdir@
-include ../config.mk
+include ../config.make
 
 all: ftp
 ftp: cmds.o cmdtab.o ftp.o main.o ruserpass.o domacro.o
