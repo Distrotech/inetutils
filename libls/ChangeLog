@@ -1,3 +1,8 @@
+2000-07-30 Michel Vogt
+
+	* fts.c: Change GNU Lib C specifics functions for
+	their standard counterpart ex: __opendir() --> opendir().
+
 2000-07-27 Michel Vogt
 
 	* fts.c fts.h: new files to support BSD fts_*() functions.
