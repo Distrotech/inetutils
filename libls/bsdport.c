@@ -1,17 +1,8 @@
 #ifndef ORIGINAL_SOURCE
 
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
-
-#ifndef _BSD_SOURCE
-#define _BSD_SOURCE
-#endif
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pwd.h>

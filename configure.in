@@ -152,8 +152,8 @@ AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
 AC_CHECK_LIB(pam, pam_authenticate)
 
-AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd flock fpathconf \
-               ftruncate \
+AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
+               fpathconf ftruncate \
 	       getcwd getspnam initgroups initsetproctitle killpg ptsname \
                setegid seteuid \
                setsid setregid setreuid setresgid setresuid setutent_r \

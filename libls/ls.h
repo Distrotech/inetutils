@@ -71,8 +71,3 @@ typedef struct {
 	char *flags;
 	char data[1];
 } NAMES;
-
-#ifndef u_quad_t
-typedef unsigned long long int u_quad_t;
-#endif
-

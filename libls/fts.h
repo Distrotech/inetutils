@@ -40,7 +40,6 @@
 #include <features.h>
 #endif
 #include <sys/types.h>
-#include <config.h>
 
 typedef struct {
 	struct _ftsent *fts_cur;	/* current node */

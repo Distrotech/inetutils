@@ -1,5 +1,3 @@
-#include<config.h> 
-
 /* Replacement for tzfile.h */
 #define DAYSPERNYEAR 365
 #define SECSPERDAY 86400

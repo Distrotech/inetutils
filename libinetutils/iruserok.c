@@ -37,7 +37,7 @@
 #endif
 #include <pwd.h>
 #include <sys/file.h>
-#include <sys/signal.h>
+#include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/uio.h>

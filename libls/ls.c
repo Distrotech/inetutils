@@ -47,6 +47,10 @@ static char rcsid[] = "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
 #endif
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -59,7 +63,7 @@ static char rcsid[] = "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
 #include <string.h>
 #include <unistd.h>
 #ifdef HAVE_TERMIOS_H
-#include <sys/termios.h>
+#include <termios.h>
 #endif
 
 #include "ls.h"
@@ -422,7 +426,7 @@ display(p, list)
 	DISPLAY d;
 	FTSENT *cur;
 	NAMES *np;
-	u_quad_t maxsize;
+	unsigned long long maxsize;
 	u_long btotal, maxblock, maxinode, maxlen, maxnlink;
 	int bcfile, flen, glen, ulen, maxflags, maxgroup, maxuser;
 	int entries, needstats;

@@ -38,6 +38,10 @@ static char rcsid[] = "$OpenBSD: stat_flags.c,v 1.4 1999/09/08 07:21:29 millert 
 #endif
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/stat.h>
 

@@ -35,15 +35,22 @@
 static char sccsid[] = "@(#)fts.c	8.6 (Berkeley) 8/14/94";
 #endif /* LIBC_SCCS and not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
+#ifdef HAVE_STRING_H
 #include <string.h>
+#else
 #include <strings.h>
+#endif
 #include <unistd.h>
+
 #include "bsdport.h"
 #include "fts.h"
 
@@ -58,7 +65,7 @@ static FTSENT	*fts_sort(FTS *, FTSENT *, int);
 static u_short	 fts_stat(FTS *, struct dirent *, FTSENT *, int);
 
 #ifndef MAX
-#define MAX(a, b)	(((a) > (b)) ? (a) : (b))	
+#define MAX(a, b)	(((a) > (b)) ? (a) : (b))
 #endif
 
 #define	ISDOT(a)	(a[0] == '.' && (!a[1] || (a[1] == '.' && !a[2])))
@@ -67,7 +74,11 @@ static u_short	 fts_stat(FTS *, struct dirent *, FTSENT *, int);
 #define	SET(opt)	(sp->fts_options |= opt)
 
 #define	CHDIR(sp, path)	(!ISSET(FTS_NOCHDIR) && chdir(path))
+#ifdef HAVE_FCHDIR
 #define	FCHDIR(sp, fd)	(!ISSET(FTS_NOCHDIR) && fchdir(fd))
+#else
+#define FCHDIR(sp, fd)  (!ISSET(FTS_NOCHDIR) && -1)
+#endif
 
 /* fts_build flags */
 #define	BCHILD		1		/* fts_children */
@@ -96,7 +107,7 @@ fts_open(argv, options, compar)
 	/* Allocate/initialize the stream */
 	if ((sp = malloc((u_int)sizeof(FTS))) == NULL)
 		return (NULL);
-	bzero(sp, sizeof(FTS));
+	memset(sp, 0, sizeof(FTS));
 	sp->fts_compar = (int (*) __P((const void *, const void *))) compar;
 	sp->fts_options = options;
 
@@ -104,6 +115,10 @@ fts_open(argv, options, compar)
 	if (ISSET(FTS_LOGICAL))
 		SET(FTS_NOCHDIR);
 
+	/* Always set NOCHDIR for OS lacking fchdir ()  */
+#ifndef HAVE_FCHDIR
+	SET(FTS_NOCHDIR);
+#endif
 	/*
 	 * Start out with 1K of path space, and enough, in any case,
 	 * to hold the user's paths.
@@ -203,10 +218,10 @@ fts_load(sp, p)
 	 * known that the path will fit.
 	 */
 	len = p->fts_pathlen = p->fts_namelen;
-	bcopy(p->fts_name, sp->fts_path, len + 1);
+	memmove (sp->fs_path, p->fts_name, len + 1);
 	if ((cp = rindex(p->fts_name, '/')) && (cp != p->fts_name || cp[1])) {
 		len = strlen(++cp);
-		bcopy(cp, p->fts_name, len + 1);
+		memmove(p->fts_name, cp, len + 1);
 		p->fts_namelen = len;
 	}
 	p->fts_accpath = p->fts_path = sp->fts_path;
@@ -406,7 +421,7 @@ next:	tmp = p;
 
 name:		t = sp->fts_path + NAPPEND(p->fts_parent);
 		*t++ = '/';
-		bcopy(p->fts_name, t, p->fts_namelen + 1);
+		memmove(t, p->fts_name, p->fts_namelen + 1);
 		return (sp->fts_cur = p);
 	}
 
@@ -722,7 +737,7 @@ mem1:				saved_errno = errno;
 			/* Build a file name for fts_stat to stat. */
 			if (ISSET(FTS_NOCHDIR)) {
 				p->fts_accpath = p->fts_path;
-				bcopy(p->fts_name, cp, p->fts_namelen + 1);
+				memmouve(p->fts_name, cp, p->fts_namelen + 1);
 			} else
 				p->fts_accpath = p->fts_name;
 			/* Stat it. */
@@ -837,7 +852,7 @@ fts_stat(sp, dp, p, follow)
 		}
 	} else if (lstat(p->fts_accpath, sbp)) {
 		p->fts_errno = errno;
-err:		bzero(sbp, sizeof(struct stat));
+err:		memset(sbp, 0, sizeof(struct stat));
 		return (FTS_NS);
 	}
 
@@ -928,12 +943,12 @@ fts_alloc(sp, name, namelen)
 	 */
 	len = sizeof(FTSENT) + namelen;
 	if (!ISSET(FTS_NOSTAT))
-		len += sizeof(struct stat); 
+		len += sizeof(struct stat);
 	if ((p = malloc(len)) == NULL)
 		return (NULL);
 
 	/* Copy the name plus the trailing NULL. */
-	bcopy(name, p->fts_name, namelen + 1);
+	memmove(name, p->fts_name, namelen + 1);
 
 	if (!ISSET(FTS_NOSTAT))
 		p->fts_statp = (struct stat *)(p->fts_name + namelen + 2);

@@ -41,6 +41,10 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 #endif
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/stat.h>
 
@@ -62,6 +66,10 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 
 #include "ls.h"
 #include "extern.h"
+
+#ifndef howmany
+#define    howmany(x, y)   (((x)+((y)-1))/(y))
+#endif
 
 static int	printaname __P((FTSENT *, u_long, u_long));
 static void	printlink __P((FTSENT *));
@@ -111,7 +119,7 @@ printlong(dp)
 		if (f_inode)
 			(void)printf("%*lu ", dp->s_inode, (unsigned long)sp->st_ino);
 		if (f_size)
-			(void)printf("%*qd ",
+			(void)printf("%*llu ",
 			    dp->s_block, (long long)howmany(sp->st_blocks, blocksize));
 #endif /* ORIGINAL_SOURCE */
 		(void)strmode(sp->st_mode, buf);
@@ -125,17 +133,10 @@ printlong(dp)
 			(void)printf("%3d, %3d ",
 			    major(sp->st_rdev), minor(sp->st_rdev));
 		else if (dp->bcfile)
-#ifdef ORIGINAL_SOURCE
-			(void)printf("%*s%*qd ",
-			    8 - dp->s_size, "", dp->s_size, sp->st_size);
-		else
-			(void)printf("%*qd ", dp->s_size, sp->st_size);
-#else
-			(void)printf("%*s%*qd ",
+			(void)printf("%*s%*llu ",
 			    8 - dp->s_size, "", dp->s_size, (long long)sp->st_size);
 		else
-			(void)printf("%*qd ", dp->s_size, (long long)sp->st_size);
-#endif /* ORIGINAL_SOURCE */
+			(void)printf("%*llu ", dp->s_size, (long long)sp->st_size);
 		if (f_accesstime)
 			printtime(sp->st_atime);
 		else if (f_statustime)
@@ -256,7 +257,7 @@ printaname(p, inodefield, sizefield)
 	if (f_inode)
 		chcnt += printf("%*lu ", (int)inodefield, (unsigned long)sp->st_ino);
 	if (f_size)
-		chcnt += printf("%*qd ",
+		chcnt += printf("%*llu ",
 		    (int)sizefield, (long long)howmany(sp->st_blocks, blocksize));
 #endif /* ORIGINAL_SOURCE */
 	chcnt += putname(p->fts_name);
