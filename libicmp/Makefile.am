@@ -1,0 +1,9 @@
+AUTOMAKE_OPTIONS = ../ansi2knr
+
+noinst_LIBRARIES = libicmp.a
+
+libicmp_a_SOURCES = libping.c \
+ icmp_echo.c \
+ icmp_cksum.c
+
+noinst_HEADERS = icmp.h ping.h 
