@@ -1,14 +1,83 @@
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+This is based on the equivalent Linux change:
+Thu Oct 19 00:02:07 MET 1995:  Martin Schulze
+The default behavior has changed for security reasons. The
+syslogd will not receive any remote message unless you turn
+reception on with the "-r" option.
+
+	* syslogd.c (AllowRemote): New global variable.
+	(main): New option "-r" to set AllowRemote.
+	Only if AllowRemote is true add inetm to readfds
+	and check for messages from there.
+	(usage): Document new option "-r".
+	(init): In start-up message, show if we allow remote messages.
+	* syslogd.8: Document new option "-r".
+
+	(init): In start-up message, show package name and version
+	number (like: "GNU inetutils 1.3.2c").
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+This is the equivalent to the following Linux changes:
+Wed Nov 22 22:32:55 1995:  Martin Schulze
+Added the fabulous strip-domain feature that allows us to
+strip off (several) domain names from the fqdn and only log
+the simple hostname. This is useful if you're in a LAN that
+has a central log server and also different domains.
+
+I have also also added the -l switch do define hosts as
+local. These will get logged with their simple hostname, too.
+
+	* syslogd.c (LIST_DELIMITER): New symbol.
+	(StripDomains, LocalHosts): New variables.
+	(crunch_list): New prototype and function.
+	(main): New options "-s" and "-l".
+	(usage): Document "-s" and "-l".
+	(cvthname): Use StripDomains and LocalHosts to frob
+	the hostname before returning.
+	* syslogd.8: Document new options "-s" and "-l".
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	Merged from the Linux source (sysklogd 1.3):
+	* syslogd.c (debugging_on): New global variable to toggle debug output.
+	(debug_switch, dprintf): New prototypes, new functions. Redefine dprintf
+	to mydprintf when __GLIBC__ is defined.
+	Remove macro for dprintf.
+	(main): Set debugging_on to true early, and to false again before
+	entering main loop. Install debug_switch as SIGUSR1 handler.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	Merged from the Linux source (sysklogd 1.3):
+	* syslogd.c (F_FORW_SUSP): New symbol.
+	(F_FORW_UNKN, F_PIPE): Increment value, to make space for F_FORW_SUSP.
+	(TypeNames): Insert name for F_FORW_SUSP.
+	(fprintlog): Add case for F_FORW_SUSP.
+	In case F_FORW use F_FORW_SUSP on error (and not F_FORW_UNKN).
+	Add debug message.
+	(init): Handle case F_FORW_SUSP in debug output like F_FORW.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (NoDetach): New global variable.
+	(main): New option "-n". If NoDetach is true, don't
+	background and detach from controlling terminal.
+	(usage): Document new option n.
+	* syslogd.8: Document new option "-n".
+
 2000-07-05 Alain Magloire
 
-	* *: Clause 3 removed.
+	*: Clause 3 removed.
 	excerpt from email with RMS:
 	"UCB has agreed to drop the advertising clause from the license for all
 	BSD software.  The advertising clause is this one:
 
-	3. All advertising materials mentioning features or use of this software
-		must display the following acknowledgement:
-		This product includes software developed by the University of
-		California, Berkeley and its contributors.
+	3.All advertising materials mentioning features or use of this software
+	must display the following acknowledgement:
+	This product includes software developed by the University of
+	California, Berkeley and its contributors.
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
@@ -32,7 +101,7 @@
 	(logmsg): Only fsync if OMIT_SYNC is not set.
 	(cfline): Clear f_flags at initialization.
 	Set OMIT_SYNC in f_flags if action is prepended by `-' in
-	the conf file. 
+	the conf file.
 
 	* syslog.conf.5: Document level modifiers '!' and '='.
 	Add `-' rule.

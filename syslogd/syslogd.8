@@ -51,6 +51,9 @@ Print version number and exit.
 .It Fl h
 Enable forwarding remote messages. By default syslogd will not
 forward messages it receives from remote hosts.
+.It Fl l
+A colon-seperated lists of hosts which should be considered local;
+they are logged by their hostnames instead by their FQDN.
 .It Fl f
 Specify the pathname of an alternate configuration file;
 the default is
@@ -58,10 +61,20 @@ the default is
 .It Fl m
 Select the number of minutes between ``mark'' messages;
 the default is 20 minutes.
+.It Fl n
+Suppress backgrounding and detachment of the daemon from its
+controlling terminal.
 .It Fl p
 Specify the pathname of an alternate log socket;
 the default is
+.It Fl r
+Enable to receive remote messages using an internet domain socket.
+The default is to not receive any messages from the network. Older
+version always accepted remote messages.
 .Pa /dev/log .
+.It Fl s
+A colon-seperated list of domainnames which should be stripped from
+the FQDNs of hosts when logging.
 .El
 .Pp
 .Nm Syslogd

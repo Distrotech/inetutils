@@ -122,13 +122,13 @@ char	*ConfFile = PATH_LOGCONF;
 char	*PidFile = PATH_LOGPID;
 char	ctty[] = PATH_CONSOLE;
 
+static int debugging_on = 0;
+
 #define FDMASK(fd)	(1 << (fd))
 
 #ifndef LINE_MAX
 #define LINE_MAX 2048
 #endif
-
-#define	dprintf		if (Debug) printf
 
 /*
  * Flags to logmsg().
@@ -194,6 +194,8 @@ int	repeatinterval[] = { 30, 120, 600 };	/* # of secs before flush */
 #define INET_SUSPEND_TIME 180		/* equal to 3 minutes */
 #define INET_RETRY_MAX 10		/* maximum of retries for gethostbyname() */
 
+#define LIST_DELIMITER ':'		/* delimiter between two hosts */
+
 /* values for f_type */
 #define F_UNUSED	0		/* unused entry */
 #define F_FILE		1		/* regular file */
@@ -202,12 +204,13 @@ int	repeatinterval[] = { 30, 120, 600 };	/* # of secs before flush */
 #define F_FORW		4		/* remote machine */
 #define F_USERS		5		/* list of users */
 #define F_WALL		6		/* everyone logged on */
-#define F_FORW_UNKN	7		/* unknown host forwarding */
-#define F_PIPE		8		/* named pipe */
+#define F_FORW_SUSP	7		/* suspended host forwarding */
+#define F_FORW_UNKN	8		/* unknown host forwarding */
+#define F_PIPE		9		/* named pipe */
 
 char	*TypeNames[] = {
 	"UNUSED",	"FILE",		"TTY",		"CONSOLE",
-	"FORW",		"USERS",	"WALL",
+	"FORW",		"USERS",	"WALL",		"FORW(SUSPENDED)",
 	"FORW(UNKNOWN)","PIPE"
 };
 
@@ -223,6 +226,12 @@ int	LogPort;		/* port number for INET connections */
 int	Initialized = 0;	/* set when we have initialized ourselves */
 int	MarkInterval = 20 * 60;	/* interval between marks in seconds */
 int	MarkSeq = 0;		/* mark sequence number */
+int     AcceptRemote = 0;       /* receive messages that come via UDP */
+char    **StripDomains = NULL;  /* these domains may be stripped before writing
+logs */
+char    **LocalHosts = NULL;    /* these hosts are logged with their hostname */
+
+int	NoDetach = 0;		/* Don't run in background and detach from ctty. */
 int	NoHops = 1;		/* non-zero if we don't bounce syslog messages
 				   for other hosts */
 
@@ -242,6 +251,12 @@ char   *ttymsg __P((struct iovec *, int, char *, int));
 void	usage __P((void));
 void	wallmsg __P((struct filed *, struct iovec *));
 extern char *localhost __P ((void));
+char **crunch_list __P((char *list));
+void    debug_switch __P(());
+#if defined(__GLIBC__)
+#define dprintf mydprintf
+#endif /* __GLIBC__ */
+static void dprintf __P((char *, ...));
 
 int
 main(int argc, char *argv[])
@@ -258,7 +273,7 @@ main(int argc, char *argv[])
 	char line[MAXLINE + 1];
 #endif
 
-	while ((ch = getopt(argc, argv, "dhf:m:p:V")) != EOF)
+	while ((ch = getopt(argc, argv, "dhf:l:m:np:rV")) != EOF)
 		switch(ch) {
 		case 'd':		/* debug */
 			Debug++;
@@ -272,13 +287,34 @@ main(int argc, char *argv[])
 		case 'm':		/* mark interval */
 			MarkInterval = atoi(optarg) * 60;
 			break;
+		case 'n':		/* don't run in the background */
+			NoDetach = 1;
 		case 'p':		/* path */
 			LogName = optarg;
+			break;
+		case 'r':		/* accept remote messages */
+			AcceptRemote = 1;
 			break;
 		case 'V':
 			printf("syslogd (%s) %s\n", inetutils_package,
 			       inetutils_version);
 			exit (0);
+		case 'l':
+			if (LocalHosts) {
+				fprintf (stderr, "Only one -l argument allowed," \
+					"the first one is taken.\n");
+				break;
+			}
+			LocalHosts = crunch_list(optarg);
+			break;
+		case 's':
+			if (StripDomains) {
+				fprintf (stderr, "Only one -s argument allowed," \
+					"the first one is taken.\n");
+				break;
+			}
+			StripDomains = crunch_list(optarg);
+			break; 
 		case '?':
 		default:
 			usage();
@@ -286,10 +322,11 @@ main(int argc, char *argv[])
 	if ((argc -= optind) != 0)
 		usage();
 
-	if (!Debug)
+	if (!(Debug || NoDetach))
 		(void)daemon(0, 0);
 	else
 	{
+	  debugging_on = 1;
 #ifdef HAVE_SETLINEBUF
 	  setlinebuf (stdout);
 #else
@@ -337,6 +374,7 @@ main(int argc, char *argv[])
 	(void)signal(SIGQUIT, Debug ? die : SIG_IGN);
 	(void)signal(SIGCHLD, reapchild);
 	(void)signal(SIGALRM, domark);
+	(void)signal(SIGUSR1, Debug ? debug_switch : SIG_IGN);
 	(void)alarm(TIMERINTVL);
 	(void)unlink(LogName);
 
@@ -402,8 +440,16 @@ main(int argc, char *argv[])
 	init(0);
 	(void)signal(SIGHUP, init);
 
+	if (Debug) {
+		dprintf("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
+		debugging_on = 0;
+	}
+
 	for (;;) {
-		int nfds, readfds = FDMASK(funix) | inetm | klogm;
+		int nfds, readfds = FDMASK(funix) | klogm;
+
+		if (AcceptRemote)
+			readfds |= inetm;
 
 		dprintf("readfds = %#x\n", readfds);
 		nfds = select(20, (fd_set *)&readfds, (fd_set *)NULL,
@@ -437,7 +483,7 @@ main(int argc, char *argv[])
 			} else if (i < 0 && errno != EINTR)
 				logerror("recvfrom unix");
 		}
-		if (readfds & inetm) {
+		if (AcceptRemote && (readfds & inetm)) {
 			len = sizeof(frominet);
 			i = recvfrom(finet, line, MAXLINE, 0,
 			    (struct sockaddr *)&frominet, &len);
@@ -460,14 +506,82 @@ Start system log daemon.\n\
 \n\
   -f FILE        Read configuration from FILE instead from " PATH_LOGCONF ".\n\
   -h             Forward messages from remote hosts.\n\
+  -l HOSTLIST    A ':'-seperated list of hosts which should be logged by\n\
+                 their hostname and not the FQDN.\n\
   -m INTERVAL    Log timestamp mark every INTERVAL seconds. If INTERVAL is 0,\n\
                  timestamps are disabled.\n\
+  -n             Don't detach syslogd from terminal or background it.\n\
   -p FILE        Specify the pathname of an alternate log socket instead of\n\
                  the default " PATH_LOG ".\n\
+  -r             Enable to receive remote messages via internet domain socket.\n\
+  -s DOMAINLIST  A ':'-seperated list of domains which should be stripped\n\
+                 from FQDNs of hosts before logging them.\n\
   -V             Print version information and exit.\n\
 \n\
 Report bugs to %s.\n", inetutils_bugaddr);
 	exit(1);
+}
+
+char **
+crunch_list(char *list);
+{
+	int count, i;
+	char *p, *q;
+	char **result = NULL;
+
+	p = list;
+
+	/* strip off trailing delimiters */
+	while (p[strlen(p)-1] == LIST_DELIMITER) {
+		count--;
+		p[strlen(p)-1] = '\0';
+	}
+	/* cut off leading delimiters */
+	while (p[0] == LIST_DELIMITER) {
+		count--;
+		p++;
+	}
+
+	/* count delimiters to calculate elements */
+	for (count=i=0; p[i]; i++)
+		if (p[i] == LIST_DELIMITER) count++;
+
+	if ((result = (char **)malloc(sizeof(char *) * count+2)) == NULL) {
+		printf ("Sorry, can't get enough memory, exiting.\n");
+		exit(0);
+	}
+
+	/*
+	 * We now can assume that the first and last
+	 * characters are different from any delimiters,
+	 * so we don't have to care about this.
+	 */
+	count = 0;
+	while ((q=strchr(p, LIST_DELIMITER))) {
+		result[count] = (char *) malloc((q - p + 1) * sizeof(char));
+		if (result[count] == NULL) {
+			printf ("Sorry, can't get enough memory, exiting.\n");
+			exit(0);
+		}
+		strncpy(result[count], p, q - p);
+		result[count][q - p] = '\0';
+		p = q; p++;
+		count++;
+	}
+	if ((result[count] = \
+		(char *)malloc(sizeof(char) * strlen(p) + 1)) == NULL) {
+		printf ("Sorry, can't get enough memory, exiting.\n");
+		exit(0);
+	}
+	strcpy(result[count],p);
+	result[++count] = NULL;
+
+#if 0
+	count=0;
+	while (result[count])
+		dprintf ("#%d: %s\n", count, StripDomains[count++]);
+#endif
+	return result;
 }
 
 /*
@@ -748,6 +862,22 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
 		dprintf("\n");
 		break;
 
+	case F_FORW_SUSP:
+		fwd_suspend = time((time_t *) 0) - f->f_time;
+		if ( fwd_suspend >= INET_SUSPEND_TIME ) {
+			dprintf("\nForwarding suspension over, " \
+				"retrying FORW ");
+			f->f_type = F_FORW;
+			goto f_forw;
+		}
+		else {
+			dprintf(" %s\n", f->f_un.f_forw.f_hname);
+			dprintf("Forwarding suspension not over, time " \
+				"left: %d.\n", INET_SUSPEND_TIME - \
+				fwd_suspend);
+		}
+		break;
+
 	case F_FORW_UNKN:
 		dprintf(" %s\n", f->f_un.f_forw.f_hname);
 		fwd_suspend = time((time_t *) 0) - f->f_time;
@@ -792,11 +922,12 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
 			if (l > MAXLINE)
 				l = MAXLINE;
 			if (sendto(finet, line, l, 0,
-			    (struct sockaddr *)&f->f_un.f_forw.f_addr,
-			    sizeof(f->f_un.f_forw.f_addr)) != l) {
+				   (struct sockaddr *)&f->f_un.f_forw.f_addr,
+				   sizeof(f->f_un.f_forw.f_addr)) != l) {
 				int e = errno;
-				(void)close(f->f_file);
-				f->f_type = F_UNUSED;
+				dprintf("INET sendto error: %d = %s.\n",
+					e, strerror(e));
+				f->f_type = F_FORW_SUSP;
 				errno = e;
 				logerror("sendto");
 			}
@@ -955,8 +1086,31 @@ cvthname(struct sockaddr_in *f)
 		if (isupper(*p))
 			*p = tolower(*p);
 
-	if ((p = strchr(hp->h_name, '.')) && strcmp(p + 1, LocalDomain) == 0)
+	if ((p = strchr(hp->h_name, '.')) && strcmp(p + 1, LocalDomain) == 0) {
 		*p = '\0';
+		return (hp->h_name);
+	} else {
+		if (StripDomains) {
+			count=0;
+			while (StripDomains[count]) {
+				if (strcmp(p + 1, StripDomains[count]) == 0) {
+					*p = '\0';
+					return (hp->h_name);
+				}
+				count++;
+			}
+			if (LocalHosts) {
+				count=0;
+				while (LocalHosts[count]) {
+					if (!strcmp(hp->h_name, LocalHosts[count])) {
+						*p = '\0';
+						return (hp->h_name);
+					}
+					count++;
+				}
+			}
+		}
+	}
 	return (hp->h_name);
 }
 
@@ -1129,6 +1283,7 @@ init(int signo)
 				break;
 
 			case F_FORW:
+			case F_FORW_SUSP:
 			case F_FORW_UNKN:
 				printf("%s", f->f_un.f_forw.f_hname);
 				break;
@@ -1143,7 +1298,13 @@ init(int signo)
 		}
 	}
 
-	logmsg(LOG_SYSLOG|LOG_INFO, "syslogd: restart", LocalHostName, ADDDATE);
+	if (AcceptRemote)
+		logmsg(LOG_SYSLOG|LOG_INFO, "syslogd (" inetutils_package \
+			" " inetutils_version "): restart (remote reception)",
+			LocalHostName, ADDDATE);
+	else
+		logmsg(LOG_SYSLOG|LOG_INFO, "syslogd (" inetutils_package \
+			" " inetutils_version "): restart", LocalHostName, ADDDATE);
 	dprintf("syslogd: restarted\n");
 }
 
@@ -1357,4 +1518,31 @@ decode(const char *name, CODE *codetab)
 			return (c->c_val);
 
 	return (-1);
+}
+
+void
+debug_switch()
+{
+	int debugging_save = debugging_on;
+
+	debugging_on = 1;
+	dprintf("Switching debugging_on to %s.\n",
+		(debugging_save == 0) ? "true" : "false");
+	debugging_on = (debugging_save == 0) ? 1 : 0;
+	signal(SIGUSR1, debug_switch);
+}
+
+static void
+dprintf(char *fmt, ...)
+{
+	va_list ap;
+
+	if (!(Debug && debugging_on))
+		return;
+
+	va_start(ap, fmt);
+	vfprintf(stdout, fmt, ap);
+	va_end(ap);
+
+	fflush(stdout);
 }
