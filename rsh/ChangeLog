@@ -1,3 +1,13 @@
+2001-11-03  Alain Magloire
+
+	* rsh.c: Removed copyright and sccsid variable.
+	Changes to follow GNU coding style.
+	#include <version.h>.
+	In long_options add options from rlogin.
+	(help): Put info about rlogin options.
+	(main): Change the code to use getop_long()
+	correctly.  Added option -V and -h.
+
 2000-08-08  Alain Magloire
 
 	* rsh.c: <sys/signal> is not portable use <signal.h>.
