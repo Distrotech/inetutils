@@ -1620,6 +1620,7 @@ init (int signo)
   size_t line_max = LINE_MAX;
   char *cbuf;
   char *cline;
+  int cont_line = 0;
   struct servent *sp;
 
   (void) signo;  /* Ignored.  */
@@ -1679,7 +1680,7 @@ init (int signo)
   cbuf = malloc (line_max);
   if (cbuf == NULL)
     {
-      /* There is no gracefull recovery here.  */
+      /* There is no graceful recovery here.  */
       dbg_printf ("cannot allocate space for configuration\n");
       return;
     }
@@ -1696,9 +1697,24 @@ init (int signo)
     {
       size_t len = strlen (cline);
 
-      /* No newline ? then line is too big for the buffer readjust.  */
-      if (memchr (cline, '\n', len) == NULL)
+      /* If this is a continuation line, skip leading whitespace for
+	 compatibility with sysklogd.  Note that this requires
+	 whitespace before the backslash in the previous line if you
+	 want to separate the selector from the action.  */
+      if (cont_line)
 	{
+	  char *start = cline;
+	  while (*start == ' ' || *start == '\t')
+	    start++;
+	  len = len - (start - cline);
+	  memmove (cline, start, len + 1);
+	  cont_line = 0;
+	}
+
+      /* No newline, so the line is too big for the buffer.  Readjust.  */
+      if (strchr (cline, '\n') == NULL)
+	{
+	  size_t offset = cline - cbuf;
 	  char *tmp;
 	  tmp = realloc (cbuf, line_max * 2);
 	  if (tmp == NULL)
@@ -1711,8 +1727,7 @@ init (int signo)
 	  else
 	    cbuf = tmp;
 	  line_max *= 2;
-	  strcpy (cbuf, cline);
-	  cline += len;
+	  cline = cbuf + offset + len - 1;
 	  continue;
 	}
       else
@@ -1737,6 +1752,7 @@ init (int signo)
 	{
 	  *p = '\0';
 	  cline = p;
+	  cont_line = 1;
 	  continue;
 	}
 

@@ -1,3 +1,13 @@
+2003-09-02  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (init): Fix long line support.  Submitted by Julian
+	Gilbey <jdg@debian.org>.
+
+2003-08-29  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (init): Use strchr instead memchr.  Skip whitespace at
+	the beginning of the next part of a continued line.
+
 2003-05-21  Sergey Poznyakoff
 
 	* syslogd.c (main): Call init before opening the sockets.
