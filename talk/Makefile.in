@@ -1,6 +1,6 @@
 # Makefile for talk
 #
-# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ DISTFILES = $(SRCS) $(HDRS) talk.1
 INSTALL_TARGETS = $(bindir)/talk $(man1dir)/talk.1
 OBJS = $(SRCS:.c=.o)
 LDLIBS := $(LIBCURSES) $(LDLIBS)
+CPPFLAGS += $(NCURSES_INCLUDE)
 CLEAN = talk $(OBJS)
 
 all: talk
