@@ -1,5 +1,9 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* Ran the command for i in `grep man_MANS */Makefile.am|awk -F: '{
+	print $1 }'`; do (echo;echo 'EXTRA_DIST = $(man_MANS)') >> $i;
+	done
+	
 	* configure.in (AM_INIT_AUTOMAKE): Added a third argument to
  	suppress VERSION and PACKAGE symbols from appearing in config.h
 	
