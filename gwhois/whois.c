@@ -5,14 +5,14 @@
  * published by the Free Software Foundation.
  */
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 /* System library */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "config.h"
-#ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
-#endif
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
@@ -24,8 +24,9 @@
 #include <signal.h>
 
 /* Application-specific */
-#include "data.h"
-#include "whois.h"
+#include <data.h>
+#include <whois.h>
+#include <version.h>
 
 /* Global variables */
 int sockfd, verb = 0;
@@ -36,7 +37,6 @@ int hide_discl = 0;
 int hide_discl = 2;
 #endif
 
-#ifdef HAVE_GETOPT_LONG
 static struct option longopts[] = {
     {"help",	no_argument,		NULL, 0  },
     {"version",	no_argument,		NULL, 1  },
@@ -45,7 +45,6 @@ static struct option longopts[] = {
     {"host",	required_argument,	NULL, 'h'},
     {0, 0, 0, 0}
 };
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -61,7 +60,7 @@ int main(int argc, char *argv[])
     textdomain(NLS_CAT_NAME);
 #endif
 
-    while ((ch = GETOPT_LONGISH(argc, argv, "acFg:h:Hi:lLmMp:q:rRs:St:T:v:Vx",
+    while ((ch = getopt_long(argc, argv, "acFg:h:Hi:lLmMp:q:rRs:St:T:v:Vx",
 				longopts, 0)) > 0) {
 	/* RIPE flags */
 	if (strchr(ripeflags, ch)) {

@@ -3,3 +3,9 @@
 	* ChangeLog: New File.
 	* Makefile.am: EXTRA_DIST = as_del.h ip_del.h tld_serv.h
 	So no need to have PERL in the distribution.
+	Add missing dependencies.
+	* whois.c: Guard <config.h> with the appropriate HAVE_CONFIG_H
+	Remove macors GETOP_LONG and HAVE_GETOPT_LONG.  inetutils always
+	provide a version even for platforms missing it.
+
+	* config.h: remove and merge in whois.h

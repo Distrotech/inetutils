@@ -1,3 +1,6 @@
+#ifndef _WHOIS_H
+#define _WHOIS_H
+
 /* 6bone referto: extension */
 #define REFERTO_FORMAT	"%% referto: whois -h %255s -p %15s %1021[^\n\r]"
 
@@ -14,13 +17,6 @@
 #  define LOCALEDIR     "/usr/share/locale"
 # endif
 #endif
-
-#ifdef HAVE_GETOPT_LONG
-# define GETOPT_LONGISH(c, v, o, l, i) getopt_long(c, v, o, l, i)
-#else
-# define GETOPT_LONGISH(c, v, o, l, i) getopt(c, v, o)
-#endif
-
 
 /* NLS stuff */
 #ifdef ENABLE_NLS
@@ -60,3 +56,15 @@ void err_sys(const char *,...);
 const char *ripeflags="acFlLmMrRSx";
 const char *ripeflagsp="gisTtvq";
 
+/* Configurable features */
+
+/* 6bone referto: support */
+#define EXT_6BONE
+
+/* Always hide legal disclaimers */
+#undef ALWAYS_HIDE_DISCL
+
+/* Default server */
+#define DEFAULTSERVER   "whois.internic.net"
+
+#endif /* _WHOIS_H */
