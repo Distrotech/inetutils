@@ -1,3 +1,8 @@
+2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* obstack.h: (new)
+	* Makefile.am: Added obstack.h
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* Makefile.am: Don't refer to config.h.in anymore

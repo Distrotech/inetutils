@@ -1,3 +1,25 @@
+2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	Major rewrite of telnetd.
+	
+	* defs.h: Removed.
+	* ext.h: Removed.
+	* global.c: Removed.
+	* authenc.c: Removed.
+        * telnetd/sys_term.c: Removed
+	* term.c: (new) Terminal-specific functions.
+	* Makefile.am: Modified.
+	* telnetd.c: Rewritten.	
+	* telnetd.h: Rewritten.
+	* utility.c: Rewritten.
+	  
+	* pty.c: Use obstack instead of manually allocating memory.
+
+	* slc.c: Lots of fixes: Removed conditional dependencies on
+	  LINEMODE, reduced number of global variables.
+	* state.c: Likewise.
+	* termstat.c: Likewise.
+
 2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	Started fixing horrible mess in telnetd. To begin with,
@@ -7,7 +29,7 @@
 	
 	* pty.c (new): PTY-related functions. 
 	* Makefile.am: Added pty.c
-	* ext.c: Changed definition of line.
+	* ext.h: Changed definition of line.
 	* sys_term.c: Removed unneeded functions. Some of them
           are re-implemented in pty.c
 	* telnetd.c (doit, telnet, readstream): Reorganized. 

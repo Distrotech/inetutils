@@ -1,3 +1,13 @@
+2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* acconfig.h: Removed extra HAVE_UTMPX_H. Added HAVE_CC_T
+	  and HAVE_LIBREADLINE.
+	* configure.ac: Check for obstack functions. Modified
+	  readline check: assign -lreadline to the separate AC_SUBST
+	  variable, instead of appending it to LIBS. Check for cc_t
+	  type.
+	  Raised patchlevel.
+	
 2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* configure.ac: Added AC_CANONICAL_SYSTEM to set $host

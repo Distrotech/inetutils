@@ -1,3 +1,13 @@
+2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* libinetutils/obstack.c: new
+	* libinetutils/Makefile.am: Added obstack.c
+	
+	* libinetutils/utmp_init.c: Use ifdef UTMPX, instead of
+	  HAVE_UTMPX_H.
+	* libinetutils/utmp_logout.c: Likewise. (utmp_logout): fallback
+	  to logwtmp() if updwtmp() is not available.
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
