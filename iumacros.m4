@@ -172,50 +172,54 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
     fi
   fi])dnl
 
+dnl IU_LIB_NCURSES -- check for ncurses
+dnl
+AC_DEFUN([IU_LIB_NCURSES], [
+  AC_ARG_ENABLE(ncurses,    [  --disable-ncurses       don't prefer -lncurses over -lcurses],
+              , enable_ncurses=yes)
+  if test "$enable_ncurses" = yes; then
+    AC_CHECK_LIB(ncurses, initscr, LIBNCURSES="-lncurses")
+  fi
+  AC_SUBST(LIBNCURSES)])dnl
+
 dnl IU_LIB_TERMCAP -- check for various termcap libraries
 dnl
 AC_DEFUN([IU_LIB_TERMCAP], [
-  AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
-  if test "$ac_cv_lib_termcap_tgetent" = no; then
-    AC_CHECK_LIB(termlib, tgetent, LIBTERMCAP=-ltermlib)
+  AC_REQUIRE([IU_LIB_NCURSES])
+  if test "$LIBNCURSES"; then
+    LIBTERMCAP="$LIBNCURSES"
+  else
+    AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
+    if test "$ac_cv_lib_termcap_tgetent" = no; then
+      AC_CHECK_LIB(termlib, tgetent, LIBTERMCAP=-ltermlib)
+    fi
   fi
   AC_SUBST(LIBTERMCAP)])dnl
-
-dnl _iu_curses_needs_termcap -- Internal subroutine to test whether
-dnl   $LIBCURSES needs $LIBTERMCAP.  Assumes that LIBCURSES & LIBTERMCAP have
-dnl   been defined appropiately; $1 is just used to construct cache-variable
-dnl   name.
-define([_iu_curses_needs_termcap], [
-  if test "$LIBCURSES" -a "$LIBTERMCAP"; then
-    AC_CACHE_CHECK(whether $1 needs $LIBTERMCAP,
-		   inetutils_cv_$1_needs_termcap,
-      LIBS="$LIBCURSES"
-      AC_TRY_LINK([#include <curses.h>], [initscr ();],
-		  [inetutils_cv_$1_needs_termcap=no],
-		  [inetutils_cv_$1_needs_termcap=yes]))
-    if test $inetutils_cv_$1_needs_termcap = yes; then
-	LIBCURSES="$LIBCURSES $LIBTERMCAP"
-    fi
-  fi])dnl
 
 dnl IU_LIB_CURSES -- checke for curses, and associated libraries
 dnl
 AC_DEFUN([IU_LIB_CURSES], [
   AC_REQUIRE([IU_LIB_TERMCAP])
-  _IU_SAVE_LIBS="$LIBS"
-  LIBS="$LIBTERMCAP"
-  AC_ARG_ENABLE(ncurses,    [  --disable-ncurses          don't prefer -lncurses over -lcurses],
-              , enable_ncurses=yes)
-  if test "$enable_ncurses" = yes; then
-    AC_CHECK_LIB(ncurses, initscr, LIBCURSES="-lncurses")
-  fi
-  if test "$LIBCURSES"; then
-    _iu_curses_needs_termcap(ncurses)
+  AC_REQUIRE([IU_LIB_NCURSES])
+  if test "$LIBNCURSES"; then
+    LIBCURSES="$LIBNCURSES"	# ncurses doesn't require termcap
   else
+    _IU_SAVE_LIBS="$LIBS"
+    LIBS="$LIBTERMCAP"
     AC_CHECK_LIB(curses, initscr, LIBCURSES="-lcurses")
-    _iu_curses_needs_termcap(curses)
+    if test "$LIBCURSES" -a "$LIBTERMCAP"; then
+      AC_CACHE_CHECK(whether curses needs $LIBTERMCAP,
+		     inetutils_cv_curses_needs_termcap,
+	LIBS="$LIBCURSES"
+	AC_TRY_LINK([#include <curses.h>], [initscr ();],
+		    [inetutils_cv_curses_needs_termcap=no],
+		    [inetutils_cv_curses_needs_termcap=yes]))
+      if test $inetutils_cv_curses_needs_termcap = yes; then
+	  LIBCURSES="$LIBCURSES $LIBTERMCAP"
+      fi
+    fi
+    LIBS="$_IU_SAVE_LIBS"
   fi
-  LIBS="$_IU_SAVE_LIBS"
   AC_SUBST(LIBCURSES)])dnl
 
 dnl IU_CONFIG_PATHS -- Configure system paths for use by programs
