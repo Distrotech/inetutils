@@ -1,7 +1,5 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-INCLUDES = -I$(top_builddir)/include
-
 bin_PROGRAMS = @logger_BUILD@
 
 LDADD = -L../libinetutils -linetutils

@@ -1,3 +1,7 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Variable removed.
+
 2005-01-20  Alfred M. Szmidt  <ams@gnu.org>
 
 	* libping.c: Comply with GCS.	
