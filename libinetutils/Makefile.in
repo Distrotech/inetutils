@@ -21,12 +21,11 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-SRCS = ttymsg.c version.c getopt.c getopt1.c stub_tgetent.c
-HDRS = version.h getopt.h
-DISTFILES = $(SRCS) $(HDRS)
+SRCS = ttymsg.c version.c getopt.c getopt1.c stub_tgetent.c localhost.c
+DISTFILES = $(SRCS)
 
 all: libinetutils.a
-libinetutils.a: ttymsg.o version.o @LIBOBJS@
+libinetutils.a: ttymsg.o version.o localhost.o @LIBOBJS@
 	$(AR) rcv $@ $?
 	$(RANLIB) $@
 
