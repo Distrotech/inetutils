@@ -57,8 +57,15 @@ static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
  * may create a pipe to a hidden program as a side effect of a list or dir
  * command.
  */
-static int *pids;
-static int fds;
+
+struct file_pid {
+  	FILE *file;
+	pid_t pid;
+	struct file_pid *next;
+};
+
+/* A linked list associating ftpd_popen'd FILEs with pids.  */
+struct file_pid *file_pids = 0;
 
 FILE *
 ftpd_popen(program, type)
@@ -66,19 +73,13 @@ ftpd_popen(program, type)
 {
 	char *cp;
 	FILE *iop;
+	struct file_pid *fpid;
 	int argc, gargc, pdes[2], pid;
 	char **pop, *argv[100], *gargv[1000];
 
 	if (*type != 'r' && *type != 'w' || type[1])
 		return (NULL);
 
-	if (!pids) {
-		if ((fds = getdtablesize()) <= 0)
-			return (NULL);
-		if ((pids = (int *)malloc((u_int)(fds * sizeof(int)))) == NULL)
-			return (NULL);
-		memset(pids, 0, fds * sizeof(int));
-	}
 	if (pipe(pdes) < 0)
 		return (NULL);
 
@@ -146,7 +147,14 @@ ftpd_popen(program, type)
 		iop = fdopen(pdes[1], type);
 		(void)close(pdes[0]);
 	}
-	pids[fileno(iop)] = pid;
+
+	fpid = malloc (sizeof (struct file_pid));
+	if (fpid) {
+		fpid->file = iop;
+		fpid->pid = pid;
+		fpid->next = file_pids;
+		file_pids = fpid;
+	}
 
 pfree:	for (argc = 1; gargv[argc] != NULL; argc++)
 		free(gargv[argc]);
@@ -158,6 +166,7 @@ int
 ftpd_pclose(iop)
 	FILE *iop;
 {
+	struct file_pid *fpid = file_pids, *prev_fpid = 0;
 	int fdes, omask, status;
 	pid_t pid;
 
@@ -165,14 +174,26 @@ ftpd_pclose(iop)
 	 * pclose returns -1 if stream is not associated with a
 	 * `popened' command, or, if already `pclosed'.
 	 */
-	if (pids == 0 || pids[fdes = fileno(iop)] == 0)
-		return (-1);
+	while (fpid && fpid->file != iop) {
+	     prev_fpid = fpid;
+	     fpid = fpid->next;
+	}
+	if (! fpid)
+        	return -1;
+
+	if (prev_fpid)
+		prev_fpid->next = fpid->next;
+	else
+		file_pids = fpid->next;
+
 	(void)fclose(iop);
 	omask = sigblock(sigmask(SIGINT)|sigmask(SIGQUIT)|sigmask(SIGHUP));
-	while ((pid = waitpid(pids[fdes], &status, 0)) < 0 && errno == EINTR)
+	while ((pid = waitpid(fpid->pid, &status, 0)) < 0 && errno == EINTR)
 		continue;
+
+	free (fpid);
+
 	(void)sigsetmask(omask);
-	pids[fdes] = 0;
 	if (pid < 0)
 		return (pid);
 	if (WIFEXITED(status))
