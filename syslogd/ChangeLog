@@ -1,5 +1,21 @@
 2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c: Include <stdarg.h>.
+	(struct msg_part): Fix type declaration.
+	(main): Rename variable c to l.
+	Initialize all of funix, finet to -1.
+	Remove dangling closing brace.
+	Main loop: Declare variable nfds.
+	Pass argument to init.
+	Add missing parentheses to if-clause.
+	Back out from using printchopped in unix and inet socket handling,
+	not only because it doesn't work, but also because it is utterly
+	nonsense without the S_STREAM patch.
+	(make_part): Add missing brace.
+	(die): Add missing variable i.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
 This covers the following Linux changes:
 Thu Jan  6 12:07:36 CST 1994:  Dr. Wettstein
 Also thanks to Juha for a patch to exclude users with a class

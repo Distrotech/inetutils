@@ -114,6 +114,7 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#include <stdarg.h>
 
 #include <version.h>
 
@@ -139,7 +140,7 @@ int funix[MAXFUNIX];
 struct msg_part
 {
 	int fd;
-	char msg;
+	char *msg;
 } *parts;
 
 int nparts;
@@ -282,7 +283,7 @@ void   printchopped __P((const char *hname, char *msg, int len, int fd));
 int
 main(int argc, char *argv[])
 {
-	int ch, i, fklog, c;
+	int ch, i, fklog, l;
 	size_t len;
 	struct sockaddr_un sunx, fromunix;
 	struct sockaddr_in sin, frominet;
@@ -293,6 +294,11 @@ main(int argc, char *argv[])
 #else
 	char line[MAXLINE + 1];
 #endif
+
+	for (i = 0; i < MAXFUNIX; i++) {
+	  funix[i] = -1;
+	}
+	finet = -1;
 
 	while ((ch = getopt(argc, argv, "a:dhf:l:m:np:rs:V")) != EOF)
 		switch(ch) {
@@ -417,7 +423,6 @@ main(int argc, char *argv[])
 #ifdef PATH_KLOG
 	if ((fklog = open(PATH_KLOG, O_RDONLY, 0)) < 0)
 		dprintf("can't open %s (%d)\n", PATH_KLOG, errno);
-	}
 #else
 	fklog = -1;
 #endif
@@ -440,6 +445,7 @@ main(int argc, char *argv[])
 	}
 
 	for (;;) {
+	        int nfds;
 		int maxfds = 0;
 		fd_set readfds;
 		
@@ -478,7 +484,7 @@ main(int argc, char *argv[])
 		    (fd_set *)NULL, (struct timeval *)NULL);
 		if (restart) {
 			dprintf("\nReceived SIGHUP, reloading syslogd.\n");
-			init();
+			init(0);
 			restart = 0;
 			continue;
 		}
@@ -490,26 +496,28 @@ main(int argc, char *argv[])
 			continue;
 		}
 		dprintf("got a message (%d, %#x)\n", nfds, readfds);
-		if (fklog >= 0 && FD_ISSET(fklog, &readfds) {
-			i = read(fklog, line, sizeof(line) - 1);
-			if (i > 0) {
-				line[i] = '\0';
+		if (fklog >= 0 && FD_ISSET(fklog, &readfds)) {
+			l = read(fklog, line, sizeof(line) - 1);
+			if (l > 0) {
+				line[l] = '\0';
 				printsys(line);
-			} else if (i < 0 && errno != EINTR) {
+			} else if (l < 0 && errno != EINTR) {
 				logerror("klog");
 				fklog = -1;
 			}
 		}
-		for (c = 0; c < nfunix; c++)
-			if (funix[c] != -1 && FD_ISSET(funix[c], &readfds)) {
+		for (i = 0; i < nfunix; i++)
+			if (funix[i] != -1 && FD_ISSET(funix[i], &readfds)) {
 				len = sizeof(fromunix);
-				i = recvfrom(funix[c], line, MAXLINE, 0,
+				l = recvfrom(funix[i], line, MAXLINE, 0,
 				    (struct sockaddr *)&fromunix, &len);
-				if (i > 0) {
-					printchopped(LocalHostName, line, i, funix[c]);
-				} else if (i < 0) {
+				if (l > 0) {
+				        line[l] = '\0';
+					printline(LocalHostName, line);
+				} else if (l < 0) {
 					if (errno != EINTR)
 						logerror("recvfrom unix");
+#if 0
 				} else {
 					dprintf("Unix socket (%d) closed.\n", funix[c]);
 					if (get_part(funix[c]) != 0) {
@@ -526,17 +534,18 @@ main(int argc, char *argv[])
 							funix[i] = -1;
 					}
 					close(funix[c]);
+#endif
 				}
 			}
 		if (finet >= 0 && AcceptRemote && FD_ISSET(finet, &readfds)) {
 			len = sizeof(frominet);
 			memset(line, '\0', sizeof(line));
-			i = recvfrom(finet, line, MAXLINE-2, 0,
+			l = recvfrom(finet, line, MAXLINE, 0,
 			    (struct sockaddr *)&frominet, &len);
-			if (i > 0) {
-				line[i] = line[i+1] = '\0';
-				printchopped(cvthname(&frominet), line, i + 2, finet);
-			} else if (i < 0 && errno != EINTR)
+			if (l > 0) {
+				line[l] = '\0';
+				printline(cvthname(&frominet), line);
+			} else if (l < 0 && errno != EINTR)
 				logerror("recvfrom inet");
 		}
 	}
@@ -716,7 +725,7 @@ make_part(int fd, char *msg)
 	for (i = 0; i < nparts; i++)
 		if (parts[i].fd == -1)
 			break;
-	if (i = nparts)
+	if (i = nparts) {
 		new_parts = realloc (parts,
 				     2 * nparts * sizeof(struct msg_part));
 		if (new_parts == 0)
@@ -1397,6 +1406,7 @@ die(int signo)
 	struct filed *f;
 	int was_initialized = Initialized;
 	char buf[100];
+	int i;
 
 	Initialized = 0;	/* Don't log SIGCHLDs. */
 	for (f = Files; f != NULL; f = f->f_next) {
