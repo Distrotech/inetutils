@@ -27,7 +27,7 @@ INSTALL_TARGETS = $(libexecdir)/in.uucpd
 LDLIBS += $(LIBUTIL) $(LIBCRYPT)
 CLEAN = uucpd uucpd.o
 
-CPPFLAGS += $(PATHDEF_UUCICO) $(PATHDEF_TTY)
+CPPFLAGS += $(PATHDEF_UUCICO) $(PATHDEF_LASTLOG) $(PATHDEF_TTY)
 
 all: uucpd
 
