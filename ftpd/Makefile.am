@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_FTPD@
+inetdaemon_PROGRAMS = @ftpd_BUILD@
 
 EXTRA_PROGRAMS = ftpd
 
