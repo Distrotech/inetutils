@@ -490,13 +490,17 @@ static void
 complete_login (passwd)
      char *passwd;
 {
-	char *salt, *xpasswd;
 	FILE *fd;
 
 	if (!guest && (!pw || *pw->pw_passwd)) {
-		salt = pw ? pw->pw_passwd : "xx";
-		xpasswd = CRYPT (passwd, salt);
-		if (!pw || strcmp(xpasswd, pw->pw_passwd)) {
+		char *xpasswd;
+
+		if (pw) {
+			char *salt = pw->pw_passwd;
+			xpasswd = CRYPT (passwd, salt);
+		}
+
+		if (!pw || !xpasswd || strcmp (xpasswd, pw->pw_passwd) != 0) {
 			reply(530, "Login incorrect.");
 			if (logging)
 				syslog(LOG_NOTICE,
@@ -512,6 +516,7 @@ complete_login (passwd)
 			return;
 		}
 	}
+
 	login_attempts = 0;		/* this time successful */
 	if (setegid((gid_t)pw->pw_gid) < 0) {
 		reply(550, "Can't set gid.");
