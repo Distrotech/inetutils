@@ -96,22 +96,29 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
 AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
-		 stdlib.h sys/tty.h sys/utsname.h glob.h \
-		 sys/msgbuf.h krb.h des.h netinet/in_systm.h \
+		 stdlib.h sys/tty.h sys/utsname.h glob.h sys/ptyvar.h \
+		 sys/msgbuf.h krb.h des.h netinet/in_systm.h sys/filio.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
 		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
-		 arpa/nameser.h)
+		 arpa/nameser.h sys/sockio.h)
 
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
-	       flock ftruncate wait3 memcpy bcopy bzero setsid)
+	       flock ftruncate wait3 memcpy bcopy bzero setsid cfsetspeed \
+	       strchr)
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
 
-# Some systems don't declare fclose in <stdio.h>!
+# Some systems don't declare common functions (especially if they return int),
+# at least in the expected header file.  Check.
 IU_CHECK_DECL(fclose, [#include <stdio.h>])
+IU_CHECK_DECL(pclose, [#include <stdio.h>])
+IU_CHECK_DECL(getpass, [#include <unistd.h>])
+IU_CHECK_DECL(getusershell, [#include <unistd.h>])
+IU_CHECK_DECL(strerror, [#include <string.h>])
+IU_CHECK_DECL(strchr, [#include <string.h>])
 
 if test "$ac_cv_func_setenv" = no; then
   # Our home-grown version of setenv needs to use ENVIRON
@@ -145,6 +152,28 @@ AC_CHECK_LIB(bsd, revoke)
 AC_REPLACE_FUNCS(revoke)
 
 AC_FUNC_ALLOCA
+
+# See whether <syslog.h> will declare special internal stuff if we define
+# SYSLOG_NAMES before including it.  We check for various syslog internal macros,
+# the typedef `CODE', and the variable `prioritynames'.
+define([iu_syslog_includes],
+  [[ #ifdef HAVE_STDLIB_H
+     #include <stdlib.h>
+     #endif
+     #define SYSLOG_NAMES
+     #include <syslog.h> ]])
+IU_CHECK_MACRO(syslog internal macros,
+  iu_syslog_includes,
+  [LOG_MAKEPRI LOG_PRI LOG_FAC],
+  IU_CHECK_TYPE(CODE,
+    iu_syslog_includes,
+    IU_CHECK_DECL(prioritynames,
+      iu_syslog_includes,
+      AC_DEFINE(HAVE_SYSLOG_INTERNAL),
+      INCLUDES="$INCLUDES syslog-int.h"),
+    INCLUDES="$INCLUDES syslog-int.h"),
+  INCLUDES="$INCLUDES syslog-int.h")
+undefine([iu_syslog_includes])
 
 # libutil is a 4.4BSD library that defines several functions handy for
 # inetutil daemons, doing such things as utmp frobbing, and pty setup.
@@ -330,11 +359,11 @@ AC_TYPE_SIGNAL
 # sig_t is the type of a signal handler (4.4BSD)
 IU_CHECK_TYPE(sig_t,
   [ #include <sys/types.h>
-    #include <sys/signal.h> ])
+    #include <signal.h> ])
 # I'm not sure what this is, but netbsd has it; just use int if necessary.
 IU_CHECK_TYPE(sig_atomic_t, 
   [ #include <sys/types.h>
-    #include <sys/signal.h> ],
+    #include <signal.h> ],
   :, AC_DEFINE(sig_atomic_t, int))
 
 # See if the __PROGNAME variable is defined, otherwise use our own.
