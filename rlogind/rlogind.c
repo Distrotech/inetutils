@@ -79,6 +79,7 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 #include <paths.h>
 
 #ifndef TIOCPKT_WINDOW
@@ -571,10 +572,11 @@ fatal(f, msg, syserr)
 	if (!confirmed)
 		*bp++ = '\01';		/* error indicator */
 	if (syserr)
-		len = sprintf(bp, "rlogind: %s: %s.\r\n",
+		sprintf(bp, "rlogind: %s: %s.\r\n",
 		    msg, strerror(errno));
 	else
-		len = sprintf(bp, "rlogind: %s.\r\n", msg);
+		sprintf(bp, "rlogind: %s.\r\n", msg);
+	len = strlen (bp);
 	(void) write(f, buf, bp + len - buf);
 	exit(1);
 }
