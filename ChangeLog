@@ -2,6 +2,8 @@
 
 	* configure.ac: Removed form feeds.
 
+2002-04-28  Alfred M. Szmidt  <ams@kemisten.nu>
+
 	* Makefile.am (AUTOMAKE_OPTIONS): Require GNU Automake 1.6.
 
 	* acinclude.m4 (IU_UCASE, iu_lcase): Variables removed.
