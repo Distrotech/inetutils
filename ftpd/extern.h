@@ -63,3 +63,7 @@ void	store __P((char *, char *, int));
 void	upper __P((char *));
 void	user __P((char *));
 void	yyerror __P((char *));
+
+#ifndef HAVE_GETUSERSHELL_DECL
+extern char * getusershell __P((void));
+#endif
