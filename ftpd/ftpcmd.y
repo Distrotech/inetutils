@@ -446,6 +446,11 @@ cmd
 		}
 	| SITE SP IDLE SP NUMBER CRLF
 		{
+		  	if (!guest && $5 == 0) {
+			  timeout = 0;
+			  alarm (0);
+			  reply (200, "IDLE time limit disabled");
+			}
 			if ($5 < 30 || $5 > maxtimeout) {
 				reply(501,
 			"Maximum IDLE time must be between 30 and %d seconds",
