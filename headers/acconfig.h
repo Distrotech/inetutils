@@ -178,12 +178,27 @@
 /* Define this symbol if `struct lastlog' is defined in <utmp.h>.  */
 #undef HAVE_STRUCT_LASTLOG
 
-/* Define this this symbol if struct sockaddr_in has a sin_len field.  */
+/* Define this symbol if `struct if_nameindex' is defined in <net/if.h>.  */
+#undef HAVE_STRUCT_IF_NAMEINDEX
+
+/* Define this symbol if struct sockaddr_in has a sin_len field.  */
 #undef HAVE_SOCKADDR_IN_SIN_LEN
+
+/* Define the following if feature is provided. */
+#undef  HAVE_SOCKADDR_SA_LEN    /* sockaddr{} has sa_len member */
 
 /* Define this symbol if time fields in struct stat are of type `struct
    timespec', and called `st_mtimespec' &c.  */
 #undef HAVE_STAT_ST_MTIMESPEC
+
+/* Define this symbol if struct ifreq has a ifr_index field */
+#undef HAVE_IFREQ_IFR_INDEX
+
+/* Define this symbol if struct ifreq has a ifr_netmask field */
+#undef HAVE_IFREQ_IFR_NETMASK
+
+/* Define this symbol if struct ifreq has a ifr_broadaddr field */
+#undef HAVE_IFREQ_IFR_BROADADDR
 
 /* Define this symbol if in addition to the normal time fields in struct stat
    (st_mtime &c), there are additional fields `st_mtime_usec' &c.  */
@@ -260,6 +275,10 @@
 /* Define this to be `unsigned long' if sigset_t isn't declared by including
    <sys/types.h> & <signal.h> */
 #undef sigset_t
+
+/* Define this to be `unsigned int' if sa_family_t isn't declared by including
+   <sys/socket.h> */
+#undef sa_family_t
 
 /* Define this if weak references of any sort are supported.  */
 #undef HAVE_WEAK_REFS

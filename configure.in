@@ -1,6 +1,6 @@
 # Configuration for inetutils
 #
-# Copyright (C) 1995, 1996, 1997, 1998, 2000 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001 Free Software Foundation, Inc.
 #
 # Written by Miles Bader <miles@gnu.ai.mit.edu>
 #
@@ -295,7 +295,7 @@ AC_SUBST(LIBWRAP)
 # Check if they want support for PAM.  Certain daemons like
 # ftpd have support for it.
 AC_ARG_WITH(pam, [  --with-pam    add support for PAM])
-# See if we have libwrap.a this is for ftpd.
+# See if we have libpam.a this is for ftpd.
 if test "$with_pam" = yes ; then
   AC_CHECK_LIB(dl, dlopen)
   AC_CHECK_LIB(pam, pam_authenticate, LIBPAM=-lpam)
@@ -463,6 +463,30 @@ if test "$ac_cv_header_utmpx_h" = yes; then
   IU_CHECK_STRUCT_FIELD(utmpx, ut_tv, [#include <utmpx.h>])
 fi
 
+IU_CHECK_TYPE(struct if_nameindex,
+  [ #include <sys/socket.h>
+    #include <net/if.h>])
+
+IU_CHECK_STRUCT_FIELD(ifreq,
+                      ifr_index,
+              [#include <sys/socket.h>
+               #include <net/if.h>])
+
+IU_CHECK_STRUCT_FIELD(ifreq,
+                      ifr_netmask,
+              [#include <sys/socket.h>
+               #include <net/if.h>])
+
+IU_CHECK_STRUCT_FIELD(ifreq,
+                      ifr_broadaddr,
+              [#include <sys/socket.h>
+               #include <net/if.h>])
+
+IU_CHECK_STRUCT_FIELD(sockaddr,
+                      sa_len,
+              [#include <sys/types.h>
+               #include <sys/socket.h>])
+
 # See if the system has strerror, and replace it if not
 AC_CHECK_FUNC(strerror, , LIBOBJS="$LIBOBJS strerror.o")
 if test "$ac_cv_func_strerror" = no; then
@@ -524,6 +548,16 @@ IU_CHECK_TYPE(sig_atomic_t,
   [ #include <sys/types.h>
     #include <signal.h> ],
   :, AC_DEFINE(sig_atomic_t, int))
+
+
+IU_CHECK_TYPE(sa_family_t,
+  [
+    #include <sys/types.h>
+    #ifdef HAVE_SOCKET_H
+    #include <socket.h>
+    #endif
+    #include <sys/socket.h> ],
+  :, AC_DEFINE(sa_family_t, unsigned int))
 
 # See if the __PROGNAME variable is defined, otherwise use our own.
 AC_CHECK_FUNC(__progname,

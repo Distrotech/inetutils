@@ -1,5 +1,5 @@
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
-	Patches by Alain: 
+	Patches by Alain:
 	* libicmp(icmp_cksum.c,icmp_echo.c,icmp_timestamp.c,libping.c):
 		use <signal.h> instead of <sys/signal.h>,
 		truncate pid_t before using as ping_ident.
@@ -32,7 +32,7 @@
 	* ping/(ping.c,ping_address.c,ping_echo.c,ping_impl.h,ping_timestamp.c)
 		Implemented ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests.
           None of existing routers answers the latter, though.
-                
+
 
 2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
 	* libicmp(Makefile.am, icmp.h, icmp_cksum.c, icmp_echo.c,
