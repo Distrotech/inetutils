@@ -39,12 +39,12 @@
 
 #ifdef HAVE_TERMIOS_H
 #define USE_TERMIO
-#endif
-
+#else /* !HAVE_TERMIOS_H */
 #ifdef HAVE_TERMIO_H
 #define USE_TERMIO
 #define SYSV_TERMIO
 #endif
+#endif /* HAVE_TERMIOS_H */
 
 /*
  * ucb stdio.h defines BSD as something wierd
@@ -78,7 +78,6 @@
 #   include <sys/termio.h>
 #  else
 #   include <sys/termios.h>
-#   define termio termios
 #  endif
 # endif
 #endif
@@ -88,6 +87,10 @@ typedef char cc_t;
 # else
 typedef unsigned char cc_t;
 # endif
+#endif
+
+#if defined (USE_TERMIO) && !defined (SYSV_TERMIO)
+# define termio termios
 #endif
 
 #ifndef	NO_STRING_H
