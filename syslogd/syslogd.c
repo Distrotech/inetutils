@@ -1069,7 +1069,7 @@ cfline(line, f)
 	struct hostent *hp;
 	int i, pri;
 	char *bp, *p, *q;
-	char buf[MAXLINE], ebuf[100];
+	char buf[MAXLINE], ebuf[200];
 
 	dprintf("cfline(%s)\n", line);
 
@@ -1210,7 +1210,7 @@ decode(name, codetab)
 	CODE *codetab;
 {
 	CODE *c;
-	char *p, buf[40];
+	char *p, buf[80];
 
 	if (isdigit(*name))
 		return (atoi(name));
