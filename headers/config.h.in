@@ -163,8 +163,18 @@
 /* FIXME: JB - does this need to be here? #define _BSD_SOURCE */
 
 
+/* Define if on AIX 3.
+   System headers sometimes define this.
+   We just want to avoid a redefinition error message.  */
+#ifndef _ALL_SOURCE
+#undef _ALL_SOURCE
+#endif
+
 /* Define if using alloca.c.  */
 #undef C_ALLOCA
+
+/* Define if the closedir function returns void instead of int.  */
+#undef CLOSEDIR_VOID
 
 /* Define to empty if the keyword does not work.  */
 #undef const
@@ -182,11 +192,24 @@
 /* Define if your struct stat has st_blksize.  */
 #undef HAVE_ST_BLKSIZE
 
+/* Define if you have the strcoll function and it is properly defined.  */
+#undef HAVE_STRCOLL
+
 /* Define if you have <vfork.h>.  */
 #undef HAVE_VFORK_H
 
+/* Define if on MINIX.  */
+#undef _MINIX
+
 /* Define to `int' if <sys/types.h> doesn't define.  */
 #undef pid_t
+
+/* Define if the system does not provide POSIX.1 features except
+   with this defined.  */
+#undef _POSIX_1_SOURCE
+
+/* Define if you need to in order for stat and other things to work.  */
+#undef _POSIX_SOURCE
 
 /* Define as the return type of signal handlers (int or void).  */
 #undef RETSIGTYPE
@@ -440,6 +463,9 @@
 /* Define if you have the openpty function.  */
 #undef HAVE_OPENPTY
 
+/* Define if you have the revoke function.  */
+#undef HAVE_REVOKE
+
 /* Define if you have the setegid function.  */
 #undef HAVE_SETEGID
 
@@ -506,6 +532,9 @@
 /* Define if you have the <des.h> header file.  */
 #undef HAVE_DES_H
 
+/* Define if you have the <dirent.h> header file.  */
+#undef HAVE_DIRENT_H
+
 /* Define if you have the <errno.h> header file.  */
 #undef HAVE_ERRNO_H
 
@@ -520,6 +549,12 @@
 
 /* Define if you have the <malloc.h> header file.  */
 #undef HAVE_MALLOC_H
+
+/* Define if you have the <memory.h> header file.  */
+#undef HAVE_MEMORY_H
+
+/* Define if you have the <ndir.h> header file.  */
+#undef HAVE_NDIR_H
 
 /* Define if you have the <netinet/in_systm.h> header file.  */
 #undef HAVE_NETINET_IN_SYSTM_H
@@ -545,6 +580,9 @@
 /* Define if you have the <sys/cdefs.h> header file.  */
 #undef HAVE_SYS_CDEFS_H
 
+/* Define if you have the <sys/dir.h> header file.  */
+#undef HAVE_SYS_DIR_H
+
 /* Define if you have the <sys/file.h> header file.  */
 #undef HAVE_SYS_FILE_H
 
@@ -556,6 +594,9 @@
 
 /* Define if you have the <sys/msgbuf.h> header file.  */
 #undef HAVE_SYS_MSGBUF_H
+
+/* Define if you have the <sys/ndir.h> header file.  */
+#undef HAVE_SYS_NDIR_H
 
 /* Define if you have the <sys/param.h> header file.  */
 #undef HAVE_SYS_PARAM_H
