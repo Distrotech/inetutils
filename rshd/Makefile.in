@@ -48,7 +48,7 @@ install: installdirs rshd $(srcdir)/rshd.8
 	$(INSTALL_DATA) $(srcdir)/rshd.8 $(man8dir)
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
 
 clean:
 	$(RM) -f *.o rshd 
