@@ -17,6 +17,6 @@ LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 
 LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet \
-	$(LIBTERMCAP) $(LIBCRYPT)
+	$(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
 
 EXTRA_DIST = $(man_MANS)
