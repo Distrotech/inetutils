@@ -48,8 +48,15 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
  * <guyton@rand-unix>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <sys/stat.h>
 #include <sys/socket.h>
 
@@ -60,6 +67,7 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <netdb.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -71,7 +79,15 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 
 #include "tftpsubs.h"
 
+#ifndef HAVE_STRERROR_DECL
+extern const char *strerror __P ((int));
+#endif
+
 #define	TIMEOUT		5
+
+#ifndef LOG_FTP
+#define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
+#endif
 
 int	peer;
 int	rexmtval = TIMEOUT;
@@ -100,9 +116,9 @@ static struct dirlist {
 static int	suppress_naks;
 static int	logging;
 
-static char *errtomsg __P((int));
+static const char *errtomsg __P((int));
 static void  nak __P((int));
-static char *verifyhost __P((struct sockaddr_in *));
+static const char *verifyhost __P((struct sockaddr_in *));
 
 int
 main(argc, argv)
@@ -334,7 +350,7 @@ validate_access(filep, mode)
 	struct stat stbuf;
 	int	fd;
 	struct dirlist *dirp;
-	static char pathname[MAXPATHLEN];
+	static char *pathname = 0;
 	char *filename = *filep;
 
 	/*
@@ -389,6 +405,12 @@ validate_access(filep, mode)
 		 */
 		err = ENOTFOUND;
 		for (dirp = dirs; dirp->name != NULL; dirp++) {
+			if (pathname)
+				free (pathname);
+			pathname = malloc (strlen (dirp->name)
+					   + 1 + strlen (filename) + 1);
+			if (! pathname)
+				return ENOMEM;
 			sprintf(pathname, "%s/%s", dirp->name, filename);
 			if (stat(pathname, &stbuf) == 0 &&
 			    (stbuf.st_mode & S_IFMT) == S_IFREG) {
@@ -402,7 +424,7 @@ validate_access(filep, mode)
 			return (err);
 		*filep = filename = pathname;
 	}
-	fd = open(filename, mode == RRQ ? 0 : 1);
+	fd = open(filename, mode == RRQ ? O_RDONLY : (O_WRONLY | O_TRUNC));
 	if (fd < 0)
 		return (errno + 100);
 	file = fdopen(fd, (mode == RRQ)? "r":"w");
@@ -416,7 +438,8 @@ int	timeout;
 jmp_buf	timeoutbuf;
 
 void
-timer()
+timer(sig)
+  int sig;
 {
 
 	timeout += rexmtval;
@@ -453,7 +476,7 @@ sendfile(pf)
 		(void)setjmp(timeoutbuf);
 
 send_data:
-		if (send(peer, dp, size + 4, 0) != size + 4) {
+		if (send(peer, (const char *)dp, size + 4, 0) != size + 4) {
 			syslog(LOG_ERR, "tftpd: write: %m\n");
 			goto abort;
 		}
@@ -473,11 +496,11 @@ send_data:
 				goto abort;
 
 			if (ap->th_opcode == ACK) {
-				if (ap->th_block == block)
+				if ((u_short)ap->th_block == (u_short)block)
 					break;
 				/* Re-synchronize with the other side */
 				(void) synchnet(peer);
-				if (ap->th_block == (block -1))
+				if ((u_short)ap->th_block == (u_short)(block -1))
 					goto send_data;
 			}
 
@@ -489,7 +512,8 @@ abort:
 }
 
 void
-justquit()
+justquit(sig)
+  int sig;
 {
 	exit(0);
 }
@@ -525,7 +549,7 @@ send_ack:
 		write_behind(file, pf->f_convert);
 		for ( ; ; ) {
 			alarm(rexmtval);
-			n = recv(peer, dp, PKTSIZE, 0);
+			n = recv(peer, (char *)dp, PKTSIZE, 0);
 			alarm(0);
 			if (n < 0) {            /* really? */
 				syslog(LOG_ERR, "tftpd: read: %m\n");
@@ -575,7 +599,7 @@ abort:
 
 struct errmsg {
 	int	e_code;
-	char	*e_msg;
+	const char *e_msg;
 } errmsgs[] = {
 	{ EUNDEF,	"Undefined error code" },
 	{ ENOTFOUND,	"File not found" },
@@ -588,7 +612,7 @@ struct errmsg {
 	{ -1,		0 }
 };
 
-static char *
+static const char *
 errtomsg(error)
 	int error;
 {
@@ -635,7 +659,7 @@ nak(error)
 		syslog(LOG_ERR, "nak: %m\n");
 }
 
-static char *
+static const char *
 verifyhost(fromp)
 	struct sockaddr_in *fromp;
 {
