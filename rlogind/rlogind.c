@@ -190,7 +190,7 @@ main(argc, argv)
 
 int	child;
 int	netf;
-char	line[MAXPATHLEN];
+char	line[1024];		/* XXX */
 int	confirmed;
 
 struct winsize win = { 0, 0, 0, 0 };
@@ -204,7 +204,7 @@ doit(f, fromp)
 	int master, pid, on = 1;
 	int authenticated = 0;
 	register struct hostent *hp;
-	char hostname[2 * MAXHOSTNAMELEN + 1];
+	char *hostname, *raw_hostname;
 	char c;
 
 	alarm(60);
@@ -222,9 +222,13 @@ doit(f, fromp)
 	hp = gethostbyaddr((char *)&fromp->sin_addr, sizeof(struct in_addr),
 	    fromp->sin_family);
 	if (hp)
-		(void)strcpy(hostname, hp->h_name);
+		raw_hostname = hp->h_name;
 	else
-		(void)strcpy(hostname, inet_ntoa(fromp->sin_addr));
+		raw_hostname = inet_ntoa(fromp->sin_addr);
+	hostname = malloc (strlen (raw_hostname) + 1);
+	if (! hostname)
+		fatal (f, "Out of memory", 0);
+	strcpy (hostname, raw_hostname);
 
 #ifdef	KERBEROS
 	if (use_kerberos) {
@@ -734,16 +738,31 @@ int
 local_domain(h)
 	char *h;
 {
-	char localhost[MAXHOSTNAMELEN];
+	int is_local = 0;
 	char *p1, *p2;
+	char *localhost = 0;
+	size_t localhost_len = 0;
 
-	localhost[0] = 0;
-	(void) gethostname(localhost, sizeof(localhost));
+	do {
+		if (localhost)
+			localhost =
+			  realloc (localhost, localhost_len += localhost_len);
+		else {
+			localhost_len = 1024; /* Initial guess */
+			localhost = malloc (localhost_len);
+		}
+	} while (gethostname (localhost, localhost_len) == 0
+		 && ! memchr (localhost, '\0', localhost_len));
+
 	p1 = topdomain(localhost);
 	p2 = topdomain(h);
+
 	if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
-		return (1);
-	return (0);
+		is_local = 1;
+
+	free (localhost);
+
+	return is_local;
 }
 
 char *
