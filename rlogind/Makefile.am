@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_RLOGIND@
+inetdaemon_PROGRAMS = @rlogind_BUILD@
 
 EXTRA_PROGRAMS = rlogind
 
