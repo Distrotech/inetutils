@@ -1,6 +1,6 @@
-# Makefile for logger
+# Makefile for syslog
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,12 +20,15 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(bindir)/logger $(man1dir)/logger.1
+INSTALL_TARGETS=$(bindir)/syslog $(bindir)/logger $(man1dir)/syslog.1
 
-all: logger
-logger: logger.o
+all: syslog
+syslog: syslog.o
+
+$(bindir)/logger: $(bindir)/syslog
+	ln $< $@
 
 clean:
-	$(RM) -f *.o logger 
+	$(RM) -f *.o syslog 
 
 include $(RULES)
