@@ -46,7 +46,6 @@ static char sccsid[] = "@(#)util.c	8.2 (Berkeley) 4/2/94";
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
-#include <paths.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -123,7 +122,7 @@ susystem(s, userid)
 	
 	case 0:
 		(void)setuid(userid);
-		execl(_PATH_BSHELL, "sh", "-c", s, NULL);
+		execl(PATH_BSHELL, "sh", "-c", s, NULL);
 		_exit(127);
 	}
 	istat = signal(SIGINT, SIG_IGN);
