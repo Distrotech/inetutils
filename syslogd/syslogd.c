@@ -292,29 +292,30 @@ usage (int err)
     }
   else
     {
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", program);
       puts ("Log system messages.\n\n\
-  -f, --rcfile=FILE  override configuration file (default: " PATH_LOGCONF ")\n\
-      --pidfile=FILE override pidfile (default: " PATH_LOGPID ")\n\
-  -n, --no-detach    don't enter daemon mode\n\
-  -d, --debug        print debug information (implies -n)\n\
-  -p, --socket FILE  override default unix domain socket " PATH_LOG "\n\
-  -a SOCKET          add unix socket to listen to (up to 19)\n\
-  -r, --inet         receive remote messages via internet domain socket\n\
-      --no-unixaf    do not listen on unix domain sockets (overrides -a and -p\n\
+  -f, --rcfile=FILE  Override configuration file (default: " PATH_LOGCONF ")\n\
+      --pidfile=FILE Override pidfile (default: " PATH_LOGPID ")\n\
+  -n, --no-detach    Don't enter daemon mode\n\
+  -d, --debug        Print debug information (implies -n)\n\
+  -p, --socket FILE  Override default unix domain socket " PATH_LOG "\n\
+  -a SOCKET          Add unix socket to listen to (up to 19)\n\
+  -r, --inet         Receive remote messages via internet domain socket\n\
+      --no-unixaf    Do not listen on unix domain sockets (overrides -a and -p\n\
   -S, --sync         Force a file sync on every line");
 #ifdef PATH_KLOG
       puts ("\
-      --no-klog      do not listen to kernel log device " PATH_KLOG);
+      --no-klog      Do not listen to kernel log device " PATH_KLOG);
 #endif
       puts ("\
-      --no-forward   do not forward any messages (overrides -h)\n\
-  -h, --hop          forward messages from remote hosts\n\
-  -m, --mark=INTVL   specify timestamp interval in logs (0 for no timestamps)\n\
-  -l HOSTLIST        log hosts in HOSTLIST by their hostname\n\
-  -s DOMAINLIST      list of domains which should be stripped from the FQDN\n\
+      --no-forward   Do not forward any messages (overrides -h)\n\
+  -h, --hop          Forward messages from remote hosts\n\
+  -m, --mark=INTVL   Specify timestamp interval in logs (0 for no timestamps)\n\
+  -l HOSTLIST        Log hosts in HOSTLIST by their hostname\n\
+  -s DOMAINLIST      List of domains which should be stripped from the FQDN\n\
                      of hosts before logging their name.\n\
-      --help         display this help and exit\n\
-  -V, --version      output version information and exit");
+      --help         Display this help and exit\n\
+  -V, --version      Output version information and exit");
 
       fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
     }
@@ -364,7 +365,7 @@ main (int argc, char *argv[])
   add_funix (PATH_LOG);
 
   while ((option = getopt_long (argc, argv, short_options,
-			    long_options, 0)) != EOF)
+				long_options, 0)) != EOF)
     {
       switch(option)
 	{
@@ -429,6 +430,7 @@ main (int argc, char *argv[])
 	case 'S': /* Sync on every line.  */
 	  force_sync = 1;
 	  break;
+
 	case '&': /* Usage.  */
 	  usage (0);
 	  /* Not reached.  */
