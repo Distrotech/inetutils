@@ -44,6 +44,11 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 /*
  * FTP User Program -- Command Interface.
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 /*#include <sys/ioctl.h>*/
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -58,9 +63,73 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <getopt.h>
+#include <version.h>
 
+/* Define macro to nothing so declarations in ftp_var.h become definitions. */
+#define FTP_EXTERN
 #include "ftp_var.h"
+
+#define USAGE "Usage: %s [OPTION...] [HOST [PORT]]\n"
 
+/* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
+extern char *__progname;
+
+#define DEFAULT_PROMPT "ftp> "
+static char *prompt = 0;
+
+/* Print a help message describing all options to STDOUT and exit with a
+   status of 0.  */
+static void
+ohelp ()
+{
+  fprintf (stdout, USAGE, __progname);
+  puts ("Remote file transfer\n\n\
+  -d, --debug                Turn on debugging mode\n\
+  -g, --no-glob              Turn off file name globbing\n\
+  -i, --no-prompt            Don't prompt during multiple-file transfers\n\
+  -n, --no-login             Don't automatically login to the remove system\n\
+  -t, --trace                Enable packet tracing\n\
+  -p, --prompt[=PROMPT]      Print a command-line prompt (optionally PROMPT),\n\
+                             even if not on a tty\n\
+  -v, --verbose              Be verbose\n\
+      --help                 Give this help list\n\
+      --version              Print program version");
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+  exit (0);
+}
+
+/* Print a message saying to use --help to STDERR, and exit with a status of
+   1.  */
+static void
+try_help ()
+{
+  fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+  exit (1);
+}
+
+/* Print a usage message to STDERR and exit with a status of 1.  */
+static void
+usage ()
+{
+  fprintf (stderr, USAGE, __progname);
+  try_help ();
+}
+
+static struct option long_options[] =
+{
+  { "trace", no_argument, 0, 't' },
+  { "verbose", no_argument, 0, 'v' },
+  { "no-login", no_argument, 0, 'n' },
+  { "no-prompt", no_argument, 0, 'i' },
+  { "debug", no_argument, 0, 'd' },
+  { "no-glob", no_argument, 0, 'g' },
+  { "help", no_argument, 0, '&' },
+  { "prompt", optional_argument, 0, 'p' },
+  { "version", no_argument, 0, 'V' },
+  { 0 }
+};
+
 int
 main(argc, argv)
 	int argc;
@@ -68,7 +137,12 @@ main(argc, argv)
 {
 	int ch, top;
 	struct passwd *pw = NULL;
-	char *cp, homedir[MAXPATHLEN];
+	char *cp;
+
+#ifndef HAVE___PROGNAME
+	extern char *__progname;
+	__progname = argv[0];
+#endif
 
 	sp = getservbyname("ftp", "tcp");
 	if (sp == 0)
@@ -77,7 +151,9 @@ main(argc, argv)
 	interactive = 1;
 	autologin = 1;
 
-	while ((ch = getopt(argc, argv, "dgintv")) != EOF) {
+	while ((ch = getopt_long (argc, argv, "dginp::tv", long_options, 0))
+	       != EOF)
+	{
 		switch (ch) {
 		case 'd':
 			options |= SO_DEBUG;
@@ -104,18 +180,34 @@ main(argc, argv)
 			verbose++;
 			break;
 
+                case 'p':
+		        prompt = optarg ? optarg : DEFAULT_PROMPT;
+			break;
+
+		case '&':
+			ohelp ();
+		case 'V':
+			printf ("ftp (%s) %s\n",
+				inetutils_package, inetutils_version);
+			exit (0);
+
+		case '?':
+			try_help ();
+
 		default:
-			(void)fprintf(stderr,
-				"usage: ftp [-dgintv] [host [port]]\n");
-			exit(1);
+			usage ();
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
 	fromatty = isatty(fileno(stdin));
-	if (fromatty)
+	if (fromatty) {
 		verbose++;
+		if (! prompt)
+			prompt = DEFAULT_PROMPT;
+	}
+
 	cpend = 0;	/* no pending replies */
 	proxy = 0;	/* proxy not active */
 	passivemode = 0; /* passive mode not active */
@@ -131,8 +223,11 @@ main(argc, argv)
 	if (pw == NULL)
 		pw = getpwuid(getuid());
 	if (pw != NULL) {
-		home = homedir;
-		(void) strcpy(home, pw->pw_dir);
+		char *buf = malloc (strlen (pw->pw_dir) + 1);
+		if (buf) {
+			strcpy(buf, pw->pw_dir);
+			home = buf;
+		}
 	}
 	if (argc > 0) {
 		char *xargv[5];
@@ -161,14 +256,16 @@ main(argc, argv)
 }
 
 void
-intr()
+intr(sig)
+  int sig;
 {
 
 	longjmp(toplevel, 1);
 }
 
 void
-lostpeer()
+lostpeer(sig)
+  int sig;
 {
 
 	if (connected) {
@@ -229,10 +326,26 @@ cmdscanner(top)
 	if (!top)
 		(void) putchar('\n');
 	for (;;) {
-		if (fromatty) {
-			printf("ftp> ");
-			(void) fflush(stdout);
+
+#if HAVE_LIBREADLINE
+		if (line) {
+			free(line);
+			line = 0;
 		}
+		line = readline (prompt);
+		if (!line)
+			quit (0, 0);
+		if (line && *line)
+			add_history (line);
+		l = strlen(line);
+		if (l == 0)
+			break;
+#else
+		if (prompt) {
+			printf (prompt);
+			fflush(stdout);
+		}
+
 		if (fgets(line, sizeof line, stdin) == NULL)
 			quit(0, 0);
 		l = strlen(line);
@@ -248,6 +361,7 @@ cmdscanner(top)
 				/* void */;
 			break;
 		} /* else it was a line without a newline */
+#endif
 		makeargv();
 		if (margc == 0) {
 			continue;
