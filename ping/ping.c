@@ -138,45 +138,58 @@ main (int argc, char **argv)
 	  printf ("see the files named COPYING.\n");
 	  exit (0);
 	  break;
+	  
 	case 'L':
 	  show_license ();
 	  exit (0);
+	  
 	case 'h':
 	  show_usage ();
 	  exit (0);
 	  break;
+	  
 	case 'c':
 	  ping_set_count (ping, atoi (optarg));
 	  break;
+	  
 	case 'd':
 	  ping_set_sockopt (ping, SO_DEBUG, &one, sizeof (one));
 	  break;
+	  
 	case 'r':
 	  ping_set_sockopt (ping, SO_DONTROUTE, &one, sizeof (one));
 	  break;
+	  
 	case 'i':
 	  options |= OPT_INTERVAL;
 	  ping_set_interval (ping, atoi (optarg));
 	  break;
+	  
 	case 'p':
 	  decode_pattern (optarg, &pattern_len, pattern);
 	  patptr = pattern;
 	  break;
+	  
  	case 's':
 	  data_length = atoi (optarg);
  	  break;
+	  
 	case 'n':
 	  options |= OPT_NUMERIC;
 	  break;
+	  
 	case 'q':
 	  options |= OPT_QUIET;
 	  break;
+	  
 	case 'R':
 	  options |= OPT_RROUTE;
 	  break;
+	  
         case 'v':
 	  options |= OPT_VERBOSE;
 	  break;
+	  
 	case 'l':
 	  if (!is_root)
 	    {
@@ -208,12 +221,15 @@ main (int argc, char **argv)
 	case ICMP_ECHO:
 	  decode_type ("echo");
 	  break;
+	  
 	case ICMP_TIMESTAMP:
 	  decode_type ("timestamp");
 	  break;
+	  
 	case ICMP_ADDRESS:
 	  decode_type ("address");
 	  break;
+	  
 	case ICMP_ROUTERDISCOVERY:
 	  decode_type ("router");
 	  break;
