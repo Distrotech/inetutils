@@ -32,13 +32,8 @@ AC_CANONICAL_SYSTEM # FIXME: Why not just _HOST?
 
 # Include files that we link into our own include directory from headers.
 # Initialize it with the things we always want to use.
-INCLUDES="crypt.h arpa/telnet.h arpa/ftp.h arpa/tftp.h protocols/talkd.h
-	tftpsubs.h"
-
-# Files that we link from somewhere other than headers to includes .  The
-# number of entries in LINK_SRCS should match that in LINK_DSTS.
-LINK_SRCS=''
-LINK_DSTS=''
+IU_CONFIG_LINKS([crypt.h, arpa/telnet.h, arpa/ftp.h, arpa/tftp.h,
+                 protocols/talkd.h, tftpsubs.h])
 
 dnl For now, we always use libexecdir; later we may want to vary where the
 dnl daemons go.
@@ -222,10 +217,9 @@ if test "$ac_cv_header_glob_h" = yes; then
 fi
 if test "$sys_glob" != yes; then
   libglob_BUILD=libglob.a
-  LINK_SRCS="$LINK_SRCS glob/glob.h"
-  LINK_DSTS="$LINK_DSTS include/glob.h"
-  LINK_SRCS="$LINK_SRCS glob/fnmatch.h"
-  LINK_DSTS="$LINK_DSTS include/fnmatch.h"
+  dnl FIXME
+  dnl IU_CONFIG_LINKS(glob.h)
+  dnl IU_CONFIG_LINKS(fnmatch.h)
   LIBGLOB="-L../glob -lglob"
 else
   libglob_BUILD=''
@@ -328,8 +322,6 @@ AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
 		 stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h \
                  vis.h)
 
-AC_CHECK_HEADER(poll.h, , [INCLUDES="$INCLUDES poll.h"])
-
 ### Checks for types.
 dnl Checks return type of signal handlers
 AC_TYPE_SIGNAL
@@ -342,9 +334,9 @@ AC_CHECK_TYPE(socklen_t, ,
 dnl We may need our own definition for struct osockaddr (equivalent to the
 dnl old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
 AC_CHECK_TYPE(struct osockaddr, ,
-              AC_DEFINE(HAVE_OSOCKADDR_H, 1,
-                        [Define to one if you have <osockaddr.h>.])
-                        INCLUDES="$INCLUDES osockaddr.h",
+              [AC_DEFINE(HAVE_OSOCKADDR_H, 1,
+                         [Define to one if you have <osockaddr.h>.])
+               IU_CONFIG_LINKS(osockaddr.h)],
 	      [#include <sys/types.h>
                #include <sys/socket.h> ])
 
@@ -536,7 +528,8 @@ AC_REPLACE_FUNCS(revoke)
 jm_INCLUDED_REGEX(libinetutils/regex.c)
 
 AC_CHECK_FUNC(_obstack_free, ,
-  AC_LIBOBJ(obstack) INCLUDES="$INCLUDES obstack.h")
+  [AC_LIBOBJ(obstack)
+   IU_CONFIG_LINKS(obstack.h)])
 
 dnl Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp,
@@ -545,36 +538,43 @@ AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp,
 dnl We use our own version of getopt (including our own header file) if the
 dnl system one doesn't have getopt_long.
 AC_CHECK_FUNC(getopt_long, ,
-  AC_LIBOBJ(getopt)
-  AC_LIBOBJ(getopt1)
-  INCLUDES="$INCLUDES getopt.h")
+  [AC_LIBOBJ(getopt)
+   AC_LIBOBJ(getopt1)
+   IU_CONFIG_LINKS(getopt.h)])
+
+AC_CHECK_HEADER(poll.h, , [LINK_POLL_H=yes])
 
 dnl Supply a version of poll() if the libray is missing.
 dnl syslogd uses poll() unconditionnaly.
 AC_CHECK_FUNC(poll, ,
-  AC_DEFINE(HAVE_POLL_H, 1, [Define to one if you have <poll.h>])
-  AC_LIBOBJ(poll)
-  INCLUDES="$INCLUDES poll.h")
+  [AC_DEFINE(HAVE_POLL_H, 1, [Define to one if you have <poll.h>])
+   AC_LIBOBJ(poll)
+   LINK_POLL_H=yes])
+
+if test "$LINK_POLL_H" = "yes"; then
+  IU_CONFIG_LINKS(poll.h)
+fi
 
 dnl Supply versions of the BSD error reporting functions if the system doesn't
 AC_CHECK_FUNC(verrx, ,
-  AC_LIBOBJ(err)
-  INCLUDES="$INCLUDES err.h")
+  [AC_LIBOBJ(err)
+   IU_CONFIG_LINKS(err.h)])
 
 dnl See if the __PROGNAME variable is defined, otherwise use our own.
 AC_CHECK_FUNC(__progname,
-  AC_DEFINE(HAVE___PROGNAME, 1, [Define to one if you have __progname]),
-  AC_LIBOBJ(__progname))
+  [AC_DEFINE(HAVE___PROGNAME, 1, [Define to one if you have __progname])],
+  [AC_LIBOBJ(__progname)])
 
 dnl See if snprintf exists, otherwise just use a bogus version
 AC_CHECK_FUNC(snprintf,
-  AC_DEFINE(HAVE_SNPRINTF, 1, [Define to one if you have snprintf]),
-  AC_LIBOBJ(snprintf))
+  [AC_DEFINE(HAVE_SNPRINTF, 1, [Define to one if you have snprintf])],
+  [AC_LIBOBJ(snprintf)])
 
 dnl See if vsnprintf exists, otherwise use our own.
 AC_CHECK_FUNC(vsnprintf,
-  AC_DEFINE(HAVE_VSNPRINTF, 1, [FIXME]),
-  AC_LIBOBJ(snprintf))
+  [AC_DEFINE(HAVE_VSNPRINTF, 1, [Define to one if you have vsnprintf])],
+  [AC_LIBOBJ(snprintf)])
+
 AH_BOTTOM(
 [#ifndef HAVE_VSNPRINTF
 #include <sys/types.h>
@@ -587,7 +587,7 @@ extern int vsnprintf __P ((char *, size_t, const char *, va_list));
 #endif])
 
 dnl See if the system has strerror, and replace it if not
-AC_CHECK_FUNC(strerror, , AC_LIBOBJ(strerror))
+AC_CHECK_FUNC(strerror, , [AC_LIBOBJ(strerror)])
 if test "$ac_cv_func_strerror" = no; then
   # No strerror, so see if the SYS_ERRLIST variable can be used by ours
   AC_CHECK_FUNC(sys_errlist, AC_DEFINE(HAVE_SYS_ERRLIST, 1,
@@ -602,7 +602,7 @@ if test "$ac_cv_func_strerror" = no; then
 fi
 
 dnl See if the system has hstrerror, and replace it if not
-AC_CHECK_FUNC(hstrerror, , AC_LIBOBJ(hstrerror))
+AC_CHECK_FUNC(hstrerror, , [AC_LIBOBJ(hstrerror)])
 if test "$ac_cv_func_hstrerror" = yes; then
   AC_CHECK_DECL(hstrerror, , , [#include <netdb.h>])
 else
@@ -649,11 +649,15 @@ IU_CHECK_MACRO(syslog internal macros,
   AC_CHECK_TYPE(CODE,
     AC_CHECK_DECL(prioritynames,
       AC_DEFINE(HAVE_SYSLOG_INTERNAL, 1, [FIXME]),
-      INCLUDES="$INCLUDES syslog-int.h",
+      LINK_SYSLOG_INT_H=yes,
       iu_syslog_includes),
-    INCLUDES="$INCLUDES syslog-int.h", iu_syslog_includes),
-  INCLUDES="$INCLUDES syslog-int.h")
+    LINK_SYSLOG_INT_H=yes, iu_syslog_includes),
+  LINK_SYSLOG_INT_H=yes)
 undefine([iu_syslog_includes])
+
+if test "$LINK_SYSLOG_INT_H" = "yes"; then
+  IU_CONFIG_LINKS(syslog-int.h)
+fi
 
 dnl Some systems don't declare common functions (especially if they return
 dnl int), at least in the expected header file.  Check.
@@ -770,24 +774,6 @@ IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
 AH_BOTTOM(
 [/* Defaults for PATH_ variables.  */
 #include <include/confpaths.h>])
-
-dnl Supply optional header files by linking a copy into the object include dir
-LINK_SRCS="$LINK_SRCS `for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
-LINK_DSTS="$LINK_DSTS `for I in $INCLUDES; do echo $ac_n ' 'include/$I$ac_c; done`"
-ac_sources="$LINK_SRCS"
-ac_dests="$LINK_DSTS"
-while test -n "$ac_sources"; do
-  set $ac_dests
-  ac_dest=$1
-  shift
-  ac_dests=$*
-  set $ac_sources
-  ac_source=$1
-  shift
-  ac_sources=$*
-  ac_config_links_1="$ac_config_links_1 $ac_dest:$ac_source"
-done
-AC_CONFIG_LINKS([$ac_config_links_1])
 
 dnl Ok this is the end of the rope, even autoconf can't help.
 dnl For example on certain system login(1) will not work if we
