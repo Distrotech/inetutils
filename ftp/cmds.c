@@ -888,7 +888,7 @@ remglob(argv,doswitch)
 			args = argv;
 		if ((cp = *++args) == NULL)
 			args = NULL;
-		return (cp);
+		return strdup (cp);
 	}
 	if (ftemp == NULL) {
 		char temp[sizeof _PATH_TMP + sizeof "XXXXXX"];
