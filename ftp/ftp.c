@@ -68,7 +68,11 @@ static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#else
 #include <varargs.h>
+#endif
 
 #include "ftp_var.h"
 
@@ -104,7 +108,15 @@ hookup(host, port)
 	} else {
 		hp = gethostbyname(host);
 		if (hp == NULL) {
+#ifdef HAVE_HSTRERROR
 			warnx("%s: %s", host, hstrerror(h_errno));
+#else
+			extern char *__progname;
+			char *pfx =
+			  malloc (strlen (__progname) + 2 + strlen (host) + 1);
+			sprintf (pfx, "%s: %s", __progname, host);
+			herror (pfx);
+#endif
 			code = -1;
 			return ((char *) 0);
 		}
@@ -272,19 +284,29 @@ cmdabort()
 
 /*VARARGS*/
 int
+#ifdef HAVE_STDARG_H
+command (char *fmt, ...)
+#else
 command(va_alist)
 va_dcl
+#endif
 {
 	va_list ap;
+#ifndef HAVE_STDARG_H
 	char *fmt;
+#endif
 	int r;
 	sig_t oldintr;
 
 	abrtflag = 0;
 	if (debug) {
 		printf("---> ");
+#ifdef HAVE_STDARG_H
+		va_start (ap, fmt);
+#else
 		va_start(ap);
 		fmt = va_arg(ap, char *);
+#endif
 		if (strncmp("PASS ", fmt, 5) == 0)
 			printf("PASS XXXX");
 		else 
@@ -299,8 +321,12 @@ va_dcl
 		return (0);
 	}
 	oldintr = signal(SIGINT, cmdabort);
+#ifdef HAVE_STDARG_H
+	va_start (ap, fmt);
+#else
 	va_start(ap);
 	fmt = va_arg(ap, char *);
+#endif
 	vfprintf(cout, fmt, ap);
 	va_end(ap);
 	fprintf(cout, "\r\n");
