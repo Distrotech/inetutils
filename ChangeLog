@@ -1,3 +1,8 @@
+2002-11-15  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* configure.ac (AC_CONFIG_FILES): Removed duplicate entries
+	`libicmp/Makefile' and `ping/Makefile' from the list.
+
 2002-09-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* acinclude.m4 (IU_CHECK_KRB5): Fixed.
