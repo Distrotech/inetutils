@@ -47,9 +47,9 @@ char   *user;
 char   *id;
 {
 #ifdef HAVE_UTMPX_H
-    struct utmp utx;
-#else
     struct utmpx utx;
+#else
+    struct utmp utx;
 #endif
 
     memset((char *) &utx, 0, sizeof(utx));
@@ -58,8 +58,8 @@ char   *id;
     strncpy(utx.ut_line, line, sizeof(utx.ut_line));
     utx.ut_pid = getpid();
     utx.ut_type = LOGIN_PROCESS;
-#if defined(HAVE_UTMP_UT_TV)  || defined(HAVE_UTMPX_UT_TV)
-    gettimeofday(&(utx.ut_tv));
+#if defined(HAVE_UTMPX_UT_TV)
+    gettimeofday(&(utx.ut_tv), 0);
 #else
     time(&(utx.ut_time));
 #endif

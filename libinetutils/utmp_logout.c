@@ -53,7 +53,7 @@ char   *line;
 		ut->ut_type = DEAD_PROCESS;
 		ut->ut_exit.e_termination = 0;
 		ut->ut_exit.e_exit = 0;
-		gettimeofday(&(ut->ut_tv));
+		gettimeofday(&(ut->ut_tv), 0);
 		pututxline(ut);
 		updwtmpx(WTMPX_FILE, ut);
 	}

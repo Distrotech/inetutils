@@ -131,14 +131,14 @@ AC_PATH_PROG(RM, rm, rm)
 AC_CONST
 AC_HEADER_STDC
 
-AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
-		 stdlib.h sys/tty.h sys/utsname.h glob.h sys/ptyvar.h \
-		 sys/msgbuf.h krb.h des.h netinet/in_systm.h sys/filio.h \
-		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
-		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
-		 arpa/nameser.h sys/sockio.h sys/sysmacros.h sys/param.h \
-		 unistd.h sys/file.h fcntl.h sys/proc.h sys/select.h \
-		 sys/time.h sys/wait.h sys/resource.h memory.h stropts.h)
+AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h glob.h krb.h memory.h \
+	         malloc.h netinet/in_systm.h netinet/ip.h netinet/ip_icmp.h \
+		 netinet/ip_var.h string.h stdarg.h stdlib.h stropts.h \
+		 sys/tty.h sys/utsname.h sys/ptyvar.h sys/msgbuf.h \
+		 sys/filio.h sys/ioctl_compat.h sys/cdefs.h sys/stream.h \
+		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
+		 sys/proc.h sys/select.h sys/time.h sys/wait.h sys/resource.h \
+		 stropts.h termio.h termios.h utmp.h utmpx.h unistd.h vis.h)
 AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -146,11 +146,11 @@ AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
 
-AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
-	       flock ftruncate wait3 memcpy bcopy bzero setsid ptsname \
-	       cfsetspeed strchr waitpid seteuid setegid setreuid setregid \
-	       setresuid setresgid killpg setlinebuf tzset utimes utime \
-	       updwtmp updwtmpx getcwd)
+AC_CHECK_FUNCS(cfsetspeed cgetent flock fpathconf ftruncate getcwd killpg \
+	       ptsname setegid seteuid setlinebuf setsid setregid setreuid \
+	       setresgid setresuid setutent_r sigaction sigvec strchr \
+	       tcgetattr tzset utimes utime uname updwtmp updwtmpx wait3 \
+	       waitpid) 
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(daemon strdup strcasecmp setenv memcmp memset memmove \
 	herror getusershell)
@@ -518,7 +518,7 @@ AC_SUBST(VERSION)
 # Ok were at the end of the hope, even autoconf can't help
 # for example on certain system login(1) will not work if we
 # don't have an entry in utmpx.
-AC_CANONICAL_HOST
+# AC_CANONICAL_HOST # already run with AC_AIX
 case "$host" in
 *olaris*)
   AC_DEFINE(UTMPX)
