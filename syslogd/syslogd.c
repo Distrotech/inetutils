@@ -102,8 +102,27 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <utmpx.h>
 #include <getopt.h>
+
+#ifdef HAVE_UTMP_H
+# include <utmp.h>
+#endif
+
+#ifdef UTMPX
+# ifdef HAVE_UTMPX_H
+#  include <utmpx.h>
+# endif
+typedef struct utmpx UTMP;
+# define SETUTENT() setutxent()
+# define GETUTENT() getutxent()
+# define ENDUTENT() endutxent()
+#else
+typedef struct utmp UTMP;
+# define SETUTENT() setutent()
+# define GETUTENT() getutent()
+# define ENDUTENT() endutent()
+#endif
+
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #else
@@ -1321,7 +1340,7 @@ void
 wallmsg (struct filed *f, struct iovec *iov)
 {
   static int reenter;	/* avoid calling ourselves */
-  struct utmpx *utp;
+  UTMP *utp;
   int i;
   char *p;
   char line[sizeof(utp->ut_line) + 1];
@@ -1329,9 +1348,9 @@ wallmsg (struct filed *f, struct iovec *iov)
   if (reenter++)
     return;
 
-  setutxent();
+  SETUTENT();
 
-  while ((utp = getutxent ()) != NULL)
+  while ((utp = GETUTENT ()) != NULL)
     {
       /* We only want interrested to send to actual
 	 process, USER_PROCESS where somebody might listen. */
@@ -1369,7 +1388,7 @@ wallmsg (struct filed *f, struct iovec *iov)
 	    break;
 	  }
     }
-  endutxent ();
+  ENDUTENT ();
   reenter = 0;
 }
 

@@ -1111,7 +1111,7 @@ topdomain (char *name, int max_dots)
       if (*p == '.' && ++dot_count == max_dots)
 	return p + 1;
     }
-  return NULL;
+  return name;
 }
 
 void

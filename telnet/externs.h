@@ -96,7 +96,7 @@ typedef unsigned char cc_t;
 
 #ifndef	_POSIX_VDISABLE
 # ifdef sun
-#  include <sys/param.h>	/* pick up VDISABLE definition, mayby */
+#  include <sys/param.h>	/* pick up VDISABLE definition, maybe */
 # endif
 # ifdef VDISABLE
 #  define _POSIX_VDISABLE VDISABLE
