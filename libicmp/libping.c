@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2005 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -16,6 +16,7 @@
    along with GNU Inetutils; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA. */
+
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -48,16 +49,10 @@ static size_t _ping_packetsize (PING *p);
 size_t
 _ping_packetsize (PING *p)
 {
-  switch (p->ping_type)
-    {
-    case ICMP_TIMESTAMP:
-    case ICMP_TIMESTAMPREPLY:
-      return 20;
-
-    default:
-      return 8 + p->ping_datalen;
-    }
-  return 8; /* to keep compiler happy */
+  if (p->ping_type == ICMP_TIMESTAMP
+      || p->ping_type == ICMP_TIMESTAMPREPLY)
+    return 20;
+  return 8 + p->ping_datalen;
 }
 
 PING *
@@ -68,19 +63,24 @@ ping_init (int type, int ident)
   PING *p;
 
   /* Initialize raw ICMP socket */
-  if (!(proto = getprotobyname ("icmp"))) {
-    fprintf (stderr, "ping: unknown protocol icmp.\n");
-    return NULL;
-  }
-  if ((fd = socket (AF_INET, SOCK_RAW, proto->p_proto)) < 0) {
-    if (errno == EPERM) {
-      fprintf (stderr, "ping: ping must run as root\n");
+  proto = getprotobyname ("icmp");
+  if (!proto)
+    {
+      fprintf (stderr, "ping: unknown protocol icmp.\n");
+      return NULL;
     }
-    return NULL;
-  }
+
+  fd = socket (AF_INET, SOCK_RAW, proto->p_proto);
+  if (fd < 0)
+    {
+      if (errno == EPERM)
+	fprintf (stderr, "ping: ping must run as root\n");
+      return NULL;
+    }
 
   /* Allocate PING structure and initialize it to default values */
-  if (!(p = malloc (sizeof (*p))))
+  p = malloc (sizeof (*p));
+  if (!p)
     {
       close (fd);
       return p;
@@ -173,41 +173,37 @@ ping_xmit (PING *p)
     {
     case ICMP_ECHO:
       icmp_echo_encode (p->ping_buffer, buflen, p->ping_ident,
-		       p->ping_num_xmit);
+			p->ping_num_xmit);
       break;
       
     case ICMP_TIMESTAMP:
       icmp_timestamp_encode (p->ping_buffer, buflen, p->ping_ident,
-			    p->ping_num_xmit);
+			     p->ping_num_xmit);
       break;
       
     case ICMP_ADDRESS:
       icmp_address_encode (p->ping_buffer, buflen, p->ping_ident,
-			  p->ping_num_xmit);
+			   p->ping_num_xmit);
       break;
       
     default:
       icmp_generic_encode (p->ping_buffer, buflen, p->ping_type, p->ping_ident,
-			  p->ping_num_xmit);
+			   p->ping_num_xmit);
       break;
     }
-
+  
   i = sendto (p->ping_fd, (char *)p->ping_buffer, buflen, 0,
-	     (struct sockaddr*) &p->ping_dest,
-	     sizeof (struct sockaddr_in));
+	      (struct sockaddr*) &p->ping_dest,
+	      sizeof (struct sockaddr_in));
   if (i < 0)
-    {
-      perror ("ping: sendto");
-    }
+    perror ("ping: sendto");
   else
     {
       p->ping_num_xmit++;
       if (i != buflen)
 	printf ("ping: wrote %s %d chars, ret=%d\n",
-	       p->ping_hostname, buflen, i);
+		p->ping_hostname, buflen, i);
     }
-
-
   return 0;
 }
 
@@ -216,11 +212,11 @@ my_echo_reply (PING *p, icmphdr_t *icmp)
 {
   struct ip *orig_ip = &icmp->icmp_ip;
   icmphdr_t *orig_icmp = (icmphdr_t *)(orig_ip + 1);
-
-  return orig_ip->ip_dst.s_addr == p->ping_dest.sin_addr.s_addr
-    && orig_ip->ip_p == IPPROTO_ICMP
-    && orig_icmp->icmp_type == ICMP_ECHO
-    && orig_icmp->icmp_id == p->ping_ident;
+  
+  return (orig_ip->ip_dst.s_addr == p->ping_dest.sin_addr.s_addr
+	  && orig_ip->ip_p == IPPROTO_ICMP
+	  && orig_icmp->icmp_type == ICMP_ECHO
+	  && orig_icmp->icmp_id == p->ping_ident);
 }
 
 int
@@ -232,15 +228,17 @@ ping_recv (PING *p)
   struct ip *ip;
   int dupflag;
 
-  if ((n = recvfrom (p->ping_fd,
-		     (char *)p->ping_buffer, _PING_BUFLEN (p), 0,
-		     (struct sockaddr *)&p->ping_from, &fromlen)) < 0)
+  n = recvfrom (p->ping_fd,
+		(char *)p->ping_buffer, _PING_BUFLEN (p), 0,
+		(struct sockaddr *)&p->ping_from, &fromlen);
+  if (n < 0)
     return -1;
-
-  if ((rc = icmp_generic_decode (p->ping_buffer, n, &ip, &icmp)) < 0)
+  
+  rc = icmp_generic_decode (p->ping_buffer, n, &ip, &icmp);
+  if (rc < 0)
     {
       /*FIXME: conditional*/
-      fprintf (stderr,"packet too short (%d bytes) from %s\n", n,
+      fprintf (stderr, "packet too short (%d bytes) from %s\n", n,
 	       inet_ntoa (p->ping_from.sin_addr));
       return -1;
     }
@@ -336,9 +334,7 @@ ping_set_dest (PING *ping, char *host)
   struct sockaddr_in *s_in = &ping->ping_dest;
   s_in->sin_family = AF_INET;
   if (inet_aton (host, &s_in->sin_addr))
-    {
-      ping->ping_hostname = strdup (host);
-    }
+    ping->ping_hostname = strdup (host);
   else
     {
       struct hostent *hp = gethostbyname (host);
@@ -355,3 +351,4 @@ ping_set_dest (PING *ping, char *host)
   return 0;
 }
 
+ 

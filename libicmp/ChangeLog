@@ -1,3 +1,8 @@
+2005-01-20  Alfred M. Szmidt  <ams@gnu.org>
+
+	* libping.c: Comply with GCS.	
+	(_ping_packetsize): Rewritten.
+
 2003-11-10  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* libping.c (ping_recv): Check icmp ID only
