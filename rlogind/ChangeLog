@@ -1,3 +1,10 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* rlogind.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* Makefile.am (inetdaemon_PROGRAMS): Use rlogind_BUILD instead of

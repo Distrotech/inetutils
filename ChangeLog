@@ -1,8 +1,14 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* configure.ac (VERSION): Variable removed.
+	(AC_OUTPUT): Removed headers/version.h and headers/version.h.in
+	from the list.
+
 2002-04-28  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* configure.ac: Removed form feeds.
 
-2002-04-28  Alfred M. Szmidt  <ams@kemisten.nu>
+2002-04-21  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* Makefile.am (AUTOMAKE_OPTIONS): Require GNU Automake 1.6.
 

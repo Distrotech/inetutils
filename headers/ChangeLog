@@ -1,5 +1,6 @@
-2002-04-29  Alfred M. Szmidt <ams@kemisten.nu>
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
+	* Makefile.am (EXTRA_DIST): Removed version.h.in from the list.
 	* version.h.in: Removed.
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>

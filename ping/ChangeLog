@@ -1,5 +1,8 @@
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
+	* ping_timestamp.c, ping_router.c, ping_echo.c, ping_address.c
+	<version.h>: Include removed.
+
 	* ping.c <version.h>: Include removed.
 	(inetutils_package): Renamed to PACKAGE_NAME.
 	(inetutils_version): Renamed to PACKAGE_VERSION.

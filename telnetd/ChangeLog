@@ -1,3 +1,9 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* telnetd.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+
 2002-04-08  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* Makefile.am: Added @INCAUTH@ and @LIBAUTH@.

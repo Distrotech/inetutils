@@ -1,4 +1,5 @@
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
 	* Makefile.am (noinst_LIBRARIES) Use libglob_BUILD instead of
 	  BUILD_LIBGLOB.
 
