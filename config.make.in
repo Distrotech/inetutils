@@ -19,10 +19,7 @@
 
 SHELL = /bin/sh
 
-# srcdir is defined in the individual makefiles
-top_srcdir = @top_srcdir@
-
-VPATH = $(srcdir) $(srcdir)/common
+VPATH = $(srcdir)
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -53,7 +50,7 @@ LDFLAGS = @LDFLAGS@
 RM = @RM@
 MKINSTDIRS = $(SHELL) $(top_srcdir)/mkinstalldirs
 
-CPPFLAGS += $(DEFS) -I../include
+CPPFLAGS += $(DEFS) -D_BSD_SOURCE -I$(srcdir) -I../include
 LDLIBS += $(LIBS) -L../libinetutils -linetutils
 
 RULES = $(top_srcdir)/rules.make
