@@ -1,5 +1,9 @@
 Tue Mar 24 00:28:27 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* uucpd/Makefile.am (INCLUDES): Added `$(PATHDEF_UUCICO)'.
+	
+	Added a line that reads `@PATHDEFS_MAKE@'.
+
 	* tftpd/Makefile.am (noinst_HEADERS): Removed tftpsubs.h
 	
 	(LDADD): Added `-L../libinetutils -linetutils'.
