@@ -1,5 +1,11 @@
 2001-11-10  Alain Magloire
 
+	* ftpd.texi: New file.
+	* Makefile.am: Added ftpd.texi.
+	* inetutils.texi: Enable ftpd.texi.
+
+2001-11-10  Alain Magloire
+
 	* inetd.texi: New file.
 	* Makefile.am: Added inetd.texi.
 	* inetutils.texi: Enable inetd.texi.

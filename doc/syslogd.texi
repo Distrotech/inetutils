@@ -126,7 +126,7 @@ The level describes the severity of the message, and is a keyword from
 the following ordered list (higher to lower): @samp{emerg},
 @samp{alert}, @samp{crit}, @samp{err, warning}, @samp{notice} and
 @samp{debug}.  These keywords correspond to the similar @samp{LOG_}
-values specified to the syslog library routine. 
+values specified to the syslog library routine.
 
 @xref{syslog; vsyslog, , syslog and vsyslog, libc, The GNU C Library
 Reference Manual}, for a further descriptions of both the facility and
