@@ -175,14 +175,17 @@ ping_xmit (PING *p)
       icmp_echo_encode (p->ping_buffer, buflen, p->ping_ident,
 		       p->ping_num_xmit);
       break;
+      
     case ICMP_TIMESTAMP:
       icmp_timestamp_encode (p->ping_buffer, buflen, p->ping_ident,
 			    p->ping_num_xmit);
       break;
+      
     case ICMP_ADDRESS:
       icmp_address_encode (p->ping_buffer, buflen, p->ping_ident,
 			  p->ping_num_xmit);
       break;
+      
     default:
       icmp_generic_encode (p->ping_buffer, buflen, p->ping_type, p->ping_ident,
 			  p->ping_num_xmit);
@@ -230,20 +233,20 @@ ping_recv (PING *p)
       return -1;
     }
 
+  if (icmp->icmp_id != p->ping_ident)
+    return -1;
+  if (rc)
+    {
+      fprintf (stderr, "checksum mismatch from %s\n",
+	       inet_ntoa (p->ping_from.sin_addr));
+    }
+
   switch (icmp->icmp_type)
     {
     case ICMP_ECHOREPLY:
     case ICMP_TIMESTAMPREPLY:
     case ICMP_ADDRESSREPLY:
       /*    case ICMP_ROUTERADV:*/
-      if (icmp->icmp_id != p->ping_ident)
-	return -1;
-      if (rc)
-	{
-	  fprintf (stderr, "checksum mismatch from %s\n",
-		  inet_ntoa (p->ping_from.sin_addr));
-	}
-
       p->ping_num_recv++;
       if (_PING_TST (p, icmp->icmp_seq % p->ping_cktab_size))
 	{
@@ -264,6 +267,11 @@ ping_recv (PING *p)
 			 &p->ping_from,
 			 ip, icmp, n);
       break;
+
+    case ICMP_ECHO:
+    case ICMP_TIMESTAMP:
+    case ICMP_ADDRESS:
+      return -1;
 
     default:
       if (p->ping_event)
