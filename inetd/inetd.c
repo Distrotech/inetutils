@@ -899,7 +899,7 @@ newstr(cp)
 }
 
 void
-setproctitle(a, s)
+set_proc_title(a, s)
 	char *a;
 	int s;
 {
@@ -934,7 +934,7 @@ echo_stream(s, sep)		/* Echo service -- echo data back */
 	char buffer[BUFSIZE];
 	int i;
 
-	setproctitle(sep->se_service, s);
+	set_proc_title(sep->se_service, s);
 	while ((i = read(s, buffer, sizeof(buffer))) > 0 &&
 	    write(s, buffer, i) > 0)
 		;
@@ -966,7 +966,7 @@ discard_stream(s, sep)		/* Discard service -- ignore data */
 	int ret;
 	char buffer[BUFSIZE];
 
-	setproctitle(sep->se_service, s);
+	set_proc_title(sep->se_service, s);
 	while (1) {
 		while ((ret = read(s, buffer, sizeof(buffer))) > 0)
 			;
@@ -1013,7 +1013,7 @@ chargen_stream(s, sep)		/* Character generator */
 	int len;
 	char *rs, text[LINESIZ+2];
 
-	setproctitle(sep->se_service, s);
+	set_proc_title(sep->se_service, s);
 
 	if (!endring) {
 		initring();
