@@ -15,13 +15,13 @@ man_MANS = telnetd.8
 @PATHDEFS_MAKE@
 
 INCLUDES = $(PATHDEF_TTY) $(PATHDEF_LOGIN) -I$(top_builddir)/include \
- -I$(top_srcdir)
+ -I$(top_srcdir) @INCAUTH@
 
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 LIBUTIL = @LIBUTIL@
 
 LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet \
-	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT)
+	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT) @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)
