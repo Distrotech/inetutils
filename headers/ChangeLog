@@ -1,3 +1,14 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (dist-hook): Target removed.
+	(header_dirs): Variable removed.
+	(EXTRA_DIST): Variable removed.
+	
+	* confpaths.h.in, crypt.h, err.h, getopt.h, obstack.h,
+	osockaddr.h, paths.h, poll.h, syslog-int.h, arpa/DISTFILES,
+	arpa/ftp.h, arpa/telnet.h, arpa/tftp.h, protocols/DISTFILES,
+	protocols/talkd.h: Files removed.
+
 2002-09-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* arpa/telnet.h: Added AUTH_ENCRYPT_ defines
