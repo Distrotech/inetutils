@@ -1,3 +1,10 @@
+Sun Mar 22 16:13:49 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* inetd/Makefile.am (INCLUDES): Use $(PATHDEF_INETDCONF) instead
+ 	of the old hardcoded value.
+	
+	Added a line that reads `@PATHDEFS_MAKE@'
+
 Mon Mar  9 17:04:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
 	* inetd/Makefile.am (INCLUDES): Set PATH_INETDCONF.
