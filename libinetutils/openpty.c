@@ -1,6 +1,3 @@
-/* Slightly modified version of libutil. There's probably
-   a better way to do this.
-   Adapted to inetutils by Bernhard Rosenkraenzer <bero@startrek.in-trier.de> */
 /* Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
@@ -61,6 +58,24 @@
 #endif
 #include <grp.h>
 
+#ifdef HAVE_PTSNAME
+# include <stdlib.h>
+# ifdef HAVE_STROPTS_H
+#  include <stropts.h>
+# endif
+#endif
+
+/* Slightly modified version of libutil. There's probably
+   a better way to do this.
+   Adapted to inetutils by Bernhard Rosenkraenzer <bero@startrek.in-trier.de>
+   This is taken from R. W. Stevens book.  The orignal did not have the
+   necessary magic to work under SYSVR4 STREAM ttys.
+   Alain Magloire.
+*/
+
+static int ptym_open();
+static int ptys_open();
+
 int openpty(amaster, aslave, name, termp, winp)
 	int *amaster, *aslave;
 	char *name;
@@ -68,51 +83,124 @@ int openpty(amaster, aslave, name, termp, winp)
 	struct winsize *winp;
 {
 	char line[20];
-	register const char *cp1, *cp2;
-	register int master, slave, ttygid;
-	struct group *gr;
-
-	strcpy (line, "/dev/ptyXX");
-	if ((gr = getgrnam("tty")) != NULL)
-		ttygid = gr->gr_gid;
-	else
-		ttygid = -1;
-
-	for (cp1 = "pqrstuvwxyzPQRST"; *cp1; cp1++) {
-		line[8] = *cp1;
-		for (cp2 = "0123456789abcdef"; *cp2; cp2++) {
-			line[9] = *cp2;
-			if ((master = open(line, O_RDWR, 0)) == -1) {
-				if (errno == ENOENT)
-					return (-1);	/* out of ptys */
-			} else {
-				line[5] = 't';
-				chown(line, getuid(), ttygid);
-				chmod(line, S_IRUSR|S_IWUSR|S_IWGRP);
-				revoke(line);
-				if ((slave = open(line, O_RDWR, 0)) != -1) {
-					*amaster = master;
-					*aslave = slave;
-					if (name)
-						strcpy(name, line);
+	*amaster = ptym_open(line);
+	if (*amaster < 0)
+		return -1;
+	*aslave = ptys_open(*amaster, line, sizeof(line));
+	if (*aslave < 0) {
+		close(*amaster);
+		return -1;
+	}
+	if (name)
+		strcpy(name, line);
 #ifndef TCSAFLUSH
 #define TCSAFLUSH TCSETAF
 #endif
-					if (termp)
-						(void) tcsetattr(slave, 
-							TCSAFLUSH, termp);
+	if (termp)
+		(void) tcsetattr(*aslave, TCSAFLUSH, termp);
 #ifdef TIOCSWINSZ
-					if (winp)
-						(void) ioctl(slave, TIOCSWINSZ, 
-							(char *)winp);
+	if (winp)
+		(void) ioctl(*aslave, TIOCSWINSZ, (char *)winp);
 #endif
-					return (0);
-				}
-				(void) close(master);
-				line[5] = 'p';
+	return 0;
+}
+
+static int ptym_open(pts_name)
+	char * pts_name;
+{
+	int fdm;
+#ifdef HAVE_PTSNAME
+	char *ptr;
+
+	strcpy(pts_name, "/dev/ptmx");
+	fdm = open(pts_name, O_RDWR);
+	if (fdm < 0)
+		return -1;
+	if (grantpt(fdm) < 0) { /* grant access to slave */
+		close(fdm);
+		return -2;
+	}
+	if (unlockpt(fdm) < 0) { /* clear slave's lock flag */
+		close(fdm);
+		return -3;
+	}
+	ptr = ptsname(fdm);
+	if (ptr == NULL) { /* get slave's name */
+		close (fdm);
+		return -4;
+	}
+	strcpy(pts_name, ptr); /* return name of slave */
+	return fdm;            /* return fd of master */
+#else
+	char *ptr1, *ptr2;
+
+	strcpy(pts_name, "/dev/ptyXY");
+	/* array index: 012345689 (for references in following code) */
+	for (ptr1 = "pqrstuvwxyzPQRST"; *ptr1 != 0; ptr1++) {
+		pts_name[8] = *ptr1;
+		for (ptr2 = "0123456789abcdef"; *ptr2 != 0; ptr2++) {
+			pts_name[9] = *ptr2;
+			/* try to open master */
+			fdm = open(pts_name, O_RDWR);
+			if (fdm < 0) {
+				if (errno == ENOENT) /* different from EIO */
+					return -1;  /* out of pty devices */
+				else
+					continue;  /* try next pty device */
 			}
+			pts_name[5] = 't' /* chage "pty" to "tty" */
+			return fdm;   /* got it, return fd of master */
 		}
 	}
-	errno = ENOENT;	/* out of ptys */
-	return (-1);
+	return -1; /* out of pty devices */
+#endif
+}
+
+static int ptys_open(fdm, pts_name)
+	int fdm;
+	char * pts_name;
+{
+	int fds;
+#ifdef HAVE_PTSNAME
+	/* following should allocate controlling terminal */
+	fds = open(pts_name, O_RDWR);
+	if (fds < 0) {
+		close(fdm);
+		return -5;
+	}
+	if (ioctl(fds, I_PUSH, "ptem") < 0) {
+		close(fdm);
+		close(fds);
+		return -6;
+	}
+	if (ioctl(fds, I_PUSH, "ldterm") < 0) {
+		close(fdm);
+		close(fds);
+		return -7;
+	}
+	if (ioctl(fds, I_PUSH, "ttcompat") < 0) {
+		close(fdm);
+		close(fds);
+		return -8;
+	}
+	return fds;
+#else
+	int gid;
+	struct group *grptr;
+
+	grptr = getgrnam("tty");
+	if (grptr != NULL)
+		gid = grptr->gr_pid;
+	else
+		gid = -1;  /* group tty is not in the group file */
+	/* following two functions don't work unless we're root */
+	chown(pts_name, getuid(), gid);
+	chmod(pts_name, S_IRUSR | S_IWUSR | S_IWGRP);
+	fds = open(pts_name, O_RDWR);
+	if (fds < 0) {
+		close(fdm)
+		return -1;
+	}
+	return fds;
+#endif
 }
