@@ -76,6 +76,7 @@ IU_ENABLE_CLIENT(talk)
 IU_ENABLE_CLIENT(telnet)
 IU_ENABLE_CLIENT(tftp)
 IU_ENABLE_CLIENT(whois)
+IU_ENABLE_CLIENT(ifconfig)
 
 # Automake will generate lines in each Makefile.in for each variable that is
 # specified with AC_SUBST here.  Originally, I tried putting AC_SUBST in
@@ -104,6 +105,7 @@ AC_SUBST(BUILD_TALK)
 AC_SUBST(BUILD_TELNET)
 AC_SUBST(BUILD_TFTP)
 AC_SUBST(BUILD_WHOIS)
+AC_SUBST(BUILD_IFCONFIG)
 
 
 # Encryption and authentication is turned off by default
@@ -595,6 +597,7 @@ rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile logger/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
 tftpd/Makefile uucpd/Makefile whois/Makefile libls/Makefile
+ifconfig/Makefile
 include/confpaths.h:headers/confpaths.h.in
 headers/Makefile include/version.h:headers/version.h.in)
 
