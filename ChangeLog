@@ -1,3 +1,8 @@
+Wed Jan 15 16:52:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* ftpd/ftpd.c (makedir): Provide the absolute name of the new
+	directory in the reply, as per rfc959.
+
 Mon Jan 13 14:06:24 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.2g'.
