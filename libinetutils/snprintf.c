@@ -1,12 +1,14 @@
 
 /*
    Unix snprintf implementation.
-   Version 1.1
+   Version 1.3
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
+   It can be redistribute also under the terms of GNU Library General
+   Public Lincense.
    
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,6 +21,12 @@
    
    Revision History:
 
+   1.3:
+      *  add #include <config.h> ifdef HAVE_CONFIG_H
+      *  cosmetic change, when exponent is 0 print xxxE+00
+         instead of xxxE-00
+   1.2:
+      *  put the program under LGPL.
    1.1:
       *  added changes from Miles Bader
       *  corrected a bug with %f
@@ -409,25 +417,25 @@ double d;
     PUT_CHAR(*tmp2, p); /* the fraction */
 
   if (*p->pf == 'g' || *p->pf == 'e') { /* the exponent put the 'e|E' */
-     PUT_CHAR('e', p);
-   } else
-     PUT_CHAR('E', p);
-   if (j > 0) {  /* the sign of the exp */
-     PUT_CHAR('+', p);
-   } else {
-     PUT_CHAR('-', p);
-     j = -j;
-   }
-   tmp = itoa((double)j);
-   if (j < 9) {  /* need to pad the exponent with 0 '000' */
-     PUT_CHAR('0', p); PUT_CHAR('0', p);
-   } else if (j < 99)
-     PUT_CHAR('0', p);
-   while (*tmp) { /* the exponent */
-     PUT_CHAR(*tmp, p);
-     tmp++;
-   }
-   PAD_LEFT(p);
+    PUT_CHAR('e', p);
+  } else
+    PUT_CHAR('E', p);
+  if (j >= 0) {  /* the sign of the exp */
+    PUT_CHAR('+', p);
+  } else {
+    PUT_CHAR('-', p);
+    j = -j;
+  }
+  tmp = itoa((double)j);
+  if (j < 9) {  /* need to pad the exponent with 0 '000' */
+    PUT_CHAR('0', p); PUT_CHAR('0', p);
+  } else if (j < 99)
+    PUT_CHAR('0', p);
+  while (*tmp) { /* the exponent */
+    PUT_CHAR(*tmp, p);
+    tmp++;
+  }
+  PAD_LEFT(p);
 }
 
 /* initialize the conversion specifiers */
@@ -548,7 +556,15 @@ va_list args;
             exponent(&data, d);
             state = 0;
             break;
-          case 'u':
+	  case 'u':  /* unsigned decimal */
+	    STAR_ARGS(&data);
+	    if (data.a_long == FOUND)
+		d = va_arg(args, unsigned long);
+	    else
+		d = va_arg(args, unsigned int);
+	    decimal(&data, d);
+	    state = 0;
+	    break;                  
           case 'd':  /* decimal */
             STAR_ARGS(&data);
             if (data.a_long == FOUND)

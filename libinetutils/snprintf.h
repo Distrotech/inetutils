@@ -1,11 +1,13 @@
 /*
  Unix snprintf implementation.
- Version 1.1
+ Version 1.3
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
+   It can be redistribute also under the terms of GNU Library General
+   Public Lincense.
    
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,40 +19,10 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    
    Revision History:
-
-   1.1:
-      *  added changes from Miles Bader
-      *  corrected a bug with %f
-      *  added support for %#g
-      *  added more comments :-)
-   1.0:
-      *  supporting must ANSI syntaxic_sugars(see below)
-   0.0:
-      *  suppot %s %c %d
-
-    it understands:
-      Integer:
-        %lu %lu %u
-        %hd %ld %d     decimal
-        %ho %lo %o     octal
-        %hx %lx %x %X  hexa
-      Floating points:
-        %g %G %e %E %f  double
-      Strings:
-        %s %c  string
-        %%   %
-
-    Formating conversion flags:
-      - justify left
-      + Justify right or put a plus if number
-      # prefix 0x, 0X for hexa and 0 for octal
-      * precision/witdth is specify as an (int) in the arguments
-    ' ' leave a blank for number with no sign
-      l the later should be a long
-      h the later should be a short
+                   see header of snprintf.c.
 
 format:
-  snprintf(holder, sizeof_holder, format, ...)
+  int snprintf(holder, sizeof_holder, format, ...)
 
 Return values:
   (sizeof_holder - 1)
@@ -64,6 +36,10 @@ Return values:
 
 Alain Magloire: alainm@rcsm.ee.mcgill.ca
 */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
