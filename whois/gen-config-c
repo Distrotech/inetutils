@@ -1,0 +1,6 @@
+#! /bin/sh
+
+echo >config.c 'char *whois_servers ='
+sed < whois-servers >> config.c 's/^/"/
+s/$/\\n"/'
+echo ';' >>config.c
