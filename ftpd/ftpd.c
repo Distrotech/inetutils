@@ -84,7 +84,6 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
-#include <paths.h>
 #include <crypt.h>
 
 #include "extern.h"
@@ -95,7 +94,11 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <varargs.h>
 #endif
 
-static char version[] = "Version 6.00";
+#ifndef LOG_FTP
+#define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
+#endif
+
+extern char *inetutils_version;
 
 extern	off_t restart_point;
 extern	char cbuf[];
@@ -321,7 +324,7 @@ main(argc, argv, envp)
 			break;
 		}
 	}
-	(void) freopen(_PATH_DEVNULL, "w", stderr);
+	(void) freopen(PATH_DEVNULL, "w", stderr);
 	(void) signal(SIGPIPE, lostconn);
 	(void) signal(SIGCHLD, SIG_IGN);
 	if ((int)signal(SIGURG, myoob) < 0)
@@ -349,7 +352,7 @@ main(argc, argv, envp)
 	tmpline[0] = '\0';
 
 	/* If logins are disabled, print out the message. */
-	if ((fd = fopen(_PATH_NOLOGIN,"r")) != NULL) {
+	if ((fd = fopen(PATH_NOLOGIN,"r")) != NULL) {
 		while (fgets(line, sizeof(line), fd) != NULL) {
 			if ((cp = strchr(line, '\n')) != NULL)
 				*cp = '\0';
@@ -360,7 +363,7 @@ main(argc, argv, envp)
 		reply(530, "System not available.");
 		exit(0);
 	}
-	if ((fd = fopen(_PATH_FTPWELCOME, "r")) != NULL) {
+	if ((fd = fopen(PATH_FTPWELCOME, "r")) != NULL) {
 		while (fgets(line, sizeof(line), fd) != NULL) {
 			if ((cp = strchr(line, '\n')) != NULL)
 				*cp = '\0';
@@ -375,7 +378,7 @@ main(argc, argv, envp)
 	if (! hostname)
 		perror_reply (550, "Local resource failure: malloc");
 
-	reply(220, "%s FTP server (%s) ready.", hostname, version);
+	reply(220, "%s FTP server (%s) ready.", hostname, inetutils_version);
 	(void) setjmp(errcatch);
 	for (;;)
 		(void) yyparse();
@@ -446,138 +449,17 @@ static int login_attempts;	/* number of failed login attempts */
 static int askpasswd;		/* had user command, ask for passwd */
 static char curname[10];	/* current USER name */
 
-/*
- * USER command.
- * Sets global passwd pointer pw if named account exists and is acceptable;
- * sets askpasswd if a PASS command is expected.  If logged in previously,
- * need to reset state.  If name is "ftp" or "anonymous", the name is not in
- * _PATH_FTPUSERS, and ftp account exists, set guest and pw, then just return.
- * If account doesn't exist, ask for passwd anyway.  Otherwise, check user
- * requesting login privileges.  Disallow anyone who does not have a standard
- * shell as returned by getusershell().  Disallow anyone mentioned in the file
- * _PATH_FTPUSERS to allow people such as root and uucp to be avoided.
- */
-void
-user(name)
-	char *name;
-{
-	char *cp, *shell;
-
-	if (logged_in) {
-		if (guest) {
-			reply(530, "Can't change user from guest login.");
-			return;
-		}
-		end_login();
-	}
-
-	guest = 0;
-	if (strcmp(name, "ftp") == 0 || strcmp(name, "anonymous") == 0) {
-		if (checkuser("ftp") || checkuser("anonymous"))
-			reply(530, "User %s access denied.", name);
-		else if ((pw = sgetpwnam("ftp")) != NULL) {
-			guest = 1;
-			askpasswd = 1;
-			reply(331,
-			    "Guest login ok, type your name as password.");
-		} else
-			reply(530, "User %s unknown.", name);
-		if (!askpasswd && logging)
-			syslog(LOG_NOTICE,
-			    "ANONYMOUS FTP LOGIN REFUSED FROM %s", remotehost);
-		return;
-	}
-	if (pw = sgetpwnam(name)) {
-		if ((shell = pw->pw_shell) == NULL || *shell == 0)
-			shell = _PATH_BSHELL;
-		while ((cp = getusershell()) != NULL)
-			if (strcmp(cp, shell) == 0)
-				break;
-		endusershell();
-
-		if (cp == NULL || checkuser(name)) {
-			reply(530, "User %s access denied.", name);
-			if (logging)
-				syslog(LOG_NOTICE,
-				    "FTP LOGIN REFUSED FROM %s, %s",
-				    remotehost, name);
-			pw = (struct passwd *) NULL;
-			return;
-		}
-	}
-	if (logging)
-		strncpy(curname, name, sizeof(curname)-1);
-	if (pw && *pw->pw_passwd) {
-		reply(331, "Password required for %s.", name);
-		askpasswd = 1;
-	}
-	/*
-	 * Delay before reading passwd after first failed
-	 * attempt to slow down passwd-guessing programs.
-	 */
-	if (login_attempts)
-		sleep((unsigned) login_attempts);
-}
-
-/*
- * Check if a user is in the file _PATH_FTPUSERS
- */
-static int
-checkuser(name)
-	char *name;
-{
-	FILE *fd;
-	int found = 0;
-	char *p, line[BUFSIZ];
-
-	if ((fd = fopen(_PATH_FTPUSERS, "r")) != NULL) {
-		while (fgets(line, sizeof(line), fd) != NULL)
-			if ((p = strchr(line, '\n')) != NULL) {
-				*p = '\0';
-				if (line[0] == '#')
-					continue;
-				if (strcmp(line, name) == 0) {
-					found = 1;
-					break;
-				}
-			}
-		(void) fclose(fd);
-	}
-	return (found);
-}
-
-/*
- * Terminate login as previous user, if any, resetting state;
- * used when USER command is given or login fails.
- */
 static void
-end_login()
-{
-
-	(void) seteuid((uid_t)0);
-	if (logged_in)
-		logwtmp(ttyline, "", "");
-	pw = NULL;
-	logged_in = 0;
-	guest = 0;
-}
-
-void
-pass(passwd)
-	char *passwd;
+complete_login (passwd)
+     char *passwd;
 {
 	char *salt, *xpasswd;
 	FILE *fd;
 
-	if (logged_in || askpasswd == 0) {
-		reply(503, "Login with USER first.");
-		return;
-	}
-	askpasswd = 0;
 	if (!guest && (!pw || *pw->pw_passwd)) {
 		salt = pw ? pw->pw_passwd : "xx";
 		xpasswd = CRYPT (passwd, salt);
-		if (pw && *pw->pw_passwd && strcmp(xpasswd, pw->pw_passwd)) {
+		if (!pw || strcmp(xpasswd, pw->pw_passwd)) {
 			reply(530, "Login incorrect.");
 			if (logging)
 				syslog(LOG_NOTICE,
@@ -602,7 +484,7 @@ pass(passwd)
 
 	/* open wtmp before chroot */
 	(void)sprintf(ttyline, "ftp%d", getpid());
-	logwtmp(ttyline, pw->pw_name, remotehost);
+	logwtmp_keep_open (ttyline, pw->pw_name, remotehost);
 	logged_in = 1;
 
 	if (guest) {
@@ -631,7 +513,7 @@ pass(passwd)
 	 * Display a login message, if it exists.
 	 * N.B. reply(230,) must follow the message.
 	 */
-	if ((fd = fopen(_PATH_FTPLOGINMESG, "r")) != NULL) {
+	if ((fd = fopen(PATH_FTPLOGINMESG, "r")) != NULL) {
 		char *cp, line[LINE_MAX];
 
 		while (fgets(line, sizeof(line), fd) != NULL) {
@@ -670,6 +552,138 @@ pass(passwd)
 bad:
 	/* Forget all about it... */
 	end_login();
+}
+
+/*
+ * USER command.
+ * Sets global passwd pointer pw if named account exists and is acceptable;
+ * sets askpasswd if a PASS command is expected.  If logged in previously,
+ * need to reset state.  If name is "ftp" or "anonymous", the name is not in
+ * PATH_FTPUSERS, and ftp account exists, set guest and pw, then just return.
+ * If account doesn't exist, ask for passwd anyway.  Otherwise, check user
+ * requesting login privileges.  Disallow anyone who does not have a standard
+ * shell as returned by getusershell().  Disallow anyone mentioned in the file
+ * PATH_FTPUSERS to allow people such as root and uucp to be avoided.
+ */
+void
+user(name)
+	char *name;
+{
+	char *cp, *shell;
+
+	if (logged_in) {
+		if (guest) {
+			reply(530, "Can't change user from guest login.");
+			return;
+		}
+		end_login();
+	}
+
+	guest = 0;
+	if (strcmp(name, "ftp") == 0 || strcmp(name, "anonymous") == 0) {
+		if (checkuser("ftp") || checkuser("anonymous"))
+			reply(530, "User %s access denied.", name);
+		else if ((pw = sgetpwnam("ftp")) != NULL) {
+			guest = 1;
+			askpasswd = 1;
+			reply(331,
+			    "Guest login ok, type your name as password.");
+		} else
+			reply(530, "User %s unknown.", name);
+		if (!askpasswd && logging)
+			syslog(LOG_NOTICE,
+			    "ANONYMOUS FTP LOGIN REFUSED FROM %s", remotehost);
+		return;
+	}
+	if (pw = sgetpwnam(name)) {
+		if ((shell = pw->pw_shell) == NULL || *shell == 0)
+			shell = PATH_BSHELL;
+		while ((cp = getusershell()) != NULL)
+			if (strcmp(cp, shell) == 0)
+				break;
+		endusershell();
+
+		if (cp == NULL || checkuser(name)) {
+			reply(530, "User %s access denied.", name);
+			if (logging)
+				syslog(LOG_NOTICE,
+				    "FTP LOGIN REFUSED FROM %s, %s",
+				    remotehost, name);
+			pw = (struct passwd *) NULL;
+			return;
+		}
+	}
+	if (logging)
+		strncpy(curname, name, sizeof(curname)-1);
+
+	if (!pw || *pw->pw_passwd) {
+		reply(331, "Password required for %s.", name);
+		askpasswd = 1;
+	} else
+	        complete_login (0);
+
+	/*
+	 * Delay before reading passwd after first failed
+	 * attempt to slow down passwd-guessing programs.
+	 */
+	if (login_attempts)
+		sleep((unsigned) login_attempts);
+}
+
+/*
+ * Check if a user is in the file PATH_FTPUSERS
+ */
+static int
+checkuser(name)
+	char *name;
+{
+	FILE *fd;
+	int found = 0;
+	char *p, line[BUFSIZ];
+
+	if ((fd = fopen(PATH_FTPUSERS, "r")) != NULL) {
+		while (fgets(line, sizeof(line), fd) != NULL)
+			if ((p = strchr(line, '\n')) != NULL) {
+				*p = '\0';
+				if (line[0] == '#')
+					continue;
+				if (strcmp(line, name) == 0) {
+					found = 1;
+					break;
+				}
+			}
+		(void) fclose(fd);
+	}
+	return (found);
+}
+
+/*
+ * Terminate login as previous user, if any, resetting state;
+ * used when USER command is given or login fails.
+ */
+static void
+end_login()
+{
+
+	(void) seteuid((uid_t)0);
+	if (logged_in)
+		logwtmp_keep_open (ttyline, "", "");
+	pw = NULL;
+	logged_in = 0;
+	guest = 0;
+}
+
+void
+pass(passwd)
+	char *passwd;
+{
+	if (logged_in || askpasswd == 0) {
+		reply(503, "Login with USER first.");
+		return;
+	}
+	askpasswd = 0;
+
+	complete_login (passwd);
 }
 
 void
@@ -720,7 +734,7 @@ retrieve(cmd, name)
 				if (c == '\n')
 					i++;
 			}
-		} else if (lseek(fileno(fin), restart_point, L_SET) < 0) {
+		} else if (lseek(fileno(fin), restart_point, SEEK_SET) < 0) {
 			perror_reply(550, name);
 			goto done;
 		}
@@ -783,11 +797,11 @@ store(name, mode, unique)
 			 * because we are changing from reading to
 			 * writing.
 			 */
-			if (fseek(fout, 0L, L_INCR) < 0) {
+			if (fseek(fout, 0L, SEEK_CUR) < 0) {
 				perror_reply(550, name);
 				goto done;
 			}
-		} else if (lseek(fileno(fout), restart_point, L_SET) < 0) {
+		} else if (lseek(fileno(fout), restart_point, SEEK_SET) < 0) {
 			perror_reply(550, name);
 			goto done;
 		}
@@ -1124,8 +1138,8 @@ statcmd()
 	struct sockaddr_in *sin;
 	u_char *a, *p;
 
-	lreply(211, "%s FTP server status:", hostname, version);
-	printf("     %s\r\n", version);
+	lreply(211, "%s FTP server status:", hostname);
+	printf("     %s\r\n", inetutils_version);
 	printf("     Connected to %s", remotehost);
 	if (!isdigit(remotehost[0]))
 		printf(" (%s)", inet_ntoa(his_addr.sin_addr));
@@ -1402,7 +1416,7 @@ dologout(status)
 
 	if (logged_in) {
 		(void) seteuid((uid_t)0);
-		logwtmp(ttyline, "", "");
+		logwtmp_keep_open (ttyline, "", "");
 	}
 	/* beware of flushing buffers after a SIGPIPE */
 	_exit(status);
@@ -1633,10 +1647,10 @@ send_file_list(whichf)
 		while ((dir = readdir(dirp)) != NULL) {
 			char *nbuf;
 
-			if (dir->d_name[0] == '.' && dir->d_namlen == 1)
+			if (dir->d_name[0] == '.' && dir->d_name[1] == '\0')
 				continue;
 			if (dir->d_name[0] == '.' && dir->d_name[1] == '.' &&
-			    dir->d_namlen == 2)
+			    dir->d_name[2] == '\0')
 				continue;
 
 			nbuf = alloca (strlen (dirname) + 1 + strlen (dir->d_name) + 1);
