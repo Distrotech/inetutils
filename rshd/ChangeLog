@@ -1,3 +1,12 @@
+2002-09-09  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* rshd.c: Change to the user's directory after
+	  switching to the user privileges.
+	  Removed unneded casts to (void).
+          Create a local copy of hostname, lest it be spoiled
+	  by a call to localhost().
+	  Thanks to Chris Ulherr for reporting.
+
 2002-09-02  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* rshd.c: We must not seteuid before we setuid.  If we do, we
