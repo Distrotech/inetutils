@@ -1,3 +1,9 @@
+Sat Apr 18 11:54:56 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* syslogd/syslogd.c (cfline): Allow either spaces or tabs in
+ 	/etc/syslog.conf; previously, only tabs were allowed for
+ 	seperators.
+
 Sun Apr 12 19:57:51 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* whois/whois-servers: Added some comments explaining the search
