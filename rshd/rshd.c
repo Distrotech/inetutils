@@ -116,7 +116,7 @@ int	check_all;
 int	log_success;		/* If TRUE, log all successful accesses */
 int	sent_null;
 
-void	 doit __P((struct sockaddr_in *));
+void	 doit __P((int, struct sockaddr_in *));
 void	 error __P((const char *, ...));
 char	*getstr __P((char *));
 int	 local_domain __P((const char *));
@@ -218,7 +218,7 @@ main(argc, argv)
 
 	fromlen = sizeof (from);
 	if (getpeername(sockfd, (struct sockaddr *)&from, &fromlen) < 0) {
-		sylog(LOG_ERR, "getpeername: %m");
+		syslog(LOG_ERR, "getpeername: %m");
 		_exit(1);
 	}
 
