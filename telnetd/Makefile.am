@@ -6,6 +6,10 @@ noinst_HEADERS = defs.h ext.h telnetd.h
 
 man_MANS = telnetd.8
 
+@PATHDEFS_MAKE@
+
+INCLUDES = $(PATHDEF_TTY) $(PATHDEF_LOGIN)
+
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 LIBUTIL = @LIBUTIL@
