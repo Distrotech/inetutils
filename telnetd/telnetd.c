@@ -821,7 +821,7 @@ doit(who)
 		if ((lp = getpty()) == NULL)
 			fatal(net, "Out of ptys");
 
-		if ((pty = open(lp, 2)) >= 0) {
+		if ((pty = open(lp, O_RDWR)) >= 0) {
 			strcpy(line,lp);
 			line[5] = 't';
 			break;
