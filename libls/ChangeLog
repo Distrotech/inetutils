@@ -1,3 +1,10 @@
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* ls.c (traverse): Fix format of error message.
+
+	* fts.c (fts_stat): Not all systems have S_IFWHT even if they have
+	DT_WHT, so check for this.
+
 2000-08-24  Alain Magloire
 
 	* fts.c: Check for HAVE_FCHDIR, and disable fchdir() for OS
