@@ -476,7 +476,7 @@ char *name, *passwd;
   p = crypt(passwd, salt);
 #else
   p = passwd;
-#else
+#endif
 
   if (pwd && !strcmp(p, pwd->pw_passwd)) {
     passwdok_status = 1;
