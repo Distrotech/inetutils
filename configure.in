@@ -106,7 +106,7 @@ AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       flock ftruncate wait3 memcpy bcopy bzero setsid cfsetspeed \
 	       strchr waitpid)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok)
+AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok herror)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
