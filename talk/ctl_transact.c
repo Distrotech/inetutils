@@ -39,6 +39,9 @@ static char sccsid[] = "@(#)ctl_transact.c	8.1 (Berkeley) 6/6/93";
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netinet/in.h>
+#ifndef HAVE_OSOCKADDR
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <errno.h>
 #include "talk_ctl.h"
