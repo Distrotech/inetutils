@@ -37,6 +37,9 @@ static char sccsid[] = "@(#)get_names.c	8.1 (Berkeley) 6/6/93";
 
 #include <sys/param.h>
 #include <sys/socket.h>
+#ifndef HAVE_OSOCKADDR
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <pwd.h>
 #include "talk.h"
@@ -53,7 +56,7 @@ get_names(argc, argv)
 	int argc;
 	char *argv[];
 {
-	char hostname[MAXHOSTNAMELEN];
+	extern char *localhost ();
 	char *his_name, *my_name;
 	char *my_machine_name, *his_machine_name;
 	char *my_tty, *his_tty;
@@ -76,8 +79,13 @@ get_names(argc, argv)
 		}
 		my_name = pw->pw_name;
 	}
-	gethostname(hostname, sizeof (hostname));
-	my_machine_name = hostname;
+
+	my_machine_name = localhost ();
+	if (! my_machine_name) {
+		perror ("Cannot get local hostname");
+		exit (-1);
+	}
+
 	/* check for, and strip out, the machine name of the target */
 	for (cp = argv[1]; *cp && !index("@:!.", *cp); cp++)
 		;
@@ -115,4 +123,6 @@ get_names(argc, argv)
 	msg.r_name[NAME_SIZE - 1] = '\0';
 	strncpy(msg.r_tty, his_tty, TTY_SIZE);
 	msg.r_tty[TTY_SIZE - 1] = '\0';
+
+	free (my_machine_name);
 }
