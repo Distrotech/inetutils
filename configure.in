@@ -146,11 +146,11 @@ AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
 
-AC_CHECK_FUNCS(cfsetspeed cgetent flock fpathconf ftruncate getcwd killpg \
-	       ptsname setegid seteuid setlinebuf setsid setregid setreuid \
-	       setresgid setresuid setutent_r sigaction sigvec strchr \
-	       tcgetattr tzset utimes utime uname updwtmp updwtmpx wait3 \
-	       waitpid) 
+AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent flock fpathconf ftruncate \
+	       getcwd killpg ptsname setegid seteuid setlinebuf setsid \
+	       setregid setreuid setresgid setresuid setutent_r sigaction \
+	       sigvec strchr tcgetattr tzset utimes utime uname updwtmp \
+	       updwtmpx wait3 waitpid) 
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(daemon getusershell herror memcmp memcpy memmove memset \
 	         strdup strcasecmp setenv)
