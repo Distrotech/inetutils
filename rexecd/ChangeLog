@@ -1,8 +1,8 @@
 2002-09-09  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* rexecd.c: Change to the user's directory after
-	  switching to the user privileges. (Thanks to
-	  Chris Ulherr for reporting.)
+	  switching to the user privileges. Thanks to
+          Alex Muntada <alexm@ac.upc.es> for the idea.
 	  Removed unneded casts to (void).
 	  
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
