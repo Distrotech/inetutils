@@ -1,3 +1,7 @@
+2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (noinst_HEADERS): New variable.
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (dist-hook): Target removed.
