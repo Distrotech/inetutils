@@ -36,7 +36,6 @@ int
 icmp_generic_encode(u_char *buffer, size_t bufsize, int type, int ident, int seqno)
 {
   icmphdr_t *icmp;
-  int hlen;
   
   if (bufsize < 8)
     return -1;
