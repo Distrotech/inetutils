@@ -44,17 +44,26 @@ static struct option long_options[] =
   {NULL, 0, NULL, 0}
 };
 
-static void telnetd_version ();
-static void telnetd_license ();
-static void telnetd_help ();
-static void parse_authmode (char *str);
-static void parse_linemode (char *str);
-static void parse_debug_level (char *str);
-static void telnetd_setup (int fd);
-static int telnetd_run ();
+static void telnetd_version P((void));
+static void telnetd_license P((void));
+static void telnetd_help P((void));
+static void parse_authmode P((char *str));
+static void parse_linemode P((char *str));
+static void parse_debug_level P((char *str));
+static void telnetd_setup P((int fd));
+static int telnetd_run P((void));
+static void print_hostinfo P((void));
 
+/* Template command line for invoking login program */
 
-char *login_invocation; /* Template command line for invoking login program */
+char *login_invocation =
+#ifdef SOLARIS
+"/bin/login -h %h %?T{TERM=%T}{-} %?u{%?a{-f }-- %u}"
+#else
+"/bin/login -p -h %h %?u{-f %u}"
+#endif
+;
+
 int keepalive = 1;      /* Should the TCP keepalive bit be set */
 int reverse_lookup = 0; /* Reject connects from hosts which IP numbers
 			   cannot be reverse mapped to their hostnames */
@@ -72,6 +81,8 @@ int net;      /* Network connection socket */
 int pty;      /* PTY master descriptor */
 char *remote_hostname;
 char *local_hostname;
+char *user_name;
+char line[256];
 
 char	options[256];
 char	do_dont_resp[256];
@@ -266,7 +277,7 @@ telnetd_setup (int fd)
   int true = 1;
   int len;
   struct hostent *hp;
-  char user_name[256]; /*FIXME*/
+  char uname[256]; /*FIXME*/
   int level;
  
   len = sizeof (saddr);
@@ -276,7 +287,7 @@ telnetd_setup (int fd)
       exit (1);
     }
 
-  syslog (LOG_INFO, "Connect from %s", inet_ntoa (saddr.sin_addr.s_addr));
+  syslog (LOG_INFO, "Connect from %s", inet_ntoa (saddr.sin_addr));
   
   hp = gethostbyaddr ((char*)&saddr.sin_addr.s_addr,
 		      sizeof (saddr.sin_addr.s_addr), AF_INET);
@@ -288,7 +299,7 @@ telnetd_setup (int fd)
 	{
 	  syslog (LOG_AUTH|LOG_NOTICE,
 		  "Can't resolve %s: %s",
-		  inet_ntoa (saddr.sin_addr.s_addr),
+		  inet_ntoa (saddr.sin_addr),
 		  hstrerror (h_errno));
 	  fatal (fd, "Cannot resolve address.");
 	}
@@ -313,7 +324,7 @@ telnetd_setup (int fd)
 	  syslog (LOG_AUTH|LOG_NOTICE,
 		  "None of addresses of %s matched %s",
 		  remote_hostname,
-		  inet_ntoa (saddr.sin_addr.s_addr));
+		  inet_ntoa (saddr.sin_addr));
 	  exit (0);
 	}
     }
@@ -322,7 +333,7 @@ telnetd_setup (int fd)
       if (hp)
 	remote_hostname = xstrdup (hp->h_name);
       else
-	remote_hostname = xstrdup (inet_ntoa (saddr.sin_addr.s_addr));
+	remote_hostname = xstrdup (inet_ntoa (saddr.sin_addr));
     }
   
   /* Set socket options */
@@ -353,10 +364,11 @@ telnetd_setup (int fd)
   /**/
 				  
   /* get terminal type. */
-  *user_name = 0;
-  level = getterminaltype (&user_name);
+  uname[0] = 0;
+  level = getterminaltype (uname);
   setenv ("TERM", terminaltype ? terminaltype : "network", 1);
-
+  if (uname[0])
+    user_name = xstrdup (uname);
   pty = startslave (remote_hostname, level, user_name);
 
 #ifndef	HAVE_STREAMSPTY
@@ -450,9 +462,8 @@ telnetd_run ()
   /* Pick up anything received during the negotiations */
   telrcv ();
 
-  /*  if (hostinfo && !getenv("USER"))
+  if (hostinfo)
     print_hostinfo ();
-    */
     
   init_termbuf ();
   localstat ();
@@ -580,6 +591,7 @@ void
 print_hostinfo ()
 {
   char *im = NULL;
+  char *str;
 #ifdef HAVE_UNAME
   struct utsname u;
   
@@ -597,11 +609,14 @@ print_hostinfo ()
     }
 #endif /* HAVE_UNAME */
   if (!im)
-    im = "\r\n\nUNIX (%h) (%t)\r\n\n";
+    im = xstrdup ("\r\n\nUNIX (%h) (%t)\r\n\n");
 
-  /*FIXME*/
-  DEBUG(debug_pty_data, 1, debug_output_data ("sending %s", im)); 
-  pty_output_datalen (im, strlen (im));
+  str = expand_line (im);
+  free (im);
+  
+  DEBUG(debug_pty_data, 1, debug_output_data ("sending %s", str)); 
+  pty_input_putback (str, strlen (str));
+  free (str);
 }
 
 void
@@ -645,7 +660,7 @@ Usage: telnetd [OPTION]\n\
 Options are:\n\
     -a, --authmode AUTHMODE  specify what mode to use for authentication\n\
     -D, --debug[=LEVEL]      set debugging level\n\
-*   -E, --exec-login STRING  set program to be executed instead of /bin/login\n\
+    -E, --exec-login STRING  set program to be executed instead of /bin/login\n\
     -h, --no-hostinfo        do not print host information before login has\n\
                              been completed\n\
     -l, --linemode[=MODE]    set line mode\n\
@@ -657,9 +672,7 @@ Options are:\n\
 Informational options:\n\
     -V, --version         display this help and exit\n\
     -L, --license	  display license and exit\n\
-    -H. --help		  output version information and exit\n\
-\n\
-Options, marked with an * are not yet implemented\n");
+    -H. --help		  output version information and exit\n");
 }
 
 int
