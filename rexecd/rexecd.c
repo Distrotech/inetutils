@@ -79,6 +79,7 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #include <varargs.h>
 #endif
 
+void error __P ((const char *fmt, ...));
 /*
  * remote execute server:
  *	username\0
@@ -250,7 +251,9 @@ doit(int f, struct sockaddr_in *fromp)
 		(void) close(f);
 	(void) setegid((gid_t)pwd->pw_gid);
 	(void) setgid((gid_t)pwd->pw_gid);
+#ifdef HAVE_INITGROUPS
 	initgroups(pwd->pw_name, pwd->pw_gid);
+#endif
 	(void) seteuid((uid_t)pwd->pw_uid);
 	(void) setuid((uid_t)pwd->pw_uid);
 	(void)strcat(path, PATH_DEFPATH);
@@ -270,13 +273,7 @@ doit(int f, struct sockaddr_in *fromp)
 
 /*VARARGS1*/
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 error(const char *fmt, ...)
-#else
-error(fmt, va_alist)
-        char *fmt;
-        va_dcl
-#endif
 {
   va_list ap;
   int len;

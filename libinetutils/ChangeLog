@@ -3,6 +3,9 @@
 	* ttymsg.c: Formatting, bcopy() to memcpy().
 	Just check for '/' in the path for security attempts.
 
+	* poll.c: Typo in prototypes. Not including <sys/select.h>
+	* poll.h: Typos.
+
 2000-08-05  Alain Magloire
 
 	* daemon.c (waitdaemon):  We are using the double trick

@@ -785,7 +785,9 @@ fail:
 	/* Set the fid, then uid to become the user specified by "locuser" */
 	(void) setegid((gid_t)pwd->pw_gid);
 	(void) setgid((gid_t)pwd->pw_gid);
+#ifdef HAVE_INITGROUPS
 	initgroups(pwd->pw_name, pwd->pw_gid); /* BSD groups */
+#endif
 	(void) seteuid((uid_t)pwd->pw_uid);
 	(void) setuid((uid_t)pwd->pw_uid);
 

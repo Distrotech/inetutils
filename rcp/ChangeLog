@@ -1,4 +1,8 @@
-2000-07-05 Alain Magloire
+2000-08-08  Alain Magloire
+
+	* rcp.c: Non portable d_ino for the DIR readdir() pointer removed.
+
+2000-07-05  Alain Magloire
 
 	* *: Clause 3 removed.
 	excerpt from email with RMS:

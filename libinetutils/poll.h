@@ -20,7 +20,13 @@
 #ifndef	_POLL_H
 #define	_POLL_H	1
 
-#include <config.h>
+#ifndef __P
+# ifdef __STDC__
+#  define __P(args) args
+# else
+#  define __P(args) ()
+# endif
+#endif /* __P */
 
 /* Normal data can be read.  */
 # define POLLRDNORM   0x001
@@ -37,7 +43,7 @@
 /* Priority band data can be written.  */
 #define POLLWRBAND   0x010
 /* Normal data can be written.  */
-#define POLLOUT       (POLLWRNOM)
+#define POLLOUT       (POLLWRNORM)
 
 /* An error has occured. */
 #define POLLERR       0x020

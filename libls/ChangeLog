@@ -10,6 +10,13 @@
 	(display): Likewise.
 	* print.c (printlink): Likewise.
 
+2000-08-01 Michael Vogt
+
+	* bsdport.h: added dirfd() macro, add _D_EXACT_NAMLEN macro
+	* fts.h: minor portability changes
+	* ls.c: minor bugfix ( strerr() -> strerror() )
+	* print.c: added <sys/mkdev.h> if avaiable
+
 2000-07-31 Michael Vogt
 
 	* fts.c,ls.c,print.c: portability changes

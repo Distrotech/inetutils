@@ -568,8 +568,6 @@ rsource(char *name, struct stat *statp)
 	}
 
 	while (dp = readdir(dirp)) {
-		if (dp->d_ino == 0)
-			continue;
 		if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."))
 			continue;
 

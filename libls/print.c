@@ -44,7 +44,6 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 #include <sys/param.h>
 #include <sys/stat.h>
 
-#include <err.h>
 #include <errno.h>
 #include "fts.h"
 #include <grp.h>
@@ -53,15 +52,13 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#ifdef ORIGINAL_SOURCE
-#include <tzfile.h>
-#endif /* ORIGINAL_SOURCE */
 #include <unistd.h>
 #include <utmp.h>
-
-#ifndef ORIGINAL_SOURCE
 #include "bsdport.h"
-#endif /* not ORIGINAL_SOURCE */
+
+#ifdef HAVE_SYS_MKDEV_H
+#include <sys/mkdev.h>
+#endif
 
 #include "ls.h"
 #include "extern.h"

@@ -163,7 +163,7 @@ gotiac:			switch (c) {
 			case IP:
 				DIAG(TD_OPTIONS,
 					printoption("td: recv IAC", c));
-				interrupt();
+				interrupts();
 				break;
 
 			case BREAK:

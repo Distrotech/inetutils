@@ -2197,7 +2197,7 @@ rmut()
 				if (SCMPN(u->ut_line, line+5) ||
 				    u->ut_name[0]==0)
 					continue;
-				(void) lseek(f, ((long)u)-((long)utmp), L_SET);
+				(void) lseek(f, ((long)u)-((long)utmp), SEEK_SET);
 				SCPYN(u->ut_name, "");
 #ifdef HAVE_UTMP_UT_HOST
 				SCPYN(u->ut_host, "");

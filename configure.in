@@ -134,15 +134,16 @@ AC_CONST
 AC_C_CONST
 
 
-AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h glob.h krb.h memory.h \
-	         malloc.h netinet/in_systm.h netinet/ip.h netinet/ip_icmp.h \
-		 netinet/ip_var.h security/pam_appl.h shadow.h stdarg.h \
-                 stdlib.h string.h stropts.h sys/tty.h sys/utsname.h \
-                 sys/ptyvar.h sys/msgbuf.h sys/filio.h sys/ioctl_compat.h \
-                 sys/cdefs.h sys/stream.h tcpd.h poll.h \
+AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
+                 krb.h memory.h malloc.h netinet/in_systm.h netinet/ip.h \
+                 netinet/ip_icmp.h netinet/ip_var.h pool.h \
+                 security/pam_appl.h \
+                 shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \
+                 sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \
+                 sys/ioctl_compat.h \ sys/cdefs.h sys/stream.h sys/mkdev.h \
 		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
 		 sys/proc.h sys/select.h sys/time.h sys/wait.h sys/resource.h \
-		 stropts.h termio.h termios.h utmp.h utmpx.h unistd.h vis.h)
+		 stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h vis.h)
 AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -151,7 +152,8 @@ AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
 AC_CHECK_LIB(pam, pam_authenticate)
 
-AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent flock fpathconf ftruncate \
+AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd flock fpathconf \
+               ftruncate \
 	       getcwd getspnam initgroups killpg ptsname setegid seteuid \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr tcgetattr tzset utimes utime uname \

@@ -1,4 +1,12 @@
-2000-07-05 Alain Magloire
+2000-08-08  Alain Magloire
+
+	* extern.h: rename interrupt() to interrupts() since it use
+	as a reserve word by the some C compiler.
+	* state.c: Likewise.
+	* telnetd.c: Likewise.
+	* sys_term.c: L_SET rename to SEEK_SET for portability.
+
+2000-07-05  Alain Magloire
 
 	* *: Clause 3 removed.
 	excerpt from email with RMS:

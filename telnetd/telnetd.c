@@ -1069,7 +1069,7 @@ telnet(int f, int p, char *host)
 	(void) ioctl(f, FIONBIO, (char *)&on);
 	(void) ioctl(p, FIONBIO, (char *)&on);
 #if	defined(CRAY2) && defined(UNICOS5)
-	init_termdriver(f, p, interrupt, sendbrk);
+	init_termdriver(f, p, interrupts, sendbrk);
 #endif
 
 #if	defined(SO_OOBINLINE)
@@ -1549,7 +1549,7 @@ readstream(int p, char *ibuf, int bufsize)
  * otherwise, write intr char.
  */
 void
-interrupt()
+interrupts()
 {
 	ptyflush();	/* half-hearted */
 

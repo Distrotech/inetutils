@@ -19,6 +19,12 @@
 	* README-alpha: Advertise the new commit-inetutils@gnu.org mailing
 	list.
 
+2000-08-01 Michael Vogt
+
+	* configure.in: added checks for mkdev.h, features.h, dirfd()
+	* headers/config.h.in: added defines for HABE_SYS_MKDEV
+	HAVE_FEATURES_H, HAVE_DIRFD.
+
 2000-07-30 Alain Magloire
 
 	* headers/config.h.in: new macro HAVE_LIBWRAP.

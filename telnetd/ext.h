@@ -112,7 +112,7 @@ extern void
 	get_slc_defaults P((void)),
 	init_env P((void)),
 	init_termbuf P((void)),
-	interrupt P((void)),
+	interrupts P((void)),
 	localstat P((void)),
 	flowstat P((void)),
 	netclear P((void)),

@@ -1,3 +1,9 @@
+2000-08-08 Alain Magloire
+
+	* rexecd.c:  Let ansi2knr take care of the vararg/stdarg
+	issues.  Add prototype for error(). Guard [HAVE_INITGROUPS].
+
+
 2000-07-18 Alain Magloire
 
 	* rexed.c(error): get rid of the int error() varargs hack.

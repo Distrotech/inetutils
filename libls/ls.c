@@ -52,13 +52,15 @@ static char rcsid[] = "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
 #include <sys/ioctl.h>
 
 #include <dirent.h>
-#include <err.h>
 #include <errno.h>
 #include "fts.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_TERMIOS_H
+#include <sys/termios.h>
+#endif
 
 #include "ls.h"
 #include "extern.h"

@@ -129,6 +129,7 @@ announce(CTL_MSG *request, char *remote_machine)
 	return (print_mesg(request->r_tty, request, remote_machine));
 }
 
+#undef max
 #define max(a,b) ( (a) > (b) ? (a) : (b) )
 #define N_LINES 5
 #define N_CHARS 256

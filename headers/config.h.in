@@ -547,6 +547,9 @@
 /* Define if you have the tzset function.  */
 #undef HAVE_TZSET
 
+/* Define if you have the dirfd macro.  */
+#undef HAVE_DIRFD
+
 /* Define if you have the uname function.  */
 #undef HAVE_UNAME
 
@@ -576,6 +579,9 @@
 
 /* Define if you have the <dirent.h> header file.  */
 #undef HAVE_DIRENT_H
+
+/* Define if you have the <features.h> header file.  */
+#undef HAVE_FEATURES_H
 
 /* Define if you have the <errno.h> header file.  */
 #undef HAVE_ERRNO_H
@@ -648,6 +654,9 @@
 
 /* Define if you have the <sys/msgbuf.h> header file.  */
 #undef HAVE_SYS_MSGBUF_H
+
+/* Define if you have the <sys/mkdev.h> header file.  */
+#undef HAVE_SYS_MKDEV_H
 
 /* Define if you have the <sys/ndir.h> header file.  */
 #undef HAVE_SYS_NDIR_H
