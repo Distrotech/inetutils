@@ -295,7 +295,7 @@ main(argc, argv, envp)
 		case '?':
 		default:
 			syslog(LOG_ERR,
-				"usage: inetd [-d] [-R rate [conf-file]]");
+			       "usage: inetd [-d] [-R rate] [conf-file [conf-dir]]");
 			exit(1);
 		}
 	argc -= optind;
