@@ -4,7 +4,7 @@ See the end for copying conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
-=======
+September 02, 2002
 Version 1.4.1:
 
 * Fixes a build problem on Solaris
@@ -21,6 +21,7 @@ Version 1.4.1:
   a facility not specified explicitely in the configuration file. 
 
 
+July 31, 2002
 Version 1.4.0:
 
 * It is now possible to specify whether to compile individual
