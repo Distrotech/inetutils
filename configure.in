@@ -26,6 +26,32 @@ AC_CHECK_LIB(des, des_key_sched)
 AC_CHECK_LIB(util, logout)
 AC_TYPE_SIGNAL
 
+AC_CACHE_CHECK(whether struct stat has timespec fields,
+	       inetutils_cv_struct_st_timespec,
+AC_TRY_COMPILE(
+[#include <sys/types.h>
+#include <sys/stat.h>],
+[struct stat st; st.st_mtimespec.ts_nsec = 0;],
+[inetutils_cv_struct_st_timespec=yes],
+[inetutils_cv_struct_st_timespec=no]))
+
+if test "$inetutils_cv_struct_st_timespec" = yes; then
+  AC_DEFINE(HAVE_ST_TIMESPEC)
+else
+AC_CACHE_CHECK(whether struct stat has time_usec fields,
+	       inetutils_cv_struct_st_time_usec,
+AC_TRY_COMPILE(
+[#include <sys/types.h>
+#include <sys/stat.h>],
+[struct stat st; st.st_mtime_usec = 0;],
+[inetutils_cv_struct_st_time_usec=yes],
+[inetutils_cv_struct_st_time_usec=no]))
+
+if test "$inetutils_cv_struct_st_time_usec" = yes; then
+  AC_DEFINE(HAVE_ST_TIME_USEC)
+fi
+fi
+
 SERVERS_OR_CLIENTS=
 if test "$enable_servers" = yes; then
   SERVERS_OR_CLIENTS='$(SERVERS)'
@@ -51,4 +77,6 @@ fi
 
 AC_OUTPUT(Makefile inetd/Makefile libtelnet/Makefile telnetd/Makefile
 	  ftpd/Makefile rshd/Makefile rlogind/Makefile uucpd/Makefile
-	  telnet/Makefile ftp/Makefile)
+	  rexecd/Makefile talkd/Makefile
+	  telnet/Makefile ftp/Makefile rsh/Makefile rcp/Makefile
+	  rlogin/Makefile talk/Makefile)
