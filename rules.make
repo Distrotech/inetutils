@@ -1,6 +1,6 @@
 # Generic make rules for inetutils
 #
-# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,7 +36,17 @@ dist:: $(DISTFILES)
 	$(LINK_DISTFILES)
 
 $(bindir)/%: % $(bindir)
-	$(INSTALL_PROGRAM) $(INST_PROG_FLAGS) $(filter-out $(bindir),$<) $@
+	@if test -n "$(INST_PROG_FLAGS)" ; then \
+	  if test "`whoami`" = "root" ; then \
+	    echo $(INSTALL_PROGRAM) $(INST_PROG_FLAGS) $(filter-out $(bindir),$<) $@ ; \
+	    $(INSTALL_PROGRAM) $(INST_PROG_FLAGS) $(filter-out $(bindir),$<) $@ ; \
+	  else \
+	    echo 1>&2 "Warning:  not running as root, not installing \`$<'" ; \
+	  fi ; \
+	else \
+	  echo $(INSTALL_PROGRAM) $(filter-out $(bindir),$<) $@ ; \
+	  $(INSTALL_PROGRAM) $(filter-out $(bindir),$<) $@ ; \
+	fi
 $(includedir)/%: % $(includedir)
 	$(INSTALL_DATA) $(INST_DATA_FLAGS) $(filter-out $(includedir),$<) $@
 $(includedir)/%: $(srcdir)/% $(includedir)
