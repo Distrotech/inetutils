@@ -338,55 +338,80 @@ try_connect:
 
 	if (dflag &&
 	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, &one, sizeof(one)) < 0)
-		(void)fprintf(stderr, "rlogin: setsockopt: %s.\n",
-		    strerror(errno));
+ 		warn("setsockopt DEBUG (ignored)");
 
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	one = IPTOS_LOWDELAY;
 	if (setsockopt(rem, IPPROTO_IP, IP_TOS, (char *)&one, sizeof(int)) < 0)
-		perror("rlogin: setsockopt TOS (ignored)");
+ 		warn("setsockopt TOS (ignored)");
 #endif
 
 	(void)setuid(uid);
-	doit(omask);
+	doit(&smask);
 	/*NOTREACHED*/
 }
 
-int child, defflags, deflflags, tabflag;
-char deferase, defkill;
-struct tchars deftc;
-struct ltchars defltc;
-struct tchars notc = { -1, -1, -1, -1, -1, -1 };
-struct ltchars noltc = { -1, -1, -1, -1, -1, -1 };
+#if BSD >= 198810
+int
+speed(fd)
+	int fd;
+{
+	struct termios tt;
+
+	(void)tcgetattr(fd, &tt);
+
+	return ((int) cfgetispeed(&tt));
+}
+#else
+int    speeds[] = {	/* for older systems, B0 .. EXTB */
+	0, 50, 75, 110,
+	134, 150, 200, 300,
+	600, 1200, 1800, 2400,
+	4800, 9600, 19200, 38400
+};
+
+int
+speed(fd)
+	int fd;
+{
+	struct termios tt;
+
+	(void)tcgetattr(fd, &tt);
+
+	return (speeds[(int)cfgetispeed(&tt)]);
+}
+#endif
+
+pid_t child;
+struct termios deftt;
+struct termios nott;
 
 void
-doit(omask)
-	long omask;
+doit(smask)
+	sigset_t *smask;
 {
-	struct sgttyb sb;
+	int i;
+	struct sigaction sa;
 
-	(void)ioctl(0, TIOCGETP, (char *)&sb);
-	defflags = sb.sg_flags;
-	tabflag = defflags & TBDELAY;
-	defflags &= ECHO | CRMOD;
-	deferase = sb.sg_erase;
-	defkill = sb.sg_kill;
-	(void)ioctl(0, TIOCLGET, &deflflags);
-	(void)ioctl(0, TIOCGETC, &deftc);
-	notc.t_startc = deftc.t_startc;
-	notc.t_stopc = deftc.t_stopc;
-	(void)ioctl(0, TIOCGLTC, &defltc);
-	(void)signal(SIGINT, SIG_IGN);
+	for (i = 0; i < NCCS; i++)
+		nott.c_cc[i] = _POSIX_VDISABLE;
+	tcgetattr(0, &deftt);
+	nott.c_cc[VSTART] = deftt.c_cc[VSTART];
+	nott.c_cc[VSTOP] = deftt.c_cc[VSTOP];
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sa.sa_handler = SIG_IGN;
+	(void)sigaction(SIGINT, &sa, (struct sigaction *) 0);
 	setsignal(SIGHUP);
 	setsignal(SIGQUIT);
 	child = fork();
 	if (child == -1) {
-		(void)fprintf(stderr, "rlogin: fork: %s.\n", strerror(errno));
+ 		warn("fork");
 		done(1);
 	}
 	if (child == 0) {
 		mode(1);
-		if (reader(omask) == 0) {
+		if (reader(smask) == 0) {
 			msg("connection closed.");
 			exit(0);
 		}
@@ -415,41 +440,25 @@ void
 setsignal(sig)
 	int sig;
 {
-	struct sigaction sa;
-	sigset_t sigs;
+	int omask = sigblock(sigmask(sig));
 
-	sigemptyset(&sigs);
-	sigaddset(&sigs, sig);
-	sigprocmask(SIG_BLOCK, &sigs, &sigs);
-
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = exit;
-	sa.sa_flags = SA_RESTART;
-	(void)sigaction(sig, &sa, &sa);
-	if (sa.sa_handler == SIG_IGN)
-		(void)sigaction(sig, &sa, (struct sigaction *) 0);
-
-	(void)sigprocmask(SIG_SETMASK, &sigs, (sigset_t *) 0);
+	if (signal(sig, exit) == SIG_IGN)
+		(void)signal(sig, SIG_IGN);
+	(void)sigsetmask(omask);
 }
 
 void
 done(status)
 	int status;
 {
-	pid_t w;
-	int wstatus;
-	struct sigaction sa;
+	int w, wstatus;
 
 	mode(0);
 	if (child > 0) {
 		/* make sure catch_child does not snap it up */
-		sigemptyset(&sa.sa_mask);
-		sa.sa_handler = SIG_DFL;
-		sa.sa_flags = 0;
-		(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+		(void)signal(SIGCHLD, SIG_DFL);
 		if (kill(child, SIGKILL) >= 0)
-			while ((w = wait(&wstatus)) > 0 && w != child)
-				continue;
+			while ((w = wait(&wstatus)) > 0 && w != child);
 	}
 	exit(status);
 }
