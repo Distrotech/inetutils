@@ -75,9 +75,14 @@ IU_ENABLE_CLIENT(syslog)
 IU_ENABLE_CLIENT(talk)
 IU_ENABLE_CLIENT(telnet)
 IU_ENABLE_CLIENT(tftp)
+IU_ENABLE_CLIENT(whois)
 
-# It would be nice to have the AC_SUBST as a part of the IU_ENABLE_CLIENT,
-# but that breaks automake.
+# Automake will generate lines in each Makefile.in for each variable that is
+# specified with AC_SUBST here.  Originally, I tried putting AC_SUBST in
+# IU_ENABLE_FOO, but then I discovered that doing so causes automake to not
+# recognize the variables.  I later realized that with the way I wrote the
+# each Makefile.am, automake doesn't need to recognize the variables, but it's
+# not worth the trouble to change it back.  --devnull
 AC_SUBST(BUILD_FTPD)
 AC_SUBST(BUILD_INETD)
 AC_SUBST(BUILD_REXECD)
@@ -98,6 +103,7 @@ AC_SUBST(BUILD_SYSLOG)
 AC_SUBST(BUILD_TALK)
 AC_SUBST(BUILD_TELNET)
 AC_SUBST(BUILD_TFTP)
+AC_SUBST(BUILD_WHOIS)
 
 
 # Encryption and authentication is turned off by default
@@ -496,6 +502,13 @@ AC_CHECK_LIB(termcap, tputs)
 AC_CHECK_LIB(readline, rl_bind_key,,, -ltermcap)
 
 AC_CHECK_LIB(opie, opiegenerator)
+
+AC_CHECK_LIB(z, gzdopen)
+
+# For now, we always use libexecdir; later we may want to vary where the
+# daemons go.
+inetdaemondir='$(libexecdir)'
+AC_SUBST(inetdaemondir)
 
 # Configure paths used by inetutils programs.  See the file `paths' for
 # details.
