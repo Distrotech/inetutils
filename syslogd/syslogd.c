@@ -613,7 +613,7 @@ main (int argc, char *argv[])
 
   dbg_printf ("off & running....\n");
 
-  (void) signal (SIGHUP, trigger_restart);
+  signal (SIGHUP, trigger_restart);
 
   if (Debug)
     {
@@ -710,19 +710,19 @@ main (int argc, char *argv[])
 
 		if (log_kline)
 		  {
-		    char *eol;
+		    char *bol, *eol;
 		    
 		    kline[kline_len] = '\0';
-		    while ((eol = strchr (kline, '\n')))
+		    for (bol = kline, eol = strchr (kline, '\n'); eol;
+			 bol = eol, eol = strchr (bol, '\n'))
 		      {
 			*(eol++) = '\0';
-			printsys (kline);
-			kline_len -= (eol - kline);
-			memmove (kline, eol, kline_len);
+			kline_len -= (eol - bol);
+			printsys (bol);
 		      }
-		    if (kline_len == sizeof (kline) - 1)
+		    if (*bol)
 		      /* Log the beginning of a partial line.  */
-		      printsys (kline);
+		      printsys (bol);
 		  }
 	      }
 	    else if (fdarray[i].fd == finet)
@@ -982,7 +982,7 @@ printsys (const char *msg)
   char *lp, *q, line[MAXLINE + 1];
   const char *p;
 
-  (void) strcpy (line, "vmunix: ");
+  strcpy (line, "vmunix: ");
   lp = line + strlen (line);
   for (p = msg; *p != '\0'; )
     {
