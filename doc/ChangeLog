@@ -1,5 +1,9 @@
 2001-11-10  Alain Magloire
 
+	* ping.texi: New file.
+	* Makefile.am: Added ping.texi.
+	* inetutils.texi: Enable ping.texi.
+
 	* talkd.texi: New file.
 	* Makefile.am: Added talkd.texi.
 	* inetutils.texi: Enable talkd.texi.
