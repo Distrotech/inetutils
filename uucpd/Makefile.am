@@ -6,8 +6,10 @@ EXTRA_PROGRAMS = uucpd
 
 uucpd_SOURCES = uucpd.c
 
+LIBUTIL = @LIBUTIL@
+
 @PATHDEFS_MAKE@
 
 INCLUDES = $(PATHDEF_UUCICO) $(PATHDEF_TTY)
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils $(LIBUTIL)

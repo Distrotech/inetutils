@@ -1,0 +1,2 @@
+1999-05-19  Jeff Bayley
+	* Makefile.am : add LIBUTIL, needed for the Hurd.
