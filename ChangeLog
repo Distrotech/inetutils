@@ -1,3 +1,33 @@
+Mon Feb 17 15:08:59 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.2k'.
+
+	* Makefile.in (DISTFILES): Add THANKS.
+	* THANKS: New file.
+
+	* libinetutils/snprintf.c: Real snprintf replacement, from
+	Alain Magloire <alain.magloire@rcsm.ee.mcgill.ca>.
+	* libinetutils/snprintf.h: New file.
+	* libinetutils/Makefile.in (DISTFILES): Add snprintf.h.
+
+	* telnetd/sys_term.c (scrub_env): New function.
+	(start_login): Use it.
+
+	* ftp/ruserpass.c (ruserpass): Use snprintf instead of sprintf.
+	* ftpd/ftpd.c (retrieve): Likewise.
+	* telnetd/utility.c (fatal, fatalperror): Likewise.
+	* telnetd/sys_term.c (startslave, start_login): Likewise.
+	* talkd/announce.c (print_mesg): Likewise.
+	* syslogd/syslogd.c (main, fprintlog, cfline): Likewise.
+	* rlogind/rlogind.c (fatal): Likewise.
+	* rexecd/rexecd.c (error): Likewise.
+	* ping/ping.c (pr_addr): Likewise.
+	* inetd/inetd.c (set_proc_title): Likewise.
+
+	* iumacros.m4 (IU_LIB_TERMCAP): See if -lcurses works too.
+	(IU_LIB_CURSES): Don't check whether curses needs termcap if
+	$LIBCURSES == $LIBTERMCAP.
+
 Sun Feb 16 21:45:02 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* telnetd/defs.h, rlogind/rlogind.c, rlogin/rlogin.c <sys/proc.h>:
