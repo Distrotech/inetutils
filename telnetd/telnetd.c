@@ -91,7 +91,7 @@ extern	int utmp_len;
 #endif
 int	registerd_host_only = 0;
 
-#ifdef	STREAMSPTY
+#ifdef	HAVE_STREAMSPTY
 # include <stropts.h>
 # include <termio.h>
 /* make sure we don't get the bsd version */
@@ -112,7 +112,7 @@ struct	strbuf strbufc, strbufd;
 
 int readstream();
 
-#else	/* ! STREAMPTY */
+#else	/* ! HAVE_STREAMSPTY */
 
 /*
  * I/O data buffers,
@@ -121,7 +121,7 @@ int readstream();
 char	ptyibuf[BUFSIZ], *ptyip = ptyibuf;
 char	ptyibuf2[BUFSIZ];
 
-#endif /* ! STREAMPTY */
+#endif /* ! HAVE_STREAMSPTY */
 
 int	hostinfo = 1;			/* do we print login banner? */
 
@@ -1054,7 +1054,7 @@ telnet(f, p, host)
 	if (my_state_is_wont(TELOPT_ECHO))
 		send_will(TELOPT_ECHO, 1);
 
-#ifndef	STREAMSPTY
+#ifndef	HAVE_STREAMSPTY
 	/*
 	 * Turn on packet mode
 	 */
@@ -1338,7 +1338,7 @@ telnet(f, p, host)
 		 * Something to read from the pty...
 		 */
 		if (FD_ISSET(p, &ibits)) {
-#ifndef	STREAMSPTY
+#ifndef	HAVE_STREAMSPTY
 			pcc = read(p, ptyibuf, BUFSIZ);
 #else
 			pcc = readstream(p, ptyibuf, BUFSIZ);
@@ -1467,7 +1467,7 @@ telnet(f, p, host)
 # endif
 #endif
 
-#ifdef	STREAMSPTY
+#ifdef	HAVE_STREAMSPTY
 
 int flowison = -1;  /* current state of flow: -1 is unknown */
 
@@ -1555,7 +1555,7 @@ int readstream(p, ibuf, bufsize)
 	errno = EAGAIN;
 	return(-1);
 }
-#endif /* STREAMSPTY */
+#endif /* HAVE_STREAMSPTY */
 
 /*
  * Send interrupt to process on other side of pty.
@@ -1567,7 +1567,7 @@ interrupt()
 {
 	ptyflush();	/* half-hearted */
 
-#if defined(STREAMSPTY) && defined(TIOCSIGNAL)
+#if defined(HAVE_STREAMSPTY) && defined(TIOCSIGNAL)
 	/* Streams PTY style ioctl to post a signal */
 	{
 		int sig = SIGINT;

@@ -55,6 +55,7 @@ static char sccsid[] = "@(#)sys_term.c	8.4 (Berkeley) 5/30/95";
 int	utmp_len = MAXHOSTNAMELEN;	/* sizeof(init_request.host) */
 #else	/* !NEWINIT*/
 # ifdef	HAVE_UTMPX_H
+#  define __USE_GNU
 #  include <utmpx.h>
 struct	utmpx wtmp;
 #  ifdef HAVE_UTMPX_UT_TV
@@ -95,7 +96,7 @@ extern struct sysv sysv;
 
 #endif	/* NEWINIT */
 
-#ifdef	STREAMSPTY
+#ifdef	HAVE_STREAMSPTY
 #include <sac.h>
 #include <sys/stropts.h>
 #endif
@@ -162,7 +163,7 @@ struct termbuf {
 #  endif
 # endif /* TCSANOW */
 struct termios termbuf, termbuf2;	/* pty control structure */
-# ifdef  STREAMSPTY
+# ifdef  HAVE_STREAMSPTY
 int ttyfd = -1;
 # endif
 #endif	/* USE_TERMIO */
@@ -189,7 +190,7 @@ init_termbuf()
 	(void) ioctl(pty, TIOCGSTATE, (char *)&termbuf.state);
 # endif
 #else
-# ifdef  STREAMSPTY
+# ifdef  HAVE_STREAMSPTY
 	(void) tcgetattr(ttyfd, &termbuf);
 # else
 	(void) tcgetattr(pty, &termbuf);
@@ -231,7 +232,7 @@ set_termbuf()
 		(void) ioctl(pty, TIOCLSET, (char *)&termbuf.lflags);
 #else	/* USE_TERMIO */
 	if (memcmp((char *)&termbuf, (char *)&termbuf2, sizeof(termbuf)))
-# ifdef  STREAMSPTY
+# ifdef  HAVE_STREAMSPTY
 		(void) tcsetattr(ttyfd, TCSANOW, &termbuf);
 # else
 		(void) tcsetattr(pty, TCSANOW, &termbuf);
@@ -470,7 +471,7 @@ getpty(ptynum)
 int *ptynum;
 {
 	register int p;
-#ifdef	STREAMSPTY
+#ifdef	HAVE_STREAMSPTY
 	int t;
 	char *ptsname();
 
@@ -482,7 +483,7 @@ int *ptynum;
 		return(p);
 	}
 
-#else	/* ! STREAMSPTY */
+#else	/* ! HAVE_STREAMSPTY */
 #ifndef CRAY
 	register char *cp, *p1, *p2;
 	register int i;
@@ -574,7 +575,7 @@ int *ptynum;
 		}
 	}
 #endif	/* CRAY */
-#endif	/* STREAMSPTY */
+#endif	/* HAVE_STREAMSPTY */
 	return(-1);
 }
 #endif	/* convex */
@@ -1116,7 +1117,7 @@ getptyslave()
 	if (t < 0)
 		fatalperror(net, line);
 
-#ifdef  STREAMSPTY
+#ifdef  HAVE_STREAMSPTY
 #ifdef	USE_TERMIO
 	ttyfd = t;
 #endif
@@ -1220,7 +1221,7 @@ cleanopen(line)
 	struct secstat secbuf;
 #endif	/* UNICOS7x */
 
-#ifndef STREAMSPTY
+#ifndef HAVE_STREAMSPTY
 	/*
 	 * Make sure that other people can't open the
 	 * slave side of the connection.
@@ -1261,7 +1262,7 @@ cleanopen(line)
 	 * Hangup anybody else using this ttyp, then reopen it for
 	 * ourselves.
 	 */
-# if !(defined(CRAY) || defined(__hpux)) && (BSD <= 43) && !defined(STREAMSPTY)
+# if !(defined(CRAY) || defined(__hpux)) && (BSD <= 43) && !defined(HAVE_STREAMSPTY)
 	(void) signal(SIGHUP, SIG_IGN);
 	vhangup();
 	(void) signal(SIGHUP, SIG_DFL);
@@ -1567,7 +1568,7 @@ start_login(host, autologin, name)
 	register char **argv;
 	char **addarg();
 	extern char *getenv();
-#ifdef	UTMPX
+#ifdef	HAVE_UTMPX_H
 	register int pid = getpid();
 	struct utmpx utmpx;
 #endif
@@ -1587,6 +1588,7 @@ start_login(host, autologin, name)
 	utmpx.ut_pid = pid;
 	utmpx.ut_id[0] = 't';
 	utmpx.ut_id[1] = 'n';
+#define SC_WILDC 'e'
 	utmpx.ut_id[2] = SC_WILDC;
 	utmpx.ut_id[3] = SC_WILDC;
 	utmpx.ut_type = LOGIN_PROCESS;
@@ -1707,7 +1709,7 @@ start_login(host, autologin, name)
 			argv = addarg(argv, LOGIN_HOST);
 
 			xpty = pty;
-# ifndef  STREAMSPTY
+# ifndef  HAVE_STREAMSPTY
 			pty = 0;
 # else
 			ttyfd = 0;
@@ -2182,13 +2184,13 @@ cleantmpdir(jid, tpath, user)
  * remove the utmp entry for this person.
  */
 
-#ifdef	UTMPX
+#ifdef	HAVE_UTMPX_H
 	void
 rmut()
 {
 	register f;
 	int found = 0;
-	struct utmp *u, *utmp;
+	//struct utmp *u, *utmp;
 	int nutmp;
 	struct stat statbf;
 
@@ -2206,13 +2208,14 @@ rmut()
 		utxp->ut_exit.e_exit = 0;
 		(void) time(&utmpx.ut_tv.tv_sec);
 		utmpx.ut_tv.tv_usec = 0;
-		modutx(utxp);
+		//modutx(utxp);
+		updwtmpx(PATH_UTMP, utxp);
 	}
 	endutxent();
 }  /* end of rmut */
 #endif
 
-#if	!defined(UTMPX) && !(defined(CRAY) || defined(__hpux)) && BSD <= 43
+#if	!defined(HAVE_UTMPX_H) && !(defined(CRAY) || defined(__hpux)) && BSD <= 43
 	void
 rmut()
 {
