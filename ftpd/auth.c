@@ -153,7 +153,7 @@ auth_pass (const char *passwd, struct credentials *pcred)
 	/* Try to authenticate the user.  */
 	if (pcred->passwd == NULL || *pcred->passwd == '\0')
 	  return 1; /* Failed. */
-	xpasswd = CRYPT (passwd, salt);
+	xpasswd = crypt (passwd, salt);
 	return  (!xpasswd || strcmp (xpasswd, pcred->passwd) != 0);
       }
     } /* switch (auth_type) */
