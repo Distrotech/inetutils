@@ -1,3 +1,12 @@
+2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
+	* libicmp(Makefile.am, icmp.h, icmp_cksum.c, icmp_echo.c,
+	  icmp_timestamp.c,libping.c,ping.h): added to repository.
+	  Currently it is more libping than libicmp, I will be adding
+          required functionality latter.
+	* ping/ping.c: implemented
+	* ping_address.c, ping_echo.c, ping_impl.h, ping_router.c,
+	  ping_timestamp.c: added to repository.
+
 2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
 
 	* libinetutils/ttymsg.c (normalize_path): Define static and provide
