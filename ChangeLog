@@ -1,3 +1,17 @@
+2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
+	* libicmp/Makefile.am: added icmp_address.c
+	* libicmp/icmp_address.c: added.
+	* libicmp/icmp.h: added new protos
+	* libicmp/icmp_echo.c: eliminated unused variable
+	* libicmp/icmp_timestamp.c: implemented
+	* libicmp/libping.c: changes too numerous to mention.
+	* libicmp/ping.h: reflect changes to libping.c
+	* ping/Makefile.am: added OMIT_DEPENDENCIES
+	* ping/(ping.c,ping_address.c,ping_echo.c,ping_impl.h,ping_timestamp.c)
+		Implemented ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests.
+          None of existing routers answers the latter, though.
+                
+
 2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
 	* libicmp(Makefile.am, icmp.h, icmp_cksum.c, icmp_echo.c,
 	  icmp_timestamp.c,libping.c,ping.h): added to repository.
