@@ -1,0 +1,8 @@
+Release 1.2 is an attempt to be somewhat more portable, and reorganize the
+code to make porting a bit easier; it is still very BSD-specific.  A major
+bug in ftpd bug that prevents most logins from succeeding is fixed, as well
+as other, more minor, bugs.
+
+Release 1.1 is a minor release intended only for the GNU hurd.  This release
+adds checking for crypt at both compile and runtime (on systems where weak
+refs are supported).
