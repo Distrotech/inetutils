@@ -92,7 +92,7 @@ main(argc, argv)
 char	username[20] = "USER=";
 char	homedir[64] = "HOME=";
 char	shell[64] = "SHELL=";
-char	path[sizeof(_PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
+char	path[sizeof(PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
 char	*envinit[] =
 	    {homedir, shell, path, username, 0};
 char	**environ;
@@ -215,13 +215,13 @@ doit(f, fromp)
 		dup2(pv[1], 2);
 	}
 	if (*pwd->pw_shell == '\0')
-		pwd->pw_shell = _PATH_BSHELL;
+		pwd->pw_shell = PATH_BSHELL;
 	if (f > 2)
 		(void) close(f);
 	(void) setgid((gid_t)pwd->pw_gid);
 	initgroups(pwd->pw_name, pwd->pw_gid);
 	(void) setuid((uid_t)pwd->pw_uid);
-	(void)strcat(path, _PATH_DEFPATH);
+	(void)strcat(path, PATH_DEFPATH);
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
 	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
