@@ -45,13 +45,23 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #include <config.h>
 #endif
 
+#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_FILIO_H
 #include <sys/filio.h>
 #endif
 #include <sys/socket.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 
 #include <netinet/in.h>
 
@@ -64,6 +74,9 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #include <string.h>
 #include <unistd.h>
 #include <crypt.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 /*VARARGS1*/
 int error();
