@@ -71,7 +71,7 @@ IU_ENABLE_CLIENT(ftp)
 IU_ENABLE_CLIENT(rcp)
 IU_ENABLE_CLIENT(rlogin)
 IU_ENABLE_CLIENT(rsh)
-IU_ENABLE_CLIENT(syslog)
+IU_ENABLE_CLIENT(logger)
 IU_ENABLE_CLIENT(talk)
 IU_ENABLE_CLIENT(telnet)
 IU_ENABLE_CLIENT(tftp)
@@ -99,7 +99,7 @@ AC_SUBST(BUILD_FTP)
 AC_SUBST(BUILD_RCP)
 AC_SUBST(BUILD_RLOGIN)
 AC_SUBST(BUILD_RSH)
-AC_SUBST(BUILD_SYSLOG)
+AC_SUBST(BUILD_LOGGER)
 AC_SUBST(BUILD_TALK)
 AC_SUBST(BUILD_TELNET)
 AC_SUBST(BUILD_TFTP)
@@ -564,7 +564,7 @@ esac
 AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
 ftp/Makefile ftpd/Makefile inetd/Makefile rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
-rshd/Makefile syslog/Makefile syslogd/Makefile talk/Makefile
+rshd/Makefile logger/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
 tftpd/Makefile uucpd/Makefile whois/Makefile libls/Makefile
 include/confpaths.h:headers/confpaths.h.in
