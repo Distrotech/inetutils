@@ -90,7 +90,7 @@ extern const char *strerror __P ((int));
 # include <kerberosIV/des.h>
 # include <kerberosIV/krb.h>
 
-char	dst_realm_buf[REALM_SZ];
+char	dest_realm_buf[REALM_SZ];
 char	*dest_realm = NULL;
 int	use_kerberos = 1;
 CREDENTIALS 	cred;
@@ -181,8 +181,8 @@ main (int argc, char *argv[])
 
 #ifdef	KERBEROS
       case 'k':
-	dest_realm = dst_realm_buf;
-	strncpy(dst_realm_buf, optarg, REALM_SZ);
+	dest_realm = dest_realm_buf;
+	strncpy(dest_realm_buf, optarg, REALM_SZ);
 	break;
 
 #ifdef CRYPT

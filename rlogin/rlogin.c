@@ -103,7 +103,7 @@
 CREDENTIALS cred;
 Key_schedule schedule;
 int use_kerberos = 1, doencrypt;
-char dst_realm_buf[REALM_SZ], *dest_realm = NULL;
+char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
 #endif
 
 /*
@@ -282,7 +282,7 @@ main(int argc, char *argv[])
 	  strncpy (dest_realm_buf, optarg, sizeof dest_realm_buf);
 	  /* Make sure it's null termintated.  */
 	  dest_realm_buf[sizeof (dest_realm_buf) - 1] = '\0';
-	  dest_realm = dst_realm_buf;
+	  dest_realm = dest_realm_buf;
 	  break;
 #endif
 

@@ -71,13 +71,13 @@
 #endif
 
 #ifdef KERBEROS
-# include <kerberosIV/des.h>
-# include <kerberosIV/krb.h>
+#include <kerberosIV/des.h>
+#include <kerberosIV/krb.h>
 
 CREDENTIALS cred;
 Key_schedule schedule;
 int use_kerberos = 1, doencrypt;
-char dst_realm_buf[REALM_SZ], *dest_realm;
+char dest_realm_buf[REALM_SZ], *dest_realm;
 extern char *krb_realmofhost();
 #endif
 
@@ -259,7 +259,7 @@ main (int argc, char **argv)
 	case 'k':
 	  strncpy (dest_realm_buf, optarg, sizeof dest_realm_buf);
 	  dest_realm_buf [REALM_SZ - 1] = '\0';
-	  dest_realm = dst_realm_buf;
+	  dest_realm = dest_realm_buf;
 	  break;
 
 # ifdef ENCRYPTION
