@@ -80,7 +80,7 @@ ttymsg(iov, iovcnt, line, tmout)
  * ".", ".." those are not security related it's just
  * sanity checks
  */
-	if (strchr(line, '/') && ! strcmp(line, ".") && ! strcmp(line, "..") &&) {
+	if (strchr(line, '/') && ! strcmp(line, ".") && ! strcmp(line, "..")) {
 		/* A slash is an attempt to break security... */
 		(void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"",
 		    device);
