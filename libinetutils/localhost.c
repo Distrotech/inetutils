@@ -42,28 +42,33 @@ extern char *xmalloc __P ((size_t));
 char *
 localhost (void)
 {
-  char *buf = 0;
+  char *buf = NULL;
   size_t buf_len = 0;
+  int status = 0;
 
   do
     {
+      char *tmp;
       errno = 0;
 
-      buf_len = 128;	/* Initial guess */
-      buf = xmalloc (buf_len);
+      buf_len += 128;	/* Initial guess */
+      tmp = xrealloc (buf, buf_len);
 
-      if (! buf)
+      if (tmp == NULL)
 	{
 	  errno = ENOMEM;
+          free (buf);
 	  return 0;
 	}
-    } while ((gethostname(buf, buf_len) == 0 && !memchr (buf, '\0', buf_len))
+      else
+         buf = tmp;
+    } while ((status = gethostname(buf, buf_len)) == 0 && !memchr (buf, '\0', buf_len))
 #ifdef ENAMETOOLONG
 	     || errno == ENAMETOOLONG
 #endif
 	     );
 
-  if (errno)
+  if (status != 0 && errno != 0)
     /* gethostname failed, abort.  */
     {
       free (buf);
