@@ -46,7 +46,7 @@ asm (".weak crypt");
 /* Call crypt, or just return STR if there is none.  */
 #ifdef HAVE_CRYPT
 #define CRYPT(str, salt) crypt (str, salt)
-#else
+#else  /* !HAVE_CRYPT */
 #ifdef HAVE_WEAK_REFS
 #ifdef __GNUC__
 /* this is slightly convoluted to avoid an apparent gcc bug.  */
@@ -55,9 +55,9 @@ asm (".weak crypt");
 #else
 #define CRYPT(str, salt) (crypt ? crypt (str, salt) : (str))
 #endif /* __GCC__ */
-#else
+#else  /* !HAVE_WEAK_REFS */
 #define CRYPT(str, salt) (str)
-#endif
-#endif
+#endif /* HAVE_WEAK_REFS */
+#endif /* HAVE_CRYPT */
 
 #endif /* __CRYPT_H__ */
