@@ -20,19 +20,11 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(bindir)/ping $(man8dir)/ping.8
+
 all: ping
-ping: ping.o
 
-install: installdirs ping $(srcdir)/ping.8
-	$(INSTALL_PROGRAM) -o root -m 04755 ping $(bindir)/ping
-	-$(INSTALL_DATA) $(srcdir)/ping.8 $(man8dir)/ping.8
-uninstall:
-	-$(RM) -f $(bindir)/ping $(man8dir)/ping.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o ping 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
