@@ -826,7 +826,7 @@ lookup(p, cmd)
  * getline - a hacked up version of fgets to ignore TELNET escape codes.
  */
 char *
-getline(s, n, iop)
+telnet_fgets(s, n, iop)
 	char *s;
 	int n;
 	FILE *iop;
