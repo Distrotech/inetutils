@@ -41,8 +41,28 @@
 #include <icmp.h>
 #include "ping.h"
 
+static void _ping_freebuf(PING *p);
+static int _ping_setbuf(PING *p);
+static size_t _ping_headersize(PING *p);
+
+
+size_t
+_ping_packetsize(PING *p)
+{
+  switch (p->ping_type)
+    {
+    case ICMP_TIMESTAMP:
+    case ICMP_TIMESTAMPREPLY:
+      return 20;
+
+    default:
+      return 8 + p->ping_datalen;
+    }
+  return 8; /* to keep compiler happy */
+}
+
 PING *
-ping_init(int ident)
+ping_init(int type, int ident)
 {
   int fd;
   struct protoent *proto;
@@ -70,61 +90,70 @@ ping_init(int ident)
   memset(p, 0, sizeof(*p));
 
   p->ping_fd = fd;
+  p->ping_type = type;
   p->ping_count = 0;
   p->ping_interval = PING_INTERVAL;
-  p->ping_datalen  = PING_DATALEN;
+  p->ping_datalen  = sizeof(icmphdr_t);
   p->ping_ident = ident;
   p->ping_cktab_size = PING_CKTABSIZE;
   return p;
 }
 
-int
-ping_set_pattern(PING *p, int len, u_char *pat)
+void
+ping_set_type(PING *p, int type)
 {
-  u_char *dp;
-  int i;
-  
-  if (_ping_setbuf(p))
-    return -1;
-  
-  i = 0;
-  for (dp = p->ping_outpack + 8 + sizeof(struct timeval);
-       dp < p->ping_outpack + p->ping_datalen;
-       dp++)
+  p->ping_type = type;
+}
+
+void
+ping_set_datalen(PING *p, size_t len)
+{
+  _ping_freebuf(p);
+  p->ping_datalen = len;
+}
+
+void
+_ping_freebuf(PING *p)
+{
+  if (p->ping_buffer)
     {
-      *dp = pat[i];
-      if (i++ >= len)
-	i = 0;
+      free(p->ping_buffer);
+      p->ping_buffer = NULL;
     }
-  return 0;
 }
 
 int
 _ping_setbuf(PING *p)
 {
-  if (!p->ping_outpack)
+  if (!p->ping_buffer)
     {
       int i;
       
-      p->ping_outpack = malloc(_PING_OUTBUFLEN(p));
-      if (!p->ping_outpack)
-	return -1;
-      for (i = 8; i < p->ping_datalen; i++)
-	p->ping_outpack[i] = i;
-    }
-  if (!p->ping_inpack)
-    {
-      p->ping_inpack = malloc(_PING_INBUFLEN(p));
-      if (!p->ping_inpack)
+      p->ping_buffer = malloc(_PING_BUFLEN(p));
+      if (!p->ping_buffer)
 	return -1;
     }
   if (!p->ping_cktab)
     {
       p->ping_cktab = malloc(p->ping_cktab_size);
       if (!p->ping_cktab)
-	return -1;
+        return -1;
       memset(p->ping_cktab, 0, p->ping_cktab_size);
     }
+  return 0;
+}
+
+int
+ping_set_data(PING *p, void *data, size_t off, size_t len)
+{
+  icmphdr_t *icmp;
+  
+  if (_ping_setbuf(p))
+    return -1;
+  if (p->ping_datalen < off + len)
+    return -1;
+  icmp = (icmphdr_t *)p->ping_buffer;
+  memcpy(icmp->icmp_data + off, data, len);
   return 0;
 }
 
@@ -137,28 +166,48 @@ ping_xmit(PING *p)
   if (_ping_setbuf(p))
     return -1;
   
-  buflen = _PING_OUTBUFLEN(p);
+  buflen = _ping_packetsize(p);
   
   /* Mark sequence number as sent */
   _PING_CLR(p, p->ping_num_xmit % p->ping_cktab_size);
-  /* Store timestamp in the packet if the size is sufficient */
-  if (_PING_TIMING(p))
-    gettimeofday((struct timeval *)&p->ping_outpack[8], NULL);
-  /* Encode ICMP header */
-  icmp_echo_encode(p->ping_outpack, buflen, p->ping_ident,
-		   p->ping_num_xmit++);
 
-  i = sendto(p->ping_fd, (char *)p->ping_outpack, buflen, 0,
+  /* Encode ICMP header */
+  switch (p->ping_type)
+    {
+    case ICMP_ECHO:
+      icmp_echo_encode(p->ping_buffer, buflen, p->ping_ident,
+		       p->ping_num_xmit);
+      break;
+    case ICMP_TIMESTAMP:
+      icmp_timestamp_encode(p->ping_buffer, buflen, p->ping_ident,
+			    p->ping_num_xmit);
+      break;
+    case ICMP_ADDRESS:
+      icmp_address_encode(p->ping_buffer, buflen, p->ping_ident,
+			  p->ping_num_xmit);
+      break;
+    default:
+      icmp_generic_encode(p->ping_buffer, buflen, p->ping_type, p->ping_ident,
+			  p->ping_num_xmit);
+      break;
+    }
+
+  i = sendto(p->ping_fd, (char *)p->ping_buffer, buflen, 0,
 	     (struct sockaddr*) &p->ping_dest,
 	     sizeof(struct sockaddr_in));
   if (i < 0)
     {
       perror("ping: sendto");
     }
-  else if (i != buflen)
+  else 
     {
-      printf("ping: wrote %s %d chars, ret=%d\n", p->ping_hostname, buflen, i);
+      p->ping_num_xmit++;
+      if (i != buflen)
+	printf("ping: wrote %s %d chars, ret=%d\n",
+	       p->ping_hostname, buflen, i);
     }
+
+
   return 0;
 }
 
@@ -172,20 +221,24 @@ ping_recv(PING *p)
   int dupflag;
 
   if ((n = recvfrom(p->ping_fd,
-		    (char *)p->ping_inpack, _PING_INBUFLEN(p), 0,
+		    (char *)p->ping_buffer, _PING_BUFLEN(p), 0,
 		    (struct sockaddr *)&p->ping_from, &fromlen)) < 0)
     return -1;
 
-  if ((rc = icmp_echo_decode(p->ping_inpack, n, &ip, &icmp)) < 0)
+  if ((rc = icmp_generic_decode(p->ping_buffer, n, &ip, &icmp)) < 0)
     {
       /*FIXME: conditional*/
       fprintf(stderr,"packet too short (%d bytes) from %s\n", n,
 	      inet_ntoa(p->ping_from.sin_addr));
       return;
     }
-  
-  if (icmp->icmp_type == ICMP_ECHOREPLY)
+
+  switch (icmp->icmp_type)
     {
+    case ICMP_ECHOREPLY:
+    case ICMP_TIMESTAMPREPLY:
+    case ICMP_ADDRESSREPLY:
+      /*    case ICMP_ROUTERADV:*/
       if (icmp->icmp_id != p->ping_ident)
 	return;
       if (rc)
@@ -206,22 +259,22 @@ ping_recv(PING *p)
 	  _PING_SET(p, icmp->icmp_seq % p->ping_cktab_size);
 	  dupflag = 0;
 	}
-
+      
       if (p->ping_event)
 	(*p->ping_event)(dupflag ? PEV_DUPLICATE : PEV_RESPONSE,
 			 p->ping_closure,
 			 &p->ping_dest,
 			 &p->ping_from,
-			 p->ping_inpack, n);
-    }
-  else
-    {
+			 ip, icmp, n);
+      break;
+      
+    default:
       if (p->ping_event)
 	(*p->ping_event)(PEV_NOECHO,
 			 p->ping_closure,
 			 &p->ping_dest,
 			 &p->ping_from,
-			 p->ping_inpack, n);
+			 ip, icmp, n);
     }
   return 0;
 }
