@@ -43,8 +43,12 @@ static char sccsid[] = "@(#)ftp.c	8.4 (Berkeley) 4/6/94";
 #include <sys/file.h>
 
 #include <netinet/in.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
+#endif
 #include <arpa/inet.h>
 #include <arpa/ftp.h>
 #include <arpa/telnet.h>
@@ -145,7 +149,7 @@ hookup(host, port)
 		code = -1;
 		goto bad;
 	}
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	tos = IPTOS_LOWDELAY;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -411,14 +415,14 @@ getreply(expecteof)
 
 int
 empty(mask, sec)
-	struct fd_set *mask;
+	fd_set mask;
 	int sec;
 {
 	struct timeval t;
 
 	t.tv_sec = (long) sec;
 	t.tv_usec = 0;
-	return (select(32, mask, (struct fd_set *) 0, (struct fd_set *) 0, &t));
+	return (select(32, mask, (fd_set *) 0, (fd_set *) 0, &t));
 }
 
 jmp_buf	sendabort;
@@ -1050,7 +1054,7 @@ noport:
 	}
 	if (tmpno)
 		sendport = 1;
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 	on = IPTOS_THROUGHPUT;
 	if (setsockopt(data, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -1078,7 +1082,7 @@ dataconn(lmode)
 	}
 	(void) close(data);
 	data = s;
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 	tos = IPTOS_THROUGHPUT;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -1253,7 +1257,7 @@ proxtrans(cmd, local, remote)
 	sig_t oldintr;
 	int secndflag = 0, prox_type, nfnd;
 	char *cmd2;
-	struct fd_set mask;
+	fd_set mask;
 
 	if (strcmp(cmd, "RETR"))
 		cmd2 = "RETR";
@@ -1370,7 +1374,7 @@ reset(argc, argv)
 	int argc;
 	char *argv[];
 {
-	struct fd_set mask;
+	fd_set mask;
 	int nfnd = 1;
 
 	FD_ZERO(&mask);
@@ -1448,7 +1452,7 @@ abort_remote(din)
 {
 	char buf[BUFSIZ];
 	int nfnd;
-	struct fd_set mask;
+	fd_set mask;
 
 	/*
 	 * send IAC in urgent mode instead of DM because 4.3BSD places oob mark
