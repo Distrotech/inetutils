@@ -464,34 +464,43 @@ mput(argc, argv)
 		char *cp, *tp2, tmpbuf[MAXPATHLEN];
 
 		while ((cp = remglob(argv,0)) != NULL) {
-			if (*cp == 0) {
+			if (*cp == 0)
 				mflag = 0;
-				continue;
-			}
 			if (mflag && confirm(argv[0], cp)) {
 				tp = cp;
 				if (mcase) {
-					while (*tp && !islower(*tp)) {
+					while (*tp && !islower(*tp))
 						tp++;
-					}
-					if (!*tp) {
+
+					if (*tp)
+						/* Some LC, don't mess.  */
 						tp = cp;
-						tp2 = tmpbuf;
-						while ((*tp2 = *tp) != NULL) {
-						     if (isupper(*tp2)) {
-						        *tp2 = 'a' + *tp2 - 'A';
-						     }
-						     tp++;
-						     tp2++;
-						}
+					else {
+						/* All upper case.  */
+						char *buf =
+						  malloc (strlen (cp) + 1);
+						char *p = buf;
+
+						for (tp = cp; *tp; tp++)
+							if (isupper (*tp))
+								*p++ = tolower (*tp);
+							else
+								*p++ = *tp;
+
+						tp = buf;
+
+						free (cp);
 					}
-					tp = tmpbuf;
 				}
 				if (ntflag) {
-					tp = dotrans(tp);
+					char *new = dotrans(tp);
+					free (tp);
+					tp = new;
 				}
 				if (mapflag) {
-					tp = domap(tp);
+					char *new = domap(tp);
+					free (tp);
+					tp = new;
 				}
 				sendrequest((sunique) ? "STOU" : "STOR",
 				    cp, tp, cp != tp || !interactive);
@@ -504,6 +513,9 @@ mput(argc, argv)
 					interactive = ointer;
 				}
 			}
+
+			/* If TP != CP, then CP has already been freed. */
+			free (tp);
 		}
 		(void) signal(SIGINT, oldintr);
 		mflag = 0;
@@ -1780,7 +1792,7 @@ char *
 dotrans(name)
 	char *name;
 {
-	static char new[MAXPATHLEN];
+	char *new = malloc (strlen (name) + 1);
 	char *cp1, *cp2 = new;
 	int i, ostop, found;
 
@@ -1839,11 +1851,48 @@ setnmap(argc, argv)
 	(void) strncpy(mapout, cp, MAXPATHLEN - 1);
 }
 
+static int
+cp_subst (from_p, to_p, toks, tp, te, tok0, buf_p, buf_len_p)
+char **from, **to;
+char *tp[9], *te[9];
+int toks[9];
+char *tok0;
+char **buf_p;
+int *buf_len_p;
+{
+	int toknum;
+	char *src;
+	int src_len;
+
+	if (*++(*from_p) == '0') {
+		src = tok0;
+		src_len = strlen (tok0);
+	}
+	else if (toks[toknum = *from - '1']) {
+		src = tp[toknum];
+		src_len = te[toknum] - src;
+	}
+	else
+		return 0;
+
+	if (src_len > 2) {
+		/* This subst will be longer than the original, so make room
+		   for it.  */
+		*buf_len_p += src_len - 2;
+		*buf_p = realloc (*buf_p, *buf_len_p);
+	}
+	while (src_len--)
+		*(*to_p)++ = *src++;
+
+	return 1;
+}
+
 char *
 domap(name)
 	char *name;
 {
-	static char new[MAXPATHLEN];
+	int buf_len = strlen (name) + 1;
+	char *buf = malloc (buf_len);
 	char *cp1 = name, *cp2 = mapin;
 	char *tp[9], *te[9];
 	int i, toks[9], toknum = 0, match = 1;
@@ -1901,24 +1950,10 @@ domap(name)
 				break;
 			case '[':
 LOOP:
-				if (*++cp2 == '$' && isdigit(*(cp2+1))) { 
-					if (*++cp2 == '0') {
-						char *cp3 = name;
-
-						while (*cp3) {
-							*cp1++ = *cp3++;
-						}
-						match = 1;
-					}
-					else if (toks[toknum = *cp2 - '1']) {
-						char *cp3 = tp[toknum];
-
-						while (cp3 != te[toknum]) {
-							*cp1++ = *cp3++;
-						}
-						match = 1;
-					}
-				}
+				if (*++cp2 == '$' && isdigit(*(cp2+1)))
+					cp_subst (&cp2, &cp1,
+						  toks, tp, te, name,
+						  &buf, &buf_len)
 				else {
 					while (*cp2 && *cp2 != ',' && 
 					    *cp2 != ']') {
@@ -1926,24 +1961,15 @@ LOOP:
 							cp2++;
 						}
 						else if (*cp2 == '$' &&
-   						        isdigit(*(cp2+1))) {
-							if (*++cp2 == '0') {
-							   char *cp3 = name;
-
-							   while (*cp3) {
-								*cp1++ = *cp3++;
-							   }
-							}
-							else if (toks[toknum =
-							    *cp2 - '1']) {
-							   char *cp3=tp[toknum];
-
-							   while (cp3 !=
-								  te[toknum]) {
-								*cp1++ = *cp3++;
-							   }
-							}
-						}
+   						        isdigit(*(cp2+1)))
+							if (cp_subst (&cp2,
+								      &cp1,
+								      toks,
+								      tp, te,
+								      name,
+								      &buf,
+								      &buf_len))
+								match = 1;
 						else if (*cp2) {
 							*cp1++ = *cp2++;
 						}
@@ -1979,20 +2005,10 @@ LOOP:
 				break;
 			case '$':
 				if (isdigit(*(cp2 + 1))) {
-					if (*++cp2 == '0') {
-						char *cp3 = name;
-
-						while (*cp3) {
-							*cp1++ = *cp3++;
-						}
-					}
-					else if (toks[toknum = *cp2 - '1']) {
-						char *cp3 = tp[toknum];
-
-						while (cp3 != te[toknum]) {
-							*cp1++ = *cp3++;
-						}
-					}
+					if (cp_subst (&cp2, &cp1,
+						      toks, tp, te, name,
+						      &buf, &buf_len))
+						match = 1;
 					break;
 				}
 				/* intentional drop through */
@@ -2003,9 +2019,9 @@ LOOP:
 		cp2++;
 	}
 	*cp1 = '\0';
-	if (!*new) {
-		return (name);
-	}
+	if (!*new)
+		strcpy (new, name);
+
 	return (new);
 }
 
