@@ -181,7 +181,6 @@ struct	filed consfile;
 
 int	Debug;			/* debug flag */
 char	*LocalHostName = 0;	/* our hostname */
-size_t  LocalHostNameLen = 0;
 char	*LocalDomain;		/* our local domain name */
 int	InetInuse = 0;		/* non-zero if INET sockets are being used */
 int	finet;			/* Internet datagram socket */
@@ -205,6 +204,7 @@ void	reapchild __P((int));
 char   *ttymsg __P((struct iovec *, int, char *, int));
 void	usage __P((void));
 void	wallmsg __P((struct filed *, struct iovec *));
+extern char *localhost __P ((void));
 
 int
 main(argc, argv)
@@ -248,23 +248,11 @@ main(argc, argv)
 	else
 		setlinebuf(stdout);
 
-	errno = 0;
-	do {
-		if (LocalHostName) {
-		        LocalHostNameLen += LocalHostNameLen;
-			LocalHostName =
-				realloc (LocalHostName, LocalHostNameLen);
-		} else {
-			LocalHostNameLen = 128; /* Initial guess */
-			LocalHostName = malloc (LocalHostNameLen);
-		}
-		if (! LocalHostName) {
-			perror ("Can't get local host name");
-			exit (2);
-		}
-	} while ((gethostname(LocalHostName, LocalHostNameLen) == 0
-		  && ! memchr (LocalHostName, '\0', LocalHostNameLen))
-		 || errno == ENAMETOOLONG);
+	LocalHostName = localhost ();
+	if (! LocalHostName) {
+		perror ("Can't get local host name");
+		exit (2);
+	}
 
 	if ((p = strchr(LocalHostName, '.')) != NULL) {
 		*p++ = '\0';
