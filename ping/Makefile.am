@@ -19,7 +19,7 @@ ping_SOURCES = ping.c \
 
 SUIDMODE = -o root -m 4775
 
-install-exec-hook:
+install-ping-hook:
 	-@$(INSTALL_PROGRAM) $(bin_PROGRAMS) $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo $(bin_PROGRAMS)|sed '$(transform)'` ; \
 	if test $$? -ne 0; then \
 		echo 'INSTALL-ERROR:'; \
@@ -27,3 +27,7 @@ install-exec-hook:
 		echo 'INSTALL-ERROR: $(INSTALL_PROGRAM) $(bin_PROGRAMS) $(SUIDMODE) $(DESTDIR)$(bindir)/$(bin_PROGRAMS)'; \
 		echo 'INSTALL-ERROR:'; \
 	fi
+
+install-exec-hook: @ping_INSTALL_HOOK@
+
+# EOF
