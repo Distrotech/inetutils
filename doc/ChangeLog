@@ -1,5 +1,11 @@
 2001-11-10  Alain Magloire
 
+	* rexecd.texi: New file.
+	* Makefile.am: Added rexecd.texi.
+	* inetutils.texi: Enable rexecd.texi.
+
+2001-11-10  Alain Magloire
+
 	* rcp.texi: New file.
 	* Makefile.am: Added rcp.texi.
 	* inetutils.texi: Enable rcp.texi.
