@@ -54,6 +54,23 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
 #include <config.h>
 #endif
 
+#if !defined (__GNUC__) && defined (_AIX)
+ #pragma alloca
+#endif
+#ifndef alloca /* Make alloca work the best possible way.  */
+#ifdef __GNUC__
+#define alloca __builtin_alloca
+#else /* not __GNUC__ */
+#if HAVE_ALLOCA_H
+#include <alloca.h>
+#else /* not __GNUC__ or HAVE_ALLOCA_H */
+#ifndef _AIX /* Already did AIX, up at the top.  */
+char *alloca ();
+#endif /* not _AIX */
+#endif /* not HAVE_ALLOCA_H */
+#endif /* not __GNUC__ */
+#endif /* not alloca */
+
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
@@ -65,6 +82,9 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
 
 #include <errno.h>
 #include <fcntl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -82,8 +102,8 @@ int	sent_null;
 void	 doit __P((struct sockaddr_in *));
 void	 error __P((const char *, ...));
 char	*getstr __P((char *));
-int	 local_domain __P((char *));
-char	*topdomain __P((char *));
+int	 local_domain __P((const char *));
+const char *topdomain __P((const char *));
 void	 usage __P((void));
 
 #ifdef	KERBEROS
@@ -201,7 +221,7 @@ doit(fromp)
 	fd_set ready, readfrom;
 	int cc, nfd, pv[2], pid, s;
 	int one = 1;
-	char *hostname, *errorstr, *errorhost;
+	const char *hostname, *errorstr, *errorhost;
 	char *cp, sig, buf[BUFSIZ];
 	char *cmdbuf, *locuser, *remuser;
 
@@ -340,7 +360,7 @@ doit(fromp)
 		if (!use_kerberos)
 #endif
 		if (check_all || local_domain(hp->h_name)) {
-			char *remotehost = alloca (strlen (hp->h_name) + 1);
+			char *remotehost = (char *) alloca (strlen (hp->h_name) + 1);
 			if (! remotehost)
 				errorstr = "Out of memory\n";
 			else {
@@ -774,7 +794,7 @@ getstr(err)
  */
 int
 local_domain(h)
-	char *h;
+	const char *h;
 {
 	extern char *localhost ();
 	char *hostname = localhost ();
@@ -783,8 +803,8 @@ local_domain(h)
 		return 0;
 	else {
 		int is_local = 0;
-		char *p1 = topdomain (hostname);
-		char *p2 = topdomain (h);
+		const char *p1 = topdomain (hostname);
+		const char *p2 = topdomain (h);
 
 		if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
 			is_local = 1;
@@ -795,11 +815,11 @@ local_domain(h)
 	}
 }
 
-char *
+const char *
 topdomain(h)
-	char *h;
+	const char *h;
 {
-	char *p, *maybe = NULL;
+	const char *p, *maybe = NULL;
 	int dots = 0;
 
 	for (p = h + strlen(h); p >= h; p--) {
