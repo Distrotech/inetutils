@@ -5,3 +5,10 @@ telnetd_SOURCES = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat
 noinst_HEADERS = defs.h ext.h telnetd.h
 
 man_MANS = telnetd.8
+
+LIBTERMCAP = @LIBTERMCAP@
+LIBCRYPT = @LIBCRYPT@
+LIBUTIL = @LIBUTIL@
+
+LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet \
+	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT)
