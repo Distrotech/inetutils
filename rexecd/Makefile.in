@@ -21,12 +21,11 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(libexecdir)/in.rexecd $(man8dir)/rexecd.8
 DISTFILES = rexecd.c rexecd.8
 
-all: rexecd
+INSTALL_TARGETS=$(libexecdir)/in.rexecd $(man8dir)/rexecd.8
+CLEAN = rexecd rexecd.o
 
-clean:
-	$(RM) -f *.o rexecd 
+all: rexecd
 
 include $(RULES)

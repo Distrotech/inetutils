@@ -21,14 +21,13 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-INSTALL_TARGETS = $(libexecdir)/in.rlogind $(man8dir)/rlogind.8
 DISTFILES = rlogind.c rlogind.8
+
+INSTALL_TARGETS = $(libexecdir)/in.rlogind $(man8dir)/rlogind.8
+CLEAN = rlogind rlogind.o
 
 CPPFLAGS += -D_PATH_LOGIN=\"$(bindir)/login\"
 
 all: rlogind
-
-clean:
-	$(RM) -f *.o rlogind 
 
 include $(RULES)

@@ -21,20 +21,18 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-INSTALL_TARGETS = $(libdir)/libtelnet.a
 SRCS = auth.c enc_des.c encrypt.c genget.c getent.c kerberos.c kerberos5.c \
        krb4encpwd.c misc.c read_password.c rsaencpwd.c spx.c
 HDRS = auth-proto.h auth.h enc-proto.h encrypt.h key-proto.h misc-proto.h misc.h
 DISTFILES = $(SRCS) $(HDRS)
 
+INSTALL_TARGETS = $(libdir)/libtelnet.a
 OBJS = $(SRCS:.c=.o)
+CLEAN = libtelnet.a $(OBJS)
 
 all: libtelnet.a
 libtelnet.a: $(OBJS)
 	$(AR) rcv $@ $?
 	$(RANLIB) $@
-
-clean:
-	$(RM) -f *.o libtelnet.a
 
 include $(RULES)

@@ -21,17 +21,16 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
+DISTFILES = syslogd.c syslogd.8 syslog.conf.5
+
 INSTALL_TARGETS = \
   $(sbindir)/syslogd $(man5dir)/syslog.conf.5 $(man8dir)/syslogd.8
-DISTFILES = syslogd.c syslogd.8 syslog.conf.5
+CLEAN = syslogd syslogd.o
 
 CPPFLAGS += \
 	-D_PATH_LOGCONF=\"$(sysconfdir)/syslog.conf\" \
 	-D_PATH_LOGPID=\"$(localstatedir)/run/syslog.pid\"
 
 all: syslogd
-
-clean:
-	$(RM) -f *.o syslogd
 
 include $(RULES)
