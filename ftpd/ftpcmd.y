@@ -48,6 +48,7 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #include <config.h>
 #endif
 
+#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -65,7 +66,16 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
-#include <time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <unistd.h>
 #include <limits.h>
 #ifdef HAVE_SYS_UTSNAME_H
@@ -111,7 +121,7 @@ struct tab {
 	char	*help;
 };
 
-struct tab cmdtab[], sitetab[];
+extern struct tab cmdtab[], sitetab[];
 
 static char	*copy __P((char *));
 static void	 help __P((struct tab *, char *));
