@@ -1,3 +1,7 @@
+2005-01-31  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (AUTOMAKE_OPTIONS): Require automake 1.9.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 	
 	* configure.ac: Bump version to 1.4.3.
@@ -114,6 +118,7 @@
 	* configure.ac: Use IU_CONFIG_LINKS. Raised autoconf
 	requirement to 2.59
 	* Makefile.am: Require automake 1.8
+
 	* headers/Makefile.am: Fixed disthook
 	* headers/arpa/DISTFILES: Added to the repository
 	* headers/protocols/DISTFILES: Likewise
