@@ -8,9 +8,9 @@ libinetutils_a_SOURCES = cleansess.c des_rw.c kcmd.c krcmd.c localhost.c \
 
 #	memcmp.c memcpy.c memmove.c memset.c
 
-libinetutils_a_LIBADD = @LIBOBJS@
+libinetutils_a_LIBADD = daemon.o @LIBOBJS@
 
-noinst_HEADERS = snprintf.h pathmax.h
+noinst_HEADERS = snprintf.h pathmax.h poll.h
 
 @PATHDEFS_MAKE@
 

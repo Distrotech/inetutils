@@ -1,5 +1,11 @@
 2000-08-05  Alain Magloire
 
+	* daemon.c (waitdaemon):  We are using the double trick
+	to avoid zombies and control terminals.  So we're going
+	simply to pause() to avoid messing with waitpid().
+
+2000-08-05  Alain Magloire
+
 	* localhost.c: No longer use static buffers to cache the result.
 	This cause subtil bugs and make it impossible in non-threaded
 	environment if we ever move to it.

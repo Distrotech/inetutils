@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)daemon.c	8.1 (Berkeley) 6/4/93";
-#endif /* LIBC_SCCS and not lint */
-
 #include <config.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -38,78 +34,131 @@ static char sccsid[] = "@(#)daemon.c	8.1 (Berkeley) 6/4/93";
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+#include <sys/wait.h>
+
+/*
+  According to Unix-FAQ maintained by Andrew Gierth:
+
+  1.fork() so the parent can exit, this returns control to the command
+  line or shell invoking your program. This step is required so that the
+  new process is guaranteed not to be a process group leader. The next
+  step, setsid(), fails if you're a process group leader.
+
+  2.setsid() to become a process group and session group leader. Since a
+  controlling terminal is associated with a session, and this new session
+  has not yet acquired a controlling terminal our process now has no
+  controlling terminal, which is a Good Thing for daemons.
+
+  3.fork() again so the parent, (the session group leader), can exit. This
+  means that we, as a non-session group leader, can never regain a
+  controlling terminal.
+
+  4.chdir("/") to ensure that our process doesn't keep any directory in use.
+  Failure to do this could make it so that an administrator couldn't unmount
+  a filesystem, because it was our current directory.
+  [Equivalently, we could change to any directory containing files important
+  to the daemon's operation.]
+
+  5.umask(0) so that we have complete control over the permissions of
+  anything we write. We don't know what umask we may have inherited.
+  [This step is optional]
+
+  6.close() fds 0, 1, and 2. This releases the standard in, out, and error
+  we inherited from our parent process. We have no way of knowing where
+  these fds might have been redirected to. Note that many daemons use
+  sysconf() to determine the limit _SC_OPEN_MAX. _SC_OPEN_MAX tells you the
+  maximun open files/process. Then in a loop, the daemon can close all
+  possible file descriptors. You have to decide if you need to do this or not.
+  If you think that there might be file-descriptors open you should close
+  them, since there's a limit on number of concurrent file descriptors.
+
+  7.Establish new open descriptors for stdin, stdout and stderr. Even if
+  you don't plan to use them, it is still a good idea to have them open.
+  The precise handling of these is a matter of taste; if you have a logfile,
+  for example, you might wish to open it as stdout or stderr, and open
+  `/dev/null' as stdin; alternatively, you could open `/dev/console' as
+  stderr and/or stdout, and `/dev/null' as stdin, or any other combination
+  that makes sense for your particular daemon.  */
+
+#define MAXFD 64
 
 void
 waitdaemon_timeout (int signo)
 {
   int left;
 
+  (void)signo;
   left = alarm(0);
   signal(SIGALRM, SIG_DFL);
   if (left == 0)
     errx(1, "timed out waiting for child");
-  else
-    _exit(0);
 }
 
-/* waitdaemon is like daemon, but optionally waits until the parent
-   receives a SIGALRM from the child. MAXWAIT specifies a timeout,
-   after which waitdaemon will return -1. otherwise waitdaemon will
-   return the pid of the parent. If MAXWAIT is 0, waitdaemon returns
-   immediately.  */
+/* waitdaemon is like daemon, but optionally the parent pause up
+   until maxwait before exiting. Return -1, on error, otherwise
+   waitdaemon will return the pid of the parent.  */
+
 int
 waitdaemon (int nochdir, int noclose, int maxwait)
 {
   int fd;
   pid_t childpid;
-  
-  switch (childpid = fork()) {
-  case -1:
-    return (-1);
-  case 0:
-    break;
-  default:
-    if (maxwait > 0)
-      {
-	int status;
-	pid_t pid;
+  pid_t ppid;
 
-	signal(SIGALRM, waitdaemon_timeout);
-	alarm(maxwait);
-#ifdef HAVE_WAITPID
-	while ((pid = waitpid(-1, &status, 0)) != -1)
-#else
-        while ((pid = wait3(&status, 0, NULL)) != -1)
-#endif
-	  {
-	    if (WIFEXITED(status))
-	      errx (1, "child pid %d exited with return code %d",
-		    pid, WEXITSTATUS(status));
-	    if (WIFSIGNALED(status))
-	      errx (1, "child pid %d exited on signal %d%s",
-		    pid, WTERMSIG(status),
-		    WCOREDUMP(status) ? " (core dumped)" : "");
-	    if (pid == childpid)
-	      break;
-	  }
-	_exit(0);
-      }
-  }
+  ppid = getpid();
+
+  switch (childpid = fork ())
+    {
+    case -1: /* Something went wrong.  */
+      return (-1);
+    case 0:  /* In the child.  */
+      break;
+    default:   /* In the parent.  */
+      if (maxwait > 0)
+	{
+	  signal(SIGALRM, waitdaemon_timeout);
+	  alarm (maxwait);
+	  pause ();
+	}
+      _exit(0);
+    }
 
   if (setsid() == -1)
     return (-1);
-  
+
+  /* SIGHUP is ignore because when the session leader terminates
+     all process in the session (the second child) are sent the SIGHUP.  */
+  signal (SIGHUP, SIG_IGN);
+
+  switch (fork())
+    {
+    case 0:
+      break;
+    case -1:
+      return -1;
+    default:
+      _exit(0);
+    }
+
   if (!nochdir)
     (void)chdir("/");
-  
-  if (!noclose && (fd = open(PATH_DEVNULL, O_RDWR, 0)) != -1) {
-    (void)dup2(fd, STDIN_FILENO);
-    (void)dup2(fd, STDOUT_FILENO);
-    (void)dup2(fd, STDERR_FILENO);
-    if (fd > 2)
-      (void)close (fd);
-  }
-  return (getppid());
+
+  if (!noclose)
+    {
+      int i;
+      for (i = 0; i < MAXFD; i++)
+	close (i);
+      fd = open (PATH_DEVNULL, O_RDWR, 0);
+      if (fd != -1)
+	{
+	  (void)dup2(fd, STDIN_FILENO);
+	  (void)dup2(fd, STDOUT_FILENO);
+	  (void)dup2(fd, STDERR_FILENO);
+	  if (fd > 2)
+	    (void)close (fd);
+	}
+    }
+  return ppid;
 }
 
 int

@@ -1,3 +1,28 @@
+2000-08-06  Alain Magloire
+
+	* syslogd.c (main): Use of poll() instead of select()
+	for better modularity.
+
+2000-08-06  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (add_funix): New function to add new
+	unix sockets.
+
+2000-08-06  Alain Magloire
+
+	* syslogd.c (init): Remove restriction of LINE_MAX
+	by reallocating the buffer when the line is too long,
+	by doing this the continuation line feature was more
+	straightforward.  The downfall is dealing with out of
+	memory errors.  But the code, so far, does not deal
+	with this anywhere.
+	(domark): signo ignored.
+	(init): signo ignored.
+	(dbg_toggle): signo ignored.
+	(trigger_restart): signo ignored.
+	Remove superfluous initializations of global
+	and static variables.
+
 2000-08-05  Alain Magloire
 
 Remove restrictions on options -l, -s, better compliance to GNU
@@ -6,7 +31,7 @@ Code indenting to conform to GNU style.
 
 	* syslogd.c: Use ``const'' consistenly for readonly
 	strings; cfline(), dbg_printf(), logerror(), etc ...
-	Prototypes/declarations use ``void'' for consistently.
+	Prototypes/declarations use ``void'' for consistency.
 	Standardise all function definitions, so ansi2knr could
 	do its job properly.
 	(create_inet_socket): Variable ``on'' unuse.

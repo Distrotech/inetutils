@@ -153,13 +153,12 @@ AC_CHECK_LIB(pam, pam_authenticate)
 
 AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent flock fpathconf ftruncate \
 	       getcwd getspnam initgroups killpg ptsname setegid seteuid \
-               setsid setregid setreuid setresgid setresuid \
-               setutent_r sigaction \
-	       sigvec strchr tcgetattr tzset utimes utime uname updwtmp \
-	       updwtmpx wait3 waitpid)
+               setsid setregid setreuid setresgid setresuid setutent_r \
+               sigaction sigvec strchr tcgetattr tzset utimes utime uname \
+               updwtmp updwtmpx wait3 wait4)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon getusershell herror memcmp memcpy memmove memset \
-	         strdup strcasecmp setenv)
+AC_REPLACE_FUNCS(getusershell herror memcmp memcpy memmove memset \
+	         strdup strcasecmp setenv waitpid poll)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
