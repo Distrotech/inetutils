@@ -111,7 +111,7 @@ char *alloca ();
 #include <sys/select.h>
 #endif
 
-int	keepalive = 1;
+int	keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
 int	check_all;
 int	log_success;		/* If TRUE, log all successful accesses */
 int	sent_null;
@@ -137,6 +137,7 @@ Key_schedule	schedule;
 #define	OPTIONS	"alnL"
 #endif
 
+/* Remote shell server. We're invoked by the rcmd(3) function. */
 int
 main(argc, argv)
 	int argc;
@@ -156,10 +157,10 @@ main(argc, argv)
 			check_all = 1;
 			break;
 		case 'l':
-			__check_rhosts_file = 0;
+		  __check_rhosts_file = 0; /* don't check .rhosts file */
 			break;
 		case 'n':
-			keepalive = 0;
+		  keepalive = 0; /* don't enable SO_KEEPALIVE */
 			break;
 #ifdef	KERBEROS
 		case 'k':
@@ -188,6 +189,13 @@ main(argc, argv)
 	argc -= optind;
 	argv += optind;
 
+#ifdef notdef
+	/* from inetd, socket is already on 0, 1, 2 */
+	dup2(sockfd, STDIN_FILENO);
+	dup2(sockfd, STDOUT_FILENO);
+	dup2(sockfd, STDERR_FILENO);
+#endif
+
 #ifdef	KERBEROS
 	if (use_kerberos && vacuous) {
 		syslog(LOG_ERR, "only one of -k and -v allowed");
@@ -201,18 +209,30 @@ main(argc, argv)
 #endif
 #endif
 
+	/*
+	 * We assume we're invoked by inetd, so the socket that the
+	 * connection is on, is open on descriptors 0, 1 and 2.
+	 * STD{IN,OUT,ERR}_FILENO.
+	 *
+	 * First get the Internet address of the client process.
+	 * This is requored for all the authentication we perform.
+	 */
+
 	fromlen = sizeof (from);
-	if (getpeername(0, (struct sockaddr *)&from, &fromlen) < 0) {
-		syslog(LOG_ERR, "getpeername: %m");
+	if (getpeername(STDIN_FILENO,
+			(struct sockaddr *)&from, &fromlen) < 0) {
+		sylog(LOG_ERR, "getpeername: %m");
 		_exit(1);
 	}
+
+	/* Set the socket options: SO_KEEPALIVE and SO_LINGER */
 	if (keepalive &&
-	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, (char *)&on,
+	    setsockopt(STDIN_FILENO, SOL_SOCKET, SO_KEEPALIVE, (char *)&on,
 	    sizeof(on)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
 	linger.l_onoff = 1;
 	linger.l_linger = 60;			/* XXX */
-	if (setsockopt(0, SOL_SOCKET, SO_LINGER, (char *)&linger,
+	if (setsockopt(STDIN_FILENO, SOL_SOCKET, SO_LINGER, (char *)&linger,
 	    sizeof (linger)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_LINGER): %m");
 	doit(&from);
@@ -266,7 +286,7 @@ doit(fromp)
 	  }
 	}
 #endif
-	fromp->sin_port = ntohs((u_short)fromp->sin_port);
+	/* Verify that the client's address is an Internet adress. */
 	if (fromp->sin_family != AF_INET) {
 		syslog(LOG_ERR, "malformed \"from\" address (af %d)\n",
 		    fromp->sin_family);
@@ -283,15 +303,20 @@ doit(fromp)
 		ipproto = ip->p_proto;
 	else
 		ipproto = IPPROTO_IP;
-	if (!getsockopt(0, ipproto, IP_OPTIONS, (char *)optbuf, &optsize) &&
-	    optsize != 0) {
+	if (!getsockopt(STDIN_FILENO, ipproto, IP_OPTIONS, (char *)optbuf,
+		    &optsize) && optsize != 0) {
 		lp = lbuf;
+		/* The clent has set IP options.  This isn't allowd.
+		 * Use syslog() to record the fact.
+		 */
 		for (cp = optbuf; optsize > 0; cp++, optsize--, lp += 3)
 			sprintf(lp, " %2.2x", *cp);
 		syslog(LOG_NOTICE,
-		    "Connection received from %s using IP options (ignored):%s",
+		       "Connection received from %s using IP options (ignored):%s",
 		    inet_ntoa(fromp->sin_addr), lbuf);
-		if (setsockopt(0, ipproto, IP_OPTIONS,
+
+		/* Turn off the options.  If this doesn't work, we quit */
+		if (setsockopt(STDIN_FILENO, ipproto, IP_OPTIONS,
 		    (char *)NULL, optsize) != 0) {
 			syslog(LOG_ERR, "setsockopt IP_OPTIONS NULL: %m");
 			exit(1);
@@ -300,18 +325,25 @@ doit(fromp)
       }
 #endif
 
+	/* Need host byte ordered port# to compare */
+	fromp->sin_port = ntohs((u_short)fromp->sin_port);
+	/* Verify that the client's address was bound to a reserved port */
 #ifdef	KERBEROS
 	if (!use_kerberos)
 #endif
-		if (fromp->sin_port >= IPPORT_RESERVED ||
-		    fromp->sin_port < IPPORT_RESERVED/2) {
-			syslog(LOG_NOTICE|LOG_AUTH,
-			    "Connection from %s on illegal port %u",
-			    inet_ntoa(fromp->sin_addr),
-			    fromp->sin_port);
-			exit(1);
-		}
+	  if (fromp->sin_port >= IPPORT_RESERVED ||
+	      fromp->sin_port < IPPORT_RESERVED/2) {
+	    syslog(LOG_NOTICE|LOG_AUTH,
+		   "Connection from %s on illegal port %u",
+		   inet_ntoa(fromp->sin_addr), fromp->sin_port);
+	    exit(1);
+	  }
 
+	/* Read the ASCII string specifying the secondary port# from
+	 * the socket.  We set a timer of 60 seconds to do this read,
+	 * else we assume something is wrong.  If the client doesn't want
+	 * the secondary port, they just send the terminating null byte.
+	 */
 	(void) alarm(60);
 	port = 0;
 	for (;;) {
@@ -319,9 +351,10 @@ doit(fromp)
 		if ((cc = read(STDIN_FILENO, &c, 1)) != 1) {
 			if (cc < 0)
 				syslog(LOG_NOTICE, "read: %m");
-			shutdown(0, 1+1);
+			shutdown(STDIN_FILENO, 2);
 			exit(1);
 		}
+		/* null byte terminates the string */
 		if (c== 0)
 			break;
 		port = port * 10 + c - '0';
@@ -329,6 +362,14 @@ doit(fromp)
 
 	(void) alarm(0);
 	if (port != 0) {
+	  /* If the secondary port# is nonzero, the we have to
+	   * connect to that port (which the client has already
+	   * created and is listening on).  The secondary port#
+	   * that the client tells us to connect to has to also be
+	   * a reserved port#.  Also, our end of this secondary
+	   * connection has to also have a reserved TCP port bond
+	   * to it, plus.
+	   */
 		int lport = IPPORT_RESERVED - 1;
 		s = rresvport(&lport);
 		if (s < 0) {
@@ -342,8 +383,14 @@ doit(fromp)
 				syslog(LOG_ERR, "2nd port not reserved\n");
 				exit(1);
 			}
+		/* Use the fromp structure taht we already have.
+		 * The 32-bit Internet address is obviously that of the
+		 * client's, just change the port# to the one specified
+		 * by the clent as the secondary port.
+		 */
 		fromp->sin_port = htons(port);
-		if (connect(s, (struct sockaddr *)fromp, sizeof (*fromp)) < 0) {
+		if (connect(s, (struct sockaddr *)fromp,
+			    sizeof (*fromp)) < 0) {
 			syslog(LOG_INFO, "connect second port %d: %m", port);
 			exit(1);
 		}
@@ -356,12 +403,9 @@ doit(fromp)
 	}
 #endif
 
-#ifdef notdef
-	/* from inetd, socket is already on 0, 1, 2 */
-	dup2(f, 0);
-	dup2(f, 1);
-	dup2(f, 2);
-#endif
+	/* Get the "name" of the clent form its Internet address.
+	 * This is used for the autentication below
+	 */
 	errorstr = NULL;
 	hp = gethostbyaddr((char *)&fromp->sin_addr, sizeof (struct in_addr),
 		fromp->sin_family);
@@ -402,11 +446,11 @@ doit(fromp)
 						hostname = inet_ntoa(fromp->sin_addr);
 						break;
 					}
-					if (!bcmp(hp->h_addr_list[0],
+					if (!memcmp(hp->h_addr_list[0],
 					    (caddr_t)&fromp->sin_addr,
 					    sizeof(fromp->sin_addr))) {
 						hostname = hp->h_name;
-						break;
+						break; /* equal, OK */
 					}
 				}
 			}
@@ -425,8 +469,8 @@ doit(fromp)
 		if (doencrypt) {
 			struct sockaddr_in local_addr;
 			rc = sizeof(local_addr);
-			if (getsockname(0, (struct sockaddr *)&local_addr,
-			    &rc) < 0) {
+			if (getsockname(STDIN_FILENO,
+				    (struct sockaddr *)&local_addr, &rc) < 0) {
 				syslog(LOG_ERR, "getsockname: %m");
 				error("rlogind: getsockname: %m");
 				exit(1);
@@ -452,9 +496,13 @@ doit(fromp)
 #endif
 		remuser = getstr ("remuser");
 
+	/* Read three strings from the client. */
 	locuser = getstr ("locuser");
 	cmdbuf = getstr ("command");
 
+	/* Look up locuser in the passerd file.  The locuser has\* to be a
+	 * valid account on this system.
+	 */
 	setpwent();
 	pwd = getpwnam(locuser);
 	if (pwd == NULL) {
@@ -465,13 +513,17 @@ doit(fromp)
 			errorstr = "Login incorrect.\n";
 		goto fail;
 	}
+
+	/* We'll execute the client's command in the home directory
+	 * pf locuser.
+	 */
 	if (chdir(pwd->pw_dir) < 0) {
 		(void) chdir("/");
-#ifdef notdef
 		syslog(LOG_INFO|LOG_AUTH,
 		    "%s@%s as %s: no home directory. cmd='%.80s'",
 		    remuser, hostname, locuser, cmdbuf);
 		error("No remote directory.\n");
+#ifdef notdef
 		exit(1);
 #endif
 	}
@@ -510,15 +562,32 @@ fail:
 			exit(1);
 		}
 
+	/* If the locuser isn't root, the check if loigins are disabled. */
 	if (pwd->pw_uid && !access(PATH_NOLOGIN, F_OK)) {
 		error("Logins currently disabled.\n");
 		exit(1);
 	}
 
-	(void) write(STDERR_FILENO, "\0", 1);
+	/* Now write the null byte back to the client telling it
+	 * that everything is OK.
+	 * Note that this means that any error message that we generate
+	 * from now on (such as the perror() if the execl() fails), won't
+	 * be seen by the rcomd() fucntion, but will be seen by the
+	 * application that called rcmd() when it reads from the socket.
+	 */
+	if (write(STDERR_FILENO, "\0", 1) < 0) {
+		error("Lost connection.\n");
+		exit(1);
+	}
 	sent_null = 1;
 
 	if (port) {
+	      /* We nee a secondary channel,  Here's where we create
+	       * the control process that'll handle this secondary
+	       * channel.
+	       * First create a pipe to use for communication between
+	       * the parent and child, then fork.
+	       */
 		if (pipe(pv) < 0) {
 			error("Can't make pipe.\n");
 			exit(1);
@@ -543,6 +612,11 @@ fail:
 			exit(1);
 		}
 		if (pid) {
+		      /* Parent process == control process.
+		       * We: (1) read from the pipe and write to s;
+		       *     (2) read from s and send corresponding
+		       *         signal.
+		       */
 #ifdef ENCRYPTION
 #ifdef KERBEROS
 			if (doencrypt) {
@@ -555,15 +629,18 @@ fail:
 #endif
 #endif
 			{
-				(void) close(0);
-				(void) close(1);
+			        /* child handles the original socket */
+				(void) close(STDIN_FILENO);
+				/* (0, 1, and 2 were from inetd */
+				(void) close(STDOUT_FILENO);
 			}
-			(void) close(2);
-			(void) close(pv[1]);
+			(void) close(STDERR_FILENO);
+			(void) close(pv[1]); /* close write end of pipe */
 
 			FD_ZERO(&readfrom);
 			FD_SET(s, &readfrom);
 			FD_SET(pv[0], &readfrom);
+			/* set max fd + 1 for select */
 			if (pv[0] > s)
 				nfd = pv[0];
 			else
@@ -599,6 +676,7 @@ fail:
 #endif
 					if (select(nfd, &ready, (fd_set *)0,
 					  (fd_set *)0, (struct timeval *)0) < 0)
+					    /* wait until somthing to read */
 						break;
 				if (FD_ISSET(s, &ready)) {
 					int	ret;
@@ -667,11 +745,22 @@ fail:
 #endif
 #endif
 			    FD_ISSET(pv[0], &readfrom));
+			/* The pipe will generat an EOR whe the shell
+			 * terminates.  The socket will terninate whe the
+			 * client process terminates.
+			 */
 			exit(0);
 		}
+
+		/* Child process. Become a process group leader, so that
+		 * the control process above can send signals to all the
+		 * processes we may be the parent of.  The process group ID
+		 * (the getpid() value below) equals the childpid value from
+		 * the fork above.
+		 */
 		setpgid (0, getpid ());
-		(void) close(s);
-		(void) close(pv[0]);
+		(void) close(s); /* control process handles this fd */
+		(void) close(pv[0]); /* close read end of pipe */
 #ifdef ENCRYPTION
 #ifdef KERBEROS
 		if (doencrypt) {
@@ -683,18 +772,24 @@ fail:
 		}
 #endif
 #endif
-		dup2(pv[1], 2);
+		dup2(pv[1], STDERR_FILENO); /* stderr of shell has to go
+					       pipe to control process */
 		close(pv[1]);
 	}
+
 	if (*pwd->pw_shell == '\0')
 		pwd->pw_shell = PATH_BSHELL;
 #if	BSD > 43
 	if (setlogin(pwd->pw_name) < 0)
 		syslog(LOG_ERR, "setlogin() failed: %m");
 #endif
+
+	/* Set the fid, then uid to become the user specified by "locuser" */
 	(void) setgid((gid_t)pwd->pw_gid);
-	initgroups(pwd->pw_name, pwd->pw_gid);
+	initgroups(pwd->pw_name, pwd->pw_gid); /* BSD groups */
 	(void) setuid((uid_t)pwd->pw_uid);
+
+	/* Set up an initial environment for the shell that we exec() */
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
 	strcat(path, PATH_DEFPATH);
@@ -702,9 +797,9 @@ fail:
 	strncat(username, pwd->pw_name, sizeof(username)-6);
 	cp = strrchr(pwd->pw_shell, '/');
 	if (cp)
-		cp++;
+		cp++; /* step past first slash */
 	else
-		cp = pwd->pw_shell;
+		cp = pwd->pw_shell; /* no slash in shell string */
 	endpwent();
 	if (log_success || pwd->pw_uid == 0) {
 #ifdef	KERBEROS
