@@ -239,17 +239,14 @@ dnl        KRB4 exists?
 LIBAUTH=
 INCAUTH=
 if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
-  AH_TEMPLATE(KERBEROS_IV, [Define to one if you have Kerberos IV])
-  AH_TEMPLATE(KRB4, [Define to one if you have Kerberos IV])
   AH_TEMPLATE(KERBEROS, [Define to one if you have Kerberos])
-  AH_TEMPLATE(DES_ENCRYPTION, [FIXME])
-  AH_TEMPLATE(KERBEROS_V, [Define to one if you have Kerberos V])
+  AH_TEMPLATE(KRB4, [Define to one if you have Kerberos IV])
   AH_TEMPLATE(KRB5, [Define to one if you have Kerberos V])
+  AH_TEMPLATE(DES_ENCRYPTION, [FIXME])
   
   if test "$KERBEROS_VERSION" = 4; then
     AC_CHECK_LIB(krb, krb_mk_req,
                  [LIBAUTH=-lkrb
-                  AC_DEFINE(KERBEROS_IV)
                   AC_DEFINE(KRB4)],
                  -L$KERBEROS_DIR)
     if test ".$LIBAUTH" != . ; then
@@ -270,10 +267,10 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
     INCAUTH=$KRB_CFLAGS
     if test ".$LIBAUTH" != . ;then
       case $KERBEROS_VERSION in
-      4) AC_DEFINE(KERBEROS_IV)
+      4) AC_DEFINE(KERBEROS)
          AC_DEFINE(KRB4)
          ;;
-      5) AC_DEFINE(KERBEROS_V)
+      5) AC_DEFINE(KERBEROS)
 	 AC_DEFINE(KRB5)
          ;;
       esac
@@ -336,6 +333,11 @@ AC_CHECK_HEADER(poll.h, , [INCLUDES="$INCLUDES poll.h"])
 ### Checks for types.
 dnl Checks return type of signal handlers
 AC_TYPE_SIGNAL
+
+AC_CHECK_TYPE(socklen_t, ,
+              AC_DEFINE(socklen_t, int,
+                        [Define to int if <sys/types.h> does not define],
+              [#include <sys/types.h>]))
 
 dnl We may need our own definition for struct osockaddr (equivalent to the
 dnl old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
