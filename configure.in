@@ -404,7 +404,7 @@ IU_CHECK_TYPE(sig_t,
 # sigset_t is a set of signals (4.4BSD)
 IU_CHECK_TYPE(sigset_t,
   [ #include <sys/types.h>
-    #include <signal.h> ]
+    #include <signal.h> ],
   :, AC_DEFINE(sigset_t, unsigned long))
 # I'm not sure what this is, but netbsd has it; just use int if necessary.
 IU_CHECK_TYPE(sig_atomic_t, 
