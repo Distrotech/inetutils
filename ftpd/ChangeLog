@@ -1,3 +1,10 @@
+2001-11-03  Alain Magloire
+
+	* server_mode.c: [DEFPORT] defiine to 21.
+	Fallback to DEFPORT if getservbyname() failed.
+	Lots of site does not configure the /etc/services
+	correctly.
+
 2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
 
 	* ftpd.c (complete_login): Add missing `;'.

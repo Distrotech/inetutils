@@ -29,8 +29,8 @@ START-INFO-DIR-ENTRY
 @c * inetd: (inetutils)inetd invocation.           Interner super-server.
 @c * rcp: (inetutils)rcp invocation.               Strip non-directory suffix.
 @c * rexecd: (inetutils)rexecd invocation.         Remote execution server.
-@c * rlogin: (inetutils)rlogin invocation.         Remote login.
-@c * rlogind: (inetutils)rlogind invocation.       Remote login server.
+* rlogin: (inetutils)rlogin invocation.         Remote login.
+* rlogind: (inetutils)rlogind invocation.       Remote login server.
 @c * rsh: (inetutils)rsh invocation.               Remote shell.
 @c * rshd: (inetutils)rshd invocation.             Remote shell server.
 * logger: (inetutils)logger invocation.         Logger.
@@ -115,8 +115,8 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 @c * inetd::                       Interner super-server.
 @c * rcp::                         Strip non-directory suffix.
 @c * rexecd::                      Remote execution server.
-@c * rlogin::                      Remote login.
-@c * rlogind::                     Remote login server.
+* rlogin::                      Remote login.
+* rlogind::                     Remote login server.
 @c * rsh::                         Remote shell.
 @c * rshd::                        Remote shell server.
 * logger::                      Logger.
@@ -177,8 +177,8 @@ Print the version number, then exit successfully.
 @c @include inetd.texi
 @c @include rcd.texi
 @c @include rexecd.texi
-@c @include rlogin.texi
-@c @include rlogind.texi
+@include rlogin.texi
+@include rlogind.texi
 @c @include rsh.texi
 @c @include rshd.texi
 @include logger.texi

@@ -236,10 +236,12 @@ main (int argc, char *argv[])
 	case 'a':
 	  verify_hostname = 1;
 	  break;
+
 	case 'D':
 	  if (optarg)
 	    debug_level = strtoul (optarg, NULL, 10);
 	  break;
+
 	case 'd':
 	  mode = MODE_DAEMON;
 	  if (optarg)
@@ -247,24 +249,29 @@ main (int argc, char *argv[])
 	  if (maxchildren == 0)
 	    maxchildren = DEFMAXCHILDREN;
 	  break;
+
 	case 'l':
 	  __check_rhosts_file = 0; /* FIXME: extern var? */
 	  break;
+
 	case 'L':
 	  local_domain_name = optarg;
 	  break;
+
 	case 'n':
 	  keepalive = 0;
 	  break;
+
 #ifdef KERBEROS
 	case 'k':
 	  kerberos = 1;
 	  break;
-#ifdef ENCRYPTION
+
+# ifdef ENCRYPTION
 	case 'x':
 	  encrypt = 1;
 	  break;
-#endif /* ENCRYPTION */
+# endif /* ENCRYPTION */
 #endif /* KERBEROS */
 
 	case 'o':
@@ -350,39 +357,12 @@ rlogin_daemon (int maxchildren, int port)
 	port = DEFPORT;
     }
 
-  pid = fork ();
-  if (pid == -1)
+  /* Become a daemon.  */
+  if (daemon (1,1) < 0)
     {
-      perror ("fork");
-      fatal (fileno (stderr), "exiting", 0);
-      exit (1);
+      syslog (LOG_ERR, "failed to become a daemon %s", strerror (errno));
+      fatal (fileno (stderr), "fork failed, exiting", 0);
     }
-
-  if (pid > 0)
-    exit (0);
-
-  setsid ();
-
-  {
-    /* Close inherited file descriptors.  */
-    size_t i;
-#if defined(HAVE_SYSCONF) && defined(_SC_OPEN_MAX)
-    size_t fdmax = sysconf (_SC_OPEN_MAX);
-#elif defined(HAVE_GETDTABLESIZE)
-    size_t fdmax = getdtablesize ();
-#else
-    size_t fdmax = 64;
-#endif
-
-    for (i = 0; i < fdmax; i++)
-      close (i);
-
-    /* Hold first three descriptors. This is needed so that master/slave
-       pty fds do not clash with standard in,out,err. The first three
-       descriptors will be dup'ed in openpty() anyway. */
-    for (i = 0; i < 3; i++)
-      i = open ("/dev/null", O_RDWR);
-  }
 
   signal (SIGCHLD, rlogind_sigchld);
 
@@ -390,22 +370,22 @@ rlogin_daemon (int maxchildren, int port)
 
   if (listenfd == -1)
     {
-      syslog (LOG_ERR, "socket: %s", strerror(errno));
+      syslog (LOG_ERR, "socket: %s", strerror (errno));
       exit (1);
     }
 
   {
     int on = 1;
-    setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof on);
   }
 
-  size = sizeof (saddr);
+  size = sizeof saddr;
   memset (&saddr, 0, size);
   saddr.sin_family = AF_INET;
   saddr.sin_addr.s_addr = htonl (INADDR_ANY);
   saddr.sin_port = htons (port);
 
-  size = sizeof(saddr);
+  size = sizeof saddr;
   if (bind (listenfd, (struct sockaddr *)&saddr, size) == -1)
     {
       syslog (LOG_ERR, "bind: %s", strerror (errno));
@@ -488,8 +468,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 	}
       if (!match)
 	{
-	  syslog (LOG_ERR|LOG_AUTH,
-		  "cannot find matching IP for %s (%s)",
+	  syslog (LOG_ERR | LOG_AUTH, "cannot find matching IP for %s (%s)",
 		  ap->hostname, inet_ntoa (ap->from.sin_addr));
 	  fatal (fd, "Permission denied", 0);
 	}
@@ -638,8 +617,8 @@ int
 rlogind_mainloop (int infd, int outfd)
 {
   size_t size;
-  int true = 1;
   struct auth_data auth_data;
+  int true;
   char c;
   int authenticated;
   pid_t pid;
@@ -655,6 +634,7 @@ rlogind_mainloop (int infd, int outfd)
 
   syslog (LOG_INFO, "Connect from %s", inet_ntoa(auth_data.from.sin_addr));
 
+  true = 1;
   if (keepalive
       && setsockopt (infd, SOL_SOCKET, SO_KEEPALIVE, &true, sizeof true) < 0)
     syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
@@ -773,7 +753,7 @@ do_krb_login (int infd, struct auth_data *ap)
 #ifdef ENCRYPTION
   if (encrypt)
     {
-      rc = sizeof (faddr);
+      rc = sizeof faddr;
       if (getsockname (0, (struct sockaddr *) &faddr, &rc))
 	return -1;
       authopts = KOPT_DO_MUTUAL;
@@ -807,11 +787,11 @@ do_krb_login (int infd, struct auth_data *ap)
     return -1;
 
   if (pwd->pw_uid == 0)
-    syslog (LOG_INFO|LOG_AUTH,
+    syslog (LOG_INFO | LOG_AUTH,
 	    "ROOT Kerberos login from %s.%s@%s on %s\n",
 	    kdata->pname, kdata->pinst, kdata->prealm, ap->hostname);
   else
-    syslog (LOG_INFO|LOG_AUTH,
+    syslog (LOG_INFO | LOG_AUTH,
 	    "%s Kerberos login from %s.%s@%s on %s\n",
 	    pwd->pw_name,
 	    kdata->pname, kdata->pinst, kdata->prealm, ap->hostname);

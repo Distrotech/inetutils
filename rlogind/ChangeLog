@@ -1,3 +1,9 @@
+2001-11-03  Alain Magloire
+
+	* rlogind.c: A little indentation work 8-).
+	(rlogin_daemon): Use function daemon(1,1) to daemonize.
+	More portable and any bug fix will benefit all.
+
 2001-10-28  Alain Magloire
 
 	Unfortunately some platforms, like QNX/Neutrino does not implement flow
@@ -5,7 +11,7 @@
 	constant. It should not affect the functionnality, but the server
 	will not be able to process CTRL-Q CTRL-S.
 
-	* rlogind/rlogind.c: Check if TIOCPKT is defined, if not provide
+	* rlogind.c: Check if TIOCPKT is defined, if not provide
 	macros for TIOCPKT, TIOCPKT_FLUSHWRITE, TIOCPKT_NOSTOP,TIOCPKT_DOSTOP,
 	to be able to compile.
 	New option:" -o, --allow-root", for many remote servers rlogin is the
@@ -13,7 +19,7 @@
 
 2001-10-25  Alain Magloire
 
-	* rlogind/rlogind.c (topdomain):  In badly configure systems (like
+	* rlogind.c (topdomain):  In badly configure systems (like
 	mine 8), there is no domainame, this case will cause a sigsegv.
 	Because, we take for granted that local_domain_name, will be
 	initialized correctly:

@@ -1,3 +1,3 @@
 info_TEXINFOS = inetutils.texi
 
-inetutils_TEXINFOS = logger.texi syslogd.texi
+inetutils_TEXINFOS = rlogin.texi rlogind.texi logger.texi syslogd.texi

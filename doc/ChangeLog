@@ -1,3 +1,10 @@
+2001-11-03  Alain Magloire
+
+	* rlogind.texi: New file.
+	* rlogin.texi: New file.
+	* Makefile.am: Add rlogin.texi and rlogind.texi in dependencies.
+	* inetutils.texi: Enable rlogin and rlogind.
+
 2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
 
 	* inetutils.texi: Fix dir entries and the menu.  Remove all those

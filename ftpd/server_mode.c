@@ -22,6 +22,8 @@
 
 static void reapchild __P ((int));
 
+#define DEFPORT 21
+
 #ifdef WITH_WRAP
 
 int allow_severity = LOG_INFO;
@@ -78,6 +80,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
 {
   int ctl_sock, fd;
   struct servent *sv;
+  int port;
   static struct  sockaddr_in server_addr;  /* Our address.  */
 
   /* Become a daemon.  */
@@ -87,13 +90,11 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
       return -1;
     }
   (void) signal (SIGCHLD, reapchild);
+
   /* Get port for ftp/tcp.  */
   sv = getservbyname ("ftp", "tcp");
-  if (sv == NULL)
-    {
-      syslog (LOG_ERR, "getservbyname for ftp failed");
-      return -1;
-    }
+  port = (sv == NULL) ? DEFPORT : sv->s_port;
+
   /* Open socket, bind and start listen.  */
   ctl_sock = socket (AF_INET, SOCK_STREAM, 0);
   if (ctl_sock < 0)
@@ -110,12 +111,11 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
       syslog (LOG_ERR, "control setsockopt: %m");
   }
 
-  memset (&server_addr, 0, sizeof (server_addr));
+  memset (&server_addr, 0, sizeof server_addr);
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = sv->s_port;
+  server_addr.sin_port = htons (port);
 
-  if (bind (ctl_sock, (struct sockaddr *)&server_addr,
-	    sizeof(server_addr)))
+  if (bind (ctl_sock, (struct sockaddr *)&server_addr, sizeof server_addr))
     {
       syslog (LOG_ERR, "control bind: %m");
       return -1;

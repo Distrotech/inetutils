@@ -1,3 +1,15 @@
+2001-11-03  Alain Magloire
+
+	* rlogin.c: #include <version.h>
+	Reindent to comply to GNU coding style.
+	Implemented long version options.
+	Call seteeuid() not only setuid() when rcmd is finish.
+	Get rid of __STDC__ for function prototype, it was not
+	use consistently anyways.
+	Nuked -L option 'litout' the code was commented out
+	and nowadays nobody cares.
+	(usage): Changed for long option output.
+
 2001-10-28  Alain Magloire
 
 	Unfortunately some platforms, like QNX/Neutrino does not implement flow
