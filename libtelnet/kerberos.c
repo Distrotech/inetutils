@@ -108,7 +108,7 @@ static Block	challenge	= { 0 };
 
 	static int
 Data(ap, type, d, c)
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	int type;
 	void *d;
 	int c;
@@ -143,7 +143,7 @@ Data(ap, type, d, c)
 
 	int
 kerberos4_init(ap, server)
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	int server;
 {
 	FILE *fp;
@@ -164,7 +164,7 @@ int dst_realm_sz = REALM_SZ;
 
 	int
 kerberos4_send(ap)
-	Authenticator *ap;
+	TN_Authenticator *ap;
 {
 	KTEXT_ST auth;
 #ifdef	ENCRYPTION
@@ -257,7 +257,7 @@ kerberos4_send(ap)
 
 	void
 kerberos4_is(ap, data, cnt)
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	unsigned char *data;
 	int cnt;
 {
@@ -367,7 +367,7 @@ kerberos4_is(ap, data, cnt)
 
 	void
 kerberos4_reply(ap, data, cnt)
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	unsigned char *data;
 	int cnt;
 {
@@ -435,7 +435,7 @@ kerberos4_reply(ap, data, cnt)
 
 	int
 kerberos4_status(ap, name, level)
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	char *name;
 	int level;
 {
