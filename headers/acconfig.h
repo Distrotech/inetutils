@@ -305,9 +305,6 @@
 /* Define this if <paths.h> exists.  */
 #undef HAVE_PATHS_H
 
-/* Define this if getcwd (0, 0) works.  */
-#undef HAVE_GETCWD_ZERO_SIZE
-
 /* If these aren't defined by <unistd.h>, define them here. */
 #undef SEEK_SET
 #undef SEEK_CUR
