@@ -3,8 +3,8 @@
 AC_INIT(inetd/inetd.c)
 
 # These lists don't contain talk or talkd, which will get added later if nec.
-SERVERS='inetd ftpd telnetd rshd rlogind uucpd rexecd tftpd'
-CLIENTS='telnet ftp rsh rcp rlogin tftp'
+SERVERS='inetd ftpd telnetd rshd rlogind uucpd rexecd syslogd tftpd'
+CLIENTS='telnet ftp rsh rcp rlogin tftp ping logger'
 AC_SUBST(SERVERS)
 AC_SUBST(CLIENTS)
 
@@ -32,7 +32,8 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
 AC_CHECK_HEADERS(malloc.h termio.h termios.h sys/tty.h sys/utsname.h \
-		 krb.h des.h netinet/ip.h netinet/in_systm.h paths.h)
+		 krb.h des.h netinet/in_systm.h \
+		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h paths.h)
 AC_CHECK_FUNCS(cgetent uname strdup)
 AC_CHECK_LIB(util, logout)
 if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
@@ -103,8 +104,9 @@ if test "$enable_encryption" = yes -a "$ac_cv_lib_des" = yes; then
 fi
 
 AC_OUTPUT(Makefile config.make
-	  inetd/Makefile libtelnet/Makefile telnetd/Makefile
-	  ftpd/Makefile rshd/Makefile rlogind/Makefile uucpd/Makefile
-	  rexecd/Makefile talkd/Makefile tftpd/Makefile
+	  inetd/Makefile libtelnet/Makefile telnetd/Makefile ftpd/Makefile
+	  rshd/Makefile rlogind/Makefile uucpd/Makefile rexecd/Makefile
+	  talkd/Makefile tftpd/Makefile syslogd/Makefile
 	  telnet/Makefile ftp/Makefile rsh/Makefile rcp/Makefile
-	  rlogin/Makefile talk/Makefile tftp/Makefile)
+	  rlogin/Makefile talk/Makefile tftp/Makefile ping/Makefile
+	  logger/Makefile)
