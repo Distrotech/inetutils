@@ -1,6 +1,6 @@
 # Makefile for syslogd
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,18 +20,17 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS= \
+INSTALL_TARGETS = \
   $(sbindir)/syslogd $(man5dir)/syslog.conf.5 $(man8dir)/syslogd.8
+SRCS = syslogd.c
+DISTFILES = $(SRCS) syslogd.8 syslog.conf.5 Makefile.in
 
 CPPFLAGS += \
 	-D_PATH_LOGCONF=\"$(sysconfdir)/syslog.conf\" \
 	-D_PATH_LOGPID=\"$(localstatedir)/run/syslog.pid\"
 
 all: syslogd
-syslogd: syslogd.o ttymsg.o
-
-ttymsg.o: $(top_srcdir)/common/ttymsg.c
-	$(COMPILE.c) $<
+syslogd: $(SRCS:.c=.o) ttymsg.o
 
 clean:
 	$(RM) -f *.o syslogd
