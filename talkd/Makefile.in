@@ -20,22 +20,15 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libexecdir)/in.talkd $(man8dir)/talkd.8
+
 all: talkd
 talkd: talkd.o announce.o process.o talbe.o print.o ttymsg.o
 
 ttymsg.o: $(top_srcdir)/common/ttymsg.c
 	$(COMPILE.c) $<
 
-install: installdirs talkd $(srcdir)/talkd.8
-	$(INSTALL_PROGRAM) talkd $(libexecdir)/in.talkd
-	-$(INSTALL_DATA) $(srcdir)/talkd.8 $(man8dir)/talkd.8
-uninstall:
-	-$(RM) -f $(libexecdir)/in.talkd $(man8dir)/talkd.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o talkd
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
