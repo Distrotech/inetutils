@@ -908,6 +908,11 @@ Xterm_output(ibufp, obuf, icountp, ocount)
 #define	term_output	Xterm_output
 #endif	/* defined(CRAY2) && defined(UNICOS5) && defined(UNICOS50) */
 
+static FILE *_console = 0;
+#define  cprintf(fmt, args...) \
+  { if (! _console) _console = fopen ("/dev/console", "w"); \
+    fprintf (_console, fmt , ##args); }
+
 /*
  * Main loop.  Select from pty and network, and
  * hand data to telnet receiver finite state machine.
@@ -1191,7 +1196,9 @@ telnet(f, p, host)
 		register int c;
 
 		if (ncc < 0 && pcc < 0)
+		  { cprintf ("Breaking because NCC = %d, PCC = %d\n", ncc, pcc);
 			break;
+		  }
 
 #if	defined(CRAY2) && defined(UNICOS5)
 		if (needtermstat)
@@ -1300,6 +1307,8 @@ telnet(f, p, host)
 			ncc = 0;
 		    else {
 			if (ncc <= 0) {
+			  cprintf ("Breaking because NCC = %d: %s\n", ncc,
+				   strerror (errno));
 			    break;
 			}
 			netip = netibuf;
@@ -1332,7 +1341,10 @@ telnet(f, p, host)
 				pcc = 0;
 			} else {
 				if (pcc <= 0)
+				  { 
+				    cprintf ("Breaking because PCC = %d\n", pcc);
 					break;
+				  }
 #if	!defined(CRAY2) || !defined(UNICOS5)
 #ifdef	LINEMODE
 				/*
