@@ -907,8 +907,6 @@ Xterm_output(ibufp, obuf, icountp, ocount)
 #define	term_output	Xterm_output
 #endif	/* defined(CRAY2) && defined(UNICOS5) && defined(UNICOS50) */
 
-static volatile hang = 1;
-
 /*
  * Main loop.  Select from pty and network, and
  * hand data to telnet receiver finite state machine.
@@ -1162,9 +1160,6 @@ telnet(f, p, host)
 
 		HE = 0;
 	}
-
-	while (hang)
-	  sleep (5);
 
 	edithost(HE, host_name);
 	if (hostinfo && *IM)
