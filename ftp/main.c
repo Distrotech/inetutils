@@ -58,9 +58,65 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <getopt.h>
+#include <version.h>
 
 #include "ftp_var.h"
+
+#define USAGE "Usage: %s [OPTION...] [HOST [PORT]]\n"
 
+/* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
+extern char *__progname;
+
+/* Print a help message describing all options to STDOUT and exit with a
+   status of 0.  */
+static void
+ohelp ()
+{
+  fprintf (stdout, USAGE, __progname);
+  puts ("\n\
+  -d, --debug                Turn on debugging mode\n\
+  -g, --no-glob              Turn off file name globbing\n\
+  -i, --no-prompt            Don't prompt during multiple-file transfers\n\
+  -n, --no-login             Don't automatically login to the remove system\n\
+  -t, --trace                Enable packet tracing\n\
+  -v, --verbose              Be verbose\n\
+      --help                 Give this help list\n\
+      --version              Print program version\n\
+");
+  exit (0);
+}
+
+/* Print a message saying to use --help to STDERR, and exit with a status of
+   1.  */
+static void
+try_help ()
+{
+  fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+  exit (1);
+}
+
+/* Print a usage message to STDERR and exit with a status of 1.  */
+static void
+usage ()
+{
+  fprintf (stderr, USAGE, __progname);
+  try_help ();
+}
+
+static struct option long_options[] =
+{
+  { "trace", no_argument, 0, 't' },
+  { "verbose", no_argument, 0, 'v' },
+  { "no-login", no_argument, 0, 'n' },
+  { "no-prompt", no_argument, 0, 'i' },
+  { "debug", no_argument, 0, 'd' },
+  { "no-glob", no_argument, 0, 'g' },
+  { "help", no_argument, 0, '&' },
+  { "version", no_argument, 0, 'V' },
+  { 0 }
+};
+
 int
 main(argc, argv)
 	int argc;
@@ -77,7 +133,9 @@ main(argc, argv)
 	interactive = 1;
 	autologin = 1;
 
-	while ((ch = getopt(argc, argv, "dgintv")) != EOF) {
+	while ((ch = getopt_long (argc, argv, "dgintv", long_options, 0))
+	       != EOF)
+	{
 		switch (ch) {
 		case 'd':
 			options |= SO_DEBUG;
@@ -104,10 +162,17 @@ main(argc, argv)
 			verbose++;
 			break;
 
+		case '&':
+			ohelp ();
+		case 'V':
+			puts (inetutils_version);
+			exit (0);
+
+		case '?':
+			try_help ();
+
 		default:
-			(void)fprintf(stderr,
-				"usage: ftp [-dgintv] [host [port]]\n");
-			exit(1);
+			usage ();
 		}
 	}
 	argc -= optind;
