@@ -365,7 +365,7 @@ main(argc, argv, envp)
 	(void) freopen(PATH_DEVNULL, "w", stderr);
 	(void) signal(SIGPIPE, lostconn);
 	(void) signal(SIGCHLD, SIG_IGN);
-	if ((int)signal(SIGURG, myoob) < 0)
+	if ((long)signal(SIGURG, myoob) < 0)
 		syslog(LOG_ERR, "signal: %m");
 
 	/* Try to handle urgent data inline */
