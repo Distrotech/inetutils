@@ -1,9 +1,25 @@
+	* configure.in : check for ptsname(), this will give
+	a hint to use SYSVR4 pseudo ptys handling.  particularly
+	for telnetd and rlogind.
+
+1999-05-18 Alain Magloire
+	* headers/arpa/tftp.h : changing tu_cloc to be unsigned to handle
+	larger files (twice as big), without sacrificing anything.
+	We need this to allow sgis to roboinst from a sun tftp server.
+	Patch sent from Dan Stromberg.
+
 1999-05-16 Alain Magloire
 	* config.{guess,sub} : files removed from the repository.
 	We let automake -a create a newer version when releasing
-	From Jeff Bailey
+	From Jeff Bailey.
 	* Makefile.am : added ChangeLog.0 in EXTRA_DIST
-	Noted by Jeff Bailey
+	Noted by Jeff Bailey.
+
+1999-05-14 Alain Magloire
+	* libinetutils/opentty.c : writing on a constant string
+	"/dev/ptyXX" would cause the server to sigsegv.  Change
+	to be an array.
+	Problem first noted by Frederic Goudal.
 
 1999-04-18 Alain Magloire
 	* configure.in: ping disable.
