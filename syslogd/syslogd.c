@@ -668,59 +668,25 @@ main (int argc, char *argv[])
 		continue;
 	    else if (fdarray[i].fd == fklog)
 	      {
-		/* Set to 1 if the kline possibly contains a log message.  */
-		int log_kline = 0;
+		result = read (fdarray[i].fd, &kline[kline_len],
+			       sizeof (kline) - kline_len - 1);
 
-		/*dbg_printf ("klog message\n");*/
-
-		if (kline_len == sizeof (kline) - 1)
+		if (result > 0)
 		  {
-		    /* We are trying to find the end of an earlier
-		       logged partial line.  */
-
-		    result = read (fdarray[i].fd, kline, sizeof (kline) - 1);
-		    if (result > 0)
-		      {
-			char *eol;
-
-			kline[result] = '\0';
-			eol = strchr (kline, '\n');
-			if (eol)
-			  {
-			    eol++;
-			    kline_len = result - (eol - kline);
-			    memmove (kline, eol, kline_len);
-			    log_kline = 1;
-			  }
-		      }
-		    else if (result < 0 && errno != EINTR)
-		      {
-			logerror ("klog");
-			fdarray[i].fd = fklog = -1;
-		      }
+		    kline_len += result;
 		  }
-		else
+		else if (result < 0 && errno != EINTR)
 		  {
-		    result = read (fdarray[i].fd, &kline[kline_len],
-				   sizeof (kline) - kline_len - 1);
-
-		    if (result > 0)
-		      {
-			kline_len += result;
-			log_kline = 1;
-		      }
-		    else if (result < 0 && errno != EINTR)
-		      {
-			logerror ("klog");
-			fdarray[i].fd = fklog = -1;
-		      }
+		    logerror ("klog");
+		    fdarray[i].fd = fklog = -1;
 		  }
 
-		if (log_kline)
+		while (1)
 		  {
 		    char *bol, *eol;
-		    
+
 		    kline[kline_len] = '\0';
+
 		    for (bol = kline, eol = strchr (kline, '\n'); eol;
 			 bol = eol, eol = strchr (bol, '\n'))
 		      {
@@ -728,9 +694,54 @@ main (int argc, char *argv[])
 			kline_len -= (eol - bol);
 			printsys (bol);
 		      }
-		    if (*bol)
-		      /* Log the beginning of a partial line.  */
-		      printsys (bol);
+
+		    /* This loop makes sure the daemon won't lock up
+		     * on null bytes in the klog stream.  They still hurt 
+		     * efficiency, acting like a message separator that 
+		     * forces a shift-and-reiterate when the buffer was
+		     * never full.
+		     */
+		    while (kline_len && !*bol)
+		      {
+			bol++;
+			kline_len--;
+		      }
+
+		    if (!kline_len)
+		      break;
+
+		    if (bol != kline)
+		      {
+			/* shift the partial line to start of buffer, so 
+			 * we can re-iterate.
+			 */
+			memmove (kline, bol, kline_len);
+		      }
+		    else
+		      {
+			if (kline_len < MAXLINE)
+			  break;
+
+			/* The pathological case of a single message that
+			 * overfills our buffer.  The best we can do is
+			 * log it in pieces.
+			 */
+			printsys (kline);
+
+			/* Clone priority signal if present 
+			 * We merely shift the kline_len pointer after
+			 * it so the next chunk is written after it.
+			 *
+			 * strchr(kline,'>') is not used as it would allow 
+			 * a pathological line ending in '>' to cause an
+			 * endless loop.
+			 */
+			if (kline[0] == '<'
+			    && isdigit (kline[1]) && kline[2] == '>')
+			  kline_len = 3;
+			else
+			  kline_len = 0;
+		      }
 		  }
 	      }
 	    else if (fdarray[i].fd == finet)
