@@ -749,7 +749,7 @@ char termbuf[1024];
 
 	/*ARGSUSED*/
 	int
-setupterm(tname, fd, errp)
+init_term (tname, fd, errp)
 	char *tname;
 	int fd, *errp;
 {
@@ -783,7 +783,7 @@ gettermname()
 		if (tnamep && tnamep != unknown)
 			free(tnamep);
 		if ((tname = (char *)env_getvalue((unsigned char *)"TERM")) &&
-				(setupterm(tname, 1, &err) == 0)) {
+				(init_term (tname, 1, &err) == 0)) {
 			tnamep = mklist(termbuf, tname);
 		} else {
 			if (tname && ((int)strlen(tname) <= 40)) {
