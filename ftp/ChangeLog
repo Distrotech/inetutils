@@ -1,5 +1,20 @@
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
+	* main.c: Convert to GNU coding standards.
+
+	* main.c: Remove COPYRIGHT (it's in the header) and
+	"#if 0"-out SCCSID.
+	(ohelp): Removed.
+	(try_help): Removed.
+	(usage): Incorporate functionality of ohelp and try_help,
+	and accept new argument ERR.
+
+	* main.c (getcmd): Add parenthese around assignment used as truth
+	value to silence gcc warning.
+	(makeargv): Likewise.
+
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
 	* cmds.c (remglob): New variable fd, use it to create temporary
 	file with mkstemp(), and not insecure mktemp().
 
