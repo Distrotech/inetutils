@@ -73,7 +73,7 @@ process_request(mp, rp)
 
 	rp->vers = TALK_VERSION;
 	rp->type = mp->type;
-	rp->id_num = htonl(0);
+	rp->id_num = htonl((long)0);
 	if (mp->vers != TALK_VERSION) {
 		syslog(LOG_WARNING, "Bad protocol version %d", mp->vers);
 		rp->answer = BADVERSION;
