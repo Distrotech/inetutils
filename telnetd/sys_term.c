@@ -483,7 +483,7 @@ int *ptynum;
 	int t;
 	char *ptsname();
 
-	p = open("/dev/ptmx", 2);
+	p = open("/dev/ptmx", O_RDWR);
 	if (p > 0) {
 		grantpt(p);
 		unlockpt(p);
@@ -523,7 +523,7 @@ int *ptynum;
 			break;
 		for (i = 0; i < 16; i++) {
 			*p2 = "0123456789abcdef"[i];
-			p = open(line, 2);
+			p = open(line, O_RDWR);
 			if (p > 0) {
 #ifndef	__hpux
 				line[5] = 't';
@@ -552,7 +552,7 @@ int *ptynum;
 
 	for (*ptynum = lowpty; *ptynum <= highpty; (*ptynum)++) {
 		(void) sprintf(myline, "/dev/pty/%03d", *ptynum);
-		p = open(myline, 2);
+		p = open(myline, O_RDWR);
 		if (p < 0)
 			continue;
 		(void) sprintf(line, "/dev/ttyp%03d", *ptynum);
@@ -568,7 +568,7 @@ int *ptynum;
 			chown(line, 0, 0);
 			chmod(line, 0600);
 			(void)close(p);
-			p = open(myline, 2);
+			p = open(myline, O_RDWR);
 			if (p < 0)
 				continue;
 		}
