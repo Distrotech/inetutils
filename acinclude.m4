@@ -1,6 +1,6 @@
 dnl Autoconf macros used by inetutils
 dnl
-dnl Copyright (C) 1996, 1997, 1998 Free Software Foundation, Inc.
+dnl Copyright (C) 1996, 1997, 1998, 2002 Free Software Foundation, Inc.
 dnl
 dnl Mostly written by Miles Bader <miles@gnu.ai.mit.edu>
 dnl
@@ -22,10 +22,6 @@ dnl along with this program; if not, write to the Free Software
 dnl Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
 
-# For case-conversion with sed
-IU_UCASE=ABCDEFGHIJKLMNOPQRSTUVWXYZ
-iu_lcase=abcdefghijklmnopqrstuvwxyz
-
 dnl IU_FLUSHLEFT -- remove all whitespace at the beginning of lines
 dnl This is useful for c-code which may include cpp statements
 dnl
@@ -44,7 +40,8 @@ dnl
 AC_DEFUN([IU_RESULT_ACTIONS], [
 [if test "$$1" = yes; then
   ]ifelse([$3], ,
-          [AC_DEFINE(HAVE_]translit($2, [a-z ./<>], [A-Z___])[)],
+          [AC_DEFINE(HAVE_]translit($2, [a-z ./<>], [A-Z___])[, 1,
+	             [FIXME])],
           [$3])[
 else
   ]ifelse([$4], , [:], [$4])[
@@ -80,53 +77,6 @@ changequote([,])dnl
   IU_RESULT_ACTIONS(IU_CVAR, [$1], [$4], [$5]) dnl
   undefine([IU_CVAR]) undefine([IU_TAG])])dnl
 
-dnl IU_CHECK_DECL -- See if a function/variable is declared
-dnl   $1 - NAME  -- name of c symbol to check
-dnl   $2 - INCLS -- C program text to inculde necessary files for testing
-dnl   $3 - TRUE  -- what to do if NAME is declared; defaults to 
-dnl		    `AC_DEFINE(HAVE_NAME_DECL)'
-dnl   $4 - FALSE -- what to do if NAME isn't declared; defaults to `:'
-dnl
-AC_DEFUN([IU_CHECK_DECL], [
-  define([IU_CVAR], [inetutils_cv_decl_]translit($1, [A-Z], [a-z]))dnl
-  AC_CACHE_CHECK([whether $1 is declared], IU_CVAR,
-    AC_TRY_COMPILE(IU_FLUSHLEFT([$2]), [char *iu_x = (char *)$1],
-      IU_CVAR[=yes], IU_CVAR[=no]))
-  IU_RESULT_ACTIONS(IU_CVAR, [$1_DECL], [$3], [$4])dnl
-  undefine([IU_CVAR])])
-
-dnl IU_CHECK_TYPE -- See if a typedef is defined
-dnl   $1 - TYPE  -- name of c type to check
-dnl   $2 - INCLS -- C program text to inculde necessary files for testing
-dnl   $3 - TRUE  -- what to do if TYPE is defined; defaults to 
-dnl		    `AC_DEFINE(HAVE_TYPE)'
-dnl   $4 - FALSE -- what to do if TYPE isn't defined; defaults to `:'
-dnl
-AC_DEFUN([IU_CHECK_TYPE], [
-  define([IU_CVAR], [inetutils_cv_type_]translit($1, [A-Z ], [a-z_]))dnl
-  AC_CACHE_CHECK([whether $1 is defined], IU_CVAR,
-    AC_TRY_COMPILE(IU_FLUSHLEFT([$2]), [$1 iu_x;],
-      IU_CVAR[=yes], IU_CVAR[=no]))
-  IU_RESULT_ACTIONS(IU_CVAR, [$1], [$3], [$4])dnl
-  undefine([IU_CVAR])])
-
-dnl IU_CHECK_STRUCT_FIELD -- See if a structure has a particular field
-dnl   $1 - NAME  -- name of structure
-dnl   $2 - FIELD -- name of field to test
-dnl   $3 - INCLS -- C program text to inculde necessary files for testing
-dnl   $4 - TRUE  -- what to do if struct NAME has FIELD; defaults to 
-dnl		    `AC_DEFINE(HAVE_NAME_FIELD)'
-dnl   $5 - FALSE -- what to do if not; defaults to `:'
-dnl
-AC_DEFUN([IU_CHECK_STRUCT_FIELD], [
-  define([IU_CVAR], [inetutils_cv_struct_]translit($1_$2, [A-Z], [a-z]))dnl
-  AC_CACHE_CHECK([whether struct $1 has $2 field], IU_CVAR,
-    AC_TRY_COMPILE(IU_FLUSHLEFT([$3]),
-      [struct $1 iu_x; int iu_y = sizeof iu_x.$2;],
-      IU_CVAR[=yes], IU_CVAR[=no]))
-  IU_RESULT_ACTIONS(IU_CVAR, [$1_$2], [$4], [$5])dnl
-  undefine([IU_CVAR])])dnl
-
 dnl 
 dnl Following are some more specific tests
 dnl
@@ -140,6 +90,7 @@ dnl This can't just be a compile-check, as gcc somtimes accepts the syntax even
 dnl feature isn't actually supported.
 dnl
 AC_DEFUN([IU_CHECK_WEAK_REFS], [
+  AH_TEMPLATE(HAVE_WEAK_REFS, 1, [Define if you have weak references])
   AC_CACHE_CHECK(whether gcc weak references work,
 		 inetutils_cv_attr_weak_refs,
     AC_TRY_LINK([],
@@ -148,7 +99,9 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
       [inetutils_cv_attr_weak_refs=yes],
       [inetutils_cv_attr_weak_refs=no]))
   if test "$inetutils_cv_weak_refs" = yes; then
-    AC_DEFINE(HAVE_WEAK_REFS) AC_DEFINE(HAVE_ATTR_WEAK_REFS)
+    AC_DEFINE(HAVE_WEAK_REFS)
+    AC_DEFINE(HAVE_ATTR_WEAK_REFS, 1,
+              [Define if you have weak "attribute" references])
   else
     AC_CACHE_CHECK(whether pragma weak references work,
 		   inetutils_cv_pragma_weak_refs,
@@ -159,7 +112,9 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
 	[inetutils_cv_pragma_weak_refs=yes],
 	[inetutils_cv_pragma_weak_refs=no]))
     if test "$inetutils_cv_pragma_weak_refs" = yes; then
-      AC_DEFINE(HAVE_WEAK_REFS) AC_DEFINE(HAVE_PRAGMA_WEAK_REFS)
+      AC_DEFINE(HAVE_WEAK_REFS)
+      AC_DEFINE(HAVE_PRAGMA_WEAK_REFS, 1,
+                [Define if you have weak "pragma" references])
     else
       AC_CACHE_CHECK(whether asm weak references work,
 		     inetutils_cv_asm_weak_refs,
@@ -170,7 +125,9 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
 	  [inetutils_cv_asm_weak_refs=yes],
 	  [inetutils_cv_asm_weak_refs=no]))
       if test "$inetutils_cv_asm_weak_refs" = yes; then
-	AC_DEFINE(HAVE_WEAK_REFS) AC_DEFINE(HAVE_ASM_WEAK_REFS)
+	AC_DEFINE(HAVE_WEAK_REFS)
+	AC_DEFINE(HAVE_ASM_WEAK_REFS, 1,
+	          [Define if you have weak "assembler" references])
       fi
     fi
   fi])dnl
@@ -299,18 +256,16 @@ dnl defines it to be that system define, unless it is already defined (which
 dnl will be case if overridden by make).
 dnl
 AC_DEFUN([IU_CONFIG_PATHS], [
-  dnl
   dnl We need to know if we're cross compiling.
-  dnl
   AC_REQUIRE([AC_PROG_CC])
-  dnl
-  AC_CHECK_HEADER(paths.h, AC_DEFINE(HAVE_PATHS_H) iu_paths_h="<paths.h>")
-  dnl 
+
+  AC_CHECK_HEADER(paths.h, AC_DEFINE(HAVE_PATHS_H, 1,
+        [Define if you have the <paths.h> header file]) iu_paths_h="<paths.h>")
+
   dnl A slightly bogus use of AC_ARG_WITH; we never actually use
   dnl $with_PATHVAR, we just want to get this entry put into the help list.
   dnl We actually look for `with_' variables corresponding to each path
   dnl configured.
-  dnl 
   AC_ARG_WITH(PATHVAR,
 [  --with-PATHVAR=PATH     Set the value of PATHVAR to PATH
                           PATHVAR is the name of a \`PATH_FOO' variable,
@@ -477,7 +432,7 @@ HAVE_$iu_sym
       iu_path="`echo $iu_var | sed -e 's/^inetutils_cv_//' -e y/${iu_lcase}/${IU_UCASE}/`"
       iu_pathdef="`echo $iu_path | sed 's/^PATH_/PATHDEF_/'`"
       echo $iu_pathdef = -D$iu_path='\"'"$iu_val"'\"'
-      AC_DEFINE_UNQUOTED($iu_path,"$iu_val")
+      AC_DEFINE_UNQUOTED($iu_path, "$iu_val")
     fi
   done >$[$2]
   AC_SUBST_FILE([$2])
@@ -497,28 +452,28 @@ EOF
   done >$[$3]
   AC_SUBST_FILE([$3])])
 
-AC_DEFUN([IU_ENABLE_FOO], [
-AC_ARG_ENABLE($1, [  --disable-$1       don't compile $1], ,
-[enable_]$1[=$enable_]$2
-)
-
+AC_DEFUN([IU_ENABLE_FOO],
+ [AC_ARG_ENABLE($1, [  --disable-$1               don't compile $1], ,
+                [enable_]$1[=$enable_]$2)
 [if test "$enable_$1" = yes; then 
-BUILD_]translit($1, [a-z], [A-Z])[=$1]
-[else BUILD_]translit($1, [a-z], [A-Z])=''; fi
-])dnl
+   $1_BUILD=$1
+else
+   $1_BUILD=''
+fi;]
+  AC_SUBST([$1_BUILD])
+])
 
-AC_DEFUN([IU_ENABLE_CLIENT], [
-IU_ENABLE_FOO($1, clients)])
+AC_DEFUN([IU_ENABLE_CLIENT], [IU_ENABLE_FOO($1, clients)])
+AC_DEFUN([IU_ENABLE_SERVER], [IU_ENABLE_FOO($1, servers)])
 
-AC_DEFUN([IU_ENABLE_SERVER], [
-IU_ENABLE_FOO($1, servers)])
+#serial 12
 
 dnl Initially derived from code in GNU grep.
 dnl Mostly written by Jim Meyering.
 
 dnl Usage: jm_INCLUDED_REGEX([lib/regex.c])
 dnl
-AC_DEFUN(IU_INCLUDED_REGEX,
+AC_DEFUN([jm_INCLUDED_REGEX],
   [
     dnl Even packages that don't use regex.c can use this macro.
     dnl Of course, for them it doesn't do anything.
@@ -534,19 +489,16 @@ AC_DEFUN(IU_INCLUDED_REGEX,
     AC_CACHE_CHECK([for working re_compile_pattern],
 		   jm_cv_func_working_re_compile_pattern,
       AC_TRY_RUN(
-	changequote(<<, >>)dnl
-	<<
-#include <stdio.h>
+[#include <stdio.h>
 #include <regex.h>
 	  int
 	  main ()
 	  {
 	    static struct re_pattern_buffer regex;
 	    const char *s;
+	    struct re_registers regs;
 	    re_set_syntax (RE_SYNTAX_POSIX_EGREP);
-	    /* Add this third left square bracket, [, to balance the
-	       three right ones below.  Otherwise autoconf-2.14 chokes.  */
-	    s = re_compile_pattern ("a[[:]:]]b\n", 9, &regex);
+	    [s = re_compile_pattern ("a[[:@:>@:]]b\n", 9, &regex);]
 	    /* This should fail with _Invalid character class name_ error.  */
 	    if (!s)
 	      exit (1);
@@ -554,11 +506,22 @@ AC_DEFUN(IU_INCLUDED_REGEX,
 	    /* This should succeed, but doesn't for e.g. glibc-2.1.3.  */
 	    s = re_compile_pattern ("{1", 2, &regex);
 
-	   exit (s ? 1 : 0);
-	  }
-	>>,
-	changequote([, ])dnl
+	    if (s)
+	      exit (1);
 
+	    /* The following example is derived from a problem report
+               against gawk from Jorge Stolfi <stolfi@ic.unicamp.br>.  */
+	    s = re_compile_pattern ("[[anù]]*n", 7, &regex);
+	    if (s)
+	      exit (1);
+
+	    /* This should match, but doesn't for e.g. glibc-2.2.1.  */
+	    if (re_match (&regex, "an", 2, 0, &regs) != 2)
+	      exit (1);
+
+	    exit (0);
+	  }
+	],
 	       jm_cv_func_working_re_compile_pattern=yes,
 	       jm_cv_func_working_re_compile_pattern=no,
 	       dnl When crosscompiling, assume it's broken.
@@ -568,10 +531,9 @@ AC_DEFUN(IU_INCLUDED_REGEX,
     fi
 
     test -n "$1" || AC_MSG_ERROR([missing argument])
-    syscmd([test -f $1])
-    ifelse(sysval, 0,
+    m4_syscmd([test -f $1])
+    ifelse(m4_sysval, 0,
       [
-
 	AC_ARG_WITH(included-regex,
 	[  --without-included-regex don't compile regex; this is the default on
                           systems with version 2 of the GNU C library
@@ -579,8 +541,7 @@ AC_DEFUN(IU_INCLUDED_REGEX,
 		    jm_with_regex=$withval,
 		    jm_with_regex=$ac_use_included_regex)
 	if test "$jm_with_regex" = yes; then
-	  AC_SUBST(LIBOBJS)
-	  LIBOBJS="$LIBOBJS regex.$ac_objext"
+	  AC_LIBOBJ(regex)
 	fi
       ],
     )
