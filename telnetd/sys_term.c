@@ -41,8 +41,6 @@ static char sccsid[] = "@(#)sys_term.c	8.4 (Berkeley) 5/30/95";
 
 #include "telnetd.h"
 
-#include <paths.h>
-
 #if	defined(AUTHENTICATION)
 #include <libtelnet/auth.h>
 #endif
@@ -620,14 +618,18 @@ static int linestate;
 tty_linemode()
 {
 #ifndef convex
-#ifndef	USE_TERMIO
-	return(termbuf.state & TS_EXTPROC);
-#else
+#ifdef	USE_TERMIO
+#ifdef EXTPROC
 	return(termbuf.c_lflag & EXTPROC);
-#endif
 #else
+	return 0;		/* Can't ever set it either. */
+#endif /* EXTPROC */
+#else /* !USE_TERMIO */
+	return(termbuf.state & TS_EXTPROC);
+#endif /* USE_TERMIO */
+#else /* convex */
 	return(linestate);
-#endif
+#endif /* !convex */
 }
 
 	void
@@ -1776,10 +1778,10 @@ start_login(host, autologin, name)
 	 * the login banner message gets lost...
 	 */
 	sleep(1);
-	execv(_PATH_LOGIN, argv);
+	execv(PATH_LOGIN, argv);
 
-	syslog(LOG_ERR, "%s: %m\n", _PATH_LOGIN);
-	fatalperror(net, _PATH_LOGIN);
+	syslog(LOG_ERR, "%s: %m\n", PATH_LOGIN);
+	fatalperror(net, PATH_LOGIN);
 	/*NOTREACHED*/
 }
 
