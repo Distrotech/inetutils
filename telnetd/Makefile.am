@@ -14,7 +14,7 @@ man_MANS = telnetd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_TTY) $(PATHDEF_LOGIN) -I$(top_builddir)/include \
+INCLUDES = $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN) -I$(top_builddir)/include \
  -I$(top_srcdir) @INCAUTH@
 
 LIBTERMCAP = @LIBTERMCAP@
