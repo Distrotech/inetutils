@@ -1,4 +1,4 @@
-# Makefile for inetutils/common
+# Makefile for libinetutils
 #
 # Copyright (C) 1996 Free Software Foundation, Inc.
 #
@@ -20,6 +20,17 @@
 srcdir = @srcdir@
 include ../config.make
 
-DISTFILES = ttymsg.c version.c version.h Makefile.in
+SRCS = ttymsg.c version.c @LIBOBJS@
+DISTFILES = $(SRCS) version.h getopt.h Makefile.in
+
+OBJS = $(SRCS:.c=.o)
+
+all: libinetutils.a
+libinetutils.a: $(OBJS)
+	$(AR) rcv $@ $(OBJS)
+	$(RANLIB) $@
+
+clean:
+	$(RM) -f *.o libinetutils.a
 
 include $(RULES)
