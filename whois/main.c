@@ -88,7 +88,13 @@ config_buffer_netwhois (char *who, char *buf, size_t count)
       continue;
     *buf = 0;
     buf++, count--;
+#if defined(FNM_CASEFOLD)
     if (fnmatch (start, who, FNM_CASEFOLD)) {
+#elif defined(FNM_IGNORECASE)
+    if (fnmatch (start, who, FNM_IGNORECASE)) {
+#else
+    if (fnmatch (start, who, 0)) {
+#endif
       while (count && !MYISNEWLINE (*buf))
 	buf++, count--;
     } else {
