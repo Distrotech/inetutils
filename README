@@ -4,12 +4,16 @@ This is a distribution of common networking utilities and servers.
 
 They are currently all from the 4.4BSD-Lite2 distribution, with some changes
 to make them compatible with the GNU hurd (in particular, the hurd does not
-define some arbitrary limits, such as MAXPATHLEN), and to remove some minor
-BSD dependencies.  A GNU build environment has also been added.
+define some arbitrary limits, such as MAXPATHLEN), and to make them more
+portable, using autoconf.  A GNU build environment has also been added.
 
-As this release is intended mainly to support the GNU hurd, which is
-source compatible with BSD in many ways, there are probably many BSD
-dependencies remaining.
+There are probably many BSD dependencies remaining, but inetutils is believed
+to work on the following system types (and others may work):
+  i486-gnu0.1
+  i486-pc-linux-gnu
+  m68k-hp-netbsd1.2
+  sparc-sun-sunos4.1.4
+  sparc-sun-solaris2.5
 
 The file `paths' contains a list of all paths used by programs in this
 distribution, and rules to find values for them.  To change a path PATH_FOO,
@@ -26,4 +30,4 @@ GNU inetutils requires GNU make.
 See the file INSTALL for installation instructions.
 
 Please send all bug reports by electronic mail to:
-    bug-gnu-utils@prep.ai.mit.edu
+    bug-inetutils@gnu.ai.mit.edu
