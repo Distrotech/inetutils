@@ -1,3 +1,8 @@
+2002-06-26  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* configure.ac: Removed erroneous #ifdef's in the checks for __P
+	and syslog internal macros.
+
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* configure.ac: AC_CHECK_MEMBERS (as of version 2.53 ) fails to
