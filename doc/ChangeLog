@@ -1,5 +1,11 @@
 2001-11-10  Alain Magloire
 
+	* rcp.texi: New file.
+	* Makefile.am: Added rcp.texi.
+	* inetutils.texi: Enable rcp.texi.
+
+2001-11-10  Alain Magloire
+
 	* rsh.texi: New file.
 	* Makefile.am: Added rsh.texi.
 	* inetutils.texi: Enable rsh.texi.

@@ -27,7 +27,7 @@ START-INFO-DIR-ENTRY
 @c * ftp: (inetutils)ftp invocation.               File Transfer Protocol.
 @c * ftpd: (inetutils)ftpd invocation.             FTP Daemon.
 @c * inetd: (inetutils)inetd invocation.           Interner super-server.
-@c * rcp: (inetutils)rcp invocation.               Strip non-directory suffix.
+* rcp: (inetutils)rcp invocation.               Strip non-directory suffix.
 @c * rexecd: (inetutils)rexecd invocation.         Remote execution server.
 * rlogin: (inetutils)rlogin invocation.         Remote login.
 * rlogind: (inetutils)rlogind invocation.       Remote login server.
@@ -113,7 +113,7 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 @c * ftp::                         File Transfer Protocol.
 @c * ftpd::                        FTP Daemon.
 @c * inetd::                       Interner super-server.
-@c * rcp::                         Strip non-directory suffix.
+* rcp::                         Strip non-directory suffix.
 @c * rexecd::                      Remote execution server.
 * rlogin::                      Remote login.
 * rlogind::                     Remote login server.
@@ -175,7 +175,7 @@ Print the version number, then exit successfully.
 @c @include ftp.texi
 @c @include ftpd.texi
 @c @include inetd.texi
-@c @include rcd.texi
+@include rcp.texi
 @c @include rexecd.texi
 @include rlogin.texi
 @include rlogind.texi
