@@ -38,13 +38,12 @@ LDFLAGS = @LDFLAGS@
 RM = @RM@
 
 LDLIBS = $(LIBS)
-
 CFLAGS += $(DEFS) -D_PATH_RLOGIN=\"$(bindir)/rlogin\"
 
 rsh: rsh.o
 
 install: installdirs rsh $(srcdir)/rsh.1
-	$(INSTALL_PROGRAM) rsh $(bindir)/in.rsh
+	$(INSTALL_PROGRAM) rsh $(bindir)/rsh
 	$(INSTALL_DATA) $(srcdir)/rsh.1 $(man1dir)
 
 installdirs:
