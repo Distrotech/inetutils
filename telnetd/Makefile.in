@@ -1,19 +1,21 @@
 # Makefile for telnetd
+#
 # Copyright (C) 1995 Free Software Foundation, Inc.
-
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2, or (at your option)
 # any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
 
 SHELL = /bin/sh
 
@@ -37,22 +39,25 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-OPTION_FLAGS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
+OPTIONS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
+
+CFLAGS += $(OPTIONS) $(DEFS)
 LDLIBS = -L../libtelnet -ltelnet -ltermcap $(LIBS)
 
-CFLAGS += $(OPTION_FLAGS) $(DEFS)
-
+all: telnetd
 telnetd: authenc.o global.o slc.o state.o sys_term.o telnetd.o termstat.o \
 	utility.o
 
 install: installdirs telnetd $(srcdir)/telnetd.8
 	$(INSTALL_PROGRAM) telnetd $(libexecdir)/in.telnetd
-	$(INSTALL_DATA) $(srcdir)/telnetd.8 $(man8dir)
+	-$(INSTALL_DATA) $(srcdir)/telnetd.8 $(man8dir)/telnetd.8
+uninstall:
+	-$(RM) -f $(libexecdir)/in.telnetd $(man8dir)/telnetd.8
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o telnetd 
 distclean: clean
 	$(RM) -f Makefile
