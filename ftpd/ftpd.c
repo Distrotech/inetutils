@@ -96,6 +96,11 @@ char *alloca ();
 #include <pwd.h>
 #include <setjmp.h>
 #include <signal.h>
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -103,11 +108,6 @@ char *alloca ();
 #include <time.h>
 #include <unistd.h>
 #include <crypt.h>
-#if __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 
 #include "extern.h"
 #include "version.h"
@@ -1227,7 +1227,7 @@ fatal(s)
 }
 
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 reply(int n, const char *fmt, ...)
 #else
 reply(n, fmt, va_alist)
@@ -1237,7 +1237,7 @@ reply(n, fmt, va_alist)
 #endif
 {
 	va_list ap;
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -1253,7 +1253,7 @@ reply(n, fmt, va_alist)
 }
 
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 lreply(int n, const char *fmt, ...)
 #else
 lreply(n, fmt, va_alist)
@@ -1263,7 +1263,7 @@ lreply(n, fmt, va_alist)
 #endif
 {
 	va_list ap;
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -1745,7 +1745,7 @@ out:
  * have much of an environment or arglist to overwrite.
  */
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 setproctitle(const char *fmt, ...)
 #else
 setproctitle(fmt, va_alist)
@@ -1758,7 +1758,7 @@ setproctitle(fmt, va_alist)
 	char *p, *bp, ch;
 	char buf[LINE_MAX];
 
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
