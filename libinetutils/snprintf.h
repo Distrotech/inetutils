@@ -39,7 +39,7 @@ Alain Magloire: alainm@rcsm.ee.mcgill.ca
 #include <config.h>
 #endif
 
-#if defined(__STDC__) && __STDC__
+#if __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
