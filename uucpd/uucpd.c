@@ -254,14 +254,17 @@ register int n;
 void
 dologout()
 {
-  int status;
   int pid;
 
-#ifdef HAVE_WAIT3
-  while ((pid = wait3 (&status, WNOHANG, 0)) > 0)
+#ifdef HAVE_WAITPID
+  while ((pid = waitpid (-1, 0, WNOHANG)) > 0)
 #else
-  while ((pid = wait (&status)) > 0)
-#endif
+# ifdef HAVE_WAIT3
+  while ((pid = wait3 (0, WNOHANG, 0)) > 0)
+# else
+  while ((pid = wait (0)) > 0)
+#endif /* HAVE_WAIT3 */
+#endif /* HAVE_WAITPID */
     {
       char line[100];
       sprintf(line, "uucp%.4d", pid);
