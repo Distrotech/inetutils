@@ -1,3 +1,10 @@
+Fri Feb 28 17:05:15 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	From: Andreas Schwab <schwab@issan.informatik.uni-dortmund.de>:
+	* rcp/rcp.c (source): Print longer-than-long numbers correctly.
+	* ftpd/ftpcmd.y: Likewise.
+	* ftp/cmds.c (restart): Likewise.
+
 Tue Feb 25 18:21:18 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	From David J MacKenzie <djm@va.pubnix.com>:
