@@ -1,5 +1,9 @@
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* talk/Makefile.am (INCLUDES): Added `$(NCURSES_INCLUDE)'.
+	
+	(LDADD): Added `$(LIBCURSES) -L../libinetutils -linetutils'.
+
 	* syslogd/Makefile.am (LDADD): Added `-L../libinetutils
  	-linetutils'.
 
