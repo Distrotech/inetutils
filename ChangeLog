@@ -1,3 +1,8 @@
+2004-09-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* acinclude.m4 (IU_LIB_NCURSES): Set LIBNCURSES to "" if we didn't
+	find any headers for ncurses.
+
 2004-06-16  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* configure.ac: Check for termcap before checking for

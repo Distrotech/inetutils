@@ -1,6 +1,13 @@
+2004-09-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* Makefile.am (LDADD): Use `$(top_srcdir)' instead of relative
+	path.
+	(INCLUDES): Search for headers in `$(top_srcdir)/libinetutils'
+	instead of `$(top_builddir)/libinetutils'.
+
 2004-09-23  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
-	* Makefile.am (NCLUDES): Add libinetutils
+	* Makefile.am (INCLUDES): Add libinetutils
 	* main.c: Fixed possible memory overruns.
 	(setpeer): Fixed coredump on hitting return after '(to)' prompt.
 	Fixed indentation.
