@@ -75,7 +75,7 @@ static char sccsid[] = "@(#)rlogind.c	8.1 (Berkeley) 6/4/93";
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pathnames.h"
+#include <paths.h>
 
 #ifndef TIOCPKT_WINDOW
 #define TIOCPKT_WINDOW 0x80
@@ -176,16 +176,19 @@ main(argc, argv)
 		syslog(LOG_ERR,"Can't get peer name of remote host: %m");
 		fatal(STDERR_FILENO, "Can't get peer name of remote host", 1);
 	}
+
 	on = 1;
 	if (keepalive &&
 	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof (on)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
+
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	on = IPTOS_LOWDELAY;
 	if (setsockopt(0, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
-	doit(0, &from);
 #endif
+
+	doit(0, &from);
 }
 
 int	child;
