@@ -1,4 +1,4 @@
-# Makefile for rshd
+# Makefile for tftpd
 #
 # Copyright (C) 1995 Free Software Foundation, Inc.
 #
@@ -42,19 +42,21 @@ RM = @RM@
 CFLAGS += $(DEFS)
 LDLIBS = $(LIBS)
 
-all: rshd
-rshd: rshd.o
+all: tftpd
+tftpd: tftpd.o tftpsubs.o
 
-install: installdirs rshd $(srcdir)/rshd.8
-	$(INSTALL_PROGRAM) rshd $(libexecdir)/in.rshd
-	-$(INSTALL_DATA) $(srcdir)/rshd.8 $(man8dir)/rshd.8
+tftpsubs.o: $(top_srcdir)/tftp/tftpsubs.c
+
+install: installdirs tftpd $(srcdir)/tftpd.8
+	$(INSTALL_PROGRAM) tftpd $(libexecdir)/in.tftpd
+	-$(INSTALL_DATA) $(srcdir)/tftpd.8 $(man8dir)/tftpd.8
 uninstall:
-	-$(RM) -f $(libexecdir)/in.rshd $(man8dir)/rshd.8
+	-$(RM) -f $(libexecdir)/in.tftpd $(man8dir)/tftpd.8
 
 installdirs:
 	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
 
 clean mostlyclean:
-	$(RM) -f *.o rshd 
+	$(RM) -f *.o tftpd 
 distclean: clean
 	$(RM) -f Makefile
