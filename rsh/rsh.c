@@ -55,6 +55,9 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
+#ifdef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
+#include <sys/time.h>
+#endif
 
 #include <netinet/in.h>
 #include <netdb.h>
@@ -67,7 +70,11 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#else
 #include <varargs.h>
+#endif
 #include <getopt.h>
 
 #ifdef KERBEROS
@@ -188,8 +195,8 @@ main(argc, argv)
 	if (!argv[optind]) {
 		if (asrsh)
 			*argv = "rlogin";
-		execv(_PATH_RLOGIN, argv);
-		err(1, "can't exec %s", _PATH_RLOGIN);
+		execv(PATH_RLOGIN, argv);
+		err(1, "can't exec %s", PATH_RLOGIN);
 	}
 
 	argc -= optind;
