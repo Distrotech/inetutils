@@ -65,7 +65,6 @@ static char sccsid[] = "@(#)ftpd.c	8.4 (Berkeley) 4/16/94";
 
 #include <ctype.h>
 #include <dirent.h>
-#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <glob.h>
@@ -125,8 +124,9 @@ off_t	byte_count;
 #endif
 int	defumask = CMASK;		/* default umask value */
 char	tmpline[7];
-char	hostname[MAXHOSTNAMELEN];
-char	remotehost[MAXHOSTNAMELEN];
+char	*hostname = 0;
+size_t  hostname_len = 0;
+char	*remotehost = 0;
 
 /*
  * Timeout intervals for retrying connections
@@ -189,7 +189,7 @@ curdir()
 	path = getcwd (0, 0);
 	if (! path)
 		return ("");
-	if (path[1] != '\0') {		/* special case for root dir. */
+	if (path[1] != '\0') {	/* special case for root dir. */
 	        char *new = realloc (path, strlen (path) + 2); /* '/' + '\0' */
 		if (! new)
 		        return "";
@@ -270,7 +270,8 @@ main(argc, argv, envp)
 
 			val = strtol(optarg, &optarg, 8);
 			if (*optarg != '\0' || val < 0)
-				warnx("bad value for -u");
+				fprintf (stderr,
+					 "%s: bad value for -u", argv[0]);
 			else
 				defumask = val;
 			break;
@@ -281,7 +282,8 @@ main(argc, argv, envp)
 			break;
 
 		default:
-			warnx("unknown flag -%c ignored", optopt);
+			fprintf (stderr,
+				 "%s: unknown flag -%c ignored", argv[0]);
 			break;
 		}
 	}
@@ -334,7 +336,18 @@ main(argc, argv, envp)
 		(void) fclose(fd);
 		/* reply(220,) must follow */
 	}
-	(void) gethostname(hostname, sizeof(hostname));
+
+	do {
+		if (hostname)
+			hostname =
+			  realloc (hostname, hostname_len += hostname_len);
+		else {
+			hostname_len = 1024; /* Initial guess */
+			hostname = malloc (hostname_len);
+		}
+	} while (gethostname(hostname, hostname_len) == 0
+		 && ! memchr (hostname, '\0', hostname_len));
+			
 	reply(220, "%s FTP server (%s) ready.", hostname, version);
 	(void) setjmp(errcatch);
 	for (;;)
@@ -1106,10 +1119,14 @@ statcmd()
 	if (type == TYPE_A || type == TYPE_E)
 		printf(", FORM: %s", formnames[form]);
 	if (type == TYPE_L)
+#ifdef CHAR_BIT
+		printf(" %d", CHAR_BIT);
+#else
 #if NBBY == 8
 		printf(" %d", NBBY);
 #else
 		printf(" %d", bytesize);	/* need definition! */
+#endif
 #endif
 	printf("; STRUcture: %s; transfer MODE: %s\r\n",
 	    strunames[stru], modenames[mode]);
@@ -1289,12 +1306,12 @@ removedir(name)
 void
 pwd()
 {
-	char path[MAXPATHLEN + 1];
-
-	if (getwd(path) == (char *)NULL)
-		reply(550, "%s.", path);
-	else
+	char *path = getcwd (0, 0);
+	if (path) {
 		reply(257, "\"%s\" is current directory.", path);
+		free (path);
+	} else
+		reply(550, "%s.", strerror (errno));
 }
 
 char *
@@ -1327,14 +1344,20 @@ static void
 dolog(sin)
 	struct sockaddr_in *sin;
 {
+	char *name;
 	struct hostent *hp = gethostbyaddr((char *)&sin->sin_addr,
 		sizeof(struct in_addr), AF_INET);
 
 	if (hp)
-		(void) strncpy(remotehost, hp->h_name, sizeof(remotehost));
+		name = hp->h_name;
 	else
-		(void) strncpy(remotehost, inet_ntoa(sin->sin_addr),
-		    sizeof(remotehost));
+		name = inet_ntoa(sin->sin_addr);
+
+	if (remotehost)
+		free (remotehost);
+	remotehost = malloc (strlen (name));
+	strcpy (remotehost, name);
+
 #ifdef SETPROCTITLE
 	snprintf(proctitle, sizeof(proctitle), "%s: connected", remotehost);
 	setproctitle(proctitle);
@@ -1371,7 +1394,7 @@ myoob(signo)
 	if (!transflag)
 		return;
 	cp = tmpline;
-	if (getline(cp, 7, stdin) == NULL) {
+	if (telnet_fgets(cp, 7, stdin) == NULL) {
 		reply(221, "You could at least say goodbye.");
 		dologout(0);
 	}
@@ -1446,7 +1469,7 @@ static char *
 gunique(local)
 	char *local;
 {
-	static char new[MAXPATHLEN];
+	static char *new = 0;
 	struct stat st;
 	int count;
 	char *cp;
@@ -1460,14 +1483,22 @@ gunique(local)
 	}
 	if (cp)
 		*cp = '/';
-	(void) strcpy(new, local);
-	cp = new + strlen(new);
-	*cp++ = '.';
-	for (count = 1; count < 100; count++) {
-		(void)sprintf(cp, "%d", count);
-		if (stat(new, &st) < 0)
-			return (new);
+
+	if (new)
+		free (new);
+
+	new = malloc (strlen (local) + 5); /* '.' + DIG + DIG + '\0' */
+	if (new) {
+		strcpy(new, local);
+		cp = new + strlen(new);
+		*cp++ = '.';
+		for (count = 1; count < 100; count++) {
+			(void)sprintf(cp, "%d", count);
+			if (stat(new, &st) < 0)
+				return (new);
+		}
 	}
+
 	reply(452, "Unique file name cannot be created.");
 	return (NULL);
 }
@@ -1503,7 +1534,17 @@ send_file_list(whichf)
 	glob_t gl;
 
 	if (strpbrk(whichf, "~{[*?") != NULL) {
-		int flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
+		int flags = GLOB_NOCHECK;
+
+#ifdef GLOB_BRACE
+		flags |= GLOB_BRACE;
+#endif
+#ifdef GLOB_QUOTE
+		flags |= GLOB_QUOTE;
+#endif
+#ifdef GLOB_TILDE
+		flags |= GLOB_TILDE;
+#endif
 
 		memset(&gl, 0, sizeof(gl));
 		freeglob = 1;
@@ -1565,7 +1606,7 @@ send_file_list(whichf)
 			continue;
 
 		while ((dir = readdir(dirp)) != NULL) {
-			char nbuf[MAXPATHLEN];
+			char *nbuf;
 
 			if (dir->d_name[0] == '.' && dir->d_namlen == 1)
 				continue;
@@ -1573,6 +1614,7 @@ send_file_list(whichf)
 			    dir->d_namlen == 2)
 				continue;
 
+			nbuf = alloca (strlen (dirname) + 1 + strlen (dir->d_name) + 1);
 			sprintf(nbuf, "%s/%s", dirname, dir->d_name);
 
 			/*
