@@ -50,10 +50,22 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
 #ifdef HAVE_SYS_FILIO_H
 #include <sys/filio.h>
 #endif
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 #include "talk.h"
 
 #define A_LONG_TIME 10000000
