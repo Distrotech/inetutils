@@ -28,7 +28,7 @@ LDLIBS += $(LIBUTIL) $(LIBCRYPT)
 CLEAN = uucpd uucpd.o
 
 # the /libexec/uucp/... path is consistent with netbsd.
-CPPFLAGS += -D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\"
+CPPFLAGS += -D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\" $(PATHDEF_TTY)
 
 all: uucpd
 
