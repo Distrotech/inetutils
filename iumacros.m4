@@ -256,7 +256,7 @@ AC_DEFUN([IU_CONFIG_PATHS], [
     else
       # search for a reasonable value
 
-      iu_test_type=e		# `exists'
+      iu_test_type=r		# `exists'
       iu_default='' iu_prev_cross_test=''
       for iu_try in $iu_paths_h $iu_search; do
 	iu_cross_test=''
