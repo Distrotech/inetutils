@@ -52,27 +52,21 @@
 #include <ping.h>
 #include <ping_impl.h>
 
-#define	MAXWAIT		10		/* max seconds to wait for response */
 #define	NROUTES		9		/* number of record route slots */
 #ifndef MAX_IPOPTLEN
 # define MAX_IPOPTLEN 40
 #endif
 
-struct ping_stat
-{
-  double tmin;	    /* minimum round trip time */
-  double tmax;      /* maximum round trip time */
-  double tsum;	    /* sum of all times, for doing average */
-  double tsumsq;    /* sum of all times squared, for std. dev. */
-};
-
 static int handler(int code, void *closure,
 		   struct sockaddr_in *dest, struct sockaddr_in *from,
-		   u_char *data, int datalen);
-static int print_packet(int dup, struct ping_stat *stat, 
-			struct sockaddr_in *dest, struct sockaddr_in *from,
-			u_char *data, int datalen);
-static void print_icmp_header(struct sockaddr_in *from, u_char *data, int len);
+		   struct ip *ip, icmphdr_t *icmp, int datalen);
+int print_echo(int dup, struct ping_stat *stat, 
+	      struct sockaddr_in *dest, struct sockaddr_in *from,
+	      struct ip *ip, icmphdr_t *icmp, int datalen);
+static int echo_finish();
+
+void print_icmp_header(struct sockaddr_in *from,
+			      struct ip *ip, icmphdr_t *icmp, int len);
 static void print_ip_data(struct ip *ip);
 static void print_ip_opt(struct ip *ip, int hlen);
 
@@ -85,8 +79,8 @@ ping_echo(int argc, char **argv)
 #ifdef IP_OPTIONS
   char rspace[3 + 4 * NROUTES + 1];	/* record route space */
 #endif
-  struct ping_stat ping_stat;
   int one = 1;
+  struct ping_stat ping_stat;
 
   if (options & OPT_FLOOD && options & OPT_INTERVAL)
     {
@@ -95,11 +89,11 @@ ping_echo(int argc, char **argv)
       return 2;
     }
 
-  ping_set_pattern(ping, pattern_len, pattern);
-
   memset(&ping_stat, 0, sizeof(ping_stat));
   ping_stat.tmin = 999999999.0;
 
+  ping_set_type(ping, ICMP_ECHO);
+  ping_set_packetsize(ping, data_length);
   ping_set_event_handler(ping, handler, &ping_stat);
   
   if (ping_set_dest(ping, *argv))
@@ -108,7 +102,6 @@ ping_echo(int argc, char **argv)
       exit(1);
     }
 
-  ping_set_sockopt(ping, SO_BROADCAST, (char *)&one, sizeof(one));
   if (options & OPT_RROUTE)
     {
 #ifdef IP_OPTIONS
@@ -132,58 +125,54 @@ ping_echo(int argc, char **argv)
   printf("PING %s (%s): %d data bytes\n",
 	 ping->ping_hostname,
 	 inet_ntoa(ping->ping_dest.sin_addr),
-	 ping->ping_datalen);
+	 data_length);
 
-  return ping_run(ping, &ping_stat, preload);
+  return ping_run(ping, echo_finish);
 }
 
 int
 handler(int code, void *closure,
 	struct sockaddr_in *dest, struct sockaddr_in *from,
-	u_char *data, int datalen)
+	struct ip *ip, icmphdr_t *icmp, int datalen)
 {
   switch (code)
     {
     case PEV_RESPONSE:
     case PEV_DUPLICATE:
-      print_packet(code == PEV_DUPLICATE,
-		   (struct ping_stat*)closure, dest, from, data, datalen);
+      print_echo(code == PEV_DUPLICATE,
+		   (struct ping_stat*)closure, dest, from, ip, icmp, datalen);
       break;
     case PEV_NOECHO:;
-      print_icmp_header(from, data, datalen);
+      print_icmp_header(from, ip, icmp, datalen);
     }
 }
 
 int
-print_packet(int dupflag, struct ping_stat *ping_stat, 
-	     struct sockaddr_in *dest, struct sockaddr_in *from,
-	     u_char *data, int datalen)
+print_echo(int dupflag, struct ping_stat *ping_stat, 
+	   struct sockaddr_in *dest, struct sockaddr_in *from,
+	   struct ip *ip, icmphdr_t *icmp, int datalen)
 {
   int n, hlen;
-  icmphdr_t *icmp;
-  struct ip *ip;
   struct timeval tv;
   int timing = 0;
   double triptime = 0.0;
   
   gettimeofday(&tv, NULL);
 
-  /* IP header */
-  ip = (struct ip*)data;
+  /* Length of IP header */
   hlen = ip->ip_hl << 2;
 
-  /* ICMP header */
-  icmp = (icmphdr_t*)(data + hlen);
+  /* Length of ICMP header+payload */
   datalen -= hlen;
 
   /* Do timing */
-  if (datalen-8 >= PING_HEADER_LEN) /* FIXME: constant! */
+  if (PING_TIMING(datalen-8)) 
     {
       struct timeval tv1, *tp;
 
       timing++;
       tp = (struct timeval *) icmp->icmp_data;
-
+			       
       /* Avoid unaligned data: */
       memcpy(&tv1, tp, sizeof(tv1));
       tvsub(&tv, &tv1);
@@ -237,19 +226,16 @@ ipaddr2str(struct in_addr ina)
 }
 
 void
-print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
+print_icmp_header(struct sockaddr_in *from,
+		  struct ip *ip, icmphdr_t *icmp, int len)
 {
   int n, hlen;
-  icmphdr_t *icp;
-  struct ip *ip, *orig_ip;
+  struct ip *orig_ip;
 
-  /* IP header */
-  ip = (struct ip*)data;
+  /* Length of the IP header */
   hlen = ip->ip_hl << 2;
-  /* ICMP header */
-  icp = (icmphdr_t*)(data + hlen);
   /* Original IP header */
-  orig_ip = &icp->icmp_ip;
+  orig_ip = &icmp->icmp_ip;
   
   if (!(options & OPT_VERBOSE
 	|| orig_ip->ip_dst.s_addr == ping->ping_dest.sin_addr.s_addr))
@@ -258,13 +244,13 @@ print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
   printf("%d bytes from %s: ", len-hlen,
 	 ipaddr2str(from->sin_addr));
   
-  switch (icp->icmp_type)
+  switch (icmp->icmp_type)
     {
     case ICMP_ECHOREPLY:
       printf("Echo Reply\n");
       break;
     case ICMP_DEST_UNREACH:
-      switch (icp->icmp_code)
+      switch (icmp->icmp_code)
 	{
 	case ICMP_NET_UNREACH:
 	  printf("Destination Net Unreachable\n");
@@ -316,7 +302,7 @@ print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
 #endif
 	default:
 	  printf("Dest Unreachable, Unknown Code: %d\n",
-		 icp->icmp_code);
+		 icmp->icmp_code);
 	  break;
 	}
       /* Print returned IP header information */
@@ -327,7 +313,7 @@ print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
       print_ip_data(ip);
       break;
     case ICMP_REDIRECT:
-      switch (icp->icmp_code)
+      switch (icmp->icmp_code)
 	{
 	case ICMP_REDIR_NET:
 	  printf("Redirect Network");
@@ -342,11 +328,11 @@ print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
 	  printf("Redirect Type of Service and Host");
 	  break;
 	default:
-	  printf("Redirect, Bad Code: %d", icp->icmp_code);
+	  printf("Redirect, Bad Code: %d", icmp->icmp_code);
 	  break;
 	}
       printf("(New addr: %s)\n", 
-	     inet_ntoa(icp->icmp_gwaddr));
+	     inet_ntoa(icmp->icmp_gwaddr));
       print_ip_data(ip);
       break;
     case ICMP_ECHO:
@@ -354,7 +340,7 @@ print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
       /* XXX ID + Seq + Data */
       break;
     case ICMP_TIME_EXCEEDED:
-      switch (icp->icmp_code)
+      switch (icmp->icmp_code)
 	{
 	case ICMP_EXC_TTL:
 	  printf("Time to live exceeded\n");
@@ -364,14 +350,14 @@ print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
 	  break;
 	default:
 	  printf("Time exceeded, Bad Code: %d\n",
-		 icp->icmp_code);
+		 icmp->icmp_code);
 	  break;
 	}
       print_ip_data(ip);
       break;
     case ICMP_PARAMETERPROB:
       printf("Parameter problem: IP address = %s\n",
-	     inet_ntoa (icp->icmp_gwaddr));
+	     inet_ntoa (icmp->icmp_gwaddr));
       print_ip_data(ip);
       break;
     case ICMP_TIMESTAMP:
@@ -401,7 +387,7 @@ print_icmp_header(struct sockaddr_in *from, u_char *data, int len)
       break;
 #endif
     default:
-      printf("Bad ICMP type: %d\n", icp->icmp_type);
+      printf("Bad ICMP type: %d\n", icmp->icmp_type);
     }
 }
 
@@ -578,141 +564,12 @@ tvsub(out, in)
 	out->tv_sec -= in->tv_sec;
 }
 
-int volatile stop = 0;
-
-RETSIGTYPE
-sig_int(int signal)
-{
-  stop = 1;
-}
 
 int
-ping_run(PING *ping, struct ping_stat *ping_stat, int preload)
+echo_finish()
 {
-  fd_set fdset;
-  int fdmax;
-  struct timeval timeout;
-  struct timeval last, intvl, now;
-  struct timeval *t = NULL;
-  int finishing = 0;
-  u_char *buf;
-  
-  signal(SIGINT, sig_int);
-  
-  fdmax = ping->ping_fd+1;
-
-  while (preload--)      
-    ping_xmit(ping);
-
-  if (options & OPT_FLOOD)
-    {
-      intvl.tv_sec = 0;
-      intvl.tv_usec = 10000;
-    }
-  else
-    {
-      intvl.tv_sec = ping->ping_interval;
-      intvl.tv_usec = 0;
-    }
-  
-  gettimeofday(&last, NULL);
-  ping_xmit(ping);
-
-  while (!stop)
-    {
-      int n, len;
-      
-      FD_ZERO(&fdset);
-      FD_SET(ping->ping_fd, &fdset);
-      gettimeofday(&now, NULL);
-      timeout.tv_sec = last.tv_sec + intvl.tv_sec - now.tv_sec;
-      timeout.tv_usec = last.tv_usec + intvl.tv_usec - now.tv_usec;
-
-      while (timeout.tv_usec < 0)
-	{
-	  timeout.tv_usec += 1000000;
-	  timeout.tv_sec--;
-	}
-      while (timeout.tv_usec >= 1000000)
-	{
-	  timeout.tv_usec -= 1000000;
-	  timeout.tv_sec++;
-	}
-
-      if (timeout.tv_sec < 0)
-	timeout.tv_sec = timeout.tv_usec = 0;
-      
-      if ((n = select(fdmax, &fdset, NULL, NULL, &timeout)) < 0)
-	{
-	  if (errno != EINTR)
-	    perror("ping: select");
-	  continue;
-	}
-      else if (n == 1)
-	{
-	  len = ping_recv(ping, &buf);
-	  if (t == 0)
-	    {
-	      gettimeofday(&now, NULL);
-	      t = &now;
-	    }
-	  if (ping->ping_count && ping->ping_num_recv >= ping->ping_count)
-	    break;
-	}
-      else
-	{
-	  if (!ping->ping_count || ping->ping_num_recv < ping->ping_count)
-	    {
-	      ping_xmit(ping);
-	      if (!(options & OPT_QUIET) && options & OPT_FLOOD)
-		{
-		  putchar('.');
-		}
-	    }
-	  else if (finishing)
-	    break;
-	  else
-	    {
-	      finishing = 1;
-
-	      if (ping->ping_num_recv)
-		{
-		  intvl.tv_sec = 2 * ping_stat->tmax / 1000;
-		  if (!intvl.tv_sec)
-		    intvl.tv_sec = 1;
-		}
-	      else
-		{
-		  intvl.tv_sec = MAXWAIT;
-		}
-	    }
-	  gettimeofday(&last, NULL);
-	}
-    }      
-  finish();
-}
-
-void
-finish()
-{
-  fflush(stdout);
-  printf("--- %s ping statistics ---\n", ping->ping_hostname);
-  printf("%ld packets transmitted, ", ping->ping_num_xmit);
-  printf("%ld packets received, ", ping->ping_num_recv);
-  if (ping->ping_num_rept)
-    printf("+%ld duplicates, ", ping->ping_num_rept);  
-  if (ping->ping_num_xmit)
-    {
-      if (ping->ping_num_recv > ping->ping_num_xmit)
-	printf("-- somebody's printing up packets!");
-      else
-	printf("%d%% packet loss",
-	       (int) (((ping->ping_num_xmit - ping->ping_num_recv) * 100) /
-		      ping->ping_num_xmit));
-
-    }
-  printf("\n");
-  if (ping->ping_num_recv && _PING_TIMING(ping))
+  ping_finish();
+  if (ping->ping_num_recv && PING_TIMING(data_length))
     {
       struct ping_stat *ping_stat = (struct ping_stat*)ping->ping_closure;
       double total = ping->ping_num_recv + ping->ping_num_rept;

@@ -52,7 +52,70 @@
 #include <ping.h>
 #include <ping_impl.h>
 
+static int recv_timestamp(int code, void *closure,
+			  struct sockaddr_in *dest, struct sockaddr_in *from,
+			  struct ip *ip, icmphdr_t *icmp, int datalen);
+static int timestamp_finish();
+
 int
 ping_timestamp(int argc, char **argv)
 {
+  ping_set_type(ping, ICMP_TIMESTAMP);
+  ping_set_event_handler(ping, recv_timestamp, NULL);
+  ping_set_packetsize(ping, 20);
+    
+  if (ping_set_dest(ping, *argv))
+    {
+      fprintf(stderr, "ping: unknown host\n");
+      exit(1);
+    }
+
+
+  printf("PING %s (%s): sending timestamp requests\n",
+	 ping->ping_hostname,
+	 inet_ntoa(ping->ping_dest.sin_addr));
+
+  return ping_run(ping, timestamp_finish);
+}
+
+
+int
+recv_timestamp(int code, void *closure,
+	struct sockaddr_in *dest, struct sockaddr_in *from,
+	struct ip *ip, icmphdr_t *icmp, int datalen)
+{
+  switch (code)
+    {
+    case PEV_RESPONSE:
+    case PEV_DUPLICATE:
+      print_timestamp(code == PEV_DUPLICATE,
+		      closure, dest, from, ip, icmp, datalen);
+      break;
+    case PEV_NOECHO:;
+      print_icmp_header(from, ip, icmp, datalen);
+    }
+}
+
+
+void
+print_timestamp(int dupflag, void *closure,
+		struct sockaddr_in *dest, struct sockaddr_in *from,
+		struct ip *ip, icmphdr_t *icmp, int datalen)
+{
+  printf("%d bytes from %s: icmp_seq=%u", datalen,
+	 inet_ntoa(*(struct in_addr *)&from->sin_addr.s_addr),
+	 icmp->icmp_seq);
+  if (dupflag)
+    printf(" (DUP!)");
+  printf("\n");
+  printf("icmp_otime = %u\n", ntohl(icmp->icmp_otime));
+  printf("icmp_rtime = %u\n", ntohl(icmp->icmp_rtime));
+  printf("icmp_ttime = %u\n", ntohl(icmp->icmp_ttime));
+  return;
+}
+
+int
+timestamp_finish()
+{
+  return ping_finish();
 }
