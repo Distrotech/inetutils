@@ -314,7 +314,7 @@ main(argc, argv)
 	if (funix < 0 ||
 	    bind(funix, (struct sockaddr *)&sunx, SUN_LEN(&sunx)) < 0 ||
 	    chmod(LogName, 0666) < 0) {
-		(void) sprintf(line, "cannot create %s", LogName);
+		snprintf (line, sizeof line, "cannot create %s", LogName);
 		logerror(line);
 		dprintf("cannot create %s (%d)\n", LogName, errno);
 		die(0);
@@ -661,9 +661,9 @@ fprintlog(f, flags, msg)
 	v = iov;
 	if (f->f_type == F_WALL) {
 		v->iov_base = greetings;
-		sprintf(greetings,
-			"\r\n\7Message from syslogd@%s at %.24s ...\r\n",
-			f->f_prevhost, ctime(&now));
+		snprintf (greetings, sizeof greetings,
+			  "\r\n\7Message from syslogd@%s at %.24s ...\r\n",
+			  f->f_prevhost, ctime(&now));
 		v->iov_len = strlen (greetings);
 		v++;
 		v->iov_base = "";
@@ -1088,8 +1088,8 @@ cfline(line, f)
 		else {
 			pri = decode(buf, prioritynames);
 			if (pri < 0) {
-				(void)sprintf(ebuf,
-				    "unknown priority name \"%s\"", buf);
+				snprintf (ebuf, sizeof ebuf,
+						  "unknown priority name \"%s\"", buf);
 				logerror(ebuf);
 				return;
 			}
@@ -1106,9 +1106,8 @@ cfline(line, f)
 			else {
 				i = decode(buf, facilitynames);
 				if (i < 0) {
-					(void)sprintf(ebuf,
-					    "unknown facility name \"%s\"",
-					    buf);
+					snprintf (ebuf, sizeof ebuf,
+							 "unknown facility name \"%s\"", buf);
 					logerror(ebuf);
 					return;
 				}
