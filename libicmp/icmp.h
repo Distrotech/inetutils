@@ -156,4 +156,7 @@ int icmp_echo_encode(u_char *buffer, size_t bufsize,
 		     int ident, int seqno);
 int icmp_echo_decode(u_char *buffer, size_t bufsize,
 		     struct ip **ip, icmphdr_t **icmp);
+int icmp_timestamp_encode(u_char *buffer, size_t bufsize,
+			  int ident, int seqno);
+int icmp_address_encode(u_char *buffer, size_t bufsize, int ident, int seqno);
 
