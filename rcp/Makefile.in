@@ -1,6 +1,6 @@
 # Makefile for rcp
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,12 +20,14 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(bindir)/rcp $(man1dir)/rcp.1
+INSTALL_TARGETS = $(bindir)/rcp $(man1dir)/rcp.1
+SRCS = rcp.c util.c
+DISTFILES = $(SRCS) rcp.1 Makefile.in
 
 CPPFLAGS += -D_PATH_CP=\"$(bindir)/cp\" -D_PATH_RSH=\"$(bindir)/rsh\"
 
 all: rcp
-rcp: rcp.o util.o
+rcp: $(SRCS:.c=.o)
 
 clean:
 	$(RM) -f *.o rcp 
