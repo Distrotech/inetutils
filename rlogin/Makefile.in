@@ -1,6 +1,6 @@
 # Makefile for rlogin
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,9 @@ srcdir = @srcdir@
 include ../config.make
 
 INST_PROG_FLAGS=-o root -m 04755
-INSTALL_TARGETS=$(bindir)/rlogin $(man1dir)/rlogin.1
+INSTALL_TARGETS = $(bindir)/rlogin $(man1dir)/rlogin.1
+SRCS = rlogin.c
+DISTFILES = $(SRCS) rlogin.1 Makefile.in
 
 all: rlogin
 
