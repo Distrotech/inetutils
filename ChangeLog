@@ -3,6 +3,7 @@
 	a hint to use SYSVR4 pseudo ptys handling.  particularly
 	for telnetd and rlogind.
 	* libinetutls/utmp_{init,logout} : new files.
+	* paths : add check for PATH_UTMPX and PATH_WTMPX
 
 1999-05-18 Alain Magloire
 	* headers/arpa/tftp.h : changing tu_cloc to be unsigned to handle
