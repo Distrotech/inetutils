@@ -89,7 +89,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
   if (strncmp (device, PATH_TTY_PFX, strlen(PATH_TTY_PFX)))
     {
       /* An attempt to break security... */
-      snprintf (errbuf, sizeof(errbuf), "bad line name", line);
+      snprintf (errbuf, sizeof(errbuf), "bad line name: %s", line);
       return (errbuf);
     }
 
