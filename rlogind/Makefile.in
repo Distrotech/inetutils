@@ -18,7 +18,7 @@
 #
 
 srcdir = @srcdir@
-include ../config.mk
+include ../config.make
 
 CPPFLAGS += -D_PATH_LOGIN=\"$(bindir)/login\"
 
