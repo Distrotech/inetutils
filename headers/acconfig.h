@@ -92,6 +92,9 @@
 /* Define this if the system defines snprintf.  */
 #undef HAVE_SNPRINTF
 
+/* Define this if the system defines vsnprintf. */
+#undef HAVE_VSNPRINTF
+
 /* Define this if sig_t is declared by including <sys/types.h> & <signal.h> */
 #undef HAVE_SIG_T
 
@@ -238,6 +241,16 @@ extern char *strrchr __P ((char *str, int ch));
 #ifndef HAVE_STRCHR
 #define strchr index
 #define strrchr rindex
+#endif
+
+#ifndef HAVE_VSNPRINTF
+#include <sys/types.h>
+#ifdef __STDC__
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
+extern int vsnprintf __P ((char *, size_t, const char *, va_list));
 #endif
 
 /* Defaults for PATH_ variables.  */
