@@ -20,6 +20,10 @@ issue:
 
 cvs co inetutils.
 
+There is a script called "autogen.sh" which will setup all of
+the automatically created scripts for you.  You need automake and
+autoconf for this to work.
+
 You can track the CVS process through the mailing list:
 commit-inetutils@gnu.org
 
