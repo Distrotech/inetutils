@@ -1,3 +1,30 @@
+2001-06-04  Marcus Brinkmann  <marcus@gnu.org>
+
+	* options.c (long_options): Only add SYSTEM_LONG_OPTIONS
+	if it is defined.
+
+	Lots of small fixes submitted Sergey Poznyakoff
+	<gray@Mirddin.farlep.net>:
+	* ifconfig.h: Do not include <config.h>.
+	* printif.h: Likewise.
+	* changeif.c: Include <sys/socket.h>.
+	* ifconfig.c: Likewise.
+	* printif.c: Likewise.
+	* system/hpux.c: Don't include <stdint.h>.
+	* system/osf.c: Likewise.
+	* system/linux.c: Likewise.
+	* system/solaris.c: Likewise.
+	* printif.c: Likewise.
+	* system/generic.c (system_configure): New function.
+	* system/osf.c (system_configure): Likewise.
+	* system/hpux.c (system_configure): Likewise.
+	* system/solaris.c (system_parse_opt_rest): Fix order of operators.
+	(system_default_format): Fix syntax.
+	Include <sys/socket.h>, <netinet/in.h>, <netinet/if_ether.h> (rather than
+	<linux/if_ether.h>).
+	* system.h: Change __solaris__ to __sun__.
+	* system.c: Likewise.
+
 2001-05-07  Jeff Bailey  <jbailey@oasis.zugzug.com>
 
 	* system/Makefile.am: New File, for 'make dist' derived targets.

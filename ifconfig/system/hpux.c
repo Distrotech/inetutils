@@ -27,7 +27,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
-#include <stdint.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -169,4 +168,10 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
     usage (EXIT_FAILURE);
 
   return 1;
+}
+
+int
+system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
+{
+  return 0;
 }

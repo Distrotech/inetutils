@@ -26,7 +26,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
-#include <stdint.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -48,6 +47,7 @@
 #endif
 
 #include <ctype.h>
+#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <arpa/inet.h>

@@ -49,3 +49,9 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 {
   return 0;
 }
+
+int
+system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
+{
+  return 0;
+}

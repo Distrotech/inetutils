@@ -27,7 +27,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
-#include <stdint.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -48,17 +47,19 @@
 # endif
 #endif
 
+#include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <netinet/in.h>
 #include <net/if.h>
 #include <net/if_arp.h>
-#include <linux/if_ether.h>
+#include <netinet/if_ether.h>
 
 #include "../ifconfig.h"
 
 
 /* Output format stuff.  */
 
-char *system_default_format "unix"
+char *system_default_format = "unix";
 
 
 /* Argument parsing stuff.  */
@@ -130,9 +131,9 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	  /* Recognize up/down.  */
 	  /* Also auto-revarp, trailers, -trailers,
 	     private, -private, arp, -arp, plumb, unplumb.  */
-	  if (! (*ifp->valid & IF_VALID_ADDR))
+	  if (! ((*ifp)->valid & IF_VALID_ADDR))
 	    parse_opt_set_address (*ifp, argv[i]);
-	  else if (! (*ifp->valid & IF_VALID_DSTADDR))
+	  else if (! ((*ifp)->valid & IF_VALID_DSTADDR))
 	    parse_opt_set_dstaddr (*ifp, argv[i]);
 	}
     }

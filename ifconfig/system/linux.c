@@ -27,7 +27,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
-#include <stdint.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>

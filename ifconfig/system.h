@@ -76,7 +76,7 @@ int system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs);
 #ifdef __linux__
 #include "system/linux.h"
 #else
-#ifdef __solaris__
+#ifdef __sun__
 #include "system/solaris.h"
 #else
 #ifdef __hpux__

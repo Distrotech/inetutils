@@ -32,7 +32,7 @@
 # include <strings.h>
 #endif
 
-
+#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <arpa/inet.h>

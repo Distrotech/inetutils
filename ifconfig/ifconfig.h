@@ -22,10 +22,6 @@
 #ifndef IFCONFIG_IFCONFIG_H
 #define IFCONFIG_IFCONFIG_H
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "flags.h"
 #include "options.h"
 #include "printif.h"

@@ -22,10 +22,6 @@
 #ifndef IFCONFIG_PRINTIF_H
 #define IFCONFIG_PRINTIF_H
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <net/if.h>
 #include <arpa/inet.h>
 #include "ifconfig.h"

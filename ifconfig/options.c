@@ -149,7 +149,9 @@ char *default_format;
 static const char *short_options = "+i:a:m:d:p:b:M:vV" ;
 
 static struct option long_options[] = {
+#ifdef SYSTEM_LONG_OPTIONS
 SYSTEM_LONG_OPTIONS
+#endif
   {"verbose",		no_argument,		0,	'v'},
   {"version",		no_argument,		0,	'V'},
   {"help",		no_argument, 		0,	'&'},
