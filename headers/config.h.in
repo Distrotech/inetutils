@@ -613,6 +613,9 @@
 /* Define if you have the <netinet/ip_var.h> header file.  */
 #undef HAVE_NETINET_IP_VAR_H
 
+/* Define if you have the <security/pam_appl.h> header file. */
+#undef HAVE_SECURITY_PAM_APPL_H
+
 /* Define if you have the <shadow.h> header file.  */
 #undef HAVE_SHADOW_H
 
@@ -708,6 +711,9 @@
 
 /* Define if you have the nsl library (-lnsl).  */
 #undef HAVE_LIBNSL
+
+/* Define if you have the pam library (-lpam).  */
+#undef HAVE_LIBPAM
 
 /* Define if you have the opie library (-lopie).  */
 #undef HAVE_LIBOPIE

@@ -128,7 +128,7 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <shadow.h>
 #endif
 
-#ifdef HAVE_PAM
+#ifdef HAVE_SECURITY_PAM_APPL_H
 #include <security/pam_appl.h>
 #endif
 
@@ -186,7 +186,7 @@ char	*hostname = 0;
 char	*remotehost = 0;
 char    *anonymous_login_name = "ftp";
 
-#ifdef HAVE_PAM
+#ifdef HAVE_LIBPAM
 static int ftp_conv (int num_msg, const struct pam_message **msg,
         struct pam_response **resp, void *appdata_ptr);
 static struct pam_conv conv = { ftp_conv, NULL };
@@ -851,7 +851,7 @@ end_login()
 	guest = 0;
 }
 
-#ifdef HAVE_PAM
+#ifdef HAVE_LIBPAM
 int
 ftp_conv (int num_msg, const struct pam_message **msg,
         struct pam_response **resp, void *appdata_ptr)
@@ -892,14 +892,14 @@ ftp_conv (int num_msg, const struct pam_message **msg,
         *resp = vresp;
         return PAM_SUCCESS;
 }
-#endif /* HAVE_PAM */
+#endif /* HAVE_LIBPAM */
 
 
 void
 pass(char *passwd)
 {
   int rval;
-#ifdef HAVE_PAM
+#ifdef HAVE_LIBPAM
 	 pam_handle_t *pamh;
 #endif
 
@@ -909,7 +909,7 @@ pass(char *passwd)
 	}
 	askpasswd = 0;
 
-#if  !defined(HAVE_PAM)
+#if  !defined(HAVE_LIBPAM)
 	if (!guest && (!pw || *pw->pw_passwd)) {
 		char *xpasswd;
 		if (pw) {

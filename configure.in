@@ -136,9 +136,10 @@ AC_C_CONST
 
 AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h glob.h krb.h memory.h \
 	         malloc.h netinet/in_systm.h netinet/ip.h netinet/ip_icmp.h \
-		 netinet/ip_var.h shadow.h stdarg.h stdlib.h string.h stropts.h \
-		 sys/tty.h sys/utsname.h sys/ptyvar.h sys/msgbuf.h \
-		 sys/filio.h sys/ioctl_compat.h sys/cdefs.h sys/stream.h \
+		 netinet/ip_var.h security/pam_appl.h shadow.h stdarg.h \
+                 stdlib.h string.h stropts.h sys/tty.h sys/utsname.h
+                 sys/ptyvar.h sys/msgbuf.h sys/filio.h sys/ioctl_compat.h \
+                 sys/cdefs.h sys/stream.h \
 		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
 		 sys/proc.h sys/select.h sys/time.h sys/wait.h sys/resource.h \
 		 stropts.h termio.h termios.h utmp.h utmpx.h unistd.h vis.h)
@@ -148,6 +149,7 @@ AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
+AC_CHECK_LIB(pam, pam_authenticate)
 
 AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent flock fpathconf ftruncate \
 	       getcwd getspnam initgroups killpg ptsname setegid seteuid \
