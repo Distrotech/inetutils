@@ -45,12 +45,12 @@
 
 #ifdef HAVE_TERMIOS_H
 #define USE_TERMIO
-#endif
-
+#else  /* !HAVE_TERMIOS_H */
 #ifdef HAVE_TERMIO_H
 #define USE_TERMIO
 #define SYSV_TERMIO
 #endif
+#endif /* HAVE_TERMIOS_H */
 
 #if	defined(CRAY) && !defined(LINEMODE)
 # define SYSV_TERMIO
