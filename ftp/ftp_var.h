@@ -41,6 +41,9 @@
 #ifndef FTP_EXTERN
 #define FTP_EXTERN extern
 #endif
+
+#define MAXLINE 200
+
 /*
  * Options and other state info.
  */
@@ -95,11 +98,11 @@ FTP_EXTERN jmp_buf toplevel;	/* non-local goto stuff for cmd scanner */
 #if HAVE_LIBREADLINE
 FTP_EXTERN char *line;
 #else
-FTP_EXTERN char	line[200];	/* input line buffer */
+FTP_EXTERN char	line[MAXLINE];	/* input line buffer */
 #endif
 
 FTP_EXTERN char	*stringbase;	/* current scan point in line buffer */
-FTP_EXTERN char	argbuf[200];	/* argument storage buffer */
+FTP_EXTERN char	argbuf[MAXLINE];	/* argument storage buffer */
 FTP_EXTERN char	*argbase;	/* current storage point in arg buffer */
 FTP_EXTERN int	margc;		/* count of arguments on input line */
 FTP_EXTERN char	*margv[20];	/* args parsed from input line */

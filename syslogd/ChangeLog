@@ -1,3 +1,9 @@
+2004-08-13  Jeff Bailey  <jbailey@raspberryginger.com>
+
+	* syslogd.c: Fix disable forwarding option.
+
+	Patch by Anthony Awtrey.
+
 2003-09-02  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (init): Fix long line support.  Submitted by Julian

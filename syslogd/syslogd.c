@@ -1300,7 +1300,7 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
     dbg_printf (" %s\n", f->f_un.f_forw.f_hname);
     if (strcasecmp (from, LocalHostName) && NoHops)
       dbg_printf ("Not forwarding remote message.\n");
-    else if (!NoForward)
+    else if (NoForward)
       dbg_printf ("Not forwarding because forwarding is disabled.\n");
     else if (finet < 0)
       dbg_printf ("Not forwarding because of invalid inet fd.\n");

@@ -317,9 +317,14 @@ cmdscanner (int top)
       line = readline (prompt);
       if (!line)
 	quit (0, 0);
+      l = strlen (line);
+      if (l >= MAXLINE)
+        {
+          printf("Line too long.\n");
+          break;
+        }
       if (line && *line)
 	add_history (line);
-      l = strlen (line);
       if (l == 0)
 	break;
 #else

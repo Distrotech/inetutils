@@ -1,3 +1,8 @@
+2003-08-29  Jeff Bailey <jbailey@raspberryginger.com>
+
+	* paths: Support PATH_INETDPID.
+	(Patch from Robert Millan)
+
 2004-09-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* acinclude.m4 (IU_LIB_NCURSES): Set LIBNCURSES to "" if we didn't

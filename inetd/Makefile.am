@@ -12,7 +12,8 @@ man_MANS = inetd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) -I$(top_builddir)/include
+INCLUDES = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) i\
+	$(PATHDEF_INETDPID) -I$(top_builddir)/include
 
 LDADD = -L../libinetutils -linetutils
 

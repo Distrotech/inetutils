@@ -426,6 +426,17 @@ main (int argc, char *argv[], char *envp[])
 
   openlog ("inetd", LOG_PID | LOG_NOWAIT, LOG_DAEMON);
 
+  {
+    FILE *fp = fopen (PATH_INETDPID, "w");
+    if (fp != NULL)
+      {
+        fprintf (fp, "%d\n", getpid ());
+        (void) fclose (fp);
+      }
+    else
+      syslog (LOG_CRIT, "can't open %s: %s\n", PATH_INETDPID, strerror (errno));
+  }
+
   signal_set_handler (SIGALRM, retry);
   config (0);
   signal_set_handler (SIGHUP, config);

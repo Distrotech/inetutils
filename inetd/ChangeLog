@@ -1,3 +1,10 @@
+2003-08-29  Jeff Bailey  <jbailey@raspberryginger.com>
+
+	* inetd.c: Create a PID file.
+	(Patch thanks to Robert Millan)
+
+	* Makefile.am (INCLUDES): Use PATHDEF_INETDPID
+
 2003-11-11  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* inetd.c: Signal handling rewritten.
