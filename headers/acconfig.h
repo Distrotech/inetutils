@@ -63,6 +63,15 @@
 /* Define this if sig_t is declared by including <sys/types.h> & <signal.h> */
 #undef HAVE_SIG_T
 
+/* Define this if gcc-style weak references work: ... __attribute__ ((weak)) */
+#undef HAVE_WEAK_REFS
+
+/* Define this if #pragma weak references work: #pragma weak foo */
+#undef HAVE_PRAGMA_WEAK_REFS
+
+/* Define this if gnu-as weak references work: asm (".weak foo") */
+#undef HAVE_ASM_WEAK_REFS
+
 /* If EWOULDBLOCK isn't defined by <errno.h>, define it here.  */
 #undef EWOULDBLOCK
 
