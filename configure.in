@@ -102,7 +102,7 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
 		 arpa/nameser.h sys/sockio.h sys/sysmacros.h sys/param.h \
 		 unistd.h sys/file.h fcntl.h sys/proc.h sys/select.h \
-		 sys/time.h)
+		 sys/time.h sys/wait.h sys/resource.h)
 AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -128,8 +128,10 @@ IU_CHECK_DECL(getcwd, [#include <unistd.h>])
 IU_CHECK_DECL(getlogin, [#include <unistd.h>])
 IU_CHECK_DECL(getpass, [#include <unistd.h>])
 IU_CHECK_DECL(getusershell, [#include <unistd.h>])
+IU_CHECK_DECL(ttyname, [#include <unistd.h>])
 IU_CHECK_DECL(strerror, [#include <string.h>])
 IU_CHECK_DECL(strchr, [#include <string.h>])
+IU_CHECK_DECL(getgrnam, [#include <grp.h>])
 
 # See if getcwd accepts a size argument of 0
 AC_CACHE_CHECK([if getcwd accepts a 0 size argument], inetutils_cv_getcwd_zero_size,
