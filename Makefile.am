@@ -4,7 +4,7 @@ EXTRA_DIST = paths
 
 SUBDIRS = headers libinetutils libtelnet glob \
 	inetd telnetd ftpd rshd rlogind uucpd rexecd syslogd tftpd talkd \
-	telnet ftp rsh rcp rlogin tftp syslog whois talk
+	telnet ftp rsh rcp rlogin tftp syslog whois ping talk
 
 DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
 	include/stamp-h
