@@ -133,7 +133,7 @@ AC_HEADER_STDC
 
 AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h glob.h krb.h memory.h \
 	         malloc.h netinet/in_systm.h netinet/ip.h netinet/ip_icmp.h \
-		 netinet/ip_var.h string.h stdarg.h stdlib.h stropts.h \
+		 netinet/ip_var.h stdarg.h stdlib.h string.h stropts.h \
 		 sys/tty.h sys/utsname.h sys/ptyvar.h sys/msgbuf.h \
 		 sys/filio.h sys/ioctl_compat.h sys/cdefs.h sys/stream.h \
 		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
@@ -152,8 +152,8 @@ AC_CHECK_FUNCS(cfsetspeed cgetent flock fpathconf ftruncate getcwd killpg \
 	       tcgetattr tzset utimes utime uname updwtmp updwtmpx wait3 \
 	       waitpid) 
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup strcasecmp setenv memcmp memset memmove \
-	herror getusershell)
+AC_REPLACE_FUNCS(daemon getusershell herror memcmp memcpy memmove memset \
+	         strdup strcasecmp setenv)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -488,8 +488,9 @@ AC_CHECK_FUNC(vsnprintf,
 # guile hackers have had problems because there is a Solaris libreadline
 # that is different from the GNU libreadline; therefore we test for an obscure
 # function in the GNU libreadline.
-AC_CHECK_LIB(termcap, tputs)
-AC_CHECK_LIB(readline, rl_bind_key,,, -ltermcap)
+#AC_CHECK_LIB(termcap, tputs)
+#AC_CHECK_LIB(readline, rl_bind_key,,, -ltermcap)
+AC_CHECK_LIB(readline, rl_bind_key,,, "$LIBTERMCAP")
 
 AC_CHECK_LIB(opie, opiegenerator)
 
