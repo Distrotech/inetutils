@@ -116,7 +116,6 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
-#include <paths.h>
 #include <getopt.h>
 
 #define	TOOMANY		40		/* don't start more than TOOMANY */
@@ -221,7 +220,7 @@ struct biltin {
 };
 
 #define NUMINT	(sizeof(intab) / sizeof(struct inent))
-char	*CONFIG = _PATH_INETDCONF;
+char	*CONFIG = PATH_INETDCONF;
 char	**Argv;
 char 	*LastArg;
 
@@ -232,7 +231,13 @@ main(argc, argv, envp)
 {
 	struct servtab *sep;
 	struct passwd *pwd;
+#ifdef HAVE_SIGACTION
+	struct sigaction sa;
+#else
+#ifdef HAVE_SIGVEC
 	struct sigvec sv;
+#endif
+#endif	
 	int tmpint, ch, dofork;
 	pid_t pid;
 	char buf[50];
@@ -278,6 +283,22 @@ main(argc, argv, envp)
 	if (debug == 0) {
 		daemon(0, 0);
 	}
+
+#ifdef HAVE_SIGACTION
+	bzero (&sa, sizeof (sa));
+	sa.sa_mask = SIGBLOCK;
+#ifdef SA_RESTART
+	sa.sa_flags = SA_RESTART;
+#endif
+	sa.sa_handler = retry;
+	sigaction (SIGALRM, &sa, (struct sigaction *)0);
+	config (SIGHUP);
+	sa.sa_handler = config;
+	sigaction (SIGHUP, &sa, (struct sigaction *)0);
+	sa.sa_handler = reapchild;
+	sigaction (SIGCHLD, &sa, (struct sigaction *)0);
+#else
+#ifdef HAVE_SIGVEC
 	memset(&sv, 0, sizeof(sv));
 	sv.sv_mask = SIGBLOCK;
 	sv.sv_handler = retry;
@@ -287,6 +308,13 @@ main(argc, argv, envp)
 	sigvec(SIGHUP, &sv, (struct sigvec *)0);
 	sv.sv_handler = reapchild;
 	sigvec(SIGCHLD, &sv, (struct sigvec *)0);
+#else /* !HAVE_SIGVEC */
+	signal (SIGALRM, retry);
+	config (SIGHUP);
+	signal (SIGHUP, config);
+	signal (SIGCHLD, reapchild);
+#endif /* HAVE_SIGVEC */
+#endif /* HAVE_SIGACTION */
 
 	{
 		/* space for daemons to overwrite environment for ps */
