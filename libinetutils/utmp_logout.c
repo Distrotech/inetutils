@@ -74,9 +74,9 @@ utmp_logout(char   *line)
 		ut->ut_exit.e_exit = 0;
 #endif
 #ifdef HAVE_UTMP_UT_TV
-		gettimeofday (&(utx.ut_tv), 0);
+		gettimeofday (&(ut->ut_tv), 0);
 #else
-		time(&(utx.ut_time));
+		time(&(ut->ut_time));
 #endif
 		pututline(ut);
 #ifdef HAVE_UPDWTMP
