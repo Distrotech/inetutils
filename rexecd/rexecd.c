@@ -228,7 +228,7 @@ doit(f, fromp)
 				    (struct timeval *)NULL);
 				if (FD_ISSET(s, &ready)) {
 					if (read(s, &sig, 1) <= 0)
-						readfrom &= ~(1<<s);
+						FD_CLR(s, &readfrom);
 					else
 						killpg(pid, sig);
 				}
@@ -236,12 +236,12 @@ doit(f, fromp)
 					cc = read(pv[0], buf, sizeof (buf));
 					if (cc <= 0) {
 						shutdown(s, 1+1);
-						readfrom &= ~(1<<pv[0]);
+						FD_CLR(pv[0], &readfrom);
 					} else
 						(void) write(s, buf, cc);
 				}
-			} while (FD_ISSET(s, &ready) ||
-				FD_ISSET(pv[0], &ready));
+			} while (FD_ISSET(pv[0], &readfrom) ||
+				FD_ISSET(s, &readfrom));
 			exit(0);
 		}
 		setpgid (0, getpid());
