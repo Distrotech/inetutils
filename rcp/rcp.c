@@ -481,9 +481,9 @@ syserr:			run_err("%s: %s", name, strerror(errno));
 			if (response() < 0)
 				goto next;
 		}
-#define	MODEMASK	(S_ISUID|S_ISGID|S_ISTXT|S_IRWXU|S_IRWXG|S_IRWXO)
+#define	RCP_MODEMASK	(S_ISUID|S_ISGID|S_ISTXT|S_IRWXU|S_IRWXG|S_IRWXO)
 		(void)snprintf(buf, sizeof(buf), "C%04o %qd %s\n",
-		    stb.st_mode & MODEMASK, stb.st_size, last);
+		    stb.st_mode & RCP_MODEMASK, stb.st_size, last);
 		(void)write(rem, buf, strlen(buf));
 		if (response() < 0)
 			goto next;
@@ -558,7 +558,7 @@ rsource(name, statp)
 		return;
 	}
 
-	sprintf (buf, "D%04o %d %s\n", statp->st_mode & MODEMASK, 0, last);
+	sprintf (buf, "D%04o %d %s\n", statp->st_mode & RCP_MODEMASK, 0, last);
 	write(rem, buf, strlen (buf));
 	free (buf);
 
