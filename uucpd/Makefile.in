@@ -20,21 +20,14 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libexecdir)/in.uucpd
+
 # the /libexec/uucp/... path is consistent with netbsd.
 CPPFLAGS += -D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\"
 
 all: uucpd
-uucpd: uucpd.o
 
-install: installdirs uucpd
-	$(INSTALL_PROGRAM) uucpd $(libexecdir)/in.uucpd
-uninstall:
-	-$(RM) -f $(libexecdir)/in.uucpd
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o uucpd 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
