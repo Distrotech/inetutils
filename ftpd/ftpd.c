@@ -1461,6 +1461,11 @@ void
 dologout(status)
 	int status;
 {
+  /* racing condition with SIGURG: If SIGURG is receive
+     here, it will jump back has root in the main loop
+     David Greenman:dg@root.com
+  */
+  transflag = 0; 
 
 	if (logged_in) {
 		(void) seteuid((uid_t)0);
