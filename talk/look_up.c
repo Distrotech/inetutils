@@ -60,9 +60,9 @@ check_local()
 
 	/* the rest of msg was set up in get_names */
 	msg.ctl_addr.sa_family = htons (ctl_addr.sin_family);
-	bcopy (msg.ctl_addr.sa_data,
-	       ((struct sockaddr *)&ctl_addr)->sa_data,
-	       sizeof ((struct sockaddr *)&ctl_addr)->sa_data);
+	memcpy (msg.ctl_addr.sa_data,
+		((struct sockaddr *)&ctl_addr)->sa_data,
+		sizeof ((struct sockaddr *)&ctl_addr)->sa_data);
 
 	/* must be initiating a talk */
 	if (!look_for_invite(rp))
