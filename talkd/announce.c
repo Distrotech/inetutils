@@ -19,6 +19,7 @@
 
 #include <intalkd.h>
 #include <stdarg.h>
+#include <sys/uio.h>
 
 /* See if the user is accepting messages. If so, announce that
    a talk is requested. */
@@ -29,7 +30,7 @@ announce (CTL_MSG *request, char *remote_machine)
   int len;
   struct stat st;
   int rc;
-	   
+
   len = sizeof (PATH_DEV) + strlen (request->r_tty) + 1;
   ttypath = malloc (len);
   if (!ttypath)
@@ -45,6 +46,7 @@ announce (CTL_MSG *request, char *remote_machine)
   return print_mesg (request->r_tty, request, remote_machine);
 }
 
+#undef MAX
 #define MAX(a,b) ( (a) > (b) ? (a) : (b) )
 #define N_LINES 5
 #define N_CHARS 256
@@ -78,7 +80,7 @@ format_line (LINE *lp, const char *fmt, ...)
   lp->max_size = MAX (lp->max_size, lp->size[i]);
   va_end (ap);
 }
-    
+
 char *
 finish_line (LINE *lp)
 {
@@ -93,7 +95,7 @@ finish_line (LINE *lp)
     {
       char *q;
       int j;
-      
+
       for (q = lp->line[i]; *q; q++)
 	*p++ = *q;
       for (j = lp->size[i]; j < lp->max_size + 2; j++)
@@ -114,7 +116,7 @@ print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
   struct tm *tm;
   struct iovec iovec;
   char *cp;
-  
+
   time (&t);
   tm = localtime (&t);
   init_line (&ln);
@@ -122,7 +124,7 @@ print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
   format_line (&ln, "Message from Talk_Daemon@%s at %d:%02d ...",
 	       hostname, tm->tm_hour , tm->tm_min);
   format_line (&ln, "talk: connection requested by %s@%s",
-	       request->l_name, remote_machine); 
+	       request->l_name, remote_machine);
   format_line (&ln, "talk: respond with:  talk %s@%s",
 	       request->l_name, remote_machine);
   format_line (&ln, "");
