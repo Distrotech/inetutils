@@ -378,7 +378,8 @@ main(argc, argv, envp)
 	if (! hostname)
 		perror_reply (550, "Local resource failure: malloc");
 
-	reply(220, "%s FTP server (%s) ready.", hostname, inetutils_version);
+	reply(220, "%s FTP server (%s %s) ready.",
+	      hostname, inetutils_package, inetutils_version);
 	(void) setjmp(errcatch);
 	for (;;)
 		(void) yyparse();
@@ -1139,7 +1140,7 @@ statcmd()
 	u_char *a, *p;
 
 	lreply(211, "%s FTP server status:", hostname);
-	printf("     %s\r\n", inetutils_version);
+	printf("     ftpd (%s) %s\r\n", inetutils_package, inetutils_version);
 	printf("     Connected to %s", remotehost);
 	if (!isdigit(remotehost[0]))
 		printf(" (%s)", inet_ntoa(his_addr.sin_addr));
