@@ -133,7 +133,8 @@ doit(f, fromp)
 	struct passwd *pwd;
 	int s;
 	u_short port;
-	int pv[2], pid, ready, readfrom, cc;
+	int pv[2], pid, cc;
+	fd_set readrom, ready;
 	char buf[BUFSIZ], sig;
 	int one = 1;
 
@@ -215,7 +216,7 @@ doit(f, fromp)
 			(void) close(f); (void) close(pv[1]);
 			FD_ZERO(&readfrom);
 			FD_SET(s, &readfrom);
-			FD_SET(pf[0], &readfrom);
+			FD_SET(pv[0], &readfrom);
 			ioctl(pv[1], FIONBIO, (char *)&one);
 			/* should set s nbio! */
 			do {
