@@ -2,6 +2,9 @@ Thu Feb 20 14:40:00 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.2m'.
 
+	* syslog.c: New file.
+	* libinetutils/Makefile.in (SRCS): Add syslog.c.
+
 Wed Feb 19 10:02:44 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* iumacros.m4 (IU_LIB_NCURSES): Add search for NCURSES_INCLUDE.
