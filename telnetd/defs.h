@@ -134,6 +134,14 @@ typedef unsigned char cc_t;
 # endif
 #endif
 
+#ifdef HAVE_TERMIOS_H
+#define USE_TERMIO
+#endif
+
+#ifdef HAVE_TERMIO_H
+#define USE_TERMIO
+#define SYSV_TERMIO
+#endif
 
 #ifdef	CRAY
 # ifdef	CRAY1
