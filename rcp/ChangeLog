@@ -1,3 +1,7 @@
+2001-01-03  Alain Magloire
+
+	* rcp.c: GNU coding style changes.
+
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
 	* rcp.c (rsource): Don't take the address of a pointer when the pointer
