@@ -495,7 +495,10 @@ syserr:			run_err("%s: %s", name, strerror(errno));
 				goto next;
 		}
 #define	RCP_MODEMASK	(S_ISUID|S_ISGID|S_ISTXT|S_IRWXU|S_IRWXG|S_IRWXO)
-		(void)snprintf(buf, sizeof(buf), "C%04o %qd %s\n",
+		(void)snprintf(buf, sizeof(buf),
+			       (sizeof(stb.st_size) > sizeof(long)
+				? "C%04o %qd %s\n"
+				: "C%04o %ld %s\n"),
 		    stb.st_mode & RCP_MODEMASK, stb.st_size, last);
 		(void)write(rem, buf, strlen(buf));
 		if (response() < 0)
