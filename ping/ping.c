@@ -101,6 +101,26 @@ static void decode_type (const char *optarg);
 static void init_data_buffer (u_char *pat, int len);
 static int send_echo (PING *ping);
 
+static size_t
+ping_cvt_number (const char *optarg, size_t maxval)
+{
+  char *p;
+  size_t n;
+
+  n = strtoul (optarg, &p, 0);
+  if (*p)
+    {
+      fprintf (stderr, "Invalid value (`%s' near `%s')\n", optarg, p);
+      exit (1);
+    }
+  if (maxval && n > maxval)
+    {
+      fprintf (stderr, "Option value too big: %s\n", optarg);
+      exit (1);
+    }
+  return n;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -149,7 +169,7 @@ main (int argc, char **argv)
 	  break;
 	  
 	case 'c':
-	  ping_set_count (ping, atoi (optarg));
+	  ping_set_count (ping, ping_cvt_number (optarg, 0));
 	  break;
 	  
 	case 'd':
@@ -162,7 +182,7 @@ main (int argc, char **argv)
 	  
 	case 'i':
 	  options |= OPT_INTERVAL;
-	  ping_set_interval (ping, atoi (optarg));
+	  ping_set_interval (ping, ping_cvt_number (optarg, 0));
 	  break;
 	  
 	case 'p':
@@ -171,7 +191,7 @@ main (int argc, char **argv)
 	  break;
 	  
  	case 's':
-	  data_length = atoi (optarg);
+	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN);
  	  break;
 	  
 	case 'n':
@@ -443,8 +463,8 @@ send_echo (PING *ping)
     }
   if (data_buffer)
     ping_set_data (ping, data_buffer, off,
-		  data_length > PING_HEADER_LEN ?
-		    data_length-PING_HEADER_LEN : data_length);
+		   data_length > PING_HEADER_LEN ?
+		   data_length - PING_HEADER_LEN : data_length);
   return ping_xmit (ping);
 }
 
