@@ -51,41 +51,41 @@
 #include <ping.h>
 #include <ping_impl.h>
 
-static int recv_address(int code, void *closure,
+static int recv_address (int code, void *closure,
 			struct sockaddr_in *dest, struct sockaddr_in *from,
 			struct ip *ip, icmphdr_t *icmp, int datalen);
-static void print_address(int dupflag, void *closure,
+static void print_address (int dupflag, void *closure,
 			  struct sockaddr_in *dest, struct sockaddr_in *from,
 			  struct ip *ip, icmphdr_t *icmp, int datalen);
-static void print_address(int dupflag, void *closure,
+static void print_address (int dupflag, void *closure,
 			  struct sockaddr_in *dest, struct sockaddr_in *from,
 			  struct ip *ip, icmphdr_t *icmp, int datalen);
-static int address_finish();
+static int address_finish ();
 
 int
-ping_address(int argc, char **argv)
+ping_address (int argc, char **argv)
 {
-  ping_set_type(ping, ICMP_ADDRESS);
-  ping_set_event_handler(ping, recv_address, NULL);
-  ping_set_packetsize(ping, 12); /* FIXME: constant */
-  ping_set_count(ping, 1);
+  ping_set_type (ping, ICMP_ADDRESS);
+  ping_set_event_handler (ping, recv_address, NULL);
+  ping_set_packetsize (ping, 12); /* FIXME: constant */
+  ping_set_count (ping, 1);
 
-  if (ping_set_dest(ping, *argv))
+  if (ping_set_dest (ping, *argv))
     {
-      fprintf(stderr, "ping: unknown host\n");
-      exit(1);
+      fprintf (stderr, "ping: unknown host\n");
+      exit (1);
     }
 
-  printf("PING %s (%s): sending address mask request\n",
+  printf ("PING %s (%s): sending address mask request\n",
 	 ping->ping_hostname,
-	 inet_ntoa(ping->ping_dest.sin_addr));
+	 inet_ntoa (ping->ping_dest.sin_addr));
 
-  return ping_run(ping, address_finish);
+  return ping_run (ping, address_finish);
 }
 
 
 int
-recv_address(int code, void *closure,
+recv_address (int code, void *closure,
 	     struct sockaddr_in *dest, struct sockaddr_in *from,
 	     struct ip *ip, icmphdr_t *icmp, int datalen)
 {
@@ -93,36 +93,36 @@ recv_address(int code, void *closure,
     {
     case PEV_RESPONSE:
     case PEV_DUPLICATE:
-      print_address(code == PEV_DUPLICATE,
+      print_address (code == PEV_DUPLICATE,
 		    closure, dest, from, ip, icmp, datalen);
       break;
     case PEV_NOECHO:;
-      print_icmp_header(from, ip, icmp, datalen);
+      print_icmp_header (from, ip, icmp, datalen);
     }
   return 0;
 }
 
 void
-print_address(int dupflag, void *closure,
+print_address (int dupflag, void *closure,
 	      struct sockaddr_in *dest, struct sockaddr_in *from,
 	      struct ip *ip, icmphdr_t *icmp, int datalen)
 {
   struct in_addr addr;
 
-  printf("%d bytes from %s: icmp_seq=%u", datalen,
-	 inet_ntoa(*(struct in_addr *)&from->sin_addr.s_addr),
+  printf ("%d bytes from %s: icmp_seq=%u", datalen,
+	 inet_ntoa (*(struct in_addr *)&from->sin_addr.s_addr),
 	 icmp->icmp_seq);
   if (dupflag)
-    printf(" (DUP!)");
+    printf (" (DUP!)");
   addr.s_addr = icmp->icmp_mask;
-  printf("icmp_mask = %s", inet_ntoa(addr));
-  printf("\n");
+  printf ("icmp_mask = %s", inet_ntoa (addr));
+  printf ("\n");
   return;
 }
 
 
 int
-address_finish()
+address_finish ()
 {
   return 0;
 }

@@ -51,7 +51,7 @@
 #include <ping_impl.h>
 
 int
-ping_router(int argc, char **argv)
+ping_router (int argc, char **argv)
 {
   return 0;
 }

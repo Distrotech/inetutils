@@ -1,3 +1,13 @@
+2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
+
+	* ping_echo.c: Removed restriction on hostname lengths in
+	ipaddr2str.
+	* ping.c: Fixed coding style to comply with GNU.
+	* ping_address.c: Likewise.
+	* ping_impl.h: Likewise.
+	* ping_router.c: Likewise.
+	* ping_timestamp.c: Likewise.
+
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
 	* ping.c: Use inetutils_package instead of PACKAGE. Same for
 	VERSION.

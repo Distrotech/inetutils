@@ -81,10 +81,10 @@ static struct option long_options[] =
   {NULL,      no_argument, NULL, 0}
 };
 
-extern int ping_echo __P((int argc, char **argv));
-extern int ping_timestamp __P((int argc, char **argv));
-extern int ping_address __P((int argc, char **argv));
-extern int ping_router __P((int argc, char **argv));
+extern int ping_echo __P ((int argc, char **argv));
+extern int ping_timestamp __P ((int argc, char **argv));
+extern int ping_address __P ((int argc, char **argv));
+extern int ping_router __P ((int argc, char **argv));
 
 PING *ping;
 int is_root;        /* were we started with root privileges */
@@ -92,19 +92,19 @@ u_char *data_buffer;
 size_t data_length = PING_DATALEN;
 unsigned options;
 unsigned long preload = 0;
-int (*ping_type) __P((int argc, char **argv)) = ping_echo;
+int (*ping_type) __P ((int argc, char **argv)) = ping_echo;
 
 
 static void show_usage (void);
 static void show_license (void);
-static void decode_pattern(const char *text, int *pattern_len, 
+static void decode_pattern (const char *text, int *pattern_len, 
 		           u_char *pattern_data);
-static void decode_type(const char *optarg);
-static void init_data_buffer(u_char *pat, int len);
-static int send_echo(PING *ping);
+static void decode_type (const char *optarg);
+static void init_data_buffer (u_char *pat, int len);
+static int send_echo (PING *ping);
 
 int
-main(int argc, char **argv)
+main (int argc, char **argv)
 {
   int c;
   char *p;
@@ -113,17 +113,17 @@ main(int argc, char **argv)
   int pattern_len = 16;
   u_char *patptr = NULL;
   
-  is_root = getuid() == 0;
+  is_root = getuid () == 0;
 
-  if ((ping = ping_init(ICMP_ECHO, getpid())) == NULL)
+  if ((ping = ping_init (ICMP_ECHO, getpid ())) == NULL)
     {
-      fprintf(stderr, "can't init ping: %s\n", strerror(errno));
+      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
       exit (1);
     }
-  ping_set_sockopt(ping, SO_BROADCAST, (char *)&one, sizeof(one));
+  ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
 
   /* Reset root privileges */
-  setuid(getuid());
+  setuid (getuid ());
  
   /* Parse command line */
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
@@ -142,31 +142,31 @@ main(int argc, char **argv)
 	  exit (0);
 	  break;
 	case 'L':
-	  show_license();
-	  exit(0);
+	  show_license ();
+	  exit (0);
 	case 'h':
 	  show_usage ();
 	  exit (0);
 	  break;
 	case 'c':
-	  ping_set_count(ping, atoi(optarg));
+	  ping_set_count (ping, atoi (optarg));
 	  break;
 	case 'd':
-	  ping_set_sockopt(ping, SO_DEBUG, &one, sizeof(one));
+	  ping_set_sockopt (ping, SO_DEBUG, &one, sizeof (one));
 	  break;
 	case 'r':
-	  ping_set_sockopt(ping, SO_DONTROUTE, &one, sizeof(one));
+	  ping_set_sockopt (ping, SO_DONTROUTE, &one, sizeof (one));
 	  break;
 	case 'i':
 	  options |= OPT_INTERVAL;
-	  ping_set_interval(ping, atoi(optarg));
+	  ping_set_interval (ping, atoi (optarg));
 	  break;
 	case 'p':
-	  decode_pattern(optarg, &pattern_len, pattern);
+	  decode_pattern (optarg, &pattern_len, pattern);
 	  patptr = pattern;
 	  break;
  	case 's':
-	  data_length = atoi(optarg);
+	  data_length = atoi (optarg);
  	  break;
 	case 'n':
 	  options |= OPT_NUMERIC;
@@ -183,47 +183,47 @@ main(int argc, char **argv)
 	case 'l':
 	  if (!is_root)
 	    {
-	      fprintf(stderr, "ping: option not allowed: --preload\n");
-	      exit(1);
+	      fprintf (stderr, "ping: option not allowed: --preload\n");
+	      exit (1);
 	    }
-	  preload = strtoul(optarg, &p, 0);
+	  preload = strtoul (optarg, &p, 0);
 	  if (*p || preload > INT_MAX)
 	    {
-	      fprintf(stderr, "ping: invalid preload value (%s)\n", optarg);
-	      exit(1);
+	      fprintf (stderr, "ping: invalid preload value (%s)\n", optarg);
+	      exit (1);
 	    }
 	  break;
 
 	case 'f':
 	  if (!is_root)
 	    {
-	      fprintf(stderr, "ping: option not allowed: --flood\n");
-	      exit(1);
+	      fprintf (stderr, "ping: option not allowed: --flood\n");
+	      exit (1);
 	    }
 	  options |= OPT_FLOOD;
-	  setbuf(stdout, (char *)NULL);
+	  setbuf (stdout, (char *)NULL);
 	  break;
 
 	case 't':
-	  decode_type(optarg);
+	  decode_type (optarg);
 	  break;
 
 	case ICMP_ECHO:
-	  decode_type("echo");
+	  decode_type ("echo");
 	  break;
 	case ICMP_TIMESTAMP:
-	  decode_type("timestamp");
+	  decode_type ("timestamp");
 	  break;
 	case ICMP_ADDRESS:
-	  decode_type("address");
+	  decode_type ("address");
 	  break;
 	case ICMP_ROUTERDISCOVERY:
-	  decode_type("router");
+	  decode_type ("router");
 	  break;
 	  
 	default:
-	  fprintf(stderr, "%c: not implemented\n", c);
-	  exit(1);
+	  fprintf (stderr, "%c: not implemented\n", c);
+	  exit (1);
 	}
     }
 
@@ -235,24 +235,24 @@ main(int argc, char **argv)
       exit (0);
     }
 
-  init_data_buffer(patptr, pattern_len);
+  init_data_buffer (patptr, pattern_len);
   
   return (*ping_type)(argc, argv);
 }
 
 void
-init_data_buffer(u_char *pat, int len)
+init_data_buffer (u_char *pat, int len)
 {
   int i = 0;
   u_char *p;
 
   if (data_length == 0)
     return;
-  data_buffer = malloc(data_length);
+  data_buffer = malloc (data_length);
   if (!data_buffer)
     {
-      fprintf(stderr, "ping: out of memory\n");
-      exit(1);
+      fprintf (stderr, "ping: out of memory\n");
+      exit (1);
     }
   if (pat)
     {
@@ -272,36 +272,36 @@ init_data_buffer(u_char *pat, int len)
   
 
 void
-decode_type(const char *optarg)
+decode_type (const char *optarg)
 {
-  if (strcasecmp(optarg, "echo") == 0)
+  if (strcasecmp (optarg, "echo") == 0)
     ping_type = ping_echo;
-  else if (strcasecmp(optarg, "timestamp") == 0)
+  else if (strcasecmp (optarg, "timestamp") == 0)
     ping_type = ping_timestamp;
-  else if (strcasecmp(optarg, "address") == 0)
+  else if (strcasecmp (optarg, "address") == 0)
     ping_type = ping_address;
 #if 0  
-  else if (strcasecmp(optarg, "router") == 0)
+  else if (strcasecmp (optarg, "router") == 0)
     ping_type = ping_router;
 #endif  
   else
     {
-      fprintf(stderr, "unsupported packet type: %s\n", optarg);
-      exit(1);
+      fprintf (stderr, "unsupported packet type: %s\n", optarg);
+      exit (1);
     }
 }
 
 void
-decode_pattern(const char *text, int *pattern_len, u_char *pattern_data)
+decode_pattern (const char *text, int *pattern_len, u_char *pattern_data)
 {
   int i, c, off;
 
   for (i = 0; *text && i < *pattern_len; i++)
     {
-      if (sscanf(text, "%2x%n", &c, &off) != 1)
+      if (sscanf (text, "%2x%n", &c, &off) != 1)
 	{
-	  fprintf(stderr, "ping: error in pattern near %s\n", text);
-	  exit(1);
+	  fprintf (stderr, "ping: error in pattern near %s\n", text);
+	  exit (1);
 	}
       text += off;
     }
@@ -311,13 +311,13 @@ decode_pattern(const char *text, int *pattern_len, u_char *pattern_data)
 int volatile stop = 0;
 
 RETSIGTYPE
-sig_int(int signal)
+sig_int (int signal)
 {
   stop = 1;
 }
 
 int
-ping_run(PING *ping, int (*finish)())
+ping_run (PING *ping, int (*finish)())
 {
   fd_set fdset;
   int fdmax;
@@ -326,12 +326,12 @@ ping_run(PING *ping, int (*finish)())
   struct timeval *t = NULL;
   int finishing = 0;
   
-  signal(SIGINT, sig_int);
+  signal (SIGINT, sig_int);
   
   fdmax = ping->ping_fd+1;
 
   while (preload--)      
-    send_echo(ping);
+    send_echo (ping);
 
   if (options & OPT_FLOOD)
     {
@@ -344,16 +344,16 @@ ping_run(PING *ping, int (*finish)())
       intvl.tv_usec = 0;
     }
   
-  gettimeofday(&last, NULL);
-  send_echo(ping);
+  gettimeofday (&last, NULL);
+  send_echo (ping);
 
   while (!stop)
     {
       int n, len;
       
-      FD_ZERO(&fdset);
-      FD_SET(ping->ping_fd, &fdset);
-      gettimeofday(&now, NULL);
+      FD_ZERO (&fdset);
+      FD_SET (ping->ping_fd, &fdset);
+      gettimeofday (&now, NULL);
       timeout.tv_sec = last.tv_sec + intvl.tv_sec - now.tv_sec;
       timeout.tv_usec = last.tv_usec + intvl.tv_usec - now.tv_usec;
 
@@ -371,18 +371,18 @@ ping_run(PING *ping, int (*finish)())
       if (timeout.tv_sec < 0)
 	timeout.tv_sec = timeout.tv_usec = 0;
       
-      if ((n = select(fdmax, &fdset, NULL, NULL, &timeout)) < 0)
+      if ((n = select (fdmax, &fdset, NULL, NULL, &timeout)) < 0)
 	{
 	  if (errno != EINTR)
-	    perror("ping: select");
+	    perror ("ping: select");
 	  continue;
 	}
       else if (n == 1)
 	{
-	  len = ping_recv(ping);
+	  len = ping_recv (ping);
 	  if (t == 0)
 	    {
-	      gettimeofday(&now, NULL);
+	      gettimeofday (&now, NULL);
 	      t = &now;
 	    }
 	  if (ping->ping_count && ping->ping_num_recv >= ping->ping_count)
@@ -392,10 +392,10 @@ ping_run(PING *ping, int (*finish)())
 	{
 	  if (!ping->ping_count || ping->ping_num_recv < ping->ping_count)
 	    {
-	      send_echo(ping);
+	      send_echo (ping);
 	      if (!(options & OPT_QUIET) && options & OPT_FLOOD)
 		{
-		  putchar('.');
+		  putchar ('.');
 		}
 	    }
 	  else if (finishing)
@@ -406,7 +406,7 @@ ping_run(PING *ping, int (*finish)())
 
 	      intvl.tv_sec = MAXWAIT;
 	    }
-	  gettimeofday(&last, NULL);
+	  gettimeofday (&last, NULL);
 	}
     }
   if (finish)
@@ -415,51 +415,51 @@ ping_run(PING *ping, int (*finish)())
 }
 
 int
-send_echo(PING *ping)
+send_echo (PING *ping)
 {
   int off = 0;
   
-  if (PING_TIMING(data_length))
+  if (PING_TIMING (data_length))
     {
       struct timeval tv;
-      gettimeofday(&tv, NULL);
-      ping_set_data(ping, &tv, 0, sizeof(tv));
-      off += sizeof(tv);
+      gettimeofday (&tv, NULL);
+      ping_set_data (ping, &tv, 0, sizeof (tv));
+      off += sizeof (tv);
     }
   if (data_buffer)
-    ping_set_data(ping, data_buffer, off,
+    ping_set_data (ping, data_buffer, off,
 		  data_length > PING_HEADER_LEN ?
 		    data_length-PING_HEADER_LEN : data_length);
-  return ping_xmit(ping);
+  return ping_xmit (ping);
 }
 
 int
-ping_finish()
+ping_finish ()
 {
-  fflush(stdout);
-  printf("--- %s ping statistics ---\n", ping->ping_hostname);
-  printf("%ld packets transmitted, ", ping->ping_num_xmit);
-  printf("%ld packets received, ", ping->ping_num_recv);
+  fflush (stdout);
+  printf ("--- %s ping statistics ---\n", ping->ping_hostname);
+  printf ("%ld packets transmitted, ", ping->ping_num_xmit);
+  printf ("%ld packets received, ", ping->ping_num_recv);
   if (ping->ping_num_rept)
-    printf("+%ld duplicates, ", ping->ping_num_rept);  
+    printf ("+%ld duplicates, ", ping->ping_num_rept);  
   if (ping->ping_num_xmit)
     {
       if (ping->ping_num_recv > ping->ping_num_xmit)
-	printf("-- somebody's printing up packets!");
+	printf ("-- somebody's printing up packets!");
       else
-	printf("%d%% packet loss",
+	printf ("%d%% packet loss",
 	       (int) (((ping->ping_num_xmit - ping->ping_num_recv) * 100) /
 		      ping->ping_num_xmit));
 
     }
-  printf("\n");
+  printf ("\n");
   return 0;
 }
 
 void
 show_usage (void)
 {
-  printf("\
+  printf ("\
 Usage: ping [OPTION]... [ADDRESS]...\n\
 \n\
 Informational options:\n\
@@ -510,6 +510,6 @@ show_license (void)
 "   You should have received a copy of the GNU General Public License\n"
 "   along with this program; if not, write to the Free Software\n"
 "   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
-  printf("%s", license_text);
+  printf ("%s", license_text);
 }
 
