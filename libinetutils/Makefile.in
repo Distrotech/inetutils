@@ -23,7 +23,7 @@ include ../config.make
 
 SRCS = ttymsg.c version.c getopt.c getopt1.c stub_tgetent.c \
 	localhost.c daemon.c strerror.c hstrerror.c strdup.c logout.c \
-	logwtmp.c logwtmpko.c cleansess.c
+	logwtmp.c logwtmpko.c cleansess.c openpty.c
 
 DISTFILES = $(SRCS)
 
