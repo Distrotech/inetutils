@@ -203,7 +203,7 @@ doit(int f, struct sockaddr_in *fromp)
 	endpwent();
 	pw_password = get_user_password(pwd);
 	if (*pw_password != '\0') {
-	        namep = CRYPT (pass, pw_password);
+	        namep = crypt (pass, pw_password);
 		if (strcmp(namep, pw_password)) {
 			error("Password incorrect.\n");
 			exit(1);
