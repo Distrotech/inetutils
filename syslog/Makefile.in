@@ -27,6 +27,7 @@ DISTFILES = syslog.c syslog.1
 all: syslog
 
 $(bindir)/logger: $(bindir)/syslog
+	$(RM) -f $@
 	ln $< $@
 
 clean:
