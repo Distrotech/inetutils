@@ -61,7 +61,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
  *	wait/nowait			single-threaded/multi-threaded
  *	user				user to run daemon as
  *	server program			full path name
- *	server program arguments	maximum of MAXARGS (20)
+ *	server program arguments	arguments starting with argv[0]
  *
  * TCP services without official port numbers are handled with the
  * RFC1078-based tcpmux internal service. Tcpmux listens on port 1 for
@@ -155,8 +155,8 @@ struct	servtab {
   char	*se_user;		/* user name to run as */
   struct biltin *se_bi;		/* if built-in, description */
   char	*se_server;		/* server program */
-#define	MAXARGV 20
-  char	*se_argv[MAXARGV+1];	/* program arguments */
+  char	**se_argv;	        /* program arguments */
+  size_t se_argc;               /* number of arguments */
   int	se_fd;			/* open descriptor */
   int	se_type;		/* type */
   struct sockaddr_in se_ctrladdr;/* bound address */
@@ -186,7 +186,7 @@ void		echo_stream __P((int, struct servtab *));
 void		endconfig __P((FILE *));
 struct servtab *enter __P((struct servtab *));
 void		freeconfig __P((struct servtab *));
-struct servtab *getconfigent __P((FILE *, const char *));
+struct servtab *getconfigent __P((FILE *, const char *, size_t *));
 void		machtime_dg __P((int, struct servtab *));
 void		machtime_stream __P((int, struct servtab *));
 char	       *newstr __P((const char *));
@@ -197,8 +197,6 @@ void		reapchild __P((int));
 void		retry __P((int));
 FILE           *setconfig __P((const char *));
 void		setup __P((struct servtab *));
-char	       *sskip __P((char **, FILE *, const char *));
-char	       *skip __P((char **, FILE *));
 void		tcpmux __P((int s, struct servtab *sep));
 void		set_proc_title __P ((char *, int));
 void		initring __P((void));
@@ -409,9 +407,9 @@ main (int argc, char *argv[], char *envp[])
 #define	DUMMYSIZE	100
     char dummy[DUMMYSIZE];
 
-    (void)memset(dummy, 'x', DUMMYSIZE - 1);
+    memset(dummy, 'x', DUMMYSIZE - 1);
     dummy[DUMMYSIZE - 1] = '\0';
-    (void)setenv("inetd_dummy", dummy, 1);
+    setenv("inetd_dummy", dummy, 1);
   }
 
   for (;;)
@@ -431,7 +429,7 @@ main (int argc, char *argv[], char *envp[])
 	    sigprocmask (SIG_BLOCK, &sigs, 0);
 	  }
 #else
-	  (void) sigblock (SIGBLOCK);
+	  sigblock (SIGBLOCK);
 #endif
 	  while (nsock == 0)
 	    sigpause (0L);
@@ -442,7 +440,7 @@ main (int argc, char *argv[], char *envp[])
 	    sigprocmask (SIG_SETMASK, &empty, 0);
 	  }
 #else
-	  (void) sigsetmask (0L);
+	  sigsetmask (0L);
 #endif
 	}
       readable = allsock;
@@ -485,19 +483,19 @@ main (int argc, char *argv[], char *envp[])
 	      sigprocmask (SIG_BLOCK, &sigs, 0);
 	    }
 #else
-	    (void) sigblock (SIGBLOCK);
+	    sigblock (SIGBLOCK);
 #endif
 	    pid = 0;
 	    dofork = (sep->se_bi == 0 || sep->se_bi->bi_fork);
 	    if (dofork)
 	      {
 		if (sep->se_count++ == 0)
-		  (void)gettimeofday (&sep->se_time, (struct timezone *)0);
+		  gettimeofday (&sep->se_time, (struct timezone *)0);
 		else if (sep->se_count >= toomany)
 		  {
 		    struct timeval now;
 
-		    (void)gettimeofday (&now, (struct timezone *)0);
+		    gettimeofday (&now, (struct timezone *)0);
 		    if (now.tv_sec - sep->se_time.tv_sec > CNT_INTVL)
 		      {
 			sep->se_time = now;
@@ -619,7 +617,7 @@ run_service (int ctrl, struct servtab *sep)
 	      _exit (1);
 	    }
 #ifdef HAVE_INITGROUPS
-	  (void) initgroups (pwd->pw_name, pwd->pw_gid);
+	  initgroups (pwd->pw_name, pwd->pw_gid);
 #endif
 	  if (setuid (pwd->pw_uid) < 0)
 	    {
@@ -742,14 +740,15 @@ nextconfig (const char *file)
 #else
   long omask;
 #endif
-
+  size_t line = 0;
+  
   fconfig = setconfig (file);
   if (!fconfig)
     {
       syslog (LOG_ERR, "%s: %m", file);
       return;
     }
-  while ((cp = getconfigent (fconfig, file)))
+  while ((cp = getconfigent (fconfig, file, &line)))
     {
       if ((pwd = getpwnam (cp->se_user)) == NULL)
 	{
@@ -790,8 +789,11 @@ nextconfig (const char *file)
 	    SWAP(sep->se_user, cp->se_user);
 	  if (cp->se_server)
 	    SWAP(sep->se_server, cp->se_server);
-	  for (i = 0; i < MAXARGV; i++)
-	    SWAP(sep->se_argv[i], cp->se_argv[i]);
+	  argcv_free(sep->se_argc, sep->se_argv);
+	  sep->se_argc = cp->se_argc;
+	  sep->se_argv = cp->se_argv;
+	  cp->se_argc = 0;
+	  cp->se_argv = NULL;
 #ifdef HAVE_SIGACTION
 	  sigprocmask (SIG_SETMASK, &osigs, 0);
 #else
@@ -863,7 +865,7 @@ nextconfig (const char *file)
 #ifdef HAVE_SIGACTION
   sigprocmask (SIG_SETMASK, &osigs, 0);
 #else
-  (void) sigsetmask (omask);
+  sigsetmask (omask);
 #endif
 }
 
@@ -907,7 +909,7 @@ setsockopt(fd, SOL_SOCKET, opt, (char *)&on, sizeof (on))
 	fprintf (stderr, "bind failed on %s/%s: %s\n",
 		 sep->se_service, sep->se_proto, strerror (errno));
       syslog(LOG_ERR, "%s/%s: bind: %m", sep->se_service, sep->se_proto);
-      (void) close (sep->se_fd);
+      close (sep->se_fd);
       sep->se_fd = -1;
       if (!timingout)
 	{
@@ -938,7 +940,7 @@ close_sep (struct servtab *sep)
     {
       nsock--;
       FD_CLR (sep->se_fd, &allsock);
-      (void) close (sep->se_fd);
+      close (sep->se_fd);
       sep->se_fd = -1;
     }
   sep->se_count = 0;
@@ -1005,115 +1007,163 @@ endconfig (FILE *fconfig)
 {
   if (fconfig)
     {
-      (void) fclose (fconfig);
+      fclose (fconfig);
     }
 }
 
+#define INETD_SERVICE      0   /* service name */
+#define INETD_SOCKET       1   /* socket type */
+#define INETD_PROTOCOL     2   /* protocol */
+#define INETD_WAIT         3   /* wait/nowait */
+#define INETD_USER         4   /* user */
+#define INETD_SERVER_PATH  5   /* server program path */ 
+#define INETD_SERVER_ARGS  6   /* server program arguments */
+
+#define INETD_FIELDS_MIN   7   /* Minimum number of fields in entry */
+
 struct servtab *
-getconfigent (FILE *fconfig, const char *file)
+getconfigent (FILE *fconfig, const char *file, size_t *line)
 {
   struct servtab *sep = &serv;
-  int argc;
+  size_t argc = 0, i;
+  char **argv = NULL;
   char *cp, *arg;
   static char TCPMUX_TOKEN[] = "tcpmux/";
 #define MUX_LEN		(sizeof(TCPMUX_TOKEN)-1)
 
-more:
-  while ((cp = nextline (fconfig)) && (*cp == '#' || *cp == '\0'))
-    ;
-  if (cp == NULL)
-    return ((struct servtab *)0);
-  /*
-   * clear the static buffer, since some fields (se_ctrladdr,
-   * for example) don't get initialized here.
-   */
   memset ((caddr_t)sep, 0, sizeof *sep);
-  arg = skip (&cp, fconfig);
-  if (cp == NULL)
+  
+  while (1)
     {
-      /* got an empty line containing just blanks/tabs. */
-      goto more;
-    }
-  if (strncmp (arg, TCPMUX_TOKEN, MUX_LEN) == 0)
-    {
-      char *c = arg + MUX_LEN;
-      if (*c == '+')
+      argcv_free (argc, argv);
+      freeconfig (sep);
+      memset ((caddr_t)sep, 0, sizeof *sep);
+      
+      while ((cp = nextline (fconfig)) && (*cp == '#' || *cp == '\0'))
+	++*line;
+      ++*line;
+      if (cp == NULL)
+	return NULL;
+      
+      if (argcv_get (cp, "", &argc, &argv))
+	continue;
+      
+      if (argc < INETD_FIELDS_MIN)
 	{
-	  sep->se_type = MUXPLUS_TYPE;
-	  c++;
+	  syslog (LOG_ERR, "%s:%lu: not enough fields",
+		  file, (unsigned long) *line);
+	  continue;
+	}
+
+      if (strncmp (argv[INETD_SERVICE], TCPMUX_TOKEN, MUX_LEN) == 0)
+	{
+	  char *c = argv[INETD_SERVICE] + MUX_LEN;
+	  if (*c == '+')
+	    {
+	      sep->se_type = MUXPLUS_TYPE;
+	      c++;
+	    }
+	  else
+	    sep->se_type = MUX_TYPE;
+	  sep->se_service = newstr (c);
 	}
       else
-	sep->se_type = MUX_TYPE;
-      sep->se_service = newstr (c);
-    }
-  else
-    {
-      sep->se_service = newstr (arg);
-      sep->se_type = NORM_TYPE;
-    }
-  arg = sskip (&cp, fconfig, file);
-  if (strcmp (arg, "stream") == 0)
-    sep->se_socktype = SOCK_STREAM;
-  else if (strcmp (arg, "dgram") == 0)
-    sep->se_socktype = SOCK_DGRAM;
-  else if (strcmp (arg, "rdm") == 0)
-    sep->se_socktype = SOCK_RDM;
-  else if (strcmp (arg, "seqpacket") == 0)
-    sep->se_socktype = SOCK_SEQPACKET;
-  else if (strcmp (arg, "raw") == 0)
-    sep->se_socktype = SOCK_RAW;
-  else
-    sep->se_socktype = -1;
-  sep->se_proto = newstr (sskip (&cp, fconfig, file));
-  arg = sskip (&cp, fconfig, file);
-  sep->se_wait = strcmp (arg, "wait") == 0;
-  if (ISMUX (sep))
-    {
-      /*
-       * Silently enforce "nowait" for TCPMUX services since
-       * they don't have an assigned port to listen on.
-       */
-      sep->se_wait = 0;
+	{
+	  sep->se_service = newstr (argv[INETD_SERVICE]);
+	  sep->se_type = NORM_TYPE;
+	}
+      
+      if (strcmp (argv[INETD_SOCKET], "stream") == 0)
+	sep->se_socktype = SOCK_STREAM;
+      else if (strcmp (argv[INETD_SOCKET], "dgram") == 0)
+	sep->se_socktype = SOCK_DGRAM;
+      else if (strcmp (argv[INETD_SOCKET], "rdm") == 0)
+	sep->se_socktype = SOCK_RDM;
+      else if (strcmp (argv[INETD_SOCKET], "seqpacket") == 0)
+	sep->se_socktype = SOCK_SEQPACKET;
+      else if (strcmp (argv[INETD_SOCKET], "raw") == 0)
+	sep->se_socktype = SOCK_RAW;
+      else
+	{
+	  syslog (LOG_WARNING, "%s:%lu: bad socket type",
+		  file, (unsigned long) *line);
+	  sep->se_socktype = -1;
+	}
+      
+      sep->se_proto = newstr (argv[INETD_PROTOCOL]);
 
-      if (strcmp (sep->se_proto, "tcp"))
+      if (strcmp (argv[INETD_WAIT], "wait") == 0)
+	sep->se_wait = 1;
+      else if (strcmp (argv[INETD_WAIT], "nowait") == 0)
+	sep->se_wait = 0;
+      else
 	{
-	  syslog (LOG_ERR, "%s: bad protocol for tcpmux service %s",
-		  file, sep->se_service);
-	  goto more;
+	  syslog (LOG_WARNING, "%s:%lu: bad wait type",
+		  file, (unsigned long) *line);
 	}
-      if (sep->se_socktype != SOCK_STREAM)
+  
+      if (ISMUX (sep))
 	{
-	  syslog (LOG_ERR,
-		  "%s: bad socket type for tcpmux service %s",
-		  file, sep->se_service);
-	  goto more;
+	  /*
+	   * Silently enforce "nowait" for TCPMUX services since
+	   * they don't have an assigned port to listen on.
+	   */
+	  sep->se_wait = 0;
+	  
+	  if (strcmp (sep->se_proto, "tcp"))
+	    {
+	      syslog (LOG_ERR, "%s:%lu: bad protocol for tcpmux service %s",
+		      file, (unsigned long) *line, sep->se_service);
+	      continue;
+	    }
+	  if (sep->se_socktype != SOCK_STREAM)
+	    {
+	      syslog (LOG_ERR,
+		      "%s:%lu: bad socket type for tcpmux service %s",
+		      file, (unsigned long) *line, sep->se_service);
+	      continue;
+	    }
 	}
-    }
-  sep->se_user = newstr (sskip (&cp, fconfig, file));
-  sep->se_server = newstr (sskip (&cp, fconfig, file));
-  if (strcmp (sep->se_server, "internal") == 0)
-    {
-      struct biltin *bi;
+      
+      sep->se_user = newstr (argv[INETD_USER]);
+      sep->se_server = newstr (argv[INETD_SERVER_PATH]);
+      if (strcmp (sep->se_server, "internal") == 0)
+	{
+	  struct biltin *bi;
 
-      for (bi = biltins; bi->bi_service; bi++)
-	if (bi->bi_socktype == sep->se_socktype
-	    && strcmp (bi->bi_service, sep->se_service) == 0)
-	  break;
-      if (bi->bi_service == 0)
+	  for (bi = biltins; bi->bi_service; bi++)
+	    if (bi->bi_socktype == sep->se_socktype
+		&& strcmp (bi->bi_service, sep->se_service) == 0)
+	      break;
+	  if (bi->bi_service == 0)
+	    {
+	      syslog (LOG_ERR, "%s:%lu: internal service %s unknown",
+		      file, (unsigned long) *line, sep->se_service);
+	      continue;
+	    }
+	  sep->se_bi = bi;
+	  sep->se_wait = bi->bi_wait;
+	} else
+	  sep->se_bi = NULL;
+
+      sep->se_argc = argc - INETD_FIELDS_MIN + 1;
+      sep->se_argv = calloc (sep->se_argc + 1, sizeof sep->se_argv[0]);
+      if (!sep->se_argv)
 	{
-	  syslog (LOG_ERR, "internal service %s unknown", sep->se_service);
-	  goto more;
+	  syslog (LOG_ERR, "%s:%lu: Out of memory.",
+		  file, (unsigned long) *line);
+	  exit (-1);
 	}
-      sep->se_bi = bi;
-      sep->se_wait = bi->bi_wait;
-    } else
-      sep->se_bi = NULL;
-  argc = 0;
-  for (arg = skip (&cp, fconfig); cp; arg = skip (&cp, fconfig))
-    if (argc < MAXARGV)
-      sep->se_argv[argc++] = newstr (arg);
-  while (argc <= MAXARGV)
-    sep->se_argv[argc++] = NULL;
+      
+      for (i = 0; i < sep->se_argc; i++)
+	{
+	  sep->se_argv[i] = argv[INETD_SERVER_ARGS + i];
+	  argv[INETD_SERVER_ARGS + i] = 0;
+	}
+      sep->se_argv[i] = NULL;
+      break;
+    }
+  argcv_free (argc, argv);
   return sep;
 }
 
@@ -1130,58 +1180,7 @@ freeconfig (struct servtab *cp)
     free (cp->se_user);
   if (cp->se_server)
     free (cp->se_server);
-  for (i = 0; i < MAXARGV; i++)
-    if (cp->se_argv[i])
-      free (cp->se_argv[i]);
-}
-
-
-/*
- * Safe skip - if skip returns null, log a syntax error in the
- * configuration file and exit.
- */
-char *
-sskip (char **cpp, FILE *fconfig, const char *file)
-{
-  char *cp;
-
-  cp = skip (cpp, fconfig);
-  if (cp == NULL)
-    {
-      syslog (LOG_ERR, "%s: syntax error", file);
-      exit(-1);
-    }
-  return cp;
-}
-
-char *
-skip (char **cpp, FILE *fconfig)
-{
-  char *cp = *cpp;
-  char *start;
-
-again:
-  while (*cp == ' ' || *cp == '\t')
-    cp++;
-  if (*cp == '\0')
-    {
-      int c;
-
-      c = getc (fconfig);
-      (void) ungetc (c, fconfig);
-      if (c == ' ' || c == '\t')
-	if ((cp = nextline (fconfig)))
-	  goto again;
-      *cpp = (char *)0;
-      return ((char *)0);
-    }
-  start = cp;
-  while (*cp && *cp != ' ' && *cp != '\t')
-    cp++;
-  if (*cp != '\0')
-    *cp++ = '\0';
-  *cpp = cp;
-  return start;
+  argcv_free(cp->se_argc, cp->se_argv);
 }
 
 char *
@@ -1260,7 +1259,7 @@ echo_dg (int s, struct servtab *sep)
   size = sizeof sa;
   if ((i = recvfrom (s, buffer, sizeof buffer, 0, &sa, &size)) < 0)
     return;
-  (void) sendto (s, buffer, i, 0, &sa, sizeof sa);
+  sendto (s, buffer, i, 0, &sa, sizeof sa);
 }
 
 /* ARGSUSED */
@@ -1289,7 +1288,7 @@ discard_dg (int s, struct servtab *sep)
 {
   char buffer[BUFSIZE];
   (void)sep; /* shutup gcc */
-  (void) read (s, buffer, sizeof buffer);
+  read (s, buffer, sizeof buffer);
 }
 
 #include <ctype.h>
@@ -1376,7 +1375,7 @@ chargen_dg (int s, struct servtab *sep)
     rs = ring;
   text[LINESIZ] = '\r';
   text[LINESIZ + 1] = '\n';
-  (void) sendto (s, text, sizeof text, 0, &sa, sizeof sa);
+  sendto (s, text, sizeof text, 0, &sa, sizeof sa);
 }
 
 /*
@@ -1411,7 +1410,7 @@ machtime_stream (int s, struct servtab *sep)
 
   (void)sep; /* shutup gcc */
   result = machtime ();
-  (void) write (s, (char *) &result, sizeof result);
+  write (s, (char *) &result, sizeof result);
 }
 
 /* ARGSUSED */
@@ -1427,7 +1426,7 @@ machtime_dg (int s, struct servtab *sep)
   if (recvfrom (s, (char *)&result, sizeof result, 0, &sa, &size) < 0)
     return;
   result = machtime ();
-  (void) sendto (s, (char *) &result, sizeof result, 0, &sa, sizeof sa);
+  sendto (s, (char *) &result, sizeof result, 0, &sa, sizeof sa);
 }
 
 /* ARGSUSED */
@@ -1441,8 +1440,8 @@ daytime_stream (int s, struct servtab *sep)
   (void)sep; /*shutup gcc*/
   lclock = time ((time_t *) 0);
 
-  (void) sprintf (buffer, "%.24s\r\n", ctime(&lclock));
-  (void) write (s, buffer, strlen(buffer));
+  sprintf (buffer, "%.24s\r\n", ctime(&lclock));
+  write (s, buffer, strlen(buffer));
 }
 
 /* ARGSUSED */
@@ -1461,8 +1460,8 @@ daytime_dg(int s, struct servtab *sep)
   size = sizeof sa;
   if (recvfrom (s, buffer, sizeof buffer, 0, &sa, &size) < 0)
     return;
-  (void) sprintf (buffer, "%.24s\r\n", ctime (&lclock));
-  (void) sendto (s, buffer, strlen(buffer), 0, &sa, sizeof sa);
+  sprintf (buffer, "%.24s\r\n", ctime (&lclock));
+  sendto (s, buffer, strlen(buffer), 0, &sa, sizeof sa);
 }
 
 /*
@@ -1509,7 +1508,7 @@ fd_getline (int fd, char *buf, int len)
 
 #define MAX_SERV_LEN	(256+2)		/* 2 bytes for \r\n */
 
-#define strwrite(fd, buf)	(void) write(fd, buf, sizeof(buf)-1)
+#define strwrite(fd, buf)	write(fd, buf, sizeof(buf)-1)
 
 void
 tcpmux(int s, struct servtab *sep)
@@ -1538,7 +1537,7 @@ tcpmux(int s, struct servtab *sep)
 	{
 	  if (!ISMUX (sep))
 	    continue;
-	  (void)write (s, sep->se_service, strlen (sep->se_service));
+	  write (s, sep->se_service, strlen (sep->se_service));
 	  strwrite (s, "\r\n");
 	}
       _exit (1);
