@@ -27,9 +27,8 @@ INSTALL_TARGETS = \
   $(sbindir)/syslogd $(man5dir)/syslog.conf.5 $(man8dir)/syslogd.8
 CLEAN = syslogd syslogd.o
 
-CPPFLAGS += \
-	-D_PATH_LOGCONF=\"$(sysconfdir)/syslog.conf\" \
-	-D_PATH_LOGPID=\"$(localstatedir)/run/syslog.pid\"
+CPPFLAGS += $(PATHDEF_LOGCONF) $(PATHDEF_LOGPID) $(PATHDEF_CONSOLE) \
+	$(PATHDEF_KLOG) $(PATHDEF_UTMP)
 
 all: syslogd
 

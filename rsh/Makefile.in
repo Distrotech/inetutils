@@ -27,7 +27,7 @@ INSTALL_TARGETS = $(bindir)/rsh $(man1dir)/rsh.1
 INST_PROG_FLAGS=-o root -m 04755
 CLEAN = rsh rsh.o
 
-CPPFLAGS += -D_PATH_RLOGIN=\"$(bindir)/rlogin\"
+CPPFLAGS += $(PATHDEF_RLOGIN)
 
 all: rsh
 

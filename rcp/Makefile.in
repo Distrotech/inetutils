@@ -29,7 +29,7 @@ INST_PROG_FLAGS=-o root -m 04755
 OBJS = $(SRCS:.c=.o)
 CLEAN = rcp $(OBJS)
 
-CPPFLAGS += -D_PATH_CP=\"$(bindir)/cp\" -D_PATH_RSH=\"$(bindir)/rsh\"
+CPPFLAGS += $(PATHDEF_CP) $(PATHDEF_RSH) $(PATHDEF_BSHELL)
 
 all: rcp
 rcp: $(OBJS)
