@@ -44,7 +44,7 @@ static char sccsid[] = "@(#)enc_des.c	8.3 (Berkeley) 5/30/95";
 #  ifdef DES_ENCRYPTION
 #include <arpa/telnet.h>
 #include <stdio.h>
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 

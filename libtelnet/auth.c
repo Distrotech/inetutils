@@ -65,7 +65,7 @@ static char sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
 #include <signal.h>
 #define	AUTH_NAMES
 #include <arpa/telnet.h>
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
