@@ -52,7 +52,6 @@ static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
 #include <ctype.h>
 #include <err.h>
 #include <errno.h>
-#include <glob.h>
 #include <netdb.h>
 #include <signal.h>
 #include <stdio.h>
@@ -69,6 +68,9 @@ static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
 # endif
 #endif
 #include <unistd.h>
+/* Include glob.h last, because it may define "const" which breaks
+   system headers on some platforms. */
+#include <glob.h>
 
 #include "ftp_var.h"
 

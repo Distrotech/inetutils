@@ -58,7 +58,6 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 
 #include <ctype.h>
 #include <errno.h>
-#include <glob.h>
 #include <pwd.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -81,6 +80,9 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
+/* Include glob.h last, because it may define "const" which breaks
+   system headers on some platforms. */
+#include <glob.h>
 
 #include "extern.h"
 

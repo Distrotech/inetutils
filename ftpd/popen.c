@@ -47,12 +47,14 @@ static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
 #include <sys/wait.h>
 
 #include <errno.h>
-#include <glob.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+/* Include glob.h last, because it may define "const" which breaks
+   system headers on some platforms. */
+#include <glob.h>
 
 #include "extern.h"
 
