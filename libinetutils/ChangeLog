@@ -1,5 +1,11 @@
 2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
 
+	* daemon.c (waitdaemon): Add comment.
+	(waitdaemon_timeout): If child told us to go away, use _exit rather
+	than exit.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
 	* daemon.c (waitdaemon): New function from FreeBSD syslogd rev 1.66.
 	(waitdaemon_timeout): Likewise (but called timedout in FreeBSD syslogd).
 	(daemon): Redefine in terms of the more generic waitdaemon.

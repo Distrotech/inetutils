@@ -49,9 +49,14 @@ waitdaemon_timeout (int signo)
   if (left == 0)
     errx(1, "timed out waiting for child");
   else
-    exit(0);
+    _exit(0);
 }
 
+/* waitdaemon is like daemon, but optionally waits until the parent
+   receives a SIGALRM from the child. MAXWAIT specifies a timeout,
+   after which waitdaemon will return -1. otherwise waitdaemon will
+   return the pid of the parent. If MAXWAIT is 0, waitdaemon returns
+   immediately.  */
 int
 waitdaemon (int nochdir, int noclose, int maxwait)
 {
