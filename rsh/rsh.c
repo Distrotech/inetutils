@@ -54,6 +54,9 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
 #include <sys/signal.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <sys/file.h>
 #ifdef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
 #include <sys/time.h>

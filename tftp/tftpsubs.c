@@ -53,6 +53,9 @@ static char sccsid[] = "@(#)tftpsubs.c	8.1 (Berkeley) 6/6/93";
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/tftp.h>
 
