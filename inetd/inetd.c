@@ -117,6 +117,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <syslog.h>
 #include <unistd.h>
 #include <paths.h>
+#include <getopt.h>
 
 #define	TOOMANY		40		/* don't start more than TOOMANY */
 #define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */
@@ -689,7 +690,11 @@ enter(cp)
 
 FILE	*fconfig = NULL;
 struct	servtab serv;
+#ifdef LINE_MAX
 char	line[LINE_MAX];
+#else
+char 	line[2048];
+#endif
 
 int
 setconfig()
