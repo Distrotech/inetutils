@@ -25,7 +25,7 @@
 #include <unistd.h>
 
 u_short
-icmp_cksum(u_char *addr, int len)
+icmp_cksum (u_char *addr, int len)
 {
   register int sum = 0;
   u_short answer = 0;

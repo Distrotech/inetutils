@@ -18,7 +18,7 @@
    Boston, MA 02111-1307, USA. */
 
 typedef struct ping_data PING;
-typedef int (*ping_efp) __P((int code,
+typedef int (*ping_efp) __P ((int code,
 			     void *closure,
 			     struct sockaddr_in *dest, 
 			     struct sockaddr_in *from,
@@ -57,25 +57,25 @@ struct ping_data
 #define PING_INTERVAL 1
 #define	PING_CKTABSIZE 128
 
-#define _PING_BUFLEN(p) ((p)->ping_datalen + sizeof(icmphdr_t))
+#define _PING_BUFLEN(p) ((p)->ping_datalen + sizeof (icmphdr_t))
 
 #define _C_BIT(p,bit)    (p)->ping_cktab[(bit)>>3]  /* byte in ck array */
 #define _C_MASK(bit)     (1 << ((bit) & 0x07))
 
-#define _PING_SET(p,bit) (_C_BIT(p,bit) |= _C_MASK(bit))
-#define _PING_CLR(p,bit) (_C_BIT(p,bit) &= (~_C_MASK(bit)))
-#define _PING_TST(p,bit) (_C_BIT(p,bit) & _C_MASK(bit))
+#define _PING_SET(p,bit) (_C_BIT (p,bit) |= _C_MASK (bit))
+#define _PING_CLR(p,bit) (_C_BIT (p,bit) &= (~_C_MASK (bit)))
+#define _PING_TST(p,bit) (_C_BIT (p,bit) & _C_MASK (bit))
 
-PING *ping_init(int type, int ident);
-void ping_set_type(PING *p, int type);
-void ping_set_count(PING *ping, int count);
-void ping_set_sockopt(PING *ping, int opt, void *val, int valsize);
-void ping_set_interval(PING *ping, int interval);
-void ping_set_packetsize(PING *ping, int size);
-int ping_set_dest(PING *ping, char *host);
-int ping_set_pattern(PING *p, int len, u_char *pat);
-void ping_set_event_handler(PING *ping, ping_efp fp, void *closure);
-int ping_set_data(PING *p, void *data, size_t off, size_t len);
-void ping_set_datalen(PING *p, size_t len);
-int ping_recv(PING *p);
-int ping_xmit(PING *p);
+PING *ping_init (int type, int ident);
+void ping_set_type (PING *p, int type);
+void ping_set_count (PING *ping, int count);
+void ping_set_sockopt (PING *ping, int opt, void *val, int valsize);
+void ping_set_interval (PING *ping, int interval);
+void ping_set_packetsize (PING *ping, int size);
+int ping_set_dest (PING *ping, char *host);
+int ping_set_pattern (PING *p, int len, u_char *pat);
+void ping_set_event_handler (PING *ping, ping_efp fp, void *closure);
+int ping_set_data (PING *p, void *data, size_t off, size_t len);
+void ping_set_datalen (PING *p, size_t len);
+int ping_recv (PING *p);
+int ping_xmit (PING *p);

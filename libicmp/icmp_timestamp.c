@@ -33,7 +33,7 @@
 #include <icmp.h>
 
 int
-icmp_timestamp_encode(u_char *buffer, size_t bufsize, int ident, int seqno)
+icmp_timestamp_encode (u_char *buffer, size_t bufsize, int ident, int seqno)
 {
   icmphdr_t *icmp;
   struct timeval tv;
@@ -42,14 +42,14 @@ icmp_timestamp_encode(u_char *buffer, size_t bufsize, int ident, int seqno)
   if (bufsize < 20)
     return -1;
 
-  gettimeofday(&tv, NULL);
-  v = htonl((tv.tv_sec % 86400) * 1000 + tv.tv_usec / 1000);
+  gettimeofday (&tv, NULL);
+  v = htonl ((tv.tv_sec % 86400) * 1000 + tv.tv_usec / 1000);
 
   icmp = (icmphdr_t *)buffer;
   icmp->icmp_otime = v;
   icmp->icmp_rtime = v;
   icmp->icmp_ttime = v;
-  icmp_generic_encode(buffer, bufsize, ICMP_TIMESTAMP, ident, seqno);
+  icmp_generic_encode (buffer, bufsize, ICMP_TIMESTAMP, ident, seqno);
   return 0;
 }
 

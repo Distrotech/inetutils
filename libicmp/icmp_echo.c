@@ -33,7 +33,7 @@
 #include <icmp.h>
 
 int
-icmp_generic_encode(u_char *buffer, size_t bufsize, int type, int ident, int seqno)
+icmp_generic_encode (u_char *buffer, size_t bufsize, int type, int ident, int seqno)
 {
   icmphdr_t *icmp;
 
@@ -46,12 +46,12 @@ icmp_generic_encode(u_char *buffer, size_t bufsize, int type, int ident, int seq
   icmp->icmp_seq = seqno;
   icmp->icmp_id = ident;
 
-  icmp->icmp_cksum = icmp_cksum(buffer, bufsize);
+  icmp->icmp_cksum = icmp_cksum (buffer, bufsize);
   return 0;
 }
 
 int
-icmp_generic_decode(u_char *buffer, size_t bufsize,
+icmp_generic_decode (u_char *buffer, size_t bufsize,
 		    struct ip **ipp, icmphdr_t **icmpp)
 {
   size_t hlen;
@@ -75,23 +75,23 @@ icmp_generic_decode(u_char *buffer, size_t bufsize,
   /* Recompute checksum */
   cksum = icmp->icmp_cksum;
   icmp->icmp_cksum = 0;
-  icmp->icmp_cksum = icmp_cksum((u_char*)icmp, bufsize-hlen);
+  icmp->icmp_cksum = icmp_cksum ((u_char*)icmp, bufsize-hlen);
   if (icmp->icmp_cksum != cksum)
     return 1;
   return 0;
 }
 
 int
-icmp_echo_encode(u_char *buffer, size_t bufsize, int ident, int seqno)
+icmp_echo_encode (u_char *buffer, size_t bufsize, int ident, int seqno)
 {
-  return icmp_generic_encode(buffer, bufsize, ICMP_ECHO, ident, seqno);
+  return icmp_generic_encode (buffer, bufsize, ICMP_ECHO, ident, seqno);
 }
 
 int
-icmp_echo_decode(u_char *buffer, size_t bufsize,
+icmp_echo_decode (u_char *buffer, size_t bufsize,
 		 struct ip **ipp, icmphdr_t **icmpp)
 {
-  return icmp_generic_decode(buffer, bufsize, ipp, icmpp);
+  return icmp_generic_decode (buffer, bufsize, ipp, icmpp);
 }
 
 

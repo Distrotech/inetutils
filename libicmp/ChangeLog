@@ -1,3 +1,13 @@
+2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
+
+        * icmp.h: Fixed coding style to comply with GNU.
+	* icmp_address.c: Likewise.
+	* icmp_cksum.c: Likewise.
+	* icmp_echo.c: Likewise.
+	* icmp_timestamp.c: Likewise.
+	* libping.c: Likewise.
+	* ping.h: Likewise.
+
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
 	Patches by Alain:
 	* icmp_cksum.c,icmp_echo.c,icmp_timestamp.c,libping.c:
