@@ -125,7 +125,6 @@ off_t	byte_count;
 int	defumask = CMASK;		/* default umask value */
 char	tmpline[7];
 char	*hostname = 0;
-size_t  hostname_len = 0;
 char	*remotehost = 0;
 
 #define NUM_SIMUL_OFF_TO_STRS 4
@@ -234,6 +233,7 @@ main(argc, argv, envp)
 	char *argv[];
 	char **envp;
 {
+        extern char *localhost ();
 	int addrlen, ch, on = 1, tos;
 	char *cp, line[LINE_MAX];
 	FILE *fd;
@@ -364,28 +364,11 @@ main(argc, argv, envp)
 		(void) fclose(fd);
 		/* reply(220,) must follow */
 	}
-
-	errno = 0;
-	do {
-		if (hostname) {
-		        hostname_len += hostname_len;
-			hostname = realloc (hostname, hostname_len);
-		} else {
-			hostname_len = 128; /* Initial guess */
-			hostname = malloc (hostname_len);
-		}
-		if (! hostname) {
-		        perror_reply (550, "Local resource failure: malloc");
-			exit (1);
-		}
-	} while ((gethostname(hostname, hostname_len) == 0
-		  && ! memchr (hostname, '\0', hostname_len))
-		 || errno == ENAMETOOLONG);
-	if (errno) {
-	        perror_reply (550, "gethostname");
-		exit (1);
-	}
 			
+	hostname = localhost ();
+	if (! hostname)
+		perror_reply (550, "Local resource failure: malloc");
+
 	reply(220, "%s FTP server (%s) ready.", hostname, version);
 	(void) setjmp(errcatch);
 	for (;;)
