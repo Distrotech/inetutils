@@ -671,3 +671,8 @@ AC_DEFUN([IU_CHECK_MEMBERS],
 $2],
                  [$3],
                  [$4])])])
+
+AC_DEFUN([IU_CONFIG_LINKS],
+ [m4_foreach([AC_Header], [$1],
+   [AC_CONFIG_LINKS([include/]AC_Header:[headers/]AC_Header)])])
+
