@@ -197,6 +197,8 @@
 #undef HAVE_UTMP_UT_TV
 /* Define this if struct utmpx has a ut_tv field.  */
 #undef HAVE_UTMPX_UT_TV
+/* Define this if struct utmp has a ut_exit field.  */
+#undef HAVE_UTMP_UT_EXIT
 
 /* Define this if using Kerberos version 4.  */
 #undef KRB4

@@ -541,7 +541,7 @@ ftp/Makefile ftpd/Makefile inetd/Makefile rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile syslog/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
-tftpd/Makefile uucpd/Makefile whois/Makefile
+tftpd/Makefile uucpd/Makefile whois/Makefile libls/Makefile
 include/confpaths.h:headers/confpaths.h.in
 headers/Makefile include/version.h:headers/version.h.in)
 

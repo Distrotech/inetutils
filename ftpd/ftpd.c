@@ -262,6 +262,7 @@ static char *
 curdir()
 {
         static char *path = 0;
+	extern char *xgetcwd();
 	if (path)
 	        free (path);
 	path = xgetcwd ();
@@ -423,7 +424,7 @@ main(argc, argv, envp)
 		(void) fclose(fd);
 		/* reply(220,) must follow */
 	}
-			
+
 	hostname = localhost ();
 	if (! hostname)
 		perror_reply (550, "Local resource failure: malloc");
@@ -1439,7 +1440,7 @@ void
 makedir(name)
 	char *name;
 {
-
+	extern char *xgetcwd();
 	LOGCMD("mkdir", name);
 	if (mkdir(name, 0777) < 0)
 		perror_reply(550, name);
@@ -1474,6 +1475,7 @@ removedir(name)
 void
 pwd()
 {
+  extern char *xgetcwd();
 	char *path = xgetcwd ();
 	if (path) {
 		reply(257, "\"%s\" is current directory.", path);
@@ -1547,7 +1549,7 @@ dologout(status)
      here, it will jump back has root in the main loop
      David Greenman:dg@root.com
   */
-  transflag = 0; 
+  transflag = 0;
 
 	if (logged_in) {
 		(void) seteuid((uid_t)0);
