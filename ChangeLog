@@ -1,12 +1,16 @@
 Thu Mar 26 20:40:06 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* Makefile.am (DISTCLEANFILES): Added `include/*.h include/*/*.h
+ 	include/stamp-h'.
+
 	* acinclude.m4 (IU_ENABLE_FOO): Fix syntax errors.  Remove call to
  	AC_SUBST; there are now many explicit calls to AC_SUBST to make
  	automake happy.
 	
-	(IU_ENABLE_CLIENT): Use `clients' rather than `client' as the second arg.
-	(IU_ENABLE_SERVER): Use `servers' rather than `server' as the second
-	arg.
+	(IU_ENABLE_CLIENT): Use `clients' rather than `client' as the
+	second arg.
+	(IU_ENABLE_SERVER): Use `servers' rather than `server' as the
+	second arg.
 
 	* configure.in: For every IU_ENABLE_CLIENT and IU_ENABLE_SERVER
  	call, and an AC_SUBST call for the BUILD_FOO variable.
