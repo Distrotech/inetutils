@@ -20,21 +20,14 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(sbindir)/inetd $(man8dir)/inetd.8
+
 CPPFLAGS += -D_PATH_INETDCONF=\"$(sysconfdir)/inetd.conf\"
 
 all: inetd
 inetd: inetd.o
 
-install: installdirs inetd $(srcdir)/inetd.8
-	$(INSTALL_PROGRAM) inetd $(sbindir)/inetd
-	-$(INSTALL_DATA) $(srcdir)/inetd.8 $(man8dir)/inetd.8
-uninstall:
-	-$(RM) -f $(sbindir)/inetd $(man8dir)/inetd.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o inetd
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
