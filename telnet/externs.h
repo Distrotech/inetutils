@@ -74,9 +74,9 @@
 #ifdef	USE_TERMIO
 # ifndef	VINTR
 #  ifdef SYSV_TERMIO
-#   include <sys/termio.h>
+#   include <termio.h>
 #  else
-#   include <sys/termios.h>
+#   include <termios.h>
 #  endif
 # endif
 #endif
