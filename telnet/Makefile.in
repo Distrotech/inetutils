@@ -1,6 +1,6 @@
 # Makefile for telnet
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,10 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(bindir)/telnet $(man1dir)/telnet.1
+INSTALL_TARGETS = $(bindir)/telnet $(man1dir)/telnet.1
+SRCS = authenc.c commands.c main.c network.c ring.c sys_bsd.c telnet.c \
+	terminal.c tn3270.c utilities.c
+DISTFILES = $(SRCS) telnet.1 Makefile.in
 
 OPTIONS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
@@ -28,8 +31,7 @@ CPPFLAGS += $(OPTIONS)
 LDLIBS := -L../libtelnet -ltelnet -ltermcap $(LDLIBS)
 
 all: telnet
-telnet: authenc.o commands.o main.o network.o ring.o sys_bsd.o telnet.o \
-	terminal.o tn3270.o utilities.o
+telnet: $(SRCS:.c=.o)
 
 clean:
 	$(RM) -f *.o telnet
