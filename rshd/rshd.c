@@ -768,26 +768,31 @@ local_domain(h)
 	char *h;
 {
 	int is_local = 0;
-	char *p1, *p2;
 	char *localhost = 0;
 	size_t localhost_len = 0;
 
+	errno = 0;
 	do {
-		if (localhost)
-			localhost =
-			  realloc (localhost, localhost_len += localhost_len);
-		else {
-			localhost_len = 1024; /* Initial guess */
+		if (localhost) {
+		        localhost_len += localhost_len;
+			localhost = realloc (localhost, localhost_len);
+		} else {
+			localhost_len = 128; /* Initial guess */
 			localhost = malloc (localhost_len);
 		}
-	} while (gethostname (localhost, localhost_len) == 0
-		 && ! memchr (localhost, '\0', localhost_len));
+		if (! localhost)
+		        return 0;
+	} while ((gethostname(localhost, localhost_len) == 0
+		  && ! memchr (localhost, '\0', localhost_len))
+		 || errno == ENAMETOOLONG);
 
-	p1 = topdomain(localhost);
-	p2 = topdomain(h);
+	if (! errno) {
+		char *p1 = topdomain(localhost);
+		char *p2 = topdomain(h);
 
-	if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
-		is_local = 1;
+		if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
+			is_local = 1;
+	}
 
 	free (localhost);
 
