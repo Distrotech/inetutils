@@ -404,10 +404,23 @@ if test "$ac_cv_header_utmpx_h" = yes; then
   AC_CHECK_MEMBERS([struct utmpx.ut_tv], , , [#include <utmpx.h>])
 fi
 
-AC_CHECK_MEMBERS([stuct ifreq.ifr_index, struct ifreq.ifr_netmask,
-                  struct ifreq.ifr_broadaddr], , ,
+# AC_CHECK_MEMBERS (as of version 2.53 ) fails to recognize the presense
+# of a structure member which is itself of an aggregate type. To work
+# around the bug, we first check for a non-aggregate sub-member of the
+# member in question and then create an appropriate HAVE_ define.
+AC_CHECK_MEMBERS([stuct ifreq.ifr_index,
+                  struct ifreq.ifr_netmask.sa_family,
+                  struct ifreq.ifr_broadaddr.sa_family], , ,
                  [#include <sys/socket.h>
                   #include <net/if.h>])
+
+AH_BOTTOM([
+#ifdef HAVE_STRUCT_IFREQ_IFR_NETMASK_SA_FAMILY
+# define HAVE_STRUCT_IFREQ_IFR_NETMASK
+#endif
+#ifdef HAVE_STRUCT_IFREQ_IFR_BROADADDR_SA_FAMILY
+# define HAVE_STRUCT_IFREQ_IFR_BROADADDR
+#endif])
 
 AC_CHECK_MEMBERS([struct sockaddr.sa_len], , ,
                  [#include <sys/types.h>
@@ -610,7 +623,7 @@ if test "$ac_cv_func_hstrerror" = yes -o "$ac_cv_func_h_errlist" = yes; then
 fi
 
 AH_BOTTOM(
-[#ifndef HAVE_DECL_HSTRERROR
+[#if !defined(HAVE_DECL_HSTRERROR) || !HAVE_DECL_HSTRERROR
 extern const char *hstrerror __P ((int));
 #endif])
 
@@ -618,12 +631,12 @@ extern const char *hstrerror __P ((int));
 
 AC_DECL_SYS_SIGLIST
 
-AC_CHECK_DECL(crypt, , , [#include <unistd.h>])
+AC_CHECK_DECLS(crypt, , , [#include <unistd.h>])
 
 dnl EWOULDBLOCK is more or less the BSD version of posix EAGAIN.
 IU_CHECK_MACRO(EWOULDBLOCK, [#include <errno.h>], , ,
   AC_DEFINE(EWOULDBLOCK, EAGAIN, 1, [FIXME]))
-AC_CHECK_DECL(errno, , , [#include <errno.h>])
+AC_CHECK_DECLS(errno, , , [#include <errno.h>])
 
 dnl See whether <syslog.h> will declare special internal stuff if we define
 dnl SYSLOG_NAMES before including it.  We check for various syslog internal
@@ -652,29 +665,29 @@ AC_CHECK_DECLS([fclose, pclose], , , [#include <stdio.h>])
 AC_CHECK_DECLS([getcwd, getlogin, getpass, getusershell, ttyname], , ,
                [#include <unistd.h>])
 AH_BOTTOM(
-[#ifndef HAVE_DECL_GETLOGIN
+[#if !HAVE_DECL_GETLOGIN
 extern char *getlogin __P((void));
 #endif])
 AH_BOTTOM(
-[#ifndef HAVE_DECL_GETCWD
+[#if !HAVE_DECL_GETCWD
 extern char *getcwd __P((char *, size_t));
 #endif])
 AH_BOTTOM(
-[#ifndef HAVE_DECL_GETPASS
+[#if !HAVE_DECL_GETPASS
 extern char *getpass __P((const char *));
 #endif])
 AH_BOTTOM(
-[#ifndef HAVE_DECL_TTYNAME
+[#if !HAVE_DECL_TTYNAME
 extern char *ttyname __P ((int));
 #endif])
 
 AC_CHECK_DECLS([strerror, strchr], , , [#include <string.h>])
 AH_BOTTOM(
-[#ifndef HAVE_DECL_STRERROR
+[#if !HAVE_DECL_STRERROR
 extern const char *strerror __P ((int));
 #endif])
 AH_BOTTOM(
-[#ifndef HAVE_DECL_STRCHR
+[#if !HAVE_DECL_STRCHR
 extern char *strchr __P ((char *str, int ch));
 extern char *strrchr __P ((char *str, int ch));
 #endif
@@ -698,16 +711,15 @@ AC_CHECK_DECLS(htons, , ,
     #endif
     #include <netinet/in.h> ])
 
-if test "$ac_cv_func_setenv" = no; then
-  dnl Our home-grown version of setenv needs to use ENVIRON
-  AC_CHECK_DECLS(environ, , ,
-    [ #ifdef HAVE_UNISTD_H
-      # include <unistd.h>
-      #endif
-      #ifdef HAVE_STDLIB_H
-      # include <stdlib.h>
-      #endif ])
-fi
+
+dnl Our home-grown version of setenv needs to use ENVIRON
+AC_CHECK_DECLS(environ, , ,
+  [ #ifdef HAVE_UNISTD_H
+    # include <unistd.h>
+    #endif
+    #ifdef HAVE_STDLIB_H
+    # include <stdlib.h>
+    #endif ])
 
 dnl See if we have h_errno (the test is here so we can use -lresolv
 dnl if necessary).
