@@ -151,8 +151,6 @@ struct cmd cmdtab[] = {
 
 struct	cmd *getcmd();
 char	*tail();
-char	*index();
-char	*rindex();
 
 int
 main(argc, argv)
@@ -351,17 +349,17 @@ put(argc, argv)
 		return;
 	}
 	targ = argv[argc - 1];
-	if (index(argv[argc - 1], ':')) {
+	if (strchr (argv[argc - 1], ':')) {
 		char *cp;
 		struct hostent *hp;
 
 		for (n = 1; n < argc - 1; n++)
-			if (index(argv[n], ':')) {
+			if (strchr (argv[n], ':')) {
 				putusage(argv[0]);
 				return;
 			}
 		cp = argv[argc - 1];
-		targ = index(cp, ':');
+		targ = strchr (cp, ':');
 		*targ++ = 0;
 		hp = gethostbyname(cp);
 		if (hp == NULL) {
@@ -394,7 +392,7 @@ put(argc, argv)
 	}
 				/* this assumes the target is a directory */
 				/* on a remote unix system.  hmmmm.  */
-	cp = index(targ, '\0'); 
+	cp = strchr (targ, '\0'); 
 	*cp++ = '/';
 	for (n = 1; n < argc - 1; n++) {
 		strcpy(cp, tail(argv[n]));
@@ -441,13 +439,13 @@ get(argc, argv)
 	}
 	if (!connected) {
 		for (n = 1; n < argc ; n++)
-			if (index(argv[n], ':') == 0) {
+			if (strchr (argv[n], ':') == 0) {
 				getusage(argv[0]);
 				return;
 			}
 	}
 	for (n = 1; n < argc ; n++) {
-		src = index(argv[n], ':');
+		src = strchr (argv[n], ':');
 		if (src == NULL)
 			src = argv[n];
 		else {
@@ -579,7 +577,7 @@ tail(filename)
 	register char *s;
 	
 	while (*filename) {
-		s = rindex(filename, '/');
+		s = strrchr (filename, '/');
 		if (s == NULL)
 			break;
 		if (s[1])
