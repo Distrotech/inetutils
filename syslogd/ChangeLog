@@ -1,3 +1,33 @@
+2000-08-04  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: In the whole file, change the formatting
+	to conform to the GNU coding standards. Also clean up
+	some debug and error messages. All further functional
+	changes are listed below.
+
+	Initialize finet and fklog to -1.
+	New variables NoKLog, NoUnixAF, NoForward, long_options,
+	program_name. New symbols USAGE, TTYMSGTIME.
+	(help): New function.
+	(try_help): New function.
+	(usage): Use try_help.
+	(main): Don't initialize finet, fklog here.
+	Initialize program_name. Use getopt_long instead getopt.
+	Handle option '&' (--help). Handle unknown options with try_help
+	and usage. Handle long options 'P' (--pidfile), 'F' (--no-foward),
+	'K' (--no-klog), 'U' (--no-unixaf).
+	Move initialization of tv into the main loop. select meddles with
+	the timeval on some systems (Linux) and we don't want to take any
+	risk.
+	(init): (Re-) Initialize fklog here if not NoKLog.
+	Only open unix sockets if not NoUnixAF. Failing to open
+	the primary socket is fatal.
+	Only open inet socket if not NoForward.
+	(fprintlog): More diagnostic in case F_FORW: Show debug info
+	when forwarding is disabled or finet is invalid for other reasons.
+	(wallmsg): Use TTYMSGTIME instead hard coded default.
+	(cfline): In case '|' fix nasty bug in if clause.
+
 2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (waitdaemon): Removed.
