@@ -49,6 +49,10 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
  * uucico's TCP channel causes this server to be run at the remote end.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>

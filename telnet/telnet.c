@@ -35,6 +35,10 @@
 static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 
 #if	defined(unix)

@@ -46,6 +46,10 @@ static char sccsid[] = "@(#)tftpsubs.c	8.1 (Berkeley) 6/6/93";
 			Jim Guyton 10/85
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>

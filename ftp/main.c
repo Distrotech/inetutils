@@ -44,6 +44,11 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 /*
  * FTP User Program -- Command Interface.
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 /*#include <sys/ioctl.h>*/
 #include <sys/types.h>
 #include <sys/socket.h>

@@ -55,6 +55,10 @@ static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
  * or implied warranty.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifdef	ENCRYPTION
 
 #define	ENCRYPT_NAMES

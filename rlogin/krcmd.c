@@ -44,6 +44,10 @@ static char sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
  *	kfall Exp Locker: kfall $";
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifdef KERBEROS
 #include <sys/types.h>
 #ifdef CRYPT

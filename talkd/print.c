@@ -37,6 +37,10 @@ static char sccsid[] = "@(#)print.c	8.1 (Berkeley) 6/4/93";
 
 /* debug print routines */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #ifndef HAVE_OSOCKADDR

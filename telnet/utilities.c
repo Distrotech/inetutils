@@ -35,6 +35,10 @@
 static char sccsid[] = "@(#)utilities.c	8.3 (Berkeley) 5/30/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #define	TELOPTS
 #define	TELCMDS
 #define	SLC_NAMES

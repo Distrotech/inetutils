@@ -38,6 +38,10 @@ static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
 /*
  * FTP User Program -- Command Routines.
  */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/wait.h>
 #include <sys/stat.h>

@@ -46,6 +46,10 @@ static char sccsid[] = "@(#)ring.c	8.2 (Berkeley) 5/30/95";
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include	<stdio.h>
 #include	<errno.h>
 

@@ -69,6 +69,10 @@ static char sccsid[] = "@(#)spx.c	8.2 (Berkeley) 5/30/95";
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <arpa/telnet.h>
 #include <stdio.h>

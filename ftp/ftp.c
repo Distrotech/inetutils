@@ -35,6 +35,10 @@
 static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>

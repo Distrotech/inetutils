@@ -4,6 +4,10 @@
  *	$Id$
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #if !defined(lint) && !defined(SABER)
 static
 #ifdef __STDC__

@@ -40,6 +40,10 @@ static char sccsid[] = "@(#)msgs.c	8.1 (Berkeley) 6/6/93";
  * if we are slow connecting.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/time.h>
 #include <signal.h>
 #include <stdio.h>

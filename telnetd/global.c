@@ -43,6 +43,10 @@ static char sccsid[] = "@(#)global.c	8.1 (Berkeley) 6/4/93";
  * we will actually allocate the space.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "defs.h"
 #define extern
 #include "ext.h"

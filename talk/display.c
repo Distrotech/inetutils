@@ -39,6 +39,11 @@ static char sccsid[] = "@(#)display.c	8.1 (Berkeley) 6/6/93";
  * The window 'manager', initializes curses and handles the actual
  * displaying of text
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "talk.h"
 
 xwin_t	my_win;

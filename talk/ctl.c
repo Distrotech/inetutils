@@ -41,6 +41,10 @@ static char sccsid[] = "@(#)ctl.c	8.1 (Berkeley) 6/6/93";
  * the progress
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #ifndef HAVE_OSOCKADDR

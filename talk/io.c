@@ -41,6 +41,10 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
  * ctl.c
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <stdio.h>

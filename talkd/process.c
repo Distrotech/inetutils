@@ -43,6 +43,11 @@ static char sccsid[] = "@(#)process.c	8.2 (Berkeley) 11/16/93";
  *		  in the table for the local user
  *	DELETE - delete invitation
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/socket.h>

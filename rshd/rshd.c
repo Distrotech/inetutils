@@ -49,6 +49,11 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
  *	command\0
  *	data
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>

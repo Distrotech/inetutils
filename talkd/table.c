@@ -43,6 +43,11 @@ static char sccsid[] = "@(#)table.c	8.1 (Berkeley) 6/4/93";
  *
  * Consider this a mis-guided attempt at modularity
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/time.h>
 #include <sys/socket.h>

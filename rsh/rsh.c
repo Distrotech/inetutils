@@ -46,6 +46,10 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
  * $Header$
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/signal.h>
 #include <sys/socket.h>

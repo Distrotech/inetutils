@@ -63,6 +63,10 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
  * more extensive changes by Eric Allman (again)
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #define	MAXLINE		1024		/* maximum line length */
 #define	MAXSVLINE	120		/* maximum saved line length */
 #define DEFUPRI		(LOG_USER|LOG_NOTICE)
