@@ -1,141 +1,213 @@
-/*
- * Copyright (c) 1983, 1993
- *	The Regents of the University of California.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1983, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
+   This file is part of GNU Inetutils.
 
-#ifndef lint
-static char sccsid[] = "@(#)talkd.c	8.1 (Berkeley) 6/4/93";
-#endif /* not lint */
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
 
-/*
- * The top level of the daemon, the format is heavily borrowed
- * from rwhod.c. Basically: find out who and where you are;
- * disconnect all descriptors and ttys, and then endless
- * loop on waiting for and processing requests
- */
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write to
+   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA. */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
-#endif
-#include <protocols/talkd.h>
+#include <intalkd.h>
 #include <signal.h>
-#include <syslog.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
+#include <getopt.h>
+#include <version.h>
+
+#ifndef LOG_FACILITY
+# define LOG_FACILITY LOG_DAEMON
 #endif
-#include <errno.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-extern char *localhost ();
+static void show_usage (void);
+static void show_version (void);
+static void show_license (void);
+void talkd_init (void);
+void talkd_run (int fd);
 
-CTL_MSG		request;
-CTL_RESPONSE	response;
+static char short_options[] = "VLha:di:r:t:";
+static struct option long_options[] = 
+{
+  /* Help options */
+  {"version", no_argument, NULL, 'V'},
+  {"license", no_argument, NULL, 'L'},
+  {"help",    no_argument, NULL, 'h'},
+  {"acl",  required_argument, NULL, 'a'},
+  {"debug",   no_argument, NULL, 'd'},
+  {"idle-timeout", required_argument, NULL, 'i'},
+  {"timeout", required_argument, NULL, 't'},
+  {"request-ttl", required_argument, NULL, 'r'},
+  {NULL,      no_argument, NULL, 0}
+};
 
-int	sockt;
-int	debug = 0;
-void	timeout();
-long	lastmsgtime;
+/* Configurable parameters: */
+int debug;
+unsigned int timeout = 30;
+time_t max_idle_time = 120;
+time_t max_request_ttl = MAX_LIFE;
 
-char	*hostname;
-
-#define TIMEOUT 30
-#define MAXIDLE 120
+char *hostname;
 
 int
 main(int argc, char *argv[])
 {
-	register CTL_MSG *mp = &request;
-	int cc;
-
-	if (getuid()) {
-		fprintf(stderr, "%s: getuid: not super-user\n", argv[0]);
-		exit(1);
-	}
-	openlog("talkd", LOG_PID, LOG_DAEMON);
-	hostname = localhost ();
-	if (! hostname) {
-		syslog(LOG_ERR, "localhost: %m");
-		_exit(1);
-	}
-	if (chdir(PATH_DEV) < 0) {
-		syslog(LOG_ERR, "chdir: %s: %m", PATH_DEV);
-		_exit(1);
-	}
-	if (argc > 1 && strcmp(argv[1], "-d") == 0)
-		debug = 1;
-	signal(SIGALRM, timeout);
-	alarm(TIMEOUT);
-	for (;;) {
-		extern int errno;
-
-		cc = recv(0, (char *)mp, sizeof (*mp), 0);
-		if (cc != sizeof (*mp)) {
-			if (cc < 0 && errno != EINTR)
-				syslog(LOG_WARNING, "recv: %m");
-			continue;
-		}
-		lastmsgtime = time(0);
-		process_request(mp, &response);
-		/* can block here, is this what I want? */
-		cc = sendto(sockt, (char *)&response,
-		    sizeof (response), 0, (struct sockaddr *)&mp->ctl_addr,
-		    sizeof (mp->ctl_addr));
-		if (cc != sizeof (response))
-			syslog(LOG_WARNING, "sendto: %m");
-	}
+  int c;
+  char *acl_file = NULL;
+  
+  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
+	 != EOF)
+    switch (c)
+      {
+      case 'V':
+	show_version ();
+	exit (0);
+	break;
+      case 'L':
+	show_license ();
+	exit (0);
+      case 'h':
+	show_usage ();
+	exit (0);
+	break;
+      case 'a':
+	acl_file = optarg;
+	break;
+      case 'd':
+	debug++;
+	break;
+      case 't':
+	timeout = strtoul (optarg, NULL, 0);
+	break;
+      case 'i':
+	max_idle_time = strtoul (optarg, NULL, 0);
+	break;
+      case 'r':
+	max_request_ttl = strtoul (optarg, NULL, 0);
+	break;
+      default:
+	fprintf (stderr, "talkd: %c: not implemented\n", c);
+	exit (1);
+      }
+  read_acl (acl_file);
+  talkd_init ();
+  talkd_run (0);
 }
 
 void
-timeout()
+talkd_init ()
 {
+  if (getuid ())
+    {
+      fprintf (stderr, "talkd: not super-user\n");
+      exit (1);
+    }
 
-	if (time(0) - lastmsgtime >= MAXIDLE)
-		_exit(0);
-	alarm(TIMEOUT);
+  openlog ("talkd", LOG_PID, LOG_FACILITY);
+  hostname = localhost ();
+  if (!hostname)
+    {
+      syslog (LOG_ERR, "can't determine my hostname: %m");
+      exit (1);
+    }
 }
+
+time_t last_msg_time;
+
+void
+alarm_handler ()
+{
+  if (time (NULL) - last_msg_time >= max_idle_time)
+    exit(0);
+  alarm (timeout);
+}
+
+void
+talkd_run (int fd)
+{
+  signal (SIGALRM, alarm_handler);
+  alarm (timeout);
+  while (1)
+    {
+      int rc;
+      struct sockaddr_in sa_in;
+      CTL_MSG msg;
+      CTL_RESPONSE resp;
+      int len;
+
+      len = sizeof sa_in;
+      rc = recvfrom(fd, &msg, sizeof msg, 0, (struct sockaddr *)&sa_in, &len);
+      if (rc != sizeof msg)
+	{
+	  if (rc < 0 && errno != EINTR)
+	    syslog (LOG_WARNING, "recvfrom: %m");
+	  continue;
+	}
+      last_msg_time = time (NULL);
+      if (process_request (&msg, &sa_in, &resp) == 0)
+	{
+	  rc = sendto(fd, &resp, sizeof resp, 0,
+		      (struct sockaddr *)&msg.ctl_addr, sizeof (msg.ctl_addr));
+	  if (rc != sizeof resp)
+	    syslog (LOG_WARNING, "sendto: %m");
+	}
+    }
+}
+
+
+void
+show_version ()
+{
+  printf ("talkd - %s %s\n", inetutils_package, inetutils_version);
+  printf ("Copyright (C) 2001 Free Software Foundation, Inc.\n");
+  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", inetutils_package);
+  printf ("You may redistribute copies of %s\n", inetutils_package);
+  printf ("under the terms of the GNU General Public License.\n");
+  printf ("For more information about these matters, ");
+  printf ("see the files named COPYING.\n");
+}
+
+void
+show_license (void)
+{
+  static char license_text[] =
+"   This program is free software; you can redistribute it and/or modify\n"
+"   it under the terms of the GNU General Public License as published by\n"
+"   the Free Software Foundation; either version 2, or (at your option)\n"
+"   any later version.\n"
+"\n"
+"   This program is distributed in the hope that it will be useful,\n"
+"   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+"   GNU General Public License for more details.\n"
+"\n"
+"   You should have received a copy of the GNU General Public License\n"
+"   along with this program; if not, write to the Free Software\n"
+"   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+  printf ("%s", license_text);
+}
+
+void
+show_usage (void)
+{
+  printf ("\
+Usage: talkd [OPTION]...\n\
+\n\
+Options are:\n\
+  -a, --acl FILE         read site-wide ACLs from FILE\n\
+  -d, --debug            enable debugging\n\
+  -i, --idle-timeout SECONDS  set idle timeout value\n\
+  -r, --request-ttl SECONDS   set request time-to-live value\n\
+  -t, --timeout SECONDS       set timeout value\n\
+Informational options:\n\
+  -h, --help             display this help and exit\n\
+  -L, --license          display license and exit\n\
+  -V, --version          output version information and exit\n");
+}
+

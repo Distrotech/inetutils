@@ -1,218 +1,142 @@
-/*
- * Copyright (c) 1983, 1993
- *	The Regents of the University of California.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
 
-#ifndef lint
-static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
-#endif /* not lint */
+   This file is part of GNU Inetutils.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
 
-#include <sys/types.h>
-#include <sys/uio.h>
-#include <sys/stat.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-#ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
-#endif
-#include <sys/socket.h>
-#ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
-#endif
-#include <protocols/talkd.h>
-#include <errno.h>
-#include <syslog.h>
-#include <unistd.h>
-#include <stdio.h>
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
-#include <string.h>
-#ifdef HAVE_VIS_H
-#include <vis.h>
-#endif
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-extern char *hostname;
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write to
+   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA. */
 
-extern char *ttymsg ();
+#include <intalkd.h>
+#include <stdarg.h>
 
-/*
- * Announce an invitation to talk.
- */
-
-#ifndef HAVE_VIS_H
-
-#define VIS_CSTYLE 0		/* dummy value */
-
-/* A simpler version of bsd's vis function.  */
-static void
-strvis (char *dst, char *src, int ignored)
-{
-  int ch;
-  while (*src)
-    switch (ch = *src++)
-      {
-      case '\b': *dst++ = '\\'; *dst++ = 'b'; break;
-      case '\n': *dst++ = '\\'; *dst++ = 'n'; break;
-      case '\t': *dst++ = '\\'; *dst++ = 't'; break;
-#ifdef __STDC__
-      case '\a':
-#else
-      case '\007':
-#endif
-                 *dst++ = '\\'; *dst++ = 'a'; break;
-      case '\f': *dst++ = '\\'; *dst++ = 'f'; break;
-      case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
-      default:
-	if (isgraph (ch))
-	  *dst++ = ch;
-	else
-	{
-	  sprintf (dst, "\\%03o", ch);
-	  dst += strlen(dst);
-	}
-      }
-  *dst = 0;
-}
-#endif /* !HAVE_VIS_H */
-
-/*
- * See if the user is accepting messages. If so, announce that
- * a talk is requested.
- */
+/* See if the user is accepting messages. If so, announce that
+   a talk is requested. */
 int
-announce(CTL_MSG *request, char *remote_machine)
+announce (CTL_MSG *request, char *remote_machine)
 {
-	char full_tty[32];
-	struct stat stbuf;
-
-	(void)snprintf(full_tty, sizeof(full_tty),
-	    "%s%s", PATH_DEV, request->r_tty);
-	if (stat(full_tty, &stbuf) < 0 || (stbuf.st_mode&020) == 0)
-		return (PERMISSION_DENIED);
-	return (print_mesg(request->r_tty, request, remote_machine));
+  char *ttypath;
+  int len;
+  struct stat st;
+  int rc;
+	   
+  len = sizeof (PATH_DEV) + strlen (request->r_tty) + 1;
+  ttypath = malloc (len);
+  if (!ttypath)
+    {
+      syslog (LOG_CRIT, "out of memory");
+      exit (1);
+    }
+  sprintf (ttypath, "%s/%s", PATH_DEV, request->r_tty);
+  rc = stat (ttypath, &st);
+  free (ttypath);
+  if (rc < 0 || (st.st_mode & S_IWGRP) == 0)
+    return PERMISSION_DENIED;
+  return print_mesg (request->r_tty, request, remote_machine);
 }
 
-#undef max
-#define max(a,b) ( (a) > (b) ? (a) : (b) )
+#define MAX(a,b) ( (a) > (b) ? (a) : (b) )
 #define N_LINES 5
 #define N_CHARS 256
 
-/*
- * Build a block of characters containing the message.
- * It is sent blank filled and in a single block to
- * try to keep the message in one piece if the recipient
- * in in vi at the time
- */
-int
-print_mesg(char *tty, CTL_MSG *request, char *remote_machine)
+typedef struct
 {
-	struct timeval clock;
-	struct timezone zone;
-	struct tm *localtime();
-	struct tm *localclock;
-	struct iovec iovec;
-	char line_buf[N_LINES][N_CHARS];
-	int sizes[N_LINES];
-	char big_buf[N_LINES*N_CHARS];
-	char *bptr, *lptr, *vis_user, *cp;
-	int i, j, max_size;
+  int ind;
+  int max_size;
+  char line[N_LINES][N_CHARS];
+  int size[N_LINES];
+  char buf[N_LINES*N_CHARS+3];
+} LINE;
 
-	i = 0;
-	max_size = 0;
-	gettimeofday(&clock, &zone);
-	localclock = localtime( &clock.tv_sec );
-	(void)sprintf(line_buf[i], " ");
-	sizes[i] = strlen(line_buf[i]);
-	max_size = max(max_size, sizes[i]);
-	i++;
-	snprintf (line_buf[i], sizeof line_buf[i],
-			 "Message from Talk_Daemon@%s at %d:%02d ...",
-	hostname, localclock->tm_hour , localclock->tm_min );
-	sizes[i] = strlen(line_buf[i]);
-	max_size = max(max_size, sizes[i]);
-	i++;
-	vis_user = malloc(strlen(request->l_name) * 4 + 1);
-	strvis(vis_user, request->l_name, VIS_CSTYLE);
-	snprintf (line_buf[i], sizeof line_buf[i],
-			  "talk: connection requested by %s@%s", vis_user, remote_machine);
-	sizes[i] = strlen(line_buf[i]);
-	max_size = max(max_size, sizes[i]);
-	i++;
-	snprintf (line_buf[i], sizeof line_buf[i],
-			  "talk: respond with:  talk %s@%s", vis_user, remote_machine);
-	sizes[i] = strlen(line_buf[i]);
-	max_size = max(max_size, sizes[i]);
-	i++;
-	(void)sprintf(line_buf[i], " ");
-	sizes[i] = strlen(line_buf[i]);
-	max_size = max(max_size, sizes[i]);
-	i++;
-	free (vis_user);
-	bptr = big_buf;
-	*bptr++ = ''; /* send something to wake them up */
-	*bptr++ = '\r';	/* add a \r in case of raw mode */
-	*bptr++ = '\n';
-	for (i = 0; i < N_LINES; i++) {
-		/* copy the line into the big buffer */
-		lptr = line_buf[i];
-		while (*lptr != '\0')
-			*(bptr++) = *(lptr++);
-		/* pad out the rest of the lines with blanks */
-		for (j = sizes[i]; j < max_size + 2; j++)
-			*(bptr++) = ' ';
-		*(bptr++) = '\r';	/* add a \r in case of raw mode */
-		*(bptr++) = '\n';
-	}
-	*bptr = '\0';
-	iovec.iov_base = big_buf;
-	iovec.iov_len = bptr - big_buf;
-	/*
-	 * we choose a timeout of RING_WAIT-5 seconds so that we don't
-	 * stack up processes trying to write messages to a tty
-	 * that is permanently blocked.
-	 */
-	if ((cp = ttymsg(&iovec, 1, tty, RING_WAIT - 5)) != NULL)
-	  {
-	    syslog(LOG_CRIT, "%s", cp);
-		return (FAILED);
-	  }
-
-	return (SUCCESS);
+void
+init_line (LINE *lp)
+{
+  memset (lp, 0, sizeof *lp);
 }
+
+void
+format_line (LINE *lp, const char *fmt, ...)
+{
+  va_list ap;
+  int i = lp->ind;
+
+  if (lp->ind >= N_LINES)
+    return;
+  lp->ind++;
+  va_start (ap, fmt);
+  lp->size[i] = vsnprintf (lp->line[i], sizeof lp->line[i], fmt, ap);
+  lp->max_size = MAX (lp->max_size, lp->size[i]);
+  va_end (ap);
+}
+    
+char *
+finish_line (LINE *lp)
+{
+  int i;
+  char *p;
+
+  p = lp->buf;
+  *p++ = '\a';
+  *p++ = '\r';
+  *p++ = '\n';
+  for (i = 0; i < lp->ind; i++)
+    {
+      char *q;
+      int j;
+      
+      for (q = lp->line[i]; *q; q++)
+	*p++ = *q;
+      for (j = lp->size[i]; j < lp->max_size + 2; j++)
+	*p++ = ' ';
+      *p++ = '\r';
+      *p++ = '\n';
+    }
+  *p = 0;
+  return lp->buf;
+}
+
+int
+print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
+{
+  time_t t;
+  LINE ln;
+  char *buf;
+  struct tm *tm;
+  struct iovec iovec;
+  char *cp;
+  
+  time (&t);
+  tm = localtime (&t);
+  init_line (&ln);
+  format_line (&ln, "");
+  format_line (&ln, "Message from Talk_Daemon@%s at %d:%02d ...",
+	       hostname, tm->tm_hour , tm->tm_min);
+  format_line (&ln, "talk: connection requested by %s@%s",
+	       request->l_name, remote_machine); 
+  format_line (&ln, "talk: respond with:  talk %s@%s",
+	       request->l_name, remote_machine);
+  format_line (&ln, "");
+  format_line (&ln, "");
+  buf = finish_line (&ln);
+
+  iovec.iov_base = buf;
+  iovec.iov_len = strlen (buf);
+
+  if ((cp = ttymsg (&iovec, 1, tty, RING_WAIT - 5)) != NULL)
+    {
+      syslog(LOG_CRIT, "%s", cp);
+      return FAILED;
+    }
+  return SUCCESS;
+}
+
