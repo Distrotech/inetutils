@@ -1,5 +1,8 @@
 2002-06-26  Alfred M. Szmidt  <ams@kemisten.nu>
 
+	* .cvsignore (config.h.in): Removed.
+	(config.hin, autom4te.cache): Added.
+
 	* configure.ac: Removed erroneous #ifdef's in the checks for __P
 	and syslog internal macros.
 
