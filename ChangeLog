@@ -1,3 +1,9 @@
+Fri Apr  3 17:11:44 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
+
+	* libtelnet/Makefile.am (libtelnet_a_SOURCES): Removed
+ 	krb4encpwd.c rsaencpwd.c spx.c; they don't meet our definition of
+ 	`free software'.
+
 Thu Mar 26 20:40:06 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* */Makefile.am: Use @BUILD_FOO@ to determine whether to build the
