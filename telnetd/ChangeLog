@@ -1,3 +1,11 @@
+2002-04-08  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* Makefile.am: Added @INCAUTH@ and @LIBAUTH@.
+
+	* telnetd.c: Fixed to compile with AUTHENTICATION/ENCRYPTION on.
+	* telnetd.h: Likewise.
+	* utility.c: Likewise.
+
 2002-04-07  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* telnetd.c (print_hostinfo): Print local host name.
