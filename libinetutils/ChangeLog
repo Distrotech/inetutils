@@ -1,3 +1,7 @@
+2001-11-01  Sergey Poznyakoff
+	
+	* ttymsg.c: Added missing %s to format spec
+
 2001-10-25  Sergey Poznyakoff
 
 	* argcv.c: (new) Simple string tokenizer. Needed by talkd acls.
