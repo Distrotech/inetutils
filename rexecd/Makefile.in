@@ -24,6 +24,7 @@ include ../config.make
 DISTFILES = rexecd.c rexecd.8
 
 INSTALL_TARGETS=$(libexecdir)/in.rexecd $(man8dir)/rexecd.8
+LDLIBS += $(LIBCRYPT)
 CLEAN = rexecd rexecd.o
 
 all: rexecd

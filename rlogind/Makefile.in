@@ -24,6 +24,7 @@ include ../config.make
 DISTFILES = rlogind.c rlogind.8
 
 INSTALL_TARGETS = $(libexecdir)/in.rlogind $(man8dir)/rlogind.8
+LDLIBS += $(LIBUTIL)
 CLEAN = rlogind rlogind.o
 
 CPPFLAGS += -D_PATH_LOGIN=\"$(bindir)/login\"

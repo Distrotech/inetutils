@@ -26,6 +26,7 @@ DISTFILES = $(SRCS) extern.h ftpd.8
 
 INSTALL_TARGETS = $(libexecdir)/in.ftpd $(man8dir)/ftpd.8
 OBJS = $(subst .y,.o, $(SRCS:.c=.o))
+LDLIBS += $(LIBUTIL) $(LIBCRYPT)
 OPT_DISTFILES = ftpcmd.c
 CLEAN = ftpd $(OBJS)
 DISTCLEAN = ftpcmd.c

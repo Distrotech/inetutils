@@ -24,6 +24,7 @@ include ../config.make
 DISTFILES = uucpd.c
 
 INSTALL_TARGETS = $(libexecdir)/in.uucpd
+LDLIBS += $(LIBUTIL) $(LIBCRYPT)
 CLEAN = uucpd uucpd.o
 
 # the /libexec/uucp/... path is consistent with netbsd.
