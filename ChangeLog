@@ -1,3 +1,13 @@
+2004-06-16  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* configure.ac: Check for termcap before checking for
+	readline, since the latter might depend on the former.
+	Patch by Todd R. Eigenschink <todd@tekinteractive.com>
+	* acinclude.m4 (IU_ENABLE_FOO): Define $1_INSTALL_HOOK
+	(IU_CHECK_KRB5): Quote the definition
+
+	* THANKS: Added Todd R. Eigenschink
+
 2004-01-30  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* acinclude.m4 (IU_CONFIG_LINKS): New macro

@@ -1,3 +1,10 @@
+2004-07-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* rshd.c (doit): Use cached copy of hp->h_name, since
+	it may be overwritten by local_domain(). Fix proposed
+	by Andrew Klossner <andrew@cesa.opbu.xerox.com> and
+	Martin J. Evans <martin@easysoft.com>.
+
 2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* Makefile.am: Added AUTHLIBS to LDADD

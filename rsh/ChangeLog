@@ -1,3 +1,10 @@
+2004-06-16  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* rsh.c (short_options): Prefix with '+' to disable
+	reordering by getopt_long. Proposed by Todd R. Eigenschink
+	<todd@tekinteractive.com>
+	* Makefile.am: Conditional install-exec-hook
+
 2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* rsh.c (dst_realm_buf): Typo.

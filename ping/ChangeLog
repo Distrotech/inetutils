@@ -2,6 +2,7 @@
 
 	* ping.c (ping_cvt_number): Take an additional parameter
 	indicating whether zero value is allowed.
+	* Makefile.am: Conditional install-exec-hook
 
 2003-11-10  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 

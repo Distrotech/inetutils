@@ -1,3 +1,11 @@
+2004-06-16  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* rlogin.c: Handle ^S/^Q without using -8:
+	(ixon_state): New variable
+	(mode): Save and restore ixon state.
+	Patch by Todd R. Eigenschink <todd@tekinteractive.com>
+	* Makefile.am: Conditional install-exec-hook
+
 2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* rlogin.c (dst_realm_buf): Typo.
