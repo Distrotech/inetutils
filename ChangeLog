@@ -20,6 +20,7 @@ Mon Feb 17 15:08:59 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 	* libinetutils/snprintf.h: New file.
 	* libinetutils/Makefile.in (DISTFILES): Add snprintf.h.
 
+	From NIIBE Yutaka <gniibe@mri.co.jp>:
 	* telnetd/sys_term.c (scrub_env): New function.
 	(start_login): Use it.
 
