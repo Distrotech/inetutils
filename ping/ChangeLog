@@ -1,3 +1,8 @@
+2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* ping/ping.c (main): Added spaces between cases in a switch
+	to conform to the GCS.
+
 2002-09-06  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* ping.c (main): Removed duplicate startup introduced

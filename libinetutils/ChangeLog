@@ -1,3 +1,8 @@
+2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* libinetutils/iruserok.c (iruserok): Removed unneded
+	  typecasts to (void).
+
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* herror.c: Checks for HAVE_DECL variables must read
