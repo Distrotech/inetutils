@@ -1,3 +1,11 @@
+Thu Mar 26 20:47:00 1998  Jeff Bailey  <jbailey@gnu.org>
+
+	* configure.in: put VERSION, PACKAGE, and GNU_PACKAGE back in.
+
+	* ping/ping.c:  Create
+	* ping/Makefile.am: Update with ping.c
+
+
 Thu Mar 26 00:08:39 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* ftp/main.c (cmdscanner): Added new code that is used to replace
