@@ -39,14 +39,21 @@ static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #include <sys/stat.h>
 
 #include <ctype.h>
-#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
+#include <err.h>
 
 #include "ftp_var.h"
+
+extern char *localhost __P((void));
 
 static	int token __P((void));
 static	FILE *cfile;
