@@ -95,7 +95,7 @@ int system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *__ifs)
 # include "system/solaris.h"
 #elif defined(__hpux__)
 # include "system/hpux.h"
-#elif defined(__QNXNTO__)
+#elif defined(__QNX__)
 # include "system/qnx.h"
 #else
 #include "system/generic.h"

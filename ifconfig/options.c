@@ -352,7 +352,7 @@ parse_opt_finalize (struct ifconfig *ifp)
 void
 parse_opt (int argc, char *argv[])
 {
-  char option;
+  int option;
   struct ifconfig *ifp = ifs;
 
 #ifndef HAVE___PROGNAME

@@ -39,8 +39,6 @@ struct system_ifconfig
 /* Output format support.  */
 
 #define SYSTEM_FORMAT_HANDLER \
-  {"qnx", fh_nothing}, \
-  {"netmask?", qfh_netmask}, \
-  {"broadcast?", qfh_brdaddr},
+  {"qnx", fh_nothing},
 
 #endif

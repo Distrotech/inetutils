@@ -1,3 +1,19 @@
+2001-06-26  Alain Magloire
+
+	* if_index.c: Solaris does not define ifr_index but rather
+	ifr_ifindex ... sigh ..  redefine it to ifr_index to be
+	consistent.
+	(if_indextoname): Typo missing closing bracket.
+
+	* options.c (parse_opt_finalize): The return of getopt()
+	should be an int not a char since on many OS for example
+	QNX4/Watcomm C char is unsigned.
+
+	* system.c:  Use __QNX__
+	* system.h:  Use __QNX__
+	* system/qnx.h: remove qfh_netmask and qfh_brdaddr, the generic
+	versions will work fine.
+
 2001-06-25  Alain Magloire
 
 	* if_index.c: Fall back to the generic version if

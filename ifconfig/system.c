@@ -4,7 +4,7 @@
 # include "system/solaris.c"
 #elif defined(__hpux__)
 # include "system/hpux.c"
-#elif defined(__QNXNTO__)
+#elif defined(__QNX__)
 # include "system/qnx.c"
 #else
 # include "system/generic.c"

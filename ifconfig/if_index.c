@@ -26,11 +26,15 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+
 /* Solaris at least earlier 2.6 and before does not include
    the ioctl definitions if BSD_COMP is not set.  */
 #if defined(__svr4__)
+/* FIXME: Is this solaris specific or it goes for all __svr4__ ?  */
+# define ifr_ifindex ifr_index
 # define BSD_COMP 1
 #endif
+
 #include <sys/ioctl.h>
 #include <net/if.h>
 
@@ -252,5 +256,6 @@ if_indextoname (unsigned int ifindex, char *ifname)
 	if_freenameindex (idx);
       }
     return result;
+  }
 #endif
 }
