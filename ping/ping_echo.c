@@ -68,7 +68,6 @@ static int echo_finish (void);
 
 void print_icmp_header (struct sockaddr_in *from,
 			      struct ip *ip, icmphdr_t *icmp, int len);
-static void print_ip_data (struct ip *ip);
 static void print_ip_opt (struct ip *ip, int hlen);
 
 static void tvsub (struct timeval *out, struct timeval *in);
@@ -236,171 +235,62 @@ ipaddr2str (struct in_addr ina)
     }
 }
 
-void
-print_icmp_header (struct sockaddr_in *from,
-		  struct ip *ip, icmphdr_t *icmp, int len)
-{
-  int hlen;
-  struct ip *orig_ip;
-  char *s;
-  
-  /* Length of the IP header */
-  hlen = ip->ip_hl << 2;
-  /* Original IP header */
-  orig_ip = &icmp->icmp_ip;
+#define NITEMS(a) sizeof(a)/sizeof((a)[0])
 
-  if (!(options & OPT_VERBOSE
-	|| orig_ip->ip_dst.s_addr == ping->ping_dest.sin_addr.s_addr))
-    return;
+struct icmp_diag {
+  int type;
+  char *text;
+  void (*fun) (struct ip *, icmphdr_t *, void *data);
+  void *data;
+};
 
-  printf ("%d bytes from %s: ", len-hlen, s = ipaddr2str (from->sin_addr));
-  free (s);
-  
-  switch (icmp->icmp_type)
-    {
-    case ICMP_ECHOREPLY:
-      printf ("Echo Reply\n");
-      break;
-    case ICMP_DEST_UNREACH:
-      switch (icmp->icmp_code)
-	{
-	case ICMP_NET_UNREACH:
-	  printf ("Destination Net Unreachable\n");
-	  break;
-	case ICMP_HOST_UNREACH:
-	  printf ("Destination Host Unreachable\n");
-	  break;
-	case ICMP_PROT_UNREACH:
-	  printf ("Destination Protocol Unreachable\n");
-	  break;
-	case ICMP_PORT_UNREACH:
-	  printf ("Destination Port Unreachable\n");
-	  break;
-	case ICMP_FRAG_NEEDED:
-	  printf ("frag needed and DF set\n");
-	  break;
-	case ICMP_SR_FAILED:
-	  printf ("Source Route Failed\n");
-	  break;
-	case ICMP_NET_UNKNOWN:
-	  printf ("Network Unknown\n");
-	  break;
-	case ICMP_HOST_UNKNOWN:
-	  printf ("Host Unknown\n");
-	  break;
-	case ICMP_HOST_ISOLATED:
-	  printf ("Host Isolated\n");
-	  break;
-	case ICMP_NET_UNR_TOS:
-	  printf ("Destination Network Unreachable At This TOS\n");
-	  break;
-	case ICMP_HOST_UNR_TOS:
-	  printf ("Destination Host Unreachable At This TOS\n");
-	  break;
+struct icmp_code_descr {
+  int code;
+  char *diag;
+} icmp_code_descr[] = {
+  { ICMP_NET_UNREACH,    "Destination Net Unreachable" },
+  { ICMP_HOST_UNREACH,   "Destination Host Unreachable" },
+  { ICMP_PROT_UNREACH,   "Destination Protocol Unreachable" },
+  { ICMP_PORT_UNREACH,   "Destination Port Unreachable" },
+  { ICMP_FRAG_NEEDED,    "Fragmentation needed and DF set" },
+  { ICMP_SR_FAILED,      "Source Route Failed" },
+  { ICMP_NET_UNKNOWN,    "Network Unknown" },
+  { ICMP_HOST_UNKNOWN,   "Host Unknown" },
+  { ICMP_HOST_ISOLATED,  "Host Isolated" },
+  { ICMP_NET_UNR_TOS,    "Destination Network Unreachable At This TOS" },
+  { ICMP_HOST_UNR_TOS,   "Destination Host Unreachable At This TOS" },
 #ifdef ICMP_PKT_FILTERED
-	case ICMP_PKT_FILTERED:
-	  printf ("Packet Filtered\n");
-	  break;
+  { ICMP_PKT_FILTERED,   "Packet Filtered" },
 #endif
 #ifdef ICMP_PREC_VIOLATION
-	case ICMP_PREC_VIOLATION:
-	  printf ("Precedence Violation\n");
-	  break;
+  { ICMP_PREC_VIOLATION, "Precedence Violation" },
 #endif
 #ifdef ICMP_PREC_CUTOFF
-	case ICMP_PREC_CUTOFF:
-	  printf ("Precedence Cutoff\n");
-	  break;
+  { ICMP_PREC_CUTOFF,    "Precedence Cutoff" },
 #endif
-	default:
-	  printf ("Dest Unreachable, Unknown Code: %d\n",
-		 icmp->icmp_code);
-	  break;
-	}
-      /* Print returned IP header information */
-      print_ip_data (ip);
-      break;
-    case ICMP_SOURCE_QUENCH:
-      printf ("Source Quench\n");
-      print_ip_data (ip);
-      break;
-    case ICMP_REDIRECT:
-      switch (icmp->icmp_code)
-	{
-	case ICMP_REDIR_NET:
-	  printf ("Redirect Network");
-	  break;
-	case ICMP_REDIR_HOST:
-	  printf ("Redirect Host");
-	  break;
-	case ICMP_REDIR_NETTOS:
-	  printf ("Redirect Type of Service and Network");
-	  break;
-	case ICMP_REDIR_HOSTTOS:
-	  printf ("Redirect Type of Service and Host");
-	  break;
-	default:
-	  printf ("Redirect, Bad Code: %d", icmp->icmp_code);
-	  break;
-	}
-      printf ("(New addr: %s)\n",
-	     inet_ntoa (icmp->icmp_gwaddr));
-      print_ip_data (ip);
-      break;
-    case ICMP_ECHO:
-      printf ("Echo Request\n");
-      /* XXX ID + Seq + Data */
-      break;
-    case ICMP_TIME_EXCEEDED:
-      switch (icmp->icmp_code)
-	{
-	case ICMP_EXC_TTL:
-	  printf ("Time to live exceeded\n");
-	  break;
-	case ICMP_EXC_FRAGTIME:
-	  printf ("Frag reassembly time exceeded\n");
-	  break;
-	default:
-	  printf ("Time exceeded, Bad Code: %d\n",
-		 icmp->icmp_code);
-	  break;
-	}
-      print_ip_data (ip);
-      break;
-    case ICMP_PARAMETERPROB:
-      printf ("Parameter problem: IP address = %s\n",
-	     inet_ntoa (icmp->icmp_gwaddr));
-      print_ip_data (ip);
-      break;
-    case ICMP_TIMESTAMP:
-      printf ("Timestamp\n");
-      /* XXX ID + Seq + 3 timestamps */
-      break;
-    case ICMP_TIMESTAMPREPLY:
-      printf ("Timestamp Reply\n");
-      /* XXX ID + Seq + 3 timestamps */
-      break;
-    case ICMP_INFO_REQUEST:
-      printf ("Information Request\n");
-      /* XXX ID + Seq */
-      break;
-    case ICMP_INFO_REPLY:
-      printf ("Information Reply\n");
-      /* XXX ID + Seq */
-      break;
-#ifdef ICMP_MASKREQ
-    case ICMP_MASKREQ:
-      printf ("Address Mask Request\n");
-      break;
-#endif
-#ifdef ICMP_MASKREPLY
-    case ICMP_MASKREPLY:
-      printf ("Address Mask Reply\n");
-      break;
-#endif
-    default:
-      printf ("Bad ICMP type: %d\n", icmp->icmp_type);
-    }
+
+  { ICMP_REDIR_NET,      "Redirect Network" },
+  { ICMP_REDIR_HOST,     "Redirect Host" },
+  { ICMP_REDIR_NETTOS,   "Redirect Type of Service and Network" },
+  { ICMP_REDIR_HOSTTOS,  "Redirect Type of Service and Host" },
+
+  { ICMP_EXC_TTL,        "Time to live exceeded" },
+  { ICMP_EXC_FRAGTIME,   "Frag reassembly time exceeded" },
+};
+
+static void
+print_icmp_code (int code, char *prefix)
+{
+  struct icmp_code_descr *p;
+
+  for (p = icmp_code_descr; p < icmp_code_descr + NITEMS(icmp_code_descr); p++)
+    if (p->code == code)
+      {
+	printf ("%s\n", p->diag);
+	return;
+      }
+  
+  printf ("%s, Unknown Code: %d\n", prefix, code);
 }
 
 static void
@@ -420,15 +310,14 @@ print_ip_header (struct ip *ip)
   printf ("  %02x  %02x %04x", ip->ip_ttl, ip->ip_p, ip->ip_sum);
   printf (" %s ", inet_ntoa (*((struct in_addr *) &ip->ip_src)));
   printf (" %s ", inet_ntoa (*((struct in_addr *) &ip->ip_dst)));
-  /* dump and option bytes */
-  while (hlen-- > 20) {
+  while (hlen-- > 20) 
     printf ("%02x", *cp++);
-  }
+
   printf ("\n");
 }
 
 void
-print_ip_data (struct ip *ip)
+print_ip_data (struct ip *ip, icmphdr_t *icmp, void *data)
 {
   int hlen;
   u_char *cp;
@@ -447,6 +336,72 @@ print_ip_data (struct ip *ip)
 
 }
 
+static void
+print_icmp (struct ip *ip, icmphdr_t *icmp, void *data)
+{
+  print_icmp_code (icmp->icmp_code, data);
+  print_ip_data (ip, icmp, NULL);
+}
+
+static void
+print_parameterprob (struct ip *ip, icmphdr_t *icmp, void *data)
+{
+  printf ("Parameter problem: IP address = %s\n",
+	  inet_ntoa (icmp->icmp_gwaddr));
+  print_ip_data (ip, icmp, data);
+}
+
+struct icmp_diag icmp_diag[] = {
+  { ICMP_ECHOREPLY, "Echo Reply", NULL },
+  { ICMP_DEST_UNREACH, NULL, print_icmp, "Dest Unreachable" },
+  { ICMP_SOURCE_QUENCH, "Source Quench", print_ip_data },
+  { ICMP_REDIRECT, NULL, print_icmp, "Redirect" },
+  { ICMP_ECHO, "Echo Request", NULL },
+  { ICMP_TIME_EXCEEDED, NULL, print_icmp, "Time exceeded" },
+  { ICMP_PARAMETERPROB, NULL, print_parameterprob },
+  { ICMP_TIMESTAMP, "Timestamp", NULL },
+  { ICMP_TIMESTAMPREPLY, "Timestamp Reply", NULL },
+  { ICMP_INFO_REQUEST, "Information Request", NULL },
+#ifdef ICMP_MASKREQ
+  { ICMP_MASKREPLY, "Address Mask Reply", NULL },
+#endif
+};
+
+void
+print_icmp_header (struct sockaddr_in *from,
+		   struct ip *ip, icmphdr_t *icmp, int len)
+{
+  int hlen;
+  struct ip *orig_ip;
+  char *s;
+  struct icmp_diag *p;
+  
+  /* Length of the IP header */
+  hlen = ip->ip_hl << 2;
+  /* Original IP header */
+  orig_ip = &icmp->icmp_ip;
+
+  if (!(options & OPT_VERBOSE
+	|| orig_ip->ip_dst.s_addr == ping->ping_dest.sin_addr.s_addr))
+    return;
+
+  printf ("%d bytes from %s: ", len-hlen, s = ipaddr2str (from->sin_addr));
+  free (s);
+
+  for (p = icmp_diag; p < icmp_diag + NITEMS(icmp_diag); p++)
+    {
+      if (p->type == icmp->icmp_type)
+	{
+	  if (p->text)
+	    printf ("%s\n", p->text);
+	  if (p->fun)
+	    p->fun (ip, icmp, p->data);
+	  return;
+	}
+    }
+  printf ("Bad ICMP type: %d\n", icmp->icmp_type);
+}
+
 void
 print_ip_opt (struct ip *ip, int hlen)
 {
@@ -463,6 +418,7 @@ print_ip_opt (struct ip *ip, int hlen)
       case IPOPT_EOL:
 	hlen = 0;
 	break;
+	
       case IPOPT_LSRR:
 	printf ("\nLSRR: ");
 	hlen -= 2;
@@ -495,9 +451,10 @@ print_ip_opt (struct ip *ip, int hlen)
 	      putchar ('\n');
 	    }
 	break;
+	
       case IPOPT_RR:
-	j = *++cp;		/* get length */
-	i = *++cp;		/* and pointer */
+	j = *++cp;	      
+	i = *++cp;		
 	hlen -= 2;
 	if (i > j)
 	  i = j;
@@ -557,9 +514,11 @@ print_ip_opt (struct ip *ip, int hlen)
 	    putchar ('\n');
 	  }
 	break;
+	
       case IPOPT_NOP:
 	printf ("\nNOP");
 	break;
+	
       default:
 	printf ("\nunknown option %x", *cp);
 	break;
@@ -572,14 +531,14 @@ print_ip_opt (struct ip *ip, int hlen)
  * be >= in.
  */
 static void
-tvsub (out, in)
-	register struct timeval *out, *in;
+tvsub (struct timeval *out, struct timeval *in)
 {
-	if ((out->tv_usec -= in->tv_usec) < 0) {
-		--out->tv_sec;
-		out->tv_usec += 1000000;
-	}
-	out->tv_sec -= in->tv_sec;
+  if ((out->tv_usec -= in->tv_usec) < 0)
+    {
+      --out->tv_sec;
+      out->tv_usec += 1000000;
+    }
+  out->tv_sec -= in->tv_sec;
 }
 
 double
