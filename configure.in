@@ -101,7 +101,9 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
 		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
 		 arpa/nameser.h sys/sockio.h sys/sysmacros.h sys/param.h \
-		 unistd.h sys/file.h fcntl.h)
+		 unistd.h sys/file.h fcntl.h sys/proc.h sys/select.h \
+		 sys/time.h)
+AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(socket, getpeername)
@@ -110,7 +112,8 @@ AC_CHECK_LIB(bsd, revoke)
 
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       flock ftruncate wait3 memcpy bcopy bzero setsid cfsetspeed \
-	       strchr waitpid)
+	       strchr waitpid seteuid setegid setreuid setregid setresuid \
+	       setresgid killpg setlinebuf utimes utime)
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok herror)
 
@@ -162,6 +165,8 @@ IU_CHECK_MACRO(__P,
 AC_REPLACE_FUNCS(revoke)
 
 AC_FUNC_ALLOCA
+AC_FUNC_SETVBUF_REVERSED
+AC_FUNC_VFORK
 
 # See whether <syslog.h> will declare special internal stuff if we define
 # SYSLOG_NAMES before including it.  We check for various syslog internal macros,
