@@ -1180,7 +1180,7 @@ print_service(action, sep)
 
 
 static int		/* # of characters upto \r,\n or \0 */
-getline(fd, buf, len)
+fd_getline(fd, buf, len)
 	int fd;
 	char *buf;
 	int len;
@@ -1216,7 +1216,7 @@ tcpmux(s)
 	int len;
 
 	/* Get requested service name */
-	if ((len = getline(s, service, MAX_SERV_LEN)) < 0) {
+	if ((len = fd_getline(s, service, MAX_SERV_LEN)) < 0) {
 		strwrite(s, "-Error reading service name\r\n");
 		return (NULL);
 	}
