@@ -197,7 +197,10 @@ cmd
 			}
 			reply(200, "PORT command successful.");
 		}
-	| PASV CRLF
+/* telnet to ftpd and type PASV, server will crash
+ * *Hobbit
+ */
+	| PASV check_login CRLF
 		{
 			passive();
 		}
