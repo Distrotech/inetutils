@@ -51,8 +51,12 @@ static char sccsid[] = "@(#)ftpd.c	8.4 (Berkeley) 4/16/94";
 #include <sys/wait.h>
 
 #include <netinet/in.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
+#endif
 
 #define	FTP_NAMES
 #include <arpa/ftp.h>
@@ -179,12 +183,19 @@ static char	*sgetsave __P((char *));
 static char *
 curdir()
 {
-	static char path[MAXPATHLEN+1+1];	/* path + '/' + '\0' */
-
-	if (getcwd(path, sizeof(path)-2) == NULL)
+        static char *path = 0;
+	if (path)
+	        free (path);
+	path = getcwd (0, 0);
+	if (! path)
 		return ("");
-	if (path[1] != '\0')		/* special case for root dir. */
-		strcat(path, "/");
+	if (path[1] != '\0') {		/* special case for root dir. */
+	        char *new = realloc (path, strlen (path) + 2); /* '/' + '\0' */
+		if (! new)
+		        return "";
+		strcat(new, "/");
+		path = new;
+	}
 	/* For guest account, skip / since it's chrooted */
 	return (guest ? path+1 : path);
 }
@@ -214,7 +225,7 @@ main(argc, argv, envp)
 		syslog(LOG_ERR, "getsockname (%s): %m",argv[0]);
 		exit(1);
 	}
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPTOS_LOWDELAY) && defined (IPPROTO_IP)
 	tos = IPTOS_LOWDELAY;
 	if (setsockopt(0, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
@@ -789,7 +800,7 @@ getdatasock(mode)
 		sleep(tries);
 	}
 	(void) seteuid((uid_t)pw->pw_uid);
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPTOS_THROUGHPUT) && defined (IPPROTO_IP)
 	on = IPTOS_THROUGHPUT;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
@@ -833,7 +844,7 @@ dataconn(name, size, mode)
 		}
 		(void) close(pdata);
 		pdata = s;
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPTOS_LOWDELAY) && defined (IPPROTO_IP)
 		tos = IPTOS_LOWDELAY;
 		(void) setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos,
 		    sizeof(int));
