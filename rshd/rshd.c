@@ -725,7 +725,10 @@ getstr(err)
 	size_t buf_len = 100;
 	char *buf = malloc (buf_len), *end = buf;
 
-	if (! buf)
+	if (! buf) {
+		error ("Out of space reading %s\n", err);
+		exit (1);
+	}
 
 	do {
 		/* Oh this is efficient, oh yes.  [But what can be done?] */
