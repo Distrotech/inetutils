@@ -1,8 +1,6 @@
-# -*-Makefile-*-, or close enough
+noinst_LIBRARIES = @BUILD_LIBGLOB@
 
-AUTOMAKE_OPTIONS =	1.2 foreign
+EXTRA_LIBRARIES = libglob.a
 
-noinst_LIBRARIES =	libglob.a
-
-libglob_a_SOURCES =	glob.c glob.h fnmatch.c fnmatch.h
+libglob_a_SOURCES = glob.c glob.h fnmatch.c fnmatch.h
 
