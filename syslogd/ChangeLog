@@ -1,3 +1,9 @@
+2003-05-21  Sergey Poznyakoff
+
+	* syslogd.c (main): Call init before opening the sockets.
+	(Thanks Peter Rehley <peter@rehley.net> for the patch)
+	(logmsg,cfline): Fixed handling of INTERNAL_NOPRI.
+
 2002-09-30  Sergey Poznyakoff 
 
 	* syslogd.c: Fix processing accumulated messages from

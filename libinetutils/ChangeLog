@@ -1,3 +1,8 @@
+2003-05-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* libinetutils/ttymsg.c (ttymsg): Bugfix: typecast is not 
+        a valid lvalue
+
 2003-04-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* setenv.c: Provide an extern declaration of
