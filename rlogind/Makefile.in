@@ -1,4 +1,4 @@
-# Makefile for rshd
+# Makefile for rlogind
 # Copyright (C) 1995 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -41,16 +41,16 @@ LDLIBS = $(LIBS)
 
 CFLAGS += $(DEFS)
 
-rshd: rshd.o
+rlogind: rlogind.o
 
-install: installdirs rshd $(srcdir)/rshd.8
-	$(INSTALL_PROGRAM) rshd $(libexecdir)/in.rshd
-	$(INSTALL_DATA) $(srcdir)/rshd.8 $(man8dir)
+install: installdirs rlogind $(srcdir)/rlogind.8
+	$(INSTALL_PROGRAM) rlogind $(libexecdir)/in.rlogind
+	$(INSTALL_DATA) $(srcdir)/rlogind.8 $(man8dir)
 
 installdirs:
 	$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
 
 clean:
-	$(RM) -f *.o rshd 
+	$(RM) -f *.o rlogind 
 distclean: clean
 	$(RM) -f Makefile
