@@ -54,7 +54,6 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #include <config.h>
 #endif
 
-#define	FD_SETSIZE	16		/* don't need many bits for select */
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
