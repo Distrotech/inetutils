@@ -21,7 +21,7 @@ srcdir = @srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.ftpd $(man8dir)/ftpd.8
-SRCS = ftpd.c ftpcmd.c logwtmp.c popen.c
+SRCS = ftpd.c ftpcmd.y logwtmp.c popen.c
 DISTFILES = $(SRCS) ftpd.8 Makefile.in
 
 CPPFLAGS += \
@@ -31,7 +31,7 @@ CPPFLAGS += \
 	-D_PATH_NOLOGIN=\"$(sysconfdir)/nologin\"
 
 all: ftpd
-ftpd: $(SRCS:.c=.o)
+ftpd: $(patsubst .%, .o, $(SRCS))
 
 clean:
 	$(RM) -f *.o ftpd
