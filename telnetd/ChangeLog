@@ -1,3 +1,11 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* telnetd.h: Include "xalloc.h"
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include', and
+	`-I$(top_srcdir)'.
+	(LDADD): Added `-L../lib -lgnu'.
+
 2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* telnetd.c (telnetd_setup): Use socklen_t.

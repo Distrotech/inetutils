@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001,2005 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -72,6 +72,8 @@
 #define obstack_chunk_alloc malloc
 #define obstack_chunk_free free
 #include <obstack.h>
+
+#include "xalloc.h"
 
 #ifndef HAVE_CC_T
 typedef unsigned char cc_t;
