@@ -248,4 +248,4 @@ extern int	needtermstat;
 #undef extern
 #endif
 /* Let "line" get its definition from sys_term.c. */
-extern char	*line;
+extern char line[];
