@@ -37,20 +37,22 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
+CFLAGS += $(DEFS)
 LDLIBS = $(LIBS)
 
-CFLAGS += $(DEFS)
-
+all: rlogind
 rlogind: rlogind.o
 
 install: installdirs rlogind $(srcdir)/rlogind.8
 	$(INSTALL_PROGRAM) rlogind $(libexecdir)/in.rlogind
-	$(INSTALL_DATA) $(srcdir)/rlogind.8 $(man8dir)
+	-$(INSTALL_DATA) $(srcdir)/rlogind.8 $(man8dir)/rlogind.8
+uninstall:
+	-$(RM) -f $(libexecdir)/in.rlogind $(man8dir)/rlogind.8
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o rlogind 
 distclean: clean
 	$(RM) -f Makefile
