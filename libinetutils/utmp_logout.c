@@ -8,7 +8,7 @@
 *
 * Redistribution and use in source and binary forms are permitted
 * provided that this entire copyright notice is duplicated in all such
-* copies.  
+* copies.
 *
 * This software is provided "as is" and without any expressed or implied
 * warranties, including, without limitation, the implied warranties of
@@ -67,8 +67,10 @@ char   *line;
 
 	if (ut = getutline(&utx)) {
 		ut->ut_type = DEAD_PROCESS;
+#ifdef HAVE_UTMP_UT_EXIT
 		ut->ut_exit.e_termination = 0;
 		ut->ut_exit.e_exit = 0;
+#endif
 		time(&(utx.ut_time));
 		pututline(ut);
 		updwtmp(WTMP_FILE, ut);

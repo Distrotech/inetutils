@@ -1,10 +1,16 @@
-1999-10-03  Jeff Bailey  <jbailey@cr499794-a.crdva1.bc.wave.home.com>
+2000-06-14 Joachim Gabler
+	* configure.in: add check for element ut_exit in struct utmp
+	* lininetutils/utmp_logout: check for HAVE_UTMP_UT_EXIT
+	* libinetutils/openpty.c: smaller fixes (missing ';',
+	structure element gr_pid of struct group replaced by gr_gid
+
+1999-10-03  Jeff Bailey
 
 	* README-alpha: Update with CVS info and mailing list info.
 
 	* THANKS: Add Marcus Brinkman
 
-1999-09-13  Jeff Bailey  <jbailey@cr499794-a.crdva1.bc.wave.home.com>
+1999-09-13  Jeff Bailey
 
 	* COPYING, INSTALL, aclocal.m4, install-sh, missing, mkinstalldirs:
 	Remove from CVS repository - They are automatically generated.

@@ -148,7 +148,7 @@ static int ptym_open(pts_name)
 				else
 					continue;  /* try next pty device */
 			}
-			pts_name[5] = 't' /* chage "pty" to "tty" */
+			pts_name[5] = 't'; /* chage "pty" to "tty" */
 			return fdm;   /* got it, return fd of master */
 		}
 	}
@@ -195,7 +195,7 @@ static int ptys_open(fdm, pts_name)
 
 	grptr = getgrnam("tty");
 	if (grptr != NULL)
-		gid = grptr->gr_pid;
+		gid = grptr->gr_gid;
 	else
 		gid = -1;  /* group tty is not in the group file */
 	/* following two functions don't work unless we're root */
@@ -203,7 +203,7 @@ static int ptys_open(fdm, pts_name)
 	chmod(pts_name, S_IRUSR | S_IWUSR | S_IWGRP);
 	fds = open(pts_name, O_RDWR);
 	if (fds < 0) {
-		close(fdm)
+		close(fdm);
 		return -1;
 	}
 	return fds;
