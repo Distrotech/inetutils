@@ -53,10 +53,10 @@ LDFLAGS = @LDFLAGS@
 RM = @RM@
 MKINSTDIRS = $(SHELL) $(top_srcdir)/mkinstalldirs
 
-CPPFLAGS += $(DEFS)
-LDLIBS += $(LIBS)
+CPPFLAGS += $(DEFS) -I../include
+LDLIBS += $(LIBS) -L../libinetutils -linetutils
 
-RULES=$(top_srcdir)/rules.make
+RULES = $(top_srcdir)/rules.make
 
 # Link or copy every file in $(DISTFILES) into $(DISTDIR)
 define LINK_DISTFILES
