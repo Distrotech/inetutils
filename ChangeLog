@@ -1,3 +1,9 @@
+Tue Feb 25 18:21:18 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	From David J MacKenzie <djm@va.pubnix.com>:
+	* tftpd/tftpd.c (validate_access): Truncate files opened for writing.
+	* ftp/ftp.c (login): Deal correctly with EOF to Name: prompt.
+
 Mon Feb 24 00:19:06 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.3'.
