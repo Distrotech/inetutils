@@ -1,3 +1,8 @@
+2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	* localhost.c: Return fully qualified domain name.
+	* login_tty.c: Rewritten from scratch. This version
+	works on systems lacking TIOCSCTTY ioctl (eg. Solaris).
+
 2001-02-26  Alain Magloire
 
 	* openpty.c (ptys_open) : ioctl of "pckt" should be done
