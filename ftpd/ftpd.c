@@ -192,7 +192,7 @@ off_to_str (off_t off)
   static char bufs[NUM_SIMUL_OFF_TO_STRS][80];
   static char (*next_buf)[80] = bufs;
 
-  if (next_buf > (bufs+NUM_SIMUL_OFF_TO_STRS))
+  if (next_buf >= (bufs+NUM_SIMUL_OFF_TO_STRS))
     next_buf = bufs;
 
   if (sizeof (off) > sizeof (long))
