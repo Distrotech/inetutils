@@ -1,3 +1,13 @@
+Tue Mar 24 00:28:27 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* tftp/Makefile.am (tftp_SOURCES): Removed tftpsubs.c; that file
+ 	has been moved to ../libinetutils.
+	
+	(noinst_HEADERS): Removed tftpsubs.h; that file has been moved to
+	../headers.
+	
+	(LDADD): Added `-L../libinetutils -linetutils'.
+
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* telnetd/Makefile.am (LIBTERMCAP, LIBCRYPT, LIBUTIL): Set make
