@@ -1,5 +1,9 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* talkd/Makefile.am: Added a line that reads `@PATHDEFS_MAKE@'.
+	
+	(INCLUDES): Added `$(PATHDEF_DEV)'.
+
 	* syslogd/Makefile.am: Added a line that reads `@PATHDEFS_MAKE@'.
 	
 	(INCLUDES): Added `$(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGPID)
