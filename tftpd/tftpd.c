@@ -75,7 +75,7 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 
 #include "tftpsubs.h"
 
-#ifndef HAVE_STRERROR_DECL
+#ifndef HAVE_DECL_STRERROR
 extern const char *strerror __P ((int));
 #endif
 
