@@ -1,3 +1,7 @@
 bin_PROGRAMS = uucpd
 
 uucpd_SOURCES = uucpd.c
+
+@PATHDEFS_MAKE@
+
+INCLUDES = $(PATHDEF_UUCICO)
