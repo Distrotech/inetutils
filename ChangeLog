@@ -1,5 +1,9 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* Makefile.am (EXTRA_DIST): Added paths.
+	
+	(SUBDIRS): Added glob.
+
 	* uucpd/Makefile.am (INCLUDES): Added `$(PATHDEF_TTY)'.
 	
 	(LDADD): Added `-L../libinetutils -linetutils'.
