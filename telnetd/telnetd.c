@@ -47,8 +47,6 @@ static char sccsid[] = "@(#)telnetd.c	8.4 (Berkeley) 5/30/95";
 
 #include "telnetd.h"
 
-#include <paths.h>
-
 #if	defined(_SC_CRAY_SECURE_SYS) && !defined(SCM_SECURITY)
 /*
  * UNICOS 6.0/6.1 do not have SCM_SECURITY defined, so we can
@@ -1361,7 +1359,7 @@ telnet(f, p, host)
 					break;
 				  }
 #if	!defined(CRAY2) || !defined(UNICOS5)
-#ifdef	LINEMODE
+#if defined (LINEMODE) && defined (TIOCPKT_IOCTL)
 				/*
 				 * If ioctl from pty, pass it through net
 				 */
@@ -1370,7 +1368,7 @@ telnet(f, p, host)
 					localstat();
 					pcc = 1;
 				}
-#endif	/* LINEMODE */
+#endif	/* LINEMODE && TIOCPKT_IOCTL */
 				if (ptyibuf[0] & TIOCPKT_FLUSHWRITE) {
 					netclear();	/* clear buffer back */
 #ifndef	NO_URGENT
