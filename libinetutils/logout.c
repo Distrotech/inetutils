@@ -100,6 +100,7 @@ logout (char *line)
       struct utmp *ut;
       struct utmp ut_buf[100];
       off_t pos = 0;		/* Position in file */
+      int rd;
 
       while (!success && (rd = read (ut_fd, ut_buf, sizeof ut_buf)) > 0)
 	{
