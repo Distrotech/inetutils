@@ -20,6 +20,8 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(bindir)/telnet $(man1dir)/telnet.1
+
 OPTIONS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
 CPPFLAGS += $(OPTIONS)
@@ -29,16 +31,7 @@ all: telnet
 telnet: authenc.o commands.o main.o network.o ring.o sys_bsd.o telnet.o \
 	terminal.o tn3270.o utilities.o
 
-install: installdirs telnet telnet.1
-	$(INSTALL_PROGRAM) telnet $(bindir)/telnet
-	-$(INSTALL_DATA) $(srcdir)/telnet.1 $(man1dir)/telnet.1
-uninstall:
-	-$(RM) -f $(bindir)/telnet $(man1dir)/telnet.1
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o telnet
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
