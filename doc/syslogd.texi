@@ -144,7 +144,8 @@ Multiple facilities may be specified for a single level by separating
 them with comma (@samp{,}) characters.
 
 An asterisk (@samp{*}) can be used to specify all facilities or all
-levels.
+levels.  Two asterisks (@samp{**}) specifie all facilities not named
+previously in the configuration file.
 
 By default, a level applies to all messages with the same or higher
 level. The equal (@samp{=}) character can be prepended to a level to
