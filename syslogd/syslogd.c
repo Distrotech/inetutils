@@ -76,7 +76,9 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 #include <sys/socket.h>
 #ifdef HAVE_SYS_MSGBUF_H
 #include <sys/msgbuf.h>
@@ -93,7 +95,9 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #  include <time.h>
 # endif
 #endif
+#ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
+#endif
 
 #include <netinet/in.h>
 #include <netdb.h>

@@ -62,8 +62,12 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #  include <time.h>
 # endif
 #endif
+#ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
+#endif
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_STREAM_H
 #include <sys/stream.h>
