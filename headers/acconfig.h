@@ -326,7 +326,7 @@
 
 /* SOLARIS uses STREAM ptys and other funky things */
 #undef SOLARIS
-#undef HAVE_STREAMS_PTY
+#undef HAVE_STREAMSPTY
 
 /* certain system must have an entry in utmpx before login work */
 #undef UTMPX
