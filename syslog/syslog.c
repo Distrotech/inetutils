@@ -55,6 +55,9 @@ static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 
 #define	SYSLOG_NAMES
 #include <syslog.h>
+#ifndef HAVE_SYSLOG_INTERNAL
+#include <syslog-int.h>
+#endif
 
 int	decode __P((char *, CODE *));
 int	pencode __P((char *));
@@ -93,7 +96,12 @@ main(argc, argv)
 			pri = pencode(optarg);
 			break;
 		case 's':		/* log to standard error */
+#ifdef LOG_PERROR
 			logflags |= LOG_PERROR;
+#else
+			fprintf (stderr, "%s: -s: option not implemented\n", argv[0]);
+			exit (1);
+#endif
 			break;
 		case 't':		/* tag */
 			tag = optarg;
