@@ -14,7 +14,7 @@ man_MANS = rcp.1
 
 INCLUDES = $(PATHDEF_RSH) $(PATHDEF_CP) $(PATHDEF_BSHELL)
 
-LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)
 

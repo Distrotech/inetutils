@@ -143,7 +143,7 @@ allocbuf(BUF *bp, int fd, int blksize)
 #ifndef roundup
 #  define roundup(x, y)   ((((x)+((y)-1))/(y))*(y))
 #endif
-	size = roundup(ST_BLKSIZE(stb), blksize);
+	size = roundup(BUFSIZ, blksize);
 	if (size == 0)
 		size = blksize;
 	if (bp->cnt >= size)
