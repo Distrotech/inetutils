@@ -40,6 +40,9 @@ static char sccsid[] = "@(#)util.c	8.2 (Berkeley) 4/2/94";
 #endif
 
 #include <sys/param.h>
+#ifdef HAVE_SYS_SYSMACROS_H
+#include <sys/sysmacros.h>
+#endif
 #include <sys/stat.h>
 #include <sys/wait.h>
 
