@@ -1307,10 +1307,10 @@ pswitch(flag)
 	mcase = op->mcse;
 	ip->ntflg = ntflag;
 	ntflag = op->ntflg;
-	(void) strncpy(ip->nti, ntin, 16);
+	(void) strncpy(ip->nti, ntin, sizeof(ntin) - 1);
 	(ip->nti)[strlen(ip->nti)] = '\0';
 	(void) strcpy(ntin, op->nti);
-	(void) strncpy(ip->nto, ntout, 16);
+	(void) strncpy(ip->nto, ntout, sizeof(ntout) - 1);
 	(ip->nto)[strlen(ip->nto)] = '\0';
 	(void) strcpy(ntout, op->nto);
 	ip->mapflg = mapflag;

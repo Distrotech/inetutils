@@ -749,11 +749,11 @@ usage:
 					    &yy, &mo, &day, &hour, &min, &sec);
 					tm = gmtime(&stbuf.st_mtime);
 					tm->tm_mon++;
-					if (tm->tm_year > yy%100) {
+					if (tm->tm_year + 1900 > yy) {
 						free (local);
 						return (1);
 					}
-					if ((tm->tm_year == yy%100 &&
+					if ((tm->tm_year + 1900 == yy &&
 					    tm->tm_mon > mo) ||
 					   (tm->tm_mon == mo &&
 					    tm->tm_mday > day) ||
@@ -1797,12 +1797,13 @@ account(argc,argv)
 	if (argc > 1) {
 		++argv;
 		--argc;
-		(void) strncpy(acct,*argv,49);
-		acct[49] = '\0';
+		(void) strncpy(acct,*argv, sizeof(acct) - 1);
+		acct[sizeof(acct) - 1] = '\0';
 		while (argc > 1) {
 			--argc;
 			++argv;
-			(void) strncat(acct,*argv, 49-strlen(acct));
+			(void) strncat(acct,*argv,
+				(sizeof(acct) - 1) - strlen(acct));
 		}
 		ap = acct;
 	}
@@ -1924,14 +1925,14 @@ setntrans(argc,argv)
 	}
 	ntflag++;
 	code = ntflag;
-	(void) strncpy(ntin, argv[1], 16);
-	ntin[16] = '\0';
+	(void) strncpy(ntin, argv[1], sizeof(ntin) - 1);
+	ntin[sizeof(ntin) - 1] = '\0';
 	if (argc == 2) {
 		ntout[0] = '\0';
 		return;
 	}
-	(void) strncpy(ntout, argv[2], 16);
-	ntout[16] = '\0';
+	(void) strncpy(ntout, argv[2], sizeof(ntout) - 1);
+	ntout[sizeof(ntout) - 1] = '\0';
 }
 
 char *
@@ -1942,11 +1943,11 @@ dotrans(name)
 	char *cp1, *cp2 = new;
 	int i, ostop, found;
 
-	for (ostop = 0; *(ntout + ostop) && ostop < 16; ostop++)
+	for (ostop = 0; *(ntout + ostop) && ostop < sizeof(ntout) - 1; ostop++)
 		continue;
 	for (cp1 = name; *cp1; cp1++) {
 		found = 0;
-		for (i = 0; *(ntin + i) && i < 16; i++) {
+		for (i = 0; *(ntin + i) && i < sizeof(ntin) - 1; i++) {
 			if (*cp1 == *(ntin + i)) {
 				found++;
 				if (i < ostop) {
@@ -2211,7 +2212,7 @@ setrunique(argc, argv)
 	code = runique;
 }
 
-/* change directory to perent directory */
+/* change directory to parent directory */
 void
 cdup(argc, argv)
 	int argc;
@@ -2362,7 +2363,7 @@ modtime(argc, argv)
 }
 
 /*
- * show status on reomte machine
+ * show status on remote machine
  */
 void
 rmtstatus(argc, argv)
