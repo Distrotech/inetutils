@@ -240,11 +240,12 @@ main(argc, argv)
 }
 
 char	username[20] = "USER=";
+char	logname[23] = "LOGNAME=";
 char	homedir[64] = "HOME=";
 char	shell[64] = "SHELL=";
 char	path[100] = "PATH=";
 char	*envinit[] =
-	    {homedir, shell, path, username, 0};
+	    {homedir, shell, path, logname, username, 0};
 extern char	**environ;
 
 void
@@ -256,7 +257,7 @@ doit(fromp)
 	struct passwd *pwd;
 	u_short port;
 	fd_set ready, readfrom;
-	int cc, nfd, pv[2], pid, s;
+	int cc, nfd, pv[2], pid, s = 0;
 	int one = 1;
 	const char *hostname, *errorstr, *errorhost;
 	char *cp, sig, buf[BUFSIZ];
@@ -379,7 +380,8 @@ doit(fromp)
 #ifdef	KERBEROS
 		if (!use_kerberos)
 #endif
-			if (port >= IPPORT_RESERVED) {
+			if (port >= IPPORT_RESERVED ||
+				port < IPPORT_RESERVED/2) {
 				syslog(LOG_ERR, "2nd port not reserved\n");
 				exit(1);
 			}
@@ -515,7 +517,7 @@ doit(fromp)
 	}
 
 	/* We'll execute the client's command in the home directory
-	 * pf locuser.
+	 * of locuser.
 	 */
 	if (chdir(pwd->pw_dir) < 0) {
 		(void) chdir("/");
@@ -562,7 +564,7 @@ fail:
 			exit(1);
 		}
 
-	/* If the locuser isn't root, the check if loigins are disabled. */
+	/* If the locuser isn't root, then check if logins are disabled. */
 	if (pwd->pw_uid && !access(PATH_NOLOGIN, F_OK)) {
 		error("Logins currently disabled.\n");
 		exit(1);
@@ -676,7 +678,7 @@ fail:
 #endif
 					if (select(nfd, &ready, (fd_set *)0,
 					  (fd_set *)0, (struct timeval *)0) < 0)
-					    /* wait until somthing to read */
+					    /* wait until something to read */
 						break;
 				if (FD_ISSET(s, &ready)) {
 					int	ret;
@@ -776,7 +778,6 @@ fail:
 					       pipe to control process */
 		close(pv[1]);
 	}
-
 	if (*pwd->pw_shell == '\0')
 		pwd->pw_shell = PATH_BSHELL;
 #if	BSD > 43
