@@ -1,3 +1,62 @@
+Thu Feb 20 14:40:00 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.2m'.
+
+Wed Feb 19 10:02:44 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* iumacros.m4 (IU_LIB_NCURSES): Add search for NCURSES_INCLUDE.
+	* config.make.in (NCURSES_INCLUDE): New variable.
+	* talk/Makefile.in (CPPFLAGS): Add $(NCURSES_INCLUDE).
+
+	* headers/acconfig.h (HAVE_SOCKADDR_IN_SIN_LEN): New define slot.
+
+	* iumacros.m4 (IU_CONFIG_PATHS): Give up on using IFS to break
+	apart search: paths, just use sed.
+
+	From NIIBE Yutaka <gniibe@mri.co.jp>:
+	* talk/ctl.c (daemon_addr, ctl_addr, my_addr): Leave length out of
+	initialization if !HAVE_SOCKADDR_IN_SIN_LEN.
+	* talk/invite.c (invite_remote): Use memcpy instead of bcopy.
+	* talk/look_up.c (check_local): Likewise.
+	* configure.in: Add check for sin_len field in struct sockaddr_in.
+	Fix test for whether we should build talk.
+
+Tue Feb 18 22:09:51 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* iumacros.m4 (IU_CONFIG_PATHS): Use `set' instead of `read' with
+	a here document, because the latter fucks up in some shells.
+
+Tue Feb 18 20:14:48 1997  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* configure.in: Add AC_STRUCT_ST_BLKSIZE test.
+	* ftp/cmds.c: Include glob.h last, it defines "const" to null
+	which breaks some system headers.
+	* ftp/ftp.c (recvrequest): Handle missing st_blksize member.
+	* ftp/ftp_var.h: Make all declarations extern except in one file
+	to avoid conflicts when linking.
+	* ftp/main.c (FTP_EXTERN): Activate this macro so the declarations
+	in ftp/ftp_var.h become definitions.
+	* ftpd/ftpcmd.y: Include glob.h last, it defines "const" to null
+	which breaks some system headers.
+	* ftpd/popen.c: Likewise.
+	* ftpd/ftpd.c: Likewise.  Also handle missing st_blksize member.
+	* headers/acconfig.h: Normalize variable argument list usage.
+	Also add support to handle missing st_blksize member.
+	* libinetutils/snprintf.c: Normalize variable argument list usage. 
+	* libinetutils/snprintf.h: Likewise.  Also constify DATA.pf member.
+	* rcp/util.c: Handle missing st_blksize member.
+	* rexecd/rexecd.c: Make environ extern to avoid link time conflicts.
+	* rshd/rshd.c: Likewise.
+	* telnetd/ext.h: Make terminaltype and line be extern to avoid
+	link time conflicts. 
+	* telnetd/sys_term.c (rmut): protect use of ut_host member.
+	* telnetd/telnetd.c (main, doit): Likewise.
+	(utmp_len): Only declare if HAVE_UTMP_UT_HOST.
+	* tftp/extern.h (toplevel): New declaration.
+	* tftp/tftp.c (toplevel): Duplicate definition removed.
+	* uucpd/uucpd.c (dologout): Remove unused status variable.  Add a
+	case for HAVE_WAITPID.
+	
 Tue Feb 18 01:13:16 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	From Alain Magloire <alain.magloire@rcsm.ee.mcgill.ca>:
