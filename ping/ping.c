@@ -119,6 +119,9 @@ main (int argc, char **argv)
     }
   ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
 
+  /* Reset root privileges */
+  setuid (getuid ());
+
   /* Parse command line */
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
@@ -221,9 +224,6 @@ main (int argc, char **argv)
 	}
     }
 
-  /* Reset root privileges */
-  setuid (getuid ());
- 
   argc -= optind;
   argv += optind;
   if (argc == 0) 
