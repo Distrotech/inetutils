@@ -21,7 +21,7 @@
 
 AC_PREREQ(2.54)
 
-AC_INIT([GNU inetutils], [1.4.1], [bug-inetutils@gnu.org])
+AC_INIT([GNU inetutils], [1.4.2], [bug-inetutils@gnu.org])
 
 AC_CONFIG_SRCDIR([inetd/inetd.c])
 AM_CONFIG_HEADER([config.h:config.hin])

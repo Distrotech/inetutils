@@ -4,6 +4,18 @@ See the end for copying conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+December 22, 2002
+Version 1.4.2:
+
+* Fix endianess problem in ftpd.
+
+* Various portability updates.
+
+* Security fix for rexecd/rshd.
+
+* Fix processing accumulated messages in syslogd
+
+
 September 02, 2002
 Version 1.4.1:
 
