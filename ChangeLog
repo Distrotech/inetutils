@@ -1,5 +1,10 @@
 Tue Feb 18 01:13:16 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
+	From Alain Magloire <alain.magloire@rcsm.ee.mcgill.ca>:
+	* ftpd/ftpd.c (dologout): Small race condition with SIGURG (D. Greenman)
+	* ftpd/popen.c (popen): Buffer overflow in argv[] (AUSCERT)
+	* ftpd/ftpcmd.y: check_login for PASV (*Hobbit)
+
 	* libinetutils/version.c (inetutils_version): Change to `1.2l'.
 
 	* libinetutils/snprintf.c (vsnprintf): New function, slightly
