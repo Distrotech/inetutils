@@ -1,3 +1,9 @@
+2000-11-03  Marcus Brinkmann  <marcus@gnu.org>
+
+	* localhost.c (localhost): Make an initial guess of 256 for the
+	name length: SUSv2 says a hostname is up to 255 characters long,
+	and doesn't specify any error codes, so stay on the safe side.
+
 2000-10-31  Marcus Brinkmann  <marcus@gnu.org>
 
 	* localhost.c: Prototype xrealloc, not xalloc.

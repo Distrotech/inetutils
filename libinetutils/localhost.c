@@ -57,7 +57,7 @@ localhost (void)
       char *tmp;
       errno = 0;
 
-      buf_len += 128;	/* Initial guess */
+      buf_len += 256;	/* Initial guess */
       tmp = xrealloc (buf, buf_len);
 
       if (tmp == NULL)
