@@ -1,5 +1,16 @@
 2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c: Remove global variable InetInuse.
+	(main): Check finet instead InetInuse.
+	(fprintlog): Case F_FORW: Only try to forward message
+	when finet is valid.
+	(die): Check finet instead InetInuse.
+	(init): Don't fiddle InetInuse.
+	(cfline): Case '@': Don't check InetInuse (instead we
+	check finet in fprintlog, see above).
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
 	Merged from the Linux source (sysklogd 1.3):
 	* syslogd.c: New global variable restart.
 	(main): Main loop: If restart is set, call init()

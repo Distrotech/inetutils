@@ -224,7 +224,6 @@ struct	filed consfile;
 int	Debug;			/* debug flag */
 char	*LocalHostName = 0;	/* our hostname */
 char	*LocalDomain;		/* our local domain name */
-int	InetInuse = 0;		/* non-zero if INET sockets are being used */
 int	finet;			/* Internet datagram socket */
 int	LogPort;		/* port number for INET connections */
 int	Initialized = 0;	/* set when we have initialized ourselves */
@@ -440,7 +439,7 @@ main(int argc, char *argv[])
 		 * Add the Internet Domain Socket to the list of read
 		 * descriptors.
 		 */
-		if (InetInuse && AcceptRemote) {
+		if (finet >= 0 && AcceptRemote) {
 			FD_SET(finet, &readfds);
 			if (finet>maxfds) maxfds=finet;
 			dprintf("Listening on syslog UDP port.\n");
@@ -491,7 +490,7 @@ main(int argc, char *argv[])
 					logerror("recvfrom unix");
 			}
 		}
-		if (InetInuse && AcceptRemote && FD_ISSET(finet, &readfds)) {
+		if (finet >= 0 && AcceptRemote && FD_ISSET(finet, &readfds)) {
 			len = sizeof(frominet);
 			memset(line, '\0', sizeof(line));
 			i = recvfrom(finet, line, MAXLINE, 0,
@@ -1003,9 +1002,10 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
 			l = strlen(line);
 			if (l > MAXLINE)
 				l = MAXLINE;
-			if (sendto(finet, line, l, 0,
+			if (finet >= 0
+			  && (sendto(finet, line, l, 0,
 				   (struct sockaddr *)&f->f_un.f_forw.f_addr,
-				   sizeof(f->f_un.f_forw.f_addr)) != l) {
+				   sizeof(f->f_un.f_forw.f_addr)) != l)) {
 				int e = errno;
 				dprintf("INET sendto error: %d = %s.\n",
 					e, strerror(e));
@@ -1269,7 +1269,7 @@ die(int signo)
 		if (funix[i] != -1)
 			close(funix[i]);
 	/* Close the inet socket. */
-	if (InetInuse) close(finet);
+	if (finet >= 0) close(finet);
 
 	/* Clean-up files. */
 	for (i = 0; i < nfunix; i++)
@@ -1389,17 +1389,14 @@ init(int signo)
 	if (Forwarding || AcceptRemote) {
 		if (finet < 0) {
 			finet = create_inet_socket();
-			if (finet >= 0) {
-				InetInuse = 1;
+			if (finet >= 0)
 				dprintf("Opened syslog UDP port.\n");
-			}
 		}
 	}
 	else {
 		if (finet >= 0)
 			close(finet);
 		finet = -1;
-		InetInuse = 0;
 	}
 
 	Initialized = 1;
@@ -1560,8 +1557,6 @@ cfline(char *line, struct filed *f)
 	switch (*p)
 	{
 	case '@':
-		if (!InetInuse)
-			break;
 		f->f_un.f_forw.f_hname = strdup (++p);
 		hp = gethostbyname(p);
 		if (hp == NULL) {
