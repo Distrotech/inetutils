@@ -124,8 +124,14 @@ ftpd_popen(char *program, const char *type)
 
 	iop = NULL;
 
+#ifdef WITH_LIBLS
+        /* Do not use vfork() for internal ls.  */
 	pid = (strcmp(gargv[0], "/bin/ls") == 0) ? fork() : vfork();
-	switch(pid) {
+	switch(pid)
+#else
+	switch(pid = vfork())
+#endif
+	{
 	case -1:			/* error */
 		(void)close(pdes[0]);
 		(void)close(pdes[1]);
@@ -147,11 +153,13 @@ ftpd_popen(char *program, const char *type)
 			(void)close(pdes[1]);
 		}
 
+#ifdef WITH_LIBLS
 		/* mvo: should this be a config-option? */
 		if(strcmp(gargv[0], "/bin/ls") == 0) {
 			optind = 0;
 			exit(ls_main(gargc, gargv));
 		}
+#endif
 
 		execv(gargv[0], gargv);
 		_exit(1);

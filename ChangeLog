@@ -1,3 +1,10 @@
+2001-08-25  Alaian Magloire
+
+	* configure.in: AC_ARG_ENABLE(libls ..) libls will not work
+	on all platforms, make it possible to disable it.
+	LIBLS, BUILD_LIBLS, WITH_LIBLS, new variable.s
+	* header/acconfig.h: WITH_LIBLS new.
+
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
 	* configure.in: Check for setpgid(), vhangup().
 	* ping/ChangeLog: (new)
@@ -5,7 +12,7 @@
 	* libinetutils: See libinetutils/ChangeLog.
 	* rlogind: See rlogind/ChangeLog.
 	* ping: See ping/ChangeLog.
- 
+
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
 	Patches by Alain:
 	* libicmp(icmp_cksum.c,icmp_echo.c,icmp_timestamp.c,libping.c):

@@ -1,3 +1,8 @@
+2001-08-25  Alain Magloire
+
+	* Makefile.am: Check for LIBLS and add it to the link.
+	* popen.c:  WITH_LIBLS check.
+
 2000-10-31  Marcus Brinkmann  <marcus@gnu.org>
 
 	* ftpd.c: Remove PROGRAM, declare __PROGNAME. Remove COPYRIGHT

@@ -1,3 +1,7 @@
+2001-08-25  Alain Magloire
+
+	* Makefile.am: use BUILD_LS.
+
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
 	* ls.c (traverse): Fix format of error message.

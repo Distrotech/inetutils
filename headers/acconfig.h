@@ -363,9 +363,11 @@
 /* Define if you have pam library (-lpam).  */
 #undef WITH_PAM
 
-/*  For feature PAM.  */
 /* Define if you have the tcpd_wrapper library (-lwrap).  */
 #undef WITH_WRAP
+
+/* Define if you want internal ls(libls.a).  */
+#undef WITH_LIBLS
 
 
 @BOTTOM@

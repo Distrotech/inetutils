@@ -54,6 +54,10 @@ AC_ARG_ENABLE(servers, [  --disable-servers       don't compile servers],
 	      , enable_servers=yes)
 AC_ARG_ENABLE(clients, [  --disable-clients       don't compile clients],
 	      , enable_clients=yes)
+# Check if they want support for internal ls.
+AC_ARG_ENABLE(libls,   [  --disable-libls         disable support for libls ],
+              , enable_libls=yes)
+
 
 IU_ENABLE_SERVER(ftpd)
 IU_ENABLE_SERVER(inetd)
@@ -371,6 +375,18 @@ if test -z "$LIBTERMCAP"; then
   LIBOBJS="$LIBOBJS stub_tgetent.o"
 fi
 
+# Can we use libls? but we must have fchdir()
+if test "$enable_libls" = yes  -a "$ac_cv_func_fchdir" = yes ; then
+  LIBLS="../libls/libls.a"
+  BUILD_LIBLS="libls.a"
+  AC_DEFINE(WITH_LIBLS)
+else
+  LIBLS=''
+  BUILD_LIBLS=''
+fi
+AC_SUBST(LIBLS)
+AC_SUBST(BUILD_LIBLS)
+
 # Only talk uses curses, so only check for it if we want that
 if test "$enable_talk" != no; then
   IU_LIB_CURSES
@@ -599,7 +615,7 @@ AC_SUBST(inetdaemondir)
 PATHDEFS_MAKE=pathdefs.make
 PATHS_DEFS=paths.defs
 IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
- 
+
 # Supply optional header files by linking a copy into the object include dir
 LINK_SRCS="$LINK_SRCS `for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
 LINK_DSTS="$LINK_DSTS `for I in $INCLUDES; do echo $ac_n ' 'include/$I$ac_c; done`"
