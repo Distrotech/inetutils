@@ -1,3 +1,11 @@
+2000-08-09  Marcus Brinkmann  <marcus@gnu.org>
+
+	Fix ChangeLog weirdness.
+	* syslogd.c: "New" prototype reap_childs.
+	(main): Install SIGCHLD handler.
+	(reap_childs): Function back. We do fork for blocking I/O.
+	This time use waitpid unconditionally.
+
 2000-08-08  Alain Magloire
 
 	* syslogd.c (dbg_printf): [HAVE_STDARG_H][_STDC__] to
@@ -5,6 +13,10 @@
 	[HAVE_UTMPX_H] before including <utmpx.h>.
 	(usage): Some of the strings where missing newlines.
 	[IOVCNT]: new macro to define the size of the iovec array.
+	(fprintlog): Clear the iovec before using it.
+	(logmsg): get rid of ugly hardcode and use sizeof (f->f_lastime) - 1
+	intead for the len of the f_lastime string.
+	(fprintlog): use sizeof(f->lastime) - 1.
 
 2000-08-08  Marcus Brinkmann <marcus@gnu.org>
 
@@ -12,10 +24,6 @@
 	(main): Don't install SIGCHLD handler.
 	(reapchild): Function removed. It is cruft needed for
 	the linux wallmsg implementation, which we don't useb.
-	(fprintlog): Clear the iovec before using it.
-	(logmsg): get rid of ugly hardcode and use sizeof (f->f_lastime - 1
-	intead for the len of the f_lastime string.
-	(fprintlog): use sizeof(f->lastime) - 1.
 
 2000-08-06  Alain Magloire
 

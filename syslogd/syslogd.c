@@ -273,6 +273,7 @@ void logerror __P ((const char *));
 void logmsg __P ((int, const char *, const char *, int));
 void printline __P ((const char *, const char *));
 void printsys __P ((const char *));
+void reap_childs __P ((int));
 char *ttymsg __P ((struct iovec *, int, char *, int));
 static void usage __P ((int));
 void wallmsg __P ((struct filed *, struct iovec *));
@@ -518,6 +519,7 @@ main(int argc, char *argv[])
   (void) signal (SIGTERM, die);
   (void) signal (SIGINT, Debug ? die : SIG_IGN);
   (void) signal (SIGQUIT, Debug ? die : SIG_IGN);
+  (void) signal (SIGCHLD, reap_childs);
   (void) signal (SIGALRM, domark);
   (void) signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
   (void) alarm (TIMERINTVL);
@@ -1362,6 +1364,15 @@ wallmsg(struct filed *f, struct iovec *iov)
     }
   endutxent();
   reenter = 0;
+}
+
+/* Reap all childs coming from blocking I/O in ttymsg.  */
+void
+reap_childs(int signo)
+{
+  (void)signo; /* Ignored.  */
+
+  while (waitpid (-1, 0, WNOHANG) > 0);
 }
 
 /* Return a printable representation of a host address.  */
