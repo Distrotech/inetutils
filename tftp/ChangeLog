@@ -1,3 +1,11 @@
+2004-09-23  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* Makefile.am (NCLUDES): Add libinetutils
+	* main.c: Fixed possible memory overruns.
+	(setpeer): Fixed coredump on hitting return after '(to)' prompt.
+	Fixed indentation.
+	* tftp.c: Fixed indentation.
+	
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* tftp/tftp.c: Checks for HAVE_DECL variables must read
