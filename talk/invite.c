@@ -44,7 +44,7 @@ static char sccsid[] = "@(#)invite.c	8.1 (Berkeley) 6/6/93";
 #include <sys/time.h>
 #include <signal.h>
 #include <netinet/in.h>
-#ifndef HAVE_OSOCKADDR
+#ifdef HAVE_OSOCKADDR_H
 #include <osockaddr.h>
 #endif
 #include <protocols/talkd.h>

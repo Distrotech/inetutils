@@ -43,7 +43,7 @@ static char sccsid[] = "@(#)print.c	8.1 (Berkeley) 6/4/93";
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifndef HAVE_OSOCKADDR
+#ifdef HAVE_OSOCKADDR_H
 #include <osockaddr.h>
 #endif
 #include <protocols/talkd.h>

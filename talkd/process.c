@@ -52,7 +52,7 @@ static char sccsid[] = "@(#)process.c	8.2 (Berkeley) 11/16/93";
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#ifndef HAVE_OSOCKADDR
+#ifdef HAVE_OSOCKADDR_H
 #include <osockaddr.h>
 #endif
 #include <protocols/talkd.h>
