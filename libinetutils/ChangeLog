@@ -1,4 +1,10 @@
-2000-08-04  Alain Maglore
+2000-08-05  Alain Magloire
+
+	* localhost.c: No longer use static buffers to cache the result.
+	This cause subtil bugs and make it impossible in non-threaded
+	environment if we ever move to it.
+
+2000-08-04  Alain Magloire
 
 	* iruserok.c (iruserok):  Typo in prototype.
 

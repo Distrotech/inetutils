@@ -64,12 +64,12 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <config.h>
 #endif
 
-#define	MAXLINE		1024		/* maximum line length */
-#define	MAXSVLINE	240		/* maximum saved line length */
+#define	MAXLINE		1024		/* Maximum line length.  */
+#define	MAXSVLINE	240		/* Maximum saved line length.  */
 #define DEFUPRI		(LOG_USER|LOG_NOTICE)
 #define DEFSPRI		(LOG_KERN|LOG_CRIT)
-#define TIMERINTVL	30		/* interval for checking flush, mark */
-#define TTYMSGTIME      10              /* time out passed to ttymsg */
+#define TIMERINTVL	30		/* Interval for checking flush, mark.  */
+#define TTYMSGTIME      10              /* Time out passed to ttymsg.  */
 
 #include <sys/param.h>
 #include <sys/ioctl.h>
@@ -121,8 +121,8 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 
 #include <version.h>
 
-char	*ConfFile = PATH_LOGCONF;
-char	*PidFile = PATH_LOGPID;
+const char	*ConfFile = PATH_LOGCONF;
+const char	*PidFile = PATH_LOGPID;
 char	ctty[] = PATH_CONSOLE;
 
 static int dbg_output = 0;   /* If true, print debug output in debug mode.  */
@@ -132,13 +132,18 @@ static int restart = 0;
 #define LINE_MAX 2048
 #endif
 
-#define MAXFUNIX 20	/* Maximum number of unix sockets to listen to.  */
+/* Unix socket family to listen.  */
+struct funix
+{
+  const char *name;
+  int fd;
+} *funix;
 
-int nfunix = 1;
-char *funixn[MAXFUNIX] = { PATH_LOG };
-int funix[MAXFUNIX];
+/* Number of unix sockets in the funix array.  */
+int nfunix;
 
-#if 0 /* MultiPart disabled */
+/* MultiPart disabled.  */
+#if USE_MULTIPARTS
 #define INITIAL_PARTS	8	/* Number of parts to allocate initially.  */
 
 struct msg_part
@@ -154,20 +159,20 @@ int nparts;
  * Flags to logmsg().
  */
 
-#define IGN_CONS	0x001	/* don't print on console */
-#define SYNC_FILE	0x002	/* do fsync on file after printing */
-#define ADDDATE		0x004	/* add a date to the message */
-#define MARK		0x008	/* this message is a mark */
+#define IGN_CONS	0x001	/* Don't print on console.  */
+#define SYNC_FILE	0x002	/* Do fsync on file after printing.  */
+#define ADDDATE		0x004	/* Add a date to the message.  */
+#define MARK		0x008	/* This message is a mark.  */
 
 /* This structure represents the files that will have log copies
    printed.  */
 
 struct filed {
-  struct filed *f_next;			/* next in linked list */
-  short f_type;				/* entry type, see below */
-  short f_file;				/* file descriptor */
-  time_t f_time;			/* time this was last written */
-  u_char f_pmask[LOG_NFACILITIES+1];	/* priority mask */
+  struct filed *f_next;			/* Next in linked list.  */
+  short f_type;				/* Entry type, see below.  */
+  short f_file;				/* File descriptor.  */
+  time_t f_time;			/* Time this was last written.  */
+  u_char f_pmask[LOG_NFACILITIES+1];	/* Priority mask.  */
   union
   {
     struct
@@ -179,35 +184,35 @@ struct filed {
     {
       char *f_hname;
       struct sockaddr_in f_addr;
-    } f_forw;				/* forwarding address */
+    } f_forw;				/* Forwarding address.  */
     char *f_fname;
   } f_un;
-  char f_prevline[MAXSVLINE];		/* last message logged */
-  char f_lasttime[16];			/* time of last occurrence */
-  char *f_prevhost;			/* host from which recd. */
-  int f_prevpri;			/* pri of f_prevline */
-  int f_prevlen;			/* length of f_prevline */
-  int f_prevcount;			/* repetition cnt of prevline */
-  int f_repeatcount;			/* number of "repeated" msgs */
-  int f_flags;				/* additional flags see below */
+  char f_prevline[MAXSVLINE];		/* Last message logged.  */
+  char f_lasttime[16];			/* Time of last occurrence.  */
+  char *f_prevhost;			/* Host from which recd.  */
+  int f_prevpri;			/* Pri of f_prevline.  */
+  int f_prevlen;			/* Length of f_prevline.  */
+  int f_prevcount;			/* Repetition cnt of prevline.  */
+  int f_repeatcount;			/* Number of "repeated" msgs.  */
+  int f_flags;				/* Additional flags see below.  */
 };
 
 struct filed *Files;	/* Linked list of files to log to.  */
 struct filed consfile;	/* Console `file'.  */
 
-/* Values for f_type. */
-#define F_UNUSED	0	/* unused entry */
-#define F_FILE		1	/* regular file */
-#define F_TTY		2	/* terminal */
-#define F_CONSOLE	3	/* console terminal */
-#define F_FORW		4	/* remote machine */
-#define F_USERS		5	/* list of users */
-#define F_WALL		6	/* everyone logged on */
-#define F_FORW_SUSP	7	/* suspended host forwarding */
-#define F_FORW_UNKN	8	/* unknown host forwarding */
-#define F_PIPE		9	/* named pipe */
+/* Values for f_type.  */
+#define F_UNUSED	0	/* Unused entry.  */
+#define F_FILE		1	/* Regular file.  */
+#define F_TTY		2	/* Terminal.  */
+#define F_CONSOLE	3	/* Console terminal.  */
+#define F_FORW		4	/* Remote machine.  */
+#define F_USERS		5	/* List of users.  */
+#define F_WALL		6	/* Everyone logged on.  */
+#define F_FORW_SUSP	7	/* Suspended host forwarding.  */
+#define F_FORW_UNKN	8	/* Unknown host forwarding.  */
+#define F_PIPE		9	/* Named pipe.  */
 
-char *TypeNames[] =
+const char *TypeNames[] =
 {
   "UNUSED",
   "FILE",
@@ -222,7 +227,7 @@ char *TypeNames[] =
 };
 
 /* Flags in filed.f_flags.  */
-#define OMIT_SYNC	0x001   /* omit fsync after printing */
+#define OMIT_SYNC	0x001   /* Omit fsync after printing.  */
 
 /* Constants for the F_FORW_UNKN retry feature.  */
 #define INET_SUSPEND_TIME 180	/* Number of seconds between attempts.  */
@@ -242,7 +247,7 @@ int repeatinterval[] = { 30, 60 };	/* Number of seconds before flush.  */
 /* Delimiter in arguments to command line options `-s' and `-l'.  */
 #define LIST_DELIMITER	':'
 
-char *program_name;		/* The invocation name of the program.  */
+char *program;		        /* The invocation name of the program.  */
 char *LocalHostName = 0;	/* Our hostname.  */
 char *LocalDomain = 0;		/* Our local domain name.  */
 int finet = -1;			/* Internet datagram socket fd.  */
@@ -254,54 +259,58 @@ int MarkSeq = 0;		/* Mark sequence number.  */
 
 int Debug = 0;			/* True if in debug mode.  */
 int AcceptRemote = 0;		/* Receive messages that come via UDP.  */
-char **StripDomains = NULL;	/* Domains to be stripped before logging.  */
-char **LocalHosts = NULL;	/* Hosts to be logged by their hostname.  */
+char **strip_domains = NULL;	/* Domains to be stripped before logging.  */
+char **local_hosts = NULL;	/* Hosts to be logged by their hostname.  */
 int NoDetach = 0;		/* Don't run in background and detach from ctty. */
 int NoHops = 1;			/* Bounce syslog messages for other hosts.  */
 int NoKLog = 0;			/* Don't attempt to log kernel device.  */
 int NoUnixAF = 0;		/* Don't listen to unix sockets. */
 int NoForward = 0;		/* Don't forward messages.  */
 
-void cfline __P((char *, struct filed *));
-const char *cvthname __P((struct sockaddr_in *));
-int decode __P((const char *, CODE *));
-void die __P((int));
-void domark __P((int));
-void fprintlog __P((struct filed *, const char *, int, const char *));
-void init __P((int));
-void logerror __P((const char *));
-void logmsg __P((int, const char *, const char *, int));
-void printline __P((const char *, const char *));
-void printsys __P((const char *));
-void reapchild __P((int));
-char *ttymsg __P((struct iovec *, int, char *, int));
-static void usage __P((void));
-void wallmsg __P((struct filed *, struct iovec *));
 extern char *localhost __P ((void));
-char **crunch_list __P((char *list));
-char *textpri __P((int pri));
-void dbg_toggle __P((int));
-static void dbg_printf __P((char *, ...));
-void trigger_restart __P((int));
-static int create_unix_socket __P((const char *path));
-static int create_inet_socket __P(());
-#if 0 /* MultiParts disable. */
-char *get_part __P((int));
-void free_part __P((int));
-char *make_part __P((int, char *));
-void printchopped __P((const char *hname, char *msg, int len, int fd));
+
+void cfline __P ((const char *, struct filed *));
+const char *cvthname __P ((struct sockaddr_in *));
+int decode __P ((const char *, CODE *));
+void die __P ((int));
+void domark __P ((int));
+void fprintlog __P ((struct filed *, const char *, int, const char *));
+void init __P ((int));
+void logerror __P ((const char *));
+void logmsg __P ((int, const char *, const char *, int));
+void printline __P ((const char *, const char *));
+void printsys __P ((const char *));
+void reapchild __P ((int));
+char *ttymsg __P ((struct iovec *, int, char *, int));
+static void usage __P ((int));
+void wallmsg __P ((struct filed *, struct iovec *));
+char **crunch_list __P ((char **oldlist, char *list));
+char *textpri __P ((int pri));
+void dbg_toggle __P ((int));
+static void dbg_printf __P ((const char *, ...));
+void trigger_restart __P ((int));
+static int create_unix_socket __P ((const char *path));
+static int create_inet_socket __P ((void));
+
+/* MultiParts disable. */
+#if USE_MULTIPARTS
+char *get_part __P ((int));
+void free_part __P ((int));
+char *make_part __P ((int, char *));
+void printchopped __P ((const char *hname, char *msg, int len, int fd));
 #endif /* MultiParts */
 
-#define USAGE "Usage: %s [OPTION...]\n"
-
-/* Print a help message describing all options to STDOUT and exit with a
-   status of 0.  */
 static void
-help ()
+usage (int err)
 {
-  fprintf (stdout, USAGE, program_name);
-
-  puts ("Log system messages.\n\n\
+  if (err != 0)
+    {
+      fprintf (stderr, "Usage: %s [OPTION] ...", program);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program);
+    }
+  else
+    {
+      puts ("Log system messages.\n\n\
   -f, --rcfile=FILE  override configuration file (default: " PATH_LOGCONF ")\n\
       --pidfile=FILE override pidfile (default: " PATH_LOGPID ")\n\
   -n, --no-detach    don't enter daemon mode\n\
@@ -312,11 +321,11 @@ help ()
   -r, --inet         receive remote messages via internet domain socket
       --no-unixaf    do not listen on unix domain sockets (overrides -a and -p)");
 #ifdef PATH_KLOG
-  puts ("\
+      puts ("\
       --no-klog      do not listen to kernel log device " PATH_KLOG);
 #endif
 
-  puts ("\
+      puts ("\
 
       --no-forward   do not forward any messages (overrides -h)\n\
   -h, --hop          forward messages from remote hosts\n\
@@ -329,26 +338,9 @@ help ()
       --help         display this help and exit
   -V, --version      output version information and exit");
 
-  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
-
-  exit (0);
-}
-
-/* Print a message saying to use --help to STDERR, and exit with a status of
-   1.  */
-static void
-try_help ()
-{
-  fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
-  exit (1);
-}
-
-/* Print a usage message to STDERR and exit with a status of 1.  */
-static void
-usage ()
-{
-  fprintf (stderr, USAGE, program_name);
-  try_help ();
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+    }
+  exit (err);
 }
 
 static struct option long_options[] =
@@ -371,13 +363,13 @@ static struct option long_options[] =
   { "", required_argument, 0, 's' },
   { "", required_argument, 0, 'l' },
 #endif
-  { 0 }
+  { 0, 0, 0, 0 }
 };
 
 int
 main(int argc, char *argv[])
 {
-  int ch, i, l;
+  int ch, l;
   size_t len;
   struct sockaddr_un fromunix;
   struct sockaddr_in frominet;
@@ -385,149 +377,171 @@ main(int argc, char *argv[])
   char *p;
   char line[MAXLINE + 1];
   struct timeval tv, *tvp;
-  pid_t ppid = 1;	/* 1: We run in debug mode and didn't fork. */
-  
-  program_name = argv[0];
+  pid_t ppid = 1;	/* 1: We run in debug mode and didn't fork.  */
 
-  for (i = 0; i < MAXFUNIX; i++)
-    funix[i] = -1;
+  program = argv[0];
 
-  while ((ch = getopt_long (argc, argv, "a:dhf:l:m:np:rs:V",
-			    long_options, 0)) != EOF) {
-    switch(ch)
-      {
-      case 'a':
-	if (nfunix < MAXFUNIX)
-	  funixn[nfunix++] = optarg;
-	else
-	  fprintf (stderr, "%s: out of descriptors, ignoring %s\n",
-		   program_name, optarg);
-	break;
-
-      case 'd':
-	Debug = 1;
-	break;
-
-      case 'f':
-	ConfFile = optarg;
-	break;
-
-      case 'h':
-	NoHops = 0;
-	break;
-
-      case 'l':
-	if (LocalHosts) {
-	  fprintf (stderr, "%s: only one -l argument allowed, ignoring %s\n",
-		   program_name, optarg);
-	  break;
-	}
-	LocalHosts = crunch_list (optarg);
-	break;
-
-      case 'm':
-	MarkInterval = atoi (optarg) * 60;
-	break;
-
-      case 'n':
-	NoDetach = 1;
-	break;
-
-      case 'p':
-	funixn[0] = optarg;
-	break;
-
-      case 'r':
-	AcceptRemote = 1;
-	break;
-
-      case 's':
-	if (StripDomains) {
-	  fprintf (stderr, "%s: only one -s argument allowed, ignoring %s\n",
-		   program_name, optarg);
-	  break;
-	}
-	StripDomains = crunch_list (optarg);
-	break; 
-
-      case 'P':
-	PidFile = optarg;
-	break;
-
-      case 'K':
-	NoKLog = 1;
-	break;
-
-      case 'F':
-	NoForward = 1;
-	break;
-
-      case 'U':
-	NoUnixAF = 1;
-	break;
-
-      case '&':
-	help ();
-	/* Not reached.  */
-
-      case 'V':
-	printf ("syslogd (%s) %s\n", inetutils_package, inetutils_version);
-	exit (0);
-
-      case '?':
-	try_help ();
-	/* Not reached.  */
-
-      default:
-	usage ();
-	/* Not reached.  */
-      }
-  }
-
-  if ((argc -= optind) != 0)
-    usage ();
-
-  if (!(Debug || NoDetach)) {
-    ppid = waitdaemon (0, 0, 30);
-    if (ppid < 0) {
-      fprintf (stderr, "%s: could not become daemon\n", program_name);
+  /* Initiliaze as the first element of the unix sockets array
+     the PATH_LOG.  */
+  funix = realloc (funix, (nfunix + 1)*sizeof(*funix));
+  if (funix == NULL)
+    {
+      fprintf (stderr, "Cannot allocate space for unix sockets\n");
       exit (1);
     }
-  } else {
-    dbg_output = 1;
-#ifdef HAVE_SETLINEBUF
-    setlinebuf (stdout);
-#else
-#ifndef SETVBUF_REVERSED
-    setvbuf (stdout, (char *) 0, _IOLBF, BUFSIZ);
-#else /* setvbuf not reversed.  */
- /* Some buggy systems lose if we pass 0 instead of allocating ourselves.  */
-    setvbuf (stdout, _IOLBF, xmalloc (BUFSIZ), BUFSIZ);
-#endif /* setvbuf reversed.  */
-#endif /* setlinebuf missing.  */
-  }
+  funix[nfunix].name = PATH_LOG;
+  funix[nfunix].fd = -1;
+  nfunix++;
 
+  while ((ch = getopt_long (argc, argv, "a:dhf:l:m:np:rs:V",
+			    long_options, 0)) != EOF)
+    {
+      switch(ch)
+	{
+	case 'a': /* Add to the unix socket array to listen.  */
+	  funix = realloc (funix, (nfunix + 1)*sizeof(*funix));
+	  if (funix == NULL)
+	    {
+	      fprintf (stderr, "Cannot allocate space for unix sockets\n");
+	      exit (1);
+	    }
+	  funix[nfunix].name = optarg;
+	  funix[nfunix].fd = -1;
+	  nfunix++;
+	  break;
+
+	case 'd': /* Debug mode.  */
+	  Debug = 1;
+	  break;
+
+	case 'f': /* Override the default config file.  */
+	  ConfFile = optarg;
+	  break;
+
+	case 'h': /* Disable forwarding.  */
+	  NoHops = 0;
+	  break;
+
+	case 'l': /* Add host to be log whithout the FQDN.  */
+	  local_hosts = crunch_list (local_hosts, optarg);
+	  break;
+
+	case 'm': /* Set the timestamp interval mark.  */
+	  MarkInterval = atoi (optarg) * 60;
+	  break;
+
+	case 'n': /* Don't run in background.  */
+	  NoDetach = 1;
+	  break;
+
+	case 'p': /* Overide PATH_LOG name.  */
+	  funix[0].name = optarg;
+	  funix[0].fd = -1;
+	  break;
+
+	case 'r': /* Enable remote message via inet socket.  */
+	  AcceptRemote = 1;
+	  break;
+
+	case 's': /* List of domain names to strip.  */
+	  strip_domains = crunch_list (strip_domains, optarg);
+	  break;
+
+	case 'P': /* Override pidfile.  */
+	  PidFile = optarg;
+	  break;
+
+	case 'K': /* Disable kernel logging.  */
+	  NoKLog = 1;
+	  break;
+
+	case 'F': /* Disable forwarding.  */
+	  NoForward = 1;
+	  break;
+
+	case 'U': /* Disable  unix sockets.  */
+	  NoUnixAF = 1;
+	  break;
+
+	case '&': /* --help usage.  */
+	  usage (0);
+	  /* Not reached.  */
+
+	case 'V': /* Version.  */
+	  printf ("syslogd (%s) %s\n", inetutils_package, inetutils_version);
+	  exit (0);
+
+	case '?':
+	default:
+	  usage (1);
+	  /* Not reached.  */
+	}
+    }
+
+  /* Bail out, wrong usage */
+  argc -= optind;
+  if (argc != 0)
+    usage (1);
+
+  /* Daemonise, if not set the buffering for line buffer.  */
+  if (!(Debug || NoDetach))
+    {
+      ppid = waitdaemon (0, 0, 30);
+      if (ppid < 0) {
+	fprintf (stderr, "%s: could not become daemon\n", program);
+	exit (1);
+      }
+    } else {
+      dbg_output = 1;
+      setvbuf (stdout, 0, _IOLBF, 0);
+    }
+
+  /* Get our hostname and domainname.  */
   LocalHostName = localhost ();
-  if (! LocalHostName) {
-    fprintf (stderr, "%s: can't get local host name: %s\n",
-	     program_name, strerror (errno));
-    exit (2);
-  }
-  if ((p = strchr (LocalHostName, '.')) != NULL) {
-    *p++ = '\0';
-    LocalDomain = p;
-  } else {
-    struct hostent *host_ent;
-
-    LocalDomain = "";
-    host_ent = gethostbyname (LocalHostName);
-    if (host_ent)
-      LocalHostName = strdup (host_ent->h_name);
-    if (p = strchr (LocalHostName, '.')) {
+  if (LocalHostName == NULL)
+    {
+      fprintf (stderr, "%s: can't get local host name: %s\n",
+	       program, strerror (errno));
+      exit (2);
+    }
+  p = strchr (LocalHostName, '.');
+  if (p != NULL)
+    {
       *p++ = '\0';
       LocalDomain = p;
     }
-  }  
+  else
+    {
+      struct hostent *host_ent;
+
+      host_ent = gethostbyname (LocalHostName);
+      if (host_ent)
+	{
+	  if (LocalHostName)
+	    {
+	      free (LocalHostName);
+	      LocalHostName = strdup (host_ent->h_name);
+	    }
+	  p = strchr (LocalHostName, '.');
+	  if (p != NULL)
+	    {
+	      *p++ = '\0';
+	      LocalDomain = p;
+	    }
+	}
+      if (LocalDomain)
+	{
+	  LocalDomain = strdup ("");
+	  if (LocalDomain == NULL)
+	    {
+	      fprintf (stderr, "%s: can't get local domain name: %s\n",
+		       program, strerror (errno));
+	      exit (2);
+	    }
+	}
+    }
+
+  /* Using lowercase domainnames.  */
   for (p = LocalDomain; *p; p++)
     if (isupper (*p))
       *p = tolower(*p);
@@ -543,12 +557,14 @@ main(int argc, char *argv[])
   (void) signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
   (void) alarm (TIMERINTVL);
 
-#if 0 /* MultiParts disabled.  */
+/* MultiParts disabled.  */
+#if USE_MULTIPARTS
   parts = malloc (INITIAL_PARTS * sizeof (struct msg_part));
-  if (parts == 0) {
-    logerror("Cannot allocate memory for message parts table.");
-    die(0);
-  }
+  if (parts == 0)
+    {
+      logerror("Cannot allocate memory for message parts table.");
+      die(0);
+    }
   for (i = 0; i < INITIAL_PARTS; i++)
     parts[i].fd = -1;
   nparts = INITIAL_PARTS;
@@ -556,144 +572,176 @@ main(int argc, char *argv[])
 
   /* Tuck my process id away.  */
   fp = fopen (PidFile, "w");
-  if (fp != NULL) {
-    fprintf(fp, "%d\n", getpid());
-    (void) fclose(fp);
-  }
+  if (fp != NULL)
+    {
+      fprintf (fp, "%d\n", getpid ());
+      (void) fclose (fp);
+    }
 
   dbg_printf ("off & running....\n");
 
+  /* read configuration file */
   init (0);
   (void) signal (SIGHUP, trigger_restart);
 
-  if (Debug) {
-    dbg_printf ("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
-    dbg_output = 0;
-  }
+  if (Debug)
+    {
+      dbg_printf ("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
+      dbg_output = 0;
+    }
 
   /* Tell select to return immediately until boot messages are done.  */
   tvp = &tv;
 
-  for (;;) {
-    int nfds;
-    int maxfds = 0;
-    fd_set readfds;
-		
-    FD_ZERO (&readfds);
-    if (tvp)
-      tv.tv_sec = tv.tv_usec = 0;
+  for (;;)
+    {
+      int nfds;
+      int maxfds = 0;
+      fd_set readfds;
+      int i;
 
-    /* Add the Unix Domain Sockets to the list of read descriptors.  */
-    for (i = 0; i < nfunix; i++) {
-      if (funix[i] >= 0) {
-	FD_SET (funix[i], &readfds);
-	if (funix[i] > maxfds)
-	  maxfds = funix[i];
-      }
-    }
+      FD_ZERO (&readfds);
+      if (tvp)
+	tv.tv_sec = tv.tv_usec = 0;
 
-    /* Add the Internet Domain Socket to the list of read descriptors.  */
-    if (AcceptRemote && finet >= 0) {
-      FD_SET (finet, &readfds);
-      if (finet > maxfds)
-	maxfds = finet;
-      dbg_printf ("Listening on syslog UDP port.\n");
-    }
-
-    if (fklog >= 0) {
-      FD_SET (fklog, &readfds);
-      if (fklog > maxfds)
-	maxfds = fklog;
-      dbg_printf ("Listening on klog port.\n");
-    }
-
-    dbg_printf ("readfds = %#x\n", readfds);
-    nfds = select(maxfds + 1, &readfds, (fd_set *) NULL,
-		  (fd_set *) NULL, tvp);
-    if (restart) {
-      dbg_printf ("\nReceived SIGHUP, restarting syslogd.\n");
-      init (0);
-      restart = 0;
-      continue;
-    }
-    if (nfds == 0) {
-      if (tvp) {
-	tvp = NULL;
-	if (ppid != 1)
-	  kill (ppid, SIGALRM);
-      }
-      continue;
-    }
-    if (nfds < 0) {
-      if (errno != EINTR)
-	logerror ("select");
-      continue;
-    }
-
-    dbg_printf ("got a message (%d, %#x)\n", nfds, readfds);
-
-    if (fklog >= 0 && FD_ISSET (fklog, &readfds)) {
-      l = read (fklog, line, sizeof (line) - 1);
-      if (l > 0) {
-	line[l] = '\0';
-	printsys (line);
-      } else if (l < 0 && errno != EINTR) {
-	logerror ("klog");
-	fklog = -1;
-      }
-    }
-
-    for (i = 0; i < nfunix; i++)
-      if (funix[i] >= 0 && FD_ISSET (funix[i], &readfds)) {
-	len = sizeof (fromunix);
-	l = recvfrom (funix[i], line, MAXLINE, 0,
-		      (struct sockaddr *) &fromunix, &len);
-	if (l > 0) {
-	  line[l] = '\0';
-	  printline (LocalHostName, line);
-	} else if (l < 0) {
-	  if (errno != EINTR)
-	    logerror ("recvfrom unix");
-#if 0 /* MultiParts disabled.  */
-	} else {
-	  dbg_printf ("Unix socket (%d) closed.\n", funix[c]);
-	  if (get_part (funix[c]) != 0) {
-	    errno = 0;
-	    logerror ("Printing partial message");
-	    line[0] = '\0';
-	    printchopped (LocalHostName, line,
-			  strlen(get_part(funix[c])) + 1,
-			  funix[c]);
-	  }
-	  /* reset it */
-	  for (i = 1; i < nfunix; i++) {
-	    if (funix[i] == funix[c])
-	      funix[i] = -1;
-	  }
-	  close (funix[c]);
-#endif
+      /* Add the Unix Domain Sockets to the list of read descriptors.  */
+      for (i = 0; i < nfunix; i++)
+	{
+	  if (funix[i].fd >= 0)
+	    {
+	      FD_SET (funix[i].fd, &readfds);
+	      if (funix[i].fd > maxfds)
+		maxfds = funix[i].fd;
+	    }
 	}
-      }
 
-    if (finet >= 0 && FD_ISSET (finet, &readfds)) {
-      len = sizeof (frominet);
-      memset (line, '\0', sizeof (line));
-      l = recvfrom (finet, line, MAXLINE, 0,
-		    (struct sockaddr *) &frominet, &len);
-      if (l > 0) {
-	line[l] = '\0';
-	printline (cvthname (&frominet), line);
-      } else if (l < 0 && errno != EINTR)
-	logerror ("recvfrom inet");
-    }
-  }
-}
+      /* Add the Internet Domain Socket to the list of read descriptors.  */
+      if (AcceptRemote && finet >= 0)
+	{
+	  FD_SET (finet, &readfds);
+	  if (finet > maxfds)
+	    maxfds = finet;
+	  dbg_printf ("Listening on syslog UDP port.\n");
+	}
+
+      /* Add the Kernel unix socket to the list.  */
+      if (fklog >= 0)
+	{
+	  FD_SET (fklog, &readfds);
+	  if (fklog > maxfds)
+	    maxfds = fklog;
+	  dbg_printf ("Listening on klog port.\n");
+	}
+
+      dbg_printf ("readfds = %#x\n", readfds);
+      nfds = select(maxfds + 1, &readfds, (fd_set *) NULL,
+		    (fd_set *) NULL, tvp);
+      if (restart)
+	{
+	  dbg_printf ("\nReceived SIGHUP, restarting syslogd.\n");
+	  init (0);
+	  restart = 0;
+	  continue;
+	}
+      if (nfds == 0)
+	{
+	  if (tvp)
+	    {
+	      tvp = NULL;
+	      if (ppid != 1)
+		kill (ppid, SIGALRM);
+	    }
+	  continue;
+	}
+      if (nfds < 0)
+	{
+	  if (errno != EINTR)
+	    logerror ("select");
+	  continue;
+	}
+
+      dbg_printf ("got a message (%d, %#x)\n", nfds, readfds);
+
+      if (fklog >= 0 && FD_ISSET (fklog, &readfds))
+	{
+	  l = read (fklog, line, sizeof (line) - 1);
+	  if (l > 0)
+	    {
+	      line[l] = '\0';
+	      printsys (line);
+	    }
+	  else if (l < 0 && errno != EINTR)
+	    {
+	      logerror ("klog");
+	      fklog = -1;
+	    }
+	}
+
+      for (i = 0; i < nfunix; i++)
+	if (funix[i].fd >= 0 && FD_ISSET (funix[i].fd, &readfds))
+	  {
+	    len = sizeof (fromunix);
+	    l = recvfrom (funix[i].fd, line, MAXLINE, 0,
+			  (struct sockaddr *) &fromunix, &len);
+	    if (l > 0)
+	      {
+		line[l] = '\0';
+		printline (LocalHostName, line);
+	      }
+	    else if (l < 0)
+	      {
+		if (errno != EINTR)
+		  logerror ("recvfrom unix");
+
+/* MultiParts disabled.  */
+#ifdef USE_MULTIPARTS /* MultiParts disabled.  */
+	      }
+	    else
+	      {
+		dbg_printf ("Unix socket (%d) closed.\n", funix[c].fd);
+		if (get_part (funix[c].fd) != 0)
+		  {
+		    errno = 0;
+		    logerror ("Printing partial message");
+		    line[0] = '\0';
+		    printchopped (LocalHostName, line,
+				  strlen (get_part (funix[c].fd)) + 1,
+				  funix[c].fd);
+		  }
+		/* reset it */
+		for (i = 1; i < nfunix; i++)
+		  {
+		    if (funix[i].fd == funix[c].fd)
+		      funix[i].fd = -1;
+		  }
+		close (funix[c].fd);
+#endif
+	      }
+	  }
+
+      if (finet >= 0 && FD_ISSET (finet, &readfds))
+	{
+	  len = sizeof (frominet);
+	  memset (line, '\0', sizeof (line));
+	  l = recvfrom (finet, line, MAXLINE, 0,
+			(struct sockaddr *) &frominet, &len);
+	  if (l > 0)
+	    {
+	      line[l] = '\0';
+	      printline (cvthname (&frominet), line);
+	    }
+	  else if (l < 0 && errno != EINTR)
+	    logerror ("recvfrom inet");
+	}
+    } /* for (;;) */
+} /* main */
 
 #ifndef SUN_LEN
 #define SUN_LEN(unp) (strlen((unp)->sun_path) + 3)
 #endif
 
-static int create_unix_socket(const char *path)
+static int
+create_unix_socket (const char *path)
 {
   int fd;
   struct sockaddr_un sunx;
@@ -709,103 +757,123 @@ static int create_unix_socket(const char *path)
   (void) strncpy (sunx.sun_path, path, sizeof (sunx.sun_path));
   fd = socket (AF_UNIX, SOCK_DGRAM, 0);
   if (fd < 0 || bind(fd, (struct sockaddr *) &sunx, SUN_LEN (&sunx)) < 0
-      || chmod(path, 0666) < 0) {
-    snprintf (line, sizeof (line), "cannot create %s", path);
-    logerror (line);
-    dbg_printf ("cannot create %s: %s\n", path, strerror (errno));
-    close (fd);
-  }
+      || chmod(path, 0666) < 0)
+    {
+      snprintf (line, sizeof (line), "cannot create %s", path);
+      logerror (line);
+      dbg_printf ("cannot create %s: %s\n", path, strerror (errno));
+      close (fd);
+    }
   return fd;
 }
 
-static int create_inet_socket()
+static int
+create_inet_socket()
 {
-  int fd, on = 1;
+  int fd;
   struct sockaddr_in sin;
 
   fd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (fd < 0) {
-    logerror ("unknown protocol, suspending inet service");
-    return fd;
-  }
+  if (fd < 0)
+    {
+      logerror ("unknown protocol, suspending inet service");
+      return fd;
+    }
 
   memset (&sin, 0, sizeof (sin));
   sin.sin_family = AF_INET;
   sin.sin_port = LogPort;
-  if (bind(fd, (struct sockaddr *) &sin, sizeof (sin)) < 0) {
-    logerror("bind, suspending inet");
-    close(fd);
-    return -1;
-  }
+  if (bind(fd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
+    {
+      logerror("bind, suspending inet");
+      close(fd);
+      return -1;
+    }
   return fd;
 }
 
 char **
-crunch_list(char *list)
+crunch_list(char **oldlist, char *list)
 {
   int count, i;
   char *p, *q;
-  char **result = NULL;
 
   p = list;
 
-  /* strip off trailing delimiters */
-  while (p[strlen (p) - 1] == LIST_DELIMITER) {
-    count--;
-    p[strlen(p)-1] = '\0';
-  }
-  /* cut off leading delimiters */
-  while (p[0] == LIST_DELIMITER) {
-    count--;
-    p++;
-  }
+  /* Strip off trailing delimiters.  */
+  while (p[strlen (p) - 1] == LIST_DELIMITER)
+    {
+      p[strlen (p) - 1] = '\0';
+    }
+  /* Cut off leading delimiters.  */
+  while (p[0] == LIST_DELIMITER)
+    {
+      p++;
+    }
 
-  /* count delimiters to calculate elements */
-  for (count = i = 0; p[i]; i++)
+  /* Bailout early the string is empty.  */
+  if (*p == '\0')
+    return oldlist;
+
+  /* Count delimiters to calculate elements.  */
+  for (count = 1, i = 0; p[i]; i++)
     if (p[i] == LIST_DELIMITER) count++;
 
-  if ((result = (char **) malloc (sizeof (char *) * count + 2)) == NULL) {
-    fprintf (stderr, "%s: can't allocate memory: %s", program_name,
-	     strerror (errno));
-    exit (1);
-  }
+  /* Count how many we add in the old list.  */
+  for (i = 0; oldlist && oldlist[i]; i++)
+    ;
 
-  /*
-   * We now can assume that the first and last
-   * characters are different from any delimiters,
-   * so we don't have to care about this.
-   */
-  count = 0;
-  while (q = strchr (p, LIST_DELIMITER)) {
-    result[count] = (char *) malloc ((q - p + 1) * sizeof(char));
-    if (result[count] == NULL) {
-      fprintf (stderr, "%s: can't allocate memory: %s", program_name,
+  /* allocate enough space */
+  oldlist = (char **) realloc (oldlist, (i + count + 1) * sizeof (*oldlist));
+  if (oldlist == NULL)
+    {
+      fprintf (stderr, "%s: can't allocate memory: %s", program,
 	       strerror (errno));
       exit (1);
     }
-    strncpy (result[count], p, q - p);
-    result[count][q - p] = '\0';
-    p = q; p++;
-    count++;
-  }
-  if ((result[count] = (char *) malloc (sizeof (char) * strlen (p) + 1))
-      == NULL) {
-    fprintf (stderr, "%s: can't allocate memory: %s", program_name,
-	     strerror (errno));
-    exit(1);
-  }
-  strcpy (result[count],p);
-  result[++count] = NULL;
 
-#if 0
-  count=0;
-  while (result[count])
-    dbg_printf ("#%d: %s\n", count, StripDomains[count++]);
-#endif
-  return result;
+  /*
+    We now can assume that the first and last
+    characters are different from any delimiters,
+    so we don't have to care about it anymore.  */
+
+  /* Start from where we left last time.  */
+  for (count = i; (q = strchr (p, LIST_DELIMITER)) != NULL;
+       count++, p = q, p++)
+    {
+      oldlist[count] = (char *) malloc ((q - p + 1) * sizeof(char));
+      if (oldlist[count] == NULL)
+	{
+	  fprintf (stderr, "%s: can't allocate memory: %s", program,
+		   strerror (errno));
+	  exit (1);
+	}
+      strncpy (oldlist[count], p, q - p);
+      oldlist[count][q - p] = '\0';
+    }
+
+  /* take the last one */
+  oldlist[count] = (char *) malloc ((strlen (p) + 1) * sizeof (char));
+  if (oldlist[count] == NULL)
+    {
+      fprintf (stderr, "%s: can't allocate memory: %s", program,
+	       strerror (errno));
+      exit(1);
+    }
+  strcpy (oldlist[count], p);
+
+  oldlist[++count] = NULL; /* terminate the array with a NULL */
+
+  if (Debug)
+    {
+      for (count = 0; oldlist[count]; count++)
+	printf ("#%d: %s\n", count, oldlist[count]);
+    }
+  return oldlist;
 }
 
-#if 0 /* MultiParts disabled */
+/* MultiParts disabled */
+#if USE_MULTIPARTS
 char *
 get_part(int fd)
 {
@@ -834,7 +902,7 @@ make_part(int fd, char *msg)
 {
 	int i;
 	struct msg_part *new_parts;
-	
+
 	for (i = 0; i < nparts; i++)
 		if (parts[i].fd == -1)
 			break;
@@ -1032,7 +1100,7 @@ logmsg(int pri, const char *msg, const char *from, int flags)
 
   dbg_printf ("(logmsg): %s (%d), flags %x, from %s, msg %s\n",
 	      textpri(pri), pri, flags, from, msg);
-  
+
 #ifdef HAVE_SIGACTION
   sigemptyset (&sigs);
   sigaddset (&sigs, SIGHUP);
@@ -1154,24 +1222,24 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
 	      f->f_prevhost, ctime (&now));
     v->iov_len = strlen (greetings);
     v++;
-    v->iov_base = "";
+    v->iov_base = (char *)"";
     v->iov_len = 0;
     v++;
   } else {
     v->iov_base = f->f_lasttime;
     v->iov_len = 15;
     v++;
-    v->iov_base = " ";
+    v->iov_base = (char *)" ";
     v->iov_len = 1;
     v++;
   }
   v->iov_base = f->f_prevhost;
   v->iov_len = strlen (v->iov_base);
   v++;
-  v->iov_base = " ";
+  v->iov_base = (char *)" ";
   v->iov_len = 1;
   v++;
-  
+
   if (msg) {
     v->iov_base = (char *)msg;
     v->iov_len = strlen (msg);
@@ -1185,7 +1253,7 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
     v->iov_len = f->f_prevlen;
   }
   v++;
-  
+
   dbg_printf ("Logging to %s", TypeNames[f->f_type]);
 
   switch (f->f_type)
@@ -1281,10 +1349,10 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
       f->f_time = now;
       dbg_printf (" %s\n", f->f_un.f_fname);
       if (f->f_type == F_TTY || f->f_type == F_CONSOLE) {
-	v->iov_base = "\r\n";
+	v->iov_base = (char *)"\r\n";
 	v->iov_len = 2;
       } else {
-	v->iov_base = "\n";
+	v->iov_base = (char *)"\n";
 	v->iov_len = 1;
       }
     again:
@@ -1318,7 +1386,7 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
     case F_WALL:
       f->f_time = now;
       dbg_printf ("\n");
-      v->iov_base = "\r\n";
+      v->iov_base = (char *)"\r\n";
       v->iov_len = 2;
       wallmsg (f, iov);
       break;
@@ -1343,8 +1411,8 @@ wallmsg(struct filed *f, struct iovec *iov)
     return;
 
   setutxent();
-  
-  while (utp = getutxent ()) {
+
+  while ((utp = getutxent ()) != NULL) {
     if (utp->ut_user[0] == '\0')
       continue;
     if (utp->ut_type == LOGIN_PROCESS)
@@ -1411,34 +1479,41 @@ cvthname(struct sockaddr_in *f)
     if (isupper (*p))
       *p = tolower(*p);
 
-  if (p = strchr (hp->h_name, '.')) {
-    if (strcmp (p + 1, LocalDomain) == 0)
-      *p = '\0';
-    else {
-      int count;
-      
-      if (StripDomains) {
-	count=0;
-	while (StripDomains[count]) {
-	  if (strcmp (p + 1, StripDomains[count]) == 0) {
-	    *p = '\0';
-	    return (hp->h_name);
+  p = strchr (hp->h_name, '.');
+  if (p != NULL)
+    {
+      if (strcmp (p + 1, LocalDomain) == 0)
+	*p = '\0';
+      else {
+	int count;
+
+	if (strip_domains)
+	  {
+	    count=0;
+	    while (strip_domains[count])
+	      {
+		if (strcmp (p + 1, strip_domains[count]) == 0)
+		  {
+		    *p = '\0';
+		    return (hp->h_name);
+		  }
+		count++;
+	      }
 	  }
-	  count++;
-	}
-      }
-      if (LocalHosts) {
-	count=0;
-	while (LocalHosts[count]) {
-	  if (strcmp (hp->h_name, LocalHosts[count]) == 0) {
-	    *p = '\0';
-	    return (hp->h_name);
+	if (local_hosts)
+	  {
+	    count=0;
+	    while (local_hosts[count])
+	      {
+		if (strcmp (hp->h_name, local_hosts[count]) == 0) {
+		  *p = '\0';
+		  return (hp->h_name);
+		}
+		count++;
+	      }
 	  }
-	  count++;
-	}
       }
     }
-  }
   return (hp->h_name);
 }
 
@@ -1446,7 +1521,7 @@ void
 domark(int signo)
 {
   struct filed *f;
-  
+
   now = time ((time_t *) NULL);
   if (MarkInterval > 0) {
     MarkSeq += TIMERINTVL;
@@ -1500,7 +1575,7 @@ die(int signo)
   }
   Initialized = was_initialized;
   if (signo) {
-    dbg_printf ("%s: exiting on signal %d\n", program_name, signo);
+    dbg_printf ("%s: exiting on signal %d\n", program, signo);
     snprintf (buf, sizeof (buf), "exiting on signal %d", signo);
     errno = 0;
     logerror (buf);
@@ -1510,10 +1585,10 @@ die(int signo)
     close (fklog);
 
   for (i = 0; i < nfunix; i++)
-    if (funix[i] >= 0) {
-      close (funix[i]);
-      if (funixn[i])
-	(void) unlink (funixn[i]);
+    if (funix[i].fd >= 0) {
+      close (funix[i].fd);
+      if (funix[i].name)
+	(void) unlink (funix[i].name);
     }
 
   if (finet >= 0)
@@ -1566,7 +1641,7 @@ init(int signo)
   }
   Files = NULL;
   nextp = &Files;
-  
+
   /* Open the configuration file.  */
   if ((cf = fopen (ConfFile, "r")) == NULL) {
     dbg_printf ("cannot open %s\n", ConfFile);
@@ -1626,10 +1701,10 @@ init(int signo)
 
   if (!NoUnixAF) {
     for (i = 0; i < nfunix; i++) {
-      if (funix[i] >= 0)
-	close (funix[i]);
-      if ((funix[i] = create_unix_socket (funixn[i])) >= 0)
-	dbg_printf ("Opened UNIX socket `%s'.\n", funixn[i]);
+      if (funix[i].fd >= 0)
+	close (funix[i].fd);
+      if ((funix[i].fd = create_unix_socket (funix[i].name)) >= 0)
+	dbg_printf ("Opened UNIX socket `%s'.\n", funix[i].name);
       else
 	if (i == 0)
 	  die (0);
@@ -1694,12 +1769,13 @@ init(int signo)
 
 /* Crack a configuration file line.  */
 void
-cfline(char *line, struct filed *f)
+cfline(const char *line, struct filed *f)
 {
   struct hostent *hp;
   int i, pri, negate_pri, excl_pri;
   unsigned int pri_set, pri_clear;
-  char *bp, *p, *q;
+  char *bp;
+  const char *p, *q;
   char buf[MAXLINE], ebuf[200];
 
   dbg_printf ("cfline(%s)\n", line);
@@ -1731,7 +1807,7 @@ cfline(char *line, struct filed *f)
 
     bp = buf;
     negate_pri = excl_pri = 0;
-    
+
     while (*bp == '!' || *bp == '=')
       switch (*bp++)
 	{
@@ -1792,12 +1868,12 @@ cfline(char *line, struct filed *f)
   /* Skip to action part.  */
   while (*p == '\t' || *p == ' ')
     p++;
-  
+
   if (*p == '-') {
     f->f_flags |= OMIT_SYNC;
     p++;
   }
-  
+
   switch (*p)
     {
     case '@':
@@ -1912,7 +1988,7 @@ dbg_toggle(int signo)
 }
 
 static void
-dbg_printf(char *fmt, ...)
+dbg_printf(const char *fmt, ...)
 {
   va_list ap;
 

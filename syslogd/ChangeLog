@@ -1,3 +1,25 @@
+2000-08-05  Alain Magloire
+
+Remove restrictions on options -l, -s, better compliance to GNU
+coding rules .i.e no limits in the number of possible open sockets.
+Code indenting to conform to GNU style.
+
+	* syslogd.c: Use ``const'' consistenly for readonly
+	strings; cfline(), dbg_printf(), logerror(), etc ...
+	Prototypes/declarations use ``void'' for consistently.
+	Standardise all function definitions, so ansi2knr could
+	do its job properly.
+	(create_inet_socket): Variable ``on'' unuse.
+	(usage): try_help() and help() merge to usage (int).
+	usage() is pass an integer and exit(err);
+	(main): Remove setlinebuf() use setvbuf() only.
+	(main): Regroup unix sockets and fd's into the same
+	structure easier to carry. Remove restriction
+	on 19 + 1 possible open unix sockets.
+	(crunch_list): Take one more argument, the oldlist
+	so it can be reallocated for new entries.  This removed
+	the restrictions of the number of LocalHosts and StripDomains.
+
 2000-08-05  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (help): --no-forward does not override -r,
@@ -97,7 +119,7 @@ way.  This allows /var/run/utmp format to change, even to a
 real database or utmp daemon. Also if utmp file locking is
 implemented in libc, syslog will use it immediately.  Thanks
 to Topi Miettinen <tom@medialab.sonera.net>.
-	
+
 	* syslogd.c: Include <utmpx.h> instead <utmp.h>.
 	(wallmsg): Use pointer to struct utmpx, not struct utmp.
 	Fix the size of line accoridngly.
@@ -117,7 +139,7 @@ fragment messages on UNIX domain sockets.  Lack of this capability
 was causing 'partial' messages to be output.  Since facility and
 priority information is encoded as a leader on the messages this
 was causing lines to be placed in erroneous files.
-	
+
 	* syslogd.c: New symbol INITIAL_PARTS.
 	New struct msg_part, new global variables parts, nparts.
 	(get_part): New prototype, new function.
@@ -217,7 +239,7 @@ This is the equivalent to the following Linux change:
 Mon Oct 12 20:49:18 MET DST 1998: Martin Schulze <joey@infodrom.north.de>
 Avoid logging of SIGCHLD when syslogd is in the process of
 exiting and closing its files.  Again thanks to Topi.
-	
+
 	* syslogd.c (init): New variable was_initialized.
 	Set Initialize to 0 temporarily to avoid logging of SIGCHLD.
 

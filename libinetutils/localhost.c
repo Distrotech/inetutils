@@ -1,6 +1,6 @@
 /* A slightly more convenient wrapper for gethostname
 
-   Copyright (C) 1996, 1997 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 2000 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -32,46 +32,42 @@
 #include <string.h>
 #include <errno.h>
 
+extern char *xmalloc __P ((size_t));
 /* Return the name of the localhost.  This is just a wrapper for gethostname,
    which takes care of allocating a big enough buffer, and caches the result
    after the first call (so the result should be copied before modification).
    If something goes wrong, 0 is returned, and errno set.  */
+/* We know longer use static buffers, is to dangerous and
+   cause subtile bugs.  */
 char *
 localhost (void)
 {
-  static char *buf = 0;
-  static size_t buf_len = 0;
+  char *buf = 0;
+  size_t buf_len = 0;
 
-  if (! buf)
+  do
     {
-      do {
-	errno = 0;
+      errno = 0;
 
-	if (buf) {
-	  buf_len += buf_len;
-	  buf = realloc (buf, buf_len);
-	} else {
-	  buf_len = 128;	/* Initial guess */
-	  buf = malloc (buf_len);
-	}
+      buf_len = 128;	/* Initial guess */
+      buf = xmalloc (buf_len);
 
-	if (! buf)
-	  {
-	    errno = ENOMEM;
-	    return 0;
-	  }
-      } while ((gethostname(buf, buf_len) == 0 && !memchr (buf, '\0', buf_len))
-#ifdef ENAMETOOLONG
-	       || errno == ENAMETOOLONG
-#endif
-		);
-
-      if (errno)
-	/* gethostname failed, abort.  */
+      if (! buf)
 	{
-	  free (buf);
-	  buf = 0;
+	  errno = ENOMEM;
+	  return 0;
 	}
+    } while ((gethostname(buf, buf_len) == 0 && !memchr (buf, '\0', buf_len))
+#ifdef ENAMETOOLONG
+	     || errno == ENAMETOOLONG
+#endif
+	     );
+
+  if (errno)
+    /* gethostname failed, abort.  */
+    {
+      free (buf);
+      buf = 0;
     }
 
   return buf;

@@ -1,3 +1,10 @@
+2000-08-05 Alain Magloire
+
+	* configure.in: remove the check for setlinebuf(), it
+	was for syslogd.  We use the more portable:
+	setvbuf (stream, 0, _IOLBF, 0);
+	* header/config.h.in: remove HAVE_SETLINEBUF
+
 2000-08-03 Jeff Bailey
 
 	* .cvsignore: Add INCLUDE file.  Delete it from repository.

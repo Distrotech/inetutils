@@ -153,7 +153,7 @@ AC_CHECK_LIB(pam, pam_authenticate)
 
 AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent flock fpathconf ftruncate \
 	       getcwd getspnam initgroups killpg ptsname setegid seteuid \
-               setlinebuf setsid setregid setreuid setresgid setresuid \
+               setsid setregid setreuid setresgid setresuid \
                setutent_r sigaction \
 	       sigvec strchr tcgetattr tzset utimes utime uname updwtmp \
 	       updwtmpx wait3 waitpid)

@@ -15,7 +15,7 @@
    Leave the following blank line there!!  Autoheader needs it.  */
 
 
-/* Define is you have PATH_RSH. */
+/* Define is you have PATH_RSH.  */
 #undef TEEHEE
 
 /* Define if you have the Andrew File System.  */
@@ -383,7 +383,7 @@
 /* Define this if <paths.h> exists.  */
 #undef HAVE_PATHS_H
 
-/* If these aren't defined by <unistd.h>, define them here. */
+/* If these aren't defined by <unistd.h>, define them here.  */
 #undef SEEK_SET
 #undef SEEK_CUR
 #undef SEEK_END
@@ -507,9 +507,6 @@
 
 /* Define if you have the seteuid function.  */
 #undef HAVE_SETEUID
-
-/* Define if you have the setlinebuf function.  */
-#undef HAVE_SETLINEBUF
 
 /* Define if you have the setregid function.  */
 #undef HAVE_SETREGID
@@ -797,7 +794,7 @@ typedef RETSIGTYPE (*sig_t) ();
 #endif /* ! HAVE_SETEGID */
 
 #if !defined(HAVE_MEMMOVE) || !defined(HAVE_MEMSET)
-/* Make sure size_t is defined */
+/* Make sure size_t is defined.  */
 #include <sys/types.h>
 #endif
 #ifndef HAVE_MEMMOVE
@@ -809,7 +806,7 @@ extern void *memmove __P ((void *to, const void *from, size_t sz));
 extern void memset __P ((void *mem, int val, size_t sz));
 #endif
 
-/* Define string index ops. */
+/* Define string index ops.  */
 #ifndef HAVE_STRCHR_DECL
 extern char *strchr __P ((char *str, int ch));
 extern char *strrchr __P ((char *str, int ch));
@@ -846,11 +843,11 @@ extern int vsnprintf __P ((char *, size_t, const char *, va_list));
 #endif
 
 /* Extract or fake data from a `struct stat'.
-   ST_BLKSIZE: Optimal I/O blocksize for the file, in bytes. */
+   ST_BLKSIZE: Optimal I/O blocksize for the file, in bytes.  */
 #ifndef HAVE_ST_BLKSIZE
 # define ST_BLKSIZE(statbuf) DEV_BSIZE
 #else /* HAVE_ST_BLKSIZE */
-/* Some systems, like Sequents, return st_blksize of 0 on pipes. */
+/* Some systems, like Sequents, return st_blksize of 0 on pipes.  */
 # define ST_BLKSIZE(statbuf) ((statbuf).st_blksize > 0 \
                               ? (statbuf).st_blksize : DEV_BSIZE)
 #endif /* HAVE_ST_BLKSIZE */
