@@ -1,4 +1,8 @@
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
+	
+	* configure.ac: Bump version to 1.4.3.
+
+2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* lib/.cvsignore: New file.
 
