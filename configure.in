@@ -242,6 +242,9 @@ if test "$inetutils_cv_macro_fd_set_macros" = no; then
     FD_ZERO FD_CLR FD_SET FD_ISSET)
 fi
 
+# See if structure stat has a st_blksize member.
+AC_STRUCT_ST_BLKSIZE
+
 # See if stat includes sub-second time information (the st_?timespec form is
 # from bsd, and the st_?time_usec form is used by the hurd; the latter will
 # eventually be replaced by the former).
@@ -268,10 +271,15 @@ fi
 if test "$enable_talk" != no; then
   IU_LIB_CURSES
 fi
-if test "$enable_talk" = yes -a "$ac_cv_lib_curses_initscr" != yes; then
-  AC_MSG_WARN(curses is not available, so not building talk)
+if test "$enable_talk" != no -a "$LIBCURSES"; then
+  enable_talk=yes
+else
+  if test "$enable_talk" = yes; then
+    AC_MSG_WARN([curses is not available, so not building talk])
+  fi
+  enable_talk=no
 fi
-enable_talk="$ac_cv_lib_curses_initscr"
+
 if test "$enable_talk" = yes; then
   SERVERS="$SERVERS talkd"
   CLIENTS="$CLIENTS talk"
@@ -281,6 +289,9 @@ if test "$enable_talk" = yes; then
     [ #include <sys/types.h>
       #include <sys/socket.h> ],
     :, AC_DEFINE(HAVE_OSOCKADDR_H) INCLUDES="$INCLUDES osockaddr.h")
+  IU_CHECK_STRUCT_FIELD(sockaddr_in, sin_len,
+    [ #include <sys/types.h>
+      #include <netinet/in.h> ])
 fi
 # SUBDIRS gets talk subdirs regardless of whether we're building them
 SUBDIRS="$SUBDIRS talkd talk"
