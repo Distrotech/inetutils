@@ -20,7 +20,6 @@
 #define _BSD_SOURCE
 
 @TOP@
-/* Lines from here until @BOTTOM@ are processed by autoheader.  */
 
 /* Define this symbol if authentication is enabled.  */
 #undef AUTHENTICATION
@@ -34,13 +33,23 @@
 /* Define this symbol if `struct osockaddr' is undefd in <sys/socket.h>.  */
 #undef HAVE_OSOCKADDR
 
+/* Define this symbol if `struct lastlog' is defined in <utmp.h>.  */
+#undef HAVE_STRUCT_LASTLOG
+
 /* Define this symbol if time fields in struct stat are of type `struct
    timespec', and called `st_mtimespec' &c.  */
-#undef HAVE_ST_TIMESPEC
+#undef HAVE_STAT_ST_MTIMESPEC
 
 /* Define this symbol if in addition to the normal time fields in struct stat
    (st_mtime &c), there are additional fields `st_mtime_usec' &c.  */
-#undef HAVE_ST_TIME_USEC
+#undef HAVE_STAT_ST_MTIME_USEC
+
+/* Define this if struct utmp has a ut_type field.  */
+#undef HAVE_UTMP_UT_TYPE
+/* Define this if struct utmp has a ut_host field.  */
+#undef HAVE_UTMP_UT_HOST
+/* Define this if struct utmp has a ut_tv field.  */
+#undef HAVE_UTMP_UT_TV
 
 /* Define this if using Kerberos version 4.  */
 #undef KRB4
@@ -54,6 +63,18 @@
 /* Define this if SYS_ERRLIST is declared in <stdio.h> or <errno.h>.  */
 #undef HAVE_SYS_ERRLIST_DECL
 
+/* Define this if ERRNO is declared by <errno.h>.  */
+#undef HAVE_ERRNO_DECL
+
+/* Define this if a definition of hstrerror is available.  */
+#undef HAVE_HSTRERROR
+
+/* Define this if a definition of hstrerror is declared in <netdb.h>.  */
+#undef HAVE_HSTRERROR_DECL
+
+/* Define this if H_ERRLIST is declared in <netdb.h>  */
+#undef HAVE_H_ERRLIST_DECL
+
 /* Define this if the system supplies the __PROGNAME variable.  */
 #undef HAVE___PROGNAME
 
@@ -63,14 +84,29 @@
 /* Define this if sig_t is declared by including <sys/types.h> & <signal.h> */
 #undef HAVE_SIG_T
 
-/* Define this if gcc-style weak references work: ... __attribute__ ((weak)) */
+/* Define this if weak references of any sort are supported.  */
 #undef HAVE_WEAK_REFS
-
+/* Define this if gcc-style weak references work: ... __attribute__ ((weak)) */
+#undef HAVE_ATTR_WEAK_REFS
 /* Define this if #pragma weak references work: #pragma weak foo */
 #undef HAVE_PRAGMA_WEAK_REFS
-
 /* Define this if gnu-as weak references work: asm (".weak foo") */
 #undef HAVE_ASM_WEAK_REFS
+
+/* Define this if crypt is declared by including <unistd.h>.  */
+#undef HAVE_CRYPT_DECL
+
+/* Define this if <paths.h> exists.  */
+#undef HAVE_PATHS_H
+
+/* If these aren't defined by <unistd.h>, define them here. */
+#undef SEEK_SET
+#undef SEEK_CUR
+#undef SEEK_END
+
+/* If the fd_set macros (FD_ZERO &c) are defined by including <sys/time.h> (a
+   truly bizarre place), define this.  */
+#undef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
 
 /* If EWOULDBLOCK isn't defined by <errno.h>, define it here.  */
 #undef EWOULDBLOCK
@@ -98,3 +134,6 @@ typedef RETSIGTYPE (*sig_t) ();
 #endif
 
 #endif /* HAVE___P */
+
+/* Defaults for PATH_ variables.  */
+#include <confpaths.h>
