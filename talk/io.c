@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,155 +31,112 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
+#ifndef lint
+static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
 
 /*
- * This file contains the I/O handling and the exchange of
+ * This file contains the I/O handling and the exchange of 
  * edit characters. This connection itself is established in
  * ctl.c
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include <sys/types.h>
 #include <sys/ioctl.h>
-#ifdef HAVE_SYS_FILIO_H
-# include <sys/filio.h>
-#endif
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
 #include "talk.h"
 
 #define A_LONG_TIME 10000000
+#define STDIN_MASK (1<<fileno(stdin))	/* the bit mask for standard
+					   input */
 
 /*
  * The routine to do the actual talking
  */
-int
-talk ()
+talk()
 {
-  fd_set read_template, read_set;
-  int stdin_fd = fileno (stdin);
-  int i, nb, num_fds;
-  char buf[BUFSIZ];
-  struct timeval wait;
+	register int read_template, sockt_mask;
+	int read_set, nb;
+	char buf[BUFSIZ];
+	struct timeval wait;
 
-  message ("Connection established");
-  beep ();
-  current_line = 0;
+	message("Connection established\007\007\007");
+	current_line = 0;
+	sockt_mask = (1<<sockt);
 
-  /*
-   * Wait on both the other process (SOCKET) and stdin.
-   */
-  FD_ZERO (&read_template);
-  FD_SET (sockt, &read_template);
-  FD_SET (stdin_fd, &read_template);
-  num_fds = (stdin_fd > sockt ? stdin_fd : sockt) + 1;
-
-  for (;;)
-    {
-      read_set = read_template;
-      wait.tv_sec = A_LONG_TIME;
-      wait.tv_usec = 0;
-      nb = select (num_fds, &read_set, 0, 0, &wait);
-      if (nb <= 0)
-	{
-	  if (errno == EINTR)
-	    {
-	      read_set = read_template;
-	      continue;
-	    }
-	  /* panic, we don't know what happened */
-	  p_error ("Unexpected error from select");
-	  quit ();
+	/*
+	 * Wait on both the other process (sockt_mask) and 
+	 * standard input ( STDIN_MASK )
+	 */
+	read_template = sockt_mask | STDIN_MASK;
+	for (;;) {
+		read_set = read_template;
+		wait.tv_sec = A_LONG_TIME;
+		wait.tv_usec = 0;
+		nb = select(32, &read_set, 0, 0, &wait);
+		if (nb <= 0) {
+			if (errno == EINTR) {
+				read_set = read_template;
+				continue;
+			}
+			/* panic, we don't know what happened */
+			p_error("Unexpected error from select");
+			quit();
+		}
+		if (read_set & sockt_mask) { 
+			/* There is data on sockt */
+			nb = read(sockt, buf, sizeof buf);
+			if (nb <= 0) {
+				message("Connection closed. Exiting");
+				quit();
+			}
+			display(&his_win, buf, nb);
+		}
+		if (read_set & STDIN_MASK) {
+			/*
+			 * We can't make the tty non_blocking, because
+			 * curses's output routines would screw up
+			 */
+			ioctl(0, FIONREAD, (struct sgttyb *) &nb);
+			nb = read(0, buf, nb);
+			display(&my_win, buf, nb);
+			/* might lose data here because sockt is non-blocking */
+			write(sockt, buf, nb);
+		}
 	}
-      if (FD_ISSET (sockt, &read_set))
-	{
-	  /* There is data on sockt */
-	  nb = read (sockt, buf, sizeof buf);
-	  if (nb <= 0)
-	    {
-	      message ("Connection closed. Exiting");
-	      quit ();
-	    }
-	  display (&his_win, buf, nb);
-	}
-      if (FD_ISSET (stdin_fd, &read_set))
-	{
-	  /*
-	   * We can't make the tty non_blocking, because
-	   * curses's output routines would screw up
-	   */
-	  ioctl (0, FIONREAD, (struct sgttyb *) &nb);
-	  for (i = 0; i < nb; i++)
-	    buf[i] = getch ();
-	  display (&my_win, buf, nb);
-	  /* might lose data here because sockt is non-blocking */
-	  write (sockt, buf, nb);
-	}
-    }
 }
+
+extern	int errno;
+extern	int sys_nerr;
 
 /*
  * p_error prints the system error message on the standard location
  * on the screen and then exits. (i.e. a curses version of perror)
  */
-int
-p_error (char *string)
+p_error(string) 
+	char *string;
 {
-  wmove (my_win.x_win, current_line % my_win.x_nlines, 0);
-  wprintw (my_win.x_win, "[%s : %s (%d)]\n", string, strerror (errno), errno);
-  wrefresh (my_win.x_win);
-  move (LINES - 1, 0);
-  refresh ();
-  quit ();
+	wmove(my_win.x_win, current_line%my_win.x_nlines, 0);
+	wprintw(my_win.x_win, "[%s : %s (%d)]\n",
+	    string, strerror(errno), errno);
+	wrefresh(my_win.x_win);
+	move(LINES-1, 0);
+	refresh();
+	quit();
 }
 
 /*
  * Display string in the standard location
  */
-int
-message (char *string)
+message(string)
+	char *string;
 {
-  wmove (my_win.x_win, current_line % my_win.x_nlines, 0);
-  wprintw (my_win.x_win, "[%s]", string);
-  wclrtoeol (my_win.x_win);
-  current_line++;
-  wmove (my_win.x_win, current_line % my_win.x_nlines, 0);
-  wrefresh (my_win.x_win);
+	wmove(my_win.x_win, current_line % my_win.x_nlines, 0);
+	wprintw(my_win.x_win, "[%s]", string);
+	wclrtoeol(my_win.x_win);
+	current_line++;
+	wmove(my_win.x_win, current_line % my_win.x_nlines, 0);
+	wrefresh(my_win.x_win);
 }

@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,88 +31,35 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-   2009 Free Software Foundation, Inc.
+#ifndef lint
+static char copyright[] =
+"@(#) Copyright (c) 1983, 1993\n\
+	The Regents of the University of California.  All rights reserved.\n";
+#endif /* not lint */
 
-   This file is part of GNU Inetutils.
+#ifndef lint
+static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
+#endif /* not lint */
 
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
-#ifdef HAVE_SYS_FILIO_H
-# include <sys/filio.h>
-#endif
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 
 #include <netinet/in.h>
 
 #include <errno.h>
 #include <netdb.h>
+#include <paths.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <grp.h>
-#ifdef HAVE_CRYPT_H
-# include <crypt.h>
-#endif
-#include <getopt.h>
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
-#include <stdarg.h>
-#ifdef HAVE_SHADOW_H
-# include <shadow.h>
-#endif
-#include <progname.h>
-#include <argp.h>
-#include <error.h>
-#include "libinetutils.h"
 
-void die (int code, const char *fmt, ...);
-
-const char doc[] = "remote execution daemon";
-
-static struct argp argp = {
-  NULL,
-  NULL,
-  NULL,
-  doc,
-  NULL,
-  NULL,
-  NULL
-};
+/*VARARGS1*/
+int error();
 
 /*
  * remote execute server:
@@ -117,266 +68,192 @@ static struct argp argp = {
  *	command\0
  *	data
  */
-int
-main (int argc, char **argv)
+/*ARGSUSED*/
+main(argc, argv)
+	int argc;
+	char **argv;
 {
-  struct sockaddr_in from;
-  int fromlen, sockfd = STDIN_FILENO;
-  int index;
+	struct sockaddr_in from;
+	int fromlen;
 
-  set_program_name (argv[0]);
-
-  iu_argp_init ("rexecd", default_program_authors);
-  argp_parse (&argp, argc, argv, 0, &index, NULL);
-  if (argc > index)
-    error (1, 0, "surplus arguments");
-
-  fromlen = sizeof (from);
-  if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
-    error (1, errno, "getpeername");
-  doit (sockfd, &from);
-  exit (0);
+	fromlen = sizeof (from);
+	if (getpeername(0, (struct sockaddr *)&from, &fromlen) < 0) {
+		(void)fprintf(stderr,
+		    "rexecd: getpeername: %s\n", strerror(errno));
+		exit(1);
+	}
+	doit(0, &from);
 }
 
-char username[20] = "USER=";
-char logname[23] = "LOGNAME=";
-char homedir[64] = "HOME=";
-char shell[64] = "SHELL=";
-char path[sizeof (PATH_DEFPATH) + sizeof ("PATH=")] = "PATH=";
-char *envinit[] = { homedir, shell, path, username, logname, 0 };
-extern char **environ;
+char	username[20] = "USER=";
+char	homedir[64] = "HOME=";
+char	shell[64] = "SHELL=";
+char	path[sizeof(_PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
+char	*envinit[] =
+	    {homedir, shell, path, username, 0};
+char	**environ;
 
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-struct sockaddr_in a_sin = { sizeof (a_sin), AF_INET };
-#else
-struct sockaddr_in a_sin = { AF_INET };
-#endif
+struct	sockaddr_in asin = { AF_INET };
 
-char *getstr (const char *);
-
-static char *
-get_user_password (struct passwd *pwd)
+doit(f, fromp)
+	int f;
+	struct sockaddr_in *fromp;
 {
-  char *pw_text = pwd->pw_passwd;
-#ifdef HAVE_SHADOW_H
-  struct spwd *spwd = getspnam (pwd->pw_name);
-  if (spwd)
-    pw_text = spwd->sp_pwdp;
-#endif
-  return pw_text;
-}
+	char cmdbuf[NCARGS+1], *cp, *namep;
+	char user[16], pass[16];
+	struct passwd *pwd;
+	int s;
+	u_short port;
+	int pv[2], pid, ready, readfrom, cc;
+	char buf[BUFSIZ], sig;
+	int one = 1;
 
-int
-doit (int f, struct sockaddr_in *fromp)
-{
-  char *cmdbuf, *cp, *namep;
-  char *user, *pass, *pw_password;
-  struct passwd *pwd;
-  int s;
-  u_short port;
-  int pv[2], pid, cc;
-  fd_set readfrom, ready;
-  char buf[BUFSIZ], sig;
-  int one = 1;
-
-  signal (SIGINT, SIG_DFL);
-  signal (SIGQUIT, SIG_DFL);
-  signal (SIGTERM, SIG_DFL);
+	(void) signal(SIGINT, SIG_DFL);
+	(void) signal(SIGQUIT, SIG_DFL);
+	(void) signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
-  {
-    int t = open (_PATH_TTY, O_RDWR);
-    if (t >= 0)
-      {
-	ioctl (t, TIOCNOTTY, (char *) 0);
-	close (t);
-      }
-  }
+	{ int t = open(_PATH_TTY, 2);
+	  if (t >= 0) {
+		ioctl(t, TIOCNOTTY, (char *)0);
+		(void) close(t);
+	  }
+	}
 #endif
-  if (f != STDIN_FILENO)
-    {
-      dup2 (f, STDIN_FILENO);
-      dup2 (f, STDOUT_FILENO);
-      dup2 (f, STDERR_FILENO);
-    }
-
-  alarm (60);
-  port = 0;
-  for (;;)
-    {
-      char c;
-      if (read (f, &c, 1) != 1)
-	exit (1);
-      if (c == 0)
-	break;
-      port = port * 10 + c - '0';
-    }
-  alarm (0);
-  if (port != 0)
-    {
-      s = socket (AF_INET, SOCK_STREAM, 0);
-      if (s < 0)
-	exit (1);
-      if (bind (s, (struct sockaddr *) &a_sin, sizeof (a_sin)) < 0)
-	exit (1);
-      alarm (60);
-      fromp->sin_port = htons (port);
-      if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
-	exit (1);
-      alarm (0);
-    }
-
-  user = getstr ("username");
-  pass = getstr ("password");
-  cmdbuf = getstr ("command");
-
-  setpwent ();
-  pwd = getpwnam (user);
-  if (pwd == NULL)
-    die (1, "Login incorrect.");
-
-  endpwent ();
-  pw_password = get_user_password (pwd);
-  if (*pw_password != '\0')
-    {
-      namep = crypt (pass, pw_password);
-      if (strcmp (namep, pw_password))
-	die (1, "Password incorrect.");
-    }
-  write (STDERR_FILENO, "\0", 1);
-  if (port)
-    {
-      pipe (pv);
-      pid = fork ();
-      if (pid == -1)
-	die (1, "Try again.");
-      
-      if (pid)
-	{
-	  close (STDIN_FILENO);
-	  close (STDOUT_FILENO);
-	  close (STDERR_FILENO);
-	  close (f);
-	  close (pv[1]);
-	  FD_ZERO (&readfrom);
-	  FD_SET (s, &readfrom);
-	  FD_SET (pv[0], &readfrom);
-	  ioctl (pv[1], FIONBIO, (char *) &one);
-	  /* should set s nbio! */
-	  do
-	    {
-	      int maxfd = s;
-	      ready = readfrom;
-	      if (pv[0] > maxfd)
-		maxfd = pv[0];
-	      select (maxfd + 1, (fd_set *) & ready,
-		      (fd_set *) NULL, (fd_set *) NULL,
-		      (struct timeval *) NULL);
-	      if (FD_ISSET (s, &ready))
-		{
-		  if (read (s, &sig, 1) <= 0)
-		    FD_CLR (s, &readfrom);
-		  else
-		    killpg (pid, sig);
+	dup2(f, 0);
+	dup2(f, 1);
+	dup2(f, 2);
+	(void) alarm(60);
+	port = 0;
+	for (;;) {
+		char c;
+		if (read(f, &c, 1) != 1)
+			exit(1);
+		if (c == 0)
+			break;
+		port = port * 10 + c - '0';
+	}
+	(void) alarm(0);
+	if (port != 0) {
+		s = socket(AF_INET, SOCK_STREAM, 0);
+		if (s < 0)
+			exit(1);
+		if (bind(s, (struct sockaddr *)&asin, sizeof (asin)) < 0)
+			exit(1);
+		(void) alarm(60);
+		fromp->sin_port = htons(port);
+		if (connect(s, (struct sockaddr *)fromp, sizeof (*fromp)) < 0)
+			exit(1);
+		(void) alarm(0);
+	}
+	getstr(user, sizeof(user), "username");
+	getstr(pass, sizeof(pass), "password");
+	getstr(cmdbuf, sizeof(cmdbuf), "command");
+	setpwent();
+	pwd = getpwnam(user);
+	if (pwd == NULL) {
+		error("Login incorrect.\n");
+		exit(1);
+	}
+	endpwent();
+	if (*pwd->pw_passwd != '\0') {
+		namep = crypt(pass, pwd->pw_passwd);
+		if (strcmp(namep, pwd->pw_passwd)) {
+			error("Password incorrect.\n");
+			exit(1);
 		}
-	      if (FD_ISSET (pv[0], &ready))
-		{
-		  cc = read (pv[0], buf, sizeof (buf));
-		  if (cc <= 0)
-		    {
-		      shutdown (s, 1 + 1);
-		      FD_CLR (pv[0], &readfrom);
-		    }
-		  else
-		    write (s, buf, cc);
+	}
+	if (chdir(pwd->pw_dir) < 0) {
+		error("No remote directory.\n");
+		exit(1);
+	}
+	(void) write(2, "\0", 1);
+	if (port) {
+		(void) pipe(pv);
+		pid = fork();
+		if (pid == -1)  {
+			error("Try again.\n");
+			exit(1);
 		}
-	    }
-	  while (FD_ISSET (pv[0], &readfrom) || FD_ISSET (s, &readfrom));
-	  exit (0);
+		if (pid) {
+			(void) close(0); (void) close(1); (void) close(2);
+			(void) close(f); (void) close(pv[1]);
+			readfrom = (1<<s) | (1<<pv[0]);
+			ioctl(pv[1], FIONBIO, (char *)&one);
+			/* should set s nbio! */
+			do {
+				ready = readfrom;
+				(void) select(16, (fd_set *)&ready,
+				    (fd_set *)NULL, (fd_set *)NULL,
+				    (struct timeval *)NULL);
+				if (ready & (1<<s)) {
+					if (read(s, &sig, 1) <= 0)
+						readfrom &= ~(1<<s);
+					else
+						killpg(pid, sig);
+				}
+				if (ready & (1<<pv[0])) {
+					cc = read(pv[0], buf, sizeof (buf));
+					if (cc <= 0) {
+						shutdown(s, 1+1);
+						readfrom &= ~(1<<pv[0]);
+					} else
+						(void) write(s, buf, cc);
+				}
+			} while (readfrom);
+			exit(0);
+		}
+		setpgrp(0, getpid());
+		(void) close(s); (void)close(pv[0]);
+		dup2(pv[1], 2);
 	}
-      setpgid (0, getpid ());
-      close (s);
-      close (pv[0]);
-      dup2 (pv[1], STDERR_FILENO);
-    }
-  if (*pwd->pw_shell == '\0')
-    pwd->pw_shell = PATH_BSHELL;
-  if (f > 2)
-    close (f);
-  setegid ((gid_t) pwd->pw_gid);
-  setgid ((gid_t) pwd->pw_gid);
-#ifdef HAVE_INITGROUPS
-  initgroups (pwd->pw_name, pwd->pw_gid);
-#endif
-  setuid ((uid_t) pwd->pw_uid);
-  if (chdir (pwd->pw_dir) < 0)
-    die (1, "No remote directory.");
-
-  strcat (path, PATH_DEFPATH);
-  environ = envinit;
-  strncat (homedir, pwd->pw_dir, sizeof (homedir) - 6);
-  strncat (shell, pwd->pw_shell, sizeof (shell) - 7);
-  strncat (username, pwd->pw_name, sizeof (username) - 6);
-  cp = strrchr (pwd->pw_shell, '/');
-  if (cp)
-    cp++;
-  else
-    cp = pwd->pw_shell;
-  execl (pwd->pw_shell, cp, "-c", cmdbuf, 0);
-  error (1, errno, "executing %s", pwd->pw_shell);
+	if (*pwd->pw_shell == '\0')
+		pwd->pw_shell = _PATH_BSHELL;
+	if (f > 2)
+		(void) close(f);
+	(void) setgid((gid_t)pwd->pw_gid);
+	initgroups(pwd->pw_name, pwd->pw_gid);
+	(void) setuid((uid_t)pwd->pw_uid);
+	(void)strcat(path, _PATH_DEFPATH);
+	environ = envinit;
+	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
+	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
+	strncat(username, pwd->pw_name, sizeof(username)-6);
+	cp = strrchr(pwd->pw_shell, '/');
+	if (cp)
+		cp++;
+	else
+		cp = pwd->pw_shell;
+	execl(pwd->pw_shell, cp, "-c", cmdbuf, 0);
+	perror(pwd->pw_shell);
+	exit(1);
 }
 
-void
-die (int code, const char *fmt, ...)
+/*VARARGS1*/
+error(fmt, a1, a2, a3)
+	char *fmt;
+	int a1, a2, a3;
 {
-  va_list ap;
-  char buf[BUFSIZ];
-  int n;
-  
-  va_start (ap, fmt);
-  buf[0] = 1;
-  n = snprintf (buf + 1, sizeof buf - 1, fmt, ap);
-  va_end (ap);
-  if (n > sizeof buf - 1)
-    n = sizeof buf - 1;
-  buf[n] = '\n';
-  write (STDERR_FILENO, buf, n);
+	char buf[BUFSIZ];
+
+	buf[0] = 1;
+	(void) sprintf(buf+1, fmt, a1, a2, a3);
+	(void) write(2, buf, strlen(buf));
 }
 
-char *
-getstr (const char *err)
+getstr(buf, cnt, err)
+	char *buf;
+	int cnt;
+	char *err;
 {
-  size_t buf_len = 100;
-  char *buf = malloc (buf_len), *end = buf;
+	char c;
 
-  if (!buf)
-    die (1, "Out of space reading %s", err);
-
-  do
-    {
-      /* Oh this is efficient, oh yes.  [But what can be done?] */
-      int rd = read (STDIN_FILENO, end, 1);
-      if (rd <= 0)
-	{
-	  if (rd == 0)
-	    die (1, "EOF reading %s", err);
-	  else
-	    error (1, 0, "%s", err);
-	}
-
-      end += rd;
-      if ((buf + buf_len - end) < (buf_len >> 3))
-	{
-	  /* Not very much room left in our buffer, grow it. */
-	  size_t end_offs = end - buf;
-	  buf_len += buf_len;
-	  buf = realloc (buf, buf_len);
-	  if (!buf)
-	    die (1, "Out of space reading %s", err);
-	  end = buf + end_offs;
-	}
-    }
-  while (*(end - 1));
-
-  return buf;
+	do {
+		if (read(0, &c, 1) != 1)
+			exit(1);
+		*buf++ = c;
+		if (--cnt == 0) {
+			error("%s too long\n", err);
+			exit(1);
+		}
+	} while (c != 0);
 }
-

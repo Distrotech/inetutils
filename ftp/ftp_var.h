@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -26,28 +30,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)ftp_var.h	8.4 (Berkeley) 10/9/94
+ *	@(#)ftp_var.h	8.3 (Berkeley) 4/2/94
  */
-
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /*
  * FTP global variables.
@@ -55,99 +39,87 @@
 
 #include <sys/param.h>
 #include <setjmp.h>
-#include <progname.h>
 
-#ifndef FTP_EXTERN
-# define FTP_EXTERN extern
-#endif
-
-#define MAXLINE 200
+#include "extern.h"
 
 /*
  * Options and other state info.
  */
-FTP_EXTERN int trace;		/* trace packets exchanged */
-FTP_EXTERN int hash;		/* print # for each buffer transferred */
-FTP_EXTERN int hashbytes;	/* number of bytes per # printed */
-FTP_EXTERN int sendport;	/* use PORT cmd for each data connection */
-FTP_EXTERN int verbose;		/* print messages coming back from server */
-FTP_EXTERN int connected;	/* connected to server */
-FTP_EXTERN int fromatty;	/* input is from a terminal */
-FTP_EXTERN int interactive;	/* interactively prompt on m* cmds */
-FTP_EXTERN int debug;		/* debugging level */
-FTP_EXTERN int bell;		/* ring bell on cmd completion */
-FTP_EXTERN int doglob;		/* glob local file names */
-FTP_EXTERN int autologin;	/* establish user account on connection */
-FTP_EXTERN int proxy;		/* proxy server connection active */
-FTP_EXTERN int proxflag;	/* proxy connection exists */
-FTP_EXTERN int sunique;		/* store files on server with unique name */
-FTP_EXTERN int runique;		/* store local files with unique name */
-FTP_EXTERN int mcase;		/* map upper to lower case for mget names */
-FTP_EXTERN int ntflag;		/* use ntin ntout tables for name translation */
-FTP_EXTERN int mapflag;		/* use mapin mapout templates on file names */
-FTP_EXTERN int code;		/* return/reply code for ftp command */
-FTP_EXTERN int crflag;		/* if 1, strip car. rets. on ascii gets */
-FTP_EXTERN char pasv[64];	/* passive port for proxy data connection */
-FTP_EXTERN int passivemode;	/* passive mode enabled */
-FTP_EXTERN char *altarg;	/* argv[1] with no shell-like preprocessing  */
-FTP_EXTERN char ntin[17];	/* input translation table */
-FTP_EXTERN char ntout[17];	/* output translation table */
-extern char *mapin;		/* input map template */
-extern char *mapout;		/* output map template */
-FTP_EXTERN char typename[32];	/* name of file transfer type */
-FTP_EXTERN int type;		/* requested file transfer type */
-FTP_EXTERN int curtype;		/* current file transfer type */
-FTP_EXTERN char structname[32];	/* name of file transfer structure */
-FTP_EXTERN int stru;		/* file transfer structure */
-FTP_EXTERN char formname[32];	/* name of file transfer format */
-FTP_EXTERN int form;		/* file transfer format */
-FTP_EXTERN char modename[32];	/* name of file transfer mode */
-FTP_EXTERN int mode;		/* file transfer mode */
-FTP_EXTERN char bytename[32];	/* local byte size in ascii */
-FTP_EXTERN int bytesize;	/* local byte size in binary */
+int	trace;			/* trace packets exchanged */
+int	hash;			/* print # for each buffer transferred */
+int	sendport;		/* use PORT cmd for each data connection */
+int	verbose;		/* print messages coming back from server */
+int	connected;		/* connected to server */
+int	fromatty;		/* input is from a terminal */
+int	interactive;		/* interactively prompt on m* cmds */
+int	debug;			/* debugging level */
+int	bell;			/* ring bell on cmd completion */
+int	doglob;			/* glob local file names */
+int	autologin;		/* establish user account on connection */
+int	proxy;			/* proxy server connection active */
+int	proxflag;		/* proxy connection exists */
+int	sunique;		/* store files on server with unique name */
+int	runique;		/* store local files with unique name */
+int	mcase;			/* map upper to lower case for mget names */
+int	ntflag;			/* use ntin ntout tables for name translation */
+int	mapflag;		/* use mapin mapout templates on file names */
+int	code;			/* return/reply code for ftp command */
+int	crflag;			/* if 1, strip car. rets. on ascii gets */
+char	pasv[64];		/* passive port for proxy data connection */
+char	*altarg;		/* argv[1] with no shell-like preprocessing  */
+char	ntin[17];		/* input translation table */
+char	ntout[17];		/* output translation table */
+char	mapin[MAXPATHLEN];	/* input map template */
+char	mapout[MAXPATHLEN];	/* output map template */
+char	typename[32];		/* name of file transfer type */
+int	type;			/* requested file transfer type */
+int	curtype;		/* current file transfer type */
+char	structname[32];		/* name of file transfer structure */
+int	stru;			/* file transfer structure */
+char	formname[32];		/* name of file transfer format */
+int	form;			/* file transfer format */
+char	modename[32];		/* name of file transfer mode */
+int	mode;			/* file transfer mode */
+char	bytename[32];		/* local byte size in ascii */
+int	bytesize;		/* local byte size in binary */
 
-FTP_EXTERN char *hostname;	/* name of host connected to */
-FTP_EXTERN int unix_server;	/* server is unix, can use binary for ascii */
-FTP_EXTERN int unix_proxy;	/* proxy is unix, can use binary for ascii */
+char	*hostname;		/* name of host connected to */
+int	unix_server;		/* server is unix, can use binary for ascii */
+int	unix_proxy;		/* proxy is unix, can use binary for ascii */
 
-FTP_EXTERN struct servent *sp;	/* service spec for tcp/ftp */
+struct	servent *sp;		/* service spec for tcp/ftp */
 
-FTP_EXTERN jmp_buf toplevel;	/* non-local goto stuff for cmd scanner */
+jmp_buf	toplevel;		/* non-local goto stuff for cmd scanner */
 
-FTP_EXTERN char *line;
+char	line[200];		/* input line buffer */
+char	*stringbase;		/* current scan point in line buffer */
+char	argbuf[200];		/* argument storage buffer */
+char	*argbase;		/* current storage point in arg buffer */
+int	margc;			/* count of arguments on input line */
+char	*margv[20];		/* args parsed from input line */
+int     cpend;                  /* flag: if != 0, then pending server reply */
+int	mflag;			/* flag: if != 0, then active multi command */
 
-FTP_EXTERN char *stringbase;	/* current scan point in line buffer */
-FTP_EXTERN char argbuf[MAXLINE];	/* argument storage buffer */
-FTP_EXTERN char *argbase;	/* current storage point in arg buffer */
-FTP_EXTERN int margc;		/* count of arguments on input line */
-FTP_EXTERN char *margv[20];	/* args parsed from input line */
-FTP_EXTERN int cpend;		/* flag: if != 0, then pending server reply */
-FTP_EXTERN int mflag;		/* flag: if != 0, then active multi command */
-
-FTP_EXTERN int options;		/* used during socket creation */
+int	options;		/* used during socket creation */
 
 /*
  * Format of command table.
  */
-struct cmd
-{
-  char *c_name;			/* name of command */
-  char *c_help;			/* help string */
-  char c_bell;			/* give bell when command completes */
-  char c_conn;			/* must be connected to use command */
-  char c_proxy;			/* proxy server may execute */
-  void (*c_handler) (int, char **);	/* function to call */
+struct cmd {
+	char	*c_name;	/* name of command */
+	char	*c_help;	/* help string */
+	char	c_bell;		/* give bell when command completes */
+	char	c_conn;		/* must be connected to use command */
+	char	c_proxy;	/* proxy server may execute */
+	void	(*c_handler) __P((int, char **)); /* function to call */
 };
 
-struct macel
-{
-  char mac_name[9];		/* macro name */
-  char *mac_start;		/* start of macro in macbuf */
-  char *mac_end;		/* end of macro in macbuf */
+struct macel {
+	char mac_name[9];	/* macro name */
+	char *mac_start;	/* start of macro in macbuf */
+	char *mac_end;		/* end of macro in macbuf */
 };
 
-FTP_EXTERN int macnum;		/* number of defined macros */
-FTP_EXTERN struct macel macros[16];
-FTP_EXTERN char macbuf[4096];
-
-#include "extern.h"
+int macnum;			/* number of defined macros */
+struct macel macros[16];
+char macbuf[4096];

@@ -1,24 +1,3 @@
-/*
-  Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005
-                2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-
-  This file is part of GNU Inetutils.
-
-  GNU Inetutils is free software: you can redistribute it and/or
-  modify it under the terms of the GNU General Public License as
-  published by the Free Software Foundation, either version 3 of the
-  License, or (at your option) any later version.
-
-  GNU Inetutils is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see
-  <http://www.gnu.org/licenses/>.
-*/
-
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -31,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -51,7 +34,7 @@
  */
 
 /*
- * Copyright (C) 1990, 2000 by the Massachusetts Institute of Technology
+ * Copyright (C) 1990 by the Massachusetts Institute of Technology
  *
  * Export of this software from the United States of America is assumed
  * to require a specific license from the United States Government.
@@ -70,32 +53,35 @@
  * or implied warranty.
  */
 
-#ifndef __AUTH__
-# define __AUTH__
+#ifndef	__AUTH__
+#define	__AUTH__
 
-# define AUTH_REJECT	0	/* Rejected */
-# define AUTH_UNKNOWN	1	/* We don't know who he is, but he's okay */
-# define AUTH_OTHER	2	/* We know him, but not his name */
-# define AUTH_USER	3	/* We know he name */
-# define AUTH_VALID	4	/* We know him, and he needs no password */
+#define	AUTH_REJECT	0	/* Rejected */
+#define	AUTH_UNKNOWN	1	/* We don't know who he is, but he's okay */
+#define	AUTH_OTHER	2	/* We know him, but not his name */
+#define	AUTH_USER	3	/* We know he name */
+#define	AUTH_VALID	4	/* We know him, and he needs no password */
 
-typedef struct XauthP
-{
-  int type;
-  int way;
-  int (*init) (struct XauthP *, int);
-  int (*send) (struct XauthP *);
-  void (*is) (struct XauthP *, unsigned char *, int);
-  void (*reply) (struct XauthP *, unsigned char *, int);
-  int (*status) (struct XauthP *, char *, int);
-  void (*printsub) (unsigned char *, int, unsigned char *, int);
-  void (*cleanup) (struct XauthP *);
-} TN_Authenticator;
+#if	!defined(P)
+#ifdef	__STDC__
+#define P(x)	x
+#else
+#define P(x)	()
+#endif
+#endif
 
-# include "auth-proto.h"
+typedef struct XauthP {
+	int	type;
+	int	way;
+	int	(*init) P((struct XauthP *, int));
+	int	(*send) P((struct XauthP *));
+	void	(*is) P((struct XauthP *, unsigned char *, int));
+	void	(*reply) P((struct XauthP *, unsigned char *, int));
+	int	(*status) P((struct XauthP *, char *, int));
+	void	(*printsub) P((unsigned char *, int, unsigned char *, int));
+} Authenticator;
 
-# define OPTS_FORWARD_CREDS           0x00000002
-# define OPTS_FORWARDABLE_CREDS       0x00000001
+#include "auth-proto.h"
 
-extern int auth_debug_mode;
+extern auth_debug_mode;
 #endif

@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,81 +31,81 @@
  * SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#ifndef lint
+static char sccsid[] = "@(#)authenc.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
 
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
-# include <unistd.h>
-# include <sys/types.h>
-# include <arpa/telnet.h>
-# include <libtelnet/encrypt.h>
-# include <libtelnet/misc.h>
+#if	defined(AUTHENTICATION) || defined(ENCRYPTION)
+#include <sys/types.h>
+#include <arpa/telnet.h>
+#include <libtelnet/encrypt.h>
+#include <libtelnet/misc.h>
 
-# include "general.h"
-# include "ring.h"
-# include "externs.h"
-# include "defines.h"
-# include "types.h"
+#include "general.h"
+#include "ring.h"
+#include "externs.h"
+#include "defines.h"
+#include "types.h"
 
-int
-net_write (unsigned char *str, int len)
+	int
+net_write(str, len)
+	unsigned char *str;
+	int len;
 {
-  if (NETROOM () > len)
-    {
-      ring_supply_data (&netoring, str, len);
-      if (str[0] == IAC && str[1] == SE)
-	printsub ('>', &str[2], len - 2);
-      return (len);
-    }
-  return (0);
+	if (NETROOM() > len) {
+		ring_supply_data(&netoring, str, len);
+		if (str[0] == IAC && str[1] == SE)
+			printsub('>', &str[2], len-2);
+		return(len);
+	}
+	return(0);
 }
 
-void
-net_encrypt ()
+	void
+net_encrypt()
 {
-# ifdef	ENCRYPTION
-  if (encrypt_output)
-    ring_encrypt (&netoring, encrypt_output);
-  else
-    ring_clearto (&netoring);
-# endif	/* ENCRYPTION */
+#ifdef	ENCRYPTION
+	if (encrypt_output)
+		ring_encrypt(&netoring, encrypt_output);
+	else
+		ring_clearto(&netoring);
+#endif	/* ENCRYPTION */
 }
 
-int
-telnet_spin ()
+	int
+telnet_spin()
 {
-  return (-1);
+	return(-1);
 }
 
-char *
-telnet_getenv (char *val)
+	char *
+telnet_getenv(val)
+	char *val;
 {
-  return ((char *) env_getvalue ((unsigned char *) val));
+	return((char *)env_getvalue((unsigned char *)val));
 }
 
-char *
-telnet_gets (char *prompt, char *result, int length, int echo)
+	char *
+telnet_gets(prompt, result, length, echo)
+	char *prompt;
+	char *result;
+	int length;
+	int echo;
 {
-# if !HAVE_DECL_GETPASS
-  extern char *getpass ();
-# endif
-  extern int globalmode;
-  int om = globalmode;
-  char *res;
+	extern char *getpass();
+	extern int globalmode;
+	int om = globalmode;
+	char *res;
 
-  TerminalNewMode (-1);
-  if (echo)
-    {
-      printf ("%s", prompt);
-      res = fgets (result, length, stdin);
-    }
-  else if (res = getpass (prompt))
-    {
-      strncpy (result, res, length);
-      res = result;
-    }
-  TerminalNewMode (om);
-  return (res);
+	TerminalNewMode(-1);
+	if (echo) {
+		printf("%s", prompt);
+		res = fgets(result, length, stdin);
+	} else if (res = getpass(prompt)) {
+		strncpy(result, res, length);
+		res = result;
+	}
+	TerminalNewMode(om);
+	return(res);
 }
-#endif /* defined(AUTHENTICATION) || defined(ENCRYPTION) */
+#endif	/* defined(AUTHENTICATION) || defined(ENCRYPTION) */

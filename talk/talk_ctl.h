@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -29,34 +33,11 @@
  *	@(#)talk_ctl.h	8.1 (Berkeley) 6/6/93
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-extern struct sockaddr_in daemon_addr;
-extern struct sockaddr_in ctl_addr;
-extern struct sockaddr_in my_addr;
-extern struct in_addr my_machine_addr;
-extern struct in_addr his_machine_addr;
-extern u_short daemon_port;
-extern int ctl_sockt;
-extern CTL_MSG msg;
-
-/* ctl_transact.c */
-int ctl_transact (struct in_addr, CTL_MSG, int, CTL_RESPONSE *); 
+extern	struct sockaddr_in daemon_addr;
+extern	struct sockaddr_in ctl_addr;
+extern	struct sockaddr_in my_addr;
+extern	struct in_addr my_machine_addr;
+extern	struct in_addr his_machine_addr;
+extern	u_short daemon_port;
+extern	int ctl_sockt;
+extern	CTL_MSG msg;

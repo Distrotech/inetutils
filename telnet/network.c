@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,31 +31,17 @@
  * SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include <stdlib.h>
+#ifndef lint
+static char sccsid[] = "@(#)network.c	8.2 (Berkeley) 12/15/93";
+#endif /* not lint */
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 
 #include <errno.h>
 
 #include <arpa/telnet.h>
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
 
 #include "ring.h"
 
@@ -59,25 +49,23 @@
 #include "externs.h"
 #include "fdset.h"
 
-Ring netoring, netiring;
-unsigned char netobuf[2 * BUFSIZ], netibuf[BUFSIZ];
+Ring		netoring, netiring;
+unsigned char	netobuf[2*BUFSIZ], netibuf[BUFSIZ];
 
 /*
  * Initialize internal network data structures.
  */
 
-void
-init_network ()
+    void
+init_network()
 {
-  if (ring_init (&netoring, netobuf, sizeof netobuf) != 1)
-    {
-      exit (1);
+    if (ring_init(&netoring, netobuf, sizeof netobuf) != 1) {
+	exit(1);
     }
-  if (ring_init (&netiring, netibuf, sizeof netibuf) != 1)
-    {
-      exit (1);
+    if (ring_init(&netiring, netibuf, sizeof netibuf) != 1) {
+	exit(1);
     }
-  NetTrace = stdout;
+    NetTrace = stdout;
 }
 
 
@@ -86,34 +74,28 @@ init_network ()
  * Telnet "synch" processing).
  */
 
-int
-stilloob ()
+    int
+stilloob()
 {
-  static struct timeval timeout = { 0 };
-  fd_set excepts;
-  int value;
+    static struct timeval timeout = { 0 };
+    fd_set	excepts;
+    int value;
 
-  do
-    {
-      FD_ZERO (&excepts);
-      FD_SET (net, &excepts);
-      value =
-	select (net + 1, (fd_set *) 0, (fd_set *) 0, &excepts, &timeout);
-    }
-  while ((value == -1) && (errno == EINTR));
+    do {
+	FD_ZERO(&excepts);
+	FD_SET(net, &excepts);
+	value = select(net+1, (fd_set *)0, (fd_set *)0, &excepts, &timeout);
+    } while ((value == -1) && (errno == EINTR));
 
-  if (value < 0)
-    {
-      perror ("select");
-      (void) quit ();
+    if (value < 0) {
+	perror("select");
+	(void) quit();
+	/* NOTREACHED */
     }
-  if (FD_ISSET (net, &excepts))
-    {
-      return 1;
-    }
-  else
-    {
-      return 0;
+    if (FD_ISSET(net, &excepts)) {
+	return 1;
+    } else {
+	return 0;
     }
 }
 
@@ -124,10 +106,10 @@ stilloob ()
  *	Sets "neturg" to the current location.
  */
 
-void
-setneturg ()
+    void
+setneturg()
 {
-  ring_mark (&netoring);
+    ring_mark(&netoring);
 }
 
 
@@ -141,65 +123,55 @@ setneturg ()
  */
 
 
-int
-netflush ()
+    int
+netflush()
 {
-  register int n, n1;
+    register int n, n1;
 
 #ifdef	ENCRYPTION
-  if (encrypt_output)
-    ring_encrypt (&netoring, encrypt_output);
-#endif /* ENCRYPTION */
-  if ((n1 = n = ring_full_consecutive (&netoring)) > 0)
-    {
-      if (!ring_at_mark (&netoring))
-	{
-	  n = send (net, (char *) netoring.consume, n, 0);	/* normal write */
-	}
-      else
-	{
-	  /*
-	   * In 4.2 (and 4.3) systems, there is some question about
-	   * what byte in a sendOOB operation is the "OOB" data.
-	   * To make ourselves compatible, we only send ONE byte
-	   * out of band, the one WE THINK should be OOB (though
-	   * we really have more the TCP philosophy of urgent data
-	   * rather than the Unix philosophy of OOB data).
-	   */
-	  n = send (net, (char *) netoring.consume, 1, MSG_OOB);	/* URGENT data */
+    if (encrypt_output)
+	ring_encrypt(&netoring, encrypt_output);
+#endif	/* ENCRYPTION */
+    if ((n1 = n = ring_full_consecutive(&netoring)) > 0) {
+	if (!ring_at_mark(&netoring)) {
+	    n = send(net, (char *)netoring.consume, n, 0); /* normal write */
+	} else {
+	    /*
+	     * In 4.2 (and 4.3) systems, there is some question about
+	     * what byte in a sendOOB operation is the "OOB" data.
+	     * To make ourselves compatible, we only send ONE byte
+	     * out of band, the one WE THINK should be OOB (though
+	     * we really have more the TCP philosophy of urgent data
+	     * rather than the Unix philosophy of OOB data).
+	     */
+	    n = send(net, (char *)netoring.consume, 1, MSG_OOB);/* URGENT data */
 	}
     }
-  if (n < 0)
-    {
-      if (errno != ENOBUFS && errno != EWOULDBLOCK)
-	{
-	  setcommandmode ();
-	  perror (hostname);
-	  (void) NetClose (net);
-	  ring_clear_mark (&netoring);
-	  longjmp (peerdied, -1);
+    if (n < 0) {
+	if (errno != ENOBUFS && errno != EWOULDBLOCK) {
+	    setcommandmode();
+	    perror(hostname);
+	    (void)NetClose(net);
+	    ring_clear_mark(&netoring);
+	    longjmp(peerdied, -1);
+	    /*NOTREACHED*/
 	}
-      n = 0;
+	n = 0;
     }
-  if (netdata && n)
-    {
-      Dump ('>', netoring.consume, n);
+    if (netdata && n) {
+	Dump('>', netoring.consume, n);
     }
-  if (n)
-    {
-      ring_consumed (&netoring, n);
-      /*
-       * If we sent all, and more to send, then recurse to pick
-       * up the other half.
-       */
-      if ((n1 == n) && ring_full_consecutive (&netoring))
-	{
-	  (void) netflush ();
+    if (n) {
+	ring_consumed(&netoring, n);
+	/*
+	 * If we sent all, and more to send, then recurse to pick
+	 * up the other half.
+	 */
+	if ((n1 == n) && ring_full_consecutive(&netoring)) {
+	    (void) netflush();
 	}
-      return 1;
-    }
-  else
-    {
-      return 0;
+	return 1;
+    } else {
+	return 0;
     }
 }

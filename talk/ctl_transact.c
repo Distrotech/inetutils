@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,126 +31,83 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#ifndef lint
+static char sccsid[] = "@(#)ctl_transact.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <netinet/in.h>
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
-#ifdef HAVE_OSOCKADDR_H
-# include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <errno.h>
 #include "talk_ctl.h"
-#include "talk.h"
 
-#define CTL_WAIT 2		/* time to wait for a response, in seconds */
+#define CTL_WAIT 2	/* time to wait for a response, in seconds */
 
 /*
  * SOCKDGRAM is unreliable, so we must repeat messages if we have
  * not recieved an acknowledgement within a reasonable amount
  * of time
  */
-int
-ctl_transact (struct in_addr target, CTL_MSG msg, int type, CTL_RESPONSE * rp)
+ctl_transact(target, msg, type, rp)
+	struct in_addr target;
+	CTL_MSG msg;
+	int type;
+	CTL_RESPONSE *rp;
 {
-  int nready, cc;
-  fd_set read_mask, ctl_mask;
-  struct timeval wait;
+	int read_mask, ctl_mask, nready, cc;
+	struct timeval wait;
 
-  msg.type = type;
-  daemon_addr.sin_addr = target;
-  daemon_addr.sin_port = daemon_port;
-  FD_ZERO (&ctl_mask);
-  FD_SET (ctl_sockt, &ctl_mask);
+	msg.type = type;
+	daemon_addr.sin_addr = target;
+	daemon_addr.sin_port = daemon_port;
+	ctl_mask = 1 << ctl_sockt;
 
-  /*
-   * Keep sending the message until a response of
-   * the proper type is obtained.
-   */
-  do
-    {
-      wait.tv_sec = CTL_WAIT;
-      wait.tv_usec = 0;
-      /* resend message until a response is obtained */
-      do
-	{
-	  cc = sendto (ctl_sockt, (char *) &msg, sizeof (msg), 0,
-		       (struct sockaddr *) &daemon_addr,
-		       sizeof (daemon_addr));
-	  if (cc != sizeof (msg))
-	    {
-	      if (errno == EINTR)
-		continue;
-	      p_error ("Error on write to talk daemon");
-	    }
-	  read_mask = ctl_mask;
-	  nready = select (32, &read_mask, 0, 0, &wait);
-	  if (nready < 0)
-	    {
-	      if (errno == EINTR)
-		continue;
-	      p_error ("Error waiting for daemon response");
-	    }
-	}
-      while (nready == 0);
-      /*
-       * Keep reading while there are queued messages
-       * (this is not necessary, it just saves extra
-       * request/acknowledgements being sent)
-       */
-      do
-	{
-	  cc = recv (ctl_sockt, (char *) rp, sizeof (*rp), 0);
-	  if (cc < 0)
-	    {
-	      if (errno == EINTR)
-		continue;
-	      p_error ("Error on read from talk daemon");
-	    }
-	  read_mask = ctl_mask;
-	  /* an immediate poll */
-	  timerclear (&wait);
-	  nready = select (32, &read_mask, 0, 0, &wait);
-	}
-      while (nready > 0 && (rp->vers != TALK_VERSION || rp->type != type));
-    }
-  while (rp->vers != TALK_VERSION || rp->type != type);
-  rp->id_num = ntohl (rp->id_num);
-  rp->addr.sa_family = ntohs (rp->addr.sa_family);
+	/*
+	 * Keep sending the message until a response of
+	 * the proper type is obtained.
+	 */
+	do {
+		wait.tv_sec = CTL_WAIT;
+		wait.tv_usec = 0;
+		/* resend message until a response is obtained */
+		do {
+			cc = sendto(ctl_sockt, (char *)&msg, sizeof (msg), 0,
+			    (struct sockaddr *)&daemon_addr,
+			    sizeof (daemon_addr));
+			if (cc != sizeof (msg)) {
+				if (errno == EINTR)
+					continue;
+				p_error("Error on write to talk daemon");
+			}
+			read_mask = ctl_mask;
+			nready = select(32, &read_mask, 0, 0, &wait);
+			if (nready < 0) {
+				if (errno == EINTR)
+					continue;
+				p_error("Error waiting for daemon response");
+			}
+		} while (nready == 0);
+		/*
+		 * Keep reading while there are queued messages 
+		 * (this is not necessary, it just saves extra
+		 * request/acknowledgements being sent)
+		 */
+		do {
+			cc = recv(ctl_sockt, (char *)rp, sizeof (*rp), 0);
+			if (cc < 0) {
+				if (errno == EINTR)
+					continue;
+				p_error("Error on read from talk daemon");
+			}
+			read_mask = ctl_mask;
+			/* an immediate poll */
+			timerclear(&wait);
+			nready = select(32, &read_mask, 0, 0, &wait);
+		} while (nready > 0 && (rp->vers != TALK_VERSION ||
+		    rp->type != type));
+	} while (rp->vers != TALK_VERSION || rp->type != type);
+	rp->id_num = ntohl(rp->id_num);
+	rp->addr.sa_family = ntohs(rp->addr.sa_family);
 }

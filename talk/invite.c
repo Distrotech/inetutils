@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,191 +31,158 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include <string.h>
+#ifndef lint
+static char sccsid[] = "@(#)invite.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <signal.h>
 #include <netinet/in.h>
-#ifdef HAVE_OSOCKADDR_H
-# include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <errno.h>
-#include <unistd.h>
 #include <setjmp.h>
 #include "talk_ctl.h"
 #include "talk.h"
 
-static char *answers[] = {
-  "answer #0",			/* SUCCESS */
-  "Your party is not logged on",	/* NOT_HERE */
-  "Target machine is too confused to talk to us",	/* FAILED */
-  "Target machine does not recognize us",	/* MACHINE_UNKNOWN */
-  "Your party is refusing messages",	/* PERMISSION_REFUSED */
-  "Target machine can not handle remote talk",	/* UNKNOWN_REQUEST */
-  "Target machine indicates protocol mismatch",	/* BADVERSION */
-  "Target machine indicates protocol botch (addr)",	/* BADADDR */
-  "Target machine indicates protocol botch (ctl_addr)",	/* BADCTLADDR */
-};
-
-#define NANSWERS	(sizeof (answers) / sizeof (answers[0]))
+/*
+ * There wasn't an invitation waiting, so send a request containing
+ * our sockt address to the remote talk daemon so it can invite
+ * him 
+ */
 
 /*
  * The msg.id's for the invitations
  * on the local and remote machines.
- * These are used to delete the
+ * These are used to delete the 
  * invitations.
  */
-int local_id, remote_id;
+int	local_id, remote_id;
+void	re_invite();
 jmp_buf invitebuf;
 
-/*
- * Transmit the invitation and process the response
- */
-int
-announce_invite ()
+invite_remote()
 {
-  CTL_RESPONSE response;
+	int nfd, read_mask, template, new_sockt;
+	struct itimerval itimer;
+	CTL_RESPONSE response;
 
-  current_state = "Trying to connect to your party's talk daemon";
-  ctl_transact (his_machine_addr, msg, ANNOUNCE, &response);
-  remote_id = response.id_num;
-  if (response.answer != SUCCESS)
-    {
-      if (response.answer < NANSWERS)
-	message (answers[response.answer]);
-      quit ();
-    }
-  /* leave the actual invitation on my talk daemon */
-  ctl_transact (my_machine_addr, msg, LEAVE_INVITE, &response);
-  local_id = response.id_num;
+	itimer.it_value.tv_sec = RING_WAIT;
+	itimer.it_value.tv_usec = 0;
+	itimer.it_interval = itimer.it_value;
+	if (listen(sockt, 5) != 0)
+		p_error("Error on attempt to listen for caller");
+#ifdef MSG_EOR
+	/* copy new style sockaddr to old, swap family (short in old) */
+	msg.addr = *(struct osockaddr *)&my_addr;  /* XXX new to old  style*/
+	msg.addr.sa_family = htons(my_addr.sin_family);
+#else
+	msg.addr = *(struct sockaddr *)&my_addr;
+#endif
+	msg.id_num = htonl(-1);		/* an impossible id_num */
+	invitation_waiting = 1;
+	announce_invite();
+	/*
+	 * Shut off the automatic messages for a while,
+	 * so we can use the interupt timer to resend the invitation
+	 */
+	end_msgs();
+	setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
+	message("Waiting for your party to respond");
+	signal(SIGALRM, re_invite);
+	(void) setjmp(invitebuf);
+	while ((new_sockt = accept(sockt, 0, 0)) < 0) {
+		if (errno == EINTR)
+			continue;
+		p_error("Unable to connect with your party");
+	}
+	close(sockt);
+	sockt = new_sockt;
+
+	/*
+	 * Have the daemons delete the invitations now that we
+	 * have connected.
+	 */
+	current_state = "Waiting for your party to respond";
+	start_msgs();
+
+	msg.id_num = htonl(local_id);
+	ctl_transact(my_machine_addr, msg, DELETE, &response);
+	msg.id_num = htonl(remote_id);
+	ctl_transact(his_machine_addr, msg, DELETE, &response);
+	invitation_waiting = 0;
 }
 
 /*
  * Routine called on interupt to re-invite the callee
  */
-RETSIGTYPE
-re_invite (int sig)
+void
+re_invite()
 {
 
-  message ("Ringing your party again");
-  current_line++;
-  /* force a re-announce */
-  msg.id_num = htonl (remote_id + 1);
-  announce_invite ();
-  longjmp (invitebuf, 1);
+	message("Ringing your party again");
+	current_line++;
+	/* force a re-announce */
+	msg.id_num = htonl(remote_id + 1);
+	announce_invite();
+	longjmp(invitebuf, 1);
 }
 
-int
-invite_remote ()
+static	char *answers[] = {
+	"answer #0",					/* SUCCESS */
+	"Your party is not logged on",			/* NOT_HERE */
+	"Target machine is too confused to talk to us",	/* FAILED */
+	"Target machine does not recognize us",		/* MACHINE_UNKNOWN */
+	"Your party is refusing messages",		/* PERMISSION_REFUSED */
+	"Target machine can not handle remote talk",	/* UNKNOWN_REQUEST */
+	"Target machine indicates protocol mismatch",	/* BADVERSION */
+	"Target machine indicates protocol botch (addr)",/* BADADDR */
+	"Target machine indicates protocol botch (ctl_addr)",/* BADCTLADDR */
+};
+#define	NANSWERS	(sizeof (answers) / sizeof (answers[0]))
+
+/*
+ * Transmit the invitation and process the response
+ */
+announce_invite()
 {
-  int new_sockt;
-  struct itimerval itimer;
-  CTL_RESPONSE response;
+	CTL_RESPONSE response;
 
-  itimer.it_value.tv_sec = RING_WAIT;
-  itimer.it_value.tv_usec = 0;
-  itimer.it_interval = itimer.it_value;
-  if (listen (sockt, 5) != 0)
-    p_error ("Error on attempt to listen for caller");
-
-  msg.addr.sa_family = htons (my_addr.sin_family);
-  memcpy (msg.addr.sa_data,
-	  ((struct sockaddr *) &my_addr)->sa_data,
-	  sizeof ((struct sockaddr *) & my_addr)->sa_data);
-
-  msg.id_num = htonl (-1);	/* an impossible id_num */
-  invitation_waiting = 1;
-  announce_invite ();
-  /*
-   * Shut off the automatic messages for a while,
-   * so we can use the interupt timer to resend the invitation
-   */
-  end_msgs ();
-  setitimer (ITIMER_REAL, &itimer, (struct itimerval *) 0);
-  message ("Waiting for your party to respond");
-  signal (SIGALRM, re_invite);
-  setjmp (invitebuf);
-  while ((new_sockt = accept (sockt, 0, 0)) < 0)
-    {
-      if (errno == EINTR)
-	continue;
-      p_error ("Unable to connect with your party");
-    }
-  close (sockt);
-  sockt = new_sockt;
-
-  /*
-   * Have the daemons delete the invitations now that we
-   * have connected.
-   */
-  current_state = "Waiting for your party to respond";
-  start_msgs ();
-
-  msg.id_num = htonl (local_id);
-  ctl_transact (my_machine_addr, msg, DELETE, &response);
-  msg.id_num = htonl (remote_id);
-  ctl_transact (his_machine_addr, msg, DELETE, &response);
-  invitation_waiting = 0;
+	current_state = "Trying to connect to your party's talk daemon";
+	ctl_transact(his_machine_addr, msg, ANNOUNCE, &response);
+	remote_id = response.id_num;
+	if (response.answer != SUCCESS) {
+		if (response.answer < NANSWERS)
+			message(answers[response.answer]);
+		quit();
+	}
+	/* leave the actual invitation on my talk daemon */
+	ctl_transact(my_machine_addr, msg, LEAVE_INVITE, &response);
+	local_id = response.id_num;
 }
 
 /*
  * Tell the daemon to remove your invitation
  */
-int
-send_delete ()
+send_delete()
 {
 
-  msg.type = DELETE;
-  /*
-   * This is just a extra clean up, so just send it
-   * and don't wait for an answer
-   */
-  msg.id_num = htonl (remote_id);
-  daemon_addr.sin_addr = his_machine_addr;
-  if (sendto (ctl_sockt, (const char *) &msg, sizeof (msg), 0,
-	      (struct sockaddr *) &daemon_addr,
-	      sizeof (daemon_addr)) != sizeof (msg))
-    perror ("send_delete (remote)");
-  msg.id_num = htonl (local_id);
-  daemon_addr.sin_addr = my_machine_addr;
-  if (sendto (ctl_sockt, (const char *) &msg, sizeof (msg), 0,
-	      (struct sockaddr *) &daemon_addr,
-	      sizeof (daemon_addr)) != sizeof (msg))
-    perror ("send_delete (local)");
+	msg.type = DELETE;
+	/*
+	 * This is just a extra clean up, so just send it
+	 * and don't wait for an answer
+	 */
+	msg.id_num = htonl(remote_id);
+	daemon_addr.sin_addr = his_machine_addr;
+	if (sendto(ctl_sockt, &msg, sizeof (msg), 0,
+	    (struct sockaddr *)&daemon_addr,
+	    sizeof (daemon_addr)) != sizeof(msg))
+		perror("send_delete (remote)");
+	msg.id_num = htonl(local_id);
+	daemon_addr.sin_addr = my_machine_addr;
+	if (sendto(ctl_sockt, &msg, sizeof (msg), 0,
+	    (struct sockaddr *)&daemon_addr,
+	    sizeof (daemon_addr)) != sizeof (msg))
+		perror("send_delete (local)");
 }

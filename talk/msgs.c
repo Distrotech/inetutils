@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,79 +31,48 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+#ifndef lint
+static char sccsid[] = "@(#)msgs.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
 
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-/*
+/* 
  * A package to display what is happening every MSG_INTERVAL seconds
  * if we are slow connecting.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <signal.h>
 #include <stdio.h>
 #include "talk.h"
 
 #define MSG_INTERVAL 4
 
-char *current_state;
-int current_line = 0;
+char	*current_state;
+int	current_line = 0;
 
-static void
-disp_msg (int sig)
+void
+disp_msg()
 {
-  message (current_state);
+	message(current_state);
 }
 
-int
-start_msgs ()
+start_msgs()
 {
-  struct itimerval itimer;
+	struct itimerval itimer;
 
-  message (current_state);
-  signal (SIGALRM, disp_msg);
-  itimer.it_value.tv_sec = itimer.it_interval.tv_sec = MSG_INTERVAL;
-  itimer.it_value.tv_usec = itimer.it_interval.tv_usec = 0;
-  setitimer (ITIMER_REAL, &itimer, (struct itimerval *) 0);
+	message(current_state);
+	signal(SIGALRM, disp_msg);
+	itimer.it_value.tv_sec = itimer.it_interval.tv_sec = MSG_INTERVAL;
+	itimer.it_value.tv_usec = itimer.it_interval.tv_usec = 0;
+	setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
 }
 
-int
-end_msgs ()
+end_msgs()
 {
-  struct itimerval itimer;
+	struct itimerval itimer;
 
-  timerclear (&itimer.it_value);
-  timerclear (&itimer.it_interval);
-  setitimer (ITIMER_REAL, &itimer, (struct itimerval *) 0);
-  signal (SIGALRM, SIG_DFL);
+	timerclear(&itimer.it_value);
+	timerclear(&itimer.it_interval);
+	setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
+	signal(SIGALRM, SIG_DFL);
 }

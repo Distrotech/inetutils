@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -26,52 +30,21 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)externs.h	8.3 (Berkeley) 5/30/95
+ *	@(#)externs.h	8.2 (Berkeley) 12/15/93
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-#include <unistd.h>
-
-#ifndef BSD
+#ifndef	BSD
 # define BSD 43
 #endif
-
-#ifdef HAVE_TERMIOS_H
-# define USE_TERMIO
-#else /* !HAVE_TERMIOS_H */
-# ifdef HAVE_TERMIO_H
-#  define USE_TERMIO
-#  define SYSV_TERMIO
-# endif
-#endif /* HAVE_TERMIOS_H */
 
 /*
  * ucb stdio.h defines BSD as something wierd
  */
 #if defined(sun) && defined(__svr4__)
-# define BSD 43
+#define BSD 43
 #endif
 
-#ifndef USE_TERMIO
+#ifndef	USE_TERMIO
 # if BSD > 43 || defined(SYSV_TERMIO)
 #  define USE_TERMIO
 # endif
@@ -80,21 +53,23 @@
 #include <stdio.h>
 #include <setjmp.h>
 #if defined(CRAY) && !defined(NO_BSD_SETJMP)
-# include <bsdsetjmp.h>
+#include <bsdsetjmp.h>
 #endif
+#ifndef	FILIO_H
 #include <sys/ioctl.h>
-#ifdef HAVE_SYS_FILIO_H
-# include <sys/filio.h>
+#else
+#include <sys/filio.h>
 #endif
 #ifdef CRAY
 # include <errno.h>
 #endif /* CRAY */
 #ifdef	USE_TERMIO
-# ifndef VINTR
+# ifndef	VINTR
 #  ifdef SYSV_TERMIO
-#   include <termio.h>
+#   include <sys/termio.h>
 #  else
-#   include <termios.h>
+#   include <sys/termios.h>
+#   define termio termios
 #  endif
 # endif
 #endif
@@ -106,19 +81,14 @@ typedef unsigned char cc_t;
 # endif
 #endif
 
-#if defined (USE_TERMIO) && !defined (SYSV_TERMIO)
-# define termio termios
+#ifndef	NO_STRING_H
+#include <string.h>
 #endif
+#include <strings.h>
 
-#ifndef NO_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
-
-#ifndef _POSIX_VDISABLE
+#ifndef	_POSIX_VDISABLE
 # ifdef sun
-#  include <sys/param.h>	/* pick up VDISABLE definition, maybe */
+#  include <sys/param.h>	/* pick up VDISABLE definition, mayby */
 # endif
 # ifdef VDISABLE
 #  define _POSIX_VDISABLE VDISABLE
@@ -127,226 +97,223 @@ typedef unsigned char cc_t;
 # endif
 #endif
 
-#define SUBBUFSIZE	256
+#define	SUBBUFSIZE	256
 
 #ifndef CRAY
-# ifndef errno
 extern int errno;		/* outside this world */
-# endif
 #endif /* !CRAY */
 
-extern int autologin,		/* Autologin enabled */
-  skiprc,			/* Don't process the ~/.telnetrc file */
-  eight,			/* use eight bit mode (binary in and/or out */
-  flushout,			/* flush output */
-  connected,			/* Are we connected to the other side? */
-  globalmode,			/* Mode tty should be in */
-  In3270,			/* Are we in 3270 mode? */
-  telnetport,			/* Are we connected to the telnet port? */
-  localflow,			/* Flow control handled locally */
-  restartany,			/* If flow control, restart output on any character */
-  localchars,			/* we recognize interrupt/quit */
-  donelclchars,			/* the user has set "localchars" */
-  showoptions, net,		/* Network file descriptor */
-  tin,				/* Terminal input file descriptor */
-  tout,				/* Terminal output file descriptor */
-  crlf,				/* Should '\r' be mapped to <CR><LF> (or <CR><NUL>)? */
-  autoflush,			/* flush output when interrupting? */
-  autosynch,			/* send interrupt characters with SYNCH? */
-  SYNCHing,			/* Is the stream in telnet SYNCH mode? */
-  donebinarytoggle,		/* the user has put us in binary */
-  dontlecho,			/* do we suppress local echoing right now? */
-  crmod, netdata,		/* Print out network data flow */
-  prettydump,			/* Print "netdata" output in user readable format */
-#if defined(TN3270)
-  cursesdata,			/* Print out curses data flow */
-  apitrace,			/* Trace API transactions */
+#if	!defined(P)
+# ifdef	__STDC__
+#  define	P(x)	x
+# else
+#  define	P(x)	()
+# endif
 #endif
-	/* defined(TN3270) */
-  termdata,			/* Print out terminal data flow */
-  debug;			/* Debug level */
 
-extern cc_t escape;		/* Escape to command mode */
-extern cc_t rlogin;		/* Rlogin mode escape character */
+extern int
+    autologin,		/* Autologin enabled */
+    skiprc,		/* Don't process the ~/.telnetrc file */
+    eight,		/* use eight bit mode (binary in and/or out */
+    flushout,		/* flush output */
+    connected,		/* Are we connected to the other side? */
+    globalmode,		/* Mode tty should be in */
+    In3270,			/* Are we in 3270 mode? */
+    telnetport,		/* Are we connected to the telnet port? */
+    localflow,		/* Flow control handled locally */
+    restartany,		/* If flow control, restart output on any character */
+    localchars,		/* we recognize interrupt/quit */
+    donelclchars,		/* the user has set "localchars" */
+    showoptions,
+    net,		/* Network file descriptor */
+    tin,		/* Terminal input file descriptor */
+    tout,		/* Terminal output file descriptor */
+    crlf,		/* Should '\r' be mapped to <CR><LF> (or <CR><NUL>)? */
+    autoflush,		/* flush output when interrupting? */
+    autosynch,		/* send interrupt characters with SYNCH? */
+    SYNCHing,		/* Is the stream in telnet SYNCH mode? */
+    donebinarytoggle,	/* the user has put us in binary */
+    dontlecho,		/* do we suppress local echoing right now? */
+    crmod,
+    netdata,		/* Print out network data flow */
+    prettydump,		/* Print "netdata" output in user readable format */
+#if	defined(unix)
+#if	defined(TN3270)
+    cursesdata,		/* Print out curses data flow */
+    apitrace,		/* Trace API transactions */
+#endif	/* defined(TN3270) */
+    termdata,		/* Print out terminal data flow */
+#endif	/* defined(unix) */
+    debug;			/* Debug level */
+
+extern cc_t escape;	/* Escape to command mode */
+extern cc_t rlogin;	/* Rlogin mode escape character */
 #ifdef	KLUDGELINEMODE
-extern cc_t echoc;		/* Toggle local echoing */
+extern cc_t echoc;	/* Toggle local echoing */
 #endif
 
-extern char *prompt;		/* Prompt for command. */
+extern char
+    *prompt;		/* Prompt for command. */
 
-extern char doopt[], dont[], will[], wont[], options[],	/* All the little options */
- *hostname;			/* Who are we connected to? */
+extern char
+    doopt[],
+    dont[],
+    will[],
+    wont[],
+    options[],		/* All the little options */
+    *hostname;		/* Who are we connected to? */
 #ifdef	ENCRYPTION
-extern void (*encrypt_output) (unsigned char *, int);
-extern int (*decrypt_input) (int);
-#endif /* ENCRYPTION */
+extern void (*encrypt_output) P((unsigned char *, int));
+extern int (*decrypt_input) P((int));
+#endif	/* ENCRYPTION */
 
 /*
  * We keep track of each side of the option negotiation.
  */
 
-#define MY_STATE_WILL		0x01
-#define MY_WANT_STATE_WILL	0x02
-#define MY_STATE_DO		0x04
-#define MY_WANT_STATE_DO	0x08
+#define	MY_STATE_WILL		0x01
+#define	MY_WANT_STATE_WILL	0x02
+#define	MY_STATE_DO		0x04
+#define	MY_WANT_STATE_DO	0x08
 
 /*
  * Macros to check the current state of things
  */
 
-#define my_state_is_do(opt)		(options[opt]&MY_STATE_DO)
-#define my_state_is_will(opt)		(options[opt]&MY_STATE_WILL)
+#define	my_state_is_do(opt)		(options[opt]&MY_STATE_DO)
+#define	my_state_is_will(opt)		(options[opt]&MY_STATE_WILL)
 #define my_want_state_is_do(opt)	(options[opt]&MY_WANT_STATE_DO)
 #define my_want_state_is_will(opt)	(options[opt]&MY_WANT_STATE_WILL)
 
-#define my_state_is_dont(opt)		(!my_state_is_do(opt))
-#define my_state_is_wont(opt)		(!my_state_is_will(opt))
+#define	my_state_is_dont(opt)		(!my_state_is_do(opt))
+#define	my_state_is_wont(opt)		(!my_state_is_will(opt))
 #define my_want_state_is_dont(opt)	(!my_want_state_is_do(opt))
 #define my_want_state_is_wont(opt)	(!my_want_state_is_will(opt))
 
-#define set_my_state_do(opt)		{options[opt] |= MY_STATE_DO;}
-#define set_my_state_will(opt)		{options[opt] |= MY_STATE_WILL;}
-#define set_my_want_state_do(opt)	{options[opt] |= MY_WANT_STATE_DO;}
-#define set_my_want_state_will(opt)	{options[opt] |= MY_WANT_STATE_WILL;}
+#define	set_my_state_do(opt)		{options[opt] |= MY_STATE_DO;}
+#define	set_my_state_will(opt)		{options[opt] |= MY_STATE_WILL;}
+#define	set_my_want_state_do(opt)	{options[opt] |= MY_WANT_STATE_DO;}
+#define	set_my_want_state_will(opt)	{options[opt] |= MY_WANT_STATE_WILL;}
 
-#define set_my_state_dont(opt)		{options[opt] &= ~MY_STATE_DO;}
-#define set_my_state_wont(opt)		{options[opt] &= ~MY_STATE_WILL;}
-#define set_my_want_state_dont(opt)	{options[opt] &= ~MY_WANT_STATE_DO;}
-#define set_my_want_state_wont(opt)	{options[opt] &= ~MY_WANT_STATE_WILL;}
+#define	set_my_state_dont(opt)		{options[opt] &= ~MY_STATE_DO;}
+#define	set_my_state_wont(opt)		{options[opt] &= ~MY_STATE_WILL;}
+#define	set_my_want_state_dont(opt)	{options[opt] &= ~MY_WANT_STATE_DO;}
+#define	set_my_want_state_wont(opt)	{options[opt] &= ~MY_WANT_STATE_WILL;}
 
 /*
  * Make everything symetrical
  */
 
-#define HIS_STATE_WILL			MY_STATE_DO
-#define HIS_WANT_STATE_WILL		MY_WANT_STATE_DO
+#define	HIS_STATE_WILL			MY_STATE_DO
+#define	HIS_WANT_STATE_WILL		MY_WANT_STATE_DO
 #define HIS_STATE_DO			MY_STATE_WILL
 #define HIS_WANT_STATE_DO		MY_WANT_STATE_WILL
 
-#define his_state_is_do			my_state_is_will
-#define his_state_is_will		my_state_is_do
+#define	his_state_is_do			my_state_is_will
+#define	his_state_is_will		my_state_is_do
 #define his_want_state_is_do		my_want_state_is_will
 #define his_want_state_is_will		my_want_state_is_do
 
-#define his_state_is_dont		my_state_is_wont
-#define his_state_is_wont		my_state_is_dont
+#define	his_state_is_dont		my_state_is_wont
+#define	his_state_is_wont		my_state_is_dont
 #define his_want_state_is_dont		my_want_state_is_wont
 #define his_want_state_is_wont		my_want_state_is_dont
 
-#define set_his_state_do		set_my_state_will
-#define set_his_state_will		set_my_state_do
-#define set_his_want_state_do		set_my_want_state_will
-#define set_his_want_state_will		set_my_want_state_do
+#define	set_his_state_do		set_my_state_will
+#define	set_his_state_will		set_my_state_do
+#define	set_his_want_state_do		set_my_want_state_will
+#define	set_his_want_state_will		set_my_want_state_do
 
-#define set_his_state_dont		set_my_state_wont
-#define set_his_state_wont		set_my_state_dont
-#define set_his_want_state_dont		set_my_want_state_wont
-#define set_his_want_state_wont		set_my_want_state_dont
+#define	set_his_state_dont		set_my_state_wont
+#define	set_his_state_wont		set_my_state_dont
+#define	set_his_want_state_dont		set_my_want_state_wont
+#define	set_his_want_state_wont		set_my_want_state_dont
 
 
-extern FILE *NetTrace;		/* Where debugging output goes */
-extern unsigned char NetTraceFile[];	/* Name of file where debugging output goes */
-extern void SetNetTrace (char *);	/* Function to change where debugging goes */
+extern FILE
+    *NetTrace;		/* Where debugging output goes */
+extern unsigned char
+    NetTraceFile[];	/* Name of file where debugging output goes */
+extern void
+    SetNetTrace P((char *));	/* Function to change where debugging goes */
 
-extern jmp_buf peerdied, toplevel;	/* For error conditions. */
+extern jmp_buf
+    peerdied,
+    toplevel;		/* For error conditions. */
 
 extern void
-command (int, char *, int),
-Dump (char, unsigned char *, int),
-init_3270 (void),
-printoption (char *, int, int),
-printsub (char, unsigned char *, int),
-sendnaws (void),
-setconnmode (int),
-setcommandmode (void),
-setneturg (void),
-sys_telnet_init (void),
-telnet (char *),
-tel_enter_binary (int),
-tel_leave_binary (int),
-TerminalFlushOutput (void),
-TerminalNewMode (int),
-TerminalRestoreState (void),
-TerminalSaveState (void),
-tninit (void), upcase (char *), willoption (int), wontoption (int);
-
-extern int TerminalWindowSize (long *rows, long *cols);
-extern void TerminalSpeeds (long *ispeed, long *ospeed);
-extern void TerminalDefaultChars (void);
-extern int TerminalSpecialChars (int c);
-extern int TerminalAutoFlush (void);
-extern int TerminalWrite (char *buf, int n);
-
-extern int telrcv (void);
-extern int getconnmode (void);
-extern void optionstatus (void);
-extern int NetClose (int);
-extern void Exit (int);
-extern void ExitString (char *, int);
-extern int netflush (void);
-extern int opt_welldefined (char *);
-extern int stilloob (void);
-extern int process_rings (int, int, int, int, int, int);
-
-extern void init_terminal (void);
-extern void init_network (void);
-extern void init_telnet (void);
-extern void init_sys (void);
-
-extern void set_escape_char (char*);
-extern int tn (int argc, char **argv);
+    command P((int, char *, int)),
+    Dump P((int, unsigned char *, int)),
+    init_3270 P((void)),
+    printoption P((char *, int, int)),
+    printsub P((int, unsigned char *, int)),
+    sendnaws P((void)),
+    setconnmode P((int)),
+    setcommandmode P((void)),
+    setneturg P((void)),
+    sys_telnet_init P((void)),
+    telnet P((char *)),
+    tel_enter_binary P((int)),
+    TerminalFlushOutput P((void)),
+    TerminalNewMode P((int)),
+    TerminalRestoreState P((void)),
+    TerminalSaveState P((void)),
+    tninit P((void)),
+    upcase P((char *)),
+    willoption P((int)),
+    wontoption P((int));
 
 extern void
-send_do (int, int),
-send_dont (int, int), send_will (int, int), send_wont (int, int);
-
-extern void sendabort (void);
-extern void sendeof (void);
-extern void sendsusp (void);
-extern int ttyflush (int);
-extern int rlogin_susp (void);
-extern void env_init (void);
-
-/* FIXME: Not needed */
-int SetSockOpt (int fd, int level, int option, int yesno);
-
-extern int quit (void);
+    send_do P((int, int)),
+    send_dont P((int, int)),
+    send_will P((int, int)),
+    send_wont P((int, int));
 
 extern void
-lm_will (unsigned char *, int),
-lm_wont (unsigned char *, int),
-lm_do (unsigned char *, int),
-lm_dont (unsigned char *, int), lm_mode (unsigned char *, int, int);
+    lm_will P((unsigned char *, int)),
+    lm_wont P((unsigned char *, int)),
+    lm_do P((unsigned char *, int)),
+    lm_dont P((unsigned char *, int)),
+    lm_mode P((unsigned char *, int, int));
 
 extern void
-slc_init (void),
-slcstate (void),
-slc_mode_export (void),
-slc_mode_import (int),
-slc_import (int),
-slc_export (void),
-slc (unsigned char *, int),
-slc_check (void),
-slc_start_reply (void),
-slc_add_reply (unsigned char, unsigned char, cc_t), slc_end_reply (void);
-extern int slc_update (void);
+    slc_init P((void)),
+    slcstate P((void)),
+    slc_mode_export P((void)),
+    slc_mode_import P((int)),
+    slc_import P((int)),
+    slc_export P((void)),
+    slc P((unsigned char *, int)),
+    slc_check P((void)),
+    slc_start_reply P((void)),
+    slc_add_reply P((int, int, int)),
+    slc_end_reply P((void));
+extern int
+    slc_update P((void));
 
 extern void
-env_opt (unsigned char *, int),
-env_opt_start (void),
-env_opt_start_info (void), env_opt_add (unsigned char *), env_opt_end (int);
+    env_opt P((unsigned char *, int)),
+    env_opt_start P((void)),
+    env_opt_start_info P((void)),
+    env_opt_add P((unsigned char *)),
+    env_opt_end P((int));
 
-extern unsigned char *env_default (int, int), *env_getvalue (unsigned char *);
+extern unsigned char
+    *env_default P((int, int)),
+    *env_getvalue P((unsigned char *));
 
-extern int get_status (void), dosynch (void);
+extern int
+    get_status P((void)),
+    dosynch P((void));
 
-extern cc_t *tcval (int);
+extern cc_t
+    *tcval P((int));
 
-#ifndef USE_TERMIO
+#ifndef	USE_TERMIO
 
-extern struct tchars ntc;
-extern struct ltchars nltc;
-extern struct sgttyb nttyb;
+extern struct	tchars ntc;
+extern struct	ltchars nltc;
+extern struct	sgttyb nttyb;
 
 # define termEofChar		ntc.t_eofc
 # define termEraseChar		nttyb.sg_erase
@@ -380,9 +347,9 @@ extern cc_t termAytChar;
 # define termForw2Charp		(cc_t *)&termForw2Char
 # define termAytCharp		(cc_t *)&termAytChar
 
-#else
+# else
 
-extern struct termio new_tc;
+extern struct	termio new_tc;
 
 # define termEofChar		new_tc.c_cc[VEOF]
 # define termEraseChar		new_tc.c_cc[VERASE]
@@ -390,15 +357,15 @@ extern struct termio new_tc;
 # define termKillChar		new_tc.c_cc[VKILL]
 # define termQuitChar		new_tc.c_cc[VQUIT]
 
-# ifndef VSUSP
+# ifndef	VSUSP
 extern cc_t termSuspChar;
 # else
 #  define termSuspChar		new_tc.c_cc[VSUSP]
 # endif
-# if defined(VFLUSHO) && !defined(VDISCARD)
+# if	defined(VFLUSHO) && !defined(VDISCARD)
 #  define VDISCARD VFLUSHO
 # endif
-# ifndef VDISCARD
+# ifndef	VDISCARD
 extern cc_t termFlushChar;
 # else
 #  define termFlushChar		new_tc.c_cc[VDISCARD]
@@ -408,41 +375,41 @@ extern cc_t termWerasChar;
 # else
 #  define termWerasChar		new_tc.c_cc[VWERASE]
 # endif
-# ifndef VREPRINT
+# ifndef	VREPRINT
 extern cc_t termRprntChar;
 # else
 #  define termRprntChar		new_tc.c_cc[VREPRINT]
 # endif
-# ifndef VLNEXT
+# ifndef	VLNEXT
 extern cc_t termLiteralNextChar;
 # else
 #  define termLiteralNextChar	new_tc.c_cc[VLNEXT]
 # endif
-# ifndef VSTART
+# ifndef	VSTART
 extern cc_t termStartChar;
 # else
 #  define termStartChar		new_tc.c_cc[VSTART]
 # endif
-# ifndef VSTOP
+# ifndef	VSTOP
 extern cc_t termStopChar;
 # else
 #  define termStopChar		new_tc.c_cc[VSTOP]
 # endif
-# ifndef VEOL
+# ifndef	VEOL
 extern cc_t termForw1Char;
 # else
 #  define termForw1Char		new_tc.c_cc[VEOL]
 # endif
-# ifndef VEOL2
+# ifndef	VEOL2
 extern cc_t termForw2Char;
 # else
 #  define termForw2Char		new_tc.c_cc[VEOL]
 # endif
-# ifndef VSTATUS
+# ifndef	VSTATUS
 extern cc_t termAytChar;
-# else
+#else
 #  define termAytChar		new_tc.c_cc[VSTATUS]
-# endif
+#endif
 
 # if !defined(CRAY) || defined(__STDC__)
 #  define termEofCharp		&termEofChar
@@ -483,23 +450,32 @@ extern cc_t termAytChar;
 
 /* Ring buffer structures which are shared */
 
-extern Ring netoring, netiring, ttyoring, ttyiring;
+extern Ring
+    netoring,
+    netiring,
+    ttyoring,
+    ttyiring;
 
 /* Tn3270 section */
-#if defined(TN3270)
+#if	defined(TN3270)
 
-extern int HaveInput,		/* Whether an asynchronous I/O indication came in */
-  noasynchtty,			/* Don't do signals on I/O (SIGURG, SIGIO) */
-  noasynchnet,			/* Don't do signals on I/O (SIGURG, SIGIO) */
-  sigiocount,			/* Count of SIGIO receptions */
-  shell_active;			/* Subshell is active */
+extern int
+    HaveInput,		/* Whether an asynchronous I/O indication came in */
+    noasynchtty,	/* Don't do signals on I/O (SIGURG, SIGIO) */
+    noasynchnet,	/* Don't do signals on I/O (SIGURG, SIGIO) */
+    sigiocount,		/* Count of SIGIO receptions */
+    shell_active;	/* Subshell is active */
 
-extern char *Ibackp,		/* Oldest byte of 3270 data */
-  Ibuf[],			/* 3270 buffer */
- *Ifrontp,			/* Where next 3270 byte goes */
-  tline[], *transcom;		/* Transparent command */
+extern char
+    *Ibackp,		/* Oldest byte of 3270 data */
+    Ibuf[],		/* 3270 buffer */
+    *Ifrontp,		/* Where next 3270 byte goes */
+    tline[],
+    *transcom;		/* Transparent command */
 
-extern int settranscom (int, char **);
+extern int
+    settranscom P((int, char**));
 
-extern void inputAvailable (int);
-#endif /* defined(TN3270) */
+extern void
+    inputAvailable P((int));
+#endif	/* defined(TN3270) */

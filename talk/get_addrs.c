@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,85 +31,53 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include <stdlib.h>
-#include <string.h>
+#ifndef lint
+static char sccsid[] = "@(#)get_addrs.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#ifdef HAVE_OSOCKADDR_H
-# include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <netdb.h>
 #include <stdio.h>
-#include <unistd.h>
 #include "talk_ctl.h"
 
-int
-get_addrs (char *my_machine_name, char *his_machine_name)
+get_addrs(my_machine_name, his_machine_name)
+	char *my_machine_name, *his_machine_name;
 {
-  struct hostent *hp;
-  struct servent *sp;
+	struct hostent *hp;
+	struct servent *sp;
 
-  msg.pid = htonl (getpid ());
-  /* look up the address of the local host */
-  hp = gethostbyname (my_machine_name);
-  if (hp == NULL)
-    {
-      fprintf (stderr, "talk: %s: ", my_machine_name);
-      herror ((char *) NULL);
-      exit (-1);
-    }
-  bcopy (hp->h_addr, (char *) &my_machine_addr, hp->h_length);
-  /*
-   * If the callee is on-machine, just copy the
-   * network address, otherwise do a lookup...
-   */
-  if (strcmp (his_machine_name, my_machine_name))
-    {
-      hp = gethostbyname (his_machine_name);
-      if (hp == NULL)
-	{
-	  fprintf (stderr, "talk: %s: ", his_machine_name);
-	  herror ((char *) NULL);
-	  exit (-1);
+	msg.pid = htonl(getpid());
+	/* look up the address of the local host */
+	hp = gethostbyname(my_machine_name);
+	if (hp == NULL) {
+		fprintf(stderr, "talk: %s: ", my_machine_name);
+		herror((char *)NULL);
+		exit(-1);
 	}
-      bcopy (hp->h_addr, (char *) &his_machine_addr, hp->h_length);
-    }
-  else
-    his_machine_addr = my_machine_addr;
-  /* find the server's port */
-  sp = getservbyname ("ntalk", "udp");
-  if (sp == 0)
-    {
-      fprintf (stderr, "talk: %s/%s: service is not registered.\n",
-	       "ntalk", "udp");
-      exit (-1);
-    }
-  daemon_port = sp->s_port;
+	bcopy(hp->h_addr, (char *)&my_machine_addr, hp->h_length);
+	/*
+	 * If the callee is on-machine, just copy the
+	 * network address, otherwise do a lookup...
+	 */
+	if (strcmp(his_machine_name, my_machine_name)) {
+		hp = gethostbyname(his_machine_name);
+		if (hp == NULL) {
+			fprintf(stderr, "talk: %s: ", his_machine_name);
+			herror((char *)NULL);
+			exit(-1);
+		}
+		bcopy(hp->h_addr, (char *) &his_machine_addr, hp->h_length);
+	} else
+		his_machine_addr = my_machine_addr;
+	/* find the server's port */
+	sp = getservbyname("ntalk", "udp");
+	if (sp == 0) {
+		fprintf(stderr, "talk: %s/%s: service is not registered.\n",
+		     "ntalk", "udp");
+		exit(-1);
+	}
+	daemon_port = sp->s_port;
 }

@@ -1,24 +1,3 @@
-/*
-  Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005
-                2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-
-  This file is part of GNU Inetutils.
-
-  GNU Inetutils is free software: you can redistribute it and/or
-  modify it under the terms of the GNU General Public License as
-  published by the Free Software Foundation, either version 3 of the
-  License, or (at your option) any later version.
-
-  GNU Inetutils is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see
-  <http://www.gnu.org/licenses/>.
-*/
-
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -31,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -51,13 +34,13 @@
  */
 
 /*
- * Copyright (C) 1990, 2000 by the Massachusetts Institute of Technology
+ * Copyright (C) 1990 by the Massachusetts Institute of Technology
  *
  * Export of this software from the United States of America is assumed
  * to require a specific license from the United States Government.
  * It is the responsibility of any person or organization contemplating
  * export to obtain such a license before exporting.
- *
+ * 
  * WITHIN THAT CONSTRAINT, permission to use, copy, modify, and
  * distribute this software and its documentation for any purpose and
  * without fee is hereby granted, provided that the above copyright
@@ -70,47 +53,44 @@
  * or implied warranty.
  */
 
-#if defined(AUTHENTICATION)
-TN_Authenticator *findauthenticator (int, int);
+#if	!defined(P)
+#ifdef	__STDC__
+#define	P(x)	x
+#else
+#define	P(x)	()
+#endif
+#endif
 
-void auth_init (char *, int);
-int auth_cmd (int, char **);
-void auth_request (void);
-void auth_send (unsigned char *, int);
-void auth_send_retry (void);
-void auth_is (unsigned char *, int);
-void auth_reply (unsigned char *, int);
-void auth_finished (TN_Authenticator *, int);
-int auth_wait (char *);
-void auth_disable_name (char *);
-void auth_gen_printsub (unsigned char *, int, unsigned char *, int);
-int auth_sendname (unsigned char *, int);
+#if	defined(AUTHENTICATION)
+Authenticator *findauthenticator P((int, int));
 
-# ifdef	KRB4
-int kerberos4_init (TN_Authenticator *, int);
-int kerberos4_send (TN_Authenticator *);
-void kerberos4_is (TN_Authenticator *, unsigned char *, int);
-void kerberos4_reply (TN_Authenticator *, unsigned char *, int);
-int kerberos4_status (TN_Authenticator *, char *, int);
-void kerberos4_printsub (unsigned char *, int, unsigned char *, int);
-# endif
+void auth_init P((char *, int));
+int auth_cmd P((int, char **));
+void auth_request P((void));
+void auth_send P((unsigned char *, int));
+void auth_send_retry P((void));
+void auth_is P((unsigned char *, int));
+void auth_reply P((unsigned char *, int));
+void auth_finished P((Authenticator *, int));
+int auth_wait P((char *));
+void auth_disable_name P((char *));
+void auth_gen_printsub P((unsigned char *, int, unsigned char *, int));
 
-# ifdef	KRB5
-int kerberos5_init (TN_Authenticator *, int);
-int kerberos5_send (TN_Authenticator *);
-void kerberos5_is (TN_Authenticator *, unsigned char *, int);
-void kerberos5_reply (TN_Authenticator *, unsigned char *, int);
-int kerberos5_status (TN_Authenticator *, char *, int);
-void kerberos5_printsub (unsigned char *, int, unsigned char *, int);
-# endif
+#ifdef	KRB4
+int kerberos4_init P((Authenticator *, int));
+int kerberos4_send P((Authenticator *));
+void kerberos4_is P((Authenticator *, unsigned char *, int));
+void kerberos4_reply P((Authenticator *, unsigned char *, int));
+int kerberos4_status P((Authenticator *, char *, int));
+void kerberos4_printsub P((unsigned char *, int, unsigned char *, int));
+#endif
 
-# ifdef	SHISHI
-int krb5shishi_init (TN_Authenticator *, int);
-int krb5shishi_send (TN_Authenticator *);
-void krb5shishi_is (TN_Authenticator *, unsigned char *, int);
-void krb5shishi_reply (TN_Authenticator *, unsigned char *, int);
-int krb5shishi_status (TN_Authenticator *, char *, int);
-void krb5shishi_printsub (unsigned char *, int, unsigned char *, int);
-void krb5shishi_cleanup (TN_Authenticator *);
-# endif
+#ifdef	KRB5
+int kerberos5_init P((Authenticator *, int));
+int kerberos5_send P((Authenticator *));
+void kerberos5_is P((Authenticator *, unsigned char *, int));
+void kerberos5_reply P((Authenticator *, unsigned char *, int));
+int kerberos5_status P((Authenticator *, char *, int));
+void kerberos5_printsub P((unsigned char *, int, unsigned char *, int));
+#endif
 #endif

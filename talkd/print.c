@@ -1,77 +1,86 @@
-/* Copyright (C) 1998,2001,2007 Free Software Foundation, Inc.
+/*
+ * Copyright (c) 1983, 1993
+ *	The Regents of the University of California.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
-   This file is part of GNU Inetutils.
+#ifndef lint
+static char sccsid[] = "@(#)print.c	8.1 (Berkeley) 6/4/93";
+#endif /* not lint */
 
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+/* debug print routines */
 
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <protocols/talkd.h>
+#include <syslog.h>
+#include <stdio.h>
 
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
+static	char *types[] =
+    { "leave_invite", "look_up", "delete", "announce" };
+#define	NTYPES	(sizeof (types) / sizeof (types[0]))
+static	char *answers[] = 
+    { "success", "not_here", "failed", "machine_unknown", "permission_denied",
+      "unknown_request", "badversion", "badaddr", "badctladdr" };
+#define	NANSWERS	(sizeof (answers) / sizeof (answers[0]))
 
-#include <intalkd.h>
-
-#define D(c) #c
-#define NITEMS(a) (sizeof (a) / sizeof ((a)[0]))
-
-static const char *message_types[] = {
-  D (LEAVE_INVITE),
-  D (LOOK_UP),
-  D (DELETE),
-  D (ANNOUNCE)
-};
-
-static const char *answers[] = {
-  D (SUCCESS),
-  D (NOT_HERE),
-  D (FAILED),
-  D (MACHINE_UNKNOWN),
-  D (PERMISSION_DENIED),
-  D (UNKNOWN_REQUEST),
-  D (BADVERSION),
-  D (BADADDR),
-  D (BADCTLADDR)
-};
-
-
-static const char *
-_xlat_num (int num, const char *array[], int size)
+print_request(cp, mp)
+	char *cp;
+	register CTL_MSG *mp;
 {
-  static char buf[64];
-
-  if (num >= size)
-    {
-      snprintf (buf, sizeof buf, "%d", num);
-      return buf;
-    }
-  else
-    return array[num];
+	char tbuf[80], *tp;
+	
+	if (mp->type > NTYPES) {
+		(void)sprintf(tbuf, "type %d", mp->type);
+		tp = tbuf;
+	} else
+		tp = types[mp->type];
+	syslog(LOG_DEBUG, "%s: %s: id %d, l_user %s, r_user %s, r_tty %s",
+	    cp, tp, mp->id_num, mp->l_name, mp->r_name, mp->r_tty);
 }
 
-int
-print_request (const char *cp, CTL_MSG * mp)
+print_response(cp, rp)
+	char *cp;
+	register CTL_RESPONSE *rp;
 {
-  syslog (LOG_DEBUG, "%s: %s: id %d, l_user %s, r_user %s, r_tty %s",
-	  cp, _xlat_num (mp->type, message_types, NITEMS (message_types)),
-	  mp->id_num, mp->l_name, mp->r_name, mp->r_tty);
-  return 0;
-}
-
-int
-print_response (const char *cp, CTL_RESPONSE * rp)
-{
-  syslog (LOG_DEBUG, "%s: %s: %s, id %d",
-	  cp,
-	  _xlat_num (rp->type, message_types, NITEMS (message_types)),
-	  _xlat_num (rp->answer, answers, NITEMS (answers)),
-	  ntohl (rp->id_num));
-  return 0;
+	char tbuf[80], *tp, abuf[80], *ap;
+	
+	if (rp->type > NTYPES) {
+		(void)sprintf(tbuf, "type %d", rp->type);
+		tp = tbuf;
+	} else
+		tp = types[rp->type];
+	if (rp->answer > NANSWERS) {
+		(void)sprintf(abuf, "answer %d", rp->answer);
+		ap = abuf;
+	} else
+		ap = answers[rp->answer];
+	syslog(LOG_DEBUG, "%s: %s: %s, id %d", cp, tp, ap, ntohl(rp->id_num));
 }

@@ -1,24 +1,3 @@
-/*
-  Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005
-                2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-
-  This file is part of GNU Inetutils.
-
-  GNU Inetutils is free software: you can redistribute it and/or
-  modify it under the terms of the GNU General Public License as
-  published by the Free Software Foundation, either version 3 of the
-  License, or (at your option) any later version.
-
-  GNU Inetutils is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see
-  <http://www.gnu.org/licenses/>.
-*/
-
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -31,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -72,52 +55,54 @@
 
 #ifdef	ENCRYPTION
 # ifndef __ENCRYPTION__
-#  define __ENCRYPTION__
+# define __ENCRYPTION__
 
-#  define DIR_DECRYPT		1
-#  define DIR_ENCRYPT		2
+#define	DIR_DECRYPT		1
+#define	DIR_ENCRYPT		2
 
-typedef unsigned char Block[8];
+typedef	unsigned char Block[8];
 typedef unsigned char *BlockT;
-typedef struct
-{
-  Block _;
-} Schedule[16];
+typedef struct { Block _; } Schedule[16];
 
-#  define VALIDKEY(key)	( key[0] | key[1] | key[2] | key[3] | \
+#define	VALIDKEY(key)	( key[0] | key[1] | key[2] | key[3] | \
 			  key[4] | key[5] | key[6] | key[7])
 
-#  define SAMEKEY(k1, k2)	(!bcmp((void *)k1, (void *)k2, sizeof(Block)))
+#define	SAMEKEY(k1, k2)	(!bcmp((void *)k1, (void *)k2, sizeof(Block)))
 
-typedef struct
-{
-  short type;
-  int length;
-  unsigned char *data;
+typedef	struct {
+	short		type;
+	int		length;
+	unsigned char	*data;
 } Session_Key;
 
-typedef struct
-{
-  char *name;
-  int type;
-  void (*output) (unsigned char *, int);
-  int (*input) (int);
-  void (*init) (int);
-  int (*start) (int, int);
-  int (*is) (unsigned char *, int);
-  int (*reply) (unsigned char *, int);
-  void (*session) (Session_Key *, int);
-  int (*keyid) (int, unsigned char *, int *);
-  void (*printsub) (unsigned char *, int, unsigned char *, int);
+# if !defined(P)
+#  ifdef __STDC__
+#   define P(x)	x
+#  else
+#   define P(x)	()
+#  endif
+# endif
+
+typedef struct {
+	char	*name;
+	int	type;
+	void	(*output) P((unsigned char *, int));
+	int	(*input) P((int));
+	void	(*init) P((int));
+	int	(*start) P((int, int));
+	int	(*is) P((unsigned char *, int));
+	int	(*reply) P((unsigned char *, int));
+	void	(*session) P((Session_Key *, int));
+	int	(*keyid) P((int, unsigned char *, int *));
+	void	(*printsub) P((unsigned char *, int, unsigned char *, int));
 } Encryptions;
 
-#  define SK_DES		1	/* Matched Kerberos v5 KEYTYPE_DES */
-#  define SK_OTHER	2	/* Non-DES key. */
+#define	SK_DES		1	/* Matched Kerberos v5 KEYTYPE_DES */
 
-#  include "enc-proto.h"
+#include "enc-proto.h"
 
 extern int encrypt_debug_mode;
-extern int (*decrypt_input) (int);
-extern void (*encrypt_output) (unsigned char *, int);
-# endif	/* __ENCRYPTION__ */
+extern int (*decrypt_input) P((int));
+extern void (*encrypt_output) P((unsigned char *, int));
+# endif /* __ENCRYPTION__ */
 #endif /* ENCRYPTION */

@@ -1,24 +1,3 @@
-/*
-  Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005
-                2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-
-  This file is part of GNU Inetutils.
-
-  GNU Inetutils is free software: you can redistribute it and/or
-  modify it under the terms of the GNU General Public License as
-  published by the Free Software Foundation, either version 3 of the
-  License, or (at your option) any later version.
-
-  GNU Inetutils is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see
-  <http://www.gnu.org/licenses/>.
-*/
-
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -31,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -48,64 +31,64 @@
  * SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef lint
+static char sccsid[] = "@(#)misc.c	8.1 (Berkeley) 6/4/93";
+#endif /* not lint */
 
-#include "auth.h"
-#include "encrypt.h"
 #include "misc.h"
 
 char *RemoteHostName;
 char *LocalHostName;
 char *UserNameRequested = 0;
+int ConnectedCount = 0;
 
-void
-auth_encrypt_init (char *local, char *remote, char *name, int server)
+	void
+auth_encrypt_init(local, remote, name, server)
+	char *local;
+	char *remote;
+	char *name;
+	int server;
 {
-  RemoteHostName = remote;
-  LocalHostName = local;
-  (void) name;
-  (void) server;		/* shutup gcc */
-#if defined(AUTHENTICATION)
-  auth_init (name, server);
+	RemoteHostName = remote;
+	LocalHostName = local;
+#if	defined(AUTHENTICATION)
+	auth_init(name, server);
 #endif
 #ifdef	ENCRYPTION
-  encrypt_init (name, server);
-#endif /* ENCRYPTION */
-  if (UserNameRequested)
-    {
-      free (UserNameRequested);
-      UserNameRequested = 0;
-    }
+	encrypt_init(name, server);
+#endif	/* ENCRYPTION */
+	if (UserNameRequested) {
+		free(UserNameRequested);
+		UserNameRequested = 0;
+	}
 }
 
-void
-auth_encrypt_user (char *name)
+	void
+auth_encrypt_user(name)
+	char *name;
 {
-  extern char *strdup (const char *);
+	extern char *strdup();
 
-  if (UserNameRequested)
-    free (UserNameRequested);
-  UserNameRequested = name ? strdup (name) : 0;
+	if (UserNameRequested)
+		free(UserNameRequested);
+	UserNameRequested = name ? strdup(name) : 0;
 }
 
-void
-auth_encrypt_connect (int cnt)
+	void
+auth_encrypt_connect(cnt)
+	int cnt;
 {
-  (void) cnt;			/*shutup gcc */
 }
 
-void
-printd (unsigned char *data, int cnt)
+	void
+printd(data, cnt)
+	unsigned char *data;
+	int cnt;
 {
-  if (cnt > 16)
-    cnt = 16;
-  while (cnt-- > 0)
-    {
-      printf (" %02x", *data);
-      ++data;
-    }
+	if (cnt > 16)
+		cnt = 16;
+	while (cnt-- > 0) {
+		printf(" %02x", *data);
+		++data;
+	}
 }

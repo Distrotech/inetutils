@@ -1,220 +1,219 @@
-/* Copyright (C) 1998,2001,2007 Free Software Foundation, Inc.
+/*
+ * Copyright (c) 1983, 1993
+ *	The Regents of the University of California.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
-   This file is part of GNU Inetutils.
+#ifndef lint
+static char sccsid[] = "@(#)process.c	8.2 (Berkeley) 11/16/93";
+#endif /* not lint */
 
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+/*
+ * process.c handles the requests, which can be of three types:
+ *	ANNOUNCE - announce to a user that a talk is wanted
+ *	LEAVE_INVITE - insert the request into the table
+ *	LOOK_UP - look up to see if a request is waiting in
+ *		  in the table for the local user
+ *	DELETE - delete invitation
+ */
+#include <sys/param.h>
+#include <sys/stat.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <protocols/talkd.h>
+#include <netdb.h>
+#include <syslog.h>
+#include <stdio.h>
+#include <string.h>
+#include <paths.h>
 
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+CTL_MSG *find_request();
+CTL_MSG *find_match();
 
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-#include <intalkd.h>
-#include <readutmp.h>
-
-int find_user (char *name, char *tty);
-void do_announce (CTL_MSG * mp, CTL_RESPONSE * rp);
-
-int
-process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
+process_request(mp, rp)
+	register CTL_MSG *mp;
+	register CTL_RESPONSE *rp;
 {
-  CTL_MSG *ptr;
+	register CTL_MSG *ptr;
+	extern int debug;
 
-  if (debug)
-    {
-      print_request ("process_request", msg);
-    }
-
-  if (acl_match (msg, sa_in))
-    {
-      syslog (LOG_NOTICE, "dropping request: %s@%s",
-	      msg->l_name, inet_ntoa (sa_in->sin_addr));
-      return 1;
-    }
-
-  rp->vers = TALK_VERSION;
-  rp->type = msg->type;
-  rp->id_num = htonl (0);
-  if (msg->vers != TALK_VERSION)
-    {
-      syslog (LOG_ERR, "Bad protocol version %d", msg->vers);
-      rp->answer = BADVERSION;
-      return 0;
-    }
-
-  msg->id_num = ntohl (msg->id_num);
-  msg->addr.sa_family = ntohs (msg->addr.sa_family);
-  if (msg->addr.sa_family != AF_INET)
-    {
-      syslog (LOG_ERR, "Bad address, family %d", msg->addr.sa_family);
-      rp->answer = BADADDR;
-      return 0;
-    }
-  msg->ctl_addr.sa_family = ntohs (msg->ctl_addr.sa_family);
-  if (msg->ctl_addr.sa_family != AF_INET)
-    {
-      syslog (LOG_WARNING, "Bad control address, family %d",
-	      msg->ctl_addr.sa_family);
-      rp->answer = BADCTLADDR;
-      return 0;
-    }
-  /* FIXME: compare address and sa_in? */
-
-  msg->pid = ntohl (msg->pid);
-
-  switch (msg->type)
-    {
-    case ANNOUNCE:
-      do_announce (msg, rp);
-      break;
-
-    case LEAVE_INVITE:
-      ptr = find_request (msg);
-      if (ptr)
-	{
-	  rp->id_num = htonl (ptr->id_num);
-	  rp->answer = SUCCESS;
+	rp->vers = TALK_VERSION;
+	rp->type = mp->type;
+	rp->id_num = htonl(0);
+	if (mp->vers != TALK_VERSION) {
+		syslog(LOG_WARNING, "Bad protocol version %d", mp->vers);
+		rp->answer = BADVERSION;
+		return;
 	}
-      else
-	insert_table (msg, rp);
-      break;
-
-    case LOOK_UP:
-      ptr = find_match (msg);
-      if (ptr)
-	{
-	  rp->id_num = htonl (ptr->id_num);
-	  rp->addr = ptr->addr;
-	  rp->addr.sa_family = htons (ptr->addr.sa_family);
-	  rp->answer = SUCCESS;
+	mp->id_num = ntohl(mp->id_num);
+	mp->addr.sa_family = ntohs(mp->addr.sa_family);
+	if (mp->addr.sa_family != AF_INET) {
+		syslog(LOG_WARNING, "Bad address, family %d",
+		    mp->addr.sa_family);
+		rp->answer = BADADDR;
+		return;
 	}
-      else
-	rp->answer = NOT_HERE;
-      break;
+	mp->ctl_addr.sa_family = ntohs(mp->ctl_addr.sa_family);
+	if (mp->ctl_addr.sa_family != AF_INET) {
+		syslog(LOG_WARNING, "Bad control address, family %d",
+		    mp->ctl_addr.sa_family);
+		rp->answer = BADCTLADDR;
+		return;
+	}
+	mp->pid = ntohl(mp->pid);
+	if (debug)
+		print_request("process_request", mp);
+	switch (mp->type) {
 
-    case DELETE:
-      rp->answer = delete_invite (msg->id_num);
-      break;
+	case ANNOUNCE:
+		do_announce(mp, rp);
+		break;
 
-    default:
-      rp->answer = UNKNOWN_REQUEST;
-      break;
-    }
+	case LEAVE_INVITE:
+		ptr = find_request(mp);
+		if (ptr != (CTL_MSG *)0) {
+			rp->id_num = htonl(ptr->id_num);
+			rp->answer = SUCCESS;
+		} else
+			insert_table(mp, rp);
+		break;
 
-  if (debug)
-    print_response ("process_request response", rp);
+	case LOOK_UP:
+		ptr = find_match(mp);
+		if (ptr != (CTL_MSG *)0) {
+			rp->id_num = htonl(ptr->id_num);
+			rp->addr = ptr->addr;
+			rp->addr.sa_family = htons(ptr->addr.sa_family);
+			rp->answer = SUCCESS;
+		} else
+			rp->answer = NOT_HERE;
+		break;
 
-  return 0;
+	case DELETE:
+		rp->answer = delete_invite(mp->id_num);
+		break;
+
+	default:
+		rp->answer = UNKNOWN_REQUEST;
+		break;
+	}
+	if (debug)
+		print_response("process_request", rp);
 }
 
-void
-do_announce (CTL_MSG * mp, CTL_RESPONSE * rp)
+do_announce(mp, rp)
+	register CTL_MSG *mp;
+	CTL_RESPONSE *rp;
 {
-  struct hostent *hp;
-  CTL_MSG *ptr;
-  int result;
+	struct hostent *hp;
+	CTL_MSG *ptr;
+	int result;
 
-  result = find_user (mp->r_name, mp->r_tty);
-  if (result != SUCCESS)
-    {
-      rp->answer = result;
-      return;
-    }
-
-  hp = gethostbyaddr ((char *) &os2sin_addr (mp->ctl_addr),
-		      sizeof (struct in_addr), AF_INET);
-  if (!hp)
-    {
-      rp->answer = MACHINE_UNKNOWN;
-      return;
-    }
-  ptr = find_request (mp);
-  if (!ptr)
-    {
-      insert_table (mp, rp);
-      rp->answer = announce (mp, hp->h_name);
-      return;
-    }
-  if (mp->id_num > ptr->id_num)
-    {
-      /* Explicit re-announce: update the id_num to avoid duplicates
-         and re-announce the talk. */
-      ptr->id_num = new_id ();
-      rp->id_num = htonl (ptr->id_num);
-      rp->answer = announce (mp, hp->h_name);
-    }
-  else
-    {
-      /* a duplicated request, so ignore it */
-      rp->id_num = htonl (ptr->id_num);
-      rp->answer = SUCCESS;
-    }
+	/* see if the user is logged */
+	result = find_user(mp->r_name, mp->r_tty);
+	if (result != SUCCESS) {
+		rp->answer = result;
+		return;
+	}
+#define	satosin(sa)	((struct sockaddr_in *)(sa))
+	hp = gethostbyaddr((char *)&satosin(&mp->ctl_addr)->sin_addr,
+		sizeof (struct in_addr), AF_INET);
+	if (hp == (struct hostent *)0) {
+		rp->answer = MACHINE_UNKNOWN;
+		return;
+	}
+	ptr = find_request(mp);
+	if (ptr == (CTL_MSG *) 0) {
+		insert_table(mp, rp);
+		rp->answer = announce(mp, hp->h_name);
+		return;
+	}
+	if (mp->id_num > ptr->id_num) {
+		/*
+		 * This is an explicit re-announce, so update the id_num
+		 * field to avoid duplicates and re-announce the talk.
+		 */
+		ptr->id_num = new_id();
+		rp->id_num = htonl(ptr->id_num);
+		rp->answer = announce(mp, hp->h_name);
+	} else {
+		/* a duplicated request, so ignore it */
+		rp->id_num = htonl(ptr->id_num);
+		rp->answer = SUCCESS;
+	}
 }
 
-/* Search utmp for the local user */
-int
-find_user (char *name, char *tty)
+#include <utmp.h>
+
+/*
+ * Search utmp for the local user
+ */
+find_user(name, tty)
+	char *name, *tty;
 {
-  STRUCT_UTMP *utmpbuf, *uptr;
-  size_t utmp_count;
-  int status;
-  struct stat statb;
-  char ftty[sizeof (PATH_DEV) + sizeof (uptr->ut_line)];
-  time_t last_time = 0;
-  int notty;
+	struct utmp ubuf;
+	int status;
+	FILE *fd;
+	struct stat statb;
+	char line[sizeof(ubuf.ut_line) + 1];
+	char ftty[sizeof(_PATH_DEV) - 1 + sizeof(line)];
 
-  notty = (*tty == '\0');
-
-  status = NOT_HERE;
-  strcpy (ftty, PATH_DEV);
-
-  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf,
-	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
-
-  for (uptr = utmpbuf; uptr < utmpbuf + utmp_count; uptr++)
-    {
-      if (!strncmp (UT_USER (uptr), name, sizeof (UT_USER (uptr))))
-	{
-	  if (notty)
-	    {
-	      /* no particular tty was requested */
-	      strncpy (ftty + sizeof (PATH_DEV) - 1,
-		       uptr->ut_line, sizeof (ftty) - sizeof (PATH_DEV) - 1);
-	      ftty[sizeof (ftty) - 1] = 0;
-
-	      if (stat (ftty, &statb) == 0)
-		{
-		  if (!(statb.st_mode & S_IWGRP))
-		    {
-		      if (status != SUCCESS)
-			status = PERMISSION_DENIED;
-		      continue;
-		    }
-		  if (statb.st_atime > last_time)
-		    {
-		      last_time = statb.st_atime;
-		      strcpy (tty, uptr->ut_line);
-		      status = SUCCESS;
-		    }
-		  continue;
+	if ((fd = fopen(_PATH_UTMP, "r")) == NULL) {
+		fprintf(stderr, "talkd: can't read %s.\n", _PATH_UTMP);
+		return (FAILED);
+	}
+#define SCMPN(a, b)	strncmp(a, b, sizeof (a))
+	status = NOT_HERE;
+	(void) strcpy(ftty, _PATH_DEV);
+	while (fread((char *) &ubuf, sizeof ubuf, 1, fd) == 1)
+		if (SCMPN(ubuf.ut_name, name) == 0) {
+			strncpy(line, ubuf.ut_line, sizeof(ubuf.ut_line));
+			line[sizeof(ubuf.ut_line)] = '\0';
+			if (*tty == '\0') {
+				status = PERMISSION_DENIED;
+				/* no particular tty was requested */
+				(void) strcpy(ftty + sizeof(_PATH_DEV) - 1,
+				    line);
+				if (stat(ftty, &statb) == 0) {
+					if (!(statb.st_mode & 020))
+						continue;
+					(void) strcpy(tty, line);
+					status = SUCCESS;
+					break;
+				}
+			}
+			if (strcmp(line, tty) == 0) {
+				status = SUCCESS;
+				break;
+			}
 		}
-	    }
-	  if (!strcmp (uptr->ut_line, tty))
-	    {
-	      status = SUCCESS;
-	      break;
-	    }
-	}
-    }
-
-  free (utmpbuf);
-  return status;
+	fclose(fd);
+	return (status);
 }

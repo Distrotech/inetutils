@@ -10,6 +10,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -27,117 +31,62 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-#include <stdlib.h>
+#ifndef lint
+static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
+#endif /* not lint */
 
 /*
  * Initialization code for the display package,
  * as well as the signal handling routines.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <sys/ioctl.h>
+#include <sys/ioctl_compat.h>
 
-#ifdef HAVE_TERMIOS_H
-# include <termios.h>
-#else
-# include <sys/ioctl.h>
-# ifdef HAVE_SYS_IOCTL_COMPAT_H
-#  include <sys/ioctl_compat.h>
-# endif
-#endif
-
-#include <unistd.h>
 #include <signal.h>
-#include <error.h>
+#include <err.h>
 #include "talk.h"
 
-static RETSIGTYPE
-sig_sent (int sig ARG_UNUSED)
-{
-
-  message ("Connection closing. Exiting");
-  quit ();
-}
-
-/*
+/* 
  * Set up curses, catch the appropriate signals,
  * and build the various windows.
  */
-int
-init_display ()
+init_display()
 {
-#ifdef HAVE_SIGACTION
-  struct sigaction siga;
-#else
-# ifdef HAVE_SIGVEC
-  struct sigvec sigv;
-# endif
-#endif
+	void sig_sent();
+	struct sigvec sigv;
 
-  if (initscr () == NULL)
-    error (1, 0, "Terminal type unset or lacking necessary features.");
+	if (initscr() == NULL)
+		errx(1, "Terminal type unset or lacking necessary features.");
+	(void) sigvec(SIGTSTP, (struct sigvec *)0, &sigv);
+	sigv.sv_mask |= sigmask(SIGALRM);
+	(void) sigvec(SIGTSTP, &sigv, (struct sigvec *)0);
+	curses_initialized = 1;
+	clear();
+	refresh();
+	noecho();
+	crmode();
+	signal(SIGINT, sig_sent);
+	signal(SIGPIPE, sig_sent);
+	/* curses takes care of ^Z */
+	my_win.x_nlines = LINES / 2;
+	my_win.x_ncols = COLS;
+	my_win.x_win = newwin(my_win.x_nlines, my_win.x_ncols, 0, 0);
+	scrollok(my_win.x_win, FALSE);
+	wclear(my_win.x_win);
 
-#ifdef HAVE_SIGACTION
-  sigaction (SIGTSTP, (struct sigaction *) 0, &siga);
-  sigaddset (&siga.sa_mask, SIGALRM);
-  sigaction (SIGTSTP, &siga, (struct sigaction *) 0);
-#else /* !HAVE_SIGACTION */
-# ifdef HAVE_SIGVEC
-  sigvec (SIGTSTP, (struct sigvec *) 0, &sigv);
-  sigv.sv_mask |= sigmask (SIGALRM);
-  sigvec (SIGTSTP, &sigv, (struct sigvec *) 0);
-# endif	/* HAVE_SIGVEC */
-#endif /* HAVE_SIGACTION */
+	his_win.x_nlines = LINES / 2 - 1;
+	his_win.x_ncols = COLS;
+	his_win.x_win = newwin(his_win.x_nlines, his_win.x_ncols,
+	    my_win.x_nlines+1, 0);
+	scrollok(his_win.x_win, FALSE);
+	wclear(his_win.x_win);
 
-  curses_initialized = 1;
-  clear ();
-  refresh ();
-  noecho ();
-  crmode ();
-
-  signal (SIGINT, sig_sent);
-  signal (SIGPIPE, sig_sent);
-
-  /* curses takes care of ^Z */
-  my_win.x_nlines = LINES / 2;
-  my_win.x_ncols = COLS;
-  my_win.x_win = newwin (my_win.x_nlines, my_win.x_ncols, 0, 0);
-  scrollok (my_win.x_win, FALSE);
-  wclear (my_win.x_win);
-
-  his_win.x_nlines = LINES / 2 - 1;
-  his_win.x_ncols = COLS;
-  his_win.x_win = newwin (his_win.x_nlines, his_win.x_ncols,
-			  my_win.x_nlines + 1, 0);
-  scrollok (his_win.x_win, FALSE);
-  wclear (his_win.x_win);
-
-  line_win = newwin (1, COLS, my_win.x_nlines, 0);
-  box (line_win, '-', '-');
-  wrefresh (line_win);
-  /* let them know we are working on it */
-  current_state = "No connection yet";
+	line_win = newwin(1, COLS, my_win.x_nlines, 0);
+	box(line_win, '-', '-');
+	wrefresh(line_win);
+	/* let them know we are working on it */
+	current_state = "No connection yet";
 }
 
 /*
@@ -145,84 +94,56 @@ init_display ()
  * the first three characters each talk transmits after
  * connection are the three edit characters.
  */
-int
-set_edit_chars ()
+set_edit_chars()
 {
-  int cc;
-  char buf[3];
+	char buf[3];
+	int cc;
+	struct sgttyb tty;
+	struct ltchars ltc;
+	
+	ioctl(0, TIOCGETP, &tty);
+	ioctl(0, TIOCGLTC, (struct sgttyb *)&ltc);
+	my_win.cerase = tty.sg_erase;
+	my_win.kill = tty.sg_kill;
+	if (ltc.t_werasc == (char) -1)
+		my_win.werase = '\027';	 /* control W */
+	else
+		my_win.werase = ltc.t_werasc;
+	buf[0] = my_win.cerase;
+	buf[1] = my_win.kill;
+	buf[2] = my_win.werase;
+	cc = write(sockt, buf, sizeof(buf));
+	if (cc != sizeof(buf) )
+		p_error("Lost the connection");
+	cc = read(sockt, buf, sizeof(buf));
+	if (cc != sizeof(buf) )
+		p_error("Lost the connection");
+	his_win.cerase = buf[0];
+	his_win.kill = buf[1];
+	his_win.werase = buf[2];
+}
 
-#ifdef HAVE_TCGETATTR
-  struct termios tty;
-  cc_t disable = (cc_t) - 1, erase, werase, kill;
+void
+sig_sent()
+{
 
-# if !defined (_POSIX_VDISABLE) && defined (HAVE_FPATHCONF) && defined (_PC_VDISABLE)
-  disable = fpathconf (0, _PC_VDISABLE);
-# endif
-
-  erase = werase = kill = disable;
-
-  if (tcgetattr (0, &tty) >= 0)
-    {
-      erase = tty.c_cc[VERASE];
-# ifdef VWERASE
-      werase = tty.c_cc[VWERASE];
-# endif
-      kill = tty.c_cc[VKILL];
-    }
-
-  if (erase == disable)
-    erase = '\177';		/* rubout */
-  if (werase == disable)
-    werase = '\027';		/* ^W */
-  if (kill == disable)
-    kill = '\025';		/* ^U */
-
-  my_win.cerase = erase;
-  my_win.werase = werase;
-  my_win.kill = kill;
-#else /* !HAVE_TCGETATTR */
-  struct sgttyb tty;
-  struct ltchars ltc;
-
-  ioctl (0, TIOCGETP, &tty);
-  ioctl (0, TIOCGLTC, (struct sgttyb *) &ltc);
-  my_win.cerase = tty.sg_erase;
-  my_win.kill = tty.sg_kill;
-  if (ltc.t_werasc == (char) -1)
-    my_win.werase = '\027';	/* control W */
-  else
-    my_win.werase = ltc.t_werasc;
-#endif /* HAVE_TCGETATTR */
-
-  buf[0] = my_win.cerase;
-  buf[1] = my_win.kill;
-  buf[2] = my_win.werase;
-  cc = write (sockt, buf, sizeof (buf));
-  if (cc != sizeof (buf))
-    p_error ("Lost the connection");
-  cc = read (sockt, buf, sizeof (buf));
-  if (cc != sizeof (buf))
-    p_error ("Lost the connection");
-  his_win.cerase = buf[0];
-  his_win.kill = buf[1];
-  his_win.werase = buf[2];
+	message("Connection closing. Exiting");
+	quit();
 }
 
 /*
  * All done talking...hang up the phone and reset terminal thingy's
  */
-int
-quit ()
+quit()
 {
 
-  if (curses_initialized)
-    {
-      wmove (his_win.x_win, his_win.x_nlines - 1, 0);
-      wclrtoeol (his_win.x_win);
-      wrefresh (his_win.x_win);
-      endwin ();
-    }
-  if (invitation_waiting)
-    send_delete ();
-  exit (0);
+	if (curses_initialized) {
+		wmove(his_win.x_win, his_win.x_nlines-1, 0);
+		wclrtoeol(his_win.x_win);
+		wrefresh(his_win.x_win);
+		endwin();
+	}
+	if (invitation_waiting)
+		send_delete();
+	exit(0);
 }
