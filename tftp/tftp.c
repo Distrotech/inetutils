@@ -137,7 +137,7 @@ sendfile(fd, name, mode)
 send_data:
 		if (trace)
 			tpacket("sent", dp, size + 4);
-		n = sendto(f, dp, size + 4, 0,
+		n = sendto(f, (const char *)dp, size + 4, 0,
 		    (struct sockaddr *)&peeraddr, sizeof(peeraddr));
 		if (n != size + 4) {
 			perror("tftp: sendto");
@@ -252,7 +252,7 @@ send_ack:
 			alarm(rexmtval);
 			do  {
 				fromlen = sizeof(from);
-				n = recvfrom(f, dp, PKTSIZE, 0,
+				n = recvfrom(f, (char *)dp, PKTSIZE, 0,
 				    (struct sockaddr *)&from, &fromlen);
 			} while (n <= 0);
 			alarm(0);
