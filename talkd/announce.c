@@ -49,7 +49,6 @@ static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
 #include <osockaddr.h>
 #endif
 #include <protocols/talkd.h>
-#include <sgtty.h>
 #include <errno.h>
 #include <syslog.h>
 #include <unistd.h>
@@ -58,7 +57,6 @@ static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
 #ifdef HAVE_VIS_H
 #include <vis.h>
 #endif
-#include <paths.h>
 
 extern char *hostname;
 
