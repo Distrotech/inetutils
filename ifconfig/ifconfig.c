@@ -1,6 +1,6 @@
 /* ifconfig.c -- network interface configuration utility
 
-   Copyright (C) 2001 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -23,7 +23,6 @@
 #include <config.h>
 #endif
 
-#include <version.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>

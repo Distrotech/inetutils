@@ -54,7 +54,6 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <version.h>
 
 /* Define macro to nothing so declarations in ftp_var.h become definitions. */
 #define FTP_EXTERN
