@@ -50,6 +50,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 #include <string.h>
 #include <stdlib.h>
 
+#define MAX_ERRBUF 1024
 /*
  * Display the contents of a uio structure on a terminal.  Used by wall(1),
  * syslogd(8), and talkd(8).  Forks and finishes in child if write would block,
@@ -65,7 +66,7 @@ ttymsg(iov, iovcnt, line, tmout)
 	int tmout;
 {
 	static char device[MAXNAMLEN] = PATH_TTY_PFX;
-	static char errbuf[1024];
+	static char errbuf[MAX_ERRBUF];
 	register int cnt, fd, left, wret;
 	struct iovec localiov[6];
 	int forked = 0;
@@ -73,13 +74,20 @@ ttymsg(iov, iovcnt, line, tmout)
 	if (iovcnt > sizeof(localiov) / sizeof(localiov[0]))
 		return ("too many iov's (change code in wall/ttymsg.c)");
 
-	(void) strcpy(device + sizeof(PATH_TTY_PFX) - 1, line);
-	if (strchr(device + sizeof(PATH_TTY_PFX) - 1, '/')) {
+/* 
+ * we're watching for '/', ".", ".."
+ * '/' --> somebody could specify tty as ../etc/passwd
+ * ".", ".." those are not security related it's just
+ * sanity checks
+ */
+	if (strchr(line, '/') && ! strcmp(line, ".") && ! strcmp(line, "..") &&) {
 		/* A slash is an attempt to break security... */
 		(void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"",
 		    device);
 		return (errbuf);
 	}
+	(void) strncpy(device + sizeof(PATH_TTY_PFX) - 1, line, MAXNAMLEN - sizeof(PATH_TTY_PFX));
+  device[MAXNAMLEN -1] = '\0';
 
 	/*
 	 * open will fail on slip lines or exclusive-use lines
