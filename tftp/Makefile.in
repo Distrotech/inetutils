@@ -20,19 +20,12 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(bindir)/tftp $(man1dir)/tftp.1
+
 all: tftp
 tftp: main.o tftp.o tftpsubs.o
 
-install: installdirs tftp $(srcdir)/tftp.1
-	$(INSTALL_PROGRAM) tftp $(bindir)/tftp
-	-$(INSTALL_DATA) $(srcdir)/tftp.1 $(man1dir)/tftp.1
-uninstall:
-	-$(RM) -f $(bindir)/tftp $(man1dir)/tftp.1
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o tftp 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
