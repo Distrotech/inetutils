@@ -461,14 +461,14 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #ifdef	KERBEROS
       if (!use_kerberos)
 #endif
-	if (check_all || local_domain (hp->h_name))
+	if (check_all || local_domain (hostname))
 	  {
-	    char *remotehost = (char *) alloca (strlen (hp->h_name) + 1);
+	    char *remotehost = (char *) alloca (strlen (hostname) + 1);
 	    if (! remotehost)
 	      errorstr = "Out of memory\n";
 	    else
 	      {
-		strcpy (remotehost, hp->h_name);
+		strcpy (remotehost, hostname);
 		errorhost = remotehost;
 		hp = gethostbyname (remotehost);
 		if (hp == NULL)
