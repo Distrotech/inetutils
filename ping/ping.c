@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -43,7 +43,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include <math.h>
 #include <limits.h>
 
 #include "getopt.h"
@@ -101,9 +100,11 @@ int (*ping_type) __P((int argc, char **argv)) = ping_echo;
 
 static void show_usage (void);
 static void show_license (void);
-static void decode_pattern(char *text, int *pattern_len, u_char *pattern_data);
-static void decode_type(char *optarg);
+static void decode_pattern(const char *text, int *pattern_len, 
+		           u_char *pattern_data);
+static void decode_type(const char *optarg);
 static void init_data_buffer(u_char *pat, int len);
+static int send_echo(PING *ping);
 
 int
 main(int argc, char **argv)
@@ -274,7 +275,7 @@ init_data_buffer(u_char *pat, int len)
   
 
 void
-decode_type(char *optarg)
+decode_type(const char *optarg)
 {
   if (strcasecmp(optarg, "echo") == 0)
     ping_type = ping_echo;
@@ -294,7 +295,7 @@ decode_type(char *optarg)
 }
 
 void
-decode_pattern(char *text, int *pattern_len, u_char *pattern_data)
+decode_pattern(const char *text, int *pattern_len, u_char *pattern_data)
 {
   int i, c, off;
 
@@ -327,7 +328,6 @@ ping_run(PING *ping, int (*finish)())
   struct timeval last, intvl, now;
   struct timeval *t = NULL;
   int finishing = 0;
-  u_char *buf;
   
   signal(SIGINT, sig_int);
   
@@ -382,7 +382,7 @@ ping_run(PING *ping, int (*finish)())
 	}
       else if (n == 1)
 	{
-	  len = ping_recv(ping, &buf);
+	  len = ping_recv(ping);
 	  if (t == 0)
 	    {
 	      gettimeofday(&now, NULL);

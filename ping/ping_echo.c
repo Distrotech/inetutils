@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -70,7 +70,6 @@ void print_icmp_header(struct sockaddr_in *from,
 static void print_ip_data(struct ip *ip);
 static void print_ip_opt(struct ip *ip, int hlen);
 
-static void finish();
 static void tvsub(struct timeval *out, struct timeval *in);
 
 int
@@ -79,7 +78,6 @@ ping_echo(int argc, char **argv)
 #ifdef IP_OPTIONS
   char rspace[3 + 4 * NROUTES + 1];	/* record route space */
 #endif
-  int one = 1;
   struct ping_stat ping_stat;
 
   if (options & OPT_FLOOD && options & OPT_INTERVAL)
@@ -145,6 +143,7 @@ handler(int code, void *closure,
     case PEV_NOECHO:;
       print_icmp_header(from, ip, icmp, datalen);
     }
+  return 0;
 }
 
 int
@@ -152,7 +151,7 @@ print_echo(int dupflag, struct ping_stat *ping_stat,
 	   struct sockaddr_in *dest, struct sockaddr_in *from,
 	   struct ip *ip, icmphdr_t *icmp, int datalen)
 {
-  int n, hlen;
+  int hlen;
   struct timeval tv;
   int timing = 0;
   double triptime = 0.0;
@@ -188,11 +187,11 @@ print_echo(int dupflag, struct ping_stat *ping_stat,
     }
   
   if (options & OPT_QUIET)
-    return;
+    return 0;
   if (options & OPT_FLOOD)
     {
       putchar('\b');
-      return;
+      return 0;
     }
   
   printf("%d bytes from %s: icmp_seq=%u", datalen,
@@ -229,7 +228,7 @@ void
 print_icmp_header(struct sockaddr_in *from,
 		  struct ip *ip, icmphdr_t *icmp, int len)
 {
-  int n, hlen;
+  int hlen;
   struct ip *orig_ip;
 
   /* Length of the IP header */
@@ -491,7 +490,7 @@ print_ip_opt(struct ip *ip, int hlen)
 	  continue;
 	if (i == old_rrlen
 	    && cp == (u_char *)(ip + 1) + 2
-	    && !bcmp((char *)cp, old_rr, i)
+	    && !memcmp((char *)cp, old_rr, i)
 	    && !(options & OPT_FLOOD))
 	  {
 	    printf("\t(same route)");
@@ -503,7 +502,7 @@ print_ip_opt(struct ip *ip, int hlen)
 	if (i < MAX_IPOPTLEN)
 	  {
 	    old_rrlen = i;
-	    bcopy((char *)cp, old_rr, i);
+	    memmove(old_rr, cp, i);
 	  }
 	else
 	  old_rrlen = 0;

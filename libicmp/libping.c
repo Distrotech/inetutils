@@ -43,8 +43,7 @@
 
 static void _ping_freebuf(PING *p);
 static int _ping_setbuf(PING *p);
-static size_t _ping_headersize(PING *p);
-
+static size_t _ping_packetsize(PING *p);
 
 size_t
 _ping_packetsize(PING *p)
@@ -127,8 +126,6 @@ _ping_setbuf(PING *p)
 {
   if (!p->ping_buffer)
     {
-      int i;
-      
       p->ping_buffer = malloc(_PING_BUFLEN(p));
       if (!p->ping_buffer)
 	return -1;
@@ -160,7 +157,6 @@ ping_set_data(PING *p, void *data, size_t off, size_t len)
 int
 ping_xmit(PING *p)
 {
-  register icmphdr_t *icp;
   int i, buflen;
 
   if (_ping_setbuf(p))
@@ -230,7 +226,7 @@ ping_recv(PING *p)
       /*FIXME: conditional*/
       fprintf(stderr,"packet too short (%d bytes) from %s\n", n,
 	      inet_ntoa(p->ping_from.sin_addr));
-      return;
+      return -1;
     }
 
   switch (icmp->icmp_type)
@@ -240,7 +236,7 @@ ping_recv(PING *p)
     case ICMP_ADDRESSREPLY:
       /*    case ICMP_ROUTERADV:*/
       if (icmp->icmp_id != p->ping_ident)
-	return;
+	return -1;
       if (rc)
 	{
 	  fprintf(stderr, "checksum mismatch from %s\n",

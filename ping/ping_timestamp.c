@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 2000 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -43,8 +43,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include <math.h>
-#include <limits.h>
 
 #include "getopt.h"
 #include "version.h"
@@ -55,6 +53,9 @@
 static int recv_timestamp(int code, void *closure,
 			  struct sockaddr_in *dest, struct sockaddr_in *from,
 			  struct ip *ip, icmphdr_t *icmp, int datalen);
+static void print_timestamp(int dupflag, void *closure,
+			    struct sockaddr_in *dest, struct sockaddr_in *from,
+			    struct ip *ip, icmphdr_t *icmp, int datalen);
 static int timestamp_finish();
 
 int
@@ -94,6 +95,7 @@ recv_timestamp(int code, void *closure,
     case PEV_NOECHO:;
       print_icmp_header(from, ip, icmp, datalen);
     }
+  return 0;
 }
 
 

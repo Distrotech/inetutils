@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 2000 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -43,8 +43,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include <math.h>
-#include <limits.h>
 
 #include "getopt.h"
 #include "version.h"
@@ -55,4 +53,5 @@
 int
 ping_router(int argc, char **argv)
 {
+  return 0;
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -44,8 +44,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include <math.h>
-#include <limits.h>
 
 #include "getopt.h"
 #include "version.h"
@@ -101,6 +99,7 @@ recv_address(int code, void *closure,
     case PEV_NOECHO:;
       print_icmp_header(from, ip, icmp, datalen);
     }
+  return 0;
 }
 
 void
@@ -125,4 +124,5 @@ print_address(int dupflag, void *closure,
 int
 address_finish()
 {
+  return 0;
 }

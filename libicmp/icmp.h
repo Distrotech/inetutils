@@ -146,7 +146,7 @@ struct icmp_header
 #define	ICMP_ADVLEN(p)	(8 + ((p)->icmp_ip.ip_hl << 2) + 8)
 	/* N.B.: must separately check that ip_hl >= 5 */
 
-u_short icmp_in_cksum(u_char *addr, int len);
+u_short icmp_cksum(u_char *addr, int len);
 int icmp_generic_encode(u_char *buffer, size_t bufsize, int type, int ident,
 			int seqno);
 int icmp_generic_decode(u_char *buffer, size_t bufsize,
