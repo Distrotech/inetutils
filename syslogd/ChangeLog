@@ -1,3 +1,18 @@
+2000-08-13  Alain Magloire
+
+	* syslogd.c (main):  New variable short_options.
+	Removed of reap_child() and SIGCHLD signal handler.
+	ttymsg() now double fork() and do itself the waitpid()
+	to clean up.
+	Remove all those little loops that uses tolower()
+	to bring the string to loser case for a comparison
+	and use strcasecmp() when comparison are needed.
+
+2000-08-11  Alain Magloire
+
+	* syslogd.c: Include unconditionnaly <utmpx.h> and
+	<poll.h>, we (will) provide a stub when the OS is lacking.
+
 2000-08-10  Alain Magloire
 
 	* syslogd.c (wallmsg):  Only check for the type USER_PROCESS

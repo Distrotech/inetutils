@@ -90,11 +90,7 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 # endif
 #endif
 #include <sys/resource.h>
-#ifdef HAVE_POLL_H
-# include <poll.h>
-#else
-# include "poll.h"
-#endif
+#include <poll.h>
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -112,9 +108,7 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#ifdef HAVE_UTMPX_H
-# include <utmpx.h>
-#endif
+#include <utmpx.h>
 #include <getopt.h>
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
@@ -276,7 +270,6 @@ void logerror __P ((const char *));
 void logmsg __P ((int, const char *, const char *, int));
 void printline __P ((const char *, const char *));
 void printsys __P ((const char *));
-void reap_childs __P ((int));
 char *ttymsg __P ((struct iovec *, int, char *, int));
 static void usage __P ((int));
 void wallmsg __P ((struct filed *, struct iovec *));
@@ -328,6 +321,7 @@ usage (int err)
   exit (err);
 }
 
+static const char *short_options = "a:dhf:l:m:np:rs:VS";
 static struct option long_options[] =
 {
   { "debug", no_argument, 0, 'd' },
@@ -353,7 +347,7 @@ static struct option long_options[] =
 };
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   int option;
   size_t i;
@@ -369,7 +363,7 @@ main(int argc, char *argv[])
   /* Initiliaze PATH_LOG as the first element of the unix sockets array.  */
   add_funix (PATH_LOG);
 
-  while ((option = getopt_long (argc, argv, "a:dhf:l:m:np:rs:VS",
+  while ((option = getopt_long (argc, argv, short_options,
 			    long_options, 0)) != EOF)
     {
       switch(option)
@@ -517,18 +511,12 @@ main(int argc, char *argv[])
 	LocalDomain = strdup ("");
     }
 
-  /* Using lowercase domainnames.  */
-  for (p = LocalDomain; *p; p++)
-    if (isupper (*p))
-      *p = tolower(*p);
-
   consfile.f_type = F_CONSOLE;
   consfile.f_un.f_fname = strdup (ctty);
 
   (void) signal (SIGTERM, die);
   (void) signal (SIGINT, Debug ? die : SIG_IGN);
   (void) signal (SIGQUIT, Debug ? die : SIG_IGN);
-  (void) signal (SIGCHLD, reap_childs);
   (void) signal (SIGALRM, domark);
   (void) signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
   (void) alarm (TIMERINTVL);
@@ -759,7 +747,7 @@ create_unix_socket (const char *path)
 }
 
 static int
-create_inet_socket()
+create_inet_socket ()
 {
   int fd;
   struct sockaddr_in sin;
@@ -784,7 +772,7 @@ create_inet_socket()
 }
 
 char **
-crunch_list(char **oldlist, char *list)
+crunch_list (char **oldlist, char *list)
 {
   int count, i;
   char *p, *q;
@@ -866,7 +854,7 @@ crunch_list(char **oldlist, char *list)
 /* Take a raw input line, decode the message, and print the message on
    the appropriate log files.  */
 void
-printline(const char *hname, const char *msg)
+printline (const char *hname, const char *msg)
 {
   int c, pri;
   const char *p;
@@ -919,7 +907,7 @@ printline(const char *hname, const char *msg)
 /* Take a raw input line from /dev/klog, split and format similar to
    syslog().  */
 void
-printsys(const char *msg)
+printsys (const char *msg)
 {
   int c, pri, flags;
   char *lp, *q, line[MAXLINE + 1];
@@ -957,25 +945,25 @@ printsys(const char *msg)
 
 /* Decode a priority into textual information like auth.emerg.  */
 char *
-textpri(int pri)
+textpri (int pri)
 {
-	static char res[20];
-	CODE *c_pri, *c_fac;
+  static char res[20];
+  CODE *c_pri, *c_fac;
 
-	for (c_fac = facilitynames; c_fac->c_name
-		&& !(c_fac->c_val == LOG_FAC (pri) << 3); c_fac++);
-	for (c_pri = prioritynames; c_pri->c_name
-		&& !(c_pri->c_val == LOG_PRI (pri)); c_pri++);
+  for (c_fac = facilitynames; c_fac->c_name
+	 && !(c_fac->c_val == LOG_FAC (pri) << 3); c_fac++);
+  for (c_pri = prioritynames; c_pri->c_name
+	 && !(c_pri->c_val == LOG_PRI (pri)); c_pri++);
 
-	snprintf (res, sizeof (res), "%s.%s", c_fac->c_name, c_pri->c_name);
+  snprintf (res, sizeof (res), "%s.%s", c_fac->c_name, c_pri->c_name);
 
-	return res;
+  return res;
 }
 
 /* Log a message to the appropriate log files, users, etc. based on
    the priority.  */
 void
-logmsg(int pri, const char *msg, const char *from, int flags)
+logmsg (int pri, const char *msg, const char *from, int flags)
 {
   struct filed *f;
   int fac, msglen, prilev;
@@ -1058,7 +1046,8 @@ logmsg(int pri, const char *msg, const char *from, int flags)
       if ((flags & MARK) == 0 && msglen == f->f_prevlen && f->f_prevhost
 	  && !strcmp (msg, f->f_prevline) && !strcmp (from, f->f_prevhost))
 	{
-	  (void) strncpy (f->f_lasttime, timestamp, sizeof (f->f_lasttime) - 1);
+	  (void) strncpy (f->f_lasttime, timestamp,
+			  sizeof (f->f_lasttime) - 1);
 	  f->f_prevcount++;
 	  dbg_printf ("msg repeated %d times, %ld sec of %d\n",
 		      f->f_prevcount, now - f->f_time,
@@ -1078,7 +1067,8 @@ logmsg(int pri, const char *msg, const char *from, int flags)
 	  if (f->f_prevcount)
 	    fprintlog (f, from, 0, (char *)NULL);
 	  f->f_repeatcount = 0;
-	  (void) strncpy (f->f_lasttime, timestamp, sizeof (f->f_lasttime) - 1);
+	  (void) strncpy (f->f_lasttime, timestamp,
+			  sizeof (f->f_lasttime) - 1);
 	  if (f->f_prevhost)
 	    free (f->f_prevhost);
 	  f->f_prevhost = strdup (from);
@@ -1105,7 +1095,7 @@ logmsg(int pri, const char *msg, const char *from, int flags)
 }
 
 void
-fprintlog(struct filed *f, const char *from, int flags, const char *msg)
+fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 {
   struct iovec iov[IOVCNT];
   struct iovec *v;
@@ -1199,7 +1189,7 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
 	    {
 	      extern int h_errno;
 #ifndef HAVE_HSTRERROR_DECL
-	      extern char *hstrerror __P((int));
+	      extern char *hstrerror __P ((int));
 #endif
 	      dbg_printf ("Failure: %s\n", hstrerror (h_errno));
 	      dbg_printf ("Retries: %d\n", f->f_prevcount);
@@ -1224,7 +1214,7 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
     case F_FORW:
     f_forw:
     dbg_printf (" %s\n", f->f_un.f_forw.f_hname);
-    if (strcmp (from, LocalHostName) && NoHops)
+    if (strcasecmp (from, LocalHostName) && NoHops)
       dbg_printf ("Not forwarding remote message.\n");
     else if (!NoForward)
       dbg_printf ("Not forwarding because forwarding is disabled.\n");
@@ -1327,7 +1317,7 @@ fprintlog(struct filed *f, const char *from, int flags, const char *msg)
 /* Write the specified message to either the entire world, or a list
    of approved users.  */
 void
-wallmsg(struct filed *f, struct iovec *iov)
+wallmsg (struct filed *f, struct iovec *iov)
 {
   static int reenter;	/* avoid calling ourselves */
   struct utmpx *utp;
@@ -1353,6 +1343,9 @@ wallmsg(struct filed *f, struct iovec *iov)
       line[sizeof (utp->ut_line)] = '\0';
       if (f->f_type == F_WALL)
 	{
+	  /* Note we're using our own version of ttymsg
+	     which does a double fork () to not have
+	     zombies.  No need to waitpid().  */
 	  p = ttymsg (iov, IOVCNT, line, TTYMSGTIME);
 	  if (p != NULL)
 	    {
@@ -1375,83 +1368,75 @@ wallmsg(struct filed *f, struct iovec *iov)
 	    break;
 	  }
     }
-  endutxent();
+  endutxent ();
   reenter = 0;
-}
-
-/* Reap all childs coming from blocking I/O in ttymsg.  */
-void
-reap_childs(int signo)
-{
-  (void)signo; /* Ignored.  */
-
-  while (waitpid (-1, 0, WNOHANG) > 0);
 }
 
 /* Return a printable representation of a host address.  */
 const char *
-cvthname(struct sockaddr_in *f)
+cvthname (struct sockaddr_in *f)
 {
   struct hostent *hp;
   char *p;
 
   dbg_printf ("cvthname(%s)\n", inet_ntoa (f->sin_addr));
 
-  if (f->sin_family != AF_INET) {
-    dbg_printf ("Malformed from address.\n");
-    return ("???");
-  }
-  hp = gethostbyaddr((char *) &f->sin_addr,
-		     sizeof (struct in_addr), f->sin_family);
-  if (hp == 0) {
-    dbg_printf ("Host name for your address (%s) unknown.\n",
-		inet_ntoa (f->sin_addr));
-    return (inet_ntoa (f->sin_addr));
-  }
-  for (p = hp->h_name; *p ; p++)
-    if (isupper (*p))
-      *p = tolower(*p);
+  if (f->sin_family != AF_INET)
+    {
+      dbg_printf ("Malformed from address.\n");
+      return "???";
+    }
+  hp = gethostbyaddr ((char *) &f->sin_addr,
+		      sizeof (struct in_addr), f->sin_family);
+  if (hp == 0)
+    {
+      dbg_printf ("Host name for your address (%s) unknown.\n",
+		  inet_ntoa (f->sin_addr));
+      return inet_ntoa (f->sin_addr);
+    }
 
   p = strchr (hp->h_name, '.');
   if (p != NULL)
     {
-      if (strcmp (p + 1, LocalDomain) == 0)
+      if (strcasecmp (p + 1, LocalDomain) == 0)
 	*p = '\0';
-      else {
-	int count;
+      else
+	{
+	  int count;
 
-	if (StripDomains)
-	  {
-	    count=0;
-	    while (StripDomains[count])
-	      {
-		if (strcmp (p + 1, StripDomains[count]) == 0)
-		  {
-		    *p = '\0';
-		    return (hp->h_name);
-		  }
-		count++;
-	      }
-	  }
-	if (LocalHosts)
-	  {
-	    count=0;
-	    while (LocalHosts[count])
-	      {
-		if (strcmp (hp->h_name, LocalHosts[count]) == 0) {
-		  *p = '\0';
-		  return (hp->h_name);
+	  if (StripDomains)
+	    {
+	      count=0;
+	      while (StripDomains[count])
+		{
+		  if (strcasecmp (p + 1, StripDomains[count]) == 0)
+		    {
+		      *p = '\0';
+		      return hp->h_name;
+		    }
+		  count++;
 		}
-		count++;
-	      }
-	  }
-      }
+	    }
+	  if (LocalHosts)
+	    {
+	      count=0;
+	      while (LocalHosts[count])
+		{
+		  if (strcasecmp (hp->h_name, LocalHosts[count]) == 0)
+		    {
+		      *p = '\0';
+		      return hp->h_name;
+		    }
+		  count++;
+		}
+	    }
+	}
     }
-  return (hp->h_name);
+  return hp->h_name;
 }
 
 void
-domark(int signo)
+domark (int signo)
 {
   struct filed *f;
 
@@ -1483,7 +1468,7 @@ domark(int signo)
 
 /* Print syslogd errors some place.  */
 void
-logerror(const char *type)
+logerror (const char *type)
 {
   char buf[100];
 
@@ -1498,7 +1483,7 @@ logerror(const char *type)
 }
 
 void
-die(int signo)
+die (int signo)
 {
   struct filed *f;
   int was_initialized = Initialized;
@@ -1540,7 +1525,7 @@ die(int signo)
 
 /* INIT -- Initialize syslogd from configuration table.  */
 void
-init(int signo)
+init (int signo)
 {
   FILE *cf;
   struct filed *f, *next, **nextp;
@@ -1731,7 +1716,7 @@ init(int signo)
 
 /* Crack a configuration file line.  */
 void
-cfline(const char *line, struct filed *f)
+cfline (const char *line, struct filed *f)
 {
   struct hostent *hp;
   int i, pri, negate_pri, excl_pri;
@@ -1794,7 +1779,8 @@ cfline(const char *line, struct filed *f)
 	  pri = decode (bp, prioritynames);
 	  if (pri < 0)
 	    {
-	      snprintf (ebuf, sizeof (ebuf), "unknown priority name \"%s\"", bp);
+	      snprintf (ebuf, sizeof (ebuf),
+			"unknown priority name \"%s\"", bp);
 	      logerror (ebuf);
 	      return;
 	    }
@@ -1825,7 +1811,8 @@ cfline(const char *line, struct filed *f)
 	      i = decode (buf, facilitynames);
 	      if (i < 0)
 		{
-		  snprintf (ebuf, sizeof (ebuf), "unknown facility name \"%s\"", buf);
+		  snprintf (ebuf, sizeof (ebuf),
+			    "unknown facility name \"%s\"", buf);
 		  logerror (ebuf);
 		  return;
 		}
@@ -1934,26 +1921,18 @@ cfline(const char *line, struct filed *f)
 
 /* Decode a symbolic name to a numeric value.  */
 int
-decode(const char *name, CODE *codetab)
+decode (const char *name, CODE *codetab)
 {
   CODE *c;
-  char *p, buf[80];
 
   if (isdigit (*name))
-    return (atoi (name));
+    return atoi (name);
 
-  for (p = buf; *name && p < &buf[sizeof (buf) - 1]; p++, name++) {
-    if (isupper (*name))
-      *p = tolower (*name);
-    else
-      *p = *name;
-  }
-  *p = '\0';
   for (c = codetab; c->c_name; c++)
-    if (!strcmp (buf, c->c_name))
-      return (c->c_val);
+    if (!strcasecmp (name, c->c_name))
+      return c->c_val;
 
-  return (-1);
+  return -1;
 }
 
 void
@@ -1970,7 +1949,7 @@ dbg_toggle(int signo)
 
 /* Ansi2knr will always change ... to va_list va_dcl */
 static void
-dbg_printf(const char *fmt, ...)
+dbg_printf (const char *fmt, ...)
 {
   va_list ap;
 
@@ -1978,9 +1957,9 @@ dbg_printf(const char *fmt, ...)
     return;
 
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-  va_start(ap, fmt);
+  va_start (ap, fmt);
 #else
-  va_start(ap);
+  va_start (ap);
 #endif
 
   va_start (ap, fmt);
@@ -1996,7 +1975,7 @@ dbg_printf(const char *fmt, ...)
    set a flag variable which will tell the main loop to go through a
    restart.  */
 void
-trigger_restart(int signo)
+trigger_restart (int signo)
 {
   (void) signo;  /* Ignored.  */
   restart = 1;
