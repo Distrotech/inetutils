@@ -19,14 +19,14 @@
 #ifndef __CRYPT_H__
 #define __CRYPT_H__
 
-#ifdef HAVE_CRYPT_DECL
+#ifdef HAVE_DECL_CRYPT
 /* Avoid arg-mismatch with system decl by being vague.  */
 #define CRYPT_ARGS ()
 #else
 #define CRYPT_ARGS __P ((char *str, char salt[2]))
 #endif
 
-#ifndef HAVE_CRYPT_DECL
+#ifndef HAVE_DECL_CRYPT
 #ifdef HAVE_ATTR_WEAK_REFS
 extern char *crypt CRYPT_ARGS __attribute__ ((weak));
 #else /* !HAVE_ATTR_WEAK_REFS */
