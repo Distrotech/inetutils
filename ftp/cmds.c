@@ -863,10 +863,10 @@ remglob(argv,doswitch)
 	char *argv[];
 	int doswitch;
 {
-	static int buf_len = 0;
-	static char *buf = 0;
 	static FILE *ftemp = NULL;
 	static char **args;
+	int buf_len = 0;
+	char *buf = 0;
 	int sofar = 0;
 	int oldverbose, oldhash;
 	char *cp, *mode, *end;
@@ -888,7 +888,7 @@ remglob(argv,doswitch)
 			args = argv;
 		if ((cp = *++args) == NULL)
 			args = NULL;
-		return strdup (cp);
+		return cp ? 0 : strdup (cp);
 	}
 	if (ftemp == NULL) {
 		char temp[sizeof _PATH_TMP + sizeof "XXXXXX"];
@@ -916,10 +916,8 @@ remglob(argv,doswitch)
 		}
 	}
 
-	if (! buf) {
-		buf_len = 100;		/* Any old size */
-		buf = malloc (buf_len + 1);
-	}
+	buf_len = 100;		/* Any old size */
+	buf = malloc (buf_len + 1);
 
 	sofar = 0;
 	for (;;) {
@@ -950,7 +948,6 @@ char *
 onoff(bool)
 	int bool;
 {
-
 	return (bool ? "on" : "off");
 }
 
@@ -1269,6 +1266,7 @@ mdelete(argc, argv)
 				interactive = ointer;
 			}
 		}
+		free (cp);
 	}
 	(void) signal(SIGINT, oldintr);
 	mflag = 0;
