@@ -1,3 +1,8 @@
+Sun Apr 12 19:57:51 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* whois/whois-servers: Added some comments explaining the search
+ 	path that the GNU whois client uses.
+
 Fri Apr 10 11:13:51 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* Changed the Makefile.am in daemon subdirectories to use
