@@ -111,8 +111,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
-
-#include "pathnames.h"
+#include <paths.h>
 
 #define	TOOMANY		40		/* don't start more than TOOMANY */
 #define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */

@@ -334,7 +334,7 @@ validate_access(filep, mode)
 	struct stat stbuf;
 	int	fd;
 	struct dirlist *dirp;
-	static char pathname[MAXPATHLEN];
+	static char *pathname = 0;
 	char *filename = *filep;
 
 	/*
@@ -389,6 +389,12 @@ validate_access(filep, mode)
 		 */
 		err = ENOTFOUND;
 		for (dirp = dirs; dirp->name != NULL; dirp++) {
+			if (pathname)
+				free (pathname);
+			pathname = malloc (strlen (dirp->name)
+					   + 1 + strlen (filename) + 1);
+			if (! pathname)
+				return ENOMEM;
 			sprintf(pathname, "%s/%s", dirp->name, filename);
 			if (stat(pathname, &stbuf) == 0 &&
 			    (stbuf.st_mode & S_IFMT) == S_IFREG) {
