@@ -99,12 +99,13 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 stdlib.h sys/tty.h sys/utsname.h glob.h \
 		 sys/msgbuf.h krb.h des.h netinet/in_systm.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
-		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h)
+		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
+		 arpa/nameser.h)
 
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
-	       flock ftruncate wait3 memcpy bcopy bzero)
+	       flock ftruncate wait3 memcpy bcopy bzero setsid)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup setenv memset memmove)
+AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -138,6 +139,10 @@ IU_CHECK_MACRO(__P,
 AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(resolv, gethostname)
+AC_CHECK_LIB(bsd, revoke)
+
+# If revoke hasn't been defined yet, just define a dummy version
+AC_REPLACE_FUNCS(revoke)
 
 AC_FUNC_ALLOCA
 
@@ -149,7 +154,7 @@ AC_SUBST(LIBUTIL)
 # not actually be in libutil), and and use our own versions if necesary.
 _SAVE_LIBS="$LIBS"
 LIBS="$LIBUTIL $LIBS"
-AC_REPLACE_FUNCS(login logout logwtmp openpty forkpty)
+AC_REPLACE_FUNCS(login logout logwtmp openpty forkpty iruserok login_tty)
 LIBS="$_SAVE_LIBS"
 
 # See if `weak refs' are possible; these make it possible (with shared
