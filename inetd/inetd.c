@@ -111,7 +111,9 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #  include <time.h>
 # endif
 #endif
+#ifdef HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
+#endif
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -135,6 +137,9 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */
 #define	RETRYTIME	(60*10)		/* retry after bind or server fail */
 
+#ifndef SIGCHLD
+#define SIGCHLD	SIGCLD
+#endif
 #define	SIGBLOCK	(sigmask(SIGCHLD)|sigmask(SIGHUP)|sigmask(SIGALRM))
 
 
