@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_TALKD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_TALKD@
 
 EXTRA_PROGRAMS = talkd
 

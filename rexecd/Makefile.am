@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_REXECD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_REXECD@
 
 EXTRA_PROGRAMS = rexecd
 

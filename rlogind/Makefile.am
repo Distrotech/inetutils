@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_RLOGIND@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_RLOGIND@
 
 EXTRA_PROGRAMS = rlogind
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_INETD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_INETD@
 
 EXTRA_PROGRAMS = inetd
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_TELNETD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_TELNETD@
 
 EXTRA_PROGRAMS = telnetd
 

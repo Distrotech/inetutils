@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_FTPD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_FTPD@
 
 EXTRA_PROGRAMS = ftpd
 

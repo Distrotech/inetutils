@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_UUCPD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_UUCPD@
 
 EXTRA_PROGRAMS = uucpd
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_TFTPD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_TFTPD@
 
 EXTRA_PROGRAMS = tftpd
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_SYSLOGD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_SYSLOGD@
 
 EXTRA_PROGRAMS = syslogd
 

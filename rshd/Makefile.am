@@ -1,4 +1,6 @@
-bin_PROGRAMS = @BUILD_RSHD@
+inetdaemondir = @inetdaemondir@
+
+inetdaemon_PROGRAMS = @BUILD_RSHD@
 
 EXTRA_PROGRAMS = rshd
 
