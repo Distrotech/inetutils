@@ -134,6 +134,16 @@ int nfunix = 1;
 char *funixn[MAXFUNIX] = { PATH_LOG };
 int funix[MAXFUNIX];
 
+#define INITIAL_PARTS	8	/* Number of parts to allocate initially. */
+
+struct msg_part
+{
+	int fd;
+	char msg;
+} *parts;
+
+int nparts;
+
 /*
  * Flags to logmsg().
  */
@@ -264,11 +274,15 @@ static void dprintf __P((char *, ...));
 void sighup_handler __P((int));
 static int create_unix_socket __P((const char *path));
 static int create_inet_socket __P(());
+char  *get_part __P((int));
+void   free_part __P((int));
+char  *make_part __P((int, char *));
+void   printchopped __P((const char *hname, char *msg, int len, int fd));
 
 int
 main(int argc, char *argv[])
 {
-	int ch, i, fklog;
+	int ch, i, fklog, c;
 	size_t len;
 	struct sockaddr_un sunx, fromunix;
 	struct sockaddr_in sin, frominet;
@@ -390,7 +404,15 @@ main(int argc, char *argv[])
 	(void)signal(SIGALRM, domark);
 	(void)signal(SIGUSR1, Debug ? debug_switch : SIG_IGN);
 	(void)alarm(TIMERINTVL);
-
+	
+	parts = malloc(INITIAL_PARTS * sizeof (struct msg_part));
+	if (parts == 0) {
+		logerror("Cannot allocate memory for message parts table.");
+		die(0);
+	}
+	for (i = 0; i < INITIAL_PARTS; i++)
+		parts[i].fd = -1;
+	nparts = INITIAL_PARTS;
 
 #ifdef PATH_KLOG
 	if ((fklog = open(PATH_KLOG, O_RDONLY, 0)) < 0)
@@ -478,26 +500,42 @@ main(int argc, char *argv[])
 				fklog = -1;
 			}
 		}
-		for (i = 0; i < nfunix; i++)
-			if (funix[i] != -1 && FD_ISSET(funix[i], &readfds)) {
+		for (c = 0; c < nfunix; c++)
+			if (funix[c] != -1 && FD_ISSET(funix[c], &readfds)) {
 				len = sizeof(fromunix);
-				i = recvfrom(funix[i], line, MAXLINE, 0,
+				i = recvfrom(funix[c], line, MAXLINE, 0,
 				    (struct sockaddr *)&fromunix, &len);
 				if (i > 0) {
-					line[i] = '\0';
-					printline(LocalHostName, line);
-				} else if (i < 0 && errno != EINTR)
-					logerror("recvfrom unix");
+					printchopped(LocalHostName, line, i, funix[c]);
+				} else if (i < 0) {
+					if (errno != EINTR)
+						logerror("recvfrom unix");
+				} else {
+					dprintf("Unix socket (%d) closed.\n", funix[c]);
+					if (get_part(funix[c]) != 0) {
+						errno = 0;
+						logerror("Printing partial message");
+						line[0] = '\0';
+						printchopped(LocalHostName, line,
+							strlen(get_part(funix[c])) + 1,
+							funix[c]);
+					}
+					/* reset it */
+					for (i = 1; i < nfunix; i++) {
+						if (funix[i] == funix[c])
+							funix[i] = -1;
+					}
+					close(funix[c]);
+				}
 			}
-		}
 		if (finet >= 0 && AcceptRemote && FD_ISSET(finet, &readfds)) {
 			len = sizeof(frominet);
 			memset(line, '\0', sizeof(line));
-			i = recvfrom(finet, line, MAXLINE, 0,
+			i = recvfrom(finet, line, MAXLINE-2, 0,
 			    (struct sockaddr *)&frominet, &len);
 			if (i > 0) {
-				line[i] = '\0';
-				printline(cvthname(&frominet), line);
+				line[i] = line[i+1] = '\0';
+				printchopped(cvthname(&frominet), line, i + 2, finet);
 			} else if (i < 0 && errno != EINTR)
 				logerror("recvfrom inet");
 		}
@@ -644,6 +682,116 @@ crunch_list(char *list)
 		dprintf ("#%d: %s\n", count, StripDomains[count++]);
 #endif
 	return result;
+}
+
+char *
+get_part(int fd)
+{
+	int i;
+
+	for (i = 0; i < nparts; i++)
+		if (parts[i].fd == fd)
+			return parts[i].msg;
+	return 0;
+}
+
+void
+free_part(int fd)
+{
+	int i;
+
+	for (i = 0; i < nparts; i++)
+		if (parts[i].fd == fd) {
+			parts[i].fd = -1;
+			free(parts[i].msg);
+		}
+}
+
+char *
+make_part(int fd, char *msg)
+{
+	int i;
+	struct msg_part *new_parts;
+	
+	for (i = 0; i < nparts; i++)
+		if (parts[i].fd == -1)
+			break;
+	if (i = nparts)
+		new_parts = realloc (parts,
+				     2 * nparts * sizeof(struct msg_part));
+		if (new_parts == 0)
+			return 0;
+		nparts *= 2;
+		parts = new_parts;
+	}
+	parts[i].fd = fd;
+	parts[i].msg = strdup(msg);
+	return parts[i].msg;
+}
+
+/*
+ * Parse the line to make sure that the msg is not a composite of more
+ * than one message.
+ */
+
+void
+printchopped(const char *hname,	char *msg, int len, int fd)
+{
+	int ptlngth;
+
+	char *start = msg,
+	     *p,
+	     *end,
+	     tmpline[MAXLINE + 1];
+
+	dprintf("Message length: %d, File descriptor: %d.\n", len, fd);
+	tmpline[0] = '\0';
+	if (get_part(fd) != 0)
+	{
+		dprintf("Including part from messages.\n");
+		strcpy(tmpline, get_part(fd));
+		free_part(fd);
+		if (strlen(msg) + strlen(tmpline) > MAXLINE)
+		{
+			logerror("Cannot glue message parts together");
+			printline(hname, tmpline);
+			start = msg;
+		}
+		else
+		{
+			dprintf("Previous: %s\n", tmpline);
+			dprintf("Next: %s\n", msg);
+			strcat(tmpline, msg);	/* length checked above */
+			printline(hname, tmpline);
+			if ( (strlen(msg) + 1) == len )
+				return;
+			else
+				start = strchr(msg, '\0') + 1;
+		}
+	}
+
+	if ( msg[len-1] != '\0' )
+	{
+		msg[len] = '\0';
+		for(p= msg+len-1; *p != '\0' && p > msg; )
+			--p;
+		ptlngth = strlen(++p);
+		if (make_part(fd, p) == 0)
+			logerror("Cannot allocate memory for message part.");
+		else
+		{
+			dprintf("Saving partial msg: %s\n", get_part(fd));
+			memset(p, '\0', ptlngth);
+		}
+	}
+
+	do {
+		end = strchr(start + 1, '\0');
+		printline(hname, start);
+		start = end + 1;
+	} while ( *start != '\0' );
+
+	return;
 }
 
 /*

@@ -1,5 +1,28 @@
 2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
 
+This is among others the equivalent to the following Linux change:
+Thu Jan  6 12:07:36 CST 1994:  Dr. Wettstein
+Added support for proper decomposition and re-assembly of
+fragment messages on UNIX domain sockets.  Lack of this capability
+was causing 'partial' messages to be output.  Since facility and
+priority information is encoded as a leader on the messages this
+was causing lines to be placed in erroneous files.
+	
+	* syslogd.c: New symbol INITIAL_PARTS.
+	New struct msg_part, new global variables parts, nparts.
+	(get_part): New prototype, new function.
+	(free_part): Likewise.
+	(make_part): Likewise.
+	(printchopped): Likewise.
+	(main): New variable c. Allocate initial parts table
+	after installing signal handlers. In main loop,
+	use c instead i to count through funices. If a read
+	from a unx domain socket returns 0, close this fd.
+	Use printchopped instead printline to support partial
+	messages (a bit messy though).
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c: Remove global variable InetInuse.
 	(main): Check finet instead InetInuse.
 	(fprintlog): Case F_FORW: Only try to forward message
