@@ -919,11 +919,6 @@ Xterm_output(ibufp, obuf, icountp, ocount)
 #define	term_output	Xterm_output
 #endif	/* defined(CRAY2) && defined(UNICOS5) && defined(UNICOS50) */
 
-static FILE *_console = 0;
-#define  cprintf(fmt, args...) \
-  { if (! _console) _console = fopen ("/dev/console", "w"); \
-    fprintf (_console, fmt , ##args); }
-
 /*
  * Main loop.  Select from pty and network, and
  * hand data to telnet receiver finite state machine.
@@ -1113,7 +1108,7 @@ telnet(f, p, host)
 #ifdef  TIOCNOTTY
 	{
 		register int t;
-		t = open(_PATH_TTY, O_RDWR);
+		t = open(PATH_TTY, O_RDWR);
 		if (t >= 0) {
 			(void) ioctl(t, TIOCNOTTY, (char *)0);
 			(void) close(t);
