@@ -26,6 +26,9 @@ DISTFILES = rshd.c rshd.8
 INSTALL_TARGETS = $(libexecdir)/in.rshd $(man8dir)/rshd.8
 CLEAN = rshd rshd.o
 
+CPPFLAGS += $(PATHDEF_TTY) $(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL) \
+	$(PATHDEF_DEFPATH)
+
 all: rshd
 
 include $(RULES)
