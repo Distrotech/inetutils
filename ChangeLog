@@ -1,5 +1,53 @@
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
+	Imported files from gnulib.
+
+	* lib/Makefile.am, lib/alloca.c, lib/alloca_.h, lib/allocsa.c,
+	lib/allocsa.h, lib/allocsa.valgrind, lib/argp-ba.c,
+	lib/argp-eexst.c, lib/argp-fmtstream.c, lib/argp-fmtstream.h,
+	lib/argp-fs-xinl.c, lib/argp-help.c, lib/argp-namefrob.h,
+	lib/argp-parse.c, lib/argp-pv.c, lib/argp-pvh.c, lib/argp-xinl.c,
+	lib/argp.h, lib/asnprintf.c, lib/error.c, lib/error.h, lib/exit.h,
+	lib/exitfail.c, lib/exitfail.h, lib/getcwd.c, lib/getcwd.h,
+	lib/getline.c, lib/getline.h, lib/getndelim2.c, lib/getndelim2.h,
+	lib/getopt.c, lib/getopt1.c, lib/getopt_.h, lib/getopt_int.h,
+	lib/getpass.c, lib/getpass.h, lib/gettext.h, lib/getusershell.c,
+	lib/malloc.c, lib/memcmp.c, lib/memcpy.c, lib/memmove.c,
+	lib/mempcpy.c, lib/mempcpy.h, lib/memset.c, lib/minmax.h,
+	lib/obstack.c, lib/obstack.h, lib/poll.c, lib/poll_.h,
+	lib/printf-args.c, lib/printf-args.h, lib/printf-parse.c,
+	lib/printf-parse.h, lib/readutmp.c, lib/readutmp.h, lib/realloc.c,
+	lib/regex.c, lib/regex.h, lib/setenv.c, lib/setenv.h,
+	lib/snprintf.c, lib/snprintf.h, lib/stdbool_.h, lib/strcase.h,
+	lib/strcasecmp.c, lib/strchrnul.c, lib/strchrnul.h, lib/strdup.c,
+	lib/strdup.h, lib/strerror.c, lib/strncasecmp.c, lib/strndup.c,
+	lib/strndup.h, lib/strnlen.c, lib/sysexit_.h, lib/unlocked-io.h,
+	lib/unsetenv.c, lib/vasnprintf.c, lib/vasnprintf.h,
+	lib/vsnprintf.c, lib/vsnprintf.h, lib/xalloc.h, lib/xgetcwd.c,
+	lib/xgetcwd.h, lib/xmalloc.c, lib/xsize.h, m4/alloca.m4,
+	m4/allocsa.m4, m4/argp.m4, m4/codeset.m4, m4/d-ino.m4,
+	m4/eealloc.m4, m4/eoverflow.m4, m4/error.m4, m4/exitfail.m4,
+	m4/extensions.m4, m4/getcwd-path-max.m4, m4/getcwd.m4,
+	m4/getline.m4, m4/getndelim2.m4, m4/getopt.m4, m4/getpass.m4,
+	m4/gettext.m4, m4/getusershell.m4, m4/glibc21.m4, m4/gnulib.m4,
+	m4/iconv.m4, m4/intdiv0.m4, m4/intmax.m4, m4/intmax_t.m4,
+	m4/inttypes-pri.m4, m4/inttypes.m4, m4/inttypes_h.m4,
+	m4/isc-posix.m4, m4/lcmessage.m4, m4/lib-ld.m4, m4/lib-link.m4,
+	m4/lib-prefix.m4, m4/longdouble.m4, m4/longlong.m4, m4/memcmp.m4,
+	m4/memcpy.m4, m4/memmove.m4, m4/mempcpy.m4, m4/memset.m4,
+	m4/nls.m4, m4/obstack.m4, m4/onceonly_2_57.m4, m4/po.m4,
+	m4/poll.m4, m4/printf-posix.m4, m4/progtest.m4, m4/readutmp.m4,
+	m4/regex.m4, m4/restrict.m4, m4/setenv.m4, m4/signed.m4,
+	m4/size_max.m4, m4/snprintf.m4, m4/ssize_t.m4, m4/stdbool.m4,
+	m4/stdint_h.m4, m4/strcase.m4, m4/strchrnul.m4, m4/strdup.m4,
+	m4/strerror.m4, m4/strerror_r.m4, m4/strndup.m4, m4/strnlen.m4,
+	m4/sysexits.m4, m4/uintmax_t.m4, m4/ulonglong.m4,
+	m4/unlocked-io.m4, m4/vasnprintf.m4, m4/vsnprintf.m4,
+	m4/wchar_t.m4, m4/wint_t.m4, m4/xalloc.m4, m4/xgetcwd.m4,
+	m4/xsize.m4: New files.
+
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
 	* confpaths.h.in: New file.
 
 	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
