@@ -34,27 +34,69 @@ static char sccsid[] = "@(#)daemon.c	8.1 (Berkeley) 6/4/93";
 #include <config.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+void
+waitdaemon_timeout (int signo)
+{
+  int left;
+
+  left = alarm(0);
+  signal(SIGALRM, SIG_DFL);
+  if (left == 0)
+    errx(1, "timed out waiting for child");
+  else
+    exit(0);
+}
 
 int
-daemon (int nochdir, int noclose)
+waitdaemon (int nochdir, int noclose, int maxwait)
 {
   int fd;
-
-  switch (fork()) {
+  pid_t childpid;
+  
+  switch (childpid = fork()) {
   case -1:
     return (-1);
   case 0:
     break;
   default:
-    _exit(0);
+    if (maxwait > 0)
+      {
+	int status;
+	pid_t pid;
+
+	signal(SIGALRM, waitdaemon_timeout);
+	alarm(maxwait);
+#ifdef HAVE_WAITPID
+	while ((pid = waitpid(-1, &status, 0)) != -1)
+#else
+        while ((pid = wait3(&status, 0, NULL)) != -1)
+#endif
+	  {
+	    if (WIFEXITED(status))
+	      errx (1, "child pid %d exited with return code %d",
+		    pid, WEXITSTATUS(status));
+	    if (WIFSIGNALED(status))
+	      errx (1, "child pid %d exited on signal %d%s",
+		    pid, WTERMSIG(status),
+		    WCOREDUMP(status) ? " (core dumped)" : "");
+	    if (pid == childpid)
+	      break;
+	  }
+	_exit(0);
+      }
   }
 
   if (setsid() == -1)
     return (-1);
-
+  
   if (!nochdir)
     (void)chdir("/");
-
+  
   if (!noclose && (fd = open(PATH_DEVNULL, O_RDWR, 0)) != -1) {
     (void)dup2(fd, STDIN_FILENO);
     (void)dup2(fd, STDOUT_FILENO);
@@ -62,5 +104,11 @@ daemon (int nochdir, int noclose)
     if (fd > 2)
       (void)close (fd);
   }
-  return (0);
+  return (getppid());
+}
+
+int
+daemon (int nochdir, int noclose)
+{
+  return (waitdaemon(nochdir, noclose, 0) == -1) ? -1 : 0;
 }

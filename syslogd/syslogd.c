@@ -283,8 +283,6 @@ char  *get_part __P((int));
 void   free_part __P((int));
 char  *make_part __P((int, char *));
 void   printchopped __P((const char *hname, char *msg, int len, int fd));
-int    waitdaemon __P((int, int, int));
-void   timedout __P((int));
 
 int
 main(int argc, char *argv[])
@@ -708,85 +706,6 @@ crunch_list(char *list)
 		dprintf ("#%d: %s\n", count, StripDomains[count++]);
 #endif
 	return result;
-}
-
-/*
- * fork off and become a daemon, but wait for the child to come online
- * before returing to the parent, or we get disk thrashing at boot etc.
- * Set a timer so we don't hang forever if it wedges.
- */
-int
-waitdaemon(int nochdir, int noclose, int maxwait)
-{
-        int fd;
-        int status;
-        pid_t pid, childpid;
-
-        switch (childpid = fork()) {
-        case -1:
-                return (-1);
-        case 0:
-                break;
-        default:
-                signal(SIGALRM, timedout);
-                alarm(maxwait);
-#ifdef HAVE_WAITPID
-                while ((pid = waitpid(-1, &status, 0) != -1) {
-#else
-                while ((pid = wait3(&status, 0, NULL)) != -1) {
-#endif
-                        if (WIFEXITED(status)) {
-                        	(void)fprintf(stderr, "child pid %d exited with return code %d",
-                                        pid, WEXITSTATUS(status));
-                                exit(1);
-                        }
-                        if (WIFSIGNALED(status)) {
-                                (void)fprintf(stderr, "child pid %d exited on signal %d%s",
-                                        pid, WTERMSIG(status),
-                                        WCOREDUMP(status) ? " (core dumped)" :
-                                        "");
-                                exit(1);
-                        }
-                        if (pid == childpid)    /* it's gone... */
-                                break;
-                }
-                exit(0);
-        }
-
-        if (setsid() == -1)
-                return (-1);
-
-        if (!nochdir)
-                (void)chdir("/");
-
-        if (!noclose && (fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
-                (void)dup2(fd, STDIN_FILENO);
-                (void)dup2(fd, STDOUT_FILENO);
-                (void)dup2(fd, STDERR_FILENO);
-                if (fd > 2)
-                        (void)close (fd);
-        }
-        return (getppid());
-}
-
-/*
- * We get a SIGALRM from the child when it's running and finished doing it's
- * fsync()'s or O_SYNC writes for all the boot messages.
- *
- * We also get a signal from the kernel if the timer expires, so check to
- * see what happened.
- */
-void
-timedout(int signo)
-{
-        int left;
-        left = alarm(0);
-        signal(SIGALRM, SIG_DFL);
-        if (left == 0) {
-                (void)fprintf (stderr, "timed out waiting for child");
-                exit(1);
-        } else
-                exit(0);
 }
 
 #if 0
