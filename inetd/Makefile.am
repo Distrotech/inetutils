@@ -10,7 +10,7 @@ man_MANS = inetd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_INETDCONF)
+INCLUDES = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR)
 
 LDADD = -L../libinetutils -linetutils
 

@@ -120,6 +120,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
@@ -198,6 +199,7 @@ void		machtime_dg __P((int, struct servtab *));
 void		machtime_stream __P((int, struct servtab *));
 char	       *newstr __P((char *));
 char	       *nextline __P((FILE *));
+int		nextconfig __P((void));
 void		print_service __P((char *, struct servtab *));
 void		reapchild __P((int));
 void		retry __P((int));
@@ -241,6 +243,7 @@ struct biltin {
 
 #define NUMINT	(sizeof(intab) / sizeof(struct inent))
 char	*CONFIG = PATH_INETDCONF;
+char    *CONFIG_DIR = PATH_INETDDIR;
 char	**Argv;
 char 	*LastArg;
 
@@ -292,12 +295,17 @@ main(argc, argv, envp)
 		case '?':
 		default:
 			syslog(LOG_ERR,
-				"usage: inetd [-d] [-R rate] [conf-file]");
+				"usage: inetd [-d] [-R rate [conf-file]]");
 			exit(1);
 		}
 	argc -= optind;
 	argv += optind;
 
+	if (argc > 1)
+	  {
+	    CONFIG_DIR = argv[1];
+	    argc--;
+	  }
 	if (argc > 0)
 		CONFIG = argv[0];
 	if (debug == 0) {
@@ -612,7 +620,8 @@ config(signo)
 	}
 	for (sep = servtab; sep; sep = sep->se_next)
 		sep->se_checked = 0;
-	while (cp = getconfigent()) {
+	while ((cp = getconfigent()) ||
+	       ((nextconfig() == 1) && (cp = getconfigent()))) {
 		if ((pwd = getpwnam(cp->se_user)) == NULL) {
 			syslog(LOG_ERR,
 				"%s/%s: No such user '%s', service ignored",
@@ -842,12 +851,52 @@ enter(cp)
 }
 
 FILE	*fconfig = NULL;
+DIR     *dconfig = NULL;
 struct	servtab serv;
 #ifdef LINE_MAX
 char	line[LINE_MAX];
 #else
 char 	line[2048];
 #endif
+
+int
+nextconfig()
+{
+  struct dirent *ent = NULL;
+  struct stat statent;
+  char *cwd = NULL;
+
+  cwd = getcwd (cwd, 0);
+  chdir (CONFIG_DIR);
+  endconfig ();
+  if (dconfig == NULL) {
+    dconfig = opendir (CONFIG_DIR);
+    if (dconfig == NULL) {
+      chdir (cwd);
+      free (cwd);
+      return (0);
+    }
+  }
+  while (ent == NULL) {
+    ent = readdir (dconfig);
+    if (ent == NULL) {
+      closedir (dconfig);
+      chdir (cwd);
+      free (cwd);
+      return (0);
+    }
+    stat (ent->d_name, &statent);
+    if (!(S_ISLNK (statent.st_mode) || S_ISREG (statent.st_mode)))
+      ent = NULL;
+  }
+  fconfig = fopen (ent->d_name, "r");
+  chdir (cwd);
+  free (cwd);
+  if (fconfig != NULL)
+    return (1);
+  else
+    return (0);
+}
 
 int
 setconfig()
