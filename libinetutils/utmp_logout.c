@@ -28,6 +28,7 @@
 # include <time.h>
 #endif
 #ifdef HAVE_UTMPX_H
+#define __USE_GNU
 # include <utmpx.h>
 #else
 # include <utmp.h>
@@ -55,7 +56,7 @@ char   *line;
 		ut->ut_exit.e_exit = 0;
 		gettimeofday(&(ut->ut_tv), 0);
 		pututxline(ut);
-		updwtmpx(WTMPX_FILE, ut);
+		updwtmpx(PATH_WTMPX, ut);
 	}
 	endutxent();
 #else
