@@ -1,3 +1,7 @@
+/* TODO: implement */
+
+#if 0 
+
 	int
 getpty(ptynum)
 int *ptynum;
@@ -110,3 +114,5 @@ int *ptynum;
 #endif	/* STREAMSPTY */
 	return(-1);
 }
+
+#endif
