@@ -117,7 +117,6 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 
 #include <version.h>
 
-char	*LogName = PATH_LOG;
 char	*ConfFile = PATH_LOGCONF;
 char	*PidFile = PATH_LOGPID;
 char	ctty[] = PATH_CONSOLE;
@@ -129,6 +128,12 @@ static int debugging_on = 0;
 #ifndef LINE_MAX
 #define LINE_MAX 2048
 #endif
+
+#define MAXFUNIX	20
+
+int nfunix = 1;
+char *funixn[MAXFUNIX] = { PATH_LOG };
+int funix[MAXFUNIX];
 
 /*
  * Flags to logmsg().
@@ -274,8 +279,14 @@ main(int argc, char *argv[])
 	char line[MAXLINE + 1];
 #endif
 
-	while ((ch = getopt(argc, argv, "dhf:l:m:np:rs:V")) != EOF)
+	while ((ch = getopt(argc, argv, "a:dhf:l:m:np:rs:V")) != EOF)
 		switch(ch) {
+		case 'a':
+			if (nfunix < MAXFUNIX)
+				funixn[nfunix++] = optarg;
+			else
+				fprintf(stderr, "Out of descriptors, ignoring %s\n", optarg);
+			break;
 		case 'd':		/* debug */
 			Debug++;
 			break;
@@ -285,22 +296,6 @@ main(int argc, char *argv[])
 		case 'h':
 			NoHops = 0;
 			break;
-		case 'm':		/* mark interval */
-			MarkInterval = atoi(optarg) * 60;
-			break;
-		case 'n':		/* don't run in the background */
-			NoDetach = 1;
-			break;
-		case 'p':		/* path */
-			LogName = optarg;
-			break;
-		case 'r':		/* accept remote messages */
-			AcceptRemote = 1;
-			break;
-		case 'V':
-			printf("syslogd (%s) %s\n", inetutils_package,
-			       inetutils_version);
-			exit (0);
 		case 'l':
 			if (LocalHosts) {
 				fprintf (stderr, "Only one -l argument allowed," \
@@ -308,6 +303,18 @@ main(int argc, char *argv[])
 				break;
 			}
 			LocalHosts = crunch_list(optarg);
+			break;
+		case 'm':		/* mark interval */
+			MarkInterval = atoi(optarg) * 60;
+			break;
+		case 'n':		/* don't run in the background */
+			NoDetach = 1;
+			break;
+		case 'p':		/* path */
+			funixn[0] = optarg;
+			break;
+		case 'r':		/* accept remote messages */
+			AcceptRemote = 1;
 			break;
 		case 's':
 			if (StripDomains) {
@@ -317,6 +324,10 @@ main(int argc, char *argv[])
 			}
 			StripDomains = crunch_list(optarg);
 			break; 
+		case 'V':
+			printf("syslogd (%s) %s\n", inetutils_package,
+			       inetutils_version);
+			exit (0);
 		case '?':
 		default:
 			usage();
@@ -378,22 +389,26 @@ main(int argc, char *argv[])
 	(void)signal(SIGALRM, domark);
 	(void)signal(SIGUSR1, Debug ? debug_switch : SIG_IGN);
 	(void)alarm(TIMERINTVL);
-	(void)unlink(LogName);
 
 #ifndef SUN_LEN
 #define SUN_LEN(unp) (strlen((unp)->sun_path) + 3)
 #endif
-	memset(&sunx, 0, sizeof(sunx));
-	sunx.sun_family = AF_UNIX;
-	(void)strncpy(sunx.sun_path, LogName, sizeof(sunx.sun_path));
-	funix = socket(AF_UNIX, SOCK_DGRAM, 0);
-	if (funix < 0 ||
-	    bind(funix, (struct sockaddr *)&sunx, SUN_LEN(&sunx)) < 0 ||
-	    chmod(LogName, 0666) < 0) {
-		snprintf (line, sizeof line, "cannot create %s", LogName);
-		logerror(line);
-		dprintf("cannot create %s (%d)\n", LogName, errno);
-		die(0);
+	for (i = 0; i < nfunix; i++) {
+		if (funixn[i])
+			(void)unlink(funixn[i]);
+		memset(&sunx, 0, sizeof(sunx));
+		sunx.sun_family = AF_UNIX;
+		(void)strncpy(sunx.sun_path, funixn[i], sizeof(sunx.sun_path));
+		funix[i] = socket(AF_UNIX, SOCK_DGRAM, 0);
+		if (funix[i] < 0 ||
+		    bind(funix[i], (struct sockaddr *)&sunx, SUN_LEN(&sunx)) < 0 ||
+		    chmod(funixn[i], 0666) < 0) {
+			snprintf (line, sizeof line, "cannot create %s", funixn[i]);
+			logerror(line);
+			dprintf("cannot create %s (%d)\n", funixn[i], errno);
+			if (i == 0)
+				die(0);
+		}
 	}
 	finet = socket(AF_INET, SOCK_DGRAM, 0);
 	inetm = 0;
@@ -448,13 +463,27 @@ main(int argc, char *argv[])
 	}
 
 	for (;;) {
-		int nfds, readfds = FDMASK(funix) | klogm;
+		int nfds = 0, readfds = klogm;
 
-		if (AcceptRemote)
+		if (klogm)
+			nfds = fklog;
+
+		if (AcceptRemote && inetm) {
 			readfds |= inetm;
+			if (finet > nfds)
+				nfds = finet;
+		}
+
+		for (i = 0; i < nfunix; i++) {
+			if (funix[i] != -1) {
+				readfds |= FDMASK(funix[i]);
+				if (funix[i] > nfds)
+					nfds = funix[i];
+			}
+		}
 
 		dprintf("readfds = %#x\n", readfds);
-		nfds = select(20, (fd_set *)&readfds, (fd_set *)NULL,
+		nfds = select(nfds+1, (fd_set *)&readfds, (fd_set *)NULL,
 		    (fd_set *)NULL, (struct timeval *)NULL);
 		if (nfds == 0)
 			continue;
@@ -475,15 +504,17 @@ main(int argc, char *argv[])
 				klogm = 0;
 			}
 		}
-		if (readfds & FDMASK(funix)) {
-			len = sizeof(fromunix);
-			i = recvfrom(funix, line, MAXLINE, 0,
-			    (struct sockaddr *)&fromunix, &len);
-			if (i > 0) {
-				line[i] = '\0';
-				printline(LocalHostName, line);
-			} else if (i < 0 && errno != EINTR)
-				logerror("recvfrom unix");
+		for (i = 0; i < nfunix; i++) {
+			if (funix[i] != -1 && (readfds & FDMASK(funix[i])) {
+				len = sizeof(fromunix);
+				i = recvfrom(funix[i], line, MAXLINE, 0,
+				    (struct sockaddr *)&fromunix, &len);
+				if (i > 0) {
+					line[i] = '\0';
+					printline(LocalHostName, line);
+				} else if (i < 0 && errno != EINTR)
+					logerror("recvfrom unix");
+			}
 		}
 		if (AcceptRemote && (readfds & inetm)) {
 			len = sizeof(frominet);
@@ -507,6 +538,7 @@ usage()
 Usage: syslogd [OPTION]...\n\
 Start system log daemon.\n\
 \n\
+  -a SOCKET      Specify additional socket to listen to (up to 19).\n\
   -f FILE        Read configuration from FILE instead from " PATH_LOGCONF ".\n\
   -h             Forward messages from remote hosts.\n\
   -l HOSTLIST    A ':'-seperated list of hosts which should be logged by\n\
@@ -1203,7 +1235,17 @@ die(int signo)
 		errno = 0;
 		logerror(buf);
 	}
-	(void)unlink(LogName);
+
+	/* Close the UNIX sockets. */
+	for (i = 0; i < nfunix; i++)
+		if (funix[i] != -1)
+			close(funix[i]);
+
+	/* Clean-up files. */
+	for (i = 0; i < nfunix; i++)
+		if (funixn[i] && funix[i] != -1)
+			(void)unlink(funixn[i]);
+
 	exit(0);
 }
 

@@ -1,3 +1,33 @@
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
+This is the equivalent to the following Linux change:
+Mon Oct 12 14:02:51 CEST 1998: Martin Schulze <joey@infodrom.north.de>
+Applied patch provided vom Topi Miettinen with regard to the
+people from OpenBSD.  This provides the additional '-a'
+argument used for specifying additional UNIX domain sockets to
+listen to.  This is been used with chroot()'ed named's for
+example.  See for http://www.psionic.com/papers/dns.html
+
+	* Note: The above link is actually ".../papers/dns/".
+	* syslogd.c (LogName): Remove global variable.
+	(nfunix, funixn, funix): New global variables.
+	(MAXFUNIX): New symbol.
+	(main): Add option '-a' to getopt() invocation.
+	Learn the alphabet.
+	Add '-a' option processing.
+	Convert '-p' option to funixn.
+	Don't unlink LogName (doesn't exist anymore).
+	Create nfunix unix sockets in funix (using funixn)
+	(also unlink funixn here).
+	Main loop: Diddle the readfds initialization a bit.
+	Initialize nfds on the way.
+	Loop over all funix sockets and add their descriptors.
+	In select call, use nfds+1 and not arbitrary 20.
+	Later, check all funix for available reads.
+	(usage): Document '-a' option.
+	(die): Don't unlink LogName, instead close and unlink
+	all unix sockets in funix.
+
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
 
 This is the equivalent to the following Linux change:

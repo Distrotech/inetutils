@@ -36,9 +36,10 @@
 .Sh SYNOPSIS
 .Nm syslogd
 .Op Fl V
+.Op Fl a Ar socket
+.Op Fl f Ar config_file
 .Op Fl h
 .Op Fl l Ar host_list
-.Op Fl f Ar config_file
 .Op Fl m Ar mark_interval
 .Op Fl n
 .Op Fl p Ar log_socket
@@ -52,16 +53,21 @@ The options are as follows:
 .Bl -tag -width Ds
 .It Fl V
 Print version number and exit.
+.It Fl a
+Specify additional sockets from that syslogd has to listen to.
+This is needed if you are going to let some daemon run within
+a chroot()'ed environment. You can specify up to 19 additional
+sockets.
+.It Fl f
+Specify the pathname of an alternate configuration file;
+the default is
+.Pa /etc/syslog.conf .
 .It Fl h
 Enable forwarding remote messages. By default syslogd will not
 forward messages it receives from remote hosts.
 .It Fl l
 A colon-seperated lists of hosts which should be considered local;
 they are logged by their hostnames instead by their FQDN.
-.It Fl f
-Specify the pathname of an alternate configuration file;
-the default is
-.Pa /etc/syslog.conf .
 .It Fl m
 Select the number of minutes between ``mark'' messages;
 the default is 20 minutes. Setting it to 0 disables timestamps.
