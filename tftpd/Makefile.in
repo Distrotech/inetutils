@@ -1,6 +1,6 @@
 # Makefile for tftpd
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,12 +20,14 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(libexecdir)/in.tftpd $(man8dir)/tftpd.8
+INSTALL_TARGETS = $(libexecdir)/in.tftpd $(man8dir)/tftpd.8
+SRCS = tftpd.c
+DISTFILES = $(SRCS) tftpd.8 Makefile.in
 
 CPPFLAGS += -I$(top_srcdir)/tftp
 
 all: tftpd
-tftpd: tftpd.o tftpsubs.o
+tftpd: $(SRCS:.c=.o) tftpsubs.o
 
 tftpsubs.o: $(top_srcdir)/tftp/tftpsubs.c
 	$(COMPILE.c) $<
