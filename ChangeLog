@@ -1,3 +1,9 @@
+2001-05-07  Jeff Bailey  <jbailey@oasis.zugzug.com>
+
+	* Makefile.am: Integrate ifconfig into build
+
+	* configure.in: Integrate ifconfig into build
+
 2001-03-14  Joachim Gabler <joga@sun.com>
 
    * rlogind/rlogind.c: exec to /bin/login requires additional
