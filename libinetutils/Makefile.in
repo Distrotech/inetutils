@@ -22,10 +22,10 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 SRCS = \
-__progname.c alloca.c bcopy.c cleansess.c daemon.c err.c forkpty.c getopt.c \
-getopt1.c hstrerror.c localhost.c login.c logout.c logwtmp.c logwtmpko.c    \
-memset.c openpty.c snprintf.c strdup.c strerror.c stub_tgetent.c ttymsg.c   \
-version.c
+__progname.c alloca.c cleansess.c daemon.c err.c forkpty.c getopt.c	 \
+getopt1.c hstrerror.c localhost.c login.c logout.c logwtmp.c logwtmpko.c \
+memmove.c memset.c openpty.c setenv.c snprintf.c strdup.c strerror.c	 \
+stub_tgetent.c ttymsg.c version.c
 
 DISTFILES = $(SRCS)
 
