@@ -102,10 +102,22 @@
 #define TTYDEF_LFLAG	(ECHO | ICANON | ISIG | IEXTEN | ECHOE|ECHOKE|ECHOCTL)
 #endif
 
-#ifdef	KERBEROS
-# include <kerberosIV/des.h>
-# include <kerberosIV/krb.h>
+#define AUTH_KERBEROS_4 4
+#define AUTH_KERBEROS_5 5
+
+#ifdef KERBEROS
 # define	SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
+# ifdef	KERBEROS_IV
+#  include <kerberosIV/des.h>
+#  include <kerberosIV/krb.h>
+#  define kerberos_error_string(c) krb_err_txt[c]
+#  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_4
+# elif defined(KERBEROS_V)
+#  include <krb5.h>
+#  include <kerberosIV/krb.h>
+#  define kerberos_error_string(c) error_message (c)
+#  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_5
+# endif
 #endif /* KERBEROS */
 
 #define	ENVSIZE	(sizeof("TERM=")-1)	/* skip null for concatenation */
@@ -127,9 +139,18 @@ struct auth_data
   char *rusername;
   char *term;
   char *env[2];
+#ifdef KERBEROS
+#ifdef KERBEROS_V
+  int kerberos_version;
+  krb5_principal client;
+  krb5_context context;
+  krb5_ccache ccache;
+  krb5_keytab keytab;
+#endif
+#endif
 };
 
-static const char *short_options = "aD::d::hkL:lnp:orxV";
+static const char *short_options = "aD::d::hk::L:lnp:orxV";
 static struct option long_options[] =
 {
   {"allow-root", no_argument, 0, 'o'},
@@ -138,7 +159,7 @@ static struct option long_options[] =
   {"no-rhosts", no_argument, 0, 'l'},
   {"no-keepalive", no_argument, 0, 'n'},
   {"local-domain", required_argument, 0, 'L'},
-  {"kerberos", no_argument, 0, 'k'},
+  {"kerberos", optional_argument, 0, 'k'},
   {"encrypt", no_argument, 0, 'x'},
   {"debug", optional_argument, 0, 'D'},
   {"help", no_argument, 0, 'h'},
@@ -154,7 +175,7 @@ int keepalive = 1;
 #ifdef KERBEROS
 int kerberos = 0;
 #ifdef ENCRYPTION
-int encrypt = 0;
+int encrypt_io = 0;
 #endif /* ENCRYPTION */
 #endif /* KERBEROS */
 int reverse_required = 0;
@@ -177,7 +198,7 @@ void setup_tty __P ((int fd, struct auth_data *ap));
 void exec_login __P ((int authenticated, struct auth_data *ap));
 int rlogind_mainloop __P ((int infd, int outfd));
 int do_rlogin __P ((int infd, struct auth_data *ap));
-int do_krb_login __P ((int infd, struct auth_data *ap));
+int do_krb_login __P ((int infd, struct auth_data *ap, const char **msg));
 void getstr __P ((int infd, char **ptr, const char *prefix));
 void protocol __P ((int f, int p));
 int control __P ((int pty, char *cp, size_t n));
@@ -201,19 +222,21 @@ rlogind_sigchld (int sig)
 #define MODE_DAEMON 1
 
 #if defined(KERBEROS) && defined(ENCRYPTION)
-# define IF_ENCRYPT(stmt) if (encrypt) stmt
-# define IF_NOT_ENCRYPT(stmt) if (!encrypt) stmt
+# define ENCRYPT_IO encrypt_io
+# define IF_ENCRYPT(stmt) if (encrypt_io) stmt
+# define IF_NOT_ENCRYPT(stmt) if (!encrypt_io) stmt
 # define ENC_READ(c, fd, buf, size) \
- if (encrypt) \
+ if (encrypt_io) \
      c = des_read(fd, buf, size); \
  else \
      c = read(fd, buf, size);
 # define ENC_WRITE(c, fd, buf, size) \
- if (encrypt) \
+ if (encrypt_io) \
      c = des_write(fd, buf, size); \
  else \
      c = write(fd, buf, size);
 #else
+# define ENCRYPT_IO 0
 # define IF_ENCRYPT(stmt)
 # define IF_NOT_ENCRYPT(stmt) stmt
 # define ENC_READ(c, fd, buf, size) c = read (fd, buf, size)
@@ -264,12 +287,20 @@ main (int argc, char *argv[])
 
 #ifdef KERBEROS
 	case 'k':
-	  kerberos = 1;
+	  if (optarg)
+	    {
+	      if (*optarg == '4')
+		kerberos = AUTH_KERBEROS_4;
+	      else if (*optarg == '5')
+		kerberos = AUTH_KERBEROS_5;
+	    }
+	  else
+	    kerberos = AUTH_KERBEROS_DEFAULT;
 	  break;
 
 # ifdef ENCRYPTION
 	case 'x':
-	  encrypt = 1;
+	  encrypt_io = 1;
 	  break;
 # endif /* ENCRYPTION */
 #endif /* KERBEROS */
@@ -479,11 +510,12 @@ rlogind_auth (int fd, struct auth_data *ap)
 #ifdef	KERBEROS
   if (kerberos)
     {
-      int rc = do_krb_login (infd, ap);
-      if (rc == 0)
+      const char *err_msg;
+      int c = 0;
+      if (do_krb_login (fd, ap, &err_msg) == 0)
 	authenticated++;
-      else if (rc > 0)
-	fatal (fd, krb_err_txt[rc], 0);
+      else 
+	fatal (fd, err_msg, 0);
       write (fd, &c, 1);
       confirmed = 1;		/* we sent the null! */
     }
@@ -596,7 +628,7 @@ exec_login(int authenticated, struct auth_data *ap)
 	      ap->lusername, NULL, ap->env);
 #else
       execle (path_login, "login", "-p",
-	      "-h", ap->hostname, "-f", "--",
+	      "-h", ap->hostname, "-f", 
 	      ap->lusername, NULL, ap->env);
 #endif
     }
@@ -608,7 +640,7 @@ exec_login(int authenticated, struct auth_data *ap)
 	      ap->lusername, NULL, ap->env);
 #else
       execle (path_login, "login", "-p",
-	      "-h", ap->hostname, "--",
+	      "-h", ap->hostname, 
 	      ap->lusername, NULL, ap->env);
 #endif
     }
@@ -634,7 +666,8 @@ rlogind_mainloop (int infd, int outfd)
       fatal (outfd, "Can't get peer name of remote host", 1);
     }
 
-  syslog (LOG_INFO, "Connect from %s", inet_ntoa(auth_data.from.sin_addr));
+  syslog (LOG_INFO, "Connect from %s:%d", 
+          inet_ntoa(auth_data.from.sin_addr), ntohs(auth_data.from.sin_port));
 
   true = 1;
   if (keepalive
@@ -735,17 +768,37 @@ do_rlogin(int infd, struct auth_data *ap)
 
 #ifdef KERBEROS
 int
-do_krb_login (int infd, struct auth_data *ap)
+do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
 {
   int rc;
-  char instance[INST_SZ], version[VERSION_SIZE];
+
+  err_msg = NULL;
+#ifdef KERBEROS_V
+  if (kerberos == AUTH_KERBEROS_5)
+    rc = do_krb5_login (infd, ap, err_msg);
+  else
+#endif
+    rc = do_krb4_login (infd, ap, err_msg);
+  
+  if (rc && !err_msg)
+    *err_msg = kerberos_error_string (rc);
+  return rc;
+}
+
+int
+do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
+{
+  int rc;
+  char instance[INST_SZ], version[VERSION_SZ];
   long authopts = 0L;		/* !mutual */
   struct sockaddr_in faddr;
   u_char auth_buf[sizeof (AUTH_DAT)];
   u_char tick_buf[sizeof (KTEXT_ST)];
   Key_schedule schedule;
   AUTH_DAT *kdata;
-
+  KTEXT ticket;
+  struct passwd *pwd;
+  
   kdata = (AUTH_DAT *) auth_buf;
   ticket = (KTEXT) tick_buf;
 
@@ -753,15 +806,19 @@ do_krb_login (int infd, struct auth_data *ap)
   instance[1] = '\0';
 
 #ifdef ENCRYPTION
-  if (encrypt)
+  if (encrypt_io)
     {
       rc = sizeof faddr;
       if (getsockname (0, (struct sockaddr *) &faddr, &rc))
-	return -1;
+	{
+	  *err_msg = "getsockname failed";
+	  syslog (LOG_ERR, "getsockname failed: %m");
+	  return 1;
+	}
       authopts = KOPT_DO_MUTUAL;
       rc = krb_recvauth (authopts, 0,
 			 ticket, "rcmd",
-			 instance, ap->from, &faddr,
+			 instance, &ap->from, &faddr,
 			 kdata, "", schedule, version);
       des_set_key (kdata->session, schedule);
 
@@ -770,23 +827,26 @@ do_krb_login (int infd, struct auth_data *ap)
 #endif
     rc = krb_recvauth (authopts, 0,
 		       ticket, "rcmd",
-		       instance, ap->from, NULL,
+		       instance, &ap->from, NULL,
 		       kdata, "", NULL, version);
 
   if (rc != KSUCCESS)
-    return rc;
-
+    return 1;
+  
   getstr (infd, &ap->lusername, NULL);
   /* get the "cmd" in the rcmd protocol */
   getstr (infd, &ap->term, "TERM=");
 
   pwd = getpwnam (ap->lusername);
   if (pwd == NULL)
-    return -1;
-
+    {
+      *err_msg = "getpwnam failed";
+      syslog (LOG_ERR, "getpwnam failed: %m");
+      return 1;
+    }
   /* returns nonzero for no access */
   if (kuserok (kdata, ap->lusername) != 0)
-    return -1;
+    return 1;
 
   if (pwd->pw_uid == 0)
     syslog (LOG_INFO | LOG_AUTH,
@@ -800,6 +860,105 @@ do_krb_login (int infd, struct auth_data *ap)
 
   return 0;
 }
+
+#ifdef KERBEROS_V
+int
+do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
+{
+  krb5_auth_context auth_ctx = NULL;
+  krb5_error_code status;
+  krb5_data inbuf;
+  krb5_data version;
+  krb5_authenticator *authenticator;
+  krb5_rcache rcache;
+  krb5_keyblock *key;
+  krb5_ticket *ticket;
+  struct sockaddr_in laddr;
+  int len;
+  struct passwd *pwd;
+  char *name;
+
+  if (status = krb5_init_context (&ap->context))
+    {
+      syslog (LOG_ERR, "Error initializing krb5: %s",
+	      error_message (status));
+      return status;
+    }
+
+  if ((status = krb5_auth_con_init (ap->context, &auth_ctx))
+      || (status = krb5_auth_con_genaddrs (ap->context, auth_ctx, infd,
+			     KRB5_AUTH_CONTEXT_GENERATE_REMOTE_FULL_ADDR))
+      || (status = krb5_auth_con_getrcache (ap->context, auth_ctx, &rcache)))
+    return status;
+
+  if (!rcache)
+    {
+      krb5_principal server;
+      status = krb5_sname_to_principal (ap->context, 0, 0, KRB5_NT_SRV_HST,
+					&server);
+      if (status)
+	return status;
+      
+      status =  krb5_get_server_rcache (ap->context,
+			    krb5_princ_component (ap->context, server, 0),
+	                    &rcache);
+      krb5_free_principal(ap->context, server);
+      
+      if (status)
+	return status;
+      
+      status = krb5_auth_con_setrcache (ap->context, auth_ctx, rcache);
+      if (status)
+	return status;
+    }
+
+  len = sizeof (laddr);
+  if (getsockname (infd, (struct sockaddr *)&laddr, &len))
+    return errno;
+
+  status = krb5_recvauth (ap->context, &auth_ctx, &infd, NULL, 0,
+			  0, ap->keytab, &ticket);
+  if (status)
+    return status;
+
+  if ((status = krb5_auth_con_getauthenticator (ap->context, auth_ctx,
+						&authenticator)))
+    return status;
+  
+  getstr (infd, &ap->lusername, NULL);
+  getstr (infd, &ap->term, "TERM=");
+  
+  pwd = getpwnam (ap->lusername);
+  if (pwd == NULL)
+    {
+      *err_msg = "getpwnam failed";
+      syslog (LOG_ERR, "getpwnam failed: %m");
+      return 1;
+    }
+  
+  getstr (infd, &ap->rusername, NULL);
+
+  if ((status = krb5_copy_principal(ap->context,
+				    ticket->enc_part2->client,
+				    &ap->client)))
+    return status;
+      
+  /*OK::*/
+  if (ap->client && !krb5_kuserok (ap->context, ap->client, ap->lusername))
+    return 1;
+
+  krb5_unparse_name (ap->context, ap->client, &name);
+  
+  syslog (LOG_INFO | LOG_AUTH,
+	  "%sKerberos V login from %s on %s\n",
+	  (pwd->pw_uid == 0) ? "ROOT " : "",
+	  name, ap->hostname);
+  free (name);
+  
+  return 0;
+}
+
+#endif
 #endif
 
 #define BUFFER_SIZE 128
@@ -868,6 +1027,9 @@ protocol (int f, int p)
   int pcc = 0, fcc = 0;
   int cc, nfd, n;
   char cntl;
+#ifdef TIOCPKT
+  int tiocpkt_on = 0;
+#endif
 
   /*
    * Must ignore SIGTTOU, otherwise we'll stop
@@ -1162,4 +1324,11 @@ usage()
   printf ("%s\n"
 	 "Send bug reports to %s\n",
 	 usage_str, inetutils_bugaddr);
+}
+
+int volatile _st;
+stop()
+{
+	for (_st=0; !_st;)
+		_st=_st;
 }
