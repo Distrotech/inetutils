@@ -34,6 +34,10 @@ USA.  */
 # include <unistd.h>
 #endif
 
+#if !HAVE_DECL_ENVIRON
+extern char **environ;
+#endif
+
 #ifndef	HAVE_GNU_LD
 # define __environ	environ
 #endif
