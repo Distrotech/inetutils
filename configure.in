@@ -47,15 +47,14 @@ AC_CHECK_TOOL(AR, ar)
 AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
-AC_CHECK_HEADERS(malloc.h termio.h termios.h stdlib.h sys/tty.h sys/utsname.h \
+AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
+		 stdlib.h sys/tty.h sys/utsname.h \
 		 sys/msgbuf.h krb.h des.h netinet/in_systm.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
 		 sys/ioctl_compat.h sys/cdefs.h)
 
 # Headers that we use our own version of if the system doesn't have them.
 AC_CHECK_HEADER(paths.h, , INCLUDES="$INCLUDES paths.h")
-
-AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp fpathconf tcgetattr)
 
 AC_CHECK_LIB(util, logout, LIBUTIL=-lutil)
 AC_SUBST(LIBUTIL)
@@ -67,6 +66,11 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
   AC_CHECK_LIB(des, des_key_sched, LIBAUTH="$LIBAUTH -ldes")
   AC_SUBST(LIBAUTH)
 fi
+
+_SAVE_LIBS="$LIBS"
+LIBS="$LIBUTIL $LIBS"
+AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp fpathconf tcgetattr)
+LIBS="$_SAVE_LIBS"
 
 # If there's no libtermcap, add a bogus version of tgetent to libinetutils,
 # as that's the only function actually used (except for dependencies from
@@ -119,6 +123,9 @@ HAVE___P
 #endif],
   [inetutils_cv_macro___p=yes],
   [inetutils_cv_macro___p=no]))
+if test "$inetutils_cv_macro___p" = yes; then
+  AC_DEFINE(HAVE___P)
+fi
 
 AC_CACHE_CHECK(whether struct stat has timespec fields,
 	       inetutils_cv_struct_st_timespec,
@@ -199,6 +206,53 @@ fi
 AC_CHECK_FUNC(getopt_long, ,
   INCLUDES="$INCLUDES getopt.h"
   LIBOBJS="$LIBOBJS getopt.o getopt1.o")
+
+# Supply versions of the BSD error reporting functions if the system doesn't
+AC_CHECK_FUNC(verrx, ,
+  INCLUDES="$INCLUDES err.h"
+  LIBOBJS="$LIBOBJS err.o")
+
+# See if the system has strerror, and replace it if not
+AC_CHECK_FUNC(strerror, , LIBOBJS="$LIBOBJS strerror.o")
+if test "$ac_cv_func_strerror" = no; then
+  # No strerror, so see if the SYS_ERRLIST variable can be used by ours
+  AC_CHECK_FUNC(sys_errlist)
+  if test "$ac_cv_func_sys_errlist" = yes; then
+    AC_CACHE_CHECK(whether sys_errlist is declared,
+ 		   inetutils_cv_sys_errlist_decl,
+    AC_TRY_COMPILE(
+[#include <stdio.h>
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#endif],
+      [char *x = sys_errlist[sys_nerrs - 1];],
+      [inetutils_cv_sys_errlist_decl=yes],
+      [inetutils_cv_sys_errlist_decl=no]))
+    if test "$inetutils_cv_sys_errlist_decl" = yes; then
+      AC_DEFINE(HAVE_SYS_ERRLIST_DECL)
+    fi
+  fi
+fi
+
+AC_CACHE_CHECK(for sig_t, inetutils_cv_type_sig_t,
+  AC_TRY_COMPILE(
+[#include <sys/types.h>
+#include <signal.h>],
+    [sig_t foo;],
+    [inetutils_cv_type_sig_t=yes], [inetutils_cv_type_sig_t=no]))
+if test "$inetutils_cv_type_sig_t" = yes; then
+  AC_DEFINE(HAVE_SIG_T)
+fi
+
+# See if the __PROGNAME variable is defined, otherwise use our own.
+AC_CHECK_FUNC(__progname,
+  AC_DEFINE(HAVE___PROGNAME),
+  LIBOBJS="$LIBOBJS __progname.o")
+
+# See if snprintf exists, otherwise just use a bogus version
+AC_CHECK_FUNC(snprintf,
+  AC_DEFINE(HAVE_SNPRINTF),
+  LIBOBJS="$LIBOBJS snprintf.o")
 
 # Supply optional header files by linking a copy into the object include dir
 _ISRCS="`for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
