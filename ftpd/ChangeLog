@@ -1,3 +1,7 @@
+2000-07-26  Michael Vogt  <mvo@debian.org>
+
+	* ftpd.c(pass): added pam support
+
 2000-07-08  Michael Vogt  <mvo@debian.org>
 
 	* ftpd.c(main): added new option "-A" anonymous login only

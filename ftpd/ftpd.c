@@ -128,6 +128,10 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <shadow.h>
 #endif
 
+#ifdef HAVE_PAM
+#include <security/pam_appl.h>
+#endif
+
 #ifndef LINE_MAX
 #  define LINE_MAX 2048
 #endif
@@ -181,6 +185,13 @@ char	tmpline[7];
 char	*hostname = 0;
 char	*remotehost = 0;
 char    *anonymous_login_name = "ftp";
+
+#ifdef HAVE_PAM
+static int ftp_conv (int num_msg, const struct pam_message **msg,
+        struct pam_response **resp, void *appdata_ptr);
+static struct pam_conv conv = { ftp_conv, NULL };
+#endif 
+
 
 #define NUM_SIMUL_OFF_TO_STRS 4
 
@@ -636,33 +647,9 @@ static int askpasswd;		/* had user command, ask for passwd */
 static char curname[10];	/* current USER name */
 
 static void
-complete_login (char *passwd)
+complete_login (char* passwd)
 {
 	FILE *fd;
-
-	if (!guest && (!pw || *pw->pw_passwd)) {
-		char *xpasswd;
-		if (pw) {
-			char *salt = pw->pw_passwd;
-			xpasswd = CRYPT (passwd, salt);
-		}
-
-		if (!pw || !xpasswd || strcmp (xpasswd, pw->pw_passwd) != 0) {
-			reply(530, "Login incorrect.");
-			if (logging)
-				syslog(LOG_NOTICE,
-				    "FTP LOGIN FAILED FROM %s, %s",
-				    remotehost, curname);
-			pw = NULL;
-			if (login_attempts++ >= 5) {
-				syslog(LOG_NOTICE,
-				    "repeated login failures from %s",
-				    remotehost);
-				exit(0);
-			}
-			return;
-		}
-	}
 
 	login_attempts = 0;		/* this time successful */
 	if (setegid((gid_t)pw->pw_gid) < 0) {
@@ -724,7 +711,7 @@ complete_login (char *passwd)
 #endif /* SETPROCTITLE */
 		if (logging)
 			syslog(LOG_INFO, "ANONYMOUS FTP LOGIN FROM %s, %s",
-			    remotehost, passwd);
+			       remotehost, passwd);
 	} else {
 		reply(230, "User %s logged in.", pw->pw_name);
 #ifdef SETPROCTITLE
@@ -806,8 +793,7 @@ user(char *name)
 			return;
 		}
 	}
-	if (logging)
-		strncpy(curname, name, sizeof(curname)-1);
+	strncpy(curname, name, sizeof(curname)-1);
 
 	if (!pw || *pw->pw_passwd) {
 		reply(331, "Password required for %s.", name);
@@ -865,15 +851,125 @@ end_login()
 	guest = 0;
 }
 
+#ifdef HAVE_PAM
+int
+ftp_conv (int num_msg, const struct pam_message **msg,
+        struct pam_response **resp, void *appdata_ptr)
+{
+        int i;
+        struct pam_response *vresp;
+
+        if ((!msg)||(!resp)) return PAM_CONV_ERR;
+        if (num_msg == 0) {
+                *resp = NULL;
+                return PAM_SUCCESS;
+        }
+        if ( (vresp = malloc (num_msg*sizeof(struct pam_response))) == NULL ) {
+                return PAM_CONV_ERR;
+        }
+        for (i=0 ; i<num_msg ; i++) {
+                switch (msg[i]->msg_style) {
+                case PAM_PROMPT_ECHO_OFF:
+                        if (appdata_ptr)
+                                vresp[i].resp = strdup((char *)appdata_ptr);
+                        else
+                                vresp[i].resp = strdup(""); 
+                        vresp[i].resp_retcode = 0;
+                        break;
+                case PAM_PROMPT_ECHO_ON:
+                        free (vresp);
+                        return PAM_CONV_ERR;
+                case PAM_ERROR_MSG:
+                        vresp[i].resp = NULL;
+                        vresp[i].resp_retcode = 0;
+                        break;
+                case PAM_TEXT_INFO:
+                       vresp[i].resp = NULL;
+                        vresp[i].resp_retcode = 0;
+                        break;
+                }
+        }
+        *resp = vresp;
+        return PAM_SUCCESS;
+}
+#endif /* HAVE_PAM */
+
+
 void
 pass(char *passwd)
 {
+  int rval;
+#ifdef HAVE_PAM
+	 pam_handle_t *pamh;
+#endif
+
 	if (logged_in || askpasswd == 0) {
 		reply(503, "Login with USER first.");
 		return;
 	}
 	askpasswd = 0;
 
+#if  !defined(HAVE_PAM)
+	if (!guest && (!pw || *pw->pw_passwd)) {
+		char *xpasswd;
+		if (pw) {
+			char *salt = pw->pw_passwd;
+			xpasswd = CRYPT (passwd, salt);
+		}
+
+		if (!pw || !xpasswd || strcmp (xpasswd, pw->pw_passwd) != 0) {
+			pw = NULL;
+			rval = 0;
+			goto skip;
+		}
+	
+#else
+	if (!guest) {
+	  conv.appdata_ptr = passwd;
+	  if (pam_start ("ftp", curname, &conv, &pamh) != PAM_SUCCESS)
+	    goto pam_fail;
+	  pam_set_item (pamh, PAM_RHOST, remotehost);
+	  pam_fail_delay (pamh, 2000000);
+	  if (pam_authenticate (pamh, 0) != PAM_SUCCESS) 
+	    goto pam_fail;
+	  if (pam_acct_mgmt (pamh, 0) != PAM_SUCCESS)
+	    goto pam_fail;
+	  if (pam_setcred (pamh, PAM_ESTABLISH_CRED) != PAM_SUCCESS)
+	    goto pam_fail;
+	  /* User is authenticated */
+	  rval = 0;
+	  pam_end (pamh, 0);
+	  goto skip;
+
+pam_fail:
+	  rval = 1;
+	  pam_end (pamh, 0);
+	  goto skip;
+	     
+#endif
+	     
+skip:
+	  /*
+	   * If rval == 1, the user failed the authentication check
+	   * above.  If rval == 0, either Kerberos or local authentication
+	   * succeeded.
+	   */
+	  if (rval) {
+	    reply(530, "Login incorrect.");
+	    if (logging)
+	      syslog(LOG_NOTICE,
+		     "FTP LOGIN FAILED FROM %s, %s",
+		     remotehost, curname);
+	    pw = NULL;
+	    if (login_attempts++ >= 5) {
+	      syslog(LOG_NOTICE,
+		     "repeated login failures from %s",
+		     remotehost);
+	      exit(0);
+	    }
+	    return;
+	  }
+	}
 	complete_login (passwd);
 }
 
