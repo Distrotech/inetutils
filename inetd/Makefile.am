@@ -4,4 +4,6 @@ inetd_SOURCES = inetd.c
 
 man_MANS = inetd.8
 
-INCLUDES = -DPATH_INETDCONF=\"$(sysconfdir)/inetd.conf\"
+@PATHDEFS_MAKE@
+
+INCLUDES = $(PATHDEF_INETDCONF)
