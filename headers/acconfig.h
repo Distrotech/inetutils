@@ -50,8 +50,8 @@
 #undef HAVE_UTMP_UT_HOST
 /* Define this if struct utmp has a ut_tv field.  */
 #undef HAVE_UTMP_UT_TV
-/* Define this if struct wtmp has a ut_tv field.  */
-#undef HAVE_WTMP_UT_TV
+/* Define this if struct utmpx has a ut_tv field.  */
+#undef HAVE_UTMPX_UT_TV
 
 /* Define this if using Kerberos version 4.  */
 #undef KRB4
@@ -131,6 +131,10 @@
 
 /* Define this if strerror is declared by including <stdlib.h> & <string.h>.  */
 #undef HAVE_STRERROR_DECL
+
+/* Define this if htons is declared by including <sys/types.h>,
+   <sys/param.h>, & <netinet/in.h>.  */
+#undef HAVE_HTONS_DECL
 
 /* Define this if <paths.h> exists.  */
 #undef HAVE_PATHS_H
