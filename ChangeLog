@@ -1,6 +1,8 @@
 Fri Feb 28 17:05:15 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	From: Andreas Schwab <schwab@issan.informatik.uni-dortmund.de>:
+	* configure.in (sigset_t): Add missing comma.
+
 	* rcp/rcp.c (source): Print longer-than-long numbers correctly.
 	* ftpd/ftpcmd.y: Likewise.
 	* ftp/cmds.c (restart): Likewise.
