@@ -1,3 +1,10 @@
+2002-04-07  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* utmp_logout.c (utmp_logout): Bugfix: gettimeofday() (and
+	  time()) was used over a member of utx, instead of ut.
+	  Consequently, all sessions were recorded in wtmp as having
+	  zero duration.
+
 2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* libinetutils/obstack.c: new
