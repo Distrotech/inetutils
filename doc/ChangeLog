@@ -1,5 +1,9 @@
 2001-11-10  Alain Magloire
 
+	* ftp.texi: New file.
+	* Makefile.am: Added ftp.texi.
+	* inetutils.texi: Enable ftp.texi.
+
 	* tftp.texi: New file.
 	* Makefile.am: Added tftp.texi.
 	* inetutils.texi: Enable tftp.texi.
