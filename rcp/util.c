@@ -149,7 +149,7 @@ allocbuf(bp, fd, blksize)
 		run_err("fstat: %s", strerror(errno));
 		return (0);
 	}
-	size = roundup(stb.st_blksize, blksize);
+	size = roundup(ST_BLKSIZE(stb), blksize);
 	if (size == 0)
 		size = blksize;
 	if (bp->cnt >= size)
