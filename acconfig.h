@@ -231,6 +231,9 @@
 /* Define this if using Kerberos version 4.  */
 #undef KRB4
 
+#undef KERBEROS_IV
+#undef KERBEROS_V
+
 /* Define this if using Kerberos.  */
 #undef KERBEROS
 
