@@ -206,13 +206,9 @@ find_user(char *name, char *tty)
 
 #ifndef UTMPX
 	setutent();
-#else
-	setutxent();
-#endif /* !UTMPX */
-
-#ifndef UTMPX
 	while ((uptr = getutent()) != NULL) {
 #else
+	setutxent();
 	while ((uptr = getutxent()) != NULL) {
 #endif /* !UTMPX */
 #ifdef USER_PROCESS

@@ -1,4 +1,8 @@
-2000-08-08  Michael Weiser
+2001-09-05  Michael Weiser <mweiser@robin.imn.htwk-leipzig.de>
+
+	* process.c: merge redundant #ifdef's
+
+2001-09-04  Michael Weiser <mweiser@robin.imn.htwk-leipzig.de>
 
 	* process.c: Guard <utmp.h> utmpx.h> properly.
 	(find_user): Guard calls to setutent() or setutxent().
