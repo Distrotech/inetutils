@@ -81,8 +81,8 @@ define LINK_DISTFILES
   @for FILE in Makefile.in $(DISTFILES); do \
     DISTFILE=$(srcdir)/$$FILE; $(_LINK_DISTFILE); \
   done
-  @for FILE in $(OPT_DISTFILES); do \
-    test -e "$$DISTFILE" && { DISTFILE="$$FILE"; $(_LINK_DISTFILE); } || :; \
+  @for FILE in $(OPT_DISTFILES) ""; do \
+    test "$$FILE" -a -e "$$FILE" && { DISTFILE="$$FILE"; $(_LINK_DISTFILE); } || :; \
   done
 endef
 
