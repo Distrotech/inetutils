@@ -60,7 +60,6 @@ static char sccsid[] = "@(#)process.c	8.2 (Berkeley) 11/16/93";
 #include <syslog.h>
 #include <stdio.h>
 #include <string.h>
-#include <paths.h>
 
 CTL_MSG *find_request();
 CTL_MSG *find_match();

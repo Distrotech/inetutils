@@ -66,7 +66,6 @@ static char sccsid[] = "@(#)talkd.c	8.1 (Berkeley) 6/4/93";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <paths.h>
 
 extern char *localhost ();
 

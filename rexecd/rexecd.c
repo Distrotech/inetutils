@@ -54,7 +54,6 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 
 #include <errno.h>
 #include <netdb.h>
-#include <paths.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>

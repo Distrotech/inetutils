@@ -45,7 +45,6 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
-#include <paths.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -65,7 +64,7 @@ ttymsg(iov, iovcnt, line, tmout)
 	char *line;
 	int tmout;
 {
-	static char device[MAXNAMLEN] = _PATH_DEV;
+	static char device[MAXNAMLEN] = PATH_TTY_PFX;
 	static char errbuf[1024];
 	register int cnt, fd, left, wret;
 	struct iovec localiov[6];
@@ -74,8 +73,8 @@ ttymsg(iov, iovcnt, line, tmout)
 	if (iovcnt > sizeof(localiov) / sizeof(localiov[0]))
 		return ("too many iov's (change code in wall/ttymsg.c)");
 
-	(void) strcpy(device + sizeof(_PATH_DEV) - 1, line);
-	if (strchr(device + sizeof(_PATH_DEV) - 1, '/')) {
+	(void) strcpy(device + sizeof(PATH_TTY_PFX) - 1, line);
+	if (strchr(device + sizeof(PATH_TTY_PFX) - 1, '/')) {
 		/* A slash is an attempt to break security... */
 		(void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"",
 		    device);
