@@ -81,24 +81,21 @@ tninit()
 
 #define USAGE "Usage: %s [OPTION...] [HOST [PORT]]\n"
 
-/* Output a usage help message; if LONG is true, then describe all options to
-   STDOUT and exit with a status of 0, otherwise simply print a message
-   saying to use --help to STDERR, and exit with a status of 1.  */
+/* Print a help message describing all options to STDOUT and exit with a
+   status of 0.  */
 static void
-help (int long_fmt)
+help ()
 {
-  if (long_fmt)
-    {
-      fprintf (stdout, USAGE, prompt);
+  fprintf (stdout, USAGE, prompt);
 
-      puts ("\n\
-  -8, --binary		     Use an 8-bit data path\n\
+  puts ("\n\
+  -8, --binary               Use an 8-bit data path\n\
   -a, --login                Attempt automatic login\n\
   -c, --no-rc                Don't read the user's .telnetrc file\n\
   -d, --debug                Turn on debugging\n\
   -e CHAR, --escape=CHAR     Use CHAR as an escape character\n\
   -E, --no-escape            Use no escape character\n
-  -K, --no-login             Don't automatically login to the remove system\n\
+  -K, --no-login             Don't automatically login to the remote system\n\
   -l USER, --user=USER       If the remote system understands the ENVIRON\n\
                              option, then USER will be sent to the remote\n\
                              system as the value for the variable USER.\n\
@@ -111,13 +108,13 @@ help (int long_fmt)
 ");
 
 #ifdef ENCRYPTION
-      puts ("\
+  puts ("\
   -x, --encrypt              Turns on encryption of the data stream if possible\n\
 ");
 #endif
 
 #ifdef AUTHENTICATION
-      puts ("\n\
+  puts ("\n\
  When using Kerberos authentication:\n\
   -f, --fwd-credentials      Allow the the local credentials to be forwarded\n\
   -k REALM, --realm=REALM    Obtain tickets for the remote host in REALM\n\
@@ -126,7 +123,7 @@ help (int long_fmt)
 #endif
 
 #if defined(TN3270) && defined(unix)
-      puts ("\n\
+  puts ("\n\
  TN3270 options (note non-standard option syntax):\n\
       -noasynch\n\
       -noasynctty\n\
@@ -136,21 +133,24 @@ help (int long_fmt)
 #endif
 
 #if defined (ENCRYPTION) || defined (AUTHENTICATION) || defined (TN3270)
-      putc ('\n');
+  putc ('\n');
 #endif
 
-      puts ("\
-      --help  		     Give this help list\n\
+  puts ("\
+      --help                 Give this help list\n\
       --version              Print program version\n\
 ");
 
-      exit (0);
-    }
-  else
-    {
-      fprintf (stderr, "Try `%s --help' for more information.\n", prompt);
-      exit (1);
-    }
+  exit (0);
+}
+
+/* Print a message saying to use --help to STDERR, and exit with a status of
+   1.  */
+static void
+try_help ()
+{
+  fprintf (stderr, "Try `%s --help' for more information.\n", prompt);
+  exit (1);
 }
 
 /* Print a usage message to STDERR and exit with a status of 1.  */
@@ -158,7 +158,7 @@ static void
 usage ()
 {
   fprintf (stderr, USAGE, prompt);
-  help (0);
+  try_help ();
 }
 
 static struct option long_options[] =
@@ -359,13 +359,13 @@ main(argc, argv)
 			break;
 
 		case '&':
-			help (1);
+			help ();
 		case 'V':
 			puts (inetutils_version);
 			exit (0);
 
 		case '?':
-			help (0);
+			try_help ();
 
 		default:
 			usage ();
