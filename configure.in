@@ -2,17 +2,17 @@
 
 AC_INIT(inetd/inetd.c)
 
-# All subdirectories, whether built or not
-SUBDIRS=common
-AC_SUBST(SUBDIRS)
-
 # These lists don't contain talk or talkd, which will get added later if nec.
+COMMON='libtelnet libinetutils'
 SERVERS='inetd ftpd telnetd rshd rlogind uucpd rexecd syslogd tftpd'
 CLIENTS='telnet ftp rsh rcp rlogin tftp syslog'
+AC_SUBST(COMMON)
 AC_SUBST(SERVERS)
 AC_SUBST(CLIENTS)
 
-SUBDIRS="$SUBDIRS $SERVERS $CLIENTS"
+# All subdirectories, whether built or not
+SUBDIRS="$SERVERS $CLIENTS $COMMON"
+AC_SUBST(SUBDIRS)
 
 AC_ARG_ENABLE(encryption, [  --enable-encryption     enable encryption],
 	      , enable_encryption=no)
@@ -110,6 +110,24 @@ fi
 if test "$enable_encryption" = yes -a "$ac_cv_lib_des" = yes; then
   AC_DEFINE(DES_ENCRYPTION)
 fi
+
+# Optional things we put into libinetutils (we use the name `LIBOBJS' because
+# that's what AC_REPLACE_FUNCS uses).
+LIBOBJS=''
+AC_SUBST(LIBOBJS)
+
+# include files for libinetutils that we use
+LIB_INCLUDES=version.h
+
+# We use our own version of getopt if the system one doesn't have getopt_long
+AC_CHECK_FUNC(getopt_long, ,
+  LIB_INCLUDES="$LIB_INCLUDES getopt.h"
+  LIBOBJS="$LIBOBJS getopt.o getopt1.o")
+
+# Supply optional header files by linking a copy into the object include dir
+_ISRCS="`for I in $LIB_INCLUDES; do echo $ac_n " libinetutils/$I$ac_c"; done`"
+_IDSTS="`for I in $LIB_INCLUDES; do echo $ac_n " include/$I$ac_c"; done`"
+AC_LINK_FILES($_ISRCS, $_IDSTS)
 
 SUBDIR_MAKEFILES="`for D in $SUBDIRS; do echo $ac_n " $D/Makefile$ac_c"; done`"
 AC_OUTPUT(Makefile config.make $SUBDIR_MAKEFILES)
