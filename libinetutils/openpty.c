@@ -67,11 +67,12 @@ int openpty(amaster, aslave, name, termp, winp)
 	struct termios *termp;
 	struct winsize *winp;
 {
-	char * const line = "/dev/ptyXX";
+	char line[20];
 	register const char *cp1, *cp2;
 	register int master, slave, ttygid;
 	struct group *gr;
 
+	strcpy (line, "/dev/ptyXX");
 	if ((gr = getgrnam("tty")) != NULL)
 		ttygid = gr->gr_gid;
 	else
