@@ -80,6 +80,12 @@
 /* Define this if H_ERRLIST is declared in <netdb.h>  */
 #undef HAVE_H_ERRLIST_DECL
 
+/* Define this if a definition of h_errno is available after including <netdb.h>.  */
+#undef HAVE_H_ERRNO
+
+/* Define this if H_ERRNO is declared in <netdb.h>  */
+#undef HAVE_H_ERRNO_DECL
+
 /* Define this if the system supplies the __PROGNAME variable.  */
 #undef HAVE___PROGNAME
 
