@@ -1,3 +1,8 @@
+2004-03-03  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* ping.c (ping_cvt_number): Take an additional parameter
+	indicating whether zero value is allowed.
+
 2003-11-10  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* ping.c (ping_cvt_number): New function.
