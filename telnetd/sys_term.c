@@ -1488,7 +1488,9 @@ startslave(host, autologin, autoname)
 		if (i == 3 || n >= 0 || !gotalarm)
 			break;
 		gotalarm = 0;
-		sprintf(tbuf, "telnetd: waiting for /etc/init to start login process on %s\r\n", line);
+		snprintf (tbuf, sizeof tbuf,
+			 "telnetd: waiting for /etc/init to start login process on %s\r\n",
+				  line);
 		(void) write(net, tbuf, strlen(tbuf));
 	}
 	if (n < 0 && gotalarm)
@@ -1522,6 +1524,29 @@ init_env()
 }
 
 #ifndef	NEWINIT
+
+/* Security fix included in telnet-95.10.23.NE of David Borman <deb@cray.com>.
+ */
+/*
+ * scrub_env()
+ *
+ * Remove a few things from the environment that
+ * don't need to be there.
+ */
+static void
+scrub_env()
+{
+	register char **cpp, **cpp2;
+
+	for (cpp2 = cpp = environ; *cpp; cpp++) {
+		if (strncmp(*cpp, "LD_", 3) &&
+		    strncmp(*cpp, "_RLD_", 5) &&
+		    strncmp(*cpp, "LIBPATH=", 8) &&
+		    strncmp(*cpp, "IFS=", 4))
+			*cpp2++ = *cpp;
+	}
+	*cpp2 = 0;
+}
 
 /*
  * start_login(host)
@@ -1567,6 +1592,8 @@ start_login(host, autologin, name)
 	if (pututxline(&utmpx) == NULL)
 		fatal(net, "pututxline failed");
 #endif
+
+	scrub_env();
 
 	/*
 	 * -h : pass on name of host.
@@ -1694,8 +1721,9 @@ start_login(host, autologin, name)
 			len = strlen(name)+1;
 			write(xpty, name, len);
 			write(xpty, name, len);
-			sprintf(speed, "%s/%d", (cp = getenv("TERM")) ? cp : "",
-				(def_rspeed > 0) ? def_rspeed : 9600);
+			snprintf (speed, sizeof speed,
+					  "%s/%d", (cp = getenv("TERM")) ? cp : "",
+					  (def_rspeed > 0) ? def_rspeed : 9600);
 			len = strlen(speed)+1;
 			write(xpty, speed, len);
 
