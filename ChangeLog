@@ -1,3 +1,84 @@
+Sun Feb 16 21:45:02 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* telnetd/defs.h, rlogind/rlogind.c, rlogin/rlogin.c <sys/proc.h>:
+	Include removed.
+
+Thu Jan 23 18:25:01 1997  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* configure.in: Add checks for sys/proc.h, sys/select.h and
+	sys/time.h.  Add AC_HEADER_TIME check.  Add checks for seteuid,
+	setegid, setreuid, setregid, setresuid, setresgid, killpg,
+	setlinebuf, utimes and utime.  Add AC_FUNC_SETVBUF_REVERSED and
+	AC_FUNC_VFORK tests.
+	* ftp/cmds.c: Use TIME_WITH_SYS_TIME macro for time.h headers.
+	* ftp/ftp.c: Likewise.  Also include sys/select.h for fd_set on AIX.
+	* ftp/ftp_var.h: Make declarations of mapin/mapout be extern so
+	they don't collide with their definitions below.
+	* ftpd/ftpcmd.y: Include sys/types.h and use TIME_WITH_SYS_TIME
+	macro.  Also make  declarations of cmttab/sitetab be extern so
+	they don't collide with their definitions below.
+	* ftpd/ftpd.c: Use TIME_WITH_SYS_TIME macro.
+	* headers/acconfig.h: Provide fallback definitions for killpg,
+	seteuid and setegid.
+	* inetd/inetd.c: Include sys/types.h, use TIME_WITH_SYS_TIME macro
+	and include sys/select.h.
+	* libinetutils/xmalloc.c: New file (to support alloca.c.)
+	* libinetutils/Makefile.in: Add xmalloc.c to $(SRCS), add
+	xmalloc.o to $(OBJS).
+	* libinetutils/cleansess.c: Use TIME_WITH_SYS_TIME macro.
+	* libinetutils/iruserok.c: Likewise.
+	* libinetutils/logout.c: Likewise.
+	* libinetutils/logwtmp.c: Likewise.
+	* libinetutils/localhost.c: Include stdlib.h to prototype malloc().
+	* libtelnet/spx.c (spx_send, spx_is): remove superfluous casts.
+	* rcp/rcp.c: Use TIME_WITH_SYS_TIME macro.  Use utime() if
+	utimes() is missing.  Cast 4th arg of setsockopt() in toremote()
+	and tolocal() functions.
+	* rexecd/rexecd.c: Include sys/types.h, use TIME_WITH_SYS_TIME
+	macro and include sys/select.h.
+	* rlogin/rlogin.c: Include sys/types.h and use TIME_WITH_SYS_TIME
+	macro.  Include sys/proc.h on hpux only.  Cast 4th arg of
+	setsockopt() in main().
+	* rlogind/rlogind.c: Use TIME_WITH_SYS_TIME macro.  Include
+	sys/proc.h on hpux only.  Include sys/select.h.  Cast 4th arg of
+	setsockopt() in main().
+	* rsh/rsh.c: Use TIME_WITH_SYS_TIME macro.  Include sys/select.h.
+	Cast 4th arg of setsockopt() in main().
+	* rshd/rshd.c: Use TIME_WITH_SYS_TIME macro.  Include sys/select.h.
+	* syslogd/syslogd.c: Use TIME_WITH_SYS_TIME macro.  Include
+	sys/select.h.  Include syslog.h, not sys/syslog.h.  Handle missing
+	setlinebuf() function in main().
+	* talk/ctl_transact.c: Use TIME_WITH_SYS_TIME macro.  Include
+	sys/select.h.
+	* talk/get_names.c: Include sys/types.h.
+	* talk/invite.c: Use TIME_WITH_SYS_TIME macro.
+	* talk/io.c: Use TIME_WITH_SYS_TIME macro.  Include sys/select.h.
+	* talk/msgs.c: Use TIME_WITH_SYS_TIME macro.
+	* talkd/announce.c: Use TIME_WITH_SYS_TIME macro.  Include stdlib.h
+	to prototype malloc().  Remove superfluous cast of malloc() in
+	function print_mesg().
+	* talkd/table.c: Use TIME_WITH_SYS_TIME macro.
+	* talkd/talkd.c: Use TIME_WITH_SYS_TIME macro.
+	* telnet/commands.c: Include stdlib.h to prototype malloc().
+	Only prototype strchr()/strrchr()/htons() if they are not macros.
+	Avoid superfluous cast of malloc() in function env_init().
+	* telnet/externs.h: Include termio.h & termios.h, not sys/termio.h
+	& sys/termios.h.
+	* telnet/main.c: Only prototype strrchr() if its not a macro.
+	* telnet/network.c: Use TIME_WITH_SYS_TIME macro.  Include
+	sys/select.h.
+	* telnet/sys_bsd.c: Likewise.
+	* telnet/telnet.c: Include stdlib.h to prototype malloc().
+	* telnet/utilities.c: Use TIME_WITH_SYS_TIME macro.
+	* telnetd/defs.h: Use TIME_WITH_SYS_TIME macro.  Include
+	sys/proc.h on hpux only.  Do #undef SE to avoid redecl warnings.
+	* telnetd/telnetd.c (telnet): Do #undef HE to avoid redecl warnings.
+	* telnetd/utility.c (edithost, putf): Only prototype
+	strncpy()/strchr()/strrchr() if they are not macros.
+	* tftp/tftp.c: Use TIME_WITH_SYS_TIME macro.
+	* uucpd/uucpd.c: Likewise.  Also, wrap comments after #else and
+	#endif with /* */ in all cases.
+
 Fri Jan 24 14:17:08 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.2j'.
