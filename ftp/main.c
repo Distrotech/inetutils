@@ -68,7 +68,7 @@ main(argc, argv)
 {
 	int ch, top;
 	struct passwd *pw = NULL;
-	char *cp, homedir[MAXPATHLEN];
+	char *cp;
 
 	sp = getservbyname("ftp", "tcp");
 	if (sp == 0)
@@ -130,8 +130,11 @@ main(argc, argv)
 	if (pw == NULL)
 		pw = getpwuid(getuid());
 	if (pw != NULL) {
-		home = homedir;
-		(void) strcpy(home, pw->pw_dir);
+		char *buf = malloc (strlen (pw->pw_dir) + 1);
+		if (buf) {
+			strcpy(buf, pw->pw_dir);
+			home = buf;
+		}
 	}
 	if (argc > 0) {
 		char *xargv[5];
