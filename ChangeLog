@@ -1,3 +1,7 @@
+2003-05-24  Alain Magloire
+
+	* configure.ac: New check AC_CHECK_TYPES(long long, long dougle).
+
 2003-04-05  Sergey Poznyakoff  <gray@gnu.org>
 
 	* acinclude.m4 (IU_CHECK_KRB5): Check for libresolv.

@@ -3,18 +3,16 @@
  Version 1.3
 
    This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
+   it under the terms of the GNU Library General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-   It can be redistribute also under the terms of GNU Library General
-   Public Lincense.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Library General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
+   You should have received a copy of the GNU Library General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
@@ -41,7 +39,7 @@ Alain Magloire: alainm@rcsm.ee.mcgill.ca
 #include <config.h>
 #endif
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -81,6 +79,22 @@ Alain Magloire: alainm@rcsm.ee.mcgill.ca
 #define MAX_FRACT 29 + 1
 
 /*
+ * If the compiler supports (long long)
+ */
+#ifndef LONG_LONG
+# define LONG_LONG long long
+/*# define LONG_LONG int64_t*/
+#endif
+
+/*
+ * If the compiler supports (long double)
+ */
+#ifndef LONG_DOUBLE
+# define LONG_DOUBLE long double
+/*# define LONG_DOUBLE double*/
+#endif
+
+/*
  * numtoa() uses PRIVATE buffers to store the results,
  * So this function is not reentrant
  */
@@ -104,7 +118,7 @@ struct DATA {
 /* FLAGS */
   int width, precision;
   int justify; char pad;
-  int square, space, star_w, star_p, a_long ;
+  int square, space, star_w, star_p, a_long, a_longlong;
 };
 
 #define PRIVATE static

@@ -1,3 +1,10 @@
+2003-05-24  Alain Magloire
+
+	* snprintf.c: Change to be under LGPL not GPL.
+	(vsnprintf): implement "%lld", "%qd", "%Lg"
+	* snprintf.h: New macro LONG_LONG, LONG_DOUBLE
+	default to long long, long double.
+
 2003-05-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* libinetutils/ttymsg.c (ttymsg): Bugfix: typecast is not 

@@ -388,6 +388,10 @@ AC_CHECK_TYPES(cc_t, , ,
   # include <sgtty.h>
   #endif ])
 
+dnl Check for compile support for ceratin type
+AC_CHECK_TYPE(long long, , AC_DEFINE(LONG_LONG, long, [Define to long if compiler does not support]))
+AC_CHECK_TYPE(long double, , AC_DEFINE(LONG_DOUBLE, double, [Define to double if compiler does not support]))
+
 ### Checks for structures.
 IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
     [ #include <sys/types.h>
