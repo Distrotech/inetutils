@@ -32,7 +32,13 @@
 #include <string.h>
 #include <errno.h>
 
-extern char *xmalloc __P ((size_t));
+#if __STDC__
+# define VOID void
+#else
+# define VOID char
+#endif
+extern VOID *xrealloc __P((VOID *p, size_t n));
+
 /* Return the name of the localhost.  This is just a wrapper for gethostname,
    which takes care of allocating a big enough buffer, and caches the result
    after the first call (so the result should be copied before modification).
@@ -62,7 +68,7 @@ localhost (void)
 	}
       else
          buf = tmp;
-    } while ((status = gethostname(buf, buf_len)) == 0 && !memchr (buf, '\0', buf_len))
+    } while (((status = gethostname(buf, buf_len)) == 0 && !memchr (buf, '\0', buf_len))
 #ifdef ENAMETOOLONG
 	     || errno == ENAMETOOLONG
 #endif
