@@ -23,7 +23,7 @@
 #include <config.h>
 #endif
 
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -42,7 +42,7 @@
 
 extern char *__progname;
 
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 
 #define VA(call)							      \
 {									      \
@@ -53,7 +53,7 @@ extern char *__progname;
 }
 #define VAS VA
 
-#else /* !HAVE_STDARG_H */
+#else /* !(HAVE_STDARG_H && __STDC__) */
 
 #define _VA(call, DECLS, INIT)						      \
 {									      \
@@ -69,7 +69,7 @@ extern char *__progname;
 #define VA(call) _VA(call,,)
 #define VAS(call) _VA(call, int status;, status = va_arg (ap, int);)
 
-#endif /* HAVE_STDARG_H */
+#endif /* HAVE_STDARG_H && __STDC__ */
 
 void
 vwarnx (format, ap)
@@ -102,7 +102,7 @@ vwarn (format, ap)
 
 
 void
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 warn (const char *format, ...)
 #else
 warn (va_alist) va_dcl
@@ -112,7 +112,7 @@ warn (va_alist) va_dcl
 }
 
 void
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 warnx (const char *format, ...)
 #else
 warnx (va_alist) va_dcl
@@ -142,7 +142,7 @@ verrx (status, format, ap)
 }
 
 void
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 err (int status, const char *format, ...)
 #else
 err (va_alist) va_dcl
@@ -152,7 +152,7 @@ err (va_alist) va_dcl
 }
 
 void
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 errx (int status, const char *format, ...)
 #else
 errx (va_alist) va_dcl
