@@ -63,127 +63,138 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 char *
 ttymsg(struct iovec *iov, int iovcnt, char *line, int tmout)
 {
-	static char errbuf[MAX_ERRBUF];
-	char *device;
-	register int cnt, fd, left, wret;
-	struct iovec localiov[6];
-	int forked = 0;
+  static char errbuf[MAX_ERRBUF];
+  char *device;
+  register int cnt, fd, left, wret;
+  struct iovec localiov[6];
+  int forked = 0;
 
-	if (iovcnt > (int)(sizeof(localiov) / sizeof(localiov[0])))
-		return (char *)("too many iov's (change code in wall/ttymsg.c)");
+  if (iovcnt > (int)(sizeof(localiov) / sizeof(localiov[0])))
+    return (char *)("too many iov's (change code in wall/ttymsg.c)");
 
-	/* we're watching for '/', ".", ".."  '/' --> somebody could specify
-  	   tty as ../etc/passwd ".", ".." those are not security related it's
-  	   just sanity checks */
-	if (strchr(line, '/') && ! strcmp(line, ".") && ! strcmp(line, "..")) {
-		/* A slash is an attempt to break security... */
-		(void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"", line);
-		return (errbuf);
-	}
+  /* we're watching for '/', ".", ".."  '/' --> somebody could specify
+     tty as ../etc/passwd ".", ".." those are not security related it's
+     just sanity checks.  */
+  if (strchr(line, '/'))
+    {
+      /* A slash is an attempt to break security... */
+      (void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"", line);
+      return (errbuf);
+    }
 
-	device = malloc (sizeof PATH_TTY_PFX - 1 + strlen (line) + 1);
-	if (! device)
-	  {
-	    snprintf (errbuf, sizeof errbuf, "Not enough memory for tty device name");
-	    return errbuf;
-	  }
+  device = malloc (sizeof PATH_TTY_PFX - 1 + strlen (line) + 1);
+  if (! device)
+    {
+      snprintf (errbuf, sizeof errbuf, "Not enough memory for tty device name");
+      return errbuf;
+    }
 
-	strcpy (device, PATH_TTY_PFX);
-	strcat (device, line);
+  strcpy (device, PATH_TTY_PFX);
+  strcat (device, line);
 
-	/*
-	 * open will fail on slip lines or exclusive-use lines
-	 * if not running as root; not an error.
-	 */
-	if ((fd = open(device, O_WRONLY|O_NONBLOCK, 0)) < 0) {
-		if (errno == EBUSY || errno == EACCES)
-			return (NULL);
-		(void) snprintf(errbuf, sizeof(errbuf),
-		    "%s: %s", device, strerror(errno));
-		free (device);
-		return (errbuf);
-	}
-
-	for (cnt = left = 0; cnt < iovcnt; ++cnt)
-		left += iov[cnt].iov_len;
-
-	for (;;) {
-		wret = writev(fd, iov, iovcnt);
-		if (wret >= left)
-			break;
-		if (wret >= 0) {
-			left -= wret;
-			if (iov != localiov) {
-				bcopy(iov, localiov,
-				    iovcnt * sizeof(struct iovec));
-				iov = localiov;
-			}
-			for (cnt = 0; wret >= (int)iov->iov_len; ++cnt) {
-				wret -= iov->iov_len;
-				++iov;
-				--iovcnt;
-			}
-			if (wret) {
-				(char *)iov->iov_base += wret;
-				iov->iov_len -= wret;
-			}
-			continue;
-		}
-		if (errno == EWOULDBLOCK) {
-			int cpid, off = 0;
-
-			if (forked) {
-				(void) close(fd);
-				_exit(1);
-			}
-			cpid = fork();
-			if (cpid < 0) {
-				(void) snprintf(errbuf, sizeof(errbuf),
-				    "fork: %s", strerror(errno));
-				(void) close(fd);
-				free (device);
-				return (errbuf);
-			}
-			if (cpid) {	/* parent */
-				(void) close(fd);
-				free (device);
-				return (NULL);
-			}
-			forked++;
-			/* wait at most tmout seconds */
-			(void) signal(SIGALRM, SIG_DFL);
-			(void) signal(SIGTERM, SIG_DFL); /* XXX */
-#ifdef HAVE_SIGACTION
-			{
-			  sigset_t empty;
-			  sigemptyset(&empty);
-			  sigprocmask(SIG_SETMASK, &empty, 0);
-			}
-#else
-			(void) sigsetmask(0);
-#endif
-			(void) alarm((u_int)tmout);
-			(void) fcntl(fd, O_NONBLOCK, &off);
-			continue;
-		}
-		/*
-		 * We get ENODEV on a slip line if we're running as root,
-		 * and EIO if the line just went away.
-		 */
-		if (errno == ENODEV || errno == EIO)
-			break;
-		(void) close(fd);
-		if (forked)
-			_exit(1);
-		(void) snprintf(errbuf, sizeof(errbuf),
-		    "%s: %s", device, strerror(errno));
-		free (device);
-		return (errbuf);
-	}
-
-	free (device);
-	(void) close(fd);
-	if (forked)
-		_exit(0);
+  /*
+   * open will fail on slip lines or exclusive-use lines
+   * if not running as root; not an error.
+   */
+  fd = open (device, O_WRONLY|O_NONBLOCK, 0);
+  if (fd < 0)
+    {
+      if (errno == EBUSY || errno == EACCES)
 	return (NULL);
+      (void) snprintf(errbuf, sizeof(errbuf),
+		      "%s: %s", device, strerror(errno));
+      free (device);
+      return (errbuf);
+    }
+
+  for (cnt = left = 0; cnt < iovcnt; ++cnt)
+    left += iov[cnt].iov_len;
+
+  for (;;)
+    {
+      wret = writev(fd, iov, iovcnt);
+      if (wret >= left)
+	break;
+      if (wret >= 0)
+	{
+	  left -= wret;
+	  if (iov != localiov)
+	    {
+	      memcpy (localiov, iov, iovcnt * sizeof(struct iovec));
+	      iov = localiov;
+	    }
+	  for (cnt = 0; wret >= (int)iov->iov_len; ++cnt)
+	    {
+	      wret -= iov->iov_len;
+	      ++iov;
+	      --iovcnt;
+	    }
+	  if (wret)
+	    {
+	      (char *)iov->iov_base += wret;
+	      iov->iov_len -= wret;
+	    }
+	  continue;
+	}
+      if (errno == EWOULDBLOCK)
+	{
+	  int cpid, off = 0;
+
+	  if (forked)
+	    {
+	      (void) close(fd);
+	      _exit(1);
+	    }
+	  cpid = fork();
+	  if (cpid < 0)
+	    {
+	      (void) snprintf(errbuf, sizeof(errbuf),
+			      "fork: %s", strerror(errno));
+	      (void) close(fd);
+	      free (device);
+	      return (errbuf);
+	    }
+	  if (cpid)  /* Parent.  */
+	    {
+	      (void) close(fd);
+	      free (device);
+	      return (NULL);
+	    }
+	  forked++;
+	  /* wait at most tmout seconds */
+	  (void) signal(SIGALRM, SIG_DFL);
+	  (void) signal(SIGTERM, SIG_DFL); /* XXX */
+#ifdef HAVE_SIGACTION
+	  {
+	    sigset_t empty;
+	    sigemptyset(&empty);
+	    sigprocmask(SIG_SETMASK, &empty, 0);
+	  }
+#else
+	  (void) sigsetmask(0);
+#endif
+	  (void) alarm((u_int)tmout);
+	  (void) fcntl(fd, O_NONBLOCK, &off);
+	  continue;
+	}
+      /*
+       * We get ENODEV on a slip line if we're running as root,
+       * and EIO if the line just went away.
+       */
+      if (errno == ENODEV || errno == EIO)
+	break;
+      (void) close(fd);
+      if (forked)
+	_exit(1);
+      (void) snprintf(errbuf, sizeof(errbuf),
+		      "%s: %s", device, strerror(errno));
+      free (device);
+      return (errbuf);
+    }
+
+  free (device);
+  (void) close(fd);
+  if (forked)
+    _exit(0);
+  return (NULL);
 }

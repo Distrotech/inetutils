@@ -1,9 +1,21 @@
+2000-08-08  Alain Magloire
+
+	* syslogd.c (dbg_printf): [HAVE_STDARG_H][_STDC__] to
+	palliate for OS not having ANSI C.
+	[HAVE_UTMPX_H] before including <utmpx.h>.
+	(usage): Some of the strings where missing newlines.
+	[IOVCNT]: new macro to define the size of the iovec array.
+
 2000-08-08  Marcus Brinkmann <marcus@gnu.org>
 
 	* syslogd.c: Don't prototype reapchild.
 	(main): Don't install SIGCHLD handler.
 	(reapchild): Function removed. It is cruft needed for
-	the linux wallmsg implementation, which we don't use.
+	the linux wallmsg implementation, which we don't useb.
+	(fprintlog): Clear the iovec before using it.
+	(logmsg): get rid of ugly hardcode and use sizeof (f->f_lastime - 1
+	intead for the len of the f_lastime string.
+	(fprintlog): use sizeof(f->lastime) - 1.
 
 2000-08-06  Alain Magloire
 
@@ -13,9 +25,9 @@ and  recreating the sockets at every SIGHUP.  This was done to
 speedup initialization of syslogd, since on GNU/Linux the rc.*
 files would start klogd also.  This is also the reason for a waitdaemon():
 "Wed Feb 14 12:42:09 CST 1996:  Dr. Wettstein
-  Parent process of syslogd does not exit until child process has
-  finished initialization process.  This allows rc.* startup to
-  pause until syslogd facility is up and operating."
+Parent process of syslogd does not exit until child process has
+finished initialization process.  This allows rc.* startup to
+pause until syslogd facility is up and operating."
 
 	* syslogd.c (init): Remove call to creation of sockets
 	and move it to the main() before going in the loop.
