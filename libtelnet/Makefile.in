@@ -18,7 +18,7 @@
 #
 
 srcdir = @srcdir@
-include ../config.mk
+include ../config.make
 
 OBJS = auth.o encrypt.o genget.o getent.o misc.o \
 	kerberos.o enc_des.o kerberos5.o
