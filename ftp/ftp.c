@@ -35,16 +35,33 @@
 static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/file.h>
 
 #include <netinet/in.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
+#endif
 #include <arpa/inet.h>
 #include <arpa/ftp.h>
 #include <arpa/telnet.h>
@@ -60,9 +77,26 @@ static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#include <stdarg.h>
+#else
 #include <varargs.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 #include "ftp_var.h"
+
+#ifndef HAVE_FCLOSE_DECL
+/* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
+extern int fclose __P ((FILE *));
+#endif
+
+#ifndef HAVE_PCLOSE_DECL
+/* Some systems don't declare pclose in <stdio.h>, so do it ourselves.  */
+extern int pclose __P ((FILE *));
+#endif
 
 extern int h_errno;
 
@@ -96,7 +130,15 @@ hookup(host, port)
 	} else {
 		hp = gethostbyname(host);
 		if (hp == NULL) {
+#ifdef HAVE_HSTRERROR
 			warnx("%s: %s", host, hstrerror(h_errno));
+#else
+			extern char *__progname;
+			char *pfx =
+			  malloc (strlen (__progname) + 2 + strlen (host) + 1);
+			sprintf (pfx, "%s: %s", __progname, host);
+			herror (pfx);
+#endif
 			code = -1;
 			return ((char *) 0);
 		}
@@ -145,7 +187,7 @@ hookup(host, port)
 		code = -1;
 		goto bad;
 	}
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	tos = IPTOS_LOWDELAY;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -214,8 +256,11 @@ login(host)
 			printf("Name (%s:%s): ", host, myname);
 		else
 			printf("Name (%s): ", host);
-		(void) fgets(tmp, sizeof(tmp) - 1, stdin);
-		tmp[strlen(tmp) - 1] = '\0';
+		if (fgets(tmp, sizeof(tmp) - 1, stdin)) {
+			/* If they press Ctrl-d immediately, it's empty.  */
+			tmp[strlen(tmp) - 1] = '\0';
+		} else
+			*tmp = '\0';
 		if (*tmp == '\0')
 			user = myname;
 		else
@@ -252,7 +297,8 @@ login(host)
 }
 
 void
-cmdabort()
+cmdabort(sig)
+  int sig;
 {
 
 	printf("\n");
@@ -264,19 +310,29 @@ cmdabort()
 
 /*VARARGS*/
 int
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+command (const char *fmt, ...)
+#else
 command(va_alist)
 va_dcl
+#endif
 {
 	va_list ap;
-	char *fmt;
+#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
+	const char *fmt;
+#endif
 	int r;
 	sig_t oldintr;
 
 	abrtflag = 0;
 	if (debug) {
 		printf("---> ");
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+		va_start (ap, fmt);
+#else
 		va_start(ap);
 		fmt = va_arg(ap, char *);
+#endif
 		if (strncmp("PASS ", fmt, 5) == 0)
 			printf("PASS XXXX");
 		else 
@@ -291,8 +347,12 @@ va_dcl
 		return (0);
 	}
 	oldintr = signal(SIGINT, cmdabort);
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+	va_start (ap, fmt);
+#else
 	va_start(ap);
 	fmt = va_arg(ap, char *);
+#endif
 	vfprintf(cout, fmt, ap);
 	va_end(ap);
 	fprintf(cout, "\r\n");
@@ -411,20 +471,21 @@ getreply(expecteof)
 
 int
 empty(mask, sec)
-	struct fd_set *mask;
+	fd_set *mask;
 	int sec;
 {
 	struct timeval t;
 
 	t.tv_sec = (long) sec;
 	t.tv_usec = 0;
-	return (select(32, mask, (struct fd_set *) 0, (struct fd_set *) 0, &t));
+	return (select(32, mask, (fd_set *) 0, (fd_set *) 0, &t));
 }
 
 jmp_buf	sendabort;
 
 void
-abortsend()
+abortsend(sig)
+  int sig;
 {
 
 	mflag = 0;
@@ -683,7 +744,8 @@ abort:
 jmp_buf	recvabort;
 
 void
-abortrecv()
+abortrecv(sig)
+  int sig;
 {
 
 	mflag = 0;
@@ -701,8 +763,8 @@ recvrequest(cmd, local, remote, lmode, printnames)
 	FILE *fout, *din = 0;
 	int (*closefunc) __P((FILE *));
 	sig_t oldintr, oldintp;
-	int c, d, is_retr, tcrflag, bare_lfs = 0;
-	static int bufsize;
+	int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
+	static int bufsize=0;
 	static char *buf;
 	long bytes = 0, hashbytes = HASHBYTES;
 	struct timeval start, stop;
@@ -738,42 +800,7 @@ recvrequest(cmd, local, remote, lmode, printnames)
 	}
 	oldintr = signal(SIGINT, abortrecv);
 	if (strcmp(local, "-") && *local != '|') {
-		if (access(local, 2) < 0) {
-			char *dir = strrchr(local, '/');
-
-			if (errno != ENOENT && errno != EACCES) {
-				warn("local: %s", local);
-				(void) signal(SIGINT, oldintr);
-				code = -1;
-				return;
-			}
-			if (dir != NULL)
-				*dir = 0;
-			d = access(dir ? local : ".", 2);
-			if (dir != NULL)
-				*dir = '/';
-			if (d < 0) {
-				warn("local: %s", local);
-				(void) signal(SIGINT, oldintr);
-				code = -1;
-				return;
-			}
-			if (!runique && errno == EACCES &&
-			    chmod(local, 0600) < 0) {
-				warn("local: %s", local);
-				(void) signal(SIGINT, oldintr);
-				(void) signal(SIGINT, oldintr);
-				code = -1;
-				return;
-			}
-			if (runique && errno == EACCES &&
-			   (local = gunique(local)) == NULL) {
-				(void) signal(SIGINT, oldintr);
-				code = -1;
-				return;
-			}
-		}
-		else if (runique && (local = gunique(local)) == NULL) {
+		if (runique && (local = gunique(local)) == NULL) {
 			(void) signal(SIGINT, oldintr);
 			code = -1;
 			return;
@@ -826,18 +853,20 @@ recvrequest(cmd, local, remote, lmode, printnames)
 		}
 		closefunc = fclose;
 	}
-	if (fstat(fileno(fout), &st) < 0 || st.st_blksize == 0)
-		st.st_blksize = BUFSIZ;
-	if (st.st_blksize > bufsize) {
+	if (fstat(fileno(fout), &st) < 0 || ST_BLKSIZE(st) == 0)
+		blksize = BUFSIZ;
+	else
+	        blksize = ST_BLKSIZE(st);
+	if (blksize > bufsize) {
 		if (buf)
 			(void) free(buf);
-		buf = malloc((unsigned)st.st_blksize);
+		buf = malloc((unsigned)blksize);
 		if (buf == NULL) {
 			warn("malloc");
 			bufsize = 0;
 			goto abort;
 		}
-		bufsize = st.st_blksize;
+		bufsize = blksize;
 	}
 	(void) gettimeofday(&start, (struct timezone *)0);
 	switch (curtype) {
@@ -1027,8 +1056,7 @@ initconn()
 
 		if (sscanf(pasv,"%d,%d,%d,%d,%d,%d",
 			   &a0, &a1, &a2, &a3, &p0, &p1) != 6) {
-			printf("Passive mode address scan failure. "
-			       "Shouldn't happen!\n");
+			printf("Passive mode address scan failure. Shouldn't happen!\n");
 			goto bad;
 		}
 
@@ -1048,7 +1076,7 @@ initconn()
 			perror("ftp: connect");
 			goto bad;
 		}
-#ifdef IP_TOS
+#if defined(IP_TOS) && defined(IPTOS_THROUGPUT)
 		on = IPTOS_THROUGHPUT;
 		if (setsockopt(data, IPPROTO_IP, IP_TOS, (char *)&on,
 			       sizeof(int)) < 0)
@@ -1106,7 +1134,7 @@ noport:
 	}
 	if (tmpno)
 		sendport = 1;
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 	on = IPTOS_THROUGHPUT;
 	if (setsockopt(data, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -1137,7 +1165,7 @@ dataconn(lmode)
 	}
 	(void) close(data);
 	data = s;
-#ifdef IP_TOS
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 	tos = IPTOS_THROUGHPUT;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -1190,7 +1218,8 @@ tvsub(tdiff, t1, t0)
 }
 
 void
-psabort()
+psabort(sig)
+  int sig;
 {
 
 	abrtflag++;
@@ -1203,7 +1232,7 @@ pswitch(flag)
 	sig_t oldintr;
 	static struct comvars {
 		int connect;
-		char name[MAXHOSTNAMELEN];
+		char *name;
 		struct sockaddr_in mctl;
 		struct sockaddr_in hctl;
 		FILE *in;
@@ -1218,9 +1247,9 @@ pswitch(flag)
 		char nti[17];
 		char nto[17];
 		int mapflg;
-		char mi[MAXPATHLEN];
-		char mo[MAXPATHLEN];
-	} proxstruct, tmpstruct;
+		char *mi;
+		char *mo;
+	} proxstruct = {0}, tmpstruct = {0};
 	struct comvars *ip, *op;
 
 	abrtflag = 0;
@@ -1240,12 +1269,13 @@ pswitch(flag)
 	}
 	ip->connect = connected;
 	connected = op->connect;
-	if (hostname) {
-		(void) strncpy(ip->name, hostname, sizeof(ip->name) - 1);
-		ip->name[strlen(ip->name)] = '\0';
-	} else
-		ip->name[0] = 0;
+
+	if (ip->name)
+		free (ip->name);
+	ip->name = hostname;
 	hostname = op->name;
+	op->name = 0;
+
 	ip->hctl = hisctladdr;
 	hisctladdr = op->hctl;
 	ip->mctl = myctladdr;
@@ -1276,12 +1306,19 @@ pswitch(flag)
 	(void) strcpy(ntout, op->nto);
 	ip->mapflg = mapflag;
 	mapflag = op->mapflg;
-	(void) strncpy(ip->mi, mapin, MAXPATHLEN - 1);
-	(ip->mi)[strlen(ip->mi)] = '\0';
-	(void) strcpy(mapin, op->mi);
-	(void) strncpy(ip->mo, mapout, MAXPATHLEN - 1);
-	(ip->mo)[strlen(ip->mo)] = '\0';
-	(void) strcpy(mapout, op->mo);
+
+	if (ip->mi)
+		free (ip->mi);
+	ip->mi = mapin;
+	mapin = op->mi;
+	op->mi = 0;
+
+	if (ip->mo)
+		free (ip->mo);
+	ip->mo = mapout;
+	mapout = op->mo;
+	op->mo = 0;
+
 	(void) signal(SIGINT, oldintr);
 	if (abrtflag) {
 		abrtflag = 0;
@@ -1290,7 +1327,8 @@ pswitch(flag)
 }
 
 void
-abortpt()
+abortpt(sig)
+  int sig;
 {
 
 	printf("\n");
@@ -1308,7 +1346,7 @@ proxtrans(cmd, local, remote)
 	sig_t oldintr;
 	int secndflag = 0, prox_type, nfnd;
 	char *cmd2;
-	struct fd_set mask;
+	fd_set mask;
 
 	if (strcmp(cmd, "RETR"))
 		cmd2 = "RETR";
@@ -1425,7 +1463,7 @@ reset(argc, argv)
 	int argc;
 	char *argv[];
 {
-	struct fd_set mask;
+	fd_set mask;
 	int nfnd = 1;
 
 	FD_ZERO(&mask);
@@ -1446,26 +1484,27 @@ char *
 gunique(local)
 	char *local;
 {
-	static char new[MAXPATHLEN];
-	char *cp = strrchr(local, '/');
+	static char *new = 0;
+	char *cp;
 	int d, count=0;
 	char ext = '1';
 
-	if (cp)
-		*cp = '\0';
-	d = access(cp ? local : ".", 2);
-	if (cp)
-		*cp = '/';
-	if (d < 0) {
-		warn("local: %s", local);
-		return ((char *) 0);
+	if (new)
+		free (new);
+	new = malloc (strlen (local) + 1 + 3 + 1); /* '.' + 100 + '\0' */
+	if (! new) {
+		printf ("gunique: malloc failed.\n");
+		return 0;
 	}
-	(void) strcpy(new, local);
+	strcpy (new, local);
+
 	cp = new + strlen(new);
 	*cp++ = '.';
-	while (!d) {
+	for (;;) {
+		struct stat st;
+
 		if (++count == 100) {
-			printf("runique: can't find unique file name.\n");
+ 			printf("runique: can't find unique file name.\n");
 			return ((char *) 0);
 		}
 		*cp++ = ext;
@@ -1474,8 +1513,13 @@ gunique(local)
 			ext = '0';
 		else
 			ext++;
-		if ((d = access(new, 0)) < 0)
-			break;
+
+		if (stat (new, &st) != 0)
+		    if (errno == ENOENT)
+				return new;
+			else
+			  	return 0;
+
 		if (ext != '0')
 			cp--;
 		else if (*(cp - 2) == '.')
@@ -1485,7 +1529,6 @@ gunique(local)
 			cp--;
 		}
 	}
-	return (new);
 }
 
 void
@@ -1494,7 +1537,7 @@ abort_remote(din)
 {
 	char buf[BUFSIZ];
 	int nfnd;
-	struct fd_set mask;
+	fd_set mask;
 
 	/*
 	 * send IAC in urgent mode instead of DM because 4.3BSD places oob mark
