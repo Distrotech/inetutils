@@ -3,6 +3,7 @@
 	* ping.c (ping_cvt_number): New function.
 	(main): Check numeric options for validity.
 	* ping_echo.c: Rewritten diagnostic output.
+	Use original returned IP header.
 	* ping_impl.h (PING_MAX_DATALEN): New define.
 
 2003-04-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
