@@ -38,7 +38,7 @@
 .Nm inetd
 .Op Fl d
 .Op Fl R Ar rate
-.Op Ar configuration file
+.Op Ar configuration_files ...
 .Sh DESCRIPTION
 The
 .Nm inetd
@@ -65,19 +65,26 @@ reducing load on the system.
 The options available for
 .Nm inetd:
 .Bl -tag -width Ds
-.It Fl d
+.It Fl d, --debug
 Turns on debugging.
-.It Fl R Ar rate
+.It Fl R, --rate Ar rate
 Specifies the maximum number of times a service can be invoked
 in one minute; the default is 1000.
+.It Fl --version
+Shows the version.
+.It Fl --help
+Shows the help.
 .El
 .Pp
 Upon execution,
 .Nm inetd
 reads its configuration information from a configuration
-file which, by default, is
-.Pa /etc/inetd.conf .
-There must be an entry for each field of the configuration
+pathnames on the command line, by default,
+.Pa /etc/inetd.conf and /etc/initd.d .
+If the configuration pathname is a directory, all the files in the
+directory are read like a configuration file. All of the configuration
+files are read and merged.
+There must be an entry for each field in the configuration
 file, with entries for each field separated by a tab or
 a space.  Comments are denoted by a ``#'' at the beginning
 of a line.  There must be an entry for each field.  The
