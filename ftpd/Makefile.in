@@ -46,8 +46,7 @@ CFLAGS += $(DEFS) \
 	-D_PATH_FTPUSERS=\"$(sysconfdir)/ftpusers\" \
         -D_PATH_FTPWELCOME=\"$(sysconfdir)/ftpwelcome\" \
 	-D_PATH_FTPLOGINMESG=\"$(sysconfdir)/motd\" \
-	-D_PATH_NOLOGIN=\"$(sysconfdir)/nologin\" \
-	-D_PATH_WTMP=\"$(localstatedir)/log/utmp\"
+	-D_PATH_NOLOGIN=\"$(sysconfdir)/nologin\"
 LDLIBS = $(LIBS)
 
 all: ftpd
