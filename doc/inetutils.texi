@@ -36,7 +36,7 @@ START-INFO-DIR-ENTRY
 * logger: (inetutils)logger invocation.         Logger.
 * syslogd: (inetutils)syslogd invocation.       Syslog server.
 * talk: (inetutils)talk invocation.             Talk client.
-@c * talkd: (inetutils)talkd invocation.           Talk server.
+* talkd: (inetutils)talkd invocation.           Talk server.
 @c * telnet: (inetutils)telnet invocation.         User interface to TELNET.
 @c * telnetd: (inetutils)telnetd invocation.       Telnet server.
 @c * tftp: (inetutils)tftp invocation.             Trivial FTP.
@@ -122,7 +122,7 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 * logger::                      Logger.
 * syslogd::                     Syslog server.
 * talk::                        Talk client.
-@c * talkd::                       Talk server.
+* talkd::                       Talk server.
 @c * telnet::                      User interface to TELNET.
 @c * telnetd::                     Telnet server.
 @c * tftp::                        Trivial FTP.
@@ -184,7 +184,7 @@ Print the version number, then exit successfully.
 @include logger.texi
 @include syslogd.texi
 @include talk.texi
-@c @include talkd.texi
+@include talkd.texi
 @c @include telnet.texi
 @c @include telnetd.texi
 @c @include tftp.texi

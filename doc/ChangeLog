@@ -1,34 +1,28 @@
 2001-11-10  Alain Magloire
 
+	* talkd.texi: New file.
+	* Makefile.am: Added talkd.texi.
+	* inetutils.texi: Enable talkd.texi.
+
 	* talk.texi: New file.
 	* Makefile.am: Added talk.texi.
 	* inetutils.texi: Enable talk.texi.
-
-2001-11-10  Alain Magloire
 
 	* ftpd.texi: New file.
 	* Makefile.am: Added ftpd.texi.
 	* inetutils.texi: Enable ftpd.texi.
 
-2001-11-10  Alain Magloire
-
 	* inetd.texi: New file.
 	* Makefile.am: Added inetd.texi.
 	* inetutils.texi: Enable inetd.texi.
-
-2001-11-10  Alain Magloire
 
 	* rexecd.texi: New file.
 	* Makefile.am: Added rexecd.texi.
 	* inetutils.texi: Enable rexecd.texi.
 
-2001-11-10  Alain Magloire
-
 	* rcp.texi: New file.
 	* Makefile.am: Added rcp.texi.
 	* inetutils.texi: Enable rcp.texi.
-
-2001-11-10  Alain Magloire
 
 	* rsh.texi: New file.
 	* Makefile.am: Added rsh.texi.
