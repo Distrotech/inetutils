@@ -55,17 +55,17 @@ extern char *__progname;
 
 #define _VA(call, DECLS, INIT)						      \
 {									      \
-  DECLS
-  char *format;
+  DECLS									      \
+  char *format;								      \
   va_list ap;								      \
   va_start (ap);							      \
-  INIT
-  format = va_arg (char *);
+  INIT									      \
+  format = va_arg (ap, char *);						      \
   call;									      \
   va_end (ap);								      \
 }
 #define VA(call) _VA(call,,)
-#define VAS(call) _VA(call, int status;, status = va_arg (int))
+#define VAS(call) _VA(call, int status;, status = va_arg (ap, int);)
 
 #endif /* HAVE_STDARG_H */
 
