@@ -103,6 +103,9 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <getopt.h>
 #define SYSLOG_NAMES
 #include <sys/syslog.h>
+#ifndef HAVE_SYSLOG_INTERNAL
+#include <syslog-int.h>
+#endif
 
 char	*LogName = PATH_LOG;
 char	*ConfFile = PATH_LOGCONF;
@@ -197,16 +200,16 @@ int	MarkInterval = 20 * 60;	/* interval between marks in seconds */
 int	MarkSeq = 0;		/* mark sequence number */
 
 void	cfline __P((char *, struct filed *));
-char   *cvthname __P((struct sockaddr_in *));
+const char *cvthname __P((struct sockaddr_in *));
 int	decode __P((const char *, CODE *));
 void	die __P((int));
 void	domark __P((int));
-void	fprintlog __P((struct filed *, int, char *));
+void	fprintlog __P((struct filed *, int, const char *));
 void	init __P((int));
-void	logerror __P((char *));
-void	logmsg __P((int, char *, char *, int));
-void	printline __P((char *, char *));
-void	printsys __P((char *));
+void	logerror __P((const char *));
+void	logmsg __P((int, const char *, const char *, int));
+void	printline __P((const char *, const char *));
+void	printsys __P((const char *));
 void	reapchild __P((int));
 char   *ttymsg __P((struct iovec *, int, char *, int));
 void	usage __P((void));
@@ -403,11 +406,12 @@ usage()
  */
 void
 printline(hname, msg)
-	char *hname;
-	char *msg;
+	const char *hname;
+	const char *msg;
 {
 	int c, pri;
-	char *p, *q, line[MAXLINE + 1];
+	const char *p;
+	char *q, line[MAXLINE + 1];
 
 	/* test for special codes */
 	pri = DEFUPRI;
@@ -451,10 +455,11 @@ printline(hname, msg)
  */
 void
 printsys(msg)
-	char *msg;
+	const char *msg;
 {
 	int c, pri, flags;
-	char *lp, *p, *q, line[MAXLINE + 1];
+	char *lp, *q, line[MAXLINE + 1];
+	const char *p;
 
 	(void)strcpy(line, "vmunix: ");
 	lp = line + strlen(line);
@@ -491,12 +496,12 @@ time_t	now;
 void
 logmsg(pri, msg, from, flags)
 	int pri;
-	char *msg, *from;
+	const char *msg, *from;
 	int flags;
 {
 	struct filed *f;
 	int fac, msglen, omask, prilev;
-	char *timestamp;
+	const char *timestamp;
 
 	dprintf("logmsg: pri %o, flags %x, from %s, msg %s\n",
 	    pri, flags, from, msg);
@@ -602,7 +607,7 @@ void
 fprintlog(f, flags, msg)
 	struct filed *f;
 	int flags;
-	char *msg;
+	const char *msg;
 {
 	struct iovec iov[6];
 	struct iovec *v;
@@ -612,9 +617,10 @@ fprintlog(f, flags, msg)
 	v = iov;
 	if (f->f_type == F_WALL) {
 		v->iov_base = greetings;
-		v->iov_len = sprintf(greetings,
-		    "\r\n\7Message from syslogd@%s at %.24s ...\r\n",
-		    f->f_prevhost, ctime(&now));
+		sprintf(greetings,
+			"\r\n\7Message from syslogd@%s at %.24s ...\r\n",
+			f->f_prevhost, ctime(&now));
+		v->iov_len = strlen (greetings);
 		v++;
 		v->iov_base = "";
 		v->iov_len = 0;
@@ -635,12 +641,13 @@ fprintlog(f, flags, msg)
 	v++;
 
 	if (msg) {
-		v->iov_base = msg;
+		v->iov_base = (char *)msg;
 		v->iov_len = strlen(msg);
 	} else if (f->f_prevcount > 1) {
 		v->iov_base = repbuf;
-		v->iov_len = sprintf(repbuf, "last message repeated %d times",
-		    f->f_prevcount);
+		sprintf(repbuf, "last message repeated %d times",
+			f->f_prevcount);
+		v->iov_len = strlen(repbuf);
 	} else {
 		v->iov_base = f->f_prevline;
 		v->iov_len = f->f_prevlen;
@@ -657,8 +664,9 @@ fprintlog(f, flags, msg)
 
 	case F_FORW:
 		dprintf(" %s\n", f->f_un.f_forw.f_hname);
-		l = sprintf(line, "<%d>%.15s %s", f->f_prevpri,
-		    iov[0].iov_base, iov[4].iov_base);
+		sprintf(line, "<%d>%.15s %s", f->f_prevpri,
+			iov[0].iov_base, iov[4].iov_base);
+		l = strlen(line);
 		if (l > MAXLINE)
 			l = MAXLINE;
 		if (sendto(finet, line, l, 0,
@@ -790,7 +798,7 @@ reapchild(signo)
 /*
  * Return a printable representation of a host address.
  */
-char *
+const char *
 cvthname(f)
 	struct sockaddr_in *f;
 {
@@ -845,7 +853,7 @@ domark(signo)
  */
 void
 logerror(type)
-	char *type;
+	const char *type;
 {
 	char buf[100];
 
@@ -1119,7 +1127,7 @@ cfline(line, f)
 			if (*q == ',')
 				f->f_un.f_user.f_nusers++;
 		f->f_un.f_user.f_unames =
-			malloc (f->f_un.f_user.f_nusers * sizeof (char *));
+		  (char **) malloc (f->f_un.f_user.f_nusers * sizeof (char *));
 		for (i = 0; *p; i++) {
 			for (q = p; *q && *q != ','; )
 				q++;
