@@ -10,8 +10,6 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
-# -*-Makefile-*-, or close enough
-
 
 SHELL = /bin/sh
 
@@ -60,6 +58,26 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 AR = @AR@
+BUILD_FTP = @BUILD_FTP@
+BUILD_FTPD = @BUILD_FTPD@
+BUILD_INETD = @BUILD_INETD@
+BUILD_LIBGLOB = @BUILD_LIBGLOB@
+BUILD_PING = @BUILD_PING@
+BUILD_RCP = @BUILD_RCP@
+BUILD_REXECD = @BUILD_REXECD@
+BUILD_RLOGIN = @BUILD_RLOGIN@
+BUILD_RLOGIND = @BUILD_RLOGIND@
+BUILD_RSH = @BUILD_RSH@
+BUILD_RSHD = @BUILD_RSHD@
+BUILD_SYSLOG = @BUILD_SYSLOG@
+BUILD_SYSLOGD = @BUILD_SYSLOGD@
+BUILD_TALK = @BUILD_TALK@
+BUILD_TALKD = @BUILD_TALKD@
+BUILD_TELNET = @BUILD_TELNET@
+BUILD_TELNETD = @BUILD_TELNETD@
+BUILD_TFTP = @BUILD_TFTP@
+BUILD_TFTPD = @BUILD_TFTPD@
+BUILD_UUCPD = @BUILD_UUCPD@
 CC = @CC@
 CPP = @CPP@
 LIBAUTH = @LIBAUTH@
@@ -74,15 +92,14 @@ NCURSES_INCLUDE = @NCURSES_INCLUDE@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 RM = @RM@
-SERVERS_OR_CLIENTS = @SERVERS_OR_CLIENTS@
 VERSION = @VERSION@
 YACC = @YACC@
 
-AUTOMAKE_OPTIONS =	1.2 foreign
+noinst_LIBRARIES = @BUILD_LIBGLOB@
 
-noinst_LIBRARIES =	libglob.a
+EXTRA_LIBRARIES = libglob.a
 
-libglob_a_SOURCES =	glob.c glob.h fnmatch.c fnmatch.h
+libglob_a_SOURCES = glob.c glob.h fnmatch.c fnmatch.h
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 
@@ -114,7 +131,7 @@ default: all
 .SUFFIXES:
 .SUFFIXES: .S .c .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign glob/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu glob/Makefile
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -184,7 +201,7 @@ distdir: $(DISTFILES)
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --foreign glob/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu glob/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  test -f $(distdir)/$$file \
