@@ -59,8 +59,12 @@ static char sccsid[] = "@(#)rlogind.c	8.1 (Berkeley) 6/4/93";
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
+#endif
 #include <arpa/inet.h>
 #include <netdb.h>
 
@@ -176,10 +180,12 @@ main(argc, argv)
 	if (keepalive &&
 	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof (on)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	on = IPTOS_LOWDELAY;
 	if (setsockopt(0, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
 	doit(0, &from);
+#endif
 }
 
 int	child;
