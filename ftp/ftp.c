@@ -415,7 +415,7 @@ getreply(expecteof)
 
 int
 empty(mask, sec)
-	fd_set mask;
+	fd_set *mask;
 	int sec;
 {
 	struct timeval t;
@@ -1189,6 +1189,7 @@ pswitch(flag)
 		free (ip->name);
 	ip->name = hostname;
 	hostname = op->name;
+	op->name = 0;
 
 	ip->hctl = hisctladdr;
 	hisctladdr = op->hctl;
@@ -1225,11 +1226,13 @@ pswitch(flag)
 		free (ip->mi);
 	ip->mi = mapin;
 	mapin = op->mi;
+	op->mi = 0;
 
 	if (ip->mo)
 		free (ip->mo);
 	ip->mo = mapout;
 	mapout = op->mo;
+	op->mo = 0;
 
 	(void) signal(SIGINT, oldintr);
 	if (abrtflag) {
