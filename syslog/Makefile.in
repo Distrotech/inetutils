@@ -20,19 +20,12 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(bindir)/logger $(man1dir)/logger.1
+
 all: logger
 logger: logger.o
 
-install: installdirs logger $(srcdir)/logger.1
-	$(INSTALL_PROGRAM) logger $(bindir)/logger
-	-$(INSTALL_DATA) $(srcdir)/logger.1 $(man1dir)/logger.1
-uninstall:
-	-$(RM) -f $(bindir)/logger $(man1dir)/logger.1
-
-installdirs:
-	@$(MKINSTDIRS) $(bindir) $(man1dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o logger 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
