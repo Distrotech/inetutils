@@ -32,26 +32,28 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+
 #ifdef HAVE_CONFIG_H
-	#include <config.h>
+# include <config.h>
 #endif
+
 #ifdef HAVE_SYS_CDEFS_H
-	#include <sys/cdefs.h>
+# include <sys/cdefs.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #ifdef HAVE_TERMIOS_H
-	#include <termios.h>
+# include <termios.h>
 #endif
 #include <errno.h>
 #ifdef HAVE_UNISTD_H
-	#include <unistd.h>
+# include <unistd.h>
 #endif
 #include <stdio.h>
 #ifdef HAVE_STRING_H
-	#include <string.h>
+# include <string.h>
 #endif
 #include <grp.h>
 
@@ -61,7 +63,7 @@ int openpty(amaster, aslave, name, termp, winp)
 	struct termios *termp;
 	struct winsize *winp;
 {
-	char line[] = "/dev/ptyXX";
+	char * const line = "/dev/ptyXX";
 	register const char *cp1, *cp2;
 	register int master, slave, ttygid;
 	struct group *gr;
