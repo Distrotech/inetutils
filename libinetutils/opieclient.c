@@ -15,6 +15,11 @@
      along with this program; if not, write to the Free Software
      Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
+
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "opie_cfg.h"
 #include <stdio.h>
 #include "opie.h"
@@ -24,10 +29,10 @@
    response is where the response to send to the server is returned.
 
    target is a string describing which host you're connecting to, and possibly
-   what hosts you're hoping through and what protocol you're using.  It's
-   used for looking at ~/.passphrase
+   what hosts you're hoping through and what protocol you're using. */
 
-   FIXME what is the format of that string? */
+
+
 int gnu_opie_client (char *challenge, char *response)
 {
   char secret[OPIE_SECRET_MAX+1];
@@ -51,8 +56,9 @@ int gnu_opie_client (char *challenge, char *response)
 	secure = 0;
       else
 	secure = !opieinsecure();
-    } else
+    } else {
       secure = !opieinsecure();
+    }
     if (secure) {
       fputs("Secret pass phrase: ", stderr);
       if (!opiereadpass(secret, OPIE_SECRET_MAX, 0)) {
