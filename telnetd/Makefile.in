@@ -1,6 +1,6 @@
 # Makefile for telnetd
 #
-# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ OBJS = $(SRCS:.c=.o)
 LDLIBS += -L../libtelnet -ltelnet $(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT)
 CLEAN = telnetd $(OBJS)
 
-CPPFLAGS += $(OPTIONS) $(PATHDEF_LOGIN) $(PATHDEF_TTY)
+CPPFLAGS += $(OPTIONS) $(PATHDEF_LOGIN) $(PATHDEF_TTY) $(PATHDEF_UTMP) $(PATHDEF_WTMP)
 
 all: telnetd
 telnetd: $(OBJS)
