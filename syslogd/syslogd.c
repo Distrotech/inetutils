@@ -74,7 +74,9 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#ifdef HAVE_SYS_MSGBUF_H
 #include <sys/msgbuf.h>
+#endif
 #include <sys/uio.h>
 #include <sys/un.h>
 #include <sys/time.h>
@@ -94,7 +96,7 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <string.h>
 #include <unistd.h>
 #include <utmp.h>
-#include "pathnames.h"
+#include <paths.h>
 
 #define SYSLOG_NAMES
 #include <sys/syslog.h>
@@ -107,8 +109,6 @@ char	ctty[] = _PATH_CONSOLE;
 #define FDMASK(fd)	(1 << (fd))
 
 #define	dprintf		if (Debug) printf
-
-#define MAXUNAMES	20	/* maximum number of user names */
 
 /*
  * Flags to logmsg().
@@ -131,16 +131,19 @@ struct filed {
 	time_t	f_time;			/* time this was last written */
 	u_char	f_pmask[LOG_NFACILITIES+1];	/* priority mask */
 	union {
-		char	f_uname[MAXUNAMES][UT_NAMESIZE+1];
 		struct {
-			char	f_hname[MAXHOSTNAMELEN+1];
+			int f_nusers;
+			char **f_unames;
+		} f_user;
+		struct {
+			char	*f_hname;
 			struct sockaddr_in	f_addr;
 		} f_forw;		/* forwarding address */
-		char	f_fname[MAXPATHLEN];
+		char	*f_fname;
 	} f_un;
 	char	f_prevline[MAXSVLINE];		/* last message logged */
 	char	f_lasttime[16];			/* time of last occurrence */
-	char	f_prevhost[MAXHOSTNAMELEN+1];	/* host from which recd. */
+	char	*f_prevhost;			/* host from which recd. */
 	int	f_prevpri;			/* pri of f_prevline */
 	int	f_prevlen;			/* length of f_prevline */
 	int	f_prevcount;			/* repetition cnt of prevline */
@@ -177,7 +180,8 @@ struct	filed *Files;
 struct	filed consfile;
 
 int	Debug;			/* debug flag */
-char	LocalHostName[MAXHOSTNAMELEN+1];	/* our hostname */
+char	*LocalHostName = 0;	/* our hostname */
+size_t  LocalHostNameLen = 0;
 char	*LocalDomain;		/* our local domain name */
 int	InetInuse = 0;		/* non-zero if INET sockets are being used */
 int	finet;			/* Internet datagram socket */
@@ -211,7 +215,12 @@ main(argc, argv)
 	struct sockaddr_un sunx, fromunix;
 	struct sockaddr_in sin, frominet;
 	FILE *fp;
-	char *p, line[MSG_BSIZE + 1];
+	char *p;
+#ifdef HAVE_SYS_MSGBUF_H
+	char line[MSG_BSIZE + 1];
+#else
+	char line[MAXLINE + 1];
+#endif
 
 	while ((ch = getopt(argc, argv, "df:m:p:")) != EOF)
 		switch(ch) {
@@ -240,13 +249,32 @@ main(argc, argv)
 		setlinebuf(stdout);
 
 	consfile.f_type = F_CONSOLE;
-	(void)strcpy(consfile.f_un.f_fname, ctty);
-	(void)gethostname(LocalHostName, sizeof(LocalHostName));
+	consfile.f_un.f_fname = strdup (ctty);
+
+	errno = 0;
+	do {
+		if (LocalHostName) {
+		        LocalHostNameLen += LocalHostNameLen;
+			LocalHostName =
+				realloc (LocalHostName, LocalHostNameLen);
+		} else {
+			LocalHostNameLen = 128; /* Initial guess */
+			LocalHostName = malloc (LocalHostNameLen);
+		}
+		if (! LocalHostName) {
+			perror ("Can't get local host name");
+			exit (2);
+		}
+	} while ((gethostname(LocalHostName, LocalHostNameLen) == 0
+		  && ! memchr (LocalHostName, '\0', LocalHostNameLen))
+		 || errno == ENAMETOOLONG);
+
 	if ((p = strchr(LocalHostName, '.')) != NULL) {
 		*p++ = '\0';
 		LocalDomain = p;
 	} else
 		LocalDomain = "";
+
 	(void)signal(SIGTERM, die);
 	(void)signal(SIGINT, Debug ? die : SIG_IGN);
 	(void)signal(SIGQUIT, Debug ? die : SIG_IGN);
@@ -293,12 +321,17 @@ main(argc, argv)
 			InetInuse = 1;
 		}
 	}
+
+#ifdef _PATH_KLOG
 	if ((fklog = open(_PATH_KLOG, O_RDONLY, 0)) >= 0)
 		klogm = FDMASK(fklog);
 	else {
 		dprintf("can't open %s (%d)\n", _PATH_KLOG, errno);
 		klogm = 0;
 	}
+#else
+	klogm = 0;
+#endif
 
 	/* tuck my process id away */
 	fp = fopen(PidFile, "w");
@@ -528,6 +561,7 @@ logmsg(pri, msg, from, flags)
 		 * suppress duplicate lines to this file
 		 */
 		if ((flags & MARK) == 0 && msglen == f->f_prevlen &&
+		    f->f_prevhost &&
 		    !strcmp(msg, f->f_prevline) &&
 		    !strcmp(from, f->f_prevhost)) {
 			(void)strncpy(f->f_lasttime, timestamp, 15);
@@ -551,8 +585,9 @@ logmsg(pri, msg, from, flags)
 				fprintlog(f, 0, (char *)NULL);
 			f->f_repeatcount = 0;
 			(void)strncpy(f->f_lasttime, timestamp, 15);
-			(void)strncpy(f->f_prevhost, from,
-					sizeof(f->f_prevhost));
+			if (f->f_prevhost)
+				free (f->f_prevhost);
+			f->f_prevhost = strdup (from);
 			if (msglen < MAXSVLINE) {
 				f->f_prevlen = msglen;
 				f->f_prevpri = pri;
@@ -733,18 +768,15 @@ wallmsg(f, iov)
 			continue;
 		}
 		/* should we send the message to this user? */
-		for (i = 0; i < MAXUNAMES; i++) {
-			if (!f->f_un.f_uname[i][0])
-				break;
-			if (!strncmp(f->f_un.f_uname[i], ut.ut_name,
-			    UT_NAMESIZE)) {
+		for (i = 0; i < f->f_un.f_user.f_nusers; i++)
+			if (!strncmp(f->f_un.f_user.f_unames[i], ut.ut_name,
+				     sizeof (ut.ut_name))) {
 				if ((p = ttymsg(iov, 6, line, 60*5)) != NULL) {
 					errno = 0;	/* already in msg */
 					logerror(p);
 				}
 				break;
 			}
-		}
 	}
 	(void)fclose(uf);
 	reenter = 0;
@@ -914,7 +946,7 @@ init(signo)
 		 */
 		for (p = cline; isspace(*p); ++p)
 			continue;
-		if (*p == NULL || *p == '#')
+		if (*p == 0 || *p == '#')
 			continue;
 		for (p = strchr(cline, '\0'); isspace(*--p);)
 			continue;
@@ -950,8 +982,9 @@ init(signo)
 				break;
 
 			case F_USERS:
-				for (i = 0; i < MAXUNAMES && *f->f_un.f_uname[i]; i++)
-					printf("%s, ", f->f_un.f_uname[i]);
+				for (i = 0; i < f->f_un.f_user.f_nusers; i++)
+					printf("%s, ",
+					       f->f_un.f_user.f_unames[i]);
 				break;
 			}
 			printf("\n");
@@ -1048,7 +1081,7 @@ cfline(line, f)
 	case '@':
 		if (!InetInuse)
 			break;
-		(void)strcpy(f->f_un.f_forw.f_hname, ++p);
+		f->f_un.f_forw.f_hname = strdup (++p);
 		hp = gethostbyname(p);
 		if (hp == NULL) {
 			extern int h_errno;
@@ -1057,7 +1090,7 @@ cfline(line, f)
 			break;
 		}
 		memset(&f->f_un.f_forw.f_addr, 0,
-			 sizeof(f->f_un.f_forw.f_addr));
+		       sizeof(f->f_un.f_forw.f_addr));
 		f->f_un.f_forw.f_addr.sin_family = AF_INET;
 		f->f_un.f_forw.f_addr.sin_port = LogPort;
 		memmove(&f->f_un.f_forw.f_addr.sin_addr, hp->h_addr, hp->h_length);
@@ -1065,7 +1098,7 @@ cfline(line, f)
 		break;
 
 	case '/':
-		(void)strcpy(f->f_un.f_fname, p);
+		f->f_un.f_forw.f_hname = strdup (++p);
 		if ((f->f_file = open(p, O_WRONLY|O_APPEND, 0)) < 0) {
 			f->f_file = F_UNUSED;
 			logerror(p);
@@ -1084,14 +1117,20 @@ cfline(line, f)
 		break;
 
 	default:
-		for (i = 0; i < MAXUNAMES && *p; i++) {
+		f->f_un.f_user.f_nusers = 1;
+		for (q = p; *q; q++)
+			if (*q == ',')
+				f->f_un.f_user.f_nusers++;
+		f->f_un.f_user.f_unames =
+			malloc (f->f_un.f_user.f_nusers * sizeof (char *));
+		for (i = 0; *p; i++) {
 			for (q = p; *q && *q != ','; )
 				q++;
-			(void)strncpy(f->f_un.f_uname[i], p, UT_NAMESIZE);
-			if ((q - p) > UT_NAMESIZE)
-				f->f_un.f_uname[i][UT_NAMESIZE] = '\0';
-			else
-				f->f_un.f_uname[i][q - p] = '\0';
+			f->f_un.f_user.f_unames[i] = malloc (q - p + 1);
+			if (f->f_un.f_user.f_unames[i]) {
+				strncpy (f->f_un.f_user.f_unames[i], p, q - p);
+				f->f_un.f_user.f_unames[i][q - p] = '\0';
+			}
 			while (*q == ',' || *q == ' ')
 				q++;
 			p = q;
@@ -1100,7 +1139,6 @@ cfline(line, f)
 		break;
 	}
 }
-
 
 /*
  *  Decode a symbolic name to a numeric value
