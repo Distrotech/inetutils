@@ -20,6 +20,8 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libexecdir)/in.telnetd $(man8dir)/telnetd.8
+
 OPTIONS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
 
 CPPFLAGS += $(OPTIONS) -D_PATH_LOGIN=\"$(bindir)/login\"
@@ -29,16 +31,7 @@ all: telnetd
 telnetd: authenc.o global.o slc.o state.o sys_term.o telnetd.o termstat.o \
 	utility.o
 
-install: installdirs telnetd $(srcdir)/telnetd.8
-	$(INSTALL_PROGRAM) telnetd $(libexecdir)/in.telnetd
-	-$(INSTALL_DATA) $(srcdir)/telnetd.8 $(man8dir)/telnetd.8
-uninstall:
-	-$(RM) -f $(libexecdir)/in.telnetd $(man8dir)/telnetd.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o telnetd 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
