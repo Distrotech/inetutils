@@ -1129,7 +1129,27 @@ telnet(f, p, host)
 		if (IM == 0)
 			IM = "";
 	} else {
+#ifdef DEFAULT_IM
 		IM = DEFAULT_IM;
+#else
+		IM = 0;
+#ifdef HAVE_UNAME
+		struct utsname u;
+		if (uname (&u) == 0) {
+			IM = malloc (strlen (UNAME_IM_PREFIX)
+				     + strlen (u.sysname)
+				     + 1 + strlen (u.release)
+				     + strlen (UNAME_IM_SUFFIX) + 1);
+			if (IM)
+				sprintf (version, "%s%s %s%s",
+					 UNAME_IM_PREFIX,
+					 u.sysname, u.release,
+					 UNAME_IM_SUFFIX);
+		}
+#endif /* HAVE_UNAME */
+		if (! IM)
+			IM = "\r\n\nUNIX (%h) (%t)\r\n\n";
+#endif /* DEFAULT_IM */
 		HE = 0;
 	}
 	edithost(HE, host_name);
