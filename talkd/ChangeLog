@@ -1,3 +1,14 @@
+2001-10-29  Sergey Poznyakoff
+
+	* acl.c: Fixed declaration of read_address(). Bugfix
+	in discard_acl(): it was discarding the extra entry.
+	acl_match(): Set default action to ACT_ALLOW.
+	* intalkd.h: Macro os2sin_addr: extract struct in_addr from
+	struct osockaddr.
+	* process.c: do_announce(): use os2sin_addr for readability.
+	* table.c: Added extra debug info.
+	* talkd.c: Removed `if (getuid ())' block.
+
 2001-10-28  Alain Magloire
 
 	* talkd/process.c (open_users_acl):  free (filename);
