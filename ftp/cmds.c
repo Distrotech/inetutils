@@ -461,7 +461,7 @@ mput(argc, argv)
 	oldintr = signal(SIGINT, mabort);
 	(void) setjmp(jabort);
 	if (proxy) {
-		char *cp, *tp2, tmpbuf[MAXPATHLEN];
+		char *cp;
 
 		while ((cp = remglob(argv,0)) != NULL) {
 			if (*cp == 0)
@@ -618,8 +618,9 @@ usage:
 		return (0);
 	}
 	oldargv1 = argv[1];
-	oldargv2 = argv[2];
-	if (!globulize(&argv[2])) {
+
+	local = globulize (argv[2]);
+	if (! local) {
 		code = -1;
 		return (0);
 	}
@@ -1074,7 +1075,7 @@ lcd(argc, argv)
 	int argc;
 	char *argv[];
 {
-	char buf[MAXPATHLEN];
+	char *dir;
 
 	if (argc < 2)
 		argc++, argv[1] = home;
@@ -1083,19 +1084,28 @@ lcd(argc, argv)
 		code = -1;
 		return;
 	}
-	if (!globulize(&argv[1])) {
+
+	dir = globulize (argv[1]);
+	if (! dir) {
 		code = -1;
 		return;
 	}
-	if (chdir(argv[1]) < 0) {
-		warn("local: %s", argv[1]);
+
+	if (chdir(dir) < 0) {
+		warn("dir: %s", dir);
+		free (dir);
 		code = -1;
 		return;
 	}
-	if (getwd(buf) != NULL)
-		printf("Local directory now %s\n", buf);
-	else
-		warnx("getwd: %s", buf);
+
+	free (dir);
+
+	dir = getcwd (0, 0);
+	if (dir) {
+		printf("Local directory now %s\n", dir);
+		free (dir);
+	} else
+		warnx("getcwd: %s", strerror (errno));
 	code = 0;
 }
 
@@ -1200,11 +1210,15 @@ ls(argc, argv)
 		return;
 	}
 	cmd = argv[0][0] == 'n' ? "NLST" : "LIST";
-	if (strcmp(argv[2], "-") && !globulize(&argv[2])) {
-		code = -1;
-		return;
+
+	if (strcmp(argv[2], "-") != 0) {
+		dest = globulize(argv[2]);
+		if (! dest) {
+			code = -1;
+			return;
+		}
 	}
-	if (strcmp(argv[2], "-") && *argv[2] != '|')
+	if (&&&&&&&&& strcmp(, "-") && *argv[2] != '|')
 		if (!globulize(&argv[2]) || !confirm("output to local-file:", argv[2])) {
 			code = -1;
 			return;
@@ -1637,8 +1651,10 @@ globulize(cpp)
 		globfree(&gl);
 		return (0);
 	}
-	*cpp = strdup(gl.gl_pathv[0]);	/* XXX - wasted memory */
+	
+	*cpp = strdup(gl.gl_pathv[0]);
 	globfree(&gl);
+
 	return (1);
 }
 
@@ -1845,10 +1861,18 @@ setnmap(argc, argv)
 		cp = strchr(altarg, ' ');
 	}
 	*cp = '\0';
-	(void) strncpy(mapin, altarg, MAXPATHLEN - 1);
+
+	if (mapin)
+		free (mapin);
+	mapin = malloc (strlen (altarg) + 1);
+	strcpy(mapin, altarg);
+
 	while (*++cp == ' ')
 		continue;
-	(void) strncpy(mapout, cp, MAXPATHLEN - 1);
+	if (mapout)
+		free (mapout);
+	mapout = malloc (strlen (cp) + 1);
+	strcpy (mapout, cp);
 }
 
 static int
