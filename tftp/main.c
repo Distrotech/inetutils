@@ -61,6 +61,7 @@ static char sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
 
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <setjmp.h>
 #include <signal.h>
