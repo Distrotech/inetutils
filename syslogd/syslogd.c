@@ -575,7 +575,7 @@ logmsg(pri, msg, from, flags)
 	/* log the message to the particular outputs */
 	if (!Initialized) {
 		f = &consfile;
-		f->f_file = open(ctty, O_WRONLY, 0);
+		f->f_file = open(ctty, O_WRONLY|O_NOCTTY, 0);
 		f->f_prevhost = strdup (LocalHostName);
 		if (f->f_file >= 0) {
 			fprintlog(f, flags, msg);
@@ -754,7 +754,7 @@ fprintlog(f, flags, msg)
 			 */
 			if ((e == EIO || e == EBADF) && f->f_type != F_FILE) {
 				f->f_file = open(f->f_un.f_fname,
-				    O_WRONLY|O_APPEND, 0);
+				    O_WRONLY|O_APPEND|O_CREAT|O_NOCTTY, 0);
 				if (f->f_file < 0) {
 					f->f_type = F_UNUSED;
 					logerror(f->f_un.f_fname);
@@ -1150,7 +1150,7 @@ cfline(line, f)
 
 	case '/':
 		f->f_un.f_fname = strdup (p);
-		if ((f->f_file = open(p, O_WRONLY|O_APPEND, 0)) < 0) {
+		if ((f->f_file = open(p, O_WRONLY|O_APPEND|O_CREAT|O_NOCTTY, 0)) < 0) {
 			f->f_file = F_UNUSED;
 			logerror(p);
 			break;
