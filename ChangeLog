@@ -1,3 +1,7 @@
+2000-08-03 Jeff Bailey
+
+	* .cvsignore: Add INCLUDE file.  Delete it from repository.
+
 2000-08-02 Jeff Bailey
 
 	* */.cvsignore: Mass add of .cvsignore files to beat CVS into
