@@ -1,6 +1,6 @@
 # Makefile for rshd
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(libexecdir)/in.rshd $(man8dir)/rshd.8
+INSTALL_TARGETS = $(libexecdir)/in.rshd $(man8dir)/rshd.8
+SRCS = rshd.c
+DISTFILES = $(SRCS) rshd.8 Makefile.in
 
 all: rshd
 
