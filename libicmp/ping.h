@@ -45,9 +45,9 @@ struct ping_data
   
   u_char *ping_buffer;   /* I/O buffer */
   struct sockaddr_in ping_from;
-  int    ping_num_xmit;  /* Number of packets transmitted */
-  int    ping_num_recv;  /* Number of packets received */
-  int    ping_num_rept;  /* Number of duplicates received */
+  long   ping_num_xmit;  /* Number of packets transmitted */
+  long   ping_num_recv;  /* Number of packets received */
+  long   ping_num_rept;  /* Number of duplicates received */
 };
 
 #define PEV_RESPONSE 0
@@ -77,3 +77,5 @@ int ping_set_pattern(PING *p, int len, u_char *pat);
 void ping_set_event_handler(PING *ping, ping_efp fp, void *closure);
 int ping_set_data(PING *p, void *data, size_t off, size_t len);
 void ping_set_datalen(PING *p, size_t len);
+int ping_recv(PING *p);
+int ping_xmit(PING *p);
