@@ -51,6 +51,9 @@
 /* Define to 1 if you have the obstack functions from GNU libc.  */
 #undef HAVE_OBSTACK
 
+/* Define this symbol if poll() is declared in <poll.h> */
+#undef HAVE_POLL_H
+
 /* Define if your struct stat has st_dm_mode.  */
 #undef HAVE_ST_DM_MODE
 
