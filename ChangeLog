@@ -1,3 +1,11 @@
+2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	* configure.in: Check for setpgid(), vhangup().
+	* ping/ChangeLog: (new)
+	* libicmp/ChangeLog: (new)
+	* libinetutils: See libinetutils/ChangeLog.
+	* rlogind: See rlogind/ChangeLog.
+	* ping: See ping/ChangeLog.
+ 
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
 	Patches by Alain:
 	* libicmp(icmp_cksum.c,icmp_echo.c,icmp_timestamp.c,libping.c):
