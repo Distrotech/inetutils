@@ -50,11 +50,13 @@ LDFLAGS = @LDFLAGS@
 RM = @RM@
 MKINSTDIRS = $(SHELL) $(top_srcdir)/mkinstalldirs
 
-LIBCURSES=@LIBCURSES@
-LIBAUTH=@LIBAUTH@
-LIBTERMCAP=@LIBTERMCAP@
+LIBCURSES = @LIBCURSES@
+LIBAUTH = @LIBAUTH@
+LIBTERMCAP = @LIBTERMCAP@
+LIBCRYPT = @LIBCRYPT@
+LIBUTIL = @LIBUTIL@
 
-CPPFLAGS += $(DEFS) -D_BSD_SOURCE -I$(srcdir) -I../include
+CPPFLAGS += $(DEFS) -I$(srcdir) -I../include
 LDLIBS += -L../libinetutils -linetutils $(LIBS)
 
 RULES = $(top_srcdir)/rules.make
