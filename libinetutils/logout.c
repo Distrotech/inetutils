@@ -29,7 +29,8 @@
 #include <fcntl.h>
 
 int
-logout (char *line)
+logout (line)
+  char *line;
 {
   int success = 0;
 
