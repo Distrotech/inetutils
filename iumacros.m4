@@ -179,7 +179,28 @@ AC_DEFUN([IU_LIB_NCURSES], [
               , enable_ncurses=yes)
   if test "$enable_ncurses" = yes; then
     AC_CHECK_LIB(ncurses, initscr, LIBNCURSES="-lncurses")
+    if test "$LIBNCURSES"; then
+      # Use ncurses header files instead of the ordinary ones, if possible;
+      # is there a better way of doing this, that avoids looking in specific
+      # directories?
+      AC_CACHE_CHECK(for ncurses include dir,
+		     inetutils_cv_includedir_ncurses,
+	for D in /local/include /include /usr/local/include /usr/include; do
+	  if test -d $D/ncurses; then
+	    inetutils_cv_includedir_ncurses="$D/ncurses"
+	    break
+	  fi
+          test "$inetutils_cv_includedir_ncurses" \
+	    || inetutils_cv_includedir_ncurses=none
+	done)
+      if test "$inetutils_cv_includedir_ncurses" = none; then
+        NCURSES_INCLUDE=""
+      else
+        NCURSES_INCLUDE="-I$inetutils_cv_includedir_ncurses"
+      fi
+    fi
   fi
+  AC_SUBST(NCURSES_INCLUDE)
   AC_SUBST(LIBNCURSES)])dnl
 
 dnl IU_LIB_TERMCAP -- check for various termcap libraries
