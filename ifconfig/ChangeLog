@@ -1,9 +1,10 @@
 2001-06-30  Sergey Poznyakoff
-	* if_index.h: Provide a definition of ifr_index if it's not 
-	present in struct ifreq.
 	* if_index.c: if_nameindex(): Actually fall back :^). Besides,
 	the return value was unspecified if socked() failed.
-	Use ifr_index instead of ifr_ifindex throughout the module.
+	Removed # define ifr_ifindex ifr_index.
+	Use ifr_index instead of ifr_ifindex throughout the module, since 
+	the check for its presence is already made in configure.in and
+	appropriate define is in system.h.
 	if_nameindex(): reverted condition on ioctl() return.
 
 2001-06-26  Alain Magloire
