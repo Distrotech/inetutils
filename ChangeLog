@@ -69,6 +69,29 @@ Sun Dec 07 18:04:00 1997  Jeff Bailey   <jbailey@gnu.org>
 	* config.make.in: Remove
 	* rules.make: Remove
 
+1997-09-18  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libtelnet/kerberos.c (krb_mk_req, krb_rd_req, krb_kntoln,
+	krb_get_cred, krb_get_lrealm, kuserok): Declarations removed.
+	(kerberos4_send, kerberos4_is, kerberos4_reply): Pass addresses of
+	session key args to des functions.
+	* libtelnet/encrypt.h (Schedule): Don't use _ as a field name.
+
+	* rlogind/rlogind.c: Replace #ifdefs of CRYPT with ENCRYPTION.
+	(do_krb_login): Pass *address* of KDATA->session to des_set_key.
+	* rlogind/Makefile.in (LDLIBS): Add $(LIBAUTH).
+
+	* libtelnet/enc-proto.h (des_new_random_key,
+	des_set_random_generator_seed, des_key_sched, des_ecb_encrypt,
+	des_string_to_key): Declarations removed.
+
+	* libtelnet/kerberos.c: Change includes of <des.h> & <krb.h> to
+	<kerberosIV/des.h> & <kerberosIV/krb.h>.
+	* libtelnet/krb4encpwd.c: Likewise.
+
+	* rsh/rsh.c (main): Pass *address* of CRED.session to des_set_key.
+	* rlogin/rlogin.c (main): Likewise.
+
 1997-09-22  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.3.1c'.
