@@ -1,3 +1,14 @@
+2002-08-04  Sergey Poznyakoff  <Mirddin.farlep.net>
+
+	* acinclude.m4 (IU_CHECK_MEMBER,IU_CHECK_MEMBERS): added new
+	  macros to override the autoconf bug noted on 2002-05-14.
+	  The old workaround didn't work for some cases (namely,
+	  utmp.ut_exit, whose members are named differently on
+	  different systems). When the autoconf is updated, the
+	  need for these macros will disappear.
+	* configure.ac: Use IU_CHECK_MEMBER(S) instead of AC_CHECK_MEMBERS
+	  throughout the file.
+
 2002-07-31  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* configure.ac: Update version to 1.4
