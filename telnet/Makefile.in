@@ -21,7 +21,6 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-INSTALL_TARGETS = $(bindir)/telnet $(man1dir)/telnet.1
 SRCS = authenc.c commands.c main.c network.c ring.c sys_bsd.c telnet.c \
        terminal.c tn3270.c utilities.c
 HDRS = defines.h externs.h fdset.h general.h krb4-proto.h ring.h types.h
@@ -29,13 +28,13 @@ DISTFILES = $(SRCS) $(HDRS) telnet.1
 
 OPTIONS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
-CPPFLAGS += $(OPTIONS)
+INSTALL_TARGETS = $(bindir)/telnet $(man1dir)/telnet.1
+OBJS = $(SRCS:.c=.o)
 LDLIBS := -L../libtelnet -ltelnet $(LIBTERMCAP) $(LDLIBS)
+CPPFLAGS += $(OPTIONS)
+CLEAN = telnet $(OBJS)
 
 all: telnet
-telnet: $(SRCS:.c=.o)
-
-clean:
-	$(RM) -f *.o telnet
+telnet: $(OBJS)
 
 include $(RULES)
