@@ -1,6 +1,7 @@
 2001-11-01  Alain Magloire
 
 	* ping.8: New file.
+	* Makefile.am: man_MANS = ping.8.
 
 2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
 

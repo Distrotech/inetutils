@@ -5,6 +5,8 @@ OMIT_DEPENDENCIES=crypt.h err.h getopt.h osockaddr.h paths.h poll.h syslog-int.h
 bin_PROGRAMS = @BUILD_PING@
 EXTRA_PROGRAMS=ping
 
+man_MANS = ping.8
+
 LDADD = -L../libinetutils -linetutils -lm -L../libicmp -licmp
 INCLUDES = -I$(top_srcdir)/libicmp
 
