@@ -54,21 +54,6 @@ struct format_handle
 
 extern struct format_handle format_handles[];
 
-/* Many platforms do not provide the pseudo macros, check them here
-   for a lack of better place.  */
-
-#ifndef HAVE_IFREQ_IFR_INDEX
-# define ifr_index ifr_ifindex
-#endif
-
-#ifndef HAVE_IFREQ_IFR_NETMASK
-# define ifr_netmask ifr_addr
-#endif
-
-#ifndef HAVE_IFREQ_IFR_BROADADDR
-# define ifr_broadaddr ifr_addr
-#endif
-
 /* Each TAB_STOP characters is a default tab stop, which is also used
    by '\t'.  */
 #define TAB_STOP 8

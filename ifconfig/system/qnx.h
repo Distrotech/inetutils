@@ -28,9 +28,6 @@
 
 
 
-#define ifr_netmask ifr_addr
-
-
 /* Option support.  */
 
 struct system_ifconfig
@@ -40,8 +37,6 @@ struct system_ifconfig
 
 
 /* Output format support.  */
-void qfh_netmask (format_data_t form, int argc, char *argv[]);
-void qfh_brdaddr (format_data_t form, int argc, char *argv[]);
 
 #define SYSTEM_FORMAT_HANDLER \
   {"qnx", fh_nothing}, \

@@ -1,3 +1,16 @@
+2001-06-23  Marcus Brinkmann  <marcus@gnu.org>
+
+	* system/qnx.c (qfh_brdaddr, qfh_netmask): Functions removed,
+	the generic ones will work fine with the changes to system.h.
+	* system/qnx.h: Prototypes for these functions removed.
+
+	* system/qnx.h: Do not define ifr_netmask.
+
+	* printif.h: Move check for HAVE_* introduced in last change to ...
+	system.h: ... here.
+
+	* options.c: Revert change from Alain.
+
 2001-06-04  Alain Magloire
 
 	After patches and feedback From Sergey and Marcus.

@@ -47,13 +47,6 @@
 #include <net/if.h>
 #include "ifconfig.h"
 
-#ifndef SYSTEM_SHORT_OPTIONS
-# define SYSTEM_SHORT_OPTIONS
-#endif
-#ifndef SYSTEM_LONG_OPTIONS
-# define SYSTEM_LONG_OPTIONS
-#endif
-
 /* Be verbose about actions.  */
 int verbose;
 

@@ -51,41 +51,6 @@ const char *system_help;
 
 const char *system_help_options;
 
-void
-qfh_brdaddr (format_data_t form, int argc, char *argv[])
-{
-#ifdef SIOCGIFBRDADDR
-  if (ioctl (form->sfd, SIOCGIFBRDADDR, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFBRDADDR failed for interface `%s': %s\n",
-               __progname, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
-  else
-    put_addr (form, argc, argv, &form->ifr->ifr_addr);
-#else
-  *column += printf ("(not available)");
-  had_output = 1;
-#endif
-}
-
-void
-qfh_netmask (format_data_t form, int argc, char *argv[])
-{
-#ifdef SIOCGIFNETMASK
-  if (ioctl (form->sfd, SIOCGIFNETMASK, (caddr_t *)form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFNETMASK failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
-    }
-  else
-    put_addr (form, argc, argv, &form->ifr->ifr_addr);
-#else
-  *column += printf ("(not available)");
-  had_output = 1;
-#endif
-}
-
 int
 system_parse_opt(struct ifconfig **ifp, char option, char *optarg)
 {
