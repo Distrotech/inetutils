@@ -44,19 +44,51 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 /*
  * rlogin - remote login
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_STREAM_H
+#include <sys/stream.h>
+#endif
+#ifdef HAVE_SYS_TTY_H
+#include <sys/tty.h>
+#endif
+#ifdef HAVE_SYS_PTYVAR_H
+#include <sys/ptyvar.h>
+#endif
+#ifdef HAVE_SYS_SOCKIO_H
+#include <sys/sockio.h>
+#endif
 
 #include <netinet/in.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
+#endif
 
 #include <errno.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <netdb.h>
 #include <pwd.h>
 #include <setjmp.h>
@@ -67,7 +99,7 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #include <string.h>
 #include <unistd.h>
 
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -76,8 +108,6 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #ifdef KERBEROS
 #include <kerberosIV/des.h>
 #include <kerberosIV/krb.h>
-
-#include "krb.h"
 
 CREDENTIALS cred;
 Key_schedule schedule;
@@ -92,6 +122,14 @@ char dst_realm_buf[REALM_SZ], *dest_realm = NULL;
 /* concession to Sun */
 #ifndef SIGUSR1
 #define	SIGUSR1	30
+#endif
+
+#ifndef	_POSIX_VDISABLE
+# ifdef VDISABLE
+#  define _POSIX_VDISABLE VDISABLE
+# else
+#  define _POSIX_VDISABLE ((cc_t)'\377')
+# endif
 #endif
 
 int eight, litout, rem;
@@ -111,8 +149,8 @@ struct	winsize winsize;
 
 void		catch_child __P((int));
 void		copytochild __P((int));
-__dead void	doit __P((sigset_t *));
-__dead void	done __P((int));
+void		doit __P((sigset_t *));
+void		done __P((int));
 void		echo __P((char));
 u_int		getescape __P((char *));
 void		lostpeer __P((int));
@@ -125,7 +163,7 @@ void		setsignal __P((int));
 int		speed __P((int));
 void		sigwinch __P((int));
 void		stop __P((char));
-__dead void	usage __P((void));
+void		usage __P((void));
 void		writer __P((void));
 void		writeroob __P((int));
 
@@ -135,6 +173,8 @@ void		warning __P((const char *, ...));
 #ifdef OLDSUN
 int		get_window_size __P((int, struct winsize *));
 #endif
+
+extern sig_t setsig __P((int, sig_t));
 
 int
 main(argc, argv)
@@ -147,7 +187,11 @@ main(argc, argv)
 	uid_t uid;
 	int argoff, ch, dflag, one;
 	char *host, *p, *user, term[1024];
-	struct sigaction sa;
+
+#ifndef HAVE___PROGNAME
+	extern char *__progname;
+	__progname = argv[0];
+#endif
 
 	argoff = dflag = 0;
 	one = 1;
@@ -204,7 +248,7 @@ main(argc, argv)
 		case 'l':
 			user = optarg;
 			break;
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 		case 'x':
 			doencrypt = 1;
@@ -264,25 +308,22 @@ main(argc, argv)
 
 	(void)get_window_size(0, &winsize);
 
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = lostpeer;
-	(void)sigaction(SIGPIPE, &sa, (struct sigaction *) 0);
+	setsig (SIGPIPE, lostpeer);
+
 	/* will use SIGUSR1 for window size hack, so hold it off */
-	sigemptyset(&smask);
-	sigaddset(&smask, SIGURG);
-	sigaddset(&smask, SIGUSR1);
-	(void)sigprocmask(SIG_SETMASK, &smask, &smask);
+	sigemptyset (&smask);
+	sigaddset (&smask, SIGURG);
+	sigaddset (&smask, SIGUSR1);
+	sigprocmask (SIG_SETMASK, &smask, &smask);
+
 	/*
 	 * We set SIGURG and SIGUSR1 below so that an
 	 * incoming signal will be held pending rather than being
 	 * discarded. Note that these routines will be ready to get
 	 * a signal by the time that they are unblocked below.
 	 */
-	sa.sa_handler = copytochild;
-	(void)sigaction(SIGURG, &sa, (struct sigaction *) 0);
-	sa.sa_handler = writeroob;
-	(void)sigaction(SIGUSR1, &sa, (struct sigaction *) 0);
+	setsig (SIGURG, copytochild);
+	setsig (SIGUSR1, writeroob);
 
 #ifdef KERBEROS
 try_connect:
@@ -299,7 +340,7 @@ try_connect:
 		if (dest_realm == NULL)
 			dest_realm = krb_realmofhost(host);
 
-#ifdef CRYPT
+#ifdef ENCRYPTION
 		if (doencrypt)
 			rem = krcmd_mutual(&host, sp->s_port, user, term, 0,
 			    dest_realm, &cred, schedule);
@@ -319,7 +360,7 @@ try_connect:
 			goto try_connect;
 		}
 	} else {
-#ifdef CRYPT
+#ifdef ENCRYPTION
 		if (doencrypt)
 			errx(1, "the -x flag requires Kerberos authentication.");
 #endif /* CRYPT */
@@ -333,11 +374,15 @@ try_connect:
 		exit(1);
 
 	if (dflag &&
-	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, &one, sizeof(one)) < 0)
-		warn("setsockopt DEBUG (ignored)");
+	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, (char *) &one,
+		       sizeof(one)) < 0)
+ 		warn("setsockopt DEBUG (ignored)");
+
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	one = IPTOS_LOWDELAY;
 	if (setsockopt(rem, IPPROTO_IP, IP_TOS, (char *)&one, sizeof(int)) < 0)
-		warn("setsockopt TOS (ignored)");
+ 		warn("setsockopt TOS (ignored)");
+#endif
 
 	(void)setuid(uid);
 	doit(&smask);
@@ -384,22 +429,20 @@ doit(smask)
 	sigset_t *smask;
 {
 	int i;
-	struct sigaction sa;
 
 	for (i = 0; i < NCCS; i++)
 		nott.c_cc[i] = _POSIX_VDISABLE;
 	tcgetattr(0, &deftt);
 	nott.c_cc[VSTART] = deftt.c_cc[VSTART];
 	nott.c_cc[VSTOP] = deftt.c_cc[VSTOP];
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = SIG_IGN;
-	(void)sigaction(SIGINT, &sa, (struct sigaction *) 0);
+
+	setsig (SIGINT, SIG_IGN);
 	setsignal(SIGHUP);
 	setsignal(SIGQUIT);
+
 	child = fork();
 	if (child == -1) {
-		warn("fork");
+ 		warn("fork");
 		done(1);
 	}
 	if (child == 0) {
@@ -421,8 +464,9 @@ doit(smask)
 	 * that were set above.
 	 */
 	(void)sigprocmask(SIG_SETMASK, smask, (sigset_t *) 0);
-	sa.sa_handler = catch_child;
-	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+
+	setsig (SIGCHLD, catch_child);
+
 	writer();
 	msg("closed connection.");
 	done(0);
@@ -433,38 +477,31 @@ void
 setsignal(sig)
 	int sig;
 {
-	struct sigaction sa;
+	sig_t handler;
 	sigset_t sigs;
 
 	sigemptyset(&sigs);
 	sigaddset(&sigs, sig);
 	sigprocmask(SIG_BLOCK, &sigs, &sigs);
 
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = exit;
-	sa.sa_flags = SA_RESTART;
-	(void)sigaction(sig, &sa, &sa);
-	if (sa.sa_handler == SIG_IGN)
-		(void)sigaction(sig, &sa, (struct sigaction *) 0);
+	handler = setsig (sig, exit);
+	if (handler == SIG_IGN)
+	  setsig (sig, handler);
 
 	(void)sigprocmask(SIG_SETMASK, &sigs, (sigset_t *) 0);
 }
 
-__dead void
+void
 done(status)
 	int status;
 {
 	pid_t w;
 	int wstatus;
-	struct sigaction sa;
 
 	mode(0);
 	if (child > 0) {
 		/* make sure catch_child does not snap it up */
-		sigemptyset(&sa.sa_mask);
-		sa.sa_handler = SIG_DFL;
-		sa.sa_flags = 0;
-		(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+	    setsig (SIGCHLD, SIG_DFL);
 		if (kill(child, SIGKILL) >= 0)
 			while ((w = wait(&wstatus)) > 0 && w != child)
 				continue;
@@ -482,14 +519,9 @@ void
 writeroob(signo)
 	int signo;
 {
-	struct sigaction sa;
-
 	if (dosigwinch == 0) {
 		sendwindow();
-		sigemptyset(&sa.sa_mask);
-		sa.sa_handler = sigwinch;
-		sa.sa_flags = SA_RESTART;
-		(void)sigaction(SIGWINCH, &sa, (struct sigaction *) 0);
+		setsig (SIGWINCH, sigwinch);
 	}
 	dosigwinch = 1;
 }
@@ -552,14 +584,18 @@ writer()
 				echo(c);
 				break;
 			}
-			if (c == deftt.c_cc[VSUSP] || c == deftt.c_cc[VDSUSP]) {
+			if (c == deftt.c_cc[VSUSP]
+#ifdef VDSUSP
+			    || c == deftt.c_cc[VDSUSP]
+#endif
+			    ) {
 				bol = 1;
 				echo(c);
 				stop(c);
 				continue;
 			}
 			if (c != escapechar)
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 				if (doencrypt)
 					(void)des_write(rem,
@@ -570,7 +606,7 @@ writer()
 					(void)write(rem, &escapechar, 1);
 		}
 
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 		if (doencrypt) {
 			if (des_write(rem, &c, 1) == 0) {
@@ -625,16 +661,10 @@ stop(cmdc)
 	char cmdc;
 #endif
 {
-	struct sigaction sa;
-
 	mode(0);
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = SIG_IGN;
-	sa.sa_flags = SA_RESTART;
-	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+	setsig (SIGCHLD, SIG_IGN);
 	(void)kill(cmdc == deftt.c_cc[VSUSP] ? 0 : getpid(), SIGTSTP);
-	sa.sa_handler = catch_child;
-	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+	setsig (SIGCHLD, catch_child);
 	mode(1);
 	sigwinch(0);			/* check for size changes */
 }
@@ -671,7 +701,7 @@ sendwindow()
 	wp->ws_xpixel = htons(winsize.ws_xpixel);
 	wp->ws_ypixel = htons(winsize.ws_ypixel);
 
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 	if(doencrypt)
 		(void)des_write(rem, obuf, sizeof(obuf));
@@ -745,7 +775,9 @@ oob(signo)
 		tcsetattr(0, TCSANOW, &tt);
 	}
 	if (mark & TIOCPKT_FLUSHWRITE) {
+#ifdef TIOCFLUSH
 		(void)ioctl(1, TIOCFLUSH, (char *)&out);
+#endif
 		for (;;) {
 			if (ioctl(rem, SIOCATMARK, &atmark) < 0) {
 				warn("ioctl SIOCATMARK (ignored)");
@@ -786,19 +818,16 @@ reader(smask)
 	pid_t pid;
 	int n, remaining;
 	char *bufp;
-	struct sigaction sa;
 
 #if BSD >= 43 || defined(SUNOS4)
 	pid = getpid();		/* modern systems use positives for pid */
 #else
 	pid = -getpid();	/* old broken systems use negatives */
 #endif
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = SIG_IGN;
-	(void)sigaction(SIGTTOU, &sa, (struct sigaction *) 0);
-	sa.sa_handler = oob;
-	(void)sigaction(SIGURG, &sa, (struct sigaction *) 0);
+
+	setsig (SIGTTOU, SIG_IGN);
+	setsig (SIGURG, oob);
+
 	ppid = getppid();
 	(void)fcntl(rem, F_SETOWN, pid);
 	(void)setjmp(rcvtop);
@@ -819,7 +848,7 @@ reader(smask)
 		rcvcnt = 0;
 		rcvstate = READING;
 
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 		if (doencrypt)
 			rcvcnt = des_read(rem, rcvbuf, sizeof(rcvbuf));
@@ -874,12 +903,7 @@ void
 lostpeer(signo)
 	int signo;
 {
-	struct sigaction sa;
-
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = SIG_IGN;
-	(void)sigaction(SIGPIPE, &sa, (struct sigaction *) 0);
+	setsig (SIGPIPE, SIG_IGN);
 	msg("\007connection closed.");
 	done(1);
 }
@@ -904,7 +928,7 @@ msg(str)
 #ifdef KERBEROS
 /* VARARGS */
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 warning(const char *fmt, ...)
 #else
 warning(fmt, va_alist)
@@ -915,7 +939,7 @@ warning(fmt, va_alist)
 	va_list ap;
 
 	(void)fprintf(stderr, "rlogin: warning, using standard rlogin: ");
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -926,13 +950,13 @@ warning(fmt, va_alist)
 }
 #endif
 
-__dead void
+void
 usage()
 {
 	(void)fprintf(stderr,
 	    "usage: rlogin [ -%s]%s[-e char] [ -l username ] [username@]host\n",
 #ifdef KERBEROS
-#ifdef CRYPT
+#ifdef ENCRYPTION
 	    "8EKLx", " [-k realm] ");
 #else
 	    "8EKL", " [-k realm] ");
