@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_UUCPD@
+inetdaemon_PROGRAMS = @uucpd_BUILD@
 
 EXTRA_PROGRAMS = uucpd
 
