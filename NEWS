@@ -4,6 +4,7 @@ See the end for copying conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+=======
 Version 1.4.1:
 
 * Fixes a build problem on Solaris
@@ -12,6 +13,13 @@ Version 1.4.1:
 
 * Fixed a security problem with rshd where new files were being
   created as uid 0.
+
+* Fixed improper ping initialization.
+
+* The syntax of syslog.conf file has been extended. The new
+  wildcard facility specification, **, catches all messages with
+  a facility not specified explicitely in the configuration file. 
+
 
 Version 1.4.0:
 
