@@ -1,3 +1,17 @@
+2001-10-25  Sergey Poznyakoff
+
+	Talkd essencially rewritten. New feature: system-wide and
+	user-specific access-control lists allow for controlling
+	who and from where is able to request talks.
+
+	* intalkd.h: (new) Implementation-specific defines.
+	* acl.c: (new) Access-control lists.
+	* Makefile.am: Added new sources.
+	* talkd.c: Completely rewritten.
+	* announce.c: Likewise.
+	* print.c: Likewise.
+	* process.c: Likewise.
+	
 2001-09-05  Michael Weiser <mweiser@robin.imn.htwk-leipzig.de>
 
 	* process.c: merge redundant #ifdef's
