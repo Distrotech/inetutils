@@ -1,3 +1,8 @@
+2001-08-26   Alain Magloire
+
+	* inetd.c (main): Fixed memory overryn in main 8-).
+	config_files is a null terminate array of pointers.
+
 2001-08-26  Sergey Poznyakoff
 
 	* inetd.c: Fixed memory overrun in main.
@@ -7,7 +12,7 @@
 	The idea is to provide an easy way to add services without
 	mocking around with inetd.conf.  It is possible to just
 	drop a file in PATH_INETDDIR, and the file will be pick
-	and merge like if it was configuration file.  For example,
+	and merge like if it was a configuration file.  For example,
 
 	/etc/inetd.d/telnet
 	/etc/inetd.d/ftp
