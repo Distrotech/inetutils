@@ -55,6 +55,7 @@ LIBAUTH = @LIBAUTH@
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 LIBUTIL = @LIBUTIL@
+LIBGLOB = @LIBGLOB@
 
 CPPFLAGS += $(DEFS) -I$(srcdir) -I../include
 LDLIBS += -L../libinetutils -linetutils $(LIBS)
@@ -84,3 +85,5 @@ define LINK_DISTFILES
     test -e "$$DISTFILE" && { DISTFILE="$$FILE"; $(_LINK_DISTFILE) } || :; \
   done
 endef
+
+@PATHDEFS_MAKE@
