@@ -65,7 +65,7 @@ static char     sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
 #include <string.h>
 #include <unistd.h>
 
-#include <xalloc.h>
+#include "xalloc.h"
 #include "extern.h"
 
 #define	TIMEOUT		5	/* secs between rexmt's */

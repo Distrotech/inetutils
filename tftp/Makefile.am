@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/libinetutils 
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib
 
 bin_PROGRAMS = @tftp_BUILD@
 
@@ -12,6 +12,6 @@ noinst_HEADERS = extern.h
 
 man_MANS = tftp.1
 
-LDADD = -L$(top_builddir)/libinetutils -linetutils
+LDADD = -L../lib -lgnu -L$(top_builddir)/libinetutils -linetutils
 
 EXTRA_DIST = $(man_MANS)
