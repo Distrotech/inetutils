@@ -243,9 +243,10 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
   AH_TEMPLATE(KRB4, [Define to one if you have Kerberos IV])
   AH_TEMPLATE(KERBEROS, [Define to one if you have Kerberos])
   AH_TEMPLATE(DES_ENCRYPTION, [FIXME])
-  AH_TEMPLATE(KERBEROS_V, [FIXME])
+  AH_TEMPLATE(KERBEROS_V, [Define to one if you have Kerberos V])
+  AH_TEMPLATE(KRB5, [Define to one if you have Kerberos V])
   
-  if test $KERBEROS_VERSION -eq 4; then
+  if test "$KERBEROS_VERSION" = 4; then
     AC_CHECK_LIB(krb, krb_mk_req,
                  [LIBAUTH=-lkrb
                   AC_DEFINE(KERBEROS_IV)
@@ -264,7 +265,7 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
         && AC_DEFINE(DES_ENCRYPTION)
     fi
   else
-    IU_CHECK_KRB5($KERBEROS_VERSION,$KERBEROS_PREFIX)
+    IU_CHECK_KRB5($KERBEROS_VERSION,$KERBEROS_DIR)
     LIBAUTH=$KRB5_LIBS
     INCAUTH=$KRB_CFLAGS
     if test ".$LIBAUTH" != . ;then
@@ -273,6 +274,7 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
          AC_DEFINE(KRB4)
          ;;
       5) AC_DEFINE(KERBEROS_V)
+	 AC_DEFINE(KRB5)
          ;;
       esac
     fi
