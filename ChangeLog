@@ -1,3 +1,15 @@
+2002-02-12  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* TODO: Remove ping
+
+	* THANKS: Update
+
+	* README-alpha: *Wow* this file was really inaccurate.
+
+	* NEWS: Mention talkd, and ping
+
+	* AUTHORS: Update
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* configure.in: Reworked for autoconf 2.52 and renamed to

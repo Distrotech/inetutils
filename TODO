@@ -45,7 +45,6 @@ Testing and debugging the encryption and authentication modes.
 
 Add more utilities:
   Noah's rexec
-  Ping (BSD ping fails utterly to compile; perhaps linux's is better)
   Tcpdump
   routed?
   ruptime?

@@ -1,7 +1,7 @@
 Inetutils NEWS -- history of user-visible changes
 Please send inetutils bug reports to bug-inetutils@gnu.org.
 
-Release 1.3.3:
+Release 1.4.0:
  It is now possible to specify whether to compile individual utilities using
  arguments to configure.
 
@@ -11,6 +11,12 @@ Release 1.3.3:
  There is now a whois client.
 
  Security fixes.
+
+ Talk essentially rewritten.
+
+ Ping added.
+
+ Inetutils should generally compile on most platforms now.
 
 Release 1.3.2:
  This release attempts to get the encryption/authentication options to
