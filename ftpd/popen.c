@@ -95,12 +95,11 @@ ftpd_popen(program, type)
 		return (NULL);
 
 	/* break up string into pieces */
-	for (argc = 0, cp = program;; cp = NULL) {
-		if (!(argv[argc++] = strtok(cp, " \t\n")))
+	for (argc = 0, cp = program; argc < MAX_ARGV - 1; cp = NULL, argc++)
+		if (!(argv[argc] = strtok(cp, " \t\n")))
 			break;
+	argv[MAX_ARGV - 1] = NULL;
 
-    if (argc > MAX_ARGC) return(NULL); /* AUSCERT */
-  }
 	/* glob each piece */
 	gargv[0] = argv[0];
 	for (gargc = argc = 1; argv[argc]; argc++) {
@@ -108,13 +107,13 @@ ftpd_popen(program, type)
 		int flags = GLOB_NOCHECK;
 
 #ifdef GLOB_BRACE
-				flags |= GLOB_BRACE;
+		flags |= GLOB_BRACE;
 #endif
 #ifdef GLOB_QUOTE
-				flags |= GLOB_QUOTE;
+		flags |= GLOB_QUOTE;
 #endif
 #ifdef GLOB_TILDE
-				flags |= GLOB_TILDE;
+		flags |= GLOB_TILDE;
 #endif
 
 		memset(&gl, 0, sizeof(gl));

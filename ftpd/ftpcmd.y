@@ -173,8 +173,8 @@ cmd_list
 	: /* empty */
 	| cmd_list cmd
 		{
-		    	if (fromname != NULL)
-			    free (fromname);
+			if (fromname != NULL)
+				free (fromname);
 			fromname = (char *) 0;
 			restart_point = (off_t) 0;
 		}
@@ -200,27 +200,25 @@ cmd
 				(void) close(pdata);
 				pdata = -1;
 			}
-#ifndef IPPORT_RESERVED
-# define IPPORT_RESERVED 1023
-#endif
 			if ($2) {
-			    if (memcmp (&his_addr.sin_addr,
+				if (memcmp (&his_addr.sin_addr,
 					&data_dest.sin_addr,
 					sizeof (data_dest.sin_addr)) == 0 && 
 					ntohs (data_dest.sin_port) >
 					IPPORT_RESERVED) {
-				reply (200, "PORT command sucessful.");
-			    }
-			    else {
-				memset (&data_dest, 0, sizeof (data_dest));
-				reply(500, "Illegal PORT Command");
-			    }
+					reply (200, "PORT command sucessful.");
+				}
+				else {
+					memset (&data_dest, 0,
+						sizeof (data_dest));
+					reply(500, "Illegal PORT Command");
+				}
 			}
 		}
 	| PASV check_login CRLF
 		{
-		    if ($2)
-			passive();
+			if ($2)
+				passive();
 		}
 	| TYPE SP type_code CRLF
 		{
