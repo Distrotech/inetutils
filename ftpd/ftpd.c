@@ -90,7 +90,6 @@ char *alloca ();
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
-#include <glob.h>
 #include <limits.h>
 #include <netdb.h>
 #include <pwd.h>
@@ -117,6 +116,9 @@ char *alloca ();
 #endif
 #include <unistd.h>
 #include <crypt.h>
+/* Include glob.h last, because it may define "const" which breaks
+   system headers on some platforms. */
+#include <glob.h>
 
 #include "extern.h"
 #include "version.h"
@@ -728,6 +730,7 @@ retrieve(cmd, name)
 	FILE *fin, *dout;
 	struct stat st;
 	int (*closefunc) __P((FILE *));
+	size_t buffer_size=0;
 
 	if (cmd == 0) {
 		fin = fopen(name, "r"), closefunc = fclose;
@@ -739,7 +742,7 @@ retrieve(cmd, name)
 		name = line;
 		fin = ftpd_popen(line, "r"), closefunc = ftpd_pclose;
 		st.st_size = -1;
-		st.st_blksize = BUFSIZ;
+		buffer_size = BUFSIZ;
 	}
 	if (fin == NULL) {
 		if (errno != 0) {
@@ -751,7 +754,8 @@ retrieve(cmd, name)
 		return;
 	}
 	byte_count = -1;
-	if (cmd == 0 && (fstat(fileno(fin), &st) < 0 || !S_ISREG(st.st_mode))) {
+	if (cmd == 0 && (fstat(fileno(fin), &st) < 0 || !S_ISREG(st.st_mode)
+			 || !(buffer_size = ST_BLKSIZE(st)))) {
 		reply(550, "%s: not a plain file.", name);
 		goto done;
 	}
@@ -778,7 +782,7 @@ retrieve(cmd, name)
 	dout = dataconn(name, st.st_size, "w");
 	if (dout == NULL)
 		goto done;
-	send_data(fin, dout, st.st_blksize);
+	send_data(fin, dout, buffer_size);
 	(void) fclose(dout);
 	data = -1;
 	pdata = -1;
