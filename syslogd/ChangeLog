@@ -1,5 +1,20 @@
 2000-08-06  Alain Magloire
 
+Adding poll() bring to light that we do the creation of sockets
+inside init(), this has the unfortunate side effect of close()ing
+and  recreating the sockets at every SIGHUP.  This was done to
+speedup initialization of syslogd, since on GNU/Linux the rc.*
+files would start klogd also.  This is also the reason for a waitdaemon():
+"Wed Feb 14 12:42:09 CST 1996:  Dr. Wettstein
+  Parent process of syslogd does not exit until child process has
+  finished initialization process.  This allows rc.* startup to
+  pause until syslogd facility is up and operating."
+
+	* syslogd.c (init): Remove call to creation of sockets
+	and move it to the main() before going in the loop.
+
+2000-08-06  Alain Magloire
+
 	* syslogd.c (main): Use of poll() instead of select()
 	for better modularity.
 

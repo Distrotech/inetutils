@@ -130,8 +130,8 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 
 #ifdef HAVE_TCPD_H
 #include <tcpd.h>
-#endif  
-	  
+#endif
+
 #ifdef HAVE_SECURITY_PAM_APPL_H
 #include <security/pam_appl.h>
 #endif
@@ -193,13 +193,13 @@ char    *anonymous_login_name = "ftp";
 #ifdef HAVE_FTPD_H
 int     allow_severity = LOG_INFO;
 int     deny_severity = LOG_NOTICE;
-#endif  
+#endif
 
 #ifdef HAVE_LIBPAM
 static int ftp_conv (int num_msg, const struct pam_message **msg,
         struct pam_response **resp, void *appdata_ptr);
 static struct pam_conv conv = { ftp_conv, NULL };
-#endif 
+#endif
 
 
 #define NUM_SIMUL_OFF_TO_STRS 4
@@ -282,7 +282,7 @@ static struct passwd *
 static char	*sgetsave __P((char *));
 static void      reapchild __P((int));
 static void      sigquit __P((int));
-#ifdef HAVE_TCPD_H
+#ifdef HAVE_LIBWRAP
 static int	 check_host(struct sockaddr *sa);
 #endif
 
@@ -461,11 +461,11 @@ main(int argc, char *argv[], char **envp)
 		}
 		close(fd);
 	    }
-#ifdef HAVE_TCPD_H
+#ifdef HAVE_LIBWRAP
 	    /* ..in the child. */
 	    if (!check_host((struct sockaddr *)&his_addr))
 	    exit(1);
-#endif 
+#endif
         } else {
 	    addrlen = sizeof(his_addr);
 	    if (getpeername(0, (struct sockaddr *)&his_addr, &addrlen) < 0) {
@@ -887,7 +887,7 @@ ftp_conv (int num_msg, const struct pam_message **msg,
                         if (appdata_ptr)
                                 vresp[i].resp = strdup((char *)appdata_ptr);
                         else
-                                vresp[i].resp = strdup(""); 
+                                vresp[i].resp = strdup("");
                         vresp[i].resp_retcode = 0;
                         break;
                 case PAM_PROMPT_ECHO_ON:
@@ -936,7 +936,7 @@ pass(char *passwd)
 			rval = 0;
 			goto skip;
 		}
-	
+
 #else
 	if (!guest) {
 	  conv.appdata_ptr = passwd;
@@ -944,7 +944,7 @@ pass(char *passwd)
 	    goto pam_fail;
 	  pam_set_item (pamh, PAM_RHOST, remotehost);
 	  pam_fail_delay (pamh, 2000000);
-	  if (pam_authenticate (pamh, 0) != PAM_SUCCESS) 
+	  if (pam_authenticate (pamh, 0) != PAM_SUCCESS)
 	    goto pam_fail;
 	  if (pam_acct_mgmt (pamh, 0) != PAM_SUCCESS)
 	    goto pam_fail;
@@ -959,9 +959,9 @@ pam_fail:
 	  rval = 1;
 	  pam_end (pamh, 0);
 	  goto skip;
-	     
+
 #endif
-	     
+
 skip:
 	  /*
 	   * If rval == 1, the user failed the authentication check
@@ -2101,18 +2101,18 @@ setproctitle(fmt, va_alist)
 #endif /* SETPROCTITLE */
 
 
-#ifdef HAVE_TCPD_H
+#ifdef HAVE_LIBWRAP
 static int check_host(struct sockaddr *sa)
 {
 	struct sockaddr_in *sin;
         struct hostent *hp;
         char *addr;
-	
+
 	if (sa->sa_family != AF_INET)
-              return 1;      
+              return 1;
 
 	sin = (struct sockaddr_in *)sa;
-	hp = gethostbyaddr((char *)&sin->sin_addr, 
+	hp = gethostbyaddr((char *)&sin->sin_addr,
 			sizeof(struct in_addr), AF_INET);
         addr = inet_ntoa(sin->sin_addr);
         if (hp) {

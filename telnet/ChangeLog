@@ -1,3 +1,7 @@
+2000-08-06 Alain Magloire
+
+	* ring.h: error in the prototype declarion of ring_mark().
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

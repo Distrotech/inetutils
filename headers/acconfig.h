@@ -239,6 +239,12 @@
 /* Define this if struct hostent has a h_addr_list field.  */
 #undef HAVE_HOSTENT_H_ADDR_LIST
 
+/* Define this if initgroups is declared by including <grp.h>.  */
+#undef HAVE_INITGROUPS_DECL
+
+/* Define if you have the tcpd_wrapper library (-lwrap).  */
+#undef HAVE_LIBWRAP 
+
 /* Define this if the system supplies the __PROGNAME variable.  */
 #undef HAVE___PROGNAME
 

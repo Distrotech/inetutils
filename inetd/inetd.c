@@ -208,6 +208,7 @@ void		usage __P((void));
 void		set_proc_title __P ((char *, int));
 void		initring __P((void));
 long		machtime __P((void));
+void            run_service __P ((int ctrl, struct servtab *sep));
 
 struct biltin {
 	const char	*bi_service;	/* internally provided service name */
@@ -567,7 +568,7 @@ usage(void)
 {
 	fprintf(stderr, "usage: inetd [-d] [-R rate] [conf-file [conf-dir]]");
 	exit(1);
-} 
+}
 
 void
 reapchild(int signo)
@@ -1411,7 +1412,7 @@ tcpmux(int s, struct servtab *sep)
 	/* Get requested service name */
 	if ((len = fd_getline(s, service, MAX_SERV_LEN)) < 0) {
 		strwrite(s, "-Error reading service name\r\n");
-		_exit (1);	
+		_exit (1);
 	}
 	service[len] = '\0';
 
@@ -1445,5 +1446,5 @@ tcpmux(int s, struct servtab *sep)
 		}
 	}
 	strwrite(s, "-Service not available\r\n");
-	exit (1);	
+	exit (1);
 }

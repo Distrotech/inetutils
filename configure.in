@@ -261,9 +261,15 @@ IU_CHECK_WEAK_REFS
 
 # See if there's a separate libcrypt (many systems put crypt there)
 AC_CHECK_LIB(crypt, crypt, LIBCRYPT=-lcrypt)
-AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
 AC_SUBST(LIBCRYPT)
+
+# See if we have libwrap.a this is for ftpd.
+AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
 AC_SUBST(LIBWRAP)
+if test "$ac_cv_lib_wrap_hosts_ctl" = yes ; then
+  AC_DEFINE(HAVE_LIBWRAP)
+fi
+
 # Look for the crypt function itself (in libcrypt if possible)
 _SAVE_LIBS="$LIBS"
 LIBS="$LIBCRYPT $LIBS"

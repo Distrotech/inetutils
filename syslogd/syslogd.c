@@ -354,7 +354,7 @@ main(int argc, char *argv[])
   char line[MAXLINE + 1];
   pid_t ppid = 0;	/* We run in debug mode and didn't fork.  */
   struct pollfd *fdarray;
-  unsigned long nfds;
+  unsigned long nfds = 0;
 
   program = argv[0];
 
@@ -521,6 +521,69 @@ main(int argc, char *argv[])
   (void) signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
   (void) alarm (TIMERINTVL);
 
+  /* We add  2 = 1(klog) + 1(inet), even if they may be not use.  */
+  fdarray = (struct pollfd *) malloc ((nfunix + 2) * sizeof (*fdarray));
+  if (fdarray == NULL)
+    {
+      fprintf (stderr, "%s: can't allocate fd table: %s\n",
+	       program, strerror (errno));
+      exit (2);
+    }
+
+#ifdef PATH_KLOG
+  /* Initialize kernel logging and add to the list.  */
+  if (!NoKLog)
+    {
+      fklog = open (PATH_KLOG, O_RDONLY, 0);
+      if (fklog >= 0)
+	{
+	  fdarray[nfds].fd = fklog;
+	  fdarray[nfds].events = POLLIN | POLLPRI;
+	  nfds++;
+	  dbg_printf ("Klog open %s\n", PATH_KLOG);
+	}
+      else
+	dbg_printf ("Can't open %s: %s\n", PATH_KLOG, strerror (errno));
+    }
+#endif
+
+  /* Initialize unix sockets.  */
+  if (!NoUnixAF)
+    {
+      for (i = 0; i < nfunix; i++)
+	{
+	  funix[i].fd = create_unix_socket (funix[i].name);
+	  if (funix[i].fd >= 0)
+	    {
+	      fdarray[nfds].fd = funix[i].fd;
+	      fdarray[nfds].events = POLLIN | POLLPRI;
+	      nfds++;
+	      dbg_printf ("Opened UNIX socket `%s'.\n", funix[i].name);
+	    }
+	  else
+	      dbg_printf ("Can't open %s: %s\n", funix[i].name,
+			  strerror (errno));
+	}
+    }
+
+  /* Initialize inet socket and add them to the list.  */
+  if (AcceptRemote || (!NoForward))
+    {
+      finet = create_inet_socket ();
+      if (finet >= 0)
+	{
+	  fdarray[nfds].fd = funix[i].fd;
+	  fdarray[nfds].events = POLLIN | POLLPRI;
+	  nfds++;
+	  dbg_printf ("Opened syslog UDP port.\n");
+	}
+      else
+	dbg_printf ("Can't open UDP port: %s\n", strerror (errno));
+    }
+
+  /* read configuration file */
+  init (0);
+
   /* Tuck my process id away.  */
   fp = fopen (PidFile, "w");
   if (fp != NULL)
@@ -531,51 +594,12 @@ main(int argc, char *argv[])
 
   dbg_printf ("off & running....\n");
 
-  /* read configuration file */
-  init (0);
   (void) signal (SIGHUP, trigger_restart);
 
-  dbg_printf ("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
-  dbg_output = 0;
-
-  /* We add  2 = 1(klog) + 1(inet), even if they may be not use.  */
-  fdarray = (struct pollfd *) malloc ((nfunix + 2) * sizeof (*fdarray));
-  if (fdarray == NULL)
+  if (Debug)
     {
-      fprintf (stderr, "%s: can't allocate fd table: %s\n",
-	       program, strerror (errno));
-      exit (2);
-    }
-
-  nfds = 0;
-  /* Add the Unix Domain Sockets to the list of descriptors.  */
-  for (i = 0; i < nfunix; i++)
-    {
-      if (funix[i].fd >= 0)
-	{
-	  fdarray[nfds].fd = funix[i].fd;
-	  fdarray[nfds].events = POLLIN | POLLPRI;
-	  nfds++;
-	  dbg_printf ("Listening on unix socket: %s\n", funix[i].name);
-	}
-    }
-
-  /* Add the Internet Domain Socket to the list of read descriptors.  */
-  if (AcceptRemote && finet >= 0)
-    {
-      fdarray[nfds].fd = finet;
-      fdarray[nfds].events = POLLIN | POLLPRI;
-      nfds++;
-      dbg_printf ("Listening on syslog UDP port.\n");
-    }
-
-  /* Add the Kernel unix socket to the list.  */
-  if (fklog >= 0)
-    {
-      fdarray[nfds].fd = fklog;
-      fdarray[nfds].events = POLLIN | POLLPRI;
-      nfds++;
-      dbg_printf ("Listening on klog port.\n");
+      dbg_printf ("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
+      dbg_output = 0;
     }
 
   /* If we're doing waitdaemon(), tell the parent to exit,
@@ -606,7 +630,7 @@ main(int argc, char *argv[])
 	  continue;
 	}
 
-      dbg_printf ("got a message (%d)\n", nready);
+      /*dbg_printf ("got a message (%d)\n", nready);*/
 
       for (i = 0; i < nfds; i++)
 	if (fdarray[i].revents & (POLLIN | POLLPRI))
@@ -617,7 +641,8 @@ main(int argc, char *argv[])
 		continue;
 	    else if (fdarray[i].fd == fklog)
 	      {
-		result = read (fklog, line, sizeof (line) - 1);
+		/*dbg_printf ("klog message\n");*/
+		result = read (fdarray[i].fd, line, sizeof (line) - 1);
 		if (result > 0)
 		  {
 		    line[result] = '\0';
@@ -632,9 +657,10 @@ main(int argc, char *argv[])
 	    else if (fdarray[i].fd == finet)
 	      {
 		struct sockaddr_in frominet;
+		/*dbg_printf ("inet message\n");*/
 		len = sizeof (frominet);
 		memset (line, '\0', sizeof (line));
-		result = recvfrom (finet, line, MAXLINE, 0,
+		result = recvfrom (fdarray[i].fd, line, MAXLINE, 0,
 				   (struct sockaddr *) &frominet, &len);
 		if (result > 0)
 		  {
@@ -647,8 +673,9 @@ main(int argc, char *argv[])
 	    else
 	      {
 		struct sockaddr_un fromunix;
+		/*dbg_printf ("unix message\n");*/
 		len = sizeof (fromunix);
-		result = recvfrom (funix[i].fd, line, MAXLINE, 0,
+		result = recvfrom (fdarray[i].fd, line, MAXLINE, 0,
 				   (struct sockaddr *) &fromunix, &len);
 		if (result > 0)
 		  {
@@ -662,6 +689,15 @@ main(int argc, char *argv[])
 		  }
 	      }
 	  }
+	else if (fdarray[i].revents & POLLNVAL)
+	  {
+	    logerror ("poll nval\n");
+	    fdarray[i].fd = -1;
+	  }
+	else if (fdarray[i].revents & POLLERR)
+	  logerror ("poll err\n");
+	else if (fdarray[i].revents & POLLHUP)
+	  logerror ("poll hup\n");
     } /* for (;;) */
 } /* main */
 
@@ -669,7 +705,7 @@ main(int argc, char *argv[])
 #define SUN_LEN(unp) (strlen((unp)->sun_path) + 3)
 #endif
 
-void
+static void
 add_funix (const char *name)
 {
   funix = realloc (funix, (nfunix + 1)*sizeof(*funix));
@@ -682,7 +718,6 @@ add_funix (const char *name)
   funix[nfunix].fd = -1;
   nfunix++;
 }
-
 
 static int
 create_unix_socket (const char *path)
@@ -1447,7 +1482,6 @@ init(int signo)
   FILE *cf;
   struct filed *f, *next, **nextp;
   char *p;
-  size_t Forwarding = 0;
 #ifndef LINE_MAX
 #define LINE_MAX 2048
 #endif
@@ -1579,58 +1613,11 @@ init(int signo)
       *nextp = f;
       nextp = &f->f_next;
       cfline (cbuf, f);
-      if (f->f_type == F_FORW || f->f_type == F_FORW_SUSP
-	  || f->f_type == F_FORW_UNKN)
-	Forwarding++;
     }
 
   /* Close the configuration file.  */
   (void) fclose (cf);
   free (cbuf);
-
-#ifdef PATH_KLOG
-  /* Initialize kernel logging.  */
-  if (!NoKLog)
-    {
-      if (fklog >= 0)
-	close (fklog);
-      if ((fklog = open (PATH_KLOG, O_RDONLY, 0)) < 0)
-	dbg_printf ("can't open %s: %s\n", PATH_KLOG, strerror (errno));
-    }
-#endif
-
-  /* Initialize unix sockets.  */
-  if (!NoUnixAF)
-    {
-      int i;
-      for (i = 0; i < nfunix; i++)
-	{
-	  if (funix[i].fd >= 0)
-	    close (funix[i].fd);
-	  funix[i].fd = create_unix_socket (funix[i].name);
-	  if (funix[i].fd >= 0)
-	    dbg_printf ("Opened UNIX socket `%s'.\n", funix[i].name);
-	  else if (i == 0)
-	    die (0);
-	}
-    }
-
-  /* Initialize inet socket.  */
-  if (AcceptRemote || (!NoForward && Forwarding))
-    {
-      if (finet < 0)
-	{
-	  finet = create_inet_socket ();
-	  if (finet >= 0)
-	    dbg_printf ("Opened syslog UDP port.\n");
-	}
-    }
-  else
-    {
-      if (finet >= 0)
-	close (finet);
-      finet = -1;
-    }
 
   Initialized = 1;
 
