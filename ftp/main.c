@@ -82,8 +82,7 @@ ohelp ()
   -t, --trace                Enable packet tracing\n\
   -v, --verbose              Be verbose\n\
       --help                 Give this help list\n\
-      --version              Print program version\n\
-");
+      --version              Print program version");
   exit (0);
 }
 
