@@ -124,6 +124,10 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include "extern.h"
 #include "version.h"
 
+#ifdef HAVE_SHADOW_H
+#include <shadow.h>
+#endif
+
 #ifndef LINE_MAX
 #  define LINE_MAX 2048
 #endif
@@ -484,12 +488,34 @@ sgetpwnam(name)
 		free(save.pw_dir);
 		free(save.pw_shell);
 	}
+#if defined(HAVE_GETSPNAM) && defined(HAVE_SHADOW_H)
+	{
+		struct  spwd *spw;
+
+		setspent();
+		if ((spw = getspnam(p->pw_name)) != NULL) {
+			time_t now;
+			long today;
+			now = time((time_t *) 0);
+			today = now / (60 * 60 * 24);
+			if ((spw->sp_expire > 0 && spw->sp_expire < today)
+					|| (spw->sp_max > 0 && spw->sp_lstchg > 0
+						&& (spw->sp_lstchg + spw->sp_max < today))) {
+				reply(530, "Login expired.");
+			}
+			p->pw_passwd = spw->sp_pwdp;
+		}
+		endspent();
+	}
+#endif
 	save = *p;
 	save.pw_name = sgetsave(p->pw_name);
 	save.pw_passwd = sgetsave(p->pw_passwd);
 	save.pw_gecos = sgetsave(p->pw_gecos);
 	save.pw_dir = sgetsave(p->pw_dir);
 	save.pw_shell = sgetsave(p->pw_shell);
+
+
 	return (&save);
 }
 
@@ -505,7 +531,6 @@ complete_login (passwd)
 
 	if (!guest && (!pw || *pw->pw_passwd)) {
 		char *xpasswd;
-
 		if (pw) {
 			char *salt = pw->pw_passwd;
 			xpasswd = CRYPT (passwd, salt);

@@ -145,11 +145,14 @@ ftpd_popen(program, type)
 			}
 			(void)close(pdes[1]);
 		}
+/* not working properly yet */
+#if 0
 		/* mvo: should this be a config-option? */
 		if(strcmp(gargv[0], "/bin/ls") == 0) {
 			optind = 0; 
 			exit(ls_main(gargc, gargv));
 		}
+#endif
 		
 		execv(gargv[0], gargv);
 		_exit(1);
