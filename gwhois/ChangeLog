@@ -1,0 +1,5 @@
+2001-08-26  Alain Magloire
+
+	* ChangeLog: New File.
+	* Makefile.am: EXTRA_DIST = as_del.h ip_del.h tld_serv.h
+	So no need to have PERL in the distribution.
