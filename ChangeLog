@@ -1,5 +1,12 @@
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed
+ 	version.c and all the files covered by @LIBOBS@
+	
+	(libinetutils_a_LIBADD): Add @LIBOBJS@
+	
+	(noinst_HEADERS): Removed version.h
+
 	* configure.in: Removed some old, commented-out cruft.
 	
 	Removed some old code related to the @DIRS@ hack; that code will
@@ -9,7 +16,7 @@ Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
  	`include' tree.
 	
 	Removed the iruserok from one of the two places where it appeared
- 	in the AC_REPLACE_FUNCS tree.
+ 	in the AC_REPLACE_FUNCS call.
 	
 	Reinstalled the line `AC_REPLACE_FUNCS(revoke)'; it had been
  	commented out, but I see no ChangeLog entry explaining why, and I
