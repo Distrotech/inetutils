@@ -248,7 +248,7 @@ AC_DEFUN([IU_CONFIG_PATHS], [
       # Cached value
       eval iu_val=\"'$'inetutils_cv_$iu_pathvar\"
       # invert escaped $(...) notation used in autoconf cache
-      iu_val="`echo "$iu_val" | sed 's/@(/$(/g'`"
+      eval iu_val=\"\`echo \'"$iu_val"\' \| sed \''s/@(/$\(/g'\'\`\"
       iu_cached="(cached) "
     elif test "`eval echo '$'{inetutils_cv_hdr_$iu_pathvar+set}`" = set; then
       # Cached non-value
