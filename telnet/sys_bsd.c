@@ -40,14 +40,29 @@ static char sccsid[] = "@(#)sys_bsd.c	8.4 (Berkeley) 5/30/95";
  * (at least between 4.x and dos) which is used in telnet.c.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <fcntl.h>
 #include <sys/types.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/socket.h>
 #include <signal.h>
 #include <errno.h>
 #include <arpa/telnet.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 #include "ring.h"
 
@@ -57,14 +72,8 @@ static char sccsid[] = "@(#)sys_bsd.c	8.4 (Berkeley) 5/30/95";
 #include "externs.h"
 #include "types.h"
 
-#if	defined(CRAY) || (defined(USE_TERMIO) && !defined(SYSV_TERMIO))
-#define	SIG_FUNC_RET	void
-#else
-#define	SIG_FUNC_RET	int
-#endif
-
 #ifdef	SIGINFO
-extern SIG_FUNC_RET ayt_status();
+extern RETSIGTYPE ayt_status();
 #endif
 
 int
@@ -223,7 +232,7 @@ TerminalSpecialChars(c)
 /*
  * Flush output to the terminal
  */
-
+ 
     void
 TerminalFlushOutput()
 {
@@ -584,18 +593,24 @@ TerminalNewMode(f)
 #ifndef	USE_TERMIO
 	if (f & MODE_OUTBIN)
 		lmode |= LLITOUT;
+#if 0 /* If not in binary mode, still allow all 8-bits.  */
 	else
 		lmode &= ~LLITOUT;
+#endif
 
 	if (f & MODE_INBIN)
 		lmode |= LPASS8;
+#if 0 /* If not in binary mode, still allow all 8-bits.  */
 	else
 		lmode &= ~LPASS8;
+#endif
 #else
 	if (f & MODE_INBIN)
 		tmp_tc.c_iflag &= ~ISTRIP;
+#if 0 /* If not in binary mode, still allow all 8-bits.  */
 	else
 		tmp_tc.c_iflag |= ISTRIP;
+#endif
 	if (f & MODE_OUTBIN) {
 		tmp_tc.c_cflag &= ~(CSIZE|PARENB);
 		tmp_tc.c_cflag |= CS8;
@@ -611,10 +626,10 @@ TerminalNewMode(f)
 
     if (f != -1) {
 #ifdef	SIGTSTP
-	SIG_FUNC_RET susp();
+	RETSIGTYPE susp();
 #endif	/* SIGTSTP */
 #ifdef	SIGINFO
-	SIG_FUNC_RET ayt();
+	RETSIGTYPE ayt();
 #endif
 
 #ifdef	SIGTSTP
@@ -663,17 +678,22 @@ TerminalNewMode(f)
 #endif
     } else {
 #ifdef	SIGINFO
-	SIG_FUNC_RET ayt_status();
+	RETSIGTYPE ayt_status();
 
 	(void) signal(SIGINFO, ayt_status);
 #endif
 #ifdef	SIGTSTP
 	(void) signal(SIGTSTP, SIG_DFL);
-# ifndef SOLARIS
+# ifdef HAVE_SIGACTION
+	{
+	  sigset_t sigs;
+	  sigemptyset(&sigs);
+	  sigaddset(&sigs, SIGTSTP);
+	  sigprocmask(SIG_UNBLOCK, &sigs, 0);
+	}
+# else	
 	(void) sigsetmask(sigblock(0) & ~(1<<(SIGTSTP-1)));
-# else	SOLARIS
-	(void) sigrelse(SIGTSTP);
-# endif	SOLARIS
+# endif /* HAVE_SIGACTION */
 #endif	/* SIGTSTP */
 #ifndef USE_TERMIO
 	ltc = oltc;
@@ -762,10 +782,10 @@ struct termspeeds {
 	long speed;
 	long value;
 } termspeeds[] = {
-	{ 0,      B0 },      { 50,    B50 },    { 75,     B75 },
-	{ 110,    B110 },    { 134,   B134 },   { 150,    B150 },
-	{ 200,    B200 },    { 300,   B300 },   { 600,    B600 },
-	{ 1200,   B1200 },   { 1800,  B1800 },  { 2400,   B2400 },
+	{ 0,     B0 },     { 50,    B50 },   { 75,    B75 },
+	{ 110,   B110 },   { 134,   B134 },  { 150,   B150 },
+	{ 200,   B200 },   { 300,   B300 },  { 600,   B600 },
+	{ 1200,  B1200 },  { 1800,  B1800 }, { 2400,  B2400 },
 	{ 4800,   B4800 },   { 7200,  B7200 },  { 9600,   B9600 },
 	{ 14400,  B14400 },  { 19200, B19200 }, { 28800,  B28800 },
 	{ 38400,  B38400 },  { 57600, B57600 }, { 115200, B115200 },
@@ -861,7 +881,7 @@ NetSetPgrp(fd)
  */
 
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 deadpeer(sig)
     int sig;
 {
@@ -870,7 +890,7 @@ deadpeer(sig)
 }
 
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 intr(sig)
     int sig;
 {
@@ -883,7 +903,7 @@ intr(sig)
 }
 
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 intr2(sig)
     int sig;
 {
@@ -900,7 +920,7 @@ intr2(sig)
 
 #ifdef	SIGTSTP
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 susp(sig)
     int sig;
 {
@@ -913,7 +933,7 @@ susp(sig)
 
 #ifdef	SIGWINCH
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 sendwin(sig)
     int sig;
 {
@@ -925,7 +945,7 @@ sendwin(sig)
 
 #ifdef	SIGINFO
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 ayt(sig)
     int sig;
 {
@@ -997,7 +1017,7 @@ process_rings(netin, netout, netex, ttyin, ttyout, poll)
 
     if (netout) {
 	FD_SET(net, &obits);
-    }
+    } 
     if (ttyout) {
 	FD_SET(tout, &obits);
     }
