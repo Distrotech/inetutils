@@ -372,6 +372,8 @@ if test "$sys_glob" != yes; then
   BUILD_LIBGLOB=libglob.a
   LINK_SRCS="$LINK_SRCS glob/glob.h"
   LINK_DSTS="$LINK_DSTS include/glob.h"
+  LINK_SRCS="$LINK_SRCS glob/fnmatch.h"
+  LINK_DSTS="$LINK_DSTS include/fnmatch.h"
   LIBGLOB="-L../glob -lglob"
 else
   BUILD_LIBGLOB=''
