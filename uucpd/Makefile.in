@@ -1,6 +1,6 @@
 # Makefile for uucpd
 #
-# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,8 +27,7 @@ INSTALL_TARGETS = $(libexecdir)/in.uucpd
 LDLIBS += $(LIBUTIL) $(LIBCRYPT)
 CLEAN = uucpd uucpd.o
 
-# the /libexec/uucp/... path is consistent with netbsd.
-CPPFLAGS += -D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\" $(PATHDEF_TTY)
+CPPFLAGS += $(PATHDEF_UUCICO) $(PATHDEF_TTY)
 
 all: uucpd
 
