@@ -26,6 +26,7 @@
 #define CRYPT_ARGS __P ((char *str, char salt[2]))
 #endif
 
+#ifndef HAVE_CRYPT
 #ifdef HAVE_ATTR_WEAK_REFS
 extern char *crypt CRYPT_ARGS __attribute__ ((weak));
 #else /* !HAVE_ATTR_WEAK_REFS */
@@ -38,10 +39,14 @@ asm (".weak crypt");
 #endif /* HAVE_ASM_WEAK_REFS */
 #endif /* HAVE_PRAGMA_WEAK_REFS */
 #endif /* HAVE_ATTR_WEAK_REFS */
+#endif /* HAVE_CRYPT */
 
 #undef CRYPT_ARGS
 
 /* Call crypt, or just return STR if there is none.  */
+#ifdef HAVE_CRYPT
+#define CRYPT(str, salt) crypt (str, salt)
+#else
 #ifdef HAVE_WEAK_REFS
 #ifdef __GNUC__
 /* this is slightly convoluted to avoid an apparent gcc bug.  */
@@ -50,9 +55,6 @@ asm (".weak crypt");
 #else
 #define CRYPT(str, salt) (crypt ? crypt (str, salt) : (str))
 #endif /* __GCC__ */
-#else
-#ifdef HAVE_CRYPT
-#define CRYPT(str, salt) crypt (str, salt)
 #else
 #define CRYPT(str, salt) (str)
 #endif
