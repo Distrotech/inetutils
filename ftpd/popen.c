@@ -55,6 +55,7 @@ static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
 #include <glob.h>
 
 #include "extern.h"
+extern optind;
 
 /*
  * Special version of popen which avoids call to shell.  This ensures noone
@@ -144,6 +145,12 @@ ftpd_popen(program, type)
 			}
 			(void)close(pdes[1]);
 		}
+		/* mvo: should this be a config-option? */
+		if(strcmp(gargv[0], "/bin/ls") == 0) {
+			optind = 0; 
+			exit(ls_main(gargc, gargv));
+		}
+		
 		execv(gargv[0], gargv);
 		_exit(1);
 	}

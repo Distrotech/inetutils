@@ -1,0 +1,6 @@
+2000-07-06 Michel Vogt
+
+	This is a Linux port of the BSD ls program.  You probably aren't
+	interested in this, since GNU ls is much better (IMHO).  But this port
+	is needed for internal ls on inetutils-ftpd.
+

@@ -1,3 +1,10 @@
+2000-07-06 Michel Vogt
+
+	* popen.c: Instead of spwaning "/bin/ls" use the internal ls
+	from libls.a.
+
+	* ftpd.c: use setproctitle ("%s", protittle);
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.
