@@ -189,7 +189,10 @@ AC_DEFUN([IU_LIB_TERMCAP], [
   if test "$LIBNCURSES"; then
     LIBTERMCAP="$LIBNCURSES"
   else
-    AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
+    AC_CHECK_LIB(curses, tgetent, LIBTERMCAP=-lcurses)
+    if test "$ac_cv_lib_curses_tgetent" = no; then
+      AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
+    fi
     if test "$ac_cv_lib_termcap_tgetent" = no; then
       AC_CHECK_LIB(termlib, tgetent, LIBTERMCAP=-ltermlib)
     fi
@@ -207,7 +210,7 @@ AC_DEFUN([IU_LIB_CURSES], [
     _IU_SAVE_LIBS="$LIBS"
     LIBS="$LIBTERMCAP"
     AC_CHECK_LIB(curses, initscr, LIBCURSES="-lcurses")
-    if test "$LIBCURSES" -a "$LIBTERMCAP"; then
+    if test "$LIBCURSES" -a "$LIBTERMCAP" -a "$LIBCURSES" != "$LIBTERMCAP"; then
       AC_CACHE_CHECK(whether curses needs $LIBTERMCAP,
 		     inetutils_cv_curses_needs_termcap,
 	LIBS="$LIBCURSES"
