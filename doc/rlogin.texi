@@ -97,6 +97,8 @@ are handled properly.
 On the server side the iruserok() and ruserok() functions are used to
 authenticate see the appropriate man page for more information, if supported.
 
+@section Kerberos Authentication
+
 If @command{rlogin} was compiled with kerberos support, optins -x, -k, -K
 are available.  Each user may have a private authorization list in the file
 .klogin in their home directory.  Each line in this file should contain a

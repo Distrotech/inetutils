@@ -147,10 +147,19 @@ Required  Require reverse resolving of a remote host IP.
 
 @end table
 
+@section Diagnostics
+
 All initial diagnostic messages are indicated by a leading byte with a
 value of 1, after which any network connections are closed.  If there are
 no errors before login is invoked, a null byte is returned as in indication
 of success.
+
+@table @samp
+
+@item Try again.
+A fork by the server failed.
+
+@end table
 
 The authentication procedure used here assumes the integrity of each
 client machine and the connecting medium.  This is insecure, but is useful

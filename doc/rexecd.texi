@@ -49,6 +49,8 @@ the network connections established by rexecd.
 
 @end enumerate
 
+@section Diagnostics
+
 Except for the last one listed below, all diagnostic messages are returned on
 the initial socket, after which any network connections are closed.  An error
 is indicated by a leading byte with a value of 1 (0 is returned in step 7
