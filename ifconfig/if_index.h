@@ -20,6 +20,10 @@
 #ifndef IF_INDEX_H
 #define IF_INDEX_H
 
+#ifndef HAVE_IFREQ_IFR_INDEX
+# define ifr_index ifr_ifindex
+#endif
+
 #ifndef HAVE_STRUCT_IF_NAMEINDEX
 struct if_nameindex
 {
