@@ -38,17 +38,21 @@ LDFLAGS = @LDFLAGS@
 RM = @RM@
 
 CFLAGS += $(DEFS)
+LDLIBS = $(LIBS)
 
+all:
 inetd: inetd.o
 
 install: installdirs inetd $(srcdir)/inetd.8
 	$(INSTALL_PROGRAM) inetd $(sbindir)/inetd
-	$(INSTALL_DATA) $(srcdir)/inetd.8 $(man8dir)
+	-$(INSTALL_DATA) $(srcdir)/inetd.8 $(man8dir)/inetd.8
+uninstall:
+	-$(RM) -f $(sbindir)/inetd $(man8dir)/inetd.8
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(man8dir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(man8dir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o inetd
 distclean: clean
 	$(RM) -f Makefile
