@@ -1,5 +1,6 @@
-Add long options to programs besides telnet & ftp, especially the clients.
-The conventions used by telnet & ftp should be followed.
+Add long options to programs libls/ls.c, rcp, rlogind, rlogin, rshd,
+telnetd, tftpd, especially the clients.  The conventions used by
+telnet & ftp should be followed.
 
 Merge the functionality of Noah [Friedman]'s ftp client into ftp (readline
 support, &c), and add readline to the distribution.
@@ -35,7 +36,7 @@ Supply versions of the rcmd functionality needed by the r* programs.
 
 Supply a version of the syslog function for systems that don't have it.
 
-Perhaps make ftp use no-uid support on the hurd.
+Perhaps make ftp use no-uid support on the Hurd.
 
 More careful autoconfiscation -- many header files are included unconditionally
 in a lot of places, even if an autoconf test is already done for them, &c.
@@ -52,3 +53,6 @@ Add more utilities:
   traceroute?
   ...
 [Already in other distributions: finger/fingerd, ntp]
+
+Add internationalization, read: gettext support, and provide
+translations, especially for the clients.

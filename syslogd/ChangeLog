@@ -1,3 +1,9 @@
+2000-11-25  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): Give reason for failure of waitdaemon.
+	(add_funix): Print program name and reason for failure in error
+	message.
+
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c: Remove PROGRAM, declare __PROGNAME.

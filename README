@@ -3,7 +3,7 @@ GNU inetutils
 This is a distribution of common networking utilities and servers.
 
 They are currently mostly from the 4.4BSD-Lite2 distribution, with some changes
-to make them compatible with the GNU hurd (in particular, the hurd does not
+to make them compatible with the GNU Hurd (in particular, the Hurd does not
 define some arbitrary limits, such as MAXPATHLEN), and to make them more
 portable, using autoconf.  A GNU build environment has also been added.
 
@@ -43,7 +43,7 @@ You can use `make install-exec' instead of `make install' if you do
 not want to install these files.
 
 Some known deficiencies:
- o Most programs do not support long options, such as --version or --help.
+ o Many programs do not support long options, such as --version or --help.
  o The authentication and encryption options have not been tested.
 
 See the file INSTALL for installation instructions.

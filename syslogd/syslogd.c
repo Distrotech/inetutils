@@ -462,7 +462,8 @@ main (int argc, char *argv[])
       ppid = waitdaemon (0, 0, 30);
       if (ppid < 0)
 	{
-	  fprintf (stderr, "%s: could not become daemon\n", __progname);
+	  fprintf (stderr, "%s: could not become daemon: %s\n",
+		   __progname, strerror (errno));
 	  exit (1);
 	}
     }
@@ -710,7 +711,8 @@ add_funix (const char *name)
   funix = realloc (funix, (nfunix + 1)*sizeof(*funix));
   if (funix == NULL)
     {
-      fprintf (stderr, "Cannot allocate space for unix sockets\n");
+      fprintf (stderr, "%s: cannot allocate space for unix sockets: %s\n",
+	       __progname, strerror (errno));
       exit (1);
     }
   funix[nfunix].name = name;
@@ -805,8 +807,8 @@ crunch_list (char **oldlist, char *list)
   oldlist = (char **) realloc (oldlist, (i + count + 1) * sizeof (*oldlist));
   if (oldlist == NULL)
     {
-      fprintf (stderr, "%s: can't allocate memory: %s", __progname,
-	       strerror (errno));
+      fprintf (stderr, "%s: can't allocate memory: %s",
+	       __progname, strerror (errno));
       exit (1);
     }
 
@@ -822,8 +824,8 @@ crunch_list (char **oldlist, char *list)
       oldlist[count] = (char *) malloc ((q - p + 1) * sizeof(char));
       if (oldlist[count] == NULL)
 	{
-	  fprintf (stderr, "%s: can't allocate memory: %s", __progname,
-		   strerror (errno));
+	  fprintf (stderr, "%s: can't allocate memory: %s",
+		   __progname, strerror (errno));
 	  exit (1);
 	}
       strncpy (oldlist[count], p, q - p);
@@ -834,8 +836,8 @@ crunch_list (char **oldlist, char *list)
   oldlist[count] = (char *) malloc ((strlen (p) + 1) * sizeof (char));
   if (oldlist[count] == NULL)
     {
-      fprintf (stderr, "%s: can't allocate memory: %s", __progname,
-	       strerror (errno));
+      fprintf (stderr, "%s: can't allocate memory: %s",
+	       __progname, strerror (errno));
       exit(1);
     }
   strcpy (oldlist[count], p);
