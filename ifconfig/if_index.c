@@ -44,6 +44,7 @@
 unsigned int
 if_nametoindex (const char *ifname)
 {
+  int result = 0;
 #ifdef SIOCGIFINDEX
   {
     int fd = socket (AF_INET, SOCK_DGRAM, 0);
@@ -52,19 +53,15 @@ if_nametoindex (const char *ifname)
 	struct ifreq ifr;
 	strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
 	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
-	if (ioctl (fd, SIOCGIFINDEX, &ifr) == 0)
-	  {
-	    close (fd);
-	    return ifr.ifr_ifindex;
-	  }
+	result = ioctl (fd, SIOCGIFINDEX, &ifr);
 	close (fd);
+	if (result == 0)
+	  return ifr.ifr_index;
       }
   }
-#else
+#endif
   {
     struct if_nameindex *idx;
-    int result = 0;
-
     idx = if_nameindex ();
     if (idx != NULL)
       {
@@ -81,7 +78,6 @@ if_nametoindex (const char *ifname)
       }
     return result;
   }
-#endif
 }
 
 void
@@ -180,13 +176,12 @@ if_nameindex (void)
 	}
 
 # if defined(SIOCGIFINDEX)
-      if (ioctl (fd, SIOCGIFINDEX, cur) < 0)
-	idx[i].if_index = cur->ifr_ifindex;
+      if (ioctl (fd, SIOCGIFINDEX, cur) >= 0)
+	idx[i].if_index = cur->ifr_index;
       else
 # endif
 	idx[i].if_index =  i + 1;
-
-      i++;
+      i++;	
     }
 
   /* Terminate the array with an empty solt.  */
@@ -224,7 +219,7 @@ if_indextoname (unsigned int ifindex, char *ifname)
       {
 	struct ifreq ifr;
 
-	ifr.ifr_ifindex = ifindex;
+	ifr.ifr_index = ifindex;
 	if (ioctl (fd, SIOCGIFNAME, &ifr) == 0)
 	  {
 	    close (fd);
