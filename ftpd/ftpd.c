@@ -337,16 +337,26 @@ main(argc, argv, envp)
 		/* reply(220,) must follow */
 	}
 
+	errno = 0;
 	do {
-		if (hostname)
-			hostname =
-			  realloc (hostname, hostname_len += hostname_len);
-		else {
-			hostname_len = 1024; /* Initial guess */
+		if (hostname) {
+		        hostname_len += hostname_len;
+			hostname = realloc (hostname, hostname_len);
+		} else {
+			hostname_len = 128; /* Initial guess */
 			hostname = malloc (hostname_len);
 		}
-	} while (gethostname(hostname, hostname_len) == 0
-		 && ! memchr (hostname, '\0', hostname_len));
+		if (! hostname) {
+		        perror_reply (550, "Local resource failure: malloc");
+			exit (1);
+		}
+	} while ((gethostname(hostname, hostname_len) == 0
+		  && ! memchr (hostname, '\0', hostname_len))
+		 || errno == ENAMETOOLONG);
+	if (errno) {
+	        perror_reply (550, "gethostname");
+		exit (1);
+	}
 			
 	reply(220, "%s FTP server (%s) ready.", hostname, version);
 	(void) setjmp(errcatch);
