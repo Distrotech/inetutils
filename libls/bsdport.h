@@ -1,4 +1,3 @@
-#ifndef ORIGINAL_SOURCE
 
 /* Replacement for tzfile.h */
 #define DAYSPERNYEAR 365
@@ -11,4 +10,3 @@ void strmode(mode_t mode, char *bp);
 char *user_from_uid(uid_t uid, int ignored);
 char *group_from_gid(gid_t gid, int ignored);
 
-#endif /* not ORIGINAL_SOURCE */

@@ -351,15 +351,11 @@ traverse(argc, argv, options)
 	FTSENT *p, *chp;
 	int ch_options;
 
-#ifdef ORIGINAL_SOURCE
 	if ((ftsp =
-	    fts_open(argv, options, f_nosort ? NULL : mastercmp)) == NULL)
-		err(1, NULL);
-#else
-	if ((ftsp =
-	    fts_open(argv, options, f_nosort ? NULL : mastercmp)) == NULL)
-		err(1, "fts_open");
-#endif /* ORIGINAL_SOURCE */
+	    fts_open(argv, options, f_nosort ? NULL : mastercmp)) == NULL) {
+		fprintf(stderr, "fts_open: %s",argv[0], strerr(errno));
+	        exit(1);
+	}
 
 	display(NULL, fts_children(ftsp, 0));
 	if (f_listdir)
@@ -397,16 +393,18 @@ traverse(argc, argv, options)
 				(void)fts_set(ftsp, p, FTS_SKIP);
 			break;
 		case FTS_DC:
-			warnx("%s: directory causes a cycle", p->fts_name);
+			fprintf(stderr,"%s: directory causes a cycle", p->fts_name);
 			break;
 		case FTS_DNR:
 		case FTS_ERR:
-			warnx("%s: %s", p->fts_name, strerror(p->fts_errno));
+			fprintf(stderr,"%s: %s\n", p->fts_name, strerror(p->fts_errno));
 			rval = 1;
 			break;
 		}
-	if (errno)
-		err(1, "fts_read");
+	if (errno) {
+		fprintf(stderr, "fts_read: %s", strerr(errno));
+		exit(1);
+	}
 }
 
 /*
@@ -448,7 +446,7 @@ display(p, list)
 	maxsize = 0;
 	for (cur = list, entries = 0; cur; cur = cur->fts_link) {
 		if (cur->fts_info == FTS_ERR || cur->fts_info == FTS_NS) {
-			warnx("%s: %s",
+			fprintf(stderr,"%s: %s\n",
 			    cur->fts_name, strerror(cur->fts_errno));
 			cur->fts_number = NO_PRINT;
 			rval = 1;
@@ -512,15 +510,11 @@ display(p, list)
 				} else
 					flen = 0;
 
-#if ORIGINAL_SOURCE
 				if ((np = malloc(sizeof(NAMES) +
-				    ulen + glen + flen + 3)) == NULL)
-					err(1, NULL);
-#else
-				if ((np = malloc(sizeof(NAMES) +
-				    ulen + glen + flen + 3)) == NULL)
-					err(1, "malloc");
-#endif /* ORIGINAL_SOURCE */
+				    ulen + glen + flen + 3)) == NULL) {
+					fprintf(stderr, "malloc: %s",strerr(errno));
+			                exit(1);
+				}
 
 				np->user = &np->data[0];
 				(void)strcpy(np->user, user);

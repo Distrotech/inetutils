@@ -47,6 +47,7 @@ static char sccsid[] = "@(#)fts.c	8.6 (Berkeley) 8/14/94";
 
 /* Largest alignment size needed, minus one.
    Usually long double is the worst case.  */
+#if 0
 #ifndef ALIGNBYTES
 #define ALIGNBYTES	(__alignof__ (long double) - 1)
 #endif
@@ -54,6 +55,7 @@ static char sccsid[] = "@(#)fts.c	8.6 (Berkeley) 8/14/94";
 #ifndef ALIGN
 #define	ALIGN(p)	(((unsigned long int) (p) + ALIGNBYTES) & ~ALIGNBYTES)
 #endif
+#endif /* 0 */
 
 static FTSENT	*fts_alloc(FTS *, const char *, int);
 static FTSENT	*fts_build(FTS *, int);
@@ -66,9 +68,7 @@ static FTSENT	*fts_sort(FTS *, FTSENT *, int);
 static u_short	 fts_stat(FTS *, struct dirent *, FTSENT *, int);
 
 #ifndef MAX
-#define MAX(a, b)	({ __typeof__ (a) _a = (a); \
-			   __typeof__ (b) _b = (b); \
-			   _a > _b ? _a : _b; })
+#define MAX(a, b)	(((a) > (b)) ? (a) : (b))	
 #endif
 
 #define	ISDOT(a)	(a[0] == '.' && (!a[1] || (a[1] == '.' && !a[2])))
@@ -938,7 +938,7 @@ fts_alloc(sp, name, namelen)
 	 */
 	len = sizeof(FTSENT) + namelen;
 	if (!ISSET(FTS_NOSTAT))
-		len += sizeof(struct stat) + ALIGNBYTES;
+		len += sizeof(struct stat);
 	if ((p = malloc(len)) == NULL)
 		return (NULL);
 
@@ -946,7 +946,7 @@ fts_alloc(sp, name, namelen)
 	bcopy(name, p->fts_name, namelen + 1);
 
 	if (!ISSET(FTS_NOSTAT))
-		p->fts_statp = (struct stat *)ALIGN(p->fts_name + namelen + 2);
+		p->fts_statp = (struct stat *)(p->fts_name + namelen + 2);
 	p->fts_namelen = namelen;
 	p->fts_path = sp->fts_path;
 	p->fts_errno = 0;
