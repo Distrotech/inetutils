@@ -35,3 +35,4 @@
 
 void	recvfile __P((int, char *, char *));
 void	sendfile __P((int, char *, char *));
+extern jmp_buf	toplevel;
