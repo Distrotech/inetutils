@@ -100,25 +100,6 @@ extern struct sysv sysv;
 #include <sys/resource.h>
 #include <sys/proc.h>
 #endif
-#ifdef HAVE_SYS_TTY_H
-#include <sys/tty.h>
-#endif
-#ifdef	t_erase
-#undef	t_erase
-#undef	t_kill
-#undef	t_intrc
-#undef	t_quitc
-#undef	t_startc
-#undef	t_stopc
-#undef	t_eofc
-#undef	t_brkc
-#undef	t_suspc
-#undef	t_dsuspc
-#undef	t_rprntc
-#undef	t_flushc
-#undef	t_werasc
-#undef	t_lnextc
-#endif
 
 #if defined(UNICOS5) && defined(CRAY2) && !defined(EXTPROC)
 # define EXTPROC 0400
