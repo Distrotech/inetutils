@@ -457,7 +457,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
        * in a remote net; look up the name and check that this
        * address corresponds to the name.
        */
-      hostname = hp->h_name;
+      hostname = strdup (hp->h_name);
 #ifdef	KERBEROS
       if (!use_kerberos)
 #endif
@@ -563,20 +563,6 @@ doit (int sockfd, struct sockaddr_in *fromp)
       if (errorstr == NULL)
 	errorstr = "Login incorrect.\n";
       goto fail;
-    }
-
-  /* We'll execute the client's command in the home directory
-   * of locuser.
-   */
-  if (chdir (pwd->pw_dir) < 0)
-    {
-      (void) chdir ("/");
-      syslog (LOG_INFO|LOG_AUTH, "%s@%s as %s: no home directory. cmd='%.80s'",
-	      remuser, hostname, locuser, cmdbuf);
-      error ("No remote directory.\n");
-#ifdef notdef
-      exit (1);
-#endif
     }
 
 #ifdef	KERBEROS
@@ -861,11 +847,24 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #ifdef HAVE_INITGROUPS
   initgroups (pwd->pw_name, pwd->pw_gid); /* BSD groups */
 #endif
-  /* It's not obvious that this is right, however, it was reported
-   * as a real bug, and this conforms to what the glibc manual says
-   * setuid should handle the seteuid as well.
-   * seteuid ((uid_t)pwd->pw_uid); */
+
   setuid ((uid_t)pwd->pw_uid);
+  
+  /* We'll execute the client's command in the home directory
+   * of locuser. Note, that the chdir must be executed after
+   * setuid(), otherwise it may fail on NFS mounted directories
+   * (root mapped to nobody).
+   */
+  if (chdir (pwd->pw_dir) < 0)
+    {
+      chdir ("/");
+      syslog (LOG_INFO|LOG_AUTH, "%s@%s as %s: no home directory. cmd='%.80s'",
+	      remuser, hostname, locuser, cmdbuf);
+      error ("No remote directory.\n");
+#ifdef notdef
+      exit (1);
+#endif
+    }
 
   /* Set up an initial environment for the shell that we exec() */
   environ = envinit;
