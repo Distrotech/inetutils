@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.tftpd $(man8dir)/tftpd.8
-SRCS = tftpd.c
-DISTFILES = $(SRCS) tftpd.8 Makefile.in
+DISTFILES = tftpd.c tftpd.8
 
 CPPFLAGS += -I$(top_srcdir)/tftp
 

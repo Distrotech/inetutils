@@ -21,14 +21,13 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-SRCS = ttymsg.c version.c @LIBOBJS@
-DISTFILES = $(SRCS) version.h getopt.h Makefile.in
-
-OBJS = $(SRCS:.c=.o)
+SRCS = ttymsg.c version.c getopt.c getopt1.c stub_tgetent.c
+HDRS = version.h getopt.h
+DISTFILES = $(SRCS) $(HDRS)
 
 all: libinetutils.a
-libinetutils.a: $(OBJS)
-	$(AR) rcv $@ $(OBJS)
+libinetutils.a: ttymsg.o version.o @LIBOBJS@
+	$(AR) rcv $@ $?
 	$(RANLIB) $@
 
 clean:

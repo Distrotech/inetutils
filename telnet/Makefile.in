@@ -23,13 +23,14 @@ include ../config.make
 
 INSTALL_TARGETS = $(bindir)/telnet $(man1dir)/telnet.1
 SRCS = authenc.c commands.c main.c network.c ring.c sys_bsd.c telnet.c \
-	terminal.c tn3270.c utilities.c
-DISTFILES = $(SRCS) telnet.1 Makefile.in
+       terminal.c tn3270.c utilities.c
+HDRS = defines.h externs.h fdset.h general.h krb4-proto.h ring.h types.h
+DISTFILES = $(SRCS) $(HDRS) telnet.1
 
 OPTIONS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
 CPPFLAGS += $(OPTIONS)
-LDLIBS := -L../libtelnet -ltelnet -ltermcap $(LDLIBS)
+LDLIBS := -L../libtelnet -ltelnet $(LIBTERMCAP) $(LDLIBS)
 
 all: telnet
 telnet: $(SRCS:.c=.o)

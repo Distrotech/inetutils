@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(bindir)/rsh $(man1dir)/rsh.1
-SRCS = rsh.c
-DISTFILES = $(SRCS) rsh.1 Makefile.in
+DISTFILES = rsh.c rsh.1
 
 CPPFLAGS += -D_PATH_RLOGIN=\"$(bindir)/rlogin\"
 

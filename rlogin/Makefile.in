@@ -21,10 +21,9 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-INST_PROG_FLAGS=-o root -m 04755
 INSTALL_TARGETS = $(bindir)/rlogin $(man1dir)/rlogin.1
-SRCS = rlogin.c
-DISTFILES = $(SRCS) rlogin.1 Makefile.in
+INST_PROG_FLAGS=-o root -m 04755
+DISTFILES = rlogin.c krb.h rlogin.1
 
 all: rlogin
 

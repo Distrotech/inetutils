@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(sbindir)/inetd $(man8dir)/inetd.8
-SRCS = inetd.c
-DISTFILES = $(SRCS) inetd.8 Makefile.in
+DISTFILES = inetd.c inetd.8
 
 CPPFLAGS += -D_PATH_INETDCONF=\"$(sysconfdir)/inetd.conf\"
 

@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS=$(libexecdir)/in.rexecd $(man8dir)/rexecd.8
-SRCS = rexecd.c
-DISTFILES = $(SRCS) rexecd.8 Makefile.in
+DISTFILES = rexecd.c rexecd.8
 
 all: rexecd
 

@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.rshd $(man8dir)/rshd.8
-SRCS = rshd.c
-DISTFILES = $(SRCS) rshd.8 Makefile.in
+DISTFILES = rshd.c rshd.8
 
 all: rshd
 

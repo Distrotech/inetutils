@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(bindir)/syslog $(bindir)/logger $(man1dir)/syslog.1
-SRCS = syslog.c
-DISTFILES = $(SRCS) syslog.1 Makefile.in
+DISTFILES = syslog.c syslog.1
 
 all: syslog
 

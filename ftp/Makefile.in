@@ -23,7 +23,8 @@ include ../config.make
 
 INSTALL_TARGETS = $(bindir)/ftp $(man1dir)/ftp.1
 SRCS = cmds.c cmdtab.c ftp.c main.c ruserpass.c domacro.c
-DISTFILES = $(SRCS) ftp.1 Makefile.in
+HDRS = ftp_var.h extern.h
+DISTFILES = $(SRCS) $(HDRS) ftp.1
 
 all: ftp
 ftp: $(SRCS:.c=.o)

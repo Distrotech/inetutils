@@ -24,7 +24,9 @@ uninstall: -$(RM) -f $(INSTALL_TARGETS)
 
 mostlyclean: clean
 distclean: clean
-	$(RM) -f Makefile
+	$(RM) -f Makefile $(DISTCLEAN)
+maintainer-clean: distclean
+	$(RM) -f $(MAINTCLEAN)
 
 dist: $(DISTFILES)
 	$(LINK_DISTFILES)

@@ -50,17 +50,31 @@ LDFLAGS = @LDFLAGS@
 RM = @RM@
 MKINSTDIRS = $(SHELL) $(top_srcdir)/mkinstalldirs
 
+LIBCURSES=@LIBCURSES@
+LIBAUTH=@LIBAUTH@
+LIBTERMCAP=@LIBTERMCAP@
+
 CPPFLAGS += $(DEFS) -D_BSD_SOURCE -I$(srcdir) -I../include
-LDLIBS += $(LIBS) -L../libinetutils -linetutils
+LDLIBS += -L../libinetutils -linetutils $(LIBS)
 
 RULES = $(top_srcdir)/rules.make
 
-# Link or copy every file in $(DISTFILES) into $(DISTDIR)
+# Link or copy the file $$DISTFILE (a shell variable) into $(DISTDIR)
+define _LINK_DISTFILE
+  { { ln 2>/dev/null $$DISTFILE $(DISTDIR) \
+      && echo ln $$DISTFILE $(DISTDIR); } \
+    || { echo cp -p $$DISTFILE $(DISTDIR) \
+        ; cp -p $$DISTFILE $(DISTDIR); }; }
+endef
+
+# Link or copy every file in $(DISTFILES) + Makefile.in from $(srcdir)
+# and any file in $(OPT_DISTFILE) that exists in the current directory,
+# into $(DISTDIR)
 define LINK_DISTFILES
-  @for FILE in $(DISTFILES); do \
-    { ln 2>/dev/null $(srcdir)/$$FILE $(DISTDIR) \
-      && echo ln $(srcdir)/$$FILE $(DISTDIR); } \
-    || { echo cp -p $(srcdir)/$$FILE $(DISTDIR) \
-	 ; cp -p $(srcdir)/$$FILE $(DISTDIR); }; \
- done
+  @for FILE in Makefile.in $(DISTFILES); do \
+    DISTFILE=$(srcdir)/$$FILE; $(_LINK_DISTFILE); \
+  done
+  @for DISTFILE in $(OPT_DISTFILES); do \
+    test -e "$$DISTFILE" && $(_LINK_DISTFILE) || :; \
+  done
 endef

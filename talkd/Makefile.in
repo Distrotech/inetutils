@@ -23,7 +23,7 @@ include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.talkd $(man8dir)/talkd.8
 SRCS = talkd.c announce.c process.c table.c print.c
-DISTFILES = $(SRCS) talkd.8 Makefile.in
+DISTFILES = $(SRCS) talkd.8
 
 all: talkd
 talkd: $(SRCS:.c=.o)

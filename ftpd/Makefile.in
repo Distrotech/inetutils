@@ -23,7 +23,9 @@ include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.ftpd $(man8dir)/ftpd.8
 SRCS = ftpd.c ftpcmd.y logwtmp.c popen.c
-DISTFILES = $(SRCS) ftpd.8 Makefile.in
+DISTFILES = $(SRCS) extern.h ftpd.8
+OPT_DISTFILES = ftpcmd.c
+MAINTCLEAN = ftpcmd.c
 
 CPPFLAGS += \
 	-D_PATH_FTPUSERS=\"$(sysconfdir)/ftpusers\" \

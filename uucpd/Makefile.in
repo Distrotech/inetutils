@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.uucpd
-SRCS = uucpd.c
-DISTFILES = $(SRCS) Makefile.in
+DISTFILES = uucpd.c
 
 # the /libexec/uucp/... path is consistent with netbsd.
 CPPFLAGS += -D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\"

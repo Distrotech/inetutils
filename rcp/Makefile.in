@@ -23,7 +23,7 @@ include ../config.make
 
 INSTALL_TARGETS = $(bindir)/rcp $(man1dir)/rcp.1
 SRCS = rcp.c util.c
-DISTFILES = $(SRCS) rcp.1 Makefile.in
+DISTFILES = $(SRCS) extern.h rcp.1
 
 CPPFLAGS += -D_PATH_CP=\"$(bindir)/cp\" -D_PATH_RSH=\"$(bindir)/rsh\"
 

@@ -23,13 +23,14 @@ include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.telnetd $(man8dir)/telnetd.8
 SRCS = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat.c \
-	utility.c
-DISTFILES = $(SRCS) telnetd.8 Makefile.in
+       utility.c
+HDRS = defs.h ext.h telnetd.h
+DISTFILES = $(SRCS) $(HDRS) telnetd.8
 
 OPTIONS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
 
 CPPFLAGS += $(OPTIONS) -D_PATH_LOGIN=\"$(bindir)/login\"
-LDLIBS := -L../libtelnet -ltelnet -ltermcap $(LDLIBS)
+LDLIBS := -L../libtelnet -ltelnet $(LIBTERMCAP) $(LDLIBS)
 
 all: telnetd
 telnetd: $(SRCS:.c=.o)

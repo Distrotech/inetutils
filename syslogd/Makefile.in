@@ -23,8 +23,7 @@ include ../config.make
 
 INSTALL_TARGETS = \
   $(sbindir)/syslogd $(man5dir)/syslog.conf.5 $(man8dir)/syslogd.8
-SRCS = syslogd.c
-DISTFILES = $(SRCS) syslogd.8 syslog.conf.5 Makefile.in
+DISTFILES = syslogd.c syslogd.8 syslog.conf.5
 
 CPPFLAGS += \
 	-D_PATH_LOGCONF=\"$(sysconfdir)/syslog.conf\" \

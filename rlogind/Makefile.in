@@ -22,8 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(libexecdir)/in.rlogind $(man8dir)/rlogind.8
-SRCS = rlogind.c
-DISTFILES = $(SRCS) rlogind.8 Makefile.in
+DISTFILES = rlogind.c rlogind.8
 
 CPPFLAGS += -D_PATH_LOGIN=\"$(bindir)/login\"
 

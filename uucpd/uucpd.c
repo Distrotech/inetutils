@@ -237,22 +237,28 @@ struct	utmp utmp;
 dologout()
 {
 	union wait status;
-	int pid, wtmp;
+	int pid;
 
 #ifdef BSDINETD
 	while ((pid=wait((int *)&status)) > 0) {
 #else  !BSDINETD
 	while ((pid=wait3((int *)&status,WNOHANG,0)) > 0) {
 #endif !BSDINETD
-		wtmp = open(_PATH_WTMP, O_WRONLY|O_APPEND);
+
+#ifdef HAVE_LOGWTMP
+		char line[100];
+		sprintf(line, "uucp%.4d", pid);
+		logwtmp (line, "", "");
+#else
+		int wtmp = open(_PATH_WTMP, O_WRONLY|O_APPEND);
 		if (wtmp >= 0) {
-			sprintf(utmp.ut_line, "uucp%.4d", pid);
 			SCPYN(utmp.ut_name, "");
 			SCPYN(utmp.ut_host, "");
 			(void) time(&utmp.ut_time);
 			(void) write(wtmp, (char *)&utmp, sizeof (utmp));
 			(void) close(wtmp);
 		}
+#endif
 	}
 }
 
@@ -275,17 +281,25 @@ struct sockaddr_in *sin;
 	} else
 		strncpy(remotehost, inet_ntoa(sin->sin_addr),
 		    sizeof (remotehost));
+
+	sprintf(line, "uucp%.4d", getpid());
+
+#ifdef HAVE_LOGWTMP
+	logwtmp (line, pw->pw_name, remotehost);
+#else
+	/* Do things the old bsd way.  */
 	wtmp = open(_PATH_WTMP, O_WRONLY|O_APPEND);
 	if (wtmp >= 0) {
 		/* hack, but must be unique and no tty line */
-		sprintf(line, "uucp%.4d", getpid());
 		SCPYN(utmp.ut_line, line);
-		SCPYN(utmp.ut_name, pw->pw_name);
+		SCPYN(utmp.ut_name, );
 		SCPYN(utmp.ut_host, remotehost);
 		time(&utmp.ut_time);
 		(void) write(wtmp, (char *)&utmp, sizeof (utmp));
 		(void) close(wtmp);
 	}
+#endif
+
 #ifdef _PATH_LASTLOG
 	if ((f = open(_PATH_LASTLOG, O_RDWR)) >= 0) {
 		struct lastlog ll;
