@@ -20,6 +20,9 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS= \
+  $(libexecdir)/in.syslogd $(man5dir)/syslog.conf.5 $(man8dir)/syslogd.8
+
 CPPFLAGS += \
 	-D_PATH_KLOG=\"/dev/klog\" \
 	-D_PATH_LOGCONF=\"$(sysconfdir)/syslog.conf\" \
@@ -31,17 +34,7 @@ syslogd: syslogd.o ttymsg.o
 ttymsg.o: $(top_srcdir)/common/ttymsg.c
 	$(COMPILE.c) $<
 
-install: installdirs syslogd $(srcdir)/syslog.conf.5 $(srcdir)/syslogd.8
-	$(INSTALL_PROGRAM) syslogd $(libexecdir)/in.syslogd
-	-$(INSTALL_DATA) $(srcdir)/syslog.conf.5 $(man5dir)/syslog.conf.5
-	-$(INSTALL_DATA) $(srcdir)/syslogd.8 $(man8dir)/syslogd.8
-uninstall:
-	-$(RM) -f $(libexecdir)/in.syslogd $(man8dir)/syslogd.8
-
-installdirs:
-	@$(MKINSTDIRS) $(libexecdir) $(man5dir) $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o syslogd
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
