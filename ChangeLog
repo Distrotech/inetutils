@@ -1,3 +1,12 @@
+Fri Feb 21 14:16:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/iruserok.c (iruserok): Dynamically allocate PBUF
+	instead of using MAXPATHLEN.
+	(__ivaliduser): Dynanamically allocage BUF rather than using
+	MAXHOSTNAMELEN.
+	[STDC_HEADERS || HAVE_STDLIB_H]: New include.
+	[HAVE_MALLOC_H] <malloc.h>: New include.
+
 Thu Feb 20 14:40:00 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.2m'.
