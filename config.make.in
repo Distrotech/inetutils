@@ -61,12 +61,16 @@ LDLIBS += -L../libinetutils -linetutils $(LIBS)
 
 RULES = $(top_srcdir)/rules.make
 
-# Link or copy the file $$DISTFILE (a shell variable) into $(DISTDIR)
+# Link or copy the file $$DISTFILE (a shell variable) into $(DISTDIR)/$$FILE
 define _LINK_DISTFILE
-  { { ln 2>/dev/null $$DISTFILE $(DISTDIR) \
-      && echo ln $$DISTFILE $(DISTDIR); } \
-    || { echo cp -p $$DISTFILE $(DISTDIR) \
-        ; cp -p $$DISTFILE $(DISTDIR); }; }
+  if test -d $$DISTFILE; then					 \
+    echo mkdir $(DISTDIR)/$$FILE; mkdir $(DISTDIR)/$$FILE;	 \
+  else								 \
+    { ln 2>/dev/null $$DISTFILE $(DISTDIR)/$$FILE		 \
+      && echo ln $$DISTFILE $(DISTDIR)/$$FILE; }		 \
+    || { echo cp -p $$DISTFILE $(DISTDIR)/$$FILE		 \
+        ; cp -p $$DISTFILE $(DISTDIR)/$$FILE; };		 \
+  fi
 endef
 
 # Link or copy every file in $(DISTFILES) + Makefile.in from $(srcdir)
@@ -76,7 +80,7 @@ define LINK_DISTFILES
   @for FILE in Makefile.in $(DISTFILES); do \
     DISTFILE=$(srcdir)/$$FILE; $(_LINK_DISTFILE); \
   done
-  @for DISTFILE in $(OPT_DISTFILES); do \
-    test -e "$$DISTFILE" && $(_LINK_DISTFILE) || :; \
+  @for FILE in $(OPT_DISTFILES); do \
+    test -e "$$DISTFILE" && { DISTFILE="$$FILE"; $(_LINK_DISTFILE) } || :; \
   done
 endef
