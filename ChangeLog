@@ -1,5 +1,7 @@
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* ftp/Makefile.am (LDADD): Added ../libinetutils -linetutils.
+
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed
  	version.c and all the files covered by @LIBOBS@
 	
