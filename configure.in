@@ -47,6 +47,7 @@ AC_CHECK_HEADERS(malloc.h termio.h termios.h sys/tty.h sys/utsname.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h paths.h)
 
 AC_CHECK_LIB(util, logout)
+AC_CHECK_LIB(crypt, crypt)
 AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp)
 
 if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
