@@ -26,7 +26,7 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -69,7 +69,7 @@ ping_address(int argc, char **argv)
   ping_set_event_handler(ping, recv_address, NULL);
   ping_set_packetsize(ping, 12); /* FIXME: constant */
   ping_set_count(ping, 1);
-  
+
   if (ping_set_dest(ping, *argv))
     {
       fprintf(stderr, "ping: unknown host\n");
@@ -108,7 +108,7 @@ print_address(int dupflag, void *closure,
 	      struct ip *ip, icmphdr_t *icmp, int datalen)
 {
   struct in_addr addr;
-  
+
   printf("%d bytes from %s: icmp_seq=%u", datalen,
 	 inet_ntoa(*(struct in_addr *)&from->sin_addr.s_addr),
 	 icmp->icmp_seq);

@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -60,7 +60,7 @@
 static int handler(int code, void *closure,
 		   struct sockaddr_in *dest, struct sockaddr_in *from,
 		   struct ip *ip, icmphdr_t *icmp, int datalen);
-int print_echo(int dup, struct ping_stat *stat, 
+int print_echo(int dup, struct ping_stat *stat,
 	      struct sockaddr_in *dest, struct sockaddr_in *from,
 	      struct ip *ip, icmphdr_t *icmp, int datalen);
 static int echo_finish();
@@ -93,7 +93,7 @@ ping_echo(int argc, char **argv)
   ping_set_type(ping, ICMP_ECHO);
   ping_set_packetsize(ping, data_length);
   ping_set_event_handler(ping, handler, &ping_stat);
-  
+
   if (ping_set_dest(ping, *argv))
     {
       fprintf(stderr, "ping: unknown host\n");
@@ -119,7 +119,7 @@ ping_echo(int argc, char **argv)
       exit(2);
 #endif /* IP_OPTIONS */
     }
-  
+
   printf("PING %s (%s): %d data bytes\n",
 	 ping->ping_hostname,
 	 inet_ntoa(ping->ping_dest.sin_addr),
@@ -147,7 +147,7 @@ handler(int code, void *closure,
 }
 
 int
-print_echo(int dupflag, struct ping_stat *ping_stat, 
+print_echo(int dupflag, struct ping_stat *ping_stat,
 	   struct sockaddr_in *dest, struct sockaddr_in *from,
 	   struct ip *ip, icmphdr_t *icmp, int datalen)
 {
@@ -155,7 +155,7 @@ print_echo(int dupflag, struct ping_stat *ping_stat,
   struct timeval tv;
   int timing = 0;
   double triptime = 0.0;
-  
+
   gettimeofday(&tv, NULL);
 
   /* Length of IP header */
@@ -165,13 +165,13 @@ print_echo(int dupflag, struct ping_stat *ping_stat,
   datalen -= hlen;
 
   /* Do timing */
-  if (PING_TIMING(datalen-8)) 
+  if (PING_TIMING(datalen-8))
     {
       struct timeval tv1, *tp;
 
       timing++;
       tp = (struct timeval *) icmp->icmp_data;
-			       
+
       /* Avoid unaligned data: */
       memcpy(&tv1, tp, sizeof(tv1));
       tvsub(&tv, &tv1);
@@ -185,7 +185,7 @@ print_echo(int dupflag, struct ping_stat *ping_stat,
       if (triptime > ping_stat->tmax)
 	ping_stat->tmax = triptime;
     }
-  
+
   if (options & OPT_QUIET)
     return 0;
   if (options & OPT_FLOOD)
@@ -193,7 +193,7 @@ print_echo(int dupflag, struct ping_stat *ping_stat,
       putchar('\b');
       return 0;
     }
-  
+
   printf("%d bytes from %s: icmp_seq=%u", datalen,
 	 inet_ntoa(*(struct in_addr *)&from->sin_addr.s_addr),
 	 icmp->icmp_seq);
@@ -235,14 +235,14 @@ print_icmp_header(struct sockaddr_in *from,
   hlen = ip->ip_hl << 2;
   /* Original IP header */
   orig_ip = &icmp->icmp_ip;
-  
+
   if (!(options & OPT_VERBOSE
 	|| orig_ip->ip_dst.s_addr == ping->ping_dest.sin_addr.s_addr))
     return;
-  
+
   printf("%d bytes from %s: ", len-hlen,
 	 ipaddr2str(from->sin_addr));
-  
+
   switch (icmp->icmp_type)
     {
     case ICMP_ECHOREPLY:
@@ -330,7 +330,7 @@ print_icmp_header(struct sockaddr_in *from,
 	  printf("Redirect, Bad Code: %d", icmp->icmp_code);
 	  break;
 	}
-      printf("(New addr: %s)\n", 
+      printf("(New addr: %s)\n",
 	     inet_ntoa(icmp->icmp_gwaddr));
       print_ip_data(ip);
       break;
@@ -431,7 +431,7 @@ print_ip_data(struct ip *ip)
   else if (ip->ip_p == 17)
     printf("UDP: from port %u, to port %u (decimal)\n",
 	   (*cp * 256 + *(cp + 1)), (*(cp + 2) * 256 + *(cp + 3)));
-  
+
 }
 
 void
@@ -441,7 +441,7 @@ print_ip_opt(struct ip *ip, int hlen)
   int i, j, l;
   static int old_rrlen;
   static char old_rr[MAX_IPOPTLEN];
-  
+
   cp = (u_char *)(ip + 1);
 
   for (; hlen > (int)sizeof(struct ip); --hlen, ++cp)
@@ -574,7 +574,7 @@ echo_finish()
       double total = ping->ping_num_recv + ping->ping_num_rept;
       double avg = ping_stat->tsum/total;
       double vari = ping_stat->tsumsq / total - avg * avg;
-      
+
       printf("round-trip min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms\n",
 	     ping_stat->tmin,
 	     avg,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2000 Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -64,7 +64,7 @@ ping_timestamp(int argc, char **argv)
   ping_set_type(ping, ICMP_TIMESTAMP);
   ping_set_event_handler(ping, recv_timestamp, NULL);
   ping_set_packetsize(ping, 20);
-    
+
   if (ping_set_dest(ping, *argv))
     {
       fprintf(stderr, "ping: unknown host\n");
