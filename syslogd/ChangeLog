@@ -1,3 +1,14 @@
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: Fix prototype of debug_switch.
+	(cfline): In case '|', check for terminal and console.
+	In case '/', rearrange this very check.
+	(debug_switch): Fix parameter list to match prototype.
+	Don't install signal handler here.
+
+	* syslogd.c (repeatinterval): Shorten from 30, 120, 600
+	to 30, 60. This is what Linux sysklogd 1.3 uses.
+
 2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
 
 This is the equivalent to the following Linux change:

@@ -182,7 +182,7 @@ struct filed {
  * in seconds after previous message is logged.  After each flush,
  * we move to the next interval until we reach the largest.
  */
-int	repeatinterval[] = { 30, 120, 600 };	/* # of secs before flush */
+int	repeatinterval[] = { 30, 60 };	/* # of secs before flush */
 #define	MAXREPEAT ((sizeof(repeatinterval) / sizeof(repeatinterval[0])) - 1)
 #define	REPEATTIME(f)	((f)->f_time + repeatinterval[(f)->f_repeatcount])
 #define	BACKOFF(f)	{ if (++(f)->f_repeatcount > MAXREPEAT) \
@@ -253,7 +253,7 @@ void	wallmsg __P((struct filed *, struct iovec *));
 extern char *localhost __P ((void));
 char **crunch_list __P((char *list));
 char   *textpri __P((int pri));
-void    debug_switch __P(());
+void    debug_switch __P((int));
 #if defined(__GLIBC__)
 #define dprintf mydprintf
 #endif /* __GLIBC__ */
@@ -1468,7 +1468,12 @@ cfline(char *line, struct filed *f)
 			logerror(p);
 			break;
 		}
-		f->f_type = F_PIPE;
+		if (strcmp(p, ctty) == 0)
+			f->f_type = F_CONSOLE;
+		else if (isatty(f->f_file))
+			f->f_type = F_TTY;
+		else
+			f->f_type = F_PIPE;
 		break;
 
 	case '/':
@@ -1478,12 +1483,12 @@ cfline(char *line, struct filed *f)
 			logerror(p);
 			break;
 		}
-		if (isatty(f->f_file))
+		if (strcmp(p, ctty) == 0)
+			f->f_type = F_CONSOLE;
+		else if (isatty(f->f_file))
 			f->f_type = F_TTY;
 		else
 			f->f_type = F_FILE;
-		if (strcmp(p, ctty) == 0)
-			f->f_type = F_CONSOLE;
 		break;
 
 	case '*':
@@ -1541,7 +1546,7 @@ decode(const char *name, CODE *codetab)
 }
 
 void
-debug_switch()
+debug_switch(int signo)
 {
 	int debugging_save = debugging_on;
 
@@ -1549,7 +1554,6 @@ debug_switch()
 	dprintf("Switching debugging_on to %s.\n",
 		(debugging_save == 0) ? "true" : "false");
 	debugging_on = (debugging_save == 0) ? 1 : 0;
-	signal(SIGUSR1, debug_switch);
 }
 
 static void
