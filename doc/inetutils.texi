@@ -31,7 +31,7 @@ START-INFO-DIR-ENTRY
 @c * rexecd: (inetutils)rexecd invocation.         Remote execution server.
 * rlogin: (inetutils)rlogin invocation.         Remote login.
 * rlogind: (inetutils)rlogind invocation.       Remote login server.
-@c * rsh: (inetutils)rsh invocation.               Remote shell.
+* rsh: (inetutils)rsh invocation.               Remote shell.
 * rshd: (inetutils)rshd invocation.             Remote shell server.
 * logger: (inetutils)logger invocation.         Logger.
 * syslogd: (inetutils)syslogd invocation.       Syslog server.
@@ -117,7 +117,7 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 @c * rexecd::                      Remote execution server.
 * rlogin::                      Remote login.
 * rlogind::                     Remote login server.
-@c * rsh::                         Remote shell.
+* rsh::                         Remote shell.
 * rshd::                        Remote shell server.
 * logger::                      Logger.
 * syslogd::                     Syslog server.
@@ -179,7 +179,7 @@ Print the version number, then exit successfully.
 @c @include rexecd.texi
 @include rlogin.texi
 @include rlogind.texi
-@c @include rsh.texi
+@include rsh.texi
 @include rshd.texi
 @include logger.texi
 @include syslogd.texi
