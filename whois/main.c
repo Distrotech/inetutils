@@ -49,6 +49,8 @@ char *strchr (), *strrchr ();
 
 static int version = 0, help = 0;
 
+extern char *whois_servers;
+
 char *server = 0;
 
 char *config_file = 0;
@@ -65,31 +67,10 @@ static struct option longopts[] = {
 #define MYISSPACE(c) (((c) == ' ') || ((c) == '\t'))
 #define MYISLWS(c) (MYISNEWLINE(c) || MYISSPACE(c))
 
-/* returns 1 if successful */
 int
-config_file_netwhois (char *who, char *filename)
+config_buffer_netwhois (char *who, char *buf, size_t count)
 {
-  size_t count;
-  struct stat stat_buf;
-  char *buf, *start, *end, c;
-  int fd;
-
-  if (stat (filename, &stat_buf))
-    return 0;
-
-  buf = malloc (stat_buf.st_size);
-
-  fd = open (filename, O_RDONLY);
-  if (fd == -1)
-    return 0;
-
-  count = read (fd, buf, stat_buf.st_size);
-
-  close (fd);
-
-  if (count != stat_buf.st_size)
-    return 0;
-
+  char *start, *end;
   while (count) {
     while (count && (MYISLWS(*buf) || (*buf == '#'))) {
       if (*buf == '#')
@@ -135,6 +116,35 @@ config_file_netwhois (char *who, char *filename)
 }
 
 
+/* returns 1 if successful */
+int
+config_file_netwhois (char *who, char *filename)
+{
+  size_t count;
+  struct stat stat_buf;
+  char *buf;
+  int fd;
+
+  if (stat (filename, &stat_buf))
+    return 0;
+
+  buf = malloc (stat_buf.st_size);
+
+  fd = open (filename, O_RDONLY);
+  if (fd == -1)
+    return 0;
+
+  count = read (fd, buf, stat_buf.st_size);
+
+  close (fd);
+
+  if (count != stat_buf.st_size)
+    return 0;
+
+  return config_buffer_netwhois (who, buf, count);
+}
+
+
 int
 main(int argc, char *argv[])
 {
@@ -166,7 +176,7 @@ main(int argc, char *argv[])
 		    "-c, --config-file       Specify alternate config file.\n"
 		    "-h, --host, --server    Specify whois server.\n");
   } else if (version) {
-    fprintf(stderr, "%s %s\n", PACKAGE, VERSION);
+    fprintf(stderr, "%s %s\n", inetutils_package, inetutils_version);
   } else if ((optind + 1) != argc) {
     fprintf (stderr, "There must be exactly one non-option argument.\n");
     exit(1);
@@ -192,6 +202,9 @@ main(int argc, char *argv[])
 				       SYSCONFDIR "/whois-servers")) {
       } else if (config_file_netwhois (argv[optind],
 				       DATADIR "/inet/whois-servers")) {
+      } else if (config_buffer_netwhois (argv[optind],
+					 whois_servers,
+					 strlen (whois_servers))) {
       } else {
 	netwhois (argv[optind], "whois.internic.net");
       }
