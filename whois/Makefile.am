@@ -12,5 +12,7 @@ inetdata_DATA = whois-servers
 
 EXTRA_DIST = whois-servers gen-config-c
 
+LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet
+
 config.c: gen-config-c whois-servers
 	cd $(srcdir) && ./gen-config-c
