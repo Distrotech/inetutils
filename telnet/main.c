@@ -100,10 +100,7 @@ help ()
   -e CHAR, --escape=CHAR     Use CHAR as an escape character\n\
   -E, --no-escape            Use no escape character\n\
   -K, --no-login             Don't automatically login to the remote system\n\
-  -l USER, --user=USER       If the remote system understands the ENVIRON\n\
-                             option, then USER will be sent to the remote\n\
-                             system as the value for the variable USER.\n\
-                             This option implies the -a option\n\
+  -l USER, --user=USER       Attempt automatic login as USER\n\
   -L, --binary-output        Use an 8-bit data path for output only\n\
   -n FILE, --trace=FILE      Record trace information into FILE\n\
   -r, --rlogin               Use a user-interface similar to rlogin\n\
