@@ -1,4 +1,4 @@
-@command{Syslogd} is a system service that provides error loggin facility.
+@command{Syslogd} is a system service that provides error logging facility.
 Messages are read from the UNIX domain socket @file{/dev/log},
 from an Internet domain socket specified in @file{/etc/services}, and from
 the special device @file{/dev/klog} (to read kernel messages).
@@ -44,7 +44,7 @@ Print debug information (implies -n).
 @opindex --socket
 Override default unix domain socket @file{/dev/log}.
 @item -a @var{SOCKET}
-Add unix socket to listen to (up to 19).
+Add unix socket to listen. An unlimited number of sockets is allowed.
 
 @item -r
 @itemx --inet
@@ -78,12 +78,12 @@ Specify timestamp interval in logs (0 for no timestamps).
 
 @item -l @var{HOSTLIST}
 @opindex -l
-Log hosts in @var{HOSTLIST} by their hostname.
+Log hosts in @var{HOSTLIST} by their hostname. Multiple lists are allowed.
 
 @item -s @var{DOMAINLIST}
 @opindex -s
 List of domains which should be stripped from the FQDN of
-hosts before logging their name.
+hosts before logging their name. Multiple lists are allowed.
 
 @end table
 

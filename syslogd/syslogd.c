@@ -265,7 +265,6 @@ void logerror __P ((const char *));
 void logmsg __P ((int, const char *, const char *, int));
 void printline __P ((const char *, const char *));
 void printsys __P ((const char *));
-void reapchild __P ((int));
 char *ttymsg __P ((struct iovec *, int, char *, int));
 static void usage __P ((int));
 void wallmsg __P ((struct filed *, struct iovec *));
@@ -516,7 +515,6 @@ main(int argc, char *argv[])
   (void) signal (SIGTERM, die);
   (void) signal (SIGINT, Debug ? die : SIG_IGN);
   (void) signal (SIGQUIT, Debug ? die : SIG_IGN);
-  (void) signal (SIGCHLD, reapchild);
   (void) signal (SIGALRM, domark);
   (void) signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
   (void) alarm (TIMERINTVL);
@@ -1311,18 +1309,6 @@ wallmsg(struct filed *f, struct iovec *iov)
   }
   endutxent();
   reenter = 0;
-}
-
-void
-reapchild(int signo)
-{
-  (void)signo; /* Ignored.  */
-#ifdef HAVE_WAITPID
-  while (waitpid (-1, 0, WNOHANG) > 0)
-#else
-  while (wait3 (0, WNOHANG, (struct rusage *) NULL) > 0)
-#endif
-    ;
 }
 
 /* Return a printable representation of a host address.  */
