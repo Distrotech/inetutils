@@ -778,7 +778,6 @@ recvrequest(cmd, local, remote, lmode, printnames)
 	static char *buf;
 	long bytes = 0, local_hashbytes = hashbytes;
 	struct timeval start, stop;
-	struct stat st;
 
 	is_retr = strcmp(cmd, "RETR") == 0;
 	if (is_retr && verbose && printnames) {
@@ -863,10 +862,7 @@ recvrequest(cmd, local, remote, lmode, printnames)
 		}
 		closefunc = fclose;
 	}
-	if (fstat(fileno(fout), &st) < 0 || ST_BLKSIZE(st) == 0)
-		blksize = BUFSIZ;
-	else
-	        blksize = ST_BLKSIZE(st);
+	blksize = BUFSIZ;
 	if (blksize > bufsize) {
 		if (buf)
 			(void) free(buf);
