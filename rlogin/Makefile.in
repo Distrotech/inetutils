@@ -37,19 +37,22 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-LDLIBS = $(LIBS)
 CFLAGS += $(DEFS)
+LDLIBS = $(LIBS)
 
+all: rlogin
 rlogin: rlogin.o
 
 install: installdirs rlogin $(srcdir)/rlogin.1
 	$(INSTALL_PROGRAM) rlogin $(bindir)/rlogin
-	$(INSTALL_DATA) $(srcdir)/rlogin.1 $(man1dir)
+	-$(INSTALL_DATA) $(srcdir)/rlogin.1 $(man1dir)/rlogin.1
+uninstall:
+	-$(RM) -f  $(bindir)/rlogin $(man1dir)/rlogin.1
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o rlogin 
 distclean: clean
 	$(RM) -f Makefile
