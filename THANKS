@@ -5,3 +5,5 @@ In particular:
   Alain Magloire	 (snprintf replacement & security fixes)
   Bernhard Rosenkraenzer (Linux port)
   NIIBE Yutaka		 (Security fixes & making talk finally work)
+  Nathan Neulinger       (tftpd)
+  Thomas Bushnell        (sockaddr sin_len field)

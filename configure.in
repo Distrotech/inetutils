@@ -95,7 +95,7 @@ AC_SUBST(BUILD_TFTPD)
 AC_SUBST(BUILD_UUCPD)
 
 AC_SUBST(BUILD_FTP)
-AC_SUBST(BUILD_PING)
+#AC_SUBST(BUILD_PING)
 AC_SUBST(BUILD_RCP)
 AC_SUBST(BUILD_RLOGIN)
 AC_SUBST(BUILD_RSH)
@@ -147,11 +147,12 @@ AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
 
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
-	       flock ftruncate wait3 memcpy bcopy bzero setsid cfsetspeed \
-	       strchr waitpid seteuid setegid setreuid setregid setresuid \
-	       setresgid killpg setlinebuf utimes utime)
+	       flock ftruncate wait3 memcpy bcopy bzero setsid \
+	       cfsetspeed strchr waitpid seteuid setegid setreuid setregid \
+	       setresuid setresgid killpg setlinebuf tzset utimes utime)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup setenv memset memmove herror getusershell)
+AC_REPLACE_FUNCS(daemon strdup strcasecmp setenv memcmp memset memmove \
+	herror getusershell)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -344,17 +345,15 @@ else
   BUILD_TALK=''
 fi
 
-if test "$enable_talk" = yes; then
-  # We may need our own definition for struct osockaddr (equivalent to the
-  # old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
-  IU_CHECK_TYPE(struct osockaddr,
+# We may need our own definition for struct osockaddr (equivalent to the
+# old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
+IU_CHECK_TYPE(struct osockaddr,
     [ #include <sys/types.h>
       #include <sys/socket.h> ],
     :, AC_DEFINE(HAVE_OSOCKADDR_H) INCLUDES="$INCLUDES osockaddr.h")
-  IU_CHECK_STRUCT_FIELD(sockaddr_in, sin_len,
+IU_CHECK_STRUCT_FIELD(sockaddr_in, sin_len,
     [ #include <sys/types.h>
       #include <netinet/in.h> ])
-fi
 
 # Look for a system `glob' function, and use our own if we can't find one (or
 # if the system one is missing features we need).
@@ -520,6 +519,8 @@ IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
 LINK_SRCS="$LINK_SRCS `for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
 LINK_DSTS="$LINK_DSTS `for I in $INCLUDES; do echo $ac_n ' 'include/$I$ac_c; done`"
 AC_LINK_FILES($LINK_SRCS, $LINK_DSTS)
+
+AC_FUNC_MMAP
 
 AC_SUBST(VERSION)
 
