@@ -51,6 +51,7 @@ static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <getopt.h>
 
 #define	SYSLOG_NAMES
 #include <syslog.h>
