@@ -38,7 +38,7 @@ static char copyright[] =
 #endif /* not lint */
 
 #ifndef lint
-static char sccsid[] = "@(#)rlogin.c	8.1 (Berkeley) 6/6/93";
+static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #endif /* not lint */
 
 /*
@@ -49,6 +49,7 @@ static char sccsid[] = "@(#)rlogin.c	8.1 (Berkeley) 6/6/93";
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
+#include <sys/ioctl.h>
 
 #include <netinet/in.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
@@ -63,7 +64,7 @@ static char sccsid[] = "@(#)rlogin.c	8.1 (Berkeley) 6/6/93";
 #include <netdb.h>
 #include <pwd.h>
 #include <setjmp.h>
-#include <sgtty.h>
+#include <termios.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,11 +103,6 @@ int eight, litout, rem;
 int noescape;
 u_char escapechar = '~';
 
-char *speeds[] = {
-	"0", "50", "75", "110", "134", "150", "200", "300", "600", "1200",
-	"1800", "2400", "4800", "9600", "19200", "38400"
-};
-
 #ifdef OLDSUN
 struct winsize {
 	unsigned short ws_row, ws_col;
@@ -127,9 +123,10 @@ void		lostpeer __P((int));
 void		mode __P((int));
 void		msg __P((char *));
 void		oob __P((int));
-int		reader __P((int));
+int		reader __P((sigset_t *));
 void		sendwindow __P((void));
 void		setsignal __P((int));
+int		speed __P((int));
 void		sigwinch __P((int));
 void		stop __P((char));
 void		usage __P((void));
@@ -148,25 +145,24 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	extern char *optarg;
-	extern int optind;
 	struct passwd *pw;
 	struct servent *sp;
-	struct sgttyb ttyb;
-	long omask;
-	int argoff, ch, dflag, one, uid;
+	sigset_t smask;
+	uid_t uid;
+	int argoff, ch, dflag, one;
 	char *host, *p, *user, term[1024];
+	struct sigaction sa;
 
 	argoff = dflag = 0;
 	one = 1;
 	host = user = NULL;
 
-	if (p = rindex(argv[0], '/'))
+	if (p = strrchr(argv[0], '/'))
 		++p;
 	else
 		p = argv[0];
 
-	if (strcmp(p, "rlogin"))
+	if (strcmp(p, "rlogin") != 0)
 		host = p;
 
 	/* handle "rlogin host flags" */
@@ -235,9 +231,17 @@ main(argc, argv)
 	if (*argv)
 		usage();
 
-	if (!(pw = getpwuid(uid = getuid()))) {
-		(void)fprintf(stderr, "rlogin: unknown user id.\n");
-		exit(1);
+	if (!(pw = getpwuid(uid = getuid())))
+		errx(1, "unknown user id.");
+	/* Accept user1@host format, though "-l user2" overrides user1 */
+	p = strchr(host, '@');
+	if (p) {
+		*p = '\0';
+		if (!user && p > host)
+			user = host;
+		host = p + 1;
+		if (*host == '\0')
+			usage();
 	}
 	if (!user)
 		user = pw->pw_name;
@@ -255,30 +259,34 @@ main(argc, argv)
 #endif
 	if (sp == NULL)
 		sp = getservbyname("login", "tcp");
-	if (sp == NULL) {
-		(void)fprintf(stderr, "rlogin: login/tcp: unknown service.\n");
-		exit(1);
-	}
+	if (sp == NULL)
+		errx(1, "login/tcp: unknown service.");
 
-	(void)strcpy(term, (p = getenv("TERM")) ? p : "network");
-	if (ioctl(0, TIOCGETP, &ttyb) == 0) {
-		(void)strcat(term, "/");
-		(void)strcat(term, speeds[(int)ttyb.sg_ospeed]);
-	}
+	(void)snprintf(term, sizeof(term), "%s/%d",
+			((p = getenv("TERM")) ? p : "network"),
+			speed(0));
 
 	(void)get_window_size(0, &winsize);
 
-	(void)signal(SIGPIPE, lostpeer);
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sa.sa_handler = lostpeer;
+	(void)sigaction(SIGPIPE, &sa, (struct sigaction *) 0);
 	/* will use SIGUSR1 for window size hack, so hold it off */
-	omask = sigblock(sigmask(SIGURG) | sigmask(SIGUSR1));
+	sigemptyset(&smask);
+	sigaddset(&smask, SIGURG);
+	sigaddset(&smask, SIGUSR1);
+	(void)sigprocmask(SIG_SETMASK, &smask, &smask);
 	/*
 	 * We set SIGURG and SIGUSR1 below so that an
 	 * incoming signal will be held pending rather than being
 	 * discarded. Note that these routines will be ready to get
 	 * a signal by the time that they are unblocked below.
 	 */
-	(void)signal(SIGURG, copytochild);
-	(void)signal(SIGUSR1, writeroob);
+	sa.sa_handler = copytochild;
+	(void)sigaction(SIGURG, &sa, (struct sigaction *) 0);
+	sa.sa_handler = writeroob;
+	(void)sigaction(SIGUSR1, &sa, (struct sigaction *) 0);
 
 #ifdef KERBEROS
 try_connect:
@@ -287,11 +295,8 @@ try_connect:
 
 		/* Fully qualify hostname (needed for krb_realmofhost). */
 		hp = gethostbyname(host);
-		if (hp != NULL && !(host = strdup(hp->h_name))) {
-			(void)fprintf(stderr, "rlogin: %s\n",
-			    strerror(ENOMEM));
-			exit(1);
-		}
+		if (hp != NULL && !(host = strdup(hp->h_name)))
+			errx(1, "%s", strerror(ENOMEM));
 
 		rem = KSUCCESS;
 		errno = 0;
@@ -309,11 +314,8 @@ try_connect:
 		if (rem < 0) {
 			use_kerberos = 0;
 			sp = getservbyname("login", "tcp");
-			if (sp == NULL) {
-				(void)fprintf(stderr,
-				    "rlogin: unknown service login/tcp.\n");
-				exit(1);
-			}
+			if (sp == NULL)
+				errx(1, "unknown service login/tcp.");
 			if (errno == ECONNREFUSED)
 				warning("remote host doesn't support Kerberos");
 			if (errno == ENOENT)
@@ -322,11 +324,8 @@ try_connect:
 		}
 	} else {
 #ifdef CRYPT
-		if (doencrypt) {
-			(void)fprintf(stderr,
-			    "rlogin: the -x flag requires Kerberos authentication.\n");
-			exit(1);
-		}
+		if (doencrypt)
+			errx(1, "the -x flag requires Kerberos authentication.");
 #endif /* CRYPT */
 		rem = rcmd(&host, sp->s_port, pw->pw_name, user, term, 0);
 	}
@@ -403,8 +402,9 @@ doit(omask)
 	 * signals to the child. We can now unblock SIGURG and SIGUSR1
 	 * that were set above.
 	 */
-	(void)sigsetmask(omask);
-	(void)signal(SIGCHLD, catch_child);
+	(void)sigprocmask(SIG_SETMASK, smask, (sigset_t *) 0);
+	sa.sa_handler = catch_child;
+	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
 	writer();
 	msg("closed connection.");
 	done(0);
@@ -448,9 +448,14 @@ void
 writeroob(signo)
 	int signo;
 {
+	struct sigaction sa;
+
 	if (dosigwinch == 0) {
 		sendwindow();
-		(void)signal(SIGWINCH, sigwinch);
+		sigemptyset(&sa.sa_mask);
+		sa.sa_handler = sigwinch;
+		sa.sa_flags = SA_RESTART;
+		(void)sigaction(SIGWINCH, &sa, (struct sigaction *) 0);
 	}
 	dosigwinch = 1;
 }
@@ -459,16 +464,16 @@ void
 catch_child(signo)
 	int signo;
 {
-	union wait status;
-	int pid;
+	int status;
+	pid_t pid;
 
 	for (;;) {
-		pid = wait3((int *)&status, WNOHANG|WUNTRACED, NULL);
+		pid = waitpid(-1, &status, WNOHANG|WUNTRACED);
 		if (pid == 0)
 			return;
 		/* if the child (reader) dies, just quit */
 		if (pid < 0 || (pid == child && !WIFSTOPPED(status)))
-			done((int)(status.w_termsig | status.w_retcode));
+			done(WEXITSTATUS(status) | WTERMSIG(status));
 	}
 	/* NOTREACHED */
 }
@@ -509,11 +514,11 @@ writer()
 			}
 		} else if (local) {
 			local = 0;
-			if (c == '.' || c == deftc.t_eofc) {
+			if (c == '.' || c == deftt.c_cc[VEOF]) {
 				echo(c);
 				break;
 			}
-			if (c == defltc.t_suspc || c == defltc.t_dsuspc) {
+			if (c == deftt.c_cc[VSUSP] || c == deftt.c_cc[VDSUSP]) {
 				bol = 1;
 				echo(c);
 				stop(c);
@@ -545,8 +550,8 @@ writer()
 				msg("line gone");
 				break;
 			}
-		bol = c == defkill || c == deftc.t_eofc ||
-		    c == deftc.t_intrc || c == defltc.t_suspc ||
+		bol = c == deftt.c_cc[VKILL] || c == deftt.c_cc[VEOF] ||
+		    c == deftt.c_cc[VINTR] || c == deftt.c_cc[VSUSP] ||
 		    c == '\r' || c == '\n';
 	}
 }
@@ -586,10 +591,16 @@ stop(cmdc)
 	char cmdc;
 #endif
 {
+	struct sigaction sa;
+
 	mode(0);
-	(void)signal(SIGCHLD, SIG_IGN);
-	(void)kill(cmdc == defltc.t_suspc ? 0 : getpid(), SIGTSTP);
-	(void)signal(SIGCHLD, catch_child);
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = SIG_IGN;
+	sa.sa_flags = SA_RESTART;
+	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+	(void)kill(cmdc == deftt.c_cc[VSUSP] ? 0 : getpid(), SIGTSTP);
+	sa.sa_handler = catch_child;
+	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
 	mode(1);
 	sigwinch(0);			/* check for size changes */
 }
@@ -601,7 +612,7 @@ sigwinch(signo)
 	struct winsize ws;
 
 	if (dosigwinch && get_window_size(0, &ws) == 0 &&
-	    bcmp(&ws, &winsize, sizeof(ws))) {
+	    memcmp(&ws, &winsize, sizeof(ws))) {
 		winsize = ws;
 		sendwindow();
 	}
@@ -643,14 +654,15 @@ sendwindow()
 #define	WRITING	2
 
 jmp_buf rcvtop;
-int ppid, rcvcnt, rcvstate;
+pid_t ppid;
+int rcvcnt, rcvstate;
 char rcvbuf[8 * 1024];
 
 void
 oob(signo)
 	int signo;
 {
-	struct sgttyb sb;
+	struct termios tt;
 	int atmark, n, out, rcvd;
 	char waste[BUFSIZ], mark;
 
@@ -685,29 +697,24 @@ oob(signo)
 		(void)kill(ppid, SIGUSR1);
 	}
 	if (!eight && (mark & TIOCPKT_NOSTOP)) {
-		(void)ioctl(0, TIOCGETP, (char *)&sb);
-		sb.sg_flags &= ~CBREAK;
-		sb.sg_flags |= RAW;
-		(void)ioctl(0, TIOCSETN, (char *)&sb);
-		notc.t_stopc = -1;
-		notc.t_startc = -1;
-		(void)ioctl(0, TIOCSETC, (char *)&notc);
+		tcgetattr(0, &tt);
+		tt.c_iflag &= ~(IXON | IXOFF);
+		tt.c_cc[VSTOP] = _POSIX_VDISABLE;
+		tt.c_cc[VSTART] = _POSIX_VDISABLE;
+		tcsetattr(0, TCSANOW, &tt);
 	}
 	if (!eight && (mark & TIOCPKT_DOSTOP)) {
-		(void)ioctl(0, TIOCGETP, (char *)&sb);
-		sb.sg_flags &= ~RAW;
-		sb.sg_flags |= CBREAK;
-		(void)ioctl(0, TIOCSETN, (char *)&sb);
-		notc.t_stopc = deftc.t_stopc;
-		notc.t_startc = deftc.t_startc;
-		(void)ioctl(0, TIOCSETC, (char *)&notc);
+		tcgetattr(0, &tt);
+		tt.c_iflag |= (IXON|IXOFF);
+		tt.c_cc[VSTOP] = deftt.c_cc[VSTOP];
+		tt.c_cc[VSTART] = deftt.c_cc[VSTART];
+		tcsetattr(0, TCSANOW, &tt);
 	}
 	if (mark & TIOCPKT_FLUSHWRITE) {
 		(void)ioctl(1, TIOCFLUSH, (char *)&out);
 		for (;;) {
 			if (ioctl(rem, SIOCATMARK, &atmark) < 0) {
-				(void)fprintf(stderr, "rlogin: ioctl: %s.\n",
-				    strerror(errno));
+				warn("ioctl SIOCATMARK (ignored)");
 				break;
 			}
 			if (atmark)
@@ -739,23 +746,29 @@ oob(signo)
 
 /* reader: read from remote: line -> 1 */
 int
-reader(omask)
-	int omask;
+reader(smask)
+	sigset_t *smask;
 {
-	int pid, n, remaining;
+	pid_t pid;
+	int n, remaining;
 	char *bufp;
+	struct sigaction sa;
 
 #if BSD >= 43 || defined(SUNOS4)
 	pid = getpid();		/* modern systems use positives for pid */
 #else
 	pid = -getpid();	/* old broken systems use negatives */
 #endif
-	(void)signal(SIGTTOU, SIG_IGN);
-	(void)signal(SIGURG, oob);
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sa.sa_handler = SIG_IGN;
+	(void)sigaction(SIGTTOU, &sa, (struct sigaction *) 0);
+	sa.sa_handler = oob;
+	(void)sigaction(SIGURG, &sa, (struct sigaction *) 0);
 	ppid = getppid();
 	(void)fcntl(rem, F_SETOWN, pid);
 	(void)setjmp(rcvtop);
-	(void)sigsetmask(omask);
+	(void)sigprocmask(SIG_SETMASK, smask, (sigset_t *) 0);
 	bufp = rcvbuf;
 	for (;;) {
 		while ((remaining = rcvcnt - (bufp - rcvbuf)) > 0) {
@@ -785,8 +798,7 @@ reader(omask)
 		if (rcvcnt < 0) {
 			if (errno == EINTR)
 				continue;
-			(void)fprintf(stderr, "rlogin: read: %s.\n",
-			    strerror(errno));
+			warn("read");
 			return (-1);
 		}
 	}
@@ -796,49 +808,44 @@ void
 mode(f)
 	int f;
 {
-	struct ltchars *ltc;
-	struct sgttyb sb;
-	struct tchars *tc;
-	int lflags;
+	struct termios tt;
 
-	(void)ioctl(0, TIOCGETP, (char *)&sb);
-	(void)ioctl(0, TIOCLGET, (char *)&lflags);
-	switch(f) {
+	switch (f) {
 	case 0:
-		sb.sg_flags &= ~(CBREAK|RAW|TBDELAY);
-		sb.sg_flags |= defflags|tabflag;
-		tc = &deftc;
-		ltc = &defltc;
-		sb.sg_kill = defkill;
-		sb.sg_erase = deferase;
-		lflags = deflflags;
+		tcsetattr(0, TCSADRAIN, &deftt);
 		break;
 	case 1:
-		sb.sg_flags |= (eight ? RAW : CBREAK);
-		sb.sg_flags &= ~defflags;
-		/* preserve tab delays, but turn off XTABS */
-		if ((sb.sg_flags & TBDELAY) == XTABS)
-			sb.sg_flags &= ~TBDELAY;
-		tc = &notc;
-		ltc = &noltc;
-		sb.sg_kill = sb.sg_erase = -1;
-		if (litout)
-			lflags |= LLITOUT;
+		tt = deftt;
+		tt.c_oflag &= ~(OPOST);
+		tt.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+		tt.c_iflag &= ~(ICRNL);
+		tt.c_cc[VMIN] = 1;
+		tt.c_cc[VTIME] = 0;
+		if (eight) {
+			tt.c_iflag &= ~(IXON | IXOFF | ISTRIP);
+			tt.c_cc[VSTOP] = _POSIX_VDISABLE;
+			tt.c_cc[VSTART] = _POSIX_VDISABLE;
+		}
+		/*if (litout)
+			lflags |= LLITOUT;*/
+		tcsetattr(0, TCSADRAIN, &tt);
 		break;
+
 	default:
 		return;
 	}
-	(void)ioctl(0, TIOCSLTC, (char *)ltc);
-	(void)ioctl(0, TIOCSETC, (char *)tc);
-	(void)ioctl(0, TIOCSETN, (char *)&sb);
-	(void)ioctl(0, TIOCLSET, (char *)&lflags);
 }
 
 void
 lostpeer(signo)
 	int signo;
 {
-	(void)signal(SIGPIPE, SIG_IGN);
+	struct sigaction sa;
+
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sa.sa_handler = SIG_IGN;
+	(void)sigaction(SIGPIPE, &sa, (struct sigaction *) 0);
 	msg("\007connection closed.");
 	done(1);
 }
@@ -848,6 +855,7 @@ void
 copytochild(signo)
 	int signo;
 {
+
 	(void)kill(child, SIGURG);
 }
 
@@ -855,6 +863,7 @@ void
 msg(str)
 	char *str;
 {
+
 	(void)fprintf(stderr, "rlogin: %s\r\n", str);
 }
 
@@ -887,7 +896,7 @@ void
 usage()
 {
 	(void)fprintf(stderr,
-	    "usage: rlogin [ -%s]%s[-e char] [ -l username ] host\n",
+	    "usage: rlogin [ -%s]%s[-e char] [ -l username ] [username@]host\n",
 #ifdef KERBEROS
 #ifdef CRYPT
 	    "8EKLx", " [-k realm] ");
