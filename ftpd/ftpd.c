@@ -735,7 +735,8 @@ retrieve(cmd, name)
 	} else {
 		char line[BUFSIZ];
 
-		(void) sprintf(line, cmd, name), name = line;
+		snprintf (line, sizeof line, cmd, name);
+		name = line;
 		fin = ftpd_popen(line, "r"), closefunc = ftpd_pclose;
 		st.st_size = -1;
 		st.st_blksize = BUFSIZ;
@@ -1444,7 +1445,7 @@ dolog(sin)
 	strcpy (remotehost, name);
 
 #ifdef SETPROCTITLE
-	snprintf(proctitle, sizeof(proctitle), "%s: connected", remotehost);
+	snprintf (proctitle, sizeof(proctitle), "%s: connected", remotehost);
 	setproctitle(proctitle);
 #endif /* SETPROCTITLE */
 
