@@ -59,6 +59,9 @@
 /* Define this if using Kerberos version 4.  */
 #undef KRB4
 
+/* Define this if using Kerberos.  */
+#undef KERBEROS
+
 /* Define this to be `setpgrp' if on a BSD system that doesn't have setpgid. */
 #undef setpgid
 
