@@ -69,6 +69,9 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #endif
 #include <errno.h>
 
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -1418,7 +1421,9 @@ shell(argc, argv)
 	     * Fire up the shell in the child.
 	     */
 	    register char *shellp, *shellname;
+#ifndef strrchr
 	    extern char *strrchr();
+#endif
 
 	    shellp = getenv("SHELL");
 	    if (shellp == NULL)
@@ -1705,7 +1710,9 @@ env_init()
 	extern char **environ;
 	register char **epp, *cp;
 	register struct env_lst *ep;
+#ifndef strchr
 	extern char *strchr();
+#endif
 
 	for (epp = environ; *epp; epp++) {
 		if (cp = strchr(*epp, '=')) {
@@ -1728,8 +1735,8 @@ env_init()
 		char *hostname = localhost ();
 		char *cp2 = strchr((char *)ep->value, ':');
 
-		cp = (char *)malloc(strlen(hostname) + strlen(cp2) + 1);
-		sprintf((char *)cp, "%s%s", hostname, cp2);
+		cp = malloc(strlen(hostname) + strlen(cp2) + 1);
+		sprintf(cp, "%s%s", hostname, cp2);
 
 		free(ep->value);
 		ep->value = (unsigned char *)cp;
@@ -2251,7 +2258,10 @@ tn(argc, argv)
     unsigned long temp;
     extern char *inet_ntoa();
 #if	defined(IP_OPTIONS) && defined(IPPROTO_IP)
-    char *srp = 0, *strrchr();
+    char *srp = 0;
+#ifndef strrchr
+    char *strrchr();
+#endif
     unsigned long sourceroute(), srlen;
 #endif
     char *cmd, *hostp = 0, *portp = 0, *user = 0;
@@ -2394,7 +2404,9 @@ tn(argc, argv)
 	    }
 	} else {
 #ifndef HAVE_HTONS_DECL
-	    u_short htons P((unsigned short));
+#ifndef htons
+	    u_short htons __P((unsigned short));
+#endif
 #endif
 	    sin.sin_port = htons (sin.sin_port);
 	}
