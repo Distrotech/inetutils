@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 #include "snprintf.h"
 
 /*
@@ -433,16 +437,15 @@ struct DATA * p;
 
 PUBLIC int
 #ifdef __STDC__
-snprintf(char *string, int length, char * format, ...)
+vsnprintf(char *string, size_t length, const char * format, va_list args)
 #else
-snprintf(string, length, format, va_alist)
+vsnprintf(string, length, format, args)
 char *string;
-int length;
-char * format;
-va_dcl
+size_t length;
+const char * format;
+va_list args;
 #endif
 {
-  va_list args;
   struct DATA data;
   char conv_field[MAX_FIELD];
   double d; /* temporary holder */
@@ -453,12 +456,6 @@ va_dcl
   data.holder = string;
   data.pf = format;
   data.counter = 0;
-
-#ifdef __STDC__
-  va_start(args, format);
-#else
-  va_start(args);
-#endif
 
 
 /* sanity check, the string must be > 1 */
@@ -579,12 +576,43 @@ va_dcl
       PUT_CHAR(*data.pf, &data);  /* add the char the string */
     }
   }
-  va_end(args);
 
   *data.holder = '\0'; /* the end ye ! */
 
   return data.counter;
 }
+
+#ifndef HAVE_SNPRINTF
+
+PUBLIC int
+#ifdef __STDC__
+snprintf(char *string, size_t length, const char * format, ...)
+#else
+snprintf(string, length, format, va_alist)
+char *string;
+size_t length;
+const char * format;
+va_dcl
+#endif
+{
+  int rval;
+  va_list args;
+
+#ifdef __STDC__
+  va_start(args, format);
+#else
+  va_start(args);
+#endif
+
+  rval = vsnprintf (string, length, format, args);
+
+  va_end(args);
+
+  return rval;
+}
+
+#endif /* HAVE_SNPRINTF */
+
 
 #ifdef DRIVER
 
