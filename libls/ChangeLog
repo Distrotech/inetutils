@@ -1,3 +1,7 @@
+2000-07-27 Michel Vogt
+
+	* fts.c fts.h: new files to support BSD fts_*() functions.
+
 2000-07-06 Michel Vogt
 
 	This is a Linux port of the BSD ls program.  You probably aren't

@@ -45,7 +45,7 @@ static char rcsid[] = "$OpenBSD: util.c,v 1.6 1999/05/05 07:06:01 deraadt Exp $"
 #include <sys/stat.h>
 
 #include <ctype.h>
-#include <fts.h>
+#include "fts.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

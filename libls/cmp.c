@@ -44,7 +44,7 @@ static char rcsid[] = "$OpenBSD: cmp.c,v 1.3 1997/01/03 22:36:07 millert Exp $";
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <fts.h>
+#include "fts.h"
 #include <string.h>
 
 #include "ls.h"

@@ -46,7 +46,7 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 
 #include <err.h>
 #include <errno.h>
-#include <fts.h>
+#include "fts.h"
 #include <grp.h>
 #include <pwd.h>
 #include <stdio.h>
