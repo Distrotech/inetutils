@@ -1,3 +1,13 @@
+Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
+
+	* ftpd/Makefile.am (INCLUDES): Added `$(PATHDEFF_DEVNULL)
+ 	$(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)'.
+
+	* ftp/Makefile.am (INCLUDES): Added `$(PATHDEF_TMP)
+ 	$(PATHDEF_BSHELL)'.
+	
+	Added a line reading `@PATHDEFS_MAKE@'.
+
 Tue Mar 24 00:28:27 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* telnet/Makefile.am (noinst_HEADERS): Remove krb4-proto.h;
