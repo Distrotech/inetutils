@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_RSHD@
+inetdaemon_PROGRAMS = @rshd_BUILD@
 
 EXTRA_PROGRAMS = rshd
 
