@@ -1,3 +1,11 @@
+2001-09-05 Sergey Poznyakoff
+
+	* Makefile.am: List built headers in BUILT_SOURCES so the 
+	autodependency code works. Removed $(srcdir)/ prefix from
+	targets: the source directory might not be writable, so its
+	better to build headers in the build directory
+	if they are not present in srcdir. Restored EXTRA_DIST.
+
 2001-08-26  Alain Magloire
 
 	* ChangeLog: New File.
