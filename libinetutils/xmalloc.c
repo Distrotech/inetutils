@@ -41,16 +41,6 @@ void free ();
 # define EXIT_FAILURE 1
 #endif
 
-/* The following tests require AC_PREREQ(2.54).  */
-
-#ifndef HAVE_MALLOC
-"you must run the autoconf test for a GNU libc compatible malloc"
-#endif
-
-#ifndef HAVE_REALLOC
-"you must run the autoconf test for a GNU libc compatible realloc"
-#endif
-
 /* Exit value when the requested amount of memory is not available.
    The caller may set it to some other value.  */
 int xalloc_exit_failure = EXIT_FAILURE;
