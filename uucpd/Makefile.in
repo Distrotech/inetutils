@@ -40,8 +40,7 @@ RM = @RM@
 
 # the /libexec/uucp/... path is consistent with netbsd.
 CFLAGS += $(DEFS) \
-	-D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\" \
-	-D_PATH_WTMP=\"$(localstatedir)/log/utmp\"
+	-D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\"
 LDLIBS = $(LIBS)
 
 all: uucpd
