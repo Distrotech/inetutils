@@ -137,9 +137,9 @@ AC_C_CONST
 AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h glob.h krb.h memory.h \
 	         malloc.h netinet/in_systm.h netinet/ip.h netinet/ip_icmp.h \
 		 netinet/ip_var.h security/pam_appl.h shadow.h stdarg.h \
-                 stdlib.h string.h stropts.h sys/tty.h sys/utsname.h
+                 stdlib.h string.h stropts.h sys/tty.h sys/utsname.h \
                  sys/ptyvar.h sys/msgbuf.h sys/filio.h sys/ioctl_compat.h \
-                 sys/cdefs.h sys/stream.h \
+                 sys/cdefs.h sys/stream.h tcpd.h \
 		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
 		 sys/proc.h sys/select.h sys/time.h sys/wait.h sys/resource.h \
 		 stropts.h termio.h termios.h utmp.h utmpx.h unistd.h vis.h)
@@ -262,7 +262,9 @@ IU_CHECK_WEAK_REFS
 
 # See if there's a separate libcrypt (many systems put crypt there)
 AC_CHECK_LIB(crypt, crypt, LIBCRYPT=-lcrypt)
+AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
 AC_SUBST(LIBCRYPT)
+AC_SUBST(LIBWRAP)
 # Look for the crypt function itself (in libcrypt if possible)
 _SAVE_LIBS="$LIBS"
 LIBS="$LIBCRYPT $LIBS"

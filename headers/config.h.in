@@ -619,6 +619,9 @@
 /* Define if you have the <shadow.h> header file.  */
 #undef HAVE_SHADOW_H
 
+/* Define if you have the <tcpd.h> header file.  */
+#undef HAVE_TCPD_H
+
 /* Define if you have the <stdarg.h> header file.  */
 #undef HAVE_STDARG_H
 
@@ -729,6 +732,9 @@
 
 /* Define if you have the z library (-lz).  */
 #undef HAVE_LIBZ
+
+/* Define if you have the tcpd_wrapper library (-lwrap).  */
+#undef HAVE_LIBWRAP
 
 #ifdef HAVE___P
 /* The system defines __P; we tested for it in <sys/cdefs.h>, so include that

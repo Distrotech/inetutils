@@ -1,3 +1,6 @@
+2000-07-30 Michael Vogt <mvo@debian.org>
+	* ftpd.c(main): added TCP_WRAPPER support for daemon mode
+
 2000-07-26  Michael Vogt  <mvo@debian.org>
 
 	* ftpd.c(pass): added pam support

@@ -128,6 +128,10 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <shadow.h>
 #endif
 
+#ifdef HAVE_TCPD_H
+#include <tcpd.h>
+#endif  
+	  
 #ifdef HAVE_SECURITY_PAM_APPL_H
 #include <security/pam_appl.h>
 #endif
@@ -185,6 +189,11 @@ char	tmpline[7];
 char	*hostname = 0;
 char	*remotehost = 0;
 char    *anonymous_login_name = "ftp";
+
+#ifdef HAVE_FTPD_H
+int     allow_severity = LOG_INFO;
+int     deny_severity = LOG_NOTICE;
+#endif  
 
 #ifdef HAVE_LIBPAM
 static int ftp_conv (int num_msg, const struct pam_message **msg,
@@ -273,7 +282,9 @@ static struct passwd *
 static char	*sgetsave __P((char *));
 static void      reapchild __P((int));
 static void      sigquit __P((int));
-
+#ifdef HAVE_TCPD_H
+static int	 check_host(struct sockaddr *sa);
+#endif
 
 static char *
 curdir()
@@ -450,11 +461,11 @@ main(int argc, char *argv[], char **envp)
 		}
 		close(fd);
 	    }
-#if defined(TCPWRAPPERS)
+#ifdef HAVE_TCPD_H
 	    /* ..in the child. */
 	    if (!check_host((struct sockaddr *)&his_addr))
 	    exit(1);
-#endif  /* TCPWRAPPERS */
+#endif 
         } else {
 	    addrlen = sizeof(his_addr);
 	    if (getpeername(0, (struct sockaddr *)&his_addr, &addrlen) < 0) {
@@ -2085,3 +2096,34 @@ setproctitle(fmt, va_alist)
 		*p++ = ' ';
 }
 #endif /* SETPROCTITLE */
+
+
+#ifdef HAVE_TCPD_H
+static int check_host(struct sockaddr *sa)
+{
+	struct sockaddr_in *sin;
+        struct hostent *hp;
+        char *addr;
+	
+	if (sa->sa_family != AF_INET)
+              return 1;      
+
+	sin = (struct sockaddr_in *)sa;
+	hp = gethostbyaddr((char *)&sin->sin_addr, 
+			sizeof(struct in_addr), AF_INET);
+        addr = inet_ntoa(sin->sin_addr);
+        if (hp) {
+                if (!hosts_ctl("ftpd", hp->h_name, addr, STRING_UNKNOWN)) {
+                        syslog(LOG_NOTICE, "tcpwrappers rejected: %s [%s]",
+				hp->h_name, addr);
+                        return (0);
+                 }
+	} else {
+		if (!hosts_ctl("ftpd", STRING_UNKNOWN, addr, STRING_UNKNOWN)) {
+                        syslog(LOG_NOTICE, "tcpwrappers rejected: [%s]", addr);
+                        return (0);
+                }
+        }
+        return (1);
+}
+#endif

@@ -20,8 +20,9 @@ INCLUDES = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
   $(PATHDEF_FTPDPID)
 
 LIBCRYPT = @LIBCRYPT@
+LIBWRAP = @LIBWRAP@
 
 LDADD = ../libls/libls.a -L../libinetutils -L../libtelnet \
-	-linetutils -ltelnet $(LIBCRYPT)
+	-linetutils -ltelnet $(LIBCRYPT) $(LIBWRAP)
 
 EXTRA_DIST = $(man_MANS)
