@@ -1,5 +1,8 @@
 Thu Mar 26 00:08:39 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* ftp/main.c (cmdscanner): Added new code that is used to replace
+ 	some old code iff HAVE_LIBREADLINE.
+
 	* ftp/ftp_var.h [HAVE_LIBREADLINE]: Declare `char *line' instead
  	of `char line[200]'.
 
