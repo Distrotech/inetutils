@@ -1,4 +1,10 @@
 2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
+
+	* libinetutils/ttymsg.c (normalize_path): Define static and provide
+	a prototype and it was call with the wrong number of arguments.
+
+2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
+
         * ftpd/ftpd.c: MAP_FAILED is not defined on some systems
           (e.g. Solaris, SunOS)
         * headers/paths.h: Added missing _PATH_LOGCONF, _PATH_LOGPID,
