@@ -19,7 +19,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-AC_PREREQ(2.54)
+AC_PREREQ(2.59)
 
 AC_INIT([GNU inetutils], [1.4.2], [bug-inetutils@gnu.org])
 
@@ -129,6 +129,17 @@ AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(opie, opiegenerator)
 AC_CHECK_LIB(z, gzdopen)
 
+# See if a termcap library is available (under one of several names)
+IU_LIB_TERMCAP
+# If not, add a bogus version of tgetent to libinetutils, as that's the only
+# function actually used (to check terminal type validity), modulo any
+# dependencies from curses.
+if test -z "$LIBTERMCAP"; then
+  # Some packages include termcap just ;
+  # for those cases, we really don't need termcap.
+  AC_LIBOBJ(stub_tgetent)
+fi
+
 # We want to use libreadline if it is available.  However, it seems that the
 # guile hackers have had problems because there is a Solaris libreadline
 # that is different from the GNU libreadline; therefore we test for an obscure
@@ -146,17 +157,6 @@ AC_SUBST(LIBTERMCAP)
 dnl See if there's a separate libcrypt (many systems put crypt there)
 AC_CHECK_LIB(crypt, crypt, LIBCRYPT=-lcrypt)
 AC_SUBST(LIBCRYPT)
-
-# See if a termcap library is available (under one of several names)
-IU_LIB_TERMCAP
-# If not, add a bogus version of tgetent to libinetutils, as that's the only
-# function actually used (to check terminal type validity), modulo any
-# dependencies from curses.
-if test -z "$LIBTERMCAP"; then
-  # Some packages include termcap just ;
-  # for those cases, we really don't need termcap.
-  AC_LIBOBJ(stub_tgetent)
-fi
 
 dnl libutil is a 4.4BSD library that defines several functions handy for
 dnl inetutil daemons, doing such things as utmp frobbing, and pty setup.
