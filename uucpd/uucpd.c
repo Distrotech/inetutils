@@ -203,7 +203,7 @@ doit (struct sockaddr_in *sinp)
 			fprintf(stderr, "passwd read\n");
 			return;
 		}
-		xpasswd = CRYPT (passwd, pw->pw_passwd);
+		xpasswd = crypt (passwd, pw->pw_passwd);
 		if (strcmp(xpasswd, pw->pw_passwd)) {
 			fprintf(stderr, "Login incorrect.");
 			return;

@@ -13,6 +13,6 @@ LIBCRYPT = @LIBCRYPT@
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_UUCICO) $(PATHDEF_TTY) -I$(top_builddir)/include
+INCLUDES = $(PATHDEF_UUCICO) $(PATHDEF_TTY)
 
 LDADD = -L../libinetutils -linetutils $(LIBUTIL) $(LIBCRYPT)
