@@ -1,8 +1,8 @@
 2001-10-28  Alain Magloire
 
 	Unfortunately some platforms, like QNX/Neutrino does not implement flow
-	control packet mode TIOCPKT.  If it is not defined, defined the other constant.
-	It should not affect the functionnality, but  server but will not be able to
+	control packet mode TIOCPKT.  If it is not defined, provide the constant.
+	It should not affect the functionnality, but the server will not be able to
 	process CTRL-Q CTRL-S.
 
 	* rlogind/rlogind.c: Check if TIOCPKT is defined, if not provide macros for
