@@ -1,4 +1,4 @@
- # Makefile for libinetutils
+# Makefile for libinetutils
 #
 # Copyright (C) 1996, 1997 Free Software Foundation, Inc.
 #
@@ -26,12 +26,12 @@ __progname.c alloca.c cleansess.c daemon.c err.c forkpty.c getopt.c \
 getopt1.c herror.c hstrerror.c iruserok.c localhost.c login.c login_tty.c \
 logout.c logwtmp.c logwtmpko.c memmove.c memset.c openpty.c revoke.c \
 setenv.c setsig.c snprintf.c strdup.c strerror.c stub_tgetent.c ttymsg.c \
-version.c
+version.c xmalloc.c
 
 DISTFILES = $(SRCS)
 
 OBJS = setsig.o ttymsg.o version.o localhost.o cleansess.o logwtmpko.o  \
-       @LIBOBJS@ @ALLOCA@
+       @LIBOBJS@ @ALLOCA@ xmalloc.o
 CLEAN = libinetutils.a $(OBJS)
 
 CPPFLAGS-logout.c = $(PATHDEF_UTMP)
