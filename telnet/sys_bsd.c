@@ -57,14 +57,8 @@ static char sccsid[] = "@(#)sys_bsd.c	8.2 (Berkeley) 12/15/93";
 #include "externs.h"
 #include "types.h"
 
-#if	defined(CRAY) || (defined(USE_TERMIO) && !defined(SYSV_TERMIO))
-#define	SIG_FUNC_RET	void
-#else
-#define	SIG_FUNC_RET	int
-#endif
-
 #ifdef	SIGINFO
-extern SIG_FUNC_RET ayt_status();
+extern RETSIGTYPE ayt_status();
 #endif
 
 int
@@ -611,10 +605,10 @@ TerminalNewMode(f)
 
     if (f != -1) {
 #ifdef	SIGTSTP
-	SIG_FUNC_RET susp();
+	RETSIGTYPE susp();
 #endif	/* SIGTSTP */
 #ifdef	SIGINFO
-	SIG_FUNC_RET ayt();
+	RETSIGTYPE ayt();
 #endif
 
 #ifdef	SIGTSTP
@@ -663,7 +657,7 @@ TerminalNewMode(f)
 #endif
     } else {
 #ifdef	SIGINFO
-	SIG_FUNC_RET ayt_status();
+	RETSIGTYPE ayt_status();
 
 	(void) signal(SIGINFO, ayt_status);
 #endif
@@ -810,7 +804,7 @@ NetSetPgrp(fd)
  */
 
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 deadpeer(sig)
     int sig;
 {
@@ -819,7 +813,7 @@ deadpeer(sig)
 }
 
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 intr(sig)
     int sig;
 {
@@ -832,7 +826,7 @@ intr(sig)
 }
 
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 intr2(sig)
     int sig;
 {
@@ -849,7 +843,7 @@ intr2(sig)
 
 #ifdef	SIGTSTP
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 susp(sig)
     int sig;
 {
@@ -862,7 +856,7 @@ susp(sig)
 
 #ifdef	SIGWINCH
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 sendwin(sig)
     int sig;
 {
@@ -874,7 +868,7 @@ sendwin(sig)
 
 #ifdef	SIGINFO
     /* ARGSUSED */
-    SIG_FUNC_RET
+    RETSIGTYPE
 ayt(sig)
     int sig;
 {
