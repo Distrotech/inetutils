@@ -1,6 +1,6 @@
 # Generic make rules for inetutils
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,9 @@ uninstall: -$(RM) -f $(INSTALL_TARGETS)
 mostlyclean: clean
 distclean: clean
 	$(RM) -f Makefile
+
+dist: $(DISTFILES)
+	$(LINK_DISTFILES)
 
 $(bindir)/%: % $(bindir)
 	$(INSTALL_PROGRAM) $(INST_PROG_FLAGS) $(filter-out $(bindir),$<) $@
