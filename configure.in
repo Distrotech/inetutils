@@ -340,6 +340,8 @@ test "$enable_authentication" = yes && AC_DEFINE(AUTHENTICATION)
 test "$enable_encryption" = yes     && AC_DEFINE(ENCRYPTION)
 test "$enable_authentication" = yes -a "$ac_cv_lib_krb_krb_mk_req" = yes \
   && AC_DEFINE(KRB4)
+test "$enable_authentication" = yes -a "$ac_cv_lib_krb_krb_mk_req" = yes \
+  && AC_DEFINE(KERBEROS)
 test "$enable_encryption" = yes -a "$ac_cv_lib_des_des_key_sched" = yes \
   && AC_DEFINE(DES_ENCRYPTION)
 
