@@ -45,14 +45,6 @@ AC_ISC_POSIX
 AC_CONST
 AC_HEADER_STDC
 
-# The list of subdirs that may be built, split into subsets (which the user
-# may select for compilation at config or make time); the composite list of
-# everything to build by default is defined at the end of this file.
-# (These don't contain talk or talkd, which is added later if necessary)
-COMMON='libtelnet libinetutils'
-SERVERS='inetd ftpd telnetd rshd rlogind uucpd rexecd syslogd tftpd'
-CLIENTS='telnet ftp rsh rcp rlogin tftp syslog'
-
 # Include files that we link into our own include directory from headers.
 # Initialize it with the things we always want to use.
 INCLUDES="crypt.h arpa/telnet.h arpa/ftp.h arpa/tftp.h protocols/talkd.h
@@ -68,9 +60,27 @@ AC_ARG_ENABLE(servers, [  --disable-servers       don't compile servers],
 	      , enable_servers=yes)
 AC_ARG_ENABLE(clients, [  --disable-clients       don't compile clients],
 	      , enable_clients=yes)
-# By default, talk is only compiled if we can find libcurses
-#AC_ARG_ENABLE(talk,    [  --disable-talk          don't compile talk or talkd],
-#              , enable_talk=maybe)
+
+IU_ENABLE_SERVER(ftpd)
+IU_ENABLE_SERVER(inetd)
+IU_ENABLE_SERVER(rexecd)
+IU_ENABLE_SERVER(rlogind)
+IU_ENABLE_SERVER(rshd)
+IU_ENABLE_SERVER(syslogd)
+IU_ENABLE_SERVER(talkd)
+IU_ENABLE_SERVER(telnetd)
+IU_ENABLE_SERVER(tftpd)
+IU_ENABLE_SERVER(uucpd)
+
+IU_ENABLE_CLIENT(ftp)
+IU_ENABLE_CLIENT(rcp)
+IU_ENABLE_CLIENT(rlogin)
+IU_ENABLE_CLIENT(rsh)
+IU_ENABLE_CLIENT(syslog)
+IU_ENABLE_CLIENT(talk)
+IU_ENABLE_CLIENT(telnet)
+IU_ENABLE_CLIENT(tftp)
+
 # Encryption and authentication is turned off by default
 #AC_ARG_ENABLE(encryption, [  --enable-encryption     enable encryption],
 #	      , enable_encryption=no)
@@ -452,18 +462,14 @@ AC_CHECK_FUNC(vsnprintf,
   AC_DEFINE(HAVE_VSNPRINTF),
   LIBOBJS="$LIBOBJS snprintf.o")
 
-# SERVERS_OR_CLIENTS is the default set of things to build, and holds the
-# union of SERVERS and CLIENTS (we set it way down here to allow talk subdirs
-# to have been added to those variables by other code).
-# FIXME: these should go into SUBDIRS variable
-SERVERS_OR_CLIENTS=''
-if test "$enable_servers" = yes; then
-  SERVERS_OR_CLIENTS="$SERVERS"
-fi
-if test "$enable_clients" = yes; then
-  SERVERS_OR_CLIENTS="$SERVERS_OR_CLIENTS $CLIENTS"
-fi
-AC_SUBST(SERVERS_OR_CLIENTS)
+# We want to use libreadline if it is available.  However, it seems that the
+# guile hackers have had problems because there is a Solaris libreadline
+# that is different from the GNU libreadline; therefore we test for an obscure
+# function in the GNU libreadline.
+AC_CHECK_LIB(termcap, tputs)
+AC_CHECK_LIB(readline, rl_bind_key,,, -ltermcap)
+
+AC_CHECK_LIB(opie, opiegenerator)
 
 # Configure paths used by inetutils programs.  See the file `paths' for
 # details.
@@ -483,6 +489,7 @@ ftp/Makefile ftpd/Makefile inetd/Makefile ping/Makefile rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile syslog/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
-tftpd/Makefile uucpd/Makefile include/confpaths.h:headers/confpaths.h.in
+tftpd/Makefile uucpd/Makefile whois/Makefile
+include/confpaths.h:headers/confpaths.h.in
 headers/Makefile include/version.h:headers/version.h.in)
 
