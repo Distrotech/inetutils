@@ -1,3 +1,8 @@
+2001-09-06  Alain Magloire
+
+	* configure.in: Check for strsignal().
+	* libinetutils/strsignal.c: New file.
+
 2001-08-29  Marcus Brinkmann  <marcus@gnu.org>
 
 	* Makefile.am (SUBDIRS): Remove `ifconfig' for now

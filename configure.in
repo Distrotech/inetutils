@@ -170,7 +170,7 @@ AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
 
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(getusershell herror memcmp memcpy memmove memset \
-	         strdup strcasecmp setenv waitpid poll)
+	         setenv strdup strcasecmp strsignal waitpid poll)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -553,6 +553,7 @@ IU_CHECK_STRUCT_FIELD(hostent, h_addr_list, [#include <netdb.h>])
 
 # Checks return type of signal handlers
 AC_TYPE_SIGNAL
+AC_DECL_SYS_SIGLIST
 # sig_t is the type of a signal handler (4.4BSD)
 IU_CHECK_TYPE(sig_t,
   [ #include <sys/types.h>
