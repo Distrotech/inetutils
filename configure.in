@@ -138,7 +138,7 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
 		 arpa/nameser.h sys/sockio.h sys/sysmacros.h sys/param.h \
 		 unistd.h sys/file.h fcntl.h sys/proc.h sys/select.h \
-		 sys/time.h sys/wait.h sys/resource.h memory.h)
+		 sys/time.h sys/wait.h sys/resource.h memory.h stropts.h)
 AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -149,7 +149,8 @@ AC_CHECK_LIB(bsd, revoke)
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       flock ftruncate wait3 memcpy bcopy bzero setsid ptsname \
 	       cfsetspeed strchr waitpid seteuid setegid setreuid setregid \
-	       setresuid setresgid killpg setlinebuf tzset utimes utime)
+	       setresuid setresgid killpg setlinebuf tzset utimes utime \
+	       updwtmp updwtmpx)
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(daemon strdup strcasecmp setenv memcmp memset memmove \
 	herror getusershell)
@@ -525,6 +526,23 @@ AC_LINK_FILES($LINK_SRCS, $LINK_DSTS)
 AC_FUNC_MMAP
 
 AC_SUBST(VERSION)
+
+# Ok were at the end of the hope, even autoconf can't help
+# for example on certain system login(1) will not work if we
+# don't have an entry in utmpx.
+AC_CANONICAL_HOST
+case "$target" in
+*olaris*)
+  AC_DEFINE(UTMPX)
+  AC_DEFINE(SOLARIS)
+  ;;
+*irix*)
+  AC_DEFINE(UTMPX)
+  ;;
+*hpux*)
+  AC_DEFINE(UTMPX)
+  ;;
+esac
 
 AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
 ftp/Makefile ftpd/Makefile inetd/Makefile rcp/Makefile
