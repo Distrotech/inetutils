@@ -100,7 +100,7 @@ int	rfd2;
 
 char   *copyargs __P((char **));
 void	sendsig __P((int));
-void	talk __P((int, long, pid_t, int));
+void	talk __P((int, sigset_t *, pid_t, int));
 void	usage __P((void));
 void	warning __P(());
 
@@ -188,7 +188,7 @@ main(argc, argv)
 {
 	struct passwd *pw;
 	struct servent *sp;
-	long omask;
+	sigset_t sigs, osigs;
 	int argoff, asrsh, ch, dflag, nflag, one, rem;
 	pid_t pid;
 	uid_t uid;
@@ -395,7 +395,16 @@ try_connect:
 	}
 
 	(void)setuid(uid);
-	omask = sigblock(sigmask(SIGINT)|sigmask(SIGQUIT)|sigmask(SIGTERM));
+#ifdef HAVE_SIGACTION
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGINT);
+	sigaddset(&sigs, SIGQUIT);
+	sigaddset(&sigs, SIGTERM);
+	sigprocmask(SIG_BLOCK, &sigs, &osigs);
+#else	
+	sigs = sigmask (SIGINT) | sigmask (SIGQUIT) | sigmask (SIGTERM);
+	osigs = sigblock (sigs);
+#endif
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		(void)signal(SIGINT, sendsig);
 	if (signal(SIGQUIT, SIG_IGN) != SIG_IGN)
@@ -419,7 +428,7 @@ try_connect:
 		(void)ioctl(rem, FIONBIO, &one);
 	}
 
-	talk(nflag, omask, pid, rem);
+	talk(nflag, &osigs, pid, rem);
 
 	if (!nflag)
 		(void)kill(pid, SIGKILL);
@@ -427,9 +436,9 @@ try_connect:
 }
 
 void
-talk(nflag, omask, pid, rem)
+talk (nflag, osigs, pid, rem)
 	int nflag;
-	long omask;
+        sigset_t *osigs;
 	pid_t pid;
 	int rem;
 {
@@ -478,7 +487,11 @@ done:
 		exit(0);
 	}
 
-	(void)sigsetmask(omask);
+#ifdef HAVE_SIGACTION
+	sigprocmask (SIG_SETMASK, osigs, 0);
+#else
+	sigsetmask (*osigs);
+#endif
 	FD_ZERO(&readfrom);
 	FD_SET(rfd2, &readfrom);
 	FD_SET(rem, &readfrom);
