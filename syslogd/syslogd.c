@@ -100,15 +100,13 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <string.h>
 #include <unistd.h>
 #include <utmp.h>
-#include <paths.h>
-
 #define SYSLOG_NAMES
 #include <sys/syslog.h>
 
-char	*LogName = _PATH_LOG;
-char	*ConfFile = _PATH_LOGCONF;
-char	*PidFile = _PATH_LOGPID;
-char	ctty[] = _PATH_CONSOLE;
+char	*LogName = PATH_LOG;
+char	*ConfFile = PATH_LOGCONF;
+char	*PidFile = PATH_LOGPID;
+char	ctty[] = PATH_CONSOLE;
 
 #define FDMASK(fd)	(1 << (fd))
 
@@ -314,11 +312,11 @@ main(argc, argv)
 		}
 	}
 
-#ifdef _PATH_KLOG
-	if ((fklog = open(_PATH_KLOG, O_RDONLY, 0)) >= 0)
+#ifdef PATH_KLOG
+	if ((fklog = open(PATH_KLOG, O_RDONLY, 0)) >= 0)
 		klogm = FDMASK(fklog);
 	else {
-		dprintf("can't open %s (%d)\n", _PATH_KLOG, errno);
+		dprintf("can't open %s (%d)\n", PATH_KLOG, errno);
 		klogm = 0;
 	}
 #else
@@ -741,8 +739,8 @@ wallmsg(f, iov)
 
 	if (reenter++)
 		return;
-	if ((uf = fopen(_PATH_UTMP, "r")) == NULL) {
-		logerror(_PATH_UTMP);
+	if ((uf = fopen(PATH_UTMP, "r")) == NULL) {
+		logerror(PATH_UTMP);
 		reenter = 0;
 		return;
 	}
@@ -1077,7 +1075,9 @@ cfline(line, f)
 		hp = gethostbyname(p);
 		if (hp == NULL) {
 			extern int h_errno;
-
+#ifndef HAVE_HSTRERROR_DECL
+			extern char *hstrerror __P((int));
+#endif
 			logerror(hstrerror(h_errno));
 			break;
 		}
