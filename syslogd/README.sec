@@ -1,0 +1,26 @@
+CERT* Advisory CA-95.13
+
+Original issue date: October 19, 1995
+Last revised: September 23, 1997 
+Updated copyright statement 
+
+Description
+
+The syslog(3) subroutine uses an internal buffer for building messages 
+that are sent to the syslogd(8) daemon. This subroutine does no range 
+checking on data stored in this buffer. It is possible to overflow the 
+internal buffer and rewrite the subroutine call stack. It is then 
+possible to execute arbitrary programs. 
+
+This problem is present in virtually all versions of the UNIX Operating 
+System except the following: 
+
+
+	Sony's NEWS-OS 6.X
+		SunOS 5.5 (Solaris 2.5)
+    	Linux with libc version 4.7.2 released in May, 1995 
+
+
+	The sendmail(8) program uses the syslog(3) subroutine, and a script has 
+	been written and is being used to exploit the vulnerability. 
+
