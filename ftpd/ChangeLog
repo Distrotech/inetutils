@@ -65,7 +65,7 @@
 	the data port and use signal(SIGALRM, toolong).
 	* ftpd.c(maing): tzset(), in case no timezone database in ~ftp.
 	* ftpd.c(datacon) : Use snprintf() instead of sprintf() for
-	fix array buffers. Assign *sizebuf ='\0' instead of 
+	fix array buffers. Assign *sizebuf ='\0' instead of
 	strcpy (sizebuf, "");
 	* Use xgetcwd() from libinetutils instead of getcwd();
 
@@ -73,7 +73,7 @@
 
 	* ftpcmd.y : PORT command disallow PORT if :
 		- port <= 1023 || data_addr.sin_addr != his_addr.sin_addr
-	This will take care of FTP bounce. See README.sec 
+	This will take care of FTP bounce. See README.sec
 	* ftpcmd.y : PASS clear passwd var(memset) asap.
 	* ftpcmd.y : PASV check if loggin.
 	* ftpcmd.y : RNTO check loggin and free $4 pointer.

@@ -135,8 +135,8 @@ AC_C_CONST
 
 
 AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
-                 krb.h memory.h malloc.h netinet/in_systm.h netinet/ip.h \
-                 netinet/ip_icmp.h netinet/ip_var.h pool.h \
+                 krb.h memory.h malloc.h netinet/insystm.h netinet/ip.h \
+                 netinet/ip_icmp.h netinet/ip_var.h \
                  security/pam_appl.h \
                  shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \
                  sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \
@@ -407,6 +407,12 @@ test "$enable_encryption" = yes -a "$ac_cv_lib_des_des_key_sched" = yes \
 AC_CHECK_FUNC(getopt_long, ,
   INCLUDES="$INCLUDES getopt.h"
   LIBOBJS="$LIBOBJS getopt.o getopt1.o")
+
+# Supply a version of poll() if the libray is missing.
+# syslogd uses poll() unconditionnaly.
+AC_CHECK_FUNC(poll, ,
+  INCLUDES="$INCLUDES poll.h"
+  LIBOBJS="$LIBOBJS poll.o")
 
 # Supply versions of the BSD error reporting functions if the system doesn't
 AC_CHECK_FUNC(verrx, ,

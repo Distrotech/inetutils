@@ -614,7 +614,7 @@ cleanup(int signo)
 
 	p = line + sizeof(PATH_DEV) - 1;
 #ifdef UTMPX
-	utmpx_logout(p);
+	utmp_logout(p);
 	(void)chmod(line, 0644);
 	(void)chown(line, 0, 0);
 #else
