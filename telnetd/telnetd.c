@@ -86,7 +86,9 @@ int	require_SecurID = 0;
 #include <sys/utsname.h>
 #endif
 
+#ifdef HAVE_UTMP_UT_HOST
 extern	int utmp_len;
+#endif
 int	registerd_host_only = 0;
 
 #ifdef	STREAMSPTY
@@ -355,7 +357,9 @@ main(argc, argv)
 			break;
 
 		case 'u':
+#ifdef HAVE_UTMP_UT_HOST
 			utmp_len = atoi(optarg);
+#endif
 			break;
 
 		case 'U':
@@ -852,9 +856,12 @@ doit(who)
 	if (hp == NULL && registerd_host_only) {
 		fatal(net, "Couldn't resolve your address into a host name.\r\n\
          Please contact your net administrator");
-	} else if (hp &&
-	    (strlen(hp->h_name) <= (unsigned int)((utmp_len < 0) ? -utmp_len
-								 : utmp_len))) {
+	} else if (hp
+#ifdef HAVE_UTMP_UT_HOST
+		   && (strlen(hp->h_name) <=
+		       (unsigned int)((utmp_len < 0) ? -utmp_len : utmp_len))
+#endif
+		   ) {
 		host = hp->h_name;
 	} else {
 		host = inet_ntoa(who->sin_addr);
