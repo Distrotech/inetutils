@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_TFTPD@
+inetdaemon_PROGRAMS = @tftpd_BUILD@
 
 INCLUDES = -I$(top_builddir)/include
 
