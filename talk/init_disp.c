@@ -64,20 +64,38 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
 init_display()
 {
 	void sig_sent();
+#ifdef HAVE_SIGACTION
+	struct sigaction siga;
+#else
+#ifdef HAVE_SIGVEC
 	struct sigvec sigv;
+#endif
+#endif
 
 	if (initscr() == NULL)
 		errx(1, "Terminal type unset or lacking necessary features.");
-	(void) sigvec(SIGTSTP, (struct sigvec *)0, &sigv);
-	sigv.sv_mask |= sigmask(SIGALRM);
-	(void) sigvec(SIGTSTP, &sigv, (struct sigvec *)0);
+
+#ifdef HAVE_SIGACTION
+	sigaction (SIGTSTP, (struct sigaction *)0, &siga);
+	siga.sa_mask |= sigmask (SIGALRM);
+	sigaction (SIGTSTP, &siga, (struct sigaction *)0);
+#else /* !HAVE_SIGACTION */
+#ifdef HAVE_SIGVEC
+	sigvec (SIGTSTP, (struct sigvec *)0, &sigv);
+	sigv.sv_mask |= sigmask (SIGALRM);
+	sigvec (SIGTSTP, &sigv, (struct sigvec *)0);
+#endif /* HAVE_SIGVEC */
+#endif /* HAVE_SIGACTION */
+
 	curses_initialized = 1;
 	clear();
 	refresh();
 	noecho();
 	crmode();
+
 	signal(SIGINT, sig_sent);
 	signal(SIGPIPE, sig_sent);
+
 	/* curses takes care of ^Z */
 	my_win.x_nlines = LINES / 2;
 	my_win.x_ncols = COLS;
