@@ -1,4 +1,4 @@
-# Makefile for rsh
+# Makefile for rlogin
 # Copyright (C) 1995 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -39,18 +39,18 @@ RM = @RM@
 
 LDLIBS = $(LIBS)
 
-CFLAGS += $(DEFS) -D_PATH_RLOGIN=\"$(bindir)/rlogin\"
+CFLAGS += $(DEFS)
 
-rsh: rsh.o
+rlogin: rlogin.o
 
-install: installdirs rsh $(srcdir)/rsh.1
-	$(INSTALL_PROGRAM) rsh $(bindir)/in.rsh
-	$(INSTALL_DATA) $(srcdir)/rsh.1 $(man1dir)
+install: installdirs rlogin $(srcdir)/rlogin.1
+	$(INSTALL_PROGRAM) rlogin $(bindir)/in.rlogin
+	$(INSTALL_DATA) $(srcdir)/rlogin.1 $(man1dir)
 
 installdirs:
 	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
 clean:
-	$(RM) -f *.o rsh 
+	$(RM) -f *.o rlogin 
 distclean: clean
 	$(RM) -f Makefile
