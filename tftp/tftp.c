@@ -100,7 +100,7 @@ static void tpacket __P((const char *, struct tftphdr *, int));
  * Send the requested file.
  */
 void
-sendfile(int fd, char *name, char *mode)
+send_file(int fd, char *name, char *mode)
 {
 	register struct tftphdr *ap;	   /* data and ack packets */
 	struct tftphdr *r_init(), *dp;

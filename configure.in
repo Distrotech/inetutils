@@ -475,10 +475,34 @@ AC_CHECK_FUNC(verrx, ,
 
 if test "$ac_cv_header_utmp_h" = yes; then
   IU_CHECK_TYPE(struct lastlog, [#include <utmp.h>])
-  IU_CHECK_STRUCT_FIELD(utmp, ut_type, [#include <utmp.h>])
-  IU_CHECK_STRUCT_FIELD(utmp, ut_host, [#include <utmp.h>])
-  IU_CHECK_STRUCT_FIELD(utmp, ut_tv, [#include <utmp.h>])
-  IU_CHECK_STRUCT_FIELD(utmp, ut_exit, [#include <utmp.h>])
+  IU_CHECK_STRUCT_FIELD(utmp, ut_type, [#ifdef HAVE_SYS_TYPES_H
+                                        # include <sys/types.h>
+                                        #endif
+					#include <utmp.h>])
+  IU_CHECK_STRUCT_FIELD(utmp, ut_pid, [#ifdef HAVE_SYS_TYPES_H
+                                       # include <sys/types.h>
+                                       #endif
+				       #include <utmp.h>])
+  IU_CHECK_STRUCT_FIELD(utmp, ut_id, [#ifdef HAVE_SYS_TYPES_H
+                                      # include <sys/types.h>
+                                      #endif
+				      #include <utmp.h>])
+  IU_CHECK_STRUCT_FIELD(utmp, ut_user, [#ifdef HAVE_SYS_TYPES_H
+                                        # include <sys/types.h>
+                                        #endif
+					#include <utmp.h>])
+  IU_CHECK_STRUCT_FIELD(utmp, ut_host, [#ifdef HAVE_SYS_TYPES_H
+                                        # include <sys/types.h>
+                                        #endif
+					#include <utmp.h>])
+  IU_CHECK_STRUCT_FIELD(utmp, ut_tv, [#ifdef HAVE_SYS_TYPES_H
+                                      # include <sys/types.h>
+                                      #endif
+                                      #include <utmp.h>])
+  IU_CHECK_STRUCT_FIELD(utmp, ut_exit, [#ifdef HAVE_SYS_TYPES_H
+                                        # include <sys/types.h>
+                                        #endif
+					#include <utmp.h>])
 fi
 if test "$ac_cv_header_utmpx_h" = yes; then
   IU_CHECK_STRUCT_FIELD(utmpx, ut_tv, [#include <utmpx.h>])

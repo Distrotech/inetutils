@@ -1,3 +1,11 @@
+2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
+
+	There is a function sendfile() in the FreeBSD system headers, so:
+	* tftp.c (sendfile): Rename to...
+	(send_file): ... this.
+	* main.c (put): Call send_file, not sendfile.
+	* extern.h: Prototype send_file, not sendfile.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

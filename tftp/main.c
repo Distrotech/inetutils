@@ -383,7 +383,7 @@ put(argc, argv)
 			printf("putting %s to %s:%s [%s]\n",
 				cp, hostname, targ, mode);
 		peeraddr.sin_port = port;
-		sendfile(fd, targ, mode);
+		send_file(fd, targ, mode);
 		return;
 	}
 				/* this assumes the target is a directory */
@@ -401,7 +401,7 @@ put(argc, argv)
 			printf("putting %s to %s:%s [%s]\n",
 				argv[n], hostname, targ, mode);
 		peeraddr.sin_port = port;
-		sendfile(fd, targ, mode);
+		send_file(fd, targ, mode);
 	}
 }
 

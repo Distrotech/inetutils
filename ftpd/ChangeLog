@@ -1,3 +1,7 @@
+2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
+
+	* ftpd.c (complete_login): Add missing `;'.
+
 2001-10-25  Sergey Poznyakoff
 
 	* pam.c: Provide replacements for PAM_CONV_AGAIN and

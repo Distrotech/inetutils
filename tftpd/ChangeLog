@@ -1,3 +1,10 @@
+2001-11-02  Marcus Brinkmann  <marcus@212.23.136.22>
+
+	* tftpd.c: Prototype send_file, not sendfile.
+	(formats): Use send_file, not sendfile.
+	(sendfile): Rename to ...
+	(send_file): ... this.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

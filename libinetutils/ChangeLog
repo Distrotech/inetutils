@@ -1,3 +1,9 @@
+2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
+
+	* utmp_logout.c (utmp_logout): Add a horde of conditionals to get
+	it working on FreeBSD.
+	* utmp_init.c (utmp_init): Likewise.
+
 2001-11-01  Sergey Poznyakoff
 	
 	* ttymsg.c: Added missing %s to format spec

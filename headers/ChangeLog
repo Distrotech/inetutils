@@ -1,3 +1,8 @@
+2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
+
+	* acconfig.h: Add macros for HAVE_UTMP_UT_PID, HAVE_UTMP_UT_ID,
+	HAVE_UTMP_UT_USER.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

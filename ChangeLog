@@ -1,5 +1,12 @@
 2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
 
+	* configure.in: When checking for utmp structure fields, always
+	include sys/types.h [HAVE_SYS_TYPES_H] before utmp.h (for time_t)
+	to get it working on FreeBSD.  Add checks for fields pid, id and
+	user.
+
+2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
+
 	* configure.in: Add doc/Makefile as output file.
 
 2001-10-28  Alain Magloire

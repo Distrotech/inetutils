@@ -679,7 +679,7 @@ complete_login (struct credentials *pcred)
       reply (230, "Guest login ok, access restrictions apply.");
 #ifdef HAVE_SETPROCTITLE
       snprintf (proctitle, sizeof (proctitle), "%s: anonymous",
-		pcred->remotehost)
+		pcred->remotehost);
       setproctitle ("%s",proctitle);
 #endif /* HAVE_SETPROCTITLE */
       if (logging)

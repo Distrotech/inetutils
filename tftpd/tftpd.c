@@ -241,7 +241,7 @@ main(int argc, char *argv[])
 
 struct formats;
 int	validate_access __P((char **, int));
-void	sendfile __P((struct formats *));
+void	send_file __P((struct formats *));
 void	recvfile __P((struct formats *));
 
 struct formats {
@@ -251,8 +251,8 @@ struct formats {
 	void	(*f_recv) __P((struct formats *));
 	int	f_convert;
 } formats[] = {
-	{ "netascii",	validate_access,	sendfile,	recvfile, 1 },
-	{ "octet",	validate_access,	sendfile,	recvfile, 0 },
+	{ "netascii",	validate_access,	send_file,	recvfile, 1 },
+	{ "octet",	validate_access,	send_file,	recvfile, 0 },
 #ifdef notdef
 	{ "mail",	validate_user,		sendmail,	recvmail, 1 },
 #endif
@@ -441,7 +441,7 @@ timer(int sig)
  * Send the requested file.
  */
 void
-sendfile(struct formats *pf)
+send_file(struct formats *pf)
 {
 	struct tftphdr *dp, *r_init();
 	register struct tftphdr *ap;    /* ack packet */

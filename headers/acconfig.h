@@ -209,6 +209,12 @@
 
 /* Define this if struct utmp has a ut_type field.  */
 #undef HAVE_UTMP_UT_TYPE
+/* Define this if struct utmp has a ut_type field.  */
+#undef HAVE_UTMP_UT_PID
+/* Define this if struct utmp has a ut_type field.  */
+#undef HAVE_UTMP_UT_ID
+/* Define this if struct utmp has a ut_type field.  */
+#undef HAVE_UTMP_UT_USER
 /* Define this if struct utmp has a ut_host field.  */
 #undef HAVE_UTMP_UT_HOST
 /* Define this if struct utmp has a ut_tv field.  */
