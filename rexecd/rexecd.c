@@ -95,12 +95,14 @@ char	**environ;
 
 struct	sockaddr_in asin = { AF_INET };
 
+char *getstr ();
+
 doit(f, fromp)
 	int f;
 	struct sockaddr_in *fromp;
 {
-	char cmdbuf[NCARGS+1], *cp, *namep;
-	char user[16], pass[16];
+	char *cmdbuf, *cp, *namep;
+	char *user, *pass;
 	struct passwd *pwd;
 	int s;
 	u_short port;
@@ -145,9 +147,11 @@ doit(f, fromp)
 			exit(1);
 		(void) alarm(0);
 	}
-	getstr(user, sizeof(user), "username");
-	getstr(pass, sizeof(pass), "password");
-	getstr(cmdbuf, sizeof(cmdbuf), "command");
+
+	user = getstr ("username");
+	pass = getstr ("password");
+	cmdbuf = getstr ("command");
+
 	setpwent();
 	pwd = getpwnam(user);
 	if (pwd == NULL) {
@@ -240,20 +244,42 @@ error(fmt, a1, a2, a3)
 	(void) write(2, buf, strlen(buf));
 }
 
-getstr(buf, cnt, err)
-	char *buf;
-	int cnt;
+char *
+getstr(err)
 	char *err;
 {
-	char c;
+	size_t buf_len = 100;
+	char *buf = malloc (buf_len), *end = buf;
+
+	if (! buf) {
+		error ("Out of space reading %s\n", err);
+		exit (1);
+	}
 
 	do {
-		if (read(0, &c, 1) != 1)
-			exit(1);
-		*buf++ = c;
-		if (--cnt == 0) {
-			error("%s too long\n", err);
+		/* Oh this is efficient, oh yes.  [But what can be done?] */
+		int rd = read(STDIN_FILENO, end, 1);
+		if (rd <= 0) {
+			if (rd == 0)
+				error ("EOF reading %s\n", err);
+			else
+				perror (err);
 			exit(1);
 		}
-	} while (c != 0);
+
+		end += rd;
+		if ((buf + buf_len - end) < (buf_len >> 3)) {
+			/* Not very much room left in our buffer, grow it. */
+			size_t end_offs = end - buf;
+			buf_len += buf_len;
+			buf = realloc (buf, buf_len);
+			if (! buf) {
+				error ("Out of space reading %s\n", err);
+				exit (1);
+			}
+			end = buf + end_offs;
+		}
+	} while (*(end - 1));
+
+	return buf;
 }
