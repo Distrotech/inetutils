@@ -22,7 +22,7 @@
 
 #include <errno.h>
 #if !_LIBC
-# if !defined(errno) && !defined(HAVE_ERRNO_DECL)
+# if !defined(errno) && !defined(HAVE_DECL_ERRNO)
 extern int errno;
 # endif
 # define __set_errno(ev) ((errno) = (ev))
@@ -40,7 +40,7 @@ extern int errno;
 
 #if _LIBC - 0 == 0
 # define __environ	environ
-# ifndef HAVE_ENVIRON_DECL
+# ifndef HAVE_DECL_ENVIRON
 extern char **environ;
 # endif
 #endif
