@@ -1,3 +1,11 @@
+2002-07-31  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* configure.ac: Update version to 1.4
+
+	* .cvsignore: Fix typo.
+	
+	* ROADMAP: New file
+
 2002-07-27  Marcus Brinkmann  <marcus@gnu.org>
 
 	* NEWS: Update to reflect the recent changes, and change its

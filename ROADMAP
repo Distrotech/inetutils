@@ -1,0 +1,13 @@
+This is the 1.4.0 release, to celebrate the fact that it should
+compile and that we have a new ping, gwhois, and talk.  I would like
+to release this by the 21st of February.
+
+The 1.4.1 will be a maintenance release with various patches
+discovered from 1.4.0 and the build system reworked.  I probably won't 
+start work on this until I'm back at the end of March.  Assume a  
+summer release or so.
+
+1.5.0 will be a release that tries to put as much as possible into
+libraries (startup code, etc).  I also would like to try and write (or
+convince someone else to write) a gopher and gopherd pair.
+

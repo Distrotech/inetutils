@@ -10,5 +10,5 @@ aclocal.m4
 INSTALL
 include
 stamp-h.in
-config.hin
+config.h.in
 autom4te.cache
