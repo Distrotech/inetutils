@@ -66,7 +66,7 @@ extern int	auth_level;
 
 extern slcfun	slctab[NSLC + 1];	/* slc mapping table */
 
-char	*terminaltype;
+extern char	*terminaltype;
 
 /*
  * I/O data buffers, pointers, and counters.
@@ -86,7 +86,6 @@ extern char *unptyip;  /* pointer to remaining characters in buffer */
 #endif
 
 extern int	pty, net;
-extern char	*line;
 extern int	SYNCHing;		/* we are in TELNET SYNCH mode */
 
 #ifndef	P
@@ -244,3 +243,9 @@ extern int	needtermstat;
 #  endif
 # endif
 #endif
+
+#ifdef extern
+#undef extern
+#endif
+/* Let "line" get its definition from sys_term.c. */
+extern char	*line;
