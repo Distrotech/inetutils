@@ -52,145 +52,204 @@ static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 #define	SYSLOG_NAMES
 #include <syslog.h>
 #ifndef HAVE_SYSLOG_INTERNAL
-#include <syslog-int.h>
+# include <syslog-int.h>
 #endif
 
-int	decode __P((char *, CODE *));
-int	pencode __P((char *));
-void	usage __P((void));
+#include <version.h>
 
-/*
- * syslog -- read and log utility
- *
- *	Reads from an input and arranges to write the result on the system
- *	log.
- */
-int
-main(int argc, char *argv[])
+int decode __P((char *, CODE *));
+int pencode __P((char *));
+static void usage __P((int));
+
+char *program;			/* The invocation name of the program.  */
+
+static const char *short_options = "isf:p:t:";
+static struct option long_options[] =
 {
-	int ch, logflags, pri;
-	char *tag, buf[1024];
+  { "file", required_argument, 0, 'f' },
+  { "priority", required_argument, 0, 'p' },
+  { "tag", required_argument, 0, 't' },
+  { "help", no_argument, 0, '&' },
+  { "version", no_argument, 0, 'V' },
+  { 0, 0, 0, 0 }
+};
 
-	tag = NULL;
-	pri = LOG_NOTICE;
-	logflags = 0;
-	while ((ch = getopt(argc, argv, "f:ip:st:")) != EOF)
-		switch((char)ch) {
-		case 'f':		/* file to log */
-			if (freopen(optarg, "r", stdin) == NULL) {
-				(void)fprintf(stderr, "syslog: %s: %s.\n",
-				    optarg, strerror(errno));
-				exit(1);
-			}
-			break;
-		case 'i':		/* log process id also */
-			logflags |= LOG_PID;
-			break;
-		case 'p':		/* priority */
-			pri = pencode(optarg);
-			break;
-		case 's':		/* log to standard error */
+static void
+usage (int err)
+{
+  if (err != 0)
+    {
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", program);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program);
+    }
+  else
+    {
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", program);
+      fprintf (stdout, "       %s [OPTION] ... MESSAGE\n", program);
+      puts ("Make entries in the system log.\n\n\
+  -i                  Log the process id with every line");
 #ifdef LOG_PERROR
-			logflags |= LOG_PERROR;
-#else
-			fprintf (stderr, "%s: -s: option not implemented\n", argv[0]);
-			exit (1);
+      puts ("\
+  -s                  Copy the message to stderr");
 #endif
-			break;
-		case 't':		/* tag */
-			tag = optarg;
-			break;
-		case '?':
-		default:
-			usage();
-		}
-	argc -= optind;
-	argv += optind;
+      puts ("\
+  -f, --file=FILE     Log the content of FILE\n\
+  -p, --priority=PRI  Log with priority PRI\n\
+  -t, --tag=TAG       Prepend every line with TAG\n\
+      --help          Display this help and exit\n\
+      --version       Output version information and exit");
 
-	/* setup for logging */
-	openlog(tag ? tag : getlogin(), logflags, 0);
-	(void) fclose(stdout);
-
-	/* log input line if appropriate */
-	if (argc > 0) {
-		register char *p, *endp;
-		int len;
-
-		for (p = buf, endp = buf + sizeof(buf) - 2; *argv;) {
-			len = strlen(*argv);
-			if (p + len > endp && p > buf) {
-				syslog(pri, "%s", buf);
-				p = buf;
-			}
-			if (len > sizeof(buf) - 1)
-				syslog(pri, "%s", *argv++);
-			else {
-				if (p != buf)
-					*p++ = ' ';
-				bcopy(*argv++, p, len);
-				*(p += len) = '\0';
-			}
-		}
-		if (p != buf)
-			syslog(pri, "%s", buf);
-	} else
-		while (fgets(buf, sizeof(buf), stdin) != NULL)
-			syslog(pri, "%s", buf);
-	exit(0);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+    }
+  exit (err);
 }
 
-/*
- *  Decode a symbolic name to a numeric value
- */
+/* syslog reads from an input and arranges to write the result on the
+   system log.  */
 int
-pencode(register char *s)
+main (int argc, char *argv[])
 {
-	char *save;
-	int fac, lev;
+  int option, logflags, pri;
+  char *tag, buf[1024];
 
-	for (save = s; *s && *s != '.'; ++s);
-	if (*s) {
-		*s = '\0';
-		fac = decode(save, facilitynames);
-		if (fac < 0) {
-			(void)fprintf(stderr,
-			    "syslog: unknown facility name: %s.\n", save);
-			exit(1);
-		}
-		*s++ = '.';
+  program = argv[0];
+  tag = NULL;
+  pri = LOG_NOTICE;
+  logflags = 0;
+  while ((option = getopt_long (argc, argv, short_options,
+				long_options, 0)) != EOF)
+    {
+      switch(option)
+	{
+	case 'f': /* Log from file.  */
+	  if (freopen (optarg, "r", stdin) == NULL)
+	    {
+	      fprintf (stderr, "%s: %s: %s\n", program, optarg,
+		       strerror (errno));
+	      exit(1);
+	    }
+	  break;
+
+	case 'i': /* Log process id also.  */
+	  logflags |= LOG_PID;
+	  break;
+
+	case 'p': /* Set priority to log.  */
+	  pri = pencode (optarg);
+	  break;
+
+	case 's': /* Log to standard error as well.  */
+#ifdef LOG_PERROR
+	  logflags |= LOG_PERROR;
+#else
+	  fprintf (stderr, "%s: -s: option not implemented\n", program);
+	  exit (1);
+#endif
+	  break;
+
+	case 't': /* Tag message.  */
+	  tag = optarg;
+	  break;
+
+	case '&': /* Usage.  */
+	  usage (0);
+	  /* Not reached.  */
+
+	case 'V': /* Version.  */
+	  printf ("syslog (%s) %s\n", inetutils_package, inetutils_version);
+          exit (0);
+
+	case '?':
+	default:
+	  usage (1);
 	}
-	else {
-		fac = 0;
-		s = save;
+    }
+  
+  argc -= optind;
+  argv += optind;
+  
+  /* Setup for logging.  */
+  openlog (tag ? tag : getlogin(), logflags, 0);
+  (void) fclose (stdout);
+  
+  /* Log input line if appropriate.  */
+  if (argc > 0)
+    {
+      char *p, *endp;
+      int len;
+      
+      for (p = buf, endp = buf + sizeof (buf) - 2; *argv;)
+	{
+	  len = strlen (*argv);
+	  if (p + len > endp && p > buf)
+	    {
+	      syslog (pri, "%s", buf);
+	      p = buf;
+	    }
+	  if (len > sizeof (buf) - 1)
+	    syslog (pri, "%s", *argv++);
+	  else
+	    {
+	      if (p != buf)
+		*p++ = ' ';
+	      memcpy (p, *argv++, len);
+	      *(p += len) = '\0';
+	    }
 	}
-	lev = decode(s, prioritynames);
-	if (lev < 0) {
-		(void)fprintf(stderr,
-		    "syslog: unknown priority name: %s.\n", save);
-		exit(1);
+      if (p != buf)
+	syslog (pri, "%s", buf);
+    }
+  else
+    while (fgets (buf, sizeof (buf), stdin) != NULL)
+      syslog (pri, "%s", buf);
+  exit (0);
+}
+
+/* Decode a symbolic name to a numeric value.  */
+int
+pencode (char *s)
+{
+  char *save;
+  int fac, lev;
+  
+  for (save = s; *s && *s != '.'; ++s);
+  if (*s)
+    {
+      *s = '\0';
+      fac = decode (save, facilitynames);
+      if (fac < 0)
+	{
+	  fprintf (stderr, "%s: unknown facility name: %s\n", program,
+		   save);
+	  exit (1);
 	}
-	return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));
+      *s++ = '.';
+    }
+  else
+    {
+      fac = 0;
+      s = save;
+    }
+  lev = decode (s, prioritynames);
+  if (lev < 0)
+    {
+      fprintf (stderr, "%s: unknown priority name: %s\n", program, save);
+      exit(1);
+    }
+  return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));
 }
 
 int
-decode(char *name, CODE *codetab)
+decode (char *name, CODE *codetab)
 {
-	register CODE *c;
+  CODE *c;
 
-	if (isdigit(*name))
-		return (atoi(name));
+  if (isdigit (*name))
+    return (atoi (name));
 
-	for (c = codetab; c->c_name; c++)
-		if (!strcasecmp(name, c->c_name))
-			return (c->c_val);
+  for (c = codetab; c->c_name; c++)
+    if (!strcasecmp (name, c->c_name))
+      return (c->c_val);
 
-	return (-1);
-}
-
-void
-usage()
-{
-	(void)fprintf(stderr,
-	    "syslog: [-is] [-f file] [-p pri] [-t tag] [ message ... ]\n");
-	exit(1);
+  return (-1);
 }

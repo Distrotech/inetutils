@@ -1,3 +1,15 @@
+2000-08-16  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslog.c: Include version.h.
+	New global variables program, short_options, long_options.
+	(usage): New argument err. Make usage and help message GNU compliant.
+	(main): Use short_options, long_options, getopt_long instead getopt,
+	memcpy instead bcopy.
+	Add options --help and --version.
+	Remove "register" attribute. Rename ch to option.
+	(pencode): Remove "register" attribute, format to GNU coding standard.
+	(decode): Likewise.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.
