@@ -27,16 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1983, 1990, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
-static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
-#endif /* not lint */
-
 /*
  * rlogin - remote login
  */
@@ -87,6 +77,7 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #include <netinet/ip.h>
 #endif
 
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -199,9 +190,9 @@ void  warning    __P ((const char *, ...));
 extern sig_t setsig __P ((int, sig_t));
 
 #ifdef KERBEROS
-#define	OPTIONS	"8EKLde:k:l:xhV"
+#define	OPTIONS	"8EKde:k:l:xhV"
 #else
-#define	OPTIONS	"8EKLde:l:hV"
+#define	OPTIONS	"8EKde:l:hV"
 #endif
 static const char *short_options = OPTIONS;
 static struct option long_options [] =
@@ -329,6 +320,10 @@ main(int argc, char *argv[])
   /* To many command line arguments or too few.  */
   if (argc > 0 || !host)
     usage (1);
+
+  /* We must be uid root to access rcmd().  */
+  if (geteuid ())
+    errx (1, "must be setuid root.\n");
 
   /* Get the name of the user invoking us: the client-user-name.  */
   if (!(pw = getpwuid (uid = getuid ())))
@@ -694,6 +689,7 @@ int dosigwinch;
 void
 writeroob (int signo)
 {
+  (void)signo;
   if (dosigwinch == 0)
     {
       sendwindow ();
@@ -708,6 +704,7 @@ catch_child (int signo)
   int status;
   pid_t pid;
 
+  (void)signo;
   for (;;)
     {
       pid = waitpid (-1, &status, WNOHANG | WUNTRACED);
@@ -853,6 +850,7 @@ sigwinch (int signo)
 {
   struct winsize ws;
 
+  (void)signo;
   if (dosigwinch && get_window_size(0, &ws) == 0
       && memcmp(&ws, &winsize, sizeof ws))
     {
@@ -908,6 +906,7 @@ oob (int signo)
   int atmark, n, out, rcvd;
   char waste[BUFSIZ], mark;
 
+  (void)signo;
   out = O_RDWR;
   rcvd = 0;
   while (recv (rem, &mark, 1, MSG_OOB) < 0)
@@ -1092,6 +1091,7 @@ mode (int f)
 void
 lostpeer (int signo)
 {
+  (void)signo;
   setsig (SIGPIPE, SIG_IGN);
   msg ("\007connection closed.");
   done (1);
@@ -1101,6 +1101,7 @@ lostpeer (int signo)
 void
 copytochild (int signo)
 {
+  (void)signo;
   kill (child, SIGURG);
 }
 
@@ -1136,9 +1137,9 @@ warning (fmt, va_alist)
 #endif
 
 void
-usage (int err)
+usage (int status)
 {
-  if (err)
+  if (status)
     {
       fprintf (stderr,
 	       "Usage: rlogin [ -%s]%s[-e char] [ -l username ] [username@]host\n",
@@ -1156,36 +1157,39 @@ usage (int err)
     }
   else
     {
-      printf ("Usage: rlogin [OPTION] ... hostname\n");
-      printf ("Rlogin starts a terminal session on a remote host host.\n");
-      printf ("\
-  -8, --8-bit       allows an eight-bit input data path at all times\n");
-      printf ("\
+      puts ("Usage: rlogin [OPTION] ... hostname");
+      puts ("Rlogin starts a terminal session on a remote host host.");
+      puts ("\
+  -8, --8-bit       allows an eight-bit input data path at all times");
+      puts ("\
   -E, --no-escape   stops any character from being recognized as an escape\n\
-                    character\n");
-      printf ("\
-  -d, --debug       turns on socket debugging (see setsockopt(2))\n");
-      printf ("\
+                    character");
+      puts ("\
+  -d, --debug       turns on socket debugging (see setsockopt(2))");
+      puts ("\
   -e, --escape=CHAR allows user specification of the escape character,\n\
-                    which is ``~'' by default\n");
+                    which is ``~'' by default");
+  puts ("\
+  -l, --user USER   run as USER on the remote system");
 #ifdef KERBEROS
-      printf ("\
-  -K, --kerberos    turns off all Kerberos authentication\n");
-      printf ("\
+      puts ("\
+  -K, --kerberos    turns off all Kerberos authentication");
+      puts ("\
   -k, --realm=REALM requests rlogin to obtain tickets for the remote host in\n\
-                    REALM realm instead of the remote host's realm\n");
+                    REALM realm instead of the remote host's realm");
 #ifdef ENCRYPTION
-      printf ("\
+      puts ("\
   -x, --encrypt     turns on DES encryption for all data passed via the\n\
-                    rlogin session\n");
+                    rlogin session");
 #endif
 #endif
-      printf ("\
-  -V, --version     display program version\n");
-      printf ("\
-  -h, --help        display usage instructions\n");
+      puts ("\
+  -V, --version     display program version");
+      puts ("\
+  -h, --help        display usage instructions");
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
     }
-  exit (err);
+  exit (status);
 }
 
 /*

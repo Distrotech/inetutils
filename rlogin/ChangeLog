@@ -1,5 +1,14 @@
 2001-11-03  Alain Magloire
 
+	* rlogin.c: Removed copyryght and sccsid.
+	#include <err.h>.
+	short_options add -V.
+	(main): Check if we are setuid root, if not
+	bail out early.
+	(usage): Add -l, -V and -h info.
+
+2001-11-03  Alain Magloire
+
 	* rlogin.c: #include <version.h>
 	Reindent to comply to GNU coding style.
 	Implemented long version options.
