@@ -1,3 +1,12 @@
+Thu Mar 26 20:40:06 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* ping/ping.c (version.h): Include it.
+	
+	(show_usage): Use inetutils_bugaddr.
+	
+	(main): Use inetutils_version rather than VERSION.  Don't use
+	GNU_PACKAGE.
+
 Thu Mar 26 20:47:00 1998  Jeff Bailey  <jbailey@gnu.org>
 
 	* configure.in: put VERSION, PACKAGE, and GNU_PACKAGE back in.
