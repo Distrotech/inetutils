@@ -20,19 +20,11 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libexecdir)/in.rshd $(man8dir)/rshd.8
+
 all: rshd
-rshd: rshd.o
 
-install: installdirs rshd $(srcdir)/rshd.8
-	$(INSTALL_PROGRAM) rshd $(libexecdir)/in.rshd
-	-$(INSTALL_DATA) $(srcdir)/rshd.8 $(man8dir)/rshd.8
-uninstall:
-	-$(RM) -f $(libexecdir)/in.rshd $(man8dir)/rshd.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o rshd 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
