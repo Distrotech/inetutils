@@ -20,3 +20,8 @@ issue:
 
 cvs co inetutils.
 
+You can track the CVS process through the mailing list:
+commit-inetutils@gnu.org
+
+This is a medium volume moderated list.
+
