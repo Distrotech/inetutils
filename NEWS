@@ -11,7 +11,7 @@ Version 1.4.1:
 * rsh now honours -V as well as --version
 
 * Fixed a security problem with rshd where new files were being
-  crated as uid 0.
+  created as uid 0.
 
 Version 1.4.0:
 
