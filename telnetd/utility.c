@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001,2005 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -818,8 +818,11 @@ terminaltypeok (char *s)
   if (terminaltype == NULL)
     return 1;
 
+#ifdef HAVE_LIBREADLINE
   if (tgetent (buf, s) == 0)
+#endif
     return 0;
+
   return 1;
 }
 
