@@ -60,9 +60,8 @@ static char sccsid[] = "@(#)process.c	8.2 (Berkeley) 11/16/93";
 CTL_MSG *find_request();
 CTL_MSG *find_match();
 
-process_request(mp, rp)
-	register CTL_MSG *mp;
-	register CTL_RESPONSE *rp;
+int
+process_request(register CTL_MSG *mp, register CTL_RESPONSE *rp)
 {
 	register CTL_MSG *ptr;
 	extern int debug;
@@ -131,9 +130,8 @@ process_request(mp, rp)
 		print_response("process_request", rp);
 }
 
-do_announce(mp, rp)
-	register CTL_MSG *mp;
-	CTL_RESPONSE *rp;
+int
+do_announce(register CTL_MSG *mp, CTL_RESPONSE *rp)
 {
 	struct hostent *hp;
 	CTL_MSG *ptr;
@@ -178,8 +176,8 @@ do_announce(mp, rp)
 /*
  * Search utmp for the local user
  */
-find_user(name, tty)
-	char *name, *tty;
+int
+find_user(char *name, char *tty)
 {
 	struct utmp ubuf;
 	int status;

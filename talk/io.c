@@ -69,6 +69,7 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
 /*
  * The routine to do the actual talking
  */
+int
 talk()
 {
 	fd_set read_template, read_set;
@@ -132,8 +133,8 @@ extern	int sys_nerr;
  * p_error prints the system error message on the standard location
  * on the screen and then exits. (i.e. a curses version of perror)
  */
-p_error(string)
-	char *string;
+int
+p_error(char *string)
 {
 	wmove(my_win.x_win, current_line%my_win.x_nlines, 0);
 	wprintw(my_win.x_win, "[%s : %s (%d)]\n",
@@ -147,8 +148,8 @@ p_error(string)
 /*
  * Display string in the standard location
  */
-message(string)
-	char *string;
+int
+message(char *string)
 {
 	wmove(my_win.x_win, current_line % my_win.x_nlines, 0);
 	wprintw(my_win.x_win, "[%s]", string);

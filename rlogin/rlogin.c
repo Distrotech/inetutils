@@ -181,9 +181,7 @@ int		get_window_size __P((int, struct winsize *));
 extern sig_t setsig __P((int, sig_t));
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	struct passwd *pw;
 	struct servent *sp;
@@ -402,8 +400,7 @@ try_connect:
    SPEED_NOTATTY if FD is not associated with a terminal.  */
 #if BSD >= 198810
 int
-speed(fd)
-	int fd;
+speed(int fd)
 {
 	struct termios tt;
 
@@ -421,8 +418,7 @@ int    speeds[] = {	/* for older systems, B0 .. EXTB */
 };
 
 int
-speed(fd)
-	int fd;
+speed(int fd)
 {
 	struct termios tt;
 
@@ -438,8 +434,7 @@ struct termios deftt;
 struct termios nott;
 
 void
-doit(smask)
-	sigset_t *smask;
+doit(sigset_t *smask)
 {
 	int i;
 
@@ -487,8 +482,7 @@ doit(smask)
 
 /* trap a signal, unless it is being ignored. */
 void
-setsignal(sig)
-	int sig;
+setsignal(int sig)
 {
 	sig_t handler;
 	sigset_t sigs;
@@ -505,8 +499,7 @@ setsignal(sig)
 }
 
 void
-done(status)
-	int status;
+done(int status)
 {
 	pid_t w;
 	int wstatus;
@@ -529,8 +522,7 @@ int dosigwinch;
  * request to turn on the window-changing protocol.
  */
 void
-writeroob(signo)
-	int signo;
+writeroob(int signo)
 {
 	if (dosigwinch == 0) {
 		sendwindow();
@@ -540,8 +532,7 @@ writeroob(signo)
 }
 
 void
-catch_child(signo)
-	int signo;
+catch_child(int signo)
 {
 	int status;
 	pid_t pid;
@@ -683,8 +674,7 @@ stop(cmdc)
 }
 
 void
-sigwinch(signo)
-	int signo;
+sigwinch(int signo)
 {
 	struct winsize ws;
 
@@ -736,8 +726,7 @@ int rcvcnt, rcvstate;
 char rcvbuf[8 * 1024];
 
 void
-oob(signo)
-	int signo;
+oob(int signo)
 {
 	struct termios tt;
 	int atmark, n, out, rcvd;
@@ -825,8 +814,7 @@ oob(signo)
 
 /* reader: read from remote: line -> 1 */
 int
-reader(smask)
-	sigset_t *smask;
+reader(sigset_t *smask)
 {
 	pid_t pid;
 	int n, remaining;
@@ -881,8 +869,7 @@ reader(smask)
 }
 
 void
-mode(f)
-	int f;
+mode(int f)
 {
 	struct termios tt;
 
@@ -913,8 +900,7 @@ mode(f)
 }
 
 void
-lostpeer(signo)
-	int signo;
+lostpeer(int signo)
 {
 	setsig (SIGPIPE, SIG_IGN);
 	msg("\007connection closed.");
@@ -923,16 +909,14 @@ lostpeer(signo)
 
 /* copy SIGURGs to the child process. */
 void
-copytochild(signo)
-	int signo;
+copytochild(int signo)
 {
 
 	(void)kill(child, SIGURG);
 }
 
 void
-msg(str)
-	char *str;
+msg(char *str)
 {
 
 	(void)fprintf(stderr, "rlogin: %s\r\n", str);
@@ -986,9 +970,7 @@ usage()
  */
 #ifdef OLDSUN
 int
-get_window_size(fd, wp)
-	int fd;
-	struct winsize *wp;
+get_window_size(int fd, struct winsize *wp)
 {
 	struct ttysize ts;
 	int error;
@@ -1004,8 +986,7 @@ get_window_size(fd, wp)
 #endif
 
 u_int
-getescape(p)
-	register char *p;
+getescape(register char *p)
 {
 	long val;
 	int len;

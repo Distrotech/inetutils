@@ -1,6 +1,6 @@
 /* A version of bsd `logout' that should be widely portable
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+   Copyright (C) 1996, 2000 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -38,8 +38,7 @@
 #include <fcntl.h>
 
 int
-logout (line)
-  char *line;
+logout (char *line)
 {
   int success = 0;
 
@@ -131,7 +130,7 @@ logout (line)
 #else
 		time (&ut->ut_time);
 #endif
-		
+
 		/* Now seek back to the position in utmp at which UT occured,
 		   and write the new version of UT there.  */
 		if (lseek (ut_fd, pos, SEEK_SET) >= 0

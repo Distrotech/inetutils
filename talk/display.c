@@ -48,12 +48,13 @@ WINDOW	*line_win;
 
 int	curses_initialized = 0;
 
+#undef max
 /*
  * max HAS to be a function, it is called with
  * a argument of the form --foo at least once.
  */
-max(a,b)
-	int a, b;
+int
+max(int a, int b)
 {
 
 	return (a > b ? a : b);
@@ -63,10 +64,8 @@ max(a,b)
  * Display some text on somebody's window, processing some control
  * characters while we are at it.
  */
-display(win, text, size)
-	register xwin_t *win;
-	register char *text;
-	int size;
+int
+display(register xwin_t *win, register char *text, int size)
 {
 	register int i;
 	char cch;
@@ -153,8 +152,8 @@ display(win, text, size)
 /*
  * Read the character at the indicated position in win
  */
-readwin(win, line, col)
-	WINDOW *win;
+int
+readwin(WINDOW *win, int line, int col)
 {
 	int oldline, oldcol;
 	register int c;
@@ -170,9 +169,8 @@ readwin(win, line, col)
  * Scroll a window, blanking out the line following the current line
  * so that the current position is obvious
  */
-xscroll(win, flag)
-	register xwin_t *win;
-	int flag;
+int
+xscroll(register xwin_t *win, int flag)
 {
 
 	if (flag == -1) {

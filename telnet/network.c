@@ -68,7 +68,7 @@ unsigned char	netobuf[2*BUFSIZ], netibuf[BUFSIZ];
  * Initialize internal network data structures.
  */
 
-    void
+void
 init_network()
 {
     if (ring_init(&netoring, netobuf, sizeof netobuf) != 1) {
@@ -86,7 +86,7 @@ init_network()
  * Telnet "synch" processing).
  */
 
-    int
+int
 stilloob()
 {
     static struct timeval timeout = { 0 };
@@ -118,7 +118,7 @@ stilloob()
  *	Sets "neturg" to the current location.
  */
 
-    void
+void
 setneturg()
 {
     ring_mark(&netoring);
@@ -135,7 +135,7 @@ setneturg()
  */
 
 
-    int
+int
 netflush()
 {
     register int n, n1;

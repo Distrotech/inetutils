@@ -51,7 +51,7 @@ static char sccsid[] = "@(#)utility.c	8.4 (Berkeley) 5/30/95";
  * too full.
  */
 
-    void
+void
 ttloop()
 {
     void netflush();
@@ -82,9 +82,9 @@ ttloop()
 /*
  * Check a descriptor to see if out of band data exists on it.
  */
-    int
-stilloob(s)
-    int	s;		/* socket number */
+/* int	s; socket number */
+int
+stilloob(int s)
 {
     static struct timeval timeout = { 0 };
     fd_set	excepts;
@@ -106,7 +106,7 @@ stilloob(s)
     }
 }
 
-	void
+void
 ptyflush()
 {
 	int n;
@@ -138,9 +138,8 @@ ptyflush()
  * if the current address is a TELNET IAC ("I Am a Command")
  * character.
  */
-    char *
-nextitem(current)
-    char	*current;
+char *
+nextitem(char *current)
 {
     if ((*current&0xff) != IAC) {
 	return current+1;
@@ -185,7 +184,7 @@ nextitem(current)
  * caller should be setting the urgent data pointer AFTER calling
  * us in any case.
  */
-    void
+void
 netclear()
 {
     register char *thisitem, *next;
@@ -238,7 +237,7 @@ netclear()
  *		Send as much data as possible to the network,
  *	handling requests for urgent data.
  */
-    void
+void
 netflush()
 {
     int n;
@@ -316,10 +315,8 @@ netflush()
  *    ptr - A pointer to a character string to write
  *    len - How many bytes to write
  */
-	void
-writenet(ptr, len)
-	register unsigned char *ptr;
-	register int len;
+void
+writenet(register unsigned char * ptr, register int len)
 {
 	/* flush buffer if no room for new data) */
 	if ((&netobuf[BUFSIZ] - nfrontp) < len) {
@@ -338,10 +335,8 @@ writenet(ptr, len)
  */
 
 
-	void
-fatal(f, msg)
-	int f;
-	char *msg;
+void
+fatal(int f, char *msg)
 {
 	char buf[BUFSIZ];
 
@@ -361,10 +356,8 @@ fatal(f, msg)
 	exit(1);
 }
 
-	void
-fatalperror(f, msg)
-	int f;
-	char *msg;
+void
+fatalperror(int f, char *msg)
 {
 	char buf[BUFSIZ];
 
@@ -374,10 +367,8 @@ fatalperror(f, msg)
 
 char editedhost[32];
 
-	void
-edithost(pat, host)
-	register char *pat;
-	register char *host;
+void
+edithost(register char *pat, register char *host)
 {
 	register char *res = editedhost;
 #ifndef strncpy
@@ -419,18 +410,16 @@ edithost(pat, host)
 
 static char *putlocation;
 
-	void
-putstr(s)
-	register char *s;
+void
+putstr(register char *s)
 {
 
 	while (*s)
 		putchr(*s++);
 }
 
-	void
-putchr(cc)
-	int cc;
+void
+putchr(int cc)
 {
 	*putlocation++ = cc;
 }
@@ -442,10 +431,8 @@ putchr(cc)
 static char fmtstr[] = { "%l:%M\
 %P on %A, %d %B %Y" };
 
-	void
-putf(cp, where)
-	register char *cp;
-	char *where;
+void
+putf(register char *cp, char *where)
 {
 	char *slash;
 	time_t t;
@@ -504,10 +491,8 @@ putf(cp, where)
 /*
  * Print telnet options and commands in plain text, if possible.
  */
-	void
-printoption(fmt, option)
-	register char *fmt;
-	register int option;
+void
+printoption(register char *fmt, register int option)
 {
 	if (TELOPT_OK(option))
 		sprintf(nfrontp, "%s %s\r\n", fmt, TELOPT(option));
@@ -519,11 +504,11 @@ printoption(fmt, option)
 	return;
 }
 
-    void
-printsub(direction, pointer, length)
-    char		direction;	/* '<' or '>' */
-    unsigned char	*pointer;	/* where suboption data sits */
-    int			length;		/* length of suboption data */
+/* char	direction; '<' or '>' */
+/* unsigned char *pointer;  where suboption data sits */
+/* int	length;	 length of suboption data */
+void
+printsub(char direction, unsigned char *pointer, int length)
 {
     register int i;
     char buf[512];
@@ -1157,11 +1142,8 @@ printsub(direction, pointer, length)
 /*
  * Dump a data buffer in hex and ascii to the output data stream.
  */
-	void
-printdata(tag, ptr, cnt)
-	register char *tag;
-	register char *ptr;
-	register int cnt;
+void
+printdata(register char *tag, register char *ptr, register int cnt
 {
 	register int i;
 	char xbuf[30];

@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = ../ansi2knr
+
 noinst_LIBRARIES = libls.a
 
 libls_a_SOURCES = cmp.c stat_flags.c ls.c print.c util.c bsdport.c

@@ -31,24 +31,24 @@ extern int errno;
 #include "pathmax.h"
 
 #if HAVE_GETCWD
-char *getcwd ();
+extern char *getcwd __P ((char *buf, size_t size));
 #else
-char *getwd ();
+extern char *getwd __P ((char *buf, size_t size));
 # define getcwd(Buf, Max) getwd (Buf)
 #endif
 
 /* Amount to increase buffer size by in each try. */
 #define PATH_INCR 32
 
-char *xmalloc ();
-char *xrealloc ();
-void free ();
+extern char *xmalloc __P ((size_t n));
+extern char *xrealloc __P ((void *p, size_t s));
+extern void free __P ((void *));
 
 /* Return the current directory, newly allocated, arbitrarily long.
    Return NULL and set errno on error. */
 
 char *
-xgetcwd ()
+xgetcwd (void)
 {
   char *cwd;
   char *ret;

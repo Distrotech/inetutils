@@ -38,9 +38,10 @@ static char sccsid[] = "@(#)getent.c	8.2 (Berkeley) 12/15/93";
 static char *area;
 
 /*ARGSUSED*/
-getent(cp, name)
-char *cp, *name;
+int
+getent(char *cp, char *name)
 {
+	(void)cp; (void)name; /* shutup gcc */
 #ifdef	HAVE_CGETENT
 	char *dba[2];
 
@@ -55,9 +56,9 @@ char *cp, *name;
 #ifndef	SOLARIS
 /*ARGSUSED*/
 char *
-getstr(id, cpp)
-char *id, **cpp;
+getstr(char *id, char **cpp)
 {
+	(void)id; (void)cpp;
 # ifdef	HAVE_CGETENT
 	char *answer;
 	return((cgetstr(area, id, &answer) > 0) ? answer : 0);

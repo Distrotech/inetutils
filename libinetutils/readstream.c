@@ -6,10 +6,7 @@
 #include <errno.h>
 
 /* readstream - convert SYSV pty packets to BSD pty packets */
-int readstream(p, ibuf, bufsize)
-	int p;
-	char *ibuf;
-	int bufsize;
+int readstream(int p, char *ibuf, int bufsize)
 {
 	int flags = 0;
 	int ret = 0;
@@ -77,7 +74,7 @@ int readstream(p, ibuf, bufsize)
 						(ibuf+1+ sizeof(struct iocblk));
 					vstop = tp->c_cc[VSTOP];
 					vstart = tp->c_cc[VSTART];
-					ixon = tp->c_iflag & IXON;      
+					ixon = tp->c_iflag & IXON;
 					break;
 				default:
 					errno = EAGAIN;

@@ -54,9 +54,8 @@ static	char *answers[] =
       "unknown_request", "badversion", "badaddr", "badctladdr" };
 #define	NANSWERS	(sizeof (answers) / sizeof (answers[0]))
 
-print_request(cp, mp)
-	char *cp;
-	register CTL_MSG *mp;
+int
+print_request(char *cp, register CTL_MSG *mp)
 {
 	char tbuf[80], *tp;
 
@@ -69,9 +68,8 @@ print_request(cp, mp)
 	    cp, tp, mp->id_num, mp->l_name, mp->r_name, mp->r_tty);
 }
 
-print_response(cp, rp)
-	char *cp;
-	register CTL_RESPONSE *rp;
+int
+print_response(char *cp, register CTL_RESPONSE *rp)
 {
 	char tbuf[80], *tp, abuf[80], *ap;
 

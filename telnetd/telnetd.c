@@ -166,8 +166,8 @@ char valid_opts[] = {
 	'\0'
 };
 
-main(argc, argv)
-	char *argv[];
+int
+main(int argc, char **argv)
 {
 	struct sockaddr_in from;
 	int on = 1, fromlen;
@@ -540,7 +540,7 @@ main(argc, argv)
 	/* NOTREACHED */
 }  /* end of main */
 
-	void
+void
 usage()
 {
 	fprintf(stderr, "Usage: telnetd");
@@ -596,9 +596,8 @@ static unsigned char ttytype_sbbuf[] = {
 	IAC, SB, TELOPT_TTYPE, TELQUAL_SEND, IAC, SE
 };
 
-    int
-getterminaltype(name)
-    char *name;
+int
+getterminaltype(char *name)
 {
     int retval = -1;
     void _gettermname();
@@ -743,7 +742,7 @@ getterminaltype(name)
     return(retval);
 }  /* end of getterminaltype */
 
-    void
+void
 _gettermname()
 {
     /*
@@ -762,9 +761,8 @@ _gettermname()
 	ttloop();
 }
 
-    int
-terminaltypeok(s)
-    char *s;
+int
+terminaltypeok(char *s)
 {
     char buf[1024];
 
@@ -800,8 +798,8 @@ extern void telnet P((int, int, char *));
 /*
  * Get a pty, scan input lines.
  */
-doit(who)
-	struct sockaddr_in *who;
+int
+doit(struct sockaddr_in *who)
 {
 	char *host, *inet_ntoa();
 	int t;
@@ -912,10 +910,8 @@ doit(who)
 }  /* end of doit */
 
 #if	defined(CRAY2) && defined(UNICOS5) && defined(UNICOS50)
-	int
-Xterm_output(ibufp, obuf, icountp, ocount)
-	char **ibufp, *obuf;
-	int *icountp, ocount;
+int
+Xterm_output(char **ibufp, char **obuf, int *icountp, int *ocount)
 {
 	int ret;
 	ret = term_output(*ibufp, obuf, *icountp, ocount);
@@ -930,15 +926,11 @@ Xterm_output(ibufp, obuf, icountp, ocount)
  * Main loop.  Select from pty and network, and
  * hand data to telnet receiver finite state machine.
  */
-	void
+void
 #ifndef	convex
-telnet(f, p)
+telnet(int f, int p)
 #else
-telnet(f, p, host)
-#endif
-	int f, p;
-#ifdef convex
-	char *host;
+telnet(int f, int p, char *host)
 #endif
 {
 	int on = 1;
@@ -1467,10 +1459,8 @@ telnet(f, p, host)
 
 int flowison = -1;  /* current state of flow: -1 is unknown */
 
-int readstream(p, ibuf, bufsize)
-	int p;
-	char *ibuf;
-	int bufsize;
+int
+readstream(int p, char *ibuf, int bufsize)
 {
 	int flags = 0;
 	int ret = 0;
@@ -1558,7 +1548,7 @@ int readstream(p, ibuf, bufsize)
  * If it is in raw mode, just write NULL;
  * otherwise, write intr char.
  */
-	void
+void
 interrupt()
 {
 	ptyflush();	/* half-hearted */
@@ -1586,7 +1576,7 @@ interrupt()
  * If it is in raw mode, just write NULL;
  * otherwise, write quit char.
  */
-	void
+void
 sendbrk()
 {
 	ptyflush();	/* half-hearted */
@@ -1599,7 +1589,7 @@ sendbrk()
 #endif	/* TCSIG */
 }
 
-	void
+void
 sendsusp()
 {
 #ifdef	SIGTSTP
@@ -1617,7 +1607,7 @@ sendsusp()
  * When we get an AYT, if ^T is enabled, use that.  Otherwise,
  * just send back "[Yes]".
  */
-	void
+void
 recv_ayt()
 {
 #if	defined(SIGINFO) && defined(TCSIG)
@@ -1630,7 +1620,7 @@ recv_ayt()
 	nfrontp += 9;
 }
 
-	void
+void
 doeof()
 {
 	init_termbuf();

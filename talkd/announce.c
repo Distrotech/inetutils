@@ -82,9 +82,7 @@ extern char *ttymsg ();
 
 /* A simpler version of bsd's vis function.  */
 static void
-strvis (dst, src, ignored)
-     char *dst, *src;
-     int ignored;
+strvis (char *dst, char *src, int ignored)
 {
   int ch;
   while (*src)
@@ -118,9 +116,8 @@ strvis (dst, src, ignored)
  * See if the user is accepting messages. If so, announce that
  * a talk is requested.
  */
-announce(request, remote_machine)
-	CTL_MSG *request;
-	char *remote_machine;
+int
+announce(CTL_MSG *request, char *remote_machine)
 {
 	char full_tty[32];
 	struct stat stbuf;
@@ -142,10 +139,8 @@ announce(request, remote_machine)
  * try to keep the message in one piece if the recipient
  * in in vi at the time
  */
-print_mesg(tty, request, remote_machine)
-	char *tty;
-	CTL_MSG *request;
-	char *remote_machine;
+int
+print_mesg(char *tty, CTL_MSG *request, char *remote_machine)
 {
 	struct timeval clock;
 	struct timezone zone;

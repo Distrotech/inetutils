@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = ../ansi2knr
+
 bin_PROGRAMS = @BUILD_TFTP@
 
 EXTRA_PROGRAMS = tftp

@@ -79,14 +79,15 @@ static int current;		/* index of buffer in use */
 int newline = 0;		/* fillbuf: in middle of newline expansion */
 int prevchar = -1;		/* putbuf: previous char (cr check) */
 
-static struct tftphdr *rw_init();
+static struct tftphdr *rw_init __P ((int));
 
 struct tftphdr *w_init() { return rw_init(0); }         /* write-behind */
 struct tftphdr *r_init() { return rw_init(1); }         /* read-ahead */
 
+/* init for either read-ahead or write-behind */
+/* zero for write-behind, one for read-head */
 static struct tftphdr *
-rw_init(x)			/* init for either read-ahead or write-behind */
-	int x;			/* zero for write-behind, one for read-head */
+rw_init(int x)
 {
 	newline = 0;		/* init crlf flag */
 	prevchar = -1;
@@ -101,11 +102,10 @@ rw_init(x)			/* init for either read-ahead or write-behind */
 /* Have emptied current buffer by sending to net and getting ack.
    Free it and return next buffer filled with data.
  */
+/* if true, convert to ascii */
+/* file opened for read */
 int
-readit(file, dpp, convert)
-	FILE *file;                     /* file opened for read */
-	struct tftphdr **dpp;
-	int convert;                    /* if true, convert to ascii */
+readit(FILE *file, struct tftphdr **dpp, int convert)
 {
 	struct bf *b;
 
@@ -124,10 +124,10 @@ readit(file, dpp, convert)
  * fill the input buffer, doing ascii conversions if requested
  * conversions are  lf -> cr,lf  and cr -> cr, nul
  */
+/*	FILE *file;  file opened for read */
+/*	int convert;  if true, convert to ascii */
 void
-read_ahead(file, convert)
-	FILE *file;                     /* file opened for read */
-	int convert;                    /* if true, convert to ascii */
+read_ahead(FILE *file, int convert)
 {
 	register int i;
 	register char *p;
@@ -174,10 +174,7 @@ read_ahead(file, convert)
    available.
  */
 int
-writeit(file, dpp, ct, convert)
-	FILE *file;
-	struct tftphdr **dpp;
-	int ct, convert;
+writeit(FILE *file, struct tftphdr **dpp, int ct, int convert)
 {
 	bfs[current].counter = ct;      /* set size of data to write */
 	current = !current;             /* switch to other buffer */
@@ -195,9 +192,7 @@ writeit(file, dpp, ct, convert)
  * CR followed by anything else.  In this case we leave it alone.
  */
 int
-write_behind(file, convert)
-	FILE *file;
-	int convert;
+write_behind(FILE *file, int convert)
 {
 	char *buf;
 	int count;
@@ -253,9 +248,9 @@ skipit:
  * when trace is active).
  */
 
+/*int	f;socket to flush */
 int
-synchnet(f)
-	int	f;		/* socket to flush */
+synchnet(int f)
 {
 	int i, j = 0;
 	char rbuf[PKTSIZE];

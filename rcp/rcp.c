@@ -132,9 +132,7 @@ void	 toremote __P((char *, int, char *[]));
 void	 usage __P((void));
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	struct servent *sp;
 	int ch, fflag, tflag;
@@ -264,9 +262,7 @@ main(argc, argv)
 }
 
 void
-toremote(targ, argc, argv)
-	char *targ, *argv[];
-	int argc;
+toremote(char *targ, int argc, char *argv[])
 {
 	int i, len, tos;
 	char *bp, *host, *src, *suser, *thost, *tuser;
@@ -356,9 +352,7 @@ toremote(targ, argc, argv)
 }
 
 void
-tolocal(argc, argv)
-	int argc;
-	char *argv[];
+tolocal(int argc, char *argv[])
 {
 	int i, len, tos;
 	char *bp, *host, *src, *suser;
@@ -421,9 +415,7 @@ tolocal(argc, argv)
 }
 
 static int
-write_stat_time (fd, stat)
-	int fd;
-	struct stat *stat;
+write_stat_time (int fd, struct stat *stat)
 {
 	char buf[4 * sizeof (long) * 3 + 2];
 	time_t a_sec, m_sec;
@@ -449,9 +441,7 @@ write_stat_time (fd, stat)
 }
 
 void
-source(argc, argv)
-	int argc;
-	char *argv[];
+source(int argc, char *argv[])
 {
 	struct stat stb;
 	static BUF buffer;
@@ -533,9 +523,7 @@ next:			(void)close(fd);
 }
 
 void
-rsource(name, statp)
-	char *name;
-	struct stat *statp;
+rsource(char *name, struct stat *statp)
 {
 	DIR *dirp;
 	struct dirent *dp;
@@ -605,9 +593,7 @@ rsource(name, statp)
 }
 
 void
-sink(argc, argv)
-	int argc;
-	char *argv[];
+sink(int argc, char *argv[])
 {
 	static BUF buffer;
 	struct stat stb;
@@ -865,8 +851,7 @@ screwup:
 
 #ifdef KERBEROS
 int
-kerberos(host, bp, locuser, user)
-	char **host, *bp, *locuser, *user;
+kerberos(char **host, char *bp, char *locuser, char *user)
 {
 	struct servent *sp;
 

@@ -1,6 +1,6 @@
 /* Duplicate a string
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+   Copyright (C) 1996, 2000 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -33,8 +33,7 @@
 #endif
 
 char *
-strdup (str)
-     char *str;
+strdup (const char *str)
 {
   if (str)
     {

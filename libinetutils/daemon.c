@@ -36,32 +36,31 @@ static char sccsid[] = "@(#)daemon.c	8.1 (Berkeley) 6/4/93";
 #include <unistd.h>
 
 int
-daemon(nochdir, noclose)
-	int nochdir, noclose;
+daemon (int nochdir, int noclose)
 {
-	int fd;
+  int fd;
 
-	switch (fork()) {
-	case -1:
-		return (-1);
-	case 0:
-		break;
-	default:
-		_exit(0);
-	}
+  switch (fork()) {
+  case -1:
+    return (-1);
+  case 0:
+    break;
+  default:
+    _exit(0);
+  }
 
-	if (setsid() == -1)
-		return (-1);
+  if (setsid() == -1)
+    return (-1);
 
-	if (!nochdir)
-		(void)chdir("/");
+  if (!nochdir)
+    (void)chdir("/");
 
-	if (!noclose && (fd = open(PATH_DEVNULL, O_RDWR, 0)) != -1) {
-		(void)dup2(fd, STDIN_FILENO);
-		(void)dup2(fd, STDOUT_FILENO);
-		(void)dup2(fd, STDERR_FILENO);
-		if (fd > 2)
-			(void)close (fd);
-	}
-	return (0);
+  if (!noclose && (fd = open(PATH_DEVNULL, O_RDWR, 0)) != -1) {
+    (void)dup2(fd, STDIN_FILENO);
+    (void)dup2(fd, STDOUT_FILENO);
+    (void)dup2(fd, STDERR_FILENO);
+    if (fd > 2)
+      (void)close (fd);
+  }
+  return (0);
 }

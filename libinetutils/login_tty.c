@@ -41,8 +41,7 @@ static char sccsid[] = "@(#)login_tty.c	8.1 (Berkeley) 6/4/93";
 #include <fcntl.h>
 
 int
-login_tty(fd)
-	int fd;
+login_tty(int fd)
 {
 #ifdef HAVE_SETSID
 	(void) setsid();

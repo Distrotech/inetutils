@@ -38,13 +38,12 @@
 #else
 # include <strings.h>
 #endif
+#include <unistd.h>
 
 /* utmp_init - update utmp and wtmp before login */
 
-utmp_init(line, user, id)
-char   *line;
-char   *user;
-char   *id;
+void
+utmp_init(char   *line, char   *user, char   *id)
 {
 #ifdef HAVE_UTMPX_H
     struct utmpx utx;
@@ -82,9 +81,8 @@ char   *id;
 
 /* utmp_ptsid - generate utmp id for pseudo terminal */
 
-char   *utmp_ptsid(line, tag)
-char   *line;
-char   *tag;
+char   *
+utmp_ptsid(char   *line, char   *tag)
 {
     static char buf[5];
 

@@ -99,10 +99,8 @@ static u_long ring_clock = 0;
 
 /* Buffer state transition routines */
 
-    ring_init(ring, buffer, count)
-Ring *ring;
-    unsigned char *buffer;
-    int count;
+int
+ring_init(Ring *ring, unsigned char *buffer, int count)
 {
     memset((char *)ring, 0, sizeof *ring);
 
@@ -125,9 +123,8 @@ Ring *ring;
  * Mark the most recently supplied byte.
  */
 
-    void
-ring_mark(ring)
-    Ring *ring;
+void
+ring_mark(Ring *ring)
 {
     ring->mark = ring_decrement(ring, ring->supply, 1);
 }
@@ -136,9 +133,8 @@ ring_mark(ring)
  * Is the ring pointing to the mark?
  */
 
-    int
-ring_at_mark(ring)
-    Ring *ring;
+int
+ring_at_mark(Ring *ring)
 {
     if (ring->mark == ring->consume) {
 	return 1;
@@ -151,9 +147,8 @@ ring_at_mark(ring)
  * Clear any mark set on the ring.
  */
 
-    void
-ring_clear_mark(ring)
-    Ring *ring;
+void
+ring_clear_mark(Ring *ring)
 {
     ring->mark = 0;
 }
@@ -161,10 +156,8 @@ ring_clear_mark(ring)
 /*
  * Add characters from current segment to ring buffer.
  */
-    void
-ring_supplied(ring, count)
-    Ring *ring;
-    int count;
+void
+ring_supplied(Ring *ring, int count)
 {
     ring->supply = ring_increment(ring, ring->supply, count);
     ring->supplytime = ++ring_clock;
@@ -173,10 +166,8 @@ ring_supplied(ring, count)
 /*
  * We have just consumed "c" bytes.
  */
-    void
-ring_consumed(ring, count)
-    Ring *ring;
-    int count;
+void
+ring_consumed(Ring *ring, int count)
 {
     if (count == 0)	/* don't update anything */
 	return;
@@ -210,9 +201,8 @@ ring_consumed(ring, count)
 
 
 /* Number of bytes that may be supplied */
-    int
-ring_empty_count(ring)
-    Ring *ring;
+int
+ring_empty_count(Ring *ring)
 {
     if (ring_empty(ring)) {	/* if empty */
 	    return ring->size;
@@ -222,9 +212,8 @@ ring_empty_count(ring)
 }
 
 /* number of CONSECUTIVE bytes that may be supplied */
-    int
-ring_empty_consecutive(ring)
-    Ring *ring;
+int
+ring_empty_consecutive(Ring *ring)
 {
     if ((ring->consume < ring->supply) || ring_empty(ring)) {
 			    /*
@@ -244,9 +233,8 @@ ring_empty_consecutive(ring)
  * (but don't give more than enough to get to cross over set mark)
  */
 
-    int
-ring_full_count(ring)
-    Ring *ring;
+int
+ring_full_count(Ring *ring)
 {
     if ((ring->mark == 0) || (ring->mark == ring->consume)) {
 	if (ring_full(ring)) {
@@ -263,9 +251,8 @@ ring_full_count(ring)
  * Return the number of CONSECUTIVE bytes available for consuming.
  * However, don't return more than enough to cross over set mark.
  */
-    int
-ring_full_consecutive(ring)
-    Ring *ring;
+int
+ring_full_consecutive(Ring *ring)
 {
     if ((ring->mark == 0) || (ring->mark == ring->consume)) {
 	if ((ring->supply < ring->consume) || ring_full(ring)) {
@@ -285,11 +272,8 @@ ring_full_consecutive(ring)
 /*
  * Move data into the "supply" portion of of the ring buffer.
  */
-    void
-ring_supply_data(ring, buffer, count)
-    Ring *ring;
-    unsigned char *buffer;
-    int count;
+void
+ring_supply_data(Ring *ring, unsigned char *buffer, int count)
 {
     int i;
 
@@ -307,11 +291,8 @@ ring_supply_data(ring, buffer, count)
 /*
  * Move data from the "consume" portion of the ring buffer
  */
-    void
-ring_consume_data(ring, buffer, count)
-    Ring *ring;
-    unsigned char *buffer;
-    int count;
+void
+ring_consume_data(Ring *ring, unsigned char *buffer, int count)
 {
     int i;
 
@@ -326,10 +307,8 @@ ring_consume_data(ring, buffer, count)
 #endif
 
 #ifdef	ENCRYPTION
-    void
-ring_encrypt(ring, encryptor)
-    Ring *ring;
-    void (*encryptor)();
+void
+ring_encrypt(Ring *ring, void (*encryptor)())
 {
     unsigned char *s, *c;
 
@@ -350,9 +329,8 @@ ring_encrypt(ring, encryptor)
     ring->clearto = ring->supply;
 }
 
-    void
-ring_clearto(ring)
-    Ring *ring;
+void
+ring_clearto(Ring *ring)
 {
     if (!ring_empty(ring))
 	ring->clearto = ring->supply;

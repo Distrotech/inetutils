@@ -244,9 +244,7 @@ void	wallmsg __P((struct filed *, struct iovec *));
 extern char *localhost __P ((void));
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	int ch, funix, i, inetm, fklog, klogm;
 	size_t len;
@@ -457,17 +455,17 @@ usage()
 {
 
 	(void)fprintf(stderr,
-"Usage: syslogd [OPTION]...
-Start system log daemon.
-
-  -f FILE        Read configuration from FILE instead from " PATH_LOGCONF ".
-  -h             Forward messages from remote hosts.
-  -m INTERVAL    Log timestamp mark every INTERVAL seconds. If INTERVAL is 0,
-                 timestamps are disabled.
-  -p FILE        Specify the pathname of an alternate log socket instead of
-                 the default " PATH_LOG ".
-  -V             Print version information and exit.
-
+"Usage: syslogd [OPTION]...\n\
+Start system log daemon.\n\
+\n\
+  -f FILE        Read configuration from FILE instead from " PATH_LOGCONF ".\n\
+  -h             Forward messages from remote hosts.\n\
+  -m INTERVAL    Log timestamp mark every INTERVAL seconds. If INTERVAL is 0,\n\
+                 timestamps are disabled.\n\
+  -p FILE        Specify the pathname of an alternate log socket instead of\n\
+                 the default " PATH_LOG ".\n\
+  -V             Print version information and exit.\n\
+\n\
 Report bugs to %s.\n", inetutils_bugaddr);
 	exit(1);
 }
@@ -477,9 +475,7 @@ Report bugs to %s.\n", inetutils_bugaddr);
  * on the appropriate log files.
  */
 void
-printline(hname, msg)
-	const char *hname;
-	const char *msg;
+printline(const char *hname, const char *msg)
 {
 	int c, pri;
 	const char *p;
@@ -528,8 +524,7 @@ printline(hname, msg)
  * Take a raw input line from /dev/klog, split and format similar to syslog().
  */
 void
-printsys(msg)
-	const char *msg;
+printsys(const char *msg)
 {
 	int c, pri, flags;
 	char *lp, *q, line[MAXLINE + 1];
@@ -568,10 +563,7 @@ time_t	now;
  * the priority.
  */
 void
-logmsg(pri, msg, from, flags)
-	int pri;
-	const char *msg, *from;
-	int flags;
+logmsg(int pri, const char *msg, const char *from, int flags)
 {
 	struct filed *f;
 	int fac, msglen, prilev;
@@ -699,10 +691,7 @@ logmsg(pri, msg, from, flags)
 }
 
 void
-fprintlog(f, from, flags, msg)
-	struct filed *f;
-	int flags;
-	const char *msg, *from;
+fprintlog(struct filed *f, const char *from, int flags, const char *msg)
 {
 	struct iovec iov[6];
 	struct iovec *v;
@@ -885,9 +874,7 @@ fprintlog(f, from, flags, msg)
  *	world, or a list of approved users.
  */
 void
-wallmsg(f, iov)
-	struct filed *f;
-	struct iovec *iov;
+wallmsg(struct filed *f, struct iovec *iov)
 {
 	static int reenter;			/* avoid calling ourselves */
 	FILE *uf;
@@ -932,8 +919,7 @@ wallmsg(f, iov)
 }
 
 void
-reapchild(signo)
-	int signo;
+reapchild(int signo)
 {
 #ifdef HAVE_WAITPID
 	while (waitpid(-1, 0, WNOHANG) > 0)
@@ -947,8 +933,7 @@ reapchild(signo)
  * Return a printable representation of a host address.
  */
 const char *
-cvthname(f)
-	struct sockaddr_in *f;
+cvthname(struct sockaddr_in *f)
 {
 	struct hostent *hp;
 	char *p;
@@ -976,8 +961,7 @@ cvthname(f)
 }
 
 void
-domark(signo)
-	int signo;
+domark(int signo)
 {
 	struct filed *f;
 
@@ -1004,8 +988,7 @@ domark(signo)
  * Print syslogd errors some place.
  */
 void
-logerror(type)
-	const char *type;
+logerror(const char *type)
 {
 	char buf[100];
 
@@ -1020,8 +1003,7 @@ logerror(type)
 }
 
 void
-die(signo)
-	int signo;
+die(int signo)
 {
 	struct filed *f;
 	char buf[100];
@@ -1045,8 +1027,7 @@ die(signo)
  *  INIT -- Initialize syslogd from configuration table
  */
 void
-init(signo)
-	int signo;
+init(int signo)
 {
 	int i;
 	FILE *cf;
@@ -1170,9 +1151,7 @@ init(signo)
  * Crack a configuration file line
  */
 void
-cfline(line, f)
-	char *line;
-	struct filed *f;
+cfline(char *line, struct filed *f)
 {
 	struct hostent *hp;
 	int i, pri, negate_pri, excl_pri;
@@ -1358,9 +1337,7 @@ cfline(line, f)
  *  Decode a symbolic name to a numeric value
  */
 int
-decode(name, codetab)
-	const char *name;
-	CODE *codetab;
+decode(const char *name, CODE *codetab)
 {
 	CODE *c;
 	char *p, buf[80];

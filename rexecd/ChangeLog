@@ -1,3 +1,8 @@
+2000-07-18 Alain Magloire
+
+	* rexed.c(error): get rid of the int error() varargs hack.
+	and put support for stdarg and vararg correctly.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

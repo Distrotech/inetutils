@@ -1,3 +1,11 @@
+2000-07-14 Alain Magloire
+
+	* openpty.c: ptys_open() call wrong arguments ...
+
+	* Makefile.am: AUTOMAKE_OPTIONS = ansi2knr
+	all the files are now prototype and we rely on ansi2knr
+	to the right thing.
+
 2000-07-05 Alain Magloire
 
 	* *: Clause 3 removed.

@@ -10,9 +10,10 @@
 extern int errno;
 #endif
 
-int revoke (path)
-     char *path;
+int
+revoke (char *path)
 {
+	(void)path;
 #ifdef ENOSYS
   errno = ENOSYS;
 #else

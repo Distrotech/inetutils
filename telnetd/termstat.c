@@ -129,7 +129,7 @@ int	newmap = 1;	/* nonzero if \n maps to ^M^J */
  *	   then linemode is off, if server won't SGA, then linemode
  *	   is on.
  */
-	void
+void
 localstat()
 {
 	void netflush();
@@ -355,7 +355,7 @@ done:
  *
  * Check for changes to flow control
  */
-	void
+void
 flowstat()
 {
 	if (his_state_is_will(TELOPT_LFLOW)) {
@@ -387,9 +387,8 @@ flowstat()
  * at a time, and if using kludge linemode, then only linemode may be
  * affected.
  */
-	void
-clientstat(code, parm1, parm2)
-	register int code, parm1, parm2;
+void
+clientstat(register int code, register int parm1, register int parm2)
 {
 	void netflush();
 
@@ -591,13 +590,13 @@ clientstat(code, parm1, parm2)
 }  /* end of clientstat */
 
 #if	defined(CRAY2) && defined(UNICOS5)
-	void
+void
 termstat()
 {
 	needtermstat = 1;
 }
 
-	void
+void
 _termstat()
 {
 	needtermstat = 0;
@@ -616,7 +615,7 @@ _termstat()
  * function is called when the pty state has been processed for the first time.
  * It calls other functions that do things that were deferred in each module.
  */
-	void
+void
 defer_terminit()
 {
 
@@ -651,7 +650,7 @@ defer_terminit()
  *
  * Returns true if the pty state has been processed yet.
  */
-	int
+int
 terminit()
 {
 	return(_terminit);

@@ -60,12 +60,12 @@ char	*current_state;
 int	current_line = 0;
 
 void
-disp_msg(sig)
-  int sig;
+disp_msg(int sig)
 {
 	message(current_state);
 }
 
+int
 start_msgs()
 {
 	struct itimerval itimer;
@@ -77,6 +77,7 @@ start_msgs()
 	setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
 }
 
+int
 end_msgs()
 {
 	struct itimerval itimer;

@@ -74,6 +74,7 @@ int	local_id, remote_id;
 void	re_invite();
 jmp_buf invitebuf;
 
+int
 invite_remote()
 {
 	int nfd, read_mask, template, new_sockt;
@@ -156,6 +157,7 @@ static	char *answers[] = {
 /*
  * Transmit the invitation and process the response
  */
+int
 announce_invite()
 {
 	CTL_RESPONSE response;
@@ -176,6 +178,7 @@ announce_invite()
 /*
  * Tell the daemon to remove your invitation
  */
+int
 send_delete()
 {
 

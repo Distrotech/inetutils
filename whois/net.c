@@ -48,8 +48,7 @@ static char rcsid[] = "$Id$";
 #include <ctype.h>
 
 void
-netwhois(name, host)
-	char *name, *host;
+netwhois(char *name, char *host)
 {
 	register FILE *fp;
 	register int c, lastc;

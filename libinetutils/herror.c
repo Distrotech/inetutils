@@ -1,6 +1,6 @@
 /* A replacement version of herror
 
-   Copyright (C) 1997 Free Software Foundation, Inc.
+   Copyright (C) 1997, 2000 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -51,8 +51,7 @@ extern int errno;
 
 /* Print an error message on stderror containing the latest host error.  */
 void
-herror (pfx)
-  const char *pfx;
+herror (const char *pfx)
 {
 #ifdef HAVE_H_ERRNO
   int herr = h_errno;

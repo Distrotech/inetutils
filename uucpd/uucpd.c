@@ -98,9 +98,8 @@ char *nenv[] = {
 };
 extern char **environ;
 
-main(argc, argv)
-int argc;
-char **argv;
+int
+main(int argc, char **argv)
 {
 #ifndef BSDINETD
 	register int s, tcp_socket;
@@ -175,8 +174,7 @@ char **argv;
 }
 
 void
-doit (sinp)
-     struct sockaddr_in *sinp;
+doit (struct sockaddr_in *sinp)
 {
 	struct passwd *pw, *getpwnam();
 	char user[64], passwd[64];
@@ -226,9 +224,8 @@ doit (sinp)
 	perror("uucico server: execl");
 }
 
-readline(p, n)
-register char *p;
-register int n;
+int
+readline(register char *p, register int n)
 {
 	char c;
 
@@ -274,9 +271,7 @@ dologout()
  * Record login in wtmp file.
  */
 void
-dologin(pw, sin)
-     struct passwd *pw;
-     struct sockaddr_in *sin;
+dologin(struct passwd *pw, struct sockaddr_in *sin)
 {
 	char line[32];
 	char remotehost[32];

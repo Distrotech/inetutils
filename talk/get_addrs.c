@@ -46,8 +46,8 @@ static char sccsid[] = "@(#)get_addrs.c	8.1 (Berkeley) 6/6/93";
 #include <stdio.h>
 #include "talk_ctl.h"
 
-get_addrs(my_machine_name, his_machine_name)
-	char *my_machine_name, *his_machine_name;
+int
+get_addrs(char *my_machine_name, char *his_machine_name)
 {
 	struct hostent *hp;
 	struct servent *sp;

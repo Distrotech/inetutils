@@ -1,3 +1,14 @@
+2000-07-18 Alain Magloire
+
+	* all C files and header files, we make a bold move
+	and translate the prototypes to ANSI C, instead of K&R
+	for better compile time warnings etc ..
+	ansi2knr will the massaging for old C compilers.
+
+2000-07-14 Alain Magloire
+
+	* configure.in: check for initgroups().
+
 2000-07-08 Michael Vogt <mvo@debian.org>
 
 	* ftpd/Makefile.am (INCLUDES): Added $(PATHDEF_FTPDPID)

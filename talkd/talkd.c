@@ -87,9 +87,8 @@ char	*hostname;
 #define TIMEOUT 30
 #define MAXIDLE 120
 
-main(argc, argv)
-	int argc;
-	char *argv[];
+int
+main(int argc, char *argv[])
 {
 	register CTL_MSG *mp = &request;
 	int cc;

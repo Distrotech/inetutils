@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = ../ansi2knr
+
 noinst_LIBRARIES = libinetutils.a
 
 libinetutils_a_SOURCES = cleansess.c des_rw.c kcmd.c krcmd.c localhost.c \

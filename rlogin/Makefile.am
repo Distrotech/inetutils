@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = ../ansi2knr
+
 bin_PROGRAMS = @BUILD_RLOGIN@
 
 EXTRA_PROGRAMS = rlogin

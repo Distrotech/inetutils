@@ -1,6 +1,6 @@
 /* A replacement version of hstrerror
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+   Copyright (C) 1996, 2000 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -31,8 +31,7 @@ extern char *h_errlist[];
 /* Return a string describing the host lookup error code HERR.  The returned
    value may be in a static buffer (and in any case shouldn't be written to).  */
 const char *
-hstrerror (herr)
-  int herr;
+hstrerror (int herr)
 {
 #ifdef HAVE_H_ERRLIST
   if (herr >= 0 && herr < h_nerrs && h_errlist[herr])

@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = ../ansi2knr
+
 bin_PROGRAMS = @BUILD_TELNET@
 
 EXTRA_PROGRAMS = telnet

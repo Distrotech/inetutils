@@ -52,7 +52,7 @@ static unsigned char	slcbuf[NSLC*6];	/* buffer for slc negotiation */
  *
  * Write out the current special characters to the client.
  */
-	void
+void
 send_slc()
 {
 	register int i;
@@ -76,7 +76,7 @@ send_slc()
  *
  * Set pty special characters to all the defaults.
  */
-	void
+void
 default_slc()
 {
 	register int i;
@@ -123,10 +123,8 @@ get_slc_defaults()
  *
  * Add an slc triplet to the slc buffer.
  */
-	void
-add_slc(func, flag, val)
-	register char func, flag;
-	register cc_t val;
+void
+add_slc(register char func, register char flag, register cc_t val)
 {
 
 	if ((*slcptr++ = (unsigned char)func) == 0xff)
@@ -148,9 +146,8 @@ add_slc(func, flag, val)
  * The parameter getit is non-zero if it is necessary to grab a copy
  * of the terminal control structures.
  */
-	void
-start_slc(getit)
-	register int getit;
+void
+start_slc(register int getit)
 {
 
 	slcchange = 0;
@@ -167,9 +164,8 @@ start_slc(getit)
  *
  * Finish up the slc negotiation.  If something to send, then send it.
  */
-	int
-end_slc(bufp)
-	register unsigned char **bufp;
+int
+end_slc(register unsigned char **bufp)
 {
 	register int len;
 	void netflush();
@@ -214,10 +210,8 @@ end_slc(bufp)
  *
  * Figure out what to do about the client's slc
  */
-	void
-process_slc(func, flag, val)
-	register unsigned char func, flag;
-	register cc_t val;
+void
+process_slc(register unsigned char func, register unsigned char flag, register cc_t val)
 {
 	register int hislevel, mylevel, ack;
 
@@ -280,10 +274,8 @@ process_slc(func, flag, val)
  * Process a request to change one of our special characters.
  * Compare client's request with what we are capable of supporting.
  */
-	void
-change_slc(func, flag, val)
-	register char func, flag;
-	register cc_t val;
+void
+change_slc(register char func, register char flag, register cc_t val)
 {
 	register int hislevel, mylevel;
 
@@ -390,7 +382,7 @@ cc_t oldeofc = '\004';
  * likely to have changed.  If a local change occurs, kick the support level
  * and flags up to the defaults.
  */
-	void
+void
 check_slc()
 {
 	register int i;
@@ -433,10 +425,8 @@ check_slc()
  *
  * ptr points to the beginning of the buffer, len is the length.
  */
-	void
-do_opt_slc(ptr, len)
-	register unsigned char *ptr;
-	register int len;
+void
+do_opt_slc(register unsigend char *ptr, register int len)
 {
 	register unsigned char func, flag;
 	cc_t val;
@@ -474,7 +464,7 @@ do_opt_slc(ptr, len)
  *
  * Do slc stuff that was deferred.
  */
-	void
+void
 deferslc()
 {
 	if (def_slcbuf) {

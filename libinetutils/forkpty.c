@@ -52,31 +52,28 @@
 #endif
 #include <grp.h>
 
-int forkpty(amaster, name, termp, winp)
-	int *amaster;
-	char *name;
-	struct termios *termp;
-	struct winsize *winp;
+int
+forkpty(int *amaster, char *name, struct termios *termp, struct winsize *winp)
 {
-	int master, slave, pid;
+  int master, slave, pid;
 
-	if (openpty(&master, &slave, name, termp, winp) == -1)
-		return (-1);
-	switch (pid = fork()) {
-	case -1:
-		return (-1);
-	case 0:
-		/*
-		 * child
-		 */
-		close(master);
-		login_tty(slave);
-		return (0);
-	}
-	/*
-	 * parent
-	 */
-	*amaster = master;
-	close(slave);
-	return (pid);
+  if (openpty(&master, &slave, name, termp, winp) == -1)
+    return (-1);
+  switch (pid = fork()) {
+  case -1:
+    return (-1);
+  case 0:
+    /*
+     * child
+     */
+    close(master);
+    login_tty(slave);
+    return (0);
+  }
+  /*
+   * parent
+   */
+  *amaster = master;
+  close(slave);
+  return (pid);
 }

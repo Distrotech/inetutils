@@ -73,9 +73,11 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
-
-/*VARARGS1*/
-int error();
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
 
 /*
  * remote execute server:
@@ -86,9 +88,7 @@ int error();
  */
 /*ARGSUSED*/
 int
-main(argc, argv)
-	int argc;
-	char **argv;
+main(int argc, char **argv)
 {
 	struct sockaddr_in from;
 	int fromlen, sockfd = STDIN_FILENO;
@@ -118,11 +118,10 @@ struct	sockaddr_in asin = { sizeof(asin), AF_INET };
 struct	sockaddr_in asin = { AF_INET };
 #endif
 
-char *getstr ();
+char *getstr __P ((const char *));
 
-doit(f, fromp)
-	int f;
-	struct sockaddr_in *fromp;
+int
+doit(int f, struct sockaddr_in *fromp)
 {
 	char *cmdbuf, *cp, *namep;
 	char *user, *pass;
@@ -270,20 +269,30 @@ doit(f, fromp)
 }
 
 /*VARARGS1*/
-error(fmt, a1, a2, a3)
-	char *fmt;
-	int a1, a2, a3;
+void
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+error(const char *fmt, ...)
+#else
+error(fmt, va_alist)
+        char *fmt;
+        va_dcl
+#endif
 {
-	char buf[BUFSIZ];
-
-	buf[0] = 1;
-	snprintf (buf + 1, sizeof buf - 1, fmt, a1, a2, a3);
-	write (STDERR_FILENO, buf, strlen(buf));
+  va_list ap;
+  int len;
+  char buf[BUFSIZ];
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+        va_start(ap, fmt);
+#else
+        va_start(ap);
+#endif
+  buf[0] = 1;
+  snprintf (buf + 1, sizeof buf - 1, fmt, ap);
+  write (STDERR_FILENO, buf, strlen(buf));
 }
 
 char *
-getstr(err)
-	char *err;
+getstr(const char *err)
 {
 	size_t buf_len = 100;
 	char *buf = malloc (buf_len), *end = buf;

@@ -52,10 +52,10 @@ static bit_64		*key;
 static u_char		*key_schedule;
 
 /* XXX these should be in a kerberos include file */
-int	krb_net_read __P((int, char *, int));
+int	krb_net_read __P ((int, char *, int));
 #ifdef notdef
 /* XXX too hard to make this work */
-int	des_pcbc_encrypt __P((des_cblock *, des_cblock *, long,
+int	des_pcbc_encrypt __P ((des_cblock *, des_cblock *, long,
 	    des_key_schedule, des_cblock *, int));
 #endif
 
@@ -67,8 +67,8 @@ int	des_pcbc_encrypt __P((des_cblock *, des_cblock *, long,
 void
 des_clear_key()
 {
-	bzero((char *) key, sizeof(C_Block));
-	bzero((char *) key_schedule, sizeof(Key_schedule));
+  bzero((char *) key, sizeof(C_Block));
+  bzero((char *) key_schedule, sizeof(Key_schedule));
 }
 
 

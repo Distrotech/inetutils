@@ -81,7 +81,7 @@ unsigned char *subsave;
 #define	TS_DO		7	/* do " */
 #define	TS_DONT		8	/* dont " */
 
-	void
+void
 telrcv()
 {
 	register int c;
@@ -433,9 +433,8 @@ gotiac:			switch (c) {
  * is complete.
  *
  */
-	void
-send_do(option, init)
-	int option, init;
+void
+send_do(int option, int  init)
 {
 	if (init) {
 		if ((do_dont_resp[option] == 0 && his_state_is_will(option)) ||
@@ -468,9 +467,8 @@ extern void doclientstat();
 extern void encrypt_send_support();
 #endif	/* ENCRYPTION */
 
-	void
-willoption(option)
-	int option;
+void
+willoption(int option)
 {
 	int changeok = 0;
 	void (*func)() = 0;
@@ -661,9 +659,8 @@ willoption(option)
 		(*func)();
 }  /* end of willoption */
 
-	void
-send_dont(option, init)
-	int option, init;
+void
+send_dont(int option, int init)
 {
 	if (init) {
 		if ((do_dont_resp[option] == 0 && his_state_is_wont(option)) ||
@@ -678,9 +675,8 @@ send_dont(option, init)
 	DIAG(TD_OPTIONS, printoption("td: send dont", option));
 }
 
-	void
-wontoption(option)
-	int option;
+void
+wontoption(int option)
 {
 	/*
 	 * Process client input.
@@ -810,9 +806,8 @@ wontoption(option)
 
 }  /* end of wontoption */
 
-	void
-send_will(option, init)
-	int option, init;
+void
+send_will(int option, int init)
 {
 	if (init) {
 		if ((will_wont_resp[option] == 0 && my_state_is_will(option))||
@@ -838,9 +833,8 @@ send_will(option, init)
 int turn_on_sga = 0;
 #endif
 
-	void
-dooption(option)
-	int option;
+void
+dooption(int option)
 {
 	int changeok = 0;
 
@@ -969,9 +963,8 @@ dooption(option)
 
 }  /* end of dooption */
 
-	void
-send_wont(option, init)
-	int option, init;
+void
+send_wont(int option, int init)
 {
 	if (init) {
 		if ((will_wont_resp[option] == 0 && my_state_is_wont(option)) ||
@@ -986,9 +979,8 @@ send_wont(option, init)
 	DIAG(TD_OPTIONS, printoption("td: send wont", option));
 }
 
-	void
-dontoption(option)
-	int option;
+void
+dontoption(int option)
 {
 	/*
 	 * Process client input.
@@ -1092,7 +1084,7 @@ int env_ovalue = -1;
  *	Window size
  *	Terminal speed
  */
-	void
+void
 suboption()
 {
     register int subchar;
@@ -1513,7 +1505,7 @@ suboption()
 
 }  /* end of suboption */
 
-	void
+void
 doclientstat()
 {
 	clientstat(TELOPT_LINEMODE, WILL, 0);
@@ -1521,7 +1513,7 @@ doclientstat()
 
 #define	ADD(c)	 *ncp++ = c
 #define	ADD_DATA(c) { *ncp++ = c; if (c == SE || c == IAC) *ncp++ = c; }
-	void
+void
 send_status()
 {
 	unsigned char statusbuf[256];

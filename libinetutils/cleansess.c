@@ -42,15 +42,18 @@
 #define utmp utmpx		/* make utmpx look more like utmp */
 #endif
 #endif
+#ifdef HAVE_STRING_H 
+#include <string.h>
+#endif
+#include <sys/types.h>
+#include <sys/stat.h>
 
 /* Update umtp & wtmp as necessary, and change tty & pty permissions back to
    what they should be.  */
 void
-cleanup_session (tty, pty_fd)
-  char *tty;
-  int pty_fd;
+cleanup_session (char *tty, int pty_fd)
 {
-  char *line, *pty;
+  char *line;
 
 #ifdef PATH_TTY_PFX
   if (strncmp (tty, PATH_TTY_PFX, sizeof PATH_TTY_PFX - 1) == 0)

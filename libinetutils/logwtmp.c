@@ -1,6 +1,6 @@
 /* A version of bsd `logwtmp' that should be widely portable
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+   Copyright (C) 1996, 2000 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -52,14 +52,16 @@
 #define utmp utmpx		/* make utmpx look more like utmp */
 #endif
 #endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
 
 #ifndef HAVE_ERRNO_DECL
 extern int errno;
 #endif
 
 static void
-_logwtmp (ut)
-     struct utmp *ut;
+_logwtmp (struct utmp *ut)
 {
 #ifdef KEEP_OPEN
   static int fd = -1;
@@ -102,11 +104,10 @@ _logwtmp (ut)
 
 void
 #ifdef KEEP_OPEN
-logwtmp_keep_open (line, name, host)
+logwtmp_keep_open (char *line, char *name, char *host)
 #else
-logwtmp (line, name, host)
+logwtmp (char *line, char *name, char *host)
 #endif
-     char *line, *name, *host;
 {
   struct utmp ut;
 

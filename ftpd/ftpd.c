@@ -190,8 +190,7 @@ char    *anonymous_login_name = "ftp";
    NUM_SIMUL_OFF_TO_STRS calls, to allow multiple off_t's to be conveniently
    printed with a single printf statement.  */
 static char *
-off_to_str (off)
-     off_t off;
+off_to_str (off_t off)
 {
   static char bufs[NUM_SIMUL_OFF_TO_STRS][80];
   static char (*next_buf)[80] = bufs;
@@ -289,10 +288,7 @@ curdir()
 }
 
 int
-main(argc, argv, envp)
-	int argc;
-	char *argv[];
-	char **envp;
+main(int argc, char *argv[], char **envp)
 {
         extern char *localhost ();
 	int addrlen, ch, on = 1, tos;
@@ -382,7 +378,7 @@ main(argc, argv, envp)
 	if(daemon_mode) {
 	    int ctl_sock, fd;
 	    struct servent *sv;
-	    
+
 	    /* become a daemon */
 	    if(daemon(1,1) < 0) {
 		syslog(LOG_ERR, "failed to become a daemon");
@@ -420,10 +416,10 @@ main(argc, argv, envp)
 	    }
 	    /* Stash pid in pidfile */
 	    if ((pid_fp = fopen(PATH_FTPDPID, "w")) == NULL)
-	        syslog(LOG_ERR, "can't open %s: %m", PATH_FTPDPID);                
+	        syslog(LOG_ERR, "can't open %s: %m", PATH_FTPDPID);
 	    else {
 	        fprintf(pid_fp, "%d\n", getpid());
-		fchmod(fileno(pid_fp), S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);                        
+		fchmod(fileno(pid_fp), S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 		fclose(pid_fp);
 	    }
 	    /*
@@ -539,8 +535,7 @@ main(argc, argv, envp)
 }
 
 static void
-reapchild(signo)
-        int signo;
+reapchild(int signo)
 {
         int save_errno = errno;
 
@@ -550,8 +545,7 @@ reapchild(signo)
 }
 
 static void
-sigquit(signo)
-        int signo;
+sigquit(int signo)
 {
     syslog(LOG_ERR, "got signal %s", strsignal(signo));
     dologout(-1);
@@ -559,8 +553,7 @@ sigquit(signo)
 
 
 static void
-lostconn(signo)
-	int signo;
+lostconn(int signo)
 {
 
 	if (debug)
@@ -574,8 +567,7 @@ static char ttyline[20];
  * Helper function for sgetpwnam().
  */
 static char *
-sgetsave(s)
-	char *s;
+sgetsave(char *s)
 {
 	char *new = malloc((unsigned) strlen(s) + 1);
 
@@ -594,8 +586,7 @@ sgetsave(s)
  * (e.g., globbing).
  */
 static struct passwd *
-sgetpwnam(name)
-	char *name;
+sgetpwnam(char *name)
 {
 	static struct passwd save;
 	struct passwd *p;
@@ -645,8 +636,7 @@ static int askpasswd;		/* had user command, ask for passwd */
 static char curname[10];	/* current USER name */
 
 static void
-complete_login (passwd)
-     char *passwd;
+complete_login (char *passwd)
 {
 	FILE *fd;
 
@@ -765,8 +755,7 @@ bad:
  * PATH_FTPUSERS to allow people such as root and uucp to be avoided.
  */
 void
-user(name)
-	char *name;
+user(char *name)
 {
 	char *cp, *shell;
 
@@ -798,7 +787,7 @@ user(name)
                 reply(530, "Sorry, only anonymous ftp allowed.");
                 return;
         }
-	
+
 	if (pw = sgetpwnam(name)) {
 		if ((shell = pw->pw_shell) == NULL || *shell == 0)
 			shell = PATH_BSHELL;
@@ -838,8 +827,7 @@ user(name)
  * Check if a user is in the file PATH_FTPUSERS
  */
 static int
-checkuser(name)
-	char *name;
+checkuser(char *name)
 {
 	FILE *fd;
 	int found = 0;
@@ -878,8 +866,7 @@ end_login()
 }
 
 void
-pass(passwd)
-	char *passwd;
+pass(char *passwd)
 {
 	if (logged_in || askpasswd == 0) {
 		reply(503, "Login with USER first.");
@@ -891,8 +878,7 @@ pass(passwd)
 }
 
 void
-retrieve(cmd, name)
-	char *cmd, *name;
+retrieve(char *cmd, char *name)
 {
 	FILE *fin, *dout;
 	struct stat st;
@@ -960,9 +946,7 @@ done:
 }
 
 void
-store(name, mode, unique)
-	char *name, *mode;
-	int unique;
+store(char *name, char *mode, int unique)
 {
 	FILE *fout, *din;
 	struct stat st;
@@ -1032,8 +1016,7 @@ done:
 }
 
 static FILE *
-getdatasock(mode)
-	char *mode;
+getdatasock(char *mode)
 {
 	int on = 1, s, t, tries;
 
@@ -1074,10 +1057,7 @@ bad:
 }
 
 static FILE *
-dataconn(name, size, mode)
-	char *name;
-	off_t size;
-	char *mode;
+dataconn(char *name, off_t size, char *mode)
 {
 	char sizebuf[32];
 	FILE *file;
@@ -1156,9 +1136,7 @@ dataconn(name, size, mode)
  * NB: Form isn't handled.
  */
 static void
-send_data(instr, outstr, blksize)
-	FILE *instr, *outstr;
-	off_t blksize;
+send_data(FILE *instr, FILE *outstr, off_t blksize)
 {
 	int c, cnt, filefd, netfd;
 	char *buf, *bp;
@@ -1288,8 +1266,7 @@ file_err:
  * N.B.: Form isn't handled.
  */
 static int
-receive_data(instr, outstr)
-	FILE *instr, *outstr;
+receive_data(FILE *instr, FILE *outstr)
 {
 	int c;
 	int cnt, bare_lfs = 0;
@@ -1367,8 +1344,7 @@ file_err:
 }
 
 void
-statfilecmd(filename)
-	char *filename;
+statfilecmd(char *filename)
 {
 	FILE *fin;
 	int c;
@@ -1406,7 +1382,7 @@ statcmd()
 
 	lreply(211, "%s FTP server status:", hostname);
 	if (!quiet)
-		printf("     ftpd (%s) %s\r\n", 
+		printf("     ftpd (%s) %s\r\n",
 			inetutils_package, inetutils_version);
 	printf("     Connected to %s", remotehost);
 	if (!isdigit(remotehost[0]))
@@ -1458,8 +1434,7 @@ printaddr:
 }
 
 void
-fatal(s)
-	char *s;
+fatal(char *s)
 {
 
 	reply(451, "Error in server: %s\n", s);
@@ -1521,16 +1496,14 @@ lreply(n, fmt, va_alist)
 }
 
 static void
-ack(s)
-	char *s;
+ack(char *s)
 {
 
 	reply(250, "%s command successful.", s);
 }
 
 void
-nack(s)
-	char *s;
+nack(char *s)
 {
 
 	reply(502, "%s command not implemented.", s);
@@ -1538,8 +1511,7 @@ nack(s)
 
 /* ARGSUSED */
 void
-yyerror(s)
-	char *s;
+yyerror(char *s)
 {
 	char *cp;
 
@@ -1549,8 +1521,7 @@ yyerror(s)
 }
 
 void
-delete(name)
-	char *name;
+delete(char *name)
 {
 	struct stat st;
 
@@ -1575,8 +1546,7 @@ done:
 }
 
 void
-cwd(path)
-	char *path;
+cwd(char *path)
 {
 
 	if (chdir(path) < 0)
@@ -1586,8 +1556,7 @@ cwd(path)
 }
 
 void
-makedir(name)
-	char *name;
+makedir(char *name)
 {
 	extern char *xgetcwd();
 	LOGCMD("mkdir", name);
@@ -1610,8 +1579,7 @@ makedir(name)
 }
 
 void
-removedir(name)
-	char *name;
+removedir(char *name)
 {
 
 	LOGCMD("rmdir", name);
@@ -1634,8 +1602,7 @@ pwd()
 }
 
 char *
-renamefrom(name)
-	char *name;
+renamefrom(char *name)
 {
 	struct stat st;
 
@@ -1648,8 +1615,7 @@ renamefrom(name)
 }
 
 void
-renamecmd(from, to)
-	char *from, *to;
+renamecmd(char *from, char *to)
 {
 
 	LOGCMD2("rename", from, to);
@@ -1660,8 +1626,7 @@ renamecmd(from, to)
 }
 
 static void
-dolog(sin)
-	struct sockaddr_in *sin;
+dolog(struct sockaddr_in *sin)
 {
 	const char *name;
 	struct hostent *hp = gethostbyaddr((char *)&sin->sin_addr,
@@ -1691,8 +1656,7 @@ dolog(sin)
  * and exit with supplied status.
  */
 void
-dologout(status)
-	int status;
+dologout(int status)
 {
   /* racing condition with SIGURG: If SIGURG is receive
      here, it will jump back has root in the main loop
@@ -1709,8 +1673,7 @@ dologout(status)
 }
 
 static void
-myoob(signo)
-	int signo;
+myoob(int signo)
 {
 	char *cp;
 
@@ -1791,8 +1754,7 @@ pasv_error:
  * Generates failure reply on error.
  */
 static char *
-gunique(local)
-	char *local;
+gunique(char *local)
 {
 	static char *new = 0;
 	struct stat st;
@@ -1832,9 +1794,7 @@ gunique(local)
  * Format and send reply containing system error number.
  */
 void
-perror_reply(code, string)
-	int code;
-	char *string;
+perror_reply(int code, char *string)
 {
 
 	reply(code, "%s: %s.", string, strerror(errno));
@@ -1846,8 +1806,7 @@ static char *onefile[] = {
 };
 
 void
-send_file_list(whichf)
-	char *whichf;
+send_file_list(char *whichf)
 {
 	struct stat st;
 	DIR *dirp = NULL;

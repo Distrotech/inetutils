@@ -1,4 +1,4 @@
-/* Copyright (C) 1992, 1995, 1996, 1997 Free Software Foundation, Inc.
+/* Copyright (C) 1992, 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -62,10 +62,7 @@ static char **last_environ;
 
 
 int
-setenv (name, value, replace)
-     const char *name;
-     const char *value;
-     int replace;
+setenv (const char *name, const char *value, int replace)
 {
   register char **ep;
   register size_t size;
@@ -144,8 +141,7 @@ setenv (name, value, replace)
 }
 
 void
-unsetenv (name)
-     const char *name;
+unsetenv (const char *name)
 {
   const size_t len = strlen (name);
   char **ep;

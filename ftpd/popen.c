@@ -76,8 +76,7 @@ struct file_pid {
 struct file_pid *file_pids = 0;
 
 FILE *
-ftpd_popen(program, type)
-	char *program, *type;
+ftpd_popen(char *program, char *type)
 {
 	char *cp;
 	FILE *iop;
@@ -150,10 +149,10 @@ ftpd_popen(program, type)
 
 		/* mvo: should this be a config-option? */
 		if(strcmp(gargv[0], "/bin/ls") == 0) {
-			optind = 0; 
+			optind = 0;
 			exit(ls_main(gargc, gargv));
 		}
-		
+
 		execv(gargv[0], gargv);
 		_exit(1);
 	}
@@ -181,8 +180,7 @@ pfree:	for (argc = 1; gargv[argc] != NULL; argc++)
 }
 
 int
-ftpd_pclose(iop)
-	FILE *iop;
+ftpd_pclose(FILE *iop)
 {
 	struct file_pid *fpid = file_pids, *prev_fpid = 0;
 	int fdes, status;

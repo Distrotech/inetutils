@@ -69,20 +69,17 @@
    Alain Magloire.
 */
 
-static int ptym_open();
-static int ptys_open();
+static int ptym_open __P ((char *pts_name));
+static int ptys_open __P ((int fdm, char * pts_name));
 
-int openpty(amaster, aslave, name, termp, winp)
-	int *amaster, *aslave;
-	char *name;
-	struct termios *termp;
-	struct winsize *winp;
+int
+openpty(int *amaster, char *aslave, char *name, struct termios *termp, struct winsize *winp)
 {
 	char line[20];
 	*amaster = ptym_open(line);
 	if (*amaster < 0)
 		return -1;
-	*aslave = ptys_open(*amaster, line, sizeof(line));
+	*aslave = ptys_open(*amaster, line);
 	if (*aslave < 0) {
 		close(*amaster);
 		return -1;
@@ -101,8 +98,8 @@ int openpty(amaster, aslave, name, termp, winp)
 	return 0;
 }
 
-static int ptym_open(pts_name)
-	char * pts_name;
+static int
+ptym_open(char * pts_name)
 {
 	int fdm;
 #ifdef HAVE_PTSNAME
@@ -152,9 +149,8 @@ static int ptym_open(pts_name)
 #endif
 }
 
-static int ptys_open(fdm, pts_name)
-	int fdm;
-	char * pts_name;
+static int
+ptys_open(int fdm, char * pts_name)
 {
 	int fds;
 #ifdef HAVE_PTSNAME

@@ -34,6 +34,8 @@ static char sccsid[] = "@(#)misc.c	8.1 (Berkeley) 6/4/93";
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "misc.h"
 
@@ -42,15 +44,12 @@ char *LocalHostName;
 char *UserNameRequested = 0;
 int ConnectedCount = 0;
 
-	void
-auth_encrypt_init(local, remote, name, server)
-	char *local;
-	char *remote;
-	char *name;
-	int server;
+void
+auth_encrypt_init(char *local, char *remote, char *name, int server)
 {
 	RemoteHostName = remote;
 	LocalHostName = local;
+	(void)name; (void)server; /* shutup gcc */
 #if	defined(AUTHENTICATION)
 	auth_init(name, server);
 #endif
@@ -63,27 +62,24 @@ auth_encrypt_init(local, remote, name, server)
 	}
 }
 
-	void
-auth_encrypt_user(name)
-	char *name;
+void
+auth_encrypt_user(char *name)
 {
-	extern char *strdup();
+	extern char *strdup __P ((const char *));
 
 	if (UserNameRequested)
 		free(UserNameRequested);
 	UserNameRequested = name ? strdup(name) : 0;
 }
 
-	void
-auth_encrypt_connect(cnt)
-	int cnt;
+void
+auth_encrypt_connect(int cnt)
 {
+	(void)cnt; /*shutup gcc */
 }
 
-	void
-printd(data, cnt)
-	unsigned char *data;
-	int cnt;
+void
+printd(unsigned char *data, int cnt)
 {
 	if (cnt > 16)
 		cnt = 16;

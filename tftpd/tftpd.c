@@ -117,9 +117,7 @@ static void  nak __P((int));
 static const char *verifyhost __P((struct sockaddr_in *));
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	register struct tftphdr *tp;
 	register int n;
@@ -265,9 +263,7 @@ struct formats {
  * Handle initial connection protocol.
  */
 void
-tftp(tp, size)
-	struct tftphdr *tp;
-	int size;
+tftp(struct tftphdr *tp, int size)
 {
 	register char *cp;
 	int first = 1, ecode;
@@ -339,9 +335,7 @@ FILE *file;
  * given as we have no login directory.
  */
 int
-validate_access(filep, mode)
-	char **filep;
-	int mode;
+validate_access(char **filep, int mode)
 {
 	struct stat stbuf;
 	int	fd;
@@ -434,8 +428,7 @@ int	timeout;
 jmp_buf	timeoutbuf;
 
 void
-timer(sig)
-  int sig;
+timer(int sig)
 {
 
 	timeout += rexmtval;
@@ -448,8 +441,7 @@ timer(sig)
  * Send the requested file.
  */
 void
-sendfile(pf)
-	struct formats *pf;
+sendfile(struct formats *pf)
 {
 	struct tftphdr *dp, *r_init();
 	register struct tftphdr *ap;    /* ack packet */
@@ -508,8 +500,7 @@ abort:
 }
 
 void
-justquit(sig)
-  int sig;
+justquit(int sig)
 {
 	exit(0);
 }
@@ -519,8 +510,7 @@ justquit(sig)
  * Receive a file.
  */
 void
-recvfile(pf)
-	struct formats *pf;
+recvfile(struct formats *pf)
 {
 	struct tftphdr *dp, *w_init();
 	register struct tftphdr *ap;    /* ack buffer */
@@ -609,8 +599,7 @@ struct errmsg {
 };
 
 static const char *
-errtomsg(error)
-	int error;
+errtomsg(int error)
 {
 	static char buf[20];
 	register struct errmsg *pe;
@@ -630,8 +619,7 @@ errtomsg(error)
  * offset by 100.
  */
 static void
-nak(error)
-	int error;
+nak(int error)
 {
 	register struct tftphdr *tp;
 	int length;
@@ -656,8 +644,7 @@ nak(error)
 }
 
 static const char *
-verifyhost(fromp)
-	struct sockaddr_in *fromp;
+verifyhost(struct sockaddr_in *fromp)
 {
 	struct hostent *hp;
 

@@ -49,6 +49,7 @@ static char sccsid[] = "@(#)look_up.c	8.1 (Berkeley) 6/6/93";
 /*
  * See if the local daemon has an invitation for us.
  */
+int
 check_local()
 {
 	CTL_RESPONSE response;
@@ -95,6 +96,7 @@ check_local()
 /*
  * Look for an invitation on 'machine'
  */
+int
 look_for_invite(rp)
 	CTL_RESPONSE *rp;
 {

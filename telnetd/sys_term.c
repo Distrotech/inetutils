@@ -175,7 +175,7 @@ int ttyfd = -1;
  * set_termbuf() writes the structure into the kernel.
  */
 
-	void
+void
 init_termbuf()
 {
 #ifndef	USE_TERMIO
@@ -196,10 +196,8 @@ init_termbuf()
 }
 
 #if	defined(LINEMODE) && defined(TIOCPKT_IOCTL)
-	void
-copy_termbuf(cp, len)
-	char *cp;
-	int len;
+void
+copy_termbuf(char *cp, int len)
 {
 	if (len > sizeof(termbuf))
 		len = sizeof(termbuf);
@@ -208,7 +206,7 @@ copy_termbuf(cp, len)
 }
 #endif	/* defined(LINEMODE) && defined(TIOCPKT_IOCTL) */
 
-	void
+void
 set_termbuf()
 {
 	/*
@@ -252,11 +250,8 @@ set_termbuf()
  */
 
 #ifndef	USE_TERMIO
-	int
-spcset(func, valp, valpp)
-	int func;
-	cc_t *valp;
-	cc_t **valpp;
+int
+spcset(int func, cc_t *valp, cc_t **valpp)
 {
 	switch(func) {
 	case SLC_EOF:
@@ -327,11 +322,8 @@ spcset(func, valp, valpp)
 
 #else	/* USE_TERMIO */
 
-	int
-spcset(func, valp, valpp)
-	int func;
-	cc_t *valp;
-	cc_t **valpp;
+int
+spcset(int func, cc_t *valp, cc_t **valpp)
 {
 
 #define	setval(a, b)	*valp = termbuf.c_cc[a]; \
@@ -429,7 +421,7 @@ spcset(func, valp, valpp)
  *
  * Return the number of pty's configured into the system.
  */
-	int
+int
 getnpty()
 {
 #ifdef _SC_CRAY_NPTY
@@ -462,9 +454,8 @@ char *line = Xline;
 char *myline = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 #endif	/* CRAY */
 
-	int
-getpty(ptynum)
-int *ptynum;
+int
+getpty(int *ptynum)
 {
 	register int p;
 #ifdef	HAVE_STREAMSPTY
@@ -602,7 +593,7 @@ int *ptynum;
 static int linestate;
 #endif
 
-	int
+int
 tty_linemode()
 {
 #ifndef convex
@@ -645,7 +636,7 @@ tty_setlinemode(on)
 }
 #endif	/* LINEMODE */
 
-	int
+int
 tty_isecho()
 {
 #ifndef USE_TERMIO
@@ -655,7 +646,7 @@ tty_isecho()
 #endif
 }
 
-	int
+int
 tty_flowmode()
 {
 #ifndef USE_TERMIO
@@ -665,7 +656,7 @@ tty_flowmode()
 #endif
 }
 
-	int
+int
 tty_restartany()
 {
 #ifndef USE_TERMIO
@@ -679,7 +670,7 @@ tty_restartany()
 #endif
 }
 
-	void
+void
 tty_setecho(on)
 	int on;
 {
@@ -696,7 +687,7 @@ tty_setecho(on)
 #endif
 }
 
-	int
+int
 tty_israw()
 {
 #ifndef USE_TERMIO
@@ -707,8 +698,8 @@ tty_israw()
 }
 
 #if	defined (AUTHENTICATION) && defined(NO_LOGIN_F) && defined(LOGIN_R)
-	int
-tty_setraw(on)
+int
+tty_setraw(int on)
 {
 #  ifndef USE_TERMIO
 	if (on)
@@ -724,9 +715,8 @@ tty_setraw(on)
 }
 #endif
 
-	void
-tty_binaryin(on)
-	int on;
+void
+tty_binaryin(int on)
 {
 #ifndef	USE_TERMIO
 	if (on)
@@ -742,9 +732,8 @@ tty_binaryin(on)
 #endif
 }
 
-	void
-tty_binaryout(on)
-	int on;
+void
+tty_binaryout(int on)
 {
 #ifndef	USE_TERMIO
 	if (on)
@@ -774,7 +763,7 @@ tty_isbinaryin()
 #endif
 }
 
-	int
+int
 tty_isbinaryout()
 {
 #ifndef	USE_TERMIO
@@ -785,7 +774,7 @@ tty_isbinaryout()
 }
 
 #ifdef	LINEMODE
-	int
+int
 tty_isediting()
 {
 #ifndef USE_TERMIO
@@ -795,7 +784,7 @@ tty_isediting()
 #endif
 }
 
-	int
+int
 tty_istrapsig()
 {
 #ifndef USE_TERMIO
@@ -805,9 +794,8 @@ tty_istrapsig()
 #endif
 }
 
-	void
-tty_setedit(on)
-	int on;
+void
+tty_setedit(int on)
 {
 #ifndef USE_TERMIO
 	if (on)
@@ -822,9 +810,8 @@ tty_setedit(on)
 #endif
 }
 
-	void
-tty_setsig(on)
-	int on;
+void
+tty_setsig(int on)
 {
 #ifndef	USE_TERMIO
 	if (on)
@@ -838,7 +825,7 @@ tty_setsig(on)
 }
 #endif	/* LINEMODE */
 
-	int
+int
 tty_issofttab()
 {
 #ifndef	USE_TERMIO
@@ -853,9 +840,8 @@ tty_issofttab()
 #endif
 }
 
-	void
-tty_setsofttab(on)
-	int on;
+void
+tty_setsofttab(int on)
 {
 #ifndef	USE_TERMIO
 	if (on)
@@ -883,7 +869,7 @@ tty_setsofttab(on)
 #endif
 }
 
-	int
+int
 tty_islitecho()
 {
 #ifndef	USE_TERMIO
@@ -901,9 +887,8 @@ tty_islitecho()
 #endif
 }
 
-	void
-tty_setlitecho(on)
-	int on;
+void
+tty_setlitecho(int on)
 {
 #ifndef	USE_TERMIO
 	if (on)
@@ -926,7 +911,7 @@ tty_setlitecho(on)
 #endif
 }
 
-	int
+int
 tty_iscrnl()
 {
 #ifndef	USE_TERMIO
@@ -986,9 +971,8 @@ struct termspeeds {
 };
 #endif	/* DECODE_BUAD */
 
-	void
-tty_tspeed(val)
-	int val;
+void
+tty_tspeed(int val)
 {
 #ifdef	DECODE_BAUD
 	register struct termspeeds *tp;
@@ -1003,9 +987,8 @@ tty_tspeed(val)
 #endif	/* DECODE_BUAD */
 }
 
-	void
-tty_rspeed(val)
-	int val;
+void
+tty_rspeed(int val)
 {
 #ifdef	DECODE_BAUD
 	register struct termspeeds *tp;
@@ -1021,7 +1004,7 @@ tty_rspeed(val)
 }
 
 #if	defined(CRAY2) && defined(UNICOS5)
-	int
+int
 tty_isnewmap()
 {
 	return((termbuf.c_oflag & OPOST) && (termbuf.c_oflag & ONLCR) &&
@@ -1037,9 +1020,8 @@ extern char wtmpf[];
 int	gotalarm;
 
 	/* ARGSUSED */
-	void
-nologinproc(sig)
-	int sig;
+void
+nologinproc(int sig)
 {
 	gotalarm++;
 }
@@ -1062,7 +1044,7 @@ extern void utmp_sig_notify P((int));
  * that is necessary.  The return value is a file descriptor
  * for the slave side.
  */
-	int
+int
 getptyslave()
 {
 	register int t = -1;
@@ -1208,9 +1190,8 @@ getptyslave()
  * Open the specified slave side of the pty,
  * making sure that we have a clean tty.
  */
-	int
-cleanopen(line)
-	char *line;
+int
+cleanopen(char *line)
 {
 	register int t;
 #ifdef	UNICOS7x
@@ -1307,9 +1288,8 @@ cleanopen(line)
 
 #if BSD <= 43
 
-	int
-login_tty(t)
-	int t;
+int
+login_tty(int t)
 {
 	if (setsid() < 0) {
 #ifdef ultrix
@@ -1370,11 +1350,8 @@ char *gen_id = "fe";
  */
 
 /* ARGSUSED */
-	void
-startslave(host, autologin, autoname)
-	char *host;
-	int autologin;
-	char *autoname;
+void
+startslave(char *host, int autologin, char *autoname)
 {
 	register int i;
 	char name[256];
@@ -1505,7 +1482,7 @@ startslave(host, autologin, autoname)
 char	*envinit[3];
 extern char **environ;
 
-	void
+void
 init_env()
 {
 	extern char *getenv();
@@ -1554,11 +1531,8 @@ scrub_env()
  * function will turn us into the login process.
  */
 
-	void
-start_login(host, autologin, name)
-	char *host;
-	int autologin;
-	char *name;
+void
+start_login(char *host, int autologin, char *name)
 {
 	register char *cp;
 	register char **argv;
@@ -1798,10 +1772,8 @@ start_login(host, autologin, name)
 	/*NOTREACHED*/
 }
 
-	char **
-addarg(argv, val)
-	register char **argv;
-	register char *val;
+char **
+addarg(register char **argv, register char *val)
 {
 	register char **cpp;
 
@@ -1839,9 +1811,8 @@ addarg(argv, val)
  * clean up anything that needs to be cleaned up.
  */
 	/* ARGSUSED */
-	void
-cleanup(sig)
-	int sig;
+void
+cleanup(int sig)
 {
 #ifndef	PARENT_DOES_UTMP
 # if (BSD > 43) || defined(convex)
@@ -1944,15 +1915,14 @@ cleanup(sig)
 static int caught=0;		/* NZ when signal intercepted */
 static void (*func)();		/* address of previous handler */
 
-	void
-_utmp_sig_rcv(sig)
-	int sig;
+void
+_utmp_sig_rcv(int sig)
 {
 	caught = 1;
 	(void) signal(SIGUSR1, func);
 }
 
-	void
+void
 utmp_sig_init()
 {
 	/*
@@ -1962,7 +1932,7 @@ utmp_sig_init()
 		fatalperror(net, "telnetd/signal");
 }
 
-	void
+void
 utmp_sig_reset()
 {
 	(void) signal(SIGUSR1, func);	/* reset handler to default */
@@ -1973,7 +1943,7 @@ utmp_sig_reset()
 # define sigon() /* do nothing */
 # endif
 
-	void
+void
 utmp_sig_wait()
 {
 	/*
@@ -1987,8 +1957,8 @@ utmp_sig_wait()
 	sigon();		/* turn on signals again */
 }
 
-	void
-utmp_sig_notify(pid)
+void
+utmp_sig_notify(int pid)
 {
 	kill(pid, SIGUSR1);
 }
@@ -1997,9 +1967,8 @@ utmp_sig_notify(pid)
 static int gotsigjob = 0;
 
 	/*ARGSUSED*/
-	void
-sigjob(sig)
-	int sig;
+void
+sigjob(int sig)
 {
 	register int jid;
 	register struct jobtemp *jp;
@@ -2019,9 +1988,8 @@ sigjob(sig)
  *		to find the correct $TMPDIR to cleanup.
  */
 
-	struct utmp *
-jid_getutid(jid)
-	int jid;
+struct utmp *
+jid_getutid(int jid)
 {
 	struct utmp *cur = NULL;
 
@@ -2043,9 +2011,8 @@ jid_getutid(jid)
  * when this is called the second time it will wait
  * for the signal that the job is done.
  */
-	int
-cleantmp(wtp)
-	register struct utmp *wtp;
+int
+cleantmp(register struct utmp *wtp)
 {
 	struct utmp *utp;
 	static int first = 1;
@@ -2084,11 +2051,8 @@ cleantmp(wtp)
 	return(ret);
 }
 
-	int
-jobend(jid, path, user)
-	register int jid;
-	register char *path;
-	register char *user;
+int
+jobend(register int jid, register char *path, register char *user)
 {
 	static int saved_jid = 0;
 	static int pty_saved_jid = 0;
@@ -2147,10 +2111,8 @@ jobend(jid, path, user)
 /*
  * Fork a child process to clean up the TMPDIR
  */
-cleantmpdir(jid, tpath, user)
-	register int jid;
-	register char *tpath;
-	register char *user;
+int
+cleantmpdir(register int jid, register char *tpath, register char *user)
 {
 	switch(fork()) {
 	case -1:
@@ -2181,7 +2143,7 @@ cleantmpdir(jid, tpath, user)
  */
 
 #ifdef	HAVE_UTMPX_H
-	void
+void
 rmut()
 {
 	register f;
@@ -2211,8 +2173,8 @@ rmut()
 }  /* end of rmut */
 #endif
 
-#if	!defined(HAVE_UTMPX_H) && !(defined(CRAY) || defined(__hpux)) && BSD <= 43
-	void
+#if !defined(HAVE_UTMPX_H) && !(defined(CRAY) || defined(__hpux)) && BSD <= 43
+void
 rmut()
 {
 	register f;
@@ -2273,8 +2235,8 @@ rmut()
 #endif	/* CRAY */
 
 #ifdef __hpux
-rmut (line)
-char *line;
+int
+rmut (char *line)
 {
 	struct utmp utmp;
 	struct utmp *utptr;

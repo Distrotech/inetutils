@@ -63,7 +63,7 @@ static char sccsid[] = "@(#)main.c	8.3 (Berkeley) 5/30/95";
 /*
  * Initialize variables.
  */
-    void
+void
 tninit()
 {
     init_terminal();
@@ -182,9 +182,8 @@ static struct option long_options[] =
 /*
  * main.  Parse arguments, invoke the protocol or command parser.
  */
-main(argc, argv)
-	int argc;
-	char *argv[];
+int
+main(int argc, char *argv[])
 {
 	extern char *optarg;
 	extern int optind;

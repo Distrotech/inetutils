@@ -52,9 +52,8 @@ extern	CTL_MSG msg;
 /*
  * Determine the local and remote user, tty, and machines
  */
-get_names(argc, argv)
-	int argc;
-	char *argv[];
+int
+get_names(int argc, char *argv[])
 {
 	extern char *localhost ();
 	char *his_name, *my_name;

@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = ../ansi2knr
+
 bin_PROGRAMS = @BUILD_WHOIS@
 
 EXTRA_PROGRAMS = whois

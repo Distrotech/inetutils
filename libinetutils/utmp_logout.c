@@ -41,8 +41,8 @@
 
 /* utmp_logout - update utmp and wtmp after logout */
 
-utmp_logout(line)
-char   *line;
+void
+utmp_logout(char   *line)
 {
 #ifdef HAVE_UTMPX_H
 	struct utmpx utx;
@@ -50,7 +50,7 @@ char   *line;
 
 	strncpy(utx.ut_line, line, sizeof(utx.ut_line));
 
-	if (ut = getutxline(&utx)) {
+	if ((ut = getutxline(&utx))) {
 		ut->ut_type = DEAD_PROCESS;
 		ut->ut_exit.e_termination = 0;
 		ut->ut_exit.e_exit = 0;

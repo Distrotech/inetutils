@@ -44,11 +44,9 @@ static char sccsid[] = "@(#)genget.c	8.2 (Berkeley) 5/30/95";
  * the length is returned.  If *s1 is a prefix of *s2,
  * the length of *s1 is returned.
  */
-	int
-isprefix(s1, s2)
-	register char *s1, *s2;
+int
+isprefix(register char *s1, register char *s2)
 {
-        register int n = 0;
         char *os1;
 	register char c1, c2;
 
@@ -68,11 +66,10 @@ isprefix(s1, s2)
 
 static char *ambiguous;		/* special return value for command routines */
 
-	char **
-genget(name, table, stlen)
-	char	*name;		/* name to match */
-	char	**table;	/* name entry in table */
-	int	stlen;
+/* char	*name; name to match */
+/* char	**table; name entry in table */
+char **
+genget(char	*name, char	**table, int	stlen)
 {
 	register char **c, **found;
 	register int n;
@@ -96,9 +93,8 @@ genget(name, table, stlen)
 /*
  * Function call version of Ambiguous()
  */
-	int
-Ambiguous(s)
-	char *s;
+int
+Ambiguous(char *s)
 {
 	return((char **)s == &ambiguous);
 }

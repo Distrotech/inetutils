@@ -167,9 +167,7 @@ int	local_domain __P((char *));
 char	*topdomain __P((char *));
 
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	struct sockaddr_in from;
 	int ch, fromlen, on;
@@ -259,9 +257,7 @@ struct winsize win = { 0, 0, 0, 0 };
 
 
 void
-doit(f, fromp)
-	int f;
-	struct sockaddr_in *fromp;
+doit(int f, struct sockaddr_in *fromp)
 {
 	int master, pid, on = 1;
 	int authenticated = 0;
@@ -433,10 +429,7 @@ char	oobdata[] = {TIOCPKT_WINDOW};
  * window size changes.
  */
 int
-control(pty, cp, n)
-	int pty;
-	char *cp;
-	int n;
+control(int pty, char *cp, int n)
 {
 	struct winsize w;
 
@@ -456,8 +449,7 @@ control(pty, cp, n)
  * rlogin "protocol" machine.
  */
 void
-protocol(f, p)
-	register int f, p;
+protocol(register int f, register int p)
 {
 	char pibuf[1024+1], fibuf[1024], *pbp, *fbp;
 	register pcc = 0, fcc = 0;
@@ -616,8 +608,7 @@ protocol(f, p)
 }
 
 void
-cleanup(signo)
-	int signo;
+cleanup(int signo)
 {
 	char *p;
 
@@ -640,10 +631,7 @@ cleanup(signo)
 }
 
 void
-fatal(f, msg, syserr)
-	int f;
-	char *msg;
-	int syserr;
+fatal(int f, char *msg, int syserr)
 {
 	int len;
 	char buf[BUFSIZ], *bp = buf;
@@ -665,8 +653,7 @@ fatal(f, msg, syserr)
 }
 
 int
-do_rlogin(dest)
-	struct sockaddr_in *dest;
+do_rlogin(struct sockaddr_in *dest)
 {
 	getstr(rusername, sizeof(rusername), "remuser too long");
 	getstr(lusername, sizeof(lusername), "locuser too long");
@@ -682,10 +669,7 @@ do_rlogin(dest)
 }
 
 void
-getstr(buf, cnt, errmsg)
-	char *buf;
-	int cnt;
-	char *errmsg;
+getstr(char *buf, int cnt, char *errmsg)
 {
 	char c;
 
@@ -699,8 +683,7 @@ getstr(buf, cnt, errmsg)
 }
 
 void
-setup_term(fd)
-	int fd;
+setup_term(int fd)
 {
 	register char *cp = strchr (term+ENVSIZE, '/');
 	char *speed;
@@ -760,8 +743,7 @@ setup_term(fd)
  * Return >0 for error conditions
  */
 int
-do_krb_login(dest)
-	struct sockaddr_in *dest;
+do_krb_login(struct sockaddr_in *dest)
 {
 	int rc;
 	char instance[INST_SZ], version[VERSION_SIZE];
@@ -834,8 +816,7 @@ usage()
  * interpreted as such.
  */
 int
-local_domain(h)
-	char *h;
+local_domain(char *h)
 {
 	extern char *localhost ();
 	char *hostname = localhost ();
@@ -857,8 +838,7 @@ local_domain(h)
 }
 
 char *
-topdomain(h)
-	char *h;
+topdomain(char *h)
 {
 	register char *p;
 	char *maybe = NULL;

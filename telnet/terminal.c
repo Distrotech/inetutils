@@ -88,7 +88,7 @@ cc_t termAytChar;
  * initialize the terminal data structures.
  */
 
-    void
+void
 init_terminal()
 {
     if (ring_init(&ttyoring, ttyobuf, sizeof ttyobuf) != 1) {
@@ -112,9 +112,8 @@ init_terminal()
  */
 
 
-    int
-ttyflush(drop)
-    int drop;
+int
+ttyflush(int drop)
 {
     register int n, n0, n1;
 
@@ -162,7 +161,7 @@ ttyflush(drop)
  */
 
 
-    int
+int
 getconnmode()
 {
     extern int linemode;
@@ -202,9 +201,8 @@ getconnmode()
     return(mode);
 }
 
-    void
-setconnmode(force)
-    int force;
+void
+setconnmode(int force)
 {
 #ifdef	ENCRYPTION
     static int enc_passwd = 0;
@@ -233,7 +231,7 @@ setconnmode(force)
 }
 
 
-    void
+void
 setcommandmode()
 {
     TerminalNewMode(-1);

@@ -1,5 +1,5 @@
 /* getusershell.c -- Return names of valid user shells.
-   Copyright (C) 1991 Free Software Foundation, Inc.
+   Copyright (C) 1991, 2000 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -32,13 +32,13 @@
 #ifdef STDC_HEADERS
 #include <stdlib.h>
 #else
-char *malloc ();
-char *realloc ();
+char *malloc __P (());
+char *realloc __P (());
 #endif
 
-char *xstrdup ();
+char *xstrdup __P ((const char *));
 
-static int readname ();
+static int readname __P ((char **name, int *size, FILE *stream));
 
 /* List of shells to use if the shells file is missing. */
 static char const* const default_shells[] =
@@ -118,39 +118,6 @@ endusershell ()
     }
 }
 
-/* Allocate N bytes of memory dynamically, with error checking.  */
-
-static char *
-xmalloc (n)
-     unsigned n;
-{
-  char *p;
-
-  p = malloc (n);
-  if (p == 0)
-    {
-      fprintf (stderr, "virtual memory exhausted\n");
-      exit (1);
-    }
-  return p;
-}
-
-/* Reallocate space P to size N, with error checking.  */
-
-static char *
-xrealloc (p, n)
-     char *p;
-     unsigned n;
-{
-  p = realloc (p, n);
-  if (p == 0)
-    {
-      fprintf (stderr, "virtual memory exhausted\n");
-      exit (1);
-    }
-  return p;
-}
-
 /* Read a line from STREAM, removing any newline at the end.
    Place the result in *NAME, which is malloc'd
    and/or realloc'd as necessary and can start out NULL,
@@ -160,10 +127,7 @@ xrealloc (p, n)
    if some nonempty sequence was found, otherwise 0.  */
 
 static int
-readname (name, size, stream)
-     char **name;
-     int *size;
-     FILE *stream;
+readname (char **name, int *size, FILE *stream)
 {
   int c;
   int name_index = 0;
@@ -177,7 +141,7 @@ readname (name, size, stream)
   /* Skip blank space.  */
   while ((c = getc (stream)) != EOF && isspace (c))
     /* Do nothing. */ ;
-  
+
   while (c != EOF && !isspace (c))
     {
       (*name)[name_index++] = c;

@@ -77,7 +77,7 @@ static int
 #endif	/* defined(TN3270) */
 
 
-    void
+void
 init_3270()
 {
 #if	defined(TN3270)
@@ -106,11 +106,11 @@ init_3270()
  * only client needs for us to do that.
  */
 
-    int
-DataToNetwork(buffer, count, done)
-    register char *buffer;	/* where the data is */
-    register int  count;	/* how much to send */
-    int		  done;		/* is this the last of a logical block */
+/*register char *buffer; where the data is */
+/* register int  count;	 how much to send */
+/* int		  done;	 is this the last of a logical block */
+int
+DataToNetwork(register char *buffer, register int  count, int  done)
 {
     register int loop, c;
     int origCount;
@@ -163,16 +163,15 @@ DataToNetwork(buffer, count, done)
 
 
 #if	defined(unix)
-    void
-inputAvailable(signo)
-	int signo;
+void
+inputAvailable(int signo)
 {
     HaveInput = 1;
     sigiocount++;
 }
 #endif	/* defined(unix) */
 
-    void
+void
 outputPurge()
 {
     (void) ttyflush(1);
@@ -191,10 +190,10 @@ outputPurge()
  * *all* the data at one time (thus the select).
  */
 
-    int
-DataToTerminal(buffer, count)
-    register char	*buffer;		/* where the data is */
-    register int	count;			/* how much to send */
+/* register char *buffer;where the data is */
+/* register int	count;	 how much to send */
+int
+DataToTerminal(register char *buffer, register int count)
 {
     register int c;
     int origCount;
@@ -234,7 +233,7 @@ DataToTerminal(buffer, count)
  * Push3270 - Try to send data along the 3270 output (to screen) direction.
  */
 
-    int
+int
 Push3270()
 {
     int save = ring_full_count(&netiring);
@@ -260,7 +259,7 @@ Push3270()
  *		before quitting.
  */
 
-    void
+void
 Finish3270()
 {
     while (Push3270() || !DoTerminalOutput()) {
@@ -274,9 +273,8 @@ Finish3270()
 
 /* StringToTerminal - output a null terminated string to the terminal */
 
-    void
-StringToTerminal(s)
-    char *s;
+void
+StringToTerminal(char *s)
 {
     int count;
 
@@ -292,9 +290,8 @@ StringToTerminal(s)
  *	curses(3x) can call us to send out data.
  */
 
-    void
-_putchar(c)
-    char c;
+void
+_putchar(char c)
 {
 #if	defined(sun)		/* SunOS 4.0 bug */
     c &= 0x7f;
@@ -310,7 +307,7 @@ _putchar(c)
 }
 #endif	/* ((!defined(NOT43)) || defined(PUTCHAR)) */
 
-    void
+void
 SetIn3270()
 {
     if (Sent3270TerminalType && my_want_state_is_will(TELOPT_BINARY)
@@ -340,7 +337,7 @@ SetIn3270()
  *	Return '0' if no more responses to send; '1' if a response sent.
  */
 
-    int
+int
 tn3270_ttype()
 {
     /*
@@ -385,10 +382,8 @@ tn3270_ttype()
 }
 
 #if	defined(unix)
-	int
-settranscom(argc, argv)
-	int argc;
-	char *argv[];
+int
+settranscom(int argc, char *argv[])
 {
 	int i;
 

@@ -122,7 +122,7 @@ extern struct termio new_tc;
 static fd_set ibits, obits, xbits;
 
 
-    void
+void
 init_sys()
 {
     tout = fileno(stdout);
@@ -135,18 +135,14 @@ init_sys()
 }
 
 
-    int
-TerminalWrite(buf, n)
-    char *buf;
-    int  n;
+int
+TerminalWrite(char *buf, int  n)
 {
     return write(tout, buf, n);
 }
 
-    int
-TerminalRead(buf, n)
-    char *buf;
-    int  n;
+int
+TerminalRead(char *buf, int  n)
 {
     return read(tin, buf, n);
 }
@@ -155,7 +151,7 @@ TerminalRead(buf, n)
  *
  */
 
-    int
+int
 TerminalAutoFlush()
 {
 #if	defined(LNOFLSH)
@@ -185,9 +181,8 @@ extern int kludgelinemode;
 
 extern void xmitAO(), xmitEL(), xmitEC(), intp(), sendbrk();
 
-    int
-TerminalSpecialChars(c)
-    int	c;
+int
+TerminalSpecialChars(int c)
 {
     if (c == termIntChar) {
 	intp();
@@ -229,7 +224,7 @@ TerminalSpecialChars(c)
  * Flush output to the terminal
  */
 
-    void
+void
 TerminalFlushOutput()
 {
 #ifdef	TIOCFLUSH
@@ -239,7 +234,7 @@ TerminalFlushOutput()
 #endif
 }
 
-    void
+void
 TerminalSaveState()
 {
 #ifndef	USE_TERMIO
@@ -281,9 +276,8 @@ TerminalSaveState()
 #endif	/* USE_TERMIO */
 }
 
-    cc_t *
-tcval(func)
-    register int func;
+cc_t *
+tcval(register int func)
 {
     switch(func) {
     case SLC_IP:	return(&termIntChar);
@@ -324,7 +318,7 @@ tcval(func)
     }
 }
 
-    void
+void
 TerminalDefaultChars()
 {
 #ifndef	USE_TERMIO
@@ -388,9 +382,8 @@ TerminalRestoreState()
  */
 
 
-    void
-TerminalNewMode(f)
-    register int f;
+void
+TerminalNewMode(register int f)
 {
     static int prevmode = 0;
 #ifndef	USE_TERMIO
@@ -789,10 +782,8 @@ struct termspeeds {
 };
 #endif	/* DECODE_BAUD */
 
-    void
-TerminalSpeeds(ispeed, ospeed)
-    long *ispeed;
-    long *ospeed;
+void
+TerminalSpeeds(long *ispeed, long *ospeed)
 {
 #ifdef	DECODE_BAUD
     register struct termspeeds *tp;
@@ -820,9 +811,8 @@ TerminalSpeeds(ispeed, ospeed)
 #endif	/* DECODE_BAUD */
 }
 
-    int
-TerminalWindowSize(rows, cols)
-    long *rows, *cols;
+int
+TerminalWindowSize(long *rows, long *cols)
 {
 #ifdef	TIOCGWINSZ
     struct winsize ws;
@@ -836,34 +826,28 @@ TerminalWindowSize(rows, cols)
     return 0;
 }
 
-    int
-NetClose(fd)
-    int	fd;
+int
+NetClose(int fd)
 {
     return close(fd);
 }
 
 
-    void
-NetNonblockingIO(fd, onoff)
-    int fd;
-    int onoff;
+void
+NetNonblockingIO(int fd, int onoff)
 {
     ioctl(fd, FIONBIO, (char *)&onoff);
 }
 
 #if	defined(TN3270)
-    void
-NetSigIO(fd, onoff)
-    int fd;
-    int onoff;
+void
+NetSigIO(int fd, int onoff)
 {
     ioctl(fd, FIOASYNC, (char *)&onoff);	/* hear about input */
 }
 
-    void
-NetSetPgrp(fd)
-    int fd;
+void
+NetSetPgrp(int fd)
 {
     int myPid;
 
@@ -877,18 +861,16 @@ NetSetPgrp(fd)
  */
 
     /* ARGSUSED */
-    RETSIGTYPE
-deadpeer(sig)
-    int sig;
+RETSIGTYPE
+deadpeer(int sig)
 {
 	setcommandmode();
 	longjmp(peerdied, -1);
 }
 
     /* ARGSUSED */
-    RETSIGTYPE
-intr(sig)
-    int sig;
+RETSIGTYPE
+intr(int sig)
 {
     if (localchars) {
 	intp();
@@ -899,9 +881,8 @@ intr(sig)
 }
 
     /* ARGSUSED */
-    RETSIGTYPE
-intr2(sig)
-    int sig;
+RETSIGTYPE
+intr2(int sig)
 {
     if (localchars) {
 #ifdef	KLUDGELINEMODE
@@ -916,9 +897,8 @@ intr2(sig)
 
 #ifdef	SIGTSTP
     /* ARGSUSED */
-    RETSIGTYPE
-susp(sig)
-    int sig;
+RETSIGTYPE
+susp(int sig)
 {
     if ((rlogin != _POSIX_VDISABLE) && rlogin_susp())
 	return;
@@ -929,9 +909,8 @@ susp(sig)
 
 #ifdef	SIGWINCH
     /* ARGSUSED */
-    RETSIGTYPE
-sendwin(sig)
-    int sig;
+RETSIGTYPE
+sendwin(int sig)
 {
     if (connected) {
 	sendnaws();
@@ -941,9 +920,8 @@ sendwin(sig)
 
 #ifdef	SIGINFO
     /* ARGSUSED */
-    RETSIGTYPE
-ayt(sig)
-    int sig;
+RETSIGTYPE
+ayt(int sig)
 {
     if (connected)
 	sendayt();
@@ -953,7 +931,7 @@ ayt(sig)
 #endif
 
 
-    void
+void
 sys_telnet_init()
 {
     (void) signal(SIGINT, intr);
@@ -998,9 +976,9 @@ sys_telnet_init()
  *	The return value is 1 if something happened, 0 if not.
  */
 
-    int
-process_rings(netin, netout, netex, ttyin, ttyout, poll)
-    int poll;		/* If 0, then block until something to do */
+/* poll; If 0, then block until something to do */
+int
+process_rings(int netin, int netout, int netex, int ttyin, int ttyout, int poll)
 {
     register int c;
 		/* One wants to be a bit careful about setting returnValue

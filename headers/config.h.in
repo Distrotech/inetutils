@@ -16,7 +16,7 @@
 
 
 /* Define is you have PATH_RSH. */
-#undef TEEHEE 
+#undef TEEHEE
 
 /* Define if you have the Andrew File System.  */
 #undef AFS
@@ -373,6 +373,9 @@
 /* Define this if getgrnam is declared by including <grp.h>.  */
 #undef HAVE_GETGRNAM_DECL
 
+* Define this if getgrnam is declared by including <grp.h>.  */
+#undef HAVE_INITGROUPS_DECL
+
 /* Define this if htons is declared by including <sys/types.h>,
    <sys/param.h>, & <netinet/in.h>.  */
 #undef HAVE_HTONS_DECL
@@ -445,8 +448,11 @@
 /* Define if you have the getpagesize function.  */
 #undef HAVE_GETPAGESIZE
 
-/* Define if you have the `getspnam' function. */
+/* Define if you have the getspnam function.  */
 #undef HAVE_GETSPNAM
+
+/* Define if you have the initgroups function.  */
+#undef HAVE_INITGROUPS
 
 /* Define if you have the getusershell function.  */
 #undef HAVE_GETUSERSHELL
@@ -863,6 +869,10 @@ extern const char *strerror __P ((int));
 
 #ifndef HAVE_GETGRNAM_DECL
 extern struct group *getgrnam __P ((const char *));
+#endif
+
+#ifndef HAVE_INITGROUPS_DECL
+extern int initgroups __P ((const char *user, gid_t group));
 #endif
 
 /* Defaults for PATH_ variables.  */

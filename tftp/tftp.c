@@ -100,10 +100,7 @@ static void tpacket __P((const char *, struct tftphdr *, int));
  * Send the requested file.
  */
 void
-sendfile(fd, name, mode)
-	int fd;
-	char *name;
-	char *mode;
+sendfile(int fd, char *name, char *mode)
 {
 	register struct tftphdr *ap;	   /* data and ack packets */
 	struct tftphdr *r_init(), *dp;
@@ -205,10 +202,7 @@ abort:
  * Receive a file.
  */
 void
-recvfile(fd, name, mode)
-	int fd;
-	char *name;
-	char *mode;
+recvfile(int fd, char *name, char *mode)
 {
 	register struct tftphdr *ap;
 	struct tftphdr *dp, *w_init();
@@ -314,11 +308,7 @@ abort:						/* ok to ack, since user */
 }
 
 static int
-makerequest(request, name, tp, mode)
-	int request;
-	const char *name;
-	struct tftphdr *tp;
-	const char *mode;
+makerequest(int request, const char *name, struct tftphdr *tp, const char *mode)
 {
 	register char *cp;
 
@@ -355,8 +345,7 @@ struct errmsg {
  * offset by 100.
  */
 static void
-nak(error)
-	int error;
+nak(int error)
 {
 	register struct errmsg *pe;
 	register struct tftphdr *tp;
@@ -382,10 +371,7 @@ nak(error)
 }
 
 static void
-tpacket(s, tp, n)
-	const char *s;
-	struct tftphdr *tp;
-	int n;
+tpacket(const char *s, struct tftphdr *tp, int n)
 {
 	static char *opcodes[] =
 	   { "#0", "RRQ", "WRQ", "DATA", "ACK", "ERROR" };
@@ -438,9 +424,7 @@ stopclock()
 }
 
 static void
-printstats(direction, amount)
-	const char *direction;
-	unsigned long amount;
+printstats(const char *direction, unsigned long amount)
 {
 	double delta;
 			/* compute delta in 1/10's second units */
@@ -454,8 +438,7 @@ printstats(direction, amount)
 }
 
 static void
-timer(sig)
-	int sig;
+timer(int sig)
 {
 
 	timeout += rexmtval;

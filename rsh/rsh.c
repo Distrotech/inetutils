@@ -126,8 +126,7 @@ static struct option long_options[] =
 };
 
 static void
-pusage (stream)
-FILE *stream;
+pusage (FILE *stream)
 {
   fprintf(stream,
 	  "Usage: %s [-nd%s]%s[-l USER] [USER@]HOST [COMMAND [ARG...]]\n",
@@ -188,9 +187,7 @@ usage()
 }
 
 int
-main(argc, argv)
-	int argc;
-	char **argv;
+main(int argc, char **argv)
 {
 	struct passwd *pw;
 	struct servent *sp;
@@ -445,11 +442,7 @@ try_connect:
 }
 
 void
-talk (nflag, osigs, pid, rem)
-	int nflag;
-        sigset_t *osigs;
-	pid_t pid;
-	int rem;
+talk (int nflag, sigset_t *osigs, pid_t pid, int rem)
 {
 	int cc, wc;
 	fd_set readfrom, ready, rembits;
@@ -550,8 +543,7 @@ done:
 }
 
 void
-sendsig(sig)
-	int sig;
+sendsig(int sig)
 {
 	char signo;
 
@@ -595,8 +587,7 @@ va_dcl
 #endif
 
 char *
-copyargs(argv)
-	char **argv;
+copyargs(char **argv)
 {
 	int cc;
 	char **ap, *args, *p;

@@ -65,11 +65,8 @@ static char sccsid[] = "@(#)ctl_transact.c	8.1 (Berkeley) 6/6/93";
  * not recieved an acknowledgement within a reasonable amount
  * of time
  */
-ctl_transact(target, msg, type, rp)
-	struct in_addr target;
-	CTL_MSG msg;
-	int type;
-	CTL_RESPONSE *rp;
+int
+ctl_transact(struct in_addr target, CTL_MSG msg, int type, CTL_RESPONSE *rp)
 {
 	int nready, cc;
 	fd_set read_mask, ctl_mask;

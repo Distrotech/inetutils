@@ -1,6 +1,6 @@
 /* Set a signal handler, trying to turning on the SA_RESTART bit
 
-   Copyright (C) 1997 Free Software Foundation, Inc.
+   Copyright (C) 1997, 2000 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -31,9 +31,7 @@
 /* This is exactly like the traditional signal function, but turns on the
    SA_RESTART bit where possible.  */
 sig_t
-setsig (sig, handler)
-     int sig;
-     sig_t handler;
+setsig (int sig, sig_t handler)
 {
 #ifdef HAVE_SIGACTION
   struct sigaction sa;

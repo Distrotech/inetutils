@@ -73,6 +73,7 @@ int	invitation_waiting = 0;
 
 CTL_MSG msg;
 
+int
 open_sockt()
 {
 	int length;
@@ -90,6 +91,7 @@ open_sockt()
 }
 
 /* open the ctl socket */
+int
 open_ctl()
 {
 	int length;
@@ -109,6 +111,7 @@ open_ctl()
 }
 
 /* print_addr is a debug print routine */
+int
 print_addr(addr)
 	struct sockaddr_in addr;
 {

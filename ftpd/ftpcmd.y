@@ -914,10 +914,7 @@ lookup(p, cmd)
  * getline - a hacked up version of fgets to ignore TELNET escape codes.
  */
 char *
-telnet_fgets(s, n, iop)
-	char *s;
-	int n;
-	FILE *iop;
+telnet_fgets(char *s, int n, FILE *iop)
 {
 	int c;
 	register char *cs;
@@ -990,8 +987,7 @@ telnet_fgets(s, n, iop)
 }
 
 void
-toolong(signo)
-	int signo;
+toolong(int signo)
 {
 
 	reply(421,
@@ -1221,8 +1217,7 @@ yylex()
 }
 
 void
-upper(s)
-	char *s;
+upper(char *s)
 {
 	while (*s != '\0') {
 		if (islower(*s))
@@ -1232,8 +1227,7 @@ upper(s)
 }
 
 static char *
-copy(s)
-	char *s;
+copy(char *s)
 {
 	char *p;
 
@@ -1245,9 +1239,7 @@ copy(s)
 }
 
 static void
-help(ctab, s)
-	struct tab *ctab;
-	char *s;
+help(struct tab *ctab, char *s)
 {
 	struct tab *c;
 	int width, NCMDS;
@@ -1310,8 +1302,7 @@ help(ctab, s)
 }
 
 static void
-sizecmd(filename)
-	char *filename;
+sizecmd(char *filename)
 {
 	switch (type) {
 	case TYPE_L:

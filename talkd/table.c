@@ -92,8 +92,7 @@ CTL_MSG *find_match();
  * request looking for an invitation
  */
 CTL_MSG *
-find_match(request)
-	register CTL_MSG *request;
+find_match(register CTL_MSG *request)
 {
 	register TABLE_ENTRY *ptr;
 	time_t current_time;
@@ -126,8 +125,7 @@ find_match(request)
  * one as find_match does
  */
 CTL_MSG *
-find_request(request)
-	register CTL_MSG *request;
+find_request(register CTL_MSG *request)
 {
 	register TABLE_ENTRY *ptr;
 	time_t current_time;
@@ -163,9 +161,8 @@ find_request(request)
 	return ((CTL_MSG *)0);
 }
 
-insert_table(request, response)
-	CTL_MSG *request;
-	CTL_RESPONSE *response;
+int
+insert_table(CTL_MSG *request, CTL_RESPONSE *response)
 {
 	register TABLE_ENTRY *ptr;
 	time_t current_time;
@@ -192,6 +189,7 @@ insert_table(request, response)
 /*
  * Generate a unique non-zero sequence number
  */
+int
 new_id()
 {
 	static int current_id = 0;
@@ -206,8 +204,8 @@ new_id()
 /*
  * Delete the invitation with id 'id_num'
  */
-delete_invite(id_num)
-	int id_num;
+int
+delete_invite(int id_num)
 {
 	register TABLE_ENTRY *ptr;
 
@@ -230,8 +228,8 @@ delete_invite(id_num)
 /*
  * Classic delete from a double-linked list
  */
-delete(ptr)
-	register TABLE_ENTRY *ptr;
+int
+delete(register TABLE_ENTRY *ptr)
 {
 
 	if (debug)

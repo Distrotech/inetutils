@@ -61,11 +61,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
  * ignored (exclusive-use, lack of permission, etc.).
  */
 char *
-ttymsg(iov, iovcnt, line, tmout)
-	struct iovec *iov;
-	int iovcnt;
-	char *line;
-	int tmout;
+ttymsg(struct iovec *iov, int iovcnt, char *line, int tmout)
 {
 	static char errbuf[MAX_ERRBUF];
 	char *device;
@@ -73,8 +69,8 @@ ttymsg(iov, iovcnt, line, tmout)
 	struct iovec localiov[6];
 	int forked = 0;
 
-	if (iovcnt > sizeof(localiov) / sizeof(localiov[0]))
-		return ("too many iov's (change code in wall/ttymsg.c)");
+	if (iovcnt > (int)(sizeof(localiov) / sizeof(localiov[0])))
+		return (char *)("too many iov's (change code in wall/ttymsg.c)");
 
 	/* we're watching for '/', ".", ".."  '/' --> somebody could specify
   	   tty as ../etc/passwd ".", ".." those are not security related it's
@@ -122,13 +118,13 @@ ttymsg(iov, iovcnt, line, tmout)
 				    iovcnt * sizeof(struct iovec));
 				iov = localiov;
 			}
-			for (cnt = 0; wret >= iov->iov_len; ++cnt) {
+			for (cnt = 0; wret >= (int)iov->iov_len; ++cnt) {
 				wret -= iov->iov_len;
 				++iov;
 				--iovcnt;
 			}
 			if (wret) {
-				iov->iov_base += wret;
+				(char *)iov->iov_base += wret;
 				iov->iov_len -= wret;
 			}
 			continue;

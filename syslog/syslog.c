@@ -66,9 +66,7 @@ void	usage __P((void));
  *	log.
  */
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	int ch, logflags, pri;
 	char *tag, buf[1024];
@@ -145,8 +143,7 @@ main(argc, argv)
  *  Decode a symbolic name to a numeric value
  */
 int
-pencode(s)
-	register char *s;
+pencode(register char *s)
 {
 	char *save;
 	int fac, lev;
@@ -176,9 +173,7 @@ pencode(s)
 }
 
 int
-decode(name, codetab)
-	char *name;
-	CODE *codetab;
+decode(char *name, CODE *codetab)
 {
 	register CODE *c;
 

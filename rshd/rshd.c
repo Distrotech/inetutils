@@ -135,9 +135,7 @@ Key_schedule	schedule;
 
 /* Remote shell server. We're invoked by the rcmd(3) function. */
 int
-main(argc, argv)
-	int argc;
-	char *argv[];
+main(int argc, char *argv[])
 {
 	extern int __check_rhosts_file; /* hook in rcmd(3) */
 	struct linger linger;
@@ -242,9 +240,7 @@ char	*envinit[] =
 extern char	**environ;
 
 void
-doit(sockfd, fromp)
-	int sockfd;
-	struct sockaddr_in *fromp;
+doit(int sockfd, struct sockaddr_in *fromp)
 {
 	extern char *__rcmd_errstr;	/* syslog hook from libc/net/rcmd.c. */
 	struct hostent *hp;
@@ -856,8 +852,7 @@ error(fmt, va_alist)
 }
 
 char *
-getstr(err)
-	char *err;
+getstr(char *err)
 {
 	size_t buf_len = 100;
 	char *buf = malloc (buf_len), *end = buf;
@@ -904,8 +899,7 @@ getstr(err)
  * interpreted as such.
  */
 int
-local_domain(h)
-	const char *h;
+local_domain(const char *h)
 {
 	extern char *localhost ();
 	char *hostname = localhost ();
@@ -927,8 +921,7 @@ local_domain(h)
 }
 
 const char *
-topdomain(h)
-	const char *h;
+topdomain(const char *h)
 {
 	const char *p, *maybe = NULL;
 	int dots = 0;

@@ -171,7 +171,7 @@ Modelist modelist[] = {
  * Initialize telnet environment.
  */
 
-    void
+void
 init_telnet()
 {
     env_init();
@@ -204,7 +204,7 @@ init_telnet()
 #include <varargs.h>
 
     /*VARARGS*/
-    static void
+static void
 printring(va_alist)
     va_dcl
 {
@@ -258,9 +258,8 @@ printring(va_alist)
  * is in disagreement as to what the current state should be.
  */
 
-    void
-send_do(c, init)
-    register int c, init;
+void
+send_do(register int c, register int init)
 {
     if (init) {
 	if (((do_dont_resp[c] == 0) && my_state_is_do(c)) ||
@@ -274,9 +273,8 @@ send_do(c, init)
     printoption("SENT", DO, c);
 }
 
-    void
-send_dont(c, init)
-    register int c, init;
+void
+send_dont(register int c, register int init)
 {
     if (init) {
 	if (((do_dont_resp[c] == 0) && my_state_is_dont(c)) ||
@@ -290,9 +288,8 @@ send_dont(c, init)
     printoption("SENT", DONT, c);
 }
 
-    void
-send_will(c, init)
-    register int c, init;
+void
+send_will(register int c,register int init)
 {
     if (init) {
 	if (((will_wont_resp[c] == 0) && my_state_is_will(c)) ||
@@ -306,9 +303,8 @@ send_will(c, init)
     printoption("SENT", WILL, c);
 }
 
-    void
-send_wont(c, init)
-    register int c, init;
+void
+send_wont(register int c,register int init)
 {
     if (init) {
 	if (((will_wont_resp[c] == 0) && my_state_is_wont(c)) ||
@@ -323,9 +319,8 @@ send_wont(c, init)
 }
 
 
-	void
-willoption(option)
-	int option;
+void
+willoption(int option)
 {
 	int new_state_ok = 0;
 
@@ -410,9 +405,8 @@ willoption(option)
 #endif	/* ENCRYPTION */
 }
 
-	void
-wontoption(option)
-	int option;
+void
+wontoption(int option)
 {
 	if (do_dont_resp[option]) {
 	    --do_dont_resp[option];
@@ -459,9 +453,8 @@ wontoption(option)
 	set_my_state_dont(option);
 }
 
-	static void
-dooption(option)
-	int option;
+static void
+dooption(int option)
 {
 	int new_state_ok = 0;
 
@@ -572,9 +565,8 @@ dooption(option)
 	set_my_state_will(option);
 }
 
-	static void
-dontoption(option)
-	int option;
+static void
+dontoption(int option)
 {
 
 	if (will_wont_resp[option]) {
@@ -618,9 +610,8 @@ dontoption(option)
 static char *name_unknown = "UNKNOWN";
 static char *unknown[] = { 0, 0 };
 
-	char **
-mklist(buf, name)
-	char *buf, *name;
+char **
+mklist(char *buf, char *name)
 {
 	register int n;
 	register char c, *cp, **argvp, *cp2, **argv, **avt;
@@ -729,9 +720,8 @@ mklist(buf, name)
 		return(unknown);
 }
 
-	int
-is_unique(name, as, ae)
-	register char *name, **as, **ae;
+int
+is_unique(register char *name, register char **as, register char **ae)
 {
 	register char **ap;
 	register int n;
@@ -747,10 +737,8 @@ is_unique(name, as, ae)
 char termbuf[1024];
 
 	/*ARGSUSED*/
-	int
-init_term (tname, fd, errp)
-	char *tname;
-	int fd, *errp;
+int
+init_term (char *tname, int fd, int *errp)
 {
 	if (tgetent(termbuf, tname) == 1) {
 		termbuf[1023] = '\0';
@@ -769,7 +757,7 @@ extern char ttytype[];
 
 int resettermname = 1;
 
-	char *
+char *
 gettermname()
 {
 	char *tname;
@@ -812,7 +800,7 @@ gettermname()
  *		Linemode
  */
 
-    static void
+static void
 suboption()
 {
     unsigned char subchar;
@@ -1075,10 +1063,8 @@ suboption()
 
 static unsigned char str_lm[] = { IAC, SB, TELOPT_LINEMODE, 0, 0, IAC, SE };
 
-    void
-lm_will(cmd, len)
-    unsigned char *cmd;
-    int len;
+void
+lm_will(unsigned char *cmd, int len)
 {
     if (len < 1) {
 /*@*/	printf("lm_will: no command!!!\n");	/* Should not happen... */
@@ -1098,10 +1084,8 @@ lm_will(cmd, len)
     }
 }
 
-    void
-lm_wont(cmd, len)
-    unsigned char *cmd;
-    int len;
+void
+lm_wont(unsigned char *cmd, int len)
 {
     if (len < 1) {
 /*@*/	printf("lm_wont: no command!!!\n");	/* Should not happen... */
@@ -1115,10 +1099,8 @@ lm_wont(cmd, len)
     }
 }
 
-    void
-lm_do(cmd, len)
-    unsigned char *cmd;
-    int len;
+void
+lm_do(unsigned char *cmd, int len)
 {
     if (len < 1) {
 /*@*/	printf("lm_do: no command!!!\n");	/* Should not happen... */
@@ -1138,10 +1120,8 @@ lm_do(cmd, len)
     }
 }
 
-    void
-lm_dont(cmd, len)
-    unsigned char *cmd;
-    int len;
+void
+lm_dont(unsigned char *cmd, int len)
 {
     if (len < 1) {
 /*@*/	printf("lm_dont: no command!!!\n");	/* Should not happen... */
@@ -1159,10 +1139,8 @@ static unsigned char str_lm_mode[] = {
 	IAC, SB, TELOPT_LINEMODE, LM_MODE, 0, IAC, SE
 };
 
-	void
-lm_mode(cmd, len, init)
-	unsigned char *cmd;
-	int len, init;
+void
+lm_mode(unsigned char *cmd, int len, int init)
 {
 	if (len != 1)
 		return;
@@ -1201,7 +1179,7 @@ struct spc {
 #define SLC_RVALUE	2
 static int slc_mode = SLC_EXPORT;
 
-	void
+void
 slc_init()
 {
 	register struct spc *spcp;
@@ -1263,7 +1241,7 @@ slc_init()
 
 }
 
-    void
+void
 slcstate()
 {
     printf("Special characters are %s values\n",
@@ -1272,7 +1250,7 @@ slcstate()
 					 "remote");
 }
 
-    void
+void
 slc_mode_export()
 {
     slc_mode = SLC_EXPORT;
@@ -1280,9 +1258,8 @@ slc_mode_export()
 	slc_export();
 }
 
-    void
-slc_mode_import(def)
-    int def;
+void
+slc_mode_import(int def)
 {
     slc_mode = def ? SLC_IMPORT : SLC_RVALUE;
     if (my_state_is_will(TELOPT_LINEMODE))
@@ -1296,9 +1273,8 @@ unsigned char slc_import_def[] = {
 	IAC, SB, TELOPT_LINEMODE, LM_SLC, 0, SLC_DEFAULT, 0, IAC, SE
 };
 
-    void
-slc_import(def)
-    int def;
+void
+slc_import(int def)
 {
     if (NETROOM() > sizeof(slc_import_val)) {
 	if (def) {
@@ -1312,7 +1288,7 @@ slc_import(def)
 /*@*/ else printf("slc_import: not enough room\n");
 }
 
-    void
+void
 slc_export()
 {
     register struct spc *spcp;
@@ -1336,10 +1312,8 @@ slc_export()
     setconnmode(1);	/* Make sure the character values are set */
 }
 
-	void
-slc(cp, len)
-	register unsigned char *cp;
-	int len;
+void
+slc(register unsigned char *cp, int len)
 {
 	register struct spc *spcp;
 	register int func,level;
@@ -1406,7 +1380,7 @@ slc(cp, len)
 		setconnmode(1);	/* set the  new character values */
 }
 
-    void
+void
 slc_check()
 {
     register struct spc *spcp;
@@ -1430,7 +1404,7 @@ slc_check()
 unsigned char slc_reply[128];
 unsigned char *slc_replyp;
 
-	void
+void
 slc_start_reply()
 {
 	slc_replyp = slc_reply;
@@ -1440,11 +1414,8 @@ slc_start_reply()
 	*slc_replyp++ = LM_SLC;
 }
 
-	void
-slc_add_reply(func, flags, value)
-	unsigned char func;
-	unsigned char flags;
-	cc_t value;
+void
+slc_add_reply(unsigned char func, unsigned char flags, cc_t value)
 {
 	if ((*slc_replyp++ = func) == IAC)
 		*slc_replyp++ = IAC;
@@ -1454,7 +1425,7 @@ slc_add_reply(func, flags, value)
 		*slc_replyp++ = IAC;
 }
 
-    void
+void
 slc_end_reply()
 {
     register int len;
@@ -1471,7 +1442,7 @@ slc_end_reply()
 /*@*/else printf("slc_end_reply: not enough room\n");
 }
 
-	int
+int
 slc_update()
 {
 	register struct spc *spcp;
@@ -1509,10 +1480,8 @@ int old_env_value = OLD_ENV_VALUE;
 # endif
 #endif
 
-	void
-env_opt(buf, len)
-	register unsigned char *buf;
-	register int len;
+void
+env_opt(register unsigned char *buf, register int len)
 {
 	register unsigned char *ep = 0, *epc = 0;
 	register int i;
@@ -1583,7 +1552,7 @@ unsigned char *opt_reply;
 unsigned char *opt_replyp;
 unsigned char *opt_replyend;
 
-	void
+void
 env_opt_start()
 {
 	if (opt_reply)
@@ -1603,7 +1572,7 @@ env_opt_start()
 	*opt_replyp++ = TELQUAL_IS;
 }
 
-	void
+void
 env_opt_start_info()
 {
 	env_opt_start();
@@ -1611,9 +1580,8 @@ env_opt_start_info()
 	    opt_replyp[-1] = TELQUAL_INFO;
 }
 
-	void
-env_opt_add(ep)
-	register unsigned char *ep;
+void
+env_opt_add(register unsigned char *ep)
 {
 	register unsigned char *vp, c;
 
@@ -1685,9 +1653,8 @@ env_opt_add(ep)
 	}
 }
 
-	int
-opt_welldefined(ep)
-	char *ep;
+int
+opt_welldefined(char *ep)
 {
 	if ((strcmp(ep, "USER") == 0) ||
 	    (strcmp(ep, "DISPLAY") == 0) ||
@@ -1698,9 +1665,9 @@ opt_welldefined(ep)
 		return(1);
 	return(0);
 }
-	void
-env_opt_end(emptyok)
-	register int emptyok;
+
+void
+env_opt_end(register int emptyok)
 {
 	register int len;
 
@@ -1722,7 +1689,7 @@ env_opt_end(emptyok)
 
 
 
-    int
+int
 telrcv()
 {
     register int c;
@@ -1999,7 +1966,7 @@ process_iac:
 
 static int bol = 1, local = 0;
 
-    int
+int
 rlogin_susp()
 {
     if (local) {
@@ -2011,7 +1978,7 @@ rlogin_susp()
     return(0);
 }
 
-    static int
+static int
 telsnd()
 {
     int tcc;
@@ -2162,9 +2129,9 @@ telsnd()
  */
 
 
-    int
-Scheduler(block)
-    int	block;			/* should we block in the select ? */
+/* block; should we block in the select ? */
+int
+Scheduler(int block)
 {
 		/* One wants to be a bit careful about setting returnValue
 		 * to one, since a one implies we did some useful work,
@@ -2246,9 +2213,8 @@ Scheduler(block)
 /*
  * Select from tty and network...
  */
-    void
-telnet(user)
-    char *user;
+void
+telnet(char *user)
 {
     sys_telnet_init();
 
@@ -2358,9 +2324,8 @@ telnet(user)
  * character.
  */
 
-    static char *
-nextitem(current)
-    char *current;
+static char *
+nextitem(char *current)
 {
     if ((*current&0xff) != IAC) {
 	return current+1;
@@ -2406,7 +2371,7 @@ nextitem(current)
  * us in any case.
  */
 
-    static void
+static void
 netclear()
 {
 #if	0	/* XXX */
@@ -2449,7 +2414,7 @@ netclear()
  * These routines add various telnet commands to the data stream.
  */
 
-    static void
+static void
 doflush()
 {
     NET2ADD(IAC, DO);
@@ -2461,7 +2426,7 @@ doflush()
     printoption("SENT", DO, TELOPT_TM);
 }
 
-    void
+void
 xmitAO()
 {
     NET2ADD(IAC, AO);
@@ -2472,14 +2437,14 @@ xmitAO()
 }
 
 
-    void
+void
 xmitEL()
 {
     NET2ADD(IAC, EL);
     printoption("SENT", IAC, EL);
 }
 
-    void
+void
 xmitEC()
 {
     NET2ADD(IAC, EC);
@@ -2487,7 +2452,7 @@ xmitEC()
 }
 
 
-    int
+int
 dosynch()
 {
     netclear();			/* clear the path to the network */
@@ -2500,7 +2465,7 @@ dosynch()
 
 int want_status_response = 0;
 
-    int
+int
 get_status()
 {
     unsigned char tmp[16];
@@ -2526,7 +2491,7 @@ get_status()
     return 1;
 }
 
-    void
+void
 intp()
 {
     NET2ADD(IAC, IP);
@@ -2540,7 +2505,7 @@ intp()
     }
 }
 
-    void
+void
 sendbrk()
 {
     NET2ADD(IAC, BREAK);
@@ -2554,7 +2519,7 @@ sendbrk()
     }
 }
 
-    void
+void
 sendabort()
 {
     NET2ADD(IAC, ABORT);
@@ -2568,7 +2533,7 @@ sendabort()
     }
 }
 
-    void
+void
 sendsusp()
 {
     NET2ADD(IAC, SUSP);
@@ -2582,14 +2547,14 @@ sendsusp()
     }
 }
 
-    void
+void
 sendeof()
 {
     NET2ADD(IAC, xEOF);
     printoption("SENT", IAC, xEOF);
 }
 
-    void
+void
 sendayt()
 {
     NET2ADD(IAC, AYT);
@@ -2600,7 +2565,7 @@ sendayt()
  * Send a window size update to the remote system.
  */
 
-    void
+void
 sendnaws()
 {
     long rows, cols;
@@ -2632,9 +2597,8 @@ sendnaws()
     }
 }
 
-    void
-tel_enter_binary(rw)
-    int rw;
+void
+tel_enter_binary(int rw)
 {
     if (rw&1)
 	send_do(TELOPT_BINARY, 1);
@@ -2642,9 +2606,8 @@ tel_enter_binary(rw)
 	send_will(TELOPT_BINARY, 1);
 }
 
-    void
-tel_leave_binary(rw)
-    int rw;
+void
+tel_leave_binary(int rw)
 {
     if (rw&1)
 	send_dont(TELOPT_BINARY, 1);

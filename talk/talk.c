@@ -57,9 +57,8 @@ static char sccsid[] = "@(#)talk.c	8.1 (Berkeley) 6/6/93";
  *		Modified to run under 4.1c by Peter Moore 3/17/83
  */
 
-main(argc, argv)
-	int argc;
-	char *argv[];
+int
+main(int argc, char *argv[])
 {
 #ifndef HAVE___PROGNAME
 	extern char *__progname;
