@@ -55,9 +55,15 @@ static char sccsid[] = "@(#)ctl.c	8.1 (Berkeley) 6/6/93";
 #include "talk.h"
 #include "talk_ctl.h"
 
+#ifdef HAVE_SOCKADDR_IN_SIN_LEN
 struct	sockaddr_in daemon_addr = { sizeof(daemon_addr), AF_INET };
 struct	sockaddr_in ctl_addr = { sizeof(ctl_addr), AF_INET };
 struct	sockaddr_in my_addr = { sizeof(my_addr), AF_INET };
+#else /* !HAVE_SOCKADDR_IN_SIN_LEN */
+struct	sockaddr_in daemon_addr = { AF_INET };
+struct	sockaddr_in ctl_addr = { AF_INET };
+struct	sockaddr_in my_addr = { AF_INET };
+#endif /* HAVE_SOCKADDR_IN_SIN_LEN */
 
 	/* inet addresses of the two machines */
 struct	in_addr my_machine_addr;
