@@ -19,6 +19,7 @@ this will save us from the pesky #ifdef's.
 	(main): Remove on anonymous-name, was not use.
 	* auth.c: New file.
 	* Makefile.am: PATHDEF_FTPCHROOT in INCLUDES.
+	* logwtmp.c: bzero replaced by memset.
 
 2000-08-11  Alain Magloire
 

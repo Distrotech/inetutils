@@ -89,7 +89,7 @@ logwtmp(const char *line, const char *name, const char *host)
   struct utmp ut;
 
   /* Set information in new entry.  */
-  bzero (&ut, sizeof (ut));
+  memset (&ut, 0, sizeof (ut));
 #if _HAVE_UT_TYPE - 0
   ut.ut_type = USER_PROCESS;
 #endif
