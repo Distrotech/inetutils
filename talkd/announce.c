@@ -42,7 +42,16 @@ static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <sys/stat.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/wait.h>
 #include <sys/socket.h>
 #ifdef HAVE_OSOCKADDR_H
@@ -53,6 +62,9 @@ static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
 #include <syslog.h>
 #include <unistd.h>
 #include <stdio.h>
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
 #include <string.h>
 #ifdef HAVE_VIS_H
 #include <vis.h>
@@ -158,7 +170,7 @@ print_mesg(tty, tf, request, remote_machine)
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
-	vis_user = (char *) malloc(strlen(request->l_name) * 4 + 1);
+	vis_user = malloc(strlen(request->l_name) * 4 + 1);
 	strvis(vis_user, request->l_name, VIS_CSTYLE);
 	(void)sprintf(line_buf[i], "talk: connection requested by %s@%s",
 		vis_user, remote_machine);
