@@ -863,11 +863,11 @@ remglob(argv,doswitch)
 	char *argv[];
 	int doswitch;
 {
-	int buf_len = 0, sofar = 0;
-	char *buf = 0;
-	char temp[16];
+	static int buf_len = 0;
+	static char *buf = 0;
 	static FILE *ftemp = NULL;
 	static char **args;
+	int sofar = 0;
 	int oldverbose, oldhash;
 	char *cp, *mode, *end;
 
@@ -891,8 +891,12 @@ remglob(argv,doswitch)
 		return (cp);
 	}
 	if (ftemp == NULL) {
-		(void) strcpy(temp, _PATH_TMP);
-		(void) mktemp(temp);
+		char temp[sizeof _PATH_TMP + sizeof "XXXXXX"];
+
+		strcpy (temp, _PATH_TMP);
+		strcat (temp, "XXXXXX");
+		mktemp (temp);
+
 		oldverbose = verbose, verbose = 0;
 		oldhash = hash, hash = 0;
 		if (doswitch) {
@@ -912,8 +916,11 @@ remglob(argv,doswitch)
 		}
 	}
 
-	buf_len = 100;		/* Any old size */
-	buf = malloc (buf_len + 1);
+	if (! buf) {
+		buf_len = 100;		/* Any old size */
+		buf = malloc (buf_len + 1);
+	}
+
 	sofar = 0;
 	for (;;) {
 		if (! buf) {
@@ -928,8 +935,10 @@ remglob(argv,doswitch)
 		}
 
 		sofar = strlen (buf);
-		if (buf[sofar - 1] == '\n')
+		if (buf[sofar - 1] == '\n') {
+			buf[sofar - 1] = '\0';
 			return buf;
+		}
 
 		/* Make more room and read some more... */
 		buf_len += buf_len;
