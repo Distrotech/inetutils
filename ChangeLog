@@ -1,5 +1,16 @@
 2001-10-28  Alain Magloire
 
+	Certain programs __MUST__ be install root to work properly. There is a hook
+	in the installation to warn the user.  But maybe in the future we should
+	try to install as root and failed the installation if it does not work?
+
+	* ping/Makefile.am: Rules to try install setuid root.
+	* rcp/Makefile.am: Rules to try install setuid root.
+	* rlogin/Makefile.am: Rules to try install setuid root.
+	* rsh/Makefile.am: Rules to try install setuid root.
+
+2001-10-28  Alain Magloire
+
 	Unfortunately some platforms, like QNX/Neutrino does not implement flow
 	control packet mode TIOCPKT.  If it is not defined, provide the constant.
 	It should not affect the functionnality, but the server will not be able to
