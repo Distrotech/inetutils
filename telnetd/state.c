@@ -34,14 +34,11 @@ static char sccsid[] = "@(#)state.c	8.5 (Berkeley) 5/30/95";
 #include "telnetd.h"
 #include <stdarg.h>
 
-unsigned char doopt[] =
-{IAC, DO, '%', 'c', 0};
-unsigned char dont[] =
-{IAC, DONT, '%', 'c', 0};
-unsigned char will[] =
-{IAC, WILL, '%', 'c', 0};
-unsigned char wont[] =
-{IAC, WONT, '%', 'c', 0};
+/* Format lines for corresponing commands */
+unsigned char doopt[] = {IAC, DO, '%', 'c', 0};
+unsigned char dont[] = {IAC, DONT, '%', 'c', 0};
+unsigned char will[] = {IAC, WILL, '%', 'c', 0};
+unsigned char wont[] = {IAC, WONT, '%', 'c', 0};
 int not42 = 1;
 
 /*
@@ -80,7 +77,7 @@ unsigned char *subsave;
 #define	TS_DONT		8	/* dont " */
 
 static void
-doeof ()
+send_eof ()
 {
   init_termbuf ();
   term_send_eof ();
@@ -105,8 +102,8 @@ recv_ayt ()
   net_output_data ("\r\n[Yes]\r\n");
 }
 
-void
-sendsusp ()
+static void
+send_susp ()
 {
 #ifdef	SIGTSTP
   ptyflush ();			/* half-hearted */
@@ -124,8 +121,8 @@ sendsusp ()
  * If it is in raw mode, just write NULL;
  * otherwise, write quit char.
  */
-void
-sendbrk ()
+static void
+send_brk ()
 {
   ptyflush ();			/* half-hearted */
 #ifdef	TCSIG
@@ -143,7 +140,7 @@ sendbrk ()
  * otherwise, write intr char.
  */
 static void
-interrupts ()
+send_intr ()
 {
   ptyflush ();			/* half-hearted */
 
@@ -185,9 +182,7 @@ telrcv ()
 	  state = TS_DATA;
 	  /* Strip off \n or \0 after a \r */
 	  if ((c == 0) || (c == '\n'))
-	    {
-	      break;
-	    }
+	    break;
 	  /* FALL THROUGH */
 
 	case TS_DATA:
@@ -238,7 +233,8 @@ telrcv ()
 	  break;
 
 	case TS_IAC:
-	gotiac:switch (c)
+	gotiac:
+	  switch (c)
 	    {
 
 	      /*
@@ -249,13 +245,13 @@ telrcv ()
 	    case IP:
 	      DEBUG (debug_options, 1,
 		    printoption ("td: recv IAC", c));
-	      interrupts ();
+	      send_intr ();
 	      break;
 
 	    case BREAK:
 	      DEBUG (debug_options, 1,
 		    printoption ("td: recv IAC", c));
-	      sendbrk ();
+	      send_brk ();
 	      break;
 
 	      /*
@@ -277,11 +273,9 @@ telrcv ()
 		ptyflush ();	/* half-hearted */
 		init_termbuf ();
 
-		if (slctab[SLC_AO].sptr &&
-		    *slctab[SLC_AO].sptr != (cc_t) (_POSIX_VDISABLE))
-		  {
-		    pty_output_byte (*slctab[SLC_AO].sptr);
-		  }
+		if (slctab[SLC_AO].sptr
+		    && *slctab[SLC_AO].sptr != (cc_t) (_POSIX_VDISABLE))
+		  pty_output_byte (*slctab[SLC_AO].sptr);
 
 		netclear ();	/* clear buffer back */
 		net_output_data ("%c%c", IAC, DM);
@@ -323,7 +317,6 @@ telrcv ()
 	      settimer (gotDM);
 	      break;
 
-
 	      /*
 	       * Begin option subnegotiation...
 	       */
@@ -349,7 +342,7 @@ telrcv ()
 	      continue;
 	    case EOR:
 	      if (his_state_is_will (TELOPT_EOR))
-		doeof ();
+		send_eof ();
 	      break;
 
 	      /*
@@ -357,15 +350,15 @@ telrcv ()
 	       * to command stream (EOF, SUSP, ABORT).
 	       */
 	    case xEOF:
-	      doeof ();
+	      send_eof ();
 	      break;
 
 	    case SUSP:
-	      sendsusp ();
+	      send_susp ();
 	      break;
 
 	    case ABORT:
-	      sendbrk ();
+	      send_brk ();
 	      break;
 
 	    case IAC:
@@ -377,13 +370,9 @@ telrcv ()
 
 	case TS_SB:
 	  if (c == IAC)
-	    {
-	      state = TS_SE;
-	    }
+	    state = TS_SE;
 	  else
-	    {
-	      SB_ACCUM (c);
-	    }
+	    SB_ACCUM (c);
 	  break;
 
 	case TS_SE:
@@ -609,9 +598,8 @@ willoption (int option)
 		  send_wont (TELOPT_SGA, 1);
 		}
 	      else if (lmodetype == NO_AUTOKLUDGE)
-		{
-		  lmodetype = KLUDGE_OK;
-		}
+		lmodetype = KLUDGE_OK;
+
 	      /*
 	       * We never respond to a WILL TM, and
 	       * we leave the state WONT.
@@ -991,7 +979,7 @@ dooption (int option)
 	  set_my_want_state_will (TELOPT_LOGOUT);
 	  send_will (TELOPT_LOGOUT, 0);
 	  set_my_state_will (TELOPT_LOGOUT);
-	  (void) netflush ();
+	  netflush ();
 	  cleanup (0);
 	  /* NOT REACHED */
 	  break;
@@ -1230,7 +1218,8 @@ suboption ()
       {
 	register int request;
 
-	if (his_state_is_wont (TELOPT_LINEMODE))	/* Ignore if option disabled */
+	/* Ignore if option disabled */
+	if (his_state_is_wont (TELOPT_LINEMODE)) 
 	  break;
 	/*
 	 * Process linemode suboptions.
@@ -1249,7 +1238,7 @@ suboption ()
 	     */
 	    start_slc (1);
 	    do_opt_slc (subpointer, subend - subpointer);
-	    (void) end_slc (0);
+	    end_slc (0);
 	    break;
 	  }
 	else if (request == LM_MODE)
@@ -1307,7 +1296,7 @@ suboption ()
 	  return;
 	settimer (xdisplocsubopt);
 	subpointer[SB_LEN ()] = '\0';
-	(void) setenv ("DISPLAY", (char *) subpointer, 1);
+	setenv ("DISPLAY", (char *) subpointer, 1);
 	break;
       }				/* end of case TELOPT_XDISPLOC */
 
@@ -1330,9 +1319,7 @@ suboption ()
 	      settimer (environsubopt);
 	  }
 	else if (c != TELQUAL_INFO)
-	  {
-	    return;
-	  }
+	  return;
 
 #ifdef	TELOPT_NEW_ENVIRON
 	if (subchar == TELOPT_NEW_ENVIRON)
@@ -1652,13 +1639,10 @@ send_status ()
       ADD (SB);
       ADD (TELOPT_LFLOW);
       if (flowmode)
-	{
-	  ADD (LFLOW_ON);
-	}
+	ADD (LFLOW_ON);
       else
-	{
-	  ADD (LFLOW_OFF);
-	}
+	ADD (LFLOW_OFF);
+
       ADD (SE);
 
       if (restartany >= 0)
@@ -1666,13 +1650,9 @@ send_status ()
 	  ADD (SB);
 	  ADD (TELOPT_LFLOW);
 	  if (restartany)
-	    {
-	      ADD (LFLOW_RESTART_ANY);
-	    }
+	    ADD (LFLOW_RESTART_ANY);
 	  else
-	    {
-	      ADD (LFLOW_RESTART_XON);
-	    }
+	    ADD (LFLOW_RESTART_XON);
 	  ADD (SE);
 	}
     }
