@@ -135,6 +135,14 @@ typedef struct utmp UTMP;
 # include <syslog-int.h>
 #endif
 
+/* A mask of all facilities mentioned explicitly in the configuration file
+ *
+ * This is used to support a virtual facility "**" that covers all the rest,
+ * so that messages to unexpected facilities won't be lost when "*" is 
+ * not logged to a file.
+ */
+int facilities_seen;
+
 const char *ConfFile = PATH_LOGCONF; /* Default Configuration file.  */
 const char *PidFile = PATH_LOGPID; /* Default path to tuck pid.  */
 char ctty[] = PATH_CONSOLE; /* Default console to send message info.  */
@@ -334,7 +342,7 @@ usage (int err)
   exit (err);
 }
 
-static const char *short_options = "a:dhf:l:m:np:rs:VS";
+static const char *short_options = "a:dhf:Kl:m:np:rs:VS";
 static struct option long_options[] =
 {
   { "debug", no_argument, 0, 'd' },
@@ -1639,6 +1647,8 @@ init (int signo)
   Files = NULL;
   nextp = &Files;
 
+  facilities_seen = 0;
+
   /* Open the configuration file.  */
   cf = fopen (ConfFile, "r");
   if (cf == NULL)
@@ -1869,12 +1879,19 @@ cfline (const char *line, struct filed *f)
 	  if (*buf == '*')
 	    for (i = 0; i <= LOG_NFACILITIES; i++)
 	      {
+		/* make "**" act as a wildcard only for facilities not 
+		 * specified elsewhere
+		 */
+		if (buf[1] == '*' && ((1 << i) & facilities_seen))
+		  continue;
 		f->f_pmask[i] &= ~pri_clear;
 		f->f_pmask[i] |= pri_set;
 	      }
 	  else
 	    {
 	      i = decode (buf, facilitynames);
+	      facilities_seen |= (1 << LOG_FAC(i));
+
 	      if (i < 0)
 		{
 		  snprintf (ebuf, sizeof (ebuf),
