@@ -1,6 +1,6 @@
 # Makefile for ftpd
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(libexecdir)/in.ftpd $(man8dir)/ftpd.8
+INSTALL_TARGETS = $(libexecdir)/in.ftpd $(man8dir)/ftpd.8
+SRCS = ftpd.c ftpcmd.c logwtmp.c popen.c
+DISTFILES = $(SRCS) ftpd.8 Makefile.in
 
 CPPFLAGS += \
 	-D_PATH_FTPUSERS=\"$(sysconfdir)/ftpusers\" \
@@ -29,7 +31,7 @@ CPPFLAGS += \
 	-D_PATH_NOLOGIN=\"$(sysconfdir)/nologin\"
 
 all: ftpd
-ftpd: ftpd.o ftpcmd.o logwtmp.o popen.o
+ftpd: $(SRCS:.c=.o)
 
 clean:
 	$(RM) -f *.o ftpd
