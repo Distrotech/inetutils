@@ -1,3 +1,27 @@
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+This covers the following Linux changes:
+Thu Jan  6 12:07:36 CST 1994:  Dr. Wettstein
+Also thanks to Juha for a patch to exclude users with a class
+of LOGIN from receiving messages.
+Mon Oct 12 20:22:59 CEST 1998: Martin Schulze <joey@infodrom.north.de>
+Added support for setutent()/getutent()/endutend() instead of
+binary reading the UTMP file.  This is the the most portable
+way.  This allows /var/run/utmp format to change, even to a
+real database or utmp daemon. Also if utmp file locking is
+implemented in libc, syslog will use it immediately.  Thanks
+to Topi Miettinen <tom@medialab.sonera.net>.
+	
+	* syslogd.c: Include <utmpx.h> instead <utmp.h>.
+	(wallmsg): Use pointer to struct utmpx, not struct utmp.
+	Fix the size of line accoridngly.
+	Use setutxent instead opening the utmp file ourself.
+	Use getutxent instead fread.
+	Don't log to ut_type LOGIN_PROCESS, and don't log to
+	ut_user LOGIN (paranoia check).
+	Use ut_user instead ut_name.
+	Use endutxent instead fclose.
+
 2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
 
 This is among others the equivalent to the following Linux change:

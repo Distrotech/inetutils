@@ -104,7 +104,7 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <utmp.h>
+#include <utmpx.h>
 #include <getopt.h>
 #define SYSLOG_NAMES
 #include <syslog.h>
@@ -735,7 +735,7 @@ make_part(int fd, char *msg)
  */
 
 void
-printchopped(const char *hname,	char *msg, int len, int fd)
+printchopped(const char *hname, char *msg, int len, int fd)
 {
 	int ptlngth;
 
@@ -1238,25 +1238,25 @@ void
 wallmsg(struct filed *f, struct iovec *iov)
 {
 	static int reenter;			/* avoid calling ourselves */
-	FILE *uf;
-	struct utmp ut;
+	struct utmpx *utp;
 	int i;
 	char *p;
-	char line[sizeof(ut.ut_line) + 1];
+	char line[sizeof(utp->ut_line) + 1];
 
 	if (reenter++)
 		return;
-	if ((uf = fopen(PATH_UTMP, "r")) == NULL) {
-		logerror(PATH_UTMP);
-		reenter = 0;
-		return;
-	}
-	/* NOSTRICT */
-	while (fread((char *)&ut, sizeof(ut), 1, uf) == 1) {
-		if (ut.ut_name[0] == '\0')
+	setutxent();
+
+	while (utp = getutxent()) {
+		if (utp->ut_user[0] == '\0')
 			continue;
-		strncpy(line, ut.ut_line, sizeof(ut.ut_line));
-		line[sizeof(ut.ut_line)] = '\0';
+		if (utp->ut_type == LOGIN_PROCESS)
+			continue;
+		if (! strcmp (utp->ut_user, "LOGIN"))	/* Paranoia. */
+			continue;
+
+		strncpy(line, utp->ut_line, sizeof(utp->ut_line));
+		line[sizeof(utp->ut_line)] = '\0';
 		if (f->f_type == F_WALL) {
 			if ((p = ttymsg(iov, 6, line, 60*5)) != NULL) {
 				errno = 0;	/* already in msg */
@@ -1266,8 +1266,8 @@ wallmsg(struct filed *f, struct iovec *iov)
 		}
 		/* should we send the message to this user? */
 		for (i = 0; i < f->f_un.f_user.f_nusers; i++)
-			if (!strncmp(f->f_un.f_user.f_unames[i], ut.ut_name,
-				     sizeof (ut.ut_name))) {
+			if (!strncmp(f->f_un.f_user.f_unames[i], utp->ut_user,
+				     sizeof (utp->ut_user))) {
 				if ((p = ttymsg(iov, 6, line, 60*5)) != NULL) {
 					errno = 0;	/* already in msg */
 					logerror(p);
@@ -1275,7 +1275,7 @@ wallmsg(struct filed *f, struct iovec *iov)
 				break;
 			}
 	}
-	(void)fclose(uf);
+	endutxent();
 	reenter = 0;
 }
 
