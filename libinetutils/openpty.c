@@ -93,9 +93,11 @@ int openpty(amaster, aslave, name, termp, winp)
 					if (termp)
 						(void) tcsetattr(slave, 
 							TCSAFLUSH, termp);
+#ifdef TIOCSWINSZ
 					if (winp)
 						(void) ioctl(slave, TIOCSWINSZ, 
 							(char *)winp);
+#endif
 					return (0);
 				}
 				(void) close(master);
