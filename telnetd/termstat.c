@@ -445,7 +445,7 @@ clientstat(code, parm1, parm2)
 				useeditmode = 0;
 				if (tty_isediting())
 					useeditmode |= MODE_EDIT;
-				if (tty_istrapsig)
+				if (tty_istrapsig())
 					useeditmode |= MODE_TRAPSIG;
 				if (tty_issofttab())
 					useeditmode |= MODE_SOFT_TAB;
