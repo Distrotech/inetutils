@@ -33,7 +33,7 @@ START-INFO-DIR-ENTRY
 * rlogind: (inetutils)expr invocation.          Remote login server.
 * rsh: (inetutils)factor invocation.            Remote shell.
 * rshd: (inetutils)false invocation.            Remote shell server.
-* syslog: (inetutils)groups invocation.         Logger.
+* logger: (inetutils)groups invocation.         Logger.
 * syslogd: (inetutils)hostid invocation.        Syslog server.
 * talk: (inetutils)hostname invocation.         Talk client.
 * talkd: (inetutils)id invocation.              Talk server.
@@ -190,6 +190,11 @@ Describe FTP
 @node rshd
 @chapter rshd
 @cindex rshd
+
+@node logger
+@chapter logger
+@cindex logger
+@include logger.texi
 
 @node syslogd
 @chapter syslogd
