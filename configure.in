@@ -25,7 +25,7 @@ AC_INIT(inetd/inetd.c)
 # the production of headers/config.h.in.
 AC_PREREQ(2.12)
 
-AM_INIT_AUTOMAKE([inetutils], [1.3.3])
+AM_INIT_AUTOMAKE([inetutils], [1.3.3], nodefs)
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
@@ -38,6 +38,12 @@ AM_CONFIG_HEADER(include/config.h:headers/config.h.in)
 
 # config.h turns this on, so make sure it's on for our tests too
 #CPPFLAGS=-D_BSD_SOURCE
+
+AC_AIX
+AC_MINIX
+AC_ISC_POSIX
+AC_CONST
+AC_HEADER_STDC
 
 # The list of subdirs that may be built, split into subsets (which the user
 # may select for compilation at config or make time); the composite list of
@@ -90,7 +96,7 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h \
 		 arpa/nameser.h sys/sockio.h sys/sysmacros.h sys/param.h \
 		 unistd.h sys/file.h fcntl.h sys/proc.h sys/select.h \
-		 sys/time.h sys/wait.h sys/resource.h)
+		 sys/time.h sys/wait.h sys/resource.h memory.h)
 AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -168,9 +174,12 @@ IU_CHECK_MACRO(__P,
 # If revoke hasn't been defined yet, just define a dummy version
 AC_REPLACE_FUNCS(revoke)
 
+AC_HEADER_DIRENT
+AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_ALLOCA
 AC_FUNC_SETVBUF_REVERSED
 AC_FUNC_VFORK
+AC_FUNC_STRCOLL
 
 # See whether <syslog.h> will declare special internal stuff if we define
 # SYSLOG_NAMES before including it.  We check for various syslog internal macros,
@@ -469,7 +478,7 @@ AC_LINK_FILES($LINK_SRCS, $LINK_DSTS)
 
 AC_SUBST(VERSION)
 
-AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile
+AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
 ftp/Makefile ftpd/Makefile inetd/Makefile ping/Makefile rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile syslog/Makefile syslogd/Makefile talk/Makefile
