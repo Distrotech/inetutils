@@ -37,20 +37,22 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
+CFLAGS += $(DEFS) -D_PATH_CP=\"$(bindir)/cp\" -D_PATH_RSH=\"$(bindir)/rsh\"
 LDLIBS = $(LIBS)
 
-CFLAGS += $(DEFS) -D_PATH_CP=\"$(bindir)/cp\" -D_PATH_RSH=\"$(bindir)/rsh\"
-
+all: rcp
 rcp: rcp.o util.o
 
 install: installdirs rcp $(srcdir)/rcp.1
 	$(INSTALL_PROGRAM) rcp $(bindir)/rcp
-	$(INSTALL_DATA) $(srcdir)/rcp.1 $(man1dir)
+	-$(INSTALL_DATA) $(srcdir)/rcp.1 $(man1dir)/rcp.1
+uninstall:
+	-$(RM) -f $(bindir)/rcp $(man1dir)/rcp.1
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o rcp 
 distclean: clean
 	$(RM) -f Makefile
