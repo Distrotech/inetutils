@@ -42,7 +42,10 @@ static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
 #ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
+#include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/ftp.h>
@@ -899,7 +902,14 @@ remglob(argv,doswitch)
 
 		strcpy (temp, PATH_TMP);
 		strcat (temp, "XXXXXX");
+#ifdef HAVE_MKSTEMP
 		fd = mkstemp (temp);
+#else
+		if (mktemp (temp) != NULL)
+			fd = open(temp, O_CREAT|O_EXCL|O_RDWR, 0600);
+		else
+			fd = -1;
+#endif
 		if (fd < 0) {
 		  printf("unable to create temporary file %s: %s\n", temp,
 			 strerror(errno));

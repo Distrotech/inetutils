@@ -164,7 +164,7 @@ AC_CHECK_LIB(bsd, revoke)
 AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
                fpathconf ftruncate \
 	       getcwd getmsg getspnam initgroups initsetproctitle killpg \
-               ptsname \
+               mkstemp ptsname \
                setegid seteuid setpgid \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
