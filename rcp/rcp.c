@@ -70,6 +70,7 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 #include <string.h>
 #include <string.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #include "extern.h"
 
@@ -126,6 +127,11 @@ main(argc, argv)
 	struct servent *sp;
 	int ch, fflag, tflag;
 	char *targ, *shell;
+
+#ifndef HAVE___PROGNAME
+	extern char *__progname;
+	__progname = argv[0];
+#endif
 
 	fflag = tflag = 0;
 	while ((ch = getopt(argc, argv, OPTIONS)) != EOF)

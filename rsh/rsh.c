@@ -68,6 +68,7 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
 #include <string.h>
 #include <unistd.h>
 #include <varargs.h>
+#include <getopt.h>
 
 #ifdef KERBEROS
 #include <kerberosIV/des.h>
@@ -103,6 +104,11 @@ main(argc, argv)
 	pid_t pid;
 	uid_t uid;
 	char *args, *host, *p, *user;
+
+#ifndef HAVE___PROGNAME
+	extern char *__progname;
+	__progname = argv[0];
+#endif
 
 	argoff = asrsh = dflag = nflag = 0;
 	one = 1;
