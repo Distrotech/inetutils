@@ -10,9 +10,7 @@
 
 #if !defined(lint) && !defined(SABER)
 static
-#ifdef __STDC__
 const
-#endif
 char rcsid_kerberos5_c[] = "$Id$";
 #endif /* lint */
 
