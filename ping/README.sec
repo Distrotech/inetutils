@@ -1,0 +1,38 @@
+CERT* Advisory CA-96.26
+
+Original issue date: December 18, 1996
+Last Revised: December 5, 1997
+Updated information for NCR Corporation. 
+
+A complete revision history is at the end of this file. 
+
+Description
+
+The TCP/IP specification (the basis for many protocols used on the 
+	Internet) allows for a maximum packet size of up to 65536 octets (1 
+	    octet = 8 bits of data), containing a minimum of 20 octets of IP header 
+	information and 0 or more octets of optional information, with the rest 
+	of the packet being data. It is known that some systems will react in an 
+	unpredictable fashion when receiving oversized IP packets. Reports 
+	indicate a range of reactions including crashing, freezing, and 
+	rebooting. 
+
+	In particular, the reports received by the CERT Coordination Center 
+	indicate that Internet Control Message Protocol (ICMP) packets issued 
+	via the "ping" command have been used to trigger this behavior. ICMP is 
+	a subset of the TCP/IP suite of protocols that transmits error and 
+	control messages between systems. Two specific instances of the ICMP are 
+	the ICMP ECHO_REQUEST and ICMP ECHO_RESPONSE datagrams. These two 
+	instances can be used by a local host to determine whether a remote 
+	system is reachable via the network; this is commonly achieved using the 
+	"ping" command. 
+
+	Discussion in public forums has centered around the use of the "ping" 
+	command to construct oversized ICMP datagrams (which are encapsulated 
+	within an IP packet). Many ping implementations by default send ICMP 
+	datagrams consisting only of the 8 octets of ICMP header information but 
+	allow the user to specify a larger packet size if desired. 
+
+	You can read more information about this vulnerability on Mike 
+	Bremford's Web page. (Note that this is not a CERT/CC maintained page. 
+	We provide the URL here for your convenience.) 
