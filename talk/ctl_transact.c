@@ -63,13 +63,14 @@ ctl_transact(target, msg, type, rp)
 	int type;
 	CTL_RESPONSE *rp;
 {
-	int read_mask, ctl_mask, nready, cc;
+	int nready, cc;
+	fd_set read_mask, ctl_mask;
 	struct timeval wait;
 
 	msg.type = type;
 	daemon_addr.sin_addr = target;
 	daemon_addr.sin_port = daemon_port;
-	ctl_mask = 1 << ctl_sockt;
+	FD_SET(ctl_sockt, &ctl_mask);
 
 	/*
 	 * Keep sending the message until a response of
