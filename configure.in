@@ -11,7 +11,7 @@ AC_SUBST(SERVERS)
 AC_SUBST(CLIENTS)
 
 # All subdirectories, whether built or not
-SUBDIRS="$SERVERS $CLIENTS $COMMON"
+SUBDIRS="headers $SERVERS $CLIENTS $COMMON"
 AC_SUBST(SUBDIRS)
 
 # Optional things we put into libinetutils (we use the name `LIBOBJS' because
@@ -47,11 +47,12 @@ AC_PATH_PROG(RM, rm, rm)
 
 AC_CHECK_HEADERS(malloc.h termio.h termios.h sys/tty.h sys/utsname.h \
 		 sys/msgbuf.h krb.h des.h netinet/in_systm.h \
-		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h)
+		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
+		 sys/ioctl_compat.h)
 
 AC_CHECK_LIB(util, logout)
 AC_CHECK_LIB(crypt, crypt)
-AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp)
+AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp fpathconf tcgetattr)
 
 if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
   AC_CHECK_LIB(krb, krb_mk_req, LIBAUTH=-lkrb)
@@ -69,9 +70,9 @@ AC_SUBST(LIBTERMCAP)
 
 # Only talk uses curses
 if test "$enable_talk" != no; then
-  if test "$ac_cv_lib_termcap" != yes; then
+  if test "$ac_cv_lib_termcap_tgetent" != yes; then
     # Curses needs termcap.  This should be generalized
-    ac_cv_lib_curses=no
+    ac_cv_lib_curses_printw=no
   else
     AC_CHECK_LIB(curses, printw, LIBCURSES="-lcurses $LIBTERMCAP")
   fi
@@ -84,7 +85,7 @@ AC_TYPE_SIGNAL
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
 
 if test "$enable_talk" = maybe; then
-  enable_talk=$ac_cv_lib_curses
+  enable_talk=$ac_cv_lib_curses_printw
 fi
 
 AC_CACHE_CHECK(whether struct stat has timespec fields,
@@ -92,30 +93,46 @@ AC_CACHE_CHECK(whether struct stat has timespec fields,
 AC_TRY_COMPILE(
 [#include <sys/types.h>
 #include <sys/stat.h>],
-[struct stat st; st.st_mtimespec.ts_nsec = 0;],
-[inetutils_cv_struct_st_timespec=yes],
-[inetutils_cv_struct_st_timespec=no]))
+  [struct stat st; st.st_mtimespec.ts_nsec = 0;],
+  [inetutils_cv_struct_st_timespec=yes],
+  [inetutils_cv_struct_st_timespec=no]))
 
 if test "$inetutils_cv_struct_st_timespec" = yes; then
   AC_DEFINE(HAVE_ST_TIMESPEC)
 else
-AC_CACHE_CHECK(whether struct stat has time_usec fields,
-	       inetutils_cv_struct_st_time_usec,
-AC_TRY_COMPILE(
+  AC_CACHE_CHECK(whether struct stat has time_usec fields,
+		 inetutils_cv_struct_st_time_usec,
+  AC_TRY_COMPILE(
 [#include <sys/types.h>
 #include <sys/stat.h>],
-[struct stat st; st.st_mtime_usec = 0;],
-[inetutils_cv_struct_st_time_usec=yes],
-[inetutils_cv_struct_st_time_usec=no]))
+    [struct stat st; st.st_mtime_usec = 0;],
+    [inetutils_cv_struct_st_time_usec=yes],
+    [inetutils_cv_struct_st_time_usec=no]))
 
-if test "$inetutils_cv_struct_st_time_usec" = yes; then
-  AC_DEFINE(HAVE_ST_TIME_USEC)
-fi
+  if test "$inetutils_cv_struct_st_time_usec" = yes; then
+    AC_DEFINE(HAVE_ST_TIME_USEC)
+  fi
 fi
 
 if test "$enable_talk" = yes; then
   SERVERS="$SERVERS talkd"
   CLIENTS="$CLIENTS talk"
+
+  AC_CACHE_CHECK(for struct osockaddr in <sys/socket.h>,
+		 inetutils_cv_struct_osockaddr,
+  AC_TRY_COMPILE(
+[#include <sys/types.h>
+#include <sys/socket.h>],
+    [struct osockaddr sa;],
+    [inetutils_cv_struct_osockaddr=yes],
+    [inetutils_cv_struct_osockaddr=no]))
+
+  if test "$inetutils_cv_struct_osockaddr" = yes; then
+    AC_DEFINE(HAVE_OSOCKADDR)
+  else
+    # Use our own definition
+    INCLUDES="$INCLUDES osockaddr.h"
+  fi
 fi
 # Update SUBDIRS regardless
 SUBDIRS="$SUBDIRS talkd talk"
@@ -136,10 +153,10 @@ if test "$enable_encryption" = yes; then
   AC_DEFINE(ENCRYPTION)
 fi
 
-if test "$enable_authentication" = yes -a "$ac_cv_lib_krb" = yes; then
+if test "$enable_authentication" = yes -a "$ac_cv_lib_krb_krb_mk_req" = yes; then
   AC_DEFINE(KRB4)
 fi
-if test "$enable_encryption" = yes -a "$ac_cv_lib_des" = yes; then
+if test "$enable_encryption" = yes -a "$ac_cv_lib_des_des_key_sched" = yes; then
   AC_DEFINE(DES_ENCRYPTION)
 fi
 
