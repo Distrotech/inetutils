@@ -4,7 +4,7 @@ bin_PROGRAMS = @BUILD_LOGGER@
 
 EXTRA_PROGRAMS = logger
 
-syslog_SOURCES = logger.c
+logger_SOURCES = logger.c
 
 man_MANS = logger.1
 

@@ -15,7 +15,7 @@
 
 
 /* Define is you have PATH_RSH. */
-#undef TEEHEE 
+#undef TEEHEE
 
 /* Define if you have the Andrew File System.  */
 #undef AFS
@@ -242,9 +242,6 @@
 /* Define this if initgroups is declared by including <grp.h>.  */
 #undef HAVE_INITGROUPS_DECL
 
-/* Define if you have the tcpd_wrapper library (-lwrap).  */
-#undef HAVE_LIBWRAP 
-
 /* Define this if the system supplies the __PROGNAME variable.  */
 #undef HAVE___PROGNAME
 
@@ -332,12 +329,21 @@
 /* If EWOULDBLOCK isn't defined by <errno.h>, define it here.  */
 #undef EWOULDBLOCK
 
-/* SOLARIS uses STREAM ptys and other funky things */
+/* SOLARIS uses STREAM ptys and other funky things.  */
 #undef SOLARIS
 #undef HAVE_STREAMSPTY
 
-/* certain system must have an entry in utmpx before login work */
+/* Certain system must have an entry in utmpx before login work.  */
 #undef UTMPX
+
+/*  For feature PAM.  */
+/* Define if you have pam library (-lpam).  */
+#undef WITH_PAM
+
+/*  For feature PAM.  */
+/* Define if you have the tcpd_wrapper library (-lwrap).  */
+#undef WITH_WRAP
+
 
 @BOTTOM@
 

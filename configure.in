@@ -25,7 +25,7 @@ AC_INIT(inetd/inetd.c)
 # the production of headers/config.h.in.
 AC_PREREQ(2.12)
 
-AM_INIT_AUTOMAKE([inetutils], [1.3.2e], nodef)
+AM_INIT_AUTOMAKE([inetutils], [1.3.2f], nodef)
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
@@ -150,7 +150,6 @@ AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
-AC_CHECK_LIB(pam, pam_authenticate)
 
 AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
                fpathconf ftruncate \
@@ -268,12 +267,41 @@ IU_CHECK_WEAK_REFS
 AC_CHECK_LIB(crypt, crypt, LIBCRYPT=-lcrypt)
 AC_SUBST(LIBCRYPT)
 
-# See if we have libwrap.a this is for ftpd.
-AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
-AC_SUBST(LIBWRAP)
-if test "$ac_cv_lib_wrap_hosts_ctl" = yes ; then
-  AC_DEFINE(HAVE_LIBWRAP)
+# Check if they want support for Wrap.  Certain daemons like
+# ftpd have support for it.
+AC_ARG_WITH(wrap, [  --with-wrap    add tcp wrapper support])
+if test "$with_wrap" = yes; then
+# See if we have libwrap.a
+# we can not use AC_CHECK_LIB reliably since for the wrap lib
+# you have to define some global variables
+#AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
+  AC_MSG_CHECKING(hosts_ctl in -lwrap);
+  save_LIBS=$LIBS
+  LIBS="$save_LIBS -lwrap"
+  AC_TRY_LINK([int allow_severity = 1; int deny_severity = 1;],
+              hosts_ctl(), eval "ac_cv_lib_wrap_hosts_ctl=yes",
+              eval "ac_cv_lib_wrap_hosts_ctl=no")
+  LIBS=$save_LIBS
+  if test "$ac_cv_lib_wrap_hosts_ctl" = yes ; then
+    AC_DEFINE(WITH_WRAP)
+    LIBWRAP=-lwrap
+  fi
+  AC_MSG_RESULT($ac_cv_lib_wrap_hosts_ctl);
 fi
+AC_SUBST(LIBWRAP)
+
+# Check if they want support for PAM.  Certain daemons like
+# ftpd have support for it.
+AC_ARG_WITH(pam, [  --with-pam    add support for PAM])
+# See if we have libwrap.a this is for ftpd.
+if test "$with_pam" = yes ; then
+  AC_CHECK_LIB(dl, dlopen)
+  AC_CHECK_LIB(pam, pam_authenticate, LIBPAM=-lpam)
+  if test "$ac_cv_lib_pam_pam_authenticate" = yes ; then
+     AC_DEFINE(WITH_PAM)
+  fi
+fi
+AC_SUBST(LIBPAM)
 
 # Look for the crypt function itself (in libcrypt if possible)
 _SAVE_LIBS="$LIBS"
@@ -542,8 +570,8 @@ AC_FUNC_MMAP
 
 AC_SUBST(VERSION)
 
-# Ok were at the end of the hope, even autoconf can't help
-# for example on certain system login(1) will not work if we
+# Ok this is the end of the rope, even autoconf can't help.
+# For example on certain system login(1) will not work if we
 # don't have an entry in utmpx.
 # Also for some OS they are better handle with STREAMS
 # AC_CANONICAL_HOST # already run with AC_AIX

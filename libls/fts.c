@@ -218,7 +218,7 @@ fts_load(sp, p)
 	 * known that the path will fit.
 	 */
 	len = p->fts_pathlen = p->fts_namelen;
-	memmove (sp->fs_path, p->fts_name, len + 1);
+	memmove (sp->fts_path, p->fts_name, len + 1);
 	if ((cp = rindex(p->fts_name, '/')) && (cp != p->fts_name || cp[1])) {
 		len = strlen(++cp);
 		memmove(p->fts_name, cp, len + 1);
@@ -737,7 +737,7 @@ mem1:				saved_errno = errno;
 			/* Build a file name for fts_stat to stat. */
 			if (ISSET(FTS_NOCHDIR)) {
 				p->fts_accpath = p->fts_path;
-				memmouve(p->fts_name, cp, p->fts_namelen + 1);
+				memmove(p->fts_name, cp, p->fts_namelen + 1);
 			} else
 				p->fts_accpath = p->fts_name;
 			/* Stat it. */
@@ -948,7 +948,7 @@ fts_alloc(sp, name, namelen)
 		return (NULL);
 
 	/* Copy the name plus the trailing NULL. */
-	memmove(name, p->fts_name, namelen + 1);
+	memmove(p->fts_name, name, namelen + 1);
 
 	if (!ISSET(FTS_NOSTAT))
 		p->fts_statp = (struct stat *)(p->fts_name + namelen + 2);

@@ -1,6 +1,6 @@
 # Paths for inetutils
 #
-# Copyright (C) 1996, 1997 Free Software Foundation, Inc.
+# Copyright (C) 1996, 1997, 2000 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ PATH_TTY_PFX	<paths.h>:_PATH_DEV d /dev/
 PATH_DEVNULL	c /dev/null
 PATH_FTPLOGINMESG /etc/motd
 PATH_FTPUSERS	$(sysconfdir)/ftpusers
+PATH_FTPCHROOT	$(sysconfdir)/ftpchroot
 PATH_FTPWELCOME $(sysconfdir)/ftpwelcome
 PATH_FTPDPID	$(localstatedir)/run/ftpd.pid
 PATH_INETDCONF	$(sysconfdir)/inetd.conf
