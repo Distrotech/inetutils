@@ -1,3 +1,14 @@
+2002-04-07  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* telnetd.c: Initialize login_invocation. Fixed calls
+	  to inet_ntoa.
+	  (print_hostinfo): Implemented.
+	* pty.c: Use new expand_line to create login command line.
+	* telnetd.h: Added missing prototypes.
+	* utility.c: Added line expansion code.
+	  (io_setup): Initialize ptyip.
+	  (pty_input_putback): new function.
+
 2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	Major rewrite of telnetd.
