@@ -600,7 +600,10 @@ rcmd
 		{
 			fromname = (char *) 0;
 			restart_point = $3;	/* XXX $3 is only "int" */
-			reply(350, "Restarting at %qd. %s", restart_point,
+			reply(350,
+			      (sizeof(restart_point) > sizeof(long)
+			       ? "Restarting at %qd. %s"
+			       : "Restarting at %ld. %s"), restart_point,
 			    "Send STORE or RETRIEVE to initiate transfer.");
 		}
 	;
@@ -1300,7 +1303,9 @@ sizecmd(filename)
 		if (stat(filename, &stbuf) < 0 || !S_ISREG(stbuf.st_mode))
 			reply(550, "%s: not a plain file.", filename);
 		else
-			reply(213, "%qu", stbuf.st_size);
+			reply(213,
+			      (sizeof (stbuf.st_size) > sizeof(long)
+			       ? "%qu" : "%lu"), stbuf.st_size);
 		break; }
 	case TYPE_A: {
 		FILE *fin;
@@ -1326,7 +1331,8 @@ sizecmd(filename)
 		}
 		(void) fclose(fin);
 
-		reply(213, "%qd", count);
+		reply(213, sizeof(count) > sizeof(long) ? "%qd" : "%ld",
+		      count);
 		break; }
 	default:
 		reply(504, "SIZE not implemented for Type %c.", "?AEIL"[type]);
