@@ -1,3 +1,7 @@
+2001-01-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (usage): Add missing parentheses in help text.
+
 2000-11-25  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c (main): Give reason for failure of waitdaemon.

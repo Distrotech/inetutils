@@ -296,7 +296,7 @@ usage (int err)
   -p, --socket FILE  Override default unix domain socket " PATH_LOG "\n\
   -a SOCKET          Add unix socket to listen to (up to 19)\n\
   -r, --inet         Receive remote messages via internet domain socket\n\
-      --no-unixaf    Do not listen on unix domain sockets (overrides -a and -p\n\
+      --no-unixaf    Do not listen on unix domain sockets (overrides -a and -p)\n\
   -S, --sync         Force a file sync on every line");
 #ifdef PATH_KLOG
       puts ("\
