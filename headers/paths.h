@@ -62,4 +62,8 @@
 #define	_PATH_VARRUN	"/var/run/"
 #define	_PATH_VARTMP	"/var/tmp/"
 
+#define	_PATH_LOGCONF   "/etc"
+#define _PATH_LOGPID    "/var/run"
+#define _PATH_LOG       "/var/log"
+	
 #endif /* !_PATHS_H_ */
