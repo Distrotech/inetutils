@@ -1,3 +1,8 @@
+2001-01-16  Marcus Brinkmann  <marcus@gnu.org>
+
+	* main.c: Terminate array longopts with an element containing all
+	zeros.
+
 2000-11-25  Marcus Brinkmann  <marcus@gnu.org>
 
 	* README: Uppercase the Hurd, fix comment about long option

@@ -43,6 +43,7 @@ static struct option longopts[] = {
     {"verbose",	no_argument,		NULL, 'V'},
     {"server",	required_argument,	NULL, 'h'},
     {"host",	required_argument,	NULL, 'h'},
+    {0, 0, 0, 0}
 };
 #endif
 

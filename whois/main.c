@@ -61,6 +61,7 @@ static struct option longopts[] = {
   {"server",		required_argument,	0,	'h'},
   {"host",		required_argument,	0,	'h'},
   {"config-file",	required_argument,	0,	'c'},
+  {0, 0, 0, 0}
 };
 
 #define MYISNEWLINE(c) (((c) == '\n') || ((c) == '\r') || ((c) == '\f'))
