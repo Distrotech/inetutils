@@ -39,12 +39,12 @@ RM = @RM@
 
 LDLIBS = $(LIBS)
 
-CFLAGS += $(DEFS)
+CFLAGS += $(DEFS) -D_PATH_CP=\"$(bindir)/cp\" -D_PATH_RSH=\"$(bindir)/rsh\"
 
 rcp: rcp.o util.o
 
 install: installdirs rcp $(srcdir)/rcp.1
-	$(INSTALL_PROGRAM) rcp $(bindir)/in.rcp
+	$(INSTALL_PROGRAM) rcp $(bindir)/rcp
 	$(INSTALL_DATA) $(srcdir)/rcp.1 $(man1dir)
 
 installdirs:
