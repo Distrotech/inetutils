@@ -569,8 +569,8 @@ AC_DEFUN(IU_CHECK_KRB5,
   AC_PATH_PROG(KRB5CFGPATH, krb5-config, none, $krb5_path)
   if test "$KRB5CFGPATH" != "none"; then
     KRB5_CFLAGS="$CPPFLAGS `$KRB5CFGPATH --cflags krb$1`"
-    GSSAPI_LIBS="$MUTTLIBS `$KRB5CFGPATH --libs krb$1`"
-    GSSAPI_IMPL="Heimdal"
+    KRB5_LIBS="$LDFLAGS `$KRB5CFGPATH --libs krb$1`"
+    KRB5_IMPL="Heimdal"
   else
     ## OK, try the old code
     saved_CPPFLAGS="$CPPFLAGS"
