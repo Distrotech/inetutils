@@ -54,7 +54,7 @@ static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #include "ftp_var.h"
 
 extern char *localhost __P((void));
-extern char *xstrdup __P((void));
+extern char *xstrdup __P((const char *));
 extern char *xmalloc __P((size_t));
 
 static	int token __P((void));
