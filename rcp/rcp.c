@@ -99,12 +99,12 @@ extern	char	*krb_realmofhost ();
 
 # ifdef CRYPT
 int	doencrypt = 0;
-# define	OPTIONS	"dfKk:prtx"
+# define	OPTIONS	"dfKk:prtxV"
 # else
-#  define	OPTIONS	"dfKk:prt"
+#  define	OPTIONS	"dfKk:prtV"
 # endif
 #else
-# define	OPTIONS "dfprt"
+# define	OPTIONS "dfprtV"
 #endif /* KERBEROS  */
 
 #if !defined (S_ISTXT) && defined (S_ISVTX)

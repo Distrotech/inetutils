@@ -1,3 +1,8 @@
+2002-09-02  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* rcp.c: Add support for rcp -V, Thanks to Chris Ulherr
+	<chris.ulherr@inet.com> for reporting this.
+
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* rcp.c: Checks for HAVE_DECL variables must read
