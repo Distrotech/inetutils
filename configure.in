@@ -519,11 +519,13 @@ AC_SUBST(VERSION)
 # Ok were at the end of the hope, even autoconf can't help
 # for example on certain system login(1) will not work if we
 # don't have an entry in utmpx.
+# Also for some OS they are better handle with STREAMS
 # AC_CANONICAL_HOST # already run with AC_AIX
 case "$host" in
 *olaris*)
   AC_DEFINE(UTMPX)
   AC_DEFINE(SOLARIS)
+  AC_DEFINE(HAVE_STREAMSPTY)
   ;;
 *irix*)
   AC_DEFINE(UTMPX)
