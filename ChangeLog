@@ -1,3 +1,16 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+	* Makefile.am (AUTOMAKE_OPTIONS): Require GNU Automake 1.6.
+
+	* acinclude.m4 (IU_UCASE, iu_lcase): Variables removed.
+	(IU_RESULT_ACTIONS, IU_CHECK_WEAK_REFS): Use the new AC_DEFINE syntax.
+	(IU_CHECK_DECL, IU_CHECK_TYPE, IU_CHECK_STRUCT_FIELD):
+	Functions removed.
+	(IU_ENABLE_FOO): Use name_BUILD instead of BUILD_NAME.
+	(IU_INCLUDED_REGEX): Replaced with..
+	(jm_INCLUDED_REGEX): this.
+	* acconfig.h: Removed.
+	* configure.ac: Rewrite.
+
 2002-04-08  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* acconfig.h: #undef's for KERBEROS_IV and KERBEROS_V
