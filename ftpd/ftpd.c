@@ -178,6 +178,7 @@ static int login_attempts;       /* Number of failed login attempts.  */
 static int askpasswd;		 /* Had user command, ask for passwd.  */
 static char curname[10];	 /* Current USER name.  */
 static char ttyline[20];         /* Line to log in utmp.  */
+static char *program;            /* The invocation name of the program.  */
 
 
 
@@ -282,21 +283,27 @@ static struct option long_options[] =
 static void
 usage (int err)
 {
-  if (err == 0)
+  if (err != 0)
     {
-      puts ("\
--A, --anonymous-only        Server configure for anonymous service only,\n\
--D, --daemon                Start the ftpd standaone.\n\
--d, --debug                 Debug mode.\n\
--l, --logging               Increase verbosity of syslog messages.\n\
--p, --pidfile=[PIDFILE]     Change default location of pidfile.\n\
--q, --no-version            Do not display version in banner\n\
--t, --timeout=[TIMEOUT]     Set default idle timeout.\n\
--T, --max-timeout           Reset maximum value of timeout allowed.\n\
--u, --umask                 Set default umask(base 8).\n\
-    --help                  Print this message.\n\
--V, --version               Print version\n\
--a, --auth=[AUTH]           Use AUTH for authentication, it can be:\n\
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", program);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program);
+    }
+  else
+    {
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", program);
+      puts ("Internet File Transfer Protocol server.\n\n\
+  -A, --anonymous-only      Server configure for anonymous service only\n\
+  -D, --daemon              Start the ftpd standalone\n\
+  -d, --debug               Debug mode\n\
+  -l, --logging             Increase verbosity of syslog messages\n\
+  -p, --pidfile=[PIDFILE]   Change default location of pidfile\n\
+  -q, --no-version          Do not display version in banner\n\
+  -t, --timeout=[TIMEOUT]   Set default idle timeout\n\
+  -T, --max-timeout         Reset maximum value of timeout allowed\n\
+  -u, --umask               Set default umask(base 8)\n\
+      --help                Print this message\n\
+  -V, --version             Print version\n\
+  -a, --auth=[AUTH]         Use AUTH for authentication, it can be:\n\
                                default     passwd authentication.");
 #ifdef WITH_PAM
       puts ("\
@@ -312,19 +319,10 @@ usage (int err)
 #endif
 #ifdef WITH_OPIE
       puts ("\
-                                opie");
+                               opie");
 #endif
-    }
-  else if (err == 1)
-    {
-      fprintf (stdout, "%s FTPD server %s.\n",
-	       inetutils_package, inetutils_version);
-      err = 0;
-    }
-  else
-    {
-      fprintf (stderr, "Usage: ftpd [OPTION] ...\n");
-      fprintf (stderr, "Try `ftpd --help' for more information.\n");
+
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
     }
   exit (err);
 }
@@ -334,6 +332,8 @@ main(int argc, char *argv[], char **envp)
 {
   extern char *localhost __P ((void));
   int option;
+
+  program = argv[0];
 
 #ifdef HAVE_TZSET
   tzset(); /* In case no timezone database in ~ftp.  */
@@ -349,10 +349,11 @@ main(int argc, char *argv[], char **envp)
     {
       switch (option)
 	{
-	case 'A':
+	case 'A': /* Anonymous ftp only.  */
 	  anon_only = 1;
 	  break;
-	case 'a':
+
+	case 'a': /* Authentification method.  */
 	  if (strcasecmp (optarg, "default") == 0)
 	    cred.auth_type = AUTH_TYPE_PASSWD;
 #ifdef WITH_PAM
@@ -372,33 +373,40 @@ main(int argc, char *argv[], char **envp)
 	    cred.auth_type = AUTH_TYPE_OPIE;
 #endif
 	  break;
-	  break;
-	case 'D':
+
+	case 'D': /* Run ftpd as daemon.  */
 	  daemon_mode = 1;
 	  break;
-	case 'd':
+
+	case 'd': /* Enable debug mode.  */
 	  debug = 1;
 	  break;
-	case 'l':
+
+	case 'l': /* Increase logging level.  */
 	  logging++;	/* > 1 == Extra logging.  */
 	  break;
-	case 'p':  /* Override pid file */
+
+	case 'p': /* Override pid file */
 	  pid_file = optarg;
 	  break;
-	case 'q':
+
+	case 'q': /* Don't include version number in banner.  */
 	  no_version = 1;
 	  break;
-	case 't':
+
+	case 't': /* Set default timeout value.  */
 	  timeout = atoi (optarg);
 	  if (maxtimeout < timeout)
 	    maxtimeout = timeout;
 	  break;
-	case 'T':
+
+	case 'T': /* Maximum timeout allowed.  */
 	  maxtimeout = atoi (optarg);
 	  if (timeout > maxtimeout)
 	    timeout = maxtimeout;
 	  break;
-	case 'u':
+
+	case 'u': /* Set umask.  */
 	  {
 	    long val = 0;
 
@@ -409,16 +417,26 @@ main(int argc, char *argv[], char **envp)
 	      defumask = val;
 	    break;
 	  }
-	case 'V':
-	  usage (1);
-	  break;
-	case '&':
+
+	case '&': /* Usage.  */
 	  usage (0);
+	  /* Not reached.  */
+
+	case 'V': /* Version.  */
+	  printf ("ftpd (%s) %s\n", inetutils_package, inetutils_version);
+	  exit (0);
+
+	case '?':
 	default:
-	  fprintf (stderr, "%s: unknown flag -%c ignored", argv[0], option);
-	  break;
+	  usage (1);
+	  /* Not reached.  */
 	}
     }
+
+  /* Bail out, wrong usage */
+  argc -= optind;
+  if (argc != 0)
+    usage (1);
 
   /* LOG_NDELAY sets up the logging connection immediately,
      necessary for anonymous ftp's that chroot and can't do it later.  */
@@ -438,7 +456,7 @@ main(int argc, char *argv[], char **envp)
       if (getpeername (STDIN_FILENO, (struct sockaddr *)&his_addr,
 		       &addrlen) < 0)
 	{
-	  syslog (LOG_ERR, "getpeername (%s): %m",argv[0]);
+	  syslog (LOG_ERR, "getpeername (%s): %m", program);
 	  exit (1);
 	}
     }
@@ -458,7 +476,7 @@ main(int argc, char *argv[], char **envp)
     if (getsockname (STDIN_FILENO, (struct sockaddr *)&ctrl_addr,
 		     &addrlen) < 0)
       {
-	syslog (LOG_ERR, "getsockname (%s): %m",argv[0]);
+	syslog (LOG_ERR, "getsockname (%s): %m", program);
 	exit (1);
       }
   }

@@ -1,3 +1,12 @@
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* ftpd.c: New variable PROGRAM.
+	(usage): Frob it to behave like the syslogd usage(),
+	so it gives the correct output.
+	(main): Beautify option parsing code (more comments, proper
+	use of usage). Reject unknown options instead ignoring them.
+	Initialize PROGRAM and use it instead of argv.
+
 2000-08-21  Alain Magloire
 
 The idea is to reduce the number of side effects i.e. reducing the number
