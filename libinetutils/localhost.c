@@ -1,6 +1,6 @@
 /* A slightly more convenient wrapper for gethostname
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -23,7 +23,9 @@
 #endif
 
 #include <unistd.h>
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
 #endif
