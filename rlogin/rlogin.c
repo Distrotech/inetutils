@@ -51,8 +51,12 @@ static char sccsid[] = "@(#)rlogin.c	8.1 (Berkeley) 6/6/93";
 #include <sys/wait.h>
 
 #include <netinet/in.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
+#endif
 
 #include <errno.h>
 #include <fcntl.h>
@@ -115,8 +119,8 @@ struct	winsize winsize;
 
 void		catch_child __P((int));
 void		copytochild __P((int));
-__dead void	doit __P((long));
-__dead void	done __P((int));
+void		doit __P((long));
+void		done __P((int));
 void		echo __P((char));
 u_int		getescape __P((char *));
 void		lostpeer __P((int));
@@ -128,7 +132,7 @@ void		sendwindow __P((void));
 void		setsignal __P((int));
 void		sigwinch __P((int));
 void		stop __P((char));
-__dead void	usage __P((void));
+void		usage __P((void));
 void		writer __P((void));
 void		writeroob __P((int));
 
@@ -337,9 +341,12 @@ try_connect:
 	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, &one, sizeof(one)) < 0)
 		(void)fprintf(stderr, "rlogin: setsockopt: %s.\n",
 		    strerror(errno));
+
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	one = IPTOS_LOWDELAY;
 	if (setsockopt(rem, IPPROTO_IP, IP_TOS, (char *)&one, sizeof(int)) < 0)
 		perror("rlogin: setsockopt TOS (ignored)");
+#endif
 
 	(void)setuid(uid);
 	doit(omask);
@@ -415,7 +422,7 @@ setsignal(sig)
 	(void)sigsetmask(omask);
 }
 
-__dead void
+void
 done(status)
 	int status;
 {
@@ -876,7 +883,7 @@ warning(fmt, va_alist)
 }
 #endif
 
-__dead void
+void
 usage()
 {
 	(void)fprintf(stderr,
