@@ -42,7 +42,6 @@ static char sccsid[] = "@(#)misc.c	8.1 (Berkeley) 6/4/93";
 char *RemoteHostName;
 char *LocalHostName;
 char *UserNameRequested = 0;
-int ConnectedCount = 0;
 
 void
 auth_encrypt_init(char *local, char *remote, char *name, int server)
