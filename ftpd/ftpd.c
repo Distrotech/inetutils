@@ -49,6 +49,23 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <config.h>
 #endif
 
+#if !defined (__GNUC__) && defined (_AIX)
+ #pragma alloca
+#endif
+#ifndef alloca /* Make alloca work the best possible way.  */
+#ifdef __GNUC__
+#define alloca __builtin_alloca
+#else /* not __GNUC__ */
+#if HAVE_ALLOCA_H
+#include <alloca.h>
+#else /* not __GNUC__ or HAVE_ALLOCA_H */
+#ifndef _AIX /* Already did AIX, up at the top.  */
+char *alloca ();
+#endif /* not _AIX */
+#endif /* not HAVE_ALLOCA_H */
+#endif /* not __GNUC__ */
+#endif /* not alloca */
+
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -72,6 +89,7 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <glob.h>
 #include <limits.h>
 #include <netdb.h>
@@ -93,6 +111,10 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 
 #include "extern.h"
 #include "version.h"
+
+#ifndef LINE_MAX
+#define LINE_MAX 2048
+#endif
 
 #ifndef LOG_FTP
 #define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
