@@ -64,7 +64,9 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 #include <utmp.h>
 
 #ifndef ORIGINAL_SOURCE
-#include "bsdport.h"
+//#include "bsdport.h"
+#define	DAYSPERNYEAR 365
+#define	SECSPERDAY 86400
 #endif /* not ORIGINAL_SOURCE */
 
 #include "ls.h"
