@@ -24,7 +24,7 @@
 
 #include <signal.h>
 #ifdef HAVE_SYS_FILIO_H
-#include <sys/filio.h>
+# include <sys/filio.h>
 #endif
 #include <termios.h>
 #ifdef TIME_WITH_SYS_TIME
@@ -71,6 +71,8 @@
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
+#include <sys/ioctl.h>
+#include <sys/stat.h> /* Needed for chmod() */
 
 #ifndef TIOCPKT_WINDOW
 # define TIOCPKT_WINDOW 0x80
@@ -91,9 +93,9 @@
 #endif
 
 #ifdef	KERBEROS
-#include <kerberosIV/des.h>
-#include <kerberosIV/krb.h>
-#define	SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
+# include <kerberosIV/des.h>
+# include <kerberosIV/krb.h>
+# define	SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
 #endif /* KERBEROS */
 
 #define	ENVSIZE	(sizeof("TERM=")-1)	/* skip null for concatenation */
@@ -117,7 +119,7 @@ struct auth_data
   char *env[2];
 };
 
-static char short_options[] = "aD::d::hL::lnkp:rxVv";
+static const char *short_options = "aD::d::hL::lnkp:rxVv";
 static struct option long_options[] =
 {
   {"verify-hostname", no_argument, 0, 'a'},
@@ -146,41 +148,41 @@ int encrypt = 0;
 int reverse_required = 0;
 int debug_level = 0;
 
-static int numchildren;
+int numchildren;
 int netf;
 char line[1024];		/* FIXME */
 int confirmed;
-char *path_login = PATH_LOGIN;
+const char *path_login = PATH_LOGIN;
 char *local_domain_name;
 int local_dot_count;
 
 struct winsize win = {0, 0, 0, 0};
 
-static void usage __P((void));
-static void rlogin_daemon __P((int maxchildren, int port));
-static int rlogind_auth __P((int fd, struct auth_data *ap));
-static void setup_tty __P((int fd, struct auth_data *ap));
-static void exec_login __P((int authenticated, struct auth_data *ap));
-static int rlogind_mainloop __P((int infd, int outfd));
-static int do_rlogin __P((int infd, struct auth_data *ap));
-static int do_krb_login __P((int infd, struct auth_data *ap));
-static void getstr __P((int infd, char **ptr, char *prefix));
-static void protocol __P((int f, int p));
-static int control __P((int pty, char *cp, int n));
-static RETSIGTYPE cleanup __P((int signo));
-static void fatal __P((int f, char *msg, int syserr));
-static int in_local_domain __P((char *hostname));
-static char *topdomain __P((char *name, int max_dots));
+void usage __P ((void));
+void rlogin_daemon __P ((int maxchildren, int port));
+int rlogind_auth __P ((int fd, struct auth_data *ap));
+void setup_tty __P ((int fd, struct auth_data *ap));
+void exec_login __P ((int authenticated, struct auth_data *ap));
+int rlogind_mainloop __P ((int infd, int outfd));
+int do_rlogin __P ((int infd, struct auth_data *ap));
+int do_krb_login __P ((int infd, struct auth_data *ap));
+void getstr __P ((int infd, char **ptr, const char *prefix));
+void protocol __P ((int f, int p));
+int control __P ((int pty, char *cp, size_t n));
+RETSIGTYPE cleanup __P ((int signo));
+void fatal __P ((int f, const char *msg, int syserr));
+int in_local_domain __P ((char *hostname));
+char *topdomain __P ((char *name, int max_dots));
 
-static RETSIGTYPE
-rlogind_sigchld(int sig)
+RETSIGTYPE
+rlogind_sigchld (int sig)
 {
   pid_t pid;
   int status;
 
-  while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+  while ((pid = waitpid (-1, &status, WNOHANG)) > 0)
     --numchildren;
-  signal(sig, rlogind_sigchld);
+  signal (sig, rlogind_sigchld);
 }
 
 #define MODE_INETD 0
@@ -202,22 +204,19 @@ rlogind_sigchld(int sig)
 #else
 # define IF_ENCRYPT(stmt)
 # define IF_NOT_ENCRYPT(stmt) stmt
-# define ENC_READ(c, fd, buf, size) c = read(fd, buf, size)
-# define ENC_WRITE(c, fd, buf, size) c = write(fd, buf, size)
+# define ENC_READ(c, fd, buf, size) c = read (fd, buf, size)
+# define ENC_WRITE(c, fd, buf, size) c = write (fd, buf, size)
 #endif
 
-void rlogin_daemon (int maxchildren, int port);
-int rlogind_mainloop (int infd, int outfd);
-
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   int port = 0;
   int maxchildren = DEFMAXCHILDREN;
   int mode = MODE_INETD;
   int c;
 
-  while ((c = getopt_long(argc, argv, short_options, long_options, NULL))
+  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
     {
       switch (c)
@@ -227,7 +226,7 @@ main(int argc, char *argv[])
 	  break;
 	case 'D':
 	  if (optarg)
-	    debug_level = atoi(optarg);
+	    debug_level = strtoul (optarg, NULL, 10);
 	  break;
 	case 'd':
 	  mode = MODE_DAEMON;
@@ -257,7 +256,7 @@ main(int argc, char *argv[])
 #endif /* KERBEROS */
 
 	case 'p':
-	  port = atoi(optarg);
+	  port = strtoul (optarg, NULL, 10);
 	  break;
 
 	case 'r':
@@ -266,36 +265,36 @@ main(int argc, char *argv[])
 
 	case 'V':
 	  printf ("rlogind (%s %s)\n", inetutils_package, inetutils_version);
-	  exit(0);
+	  exit (0);
 
 	case 'h':
 	default:
-	  usage();
-	  exit(0);
+	  usage ();
+	  exit (0);
 	}
     }
 
-  openlog("rlogind", LOG_PID | LOG_CONS, LOG_AUTH);
+  openlog ("rlogind", LOG_PID | LOG_CONS, LOG_AUTH);
   argc -= optind;
   if (argc > 0)
     {
-      syslog(LOG_ERR, "%d extra arguments", argc);
-      exit(1);
+      syslog (LOG_ERR, "%d extra arguments", argc);
+      exit (1);
     }
 
-  signal(SIGHUP, SIG_IGN);
+  signal (SIGHUP, SIG_IGN);
 
   if (!local_domain_name)
     {
-      char *p = localhost();
+      char *p = localhost ();
 
       if (!p)
 	{
-	  syslog(LOG_ERR, "can't determine local hostname");
-	  exit(1);
+	  syslog (LOG_ERR, "can't determine local hostname");
+	  exit (1);
 	}
       local_dot_count = 2;
-      local_domain_name = topdomain(p, local_dot_count);
+      local_domain_name = topdomain (p, local_dot_count);
     }
   else
     {
@@ -309,7 +308,7 @@ main(int argc, char *argv[])
   if (mode == MODE_DAEMON)
     rlogin_daemon (maxchildren, port);
   else
-    exit(rlogind_mainloop (fileno (stdin), fileno (stdout)));
+    exit (rlogind_mainloop (fileno (stdin), fileno (stdout)));
 
   /* To pacify lint */
   return 0;
@@ -330,48 +329,48 @@ rlogin_daemon (int maxchildren, int port)
 
       svp = getservbyname ("login", "tcp");
       if (svp != NULL)
-	port = ntohs(svp->s_port);
+	port = ntohs (svp->s_port);
       else
 	port = DEFPORT;
     }
 
-  pid = fork();
+  pid = fork ();
   if (pid == -1)
     {
-      perror("fork");
-      fatal(fileno(stderr), "exiting", 0);
-      exit(1);
+      perror ("fork");
+      fatal (fileno (stderr), "exiting", 0);
+      exit (1);
     }
 
   if (pid > 0)
-    exit(0);
+    exit (0);
 
-  setsid();
+  setsid ();
 
   {
     /* Close inherited file descriptors.  */
-    int i;
+    size_t i;
 #if defined(HAVE_SYSCONF) && defined(_SC_OPEN_MAX)
-    size_t fdmax = sysconf(_SC_OPEN_MAX);
+    size_t fdmax = sysconf (_SC_OPEN_MAX);
 #elif defined(HAVE_GETDTABLESIZE)
-    size_t fdmax = getdtablesize();
+    size_t fdmax = getdtablesize ();
 #else
     size_t fdmax = 64;
 #endif
 
     for (i = 0; i < fdmax; i++)
-      close(i);
+      close (i);
 
     /* Hold first three descriptors. This is needed so that master/slave
        pty fds do not clash with standard in,out,err. The first three
        descriptors will be dup'ed in openpty() anyway. */
     for (i = 0; i < 3; i++)
-      i = open("/dev/null", O_RDWR);
+      i = open ("/dev/null", O_RDWR);
   }
 
-  signal(SIGCHLD, rlogind_sigchld);
+  signal (SIGCHLD, rlogind_sigchld);
 
-  listenfd = socket(AF_INET, SOCK_STREAM, 0);
+  listenfd = socket (AF_INET, SOCK_STREAM, 0);
 
   if (listenfd == -1)
     {
@@ -408,37 +407,37 @@ rlogin_daemon (int maxchildren, int port)
       if (numchildren > maxchildren)
         {
 	  syslog (LOG_ERR, "too many children (%d)", numchildren);
-          pause();
+          pause ();
           continue;
         }
 
-      size = sizeof(saddr);
+      size = sizeof saddr;
       fd = accept (listenfd, (struct sockaddr *)&saddr, &size);
 
       if (fd == -1)
 	{
 	  if (errno == EINTR)
 	    continue;
-	  syslog(LOG_ERR, "accept: %s", strerror (errno));
-	  exit(1);
+	  syslog (LOG_ERR, "accept: %s", strerror (errno));
+	  exit (1);
 	}
 
-      pid = fork();
+      pid = fork ();
       if (pid == -1)
-	syslog(LOG_ERR, "fork: %s", strerror (errno));
+	syslog (LOG_ERR, "fork: %s", strerror (errno));
       else if (pid == 0) /* child */
 	{
-	  close(listenfd);
-	  exit(rlogind_mainloop(fd, fd));
+	  close (listenfd);
+	  exit (rlogind_mainloop (fd, fd));
 	}
       else
 	numchildren++;
-      close(fd);
+      close (fd);
     }
 }
 
 int
-rlogind_auth(int fd, struct auth_data *ap)
+rlogind_auth (int fd, struct auth_data *ap)
 {
   struct hostent *hp;
   char *hostname;
@@ -447,36 +446,36 @@ rlogind_auth(int fd, struct auth_data *ap)
   confirmed = 0;
 
   /* Check the remote host name */
-  hp = gethostbyaddr((char *) &ap->from.sin_addr, sizeof(struct in_addr),
-		     ap->from.sin_family);
+  hp = gethostbyaddr ((char *) &ap->from.sin_addr, sizeof (struct in_addr),
+		      ap->from.sin_family);
   if (hp)
     hostname = hp->h_name;
   else if (reverse_required)
     {
-      syslog(LOG_CRIT, "can't resolve remote IP address");
-      exit(1);
+      syslog (LOG_CRIT, "can't resolve remote IP address");
+      exit (1);
     }
   else
-    hostname = inet_ntoa(ap->from.sin_addr);
+    hostname = inet_ntoa (ap->from.sin_addr);
 
-  ap->hostname = strdup(hostname);
+  ap->hostname = strdup (hostname);
 
-  if (verify_hostname || in_local_domain(ap->hostname))
+  if (verify_hostname || in_local_domain (ap->hostname))
     {
       int match = 0;
-      for (hp = gethostbyname(ap->hostname); hp && !match; hp->h_addr_list++)
+      for (hp = gethostbyname (ap->hostname); hp && !match; hp->h_addr_list++)
 	{
 	  if (hp->h_addr_list[0] == NULL)
 	    break;
-	  match = memcmp(hp->h_addr_list[0], &ap->from.sin_addr,
-			 sizeof(ap->from.sin_addr)) == 0;
+	  match = memcmp (hp->h_addr_list[0], &ap->from.sin_addr,
+			  sizeof (ap->from.sin_addr)) == 0;
 	}
       if (!match)
 	{
-	  syslog(LOG_ERR|LOG_AUTH,
-		 "cannot find matching IP for %s (%s)",
-		 ap->hostname, inet_ntoa(ap->from.sin_addr));
-	  fatal(fd, "Permission denied", 0);
+	  syslog (LOG_ERR|LOG_AUTH,
+		  "cannot find matching IP for %s (%s)",
+		  ap->hostname, inet_ntoa (ap->from.sin_addr));
+	  fatal (fd, "Permission denied", 0);
 	}
     }
 
@@ -540,7 +539,7 @@ rlogind_auth(int fd, struct auth_data *ap)
       confirmed = 1;		/* we sent the null! */
     }
 
-  IF_ENCRYPT(des_write (fd, SECURE_MESSAGE, sizeof (SECURE_MESSAGE) - 1));
+  IF_ENCRYPT (des_write (fd, SECURE_MESSAGE, sizeof (SECURE_MESSAGE) - 1));
 
   return authenticated;
 }
@@ -561,10 +560,10 @@ setup_tty (int fd, struct auth_data *ap)
       if (cp)
 	*cp++ = '\0';
 #ifdef HAVE_CFSETSPEED
-      cfsetspeed (&tt, atoi (speed));
+      cfsetspeed (&tt, strtoul (speed, NULL, 10));
 #else
-      cfsetispeed (&tt, atoi (speed));
-      cfsetospeed (&tt, atoi (speed));
+      cfsetispeed (&tt, strtoul (speed, NULL, 10));
+      cfsetospeed (&tt, strtoul (speed, NULL, 10));
 #endif
     }
   tt.c_iflag = TTYDEF_IFLAG;
@@ -580,7 +579,7 @@ char *utmp_ptsid (); /*FIXME*/
 void utmp_init ();
 
 void
-setup_utmp(char *line)
+setup_utmp (char *line)
 {
   char *ut_id = utmp_ptsid (line, "rl");
   utmp_init (line + sizeof ("/dev/") - 1, ".rlogin", ut_id);
@@ -611,7 +610,7 @@ exec_login(int authenticated, struct auth_data *ap)
 	      "-h", ap->hostname, ap->term, "--",
 	      ap->lusername, NULL, ap->env);
 #else
-      execle (PATH_LOGIN, "login", "-p",
+      execle (path_login, "login", "-p",
 	      "-h", ap->hostname, "--",
 	      ap->lusername, NULL, ap->env);
 #endif
@@ -630,38 +629,38 @@ rlogind_mainloop (int infd, int outfd)
   pid_t pid;
   int master;
 
-  memset(&auth_data, 0, sizeof(auth_data));
-  size = sizeof(auth_data.from);
-  if (getpeername(infd, (struct sockaddr *) &auth_data.from, &size) < 0)
+  memset (&auth_data, 0, sizeof auth_data);
+  size = sizeof auth_data.from;
+  if (getpeername (infd, (struct sockaddr *) &auth_data.from, &size) < 0)
     {
       syslog (LOG_ERR, "Can't get peer name of remote host: %m");
       fatal (outfd, "Can't get peer name of remote host", 1);
     }
 
-  syslog(LOG_INFO, "Connect from %s", inet_ntoa(auth_data.from.sin_addr));
+  syslog (LOG_INFO, "Connect from %s", inet_ntoa(auth_data.from.sin_addr));
 
   if (keepalive
-      && setsockopt(infd, SOL_SOCKET, SO_KEEPALIVE, &true, sizeof(true)) < 0)
+      && setsockopt (infd, SOL_SOCKET, SO_KEEPALIVE, &true, sizeof true) < 0)
     syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
 
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
   true = IPTOS_LOWDELAY;
-  if (setsockopt(infd, IPPROTO_IP, IP_TOS, (char *) &true, sizeof(true)) < 0)
+  if (setsockopt (infd, IPPROTO_IP, IP_TOS, (char *) &true, sizeof true) < 0)
     syslog (LOG_WARNING, "setsockopt (IP_TOS): %m");
 #endif
 
-  alarm(60); /* Wait at most 60 seconds. FIXME: configurable? */
+  alarm (60); /* Wait at most 60 seconds. FIXME: configurable? */
 
   /* Read the null byte */
-  if (read(infd, &c, 1) != 1 || c != 0)
+  if (read (infd, &c, 1) != 1 || c != 0)
     {
-      syslog(LOG_CRIT, "protocol error: expected 0 byte");
-      exit(1);
+      syslog (LOG_CRIT, "protocol error: expected 0 byte");
+      exit (1);
     }
 
-  alarm(0);
+  alarm (0);
 
-  authenticated = rlogind_auth(infd, &auth_data);
+  authenticated = rlogind_auth (infd, &auth_data);
 
   pid = forkpty (&master, line, NULL, &win);
 
@@ -669,12 +668,12 @@ rlogind_mainloop (int infd, int outfd)
     {
       if (errno == ENOENT)
 	{
-	  syslog(LOG_ERR, "Out of ptys");
+	  syslog (LOG_ERR, "Out of ptys");
 	  fatal (infd, "Out of ptys", 0);
 	}
       else
 	{
-	  syslog(LOG_ERR, "forkpty: %m");
+	  syslog (LOG_ERR, "forkpty: %m");
 	  fatal (infd, "Forkpty", 1);
 	}
     }
@@ -683,18 +682,18 @@ rlogind_mainloop (int infd, int outfd)
     {
       /* Child */
       if (infd > 2)
-	close(infd);
+	close (infd);
 
-      setup_tty(0, &auth_data);
-      setup_utmp(line);
+      setup_tty (0, &auth_data);
+      setup_utmp (line);
 
-      exec_login(authenticated, &auth_data);
-      fatal(infd, "can't execute login", 1);
+      exec_login (authenticated, &auth_data);
+      fatal (infd, "can't execute login", 1);
     }
 
   /* Parent */
   true = 1;
-  IF_NOT_ENCRYPT(ioctl (infd, FIONBIO, &true));
+  IF_NOT_ENCRYPT (ioctl (infd, FIONBIO, &true));
   ioctl (master, FIONBIO, &true);
   ioctl (master, TIOCPKT, &true);
   netf = infd; /* Needed for cleanup() */
@@ -702,6 +701,7 @@ rlogind_mainloop (int infd, int outfd)
   protocol (infd, master);
   signal (SIGCHLD, SIG_IGN);
   cleanup (0);
+  return 0;
 }
 
 
@@ -737,7 +737,7 @@ do_rlogin(int infd, struct auth_data *ap)
 
 #ifdef KERBEROS
 int
-do_krb_login(int infd, struct auth_data *ap)
+do_krb_login (int infd, struct auth_data *ap)
 {
   int rc;
   char instance[INST_SZ], version[VERSION_SIZE];
@@ -807,7 +807,7 @@ do_krb_login(int infd, struct auth_data *ap)
 #define BUFFER_SIZE 128
 
 void
-getstr(int infd, char **ptr, char *prefix)
+getstr(int infd, char **ptr, const char *prefix)
 {
   char c;
   char *buf;
@@ -821,35 +821,35 @@ getstr(int infd, char **ptr, char *prefix)
 	size = len + 1;
     }
 
-  buf = malloc(size);
+  buf = malloc (size);
   if (!buf)
     {
-      syslog(LOG_ERR, "not enough memory");
-      exit(1);
+      syslog (LOG_ERR, "not enough memory");
+      exit (1);
     }
 
   pos = 0;
   if (prefix)
     {
-      strcpy(buf, prefix);
-      pos += strlen(buf);
+      strcpy (buf, prefix);
+      pos += strlen (buf);
     }
 
   do
     {
       if (read (infd, &c, 1) != 1)
 	{
-	  syslog(LOG_ERR, "read error: %m");
-	  exit(1);
+	  syslog (LOG_ERR, "read error: %m");
+	  exit (1);
 	}
       if (pos == size)
 	{
 	  size += BUFFER_SIZE;
-	  buf = realloc(buf, size);
+	  buf = realloc (buf, size);
 	  if (!buf)
 	    {
-	      syslog(LOG_ERR, "not enough memory");
-	      exit(1);
+	      syslog (LOG_ERR, "not enough memory");
+	      exit (1);
 	    }
 	}
       buf[pos++] = c;
@@ -864,10 +864,10 @@ char magic[2] = {0377, 0377};
 char oobdata[] = {TIOCPKT_WINDOW}; /* May be modified by protocol/control */
 
 void
-protocol(int f, int p)
+protocol (int f, int p)
 {
-  char fibuf[1024], *pbp, *fbp;
-  register pcc = 0, fcc = 0;
+  char fibuf[1024], *pbp = NULL, *fbp = NULL;
+  int pcc = 0, fcc = 0;
   int cc, nfd, n;
   char cntl;
 
@@ -906,13 +906,15 @@ protocol(int f, int p)
 	FD_SET (f, &ibits);
 
       if (pcc >= 0)
-	if (pcc)
-	  {
-	    FD_SET (f, &obits);
-	    omask = &obits;
-	  }
-	else
-	  FD_SET (p, &ibits);
+	{
+	  if (pcc)
+	    {
+	      FD_SET (f, &obits);
+	      omask = &obits;
+	    }
+	  else
+	    FD_SET (p, &ibits);
+	}
 
       FD_SET (p, &ebits);
 
@@ -953,7 +955,7 @@ protocol(int f, int p)
 	  else
 	    {
 	      register char *cp;
-	      int left, n;
+	      int left;
 
 	      if (fcc <= 0)
 		break;
@@ -962,14 +964,15 @@ protocol(int f, int p)
 	      for (cp = fibuf; cp < fibuf + fcc - 1; cp++)
 		if (cp[0] == magic[0] && cp[1] == magic[1])
 		  {
+		    int len;
 		    left = fcc - (cp - fibuf);
-		    n = control (p, cp, left);
-		    if (n)
+		    len = control (p, cp, left);
+		    if (len)
 		      {
-			left -= n;
+			left -= len;
 			if (left > 0)
-			  bcopy (cp + n, cp, left);
-			fcc -= n;
+			  memmove (cp, cp + len, left);
+			fcc -= len;
 			cp--;
 		      }
 		  }
@@ -991,7 +994,7 @@ protocol(int f, int p)
 	{
 	  char dbuf[1024 + 1];
 
-	  pcc = read (p, dbuf, sizeof(dbuf));
+	  pcc = read (p, dbuf, sizeof dbuf);
 
 	  pbp = dbuf;
 	  if (pcc < 0)
@@ -1009,11 +1012,11 @@ protocol(int f, int p)
 	    {
 	      pbp++;
 	      pcc--;
-	      IF_NOT_ENCRYPT(FD_SET(f, &obits));	/* try write */
+	      IF_NOT_ENCRYPT (FD_SET (f, &obits));	/* try write */
 	    }
 	  else
 	    {
-	      if (pkcontrol(dbuf[0]))
+	      if (pkcontrol (dbuf[0]))
 		{
 		  dbuf[0] |= oobdata[0];
 		  send (f, &dbuf[0], 1, MSG_OOB);
@@ -1024,7 +1027,7 @@ protocol(int f, int p)
 
       if ((FD_ISSET (f, &obits)) && pcc > 0)
 	{
-	  ENC_WRITE(cc, f, pbp, pcc);
+	  ENC_WRITE (cc, f, pbp, pcc);
 
 	  if (cc < 0 && errno == EWOULDBLOCK)
 	    {
@@ -1050,26 +1053,27 @@ protocol(int f, int p)
    in the data stream.  For now, we are only willing to handle
    window size changes. */
 int
-control (int pty, char *cp, int n)
+control (int pty, char *cp, size_t n)
 {
   struct winsize w;
 
   if (n < 4 + sizeof (w) || cp[2] != 's' || cp[3] != 's')
     return (0);
   oobdata[0] &= ~TIOCPKT_WINDOW;	/* we know he heard */
-  memmove (&w, cp + 4, sizeof (w));
+  memmove (&w, cp + 4, sizeof w);
   w.ws_row = ntohs (w.ws_row);
   w.ws_col = ntohs (w.ws_col);
   w.ws_xpixel = ntohs (w.ws_xpixel);
   w.ws_ypixel = ntohs (w.ws_ypixel);
   ioctl (pty, TIOCSWINSZ, &w);
-  return (4 + sizeof (w));
+  return (4 + sizeof w);
 }
 
 RETSIGTYPE
 cleanup (int signo)
 {
   char *p;
+  (void)signo;
 
   p = line + sizeof (PATH_DEV) - 1;
 #ifdef UTMPX
@@ -1090,28 +1094,28 @@ cleanup (int signo)
 }
 
 int
-in_local_domain(char *hostname)
+in_local_domain (char *hostname)
 {
-  char *p = topdomain(hostname, local_dot_count);
-  return p && strcasecmp(p, local_domain_name) == 0;
+  char *p = topdomain (hostname, local_dot_count);
+  return p && strcasecmp (p, local_domain_name) == 0;
 }
 
 char *
-topdomain(char *name, int max_dots)
+topdomain (char *name, int max_dots)
 {
   char *p;
   int dot_count = 0;
 
-  for (p = name + strlen(name) - 1; p >= name; p--)
+  for (p = name + strlen (name) - 1; p >= name; p--)
     {
       if (*p == '.' && ++dot_count == max_dots)
-	return p+1;
+	return p + 1;
     }
   return NULL;
 }
 
 void
-fatal (int f, char *msg, int syserr)
+fatal (int f, const char *msg, int syserr)
 {
   int len;
   char buf[BUFSIZ], *bp = buf;
@@ -1132,7 +1136,7 @@ fatal (int f, char *msg, int syserr)
   exit (1);
 }
 
-static char usage_str[] =
+static const char usage_str[] =
 "usage: rlogind [options]\n"
 "\n"
 "Options are:\n"
@@ -1156,9 +1160,7 @@ static char usage_str[] =
 void
 usage()
 {
-  printf("%s\n"
+  printf ("%s\n"
 	 "Send bug reports to %s\n",
 	 usage_str, inetutils_bugaddr);
 }
-
-

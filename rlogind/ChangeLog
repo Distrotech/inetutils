@@ -1,3 +1,27 @@
+2001-07-18  Alain Magloire
+
+	Much of the changes where indentation to follow GNU
+	coding style.  Use of "const" where appropriate.
+	atoi() is not ANSI C nor POSIX. Preferable to use
+	strto(u)l().  The same for bcopy() moving to POSIX
+	mem*() functions.
+
+	* rlogind.c:#include <sys/stat.h> is needed for chmod ().
+	#include <sys/ioctl.h> is needed for the ioctl() calls.
+	Remove the "static" scope since the functions were define whithout
+	the static qualificator.
+	(main): atoi() replace by strtoul() where needed.
+	(rlogind_mainloop): Need to return a value since it is use
+	as an argument to exit () add return 0.
+	(getstr): argument is now const.
+	(protocol): Initialize variables pdp and fpb gcc was complaining
+	about it.
+	(protocol): n was shadowed by another n previosuly declared
+	rename the variable len and change its scope.
+	(protocol): bcopy() replace by memmove().
+	(control): argument change to size_t.
+	(fatal): second argument now is const char *.
+
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
 	* rlogind.c: use regular read() instead of getmsg() on the
 	master side of pty.
