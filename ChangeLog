@@ -1,5 +1,13 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* configure.in (AM_INIT_AUTOMAKE): Added a third argument to
+ 	suppress VERSION and PACKAGE symbols from appearing in config.h
+	
+	Added much code that was formerly in glob/Makefile.am, before I
+ 	removed that file.
+	
+	Add glob/Makefile to the `AC_OUTPUT' call.
+
 	* headers/Makefile.am (EXTRA_DIST): Added `confpaths.h.in'.
 
 	* ftp/Makefile.am (LDADD): Added `$(LIBGLOB)'.
