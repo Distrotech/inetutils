@@ -202,7 +202,7 @@ if test "$enable_talk" = yes; then
   IU_CHECK_TYPE(struct osockaddr,
     [ #include <sys/types.h>
       #include <sys/socket.h> ],
-    :, INCLUDES="$INCLUDES osockaddr.h")
+    :, AC_DEFINE(HAVE_OSOCKADDR_H) INCLUDES="$INCLUDES osockaddr.h")
 fi
 # SUBDIRS gets talk subdirs regardless of whether we're building them
 SUBDIRS="$SUBDIRS talkd talk"
