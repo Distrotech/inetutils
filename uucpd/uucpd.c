@@ -65,7 +65,7 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pathnames.h"
+#include <paths.h>
 
 struct	sockaddr_in hisctladdr;
 int hisaddrlen = sizeof hisctladdr;
@@ -286,6 +286,7 @@ struct sockaddr_in *sin;
 		(void) write(wtmp, (char *)&utmp, sizeof (utmp));
 		(void) close(wtmp);
 	}
+#ifdef _PATH_LASTLOG
 	if ((f = open(_PATH_LASTLOG, O_RDWR)) >= 0) {
 		struct lastlog ll;
 
@@ -297,4 +298,5 @@ struct sockaddr_in *sin;
 		(void) write(f, (char *) &ll, sizeof ll);
 		(void) close(f);
 	}
+#endif
 }
