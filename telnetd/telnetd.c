@@ -41,8 +41,11 @@ static char copyright[] =
 static char sccsid[] = "@(#)telnetd.c	8.4 (Berkeley) 5/30/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "telnetd.h"
-#include "pathnames.h"
 
 #if	defined(_SC_CRAY_SECURE_SYS) && !defined(SCM_SECURITY)
 /*
@@ -79,7 +82,13 @@ int	auth_level = 0;
 int	require_SecurID = 0;
 #endif
 
+#ifdef HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+
+#ifdef HAVE_UTMP_UT_HOST
 extern	int utmp_len;
+#endif
 int	registerd_host_only = 0;
 
 #ifdef	STREAMSPTY
@@ -348,7 +357,9 @@ main(argc, argv)
 			break;
 
 		case 'u':
+#ifdef HAVE_UTMP_UT_HOST
 			utmp_len = atoi(optarg);
+#endif
 			break;
 
 		case 'U':
@@ -379,7 +390,11 @@ main(argc, argv)
 	if (debug) {
 	    int s, ns, foo;
 	    struct servent *sp;
+#ifdef HAVE_SOCKADDR_IN_SIN_LEN
+	    static struct sockaddr_in sin = { sizeof (sin), AF_INET };
+#else
 	    static struct sockaddr_in sin = { AF_INET };
+#endif
 
 	    if (argc > 1) {
 		usage();
@@ -814,7 +829,7 @@ doit(who)
 		if ((lp = getpty()) == NULL)
 			fatal(net, "Out of ptys");
 
-		if ((pty = open(lp, 2)) >= 0) {
+		if ((pty = open(lp, O_RDWR)) >= 0) {
 			strcpy(line,lp);
 			line[5] = 't';
 			break;
@@ -824,7 +839,7 @@ doit(who)
 
 #if	defined(_SC_CRAY_SECURE_SYS)
 	/*
-	 *	set ttyp line security label
+	 *	set ttyp line security label 
 	 */
 	if (secflag) {
 		char slave_dev[16];
@@ -844,10 +859,13 @@ doit(who)
 
 	if (hp == NULL && registerd_host_only) {
 		fatal(net, "Couldn't resolve your address into a host name.\r\n\
-	 Please contact your net administrator");
-	} else if (hp &&
-	    (strlen(hp->h_name) <= (unsigned int)((utmp_len < 0) ? -utmp_len
-								 : utmp_len))) {
+         Please contact your net administrator");
+	} else if (hp
+#ifdef HAVE_UTMP_UT_HOST
+		   && (strlen(hp->h_name) <=
+		       (unsigned int)((utmp_len < 0) ? -utmp_len : utmp_len))
+#endif
+		   ) {
 		host = hp->h_name;
 	} else {
 		host = inet_ntoa(who->sin_addr);
@@ -932,6 +950,7 @@ telnet(f, p, host)
 	char	defent[TABBUFSIZ];
 	char	defstrs[TABBUFSIZ];
 #undef	TABBUFSIZ
+#undef HE /* Make sure its not defined as a macro. */
 	char *HE;
 	char *HN;
 	char *IM;
@@ -1101,7 +1120,7 @@ telnet(f, p, host)
 #ifdef  TIOCNOTTY
 	{
 		register int t;
-		t = open(_PATH_TTY, O_RDWR);
+		t = open(PATH_TTY, O_RDWR);
 		if (t >= 0) {
 			(void) ioctl(t, TIOCNOTTY, (char *)0);
 			(void) close(t);
@@ -1139,9 +1158,34 @@ telnet(f, p, host)
 		if (IM == 0)
 			IM = "";
 	} else {
+#ifdef HAVE_UNAME
+		struct utsname u;
+#endif
+
+#ifdef DEFAULT_IM
 		IM = DEFAULT_IM;
+#else
+		IM = 0;
+#ifdef HAVE_UNAME
+		if (uname (&u) == 0) {
+			IM = malloc (strlen (UNAME_IM_PREFIX)
+				     + strlen (u.sysname)
+				     + 1 + strlen (u.release)
+				     + strlen (UNAME_IM_SUFFIX) + 1);
+			if (IM)
+				sprintf (IM, "%s%s %s%s",
+					 UNAME_IM_PREFIX,
+					 u.sysname, u.release,
+					 UNAME_IM_SUFFIX);
+		}
+#endif /* HAVE_UNAME */
+		if (! IM)
+			IM = "\r\n\nUNIX (%h) (%t)\r\n\n";
+#endif /* DEFAULT_IM */
+
 		HE = 0;
 	}
+
 	edithost(HE, host_name);
 	if (hostinfo && *IM)
 		putf(IM, ptyibuf2);
@@ -1280,9 +1324,8 @@ telnet(f, p, host)
 		    if (ncc < 0 && errno == EWOULDBLOCK)
 			ncc = 0;
 		    else {
-			if (ncc <= 0) {
+			if (ncc <= 0)
 			    break;
-			}
 			netip = netibuf;
 		    }
 		    DIAG((TD_REPORT | TD_NETDATA),
@@ -1315,7 +1358,7 @@ telnet(f, p, host)
 				if (pcc <= 0)
 					break;
 #if	!defined(CRAY2) || !defined(UNICOS5)
-#ifdef	LINEMODE
+#if defined (LINEMODE) && defined (TIOCPKT_IOCTL)
 				/*
 				 * If ioctl from pty, pass it through net
 				 */
@@ -1324,7 +1367,7 @@ telnet(f, p, host)
 					localstat();
 					pcc = 1;
 				}
-#endif	/* LINEMODE */
+#endif	/* LINEMODE && TIOCPKT_IOCTL */
 				if (ptyibuf[0] & TIOCPKT_FLUSHWRITE) {
 					netclear();	/* clear buffer back */
 #ifndef	NO_URGENT
@@ -1417,7 +1460,7 @@ telnet(f, p, host)
 	}
 	cleanup(0);
 }  /* end of telnet */
-
+	
 #ifndef	TCSIG
 # ifdef	TIOCSIG
 #  define TCSIG TIOCSIG
@@ -1493,7 +1536,7 @@ int readstream(p, ibuf, bufsize)
 			tp = (struct termio *) (ibuf+1 + sizeof(struct iocblk));
 			vstop = tp->c_cc[VSTOP];
 			vstart = tp->c_cc[VSTART];
-			ixon = tp->c_iflag & IXON;
+			ixon = tp->c_iflag & IXON;      
 			break;
 		default:
 			errno = EAGAIN;
