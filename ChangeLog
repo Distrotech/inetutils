@@ -1,5 +1,15 @@
 Fri Apr 10 11:13:51 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* whois/main.c (main): Use inetutils_package and inetutils_version
+ 	rather than PACKAGE and VERSION.
+	
+	Check the compiled in config file as the second-to-last resort.
+	
+	(config_buffer_netwhois): New function, mostly created by ripping code
+	out of config_file_netwhois.
+	
+	(config_file_netwhois): Use config_buffer_netwhois.
+
 	* whois/Makefile.am (whois_SOURCES): Added config.c.
 	
 	(EXTRA_DIST): Added gen-config-c.
