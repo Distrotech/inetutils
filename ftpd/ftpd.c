@@ -90,9 +90,9 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <getopt.h>
 #include <limits.h>
 #include <netdb.h>
-#include <pwd.h>
 #include <setjmp.h>
 #include <signal.h>
+#include <grp.h>
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #  include <stdarg.h>
 #else
@@ -113,7 +113,6 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #  endif
 #endif
 #include <unistd.h>
-#include <crypt.h>
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
@@ -123,10 +122,6 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 
 #include "extern.h"
 #include "version.h"
-
-#ifdef HAVE_SHADOW_H
-#include <shadow.h>
-#endif
 
 #ifndef LINE_MAX
 # define LINE_MAX 2048
@@ -144,9 +139,6 @@ extern int fclose __P ((FILE *));
 /* Exported to ftpcmd.h.  */
 struct	sockaddr_in data_dest; /* Data port.  */
 struct	sockaddr_in his_addr;  /* Peer address.  */
-int	logged_in;             /* Flags to check for USER/PASS.  */
-struct	passwd *pw;            /* Goblal passwd entry.  */
-int	guest;                 /* Flag 1 if a guest.  */
 int	logging;               /* Enable log to syslog.  */
 int	type = TYPE_A;         /* Default TYPE_A.  */
 int	form = FORM_N;                  /* Default FORM_N.  */
@@ -156,9 +148,11 @@ int	maxtimeout = 7200;     /* Don't allow idle time to be set
 				  beyond 2 hours.  */
 int	pdata = -1;            /* For passive mode.  */
 char	*hostname;             /* Who we are.  */
-char	*remotehost;           /* Who they are.  */
 int	usedefault = 1;	       /* For data transfers.  */
 char	tmpline[7];            /* Temp buffer use in OOB.  */
+
+/* Requester credentials.  */
+struct credentials cred;
 
 static struct  sockaddr_in ctrl_addr;    /* Control address.  */
 static struct  sockaddr_in data_source;  /* Port address.  */
@@ -167,7 +161,7 @@ static struct  sockaddr_in pasv_addr;    /* Pasv address.  */
 static int      data = -1;       /* Port data connection socket.  */
 static jmp_buf  urgcatch;
 static int      stru = STRU_F;     /* Avoid C keyword.  */
-static int      stru_mode = MODE_S;/* Default STRU mode stru_mode = STRU_S.  */
+static int      stru_mode = MODE_S;/* Default STRU mode stru_mode = MODE_S.  */
 static int      anon_only;       /* Allow only anonymous login.  */
 static int      no_version;      /* Don't print version to client.  */
 static int      daemon_mode;     /* Start in daemon mode.  */
@@ -180,10 +174,11 @@ static const char *pid_file = PATH_FTPDPID;
 #define CMASK 027
 #endif
 static int  defumask = CMASK;    /* Default umask value.  */
-static const char *anonymous_login_name = "ftp";
 static int login_attempts;       /* Number of failed login attempts.  */
-static int askpasswd;		/* had user command, ask for passwd */
-static char curname[10];	/* current USER name */
+static int askpasswd;		 /* Had user command, ask for passwd.  */
+static char curname[10];	 /* Current USER name.  */
+static char ttyline[20];         /* Line to log in utmp.  */
+
 
 
 #define NUM_SIMUL_OFF_TO_STRS 4
@@ -252,19 +247,17 @@ static void authentication_setup __P ((const char *));
 #ifdef HAVE_LIBWRAP
 static int  check_host __P ((struct sockaddr *sa));
 #endif
-static void complete_login __P ((char *));
+static void complete_login __P ((struct credentials *));
 static char *curdir __P ((void));
 static FILE *dataconn __P ((const char *, off_t, const char *));
-static void dolog __P ((struct sockaddr_in *));
-static void end_login __P ((void));
+static void dolog __P ((struct sockaddr_in *, struct credentials *));
+static void end_login __P ((struct credentials *));
 static FILE *getdatasock __P ((const char *));
 static char *gunique __P ((const char *));
 static void lostconn __P ((int));
 static void myoob __P ((int));
 static int  receive_data __P ((FILE *, FILE *));
 static void send_data __P ((FILE *, FILE *, off_t));
-static struct passwd *sgetpwnam __P ((const char *));
-static char *sgetsave __P ((const char *));
 static void sigquit __P ((int));
 static void usage __P ((int));
 
@@ -272,16 +265,16 @@ static const char *short_options = "Aa:Ddlp:qt:T:u:";
 static struct option long_options[] =
 {
   { "anonymous-only", no_argument, 0, 'A' },
-  { "anonymous-name", required_argument, 0, 'a' },
+  { "auth", required_argument, 0, 'a' },
   { "daemon", no_argument, 0, 'D' },
   { "debug", no_argument, 0, 'd' },
+  { "help", no_argument, 0, '&' },
   { "logging", no_argument, 0, 'l' },
   { "pidfile", required_argument, 0, 'p' },
   { "no-version", no_argument, 0, 'q' },
   { "timeout", required_argument, 0, 't' },
   { "max-timeout", required_argument, 0, 'T' },
   { "umask", required_argument, 0, 'u' },
-  { "help", no_argument, 0, '&' },
   { "version", no_argument, 0, 'V' },
   { 0, 0, 0, 0 }
 };
@@ -293,7 +286,6 @@ usage (int err)
     {
       puts ("\
 -A, --anonymous-only        Server configure for anonymous service only,\n\
--a, --anonymous-name=[NAME] Use Name as default anonymous instead of \"ftp\"\n\
 -D, --daemon                Start the ftpd standaone.\n\
 -d, --debug                 Debug mode.\n\
 -l, --logging               Increase verbosity of syslog messages.\n\
@@ -303,7 +295,25 @@ usage (int err)
 -T, --max-timeout           Reset maximum value of timeout allowed.\n\
 -u, --umask                 Set default umask(base 8).\n\
     --help                  Print this message.\n\
--V, --version               Print Version.");
+-V, --version               Print version\n\
+-a, --auth=[AUTH]           Use AUTH for authentication, it can be:\n\
+                               default     passwd authentication.");
+#ifdef WITH_PAM
+      puts ("\
+                               pam         using pam 'ftp' module.");
+#endif
+#ifdef WITH_KERBEROS
+      puts ("\
+                               kerberos");
+#endif
+#ifdef WITH_KERBEROS5
+      puts ("\
+                               kderberos5");
+#endif
+#ifdef WITH_OPIE
+      puts ("\
+                                opie");
+#endif
     }
   else if (err == 1)
     {
@@ -332,7 +342,7 @@ main(int argc, char *argv[], char **envp)
 #ifdef HAVE_INITSETPROCTITLE
   /* Save start and extent of argv for setproctitle.  */
   initsetproctitle (argc, argv, envp);
-#endif /* HAVE_SETPROCTITLE */
+#endif /* HAVE_INITSETPROCTITLE */
 
   while ((option = getopt_long (argc, argv, short_options,
 				long_options, NULL)) != EOF)
@@ -343,7 +353,25 @@ main(int argc, char *argv[], char **envp)
 	  anon_only = 1;
 	  break;
 	case 'a':
-	  anonymous_login_name = optarg;
+	  if (strcasecmp (optarg, "default") == 0)
+	    cred.auth_type = AUTH_TYPE_PASSWD;
+#ifdef WITH_PAM
+	  else if (strcasecmp (optarg, "pam") == 0)
+	    cred.auth_type = AUTH_TYPE_PAM;
+#endif
+#ifdef WITH_KERBEROS
+	  else if (stracasecmp (optarg, "kerberos") == 0)
+	    cred.auth_type = AUTH_TYPE_KERBEROS;
+#endif
+#ifdef WITH_KERBEROS5
+	  else if (stracasecmp (optarg, "kerberos5") == 0)
+	    cred.auth_type = AUTH_TYPE_KERBEROS5;
+#endif
+#ifdef WITH_OPIE
+	  else if (stracasecmp (optarg, "opie") == 0)
+	    cred.auth_type = AUTH_TYPE_OPIE;
+#endif
+	  break;
 	  break;
 	case 'D':
 	  daemon_mode = 1;
@@ -470,7 +498,7 @@ main(int argc, char *argv[], char **envp)
     syslog (LOG_ERR, "fcntl F_SETOWN: %m");
 #endif
 
-  dolog (&his_addr);
+  dolog (&his_addr, &cred);
 
   /* Deal with login disable.  */
   if (display_file (PATH_NOLOGIN, 530) == 0)
@@ -526,7 +554,7 @@ curdir (void)
       path = tmp;
     }
   /* For guest account, skip / since it's chrooted */
-  return (guest ? path+1 : path);
+  return (cred.guest ? path+1 : path);
 }
 
 static void
@@ -546,127 +574,79 @@ lostconn (int signo)
   dologout (-1);
 }
 
-static char ttyline[20];
-
-/* Helper function for sgetpwnam().  */
-static char *
+/* Helper function.  */
+char *
 sgetsave (const char *s)
 {
   char *string;
+  size_t len;
 
   if (s == NULL)
     s = "";
 
-  string = malloc (strlen (s) + 1);
+  len = strlen (s) + 1;
+  string = malloc (len);
   if (string == NULL)
     {
       perror_reply (421, "Local resource failure: malloc");
       dologout (1);
       /* NOTREACHED */
     }
-  (void) strcpy (string, s);
+  /*  (void) strcpy (string, s); */
+  memcpy (string, s, len);
   return string;
 }
 
-/* Save the result of a getpwnam.  Used for USER command, since
-   the data returned must not be clobbered by any other command
-   (e.g., globbing).  */
-static struct passwd *
-sgetpwnam (const char *name)
-{
-  static struct passwd save;
-  struct passwd *p;
-
-  p = getpwnam (name);
-  if (p == NULL)
-    return (p);
-  if (save.pw_name)
-    {
-      free (save.pw_name);
-      free (save.pw_passwd);
-      free (save.pw_gecos);
-      free (save.pw_dir);
-      free (save.pw_shell);
-    }
-#if defined(HAVE_GETSPNAM) && defined(HAVE_SHADOW_H)
-  {
-    struct  spwd *spw;
-
-    setspent ();
-    spw = getspnam (p->pw_name);
-    if (spw != NULL)
-      {
-	time_t now;
-	long today;
-	now = time ((time_t *) 0);
-	today = now / (60 * 60 * 24);
-	if ((spw->sp_expire > 0 && spw->sp_expire < today)
-	    || (spw->sp_max > 0 && spw->sp_lstchg > 0
-		&& (spw->sp_lstchg + spw->sp_max < today)))
-	  {
-	    reply (530, "Login expired.");
-	    p->pw_passwd = NULL;
-	  }
-	else
-	  p->pw_passwd = spw->sp_pwdp;
-      }
-    endspent ();
-  }
-#endif
-  save = *p;
-  save.pw_name = sgetsave (p->pw_name);
-  save.pw_passwd = sgetsave (p->pw_passwd);
-  save.pw_gecos = sgetsave (p->pw_gecos);
-  save.pw_dir = sgetsave (p->pw_dir);
-  save.pw_shell = sgetsave (p->pw_shell);
-
-  return (&save);
-}
-
-
 static void
-complete_login (char *passwd)
+complete_login (struct credentials *pcred)
 {
-  login_attempts = 0;		/* this time successful */
-  if (setegid ((gid_t)pw->pw_gid) < 0)
+  if (setegid ((gid_t)pcred->gid) < 0)
     {
-      reply(550, "Can't set gid.");
+      reply (550, "Can't set gid.");
       return;
     }
 
 #ifdef HAVE_INITGROUPS
-  (void) initgroups(pw->pw_name, pw->pw_gid);
+  (void) initgroups (pcred->name, pcred->gid);
 #endif
 
   /* open wtmp before chroot */
-  (void)snprintf(ttyline, sizeof(ttyline), "ftp%d", getpid());
-  logwtmp_keep_open (ttyline, pw->pw_name, remotehost);
-  logged_in = 1;
+  (void)snprintf (ttyline, sizeof (ttyline), "ftp%d", getpid ());
+  logwtmp_keep_open (ttyline, pcred->name, pcred->remotehost);
 
-  if (guest)
+  if (pcred->guest)
     {
-      /* We MUST do a chdir() after the chroot. Otherwise
+      /* We MUST do a chdir () after the chroot. Otherwise
 	 the old current directory will be accessible as "."
 	 outside the new root!  */
-      if (chroot (pw->pw_dir) < 0 || chdir("/") < 0)
+      if (chroot (pcred->rootdir) < 0 || chdir (pcred->homedir) < 0)
 	{
-	  reply(550, "Can't set guest privileges.");
+	  reply (550, "Can't set guest privileges.");
 	  goto bad;
 	}
     }
-  else if (chdir (pw->pw_dir) < 0)
+  else if (pcred->dochroot)
+    {
+      if (chroot (pcred->rootdir) < 0 || chdir(pcred->homedir) < 0)
+	{
+	  reply (550, "Can't change root.");
+	  goto bad;
+	}
+      setenv ("HOME", pcred->homedir, 1);
+    }
+  else if (chdir (pcred->rootdir) < 0)
     {
       if (chdir ("/") < 0)
 	{
 	  reply (530, "User %s: can't change directory to %s.",
-		 pw->pw_name, pw->pw_dir);
+		 pcred->name, pcred->homedir);
 	  goto bad;
 	}
       else
 	lreply (230, "No directory! Logging in with home=/");
     }
 
-  if (seteuid ((uid_t)pw->pw_uid) < 0)
+  if (seteuid ((uid_t)pcred->uid) < 0)
     {
       reply (550, "Can't set uid.");
       goto bad;
@@ -676,112 +656,78 @@ complete_login (char *passwd)
     N.B. reply(230,) must follow the message.  */
   (void) display_file (PATH_FTPLOGINMESG, 230);
 
-  if (guest)
+  if (pcred->guest)
     {
       reply (230, "Guest login ok, access restrictions apply.");
 #ifdef HAVE_SETPROCTITLE
-      snprintf (proctitle, sizeof (proctitle),
-	       "%s: anonymous/%.*s", remotehost,
-	       sizeof (proctitle) - sizeof (remotehost) -
-	       sizeof (": anonymous/"), passwd);
+      snprintf (proctitle, sizeof (proctitle), "%s: anonymous",
+		pcred->remotehost)
       setproctitle ("%s",proctitle);
 #endif /* HAVE_SETPROCTITLE */
       if (logging)
-	syslog (LOG_INFO, "ANONYMOUS FTP LOGIN FROM %s, %s",
-		remotehost, passwd);
+	syslog (LOG_INFO, "ANONYMOUS FTP LOGIN FROM %s",
+		pcred->remotehost);
     }
   else
     {
-      reply (230, "User %s logged in.", pw->pw_name);
+      reply (230, "User %s logged in.", pcred->name);
 #ifdef HAVE_SETPROCTITLE
       snprintf (proctitle, sizeof (proctitle),
-		"%s: %s", remotehost, pw->pw_name);
+		"%s: %s", pcred->remotehost, pcred->name);
       setproctitle ("%s",proctitle);
 #endif /* HAVE_SETPROCTITLE */
       if (logging)
 	syslog (LOG_INFO, "FTP LOGIN FROM %s as %s",
-		remotehost, pw->pw_name);
+		pcred->remotehost, pcred->name);
     }
   (void) umask(defumask);
   return;
 bad:
   /* Forget all about it... */
-  end_login ();
+  end_login (pcred);
 }
 
 /* USER command.
    Sets global passwd pointer pw if named account exists and is acceptable;
    sets askpasswd if a PASS command is expected.  If logged in previously,
-   need to reset state.  If name is "ftp" or "anonymous", the name is not in
-   PATH_FTPUSERS, and ftp account exists, set guest and pw, then just return.
-   If account doesn't exist, ask for passwd anyway.  Otherwise, check user
-   requesting login privileges.  Disallow anyone who does not have a standard
-   shell as returned by getusershell().  Disallow anyone mentioned in the file
-   PATH_FTPUSERS to allow people such as root and uucp to be avoided.  */
+   need to reset state.  */
 void
 user (const char *name)
 {
-  const char *cp;
-  const char *shell;
-
-  if (logged_in)
+  if (cred.logged_in)
     {
-      if (guest)
+      if (cred.guest || cred.dochroot)
 	{
 	  reply (530, "Can't change user from guest login.");
 	  return;
 	}
-      end_login ();
+      end_login (&cred);
     }
 
-  guest = 0;
-  if (strcmp (name, "ftp") == 0 || strcmp (name, "anonymous") == 0)
+  /* Non zero means failed.  */
+  if (auth_user (name, &cred) != 0)
     {
-      if (checkuser (PATH_FTPUSERS , "ftp")
-	  || checkuser (PATH_FTPUSERS, "anonymous"))
-	reply (530, "User %s access denied.", name);
-      else if ((pw = sgetpwnam (anonymous_login_name)) != NULL)
+      /* If they gave us a reason.  */
+      if (cred.message)
 	{
-	  guest = 1;
-	  askpasswd = 1;
-	  reply(331, "Guest login ok, type your name as password.");
+	  reply (530, "%s", cred.message);
+	  free (cred.message);
+	  cred.message = NULL;
 	}
       else
-	reply (530, "User %s unknown.", name);
-
-      if (!askpasswd && logging)
-	syslog(LOG_NOTICE, "ANONYMOUS FTP LOGIN REFUSED FROM %s", remotehost);
-
+	reply (530, "User %s access denied.", name);
+      if (logging)
+	syslog(LOG_NOTICE, "FTP LOGIN REFUSED FROM %s, %s",
+	       cred.remotehost, name);
       return;
     }
 
-  if (anon_only)
+  /* If the server is set to serve anonymous service only
+     the request have to come from a guest or a chrooted.  */
+  if (anon_only && !cred.guest && !cred.dochroot)
     {
       reply (530, "Sorry, only anonymous ftp allowed");
       return;
-    }
-
-  pw = sgetpwnam (name);
-  if (pw != NULL)
-    {
-      shell = pw->pw_shell;
-      if (shell == NULL || *shell == 0)
-	shell = PATH_BSHELL;
-      setusershell ();
-      while ((cp = getusershell ()) != NULL)
-	if (strcmp (cp, shell) == 0)
-	  break;
-      endusershell ();
-
-      if (cp == NULL || checkuser (PATH_FTPUSERS, name))
-	{
-	  reply (530, "User %s access denied.", name);
-	  if (logging)
-	    syslog (LOG_NOTICE, "FTP LOGIN REFUSED FROM %s, %s",
-		    remotehost, name);
-	  pw = (struct passwd *) NULL;
-	  return;
-	}
     }
 
   if (logging)
@@ -790,7 +736,15 @@ user (const char *name)
       curname [sizeof (curname) - 1] = '\0'; /* Make sure null terminated.  */
     }
 
-  reply (331, "Password required for %s.", name);
+  if (cred.message)
+    {
+      reply (331, "%s", cred.message);
+      free (cred.message);
+      cred.message = NULL;
+    }
+  else
+    reply (331, "Password required for %s.", name);
+
   askpasswd = 1;
 
   /* Delay before reading passwd after first failed
@@ -802,63 +756,78 @@ user (const char *name)
 /* Terminate login as previous user, if any, resetting state;
    used when USER command is given or login fails.  */
 static void
-end_login (void)
+end_login (struct credentials *pcred)
 {
+  char *remotehost = pcred->remotehost;
+  int atype = pcred->auth_type;
   (void) seteuid ((uid_t)0);
-  if (logged_in)
+  if (pcred->logged_in)
     logwtmp_keep_open (ttyline, "", "");
-  pw = NULL;
-  logged_in = 0;
-  guest = 0;
-}
 
-static int
-authenticate (char *passwd)
-{
-#if defined(WITH_PAM)
-#error Pam not implemented yet.
-#elif defined(HAVE_KERBEROS)
-#error Kerberos not implemented yet.
-#elif defined(HAVE_KERVEROS5)
-#error Kerberos5 not implemented yet.
-#else
-  char *xpasswd;
-  char *salt = pw->pw_passwd;
-  xpasswd = CRYPT (passwd, salt);
-  return  (! (!xpasswd || strcmp (xpasswd, pw->pw_passwd) != 0));
-#endif
+  if (pcred->name)
+    free (pcred->name);
+  if (pcred->passwd)
+    {
+      memset (pcred->passwd, 0, strlen (pcred->passwd));
+      free (pcred->passwd);
+    }
+  if (pcred->homedir)
+    free (pcred->homedir);
+  if (pcred->rootdir)
+    free (pcred->rootdir);
+  if (pcred->shell)
+    free (pcred->shell);
+  if (pcred->pass) /* ??? */
+    {
+      memset (pcred->pass, 0, strlen (pcred->pass));
+      free (pcred->pass);
+    }
+  if (pcred->message)
+    free (pcred->message);
+  memset (pcred, 0, sizeof (*pcred));
+  pcred->remotehost = remotehost;
+  pcred->auth_type = atype;
 }
 
 void
-pass (char *passwd)
+pass (const char *passwd)
 {
-  if (logged_in || askpasswd == 0)
+  if (cred.logged_in || askpasswd == 0)
     {
       reply(503, "Login with USER first.");
       return;
     }
   askpasswd = 0;
 
-  if (!guest ) /* "ftp" is only account allowed no password */
+  if (!cred.guest) /* "ftp" is the only account allowed no password.  */
     {
-      /* Try to authenticate the user.  */
-      if (pw == NULL || *pw->pw_passwd == '\0' || ! authenticate (passwd))
+      /* Try to authenticate the user.  Failed if != 0.  */
+      if (auth_pass (passwd, &cred) != 0)
 	{
-	  pw = NULL;
-	  reply (530, "Login incorrect.");
+	  /* Any particular reasons.  */
+	  if (cred.message)
+	    {
+	      reply (530, "%s", cred.message);
+	      free (cred.message);
+	      cred.message = NULL;
+	    }
+	  else
+	    reply (530, "Login incorrect.");
 	  if (logging)
 	    syslog (LOG_NOTICE, "FTP LOGIN FAILED FROM %s, %s",
-		    remotehost, curname);
+		    cred.remotehost, curname);
 	  if (login_attempts++ >= 5)
 	    {
 	      syslog(LOG_NOTICE, "repeated login failures from %s",
-		     remotehost);
+		     cred.remotehost);
 	      exit(0);
 	    }
 	  return;
 	}
     }
-  complete_login (passwd);
+  cred.logged_in = 1; /* Everything seems to be allright.  */
+  complete_login (&cred);
+  login_attempts = 0; /* This time successful.  */
 }
 
 void
@@ -1054,7 +1023,7 @@ getdatasock (const char *mode)
 	goto bad;
       sleep (tries);
     }
-  (void) seteuid ((uid_t)pw->pw_uid);
+  (void) seteuid ((uid_t)cred.uid);
 
 #if defined (IP_TOS) && defined (IPTOS_THROUGHPUT) && defined (IPPROTO_IP)
   {
@@ -1068,7 +1037,7 @@ getdatasock (const char *mode)
  bad:
   /* Return the real value of errno (close may change it) */
   t = errno;
-  (void) seteuid ((uid_t)pw->pw_uid);
+  (void) seteuid ((uid_t)cred.uid);
   (void) close(s);
   errno = t;
   return NULL;
@@ -1436,16 +1405,16 @@ statcmd (void)
   if (!no_version)
     printf ("     ftpd (%s) %s\r\n",
 	    inetutils_package, inetutils_version);
-  printf ("     Connected to %s", remotehost);
-  if (!isdigit (remotehost[0]))
+  printf ("     Connected to %s", cred.remotehost);
+  if (!isdigit (cred.remotehost[0]))
     printf (" (%s)", inet_ntoa (his_addr.sin_addr));
   printf ("\r\n");
-  if (logged_in)
+  if (cred.logged_in)
     {
-      if (guest)
+      if (cred.guest)
 	printf ("     Logged in anonymously\r\n");
       else
-	printf ("     Logged in as %s\r\n", pw->pw_name);
+	printf ("     Logged in as %s\r\n", cred.name);
     }
   else if (askpasswd)
     printf ("     Waiting for password\r\n");
@@ -1666,7 +1635,7 @@ renamecmd (const char *from, const char *to)
 }
 
 static void
-dolog (struct sockaddr_in *sin)
+dolog (struct sockaddr_in *sin, struct credentials *pcred)
 {
   const char *name;
   struct hostent *hp = gethostbyaddr ((char *)&sin->sin_addr,
@@ -1677,18 +1646,17 @@ dolog (struct sockaddr_in *sin)
   else
     name = inet_ntoa (sin->sin_addr);
 
-  if (remotehost)
-    free (remotehost);
-  remotehost = malloc (strlen (name));
-  strcpy (remotehost, name);
+  if (pcred->remotehost)
+    free (pcred->remotehost);
+  pcred->remotehost = sgetsave (name);
 
 #ifdef HAVE_SETPROCTITLE
-  snprintf (proctitle, sizeof (proctitle), "%s: connected", remotehost);
+  snprintf (proctitle, sizeof (proctitle), "%s: connected", pcred->remotehost);
   setproctitle ("%s",proctitle);
 #endif /* HAVE_SETPROCTITLE */
 
   if (logging)
-    syslog (LOG_INFO, "connection from %s", remotehost);
+    syslog (LOG_INFO, "connection from %s", pcred->remotehost);
 }
 
 /*  Record logout in wtmp file
@@ -1701,7 +1669,7 @@ dologout (int status)
      David Greenman:dg@root.com.  */
   transflag = 0;
 
-  if (logged_in)
+  if (cred.logged_in)
     {
       (void) seteuid ((uid_t)0);
       logwtmp_keep_open (ttyline, "", "");
@@ -1765,10 +1733,10 @@ passive (void)
   (void) seteuid ((uid_t)0);
   if (bind (pdata, (struct sockaddr *)&pasv_addr, sizeof (pasv_addr)) < 0)
     {
-      (void) seteuid ((uid_t)pw->pw_uid);
+      (void) seteuid ((uid_t)cred.uid);
       goto pasv_error;
     }
-  (void) seteuid ((uid_t)pw->pw_uid);
+  (void) seteuid ((uid_t)cred.uid);
   len = sizeof(pasv_addr);
   if (getsockname (pdata, (struct sockaddr *) &pasv_addr, &len) < 0)
     goto pasv_error;
@@ -1842,7 +1810,7 @@ perror_reply (int code, const char *string)
   reply (code, "%s: %s.", string, strerror (errno));
 }
 
-static const char *onefile[] = {
+static char *onefile[] = {
 	"",
 	0
 };
@@ -1858,6 +1826,7 @@ send_file_list (const char *whichf)
   int simple = 0;
   int freeglob = 0;
   glob_t gl;
+  char *p = NULL;
 
   if (strpbrk(whichf, "~{[*?") != NULL)
     {
@@ -1890,7 +1859,8 @@ send_file_list (const char *whichf)
     }
   else
     {
-      onefile[0] = whichf;
+      p = strdup (whichf);
+      onefile[0] = p;
       dirlist = onefile;
       simple = 1;
     }
@@ -1993,6 +1963,8 @@ send_file_list (const char *whichf)
   data = -1;
   pdata = -1;
  out:
+  if (p)
+    free (p);
   if (freeglob)
     {
       freeglob = 0;

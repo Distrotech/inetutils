@@ -1,3 +1,25 @@
+2000-08-21  Alain Magloire
+
+The idea is to reduce the number of side effects i.e. reducing the number
+of global variables.  To help we regroup some of them in a structure
+call credentials, that is pass around.  The second approach to help
+detect side effects; when possible the variables are pass by parameter.
+All the gots of the authentication have move out elsewere(auth.c, pam.c)
+this will save us from the pesky #ifdef's.
+
+	* ftpd.c: Passwd handling code removed.  PAM code removed.
+	Variables guess, pw, logged_in, remotehost part of
+	the credential structure.
+	(end_login): Take the credential as an argument.
+	(dolog): Likewise.
+	(user): Call auth_user() to do the job.
+	(pass): Call auth_pass() to do the job.
+	(complete_login): Draft support for guest chroot.
+	Do not display passwd part of setproctitle() and syslog() messages.
+	(main): Remove on anonymous-name, was not use.
+	* auth.c: New file.
+	* Makefile.am: PATHDEF_FTPCHROOT in INCLUDES.
+
 2000-08-11  Alain Magloire
 
 Audit: Coding style to comply to GNU style, cleanup the code
@@ -51,7 +73,7 @@ AC_REPLACE_FUNC (setproctitle).
 
 	* wrap.c: New file, define TCPD related functions.
 
-	* server.c: New file, move all releate standalone function to
+	* server.c: New file, move all related standalone function to
 	this module reapchild (), server_mode () and tcpd wrapper handling.
 
 2000-08-10  Michael Vogt <mvo@debian.org>

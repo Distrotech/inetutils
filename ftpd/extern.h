@@ -47,7 +47,7 @@ extern void logwtmp        __P ((const char *, const char *, const char *));
 extern void lreply         __P ((int, const char *, ...));
 extern void makedir        __P ((const char *));
 extern void nack           __P ((const char *));
-extern void pass           __P ((char *));
+extern void pass           __P ((const char *));
 extern void passive        __P ((void));
 extern void perror_reply   __P ((int, const char *));
 extern void pwd            __P ((void));
@@ -65,15 +65,7 @@ extern void toolong        __P ((int));
 extern char *telnet_fgets  __P ((char *, int, FILE *));
 extern void upper          __P ((char *));
 extern void user           __P ((const char *));
-
-/* Exported from pam.c */
-#ifdef WITH_PAM
-extern pam_handle_t *pamh;
-extern int PAM_accepted;
-extern char *PAM_username;
-extern char *PAM_password;
-extern char *PAM_message;
-#endif
+extern char *sgetsave      __P ((const char *));
 
 /* Exported from ftpd.c.  */
 jmp_buf  errcatch;
@@ -101,3 +93,38 @@ extern off_t restart_point;
 /* Exported from server_mode.c.  */
 extern int server_mode __P ((const char *pidfile,
 			     struct sockaddr_in *phis_addr));
+
+/* Credential for the request.  */
+struct credentials
+{
+  char *name;
+  char *homedir;
+  char *rootdir;
+  char *shell;
+  char *remotehost;
+  char *passwd;
+  char *pass;
+  char *message; /* Sending back custom messages.  */
+  uid_t uid;
+  gid_t gid;
+  int guest;
+  int dochroot;
+  int logged_in;
+#define AUTH_TYPE_PASSWD    0
+#define AUTH_TYPE_PAM       1
+#define AUTH_TYPE_KERBEROS  2
+#define AUTH_TYPE_KERBEROS5 3
+#define AUTH_TYPE_OPIE      4
+  int auth_type;
+};
+
+extern struct credentials cred;
+extern int  sgetcred       __P ((const char *, struct credentials *));
+extern int  auth_user      __P ((const char *, struct credentials *));
+extern int  auth_pass      __P ((const char *, struct credentials *));
+
+/* Exported from pam.c */
+#ifdef WITH_PAM
+extern int  pam_user       __P ((const char *, struct credentials *));
+extern int  pam_pass       __P ((const char *, struct credentials *));
+#endif

@@ -22,7 +22,7 @@
 
 static void reapchild __P ((int));
 
-#ifdef HAVE_LIBWRAP
+#ifdef WITH_WRAP
 
 int allow_severity = LOG_INFO;
 int deny_severity = LOG_NOTICE;
@@ -155,7 +155,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
       close (fd);
     }
 
-#ifdef HAVE_LIBWRAP
+#ifdef WITH_WRAP
   /* In the child.  */
   if (!check_host ((struct sockaddr *)phis_addr))
     return -1;

@@ -6,7 +6,8 @@ inetdaemon_PROGRAMS = @BUILD_FTPD@
 
 EXTRA_PROGRAMS = ftpd
 
-ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c pam.c conf.c server_mode.c
+ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c pam.c auth.c \
+               conf.c server_mode.c
 
 noinst_HEADERS = extern.h
 
@@ -15,14 +16,14 @@ man_MANS = ftpd.8
 @PATHDEFS_MAKE@
 
 INCLUDES = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
-	$(PATHDEF_FTPLOGINMESG) $(PATHDEF_DEVNULL) \
-	$(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL) \
-  $(PATHDEF_FTPDPID)
+           $(PATHDEF_FTPLOGINMESG) $(PATHDEF_FTPCHROOT) $(PATHDEF_FTPDPID) \
+           $(PATHDEF_DEVNULL)  $(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)
 
 LIBCRYPT = @LIBCRYPT@
 LIBWRAP = @LIBWRAP@
+LIBPAM = @LIBPAM@
 
 LDADD = ../libls/libls.a -L../libinetutils -L../libtelnet \
-	-linetutils -ltelnet $(LIBCRYPT) $(LIBWRAP)
+	-linetutils -ltelnet $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
 
 EXTRA_DIST = $(man_MANS)

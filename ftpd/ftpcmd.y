@@ -349,7 +349,7 @@ cmd
 	| CWD check_login CRLF
 		{
 			if ($2)
-				cwd(pw->pw_dir);
+				cwd(cred.homedir);
 		}
 	| CWD check_login SP pathname CRLF
 		{
@@ -732,7 +732,7 @@ pathname
 			 * processing, but only gives a 550 error reply.
 			 * This is a valid reply in some cases but not in others.
 			 */
-			if (logged_in && $1 && *$1 == '~') {
+			if (cred.logged_in && $1 && *$1 == '~') {
 				glob_t gl;
 				int flags = GLOB_NOCHECK;
 
@@ -795,7 +795,7 @@ octal_number
 check_login
 	: /* empty */
 		{
-			if (logged_in)
+			if (cred.logged_in)
 				$$ = 1;
 			else {
 				reply(530, "Please login with USER and PASS.");
@@ -945,7 +945,7 @@ telnet_fgets(char *s, int n, FILE *iop)
 	    return (NULL);
 	*cs++ = '\0';
 	if (debug) {
-		if (!guest && strncasecmp("pass ", s, 5) == 0) {
+		if (!cred.guest && strncasecmp("pass ", s, 5) == 0) {
 			/* Don't syslog passwords */
 			syslog(LOG_DEBUG, "command: %.5s ???", s);
 		} else {
@@ -973,7 +973,7 @@ toolong(int signo)
 	    "Timeout (%d seconds): closing control connection.", timeout);
 	if (logging)
 		syslog(LOG_INFO, "User %s timed out after %d seconds",
-		    (pw ? pw -> pw_name : "unknown"), timeout);
+		    (cred.name ? cred.name : "unknown"), timeout);
 	dologout(1);
 }
 
@@ -997,10 +997,10 @@ yylex()
 				dologout(0);
 			}
 			(void) alarm(0);
-#ifdef SETPROCTITLE
+#ifdef HAVE_SETPROCTITLE
 			if (strncasecmp(cbuf, "PASS", 4) != NULL)
 				setproctitle("%s: %s", proctitle, cbuf);
-#endif /* SETPROCTITLE */
+#endif /* HAVE_SETPROCTITLE */
 			if ((cp = strchr(cbuf, '\r'))) {
 				*cp++ = '\n';
 				*cp = '\0';

@@ -3,25 +3,26 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "extern.h"
 
 #ifdef HAVE_SECURITY_PAM_APPL_H
 #include <security/pam_appl.h>
-#include <security/pam_misc.h>
 #endif
 
 #ifdef WITH_PAM
 
 static int PAM_conv __P ((int num_msg, const struct pam_message **msg,
 			  struct pam_response **resp, void *appdata_ptr));
-static struct pam_conv PAM_conversation = { &PAM_conv, NULL };
+
+/* FIXME: We still have a side effect since we use the global variable
+   cred.  A better approach would be to use the pcred parameter
+   in pam_user().  */
+static struct pam_conv PAM_conversation = { &PAM_conv, &cred };
 
 /* PAM authentication, now using the PAM's async feature.  */
-pam_handle_t *pamh;
-int PAM_accepted;
-char *PAM_username;
-char *PAM_password;
-char *PAM_message;
+static pam_handle_t *pamh;
 
 static int
 PAM_conv (int num_msg, const struct pam_message **msg,
@@ -30,16 +31,15 @@ PAM_conv (int num_msg, const struct pam_message **msg,
   struct pam_response *repl = NULL;
   int retval, count = 0, replies = 0;
   int size = sizeof(struct pam_response);
+  struct credentials *pcred = (struct credentials *) appdata_ptr;
 
 #define GET_MEM \
         if (!(repl = realloc (repl, size))) \
                 return PAM_CONV_ERR; \
         size += sizeof (struct pam_response)
 
-#define COPY_STRING(s) (s) ? strdup (s) : NULL
-
-  (void) appdata_ptr;
   retval = PAM_SUCCESS;
+
   for (count = 0; count < num_msg; count++)
     {
       int savemsg = 0;
@@ -49,12 +49,12 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	case PAM_PROMPT_ECHO_ON:
 	  GET_MEM;
 	  repl[replies].resp_retcode = PAM_SUCCESS;
-	  repl[replies].resp = COPY_STRING (PAM_username);
+	  repl[replies].resp = sgetsave (pcred->name);
 	  replies++;
 	  break;
 	case PAM_PROMPT_ECHO_OFF:
 	  GET_MEM;
-	  if (PAM_password == 0)
+	  if (pcred->pass == 0)
 	    {
 	      savemsg = 1;
 	      retval = PAM_CONV_AGAIN;
@@ -62,7 +62,7 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	  else
 	    {
 	      repl[replies].resp_retcode = PAM_SUCCESS;
-	      repl[replies].resp = COPY_STRING (PAM_password);
+	      repl[replies].resp = sgetsave (pcred->pass);
 	      replies++;
 	    }
 	  break;
@@ -72,31 +72,56 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	case PAM_ERROR_MSG:
 	default:
 	  /* Must be an error of some sort... */
-	  reply (530, "%s", msg[count]->msg);
+	  savemsg = 1;
 	  retval = PAM_CONV_ERR;
 	}
 
       if (savemsg)
 	{
-	  char *sp;
-
-	  if (PAM_message) /* XXX: make sure we split newlines correctly */
+	  /* FIXME:  This is a serious problem.  If the PAM message
+	     is multilines, the reply _must_ be formated correctly.
+	     The way to do this would be to consider \n as a boundary then
+	     in the ftpd.c:user() or ftpd.c:pass() check for it and send
+	     a lreply().  But I'm not sure the RFCs allow mutilines replies
+	     for a passwd challenge.  Many clients will simply break.  */
+	  if (pcred->message) /* XXX: make sure we split newlines correctly */
 	    {
-	      lreply (331, "%s", PAM_message);
-	      free (PAM_message);
+	      size_t len = strlen (pcred->message);
+	      char *s = realloc (pcred->message, len
+				 + strlen (msg[count]->msg) + 1);
+	      if (s == NULL)
+		{
+		  free (pcred->message);
+		  pcred->message = NULL;
+		}
+	      else
+		{
+		  pcred->message = s;
+		  strcat (pcred->message, msg[count]->msg);
+		}
 	    }
-	  PAM_message = COPY_STRING (msg[count]->msg);
+	  else
+	    pcred->message = sgetsave (msg[count]->msg);
 
-	  /* Remove trailing `: ' */
-	  sp = PAM_message + strlen (PAM_message);
-	  while (sp > PAM_message && strchr (" \t\n:", *--sp))
-	    *sp = '\0';
+	  if (pcred->message == NULL)
+	    retval = PAM_CONV_ERR;
+	  else
+	    {
+	      char *sp;
+	      /* FIXME:  What's this for ? */
+	      /* Remove trailing `: ' */
+	      sp = pcred->message + strlen (pcred->message);
+	      while (sp > pcred->message && strchr (" \t\n:", *--sp))
+		*sp = '\0';
+	    }
 	}
 
       /* In case of error, drop responses and return */
       if (retval)
 	{
-	  _pam_drop_reply (repl, replies);
+	  /* FIXME: drop_reply is not standard, need to clean this.  */
+	  //_pam_drop_reply (repl, replies);
+	  free (repl);
 	  return retval;
 	}
     }
@@ -105,59 +130,55 @@ PAM_conv (int num_msg, const struct pam_message **msg,
   return PAM_SUCCESS;
 }
 
+/* Non-zero means failure. */
 static int
-pam_doit (void)
+pam_doit (struct credentials *pcred)
 {
-  char *user;
+  char *username;
   int error;
 
   error = pam_authenticate (pamh, 0);
+
+  /* Probably being call for the passwd.  */
   if (error == PAM_CONV_AGAIN || error == PAM_INCOMPLETE)
     {
-      /* Avoid overly terse passwd messages */
-      if (PAM_message && !strcasecmp (PAM_message, "password"))
+      /* Avoid overly terse passwd messages and let the people
+	 upstairs do something sane.  */
+      if (pcred->message && !strcasecmp (pcred->message, "password"))
 	{
-	  free (PAM_message);
-	  PAM_message = 0;
+	  free (pcred->message);
+	  pcred->message = NULL;
 	}
-      if (PAM_message == 0)
-	{
-	  reply (331, "Password required for %s.", PAM_username);
-	}
-      else
-	{
-	  reply (331, "%s", PAM_message);
-	  free (PAM_message);
-	  PAM_message = 0;
-	}
-      return 1;
+      return 0;
     }
+
   if (error == PAM_SUCCESS) /* Alright, we got it */
     {
       error = pam_acct_mgmt (pamh, 0);
       if (error == PAM_SUCCESS)
 	error = pam_setcred (pamh, PAM_ESTABLISH_CRED);
       if (error == PAM_SUCCESS)
-	error = pam_get_item (pamh, PAM_USER, (const void **) &user);
+	error = pam_get_item (pamh, PAM_USER, (const void **) &username);
       if (error == PAM_SUCCESS)
 	{
-	  if (strcmp (user, "ftp") == 0)
+	  if (sgetcred (username, pcred) != 0)
+	    error = PAM_AUTH_ERR;
+	  else
 	    {
-	      guest = 1;
+	      if (strcasecmp (username, "ftp") == 0)
+		pcred->guest = 1;
 	    }
-	  pw = sgetpwnam (user);
 	}
-      if (error == PAM_SUCCESS && pw)
-	PAM_accepted = 1;
     }
   pam_end(pamh, error);
   pamh = 0;
 
-  return (error == PAM_SUCCESS);
+  return (error != PAM_SUCCESS);
 }
 
-static void
-authentication_setup (const char *username)
+/* Non-zero return means failure. */
+int
+pam_user (const char *username, struct credentials *pcred)
 {
   int error;
 
@@ -167,25 +188,40 @@ authentication_setup (const char *username)
       pamh = 0;
     }
 
-  if (PAM_username)
-    free (PAM_username);
-  PAM_username = strdup (username);
-  PAM_password = 0;
-  PAM_message  = 0;
-  PAM_accepted = 0;
+  if (pcred->name)
+    free (pcred->name);
+  pcred->name = strdup (username);
+  if (pcred->message)
+    free (pcred->message);
+  pcred->message = NULL;
 
-  error = pam_start ("ftp", PAM_username, &PAM_conversation, &pamh);
+  error = pam_start ("ftp", pcred->name, &PAM_conversation, &pamh);
   if (error == PAM_SUCCESS)
-    error = pam_set_item (pamh, PAM_RHOST, remotehost);
+    error = pam_set_item (pamh, PAM_RHOST, pcred->remotehost);
   if (error != PAM_SUCCESS)
     {
-      reply (550, "Authentication failure");
       pam_end (pamh, error);
       pamh = 0;
     }
 
-  if (pamh && !pam_doit ())
-    reply(550, "Authentication failure");
+  if (pamh)
+    error = pam_doit (pcred);
+
+  return (error != PAM_SUCCESS);
+}
+
+/* Nonzero value return for error.  */
+int
+pam_pass (const char *passwd, struct credentials *pcred)
+{
+  int error = PAM_AUTH_ERR;
+  if (pamh)
+    {
+      pcred->pass = passwd;
+      error = pam_doit (pcred);
+      pcred->pass = NULL;
+    }
+  return  error != PAM_SUCCESS;
 }
 
 #endif /* WITH_PAM */

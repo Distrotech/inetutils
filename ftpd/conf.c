@@ -31,31 +31,8 @@ display_file (const char *name, int code)
   return errno;
 }
 
-/*
- * Determine whether something is to happen (allow access, chroot)
- * for a user. Each line is a shell-style glob followed by
- * `yes' or `no'.
- *
- * For backward compatability, `allow' and `deny' are synonymns
- * for `yes' and `no', respectively.
- *
- * Each glob is matched against the username in turn, and the first
- * match found is used. If no match is found, the result is the
- * argument `def'. If a match is found but without and explicit
- * `yes'/`no', the result is the opposite of def.
- *
- * If the file doesn't exist at all, the result is the argument
- * `nofile'
- *
- * Any line starting with `#' is considered a comment and ignored.
- *
- * Returns 0 if the user is denied, or 1 if they are allowed.
- *
- * NOTE: needs struct passwd *pw setup before use.
- */       
-/*
- * Check if a user is in the file PATH_FTPUSERS
- */
+/* Check if a user is in the file PATH_FTPUSERS
+   return 1 if yes 0 otherwise.  */
 int
 checkuser (const char *filename, const char *name)
 {
