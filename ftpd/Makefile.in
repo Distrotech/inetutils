@@ -43,7 +43,7 @@ CFLAGS += $(DEFS)
 ftpd: ftpd.o ftpcmd.o logwtmp.o popen.o
 
 install: installdirs ftpd $(srcdir)/ftpd.8
-	$(INSTALL_PROGRAM) ftpd $(libexec)/in.ftpd
+	$(INSTALL_PROGRAM) ftpd $(libexecdir)/in.ftpd
 	$(INSTALL_DATA) $(srcdir)/ftpd.8 $(man8dir)
 
 installdirs:
