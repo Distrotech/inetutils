@@ -284,7 +284,7 @@ main(argc, argv)
 	(void)unlink(LogName);
 
 #ifndef SUN_LEN
-#define SUN_LEN(unp) (strlen((unp)->sun_path) + 2)
+#define SUN_LEN(unp) (strlen((unp)->sun_path) + 3)
 #endif
 	memset(&sunx, 0, sizeof(sunx));
 	sunx.sun_family = AF_UNIX;
