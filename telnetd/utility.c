@@ -384,7 +384,9 @@ edithost(pat, host)
 	register char *host;
 {
 	register char *res = editedhost;
+#ifndef strncpy
 	char *strncpy();
+#endif
 
 	if (!pat)
 		pat = "";
@@ -453,9 +455,13 @@ putf(cp, where)
 	time_t t;
 	char db[100];
 #ifdef	STREAMSPTY
+#ifndef strchr
 	extern char *strchr();
+#endif
 #else
+#ifndef strrchr
 	extern char *strrchr();
+#endif
 #endif
 
 	putlocation = where;
