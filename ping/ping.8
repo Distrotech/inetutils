@@ -1,6 +1,39 @@
-.Dd January 7, 1999
+.\" Copyright (c) 1985, 1991, 1993
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     @(#)ping.8	8.3 (Berkeley) 4/28/95
+.\"
+.Dd April 28, 1995
 .Dt PING 8
-.Os "iputils-ss990107"
+.Os BSD 4.3
 .Sh NAME
 .Nm ping
 .Nd send
@@ -8,26 +41,13 @@
 packets to network hosts
 .Sh SYNOPSIS
 .Nm ping
-.Op Fl dfnqrvR
+.Op Fl Rdfnqrv
 .Op Fl c Ar count
 .Op Fl i Ar wait
 .Op Fl l Ar preload
 .Op Fl p Ar pattern
 .Op Fl s Ar packetsize
-Changed options: -I <device name> may be used to set output interface.
-
-New options:
-   -T [ping only]:  send timestamp IP option.
-         -T tsonly       --- only timesamps
-         -T tsandaddr    --- timestamps & addresses
-         -T tsprespec host1 [host2 [host3 [host 4]]]
-                         --- timestamp prespecified hops
-
-Improvements:
-  - it understands icmp error messages and reacts to them correctly.
-  - it checks icmp checksum and reacts to corrupted packets correctly.
-  - it correctly pings linux loopback.
-    etc.
+.Ar host
 .Sh DESCRIPTION
 .Nm Ping
 uses the
@@ -46,7 +66,6 @@ followed by a
 and then an arbitrary number of ``pad'' bytes used to fill out the
 packet.
 The options are as follows:
-Other options are:
 .Bl -tag -width Ds
 .It Fl c Ar count
 Stop after sending (and receiving)
@@ -63,7 +82,7 @@ Outputs packets as fast as they come back or one hundred times per second,
 whichever is more.
 For every
 .Tn ECHO_REQUEST
-sent a period ``.'' is printed, while for ever
+sent a period ``.'' is printed, while for every
 .Tn ECHO_REPLY
 received a backspace is printed.
 This provides a rapid display of how many packets are being dropped.
@@ -87,7 +106,6 @@ is specified,
 .Nm ping
 sends that many packets as fast as possible before falling into its normal
 mode of behavior.
-Only the super-user may use this option.
 .It Fl n
 Numeric output only.
 No attempt will be made to lookup symbolic names for host addresses.
@@ -148,13 +166,6 @@ When the specified number of packets have been sent (and received) or
 if the program is terminated with a
 .Dv SIGINT ,
 a brief summary is displayed.
-.Pp
-If 
-.Nm ping
-does not receive any reply packets at all it will exit with code 1.
-On error it exits with code 2. Otherwise it exits with code 0. This
-makes it possible to use the exit code to see if a host is alive or
-not.
 .Pp
 This program is intended for use in network testing, measurement and
 management.
@@ -308,7 +319,8 @@ Flood pinging is not recommended in general, and flood pinging the
 broadcast address should only be done under very controlled conditions.
 .Sh SEE ALSO
 .Xr netstat 1 ,
-.Xr ifconfig 8
+.Xr ifconfig 8 ,
+.Xr routed 8
 .Sh HISTORY
 The
 .Nm
