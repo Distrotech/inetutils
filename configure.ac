@@ -385,47 +385,37 @@ AC_CHECK_TYPES(cc_t, , ,
   #endif ])
 
 ### Checks for structures.
-AC_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
+IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
     [ #include <sys/types.h>
       #include <netinet/in.h> ])
 
 if test "$ac_cv_header_utmp_h" = yes; then
   AC_CHECK_TYPES(struct lastlog, , , [#include <utmp.h>])
-  AC_CHECK_MEMBERS([utmp.ut_type, utmp.ut_pid, utmp.ut_id, utmp.ut_user,
-		    utmp.ut_host, utmp.ut_tv, utmp.ut_exit], , ,
+  IU_CHECK_MEMBERS([struct utmp.ut_type, struct utmp.ut_pid, 
+                    struct utmp.ut_id, struct utmp.ut_user,
+		    struct utmp.ut_host, struct utmp.ut_tv, 
+		    struct utmp.ut_exit], , ,
 		   [#ifdef HAVE_SYS_TYPES_H
                     # include <sys/types.h>
                     #endif
 		    #include <utmp.h>])
 fi
 if test "$ac_cv_header_utmpx_h" = yes; then
-  AC_CHECK_MEMBERS([struct utmpx.ut_tv], , , [#include <utmpx.h>])
+  IU_CHECK_MEMBERS([struct utmpx.ut_tv], , , [#include <utmpx.h>])
 fi
 
-# AC_CHECK_MEMBERS (as of version 2.53 ) fails to recognize the presense
-# of a structure member which is itself of an aggregate type. To work
-# around the bug, we first check for a non-aggregate sub-member of the
-# member in question and then create an appropriate HAVE_ define.
-AC_CHECK_MEMBERS([stuct ifreq.ifr_index,
-                  struct ifreq.ifr_netmask.sa_family,
-                  struct ifreq.ifr_broadaddr.sa_family], , ,
+IU_CHECK_MEMBERS([stuct ifreq.ifr_index,
+                  struct ifreq.ifr_netmask,
+                  struct ifreq.ifr_broadaddr], , ,
                  [#include <sys/socket.h>
                   #include <net/if.h>])
 
-AH_BOTTOM([
-#ifdef HAVE_STRUCT_IFREQ_IFR_NETMASK_SA_FAMILY
-# define HAVE_STRUCT_IFREQ_IFR_NETMASK
-#endif
-#ifdef HAVE_STRUCT_IFREQ_IFR_BROADADDR_SA_FAMILY
-# define HAVE_STRUCT_IFREQ_IFR_BROADADDR
-#endif])
-
-AC_CHECK_MEMBERS([struct sockaddr.sa_len], , ,
+IU_CHECK_MEMBERS([struct sockaddr.sa_len], , ,
                  [#include <sys/types.h>
                   #include <sys/socket.h>])
-AC_CHECK_MEMBERS([struct hostent.h_addr_list], , , [#include <netdb.h>])
+IU_CHECK_MEMBERS([struct hostent.h_addr_list], , , [#include <netdb.h>])
 
-AC_CHECK_MEMBERS([struct stat.st_blksize])
+IU_CHECK_MEMBERS([struct stat.st_blksize])
 
 AH_BOTTOM(
 [#ifdef HAVE_SYS_PARAM_H
