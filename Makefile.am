@@ -1,4 +1,4 @@
-AUTOMAKE_OPTIONS = 1.6
+AUTOMAKE_OPTIONS = 1.7
 
 EXTRA_DIST = README-alpha paths ChangeLog.0
 

@@ -1,3 +1,13 @@
+2002-12-11  Jeff Bailey  <jbailey@gnu.org>
+
+	* configure.ac: Add AC_FUNC_MALLOC and AC_FUNC_REALLOC calls.
+
+2002-10-30  Jeff Bailey  <jbailey@gnu.org>
+
+	* autogen.sh: Just use autoreconf - it's the right tool now.
+	* configure.ac: Require autoconf 2.54
+	* Makefile.am: Require automake 1.7
+
 2002-11-15  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* configure.ac (AC_CONFIG_FILES): Removed duplicate entries
