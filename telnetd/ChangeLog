@@ -1,4 +1,65 @@
-2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+2001-07-26  Alain Magloire
+
+	The patch was provided by Eric Gillespie, Jr., it addresses
+	a vulnerability in telnetd:
+	TESO Security Advisory 06/10/2001
+
+	Multiple vendor Telnet Daemon vulnerability
+
+	Summary
+	===================
+	Within most of the current telnet daemons in use today there exist a
+	buffer overflow in the telnet option handling. Under certain
+	circumstances it may be possible to exploit it to gain root
+	priviledges remotely.
+
+	Impact
+	===================
+	Through sending a specially formed option string to the remote telnet
+	daemon a remote attacker might be able to overwrite sensitive
+	information on the static memory pages. If done properly this may
+	result in arbitrary code getting executed on the remote machine under
+	the priviledges the telnet daemon runs on, usually root.
+
+	Explanation
+	===================
+	Within every BSD derived telnet daemon under UNIX the telnet options
+	are processed by the 'telrcv' function. This function parses the
+	options according to the telnet protocol and its internal state.
+	During this parsing the results which should be send back to the
+	client are stored within the 'netobuf' buffer. This is done without
+	any bounds checking, since it is assumed that the reply data is
+	smaller than the buffer size (which is BUFSIZ bytes, usually).
+
+	However, using a combination of options, especially the 'AYT' Are You
+	There option, it is possible to append data to the buffer, usually
+	nine bytes long. To trigger this response, two bytes in the input
+	buffer are necessary. Since this input buffer is BUFSIZ bytes long,
+	you can exceed the output buffer by as much as
+	(BUFSIZ / 2) * 9) - BUFSIZ bytes. For the common case that BUFSIZ is
+	defined to be 1024, this results in a buffer overflow by up to 3584
+	bytes.  On systems where BUFSIZ is defined to be 4096, this is an
+	even greater value (14336).
+	Due to the limited set of characters an attacker is able to write
+	outside of the buffer it is difficult - if not impossible on some
+	systems - to exploit this buffer overflow. Another hurdle for a
+	possible attacker may be the lack of interesting information to
+	modify after the buffer.
+	This buffer overflow should be considered serious nevertheless, since
+	experience has shown that even complicated vulnerabilities can be
+	exploited by skilled attackers, BIND TSIG and SSH deattack come to
+	mind.
+	We have constructed a working exploit for any version of BSDI, NetBSD
+	and FreeBSD. Exploitation on Solaris sparc may be possible but if it
+	is, it is very difficult involving lots of arcane tricks. OpenBSD is
+	not as easily exploitable as the other BSD's, because they do compile
+	with other options by default, changing memory layout.
+
+	* ext.h (output_data): Add prototypes for output_data.
+	* state.c (output_data): Implement output_data().
+	Patch provided by "Eric Gillespie, Jr.".
+
+2000-10-30  Marcus Brinkmann
 
 	* sys_term.c: Add prototype for cleanopen().
 	* telnetd.c (main): Move assignment outside if condition.

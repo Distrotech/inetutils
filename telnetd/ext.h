@@ -186,6 +186,10 @@ extern void
 	wontoption P((int)),
 	writenet P((unsigned char *, int));
 
+extern int output_data __P((const char *, ...))
+        __attribute__((__format__(__printf__, 1, 2)));
+extern int output_datalen __P((const char *, size_t));
+
 #ifdef	ENCRYPTION
 extern void	(*encrypt_output) P((unsigned char *, int));
 extern int	(*decrypt_input) P((int));
