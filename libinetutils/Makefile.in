@@ -23,10 +23,10 @@ include ../config.make
 
 SRCS = \
 __progname.c alloca.c cleansess.c daemon.c err.c forkpty.c getopt.c \
-getopt1.c herror.c hstrerror.c iruserok.c localhost.c login.c login_tty.c \
-logout.c logwtmp.c logwtmpko.c memmove.c memset.c openpty.c revoke.c \
-setenv.c setsig.c snprintf.c strdup.c strerror.c stub_tgetent.c ttymsg.c \
-version.c xmalloc.c
+getopt1.c getusershell.c herror.c hstrerror.c iruserok.c localhost.c \
+login.c login_tty.c logout.c logwtmp.c logwtmpko.c memmove.c memset.c \
+openpty.c revoke.c setenv.c setsig.c snprintf.c strdup.c strerror.c \
+stub_tgetent.c ttymsg.c version.c xmalloc.c xstrdup.c
 
 DISTFILES = $(SRCS) snprintf.h
 
