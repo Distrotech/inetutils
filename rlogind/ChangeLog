@@ -1,3 +1,7 @@
+2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
+
+	* rlogind.c: Use ENCRYPTION instead of CRYPT.
+
 2001-07-18  Alain Magloire
 
 	Much of the changes where indentation to follow GNU

@@ -141,9 +141,9 @@ int verify_hostname = 0;
 int keepalive = 1;
 #ifdef KERBEROS
 int kerberos = 0;
-#ifdef CRYPT
+#ifdef ENCRYPTION
 int encrypt = 0;
-#endif /* CRYPT */
+#endif /* ENCRYPTION */
 #endif /* KERBEROS */
 int reverse_required = 0;
 int debug_level = 0;
@@ -188,7 +188,7 @@ rlogind_sigchld (int sig)
 #define MODE_INETD 0
 #define MODE_DAEMON 1
 
-#if defined(KERBEROS) && defined(CRYPT)
+#if defined(KERBEROS) && defined(ENCRYPTION)
 # define IF_ENCRYPT(stmt) if (encrypt) stmt
 # define IF_NOT_ENCRYPT(stmt) if (!encrypt) stmt
 # define ENC_READ(c, fd, buf, size) \
@@ -248,11 +248,11 @@ main (int argc, char *argv[])
 	case 'k':
 	  kerberos = 1;
 	  break;
-#ifdef CRYPT
+#ifdef ENCRYPTION
 	case 'x':
 	  encrypt = 1;
 	  break;
-#endif /* CRYPT */
+#endif /* ENCRYPTION */
 #endif /* KERBEROS */
 
 	case 'p':
@@ -754,7 +754,7 @@ do_krb_login (int infd, struct auth_data *ap)
   instance[0] = '*';
   instance[1] = '\0';
 
-#ifdef CRYPT
+#ifdef ENCRYPTION
   if (encrypt)
     {
       rc = sizeof (faddr);
@@ -1147,9 +1147,9 @@ static const char usage_str[] =
 "   -n, --no-keepalive      Do not set SO_KEEPALIVE\n"
 #ifdef KERBEROS
 "   -k, --kerberos          Use kerberos IV authentication\n"
-#ifdef CRYPT
+#ifdef ENCRYPTION
 "   -x, --encrypt           Use DES encryption\n"
-#endif /* CRYPT */
+#endif /* ENCRYPTION */
 #endif /* KERBEROS */
 "   -D, --debug[=LEVEL]     Set debug level\n"
 "   -h, --help              Display usage instructions\n"
