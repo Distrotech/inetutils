@@ -128,6 +128,33 @@ char	*hostname = 0;
 size_t  hostname_len = 0;
 char	*remotehost = 0;
 
+#define NUM_SIMUL_OFF_TO_STRS 4
+
+/* Returns a string with the decimal representation of the off_t OFF, taking
+   into account that off_t might be longer than a long.  The return value is
+   a pointer to a static buffer, but a return value will only be reused every
+   NUM_SIMUL_OFF_TO_STRS calls, to allow multiple off_t's to be conveniently
+   printed with a single printf statement.  */
+static char *
+off_to_str (off)
+     off_t off;
+{
+  static char bufs[NUM_SIMUL_OFF_TO_STRS][80];
+  static char (*next_buf)[80] = bufs;
+
+  if (next_buf > &bufs[NUM_SIMUL_OFF_TO_STRS])
+    next_buf = bufs;
+
+  if (sizeof (off) > sizeof (long))
+    sprintf (*next_buf, "%qd", off);
+  else if (sizeof (off) == sizeof (long))
+    sprintf (*next_buf, "%ld", off);
+  else
+    sprintf (*next_buf, "%d", off);
+
+  return *next_buf++;
+}
+
 /*
  * Timeout intervals for retrying connections
  * to hosts that don't accept PORT cmds.  This
@@ -160,8 +187,9 @@ char	proctitle[LINE_MAX];	/* initial part of title */
 		    syslog(LOG_INFO,"%s %s%s", cmd, \
 			*(file) == '/' ? "" : curdir(), file); \
 		else \
-		    syslog(LOG_INFO, "%s %s%s = %qd bytes", \
-			cmd, (*(file) == '/') ? "" : curdir(), file, cnt); \
+		    syslog(LOG_INFO, "%s %s%s = %s bytes", \
+			cmd, (*(file) == '/') ? "" : curdir(), file, \
+			   off_to_str (cnt)); \
 	}
 
 static void	 ack __P((char *));
@@ -851,7 +879,7 @@ dataconn(name, size, mode)
 	file_size = size;
 	byte_count = 0;
 	if (size != (off_t) -1)
-		(void) sprintf(sizebuf, " (%qd bytes)", size);
+		(void) sprintf(sizebuf, " (%s bytes)", off_to_str (size));
 	else
 		(void) strcpy(sizebuf, "");
 	if (pdata >= 0) {
@@ -1417,10 +1445,11 @@ myoob(signo)
 	}
 	if (strcmp(cp, "STAT\r\n") == 0) {
 		if (file_size != (off_t) -1)
-			reply(213, "Status: %qd of %qd bytes transferred",
-			    byte_count, file_size);
+			reply(213, "Status: %s of %s bytes transferred",
+			    off_to_str (byte_count), off_to_str (file_size));
 		else
-			reply(213, "Status: %qd bytes transferred", byte_count);
+			reply(213, "Status: %s bytes transferred",
+			      off_to_str (byte_count));
 	}
 }
 
