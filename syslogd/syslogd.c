@@ -83,7 +83,16 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #endif
 #include <sys/uio.h>
 #include <sys/un.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/resource.h>
 
 #include <netinet/in.h>
@@ -102,9 +111,12 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <utmp.h>
 #include <getopt.h>
 #define SYSLOG_NAMES
-#include <sys/syslog.h>
+#include <syslog.h>
 #ifndef HAVE_SYSLOG_INTERNAL
 #include <syslog-int.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
 #endif
 
 char	*LogName = PATH_LOG;
@@ -256,7 +268,18 @@ main(argc, argv)
 	if (!Debug)
 		(void)daemon(0, 0);
 	else
-		setlinebuf(stdout);
+	{
+#ifdef HAVE_SETLINEBUF
+	  setlinebuf (stdout);
+#else
+#ifndef SETVBUF_REVERSED
+	  setvbuf (stdout, (char *) 0, _IOLBF, BUFSIZ);
+#else /* setvbuf not reversed.  */
+ /* Some buggy systems lose if we pass 0 instead of allocating ourselves.  */
+	  setvbuf (stdout, _IOLBF, xmalloc (BUFSIZ), BUFSIZ);
+#endif /* setvbuf reversed.  */
+#endif /* setlinebuf missing.  */
+	}
 
 	LocalHostName = localhost ();
 	if (! LocalHostName) {
