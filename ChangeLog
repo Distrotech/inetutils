@@ -1,3 +1,37 @@
+Fri Jan 24 14:17:08 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.2j'.
+
+	* iumacros.m4 (IU_CONFIG_PATHS): Temporarily suppress autoconf
+	quoting around regexps containing "[" and "]".
+
+	* paths (PATH_UTMP, PATH_WTMP, PATH_LASTLOG): Add /var/adm to file
+ 	search path.
+
+	* config.make.in (CPPFLAGS): Add $(CPPFLAGS-$(<F)).
+	* libinetutils/Makefile.in (CPPFLAGS): Remove $(CPPFLAGS-$(<F)).
+	(CPPFLAGS-logout.c, CPPFLAGS-logwtmp.c, CPPFLAGS-logwtmpko.c,
+	CPPFLAGS-ttymsg.c, CPPFLAGS-cleansess.c, CPPFLAGS-daemon.c):
+	New variables.
+	(CPPFLAGS): Variable removed.
+	
+	* telnet/commands.c (set_mode): Renamed from setmode, to avoid
+ 	conflict with netbsd <unistd.h>; all references changed.
+  	(clear_mode): Renamed from clearmode, for consistency with
+ 	setmode; all references changed.
+
+	* iumacros.m4 (IU_LIB_NCURSES): New macro.
+	(IU_LIB_TERMCAP): Use IU_LIB_NCURSES, and prefer ncurses as the
+	termcap library when it exists.
+	(IU_LIB_CURSES): Special case ncurses (it never requires termcap).
+	(_iu_curses_needs_termcap): Macro removed.
+	
+	* uucpd/uucpd.c (doit): Use PATH_UUCICO instead of _PATH_UUCICO.
+	(dologin): Use PATH_LASTLOG instead of _PATH_LASTLOG.
+	[HAVE_UTMP_H] <utmp.h>: New include.
+	* uucpd/Makefile.in (CPPFLAGS): Add $(PATHDEF_LASTLOG).
+	Use $(PATHDEF_UUCICO) instead of old wrong define.
+
 Thu Jan 23 13:12:03 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (libinetutils_version): Change to `1.2i'.
