@@ -1,3 +1,8 @@
+2000-08-10  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): When -d option is given, set NoDetach to 1.
+	Only test for !NoDetach when daemonising, and no longer for !Debug.
+
 2000-08-09  Marcus Brinkmann  <marcus@gnu.org>
 
 	Fix ChangeLog weirdness.

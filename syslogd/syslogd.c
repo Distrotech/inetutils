@@ -375,6 +375,7 @@ main(int argc, char *argv[])
 
 	case 'd': /* Debug mode.  */
 	  Debug = 1;
+	  NoDetach = 1;
 	  break;
 
 	case 'f': /* Override the default config file.  */
@@ -447,7 +448,7 @@ main(int argc, char *argv[])
     usage (1);
 
   /* Daemonise, if not, set the buffering for line buffer.  */
-  if (!(Debug || NoDetach))
+  if (!NoDetach)
     {
       /* History:  According to the GNU/Linux sysklogd ChangeLogs
 	 "Wed Feb 14 12:42:09 CST 1996:  Dr. Wettstein
