@@ -73,7 +73,7 @@ static int ptym_open __P ((char *pts_name));
 static int ptys_open __P ((int fdm, char * pts_name));
 
 int
-openpty(int *amaster, char *aslave, char *name, struct termios *termp, struct winsize *winp)
+openpty(int *amaster, int *aslave, char *name, struct termios *termp, struct winsize *winp)
 {
 	char line[20];
 	*amaster = ptym_open(line);

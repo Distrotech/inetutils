@@ -140,6 +140,9 @@ allocbuf(BUF *bp, int fd, int blksize)
 		run_err("fstat: %s", strerror(errno));
 		return (0);
 	}
+#ifndef roundup
+#  define roundup(x, y)   ((((x)+((y)-1))/(y))*(y))
+#endif
 	size = roundup(ST_BLKSIZE(stb), blksize);
 	if (size == 0)
 		size = blksize;

@@ -2,6 +2,8 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 bin_PROGRAMS = @BUILD_LOGGER@
 
+LDADD = -L../libinetutils -linetutils
+
 EXTRA_PROGRAMS = logger
 
 logger_SOURCES = logger.c

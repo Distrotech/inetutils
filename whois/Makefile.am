@@ -8,8 +8,6 @@ whois_SOURCES = main.c net.c
 
 whois_DEPENDENCIES = config.o
 
-whois_LDADD = config.o
-
 CLEANFILES = config.c
 
 INCLUDES = -DSYSCONFDIR=\"$(sysconfdir)\" -DDATADIR=\"$(datadir)\"
@@ -21,6 +19,8 @@ inetdata_DATA = whois-servers
 EXTRA_DIST = whois-servers
 
 LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet
+
+whois_LDADD = config.o $(LDADD)
 
 config.c: ${srcdir}/whois-servers
 	echo 'char *whois_servers =' > config.c

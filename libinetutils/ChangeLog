@@ -1,3 +1,8 @@
+2000-08-24  Alain Magloire
+
+	* stub_tgetent.c: Prototype was wrong.
+	* openpty.c: Prototype was wrong.
+
 2000-08-15  Alain Magloire
 
 	* iruserok.c: use <signal> not <sys/signal.h>
