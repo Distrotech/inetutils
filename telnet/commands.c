@@ -2296,17 +2296,6 @@ tn(int argc, char *argv[])
 	    sin.sin_addr.s_addr = temp;
 	    sin.sin_family = AF_INET;
 
-	    if (_hostname)
-		free (_hostname);
-	    _hostname = malloc (strlen (hostp) + 1);
-	    if (_hostname) {
-		strcpy (_hostname, hostp);
-		hostname = _hostname;
-	    } else {
-		printf ("Can't allocate memory to copy hostname\n");
-		setuid(getuid());
-		return 0;
-	    }
 	} else {
 	    host = gethostbyname(hostp);
 	    if (host) {
@@ -2318,23 +2307,19 @@ tn(int argc, char *argv[])
 		memmove((caddr_t)&sin.sin_addr, host->h_addr, host->h_length);
 #endif	/* defined(h_addr) */
 
-		if (_hostname)
-		    free (_hostname);
-		_hostname = malloc (strlen (host->h_name) + 1);
-		if (_hostname) {
-		    strcpy (_hostname, host->h_name);
-		    hostname = _hostname;
-		} else {
-		    printf ("Can't allocate memory to copy hostname\n");
-		    setuid(getuid());
-		    return 0;
-		}
-	    } else {
-		herror(hostp);
-	        setuid(getuid());
-		return 0;
 	    }
 	}
+        if (_hostname)
+		free (_hostname);
+        _hostname = malloc (strlen (hostp) + 1);
+        if (_hostname) {
+		strcpy (_hostname, hostp);
+		hostname = _hostname;
+    	} else {
+		printf ("Can't allocate memory to copy hostname\n");
+		setuid(getuid());
+		return 0;
+    	}
 #if	defined(IP_OPTIONS) && defined(IPPROTO_IP)
     }
 #endif
