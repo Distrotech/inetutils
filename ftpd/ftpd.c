@@ -518,8 +518,10 @@ user(name)
 	}
 	if (logging)
 		strncpy(curname, name, sizeof(curname)-1);
-	reply(331, "Password required for %s.", name);
-	askpasswd = 1;
+	if (pw && *pw->pw_passwd) {
+		reply(331, "Password required for %s.", name);
+		askpasswd = 1;
+	}
 	/*
 	 * Delay before reading passwd after first failed
 	 * attempt to slow down passwd-guessing programs.
@@ -583,15 +585,10 @@ pass(passwd)
 		return;
 	}
 	askpasswd = 0;
-	if (!guest) {		/* "ftp" is only account allowed no password */
-		if (pw == NULL)
-			salt = "xx";
-		else
-			salt = pw->pw_passwd;
+	if (!guest && (!pw || *pw->pw_passwd)) {
+		salt = pw ? pw->pw_passwd : "xx";
 		xpasswd = crypt(passwd, salt);
-		/* The strcmp does not catch null passwords! */
-		if (pw == NULL || *pw->pw_passwd == '\0' ||
-		    strcmp(xpasswd, pw->pw_passwd)) {
+		if (pw && *pw->pw_passwd && strcmp(xpasswd, pw->pw_passwd)) {
 			reply(530, "Login incorrect.");
 			if (logging)
 				syslog(LOG_NOTICE,
