@@ -175,7 +175,7 @@ off_to_str (off)
   static char bufs[NUM_SIMUL_OFF_TO_STRS][80];
   static char (*next_buf)[80] = bufs;
 
-  if (next_buf > &bufs[NUM_SIMUL_OFF_TO_STRS])
+  if (next_buf > (bufs+NUM_SIMUL_OFF_TO_STRS))
     next_buf = bufs;
 
   if (sizeof (off) > sizeof (long))
@@ -1408,7 +1408,7 @@ static void
 dolog(sin)
 	struct sockaddr_in *sin;
 {
-	char *name;
+	const char *name;
 	struct hostent *hp = gethostbyaddr((char *)&sin->sin_addr,
 		sizeof(struct in_addr), AF_INET);
 
@@ -1679,7 +1679,7 @@ send_file_list(whichf)
 			    dir->d_name[2] == '\0')
 				continue;
 
-			nbuf = alloca (strlen (dirname) + 1 + strlen (dir->d_name) + 1);
+			nbuf = (char *) alloca (strlen (dirname) + 1 + strlen (dir->d_name) + 1);
 			sprintf(nbuf, "%s/%s", dirname, dir->d_name);
 
 			/*
