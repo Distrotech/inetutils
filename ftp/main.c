@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1985, 1989, 1993, 1994
+ * Copyright (c) 1985, 1989, 1993, 1994, 2002
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,7 @@ usage (int err)
       --help                 Give this help list\n\
   -V, --version              Print program version");
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
     }
   exit (err);
 }
@@ -165,7 +165,7 @@ main (int argc, char *argv[])
 	/* Not reached.  */
 
       case 'V': /* Version.  */
-	printf ("ftp (%s) %s\n", inetutils_package, inetutils_version);
+	printf ("ftp (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	exit (0);
 
       case '?':
