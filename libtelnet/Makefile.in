@@ -22,7 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 SRCS = auth.c enc_des.c encrypt.c genget.c getent.c kerberos.c kerberos5.c \
-       krb4encpwd.c misc.c read_password.c rsaencpwd.c spx.c
+       krb4encpwd.c misc.c read_passwd.c rsaencpwd.c spx.c
 HDRS = auth-proto.h auth.h enc-proto.h encrypt.h key-proto.h misc-proto.h misc.h
 DISTFILES = $(SRCS) $(HDRS)
 
