@@ -10,7 +10,7 @@ libinetutils_a_SOURCES = cleansess.c daemon.c des_rw.c kcmd.c krcmd.c \
 
 libinetutils_a_LIBADD = daemon.o @LIBOBJS@
 
-noinst_HEADERS = snprintf.h pathmax.h poll.h
+noinst_HEADERS = snprintf.h pathmax.h
 
 @PATHDEFS_MAKE@
 

@@ -1,4 +1,4 @@
-EXTRA_DIST = crypt.h err.h getopt.h osockaddr.h paths.h syslog-int.h \
+EXTRA_DIST = crypt.h err.h getopt.h osockaddr.h paths.h poll.h syslog-int.h \
 	tftpsubs.h version.h.in confpaths.h.in stamp-h.in config.h.in
 
 dist-hook:

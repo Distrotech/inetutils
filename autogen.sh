@@ -1,6 +1,6 @@
 #!/bin/sh
 set -x
-autoheader -l headers
 aclocal
+autoheader -l headers
 automake -a
 autoconf
