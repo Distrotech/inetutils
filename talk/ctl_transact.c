@@ -82,6 +82,7 @@ ctl_transact(target, msg, type, rp)
 	msg.type = type;
 	daemon_addr.sin_addr = target;
 	daemon_addr.sin_port = daemon_port;
+	FD_ZERO(&ctl_mask);
 	FD_SET(ctl_sockt, &ctl_mask);
 
 	/*
