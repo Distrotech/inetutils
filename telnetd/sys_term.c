@@ -35,8 +35,11 @@
 static char sccsid[] = "@(#)sys_term.c	8.4 (Berkeley) 5/30/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "telnetd.h"
-#include "pathnames.h"
 
 #if	defined(AUTHENTICATION)
 #include <libtelnet/auth.h>
@@ -47,39 +50,49 @@ static char sccsid[] = "@(#)sys_term.c	8.4 (Berkeley) 5/30/95";
 #endif
 
 #ifdef	NEWINIT
+
 #include <initreq.h>
 int	utmp_len = MAXHOSTNAMELEN;	/* sizeof(init_request.host) */
-#else	/* NEWINIT*/
-# ifdef	UTMPX
-# include <utmpx.h>
+#else	/* !NEWINIT*/
+# ifdef	HAVE_UTMPX_H
+#  include <utmpx.h>
 struct	utmpx wtmp;
-# else
-# include <utmp.h>
+#  ifdef HAVE_UTMPX_UT_TV
+#   define HAVE_WTMP_UT_TV HAVE_UTMPX_UT_TV
+#  endif
+# else /* !HAVE_UTMPX_H */
+#  include <utmp.h>
 struct	utmp wtmp;
-# endif /* UTMPX */
+#  ifdef HAVE_UTMP_UT_TV
+#   define HAVE_WTMP_UT_TV HAVE_UTMP_UT_TV
+#  endif
+# endif /* HAVE_UTMPX_H */
 
+#ifdef HAVE_UTMP_UT_HOST
 int	utmp_len = sizeof(wtmp.ut_host);
+#endif
 # ifndef PARENT_DOES_UTMP
-char	wtmpf[]	= "/usr/adm/wtmp";
-char	utmpf[] = "/etc/utmp";
+char	wtmpf[]	= PATH_WTMP;
+char	utmpf[] = PATH_UTMP;
 # else /* PARENT_DOES_UTMP */
-char	wtmpf[]	= "/etc/wtmp";
+char	wtmpf[]	= PATH_WTMP;
 # endif /* PARENT_DOES_UTMP */
 
 # ifdef CRAY
-#include <tmpdir.h>
-#include <sys/wait.h>
+#  include <tmpdir.h>
+#  include <sys/wait.h>
 #  if (UNICOS_LVL == '7.0') || (UNICOS_LVL == '7.1')
 #   define UNICOS7x
 #  endif
 
 #  ifdef UNICOS7x
-#include <sys/sysv.h>
-#include <sys/secstat.h>
+#   include <sys/sysv.h>
+#   include <sys/secstat.h>
 extern int secflag;
 extern struct sysv sysv;
 #  endif /* UNICOS7x */
 # endif	/* CRAY */
+
 #endif	/* NEWINIT */
 
 #ifdef	STREAMSPTY
@@ -90,29 +103,12 @@ extern struct sysv sysv;
 #define SCPYN(a, b)	(void) strncpy(a, b, sizeof(a))
 #define SCMPN(a, b)	strncmp(a, b, sizeof(a))
 
-#ifdef	STREAMS
+#ifdef	HAVE_SYS_STREAM_H
 #include <sys/stream.h>
 #endif
 #ifdef __hpux
 #include <sys/resource.h>
 #include <sys/proc.h>
-#endif
-#include <sys/tty.h>
-#ifdef	t_erase
-#undef	t_erase
-#undef	t_kill
-#undef	t_intrc
-#undef	t_quitc
-#undef	t_startc
-#undef	t_stopc
-#undef	t_eofc
-#undef	t_brkc
-#undef	t_suspc
-#undef	t_dsuspc
-#undef	t_rprntc
-#undef	t_flushc
-#undef	t_werasc
-#undef	t_lnextc
 #endif
 
 #if defined(UNICOS5) && defined(CRAY2) && !defined(EXTPROC)
@@ -478,7 +474,7 @@ int *ptynum;
 	int t;
 	char *ptsname();
 
-	p = open("/dev/ptmx", 2);
+	p = open("/dev/ptmx", O_RDWR);
 	if (p > 0) {
 		grantpt(p);
 		unlockpt(p);
@@ -518,7 +514,7 @@ int *ptynum;
 			break;
 		for (i = 0; i < 16; i++) {
 			*p2 = "0123456789abcdef"[i];
-			p = open(line, 2);
+			p = open(line, O_RDWR);
 			if (p > 0) {
 #ifndef	__hpux
 				line[5] = 't';
@@ -547,7 +543,7 @@ int *ptynum;
 
 	for (*ptynum = lowpty; *ptynum <= highpty; (*ptynum)++) {
 		(void) sprintf(myline, "/dev/pty/%03d", *ptynum);
-		p = open(myline, 2);
+		p = open(myline, O_RDWR);
 		if (p < 0)
 			continue;
 		(void) sprintf(line, "/dev/ttyp%03d", *ptynum);
@@ -563,7 +559,7 @@ int *ptynum;
 			chown(line, 0, 0);
 			chmod(line, 0600);
 			(void)close(p);
-			p = open(myline, 2);
+			p = open(myline, O_RDWR);
 			if (p < 0)
 				continue;
 		}
@@ -613,14 +609,18 @@ static int linestate;
 tty_linemode()
 {
 #ifndef convex
-#ifndef	USE_TERMIO
-	return(termbuf.state & TS_EXTPROC);
-#else
+#ifdef	USE_TERMIO
+#ifdef EXTPROC
 	return(termbuf.c_lflag & EXTPROC);
-#endif
 #else
+	return 0;		/* Can't ever set it either. */
+#endif /* EXTPROC */
+#else /* !USE_TERMIO */
+	return(termbuf.state & TS_EXTPROC);
+#endif /* USE_TERMIO */
+#else /* convex */
 	return(linestate);
-#endif
+#endif /* !convex */
 }
 
 	void
@@ -955,10 +955,10 @@ struct termspeeds {
 	int	speed;
 	int	value;
 } termspeeds[] = {
-	{ 0,      B0 },      { 50,    B50 },    { 75,     B75 },
-	{ 110,    B110 },    { 134,   B134 },   { 150,    B150 },
-	{ 200,    B200 },    { 300,   B300 },   { 600,    B600 },
-	{ 1200,   B1200 },   { 1800,  B1800 },  { 2400,   B2400 },
+	{ 0,     B0 },    { 50,    B50 },   { 75,    B75 },
+	{ 110,   B110 },  { 134,   B134 },  { 150,   B150 },
+	{ 200,   B200 },  { 300,   B300 },  { 600,   B600 },
+	{ 1200,  B1200 }, { 1800,  B1800 }, { 2400,  B2400 },
 	{ 4800,   B4800 },
 #ifdef	B7200
 	{ 7200,  B7200 },
@@ -1097,7 +1097,7 @@ getptyslave()
 	 * that we are the session (process group) leader.
 	 */
 # ifdef	TIOCNOTTY
-	t = open(_PATH_TTY, O_RDWR);
+	t = open(PATH_TTY, O_RDWR);
 	if (t >= 0) {
 		(void) ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
@@ -1120,7 +1120,7 @@ getptyslave()
 #ifdef	USE_TERMIO
 	ttyfd = t;
 #endif
-	if (ioctl(t, I_PUSH, "ptem") < 0)
+	if (ioctl(t, I_PUSH, "ptem") < 0) 
 		fatal(net, "I_PUSH ptem");
 	if (ioctl(t, I_PUSH, "ldterm") < 0)
 		fatal(net, "I_PUSH ldterm");
@@ -1345,11 +1345,8 @@ login_tty(t)
 	 * setsid() call above may have set our pgrp, so clear
 	 * it out before opening the tty...
 	 */
-#  ifndef SOLARIS
-	(void) setpgrp(0, 0);
-#  else
-	(void) setpgrp();
-#  endif
+	setpgid (0, 0);
+
 	close(open(line, O_RDWR));
 # endif
 	if (t != 0)
@@ -1383,7 +1380,6 @@ startslave(host, autologin, autoname)
 	char *autoname;
 {
 	register int i;
-	long time();
 	char name[256];
 #ifdef	NEWINIT
 	extern char *ptyip;
@@ -1494,7 +1490,9 @@ startslave(host, autologin, autoname)
 		if (i == 3 || n >= 0 || !gotalarm)
 			break;
 		gotalarm = 0;
-		sprintf(tbuf, "telnetd: waiting for /etc/init to start login process on %s\r\n", line);
+		snprintf (tbuf, sizeof tbuf,
+			 "telnetd: waiting for /etc/init to start login process on %s\r\n",
+				  line);
 		(void) write(net, tbuf, strlen(tbuf));
 	}
 	if (n < 0 && gotalarm)
@@ -1528,6 +1526,29 @@ init_env()
 }
 
 #ifndef	NEWINIT
+
+/* Security fix included in telnet-95.10.23.NE of David Borman <deb@cray.com>.
+ */
+/*
+ * scrub_env()
+ *
+ * Remove a few things from the environment that
+ * don't need to be there.
+ */
+static void
+scrub_env()
+{
+	register char **cpp, **cpp2;
+
+	for (cpp2 = cpp = environ; *cpp; cpp++) {
+		if (strncmp(*cpp, "LD_", 3) &&
+		    strncmp(*cpp, "_RLD_", 5) &&
+		    strncmp(*cpp, "LIBPATH=", 8) &&
+		    strncmp(*cpp, "IFS=", 4))
+			*cpp2++ = *cpp;
+	}
+	*cpp2 = 0;
+}
 
 /*
  * start_login(host)
@@ -1573,6 +1594,8 @@ start_login(host, autologin, name)
 	if (pututxline(&utmpx) == NULL)
 		fatal(net, "pututxline failed");
 #endif
+
+	scrub_env();
 
 	/*
 	 * -h : pass on name of host.
@@ -1636,7 +1659,7 @@ start_login(host, autologin, name)
 	if (bftpd) {
 		argv = addarg(argv, "-e");
 		argv = addarg(argv, BFTPPATH);
-	} else
+	} else 
 #endif
 #if	defined (SecurID)
 	/*
@@ -1700,8 +1723,9 @@ start_login(host, autologin, name)
 			len = strlen(name)+1;
 			write(xpty, name, len);
 			write(xpty, name, len);
-			sprintf(speed, "%s/%d", (cp = getenv("TERM")) ? cp : "",
-				(def_rspeed > 0) ? def_rspeed : 9600);
+			snprintf (speed, sizeof speed,
+					  "%s/%d", (cp = getenv("TERM")) ? cp : "",
+					  (def_rspeed > 0) ? def_rspeed : 9600);
 			len = strlen(speed)+1;
 			write(xpty, speed, len);
 
@@ -1769,10 +1793,10 @@ start_login(host, autologin, name)
 	 * the login banner message gets lost...
 	 */
 	sleep(1);
-	execv(_PATH_LOGIN, argv);
+	execv(PATH_LOGIN, argv);
 
-	syslog(LOG_ERR, "%s: %m\n", _PATH_LOGIN);
-	fatalperror(net, _PATH_LOGIN);
+	syslog(LOG_ERR, "%s: %m\n", PATH_LOGIN);
+	fatalperror(net, PATH_LOGIN);
 	/*NOTREACHED*/
 }
 
@@ -1795,14 +1819,14 @@ addarg(argv, val)
 	}
 	for (cpp = argv; *cpp; cpp++)
 		;
-	if (cpp == &argv[(int)argv[-1]]) {
+	if (cpp == &argv[(long)argv[-1]]) {
 		--argv;
-		*argv = (char *)((int)(*argv) + 10);
-		argv = (char **)realloc(argv, sizeof(*argv)*((int)(*argv) + 2));
+		*argv = (char *)((long)(*argv) + 10);
+		argv = (char **)realloc(argv, sizeof(*argv)*((long)(*argv) + 2));
 		if (argv == NULL)
 			return(NULL);
 		argv++;
-		cpp = &argv[(int)argv[-1] - 10];
+		cpp = &argv[(long)argv[-1] - 10];
 	}
 	*cpp++ = val;
 	*cpp = 0;
@@ -2207,14 +2231,16 @@ rmut()
 		if (statbf.st_size && utmp) {
 			nutmp = read(f, (char *)utmp, (int)statbf.st_size);
 			nutmp /= sizeof(struct utmp);
-
+		
 			for (u = utmp ; u < &utmp[nutmp] ; u++) {
 				if (SCMPN(u->ut_line, line+5) ||
 				    u->ut_name[0]==0)
 					continue;
 				(void) lseek(f, ((long)u)-((long)utmp), L_SET);
 				SCPYN(u->ut_name, "");
+#ifdef HAVE_UTMP_UT_HOST
 				SCPYN(u->ut_host, "");
+#endif
 				(void) time(&u->ut_time);
 				(void) write(f, (char *)u, sizeof(wtmp));
 				found++;
@@ -2227,8 +2253,14 @@ rmut()
 		if (f >= 0) {
 			SCPYN(wtmp.ut_line, line+5);
 			SCPYN(wtmp.ut_name, "");
+#ifdef HAVE_UTMP_UT_HOST
 			SCPYN(wtmp.ut_host, "");
+#endif
+#ifdef HAVE_WTMP_UT_TV
+			(void) time(&wtmp.ut_tv.tv_sec);
+#else
 			(void) time(&wtmp.ut_time);
+#endif
 			(void) write(f, (char *)&wtmp, sizeof(wtmp));
 			(void) close(f);
 		}
