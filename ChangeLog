@@ -1,3 +1,9 @@
+Sat Aug  8 17:35:14 1998  Joel N. Weber II  <devnull@theobromine.ai.mit.edu>
+
+	* ftpd/ftpd.c (anonymous_login_name): New variable.
+	(main): Allow anonymous_login_name to be set with -a flag.
+	(user): Use anonymous_login_name.
+
 Sun Apr 26 19:37:09 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* syslogd/syslogd.c (logmsg): When opening the console device,
