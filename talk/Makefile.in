@@ -1,19 +1,21 @@
 # Makefile for talk
+#
 # Copyright (C) 1995 Free Software Foundation, Inc.
-
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2, or (at your option)
 # any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
 
 SHELL = /bin/sh
 
@@ -37,21 +39,23 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
+CFLAGS += $(DEFS)
 LDLIBS = -lcurses -ltermcap $(LIBS)
 
-CFLAGS += $(DEFS)
-
+all: talk
 talk: talk.o ctl.o ctl_transact.o display.o get_addrs.o get_names.o \
 	init_disp.o invite.o io.o look_up.o msgs.o
 
 install: installdirs talk $(srcdir)/talk.1
 	$(INSTALL_PROGRAM) talk $(bindir)/talk
-	$(INSTALL_DATA) $(srcdir)/talk.1 $(man1dir)
+	-$(INSTALL_DATA) $(srcdir)/talk.1 $(man1dir)/talk.1
+uninstall:
+	-$(RM) -f $(bindir)/talk $(man1dir)/talk.1
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o talk 
 distclean: clean
 	$(RM) -f Makefile
