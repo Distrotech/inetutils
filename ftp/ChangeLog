@@ -1,3 +1,11 @@
+2001-02-26  Alain Magloire
+
+	* domacro.c : Check if the margv is not NULL and return.
+	* ftp.c (login) : The variable "line" is used as a target of strcpy.
+	Unfortunately, the readline() changes cause this to be NULL when
+	processing an automatic login via $HOME/.netrc.
+	Bug and patch for ftp.c provided by "B. D. Elliott" <bde@nwlink.com>. 
+
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
 	* main.c: Convert to GNU coding standards.

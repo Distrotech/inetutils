@@ -112,7 +112,10 @@ TOP:
 		}
 		*cp2 = '\0';
 		makeargv();
+		if (margv[0] == NULL)
+			return;
 		c = getcmd(margv[0]);
+		
 		if (c == (struct cmd *)-1) {
 			printf("?Ambiguous command\n");
 			code = -1;
