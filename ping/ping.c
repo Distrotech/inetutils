@@ -39,6 +39,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -101,31 +102,6 @@ static void decode_type (const char *optarg);
 static void init_data_buffer (u_char *pat, int len);
 static int send_echo (PING *ping);
 
-static size_t
-ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
-{
-  char *p;
-  size_t n;
-
-  n = strtoul (optarg, &p, 0);
-  if (*p)
-    {
-      fprintf (stderr, "Invalid value (`%s' near `%s')\n", optarg, p);
-      exit (1);
-    }
-  if (n == 0 && !allow_zero)
-    {
-      fprintf (stderr, "Option value too small: %s\n", optarg);
-      exit (1);
-    }
-  if (maxval && n > maxval)
-    {
-      fprintf (stderr, "Option value too big: %s\n", optarg);
-      exit (1);
-    }
-  return n;
-}
-
 int
 main (int argc, char **argv)
 {
@@ -135,17 +111,14 @@ main (int argc, char **argv)
   u_char pattern[16];
   int pattern_len = 16;
   u_char *patptr = NULL;
-  int is_root = getuid () == 0;
+  bool is_root = false;
 
-  if ((ping = ping_init (ICMP_ECHO, getpid ())) == NULL)
-    {
-      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
-      exit (1);
-    }
-  ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
-
-  /* Reset root privileges */
-  setuid (getuid ());
+  int count = 0;
+  int socket_type = 0;
+  int interval = 0;
+ 
+  if (getuid () == 0)
+    is_root = true;
 
   /* Parse command line */
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
@@ -174,20 +147,23 @@ main (int argc, char **argv)
 	  break;
 	  
 	case 'c':
-	  ping_set_count (ping, ping_cvt_number (optarg, 0, 0));
+	  count = atoi (optarg);
+	  if (count <= 0)
+	    error (1, 0, "invalid count: %i", count);
 	  break;
 	  
 	case 'd':
-	  ping_set_sockopt (ping, SO_DEBUG, &one, sizeof (one));
+	  socket_type = SO_DEBUG;
 	  break;
 	  
 	case 'r':
-	  ping_set_sockopt (ping, SO_DONTROUTE, &one, sizeof (one));
+	  socket_type = SO_DONTROUTE;
 	  break;
 	  
 	case 'i':
 	  options |= OPT_INTERVAL;
-	  ping_set_interval (ping, ping_cvt_number (optarg, 0, 0));
+	  if (interval <= 0)
+	    error (1, 0, "invalid interval: %i", interval);
 	  break;
 	  
 	case 'p':
@@ -196,7 +172,9 @@ main (int argc, char **argv)
 	  break;
 	  
  	case 's':
-	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN, 1);
+	  data_length = atoi (optarg);
+	  if (data_length < 1 || data_length > PING_MAX_DATALEN)
+	    error (1, 0, "invalid data length: %i", data_length);
  	  break;
 	  
 	case 'n':
@@ -216,7 +194,7 @@ main (int argc, char **argv)
 	  break;
 	  
 	case 'l':
-	  if (!is_root)
+	  if (is_root == false)
 	    {
 	      fprintf (stderr, "ping: option not allowed: --preload\n");
 	      exit (1);
@@ -230,7 +208,7 @@ main (int argc, char **argv)
 	  break;
 
 	case 'f':
-	  if (!is_root)
+	  if (is_root == false)
 	    {
 	      fprintf (stderr, "ping: option not allowed: --flood\n");
 	      exit (1);
@@ -272,6 +250,25 @@ main (int argc, char **argv)
       show_usage ();
       exit (0);
     }
+
+  if ((ping = ping_init (ICMP_ECHO, getpid ())) == NULL)
+    {
+      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
+      exit (1);
+    }
+  ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
+  
+  /* Reset root privileges */
+  setuid (getuid ());
+
+  if (count != 0)
+    ping_set_count (ping, count);
+  
+  if (socket_type != 0)
+    ping_set_sockopt (ping, socket_type, &one, sizeof (one));
+
+  if (options & OPT_INTERVAL)
+    ping_set_interval (ping, interval);
 
   init_data_buffer (patptr, pattern_len);
 

@@ -1,3 +1,19 @@
+2005-01-20  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ping.c: Include <stdbool.h>
+	(ping_cvt_number): Function removed.
+	(main): Store the values for -c, -i and -t in variables, and don't
+	use `ping_cvt_number' to check if the arguments to an option are
+	valid, do it manually.  Set them accordingly after ping_init() is
+	done.
+	
+	* ping.c (main): Changed type of `is_root' to `bool'.  Update all
+	usage accordingly.
+
+	* ping.c (main): Moved ping startup code to after the parsing of
+	the command line.  (and no, this should not be done before any
+	command line parsing!)
+
 2004-03-03  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* ping.c (ping_cvt_number): Take an additional parameter
