@@ -1,3 +1,42 @@
+1997-09-17  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* ftp/domacro.c: Make inclusion of <string.h> unconditional.
+
+	* libinetutils/daemon.c (STDIN_FILENO, STDOUT_FILENO,
+	STDERR_FILENO): Macros removed.
+
+Wed Sep 17 18:14:48 1997  Philippe De Muyter  <phdm@info.ucl.ac.be>
+
+	* configure.in ({STDIN,STDOUT,STDERR}_FILENO): Create definitions for
+	those macros if they are not defined in unistd.h.
+	* headers/acconfig.h ({STDIN,STDOUT,STDERR}_FILENO): New define slots.
+
+Mon Mar  3 17:56:36 1997  Philippe De Muyter  <phdm@info.ucl.ac.be>
+
+	* headers/acconfig.h (HAVE_HOSTENT_H_ADDR_LIST): New macro;
+	(HAVE_GETCWD_DECL, HAVE_GETLOGIN_DECL): New macros.
+	getcwd, getlogin, getpass: New prototypes, if needed.
+	* inetd/inetd.c (sys/resource.h): File included only if
+	HAVE_SYS_RESOURCE_H.
+	(SIGCHLD): Macro defined if not defined.
+	* ftp/ftp.c (hookup): Fixed if not HAVE_HOSTENT_H_ADDR_LIST;
+	do not call fdopen twice with the same file descriptor.
+	* ftp/domacro.c (string.h): File included instead of strings.h if
+	needed.
+	* ftp/extern.h (getpass): Declaration removed.
+	* libtelnet/read_passwd.c: File renamed from read_password.c (> 14).
+	* libtelnet/Makefile.in (SRCS): Reference read_passwd.c, not
+	read_password.c.
+	* libinetutils/localhost.c (localhost): Test ENAMETOOLONG only if
+ 	defined.
+	* libinetutils/daemon.c (STD{IN,OUT,ERR}_FILENO): Macros defined if
+	not defined.
+	* libinetutils/iruserok.c (ruserok, __icheckhost): Fixed if not
+ 	HAVE_HOSTENT_H_ADDR_LIST.
+	* configure.in (getcwd, getlogin): Check declarations with
+	IU_CHECK_DECL.
+	(h_addr_list): Check if field exist using IU_CHECK_STRUCT_FIELD.
+
 1997-09-15  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/localhost.c: Protect include of <malloc.h>.
