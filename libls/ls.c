@@ -402,7 +402,7 @@ traverse(argc, argv, options)
 			break;
 		}
 	if (errno) {
-		fprintf(stderr, "fts_read: %s", strerr(errno));
+		fprintf(stderr, "fts_read: %s", strerror(errno));
 		exit(1);
 	}
 }
@@ -512,7 +512,7 @@ display(p, list)
 
 				if ((np = malloc(sizeof(NAMES) +
 				    ulen + glen + flen + 3)) == NULL) {
-					fprintf(stderr, "malloc: %s",strerr(errno));
+					fprintf(stderr, "malloc: %s",strerror(errno));
 			                exit(1);
 				}
 
