@@ -73,6 +73,9 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 /* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
 extern char *__progname;
 
+#define DEFAULT_PROMPT "ftp> "
+static char *prompt = 0;
+
 /* Print a help message describing all options to STDOUT and exit with a
    status of 0.  */
 static void
@@ -85,6 +88,8 @@ ohelp ()
   -i, --no-prompt            Don't prompt during multiple-file transfers\n\
   -n, --no-login             Don't automatically login to the remove system\n\
   -t, --trace                Enable packet tracing\n\
+  -p, --prompt[=PROMPT]      Print a command-line prompt (optionally PROMPT),\n\
+                             even if not on a tty\n\
   -v, --verbose              Be verbose\n\
       --help                 Give this help list\n\
       --version              Print program version");
@@ -118,6 +123,7 @@ static struct option long_options[] =
   { "debug", no_argument, 0, 'd' },
   { "no-glob", no_argument, 0, 'g' },
   { "help", no_argument, 0, '&' },
+  { "prompt", optional_argument, 0, 'p' },
   { "version", no_argument, 0, 'V' },
   { 0 }
 };
@@ -143,7 +149,7 @@ main(argc, argv)
 	interactive = 1;
 	autologin = 1;
 
-	while ((ch = getopt_long (argc, argv, "dgintv", long_options, 0))
+	while ((ch = getopt_long (argc, argv, "dginp::tv", long_options, 0))
 	       != EOF)
 	{
 		switch (ch) {
@@ -172,6 +178,10 @@ main(argc, argv)
 			verbose++;
 			break;
 
+                case 'p':
+		        prompt = optarg ? optarg : DEFAULT_PROMPT;
+			break;
+
 		case '&':
 			ohelp ();
 		case 'V':
@@ -190,8 +200,12 @@ main(argc, argv)
 	argv += optind;
 
 	fromatty = isatty(fileno(stdin));
-	if (fromatty)
+	if (fromatty) {
 		verbose++;
+		if (! prompt)
+			prompt = DEFAULT_PROMPT;
+	}
+
 	cpend = 0;	/* no pending replies */
 	proxy = 0;	/* proxy not active */
 	passivemode = 0; /* passive mode not active */
@@ -308,10 +322,11 @@ cmdscanner(top)
 	if (!top)
 		(void) putchar('\n');
 	for (;;) {
-		if (fromatty) {
-			printf("ftp> ");
-			(void) fflush(stdout);
+		if (prompt) {
+			printf (prompt);
+			fflush(stdout);
 		}
+
 		if (fgets(line, sizeof line, stdin) == NULL)
 			quit(0, 0);
 		l = strlen(line);
