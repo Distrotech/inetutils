@@ -20,7 +20,7 @@ Cambridge, MA 02139, USA.  */
 #ifndef	_ERR_H_
 #define	_ERR_H_	1
 
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #endif
 

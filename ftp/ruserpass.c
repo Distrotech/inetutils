@@ -48,7 +48,7 @@ static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
