@@ -1,3 +1,9 @@
+2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ftpd.c (retrieve): Don't use ST_BLKSIZE.
+
+	* extern.h: Include <sys/types.h>
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* auth.c (auth_pass): Use `crypt' instead of `CRYPT'.

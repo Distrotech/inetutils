@@ -884,8 +884,7 @@ retrieve (const char *cmd, const char *name)
       return;
     }
   byte_count = -1;
-  if (cmd == 0 && (fstat (fileno (fin), &st) < 0 || !S_ISREG (st.st_mode)
-		   || !(buffer_size = ST_BLKSIZE (st))))
+  if (cmd == 0 && (fstat (fileno (fin), &st) < 0 || !S_ISREG (st.st_mode)))
     {
       reply(550, "%s: not a plain file.", name);
       goto done;

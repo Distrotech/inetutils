@@ -31,6 +31,7 @@
 
 #include <stdio.h>
 #include <setjmp.h>
+#include <sys/types.h>
 
 extern void cwd            __P ((const char *));
 extern int  checkuser      __P ((const char *filename, const char *name));
