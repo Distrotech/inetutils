@@ -90,7 +90,7 @@ PATH_LOGPID	$(localstatedir)/run/syslog.pid
 PATH_NOLOGIN	$(sysconfdir)/nologin
 PATH_RLOGIN	x $(bindir)/rlogin
 PATH_RSH	x $(bindir)/rsh
-PATH_TMP	d /tmp
+PATH_TMP	d /tmp/
 PATH_TTY	c /dev/tty
 PATH_UUCICO	x $(libexecdir)/uucp/uucico search:uucp/uucico:/usr/libexec:/usr/lib:/usr/etc:/etc
 PATH_HEQUIV	/etc/hosts.equiv $(sysconfdir)/hosts.equiv
