@@ -100,6 +100,7 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <string.h>
 #include <unistd.h>
 #include <utmp.h>
+#include <getopt.h>
 #define SYSLOG_NAMES
 #include <sys/syslog.h>
 
@@ -109,6 +110,10 @@ char	*PidFile = PATH_LOGPID;
 char	ctty[] = PATH_CONSOLE;
 
 #define FDMASK(fd)	(1 << (fd))
+
+#ifndef LINE_MAX
+#define LINE_MAX 2048
+#endif
 
 #define	dprintf		if (Debug) printf
 
