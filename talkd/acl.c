@@ -194,7 +194,7 @@ read_acl (char *config_file)
 	  continue;
 	}
 	  
-      tail = NULL;
+      head = tail = NULL;
       for (i = 2; i < argc; i++)
 	{
 	  netdef_t *cur = netdef_parse (argv[i]);
