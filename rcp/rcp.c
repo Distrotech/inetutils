@@ -283,7 +283,7 @@ toremote(targ, argc, argv)
 			if (*src == 0)
 				src = ".";
 			host = strchr(argv[i], '@');
-			len = strlen(_PATH_RSH) + strlen(argv[i]) +
+			len = strlen(PATH_RSH) + strlen(argv[i]) +
 			    strlen(src) + (tuser ? strlen(tuser) : 0) +
 			    strlen(thost) + strlen(targ) + CMDNEEDS + 20;
 			if (!(bp = malloc(len)))
@@ -297,13 +297,13 @@ toremote(targ, argc, argv)
 					continue;
 				(void)snprintf(bp, len,
 				    "%s %s -l %s -n %s %s '%s%s%s:%s'",
-				    _PATH_RSH, host, suser, cmd, src,
+				    PATH_RSH, host, suser, cmd, src,
 				    tuser ? tuser : "", tuser ? "@" : "",
 				    thost, targ);
 			} else
 				(void)snprintf(bp, len,
 				    "exec %s %s -n %s %s '%s%s%s:%s'",
-				    _PATH_RSH, argv[i], cmd, src,
+				    PATH_RSH, argv[i], cmd, src,
 				    tuser ? tuser : "", tuser ? "@" : "",
 				    thost, targ);
 			(void)susystem(bp, userid);
@@ -353,11 +353,11 @@ tolocal(argc, argv)
 
 	for (i = 0; i < argc - 1; i++) {
 		if (!(src = colon(argv[i]))) {		/* Local to local. */
-			len = strlen(_PATH_CP) + strlen(argv[i]) +
+			len = strlen(PATH_CP) + strlen(argv[i]) +
 			    strlen(argv[argc - 1]) + 20;
 			if (!(bp = malloc(len)))
 				err(1, NULL);
-			(void)snprintf(bp, len, "exec %s%s%s %s %s", _PATH_CP,
+			(void)snprintf(bp, len, "exec %s%s%s %s %s", PATH_CP,
 			    iamrecursive ? " -r" : "", pflag ? " -p" : "",
 			    argv[i], argv[argc - 1]);
 			if (susystem(bp, userid))
@@ -416,7 +416,7 @@ write_stat_time (fd, stat)
 	time_t a_sec, m_sec;
 	long a_usec = 0, m_usec = 0;
 
-#ifdef HAVE_ST_TIMESPEC
+#ifdef HAVE_STAT_ST_MTIMESPEC
 	a_sec = stat->st_atimespec.ts_sec;
 	a_usec = stat->st_atimespec.ts_nsec / 1000;
 	m_sec = stat->st_mtimespec.ts_sec;
@@ -424,7 +424,7 @@ write_stat_time (fd, stat)
 #else
 	a_sec = stat->st_atime;
 	m_sec = stat->st_mtime;
-#ifdef HAVE_ST_TIME_USEC
+#ifdef HAVE_STAT_ST_MTIME_USEC
 	a_usec = stat->st_atime_usec;
 	m_usec = stat->st_mtime_usec;
 #endif
