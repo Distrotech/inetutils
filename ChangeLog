@@ -1,3 +1,15 @@
+2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
+	* configure.in, Makefile.am: added libicmp and ping to build.
+	* ping/Makefile.am: use @BUILD_PING@ instead of directly
+	  assigning bin_PROGRAMS.
+	* libicmp/icmp_timestamp.c: forgotten to commit yesterday :^)
+	* libicmp/ping.h: changed counters in struct PING from int to longs.
+	* libicmp/icmp.h,libicmp/libping.c,
+	  ping/ping.c,ping/ping_address.c,ping/ping_echo.c,
+	  ping/ping_impl.h,ping/ping_router.c,ping/ping_timestamp.c:
+		Fixed a bunch of inconsistencies (thanks to Alain).
+		Changes to make gcc -Wall less verbose.
+
 2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
 	* libicmp/Makefile.am: added icmp_address.c
 	* libicmp/icmp_address.c: added.
