@@ -20,21 +20,13 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(bindir)/rsh $(man1dir)/rsh.1
+
 CPPFLAGS += -D_PATH_RLOGIN=\"$(bindir)/rlogin\"
 
 all: rsh
-rsh: rsh.o
 
-install: installdirs rsh $(srcdir)/rsh.1
-	$(INSTALL_PROGRAM) -o root -m 04755 rsh $(bindir)/rsh
-	-$(INSTALL_DATA) $(srcdir)/rsh.1 $(man1dir)/rsh.1
-uninstall:
-	-$(RM) -f $(bindir)/rsh $(man1dir)/rsh.1
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o rsh 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
