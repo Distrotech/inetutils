@@ -70,6 +70,9 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <stdlib.h>
 #include <string.h>
 #include <crypt.h>
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#endif
 
 void dologin ();
 
@@ -118,7 +121,7 @@ char **argv;
 	}
 	if (fork())
 		exit(0);
-	if ((s=open(PATH_TTY, 2)) >= 0){
+	if ((s=open(PATH_TTY, O_RDWR)) >= 0){
 		ioctl(s, TIOCNOTTY, (char *)0);
 		close(s);
 	}
