@@ -53,11 +53,20 @@
 
 @BOTTOM@
 
+#ifdef HAVE___P
+/* The system defines __P; we tested for it in <sys/cdefs.h>, so include that
+   if we can.  */
+#ifdef HAVE_SYS_CDEFS_H
+#include <sys/cdefs.h>
+#endif
+
+#else /* !HAVE___P */
 /* If the system includes don't seem to define __P, do it here instead.  */
-#ifndef HAVE___P
+
 #if defined (__GNUC__) || (defined (__STDC__) && __STDC__) || defined (__cplusplus)
 #define	__P(args)	args	/* Use prototypes.  */
 #else
 #define	__P(args)	()	/* No prototypes.  */
 #endif
-#endif /* !HAVE___P */
+
+#endif /* HAVE___P */
