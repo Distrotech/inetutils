@@ -107,10 +107,10 @@ iruserok (u_long raddr, int superuser, const char *ruser, const char *luser)
     {
       if (__ivaliduser (hostf, raddr, luser, ruser) == 0)
 	{
-	  (void) fclose (hostf);
+	  fclose (hostf);
 	  return 0;
 	}
-      (void) fclose (hostf);
+      fclose (hostf);
   }
   if (first == 1 && (__check_rhosts_file || superuser))
     {
@@ -134,9 +134,9 @@ iruserok (u_long raddr, int superuser, const char *ruser, const char *luser)
        * are protected read/write owner only.
        */
       uid = geteuid();
-      (void)seteuid (pwd->pw_uid);
+      seteuid (pwd->pw_uid);
       hostf = fopen (pbuf, "r");
-      (void)seteuid (uid);
+      seteuid (uid);
 
       if (hostf == NULL)
 	return -1;
