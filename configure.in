@@ -124,6 +124,8 @@ AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
 # at least in the expected header file.  Check.
 IU_CHECK_DECL(fclose, [#include <stdio.h>])
 IU_CHECK_DECL(pclose, [#include <stdio.h>])
+IU_CHECK_DECL(getcwd, [#include <unistd.h>])
+IU_CHECK_DECL(getlogin, [#include <unistd.h>])
 IU_CHECK_DECL(getpass, [#include <unistd.h>])
 IU_CHECK_DECL(getusershell, [#include <unistd.h>])
 IU_CHECK_DECL(strerror, [#include <string.h>])
@@ -245,6 +247,14 @@ IU_CHECK_MACRO(SEEK_ macros,
     AC_DEFINE(SEEK_SET, 0)
     AC_DEFINE(SEEK_CUR, 1)
     AC_DEFINE(SEEK_END, 2)))
+
+# Look for the posix _FILENO macros; if not found, use the classic unix values.
+IU_CHECK_MACRO(_FILENO macros,
+  [#include <unistd.h>], STDIN_FILENO STDOUT_FILENO STDERR_FILENO,
+  :,
+  AC_DEFINE(STDIN_FILENO, 0)
+  AC_DEFINE(STDOUT_FILENO, 1)
+  AC_DEFINE(STDERR_FILENO, 2))
 
 # See where to find fd_set (bit-vectors for select) manipulation macros.
 IU_CHECK_MACRO(fd_set macros, [#include <sys/types.h>],
@@ -408,6 +418,8 @@ if test "$ac_cv_func_hstrerror" = yes -o "$ac_cv_func_h_errlist" = yes; then
   # degenerate version that only says `Host lookup error N'.
   AC_DEFINE(HAVE_HSTRERROR)
 fi
+
+IU_CHECK_STRUCT_FIELD(hostent, h_addr_list, [#include <netdb.h>])
 
 # Checks return type of signal handlers
 AC_TYPE_SIGNAL
