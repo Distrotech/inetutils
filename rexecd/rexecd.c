@@ -41,22 +41,42 @@ static char copyright[] =
 static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <sys/socket.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 
 #include <netinet/in.h>
 
 #include <errno.h>
 #include <netdb.h>
-#include <paths.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <crypt.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 /*VARARGS1*/
 int error();
@@ -69,38 +89,46 @@ int error();
  *	data
  */
 /*ARGSUSED*/
+int
 main(argc, argv)
 	int argc;
 	char **argv;
 {
 	struct sockaddr_in from;
-	int fromlen;
+	int fromlen, sockfd = STDIN_FILENO;
 
 	fromlen = sizeof (from);
-	if (getpeername(0, (struct sockaddr *)&from, &fromlen) < 0) {
+	if (getpeername(sockfd, (struct sockaddr *)&from, &fromlen) < 0) {
 		(void)fprintf(stderr,
 		    "rexecd: getpeername: %s\n", strerror(errno));
 		exit(1);
 	}
-	doit(0, &from);
+	doit(sockfd, &from);
 }
 
 char	username[20] = "USER=";
+char	logname[23] = "LOGNAME=";
 char	homedir[64] = "HOME=";
 char	shell[64] = "SHELL=";
-char	path[sizeof(_PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
+char	path[sizeof(PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
 char	*envinit[] =
-	    {homedir, shell, path, username, 0};
-char	**environ;
+	    {homedir, shell, path, username, logname, 0};
+extern char	**environ;
 
+#ifdef HAVE_SOCKADDR_IN_SIN_LEN
+struct	sockaddr_in asin = { sizeof(asin), AF_INET };
+#else
 struct	sockaddr_in asin = { AF_INET };
+#endif
+
+char *getstr ();
 
 doit(f, fromp)
 	int f;
 	struct sockaddr_in *fromp;
 {
-	char cmdbuf[NCARGS+1], *cp, *namep;
-	char user[16], pass[16];
+	char *cmdbuf, *cp, *namep;
+	char *user, *pass;
 	struct passwd *pwd;
 	int s;
 	u_short port;
@@ -112,16 +140,19 @@ doit(f, fromp)
 	(void) signal(SIGQUIT, SIG_DFL);
 	(void) signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
-	{ int t = open(_PATH_TTY, 2);
+	{ int t = open(_PATH_TTY, O_RDWR);
 	  if (t >= 0) {
 		ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
 	  }
 	}
 #endif
-	dup2(f, 0);
-	dup2(f, 1);
-	dup2(f, 2);
+	if (f != STDIN_FILENO) {
+	    dup2(f, STDIN_FILENO);
+	    dup2(f, STDOUT_FILENO);
+	    dup2(f, STDERR_FILENO);
+	}
+
 	(void) alarm(60);
 	port = 0;
 	for (;;) {
@@ -145,9 +176,11 @@ doit(f, fromp)
 			exit(1);
 		(void) alarm(0);
 	}
-	getstr(user, sizeof(user), "username");
-	getstr(pass, sizeof(pass), "password");
-	getstr(cmdbuf, sizeof(cmdbuf), "command");
+
+	user = getstr ("username");
+	pass = getstr ("password");
+	cmdbuf = getstr ("command");
+
 	setpwent();
 	pwd = getpwnam(user);
 	if (pwd == NULL) {
@@ -156,7 +189,7 @@ doit(f, fromp)
 	}
 	endpwent();
 	if (*pwd->pw_passwd != '\0') {
-		namep = crypt(pass, pwd->pw_passwd);
+		namep = CRYPT (pass, pwd->pw_passwd);
 		if (strcmp(namep, pwd->pw_passwd)) {
 			error("Password incorrect.\n");
 			exit(1);
@@ -166,7 +199,7 @@ doit(f, fromp)
 		error("No remote directory.\n");
 		exit(1);
 	}
-	(void) write(2, "\0", 1);
+	(void) write(STDERR_FILENO, "\0", 1);
 	if (port) {
 		(void) pipe(pv);
 		pid = fork();
@@ -175,7 +208,9 @@ doit(f, fromp)
 			exit(1);
 		}
 		if (pid) {
-			(void) close(0); (void) close(1); (void) close(2);
+			(void) close(STDIN_FILENO);
+			(void) close(STDOUT_FILENO);
+			(void) close(STDERR_FILENO);
 			(void) close(f); (void) close(pv[1]);
 			readfrom = (1<<s) | (1<<pv[0]);
 			ioctl(pv[1], FIONBIO, (char *)&one);
@@ -202,18 +237,20 @@ doit(f, fromp)
 			} while (readfrom);
 			exit(0);
 		}
-		setpgrp(0, getpid());
+		setpgid (0, getpid());
 		(void) close(s); (void)close(pv[0]);
-		dup2(pv[1], 2);
+		dup2(pv[1], STDERR_FILENO);
 	}
 	if (*pwd->pw_shell == '\0')
-		pwd->pw_shell = _PATH_BSHELL;
+		pwd->pw_shell = PATH_BSHELL;
 	if (f > 2)
 		(void) close(f);
+	(void) setegid((gid_t)pwd->pw_gid);
 	(void) setgid((gid_t)pwd->pw_gid);
 	initgroups(pwd->pw_name, pwd->pw_gid);
+	(void) seteuid((uid_t)pwd->pw_uid);
 	(void) setuid((uid_t)pwd->pw_uid);
-	(void)strcat(path, _PATH_DEFPATH);
+	(void)strcat(path, PATH_DEFPATH);
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
 	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
@@ -236,24 +273,46 @@ error(fmt, a1, a2, a3)
 	char buf[BUFSIZ];
 
 	buf[0] = 1;
-	(void) sprintf(buf+1, fmt, a1, a2, a3);
-	(void) write(2, buf, strlen(buf));
+	snprintf (buf + 1, sizeof buf - 1, fmt, a1, a2, a3);
+	write (STDERR_FILENO, buf, strlen(buf));
 }
 
-getstr(buf, cnt, err)
-	char *buf;
-	int cnt;
+char *
+getstr(err)
 	char *err;
 {
-	char c;
+	size_t buf_len = 100;
+	char *buf = malloc (buf_len), *end = buf;
+
+	if (! buf) {
+		error ("Out of space reading %s\n", err);
+		exit (1);
+	}
 
 	do {
-		if (read(0, &c, 1) != 1)
-			exit(1);
-		*buf++ = c;
-		if (--cnt == 0) {
-			error("%s too long\n", err);
+		/* Oh this is efficient, oh yes.  [But what can be done?] */
+		int rd = read(STDIN_FILENO, end, 1);
+		if (rd <= 0) {
+			if (rd == 0)
+				error ("EOF reading %s\n", err);
+			else
+				perror (err);
 			exit(1);
 		}
-	} while (c != 0);
+
+		end += rd;
+		if ((buf + buf_len - end) < (buf_len >> 3)) {
+			/* Not very much room left in our buffer, grow it. */
+			size_t end_offs = end - buf;
+			buf_len += buf_len;
+			buf = realloc (buf, buf_len);
+			if (! buf) {
+				error ("Out of space reading %s\n", err);
+				exit (1);
+			}
+			end = buf + end_offs;
+		}
+	} while (*(end - 1));
+
+	return buf;
 }

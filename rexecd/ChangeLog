@@ -1,0 +1,8 @@
+1999-17-02 Alain Magloire
+
+	* rexecd.c : check HAVE_SOCKADDR_IN_SIN_LEN before
+	doing static initialization.
+
+	* Use STD{IN,OUT,ERR}_FILENO.
+
+	* Set also sete{g,u}id(pw->{g,u}id).
