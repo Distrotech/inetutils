@@ -143,10 +143,11 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	extern int __check_rhosts_file;
+	extern int __check_rhosts_file; /* hook in rcmd(3) */
 	struct linger linger;
 	int ch, on = 1, fromlen;
 	struct sockaddr_in from;
+	int sockfd;
 
 	openlog("rshd", LOG_PID | LOG_ODELAY, LOG_DAEMON);
 
@@ -189,13 +190,6 @@ main(argc, argv)
 	argc -= optind;
 	argv += optind;
 
-#ifdef notdef
-	/* from inetd, socket is already on 0, 1, 2 */
-	dup2(sockfd, STDIN_FILENO);
-	dup2(sockfd, STDOUT_FILENO);
-	dup2(sockfd, STDERR_FILENO);
-#endif
-
 #ifdef	KERBEROS
 	if (use_kerberos && vacuous) {
 		syslog(LOG_ERR, "only one of -k and -v allowed");
@@ -213,29 +207,32 @@ main(argc, argv)
 	 * We assume we're invoked by inetd, so the socket that the
 	 * connection is on, is open on descriptors 0, 1 and 2.
 	 * STD{IN,OUT,ERR}_FILENO.
-	 *
+	 * We may in the future make it standalone for certain platform.
+	 */
+	sockfd = STDIN_FILENO;
+
+	/*
 	 * First get the Internet address of the client process.
 	 * This is requored for all the authentication we perform.
 	 */
 
 	fromlen = sizeof (from);
-	if (getpeername(STDIN_FILENO,
-			(struct sockaddr *)&from, &fromlen) < 0) {
+	if (getpeername(sockfd, (struct sockaddr *)&from, &fromlen) < 0) {
 		sylog(LOG_ERR, "getpeername: %m");
 		_exit(1);
 	}
 
 	/* Set the socket options: SO_KEEPALIVE and SO_LINGER */
 	if (keepalive &&
-	    setsockopt(STDIN_FILENO, SOL_SOCKET, SO_KEEPALIVE, (char *)&on,
+	    setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&on,
 	    sizeof(on)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
 	linger.l_onoff = 1;
 	linger.l_linger = 60;			/* XXX */
-	if (setsockopt(STDIN_FILENO, SOL_SOCKET, SO_LINGER, (char *)&linger,
+	if (setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (char *)&linger,
 	    sizeof (linger)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_LINGER): %m");
-	doit(&from);
+	doit(sockfd, &from);
 	/* NOTREACHED */
 }
 
@@ -249,7 +246,8 @@ char	*envinit[] =
 extern char	**environ;
 
 void
-doit(fromp)
+doit(sockfd, fromp)
+	int sockfd;
 	struct sockaddr_in *fromp;
 {
 	extern char *__rcmd_errstr;	/* syslog hook from libc/net/rcmd.c. */
@@ -257,7 +255,7 @@ doit(fromp)
 	struct passwd *pwd;
 	u_short port;
 	fd_set ready, readfrom;
-	int cc, nfd, pv[2], pid, s = 0;
+	int cc, nfd, pv[2], pid, s = sockfd;
 	int one = 1;
 	const char *hostname, *errorstr, *errorhost;
 	char *cp, sig, buf[BUFSIZ];
@@ -304,7 +302,7 @@ doit(fromp)
 		ipproto = ip->p_proto;
 	else
 		ipproto = IPPROTO_IP;
-	if (!getsockopt(STDIN_FILENO, ipproto, IP_OPTIONS, (char *)optbuf,
+	if (!getsockopt(sockfd, ipproto, IP_OPTIONS, (char *)optbuf,
 		    &optsize) && optsize != 0) {
 		lp = lbuf;
 		/* The clent has set IP options.  This isn't allowd.
@@ -317,7 +315,7 @@ doit(fromp)
 		    inet_ntoa(fromp->sin_addr), lbuf);
 
 		/* Turn off the options.  If this doesn't work, we quit */
-		if (setsockopt(STDIN_FILENO, ipproto, IP_OPTIONS,
+		if (setsockopt(sockfd, ipproto, IP_OPTIONS,
 		    (char *)NULL, optsize) != 0) {
 			syslog(LOG_ERR, "setsockopt IP_OPTIONS NULL: %m");
 			exit(1);
@@ -349,10 +347,10 @@ doit(fromp)
 	port = 0;
 	for (;;) {
 		char c;
-		if ((cc = read(STDIN_FILENO, &c, 1)) != 1) {
+		if ((cc = read(sockfd, &c, 1)) != 1) {
 			if (cc < 0)
 				syslog(LOG_NOTICE, "read: %m");
-			shutdown(STDIN_FILENO, 2);
+			shutdown(sockfd, 2);
 			exit(1);
 		}
 		/* null byte terminates the string */
@@ -404,6 +402,13 @@ doit(fromp)
 		exit(1);
 	}
 #endif
+
+	/* from inetd, socket is already on 0, 1, 2 */
+	if (sockfd != STDIN_FILENO) {
+	    dup2(sockfd, STDIN_FILENO);
+	    dup2(sockfd, STDOUT_FILENO);
+	    dup2(sockfd, STDERR_FILENO);
+	}
 
 	/* Get the "name" of the clent form its Internet address.
 	 * This is used for the autentication below
@@ -786,8 +791,10 @@ fail:
 #endif
 
 	/* Set the fid, then uid to become the user specified by "locuser" */
+	(void) setegid((gid_t)pwd->pw_gid);
 	(void) setgid((gid_t)pwd->pw_gid);
 	initgroups(pwd->pw_name, pwd->pw_gid); /* BSD groups */
+	(void) seteuid((uid_t)pwd->pw_uid);
 	(void) setuid((uid_t)pwd->pw_uid);
 
 	/* Set up an initial environment for the shell that we exec() */

@@ -10,6 +10,12 @@
 
 	* Restricted port to > IPPORT_RESERVED/2 && >= IPPORT_RESERVED
 
-	* initialise s(socket descriuptor) s = 0.
+	* Set also sete{g,u}id(pwd->{g,u}id).
+
+	* change doit() signature to pass the socket.
+	It was done in case we change and the server is not started
+	via inetd.
+
+	* initialise s(socket descriptor) s = (sockfd).
 
 	* Add more comments.
