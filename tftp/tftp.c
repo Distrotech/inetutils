@@ -57,12 +57,19 @@ static char sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
 #include <setjmp.h>
 #include <signal.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "extern.h"
 #include "tftpsubs.h"
 
+#ifndef HAVE_ERRNO_DECL
 extern	int errno;
+#endif
+
+#ifndef HAVE_STRERROR_DECL
+extern const char *strerror __P ((int));
+#endif
 
 extern  struct sockaddr_in peeraddr;	/* filled in by main */
 extern  int     f;			/* the opened socket */
@@ -324,7 +331,7 @@ makerequest(request, name, tp, mode)
 
 struct errmsg {
 	int	e_code;
-	char	*e_msg;
+	const char *e_msg;
 } errmsgs[] = {
 	{ EUNDEF,	"Undefined error code" },
 	{ ENOTFOUND,	"File not found" },
@@ -350,7 +357,6 @@ nak(error)
 	register struct errmsg *pe;
 	register struct tftphdr *tp;
 	int length;
-	char *strerror();
 
 	tp = (struct tftphdr *)ackbuf;
 	tp->th_opcode = htons((u_short)ERROR);
@@ -381,7 +387,6 @@ tpacket(s, tp, n)
 	   { "#0", "RRQ", "WRQ", "DATA", "ACK", "ERROR" };
 	register char *cp, *file;
 	u_short op = ntohs(tp->th_opcode);
-	char *index();
 
 	if (op < RRQ || op > ERROR)
 		printf("%s opcode=%x ", s, op);
@@ -393,7 +398,7 @@ tpacket(s, tp, n)
 	case WRQ:
 		n -= 2;
 		file = cp = tp->th_stuff;
-		cp = index(cp, '\0');
+		cp = strchr (cp, '\0');
 		printf("<file=%s, mode=%s>\n", file, cp + 1);
 		break;
 
