@@ -27,8 +27,10 @@ DISTFILES = $(SRCS) $(HDRS) ftp.1
 
 INSTALL_TARGETS = $(bindir)/ftp $(man1dir)/ftp.1
 OBJS = $(SRCS:.c=.o)
-LDLIBS += $(LIBUTIL)
+LDLIBS += $(LIBGLOB) $(LIBUTIL)
 CLEAN = ftp $(OBJS)
+
+CPPFLAGS += $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
 all: ftp
 ftp: $(OBJS)
