@@ -46,8 +46,12 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
+#endif
 
 #include <ctype.h>
 #include <dirent.h>
@@ -63,7 +67,6 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 #include <string.h>
 #include <unistd.h>
 
-#include "pathnames.h"
 #include "extern.h"
 
 #ifdef KERBEROS
@@ -84,6 +87,10 @@ int	doencrypt = 0;
 #endif
 #else
 #define	OPTIONS "dfprt"
+#endif
+
+#if !defined (S_ISTXT) && defined (S_ISVTX)
+#define S_ISTXT S_ISVTX
 #endif
 
 struct passwd *pwd;
@@ -310,10 +317,12 @@ toremote(targ, argc, argv)
 					    bp, 0);
 				if (rem < 0)
 					exit(1);
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 				tos = IPTOS_THROUGHPUT;
 				if (setsockopt(rem, IPPROTO_IP, IP_TOS,
 				    &tos, sizeof(int)) < 0)
 					warn("TOS (ignored)");
+#endif
 				if (response() < 0)
 					exit(1);
 				(void)free(bp);
@@ -376,14 +385,44 @@ tolocal(argc, argv)
 			continue;
 		}
 		(void)seteuid(userid);
+#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 		tos = IPTOS_THROUGHPUT;
 		if (setsockopt(rem, IPPROTO_IP, IP_TOS, &tos, sizeof(int)) < 0)
 			warn("TOS (ignored)");
+#endif
 		sink(1, argv + argc - 1);
 		(void)seteuid(0);
 		(void)close(rem);
 		rem = -1;
 	}
+}
+
+static int
+write_stat_time (fd, stat)
+	int fd;
+	struct stat *stat;
+{
+	char buf[4 * sizeof (long) * 3 + 2];
+	time_t a_sec, m_sec;
+	long a_usec = 0, m_usec = 0;
+
+#ifdef HAVE_ST_TIMESPEC
+	a_sec = stat->st_atimespec.ts_sec;
+	a_usec = stat->st_atimespec.ts_nsec / 1000;
+	m_sec = stat->st_mtimespec.ts_sec;
+	m_usec = stat->st_mtimespec.ts_nsec / 1000;
+#else
+	a_sec = stat->st_atime;
+	m_sec = stat->st_mtime;
+#ifdef HAVE_ST_TIME_USEC
+	a_usec = stat->st_atime_usec;
+	m_usec = stat->st_mtime_usec;
+#endif
+#endif
+
+	snprintf(buf, sizeof(buf), "T%ld %ld %ld %ld\n",
+		 a_sec, a_usec, m_sec, m_usec);
+	return write (fd, buf, strlen (buf));
 }
 
 void
@@ -424,13 +463,7 @@ syserr:			run_err("%s: %s", name, strerror(errno));
 		else
 			++last;
 		if (pflag) {
-			/*
-			 * Make it compatible with possible future
-			 * versions expecting microseconds.
-			 */
-			(void)snprintf(buf, sizeof(buf), "T%ld 0 %ld 0\n",
-			    stb.st_mtimespec.ts_sec, stb.st_atimespec.ts_sec);
-			(void)write(rem, buf, strlen(buf));
+			write_stat_time (rem, &stb);
 			if (response() < 0)
 				goto next;
 		}
@@ -480,7 +513,9 @@ rsource(name, statp)
 {
 	DIR *dirp;
 	struct dirent *dp;
-	char *last, *vect[1], path[MAXPATHLEN];
+	char *last, *vect[1];
+	char *buf;
+	int buf_len;
 
 	if (!(dirp = opendir(name))) {
 		run_err("%s: %s", name, strerror(errno));
@@ -491,35 +526,53 @@ rsource(name, statp)
 		last = name;
 	else
 		last++;
+
 	if (pflag) {
-		(void)snprintf(path, sizeof(path), "T%ld 0 %ld 0\n",
-		    statp->st_mtimespec.ts_sec, statp->st_atimespec.ts_sec);
-		(void)write(rem, path, strlen(path));
+		write_stat_time (rem, &statp);
 		if (response() < 0) {
 			closedir(dirp);
 			return;
 		}
 	}
-	(void)snprintf(path, sizeof(path),
-	    "D%04o %d %s\n", statp->st_mode & MODEMASK, 0, last);
-	(void)write(rem, path, strlen(path));
+
+	buf_len =
+	  1 + sizeof (int) * 3 + 1 + sizeof (int) * 3 + 1 + strlen (last) + 2;
+	buf = malloc (buf_len);
+	if (! buf) {
+		run_err ("malloc failed for %d bytes", buf_len);
+		closedir(dirp);
+		return;
+	}
+
+	sprintf (buf, "D%04o %d %s\n", statp->st_mode & MODEMASK, 0, last);
+	write(rem, buf, strlen (buf));
+	free (buf);
+
 	if (response() < 0) {
 		closedir(dirp);
 		return;
 	}
+
 	while (dp = readdir(dirp)) {
 		if (dp->d_ino == 0)
 			continue;
 		if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."))
 			continue;
-		if (strlen(name) + 1 + strlen(dp->d_name) >= MAXPATHLEN - 1) {
-			run_err("%s/%s: name too long", name, dp->d_name);
+
+		buf_len = strlen (name) + 1 + strlen (dp->d_name) + 1;
+		buf = malloc (buf_len);
+		if (! buf) {
+			run_err ("malloc_failed for %d bytes", buf_len);
 			continue;
 		}
-		(void)snprintf(path, sizeof(path), "%s/%s", name, dp->d_name);
-		vect[0] = path;
+
+		sprintf (buf, "%s/%s", name, dp->d_name);
+		vect[0] = buf;
+		free (buf);
+
 		source(1, vect);
 	}
+
 	(void)closedir(dirp);
 	(void)write(rem, "E\n", 2);
 	(void)response();
