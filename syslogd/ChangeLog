@@ -1,5 +1,19 @@
 2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c (waitdaemon, timedout): New prototype and functions
+	from FreeBSD syslogd (rev 1.66).
+	(main): Remove conditional MSG_BSIZE on line variable.
+	New variables tv, tvp, ppid.
+	Call waitdaemon instead daemon to fork into background.
+	Before main loop, initialize tv and tvp to zero.
+	In main loop, pass tvp to select. This will make syslogd return
+	immediately until we set tvp to NULL.
+	Check return value of select. If it is zero (no messages),
+	and tvp is not NULL, set it to NULL and send parent a SIGALRM.
+	This will be its signal to terminate.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c: Include <stdarg.h>.
 	(struct msg_part): Fix type declaration.
 	(main): Rename variable c to l.
