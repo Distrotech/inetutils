@@ -1,3 +1,9 @@
+2001-11-03  Alain Magloire
+
+	* daemon.c: GNU coding style changes.
+	(waitdaemon): Try to find the number of file descriptor,
+	check _SC_OPEN_MAX, getdtablsize() before falling to the default.
+
 2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
 
 	* utmp_logout.c (utmp_logout): Add a horde of conditionals to get
@@ -5,7 +11,7 @@
 	* utmp_init.c (utmp_init): Likewise.
 
 2001-11-01  Sergey Poznyakoff
-	
+
 	* ttymsg.c: Added missing %s to format spec
 
 2001-10-25  Sergey Poznyakoff

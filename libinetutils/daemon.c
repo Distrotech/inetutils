@@ -88,10 +88,10 @@ waitdaemon_timeout (int signo)
   int left;
 
   (void)signo;
-  left = alarm(0);
-  signal(SIGALRM, SIG_DFL);
+  left = alarm (0);
+  signal (SIGALRM, SIG_DFL);
   if (left == 0)
-    errx(1, "timed out waiting for child");
+    errx (1, "timed out waiting for child");
 }
 
 /* waitdaemon is like daemon, but optionally the parent pause up
@@ -105,57 +105,73 @@ waitdaemon (int nochdir, int noclose, int maxwait)
   pid_t childpid;
   pid_t ppid;
 
-  ppid = getpid();
+  ppid = getpid ();
 
   switch (childpid = fork ())
     {
     case -1: /* Something went wrong.  */
       return (-1);
+
     case 0:  /* In the child.  */
       break;
+
     default:   /* In the parent.  */
       if (maxwait > 0)
 	{
-	  signal(SIGALRM, waitdaemon_timeout);
+	  signal (SIGALRM, waitdaemon_timeout);
 	  alarm (maxwait);
 	  pause ();
 	}
       _exit(0);
     }
 
-  if (setsid() == -1)
-    return (-1);
+  if (setsid () == -1)
+    return -1;
 
   /* SIGHUP is ignore because when the session leader terminates
      all process in the session (the second child) are sent the SIGHUP.  */
   signal (SIGHUP, SIG_IGN);
 
-  switch (fork())
+  switch (fork ())
     {
     case 0:
       break;
+
     case -1:
       return -1;
+
     default:
-      _exit(0);
+      _exit (0);
     }
 
   if (!nochdir)
-    (void)chdir("/");
+    chdir ("/");
 
   if (!noclose)
     {
       int i;
-      for (i = 0; i < MAXFD; i++)
+      long fdlimit = -1;
+
+#if defined (HAVE_SYSCONF) && defined (_SC_OPEN_MAX)
+      fdlimit = sysconf (_SC_OPEN_MAX);
+#elif defined (HAVE_GETDTABLESIZE)
+      fdlimit = getdtablesize ();
+#endif
+
+      if (fdlimit == -1)
+	fdlimit = MAXFD;
+
+      for (i = 0; i < fdlimit; i++)
 	close (i);
+
       fd = open (PATH_DEVNULL, O_RDWR, 0);
       if (fd != -1)
 	{
-	  (void)dup2(fd, STDIN_FILENO);
-	  (void)dup2(fd, STDOUT_FILENO);
-	  (void)dup2(fd, STDERR_FILENO);
+	  dup2 (fd, STDIN_FILENO);
+	  dup2 (fd, STDOUT_FILENO);
+	  dup2 (fd, STDERR_FILENO);
 	  if (fd > 2)
-	    (void)close (fd);
+	    close (fd);
 	}
     }
   return ppid;
@@ -164,5 +180,5 @@ waitdaemon (int nochdir, int noclose, int maxwait)
 int
 daemon (int nochdir, int noclose)
 {
-  return (waitdaemon(nochdir, noclose, 0) == -1) ? -1 : 0;
+  return (waitdaemon (nochdir, noclose, 0) == -1) ? -1 : 0;
 }
