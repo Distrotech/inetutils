@@ -53,7 +53,7 @@ static char sccsid[] = "@(#)sys_term.c	8.4 (Berkeley) 5/30/95";
 #include <initreq.h>
 int	utmp_len = MAXHOSTNAMELEN;	/* sizeof(init_request.host) */
 #else	/* NEWINIT*/
-# ifdef	UTMPX
+# ifdef	HAVE_UTMPX_H
 # include <utmpx.h>
 struct	utmpx wtmp;
 # else
@@ -1106,7 +1106,7 @@ getptyslave()
 	 * that we are the session (process group) leader.
 	 */
 # ifdef	TIOCNOTTY
-	t = open(_PATH_TTY, O_RDWR);
+	t = open(PATH_TTY, O_RDWR);
 	if (t >= 0) {
 		(void) ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
