@@ -1,3 +1,8 @@
+2003-10-24  Marcus Brinkmann  <marcus@gnu.org>
+
+	* options.c (PARSE_OPT_SET_ADDR): Fix macro for gcc 3.3.
+	(PARSE_OPT_SET_INT): Likewise.
+
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* Makefile.am: Removed obsolete OMIT_DEPENDENCIES.

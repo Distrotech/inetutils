@@ -249,8 +249,8 @@ parse_opt_set_##field (struct ifconfig *ifp, char *addr)	\
 	       __progname, ifp->name);				\
       usage (EXIT_FAILURE);					\
     }								\
-  ifp->##field = addr;						\
-  ifp->valid |= IF_VALID_##fvalid##;				\
+  ifp->field = addr;						\
+  ifp->valid |= IF_VALID_##fvalid;				\
 }
 
 PARSE_OPT_SET_ADDR(address, address, ADDR)
@@ -276,7 +276,7 @@ parse_opt_set_##field (struct ifconfig *ifp, char *arg)		\
 	       __progname, ifp->name);				\
       usage (EXIT_FAILURE);					\
     }								\
-  ifp->##field =  strtol (arg, &end, 0);			\
+  ifp->field =  strtol (arg, &end, 0);				\
   if (*arg == '\0' || *end != '\0')				\
     {								\
       fprintf (stderr, "%s: mtu value `%s' for interface `%s' "	\
@@ -284,7 +284,7 @@ parse_opt_set_##field (struct ifconfig *ifp, char *arg)		\
 	      __progname, optarg, ifp->name);			\
       exit (EXIT_FAILURE);					\
     }								\
-  ifp->valid |= IF_VALID_##fvalid##;				\
+  ifp->valid |= IF_VALID_##fvalid;				\
 }
 
 PARSE_OPT_SET_INT(mtu, mtu value, MTU)
