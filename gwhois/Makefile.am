@@ -13,6 +13,9 @@ EXTRA_DIST = as_del_list ip_del_list tld_serv_list \
 noinst_HEADERS = data.h as_del.h ip_del.h tld_serv.h whois.h
 BUILT_SOURCES=as_del.h ip_del.h tld_serv.h
 
+LDADD = -L../libinetutils -linetutils
+
+
 as_del.h: $(srcdir)/as_del_list $(srcdir)/make_as_del.pl
 	perl $(srcdir)/make_as_del.pl < $(srcdir)/as_del_list > as_del.h
 
