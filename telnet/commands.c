@@ -58,7 +58,11 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #include <netdb.h>
 #include <ctype.h>
 #include <pwd.h>
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#include <stdarg.h>
+#else
 #include <varargs.h>
+#endif
 #include <errno.h>
 
 #ifdef HAVE_MALLOC_H
@@ -100,7 +104,8 @@ extern int isprefix();
 extern char **genget();
 extern int Ambiguous();
 
-static call();
+typedef int (*intrtn_t) __P((int, char *[]));
+static call __P((intrtn_t, ...));
 
 typedef struct {
 	char	*name;		/* command name */
@@ -2567,17 +2572,26 @@ static Command cmdtab2[] = {
 
     /*VARARGS1*/
     static
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+call(intrtn_t routine, ...)
+#else
 call(va_alist)
     va_dcl
+#endif
 {
     va_list ap;
-    typedef int (*intrtn_t)();
+#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
     intrtn_t routine;
+#endif
     char *args[100];
     int argno = 0;
 
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+    va_start(ap, routine);
+#else
     va_start(ap);
     routine = (va_arg(ap, intrtn_t));
+#endif
     while ((args[argno++] = va_arg(ap, char *)) != 0) {
 	;
     }
