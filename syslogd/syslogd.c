@@ -1208,9 +1208,6 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	  if (hp == NULL)
 	    {
 	      extern int h_errno;
-#ifndef HAVE_HSTRERROR_DECL
-	      extern char *hstrerror __P ((int));
-#endif
 	      dbg_printf ("Failure: %s\n", hstrerror (h_errno));
 	      dbg_printf ("Retries: %d\n", f->f_prevcount);
 	      if ( --f->f_prevcount < 0 )
