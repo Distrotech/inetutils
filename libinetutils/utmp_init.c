@@ -29,6 +29,7 @@
 # include <time.h>
 #endif
 #ifdef HAVE_UTMPX_H
+#define __USE_GNU
 # include <utmpx.h>
 #else
 # include <utmp.h>
