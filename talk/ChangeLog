@@ -1,6 +1,10 @@
+2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
+
+	* display.c (display): Allow use of 8-bit ascii.
+
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
-	* talk/ctl.c: Use HAVE_STRUCT_type_member instead
+	* ctl.c: Use HAVE_STRUCT_type_member instead
 	  of HAVE_type_member.
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>

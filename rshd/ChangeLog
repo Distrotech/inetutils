@@ -1,3 +1,7 @@
+2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
+
+	* Makefile.am: Added AUTHLIBS to LDADD
+
 2002-09-09  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* rshd.c: Change to the user's directory after

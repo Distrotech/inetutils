@@ -1,3 +1,9 @@
+2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
+
+	* ping.c: Bugfix: ping.ping_count means the maximum
+	number of packets to send.
+	* ping_echo.c (nabs): New function.
+
 2003-01-15  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* Makefile.am: Removed libm dependency.

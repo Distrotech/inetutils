@@ -1,3 +1,8 @@
+2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
+
+	* Makefile.am: Added AUTHLIBS to LDADD
+	* rlogind.c: Use KRB5 instead of KERBEROS_V
+
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* rlogind.c <version.h>: Include removed.

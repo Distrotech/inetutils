@@ -1,3 +1,11 @@
+2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
+
+	* Makefile.am: Added malloc.c and realloc.c
+	* xmalloc.c: Removed checks for HAVE_MALLOC
+	and HAVE_REALLOC: configure takes care that malloc and
+	realloc be always POSIX-compliant.
+
+
 2002-12-22  Jeff Bailey  <jbailey@gnu.org>
 
 	* Makefile.am: Include new files in dist rules.

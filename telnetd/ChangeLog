@@ -1,10 +1,14 @@
+2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
+
+	* telnetd.c (telnetd_setup): Use socklen_t.
+
 2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
-	* telnetd/state.c: Fixed indentation.
+	* state.c: Fixed indentation.
 
 2002-08-04  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
-	* telnetd/Makefile.am (PATHDEF_DEV): Added to INCLUDES.
+	* Makefile.am (PATHDEF_DEV): Added to INCLUDES.
 
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
