@@ -23,6 +23,9 @@ include ../config.make
 all: talkd
 talkd: talkd.o announce.o process.o talbe.o print.o ttymsg.o
 
+ttymsg.o: $(top_srcdir)/common/ttymsg.c
+	$(COMPILE.c) $<
+
 install: installdirs talkd $(srcdir)/talkd.8
 	$(INSTALL_PROGRAM) talkd $(libexecdir)/in.talkd
 	-$(INSTALL_DATA) $(srcdir)/talkd.8 $(man8dir)/talkd.8
