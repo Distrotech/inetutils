@@ -21,21 +21,18 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-SRCS = ftpd.c ftpcmd.y logwtmp.c popen.c
+SRCS = ftpd.c ftpcmd.y popen.c
 DISTFILES = $(SRCS) extern.h ftpd.8
 
 INSTALL_TARGETS = $(libexecdir)/in.ftpd $(man8dir)/ftpd.8
 OBJS = $(subst .y,.o, $(SRCS:.c=.o))
-LDLIBS += $(LIBUTIL) $(LIBCRYPT)
+LDLIBS += $(LIBGLOB) $(LIBUTIL) $(LIBCRYPT)
 OPT_DISTFILES = ftpcmd.c
 CLEAN = ftpd $(OBJS)
 DISTCLEAN = ftpcmd.c
 
-CPPFLAGS += \
-	-D_PATH_FTPUSERS=\"$(sysconfdir)/ftpusers\" \
-        -D_PATH_FTPWELCOME=\"$(sysconfdir)/ftpwelcome\" \
-	-D_PATH_FTPLOGINMESG=\"$(sysconfdir)/motd\" \
-	-D_PATH_NOLOGIN=\"$(sysconfdir)/nologin\"
+CPPFLAGS += $(PATHDEF_FTPUSERS) $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPLOGINMESG) \
+	$(PATHDEF_NOLOGIN) $(PATHDEF_DEVNULL) $(PATHDEF_BSHELL)
 
 all: ftpd
 ftpd: $(OBJS)
