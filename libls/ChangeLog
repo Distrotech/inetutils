@@ -1,7 +1,11 @@
+2000-07-30 Alain Magloire
+
+	* print.c(printlink): ifdef MAXPATHLEN.
+
 2000-07-30 Michel Vogt
 
 	* fts.c: Change GNU Lib C specifics functions for
-	their standard counterpart ex: __opendir() --> opendir().
+	their standard counterpart example: __opendir() --> opendir().
 
 2000-07-27 Michel Vogt
 

@@ -396,6 +396,9 @@ printlink(p)
 	FTSENT *p;
 {
 	int lnklen;
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 1024
+#endif
 	char name[MAXPATHLEN], path[MAXPATHLEN];
 
 	if (p->fts_level == FTS_ROOTLEVEL)
