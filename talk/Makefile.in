@@ -1,6 +1,6 @@
 # Makefile for talk
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,13 +20,15 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(bindir)/talk $(man1dir)/talk.1
+INSTALL_TARGETS = $(bindir)/talk $(man1dir)/talk.1
+SRCS =  talk.c ctl.c ctl_transact.c display.c get_addrs.c get_names.c \
+	init_disp.c invite.c io.c look_up.c msgs.c
+DISTFILES = $(SRCS) talk.1 Makefile.in
 
 LDLIBS := -lcurses -ltermcap $(LDLIBS)
 
 all: talk
-talk: talk.o ctl.o ctl_transact.o display.o get_addrs.o get_names.o \
-	init_disp.o invite.o io.o look_up.o msgs.o
+talk: $(SRCS:.c=.o)
 
 clean:
 	$(RM) -f *.o talk 
