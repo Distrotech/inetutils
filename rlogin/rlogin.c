@@ -156,7 +156,13 @@ main(argc, argv)
 	uid_t uid;
 	int argoff, ch, dflag, one;
 	char *host, *p, *user, term[1024];
+#ifdef HAVE_SIGACTION
 	struct sigaction sa;
+#else
+#ifdef HAVE_SIGVEC
+	struct sigvec sv;
+#endif
+#endif	
 
 #ifndef HAVE___PROGNAME
 	extern char *__progname;
@@ -278,15 +284,18 @@ main(argc, argv)
 
 	(void)get_window_size(0, &winsize);
 
-	sigemptyset(&sa.sa_mask);
+#ifdef HAVE_SIGACTION
+	sigemptyset (&sa.sa_mask);
+#ifdef SA_RESTART
 	sa.sa_flags = SA_RESTART;
+#endif
 	sa.sa_handler = lostpeer;
-	(void)sigaction(SIGPIPE, &sa, (struct sigaction *) 0);
+	sigaction (SIGPIPE, &sa, (struct sigaction *) 0);
 	/* will use SIGUSR1 for window size hack, so hold it off */
-	sigemptyset(&smask);
-	sigaddset(&smask, SIGURG);
-	sigaddset(&smask, SIGUSR1);
-	(void)sigprocmask(SIG_SETMASK, &smask, &smask);
+	sigemptyset (&smask);
+	sigaddset (&smask, SIGURG);
+	sigaddset (&smask, SIGUSR1);
+	sigprocmask (SIG_SETMASK, &smask, &smask);
 	/*
 	 * We set SIGURG and SIGUSR1 below so that an
 	 * incoming signal will be held pending rather than being
@@ -294,9 +303,35 @@ main(argc, argv)
 	 * a signal by the time that they are unblocked below.
 	 */
 	sa.sa_handler = copytochild;
-	(void)sigaction(SIGURG, &sa, (struct sigaction *) 0);
+	sigaction (SIGURG, &sa, (struct sigaction *) 0);
 	sa.sa_handler = writeroob;
-	(void)sigaction(SIGUSR1, &sa, (struct sigaction *) 0);
+	sigaction (SIGUSR1, &sa, (struct sigaction *) 0);
+#else /* !HAVE_SIGACTION */
+#ifdef HAVE_SIGVEC
+	sigemptyset (&sv.sv_mask);
+	sv.sv_handler = lostpeer;
+	sigvec (SIGPIPE, &sv, (struct sigvec *) 0);
+	/* will use SIGUSR1 for window size hack, so hold it off */
+	sigemptyset (&smask);
+	sigaddset (&smask, SIGURG);
+	sigaddset (&smask, SIGUSR1);
+	sigsetmask (smask);
+	/*
+	 * We set SIGURG and SIGUSR1 below so that an
+	 * incoming signal will be held pending rather than being
+	 * discarded. Note that these routines will be ready to get
+	 * a signal by the time that they are unblocked below.
+	 */
+	sv.sv_handler = copytochild;
+	sigvec (SIGURG, &sv, (struct sigvec *) 0);
+	sv.sv_handler = writeroob;
+	sigvec (SIGUSR1, &sv, (struct sigvec *) 0);
+#else /* !HAVE_SIGVEC */
+	signal (SIGPIPE, lostpeer);
+	signal (SIGURG, copytochild);
+	signal (SIGUSR1, writeroob);
+#endif /* HAVE_SIGVEC */
+#endif /* HAVE_SIGACTION */
 
 #ifdef KERBEROS
 try_connect:
@@ -569,7 +604,11 @@ writer()
 				echo(c);
 				break;
 			}
-			if (c == deftt.c_cc[VSUSP] || c == deftt.c_cc[VDSUSP]) {
+			if (c == deftt.c_cc[VSUSP]
+#ifdef VDSUSP
+			    || c == deftt.c_cc[VDSUSP]
+#endif
+			    ) {
 				bol = 1;
 				echo(c);
 				stop(c);
@@ -762,7 +801,9 @@ oob(signo)
 		tcsetattr(0, TCSANOW, &tt);
 	}
 	if (mark & TIOCPKT_FLUSHWRITE) {
+#ifdef TIOCFLUSH
 		(void)ioctl(1, TIOCFLUSH, (char *)&out);
+#endif
 		for (;;) {
 			if (ioctl(rem, SIOCATMARK, &atmark) < 0) {
 				warn("ioctl SIOCATMARK (ignored)");
