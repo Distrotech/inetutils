@@ -21,7 +21,8 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-DISTFILES = version.h acconfig.h config.h.in getopt.h osockaddr.h
+DISTFILES = version.h acconfig.h config.h.in getopt.h osockaddr.h \
+	arpa/telnet.h arpa/ftp.h arpa/tftp.h
 MAINTCLEAN = config.h.in
 
 include $(RULES)
