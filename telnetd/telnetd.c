@@ -609,7 +609,7 @@ print_hostinfo ()
     }
 #endif /* HAVE_UNAME */
   if (!im)
-    im = xstrdup ("\r\n\nUNIX (%h) (%t)\r\n\n");
+    im = xstrdup ("\r\n\nUNIX (%l) (%t)\r\n\n");
 
   str = expand_line (im);
   free (im);
