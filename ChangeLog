@@ -1,6 +1,8 @@
 1999-04-18 Alain Magloire
 	* configure.in: ping disable.
 	* configure.in: make links for fnmatch
+	* libinetutils/snprintf.[ch] : support for "%ul".
+	patch from  Gerald Combs <gerald@unicom.net>
 
 1999-02-17 Alain Magloire
 
