@@ -51,6 +51,18 @@
 /* Define this if __P is defined in <stdlib.h>.  */
 #undef HAVE___P
 
+/* Define this if SYS_ERRLIST is declared in <stdio.h> or <errno.h>.  */
+#undef HAVE_SYS_ERRLIST_DECL
+
+/* Define this if the system supplies the __PROGNAME variable.  */
+#undef HAVE___PROGNAME
+
+/* Define this if the system defines snprintf.  */
+#undef HAVE_SNPRINTF
+
+/* Define this if sig_t is declared by including <sys/types.h> & <signal.h> */
+#undef HAVE_SIG_T
+
 @BOTTOM@
 
 #ifdef HAVE___P
@@ -67,6 +79,10 @@
 #define	__P(args)	args	/* Use prototypes.  */
 #else
 #define	__P(args)	()	/* No prototypes.  */
+#endif
+
+#ifndef HAVE_SIG_T
+typedef RETSIGTYPE (*sig_t) ();
 #endif
 
 #endif /* HAVE___P */
