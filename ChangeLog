@@ -1,3 +1,12 @@
+Sun Apr 26 19:37:09 1998  Joel N. Weber II  <nemo@nautilus.sub>
+
+	* syslogd/syslogd.c (logmsg): When opening the console device,
+ 	pass the O_NOCTTY flag to avoid acquiring a controlling tty.
+	
+	(fprintlog): When opening a log file, pass the O_CREAT flags and
+	O_NOCTTY flags.
+	(cfline): Likewise.
+
 Sat Apr 18 11:54:56 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
 	* syslogd/syslogd.c (cfline): Allow either spaces or tabs in
