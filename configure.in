@@ -115,7 +115,7 @@ AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       strchr waitpid seteuid setegid setreuid setregid setresuid \
 	       setresgid killpg setlinebuf utimes utime)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok herror)
+AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok herror xstrdup getusershell)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -409,6 +409,11 @@ AC_CHECK_FUNC(__progname,
 # See if snprintf exists, otherwise just use a bogus version
 AC_CHECK_FUNC(snprintf,
   AC_DEFINE(HAVE_SNPRINTF),
+  LIBOBJS="$LIBOBJS snprintf.o")
+
+# See if vsnprintf exists, otherwise use our own.
+AC_CHECK_FUNC(vsnprintf,
+  AC_DEFINE(HAVE_VSNPRINTF),
   LIBOBJS="$LIBOBJS snprintf.o")
 
 # SERVERS_OR_CLIENTS is the default set of things to build, and holds the
