@@ -22,8 +22,6 @@
 AC_PREREQ(2.52)
 
 AC_INIT([GNU inetutils], [1.3.2e], [bug-inetutils@gnu.org])
-VERSION=1.3.2e
-AC_SUBST(VERSION) # FIXME: Why is this used over PACKAGE_VERSION?
 
 AC_CONFIG_SRCDIR([inetd/inetd.c])
 AM_CONFIG_HEADER([config.h:config.hin])
@@ -808,6 +806,6 @@ talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
 tftpd/Makefile uucpd/Makefile gwhois/Makefile libls/Makefile
 libicmp/Makefile ping/Makefile
 include/confpaths.h:headers/confpaths.h.in
-headers/Makefile include/version.h:headers/version.h.in
+headers/Makefile
 doc/Makefile doc/rfc/Makefile])
 AC_OUTPUT
