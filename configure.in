@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(...)
+AC_INIT(inetd/inetd.c)
 
 AC_ARG_ENABLE(encryption, enable connection encryption, AC_DEFINE(ENCRYPTION))
 AC_ARG_ENABLE(authentication, enable connection authentication, AC_DEFINE(AUTHENTICATION))
@@ -9,14 +9,16 @@ AC_PROG_MAKE_SET
 
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_PROG_YACC
 AC_CHECK_TOOL(AR, ar)
 AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
-AC_CHECK_HEADERS(termio.h termios.h krb.h des.h)
+AC_CHECK_HEADERS(termio.h termios.h sys/tty.h krb.h des.h netinet/ip.h netinet/in_systm.h)
 AC_CHECK_FUNCS(cgetent)
 AC_CHECK_LIB(krb, krb_mk_req)
 AC_CHECK_LIB(des, des_key_sched)
+AC_CHECK_LIB(util, logout)
 
 if test "$ac_cv_lib_krb" = yes; then
   AC_DEFINE(KRB4)
@@ -25,4 +27,5 @@ if test "$ac_cv_lib_des" = yes; then
   AC_DEFINE(DES_ENCRYPTION)
 fi
 
-AC_OUTPUT(inetd/Makefile libtelnet/Makefile telnetd/Makefile)
+AC_OUTPUT(inetd/Makefile libtelnet/Makefile telnetd/Makefile ftpd/Makefile
+	  rshd/Makefile rlogind/Makefile)
