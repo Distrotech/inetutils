@@ -26,7 +26,7 @@
 #define CRYPT_ARGS __P ((char *str, char salt[2]))
 #endif
 
-#ifndef HAVE_CRYPT
+#ifndef HAVE_CRYPT_DECL
 #ifdef HAVE_ATTR_WEAK_REFS
 extern char *crypt CRYPT_ARGS __attribute__ ((weak));
 #else /* !HAVE_ATTR_WEAK_REFS */
