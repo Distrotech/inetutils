@@ -93,7 +93,7 @@ extern struct sysv sysv;
 #define SCPYN(a, b)	(void) strncpy(a, b, sizeof(a))
 #define SCMPN(a, b)	strncmp(a, b, sizeof(a))
 
-#ifdef	STREAMS
+#ifdef	HAVE_SYS_STREAM_H
 #include <sys/stream.h>
 #endif
 #ifdef __hpux
