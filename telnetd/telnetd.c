@@ -79,6 +79,10 @@ int	auth_level = 0;
 int	require_SecurID = 0;
 #endif
 
+#ifdef HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+
 extern	int utmp_len;
 int	registerd_host_only = 0;
 
@@ -1129,19 +1133,22 @@ telnet(f, p, host)
 		if (IM == 0)
 			IM = "";
 	} else {
+#ifdef HAVE_UNAME
+		struct utsname u;
+#endif
+
 #ifdef DEFAULT_IM
 		IM = DEFAULT_IM;
 #else
 		IM = 0;
 #ifdef HAVE_UNAME
-		struct utsname u;
 		if (uname (&u) == 0) {
 			IM = malloc (strlen (UNAME_IM_PREFIX)
 				     + strlen (u.sysname)
 				     + 1 + strlen (u.release)
 				     + strlen (UNAME_IM_SUFFIX) + 1);
 			if (IM)
-				sprintf (version, "%s%s %s%s",
+				sprintf (IM, "%s%s %s%s",
 					 UNAME_IM_PREFIX,
 					 u.sysname, u.release,
 					 UNAME_IM_SUFFIX);
@@ -1150,6 +1157,7 @@ telnet(f, p, host)
 		if (! IM)
 			IM = "\r\n\nUNIX (%h) (%t)\r\n\n";
 #endif /* DEFAULT_IM */
+
 		HE = 0;
 	}
 	edithost(HE, host_name);
