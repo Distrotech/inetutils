@@ -20,19 +20,11 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libexecdir)/in.rexecd $(man8dir)/rexecd.8
+
 all: rexecd
-rexecd: rexecd.o
 
-install: installdirs rexecd $(srcdir)/rexecd.8
-	$(INSTALL_PROGRAM) rexecd $(libexecdir)/in.rexecd
-	-$(INSTALL_DATA) $(srcdir)/rexecd.8 $(man8dir)/rexecd.8
-uninstall:
-	-$(RM) -f $(libexecdir)/in.rexecd $(man8dir)/rexecd.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o rexecd 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
