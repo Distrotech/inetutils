@@ -65,19 +65,19 @@
 /* Define this if __P is defined in <stdlib.h>.  */
 #undef HAVE___P
 
-/* Define this if SYS_ERRLIST is declared in <stdio.h> or <errno.h>.  */
+/* Define this if a definition of sys_errlist is available.  */
+#undef HAVE_SYS_ERRLIST
+
+/* Define this if sys_errlist is declared in <stdio.h> or <errno.h>.  */
 #undef HAVE_SYS_ERRLIST_DECL
 
-/* Define this if ERRNO is declared by <errno.h>.  */
+/* Define this if errno is declared by <errno.h>.  */
 #undef HAVE_ERRNO_DECL
 
 /* Define this if ENVIRON is declared by <unistd.h> or <stdlib.h>.  */
 #undef HAVE_ENVIRON_DECL
 
-/* Define this if a definition of hstrerror is available.  */
-#undef HAVE_HSTRERROR
-
-/* Define this if a definition of hstrerror is declared in <netdb.h>.  */
+/* Define this if hstrerror is declared in <netdb.h>.  */
 #undef HAVE_HSTRERROR_DECL
 
 /* Define this if H_ERRLIST is declared in <netdb.h>  */
@@ -144,6 +144,9 @@
 
 /* Define this if <paths.h> exists.  */
 #undef HAVE_PATHS_H
+
+/* Define this if getcwd (0, 0) works.  */
+#undef HAVE_GETCWD_ZERO_SIZE
 
 /* If these aren't defined by <unistd.h>, define them here. */
 #undef SEEK_SET
@@ -281,6 +284,18 @@ extern int vsnprintf __P ((char *, size_t, const char *, va_list));
 # define ST_BLKSIZE(statbuf) ((statbuf).st_blksize > 0 \
                               ? (statbuf).st_blksize : DEV_BSIZE)
 #endif /* HAVE_ST_BLKSIZE */
+
+#ifndef HAVE_GETPASS_DECL
+extern char *getpass __P((const char *));
+#endif
+
+#ifndef HAVE_HSTRERROR_DECL
+extern const char *hstrerror __P ((int));
+#endif
+
+#ifndef HAVE_STRERROR_DECL
+extern const char *strerror __P ((int));
+#endif
 
 /* Defaults for PATH_ variables.  */
 #include <confpaths.h>
