@@ -1,11 +1,19 @@
-GNU inetutils version 1.3.2
+GNU inetutils
 
 This is a distribution of common networking utilities and servers.
 
-They are currently all from the 4.4BSD-Lite2 distribution, with some changes
+They are currently mostly from the 4.4BSD-Lite2 distribution, with some changes
 to make them compatible with the GNU hurd (in particular, the hurd does not
 define some arbitrary limits, such as MAXPATHLEN), and to make them more
 portable, using autoconf.  A GNU build environment has also been added.
+
+The GNU whois client reads a whois-servers file to figure out which whois
+server to use.  It won't always pick the best server; whois.internic.net
+seems to know something about nic.ddn.mil, but the GNU whois client will use
+nic.ddn.mil to look up nic.ddn.mil if you use the configuration file we
+supply.  Our configuration file probably also does not have a complete list
+of whois servers; feel free to send information about additional whois servers
+to the bug reporting address.
 
 There are probably many BSD dependencies remaining, but inetutils is believed
 to work on the following system types (and others may work):
@@ -22,11 +30,16 @@ you may either tell configure, by using `--with-path-foo=VALUE' (where VALUE
 may contain references to make variables such as `$(bindir)'), or edit
 the `paths' file.
 
+If you wish to build only the clients or only the servers, you may wish to
+use the --disable-servers or --disable-clients options when invoking
+`configure'.  You can also use --enable-<program> or --disable-<program>
+to control whether to build individual programs; if you explicitly specify
+whether to build a program, that will override the values specified by
+--disable-clients or --disable-servers.
+
 Some known deficiencies:
  o Most programs do not support long options, such as --version or --help.
  o The authentication and encryption options have not been tested.
-
-GNU inetutils requires GNU make.
 
 See the file INSTALL for installation instructions.
 
