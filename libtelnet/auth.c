@@ -98,7 +98,7 @@ extern rsaencpwd_printsub();
 int auth_debug_mode = 0;
 static 	char	*Name = "Noname";
 static	int	Server = 0;
-static	Authenticator	*authenticated = 0;
+static	TN_Authenticator	*authenticated = 0;
 static	int	authenticating = 0;
 static	int	validuser = 0;
 static	unsigned char	_auth_send_data[256];
@@ -109,7 +109,7 @@ static	int	auth_send_cnt = 0;
  * Authentication types supported.  Plese note that these are stored
  * in priority order, i.e. try the first one first.
  */
-Authenticator authenticators[] = {
+TN_Authenticator authenticators[] = {
 #ifdef	SPX
 	{ AUTHTYPE_SPX, AUTH_WHO_CLIENT|AUTH_HOW_MUTUAL,
 				spx_init,
@@ -183,17 +183,17 @@ Authenticator authenticators[] = {
 	{ 0, },
 };
 
-static Authenticator NoAuth = { 0 };
+static TN_Authenticator NoAuth = { 0 };
 
 static int	i_support = 0;
 static int	i_wont_support = 0;
 
-	Authenticator *
+	TN_Authenticator *
 findauthenticator(type, way)
 	int type;
 	int way;
 {
-	Authenticator *ap = authenticators;
+	TN_Authenticator *ap = authenticators;
 
 	while (ap->type && (ap->type != type || ap->way != way))
 		++ap;
@@ -205,7 +205,7 @@ auth_init(name, server)
 	char *name;
 	int server;
 {
-	Authenticator *ap = authenticators;
+	TN_Authenticator *ap = authenticators;
 
 	Server = server;
 	Name = name;
@@ -217,9 +217,18 @@ auth_init(name, server)
 		if (!ap->init || (*ap->init)(ap, server)) {
 			i_support |= typemask(ap->type);
 			if (auth_debug_mode)
-				printf(">>>%s: I support auth type %d %d\r\n",
+				printf(">>>%s: I support auth type %s (%d) %s (%d)\r\n",
 					Name,
-					ap->type, ap->way);
+				       AUTHTYPE_NAME_OK(ap->type) ?
+				       AUTHTYPE_NAME(ap->type) : 
+				       "unknown",
+				       ap->type,
+				       ap->way & 
+				       AUTH_HOW_MASK & 
+				       AUTH_HOW_MUTUAL ? 
+				       "MUTUAL" : 
+				       "ONEWAY",
+				       ap->way);
 		}
 		else if (auth_debug_mode)
 			printf(">>>%s: Init failed: auth type %d %d\r\n",
@@ -282,7 +291,7 @@ auth_onoff(type, on)
 	int on;
 {
 	int i, mask = -1;
-	Authenticator *ap;
+	TN_Authenticator *ap;
 
 	if (!strcasecmp(type, "?") || !strcasecmp(type, "help")) {
                 printf("auth %s 'type'\n", on ? "enable" : "disable");
@@ -324,7 +333,7 @@ auth_togdebug(on)
 	int
 auth_status()
 {
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	int i, mask;
 
 	if (i_wont_support == -1)
@@ -354,7 +363,7 @@ auth_request()
 	static unsigned char str_request[64] = { IAC, SB,
 						 TELOPT_AUTHENTICATION,
 						 TELQUAL_SEND, };
-	Authenticator *ap = authenticators;
+	TN_Authenticator *ap = authenticators;
 	unsigned char *e = str_request + 4;
 
 	if (!authenticating) {
@@ -393,7 +402,7 @@ auth_send(data, cnt)
 	unsigned char *data;
 	int cnt;
 {
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	static unsigned char str_none[] = { IAC, SB, TELOPT_AUTHENTICATION,
 					    TELQUAL_IS, AUTHTYPE_NULL, 0,
 					    IAC, SE };
@@ -429,16 +438,34 @@ auth_send(data, cnt)
 	}
 	while ((auth_send_cnt -= 2) >= 0) {
 		if (auth_debug_mode)
-			printf(">>>%s: He supports %d\r\n",
-				Name, *auth_send_data);
+			printf(">>>%s: He supports %s (%d) %s (%d)\r\n",
+			       Name,  AUTHTYPE_NAME_OK(auth_send_data[0]) ?
+			       AUTHTYPE_NAME(auth_send_data[0]) : 
+			       "unknown",
+			       auth_send_data[0],
+			       auth_send_data[1] & 
+			       AUTH_HOW_MASK & 
+			       AUTH_HOW_MUTUAL ? 
+			       "MUTUAL" : 
+			       "ONEWAY",
+			       auth_send_data[1]);
 		if ((i_support & ~i_wont_support) & typemask(*auth_send_data)) {
 			ap = findauthenticator(auth_send_data[0],
 					       auth_send_data[1]);
 			if (ap && ap->send) {
 				if (auth_debug_mode)
-					printf(">>>%s: Trying %d %d\r\n",
-						Name, auth_send_data[0],
-							auth_send_data[1]);
+					printf(">>>%s: Trying %s (%d) %s (%d)\r\n",
+					       Name, 
+					       AUTHTYPE_NAME_OK(auth_send_data[0]) ?
+					       AUTHTYPE_NAME(auth_send_data[0]) : 
+					       "unknown",
+					       auth_send_data[0],
+					       auth_send_data[1] & 
+					       AUTH_HOW_MASK & 
+					       AUTH_HOW_MUTUAL ? 
+					       "MUTUAL" : 
+					       "ONEWAY",
+					       auth_send_data[1]);
 				if ((*ap->send)(ap)) {
 					/*
 					 * Okay, we found one we like
@@ -446,8 +473,12 @@ auth_send(data, cnt)
 					 * we can go home now.
 					 */
 					if (auth_debug_mode)
-						printf(">>>%s: Using type %d\r\n",
-							Name, *auth_send_data);
+						printf(">>>%s: Using type %s (%d)\r\n",
+							Name, 
+						       AUTHTYPE_NAME_OK(*auth_send_data) ?
+						       AUTHTYPE_NAME(*auth_send_data) : 
+						       "unknown",
+						       *auth_send_data);
 					auth_send_data += 2;
 					return;
 				}
@@ -489,7 +520,7 @@ auth_is(data, cnt)
 	unsigned char *data;
 	int cnt;
 {
-	Authenticator *ap;
+	TN_Authenticator *ap;
 
 	if (cnt < 2)
 		return;
@@ -512,7 +543,7 @@ auth_reply(data, cnt)
 	unsigned char *data;
 	int cnt;
 {
-	Authenticator *ap;
+	TN_Authenticator *ap;
 
 	if (cnt < 2)
 		return;
@@ -530,7 +561,7 @@ auth_name(data, cnt)
 	unsigned char *data;
 	int cnt;
 {
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	unsigned char savename[256];
 
 	if (cnt < 1) {
@@ -576,7 +607,7 @@ auth_sendname(cp, len)
 
 	void
 auth_finished(ap, result)
-	Authenticator *ap;
+	TN_Authenticator *ap;
 	int result;
 {
 	if (!(authenticated = ap))
@@ -637,7 +668,7 @@ auth_printsub(data, cnt, buf, buflen)
 	unsigned char *data, *buf;
 	int cnt, buflen;
 {
-	Authenticator *ap;
+	TN_Authenticator *ap;
 
 	if ((ap = findauthenticator(data[1], data[2])) && ap->printsub)
 		(*ap->printsub)(data, cnt, buf, buflen);
