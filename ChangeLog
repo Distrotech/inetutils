@@ -1,3 +1,13 @@
+2004-01-30  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* acinclude.m4 (IU_CONFIG_LINKS): New macro
+	* configure.ac: Use IU_CONFIG_LINKS. Raised autoconf
+	requirement to 2.59
+	* Makefile.am: Require automake 1.8
+	* headers/Makefile.am: Fixed disthook
+	* headers/arpa/DISTFILES: Added to the repository
+	* headers/protocols/DISTFILES: Likewise
+	
 2003-09-28  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* acinclude.m4 (IU_CONFIG_PATHS): New variables `IU_UCASE' and
