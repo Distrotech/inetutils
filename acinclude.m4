@@ -586,3 +586,79 @@ AC_DEFUN(IU_INCLUDED_REGEX,
     )
   ]
 )
+
+dnl IU_CHECK_KRB5(VERSION,PREFIX)
+dnl Search for a Kerberos implementation in the standard locations plus PREFIX,
+dnl if it is set and not "yes".
+dnl VERSION should be either 4 or 5
+dnl Defines KRB_CFLAGS and KRB_LIBS if found.
+dnl Defines KRB_IMPL to "Heimdal", "MIT", or "OldMIT", or "none" if not found
+AC_DEFUN(IU_CHECK_KRB5,
+[
+ if test "x$iu_cv_lib_krb5_libs" = x; then
+  cache=""
+  KRB5_PREFIX=[$2]
+  KRB5_IMPL="none"
+  # First try krb5-config
+  if test "$KRB5_PREFIX" != "yes"; then
+    krb5_path="$KRB5_PREFIX/bin"
+  else
+    krb5_path="$PATH"
+  fi
+  AC_PATH_PROG(KRB5CFGPATH, krb5-config, none, $krb5_path)
+  if test "$KRB5CFGPATH" != "none"; then
+    KRB5_CFLAGS="$CPPFLAGS `$KRB5CFGPATH --cflags krb$1`"
+    GSSAPI_LIBS="$MUTTLIBS `$KRB5CFGPATH --libs krb$1`"
+    GSSAPI_IMPL="Heimdal"
+  else
+    ## OK, try the old code
+    saved_CPPFLAGS="$CPPFLAGS"
+    saved_LDFLAGS="$LDFLAGS"
+    saved_LIBS="$LIBS"
+    if test "$KRB5_PREFIX" != "yes"; then
+      KRB5_CFLAGS="-I$KRB5_PREFIX/include"
+      KRB5_LDFLAGS="-L$KRB5_PREFIX/lib"
+      CPPFLAGS="$CPPFLAGS $KRB5_CFLAGS"
+      LDFLAGS="$LDFLAGS $KRB5_LDFLAGS"
+    fi
+
+    ## Check for new MIT kerberos V support
+    AC_CHECK_LIB(krb5, krb5_init_context,
+      [KRB5_IMPL="MIT",
+       KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -lk5crypto -lcom_err"]
+       ,, -lk5crypto -lcom_err)
+
+    ## Heimdal kerberos V support
+    if test "$KRB5_IMPL" = "none"; then
+      AC_CHECK_LIB(krb5, krb5_init_context,
+        [KRB5_IMPL="Heimdal"
+         KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"]
+         ,, -ldes -lasn1 -lroken -lcrypt -lcom_err)
+    fi
+
+    ## Old MIT Kerberos V
+    ## Note: older krb5 distributions use -lcrypto instead of
+    ## -lk5crypto. This may conflict with OpenSSL.
+    if test "$KRB5_IMPL" = "none"; then
+      AC_CHECK_LIB(krb5, krb5_init_context,
+        [KRB5_IMPL="OldMIT",
+         KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -lkrb5 -lcrypto -lcom_err"]
+        ,, -lcrypto -lcom_err)
+    fi
+  fi
+
+  iu_cv_lib_krb5_cflags="$KRB5_CFLAGS"
+  iu_cv_lib_krb5_libs="$KRB5_LIBS"
+  iu_cv_lib_krb5_impl="$KRB5_IMPL"
+
+  LDFLAGS="$saved_LDFLAGS"
+  LIBS="$saved_LIBS"
+ else
+  cached=" (cached) "
+  KRB5_CFLAGS="$iu_cv_lib_krb5_cflags"
+  KRB5_LIBS="$iu_cv_lib_krb5_libs"
+  KRB5_IMPL="$iu_cv_lib_krb5_impl"
+ fi
+ AC_MSG_CHECKING(krb5 implementation)
+ AC_MSG_RESULT(${cached}$KRB5_IMPL)
+])
