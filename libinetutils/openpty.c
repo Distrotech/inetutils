@@ -46,6 +46,10 @@
 #include <fcntl.h>
 #ifdef HAVE_TERMIOS_H
 # include <termios.h>
+#else
+# ifdef HAVE_TERMIO_H
+#  include <termio.h>
+# endif
 #endif
 #include <errno.h>
 #ifdef HAVE_UNISTD_H
@@ -90,6 +94,9 @@ int openpty(amaster, aslave, name, termp, winp)
 					*aslave = slave;
 					if (name)
 						strcpy(name, line);
+#ifndef TCSAFLUSH
+#define TCSAFLUSH TCSETAF
+#endif
 					if (termp)
 						(void) tcsetattr(slave, 
 							TCSAFLUSH, termp);
