@@ -63,8 +63,13 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "extern.h"
+
+#if ! defined (NBBY) && defined (CHAR_BIT)
+#define NBBY CHAR_BIT
+#endif
 
 extern	struct sockaddr_in data_dest;
 extern	int logged_in;
@@ -90,6 +95,24 @@ static	int cmd_form;
 static	int cmd_bytesz;
 char	cbuf[512];
 char	*fromname;
+
+struct tab {
+	char	*name;
+	short	token;
+	short	state;
+	short	implemented;	/* 1 if command is implemented */
+	char	*help;
+};
+
+struct tab cmdtab[], sitetab[];
+
+static char	*copy __P((char *));
+static void	 help __P((struct tab *, char *));
+static struct tab *
+		 lookup __P((struct tab *, char *));
+static void	 sizecmd __P((char *));
+static void	 toolong __P((int));
+static int	 yylex __P((void));
 
 %}
 
@@ -184,7 +207,7 @@ cmd
 				break;
 
 			case TYPE_L:
-#if NBBY == 8
+#if defined (NBBY) && NBBY == 8
 				if (cmd_bytesz == 8) {
 					reply(200,
 					    "Type set to L (byte size 8).");
@@ -658,8 +681,17 @@ pathname
 			 */
 			if (logged_in && $1 && *$1 == '~') {
 				glob_t gl;
-				int flags =
-				 GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
+				int flags = GLOB_NOCHECK;
+
+#ifdef GLOB_BRACE
+				flags |= GLOB_BRACE;
+#endif
+#ifdef GLOB_QUOTE
+				flags |= GLOB_QUOTE;
+#endif
+#ifdef GLOB_TILDE
+				flags |= GLOB_TILDE;
+#endif
 
 				memset(&gl, 0, sizeof(gl));
 				if (glob($1, flags, NULL, &gl) ||
@@ -733,14 +765,6 @@ extern jmp_buf errcatch;
 #define	SITECMD	7	/* SITE command */
 #define	NSTR	8	/* Number followed by a string */
 
-struct tab {
-	char	*name;
-	short	token;
-	short	state;
-	short	implemented;	/* 1 if command is implemented */
-	char	*help;
-};
-
 struct tab cmdtab[] = {		/* In order defined in RFC 765 */
 	{ "USER", USER, STR1, 1,	"<sp> username" },
 	{ "PASS", PASS, ZSTR1, 1,	"<sp> password" },
@@ -799,14 +823,6 @@ struct tab sitetab[] = {
 	{ "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
 	{ NULL,   0,    0,    0,	0 }
 };
-
-static char	*copy __P((char *));
-static void	 help __P((struct tab *, char *));
-static struct tab *
-		 lookup __P((struct tab *, char *));
-static void	 sizecmd __P((char *));
-static void	 toolong __P((int));
-static int	 yylex __P((void));
 
 static struct tab *
 lookup(p, cmd)
@@ -929,7 +945,7 @@ yylex()
 		case CMD:
 			(void) signal(SIGALRM, toolong);
 			(void) alarm((unsigned) timeout);
-			if (getline(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
+			if (telnet_fgets(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
 				reply(221, "You could at least say goodbye.");
 				dologout(0);
 			}
