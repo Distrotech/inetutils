@@ -62,6 +62,9 @@ static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
  * command.
  */
 
+#define MAX_ARGC 100
+#define MAX_GARGC 1000
+
 struct file_pid {
   	FILE *file;
 	pid_t pid;
@@ -79,7 +82,7 @@ ftpd_popen(program, type)
 	FILE *iop;
 	struct file_pid *fpid;
 	int argc, gargc, pdes[2], pid;
-	char **pop, *argv[100], *gargv[1000];
+	char **pop, *argv[MAX_ARGC], *gargv[MAX_GARGC];
 
 	if (*type != 'r' && *type != 'w' || type[1])
 		return (NULL);
@@ -88,10 +91,12 @@ ftpd_popen(program, type)
 		return (NULL);
 
 	/* break up string into pieces */
-	for (argc = 0, cp = program;; cp = NULL)
+	for (argc = 0, cp = program;; cp = NULL) {
 		if (!(argv[argc++] = strtok(cp, " \t\n")))
 			break;
 
+    if (argc > MAX_ARGC) return(NULL); /* AUSCERT */
+  }
 	/* glob each piece */
 	gargv[0] = argv[0];
 	for (gargc = argc = 1; argv[argc]; argc++) {
