@@ -47,6 +47,12 @@
 #include <sys/uio.h>
 #include <sys/param.h>
 #include <sys/socket.h>
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
 #ifdef HAVE_STRING_H
 # include <string.h>
 #endif
@@ -117,7 +123,7 @@ iruserok(raddr, superuser, ruser, luser)
 	FILE *hostf;
 	uid_t uid;
 	int first = 1;
-	char pbuf[MAXPATHLEN];
+	char *pbuf;
 
 	first = 1;
 	hostf = superuser ? NULL : fopen(PATH_HEQUIV, "r");
@@ -133,8 +139,15 @@ again:
 		first = 0;
 		if ((pwd = getpwnam(luser)) == NULL)
 			return(-1);
-		(void)strcpy(pbuf, pwd->pw_dir);
-		(void)strcat(pbuf, "/.rhosts");
+
+		pbuf = malloc (strlen (pwd->pw_dir) + sizeof "/.rhosts");
+		if (! pbuf)
+		  {
+		    errno = ENOMEM;
+		    return -1;
+		  }
+		strcpy (pbuf, pwd->pw_dir);
+		strcat (pbuf, "/.rhosts");
 
 		/*
 		 * Change effective uid while opening .rhosts.  If root and
@@ -187,17 +200,42 @@ __ivaliduser(hostf, raddr, luser, ruser)
   const char *luser;
   const char *ruser;
 {
-	register char *user, *p;
-	int ch;
-	char buf[MAXHOSTNAMELEN + 128];		/* host + login */
+	size_t buf_offs = 0;
+	size_t buf_len = 256;
+	char *buf = malloc (buf_len);
 
-	while (fgets(buf, sizeof (buf), hostf)) {
-		p = buf;
-		/* Skip lines that are too long. */
-		if (strchr(p, '\n') == NULL) {
-			while ((ch = getc(hostf)) != '\n' && ch != EOF);
+	if (! buf)
+		return -1;
+
+	while (fgets(buf + buf_offs, buf_len - buf_offs, hostf)) {
+		int ch;
+		register char *user, *p;
+
+		if (strchr(buf + buf_offs, '\n') == NULL) {
+			/* No newline yet, read some more.  */
+			buf_offs += strlen (buf + buf_offs);
+
+			if (buf_offs >= buf_len - 1) {
+				/* Make more room in BUF.  */
+				char *new_buf;
+
+				buf_len += buf_len;
+				new_buf = realloc (buf, buf_len);
+
+				if (! new_buf) {
+					free (buf);
+					return -1;
+				}
+
+				buf = new_buf;
+			}
+
 			continue;
 		}
+
+		buf_offs = 0;			/* Start at beginning next time around.  */
+
+		p = buf;
 		while (*p != '\n' && *p != ' ' && *p != '\t' && *p != '\0') {
 			/* *p = isupper(*p) ? tolower(*p) : *p;  -- Uli */
 			*p = tolower(*p);	/* works for linux libc */
@@ -215,11 +253,14 @@ __ivaliduser(hostf, raddr, luser, ruser)
 			user = p;
 		*p = '\0';
 
-		if (__icheckhost(raddr, buf) &&
-		    !strcmp(ruser, *user ? user : luser)) {
-          		return (0);
+		if (__icheckhost(raddr, buf) && !strcmp(ruser, *user ? user : luser)) {
+			free (buf);
+			return (0);
 		}
 	}
+
+	free (buf);
+
 	return (-1);
 }
 
