@@ -39,17 +39,21 @@ LDFLAGS = @LDFLAGS@
 RM = @RM@
 
 CFLAGS += $(DEFS)
+LDLIBS = $(LIBS)
 
+all: ftpd
 ftpd: ftpd.o ftpcmd.o logwtmp.o popen.o
 
 install: installdirs ftpd $(srcdir)/ftpd.8
 	$(INSTALL_PROGRAM) ftpd $(libexecdir)/in.ftpd
-	$(INSTALL_DATA) $(srcdir)/ftpd.8 $(man8dir)
+	-$(INSTALL_DATA) $(srcdir)/ftpd.8 $(man8dir)/ftpd.8
+uninstall:
+	-$(RM) -f $(libexecdir)/in.ftpd $(man8dir)/ftpd.8
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(man8dir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(man8dir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o ftpd
 distclean: clean
 	$(RM) -f Makefile
