@@ -260,8 +260,8 @@ error(fmt, a1, a2, a3)
 	char buf[BUFSIZ];
 
 	buf[0] = 1;
-	(void) sprintf(buf+1, fmt, a1, a2, a3);
-	(void) write(2, buf, strlen(buf));
+	snprintf (buf + 1, sizeof buf - 1, fmt, a1, a2, a3);
+	write (2, buf, strlen(buf));
 }
 
 char *
