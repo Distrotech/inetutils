@@ -1,3 +1,12 @@
+2003-02-08  Simon Josefsson  <jas@extundo.com>
+
+        * commands.c (tn): Don't set hostname to DNS canonicalized value.
+          Attackers may control DNS and fool the Kerberos authentication
+          code to use the wrong realm for the server, and consequently the
+          wrong KDC for the server, which the attackers could also control.
+          Ultimately the attacker can fool the server authentication check
+          in the client.
+
 2002-09-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* telnet/Makefile.am: Add LIBAUTH to the list of libraries.
