@@ -123,8 +123,6 @@ char	ctty[] = PATH_CONSOLE;
 
 static int debugging_on = 0;
 
-#define FDMASK(fd)	(1 << (fd))
-
 #ifndef LINE_MAX
 #define LINE_MAX 2048
 #endif
@@ -263,11 +261,13 @@ void    debug_switch __P((int));
 #define dprintf mydprintf
 #endif /* __GLIBC__ */
 static void dprintf __P((char *, ...));
+static int create_unix_socket __P((const char *path));
+static int create_inet_socket __P(());
 
 int
 main(int argc, char *argv[])
 {
-	int ch, funix, i, inetm, fklog, klogm;
+	int ch, i, fklog;
 	size_t len;
 	struct sockaddr_un sunx, fromunix;
 	struct sockaddr_in sin, frominet;
@@ -390,59 +390,13 @@ main(int argc, char *argv[])
 	(void)signal(SIGUSR1, Debug ? debug_switch : SIG_IGN);
 	(void)alarm(TIMERINTVL);
 
-#ifndef SUN_LEN
-#define SUN_LEN(unp) (strlen((unp)->sun_path) + 3)
-#endif
-	for (i = 0; i < nfunix; i++) {
-		if (funixn[i])
-			(void)unlink(funixn[i]);
-		memset(&sunx, 0, sizeof(sunx));
-		sunx.sun_family = AF_UNIX;
-		(void)strncpy(sunx.sun_path, funixn[i], sizeof(sunx.sun_path));
-		funix[i] = socket(AF_UNIX, SOCK_DGRAM, 0);
-		if (funix[i] < 0 ||
-		    bind(funix[i], (struct sockaddr *)&sunx, SUN_LEN(&sunx)) < 0 ||
-		    chmod(funixn[i], 0666) < 0) {
-			snprintf (line, sizeof line, "cannot create %s", funixn[i]);
-			logerror(line);
-			dprintf("cannot create %s (%d)\n", funixn[i], errno);
-			if (i == 0)
-				die(0);
-		}
-	}
-	finet = socket(AF_INET, SOCK_DGRAM, 0);
-	inetm = 0;
-	if (finet >= 0) {
-		struct servent *sp;
-
-		sp = getservbyname("syslog", "udp");
-		if (sp == NULL) {
-			errno = 0;
-			logerror("syslog/udp: unknown service");
-			die(0);
-		}
-		memset(&sin, 0, sizeof(sin));
-		sin.sin_family = AF_INET;
-		sin.sin_port = LogPort = sp->s_port;
-		if (bind(finet, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-			logerror("bind");
-			if (!Debug)
-				die(0);
-		} else {
-			inetm = FDMASK(finet);
-			InetInuse = 1;
-		}
-	}
 
 #ifdef PATH_KLOG
-	if ((fklog = open(PATH_KLOG, O_RDONLY, 0)) >= 0)
-		klogm = FDMASK(fklog);
-	else {
+	if ((fklog = open(PATH_KLOG, O_RDONLY, 0)) < 0)
 		dprintf("can't open %s (%d)\n", PATH_KLOG, errno);
-		klogm = 0;
 	}
 #else
-	klogm = 0;
+	fklog = -1;
 #endif
 
 	/* tuck my process id away */
@@ -463,27 +417,41 @@ main(int argc, char *argv[])
 	}
 
 	for (;;) {
-		int nfds = 0, readfds = klogm;
+		int maxfds = 0;
+		fd_set readfds;
+		
+		FD_ZERO(&readfds);
 
-		if (klogm)
-			nfds = fklog;
-
-		if (AcceptRemote && inetm) {
-			readfds |= inetm;
-			if (finet > nfds)
-				nfds = finet;
-		}
-
+		/*
+		 * Add the Unix Domain Sockets to the list of read
+		 * descriptors.
+		 */
+		/* Copy master connections */
 		for (i = 0; i < nfunix; i++) {
 			if (funix[i] != -1) {
-				readfds |= FDMASK(funix[i]);
-				if (funix[i] > nfds)
-					nfds = funix[i];
+				FD_SET(funix[i], &readfds);
+				if (funix[i]>maxfds) maxfds=funix[i];
 			}
 		}
 
+		/*
+		 * Add the Internet Domain Socket to the list of read
+		 * descriptors.
+		 */
+		if (InetInuse && AcceptRemote) {
+			FD_SET(finet, &readfds);
+			if (finet>maxfds) maxfds=finet;
+			dprintf("Listening on syslog UDP port.\n");
+		}
+
+		if (fklog >= 0) {
+			FD_SET(fklog, &readfds);
+			if (fklog > maxfds) maxfds=fklog;
+			dprintf("Listening on klog port.\n");
+		}
+
 		dprintf("readfds = %#x\n", readfds);
-		nfds = select(nfds+1, (fd_set *)&readfds, (fd_set *)NULL,
+		nfds = select(maxfds+1, (fd_set *)&readfds, (fd_set *)NULL,
 		    (fd_set *)NULL, (struct timeval *)NULL);
 		if (nfds == 0)
 			continue;
@@ -493,7 +461,7 @@ main(int argc, char *argv[])
 			continue;
 		}
 		dprintf("got a message (%d, %#x)\n", nfds, readfds);
-		if (readfds & klogm) {
+		if (fklog >= 0 && FD_ISSET(fklog, &readfds) {
 			i = read(fklog, line, sizeof(line) - 1);
 			if (i > 0) {
 				line[i] = '\0';
@@ -501,11 +469,10 @@ main(int argc, char *argv[])
 			} else if (i < 0 && errno != EINTR) {
 				logerror("klog");
 				fklog = -1;
-				klogm = 0;
 			}
 		}
-		for (i = 0; i < nfunix; i++) {
-			if (funix[i] != -1 && (readfds & FDMASK(funix[i])) {
+		for (i = 0; i < nfunix; i++)
+			if (funix[i] != -1 && FD_ISSET(funix[i], &readfds)) {
 				len = sizeof(fromunix);
 				i = recvfrom(funix[i], line, MAXLINE, 0,
 				    (struct sockaddr *)&fromunix, &len);
@@ -516,8 +483,9 @@ main(int argc, char *argv[])
 					logerror("recvfrom unix");
 			}
 		}
-		if (AcceptRemote && (readfds & inetm)) {
+		if (InetInuse && AcceptRemote && FD_ISSET(finet, &readfds)) {
 			len = sizeof(frominet);
+			memset(line, '\0', sizeof(line));
 			i = recvfrom(finet, line, MAXLINE, 0,
 			    (struct sockaddr *)&frominet, &len);
 			if (i > 0) {
@@ -555,6 +523,58 @@ Start system log daemon.\n\
 \n\
 Report bugs to %s.\n", inetutils_package, inetutils_version, inetutils_bugaddr);
 	exit(1);
+}
+
+#ifndef SUN_LEN
+#define SUN_LEN(unp) (strlen((unp)->sun_path) + 3)
+#endif
+
+static int create_unix_socket(const char *path)
+{
+	struct sockaddr_un sunx;
+	int fd;
+	char line[MAXLINE +1];
+
+	if (path[0] == '\0')
+		return -1;
+
+	(void) unlink(path);
+
+	memset(&sunx, 0, sizeof(sunx));
+	sunx.sun_family = AF_UNIX;
+	(void) strncpy(sunx.sun_path, path, sizeof(sunx.sun_path));
+	fd = socket(AF_UNIX, SOCK_DGRAM, 0);
+	if (fd < 0 ||
+		bind(fd, (struct sockaddr *) &sunx, SUN_LEN(&sunx)) < 0 ||
+		chmod(path, 0666) < 0) {
+		    snprintf(line, sizeof(line), "cannot create %s", path);
+		    logerror(line);
+		    dprintf("cannot create %s (%d).\n", path, errno);
+		    close(fd);
+	}
+	return fd;
+}
+
+static int create_inet_socket()
+{
+	int fd, on = 1;
+	struct sockaddr_in sin;
+
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (fd < 0) {
+		logerror("syslog: Unknown protocol, suspending inet service.");
+		return fd;
+	}
+
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
+	sin.sin_port = LogPort;
+	if (bind(fd, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		logerror("bind, suspending inet");
+		close(fd);
+		return -1;
+	}
+	return fd;
 }
 
 char **
@@ -1240,6 +1260,8 @@ die(int signo)
 	for (i = 0; i < nfunix; i++)
 		if (funix[i] != -1)
 			close(funix[i]);
+	/* Close the inet socket. */
+	if (InetInuse) close(finet);
 
 	/* Clean-up files. */
 	for (i = 0; i < nfunix; i++)
@@ -1259,10 +1281,20 @@ init(int signo)
 	FILE *cf;
 	struct filed *f, *next, **nextp;
 	char *p;
+	unsigned int Forwarding = 0;
 	char cbuf[LINE_MAX];
 	char *cline;
+	struct servent *sp;
 
 	dprintf("init\n");
+	sp = getservbyname("syslog", "udp");
+	if (sp == NULL) {
+		errno = 0;
+		logerror("network logging disabled (syslog/udp service unknown).");
+		logerror("see syslogd(8) for details of whether and how to enable it.");
+		return;
+	}
+	LogPort = sp->s_port;
 
 	/*
 	 *  Close all open log files.
@@ -1331,10 +1363,36 @@ init(int signo)
 		*nextp = f;
 		nextp = &f->f_next;
 		cfline(cbuf, f);
+		if (f->f_type == F_FORW || f->f_type == F_FORW_SUSP
+		    || f->f_type == F_FORW_UNKN)
+			Forwarding = 1;
 	}
 
 	/* close the configuration file */
 	(void)fclose(cf);
+
+	for (i = 0; i < nfunix; i++) {
+		if (funix[i] != -1)
+			close(funix[i]);
+		if ((funix[i] = create_unix_socket(funixn[i])) != -1)
+			dprintf("Opened UNIX socket `%s'.\n", funixn[i]);
+	}
+
+	if (Forwarding || AcceptRemote) {
+		if (finet < 0) {
+			finet = create_inet_socket();
+			if (finet >= 0) {
+				InetInuse = 1;
+				dprintf("Opened syslog UDP port.\n");
+			}
+		}
+	}
+	else {
+		if (finet >= 0)
+			close(finet);
+		finet = -1;
+		InetInuse = 0;
+	}
 
 	Initialized = 1;
 

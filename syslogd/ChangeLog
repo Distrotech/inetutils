@@ -1,5 +1,35 @@
 2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
 
+I think this is among others the equivalent to the following Linux change:
+Mon Feb 23 23:32:35 CET 1998: Topi Miettinen <Topi.Miettinen@ml.tele.fi>
+Re-worked handling of Unix and UDP sockets to support closing /
+opening of them in order to have it open only if it is needed
+either for forwarding to a remote host or by receiption from
+the network.
+
+	* syslogd.c (FDMASK): Removed.
+	(create_unix_socket): New prototype, new function.
+	(create_inet_socket): Likewise.
+	(main): Remove variables funix, inetm, klogm.
+	Move SUN_LEN and creation of unix domaim sockets/inet socket
+	to create_*_socket and init().
+	When opening PATH_KLOG, use fklog to store result.
+	Main loop: Rediddle code to use a fd_set and FD_*
+	operations instead an int and bit operations.
+	New variable maxfds to store highest fd.
+	Check fklog before checking fklog fd bit.
+	Check InetInuse before checking inet fd bit.
+	Clear buffer line before reading inet message.
+	(die): Close inet socket.
+	(init): New variable Forwarding and sp.
+	Check here for service syslog/udp instead in main.
+	Set Forwarding when appropriate (one of F_FORW* types).
+	Looping over funix here, closing and (re)opening unix
+	sockets using create_unix_socket.
+	Closing and opening inet socet as appropriate.
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
 This is the equivalent to the following Linux change:
 Mon Oct 12 14:02:51 CEST 1998: Martin Schulze <joey@infodrom.north.de>
 Applied patch provided vom Topi Miettinen with regard to the
