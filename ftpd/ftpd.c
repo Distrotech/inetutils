@@ -1351,8 +1351,20 @@ makedir(name)
 	LOGCMD("mkdir", name);
 	if (mkdir(name, 0777) < 0)
 		perror_reply(550, name);
-	else
-		reply(257, "MKD command successful.");
+	else if (name[0] == '/')
+		reply (257, "\"%s\" new directory created.");
+	else {
+		/* We have to figure out what our current directory is so that we can
+		   give an absolute name in the reply.  */
+		char *cwd = getcwd (0, 0);
+		if (cwd) {
+			if (cwd[1] == '\0')
+				cwd[0] = '\0';
+			reply (257, "\"%s/%s\" new directory created.", cwd, name);
+			free (cwd);
+		} else
+			reply (257, "(unknown absolute name) new directory created.");
+	}
 }
 
 void
