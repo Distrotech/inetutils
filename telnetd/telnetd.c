@@ -270,12 +270,14 @@ parse_debug_level (char *str)
 
 typedef unsigned int ip_addr_t; /*FIXME*/
 
+extern char *localhost __P ((void));
+
 void
 telnetd_setup (int fd)
 {
   struct sockaddr_in saddr;
   int true = 1;
-  int len;
+  socklen_t len;
   struct hostent *hp;
   char uname[256]; /*FIXME*/
   int level;
