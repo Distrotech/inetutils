@@ -18,18 +18,12 @@
 SHELL = /bin/sh
 
 srcdir = @srcdir@
+top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-bindir = @bindir@
 libdir = @libdir@
-libexecdir = @libexecdir@
-includedir = @includedir@
-mandir = @mandir@
-man1dir = $(mandir)/man1
-man8dir = $(mandir)/man8
-man5dir = $(mandir)/man5
 
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -43,17 +37,9 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-LIBTELNET_FLAGS = -DISSUE_FILE=\"$(prefix)/etc/issue.net\" \
-	-DKLUDGELINEMODE -DDIAGNOSTICS \
-	-DAUTHENTICATE
+OBJS = auth.o encrypt.o genget.o getent.o misc.o kerberos.o enc_des.o kerberos5.o
 
-# header files to install
-IHDRS = auth.h auth-proto.h misc.h misc-proto.h
-
-OBJS =  auth.o enc_des.o encrypt.o genget.o getent.o \
-        kerberos.o kerberos5.o misc.o
-
-CFLAGS += $(LIBTELNET_FLAGS) @DEFS@
+CFLAGS += $(DEFS)
 
 libtelnet.a: $(OBJS)
 	$(AR) rcv $@ $(OBJS)
@@ -61,15 +47,11 @@ libtelnet.a: $(OBJS)
 
 install: installdirs libtelnet.a
 	$(INSTALL_DATA) libtelnet.a $(libdir)
-	for H in $(IHDRS); do \
-	    $(INSTALL_DATA) $(srcdir)/$$H $(includedir)/libtelnet; \
-	done
 
 installdirs:
-	$(SHELL) ${srcdir}/mkinstalldirs $(libdir) $(includedir)/libtelnet
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
 
 clean:
 	$(RM) -f *.o libtelnet.a
-
 distclean: clean
 	$(RM) -f Makefile
