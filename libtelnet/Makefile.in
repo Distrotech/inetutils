@@ -37,21 +37,25 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
+CFLAGS += $(DEFS)
+LDLIBS = $(LIBS)
+
 OBJS = auth.o encrypt.o genget.o getent.o misc.o kerberos.o enc_des.o kerberos5.o
 
-CFLAGS += $(DEFS)
-
+all: libtelnet.a
 libtelnet.a: $(OBJS)
 	$(AR) rcv $@ $(OBJS)
 	$(RANLIB) $@
 
 install: installdirs libtelnet.a
-	$(INSTALL_DATA) libtelnet.a $(libdir)
+	$(INSTALL_DATA) libtelnet.a $(libdir)/libtelnet.a
+uninstall:
+	-$(RM) -f $(libdir)/libtelnet.a
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o libtelnet.a
 distclean: clean
 	$(RM) -f Makefile
