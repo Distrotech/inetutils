@@ -35,7 +35,7 @@ bugs:
  - %#g or %#G will not cut the trailing zeros
 */
 
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -147,7 +147,7 @@ struct DATA {
   int length;
   char *holder;
   int counter;
-  char *pf;
+  const char *pf;
 /* FLAGS */
   int width, precision;
   int justify; char pad;
