@@ -13,7 +13,7 @@ libinetutils_a_LIBADD = daemon.o @LIBOBJS@
 noinst_HEADERS = argcv.h snprintf.h pathmax.h regex.h getopt.h	\
 		 obstack.h setenv.h gettext.h xalloc.h xgetcwd.h
 
-EXTRA_DIST = regex.c obstack.c
+EXTRA_DIST = regex.c obstack.c malloc.c realloc.c
 
 @PATHDEFS_MAKE@
 
