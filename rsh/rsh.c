@@ -88,6 +88,8 @@ char dst_realm_buf[REALM_SZ], *dest_realm;
 extern char *krb_realmofhost();
 #endif
 
+#include "version.h"
+
 /*
  * rsh - remote shell
  */
@@ -98,7 +100,84 @@ void	sendsig __P((int));
 void	talk __P((int, long, pid_t, int));
 void	usage __P((void));
 void	warning __P(());
+
+/* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
+extern char *__progname;
 
+static struct option long_options[] =
+{
+  { "debug", no_argument, 0, 'd' },
+  { "no-input", no_argument, 0, 'n' },
+  { "user", required_argument, 0, 'l' },
+  { "encrypt", no_argument, 0, 'x' },
+  { "realm", required_argument, 0, 'k' },
+  { "help", no_argument, 0, '&' },
+  { "version", no_argument, 0, 'V' },
+  { 0 }
+};
+
+static void 
+pusage (stream)
+FILE *stream;
+{
+  fprintf(stream,
+	  "Usage: %s [-nd%s]%s[-l USER] [USER@]HOST [COMMAND [ARG...]]\n",
+	  __progname,
+#ifdef KERBEROS
+#ifdef CRYPT
+	    "x", " [-k REALM] ");
+#else
+	    "", " [-k REALM] ");
+#endif
+#else
+	    "", " ");
+#endif
+}
+
+/* Print a help message describing all options to STDOUT and exit with a
+   status of 0.  */
+static void
+help ()
+{
+  pusage (stdout);
+  puts ("Execute COMMAND on remote system HOST\n\n\
+  -d, --debug                Turn on socket debugging");
+#ifdef KERBEROS
+  puts ("\
+  -k REALM, --realm=REALM    Obtain tickets for the remote host in REALM\n\
+                             instead of the remote host's realm");
+#endif
+  puts ("\
+  -l USER, --user=USER       Run as USER on the remote system");
+  puts ("\
+  -n, --no-input             Use /dev/null as input");
+#ifdef CRYPT
+  puts ("\
+  -x, --encrypt              Encrypt all data using DES");
+#endif
+  puts ("\
+      --help                 Give this help list\n\
+  -V, --version              Print program version");
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+  exit (0);
+}
+
+/* Print a message saying to use --help to STDERR, and exit with a status of
+   1.  */
+static void
+try_help ()
+{
+  fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+  exit (1);
+}
+
+void
+usage()
+{
+  pusage (stderr);
+  try_help ();
+}
+
 int
 main(argc, argv)
 	int argc;
@@ -146,7 +225,9 @@ main(argc, argv)
 #else
 #define	OPTIONS	"8KLdel:nw"
 #endif
-	while ((ch = getopt(argc - argoff, argv + argoff, OPTIONS)) != EOF)
+	while ((ch = getopt_long (argc - argoff, argv + argoff, OPTIONS,
+				  long_options, 0))
+	       != EOF)
 		switch(ch) {
 		case 'K':
 #ifdef KERBEROS
@@ -181,7 +262,17 @@ main(argc, argv)
 			break;
 #endif
 #endif
+
+		case '&':
+			help ();
+		case 'V':
+			printf ("rsh (%s) %s\n",
+				inetutils_package, inetutils_version);
+			exit (0);
+
 		case '?':
+			try_help ();
+
 		default:
 			usage();
 		}
@@ -456,7 +547,7 @@ va_dcl
 	va_list ap;
 	char *fmt;
 
-	(void)fprintf(stderr, "rsh: warning, using standard rsh: ");
+	fprintf(stderr, "%s: warning, using standard rsh: ", __progname);
 	va_start(ap);
 	fmt = va_arg(ap, char *);
 	vfprintf(stderr, fmt, ap);
@@ -484,22 +575,4 @@ copyargs(argv)
 			*p++ = ' ';
 	}
 	return (args);
-}
-
-void
-usage()
-{
-
-	(void)fprintf(stderr,
-	    "usage: rsh [-nd%s]%s[-l login] [login@]host [command]\n",
-#ifdef KERBEROS
-#ifdef CRYPT
-	    "x", " [-k realm] ");
-#else
-	    "", " [-k realm] ");
-#endif
-#else
-	    "", " ");
-#endif
-	exit(1);
 }
