@@ -211,6 +211,18 @@ ping_xmit (PING *p)
   return 0;
 }
 
+static int
+my_echo_reply (PING *p, icmphdr_t *icmp)
+{
+  struct ip *orig_ip = &icmp->icmp_ip;
+  icmphdr_t *orig_icmp = (icmphdr_t *)(orig_ip + 1);
+
+  return orig_ip->ip_dst.s_addr == p->ping_dest.sin_addr.s_addr
+    && orig_ip->ip_p == IPPROTO_ICMP
+    && orig_icmp->icmp_type == ICMP_ECHO
+    && orig_icmp->icmp_id == p->ping_ident;
+}
+
 int
 ping_recv (PING *p)
 {
@@ -221,32 +233,32 @@ ping_recv (PING *p)
   int dupflag;
 
   if ((n = recvfrom (p->ping_fd,
-		    (char *)p->ping_buffer, _PING_BUFLEN (p), 0,
-		    (struct sockaddr *)&p->ping_from, &fromlen)) < 0)
+		     (char *)p->ping_buffer, _PING_BUFLEN (p), 0,
+		     (struct sockaddr *)&p->ping_from, &fromlen)) < 0)
     return -1;
 
   if ((rc = icmp_generic_decode (p->ping_buffer, n, &ip, &icmp)) < 0)
     {
       /*FIXME: conditional*/
       fprintf (stderr,"packet too short (%d bytes) from %s\n", n,
-	      inet_ntoa (p->ping_from.sin_addr));
+	       inet_ntoa (p->ping_from.sin_addr));
       return -1;
     }
-
-  if (icmp->icmp_id != p->ping_ident)
-    return -1;
-  if (rc)
-    {
-      fprintf (stderr, "checksum mismatch from %s\n",
-	       inet_ntoa (p->ping_from.sin_addr));
-    }
-
+  
   switch (icmp->icmp_type)
     {
     case ICMP_ECHOREPLY:
     case ICMP_TIMESTAMPREPLY:
     case ICMP_ADDRESSREPLY:
       /*    case ICMP_ROUTERADV:*/
+      
+      if (icmp->icmp_id != p->ping_ident)
+	return -1;
+      
+      if (rc)
+	fprintf (stderr, "checksum mismatch from %s\n",
+		 inet_ntoa (p->ping_from.sin_addr));
+      
       p->ping_num_recv++;
       if (_PING_TST (p, icmp->icmp_seq % p->ping_cktab_size))
 	{
@@ -274,6 +286,9 @@ ping_recv (PING *p)
       return -1;
 
     default:
+      if (!my_echo_reply(p, icmp))
+	return -1;
+      
       if (p->ping_event)
 	(*p->ping_event)(PEV_NOECHO,
 			 p->ping_closure,
