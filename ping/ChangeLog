@@ -1,6 +1,13 @@
+2003-11-10  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* ping.c (ping_cvt_number): New function.
+	(main): Check numeric options for validity.
+	* ping_echo.c: Rewritten diagnostic output.
+	* ping_impl.h (PING_MAX_DATALEN): New define.
+
 2003-04-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
-	* ping/ping.c (ping_run): Bugfix. Thanks Jim Balter
+	* ping.c (ping_run): Bugfix. Thanks Jim Balter
 	<Jim.Balter@cw.com> for the patch.
 
 2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
