@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_REXECD@
+inetdaemon_PROGRAMS = @rexecd_BUILD@
 
 EXTRA_PROGRAMS = rexecd
 
