@@ -1,4 +1,11 @@
+2000-06-15 David O'Shea
+
+	* rlogin/rlogin.c(speed): the fd may not be associated with
+	a terminal, when checking for speed(), take appropriate actions
+	to handle the error case.
+
 2000-06-14 Joachim Gabler
+
 	* configure.in: add check for element ut_exit in struct utmp
 	* lininetutils/utmp_logout: check for HAVE_UTMP_UT_EXIT
 	* libinetutils/openpty.c: smaller fixes (missing ';',
