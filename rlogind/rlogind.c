@@ -58,10 +58,22 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <signal.h>
 #include <termios.h>
 #ifdef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
 #include <sys/time.h>
+#endif
+#ifdef HAVE_SYS_STREAM_H
+#include <sys/stream.h>
+#endif
+#ifdef HAVE_SYS_TTY_H
+#include <sys/tty.h>
+#endif
+#ifdef HAVE_SYS_PTYVAR_H
+#include <sys/ptyvar.h>
 #endif
 
 #include <sys/socket.h>
@@ -228,7 +240,8 @@ doit(f, fromp)
 	int master, pid, on = 1;
 	int authenticated = 0;
 	register struct hostent *hp;
-	char *hostname, *raw_hostname;
+	char *hostname;
+	const char *raw_hostname;
 	char c;
 
 	alarm(60);
@@ -635,19 +648,24 @@ void
 setup_term(fd)
 	int fd;
 {
-	register char *cp = index(term+ENVSIZE, '/');
+	register char *cp = strchr (term+ENVSIZE, '/');
 	char *speed;
 	struct termios tt;
 
-#ifndef notyet
+#if 1
 	tcgetattr(fd, &tt);
 	if (cp) {
 		*cp++ = '\0';
 		speed = cp;
-		cp = index(speed, '/');
+		cp = strchr (speed, '/');
 		if (cp)
 			*cp++ = '\0';
+#ifdef HAVE_CFSETSPEED
 		cfsetspeed(&tt, atoi(speed));
+#else
+		cfsetispeed(&tt, atoi(speed));
+		cfsetospeed(&tt, atoi(speed));
+#endif
 	}
 
 	tt.c_iflag = TTYDEF_IFLAG;
@@ -658,11 +676,16 @@ setup_term(fd)
 	if (cp) {
 		*cp++ = '\0';
 		speed = cp;
-		cp = index(speed, '/');
+		cp = strchr (speed, '/');
 		if (cp)
 			*cp++ = '\0';
 		tcgetattr(fd, &tt);
+#ifdef HAVE_CFSETSPEED
 		cfsetspeed(&tt, atoi(speed));
+#else
+		cfsetispeed(&tt, atoi(speed));
+		cfsetospeed(&tt, atoi(speed));
+#endif
 		tcsetattr(fd, TCSAFLUSH, &tt);
 	}
 #endif
