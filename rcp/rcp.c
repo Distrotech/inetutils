@@ -47,7 +47,16 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 
 #include <sys/param.h>
 #include <sys/stat.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/socket.h>
 #include <netinet/in.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
@@ -71,6 +80,9 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#ifndef HAVE_UTIMES
+#include <utime.h> /* If we don't have utimes(), use utime(). */
+#endif
 
 #include "extern.h"
 
@@ -334,7 +346,7 @@ toremote(targ, argc, argv)
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 				tos = IPTOS_THROUGHPUT;
 				if (setsockopt(rem, IPPROTO_IP, IP_TOS,
-				    &tos, sizeof(int)) < 0)
+				    (char *) &tos, sizeof(int)) < 0)
 					warn("TOS (ignored)");
 #endif
 				if (response() < 0)
@@ -401,7 +413,8 @@ tolocal(argc, argv)
 		(void)seteuid(userid);
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 		tos = IPTOS_THROUGHPUT;
-		if (setsockopt(rem, IPPROTO_IP, IP_TOS, &tos, sizeof(int)) < 0)
+		if (setsockopt(rem, IPPROTO_IP, IP_TOS, (char *) &tos,
+			       sizeof(int)) < 0)
 			warn("TOS (ignored)");
 #endif
 		sink(1, argv + argc - 1);
@@ -736,8 +749,18 @@ sink(argc, argv)
 			vect[0] = np;
 			sink(1, vect);
 			if (setimes) {
+#ifndef HAVE_UTIMES
+			  struct utimbuf utbuf;
+			  utbuf.actime = atime.tv_sec;
+			  utbuf.modtime = mtime.tv_sec;
+#endif
+
 				setimes = 0;
+#ifdef HAVE_UTIMES
 				if (utimes(np, tv) < 0)
+#else
+				if (utime(np, &utbuf) < 0)
+#endif
 				    run_err("%s: set times: %s",
 					np, strerror(errno));
 			}
@@ -809,8 +832,17 @@ bad:			run_err("%s: %s", np, strerror(errno));
 		(void)close(ofd);
 		(void)response();
 		if (setimes && wrerr == NO) {
+#ifndef HAVE_UTIMES
+		  struct utimbuf utbuf;
+		  utbuf.actime = atime.tv_sec;
+		  utbuf.modtime = mtime.tv_sec;
+#endif
 			setimes = 0;
+#ifdef HAVE_UTIMES
 			if (utimes(np, tv) < 0) {
+#else
+			  if (utime(np, &utbuf) < 0) {
+#endif
 				run_err("%s: set times: %s",
 				    np, strerror(errno));
 				wrerr = DISPLAYED;
