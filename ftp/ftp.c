@@ -144,7 +144,12 @@ hookup(host, port)
 		}
 		hisctladdr.sin_family = hp->h_addrtype;
 		memmove((caddr_t)&hisctladdr.sin_addr,
-				hp->h_addr_list[0], hp->h_length);
+#ifdef HAVE_HOSTENT_H_ADDR_LIST
+				hp->h_addr_list[0],
+#else
+				hp->h_addr,
+#endif
+				hp->h_length);
 		(void) strncpy(hostnamebuf, hp->h_name, sizeof(hostnamebuf));
 	}
 	hostname = hostnamebuf;
@@ -156,6 +161,7 @@ hookup(host, port)
 	}
 	hisctladdr.sin_port = port;
 	while (connect(s, (struct sockaddr *)&hisctladdr, sizeof (hisctladdr)) < 0) {
+#ifdef HAVE_HOSTENT_H_ADDR_LIST
 		if (hp && hp->h_addr_list[1]) {
 			int oerrno = errno;
 			char *ia;
@@ -177,6 +183,7 @@ hookup(host, port)
 			}
 			continue;
 		}
+#endif
 		warn("connect");
 		code = -1;
 		goto bad;
@@ -193,7 +200,9 @@ hookup(host, port)
 		warn("setsockopt TOS (ignored)");
 #endif
 	cin = fdopen(s, "r");
-	cout = fdopen(s, "w");
+	/* dup(s) is for sake of stdio implementations who do not
+		allow two fdopen's on the same file-descriptor */
+	cout = fdopen(dup(s), "w");
 	if (cin == NULL || cout == NULL) {
 		warnx("fdopen failed.");
 		if (cin)
