@@ -91,7 +91,17 @@ ftpd_popen(program, type)
 	gargv[0] = argv[0];
 	for (gargc = argc = 1; argv[argc]; argc++) {
 		glob_t gl;
-		int flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
+		int flags = GLOB_NOCHECK;
+
+#ifdef GLOB_BRACE
+				flags |= GLOB_BRACE;
+#endif
+#ifdef GLOB_QUOTE
+				flags |= GLOB_QUOTE;
+#endif
+#ifdef GLOB_TILDE
+				flags |= GLOB_TILDE;
+#endif
 
 		memset(&gl, 0, sizeof(gl));
 		if (glob(argv[argc], flags, NULL, &gl))
