@@ -56,7 +56,7 @@
 #include <string.h>
 #endif
 
-#ifndef HAVE_ERRNO_DECL
+#ifndef HAVE_DECL_ERRNO
 extern int errno;
 #endif
 

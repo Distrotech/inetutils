@@ -6,7 +6,7 @@
 
 #include <errno.h>
 
-#ifndef HAVE_ERRNO_DECL
+#ifndef HAVE_DECL_ERRNO
 extern int errno;
 #endif
 
