@@ -63,6 +63,9 @@
 /* Define this if sig_t is declared by including <sys/types.h> & <signal.h> */
 #undef HAVE_SIG_T
 
+/* If EWOULDBLOCK isn't defined by <errno.h>, define it here.  */
+#undef EWOULDBLOCK
+
 @BOTTOM@
 
 #ifdef HAVE___P
