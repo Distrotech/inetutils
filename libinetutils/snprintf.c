@@ -22,12 +22,12 @@
 
 #include <stdio.h>
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__)
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 
 #include <stdarg.h>
 
 int
-snprintf (char *buf, int len, char *fmt, ...)
+snprintf (char *buf, int len, const char *fmt, ...)
 {
   int rv;
   va_list ap;
@@ -48,7 +48,8 @@ snprintf (va_alist) va_dcl
 {
   int rv;
   va_list ap;
-  char *buf, *fmt;
+  char *buf;
+  const char *fmt;
 
   va_start (ap);
 
@@ -62,7 +63,7 @@ snprintf (va_alist) va_dcl
   return rv;
 }
 
-#endif /* HAVE_STDARG_H */
+#endif /* HAVE_STDARG_H && __STDC__ */
 
 int
 vsnprintf (buf, len, fmt, ap)
