@@ -1140,10 +1140,12 @@ domark(int signo)
 	struct filed *f;
 
 	now = time((time_t *)NULL);
-	MarkSeq += TIMERINTVL;
-	if (MarkSeq >= MarkInterval) {
-		logmsg(LOG_INFO, "-- MARK --", LocalHostName, ADDDATE|MARK);
-		MarkSeq = 0;
+	if (MarkInterval > 0) {
+		MarkSeq += TIMERINTVL;
+		if (MarkSeq >= MarkInterval) {
+			logmsg(LOG_INFO, "-- MARK --", LocalHostName, ADDDATE|MARK);
+			MarkSeq = 0;
+		}
 	}
 
 	for (f = Files; f; f = f->f_next) {

@@ -37,9 +37,13 @@
 .Nm syslogd
 .Op Fl V
 .Op Fl h
+.Op Fl l Ar host_list
 .Op Fl f Ar config_file
 .Op Fl m Ar mark_interval
+.Op Fl n
 .Op Fl p Ar log_socket
+.Op Fl r
+.Op Fl s Ar domain_list
 .Sh DESCRIPTION
 .Nm Syslogd
 reads and logs messages to the system console, log files, other
@@ -60,7 +64,7 @@ the default is
 .Pa /etc/syslog.conf .
 .It Fl m
 Select the number of minutes between ``mark'' messages;
-the default is 20 minutes.
+the default is 20 minutes. Setting it to 0 disables timestamps.
 .It Fl n
 Suppress backgrounding and detachment of the daemon from its
 controlling terminal.

@@ -1,5 +1,11 @@
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c (domark): Don't log mark if MarkInterval is <= 0.
+	* syslogd.8 (SYNOPSIS): Add '-l', '-r', '-n' and '-s' (oops).
+	Document behaviour of '-m 0'.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c: Fix prototype of debug_switch.
 	(cfline): In case '|', check for terminal and console.
 	In case '/', rearrange this very check.
