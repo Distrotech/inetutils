@@ -102,7 +102,7 @@ static void init_data_buffer (u_char *pat, int len);
 static int send_echo (PING *ping);
 
 static size_t
-ping_cvt_number (const char *optarg, size_t maxval)
+ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
 {
   char *p;
   size_t n;
@@ -111,6 +111,11 @@ ping_cvt_number (const char *optarg, size_t maxval)
   if (*p)
     {
       fprintf (stderr, "Invalid value (`%s' near `%s')\n", optarg, p);
+      exit (1);
+    }
+  if (n == 0 && !allow_zero)
+    {
+      fprintf (stderr, "Option value too small: %s\n", optarg);
       exit (1);
     }
   if (maxval && n > maxval)
@@ -169,7 +174,7 @@ main (int argc, char **argv)
 	  break;
 	  
 	case 'c':
-	  ping_set_count (ping, ping_cvt_number (optarg, 0));
+	  ping_set_count (ping, ping_cvt_number (optarg, 0, 0));
 	  break;
 	  
 	case 'd':
@@ -182,7 +187,7 @@ main (int argc, char **argv)
 	  
 	case 'i':
 	  options |= OPT_INTERVAL;
-	  ping_set_interval (ping, ping_cvt_number (optarg, 0));
+	  ping_set_interval (ping, ping_cvt_number (optarg, 0, 0));
 	  break;
 	  
 	case 'p':
@@ -191,7 +196,7 @@ main (int argc, char **argv)
 	  break;
 	  
  	case 's':
-	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN);
+	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN, 1);
  	  break;
 	  
 	case 'n':
