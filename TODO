@@ -1,3 +1,9 @@
+Add long options to programs besides telnet & ftp, especially the clients.
+The conventions used by telnet & ftp should be followed.
+
+Merge the functionality of Noah [Friedman]'s ftp client into ftp (readline
+support, &c), and add readline to the distribution.
+
 Move the horrible mess of code from telnetd/sys_term.c into functions in
 libinetutils using the BSD libutil functionality (such that they can be
 elided if a system libutil exists); specifically:
@@ -17,22 +23,12 @@ rlogind will more portable, and telnetd less messy.  This is already
 partially done, but care is needed as sys_term.c does lots of stuff that I'm
 not sure is needed, but might be.
 
-Supply versions of the rcmd &c functionality needed by the r*d programs.
-Even systems that have rcmd & ruserok (e.g., linux) sometimes don't have the
-more funky versions that this code wants, specifically iruserok (which does
-truly offer more functionality than ruserok).  This could be done by taking
-glibc's inet/rcmd.c and splitting it up into separate files for each function
-(so that systems that have some functions but not others would only have the
-missing functions replaced by inetutils).
-
 Make sure that both sgtty and termios/termio are supported equally well in
 all programs (currently only termios is really tested).
 
-Add long options to programs besides telnet & ftp, especially the clients.
-The conventions used by telnet & ftp should be followed.
+Supply versions of the rcmd functionality needed by the r* programs.
 
-Merge the functionality of Noah [Friedman]'s ftp client into ftp (readline
-support, &c), and add readline to the distribution.
+Supply a version of the syslog function for systems that don't have it.
 
 Perhaps make ftp use no-uid support on the hurd.
 
