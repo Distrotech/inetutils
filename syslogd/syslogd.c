@@ -557,6 +557,9 @@ main (int argc, char *argv[])
       exit (2);
     }
 
+  /* read configuration file */
+  init (0);
+
 #ifdef PATH_KLOG
   /* Initialize kernel logging and add to the list.  */
   if (!NoKLog)
@@ -607,9 +610,6 @@ main (int argc, char *argv[])
       else
 	dbg_printf ("Can't open UDP port: %s\n", strerror (errno));
     }
-
-  /* read configuration file */
-  init (0);
 
   /* Tuck my process id away.  */
   fp = fopen (PidFile, "w");
@@ -1119,8 +1119,7 @@ logmsg (int pri, const char *msg, const char *from, int flags)
   for (f = Files; f; f = f->f_next)
     {
       /* Skip messages that are incorrect priority. */
-      if (!(f->f_pmask[fac] & LOG_MASK (prilev)) ||
-	  f->f_pmask[fac] == INTERNAL_NOPRI)
+      if (!(f->f_pmask[fac] & LOG_MASK (prilev)))
 	continue;
 
       if (f->f_type == F_CONSOLE && (flags & IGN_CONS))
@@ -1762,7 +1761,7 @@ init (int signo)
 	{
 	  int i;
 	  for (i = 0; i <= LOG_NFACILITIES; i++)
-	    if (f->f_pmask[i] == INTERNAL_NOPRI)
+	    if (f->f_pmask[i] == 0)
 	      dbg_printf(" X ");
 	    else
 	      dbg_printf("%2x ", f->f_pmask[i]);
@@ -1820,7 +1819,7 @@ cfline (const char *line, struct filed *f)
   memset (f, 0, sizeof (*f));
   for (i = 0; i <= LOG_NFACILITIES; i++)
     {
-      f->f_pmask[i] = INTERNAL_NOPRI;
+      f->f_pmask[i] = 0;
       f->f_flags = 0;
     }
 
@@ -1850,6 +1849,7 @@ cfline (const char *line, struct filed *f)
 	  case '!':
 	    negate_pri = 1;
 	    break;
+	    
 	  case '=':
 	    excl_pri = 1;
 	    break;
@@ -1858,7 +1858,7 @@ cfline (const char *line, struct filed *f)
       /* Decode priority name and set up bit masks.  */
       if (*bp == '*')
 	{
-	  pri_clear = INTERNAL_NOPRI;
+	  pri_clear = 0;
 	  pri_set = LOG_UPTO (LOG_PRIMASK);
 	}
       else
@@ -1871,8 +1871,16 @@ cfline (const char *line, struct filed *f)
 	      logerror (ebuf);
 	      return;
 	    }
-	  pri_clear = 0;
-	  pri_set = excl_pri ? LOG_MASK (pri) : LOG_UPTO (pri);
+	  if (pri == INTERNAL_NOPRI)
+	    {
+	      pri_clear = 255;
+	      pri_set = 0;
+	    }
+	  else
+	    {
+	      pri_clear = 0;
+	      pri_set = excl_pri ? LOG_MASK (pri) : LOG_UPTO (pri);
+	    }
 	}
       if (negate_pri)
 	{
@@ -1895,6 +1903,7 @@ cfline (const char *line, struct filed *f)
 		 */
 		if (buf[1] == '*' && ((1 << i) & facilities_seen))
 		  continue;
+		
 		f->f_pmask[i] &= ~pri_clear;
 		f->f_pmask[i] |= pri_set;
 	      }
@@ -1910,6 +1919,7 @@ cfline (const char *line, struct filed *f)
 		  logerror (ebuf);
 		  return;
 		}
+
 	      f->f_pmask[LOG_FAC(i)] &= ~pri_clear;
 	      f->f_pmask[LOG_FAC(i)] |= pri_set;
 	    }
