@@ -1,0 +1,25 @@
+2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	* ping.c: Use inetutils_package instead of PACKAGE. Same for
+	VERSION.
+
+2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
+	Patches by Alain:
+	* ping_address.c,ping_echo.c,ping_router.c,ping_timestamp.c:
+		<signal.h> -> <sys/signal.h>
+
+
+2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
+	* icmp_timestamp.c: forgotten to commit yesterday :^)
+	* ping.h: changed counters in struct PING from int to longs.
+
+2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
+	* Makefile.am: added OMIT_DEPENDENCIES
+	* ping.c,ping_address.c,ping_echo.c,ping_impl.h,ping_timestamp.c:
+		Implemented ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests.
+          None of existing routers answers the latter, though.
+
+2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
+	* ping.c: implemented
+	* ping_address.c, ping_echo.c, ping_impl.h, ping_router.c,
+	  ping_timestamp.c: added to repository.
+
