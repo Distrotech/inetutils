@@ -1,6 +1,6 @@
 # Makefile for talkd
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,13 +20,12 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(libexecdir)/in.talkd $(man8dir)/talkd.8
+INSTALL_TARGETS = $(libexecdir)/in.talkd $(man8dir)/talkd.8
+SRCS = talkd.c announce.c process.c table.c print.c
+DISTFILES = $(SRCS) talkd.8 Makefile.in
 
 all: talkd
-talkd: talkd.o announce.o process.o talbe.o print.o ttymsg.o
-
-ttymsg.o: $(top_srcdir)/common/ttymsg.c
-	$(COMPILE.c) $<
+talkd: $(SRCS:.c=.o) ttymsg.o
 
 clean:
 	$(RM) -f *.o talkd
