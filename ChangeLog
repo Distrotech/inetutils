@@ -1,3 +1,11 @@
+2002-09-02  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* ROADMAP: Update
+
+	* NEWS: Update
+
+	* THANKS: Add Chris Ulherr 
+
 2002-08-04  Sergey Poznyakoff  <Mirddin.farlep.net>
 
 	* acinclude.m4 (IU_CHECK_MEMBER,IU_CHECK_MEMBERS): added new
