@@ -4,4 +4,6 @@ uucpd_SOURCES = uucpd.c
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_UUCICO)
+INCLUDES = $(PATHDEF_UUCICO) $(PATHDEF_TTY)
+
+LDADD = -L../libinetutils -linetutils
