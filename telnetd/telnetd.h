@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <signal.h>
@@ -253,12 +254,20 @@ extern int	auth_level;
 
 extern slcfun	slctab[NSLC + 1];	/* slc mapping table */
 
-extern char	*terminaltype;
+extern char *terminaltype;
+extern char *remote_hostname;
+extern char *local_hostname;
+extern char *login_invocation;
+extern char *user_name;
 
 extern int	pty, net;
 extern int	SYNCHing;		/* we are in TELNET SYNCH mode */
 extern struct telnetd_clocks clocks;
 extern char line[];
+
+extern char *xstrdup P((const char *));
+extern int argcv_get P((const char *command, const char *delim,
+			int *argc, char ***argv));
 
 void io_setup P((void));
 int net_has_data P((void));
@@ -317,6 +326,8 @@ extern void tty_setlitecho P((int));
 extern void tty_setsig P((int));
 extern void tty_setsofttab P((int));
 extern void tty_tspeed P((int));
+
+extern char * expand_line P((const char *fmt));
 
 /*  FIXME */
 extern void _termstat P((void));
