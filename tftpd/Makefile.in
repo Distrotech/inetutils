@@ -1,0 +1,60 @@
+# Makefile for rshd
+#
+# Copyright (C) 1995 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+SHELL = /bin/sh
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libexecdir = @libexecdir@
+mandir = @mandir@
+man8dir = $(mandir)/man8
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+CC = @CC@
+DEFS = @DEFS@
+LIBS = @LIBS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+RM = @RM@
+
+CFLAGS += $(DEFS)
+LDLIBS = $(LIBS)
+
+all: rshd
+rshd: rshd.o
+
+install: installdirs rshd $(srcdir)/rshd.8
+	$(INSTALL_PROGRAM) rshd $(libexecdir)/in.rshd
+	-$(INSTALL_DATA) $(srcdir)/rshd.8 $(man8dir)/rshd.8
+uninstall:
+	-$(RM) -f $(libexecdir)/in.rshd $(man8dir)/rshd.8
+
+installdirs:
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
+
+clean mostlyclean:
+	$(RM) -f *.o rshd 
+distclean: clean
+	$(RM) -f Makefile
