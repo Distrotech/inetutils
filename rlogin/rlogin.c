@@ -55,6 +55,18 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_STREAM_H
+#include <sys/stream.h>
+#endif
+#ifdef HAVE_SYS_TTY_H
+#include <sys/tty.h>
+#endif
+#ifdef HAVE_SYS_PTYVAR_H
+#include <sys/ptyvar.h>
+#endif
+#ifdef HAVE_SYS_SOCKIO_H
+#include <sys/sockio.h>
+#endif
 
 #include <netinet/in.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
@@ -104,6 +116,14 @@ char dst_realm_buf[REALM_SZ], *dest_realm = NULL;
 #define	SIGUSR1	30
 #endif
 
+#ifndef	_POSIX_VDISABLE
+# ifdef VDISABLE
+#  define _POSIX_VDISABLE VDISABLE
+# else
+#  define _POSIX_VDISABLE ((cc_t)'\377')
+# endif
+#endif
+
 int eight, litout, rem;
 
 int noescape;
@@ -146,6 +166,8 @@ void		warning __P((const char *, ...));
 int		get_window_size __P((int, struct winsize *));
 #endif
 
+extern sig_t setsig __P((int, sig_t));
+
 int
 main(argc, argv)
 	int argc;
@@ -157,13 +179,6 @@ main(argc, argv)
 	uid_t uid;
 	int argoff, ch, dflag, one;
 	char *host, *p, *user, term[1024];
-#ifdef HAVE_SIGACTION
-	struct sigaction sa;
-#else
-#ifdef HAVE_SIGVEC
-	struct sigvec sv;
-#endif
-#endif	
 
 #ifndef HAVE___PROGNAME
 	extern char *__progname;
@@ -285,54 +300,22 @@ main(argc, argv)
 
 	(void)get_window_size(0, &winsize);
 
-#ifdef HAVE_SIGACTION
-	sigemptyset (&sa.sa_mask);
-#ifdef SA_RESTART
-	sa.sa_flags = SA_RESTART;
-#endif
-	sa.sa_handler = lostpeer;
-	sigaction (SIGPIPE, &sa, (struct sigaction *) 0);
+	setsig (SIGPIPE, lostpeer);
+
 	/* will use SIGUSR1 for window size hack, so hold it off */
 	sigemptyset (&smask);
 	sigaddset (&smask, SIGURG);
 	sigaddset (&smask, SIGUSR1);
 	sigprocmask (SIG_SETMASK, &smask, &smask);
+
 	/*
 	 * We set SIGURG and SIGUSR1 below so that an
 	 * incoming signal will be held pending rather than being
 	 * discarded. Note that these routines will be ready to get
 	 * a signal by the time that they are unblocked below.
 	 */
-	sa.sa_handler = copytochild;
-	sigaction (SIGURG, &sa, (struct sigaction *) 0);
-	sa.sa_handler = writeroob;
-	sigaction (SIGUSR1, &sa, (struct sigaction *) 0);
-#else /* !HAVE_SIGACTION */
-#ifdef HAVE_SIGVEC
-	sigemptyset (&sv.sv_mask);
-	sv.sv_handler = lostpeer;
-	sigvec (SIGPIPE, &sv, (struct sigvec *) 0);
-	/* will use SIGUSR1 for window size hack, so hold it off */
-	sigemptyset (&smask);
-	sigaddset (&smask, SIGURG);
-	sigaddset (&smask, SIGUSR1);
-	sigsetmask (smask);
-	/*
-	 * We set SIGURG and SIGUSR1 below so that an
-	 * incoming signal will be held pending rather than being
-	 * discarded. Note that these routines will be ready to get
-	 * a signal by the time that they are unblocked below.
-	 */
-	sv.sv_handler = copytochild;
-	sigvec (SIGURG, &sv, (struct sigvec *) 0);
-	sv.sv_handler = writeroob;
-	sigvec (SIGUSR1, &sv, (struct sigvec *) 0);
-#else /* !HAVE_SIGVEC */
-	signal (SIGPIPE, lostpeer);
-	signal (SIGURG, copytochild);
-	signal (SIGUSR1, writeroob);
-#endif /* HAVE_SIGVEC */
-#endif /* HAVE_SIGACTION */
+	setsig (SIGURG, copytochild);
+	setsig (SIGUSR1, writeroob);
 
 #ifdef KERBEROS
 try_connect:
@@ -437,19 +420,17 @@ doit(smask)
 	sigset_t *smask;
 {
 	int i;
-	struct sigaction sa;
 
 	for (i = 0; i < NCCS; i++)
 		nott.c_cc[i] = _POSIX_VDISABLE;
 	tcgetattr(0, &deftt);
 	nott.c_cc[VSTART] = deftt.c_cc[VSTART];
 	nott.c_cc[VSTOP] = deftt.c_cc[VSTOP];
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = SIG_IGN;
-	(void)sigaction(SIGINT, &sa, (struct sigaction *) 0);
+
+	setsig (SIGINT, SIG_IGN);
 	setsignal(SIGHUP);
 	setsignal(SIGQUIT);
+
 	child = fork();
 	if (child == -1) {
  		warn("fork");
@@ -474,8 +455,9 @@ doit(smask)
 	 * that were set above.
 	 */
 	(void)sigprocmask(SIG_SETMASK, smask, (sigset_t *) 0);
-	sa.sa_handler = catch_child;
-	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+
+	setsig (SIGCHLD, catch_child);
+
 	writer();
 	msg("closed connection.");
 	done(0);
@@ -486,19 +468,16 @@ void
 setsignal(sig)
 	int sig;
 {
-	struct sigaction sa;
+	sig_t handler;
 	sigset_t sigs;
 
 	sigemptyset(&sigs);
 	sigaddset(&sigs, sig);
 	sigprocmask(SIG_BLOCK, &sigs, &sigs);
 
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = exit;
-	sa.sa_flags = SA_RESTART;
-	(void)sigaction(sig, &sa, &sa);
-	if (sa.sa_handler == SIG_IGN)
-		(void)sigaction(sig, &sa, (struct sigaction *) 0);
+	handler = setsig (sig, exit);
+	if (handler == SIG_IGN)
+	  setsig (sig, handler);
 
 	(void)sigprocmask(SIG_SETMASK, &sigs, (sigset_t *) 0);
 }
@@ -509,15 +488,11 @@ done(status)
 {
 	pid_t w;
 	int wstatus;
-	struct sigaction sa;
 
 	mode(0);
 	if (child > 0) {
 		/* make sure catch_child does not snap it up */
-		sigemptyset(&sa.sa_mask);
-		sa.sa_handler = SIG_DFL;
-		sa.sa_flags = 0;
-		(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+	    setsig (SIGCHLD, SIG_DFL);
 		if (kill(child, SIGKILL) >= 0)
 			while ((w = wait(&wstatus)) > 0 && w != child)
 				continue;
@@ -535,14 +510,9 @@ void
 writeroob(signo)
 	int signo;
 {
-	struct sigaction sa;
-
 	if (dosigwinch == 0) {
 		sendwindow();
-		sigemptyset(&sa.sa_mask);
-		sa.sa_handler = sigwinch;
-		sa.sa_flags = SA_RESTART;
-		(void)sigaction(SIGWINCH, &sa, (struct sigaction *) 0);
+		setsig (SIGWINCH, sigwinch);
 	}
 	dosigwinch = 1;
 }
@@ -682,16 +652,10 @@ stop(cmdc)
 	char cmdc;
 #endif
 {
-	struct sigaction sa;
-
 	mode(0);
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = SIG_IGN;
-	sa.sa_flags = SA_RESTART;
-	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+	setsig (SIGCHLD, SIG_IGN);
 	(void)kill(cmdc == deftt.c_cc[VSUSP] ? 0 : getpid(), SIGTSTP);
-	sa.sa_handler = catch_child;
-	(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
+	setsig (SIGCHLD, catch_child);
 	mode(1);
 	sigwinch(0);			/* check for size changes */
 }
@@ -845,19 +809,16 @@ reader(smask)
 	pid_t pid;
 	int n, remaining;
 	char *bufp;
-	struct sigaction sa;
 
 #if BSD >= 43 || defined(SUNOS4)
 	pid = getpid();		/* modern systems use positives for pid */
 #else
 	pid = -getpid();	/* old broken systems use negatives */
 #endif
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = SIG_IGN;
-	(void)sigaction(SIGTTOU, &sa, (struct sigaction *) 0);
-	sa.sa_handler = oob;
-	(void)sigaction(SIGURG, &sa, (struct sigaction *) 0);
+
+	setsig (SIGTTOU, SIG_IGN);
+	setsig (SIGURG, oob);
+
 	ppid = getppid();
 	(void)fcntl(rem, F_SETOWN, pid);
 	(void)setjmp(rcvtop);
@@ -933,12 +894,7 @@ void
 lostpeer(signo)
 	int signo;
 {
-	struct sigaction sa;
-
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = SIG_IGN;
-	(void)sigaction(SIGPIPE, &sa, (struct sigaction *) 0);
+	setsig (SIGPIPE, SIG_IGN);
 	msg("\007connection closed.");
 	done(1);
 }
