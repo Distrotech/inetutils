@@ -187,7 +187,10 @@ AC_DEFUN([IU_LIB_CURSES], [
   AC_REQUIRE([IU_LIB_TERMCAP])
   _IU_SAVE_LIBS="$LIBS"
   LIBS="$LIBTERMCAP"
-  AC_CHECK_LIB(curses, initscr, LIBCURSES="-lcurses")
+  AC_CHECK_LIB(ncurses, initscr, LIBCURSES="-lncurses")
+  if test ! "$LIBCURSES"; then
+    AC_CHECK_LIB(curses, initscr, LIBCURSES="-lcurses")
+  fi
   if test "$LIBCURSES" -a "$LIBTERMCAP"; then
     AC_CACHE_CHECK(whether curses needs $LIBTERMCAP,
 		   inetutils_cv_curses_needs_termcap,
@@ -195,9 +198,9 @@ AC_DEFUN([IU_LIB_CURSES], [
       AC_TRY_LINK([#include <curses.h>], [initscr ();],
 		  [inetutils_cv_curses_needs_termcap=no],
 		  [inetutils_cv_curses_needs_termcap=yes]))
-      if test "$inetutils_cv_curses_needs_termcap" = yes; then
+    if test "$inetutils_cv_curses_needs_termcap" = yes; then
 	LIBCURSES="$LIBCURSES $LIBTERMCAP"
-      fi
+    fi
   fi
   LIBS="$_IU_SAVE_LIBS"
   AC_SUBST(LIBCURSES)])dnl
