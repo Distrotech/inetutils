@@ -256,8 +256,11 @@ login(host)
 			printf("Name (%s:%s): ", host, myname);
 		else
 			printf("Name (%s): ", host);
-		(void) fgets(tmp, sizeof(tmp) - 1, stdin);
-		tmp[strlen(tmp) - 1] = '\0';
+		if (fgets(tmp, sizeof(tmp) - 1, stdin)) {
+			/* If they press Ctrl-d immediately, it's empty.  */
+			tmp[strlen(tmp) - 1] = '\0';
+		} else
+			*tmp = '\0';
 		if (*tmp == '\0')
 			user = myname;
 		else
