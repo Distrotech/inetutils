@@ -16,7 +16,7 @@ INCLUDES = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 
-LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet \
-	$(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
+LDADD = -L../lib -lgnu -L../libinetutils -L../libtelnet -linetutils	\
+	-ltelnet $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
 
 EXTRA_DIST = $(man_MANS)

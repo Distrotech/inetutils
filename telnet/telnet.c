@@ -733,14 +733,17 @@ is_unique(register char *name, register char **as, register char **ae)
 	return (1);
 }
 
-#ifdef	TERMCAP
+
 char termbuf[1024];
 
-	/*ARGSUSED*/
 int
 init_term (char *tname, int fd, int *errp)
 {
-	if (tgetent(termbuf, tname) == 1) {
+  int err = -1;
+#ifdef HAVE_LIBREADLINE
+  err = tgetent (termbuf, tname);
+#endif
+	if (err == 1) {
 		termbuf[1023] = '\0';
 		if (errp)
 			*errp = 1;
@@ -750,10 +753,6 @@ init_term (char *tname, int fd, int *errp)
 		*errp = 0;
 	return(-1);
 }
-#else
-#define	termbuf	ttytype
-extern char ttytype[];
-#endif
 
 int resettermname = 1;
 
