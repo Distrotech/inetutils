@@ -1,6 +1,4 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
-OMIT_DEPENDENCIES=crypt.h err.h getopt.h osockaddr.h paths.h poll.h syslog-int.h \
- tftpsubs.h
 
 SUBDIRS=system
 
