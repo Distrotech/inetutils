@@ -6,8 +6,15 @@ inetdaemon_PROGRAMS = @BUILD_TALKD@
 
 EXTRA_PROGRAMS = talkd
 
-talkd_SOURCES = announce.c print.c process.c table.c talkd.c
-
+talkd_SOURCES = \
+ acl.c\
+ announce.c\
+ print.c\
+ process.c\
+ table.c\
+ talkd.c\
+ intalkd.h
+ 
 man_MANS = talkd.8
 
 @PATHDEFS_MAKE@
