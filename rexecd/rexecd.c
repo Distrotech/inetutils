@@ -111,7 +111,7 @@ char	shell[64] = "SHELL=";
 char	path[sizeof(PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
 char	*envinit[] =
 	    {homedir, shell, path, username, 0};
-char	**environ;
+extern char	**environ;
 
 struct	sockaddr_in asin = { AF_INET };
 

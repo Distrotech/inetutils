@@ -225,7 +225,7 @@ char	shell[64] = "SHELL=";
 char	path[100] = "PATH=";
 char	*envinit[] =
 	    {homedir, shell, path, username, 0};
-char	**environ;
+extern char	**environ;
 
 void
 doit(fromp)
