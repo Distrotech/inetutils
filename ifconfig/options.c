@@ -183,7 +183,7 @@ usage (int err)
       fprintf (stdout, "Usage: %s [OPTION]...%s\n", __progname,
 	       system_help ? " [SYSTEM OPTION]..." : "");
       puts ("Configure network interfaces.\n\n\
-Options are:
+Options are:\n\
   -i, --interface NAME  Configure network interface NAME\n\
   -a, --address ADDR    Set interface address to ADDR\n\
   -m, --netmask MASK    Set netmask to MASK\n\

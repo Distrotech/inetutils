@@ -748,7 +748,8 @@ print_interfaceX (format_data_t form, int quiet)
 	}
       else
 	{
-	  char id[q - p + 1];
+	  char *id;
+	  id = alloca (q - p + 1);
 	  memcpy (id, p, q - p);
 	  id[q - p] = '\0';
 	  p = q + 1;
@@ -773,7 +774,8 @@ print_interfaceX (format_data_t form, int quiet)
 	  else
 	    {
 	      int argc = 0;
-	      char *argv[strlen (q) / 2];
+	      char **argv;
+	      argv = alloca (strlen (q) / 2);
 
 	      while (*p == '{')
 		{

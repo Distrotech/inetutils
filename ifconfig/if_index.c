@@ -26,11 +26,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/ioctl.h>
-/* FIXME is this for SOLARIS only ? */
-#if defined(__sun__)
-# include <sys/sockio.h>
+/* Solaris at least earlier 2.6 and before does not include
+   the ioctl definitions if BSD_COMP is not set.  */
+#if defined(__svr4__)
+# define BSD_COMP 1
 #endif
+#include <sys/ioctl.h>
 #include <net/if.h>
 
 #include "if_index.h"
@@ -39,42 +40,42 @@ unsigned int
 if_nametoindex (const char *ifname)
 {
 #ifdef SIOCGIFINDEX
-  struct ifreq ifr;
-  int fd = socket (AF_INET, SOCK_DGRAM, 0);
-
-  if (fd < 0)
-    return 0;
-
-  strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
-  if (ioctl (fd, SIOCGIFINDEX, &ifr) < 0)
-    {
-      int saved_errno = errno;
-      close (fd);
-      if (saved_errno == EINVAL)
-	errno = ENOSYS;
-      return 0;
-    }
-  close (fd);
-  return ifr.ifr_ifindex;
+  {
+    int fd = socket (AF_INET, SOCK_DGRAM, 0);
+    if (fd >= 0)
+      {
+	struct ifreq ifr;
+	strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
+	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
+	if (ioctl (fd, SIOCGIFINDEX, &ifr) == 0)
+	  {
+	    close (fd);
+	    return ifr.ifr_ifindex;
+	  }
+	close (fd);
+      }
+  }
 #else
-  struct if_nameindex *idx;
-  struct if_nameindex *p;
-  int result = 0;
+  {
+    struct if_nameindex *idx;
+    int result = 0;
 
-  idx = if_nameindex ();
-
-  if (idx != NULL)
-    {
-      for (p = idx; p->if_index || p->if_name; ++p)
-        if (strcmp (p->if_name, ifname) == 0)
-          {
-            result = p->if_index;
-            break;
-          }
-
-      if_freenameindex (idx);
-    }
-  return result;
+    idx = if_nameindex ();
+    if (idx != NULL)
+      {
+	struct if_nameindex *p;
+	for (p = idx; p->if_index || p->if_name; ++p)
+	  {
+	    if (strncmp (p->if_name, ifname, IFNAMSIZ) == 0)
+	      {
+		result = p->if_index;
+		break;
+	      }
+	  }
+	if_freenameindex (idx);
+      }
+    return result;
+  }
 #endif
 }
 
@@ -212,37 +213,44 @@ char *
 if_indextoname (unsigned int ifindex, char *ifname)
 {
 #if defined SIOCGIFNAME
-  struct ifreq ifr;
-  int status;
-  int fd = socket (AF_INET, SOCK_DGRAM, 0);
+  {
+    int fd = socket (AF_INET, SOCK_DGRAM, 0);
+    if (fd >= 0)
+      {
+	struct ifreq ifr;
 
-  if (fd < 0)
-    return NULL;
-
-  ifr.ifr_ifindex = ifindex;
-  status = ioctl (fd, SIOCGIFNAME, &ifr);
-
-  close (fd);
-
-  return status < 0 ? NULL : strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
-#else
-  struct if_nameindex *idx;
-  struct if_nameindex *p;
-  char *result = NULL;
-
-  idx = if_nameindex ();
-
-  if (idx != NULL)
-    {
-      for (p = idx; p->if_index || p->if_name; ++p)
-	if (p->if_index == ifindex)
+	ifr.ifr_ifindex = ifindex;
+	if (ioctl (fd, SIOCGIFNAME, &ifr) == 0)
 	  {
-	    result = strncpy (ifname, p->if_name, IFNAMSIZ);
-	    break;
+	    close (fd);
+	    strncpy (ifname, ifr.ifr_name, IFNAMSIZ);
+	    ifname[IFNAMSIZ - 1] = '\0';
+	    return ifname;
 	  }
+	close (fd);
+      }
+  }
+#else
+  {
+    struct if_nameindex *idx;
+    char *result = NULL;
 
-      if_freenameindex (idx);
-    }
-  return result;
+    idx = if_nameindex ();
+
+    if (idx != NULL)
+      {
+	struct if_nameindex *p;
+	for (p = idx; p->if_index || p->if_name; ++p)
+	  {
+	    if (p->if_index == ifindex)
+	      {
+		result = strncpy (ifname, p->if_name, IFNAMSIZ);
+		result[IFNAMSIZ - 1] = '\0';
+		break;
+	      }
+	  }
+	if_freenameindex (idx);
+      }
+    return result;
 #endif
 }

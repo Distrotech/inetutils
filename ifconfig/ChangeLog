@@ -1,3 +1,16 @@
+2001-06-25  Alain Magloire
+
+	* if_index.c: Fall back to the generic version if
+	SIOCGIFINDEX and SIOCGIFNAME fail.
+	Note from Sergey.
+	Define BSD_COMP for solaris machines to include
+	the ioctl definitions.
+
+	* options.c (usage): Terminate the string with '\n\'.
+	* printif.c (print_interfaceX): Use alloca() instead
+	of dynamique allocated arrays, may compiler can not
+	cope with this yet.
+
 2001-06-23  Marcus Brinkmann  <marcus@gnu.org>
 
 	* system/qnx.c (qfh_brdaddr, qfh_netmask): Functions removed,
