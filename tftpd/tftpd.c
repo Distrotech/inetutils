@@ -77,6 +77,10 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 
 #define	TIMEOUT		5
 
+#ifndef LOG_FTP
+#define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
+#endif
+
 int	peer;
 int	rexmtval = TIMEOUT;
 int	maxtimeout = 5*TIMEOUT;
