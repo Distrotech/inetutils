@@ -30,7 +30,7 @@ extern char *h_errlist[];
 
 /* Return a string describing the host lookup error code HERR.  The returned
    value may be in a static buffer (and in any case shouldn't be written to).  */
-char *
+const char *
 hstrerror (herr)
   int herr;
 {
