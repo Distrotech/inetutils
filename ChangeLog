@@ -1,5 +1,12 @@
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* rcp/Makefile.am (INCLUDES): Added `$(PATHDEF_RSH)
+ 	$(PATHDEF_CP)'.
+	
+	(LDADD): Added `-L../libinetutils -linetutils'.
+	
+	Added a line `@PATHDEFS_MAKE@'.
+
 	* ftpd/Makefile.am (INCLUDES): Added `$(PATHDEF_FTPWELCOME)
  	$(PATHDEF_FTPUSERS) $(PATHDEF_FTPLOGINMESG)'.
 	
