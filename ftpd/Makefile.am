@@ -16,6 +16,9 @@ INCLUDES = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
 	$(PATHDEF_FTPLOGINMESG) $(PATHDEF_DEVNULL) \
 	$(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)
 
-LDADD = ../libls/libls.a -L../libinetutils -L../libtelnet -linetutils -ltelnet
+LIBCRYPT = @LIBCRYPT@
+
+LDADD = ../libls/libls.a -L../libinetutils -L../libtelnet \
+	-linetutils -ltelnet $(LIBCRYPT)
 
 EXTRA_DIST = $(man_MANS)

@@ -1,3 +1,7 @@
+2000-07-07 Alain Magloire
+
+	* Makefile.am: EXTRA_DIST add configure.bat and SMakefile
+
 Sat Jul 20 21:55:31 1996  Roland McGrath  <roland@delasyd.gnu.ai.mit.edu>
 
 	Win32 hacks from <Rob_Tulloh@tivoli.com>.

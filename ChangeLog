@@ -1,3 +1,7 @@
+2000-07-07  Alain Magloire
+
+	* configure.in: check for <shadow.h>
+
 2000-07-06  Jeff Bailey  <jbailey@nisa.net>
 
 	* autogen.sh: New file for generating build environment for

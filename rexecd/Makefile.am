@@ -12,6 +12,8 @@ man_MANS = rexecd.8
 
 INCLUDES = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
 
-LDADD = -L../libinetutils -linetutils
+LIBCRYPT = @LIBCRYPT@
+
+LDADD = -L../libinetutils -linetutils $(LIBCRYPT)
 
 EXTRA_DIST = $(man_MANS)

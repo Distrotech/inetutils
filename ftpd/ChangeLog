@@ -1,3 +1,8 @@
+2000-07-07 Alain Magloire
+
+	* ftpd.c(sgetpwnam()): if HAVE_GETSPNAM && HAVE_SHADOW_H, call
+	getspnam() to get the encrypted passwd.
+
 2000-07-06 Michel Vogt
 
 	* popen.c: Instead of spwaning "/bin/ls" use the internal ls

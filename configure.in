@@ -145,7 +145,6 @@ AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(bsd, revoke)
-AC_CHECK_LIB(crypt, crypt)
 
 AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent flock fpathconf ftruncate \
 	       getcwd getspnam killpg ptsname setegid seteuid setlinebuf setsid \
