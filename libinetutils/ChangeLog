@@ -1,3 +1,12 @@
+2000-08-13  Alain Magloire
+
+	* ttymsg.c (fork2):  New function, that is doing a double
+	fork() when I/O is non-bloclking.
+
+2000-08-11  Alain Magloire
+
+	* poll.c: Update from James Antill.
+
 2000-08-08  Alain Magloire
 
 	* ttymsg.c: Formatting, bcopy() to memcpy().

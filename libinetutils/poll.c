@@ -16,27 +16,25 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include "poll.h"
-#include <sys/select.h>
-#include <errno.h>
-
-/*
-  To: libc-alpha@cygnus.com
-  Subject: poll emulation
-  From: James Antill <james@and.org>
-  Reply-To: <james@and.org>
-  Date: 15 Mar 1999 23:23:47 +0000
-*/
+/* To: libc-alpha@cygnus.com
+   Subject: poll emulation
+   From: James Antill <james@and.org>
+   Reply-To: <james@and.org>
+   Date: 15 Mar 1999 23:23:47 +0000  */
 
 /* Poll the file descriptors described by the NFDS structures starting at
    FDS.  If TIMEOUT is nonzero and not -1, allow TIMEOUT milliseconds for
    an event to occur; if TIMEOUT is -1, block until an event occurs.
    Returns the number of file descriptors with events, zero if timed out,
    or -1 for errors.  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <poll.h>
+#include <sys/select.h>
+#include <errno.h>
 
 int
 poll (struct pollfd *fds, unsigned long nfds, int timeout)
@@ -54,6 +52,8 @@ poll (struct pollfd *fds, unsigned long nfds, int timeout)
   for (f = fds; f < &fds[nfds]; ++f)
     if (f->fd != -1)
       {
+	f->revents = 0;
+
 	if (f->events & POLLIN)
 	  FD_SET (f->fd, &rset);
 	if (f->events & POLLOUT)
@@ -69,8 +69,6 @@ poll (struct pollfd *fds, unsigned long nfds, int timeout)
 
   ready = select (maxfd + 1, &rset, &wset, &xset,
 		  timeout == -1 ? NULL : &tv);
-
-  /* Bad file descriptor do the loop to discover which one.  */
   if ((ready == -1) && (errno == EBADF))
     {
       ready = 0;
@@ -96,14 +94,16 @@ poll (struct pollfd *fds, unsigned long nfds, int timeout)
 	      FD_SET (f->fd, &sngl_wset);
 	    if (f->events & POLLPRI)
 	      FD_SET (f->fd, &sngl_xset);
+
 	    if (f->events & (POLLIN|POLLOUT|POLLPRI))
 	      {
-		struct timeval singl_tv;
+		struct timeval sngl_tv;
 
-		singl_tv.tv_sec = 0;
-		singl_tv.tv_usec = 0;
+		sngl_tv.tv_sec = 0;
+		sngl_tv.tv_usec = 0;
 
-		if (select(f->fd, &rset, &wset, &xset, &singl_tv) != -1)
+		if (select(f->fd + 1,
+			   &sngl_rset, &sngl_wset, &sngl_xset, &sngl_tv) != -1)
 		  {
 		    if (f->events & POLLIN)
 		      FD_SET (f->fd, &rset);
@@ -111,40 +111,39 @@ poll (struct pollfd *fds, unsigned long nfds, int timeout)
 		      FD_SET (f->fd, &wset);
 		    if (f->events & POLLPRI)
 		      FD_SET (f->fd, &xset);
+
 		    if (f->fd > maxfd
 			&& (f->events & (POLLIN|POLLOUT|POLLPRI)))
 		      maxfd = f->fd;
 		    ++ready;
 		  }
 		else if (errno == EBADF)
-		  f->revents |= POLLNVAL;
+		  f->revents = POLLNVAL;
+		else
+		  return (-1);
 	      }
 	  }
 
       if (ready)
-	{
-	  /* Linux alters the tv struct... but it shouldn't matter here ...
+	{ /* Linux alters the tv struct... but it shouldn't matter here ...
 	   * as we're going to be a little bit out anyway as we've just eaten
 	   * more than a couple of cpu cycles above */
 	  ready = select (maxfd + 1, &rset, &wset, &xset,
 			  timeout == -1 ? NULL : &tv);
-	}
+	} /* what to do here ?? */
     }
 
   if (ready > 0)
     for (f = fds; f < &fds[nfds]; ++f)
-      {
-	f->revents = 0;
-	if (f->fd >= 0)
-	  {
-	    if (FD_ISSET (f->fd, &rset))
-	      f->revents |= POLLIN;
-	    if (FD_ISSET (f->fd, &wset))
-	      f->revents |= POLLOUT;
-	    if (FD_ISSET (f->fd, &xset))
-	      f->revents |= POLLPRI;
-	  }
-      }
+      if (f->fd != -1)
+	{
+	  if (FD_ISSET (f->fd, &rset))
+	    f->revents |= POLLIN;
+	  if (FD_ISSET (f->fd, &wset))
+	    f->revents |= POLLOUT;
+	  if (FD_ISSET (f->fd, &xset))
+	    f->revents |= POLLPRI;
+	}
 
   return ready;
 }

@@ -45,6 +45,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 #if !defined (O_NONBLOCK) && defined (O_NDELAY)
 #define O_NONBLOCK O_NDELAY	/* O_NDELAY is an old BSD name for this.  */
@@ -52,6 +53,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 
 #define MAX_ERRBUF 1024
 
+static int fork2 __P ((void));
 
 /*
  * Display the contents of a uio structure on a terminal.  Used by wall(1),
@@ -61,7 +63,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
  * ignored (exclusive-use, lack of permission, etc.).
  */
 char *
-ttymsg(struct iovec *iov, int iovcnt, char *line, int tmout)
+ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 {
   static char errbuf[MAX_ERRBUF];
   char *device;
@@ -69,23 +71,24 @@ ttymsg(struct iovec *iov, int iovcnt, char *line, int tmout)
   struct iovec localiov[6];
   int forked = 0;
 
-  if (iovcnt > (int)(sizeof(localiov) / sizeof(localiov[0])))
+  if (iovcnt > (int)(sizeof (localiov) / sizeof (localiov[0])))
     return (char *)("too many iov's (change code in wall/ttymsg.c)");
 
   /* we're watching for '/', ".", ".."  '/' --> somebody could specify
      tty as ../etc/passwd ".", ".." those are not security related it's
      just sanity checks.  */
-  if (strchr(line, '/'))
+  if (strchr (line, '/'))
     {
       /* A slash is an attempt to break security... */
-      (void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"", line);
+      (void) snprintf (errbuf, sizeof(errbuf), "'/' in \"%s\"", line);
       return (errbuf);
     }
 
   device = malloc (sizeof PATH_TTY_PFX - 1 + strlen (line) + 1);
   if (! device)
     {
-      snprintf (errbuf, sizeof errbuf, "Not enough memory for tty device name");
+      snprintf (errbuf, sizeof errbuf,
+		"Not enough memory for tty device name");
       return errbuf;
     }
 
@@ -101,10 +104,10 @@ ttymsg(struct iovec *iov, int iovcnt, char *line, int tmout)
     {
       if (errno == EBUSY || errno == EACCES)
 	return (NULL);
-      (void) snprintf(errbuf, sizeof(errbuf),
-		      "%s: %s", device, strerror(errno));
+      (void) snprintf (errbuf, sizeof (errbuf),
+		      "%s: %s", device, strerror (errno));
       free (device);
-      return (errbuf);
+      return errbuf;
     }
 
   for (cnt = left = 0; cnt < iovcnt; ++cnt)
@@ -142,39 +145,39 @@ ttymsg(struct iovec *iov, int iovcnt, char *line, int tmout)
 
 	  if (forked)
 	    {
-	      (void) close(fd);
+	      (void) close (fd);
 	      _exit(1);
 	    }
-	  cpid = fork();
+	  cpid = fork2 ();
 	  if (cpid < 0)
 	    {
-	      (void) snprintf(errbuf, sizeof(errbuf),
-			      "fork: %s", strerror(errno));
-	      (void) close(fd);
+	      (void) snprintf (errbuf, sizeof (errbuf),
+			      "fork: %s", strerror (errno));
+	      (void) close (fd);
 	      free (device);
 	      return (errbuf);
 	    }
 	  if (cpid)  /* Parent.  */
 	    {
-	      (void) close(fd);
+	      (void) close (fd);
 	      free (device);
 	      return (NULL);
 	    }
 	  forked++;
 	  /* wait at most tmout seconds */
-	  (void) signal(SIGALRM, SIG_DFL);
-	  (void) signal(SIGTERM, SIG_DFL); /* XXX */
+	  (void) signal (SIGALRM, SIG_DFL);
+	  (void) signal (SIGTERM, SIG_DFL); /* XXX */
 #ifdef HAVE_SIGACTION
 	  {
 	    sigset_t empty;
-	    sigemptyset(&empty);
-	    sigprocmask(SIG_SETMASK, &empty, 0);
+	    sigemptyset (&empty);
+	    sigprocmask (SIG_SETMASK, &empty, 0);
 	  }
 #else
-	  (void) sigsetmask(0);
+	  (void) sigsetmask (0);
 #endif
-	  (void) alarm((u_int)tmout);
-	  (void) fcntl(fd, O_NONBLOCK, &off);
+	  (void) alarm ((u_int)tmout);
+	  (void) fcntl (fd, O_NONBLOCK, &off);
 	  continue;
 	}
       /*
@@ -183,18 +186,61 @@ ttymsg(struct iovec *iov, int iovcnt, char *line, int tmout)
        */
       if (errno == ENODEV || errno == EIO)
 	break;
-      (void) close(fd);
+      (void) close (fd);
       if (forked)
-	_exit(1);
-      (void) snprintf(errbuf, sizeof(errbuf),
-		      "%s: %s", device, strerror(errno));
+	_exit (1);
+      (void) snprintf(errbuf, sizeof (errbuf),
+		      "%s: %s", device, strerror (errno));
       free (device);
       return (errbuf);
     }
 
   free (device);
-  (void) close(fd);
+  (void) close (fd);
   if (forked)
     _exit(0);
   return (NULL);
+}
+
+
+/* This was part of the Unix-Faq, maintain by Andrew Gierth.
+   fork2() -- like fork, but the new process is immediately orphaned
+   (won't leave a zombie when it exits)
+   Returns 1 to the parent, not any meaningful pid.
+   The parent cannot wait() for the new process (it's unrelated).
+
+   This version assumes that you *haven't* caught or ignored SIGCHLD.
+   If you have, then you should just be using fork() instead anyway.  */
+
+static int
+fork2 (void)
+{
+  pid_t pid;
+  int status;
+
+  if (!(pid = fork ()))
+    {
+      switch (fork ())
+        {
+	case 0:  /* Child.  */
+	  return 0;
+	case -1:
+	  _exit(errno);    /* Assumes all errnos are <256 */
+	default: /* Parent.  */
+	  _exit(0);
+        }
+    }
+
+  if (pid < 0 || waitpid (pid, &status, 0) < 0)
+    return -1;
+
+  if (WIFEXITED (status))
+    if (WEXITSTATUS (status) == 0)
+      return 1;
+    else
+      errno = WEXITSTATUS (status);
+  else
+    errno = EINTR;  /* well, sort of :-) */
+
+  return -1;
 }
