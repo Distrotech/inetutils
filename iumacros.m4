@@ -174,6 +174,11 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
 
 dnl IU_LIB_NCURSES -- check for, and configure, ncurses
 dnl
+dnl If libncurses is found to exist on this system and the --disable-ncurses
+dnl flag wasn't specified, defines LIBNCURSES with the appropriate linker
+dnl specification, and possibly defines NCURSES_INCLUDE with the appropriate
+dnl -I flag to get access to ncurses include files.
+dnl
 AC_DEFUN([IU_LIB_NCURSES], [
   AC_ARG_ENABLE(ncurses,    [  --disable-ncurses       don't prefer -lncurses over -lcurses],
               , enable_ncurses=yes)
@@ -224,6 +229,11 @@ AC_DEFUN([IU_LIB_NCURSES], [
 
 dnl IU_LIB_TERMCAP -- check for various termcap libraries
 dnl
+dnl Checks for various common libraries implementing the termcap interface,
+dnl including ncurses (unless --disable ncurses is specified), curses (which
+dnl does on some systems), termcap, and termlib.  If termcap is found, then
+dnl LIBTERMCAP is defined with the appropriate linker specification.
+dnl 
 AC_DEFUN([IU_LIB_TERMCAP], [
   AC_REQUIRE([IU_LIB_NCURSES])
   if test "$LIBNCURSES"; then
@@ -240,6 +250,11 @@ AC_DEFUN([IU_LIB_TERMCAP], [
   AC_SUBST(LIBTERMCAP)])dnl
 
 dnl IU_LIB_CURSES -- checke for curses, and associated libraries
+dnl
+dnl Checks for varions libraries implementing the curses interface, and if
+dnl found, defines LIBCURSES to be the appropriate linker specification,
+dnl *including* any termcap libraries if needed (some versions of curses
+dnl don't need termcap).
 dnl
 AC_DEFUN([IU_LIB_CURSES], [
   AC_REQUIRE([IU_LIB_TERMCAP])
