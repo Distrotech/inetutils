@@ -1,4 +1,4 @@
-# Makefile for telnet
+# Makefile for ftp
 #
 # Copyright (C) 1995 Free Software Foundation, Inc.
 #
@@ -39,22 +39,19 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-OPTION_FLAGS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
-LDLIBS = -L../libtelnet -ltelnet -ltermcap $(LIBS)
+LDLIBS = $(LIBS)
+CFLAGS += $(DEFS)
 
-CFLAGS += $(OPTION_FLAGS) $(DEFS)
+ftp: cmds.o cmdtab.o ftp.o main.o ruserpass.o domacro.o
 
-telnet: authenc.o commands.o main.o network.o ring.o sys_bsd.o telnet.o \
-	terminal.o tn3270.o utilities.o
-
-install: installdirs telnet telnet.1
-	$(INSTALL_PROGRAM) telnet $(bindir)/telnet
-	$(INSTALL_DATA) telnet.1 $(man1dir)/telnet.1
+install: installdirs ftp ftp.1
+	$(INSTALL_PROGRAM) ftp $(bindir)/ftp
+	$(INSTALL_DATA) ftp.1 $(man1dir)/ftp.1
 
 installdirs:
 	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
 clean:
-	$(RM) -f *.o telnet
+	$(RM) -f *.o ftp
 distclean: clean
 	$(RM) -f Makefile
