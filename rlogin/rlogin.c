@@ -38,68 +38,35 @@ static char copyright[] =
 #endif /* not lint */
 
 #ifndef lint
-static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
+static char sccsid[] = "@(#)rlogin.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 /*
  * rlogin - remote login
  */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
-#include <sys/ioctl.h>
-#ifdef HAVE_SYS_STREAM_H
-#include <sys/stream.h>
-#endif
-#ifdef HAVE_SYS_TTY_H
-#include <sys/tty.h>
-#endif
-#ifdef HAVE_SYS_PTYVAR_H
-#include <sys/ptyvar.h>
-#endif
-#ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
-#endif
 
 #include <netinet/in.h>
-#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-#endif
 
 #include <errno.h>
 #include <fcntl.h>
-#include <getopt.h>
 #include <netdb.h>
 #include <pwd.h>
 #include <setjmp.h>
-#include <termios.h>
+#include <sgtty.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#ifdef __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -126,18 +93,15 @@ char dst_realm_buf[REALM_SZ], *dest_realm = NULL;
 #define	SIGUSR1	30
 #endif
 
-#ifndef	_POSIX_VDISABLE
-# ifdef VDISABLE
-#  define _POSIX_VDISABLE VDISABLE
-# else
-#  define _POSIX_VDISABLE ((cc_t)'\377')
-# endif
-#endif
-
 int eight, litout, rem;
 
 int noescape;
 u_char escapechar = '~';
+
+char *speeds[] = {
+	"0", "50", "75", "110", "134", "150", "200", "300", "600", "1200",
+	"1800", "2400", "4800", "9600", "19200", "38400"
+};
 
 #ifdef OLDSUN
 struct winsize {
@@ -151,21 +115,20 @@ struct	winsize winsize;
 
 void		catch_child __P((int));
 void		copytochild __P((int));
-void		doit __P((sigset_t *));
-void		done __P((int));
+__dead void	doit __P((long));
+__dead void	done __P((int));
 void		echo __P((char));
 u_int		getescape __P((char *));
 void		lostpeer __P((int));
 void		mode __P((int));
 void		msg __P((char *));
 void		oob __P((int));
-int		reader __P((sigset_t *));
+int		reader __P((int));
 void		sendwindow __P((void));
 void		setsignal __P((int));
-int		speed __P((int));
 void		sigwinch __P((int));
 void		stop __P((char));
-void		usage __P((void));
+__dead void	usage __P((void));
 void		writer __P((void));
 void		writeroob __P((int));
 
@@ -176,35 +139,30 @@ void		warning __P((const char *, ...));
 int		get_window_size __P((int, struct winsize *));
 #endif
 
-extern sig_t setsig __P((int, sig_t));
-
 int
 main(argc, argv)
 	int argc;
 	char *argv[];
 {
+	extern char *optarg;
+	extern int optind;
 	struct passwd *pw;
 	struct servent *sp;
-	sigset_t smask;
-	uid_t uid;
-	int argoff, ch, dflag, one;
+	struct sgttyb ttyb;
+	long omask;
+	int argoff, ch, dflag, one, uid;
 	char *host, *p, *user, term[1024];
-
-#ifndef HAVE___PROGNAME
-	extern char *__progname;
-	__progname = argv[0];
-#endif
 
 	argoff = dflag = 0;
 	one = 1;
 	host = user = NULL;
 
-	if (p = strrchr(argv[0], '/'))
+	if (p = rindex(argv[0], '/'))
 		++p;
 	else
 		p = argv[0];
 
-	if (strcmp(p, "rlogin") != 0)
+	if (strcmp(p, "rlogin"))
 		host = p;
 
 	/* handle "rlogin host flags" */
@@ -273,17 +231,9 @@ main(argc, argv)
 	if (*argv)
 		usage();
 
-	if (!(pw = getpwuid(uid = getuid())))
-		errx(1, "unknown user id.");
-	/* Accept user1@host format, though "-l user2" overrides user1 */
-	p = strchr(host, '@');
-	if (p) {
-		*p = '\0';
-		if (!user && p > host)
-			user = host;
-		host = p + 1;
-		if (*host == '\0')
-			usage();
+	if (!(pw = getpwuid(uid = getuid()))) {
+		(void)fprintf(stderr, "rlogin: unknown user id.\n");
+		exit(1);
 	}
 	if (!user)
 		user = pw->pw_name;
@@ -301,31 +251,30 @@ main(argc, argv)
 #endif
 	if (sp == NULL)
 		sp = getservbyname("login", "tcp");
-	if (sp == NULL)
-		errx(1, "login/tcp: unknown service.");
+	if (sp == NULL) {
+		(void)fprintf(stderr, "rlogin: login/tcp: unknown service.\n");
+		exit(1);
+	}
 
-	(void)snprintf(term, sizeof(term), "%s/%d",
-			((p = getenv("TERM")) ? p : "network"),
-			speed(0));
+	(void)strcpy(term, (p = getenv("TERM")) ? p : "network");
+	if (ioctl(0, TIOCGETP, &ttyb) == 0) {
+		(void)strcat(term, "/");
+		(void)strcat(term, speeds[(int)ttyb.sg_ospeed]);
+	}
 
 	(void)get_window_size(0, &winsize);
 
-	setsig (SIGPIPE, lostpeer);
-
+	(void)signal(SIGPIPE, lostpeer);
 	/* will use SIGUSR1 for window size hack, so hold it off */
-	sigemptyset (&smask);
-	sigaddset (&smask, SIGURG);
-	sigaddset (&smask, SIGUSR1);
-	sigprocmask (SIG_SETMASK, &smask, &smask);
-
+	omask = sigblock(sigmask(SIGURG) | sigmask(SIGUSR1));
 	/*
 	 * We set SIGURG and SIGUSR1 below so that an
 	 * incoming signal will be held pending rather than being
 	 * discarded. Note that these routines will be ready to get
 	 * a signal by the time that they are unblocked below.
 	 */
-	setsig (SIGURG, copytochild);
-	setsig (SIGUSR1, writeroob);
+	(void)signal(SIGURG, copytochild);
+	(void)signal(SIGUSR1, writeroob);
 
 #ifdef KERBEROS
 try_connect:
@@ -334,8 +283,11 @@ try_connect:
 
 		/* Fully qualify hostname (needed for krb_realmofhost). */
 		hp = gethostbyname(host);
-		if (hp != NULL && !(host = strdup(hp->h_name)))
-			errx(1, "%s", strerror(ENOMEM));
+		if (hp != NULL && !(host = strdup(hp->h_name))) {
+			(void)fprintf(stderr, "rlogin: %s\n",
+			    strerror(ENOMEM));
+			exit(1);
+		}
 
 		rem = KSUCCESS;
 		errno = 0;
@@ -353,8 +305,11 @@ try_connect:
 		if (rem < 0) {
 			use_kerberos = 0;
 			sp = getservbyname("login", "tcp");
-			if (sp == NULL)
-				errx(1, "unknown service login/tcp.");
+			if (sp == NULL) {
+				(void)fprintf(stderr,
+				    "rlogin: unknown service login/tcp.\n");
+				exit(1);
+			}
 			if (errno == ECONNREFUSED)
 				warning("remote host doesn't support Kerberos");
 			if (errno == ENOENT)
@@ -363,8 +318,11 @@ try_connect:
 		}
 	} else {
 #ifdef CRYPT
-		if (doencrypt)
-			errx(1, "the -x flag requires Kerberos authentication.");
+		if (doencrypt) {
+			(void)fprintf(stderr,
+			    "rlogin: the -x flag requires Kerberos authentication.\n");
+			exit(1);
+		}
 #endif /* CRYPT */
 		rem = rcmd(&host, sp->s_port, pw->pw_name, user, term, 0);
 	}
@@ -376,80 +334,53 @@ try_connect:
 		exit(1);
 
 	if (dflag &&
-	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, (char *) &one,
-		       sizeof(one)) < 0)
- 		warn("setsockopt DEBUG (ignored)");
-
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
+	    setsockopt(rem, SOL_SOCKET, SO_DEBUG, &one, sizeof(one)) < 0)
+		(void)fprintf(stderr, "rlogin: setsockopt: %s.\n",
+		    strerror(errno));
 	one = IPTOS_LOWDELAY;
 	if (setsockopt(rem, IPPROTO_IP, IP_TOS, (char *)&one, sizeof(int)) < 0)
- 		warn("setsockopt TOS (ignored)");
-#endif
+		perror("rlogin: setsockopt TOS (ignored)");
 
 	(void)setuid(uid);
-	doit(&smask);
+	doit(omask);
 	/*NOTREACHED*/
 }
 
-#if BSD >= 198810
-int
-speed(fd)
-	int fd;
-{
-	struct termios tt;
-
-	(void)tcgetattr(fd, &tt);
-
-	return ((int) cfgetispeed(&tt));
-}
-#else
-int    speeds[] = {	/* for older systems, B0 .. EXTB */
-	0, 50, 75, 110,
-	134, 150, 200, 300,
-	600, 1200, 1800, 2400,
-	4800, 9600, 19200, 38400
-};
-
-int
-speed(fd)
-	int fd;
-{
-	struct termios tt;
-
-	(void)tcgetattr(fd, &tt);
-
-	return (speeds[(int)cfgetispeed(&tt)]);
-}
-#endif
-
-pid_t child;
-struct termios deftt;
-struct termios nott;
+int child, defflags, deflflags, tabflag;
+char deferase, defkill;
+struct tchars deftc;
+struct ltchars defltc;
+struct tchars notc = { -1, -1, -1, -1, -1, -1 };
+struct ltchars noltc = { -1, -1, -1, -1, -1, -1 };
 
 void
-doit(smask)
-	sigset_t *smask;
+doit(omask)
+	long omask;
 {
-	int i;
+	struct sgttyb sb;
 
-	for (i = 0; i < NCCS; i++)
-		nott.c_cc[i] = _POSIX_VDISABLE;
-	tcgetattr(0, &deftt);
-	nott.c_cc[VSTART] = deftt.c_cc[VSTART];
-	nott.c_cc[VSTOP] = deftt.c_cc[VSTOP];
-
-	setsig (SIGINT, SIG_IGN);
+	(void)ioctl(0, TIOCGETP, (char *)&sb);
+	defflags = sb.sg_flags;
+	tabflag = defflags & TBDELAY;
+	defflags &= ECHO | CRMOD;
+	deferase = sb.sg_erase;
+	defkill = sb.sg_kill;
+	(void)ioctl(0, TIOCLGET, &deflflags);
+	(void)ioctl(0, TIOCGETC, &deftc);
+	notc.t_startc = deftc.t_startc;
+	notc.t_stopc = deftc.t_stopc;
+	(void)ioctl(0, TIOCGLTC, &defltc);
+	(void)signal(SIGINT, SIG_IGN);
 	setsignal(SIGHUP);
 	setsignal(SIGQUIT);
-
 	child = fork();
 	if (child == -1) {
- 		warn("fork");
+		(void)fprintf(stderr, "rlogin: fork: %s.\n", strerror(errno));
 		done(1);
 	}
 	if (child == 0) {
 		mode(1);
-		if (reader(smask) == 0) {
+		if (reader(omask) == 0) {
 			msg("connection closed.");
 			exit(0);
 		}
@@ -465,10 +396,8 @@ doit(smask)
 	 * signals to the child. We can now unblock SIGURG and SIGUSR1
 	 * that were set above.
 	 */
-	(void)sigprocmask(SIG_SETMASK, smask, (sigset_t *) 0);
-
-	setsig (SIGCHLD, catch_child);
-
+	(void)sigsetmask(omask);
+	(void)signal(SIGCHLD, catch_child);
 	writer();
 	msg("closed connection.");
 	done(0);
@@ -479,34 +408,25 @@ void
 setsignal(sig)
 	int sig;
 {
-	sig_t handler;
-	sigset_t sigs;
+	int omask = sigblock(sigmask(sig));
 
-	sigemptyset(&sigs);
-	sigaddset(&sigs, sig);
-	sigprocmask(SIG_BLOCK, &sigs, &sigs);
-
-	handler = setsig (sig, exit);
-	if (handler == SIG_IGN)
-	  setsig (sig, handler);
-
-	(void)sigprocmask(SIG_SETMASK, &sigs, (sigset_t *) 0);
+	if (signal(sig, exit) == SIG_IGN)
+		(void)signal(sig, SIG_IGN);
+	(void)sigsetmask(omask);
 }
 
-void
+__dead void
 done(status)
 	int status;
 {
-	pid_t w;
-	int wstatus;
+	int w, wstatus;
 
 	mode(0);
 	if (child > 0) {
 		/* make sure catch_child does not snap it up */
-	    setsig (SIGCHLD, SIG_DFL);
+		(void)signal(SIGCHLD, SIG_DFL);
 		if (kill(child, SIGKILL) >= 0)
-			while ((w = wait(&wstatus)) > 0 && w != child)
-				continue;
+			while ((w = wait(&wstatus)) > 0 && w != child);
 	}
 	exit(status);
 }
@@ -523,7 +443,7 @@ writeroob(signo)
 {
 	if (dosigwinch == 0) {
 		sendwindow();
-		setsig (SIGWINCH, sigwinch);
+		(void)signal(SIGWINCH, sigwinch);
 	}
 	dosigwinch = 1;
 }
@@ -532,16 +452,16 @@ void
 catch_child(signo)
 	int signo;
 {
-	int status;
-	pid_t pid;
+	union wait status;
+	int pid;
 
 	for (;;) {
-		pid = waitpid(-1, &status, WNOHANG|WUNTRACED);
+		pid = wait3((int *)&status, WNOHANG|WUNTRACED, NULL);
 		if (pid == 0)
 			return;
 		/* if the child (reader) dies, just quit */
 		if (pid < 0 || (pid == child && !WIFSTOPPED(status)))
-			done(WEXITSTATUS(status) | WTERMSIG(status));
+			done((int)(status.w_termsig | status.w_retcode));
 	}
 	/* NOTREACHED */
 }
@@ -582,15 +502,11 @@ writer()
 			}
 		} else if (local) {
 			local = 0;
-			if (c == '.' || c == deftt.c_cc[VEOF]) {
+			if (c == '.' || c == deftc.t_eofc) {
 				echo(c);
 				break;
 			}
-			if (c == deftt.c_cc[VSUSP]
-#ifdef VDSUSP
-			    || c == deftt.c_cc[VDSUSP]
-#endif
-			    ) {
+			if (c == defltc.t_suspc || c == defltc.t_dsuspc) {
 				bol = 1;
 				echo(c);
 				stop(c);
@@ -622,8 +538,8 @@ writer()
 				msg("line gone");
 				break;
 			}
-		bol = c == deftt.c_cc[VKILL] || c == deftt.c_cc[VEOF] ||
-		    c == deftt.c_cc[VINTR] || c == deftt.c_cc[VSUSP] ||
+		bol = c == defkill || c == deftc.t_eofc ||
+		    c == deftc.t_intrc || c == defltc.t_suspc ||
 		    c == '\r' || c == '\n';
 	}
 }
@@ -664,9 +580,9 @@ stop(cmdc)
 #endif
 {
 	mode(0);
-	setsig (SIGCHLD, SIG_IGN);
-	(void)kill(cmdc == deftt.c_cc[VSUSP] ? 0 : getpid(), SIGTSTP);
-	setsig (SIGCHLD, catch_child);
+	(void)signal(SIGCHLD, SIG_IGN);
+	(void)kill(cmdc == defltc.t_suspc ? 0 : getpid(), SIGTSTP);
+	(void)signal(SIGCHLD, catch_child);
 	mode(1);
 	sigwinch(0);			/* check for size changes */
 }
@@ -678,7 +594,7 @@ sigwinch(signo)
 	struct winsize ws;
 
 	if (dosigwinch && get_window_size(0, &ws) == 0 &&
-	    memcmp(&ws, &winsize, sizeof(ws))) {
+	    bcmp(&ws, &winsize, sizeof(ws))) {
 		winsize = ws;
 		sendwindow();
 	}
@@ -720,15 +636,14 @@ sendwindow()
 #define	WRITING	2
 
 jmp_buf rcvtop;
-pid_t ppid;
-int rcvcnt, rcvstate;
+int ppid, rcvcnt, rcvstate;
 char rcvbuf[8 * 1024];
 
 void
 oob(signo)
 	int signo;
 {
-	struct termios tt;
+	struct sgttyb sb;
 	int atmark, n, out, rcvd;
 	char waste[BUFSIZ], mark;
 
@@ -763,26 +678,29 @@ oob(signo)
 		(void)kill(ppid, SIGUSR1);
 	}
 	if (!eight && (mark & TIOCPKT_NOSTOP)) {
-		tcgetattr(0, &tt);
-		tt.c_iflag &= ~(IXON | IXOFF);
-		tt.c_cc[VSTOP] = _POSIX_VDISABLE;
-		tt.c_cc[VSTART] = _POSIX_VDISABLE;
-		tcsetattr(0, TCSANOW, &tt);
+		(void)ioctl(0, TIOCGETP, (char *)&sb);
+		sb.sg_flags &= ~CBREAK;
+		sb.sg_flags |= RAW;
+		(void)ioctl(0, TIOCSETN, (char *)&sb);
+		notc.t_stopc = -1;
+		notc.t_startc = -1;
+		(void)ioctl(0, TIOCSETC, (char *)&notc);
 	}
 	if (!eight && (mark & TIOCPKT_DOSTOP)) {
-		tcgetattr(0, &tt);
-		tt.c_iflag |= (IXON|IXOFF);
-		tt.c_cc[VSTOP] = deftt.c_cc[VSTOP];
-		tt.c_cc[VSTART] = deftt.c_cc[VSTART];
-		tcsetattr(0, TCSANOW, &tt);
+		(void)ioctl(0, TIOCGETP, (char *)&sb);
+		sb.sg_flags &= ~RAW;
+		sb.sg_flags |= CBREAK;
+		(void)ioctl(0, TIOCSETN, (char *)&sb);
+		notc.t_stopc = deftc.t_stopc;
+		notc.t_startc = deftc.t_startc;
+		(void)ioctl(0, TIOCSETC, (char *)&notc);
 	}
 	if (mark & TIOCPKT_FLUSHWRITE) {
-#ifdef TIOCFLUSH
 		(void)ioctl(1, TIOCFLUSH, (char *)&out);
-#endif
 		for (;;) {
 			if (ioctl(rem, SIOCATMARK, &atmark) < 0) {
-				warn("ioctl SIOCATMARK (ignored)");
+				(void)fprintf(stderr, "rlogin: ioctl: %s.\n",
+				    strerror(errno));
 				break;
 			}
 			if (atmark)
@@ -814,11 +732,10 @@ oob(signo)
 
 /* reader: read from remote: line -> 1 */
 int
-reader(smask)
-	sigset_t *smask;
+reader(omask)
+	int omask;
 {
-	pid_t pid;
-	int n, remaining;
+	int pid, n, remaining;
 	char *bufp;
 
 #if BSD >= 43 || defined(SUNOS4)
@@ -826,14 +743,12 @@ reader(smask)
 #else
 	pid = -getpid();	/* old broken systems use negatives */
 #endif
-
-	setsig (SIGTTOU, SIG_IGN);
-	setsig (SIGURG, oob);
-
+	(void)signal(SIGTTOU, SIG_IGN);
+	(void)signal(SIGURG, oob);
 	ppid = getppid();
 	(void)fcntl(rem, F_SETOWN, pid);
 	(void)setjmp(rcvtop);
-	(void)sigprocmask(SIG_SETMASK, smask, (sigset_t *) 0);
+	(void)sigsetmask(omask);
 	bufp = rcvbuf;
 	for (;;) {
 		while ((remaining = rcvcnt - (bufp - rcvbuf)) > 0) {
@@ -863,7 +778,8 @@ reader(smask)
 		if (rcvcnt < 0) {
 			if (errno == EINTR)
 				continue;
-			warn("read");
+			(void)fprintf(stderr, "rlogin: read: %s.\n",
+			    strerror(errno));
 			return (-1);
 		}
 	}
@@ -873,39 +789,49 @@ void
 mode(f)
 	int f;
 {
-	struct termios tt;
+	struct ltchars *ltc;
+	struct sgttyb sb;
+	struct tchars *tc;
+	int lflags;
 
-	switch (f) {
+	(void)ioctl(0, TIOCGETP, (char *)&sb);
+	(void)ioctl(0, TIOCLGET, (char *)&lflags);
+	switch(f) {
 	case 0:
-		tcsetattr(0, TCSADRAIN, &deftt);
+		sb.sg_flags &= ~(CBREAK|RAW|TBDELAY);
+		sb.sg_flags |= defflags|tabflag;
+		tc = &deftc;
+		ltc = &defltc;
+		sb.sg_kill = defkill;
+		sb.sg_erase = deferase;
+		lflags = deflflags;
 		break;
 	case 1:
-		tt = deftt;
-		tt.c_oflag &= ~(OPOST);
-		tt.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
-		tt.c_iflag &= ~(ICRNL);
-		tt.c_cc[VMIN] = 1;
-		tt.c_cc[VTIME] = 0;
-		if (eight) {
-			tt.c_iflag &= ~(IXON | IXOFF | ISTRIP);
-			tt.c_cc[VSTOP] = _POSIX_VDISABLE;
-			tt.c_cc[VSTART] = _POSIX_VDISABLE;
-		}
-		/*if (litout)
-			lflags |= LLITOUT;*/
-		tcsetattr(0, TCSADRAIN, &tt);
+		sb.sg_flags |= (eight ? RAW : CBREAK);
+		sb.sg_flags &= ~defflags;
+		/* preserve tab delays, but turn off XTABS */
+		if ((sb.sg_flags & TBDELAY) == XTABS)
+			sb.sg_flags &= ~TBDELAY;
+		tc = &notc;
+		ltc = &noltc;
+		sb.sg_kill = sb.sg_erase = -1;
+		if (litout)
+			lflags |= LLITOUT;
 		break;
-
 	default:
 		return;
 	}
+	(void)ioctl(0, TIOCSLTC, (char *)ltc);
+	(void)ioctl(0, TIOCSETC, (char *)tc);
+	(void)ioctl(0, TIOCSETN, (char *)&sb);
+	(void)ioctl(0, TIOCLSET, (char *)&lflags);
 }
 
 void
 lostpeer(signo)
 	int signo;
 {
-	setsig (SIGPIPE, SIG_IGN);
+	(void)signal(SIGPIPE, SIG_IGN);
 	msg("\007connection closed.");
 	done(1);
 }
@@ -915,7 +841,6 @@ void
 copytochild(signo)
 	int signo;
 {
-
 	(void)kill(child, SIGURG);
 }
 
@@ -923,14 +848,13 @@ void
 msg(str)
 	char *str;
 {
-
 	(void)fprintf(stderr, "rlogin: %s\r\n", str);
 }
 
 #ifdef KERBEROS
 /* VARARGS */
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 warning(const char *fmt, ...)
 #else
 warning(fmt, va_alist)
@@ -941,7 +865,7 @@ warning(fmt, va_alist)
 	va_list ap;
 
 	(void)fprintf(stderr, "rlogin: warning, using standard rlogin: ");
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#ifdef __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -952,11 +876,11 @@ warning(fmt, va_alist)
 }
 #endif
 
-void
+__dead void
 usage()
 {
 	(void)fprintf(stderr,
-	    "usage: rlogin [ -%s]%s[-e char] [ -l username ] [username@]host\n",
+	    "usage: rlogin [ -%s]%s[-e char] [ -l username ] host\n",
 #ifdef KERBEROS
 #ifdef CRYPT
 	    "8EKLx", " [-k realm] ");

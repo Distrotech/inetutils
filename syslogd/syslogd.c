@@ -63,10 +63,6 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
  * more extensive changes by Eric Allman (again)
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #define	MAXLINE		1024		/* maximum line length */
 #define	MAXSVLINE	120		/* maximum saved line length */
 #define DEFUPRI		(LOG_USER|LOG_NOTICE)
@@ -78,21 +74,10 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
-#ifdef HAVE_SYS_MSGBUF_H
 #include <sys/msgbuf.h>
-#endif
 #include <sys/uio.h>
 #include <sys/un.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <sys/resource.h>
 
 #include <netinet/in.h>
@@ -109,28 +94,21 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <string.h>
 #include <unistd.h>
 #include <utmp.h>
-#include <getopt.h>
-#define SYSLOG_NAMES
-#include <syslog.h>
-#ifndef HAVE_SYSLOG_INTERNAL
-#include <syslog-int.h>
-#endif
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
+#include "pathnames.h"
 
-char	*LogName = PATH_LOG;
-char	*ConfFile = PATH_LOGCONF;
-char	*PidFile = PATH_LOGPID;
-char	ctty[] = PATH_CONSOLE;
+#define SYSLOG_NAMES
+#include <sys/syslog.h>
+
+char	*LogName = _PATH_LOG;
+char	*ConfFile = _PATH_LOGCONF;
+char	*PidFile = _PATH_LOGPID;
+char	ctty[] = _PATH_CONSOLE;
 
 #define FDMASK(fd)	(1 << (fd))
 
-#ifndef LINE_MAX
-#define LINE_MAX 2048
-#endif
-
 #define	dprintf		if (Debug) printf
+
+#define MAXUNAMES	20	/* maximum number of user names */
 
 /*
  * Flags to logmsg().
@@ -153,19 +131,16 @@ struct filed {
 	time_t	f_time;			/* time this was last written */
 	u_char	f_pmask[LOG_NFACILITIES+1];	/* priority mask */
 	union {
+		char	f_uname[MAXUNAMES][UT_NAMESIZE+1];
 		struct {
-			int f_nusers;
-			char **f_unames;
-		} f_user;
-		struct {
-			char	*f_hname;
+			char	f_hname[MAXHOSTNAMELEN+1];
 			struct sockaddr_in	f_addr;
 		} f_forw;		/* forwarding address */
-		char	*f_fname;
+		char	f_fname[MAXPATHLEN];
 	} f_un;
 	char	f_prevline[MAXSVLINE];		/* last message logged */
 	char	f_lasttime[16];			/* time of last occurrence */
-	char	*f_prevhost;			/* host from which recd. */
+	char	f_prevhost[MAXHOSTNAMELEN+1];	/* host from which recd. */
 	int	f_prevpri;			/* pri of f_prevline */
 	int	f_prevlen;			/* length of f_prevline */
 	int	f_prevcount;			/* repetition cnt of prevline */
@@ -202,7 +177,7 @@ struct	filed *Files;
 struct	filed consfile;
 
 int	Debug;			/* debug flag */
-char	*LocalHostName = 0;	/* our hostname */
+char	LocalHostName[MAXHOSTNAMELEN+1];	/* our hostname */
 char	*LocalDomain;		/* our local domain name */
 int	InetInuse = 0;		/* non-zero if INET sockets are being used */
 int	finet;			/* Internet datagram socket */
@@ -212,21 +187,20 @@ int	MarkInterval = 20 * 60;	/* interval between marks in seconds */
 int	MarkSeq = 0;		/* mark sequence number */
 
 void	cfline __P((char *, struct filed *));
-const char *cvthname __P((struct sockaddr_in *));
+char   *cvthname __P((struct sockaddr_in *));
 int	decode __P((const char *, CODE *));
 void	die __P((int));
 void	domark __P((int));
-void	fprintlog __P((struct filed *, int, const char *));
+void	fprintlog __P((struct filed *, int, char *));
 void	init __P((int));
-void	logerror __P((const char *));
-void	logmsg __P((int, const char *, const char *, int));
-void	printline __P((const char *, const char *));
-void	printsys __P((const char *));
+void	logerror __P((char *));
+void	logmsg __P((int, char *, char *, int));
+void	printline __P((char *, char *));
+void	printsys __P((char *));
 void	reapchild __P((int));
 char   *ttymsg __P((struct iovec *, int, char *, int));
 void	usage __P((void));
 void	wallmsg __P((struct filed *, struct iovec *));
-extern char *localhost __P ((void));
 
 int
 main(argc, argv)
@@ -237,12 +211,7 @@ main(argc, argv)
 	struct sockaddr_un sunx, fromunix;
 	struct sockaddr_in sin, frominet;
 	FILE *fp;
-	char *p;
-#ifdef MSG_BSIZE
-	char line[MSG_BSIZE + 1];
-#else
-	char line[MAXLINE + 1];
-#endif
+	char *p, line[MSG_BSIZE + 1];
 
 	while ((ch = getopt(argc, argv, "df:m:p:")) != EOF)
 		switch(ch) {
@@ -268,34 +237,16 @@ main(argc, argv)
 	if (!Debug)
 		(void)daemon(0, 0);
 	else
-	{
-#ifdef HAVE_SETLINEBUF
-	  setlinebuf (stdout);
-#else
-#ifndef SETVBUF_REVERSED
-	  setvbuf (stdout, (char *) 0, _IOLBF, BUFSIZ);
-#else /* setvbuf not reversed.  */
- /* Some buggy systems lose if we pass 0 instead of allocating ourselves.  */
-	  setvbuf (stdout, _IOLBF, xmalloc (BUFSIZ), BUFSIZ);
-#endif /* setvbuf reversed.  */
-#endif /* setlinebuf missing.  */
-	}
+		setlinebuf(stdout);
 
-	LocalHostName = localhost ();
-	if (! LocalHostName) {
-		perror ("Can't get local host name");
-		exit (2);
-	}
-
+	consfile.f_type = F_CONSOLE;
+	(void)strcpy(consfile.f_un.f_fname, ctty);
+	(void)gethostname(LocalHostName, sizeof(LocalHostName));
 	if ((p = strchr(LocalHostName, '.')) != NULL) {
 		*p++ = '\0';
 		LocalDomain = p;
 	} else
 		LocalDomain = "";
-
-	consfile.f_type = F_CONSOLE;
-	consfile.f_un.f_fname = strdup (ctty);
-
 	(void)signal(SIGTERM, die);
 	(void)signal(SIGINT, Debug ? die : SIG_IGN);
 	(void)signal(SIGQUIT, Debug ? die : SIG_IGN);
@@ -305,7 +256,7 @@ main(argc, argv)
 	(void)unlink(LogName);
 
 #ifndef SUN_LEN
-#define SUN_LEN(unp) (strlen((unp)->sun_path) + 3)
+#define SUN_LEN(unp) (strlen((unp)->sun_path) + 2)
 #endif
 	memset(&sunx, 0, sizeof(sunx));
 	sunx.sun_family = AF_UNIX;
@@ -314,7 +265,7 @@ main(argc, argv)
 	if (funix < 0 ||
 	    bind(funix, (struct sockaddr *)&sunx, SUN_LEN(&sunx)) < 0 ||
 	    chmod(LogName, 0666) < 0) {
-		snprintf (line, sizeof line, "cannot create %s", LogName);
+		(void) sprintf(line, "cannot create %s", LogName);
 		logerror(line);
 		dprintf("cannot create %s (%d)\n", LogName, errno);
 		die(0);
@@ -342,17 +293,12 @@ main(argc, argv)
 			InetInuse = 1;
 		}
 	}
-
-#ifdef PATH_KLOG
-	if ((fklog = open(PATH_KLOG, O_RDONLY, 0)) >= 0)
+	if ((fklog = open(_PATH_KLOG, O_RDONLY, 0)) >= 0)
 		klogm = FDMASK(fklog);
 	else {
-		dprintf("can't open %s (%d)\n", PATH_KLOG, errno);
+		dprintf("can't open %s (%d)\n", _PATH_KLOG, errno);
 		klogm = 0;
 	}
-#else
-	klogm = 0;
-#endif
 
 	/* tuck my process id away */
 	fp = fopen(PidFile, "w");
@@ -429,12 +375,11 @@ usage()
  */
 void
 printline(hname, msg)
-	const char *hname;
-	const char *msg;
+	char *hname;
+	char *msg;
 {
 	int c, pri;
-	const char *p;
-	char *q, line[MAXLINE + 1];
+	char *p, *q, line[MAXLINE + 1];
 
 	/* test for special codes */
 	pri = DEFUPRI;
@@ -478,11 +423,10 @@ printline(hname, msg)
  */
 void
 printsys(msg)
-	const char *msg;
+	char *msg;
 {
 	int c, pri, flags;
-	char *lp, *q, line[MAXLINE + 1];
-	const char *p;
+	char *lp, *p, *q, line[MAXLINE + 1];
 
 	(void)strcpy(line, "vmunix: ");
 	lp = line + strlen(line);
@@ -519,30 +463,17 @@ time_t	now;
 void
 logmsg(pri, msg, from, flags)
 	int pri;
-	const char *msg, *from;
+	char *msg, *from;
 	int flags;
 {
 	struct filed *f;
-	int fac, msglen, prilev;
-#ifdef HAVE_SIGACTION
-	sigset_t sigs, osigs;
-#else
-	int omask;
-#endif
-	
-	const char *timestamp;
+	int fac, msglen, omask, prilev;
+	char *timestamp;
 
 	dprintf("logmsg: pri %o, flags %x, from %s, msg %s\n",
 	    pri, flags, from, msg);
 
-#ifdef HAVE_SIGACTION
-	sigemptyset(&sigs);
-	sigaddset(&sigs, SIGHUP);
-	sigaddset(&sigs, SIGALRM);
-	sigprocmask(SIG_BLOCK, &sigs, &osigs);
-#else
 	omask = sigblock(sigmask(SIGHUP)|sigmask(SIGALRM));
-#endif
 
 	/*
 	 * Check to see if msg looks non-standard.
@@ -572,16 +503,12 @@ logmsg(pri, msg, from, flags)
 	if (!Initialized) {
 		f = &consfile;
 		f->f_file = open(ctty, O_WRONLY, 0);
-		f->f_prevhost = strdup (LocalHostName);
+
 		if (f->f_file >= 0) {
 			fprintlog(f, flags, msg);
 			(void)close(f->f_file);
 		}
-#ifdef HAVE_SIGACTION
-		sigprocmask(SIG_SETMASK, &osigs, 0);
-#else
 		(void)sigsetmask(omask);
-#endif
 		return;
 	}
 	for (f = Files; f; f = f->f_next) {
@@ -601,7 +528,6 @@ logmsg(pri, msg, from, flags)
 		 * suppress duplicate lines to this file
 		 */
 		if ((flags & MARK) == 0 && msglen == f->f_prevlen &&
-		    f->f_prevhost &&
 		    !strcmp(msg, f->f_prevline) &&
 		    !strcmp(from, f->f_prevhost)) {
 			(void)strncpy(f->f_lasttime, timestamp, 15);
@@ -625,9 +551,8 @@ logmsg(pri, msg, from, flags)
 				fprintlog(f, 0, (char *)NULL);
 			f->f_repeatcount = 0;
 			(void)strncpy(f->f_lasttime, timestamp, 15);
-			if (f->f_prevhost)
-				free (f->f_prevhost);
-			f->f_prevhost = strdup (from);
+			(void)strncpy(f->f_prevhost, from,
+					sizeof(f->f_prevhost));
 			if (msglen < MAXSVLINE) {
 				f->f_prevlen = msglen;
 				f->f_prevpri = pri;
@@ -640,18 +565,14 @@ logmsg(pri, msg, from, flags)
 			}
 		}
 	}
-#ifdef HAVE_SIGACTION
-	sigprocmask(SIG_SETMASK, &osigs, 0);
-#else
 	(void)sigsetmask(omask);
-#endif
 }
 
 void
 fprintlog(f, flags, msg)
 	struct filed *f;
 	int flags;
-	const char *msg;
+	char *msg;
 {
 	struct iovec iov[6];
 	struct iovec *v;
@@ -661,10 +582,9 @@ fprintlog(f, flags, msg)
 	v = iov;
 	if (f->f_type == F_WALL) {
 		v->iov_base = greetings;
-		snprintf (greetings, sizeof greetings,
-			  "\r\n\7Message from syslogd@%s at %.24s ...\r\n",
-			  f->f_prevhost, ctime(&now));
-		v->iov_len = strlen (greetings);
+		v->iov_len = sprintf(greetings,
+		    "\r\n\7Message from syslogd@%s at %.24s ...\r\n",
+		    f->f_prevhost, ctime(&now));
 		v++;
 		v->iov_base = "";
 		v->iov_len = 0;
@@ -685,13 +605,12 @@ fprintlog(f, flags, msg)
 	v++;
 
 	if (msg) {
-		v->iov_base = (char *)msg;
+		v->iov_base = msg;
 		v->iov_len = strlen(msg);
 	} else if (f->f_prevcount > 1) {
 		v->iov_base = repbuf;
-		sprintf(repbuf, "last message repeated %d times",
-			f->f_prevcount);
-		v->iov_len = strlen(repbuf);
+		v->iov_len = sprintf(repbuf, "last message repeated %d times",
+		    f->f_prevcount);
 	} else {
 		v->iov_base = f->f_prevline;
 		v->iov_len = f->f_prevlen;
@@ -708,9 +627,8 @@ fprintlog(f, flags, msg)
 
 	case F_FORW:
 		dprintf(" %s\n", f->f_un.f_forw.f_hname);
-		sprintf(line, "<%d>%.15s %s", f->f_prevpri,
-			iov[0].iov_base, iov[4].iov_base);
-		l = strlen(line);
+		l = sprintf(line, "<%d>%.15s %s", f->f_prevpri,
+		    iov[0].iov_base, iov[4].iov_base);
 		if (l > MAXLINE)
 			l = MAXLINE;
 		if (sendto(finet, line, l, 0,
@@ -796,8 +714,8 @@ wallmsg(f, iov)
 
 	if (reenter++)
 		return;
-	if ((uf = fopen(PATH_UTMP, "r")) == NULL) {
-		logerror(PATH_UTMP);
+	if ((uf = fopen(_PATH_UTMP, "r")) == NULL) {
+		logerror(_PATH_UTMP);
 		reenter = 0;
 		return;
 	}
@@ -815,15 +733,18 @@ wallmsg(f, iov)
 			continue;
 		}
 		/* should we send the message to this user? */
-		for (i = 0; i < f->f_un.f_user.f_nusers; i++)
-			if (!strncmp(f->f_un.f_user.f_unames[i], ut.ut_name,
-				     sizeof (ut.ut_name))) {
+		for (i = 0; i < MAXUNAMES; i++) {
+			if (!f->f_un.f_uname[i][0])
+				break;
+			if (!strncmp(f->f_un.f_uname[i], ut.ut_name,
+			    UT_NAMESIZE)) {
 				if ((p = ttymsg(iov, 6, line, 60*5)) != NULL) {
 					errno = 0;	/* already in msg */
 					logerror(p);
 				}
 				break;
 			}
+		}
 	}
 	(void)fclose(uf);
 	reenter = 0;
@@ -833,18 +754,16 @@ void
 reapchild(signo)
 	int signo;
 {
-#ifdef HAVE_WAITPID
-	while (waitpid(-1, 0, WNOHANG) > 0)
-#else
-	while (wait3(0, WNOHANG, (struct rusage *)NULL) > 0)
-#endif
+	union wait status;
+
+	while (wait3((int *)&status, WNOHANG, (struct rusage *)NULL) > 0)
 		;
 }
 
 /*
  * Return a printable representation of a host address.
  */
-const char *
+char *
 cvthname(f)
 	struct sockaddr_in *f;
 {
@@ -899,7 +818,7 @@ domark(signo)
  */
 void
 logerror(type)
-	const char *type;
+	char *type;
 {
 	char buf[100];
 
@@ -995,7 +914,7 @@ init(signo)
 		 */
 		for (p = cline; isspace(*p); ++p)
 			continue;
-		if (*p == 0 || *p == '#')
+		if (*p == NULL || *p == '#')
 			continue;
 		for (p = strchr(cline, '\0'); isspace(*--p);)
 			continue;
@@ -1031,9 +950,8 @@ init(signo)
 				break;
 
 			case F_USERS:
-				for (i = 0; i < f->f_un.f_user.f_nusers; i++)
-					printf("%s, ",
-					       f->f_un.f_user.f_unames[i]);
+				for (i = 0; i < MAXUNAMES && *f->f_un.f_uname[i]; i++)
+					printf("%s, ", f->f_un.f_uname[i]);
 				break;
 			}
 			printf("\n");
@@ -1088,8 +1006,8 @@ cfline(line, f)
 		else {
 			pri = decode(buf, prioritynames);
 			if (pri < 0) {
-				snprintf (ebuf, sizeof ebuf,
-						  "unknown priority name \"%s\"", buf);
+				(void)sprintf(ebuf,
+				    "unknown priority name \"%s\"", buf);
 				logerror(ebuf);
 				return;
 			}
@@ -1106,8 +1024,9 @@ cfline(line, f)
 			else {
 				i = decode(buf, facilitynames);
 				if (i < 0) {
-					snprintf (ebuf, sizeof ebuf,
-							 "unknown facility name \"%s\"", buf);
+					(void)sprintf(ebuf,
+					    "unknown facility name \"%s\"",
+					    buf);
 					logerror(ebuf);
 					return;
 				}
@@ -1129,18 +1048,16 @@ cfline(line, f)
 	case '@':
 		if (!InetInuse)
 			break;
-		f->f_un.f_forw.f_hname = strdup (++p);
+		(void)strcpy(f->f_un.f_forw.f_hname, ++p);
 		hp = gethostbyname(p);
 		if (hp == NULL) {
 			extern int h_errno;
-#ifndef HAVE_HSTRERROR_DECL
-			extern char *hstrerror __P((int));
-#endif
+
 			logerror(hstrerror(h_errno));
 			break;
 		}
 		memset(&f->f_un.f_forw.f_addr, 0,
-		       sizeof(f->f_un.f_forw.f_addr));
+			 sizeof(f->f_un.f_forw.f_addr));
 		f->f_un.f_forw.f_addr.sin_family = AF_INET;
 		f->f_un.f_forw.f_addr.sin_port = LogPort;
 		memmove(&f->f_un.f_forw.f_addr.sin_addr, hp->h_addr, hp->h_length);
@@ -1148,7 +1065,7 @@ cfline(line, f)
 		break;
 
 	case '/':
-		f->f_un.f_fname = strdup (p);
+		(void)strcpy(f->f_un.f_fname, p);
 		if ((f->f_file = open(p, O_WRONLY|O_APPEND, 0)) < 0) {
 			f->f_file = F_UNUSED;
 			logerror(p);
@@ -1167,20 +1084,14 @@ cfline(line, f)
 		break;
 
 	default:
-		f->f_un.f_user.f_nusers = 1;
-		for (q = p; *q; q++)
-			if (*q == ',')
-				f->f_un.f_user.f_nusers++;
-		f->f_un.f_user.f_unames =
-		  (char **) malloc (f->f_un.f_user.f_nusers * sizeof (char *));
-		for (i = 0; *p; i++) {
+		for (i = 0; i < MAXUNAMES && *p; i++) {
 			for (q = p; *q && *q != ','; )
 				q++;
-			f->f_un.f_user.f_unames[i] = malloc (q - p + 1);
-			if (f->f_un.f_user.f_unames[i]) {
-				strncpy (f->f_un.f_user.f_unames[i], p, q - p);
-				f->f_un.f_user.f_unames[i][q - p] = '\0';
-			}
+			(void)strncpy(f->f_un.f_uname[i], p, UT_NAMESIZE);
+			if ((q - p) > UT_NAMESIZE)
+				f->f_un.f_uname[i][UT_NAMESIZE] = '\0';
+			else
+				f->f_un.f_uname[i][q - p] = '\0';
 			while (*q == ',' || *q == ' ')
 				q++;
 			p = q;
@@ -1189,6 +1100,7 @@ cfline(line, f)
 		break;
 	}
 }
+
 
 /*
  *  Decode a symbolic name to a numeric value

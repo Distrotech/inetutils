@@ -66,7 +66,7 @@ extern int	auth_level;
 
 extern slcfun	slctab[NSLC + 1];	/* slc mapping table */
 
-extern char	*terminaltype;
+char	*terminaltype;
 
 /*
  * I/O data buffers, pointers, and counters.
@@ -86,6 +86,7 @@ extern char *unptyip;  /* pointer to remaining characters in buffer */
 #endif
 
 extern int	pty, net;
+extern char	*line;
 extern int	SYNCHing;		/* we are in TELNET SYNCH mode */
 
 #ifndef	P
@@ -223,29 +224,17 @@ extern int	needtermstat;
 #endif
 
 #ifndef	DEFAULT_IM
-# ifdef HAVE_UNAME
-   /* Prefix and suffix if the IM string can be generated from uname.  */
-#  define UNAME_IM_PREFIX "\r\n"
-#  define UNAME_IM_SUFFIX " (%h) (%t)\r\n\n"
-# else /* ! HAVE_UNAME */
-#  ifdef CRAY
-#   define DEFAULT_IM	"\r\n\r\nCray UNICOS (%h) (%t)\r\n\r\r\n\r"
+# ifdef CRAY
+#  define DEFAULT_IM	"\r\n\r\nCray UNICOS (%h) (%t)\r\n\r\r\n\r"
+# else
+#  ifdef sun
+#   define DEFAULT_IM	"\r\n\r\nSunOS UNIX (%h) (%t)\r\n\r\r\n\r"
 #  else
-#   ifdef sun
-#    define DEFAULT_IM	"\r\n\r\nSunOS UNIX (%h) (%t)\r\n\r\r\n\r"
+#   ifdef ultrix
+#    define DEFAULT_IM	"\r\n\r\nULTRIX (%h) (%t)\r\n\r\r\n\r"
 #   else
-#    ifdef ultrix
-#     define DEFAULT_IM	"\r\n\r\nULTRIX (%h) (%t)\r\n\r\r\n\r"
-#    else
-#     define DEFAULT_IM	"\r\n\r\n4.4 BSD UNIX (%h) (%t)\r\n\r\r\n\r"
-#    endif
+#    define DEFAULT_IM	"\r\n\r\n4.4 BSD UNIX (%h) (%t)\r\n\r\r\n\r"
 #   endif
 #  endif
 # endif
 #endif
-
-#ifdef extern
-#undef extern
-#endif
-/* Let "line" get its definition from sys_term.c. */
-extern char	*line;

@@ -32,12 +32,8 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)utility.c	8.4 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)utility.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #define PRINTOPTIONS
 #include "telnetd.h"
@@ -224,7 +220,7 @@ netclear()
 		next = nextitem(next);
 	    } while (wewant(next) && (nfrontp > next));
 	    length = next-thisitem;
-	    memmove(good, thisitem, length);
+	    bcopy(thisitem, good, length);
 	    good += length;
 	    thisitem = next;
 	} else {
@@ -331,7 +327,7 @@ writenet(ptr, len)
 		netflush();
 	}
 
-	memmove(nfrontp, ptr, len);
+	bcopy(ptr, nfrontp, len);
 	nfrontp += len;
 
 }  /* end of writenet */
@@ -349,7 +345,7 @@ fatal(f, msg)
 {
 	char buf[BUFSIZ];
 
-	snprintf (buf, sizeof buf, "telnetd: %s.\r\n", msg);
+	(void) sprintf(buf, "telnetd: %s.\r\n", msg);
 #ifdef	ENCRYPTION
 	if (encrypt_output) {
 		/*
@@ -372,7 +368,7 @@ fatalperror(f, msg)
 {
 	char buf[BUFSIZ], *strerror();
 
-	snprintf (buf, sizeof buf, "%s: %s", msg, strerror(errno));
+	(void) sprintf(buf, "%s: %s\r\n", msg, strerror(errno));
 	fatal(f, buf);
 }
 
@@ -384,9 +380,7 @@ edithost(pat, host)
 	register char *host;
 {
 	register char *res = editedhost;
-#ifndef strncpy
 	char *strncpy();
-#endif
 
 	if (!pat)
 		pat = "";
@@ -455,13 +449,9 @@ putf(cp, where)
 	time_t t;
 	char db[100];
 #ifdef	STREAMSPTY
-#ifndef strchr
-	extern char *strchr();
-#endif
+	extern char *index();
 #else
-#ifndef strrchr
-	extern char *strrchr();
-#endif
+	extern char *rindex();
 #endif
 
 	putlocation = where;
@@ -476,9 +466,9 @@ putf(cp, where)
 		case 't':
 #ifdef	STREAMSPTY
 			/* names are like /dev/pts/2 -- we want pts/2 */
-			slash = strchr(line+1, '/');
+			slash = index(line+1, '/');
 #else
-			slash = strrchr(line, '/');
+			slash = rindex(line, '/');
 #endif
 			if (slash == (char *) 0)
 				putstr(line);

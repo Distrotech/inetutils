@@ -32,12 +32,8 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)authenc.c	8.2 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)authenc.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #if	defined(AUTHENTICATION) || defined(ENCRYPTION)
 #include "telnetd.h"
@@ -49,7 +45,7 @@ net_write(str, len)
 	int len;
 {
 	if (nfrontp + len < netobuf + BUFSIZ) {
-		memmove((void *)nfrontp, (void *)str, len);
+		bcopy((void *)str, (void *)nfrontp, len);
 		nfrontp += len;
 		return(len);
 	}

@@ -32,32 +32,21 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
+static char sccsid[] = "@(#)ruserpass.c	8.3 (Berkeley) 4/2/94";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include <ctype.h>
+#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
-#include <err.h>
 
 #include "ftp_var.h"
-
-extern char *localhost __P((void));
 
 static	int token __P((void));
 static	FILE *cfile;
@@ -91,25 +80,22 @@ ruserpass(host, aname, apass, aacct)
 	char *host, **aname, **apass, **aacct;
 {
 	char *hdir, buf[BUFSIZ], *tmp;
-	char *myname = 0, *mydomain;
+	char myname[MAXHOSTNAMELEN], *mydomain;
 	int t, i, c, usedefault = 0;
 	struct stat stb;
 
 	hdir = getenv("HOME");
 	if (hdir == NULL)
 		hdir = ".";
-	snprintf (buf, sizeof buf, "%s/.netrc", hdir);
+	(void) sprintf(buf, "%s/.netrc", hdir);
 	cfile = fopen(buf, "r");
 	if (cfile == NULL) {
 		if (errno != ENOENT)
 			warn("%s", buf);
 		return (0);
 	}
-
-	myname = localhost ();
-	if (! myname)
-		myname = "";
-
+	if (gethostname(myname, sizeof(myname)) < 0)
+		myname[0] = '\0';
 	if ((mydomain = strchr(myname, '.')) == NULL)
 		mydomain = "";
 next:
@@ -158,7 +144,7 @@ next:
 				}
 			break;
 		case PASSWD:
-			if ((*aname == NULL || strcmp(*aname, "anonymous")) &&
+			if (strcmp(*aname, "anonymous") &&
 			    fstat(fileno(cfile), &stb) >= 0 &&
 			    (stb.st_mode & 077) != 0) {
 	warnx("Error: .netrc file is readable by others.");
@@ -183,9 +169,10 @@ next:
 			}
 			break;
 		case MACDEF:
-			if (proxy) 
-				goto done;
-
+			if (proxy) {
+				(void) fclose(cfile);
+				return (0);
+			}
 			while ((c=getc(cfile)) != EOF && c == ' ' || c == '\t');
 			if (c == EOF || c == '\n') {
 				printf("Missing macdef name argument.\n");
@@ -248,13 +235,9 @@ next:
 	}
 done:
 	(void) fclose(cfile);
-	if (myname && *myname)
-		free (myname);
 	return (0);
 bad:
 	(void) fclose(cfile);
-	if (myname && *myname)
-		free (myname);
 	return (-1);
 }
 

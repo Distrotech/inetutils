@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)spx.c	8.2 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)spx.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 #ifdef	SPX
@@ -69,15 +69,11 @@ static char sccsid[] = "@(#)spx.c	8.2 (Berkeley) 5/30/95";
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <arpa/telnet.h>
 #include <stdio.h>
 #include "gssapi_defs.h"
-#ifdef HAVE_STDLIB_H
+#ifdef	__STDC__
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
@@ -251,7 +247,7 @@ spx_send(ap)
 
 	input_chan_bindings->initiator_addrtype = GSS_C_AF_INET;
 	input_chan_bindings->initiator_address.length = 4;
-	address = malloc(4);
+	address = (char *) malloc(4);
 	input_chan_bindings->initiator_address.value = (char *) address;
 	address[0] = ((from_addr & 0xff000000) >> 24);
 	address[1] = ((from_addr & 0xff0000) >> 16);
@@ -259,7 +255,7 @@ spx_send(ap)
 	address[3] = (from_addr & 0xff);
 	input_chan_bindings->acceptor_addrtype = GSS_C_AF_INET;
 	input_chan_bindings->acceptor_address.length = 4;
-	address = malloc(4);
+	address = (char *) malloc(4);
 	input_chan_bindings->acceptor_address.value = (char *) address;
 	address[0] = ((to_addr & 0xff000000) >> 24);
 	address[1] = ((to_addr & 0xff0000) >> 16);
@@ -356,7 +352,7 @@ spx_is(ap, data, cnt)
 
 		input_chan_bindings->initiator_addrtype = GSS_C_AF_INET;
 		input_chan_bindings->initiator_address.length = 4;
-		address = malloc(4);
+		address = (char *) malloc(4);
 		input_chan_bindings->initiator_address.value = (char *) address;
 		address[0] = ((from_addr & 0xff000000) >> 24);
 		address[1] = ((from_addr & 0xff0000) >> 16);
@@ -364,7 +360,7 @@ spx_is(ap, data, cnt)
 		address[3] = (from_addr & 0xff);
 		input_chan_bindings->acceptor_addrtype = GSS_C_AF_INET;
 		input_chan_bindings->acceptor_address.length = 4;
-		address = malloc(4);
+		address = (char *) malloc(4);
 		input_chan_bindings->acceptor_address.value = (char *) address;
 		address[0] = ((to_addr & 0xff000000) >> 24);
 		address[1] = ((to_addr & 0xff0000) >> 16);

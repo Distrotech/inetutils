@@ -32,49 +32,30 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)commands.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
+#if	defined(unix)
+#include <sys/param.h>
+#if	defined(CRAY) || defined(sysV88)
+#include <sys/types.h>
 #endif
-
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
-# include <sys/param.h>
-#endif
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <sys/file.h>
-
+#else
+#include <sys/types.h>
+#endif	/* defined(unix) */
 #include <sys/socket.h>
 #include <netinet/in.h>
-
-#ifdef HAVE_FCNTL_H
-# include <fcntl.h>
+#ifdef	CRAY
+#include <fcntl.h>
 #endif	/* CRAY */
 
 #include <signal.h>
 #include <netdb.h>
 #include <ctype.h>
 #include <pwd.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
-#else
 #include <varargs.h>
-#endif
 #include <errno.h>
-
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
 
 #include <arpa/telnet.h>
 
@@ -87,24 +68,24 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #include "types.h"
 
 #if !defined(CRAY) && !defined(sysV88)
-#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
-#endif
 # if (defined(vax) || defined(tahoe) || defined(hp300)) && !defined(ultrix)
 # include <machine/endian.h>
 # endif /* vax */
 #endif /* !defined(CRAY) && !defined(sysV88) */
-
-#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-#endif
+
+
+#ifndef       MAXHOSTNAMELEN
+#define       MAXHOSTNAMELEN 64
+#endif        MAXHOSTNAMELEN
 
 #if	defined(IPPROTO_IP) && defined(IP_TOS)
 int tos = -1;
 #endif	/* defined(IPPROTO_IP) && defined(IP_TOS) */
 
 char	*hostname;
-static char *_hostname = 0;
+static char _hostname[MAXHOSTNAMELEN];
 
 extern char *getenv();
 
@@ -112,8 +93,7 @@ extern int isprefix();
 extern char **genget();
 extern int Ambiguous();
 
-typedef int (*intrtn_t) __P((int, char *[]));
-static call __P((intrtn_t, ...));
+static call();
 
 typedef struct {
 	char	*name;		/* command name */
@@ -767,11 +747,13 @@ static struct togglelist Togglelist[] = {
 	    0,
 		&showoptions,
 		    "show option processing" },
+#if	defined(unix)
     { "termdata",
 	"(debugging) toggle printing of hexadecimal terminal data",
 	    0,
 		&termdata,
 		    "print hexadecimal representation of terminal traffic" },
+#endif	/* defined(unix) */
     { "?",
 	0,
 	    togglehelp },
@@ -1157,13 +1139,13 @@ dolmmode(bit, on)
 }
 
     int
-set_mode(bit)
+setmode(bit)
 {
     return dolmmode(bit, 1);
 }
 
     int
-clear_mode(bit)
+clearmode(bit)
 {
     return dolmmode(bit, 0);
 }
@@ -1189,18 +1171,18 @@ static struct modelist ModeList[] = {
 #endif
     { "", "", 0 },
     { "",	"These require the LINEMODE option to be enabled", 0 },
-    { "isig",	"Enable signal trapping",	set_mode, 1, MODE_TRAPSIG },
-    { "+isig",	0,				set_mode, 1, MODE_TRAPSIG },
-    { "-isig",	"Disable signal trapping",	clear_mode, 1, MODE_TRAPSIG },
-    { "edit",	"Enable character editing",	set_mode, 1, MODE_EDIT },
-    { "+edit",	0,				set_mode, 1, MODE_EDIT },
-    { "-edit",	"Disable character editing",	clear_mode, 1, MODE_EDIT },
-    { "softtabs", "Enable tab expansion",	set_mode, 1, MODE_SOFT_TAB },
-    { "+softtabs", 0,				set_mode, 1, MODE_SOFT_TAB },
-    { "-softtabs", "Disable character editing",	clear_mode, 1, MODE_SOFT_TAB },
-    { "litecho", "Enable literal character echo", set_mode, 1, MODE_LIT_ECHO },
-    { "+litecho", 0,				set_mode, 1, MODE_LIT_ECHO },
-    { "-litecho", "Disable literal character echo", clear_mode, 1, MODE_LIT_ECHO },
+    { "isig",	"Enable signal trapping",	setmode, 1, MODE_TRAPSIG },
+    { "+isig",	0,				setmode, 1, MODE_TRAPSIG },
+    { "-isig",	"Disable signal trapping",	clearmode, 1, MODE_TRAPSIG },
+    { "edit",	"Enable character editing",	setmode, 1, MODE_EDIT },
+    { "+edit",	0,				setmode, 1, MODE_EDIT },
+    { "-edit",	"Disable character editing",	clearmode, 1, MODE_EDIT },
+    { "softtabs", "Enable tab expansion",	setmode, 1, MODE_SOFT_TAB },
+    { "+softtabs", 0,				setmode, 1, MODE_SOFT_TAB },
+    { "-softtabs", "Disable character editing",	clearmode, 1, MODE_SOFT_TAB },
+    { "litecho", "Enable literal character echo", setmode, 1, MODE_LIT_ECHO },
+    { "+litecho", 0,				setmode, 1, MODE_LIT_ECHO },
+    { "-litecho", "Disable literal character echo", clearmode, 1, MODE_LIT_ECHO },
     { "help",	0,				modehelp, 0 },
 #ifdef	KLUDGELINEMODE
     { "kludgeline", 0,				dokludgemode, 1 },
@@ -1381,7 +1363,7 @@ suspend()
 	(void) kill(0, SIGTSTP);
 	/*
 	 * If we didn't get the window size before the SUSPEND, but we
-	 * can get them now (?), then send the NAWS to make sure that
+	 * can get them now (???), then send the NAWS to make sure that
 	 * we are set up for the right window size.
 	 */
 	if (TerminalWindowSize(&newrows, &newcols) && connected &&
@@ -1421,14 +1403,12 @@ shell(argc, argv)
 	     * Fire up the shell in the child.
 	     */
 	    register char *shellp, *shellname;
-#ifndef strrchr
-	    extern char *strrchr();
-#endif
+	    extern char *rindex();
 
 	    shellp = getenv("SHELL");
 	    if (shellp == NULL)
 		shellp = "/bin/sh";
-	    if ((shellname = strrchr(shellp, '/')) == 0)
+	    if ((shellname = rindex(shellp, '/')) == 0)
 		shellname = shellp;
 	    else
 		shellname++;
@@ -1710,12 +1690,10 @@ env_init()
 	extern char **environ;
 	register char **epp, *cp;
 	register struct env_lst *ep;
-#ifndef strchr
-	extern char *strchr();
-#endif
+	extern char *index();
 
 	for (epp = environ; *epp; epp++) {
-		if (cp = strchr(*epp, '=')) {
+		if (cp = index(*epp, '=')) {
 			*cp = '\0';
 			ep = env_define((unsigned char *)*epp,
 					(unsigned char *)cp+1);
@@ -1731,17 +1709,15 @@ env_init()
 	if ((ep = env_find("DISPLAY"))
 	    && ((*ep->value == ':')
 	        || (strncmp((char *)ep->value, "unix:", 5) == 0))) {
-		extern char *localhost ();
-		char *hostname = localhost ();
-		char *cp2 = strchr((char *)ep->value, ':');
+		char hbuf[256+1];
+		char *cp2 = index((char *)ep->value, ':');
 
-		cp = malloc(strlen(hostname) + strlen(cp2) + 1);
-		sprintf(cp, "%s%s", hostname, cp2);
-
+		gethostname(hbuf, 256);
+		hbuf[256] = '\0';
+		cp = (char *)malloc(strlen(hbuf) + strlen(cp2) + 1);
+		sprintf((char *)cp, "%s%s", hbuf, cp2);
 		free(ep->value);
 		ep->value = (unsigned char *)cp;
-
-		free (hostname);
 	}
 	/*
 	 * If USER is not defined, but LOGNAME is, then add
@@ -1939,8 +1915,8 @@ struct authlist {
 };
 
 extern int
-	auth_enable P((char *)),
-	auth_disable P((char *)),
+	auth_enable P((int)),
+	auth_disable P((int)),
 	auth_status P((void));
 static int
 	auth_help P((void));
@@ -1978,12 +1954,6 @@ auth_cmd(argc, argv)
     char *argv[];
 {
     struct authlist *c;
-
-    if (argc < 2) {
-	fprintf(stderr,
-	    "Need an argument to 'auth' command.  'auth ?' for help.\n");
-	return 0;
-    }
 
     c = (struct authlist *)
 		genget(argv[1], (char **) AuthList, sizeof(struct authlist));
@@ -2041,7 +2011,7 @@ struct encryptlist EncryptList[] = {
 						EncryptEnable, 1, 1, 2 },
     { "disable", "Disable encryption. ('encrypt enable ?' for more)",
 						EncryptDisable, 0, 1, 2 },
-    { "type", "Set encryption type. ('encrypt type ?' for more)",
+    { "type", "Set encryptiong type. ('encrypt type ?' for more)",
 						EncryptType, 0, 1, 1 },
     { "start", "Start encryption. ('encrypt start ?' for more)",
 						EncryptStart, 1, 0, 1 },
@@ -2084,12 +2054,6 @@ encrypt_cmd(argc, argv)
     char *argv[];
 {
     struct encryptlist *c;
-
-    if (argc < 2) {
-	fprintf(stderr,
-	    "Need an argument to 'encrypt' command.  'encrypt ?' for help.\n");
-	return 0;
-    }
 
     c = (struct encryptlist *)
 		genget(argv[1], (char **) EncryptList, sizeof(struct encryptlist));
@@ -2258,16 +2222,13 @@ tn(argc, argv)
     unsigned long temp;
     extern char *inet_ntoa();
 #if	defined(IP_OPTIONS) && defined(IPPROTO_IP)
-    char *srp = 0;
-#ifndef strrchr
-    char *strrchr();
-#endif
+    char *srp = 0, *strrchr();
     unsigned long sourceroute(), srlen;
 #endif
     char *cmd, *hostp = 0, *portp = 0, *user = 0;
 
     /* clear the socket address prior to use */
-    memset((char *)&sin, 0, sizeof(sin));
+    bzero((char *)&sin, sizeof(sin));
 
     if (connected) {
 	printf("?Already connected to %s\n", hostname);
@@ -2285,7 +2246,7 @@ tn(argc, argv)
     cmd = *argv;
     --argc; ++argv;
     while (argc) {
-	if (strcmp(*argv, "help") == 0 || isprefix(*argv, "?"))
+	if (isprefix(*argv, "help") || isprefix(*argv, "?"))
 	    goto usage;
 	if (strcmp(*argv, "-l") == 0) {
 	    --argc; ++argv;
@@ -2343,40 +2304,21 @@ tn(argc, argv)
 	if (temp != (unsigned long) -1) {
 	    sin.sin_addr.s_addr = temp;
 	    sin.sin_family = AF_INET;
-
-	    if (_hostname)
-		free (_hostname);
-	    _hostname = malloc (strlen (hostp) + 1);
-	    if (_hostname) {
-		strcpy (_hostname, hostp);
-		hostname = _hostname;
-	    } else {
-		printf ("Can't allocate memory to copy hostname\n");
-		setuid(getuid());
-		return 0;
-	    }
+	    (void) strcpy(_hostname, hostp);
+	    hostname = _hostname;
 	} else {
 	    host = gethostbyname(hostp);
 	    if (host) {
 		sin.sin_family = host->h_addrtype;
 #if	defined(h_addr)		/* In 4.3, this is a #define */
-		memmove((caddr_t)&sin.sin_addr,
+		memcpy((caddr_t)&sin.sin_addr,
 				host->h_addr_list[0], host->h_length);
 #else	/* defined(h_addr) */
-		memmove((caddr_t)&sin.sin_addr, host->h_addr, host->h_length);
+		memcpy((caddr_t)&sin.sin_addr, host->h_addr, host->h_length);
 #endif	/* defined(h_addr) */
-
-		if (_hostname)
-		    free (_hostname);
-		_hostname = malloc (strlen (host->h_name) + 1);
-		if (_hostname) {
-		    strcpy (_hostname, host->h_name);
-		    hostname = _hostname;
-		} else {
-		    printf ("Can't allocate memory to copy hostname\n");
-		    setuid(getuid());
-		    return 0;
-		}
+		strncpy(_hostname, host->h_name, sizeof(_hostname));
+		_hostname[sizeof(_hostname)-1] = '\0';
+		hostname = _hostname;
 	    } else {
 		herror(hostp);
 	        setuid(getuid());
@@ -2403,12 +2345,10 @@ tn(argc, argv)
 		return 0;
 	    }
 	} else {
-#ifndef HAVE_HTONS_DECL
-#ifndef htons
-	    u_short htons __P((unsigned short));
-#endif
-#endif
-	    sin.sin_port = htons (sin.sin_port);
+#if	!defined(htons)
+	    u_short htons P((unsigned short));
+#endif	/* !defined(htons) */
+	    sin.sin_port = htons(sin.sin_port);
 	}
     } else {
 	if (sp == 0) {
@@ -2465,7 +2405,7 @@ tn(argc, argv)
 		errno = oerrno;
 		perror((char *)0);
 		host->h_addr_list++;
-		memmove((caddr_t)&sin.sin_addr,
+		memcpy((caddr_t)&sin.sin_addr, 
 			host->h_addr_list[0], host->h_length);
 		(void) NetClose(net);
 		continue;
@@ -2589,26 +2529,17 @@ static Command cmdtab2[] = {
 
     /*VARARGS1*/
     static
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-call(intrtn_t routine, ...)
-#else
 call(va_alist)
     va_dcl
-#endif
 {
     va_list ap;
-#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
+    typedef int (*intrtn_t)();
     intrtn_t routine;
-#endif
     char *args[100];
     int argno = 0;
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-    va_start(ap, routine);
-#else
     va_start(ap);
     routine = (va_arg(ap, intrtn_t));
-#endif
     while ((args[argno++] = va_arg(ap, char *)) != 0) {
 	;
     }
@@ -2958,16 +2889,16 @@ sourceroute(arg, cpp, lenp)
 			sin_addr.s_addr = tmp;
 		} else if (host = gethostbyname(cp)) {
 #if	defined(h_addr)
-			memmove((caddr_t)&sin_addr,
+			memcpy((caddr_t)&sin_addr,
 				host->h_addr_list[0], host->h_length);
 #else
-			memmove((caddr_t)&sin_addr, host->h_addr, host->h_length);
+			memcpy((caddr_t)&sin_addr, host->h_addr, host->h_length);
 #endif
 		} else {
 			*cpp = cp;
 			return(0);
 		}
-		memmove(lsrp, (char *)&sin_addr, 4);
+		memcpy(lsrp, (char *)&sin_addr, 4);
 		lsrp += 4;
 		if (cp2)
 			cp = cp2;

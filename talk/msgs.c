@@ -40,20 +40,7 @@ static char sccsid[] = "@(#)msgs.c	8.1 (Berkeley) 6/6/93";
  * if we are slow connecting.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <signal.h>
 #include <stdio.h>
 #include "talk.h"
@@ -64,8 +51,7 @@ char	*current_state;
 int	current_line = 0;
 
 void
-disp_msg(sig)
-  int sig;
+disp_msg()
 {
 	message(current_state);
 }

@@ -90,27 +90,12 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
  *
  * Comment lines are indicated by a `#' in column 1.
  */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <sys/resource.h>
 
 #include <netinet/in.h>
@@ -126,10 +111,8 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
-#include <getopt.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
+
+#include "pathnames.h"
 
 #define	TOOMANY		40		/* don't start more than TOOMANY */
 #define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */
@@ -233,7 +216,7 @@ struct biltin {
 };
 
 #define NUMINT	(sizeof(intab) / sizeof(struct inent))
-char	*CONFIG = PATH_INETDCONF;
+char	*CONFIG = _PATH_INETDCONF;
 char	**Argv;
 char 	*LastArg;
 
@@ -244,13 +227,7 @@ main(argc, argv, envp)
 {
 	struct servtab *sep;
 	struct passwd *pwd;
-#ifdef HAVE_SIGACTION
-	struct sigaction sa;
-#else
-#ifdef HAVE_SIGVEC
 	struct sigvec sv;
-#endif
-#endif	
 	int tmpint, ch, dofork;
 	pid_t pid;
 	char buf[50];
@@ -296,25 +273,6 @@ main(argc, argv, envp)
 	if (debug == 0) {
 		daemon(0, 0);
 	}
-
-#ifdef HAVE_SIGACTION
-	bzero (&sa, sizeof (sa));
-	sigemptyset(&sa.sa_mask);
-	sigaddset(&sa.sa_mask, SIGCHLD);
-	sigaddset(&sa.sa_mask, SIGHUP);
-	sigaddset(&sa.sa_mask, SIGALRM);
-#ifdef SA_RESTART
-	sa.sa_flags = SA_RESTART;
-#endif
-	sa.sa_handler = retry;
-	sigaction (SIGALRM, &sa, (struct sigaction *)0);
-	config (SIGHUP);
-	sa.sa_handler = config;
-	sigaction (SIGHUP, &sa, (struct sigaction *)0);
-	sa.sa_handler = reapchild;
-	sigaction (SIGCHLD, &sa, (struct sigaction *)0);
-#else
-#ifdef HAVE_SIGVEC
 	memset(&sv, 0, sizeof(sv));
 	sv.sv_mask = SIGBLOCK;
 	sv.sv_handler = retry;
@@ -324,13 +282,6 @@ main(argc, argv, envp)
 	sigvec(SIGHUP, &sv, (struct sigvec *)0);
 	sv.sv_handler = reapchild;
 	sigvec(SIGCHLD, &sv, (struct sigvec *)0);
-#else /* !HAVE_SIGVEC */
-	signal (SIGALRM, retry);
-	config (SIGHUP);
-	signal (SIGHUP, config);
-	signal (SIGCHLD, reapchild);
-#endif /* HAVE_SIGVEC */
-#endif /* HAVE_SIGACTION */
 
 	{
 		/* space for daemons to overwrite environment for ps */
@@ -347,29 +298,10 @@ main(argc, argv, envp)
 	    fd_set readable;
 
 	    if (nsock == 0) {
-#ifdef HAVE_SIGACTION
-	      {
-	        sigset_t sigs;
-		sigemptyset(&sigs);
-		sigaddset(&sigs, SIGCHLD);
-		sigaddset(&sigs, SIGHUP);
-		sigaddset(&sigs, SIGALRM);
-		sigprocmask(SIG_BLOCK, &sigs, 0);
-	      }
-#else
 		(void) sigblock(SIGBLOCK);
-#endif
 		while (nsock == 0)
 		    sigpause(0L);
-#ifdef HAVE_SIGACTION
-		{
-		  sigset_t empty;
-		  sigemptyset(&empty);
-		  sigprocmask(SIG_SETMASK, &empty, 0);
-		}
-#else
 		(void) sigsetmask(0L);
-#endif
 	    }
 	    readable = allsock;
 	    if ((n = select(maxsock + 1, &readable, (fd_set *)0,
@@ -410,18 +342,7 @@ main(argc, argv, envp)
 			    }
 		    } else
 			    ctrl = sep->se_fd;
-#ifdef HAVE_SIGACTION
-		    {
-		      sigset_t sigs;
-		      sigemptyset(&sigs);
-		      sigaddset(&sigs, SIGCHLD);
-		      sigaddset(&sigs, SIGHUP);
-		      sigaddset(&sigs, SIGALRM);
-		      sigprocmask(SIG_BLOCK, &sigs, 0);
-		    }
-#else
 		    (void) sigblock(SIGBLOCK);
-#endif
 		    pid = 0;
 		    dofork = (sep->se_bi == 0 || sep->se_bi->bi_fork);
 		    if (dofork) {
@@ -441,15 +362,7 @@ main(argc, argv, envp)
 			"%s/%s server failing (looping), service terminated",
 					    sep->se_service, sep->se_proto);
 					close_sep(sep);
-#ifdef HAVE_SIGACTION
-					{
-					  sigset_t empty;
-					  sigemptyset(&empty);
-					  sigprocmask(SIG_SETMASK, &empty, 0);
-					}
-#else
 					sigsetmask(0L);
-#endif
 					if (!timingout) {
 						timingout = 1;
 						alarm(RETRYTIME);
@@ -464,15 +377,7 @@ main(argc, argv, envp)
 			    if (!sep->se_wait &&
 				sep->se_socktype == SOCK_STREAM)
 				    close(ctrl);
-#ifdef HAVE_SIGACTION
-			    {
-			      sigset_t empty;
-			      sigemptyset(&empty);
-			      sigprocmask(SIG_SETMASK, &empty, 0);
-			    }
-#else
 			    sigsetmask(0L);
-#endif
 			    sleep(1);
 			    continue;
 		    }
@@ -483,15 +388,7 @@ main(argc, argv, envp)
 			        nsock--;
 			    }
 		    }
-#ifdef HAVE_SIGACTION
-		    {
-		      sigset_t empty;
-		      sigemptyset(&empty);
-		      sigprocmask(SIG_SETMASK, &empty, 0);
-		    }
-#else
 		    sigsetmask(0L);
-#endif
 		    if (pid == 0) {
 			    if (debug && dofork)
 				setsid();
@@ -589,11 +486,7 @@ config(signo)
 {
 	struct servtab *sep, *cp, **sepp;
 	struct passwd *pwd;
-#ifdef HAVE_SIGACTION
-	sigset_t sigs, osigs;
-#else
 	long omask;
-#endif
 
 	if (!setconfig()) {
 		syslog(LOG_ERR, "%s: %m", CONFIG);
@@ -615,15 +508,7 @@ config(signo)
 		if (sep != 0) {
 			int i;
 
-#ifdef HAVE_SIGACTION
-			sigemptyset(&sigs);
-			sigaddset(&sigs, SIGCHLD);
-			sigaddset(&sigs, SIGHUP);
-			sigaddset(&sigs, SIGALRM);
-			sigprocmask(SIG_BLOCK, &sigs, &osigs);
-#else
 			omask = sigblock(SIGBLOCK);
-#endif
 			/*
 			 * sep->se_wait may be holding the pid of a daemon
 			 * that we're waiting for.  If so, don't overwrite
@@ -640,11 +525,7 @@ config(signo)
 				SWAP(sep->se_server, cp->se_server);
 			for (i = 0; i < MAXARGV; i++)
 				SWAP(sep->se_argv[i], cp->se_argv[i]);
-#ifdef HAVE_SIGACTION
-			sigprocmask(SIG_SETMASK, &osigs, 0);
-#else
 			sigsetmask(omask);
-#endif
 			freeconfig(cp);
 			if (debug)
 				print_service("REDO", sep);
@@ -678,15 +559,7 @@ config(signo)
 	/*
 	 * Purge anything not looked at above.
 	 */
-#ifdef HAVE_SIGACTION
-	sigemptyset(&sigs);
-	sigaddset(&sigs, SIGCHLD);
-	sigaddset(&sigs, SIGHUP);
-	sigaddset(&sigs, SIGALRM);
-	sigprocmask(SIG_BLOCK, &sigs, &osigs);
-#else
 	omask = sigblock(SIGBLOCK);
-#endif
 	sepp = &servtab;
 	while (sep = *sepp) {
 		if (sep->se_checked) {
@@ -701,11 +574,7 @@ config(signo)
 		freeconfig(sep);
 		free((char *)sep);
 	}
-#ifdef HAVE_SIGACTION
-	sigprocmask(SIG_SETMASK, &osigs, 0);
-#else
 	(void) sigsetmask(omask);
-#endif
 }
 
 void
@@ -798,11 +667,7 @@ enter(cp)
 	struct servtab *cp;
 {
 	struct servtab *sep;
-#ifdef HAVE_SIGACTION
-	sigset_t sigs, osigs;
-#else
 	long omask;
-#endif
 
 	sep = (struct servtab *)malloc(sizeof (*sep));
 	if (sep == (struct servtab *)0) {
@@ -811,32 +676,16 @@ enter(cp)
 	}
 	*sep = *cp;
 	sep->se_fd = -1;
-#ifdef HAVE_SIGACTION
-	sigemptyset(&sigs);
-	sigaddset(&sigs, SIGCHLD);
-	sigaddset(&sigs, SIGHUP);
-	sigaddset(&sigs, SIGALRM);
-	sigprocmask(SIG_BLOCK, &sigs, &osigs);
-#else
 	omask = sigblock(SIGBLOCK);
-#endif
 	sep->se_next = servtab;
 	servtab = sep;
-#ifdef HAVE_SIGACTION
-	sigprocmask(SIG_SETMASK, &osigs, 0);
-#else
 	sigsetmask(omask);
-#endif
 	return (sep);
 }
 
 FILE	*fconfig = NULL;
 struct	servtab serv;
-#ifdef LINE_MAX
 char	line[LINE_MAX];
-#else
-char 	line[2048];
-#endif
 
 int
 setconfig()
@@ -1051,7 +900,7 @@ newstr(cp)
 }
 
 void
-set_proc_title(a, s)
+setproctitle(a, s)
 	char *a;
 	int s;
 {
@@ -1063,9 +912,9 @@ set_proc_title(a, s)
 	cp = Argv[0];
 	size = sizeof(sin);
 	if (getpeername(s, (struct sockaddr *)&sin, &size) == 0)
-		snprintf (buf, sizeof buf, "-%s [%s]", a, inet_ntoa(sin.sin_addr)); 
+		(void) sprintf(buf, "-%s [%s]", a, inet_ntoa(sin.sin_addr)); 
 	else
-		snprintf (buf, sizeof buf, "-%s", a); 
+		(void) sprintf(buf, "-%s", a); 
 	strncpy(cp, buf, LastArg - cp);
 	cp += strlen(cp);
 	while (cp < LastArg)
@@ -1086,7 +935,7 @@ echo_stream(s, sep)		/* Echo service -- echo data back */
 	char buffer[BUFSIZE];
 	int i;
 
-	set_proc_title(sep->se_service, s);
+	setproctitle(sep->se_service, s);
 	while ((i = read(s, buffer, sizeof(buffer))) > 0 &&
 	    write(s, buffer, i) > 0)
 		;
@@ -1118,7 +967,7 @@ discard_stream(s, sep)		/* Discard service -- ignore data */
 	int ret;
 	char buffer[BUFSIZE];
 
-	set_proc_title(sep->se_service, s);
+	setproctitle(sep->se_service, s);
 	while (1) {
 		while ((ret = read(s, buffer, sizeof(buffer))) > 0)
 			;
@@ -1165,7 +1014,7 @@ chargen_stream(s, sep)		/* Character generator */
 	int len;
 	char *rs, text[LINESIZ+2];
 
-	set_proc_title(sep->se_service, s);
+	setproctitle(sep->se_service, s);
 
 	if (!endring) {
 		initring();
@@ -1331,7 +1180,7 @@ print_service(action, sep)
 
 
 static int		/* # of characters upto \r,\n or \0 */
-fd_getline(fd, buf, len)
+getline(fd, buf, len)
 	int fd;
 	char *buf;
 	int len;
@@ -1367,7 +1216,7 @@ tcpmux(s)
 	int len;
 
 	/* Get requested service name */
-	if ((len = fd_getline(s, service, MAX_SERV_LEN)) < 0) {
+	if ((len = getline(s, service, MAX_SERV_LEN)) < 0) {
 		strwrite(s, "-Error reading service name\r\n");
 		return (NULL);
 	}

@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)auth.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 /*
@@ -55,9 +55,6 @@ static char sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
  * or implied warranty.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #if	defined(AUTHENTICATION)
 #include <stdio.h>
@@ -65,7 +62,7 @@ static char sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
 #include <signal.h>
 #define	AUTH_NAMES
 #include <arpa/telnet.h>
-#ifdef HAVE_STDLIB_H
+#ifdef	__STDC__
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
@@ -225,9 +222,6 @@ auth_init(name, server)
 					Name,
 					ap->type, ap->way);
 		}
-		else if (auth_debug_mode)
-			printf(">>>%s: Init failed: auth type %d %d\r\n",
-				Name, ap->type, ap->way);
 		++ap;
 	}
 }
@@ -252,7 +246,7 @@ getauthmask(type, maskp)
 {
 	register int x;
 
-	if (!strcasecmp(type, AUTHTYPE_NAME(0))) {
+	if (strcasecmp(type, AUTHTYPE_NAME(0))) {
 		*maskp = -1;
 		return(1);
 	}
@@ -268,14 +262,14 @@ getauthmask(type, maskp)
 
 	int
 auth_enable(type)
-	char *type;
+	int type;
 {
 	return(auth_onoff(type, 1));
 }
 
 	int
 auth_disable(type)
-	char *type;
+	int type;
 {
 	return(auth_onoff(type, 0));
 }
@@ -285,20 +279,15 @@ auth_onoff(type, on)
 	char *type;
 	int on;
 {
-	int i, mask = -1;
+	int mask = -1;
 	Authenticator *ap;
 
 	if (!strcasecmp(type, "?") || !strcasecmp(type, "help")) {
                 printf("auth %s 'type'\n", on ? "enable" : "disable");
 		printf("Where 'type' is one of:\n");
 		printf("\t%s\n", AUTHTYPE_NAME(0));
-		mask = 0;
-		for (ap = authenticators; ap->type; ap++) {
-			if ((mask & (i = typemask(ap->type))) != 0)
-				continue;
-			mask |= i;
+		for (ap = authenticators; ap->type; ap++)
 			printf("\t%s\n", AUTHTYPE_NAME(ap->type));
-		}
 		return(0);
 	}
 
@@ -306,6 +295,7 @@ auth_onoff(type, on)
 		printf("%s: invalid authentication type\n", type);
 		return(0);
 	}
+	mask = getauthmask(type, &mask);
 	if (on)
 		i_wont_support &= ~mask;
 	else
@@ -329,22 +319,16 @@ auth_togdebug(on)
 auth_status()
 {
 	Authenticator *ap;
-	int i, mask;
 
 	if (i_wont_support == -1)
 		printf("Authentication disabled\n");
 	else
 		printf("Authentication enabled\n");
 
-	mask = 0;
-	for (ap = authenticators; ap->type; ap++) {
-		if ((mask & (i = typemask(ap->type))) != 0)
-			continue;
-		mask |= i;
+	for (ap = authenticators; ap->type; ap++)
 		printf("%s: %s\n", AUTHTYPE_NAME(ap->type),
 			(i_wont_support & typemask(ap->type)) ?
 					"disabled" : "enabled");
-	}
 	return(1);
 }
 
@@ -422,7 +406,7 @@ auth_send(data, cnt)
 		auth_send_cnt = cnt > sizeof(_auth_send_data)
 					? sizeof(_auth_send_data)
 					: cnt;
-		memmove((void *)_auth_send_data, (void *)data, auth_send_cnt);
+		bcopy((void *)data, (void *)_auth_send_data, auth_send_cnt);
 		auth_send_data = _auth_send_data;
 	} else {
 		/*
@@ -548,7 +532,7 @@ auth_name(data, cnt)
 					Name, cnt, sizeof(savename)-1);
 		return;
 	}
-	memmove((void *)savename, (void *)data, cnt);
+	bcopy((void *)data, (void *)savename, cnt);
 	savename[cnt] = '\0';	/* Null terminate */
 	if (auth_debug_mode)
 		printf(">>>%s: Got NAME [%s]\r\n", Name, savename);

@@ -30,21 +30,12 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)externs.h	8.3 (Berkeley) 5/30/95
+ *	@(#)externs.h	8.2 (Berkeley) 12/15/93
  */
 
 #ifndef	BSD
 # define BSD 43
 #endif
-
-#ifdef HAVE_TERMIOS_H
-#define USE_TERMIO
-#else /* !HAVE_TERMIOS_H */
-#ifdef HAVE_TERMIO_H
-#define USE_TERMIO
-#define SYSV_TERMIO
-#endif
-#endif /* HAVE_TERMIOS_H */
 
 /*
  * ucb stdio.h defines BSD as something wierd
@@ -64,8 +55,9 @@
 #if defined(CRAY) && !defined(NO_BSD_SETJMP)
 #include <bsdsetjmp.h>
 #endif
+#ifndef	FILIO_H
 #include <sys/ioctl.h>
-#ifdef HAVE_SYS_FILIO_H
+#else
 #include <sys/filio.h>
 #endif
 #ifdef CRAY
@@ -74,9 +66,10 @@
 #ifdef	USE_TERMIO
 # ifndef	VINTR
 #  ifdef SYSV_TERMIO
-#   include <termio.h>
+#   include <sys/termio.h>
 #  else
-#   include <termios.h>
+#   include <sys/termios.h>
+#   define termio termios
 #  endif
 # endif
 #endif
@@ -88,15 +81,10 @@ typedef unsigned char cc_t;
 # endif
 #endif
 
-#if defined (USE_TERMIO) && !defined (SYSV_TERMIO)
-# define termio termios
-#endif
-
 #ifndef	NO_STRING_H
 #include <string.h>
-#else
-#include <strings.h>
 #endif
+#include <strings.h>
 
 #ifndef	_POSIX_VDISABLE
 # ifdef sun
@@ -149,12 +137,14 @@ extern int
     crmod,
     netdata,		/* Print out network data flow */
     prettydump,		/* Print "netdata" output in user readable format */
+#if	defined(unix)
 #if	defined(TN3270)
     cursesdata,		/* Print out curses data flow */
     apitrace,		/* Trace API transactions */
 #endif	/* defined(TN3270) */
     termdata,		/* Print out terminal data flow */
-    debug;		/* Debug level */
+#endif	/* defined(unix) */
+    debug;			/* Debug level */
 
 extern cc_t escape;	/* Escape to command mode */
 extern cc_t rlogin;	/* Rlogin mode escape character */

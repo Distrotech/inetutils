@@ -32,12 +32,9 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)rsaencpwd.c	8.3 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)rsaencpwd.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #ifdef	RSA_ENCPWD
 /*
@@ -78,7 +75,7 @@ static char sccsid[] = "@(#)rsaencpwd.c	8.3 (Berkeley) 5/30/95";
 #include <pwd.h>
 #include <stdio.h>
 
-#ifdef HAVE_STDLIB_H
+#ifdef	__STDC__
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
@@ -86,7 +83,6 @@ static char sccsid[] = "@(#)rsaencpwd.c	8.3 (Berkeley) 5/30/95";
 #else
 #include <string.h>
 #endif
-#include <crypt.h>
 
 #include "encrypt.h"
 #include "auth.h"
@@ -162,9 +158,9 @@ rsaencpwd_init(ap, server)
 
 	if (server) {
 		str_data[3] = TELQUAL_REPLY;
-		memset(key_file, 0, sizeof(key_file));
+		bzero(key_file, sizeof(key_file));
 		gethostname(lhostname, sizeof(lhostname));
-		if ((cp = strchr(lhostname, '.')) != 0)  *cp = '\0';
+		if ((cp = index(lhostname, '.')) != 0)  *cp = '\0';
 		strcpy(key_file, "/etc/.");
 		strcat(key_file, lhostname);
 		strcat(key_file, "_privkey");
@@ -214,7 +210,7 @@ rsaencpwd_is(ap, data, cnt)
 	cnt--;
 	switch (*data++) {
 	case RSA_ENCPWD_AUTH:
-		memmove((void *)auth.dat, (void *)data, auth.length = cnt);
+		bcopy((void *)data, (void *)auth.dat, auth.length = cnt);
 
 		if ((fp=fopen(key_file, "r"))==NULL) {
 		  Data(ap, RSA_ENCPWD_REJECT, (void *)"Auth failed", -1);
@@ -256,7 +252,7 @@ rsaencpwd_is(ap, data, cnt)
 
 		/*
 		 * If we are doing mutual authentication, get set up to send
-		 * the challenge, and verify it when the response comes back.
+		 * the challange, and verify it when the response comes back.
 		 */
 		if ((ap->way & AUTH_HOW_MASK) == AUTH_HOW_ONE_WAY) {
 		  register int i;
@@ -298,12 +294,12 @@ rsaencpwd_is(ap, data, cnt)
 		  ptr +=NumEncodeLengthOctets(chalkey_len);
 		  *ptr++ = 0x04;  /* OCTET STRING */
 		  *ptr++ = challenge_len;
-		  memmove(ptr, challenge, challenge_len);
+		  bcopy(challenge, ptr, challenge_len);
 		  ptr += challenge_len;
 		  *ptr++ = 0x04;  /* OCTET STRING */
 		  EncodeLength(ptr, i);
 		  ptr += NumEncodeLengthOctets(i);
-		  memmove(ptr, key, i);
+		  bcopy(key, ptr, i);
 		  chalkey_len = 1+NumEncodeLengthOctets(chalkey_len)+chalkey_len;
 		  Data(ap, RSA_ENCPWD_CHALLENGEKEY, (void *)chalkey, chalkey_len);
 		}
@@ -349,7 +345,7 @@ rsaencpwd_reply(ap, data, cnt)
 		 * Verify that the response to the challenge is correct.
 		 */
 
-		memmove((void *)chalkey, (void *)data, cnt);
+		bcopy((void *)data, (void *)chalkey, cnt);
 		ptr = (char *) &chalkey[0];
 		ptr += DecodeHeaderLength(chalkey);
 		if (*ptr != 0x04) {
@@ -358,7 +354,7 @@ rsaencpwd_reply(ap, data, cnt)
 		*ptr++;
 		challenge_len = DecodeValueLength(ptr);
 		ptr += NumEncodeLengthOctets(challenge_len);
-		memmove(challenge, ptr, challenge_len);
+		bcopy(ptr, challenge, challenge_len);
 		ptr += challenge_len;
 		if (*ptr != 0x04) {
                   return;
@@ -366,8 +362,8 @@ rsaencpwd_reply(ap, data, cnt)
                 *ptr++;
 		pubkey_len = DecodeValueLength(ptr);
 		ptr += NumEncodeLengthOctets(pubkey_len);
-		memmove(pubkey, ptr, pubkey_len);
-		memset(user_passwd, 0, sizeof(user_passwd));
+		bcopy(ptr, pubkey, pubkey_len);
+		bzero(user_passwd, sizeof(user_passwd));
 		local_des_read_pw_string(user_passwd, sizeof(user_passwd)-1, "Password: ", 0);
 		UserPassword = user_passwd;
 		Challenge = challenge;
@@ -460,8 +456,9 @@ rsaencpwd_printsub(data, cnt, buf, buflen)
 }
 
 int rsaencpwd_passwdok(name, passwd)
-     char *name, *passwd;
+char *name, *passwd;
 {
+  char *crypt();
   char *salt, *p;
   struct passwd *pwd;
   int   passwdok_status = 0;
@@ -470,7 +467,7 @@ int rsaencpwd_passwdok(name, passwd)
     salt = pwd->pw_passwd;
   else salt = "xx";
 
-  p = CRYPT (passwd, salt);
+  p = crypt(passwd, salt);
 
   if (pwd && !strcmp(p, pwd->pw_passwd)) {
     passwdok_status = 1;

@@ -32,12 +32,8 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)telnet.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include <sys/types.h>
 
@@ -52,9 +48,6 @@ static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
 #include <arpa/telnet.h>
 
 #include <ctype.h>
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
 
 #include "ring.h"
 
@@ -64,7 +57,7 @@ static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
 #include "general.h"
 
 
-#define	strip(x) ((my_want_state_is_wont(TELOPT_BINARY)) ? ((x)&0x7f) : (x))
+#define	strip(x)	((x)&0x7f)
 
 static unsigned char	subbuffer[SUBBUFSIZE],
 			*subpointer, *subend;	 /* buffer for sub-options */
@@ -630,7 +623,7 @@ mklist(buf, name)
 	register char c, *cp, **argvp, *cp2, **argv, **avt;
 
 	if (name) {
-		if ((int)strlen(name) > 40) {
+		if (strlen(name) > 40) {
 			name = 0;
 			unknown[0] = name_unknown;
 		} else {
@@ -752,7 +745,7 @@ char termbuf[1024];
 
 	/*ARGSUSED*/
 	int
-init_term (tname, fd, errp)
+setupterm(tname, fd, errp)
 	char *tname;
 	int fd, *errp;
 {
@@ -786,10 +779,10 @@ gettermname()
 		if (tnamep && tnamep != unknown)
 			free(tnamep);
 		if ((tname = (char *)env_getvalue((unsigned char *)"TERM")) &&
-				(init_term (tname, 1, &err) == 0)) {
+				(setupterm(tname, 1, &err) == 0)) {
 			tnamep = mklist(termbuf, tname);
 		} else {
-			if (tname && ((int)strlen(tname) <= 40)) {
+			if (tname && (strlen(tname) <= 40)) {
 				unknown[0] = tname;
 				upcase(tname);
 			} else
@@ -2258,12 +2251,12 @@ telnet(user)
 
 #if	defined(AUTHENTICATION) || defined(ENCRYPTION) 
     {
-	extern char *localhost ();
-	static char *local_host = 0;
+	static char local_host[256] = { 0 };
 
-	if (!local_host)
-		local_host = localhost ();
-
+	if (!local_host[0]) {
+		gethostname(local_host, sizeof(local_host));
+		local_host[sizeof(local_host)-1] = 0;
+	}
 	auth_encrypt_init(local_host, hostname, "TELNET", 0);
 	auth_encrypt_user(user);
     }
@@ -2438,7 +2431,7 @@ netclear()
 		next = nextitem(next);
 	    } while (wewant(next) && (nfrontp > next));
 	    length = next-thisitem;
-	    memmove(good, thisitem, length);
+	    memcpy(good, thisitem, length);
 	    good += length;
 	    thisitem = next;
 	} else {

@@ -49,40 +49,9 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
  *	command\0
  *	data
  */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#if !defined (__GNUC__) && defined (_AIX)
- #pragma alloca
-#endif
-#ifndef alloca /* Make alloca work the best possible way.  */
-#ifdef __GNUC__
-#define alloca __builtin_alloca
-#else /* not __GNUC__ */
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#else /* not __GNUC__ or HAVE_ALLOCA_H */
-#ifndef _AIX /* Already did AIX, up at the top.  */
-char *alloca ();
-#endif /* not _AIX */
-#endif /* not HAVE_ALLOCA_H */
-#endif /* not __GNUC__ */
-#endif /* not alloca */
-
 #include <sys/param.h>
 #include <sys/ioctl.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <sys/socket.h>
 
 #include <netinet/in.h>
@@ -91,25 +60,14 @@ char *alloca ();
 
 #include <errno.h>
 #include <fcntl.h>
-#ifdef HAVE_SYS_FILIO_H
-#include <sys/filio.h>
-#endif
+#include <paths.h>
 #include <pwd.h>
 #include <signal.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
-#include <getopt.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
 
 int	keepalive = 1;
 int	check_all;
@@ -118,9 +76,9 @@ int	sent_null;
 
 void	 doit __P((struct sockaddr_in *));
 void	 error __P((const char *, ...));
-char	*getstr __P((char *));
-int	 local_domain __P((const char *));
-const char *topdomain __P((const char *));
+void	 getstr __P((char *, int, char *));
+int	 local_domain __P((char *));
+char	*topdomain __P((char *));
 void	 usage __P((void));
 
 #ifdef	KERBEROS
@@ -225,7 +183,7 @@ char	shell[64] = "SHELL=";
 char	path[100] = "PATH=";
 char	*envinit[] =
 	    {homedir, shell, path, username, 0};
-extern char	**environ;
+char	**environ;
 
 void
 doit(fromp)
@@ -238,9 +196,10 @@ doit(fromp)
 	fd_set ready, readfrom;
 	int cc, nfd, pv[2], pid, s;
 	int one = 1;
-	const char *hostname, *errorstr, *errorhost;
+	char *hostname, *errorstr, *errorhost;
 	char *cp, sig, buf[BUFSIZ];
-	char *cmdbuf, *locuser, *remuser;
+	char cmdbuf[NCARGS+1], locuser[16], remuser[16];
+	char remotehost[2 * MAXHOSTNAMELEN + 1];
 
 #ifdef	KERBEROS
 	AUTH_DAT	*kdata = (AUTH_DAT *) NULL;
@@ -259,7 +218,7 @@ doit(fromp)
 	(void) signal(SIGQUIT, SIG_DFL);
 	(void) signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
-	{ int t = open(PATH_TTY, O_RDWR);
+	{ int t = open(_PATH_TTY, 2);
 	  if (t >= 0) {
 		ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
@@ -377,37 +336,33 @@ doit(fromp)
 		if (!use_kerberos)
 #endif
 		if (check_all || local_domain(hp->h_name)) {
-			char *remotehost = (char *) alloca (strlen (hp->h_name) + 1);
-			if (! remotehost)
-				errorstr = "Out of memory\n";
-			else {
-				strcpy(remotehost, hp->h_name);
-				errorhost = remotehost;
-				hp = gethostbyname(remotehost);
-				if (hp == NULL) {
-					syslog(LOG_INFO,
-					    "Couldn't look up address for %s",
-					    remotehost);
+			strncpy(remotehost, hp->h_name, sizeof(remotehost) - 1);
+			remotehost[sizeof(remotehost) - 1] = 0;
+			errorhost = remotehost;
+			hp = gethostbyname(remotehost);
+			if (hp == NULL) {
+				syslog(LOG_INFO,
+				    "Couldn't look up address for %s",
+				    remotehost);
+				errorstr =
+				"Couldn't look up address for your host (%s)\n";
+				hostname = inet_ntoa(fromp->sin_addr);
+			} else for (; ; hp->h_addr_list++) {
+				if (hp->h_addr_list[0] == NULL) {
+					syslog(LOG_NOTICE,
+					  "Host addr %s not listed for host %s",
+					    inet_ntoa(fromp->sin_addr),
+					    hp->h_name);
 					errorstr =
-			       "Couldn't look up address for your host (%s)\n";
+					    "Host address mismatch for %s\n";
 					hostname = inet_ntoa(fromp->sin_addr);
-				} else for (; ; hp->h_addr_list++) {
-					if (hp->h_addr_list[0] == NULL) {
-						syslog(LOG_NOTICE,
-					 "Host addr %s not listed for host %s",
-						    inet_ntoa(fromp->sin_addr),
-						    hp->h_name);
-						errorstr =
-					      "Host address mismatch for %s\n";
-						hostname = inet_ntoa(fromp->sin_addr);
-						break;
-					}
-					if (!bcmp(hp->h_addr_list[0],
-					    (caddr_t)&fromp->sin_addr,
-					    sizeof(fromp->sin_addr))) {
-						hostname = hp->h_name;
-						break;
-					}
+					break;
+				}
+				if (!bcmp(hp->h_addr_list[0],
+				    (caddr_t)&fromp->sin_addr,
+				    sizeof(fromp->sin_addr))) {
+					hostname = hp->h_name;
+					break;
 				}
 			}
 		}
@@ -450,11 +405,10 @@ doit(fromp)
 		}
 	} else
 #endif
-		remuser = getstr ("remuser");
+		getstr(remuser, sizeof(remuser), "remuser");
 
-	locuser = getstr ("locuser");
-	cmdbuf = getstr ("command");
-
+	getstr(locuser, sizeof(locuser), "locuser");
+	getstr(cmdbuf, sizeof(cmdbuf), "command");
 	setpwent();
 	pwd = getpwnam(locuser);
 	if (pwd == NULL) {
@@ -510,7 +464,7 @@ fail:
 			exit(1);
 		}
 
-	if (pwd->pw_uid && !access(PATH_NOLOGIN, F_OK)) {
+	if (pwd->pw_uid && !access(_PATH_NOLOGIN, F_OK)) {
 		error("Logins currently disabled.\n");
 		exit(1);
 	}
@@ -669,7 +623,7 @@ fail:
 			    FD_ISSET(pv[0], &readfrom));
 			exit(0);
 		}
-		setpgid (0, getpid ());
+		setpgrp(0, getpid());
 		(void) close(s);
 		(void) close(pv[0]);
 #ifdef CRYPT
@@ -687,7 +641,7 @@ fail:
 		close(pv[1]);
 	}
 	if (*pwd->pw_shell == '\0')
-		pwd->pw_shell = PATH_BSHELL;
+		pwd->pw_shell = _PATH_BSHELL;
 #if	BSD > 43
 	if (setlogin(pwd->pw_name) < 0)
 		syslog(LOG_ERR, "setlogin() failed: %m");
@@ -697,7 +651,7 @@ fail:
 	(void) setuid((uid_t)pwd->pw_uid);
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
-	strcat(path, PATH_DEFPATH);
+	strcat(path, _PATH_DEFPATH);
 	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
 	strncat(username, pwd->pw_name, sizeof(username)-6);
 	cp = strrchr(pwd->pw_shell, '/');
@@ -728,9 +682,14 @@ fail:
  * connected to client, or older clients will hang waiting for that
  * connection first.
  */
+#if __STDC__
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
 
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 error(const char *fmt, ...)
 #else
 error(fmt, va_alist)
@@ -741,7 +700,7 @@ error(fmt, va_alist)
 	va_list ap;
 	int len;
 	char *bp, buf[BUFSIZ];
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -756,44 +715,22 @@ error(fmt, va_alist)
 	(void)write(STDERR_FILENO, buf, len + strlen(bp));
 }
 
-char *
-getstr(err)
-	char *err;
+void
+getstr(buf, cnt, err)
+	char *buf, *err;
+	int cnt;
 {
-	size_t buf_len = 100;
-	char *buf = malloc (buf_len), *end = buf;
-
-	if (! buf) {
-		error ("Out of space reading %s\n", err);
-		exit (1);
-	}
+	char c;
 
 	do {
-		/* Oh this is efficient, oh yes.  [But what can be done?] */
-		int rd = read(STDIN_FILENO, end, 1);
-		if (rd <= 0) {
-			if (rd == 0)
-				error ("EOF reading %s\n", err);
-			else
-				perror (err);
+		if (read(STDIN_FILENO, &c, 1) != 1)
+			exit(1);
+		*buf++ = c;
+		if (--cnt == 0) {
+			error("%s too long\n", err);
 			exit(1);
 		}
-
-		end += rd;
-		if ((buf + buf_len - end) < (buf_len >> 3)) {
-			/* Not very much room left in our buffer, grow it. */
-			size_t end_offs = end - buf;
-			buf_len += buf_len;
-			buf = realloc (buf, buf_len);
-			if (! buf) {
-				error ("Out of space reading %s\n", err);
-				exit (1);
-			}
-			end = buf + end_offs;
-		}
-	} while (*(end - 1));
-
-	return buf;
+	} while (c != 0);
 }
 
 /*
@@ -806,32 +743,25 @@ getstr(err)
  */
 int
 local_domain(h)
-	const char *h;
+	char *h;
 {
-	extern char *localhost ();
-	char *hostname = localhost ();
+	char localhost[MAXHOSTNAMELEN];
+	char *p1, *p2;
 
-	if (! hostname)
-		return 0;
-	else {
-		int is_local = 0;
-		const char *p1 = topdomain (hostname);
-		const char *p2 = topdomain (h);
-
-		if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
-			is_local = 1;
-
-		free (hostname);
-
-		return is_local;
-	}
+	localhost[0] = 0;
+	(void) gethostname(localhost, sizeof(localhost));
+	p1 = topdomain(localhost);
+	p2 = topdomain(h);
+	if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
+		return (1);
+	return (0);
 }
 
-const char *
+char *
 topdomain(h)
-	const char *h;
+	char *h;
 {
-	const char *p, *maybe = NULL;
+	char *p, *maybe = NULL;
 	int dots = 0;
 
 	for (p = h + strlen(h); p >= h; p--) {

@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)sys_bsd.c	8.4 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)sys_bsd.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
 
 /*
@@ -40,29 +40,14 @@ static char sccsid[] = "@(#)sys_bsd.c	8.4 (Berkeley) 5/30/95";
  * (at least between 4.x and dos) which is used in telnet.c.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include <fcntl.h>
 #include <sys/types.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <sys/socket.h>
 #include <signal.h>
 #include <errno.h>
 #include <arpa/telnet.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
 
 #include "ring.h"
 
@@ -72,8 +57,14 @@ static char sccsid[] = "@(#)sys_bsd.c	8.4 (Berkeley) 5/30/95";
 #include "externs.h"
 #include "types.h"
 
+#if	defined(CRAY) || (defined(USE_TERMIO) && !defined(SYSV_TERMIO))
+#define	SIG_FUNC_RET	void
+#else
+#define	SIG_FUNC_RET	int
+#endif
+
 #ifdef	SIGINFO
-extern RETSIGTYPE ayt_status();
+extern SIG_FUNC_RET ayt_status();
 #endif
 
 int
@@ -337,7 +328,7 @@ TerminalDefaultChars()
     nttyb.sg_kill = ottyb.sg_kill;
     nttyb.sg_erase = ottyb.sg_erase;
 #else	/* USE_TERMIO */
-    memmove(new_tc.c_cc, old_tc.c_cc, sizeof(old_tc.c_cc));
+    memcpy(new_tc.c_cc, old_tc.c_cc, sizeof(old_tc.c_cc));
 # ifndef	VDISCARD
     termFlushChar = CONTROL('O');
 # endif
@@ -620,10 +611,10 @@ TerminalNewMode(f)
 
     if (f != -1) {
 #ifdef	SIGTSTP
-	RETSIGTYPE susp();
+	SIG_FUNC_RET susp();
 #endif	/* SIGTSTP */
 #ifdef	SIGINFO
-	RETSIGTYPE ayt();
+	SIG_FUNC_RET ayt();
 #endif
 
 #ifdef	SIGTSTP
@@ -672,22 +663,13 @@ TerminalNewMode(f)
 #endif
     } else {
 #ifdef	SIGINFO
-	RETSIGTYPE ayt_status();
+	SIG_FUNC_RET ayt_status();
 
 	(void) signal(SIGINFO, ayt_status);
 #endif
 #ifdef	SIGTSTP
 	(void) signal(SIGTSTP, SIG_DFL);
-# ifdef HAVE_SIGACTION
-	{
-	  sigset_t sigs;
-	  sigemptyset(&sigs);
-	  sigaddset(&sigs, SIGTSTP);
-	  sigprocmask(SIG_UNBLOCK, &sigs, 0);
-	}
-# else	
 	(void) sigsetmask(sigblock(0) & ~(1<<(SIGTSTP-1)));
-# endif /* HAVE_SIGACTION */
 #endif	/* SIGTSTP */
 #ifndef USE_TERMIO
 	ltc = oltc;
@@ -722,50 +704,13 @@ TerminalNewMode(f)
 
 }
 
-/*
- * Try to guess whether speeds are "encoded" (4.2BSD) or just numeric (4.4BSD).
- */
-#if B4800 != 4800
-#define	DECODE_BAUD
-#endif
-
-#ifdef	DECODE_BAUD
-#ifndef	B7200
-#define B7200   B4800
-#endif
-
-#ifndef	B14400
-#define B14400  B9600
-#endif
-
 #ifndef	B19200
-# define B19200 B14400
-#endif
-
-#ifndef	B28800
-#define B28800  B19200
+# define B19200 B9600
 #endif
 
 #ifndef	B38400
-# define B38400 B28800
+# define B38400 B19200
 #endif
-
-#ifndef B57600
-#define B57600  B38400
-#endif
-
-#ifndef B76800
-#define B76800  B57600
-#endif
-
-#ifndef B115200
-#define B115200 B76800
-#endif
-
-#ifndef B230400
-#define B230400 B115200
-#endif
-
 
 /*
  * This code assumes that the values B0, B50, B75...
@@ -780,21 +725,16 @@ struct termspeeds {
 	{ 110,   B110 },   { 134,   B134 },  { 150,   B150 },
 	{ 200,   B200 },   { 300,   B300 },  { 600,   B600 },
 	{ 1200,  B1200 },  { 1800,  B1800 }, { 2400,  B2400 },
-	{ 4800,   B4800 },   { 7200,  B7200 },  { 9600,   B9600 },
-	{ 14400,  B14400 },  { 19200, B19200 }, { 28800,  B28800 },
-	{ 38400,  B38400 },  { 57600, B57600 }, { 115200, B115200 },
-	{ 230400, B230400 }, { -1,    B230400 }
+	{ 4800,  B4800 },  { 9600,  B9600 }, { 19200, B19200 },
+	{ 38400, B38400 }, { -1,    B38400 }
 };
-#endif	/* DECODE_BAUD */
 
     void
 TerminalSpeeds(ispeed, ospeed)
     long *ispeed;
     long *ospeed;
 {
-#ifdef	DECODE_BAUD
     register struct termspeeds *tp;
-#endif	/* DECODE_BAUD */
     register long in, out;
 
     out = cfgetospeed(&old_tc);
@@ -802,7 +742,6 @@ TerminalSpeeds(ispeed, ospeed)
     if (in == 0)
 	in = out;
 
-#ifdef	DECODE_BAUD
     tp = termspeeds;
     while ((tp->speed != -1) && (tp->value < in))
 	tp++;
@@ -812,10 +751,6 @@ TerminalSpeeds(ispeed, ospeed)
     while ((tp->speed != -1) && (tp->value < out))
 	tp++;
     *ospeed = tp->speed;
-#else	/* DECODE_BAUD */
-	*ispeed = in;
-	*ospeed = out;
-#endif	/* DECODE_BAUD */
 }
 
     int
@@ -875,7 +810,7 @@ NetSetPgrp(fd)
  */
 
     /* ARGSUSED */
-    RETSIGTYPE
+    SIG_FUNC_RET
 deadpeer(sig)
     int sig;
 {
@@ -884,7 +819,7 @@ deadpeer(sig)
 }
 
     /* ARGSUSED */
-    RETSIGTYPE
+    SIG_FUNC_RET
 intr(sig)
     int sig;
 {
@@ -897,7 +832,7 @@ intr(sig)
 }
 
     /* ARGSUSED */
-    RETSIGTYPE
+    SIG_FUNC_RET
 intr2(sig)
     int sig;
 {
@@ -914,7 +849,7 @@ intr2(sig)
 
 #ifdef	SIGTSTP
     /* ARGSUSED */
-    RETSIGTYPE
+    SIG_FUNC_RET
 susp(sig)
     int sig;
 {
@@ -927,7 +862,7 @@ susp(sig)
 
 #ifdef	SIGWINCH
     /* ARGSUSED */
-    RETSIGTYPE
+    SIG_FUNC_RET
 sendwin(sig)
     int sig;
 {
@@ -939,7 +874,7 @@ sendwin(sig)
 
 #ifdef	SIGINFO
     /* ARGSUSED */
-    RETSIGTYPE
+    SIG_FUNC_RET
 ayt(sig)
     int sig;
 {
@@ -1150,7 +1085,7 @@ process_rings(netin, netout, netex, ttyin, ttyout, poll)
 		    int i;
 		    i = recv(net, netiring.supply + c, canread - c, MSG_OOB);
 		    if (i == c &&
-			 memcmp(netiring.supply, netiring.supply + c, i) == 0) {
+			  bcmp(netiring.supply, netiring.supply + c, i) == 0) {
 			bogus_oob = 1;
 			first = 0;
 		    } else if (i < 0) {
@@ -1199,8 +1134,6 @@ process_rings(netin, netout, netex, ttyin, ttyout, poll)
     if (FD_ISSET(tin, &ibits)) {
 	FD_CLR(tin, &ibits);
 	c = TerminalRead(ttyiring.supply, ring_empty_consecutive(&ttyiring));
-	if (c < 0 && errno == EIO)
-	    c = 0;
 	if (c < 0 && errno == EWOULDBLOCK) {
 	    c = 0;
 	} else {

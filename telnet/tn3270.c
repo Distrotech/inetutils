@@ -32,12 +32,8 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)tn3270.c	8.2 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)tn3270.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include <sys/types.h>
 #include <arpa/telnet.h>
@@ -246,7 +242,7 @@ Push3270()
     if (save) {
 	if (Ifrontp+save > Ibuf+sizeof Ibuf) {
 	    if (Ibackp != Ibuf) {
-		memmove(Ibuf, Ibackp, Ifrontp-Ibackp);
+		memcpy(Ibuf, Ibackp, Ifrontp-Ibackp);
 		Ifrontp -= (Ibackp-Ibuf);
 		Ibackp = Ibuf;
 	    }

@@ -41,10 +41,6 @@ static char copyright[] =
 static char sccsid[] = "@(#)talk.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "talk.h"
 
 /*
@@ -65,11 +61,6 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-#ifndef HAVE___PROGNAME
-	extern char *__progname;
-	__progname = argv[0];
-#endif
-
 	get_names(argc, argv);
 	init_display();
 	open_ctl();

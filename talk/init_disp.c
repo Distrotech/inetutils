@@ -40,18 +40,8 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
  * as well as the signal handling routines.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#ifdef HAVE_TERMIOS_H
-#include <termios.h>
-#else
 #include <sys/ioctl.h>
-#ifdef HAVE_SYS_IOCTL_COMPAT_H
 #include <sys/ioctl_compat.h>
-#endif
-#endif
 
 #include <signal.h>
 #include <err.h>
@@ -64,38 +54,20 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
 init_display()
 {
 	void sig_sent();
-#ifdef HAVE_SIGACTION
-	struct sigaction siga;
-#else
-#ifdef HAVE_SIGVEC
 	struct sigvec sigv;
-#endif
-#endif
 
 	if (initscr() == NULL)
 		errx(1, "Terminal type unset or lacking necessary features.");
-
-#ifdef HAVE_SIGACTION
-	sigaction (SIGTSTP, (struct sigaction *)0, &siga);
-	sigaddset(&siga.sa_mask, SIGALRM);
-	sigaction (SIGTSTP, &siga, (struct sigaction *)0);
-#else /* !HAVE_SIGACTION */
-#ifdef HAVE_SIGVEC
-	sigvec (SIGTSTP, (struct sigvec *)0, &sigv);
-	sigv.sv_mask |= sigmask (SIGALRM);
-	sigvec (SIGTSTP, &sigv, (struct sigvec *)0);
-#endif /* HAVE_SIGVEC */
-#endif /* HAVE_SIGACTION */
-
+	(void) sigvec(SIGTSTP, (struct sigvec *)0, &sigv);
+	sigv.sv_mask |= sigmask(SIGALRM);
+	(void) sigvec(SIGTSTP, &sigv, (struct sigvec *)0);
 	curses_initialized = 1;
 	clear();
 	refresh();
 	noecho();
 	crmode();
-
 	signal(SIGINT, sig_sent);
 	signal(SIGPIPE, sig_sent);
-
 	/* curses takes care of ^Z */
 	my_win.x_nlines = LINES / 2;
 	my_win.x_ncols = COLS;
@@ -124,38 +96,8 @@ init_display()
  */
 set_edit_chars()
 {
-	int cc;
 	char buf[3];
-
-#ifdef HAVE_TCGETATTR
-  	struct termios tty;
-	cc_t disable = (cc_t)-1, erase, werase, kill;
-
-#if !defined (_POSIX_VDISABLE) && defined (HAVE_FPATHCONF) && defined (_PC_VDISABLE)
-	disable = fpathconf (0, _PC_VDISABLE);
-#endif
-
-	erase = werase = kill = disable;
-
-	if (tcgetattr (0, &tty) >= 0) {
-		erase = tty.c_cc[VERASE];
-#ifdef VWERASE
-		werase = tty.c_cc[VWERASE];
-#endif
-		kill = tty.c_cc[VKILL];
-	}
-
-	if (erase == disable)
-		erase = '\177';	/* rubout */
-	if (werase == disable)
-		werase = '\027'; /* ^W */
-	if (kill == disable)
-		kill = '\025';	/* ^U */
-
-	my_win.cerase = erase;
-	my_win.werase = werase;
-	my_win.kill = kill;
-#else /* !HAVE_TCGETATTR */
+	int cc;
 	struct sgttyb tty;
 	struct ltchars ltc;
 	
@@ -167,8 +109,6 @@ set_edit_chars()
 		my_win.werase = '\027';	 /* control W */
 	else
 		my_win.werase = ltc.t_werasc;
-#endif /* HAVE_TCGETATTR */
-
 	buf[0] = my_win.cerase;
 	buf[1] = my_win.kill;
 	buf[2] = my_win.werase;

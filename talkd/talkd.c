@@ -47,36 +47,18 @@ static char sccsid[] = "@(#)talkd.c	8.1 (Berkeley) 6/4/93";
  * disconnect all descriptors and ttys, and then endless
  * loop on waiting for and processing requests
  */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <signal.h>
 #include <syslog.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <time.h>
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-extern char *localhost ();
+#include <paths.h>
 
 CTL_MSG		request;
 CTL_RESPONSE	response;
@@ -86,7 +68,7 @@ int	debug = 0;
 void	timeout();
 long	lastmsgtime;
 
-char	*hostname;
+char	hostname[32];
 
 #define TIMEOUT 30
 #define MAXIDLE 120
@@ -103,13 +85,12 @@ main(argc, argv)
 		exit(1);
 	}
 	openlog("talkd", LOG_PID, LOG_DAEMON);
-	hostname = localhost ();
-	if (! hostname) {
-		syslog(LOG_ERR, "localhost: %m");
+	if (gethostname(hostname, sizeof (hostname) - 1) < 0) {
+		syslog(LOG_ERR, "gethostname: %m");
 		_exit(1);
 	}
-	if (chdir(PATH_DEV) < 0) {
-		syslog(LOG_ERR, "chdir: %s: %m", PATH_DEV);
+	if (chdir(_PATH_DEV) < 0) {
+		syslog(LOG_ERR, "chdir: %s: %m", _PATH_DEV);
 		_exit(1);
 	}
 	if (argc > 1 && strcmp(argv[1], "-d") == 0)

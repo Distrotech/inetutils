@@ -41,42 +41,22 @@ static char copyright[] =
 static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
-#ifdef HAVE_SYS_FILIO_H
-#include <sys/filio.h>
-#endif
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 
 #include <netinet/in.h>
 
 #include <errno.h>
 #include <netdb.h>
+#include <paths.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <crypt.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
 
 /*VARARGS1*/
 int error();
@@ -108,21 +88,19 @@ main(argc, argv)
 char	username[20] = "USER=";
 char	homedir[64] = "HOME=";
 char	shell[64] = "SHELL=";
-char	path[sizeof(PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
+char	path[sizeof(_PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
 char	*envinit[] =
 	    {homedir, shell, path, username, 0};
-extern char	**environ;
+char	**environ;
 
 struct	sockaddr_in asin = { AF_INET };
-
-char *getstr ();
 
 doit(f, fromp)
 	int f;
 	struct sockaddr_in *fromp;
 {
-	char *cmdbuf, *cp, *namep;
-	char *user, *pass;
+	char cmdbuf[NCARGS+1], *cp, *namep;
+	char user[16], pass[16];
 	struct passwd *pwd;
 	int s;
 	u_short port;
@@ -134,7 +112,7 @@ doit(f, fromp)
 	(void) signal(SIGQUIT, SIG_DFL);
 	(void) signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
-	{ int t = open(_PATH_TTY, O_RDWR);
+	{ int t = open(_PATH_TTY, 2);
 	  if (t >= 0) {
 		ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
@@ -167,11 +145,9 @@ doit(f, fromp)
 			exit(1);
 		(void) alarm(0);
 	}
-
-	user = getstr ("username");
-	pass = getstr ("password");
-	cmdbuf = getstr ("command");
-
+	getstr(user, sizeof(user), "username");
+	getstr(pass, sizeof(pass), "password");
+	getstr(cmdbuf, sizeof(cmdbuf), "command");
 	setpwent();
 	pwd = getpwnam(user);
 	if (pwd == NULL) {
@@ -180,7 +156,7 @@ doit(f, fromp)
 	}
 	endpwent();
 	if (*pwd->pw_passwd != '\0') {
-		namep = CRYPT (pass, pwd->pw_passwd);
+		namep = crypt(pass, pwd->pw_passwd);
 		if (strcmp(namep, pwd->pw_passwd)) {
 			error("Password incorrect.\n");
 			exit(1);
@@ -226,18 +202,18 @@ doit(f, fromp)
 			} while (readfrom);
 			exit(0);
 		}
-		setpgid (0, getpid());
+		setpgrp(0, getpid());
 		(void) close(s); (void)close(pv[0]);
 		dup2(pv[1], 2);
 	}
 	if (*pwd->pw_shell == '\0')
-		pwd->pw_shell = PATH_BSHELL;
+		pwd->pw_shell = _PATH_BSHELL;
 	if (f > 2)
 		(void) close(f);
 	(void) setgid((gid_t)pwd->pw_gid);
 	initgroups(pwd->pw_name, pwd->pw_gid);
 	(void) setuid((uid_t)pwd->pw_uid);
-	(void)strcat(path, PATH_DEFPATH);
+	(void)strcat(path, _PATH_DEFPATH);
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
 	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
@@ -260,46 +236,24 @@ error(fmt, a1, a2, a3)
 	char buf[BUFSIZ];
 
 	buf[0] = 1;
-	snprintf (buf + 1, sizeof buf - 1, fmt, a1, a2, a3);
-	write (2, buf, strlen(buf));
+	(void) sprintf(buf+1, fmt, a1, a2, a3);
+	(void) write(2, buf, strlen(buf));
 }
 
-char *
-getstr(err)
+getstr(buf, cnt, err)
+	char *buf;
+	int cnt;
 	char *err;
 {
-	size_t buf_len = 100;
-	char *buf = malloc (buf_len), *end = buf;
-
-	if (! buf) {
-		error ("Out of space reading %s\n", err);
-		exit (1);
-	}
+	char c;
 
 	do {
-		/* Oh this is efficient, oh yes.  [But what can be done?] */
-		int rd = read(STDIN_FILENO, end, 1);
-		if (rd <= 0) {
-			if (rd == 0)
-				error ("EOF reading %s\n", err);
-			else
-				perror (err);
+		if (read(0, &c, 1) != 1)
+			exit(1);
+		*buf++ = c;
+		if (--cnt == 0) {
+			error("%s too long\n", err);
 			exit(1);
 		}
-
-		end += rd;
-		if ((buf + buf_len - end) < (buf_len >> 3)) {
-			/* Not very much room left in our buffer, grow it. */
-			size_t end_offs = end - buf;
-			buf_len += buf_len;
-			buf = realloc (buf, buf_len);
-			if (! buf) {
-				error ("Out of space reading %s\n", err);
-				exit (1);
-			}
-			end = buf + end_offs;
-		}
-	} while (*(end - 1));
-
-	return buf;
+	} while (c != 0);
 }

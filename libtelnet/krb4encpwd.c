@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)krb4encpwd.c	8.3 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)krb4encpwd.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 
@@ -70,10 +70,6 @@ static char sccsid[] = "@(#)krb4encpwd.c	8.3 (Berkeley) 5/30/95";
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <arpa/telnet.h>
 #include <pwd.h>
@@ -81,7 +77,7 @@ static char sccsid[] = "@(#)krb4encpwd.c	8.3 (Berkeley) 5/30/95";
 
 #include <des.h>
 #include <krb.h>
-#ifdef HAVE_STDLIB_H
+#ifdef	__STDC__
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
@@ -171,7 +167,7 @@ krb4encpwd_init(ap, server)
 		str_data[3] = TELQUAL_IS;
 		gethostname(hostname, sizeof(hostname));
 		realm = krb_realmofhost(hostname);
-		cp = strchr(hostname, '.');
+		cp = index(hostname, '.');
 		if (*cp != NULL) *cp = NULL;
 		if (read_service_key(KRB_SERVICE_NAME, hostname, realm, 0,
 					KEYFILE, (char *)skey)) {
@@ -218,10 +214,10 @@ krb4encpwd_is(ap, data, cnt)
 		return;
 	switch (*data++) {
 	case KRB4_ENCPWD_AUTH:
-		memmove((void *)auth.dat, (void *)data, auth.length = cnt);
+		bcopy((void *)data, (void *)auth.dat, auth.length = cnt);
 
 		gethostname(lhostname, sizeof(lhostname));
-		if ((cp = strchr(lhostname, '.')) != 0)  *cp = '\0';
+		if ((cp = index(lhostname, '.')) != 0)  *cp = '\0';
 
 		if (r = krb_rd_encpwd_req(&auth, KRB_SERVICE_NAME, lhostname, 0, &adat, NULL, challenge, r_user, r_passwd)) {
 			Data(ap, KRB4_ENCPWD_REJECT, (void *)"Auth failed", -1);
@@ -238,7 +234,7 @@ krb4encpwd_is(ap, data, cnt)
 		  return;
 		}
 
-		memmove((void *)session_key, (void *)adat.session, sizeof(Block));
+		bcopy((void *)adat.session, (void *)session_key, sizeof(Block));
 		Data(ap, KRB4_ENCPWD_ACCEPT, (void *)0, 0);
 		auth_finished(ap, AUTH_USER);
 		break;
@@ -248,7 +244,7 @@ krb4encpwd_is(ap, data, cnt)
 		 *  Take the received random challenge text and save
 		 *  for future authentication.
 		 */
-		memmove((void *)challenge, (void *)data, sizeof(Block));
+		bcopy((void *)data, (void *)challenge, sizeof(Block));
 		break;
 
 
@@ -259,7 +255,7 @@ krb4encpwd_is(ap, data, cnt)
 
 		/*
 		 * If we are doing mutual authentication, get set up to send
-		 * the challenge, and verify it when the response comes back.
+		 * the challange, and verify it when the response comes back.
 		 */
 
 		if ((ap->way & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL) {
@@ -314,13 +310,13 @@ krb4encpwd_reply(ap, data, cnt)
 
 		gethostname(hostname, sizeof(hostname));
 		realm = krb_realmofhost(hostname);
-		memmove((void *)challenge, (void *)data, cnt);
-		memset(user_passwd, 0, sizeof(user_passwd));
+		bcopy((void *)data, (void *)challenge, cnt);
+		bzero(user_passwd, sizeof(user_passwd));
 		local_des_read_pw_string(user_passwd, sizeof(user_passwd)-1, "Password: ", 0);
 		UserPassword = user_passwd;
 		Challenge = challenge;
 		strcpy(instance, RemoteHostName);
-		if ((cp = strchr(instance, '.')) != 0)  *cp = '\0';
+		if ((cp = index(instance, '.')) != 0)  *cp = '\0';
 
 		if (r = krb_mk_encpwd_req(&krb_token, KRB_SERVICE_NAME, instance, realm, Challenge, UserNameRequested, user_passwd)) {
 		  krb_token.length = 0;
@@ -413,9 +409,10 @@ krb4encpwd_printsub(data, cnt, buf, buflen)
 	}
 }
 
-int passwdok (name, passwd)
-     char *name, *passwd;
+int passwdok(name, passwd)
+char *name, *passwd;
 {
+  char *crypt();
   char *salt, *p;
   struct passwd *pwd;
   int   passwdok_status = 0;
@@ -424,7 +421,7 @@ int passwdok (name, passwd)
     salt = pwd->pw_passwd;
   else salt = "xx";
 
-  p = CRYPT (passwd, salt);
+  p = crypt(passwd, salt);
 
   if (pwd && !strcmp(p, pwd->pw_passwd)) {
     passwdok_status = 1;

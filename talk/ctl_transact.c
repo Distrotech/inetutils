@@ -35,29 +35,10 @@
 static char sccsid[] = "@(#)ctl_transact.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <netinet/in.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
-#ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <errno.h>
 #include "talk_ctl.h"
@@ -75,15 +56,13 @@ ctl_transact(target, msg, type, rp)
 	int type;
 	CTL_RESPONSE *rp;
 {
-	int nready, cc;
-	fd_set read_mask, ctl_mask;
+	int read_mask, ctl_mask, nready, cc;
 	struct timeval wait;
 
 	msg.type = type;
 	daemon_addr.sin_addr = target;
 	daemon_addr.sin_port = daemon_port;
-	FD_ZERO(&ctl_mask);
-	FD_SET(ctl_sockt, &ctl_mask);
+	ctl_mask = 1 << ctl_sockt;
 
 	/*
 	 * Keep sending the message until a response of

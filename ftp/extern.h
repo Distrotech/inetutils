@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)extern.h	8.3 (Berkeley) 10/9/94
+ *	@(#)extern.h	8.2 (Berkeley) 4/3/94
  */
 
 struct timeval;
@@ -48,7 +48,7 @@ void	cdup __P((int, char **));
 void	changetype __P((int, int));
 void	cmdabort __P(());
 void	cmdscanner __P((int));
-int	command __P((const char *fmt, ...));
+int	command __P(());
 int	confirm __P((char *, char *));
 FILE   *dataconn __P((char *));
 void	delete __P((int, char **));
@@ -59,17 +59,17 @@ void	domacro __P((int, char **));
 char   *domap __P((char *));
 void	doproxy __P((int, char **));
 char   *dotrans __P((char *));
-int     empty __P((fd_set *, int));
+int     empty __P((struct fd_set *, int));
 void	fatal __P((char *));
 void	get __P((int, char **));
 struct cmd *getcmd __P((char *));
 int	getit __P((int, char **, int, char *));
 int	getreply __P((int));
-char   *globulize __P((char *));
+int	globulize __P((char **));
 char   *gunique __P((char *));
 void	help __P((int, char **));
 char   *hookup __P((char *, int));
-void	site_idle __P((int, char **));
+void	idle __P((int, char **));
 int     initconn __P((void));
 void	intr __P(());
 void	lcd __P((int, char **));
@@ -120,7 +120,6 @@ void	setglob __P((int, char **));
 void	sethash __P((int, char **));
 void	setnmap __P((int, char **));
 void	setntrans __P((int, char **));
-void	setpassive __P((int, char **));
 void	setpeer __P((int, char **));
 void	setport __P((int, char **));
 void	setprompt __P((int, char **));
@@ -151,7 +150,3 @@ extern int	proxy;
 extern char	reply_string[];
 extern off_t	restart_point;
 extern int	NCMDS;
-
-#ifndef HAVE_GETPASS_DECL
-extern char *getpass __P((const char *));
-#endif

@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)kerberos.c	8.3 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)kerberos.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 /*
@@ -55,17 +55,13 @@ static char sccsid[] = "@(#)kerberos.c	8.3 (Berkeley) 5/30/95";
  * or implied warranty.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #ifdef	KRB4
 #include <sys/types.h>
 #include <arpa/telnet.h>
 #include <stdio.h>
 #include <des.h>        /* BSD wont include this in krb.h, so we do it here */
 #include <krb.h>
-#ifdef HAVE_STDLIB_H
+#ifdef	__STDC__
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
@@ -189,7 +185,7 @@ kerberos4_send(ap)
 		return(0);
 	}
 
-	memset(instance, 0, sizeof(instance));
+	bzero(instance, sizeof(instance));
 
 	if (realm = krb_get_phost(RemoteHostName))
 		strncpy(instance, realm, sizeof(instance));
@@ -231,10 +227,9 @@ kerberos4_send(ap)
 		register int i;
 
 		des_key_sched(cred.session, sched);
-		des_init_random_number_generator(cred.session);
-		des_new_random_key(session_key);
-		des_ecb_encrypt(session_key, session_key, sched, 0);
-		des_ecb_encrypt(session_key, challenge, sched, 0);
+		des_set_random_generator_seed(cred.session);
+		des_new_random_key(challenge);
+		des_ecb_encrypt(challenge, session_key, sched, 1);
 		/*
 		 * Increment the challenge by 1, and encrypt it for
 		 * later comparison.
@@ -284,7 +279,7 @@ kerberos4_is(ap, data, cnt)
 				printf("No local realm\r\n");
 			return;
 		}
-		memmove((void *)auth.dat, (void *)data, auth.length = cnt);
+		bcopy((void *)data, (void *)auth.dat, auth.length = cnt);
 		if (auth_debug_mode) {
 			printf("Got %d bytes of authentication data\r\n", cnt);
 			printf("CK: %d:", kerberos4_cksum(auth.dat, auth.length));
@@ -301,7 +296,7 @@ kerberos4_is(ap, data, cnt)
 			return;
 		}
 #ifdef	ENCRYPTION
-		memmove((void *)session_key, (void *)adat.session, sizeof(Block));
+		bcopy((void *)adat.session, (void *)session_key, sizeof(Block));
 #endif	/* ENCRYPTION */
 		krb_kntoln(&adat, name);
 
@@ -327,13 +322,8 @@ kerberos4_is(ap, data, cnt)
 			break;
 		}
 
-		/*
-		 * Initialize the random number generator since it's
-		 * used later on by the encryption routine.
-		 */
-		des_init_random_number_generator(session_key);
 		des_key_sched(session_key, sched);
-		memmove((void *)datablock, (void *)data, sizeof(Block));
+		bcopy((void *)data, (void *)datablock, sizeof(Block));
 		/*
 		 * Take the received encrypted challenge, and encrypt
 		 * it again to get a unique session_key for the
@@ -349,7 +339,7 @@ kerberos4_is(ap, data, cnt)
 		 * increment by one, re-encrypt it and send it back.
 		 */
 		des_ecb_encrypt(datablock, challenge, sched, 0);
-		for (r = 7; r >= 0; r--) {
+		for (r = 7; r >= 0; r++) {
 			register int t;
 			t = (unsigned int)challenge[r] + 1;
 			challenge[r] = t;	/* ignore overflow */

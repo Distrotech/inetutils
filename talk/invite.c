@@ -35,27 +35,11 @@
 static char sccsid[] = "@(#)invite.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <signal.h>
 #include <netinet/in.h>
-#ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <errno.h>
 #include <setjmp.h>
@@ -89,12 +73,13 @@ invite_remote()
 	itimer.it_interval = itimer.it_value;
 	if (listen(sockt, 5) != 0)
 		p_error("Error on attempt to listen for caller");
-
-	msg.addr.sa_family = htons (my_addr.sin_family);
-	memcpy (msg.addr.sa_data,
-		((struct sockaddr *)&my_addr)->sa_data,
-		sizeof ((struct sockaddr *)&my_addr)->sa_data);
-
+#ifdef MSG_EOR
+	/* copy new style sockaddr to old, swap family (short in old) */
+	msg.addr = *(struct osockaddr *)&my_addr;  /* XXX new to old  style*/
+	msg.addr.sa_family = htons(my_addr.sin_family);
+#else
+	msg.addr = *(struct sockaddr *)&my_addr;
+#endif
 	msg.id_num = htonl(-1);		/* an impossible id_num */
 	invitation_waiting = 1;
 	announce_invite();
@@ -190,13 +175,13 @@ send_delete()
 	 */
 	msg.id_num = htonl(remote_id);
 	daemon_addr.sin_addr = his_machine_addr;
-	if (sendto(ctl_sockt, (const char *)&msg, sizeof (msg), 0,
+	if (sendto(ctl_sockt, &msg, sizeof (msg), 0,
 	    (struct sockaddr *)&daemon_addr,
 	    sizeof (daemon_addr)) != sizeof(msg))
 		perror("send_delete (remote)");
 	msg.id_num = htonl(local_id);
 	daemon_addr.sin_addr = my_machine_addr;
-	if (sendto(ctl_sockt, (const char *)&msg, sizeof (msg), 0,
+	if (sendto(ctl_sockt, &msg, sizeof (msg), 0,
 	    (struct sockaddr *)&daemon_addr,
 	    sizeof (daemon_addr)) != sizeof (msg))
 		perror("send_delete (local)");

@@ -38,7 +38,7 @@ static char copyright[] =
 #endif /* not lint */
 
 #ifndef lint
-static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
+static char sccsid[] = "@(#)rlogind.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 /*
@@ -50,46 +50,17 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
  *	data
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
+#define	FD_SETSIZE	16		/* don't need many bits for select */
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-#ifdef HAVE_SYS_FILIO_H
-#include <sys/filio.h>
-#endif
 #include <signal.h>
 #include <termios.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-#ifdef HAVE_SYS_STREAM_H
-#include <sys/stream.h>
-#endif
-#ifdef HAVE_SYS_TTY_H
-#include <sys/tty.h>
-#endif
-#ifdef HAVE_SYS_PTYVAR_H
-#include <sys/ptyvar.h>
-#endif
 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-#endif
 #include <arpa/inet.h>
 #include <netdb.h>
 
@@ -100,27 +71,10 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
+#include "pathnames.h"
 
 #ifndef TIOCPKT_WINDOW
 #define TIOCPKT_WINDOW 0x80
-#endif
-
-/* `defaults' for tty settings.  */
-#ifndef TTYDEF_IFLAG
-#define	TTYDEF_IFLAG	(BRKINT | ISTRIP | ICRNL | IMAXBEL | IXON | IXANY)
-#endif
-#ifndef TTYDEF_OFLAG
-#ifndef OXTABS
-#define OXTABS 0
-#endif
-#define TTYDEF_OFLAG	(OPOST | ONLCR | OXTABS)
-#endif
-#ifndef TTYDEF_LFLAG
-#define TTYDEF_LFLAG	(ECHO | ICANON | ISIG | IEXTEN | ECHOE|ECHOKE|ECHOCTL)
 #endif
 
 #ifdef	KERBEROS
@@ -218,25 +172,19 @@ main(argc, argv)
 		syslog(LOG_ERR,"Can't get peer name of remote host: %m");
 		fatal(STDERR_FILENO, "Can't get peer name of remote host", 1);
 	}
-
 	on = 1;
 	if (keepalive &&
-	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, (char *) &on,
-		       sizeof (on)) < 0)
+	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof (on)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
-
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	on = IPTOS_LOWDELAY;
 	if (setsockopt(0, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
-#endif
-
 	doit(0, &from);
 }
 
 int	child;
 int	netf;
-char	line[1024];		/* XXX */
+char	line[MAXPATHLEN];
 int	confirmed;
 
 struct winsize win = { 0, 0, 0, 0 };
@@ -250,8 +198,7 @@ doit(f, fromp)
 	int master, pid, on = 1;
 	int authenticated = 0;
 	register struct hostent *hp;
-	char *hostname;
-	const char *raw_hostname;
+	char hostname[2 * MAXHOSTNAMELEN + 1];
 	char c;
 
 	alarm(60);
@@ -269,13 +216,9 @@ doit(f, fromp)
 	hp = gethostbyaddr((char *)&fromp->sin_addr, sizeof(struct in_addr),
 	    fromp->sin_family);
 	if (hp)
-		raw_hostname = hp->h_name;
+		(void)strcpy(hostname, hp->h_name);
 	else
-		raw_hostname = inet_ntoa(fromp->sin_addr);
-	hostname = malloc (strlen (raw_hostname) + 1);
-	if (! hostname)
-		fatal (f, "Out of memory", 0);
-	strcpy (hostname, raw_hostname);
+		(void)strcpy(hostname, inet_ntoa(fromp->sin_addr));
 
 #ifdef	KERBEROS
 	if (use_kerberos) {
@@ -359,12 +302,12 @@ doit(f, fromp)
 				    hostname);
 #endif
 
-			execle(PATH_LOGIN, "login", "-p",
-			    "-h", hostname, "-f", "--", lusername, NULL, env);
+			execl(_PATH_LOGIN, "login", "-p",
+			    "-h", hostname, "-f", lusername, (char *)NULL);
 		} else
-			execle(PATH_LOGIN, "login", "-p",
-			    "-h", hostname, "--", lusername, NULL, env);
-		fatal(STDERR_FILENO, PATH_LOGIN, 1);
+			execl(_PATH_LOGIN, "login", "-p",
+			    "-h", hostname, lusername, (char *)NULL);
+		fatal(STDERR_FILENO, _PATH_LOGIN, 1);
 		/*NOTREACHED*/
 	}
 #ifdef	CRYPT
@@ -405,7 +348,7 @@ control(pty, cp, n)
 	if (n < 4+sizeof (w) || cp[2] != 's' || cp[3] != 's')
 		return (0);
 	oobdata[0] &= ~TIOCPKT_WINDOW;	/* we know he heard */
-	memmove(&w, cp+4, sizeof(w));
+	bcopy(cp+4, (char *)&w, sizeof(w));
 	w.ws_row = ntohs(w.ws_row);
 	w.ws_col = ntohs(w.ws_col);
 	w.ws_xpixel = ntohs(w.ws_xpixel);
@@ -583,7 +526,7 @@ cleanup(signo)
 {
 	char *p;
 
-	p = line + sizeof(PATH_DEV) - 1;
+	p = line + sizeof(_PATH_DEV) - 1;
 	if (logout(p))
 		logwtmp(p, "", "");
 	(void)chmod(line, 0666);
@@ -611,11 +554,10 @@ fatal(f, msg, syserr)
 	if (!confirmed)
 		*bp++ = '\01';		/* error indicator */
 	if (syserr)
-		snprintf (bp, sizeof buf - (bp - buf),
-				  "rlogind: %s: %s.\r\n", msg, strerror(errno));
+		len = sprintf(bp, "rlogind: %s: %s.\r\n",
+		    msg, strerror(errno));
 	else
-		snprintf (bp, sizeof buf - (bp - buf), "rlogind: %s.\r\n", msg);
-	len = strlen (bp);
+		len = sprintf(bp, "rlogind: %s.\r\n", msg);
 	(void) write(f, buf, bp + len - buf);
 	exit(1);
 }
@@ -654,28 +596,25 @@ getstr(buf, cnt, errmsg)
 	} while (c != 0);
 }
 
+extern	char **environ;
+
 void
 setup_term(fd)
 	int fd;
 {
-	register char *cp = strchr (term+ENVSIZE, '/');
+	register char *cp = index(term+ENVSIZE, '/');
 	char *speed;
 	struct termios tt;
 
-#if 1
+#ifndef notyet
 	tcgetattr(fd, &tt);
 	if (cp) {
 		*cp++ = '\0';
 		speed = cp;
-		cp = strchr (speed, '/');
+		cp = index(speed, '/');
 		if (cp)
 			*cp++ = '\0';
-#ifdef HAVE_CFSETSPEED
 		cfsetspeed(&tt, atoi(speed));
-#else
-		cfsetispeed(&tt, atoi(speed));
-		cfsetospeed(&tt, atoi(speed));
-#endif
 	}
 
 	tt.c_iflag = TTYDEF_IFLAG;
@@ -686,22 +625,18 @@ setup_term(fd)
 	if (cp) {
 		*cp++ = '\0';
 		speed = cp;
-		cp = strchr (speed, '/');
+		cp = index(speed, '/');
 		if (cp)
 			*cp++ = '\0';
 		tcgetattr(fd, &tt);
-#ifdef HAVE_CFSETSPEED
 		cfsetspeed(&tt, atoi(speed));
-#else
-		cfsetispeed(&tt, atoi(speed));
-		cfsetospeed(&tt, atoi(speed));
-#endif
 		tcsetattr(fd, TCSAFLUSH, &tt);
 	}
 #endif
 
 	env[0] = term;
 	env[1] = 0;
+	environ = env;
 }
 
 #ifdef	KERBEROS
@@ -793,23 +728,16 @@ int
 local_domain(h)
 	char *h;
 {
-	extern char *localhost ();
-	char *hostname = localhost ();
+	char localhost[MAXHOSTNAMELEN];
+	char *p1, *p2;
 
-	if (! hostname)
-		return 0;
-	else {
-		int is_local = 0;
-		char *p1 = topdomain (hostname);
-		char *p2 = topdomain (h);
-
-		if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
-			is_local = 1;
-
-		free (hostname);
-
-		return is_local;
-	}
+	localhost[0] = 0;
+	(void) gethostname(localhost, sizeof(localhost));
+	p1 = topdomain(localhost);
+	p2 = topdomain(h);
+	if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
+		return (1);
+	return (0);
 }
 
 char *

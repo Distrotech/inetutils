@@ -44,11 +44,6 @@
 static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -58,6 +53,7 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 
 #include <ctype.h>
 #include <errno.h>
+#include <glob.h>
 #include <pwd.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -65,30 +61,10 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <time.h>
 #include <unistd.h>
-#include <limits.h>
-#ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
-#endif
-/* Include glob.h last, because it may define "const" which breaks
-   system headers on some platforms. */
-#include <glob.h>
 
 #include "extern.h"
-
-#if ! defined (NBBY) && defined (CHAR_BIT)
-#define NBBY CHAR_BIT
-#endif
 
 extern	struct sockaddr_in data_dest;
 extern	int logged_in;
@@ -101,7 +77,7 @@ extern	int debug;
 extern	int timeout;
 extern	int maxtimeout;
 extern  int pdata;
-extern	char *hostname, *remotehost;
+extern	char hostname[], remotehost[];
 extern	char proctitle[];
 extern	int usedefault;
 extern  int transflag;
@@ -114,24 +90,6 @@ static	int cmd_form;
 static	int cmd_bytesz;
 char	cbuf[512];
 char	*fromname;
-
-struct tab {
-	char	*name;
-	short	token;
-	short	state;
-	short	implemented;	/* 1 if command is implemented */
-	char	*help;
-};
-
-extern struct tab cmdtab[], sitetab[];
-
-static char	*copy __P((char *));
-static void	 help __P((struct tab *, char *));
-static struct tab *
-		 lookup __P((struct tab *, char *));
-static void	 sizecmd __P((char *));
-static void	 toolong __P((int));
-static int	 yylex __P((void));
 
 %}
 
@@ -199,10 +157,7 @@ cmd
 			}
 			reply(200, "PORT command successful.");
 		}
-/* telnet to ftpd and type PASV, server will crash
- * *Hobbit
- */
-	| PASV check_login CRLF
+	| PASV CRLF
 		{
 			passive();
 		}
@@ -229,7 +184,7 @@ cmd
 				break;
 
 			case TYPE_L:
-#if defined (NBBY) && NBBY == 8
+#if NBBY == 8
 				if (cmd_bytesz == 8) {
 					reply(200,
 					    "Type set to L (byte size 8).");
@@ -465,11 +420,6 @@ cmd
 		}
 	| SITE SP IDLE SP NUMBER CRLF
 		{
-		  	if (!guest && $5 == 0) {
-			  timeout = 0;
-			  alarm (0);
-			  reply (200, "IDLE time limit disabled");
-			}
 			if ($5 < 30 || $5 > maxtimeout) {
 				reply(501,
 			"Maximum IDLE time must be between 30 and %d seconds",
@@ -491,41 +441,16 @@ cmd
 		}
 	| SYST CRLF
 		{
-		        char *type; /* The official rfc-defined os type.  */
-			char *version = 0; /* A more specific type. */
-
-#ifdef HAVE_UNAME
-			struct utsname u;
-			if (uname (&u) == 0) {
-				version =
-				  malloc (strlen (u.sysname)
-					  + 1 + strlen (u.release) + 1);
-				if (version)
-					sprintf (version, "%s %s",
-						 u.sysname, u.release);
-		        }
-#else
-#ifdef BSD
-			version = "BSD";
-#endif
-#endif
-
 #ifdef unix
-			type = "UNIX";
-#else
-			type = "UNKNOWN";
-#endif
-
-			if (version)
-				reply(215, "%s Type: L%d Version: %s",
-				      type, NBBY, version);
-			else
-				reply(215, "%s Type: L%d", type, NBBY);
-
-#ifdef HAVE_UNAME
-			if (version)
-				free (version);
-#endif
+#ifdef BSD
+			reply(215, "UNIX Type: L%d Version: BSD-%d",
+				NBBY, BSD);
+#else /* BSD */
+			reply(215, "UNIX Type: L%d", NBBY);
+#endif /* BSD */
+#else /* unix */
+			reply(215, "UNKNOWN Type: L%d", NBBY);
+#endif /* unix */
 		}
 
 		/*
@@ -600,10 +525,7 @@ rcmd
 		{
 			fromname = (char *) 0;
 			restart_point = $3;	/* XXX $3 is only "int" */
-			reply(350,
-			      (sizeof(restart_point) > sizeof(long)
-			       ? "Restarting at %qd. %s"
-			       : "Restarting at %ld. %s"), restart_point,
+			reply(350, "Restarting at %qd. %s", restart_point,
 			    "Send STORE or RETRIEVE to initiate transfer.");
 		}
 	;
@@ -736,17 +658,8 @@ pathname
 			 */
 			if (logged_in && $1 && *$1 == '~') {
 				glob_t gl;
-				int flags = GLOB_NOCHECK;
-
-#ifdef GLOB_BRACE
-				flags |= GLOB_BRACE;
-#endif
-#ifdef GLOB_QUOTE
-				flags |= GLOB_QUOTE;
-#endif
-#ifdef GLOB_TILDE
-				flags |= GLOB_TILDE;
-#endif
+				int flags =
+				 GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
 
 				memset(&gl, 0, sizeof(gl));
 				if (glob($1, flags, NULL, &gl) ||
@@ -820,6 +733,14 @@ extern jmp_buf errcatch;
 #define	SITECMD	7	/* SITE command */
 #define	NSTR	8	/* Number followed by a string */
 
+struct tab {
+	char	*name;
+	short	token;
+	short	state;
+	short	implemented;	/* 1 if command is implemented */
+	char	*help;
+};
+
 struct tab cmdtab[] = {		/* In order defined in RFC 765 */
 	{ "USER", USER, STR1, 1,	"<sp> username" },
 	{ "PASS", PASS, ZSTR1, 1,	"<sp> password" },
@@ -879,6 +800,14 @@ struct tab sitetab[] = {
 	{ NULL,   0,    0,    0,	0 }
 };
 
+static char	*copy __P((char *));
+static void	 help __P((struct tab *, char *));
+static struct tab *
+		 lookup __P((struct tab *, char *));
+static void	 sizecmd __P((char *));
+static void	 toolong __P((int));
+static int	 yylex __P((void));
+
 static struct tab *
 lookup(p, cmd)
 	struct tab *p;
@@ -897,7 +826,7 @@ lookup(p, cmd)
  * getline - a hacked up version of fgets to ignore TELNET escape codes.
  */
 char *
-telnet_fgets(s, n, iop)
+getline(s, n, iop)
 	char *s;
 	int n;
 	FILE *iop;
@@ -1000,7 +929,7 @@ yylex()
 		case CMD:
 			(void) signal(SIGALRM, toolong);
 			(void) alarm((unsigned) timeout);
-			if (telnet_fgets(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
+			if (getline(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
 				reply(221, "You could at least say goodbye.");
 				dologout(0);
 			}
@@ -1303,9 +1232,7 @@ sizecmd(filename)
 		if (stat(filename, &stbuf) < 0 || !S_ISREG(stbuf.st_mode))
 			reply(550, "%s: not a plain file.", filename);
 		else
-			reply(213,
-			      (sizeof (stbuf.st_size) > sizeof(long)
-			       ? "%qu" : "%lu"), stbuf.st_size);
+			reply(213, "%qu", stbuf.st_size);
 		break; }
 	case TYPE_A: {
 		FILE *fin;
@@ -1331,8 +1258,7 @@ sizecmd(filename)
 		}
 		(void) fclose(fin);
 
-		reply(213, sizeof(count) > sizeof(long) ? "%qd" : "%ld",
-		      count);
+		reply(213, "%qd", count);
 		break; }
 	default:
 		reply(504, "SIZE not implemented for Type %c.", "?AEIL"[type]);

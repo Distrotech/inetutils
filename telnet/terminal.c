@@ -32,12 +32,8 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)terminal.c	8.2 (Berkeley) 2/16/95";
+static char sccsid[] = "@(#)terminal.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include <arpa/telnet.h>
 #include <sys/types.h>
@@ -144,7 +140,6 @@ ttyflush(drop)
 		n1 = n0 - n;
 		if (!drop)
 			n1 = TerminalWrite(ttyoring.bottom, n1);
-		if (n1 > 0)
 		n += n1;
 	}
 	ring_consumed(&ttyoring, n);

@@ -32,12 +32,8 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)state.c	8.5 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)state.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include "telnetd.h"
 #if	defined(AUTHENTICATION)
@@ -370,7 +366,7 @@ gotiac:			switch (c) {
 		char	xbuf2[BUFSIZ];
 		register char *cp;
 		int n = pfrontp - opfrontp, oc;
-		memmove(xptyobuf, opfrontp, n);
+		bcopy(opfrontp, xptyobuf, n);
 		pfrontp = opfrontp;
 		pfrontp += term_input(xptyobuf, pfrontp, n, BUFSIZ+NETSLOP,
 					xbuf2, &oc, BUFSIZ);
@@ -720,6 +716,7 @@ wontoption(option)
 			 */
 			if (lmodetype != REAL_LINEMODE)
 				break;
+			lmodetype = KLUDGE_LINEMODE;
 # endif	/* KLUDGELINEMODE */
 			clientstat(TELOPT_LINEMODE, WONT, 0);
 			break;
@@ -1523,8 +1520,8 @@ doclientstat()
 	clientstat(TELOPT_LINEMODE, WILL, 0);
 }
 
-#define	ADD(c)	 *ncp++ = c
-#define	ADD_DATA(c) { *ncp++ = c; if (c == SE || c == IAC) *ncp++ = c; }
+#define	ADD(c)	 *ncp++ = c;
+#define	ADD_DATA(c) { *ncp++ = c; if (c == SE) *ncp++ = c; }
 	void
 send_status()
 {
@@ -1553,10 +1550,14 @@ send_status()
 		if (my_want_state_is_will(i)) {
 			ADD(WILL);
 			ADD_DATA(i);
+			if (i == IAC)
+				ADD(IAC);
 		}
 		if (his_want_state_is_will(i)) {
 			ADD(DO);
 			ADD_DATA(i);
+			if (i == IAC)
+				ADD(IAC);
 		}
 	}
 
@@ -1571,14 +1572,15 @@ send_status()
 		ADD(SE);
 
 		if (restartany >= 0) {
-			ADD(SB);
+			ADD(SB)
 			ADD(TELOPT_LFLOW);
 			if (restartany) {
 				ADD(LFLOW_RESTART_ANY);
 			} else {
 				ADD(LFLOW_RESTART_XON);
 			}
-			ADD(SE);
+			ADD(SE)
+			ADD(SB);
 		}
 	}
 
@@ -1591,6 +1593,8 @@ send_status()
 		ADD(TELOPT_LINEMODE);
 		ADD(LM_MODE);
 		ADD_DATA(editmode);
+		if (editmode == IAC)
+			ADD(IAC);
 		ADD(SE);
 
 		ADD(SB);

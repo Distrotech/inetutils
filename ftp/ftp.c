@@ -32,36 +32,19 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
+static char sccsid[] = "@(#)ftp.c	8.4 (Berkeley) 4/6/94";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
 #include <sys/file.h>
 
 #include <netinet/in.h>
-#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-#endif
 #include <arpa/inet.h>
 #include <arpa/ftp.h>
 #include <arpa/telnet.h>
@@ -77,26 +60,9 @@ static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
-#else
 #include <varargs.h>
-#endif
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
 
 #include "ftp_var.h"
-
-#ifndef HAVE_FCLOSE_DECL
-/* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
-extern int fclose __P ((FILE *));
-#endif
-
-#ifndef HAVE_PCLOSE_DECL
-/* Some systems don't declare pclose in <stdio.h>, so do it ourselves.  */
-extern int pclose __P ((FILE *));
-#endif
 
 extern int h_errno;
 
@@ -130,15 +96,7 @@ hookup(host, port)
 	} else {
 		hp = gethostbyname(host);
 		if (hp == NULL) {
-#ifdef HAVE_HSTRERROR
 			warnx("%s: %s", host, hstrerror(h_errno));
-#else
-			extern char *__progname;
-			char *pfx =
-			  malloc (strlen (__progname) + 2 + strlen (host) + 1);
-			sprintf (pfx, "%s: %s", __progname, host);
-			herror (pfx);
-#endif
 			code = -1;
 			return ((char *) 0);
 		}
@@ -187,7 +145,7 @@ hookup(host, port)
 		code = -1;
 		goto bad;
 	}
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
+#ifdef IP_TOS
 	tos = IPTOS_LOWDELAY;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -256,11 +214,8 @@ login(host)
 			printf("Name (%s:%s): ", host, myname);
 		else
 			printf("Name (%s): ", host);
-		if (fgets(tmp, sizeof(tmp) - 1, stdin)) {
-			/* If they press Ctrl-d immediately, it's empty.  */
-			tmp[strlen(tmp) - 1] = '\0';
-		} else
-			*tmp = '\0';
+		(void) fgets(tmp, sizeof(tmp) - 1, stdin);
+		tmp[strlen(tmp) - 1] = '\0';
 		if (*tmp == '\0')
 			user = myname;
 		else
@@ -297,8 +252,7 @@ login(host)
 }
 
 void
-cmdabort(sig)
-  int sig;
+cmdabort()
 {
 
 	printf("\n");
@@ -310,29 +264,19 @@ cmdabort(sig)
 
 /*VARARGS*/
 int
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-command (const char *fmt, ...)
-#else
 command(va_alist)
 va_dcl
-#endif
 {
 	va_list ap;
-#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
-	const char *fmt;
-#endif
+	char *fmt;
 	int r;
 	sig_t oldintr;
 
 	abrtflag = 0;
 	if (debug) {
 		printf("---> ");
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-		va_start (ap, fmt);
-#else
 		va_start(ap);
 		fmt = va_arg(ap, char *);
-#endif
 		if (strncmp("PASS ", fmt, 5) == 0)
 			printf("PASS XXXX");
 		else 
@@ -347,12 +291,8 @@ va_dcl
 		return (0);
 	}
 	oldintr = signal(SIGINT, cmdabort);
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-	va_start (ap, fmt);
-#else
 	va_start(ap);
 	fmt = va_arg(ap, char *);
-#endif
 	vfprintf(cout, fmt, ap);
 	va_end(ap);
 	fprintf(cout, "\r\n");
@@ -471,21 +411,20 @@ getreply(expecteof)
 
 int
 empty(mask, sec)
-	fd_set *mask;
+	struct fd_set *mask;
 	int sec;
 {
 	struct timeval t;
 
 	t.tv_sec = (long) sec;
 	t.tv_usec = 0;
-	return (select(32, mask, (fd_set *) 0, (fd_set *) 0, &t));
+	return (select(32, mask, (struct fd_set *) 0, (struct fd_set *) 0, &t));
 }
 
 jmp_buf	sendabort;
 
 void
-abortsend(sig)
-  int sig;
+abortsend()
 {
 
 	mflag = 0;
@@ -707,10 +646,10 @@ sendrequest(cmd, local, remote, printnames)
 		}
 		break;
 	}
+	(void) gettimeofday(&stop, (struct timezone *)0);
 	if (closefunc != NULL)
 		(*closefunc)(fin);
 	(void) fclose(dout);
-	(void) gettimeofday(&stop, (struct timezone *)0);
 	(void) getreply(0);
 	(void) signal(SIGINT, oldintr);
 	if (oldintp)
@@ -719,6 +658,7 @@ sendrequest(cmd, local, remote, printnames)
 		ptransfer("sent", bytes, &start, &stop);
 	return;
 abort:
+	(void) gettimeofday(&stop, (struct timezone *)0);
 	(void) signal(SIGINT, oldintr);
 	if (oldintp)
 		(void) signal(SIGPIPE, oldintp);
@@ -736,7 +676,6 @@ abort:
 	code = -1;
 	if (closefunc != NULL && fin != NULL)
 		(*closefunc)(fin);
-	(void) gettimeofday(&stop, (struct timezone *)0);
 	if (bytes > 0)
 		ptransfer("sent", bytes, &start, &stop);
 }
@@ -744,8 +683,7 @@ abort:
 jmp_buf	recvabort;
 
 void
-abortrecv(sig)
-  int sig;
+abortrecv()
 {
 
 	mflag = 0;
@@ -763,8 +701,8 @@ recvrequest(cmd, local, remote, lmode, printnames)
 	FILE *fout, *din = 0;
 	int (*closefunc) __P((FILE *));
 	sig_t oldintr, oldintp;
-	int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
-	static int bufsize=0;
+	int c, d, is_retr, tcrflag, bare_lfs = 0;
+	static int bufsize;
 	static char *buf;
 	long bytes = 0, hashbytes = HASHBYTES;
 	struct timeval start, stop;
@@ -888,20 +826,18 @@ recvrequest(cmd, local, remote, lmode, printnames)
 		}
 		closefunc = fclose;
 	}
-	if (fstat(fileno(fout), &st) < 0 || ST_BLKSIZE(st) == 0)
-		blksize = BUFSIZ;
-	else
-	        blksize = ST_BLKSIZE(st);
-	if (blksize > bufsize) {
+	if (fstat(fileno(fout), &st) < 0 || st.st_blksize == 0)
+		st.st_blksize = BUFSIZ;
+	if (st.st_blksize > bufsize) {
 		if (buf)
 			(void) free(buf);
-		buf = malloc((unsigned)blksize);
+		buf = malloc((unsigned)st.st_blksize);
 		if (buf == NULL) {
 			warn("malloc");
 			bufsize = 0;
 			goto abort;
 		}
-		bufsize = blksize;
+		bufsize = st.st_blksize;
 	}
 	(void) gettimeofday(&start, (struct timezone *)0);
 	switch (curtype) {
@@ -1019,8 +955,8 @@ break2:
 	(void) signal(SIGINT, oldintr);
 	if (oldintp)
 		(void) signal(SIGPIPE, oldintp);
-	(void) fclose(din);
 	(void) gettimeofday(&stop, (struct timezone *)0);
+	(void) fclose(din);
 	(void) getreply(0);
 	if (bytes > 0 && is_retr)
 		ptransfer("received", bytes, &start, &stop);
@@ -1029,6 +965,7 @@ abort:
 
 /* abort using RFC959 recommended IP,SYNC sequence  */
 
+	(void) gettimeofday(&stop, (struct timezone *)0);
 	if (oldintp)
 		(void) signal(SIGPIPE, oldintr);
 	(void) signal(SIGINT, SIG_IGN);
@@ -1048,7 +985,6 @@ abort:
 		(*closefunc)(fout);
 	if (din)
 		(void) fclose(din);
-	(void) gettimeofday(&stop, (struct timezone *)0);
 	if (bytes > 0)
 		ptransfer("received", bytes, &start, &stop);
 	(void) signal(SIGINT, oldintr);
@@ -1064,61 +1000,6 @@ initconn()
 	char *p, *a;
 	int result, len, tmpno = 0;
 	int on = 1;
-	int a0, a1, a2, a3, p0, p1;
-
-	if (passivemode) {
-		data = socket(AF_INET, SOCK_STREAM, 0);
-		if (data < 0) {
-			perror("ftp: socket");
-			return(1);
-		}
-		if ((options & SO_DEBUG) &&
-		    setsockopt(data, SOL_SOCKET, SO_DEBUG, (char *)&on,
-			       sizeof (on)) < 0)
-			perror("ftp: setsockopt (ignored)");
-		if (command("PASV") != COMPLETE) {
-			printf("Passive mode refused.\n");
-			goto bad;
-		}
-
-		/*
-		 * What we've got at this point is a string of comma
-		 * separated one-byte unsigned integer values.
-		 * The first four are the an IP address. The fifth is
-		 * the MSB of the port number, the sixth is the LSB.
-		 * From that we'll prepare a sockaddr_in.
-		 */
-
-		if (sscanf(pasv,"%d,%d,%d,%d,%d,%d",
-			   &a0, &a1, &a2, &a3, &p0, &p1) != 6) {
-			printf("Passive mode address scan failure. Shouldn't happen!\n");
-			goto bad;
-		}
-
-		bzero(&data_addr, sizeof(data_addr));
-		data_addr.sin_family = AF_INET;
-		a = (char *)&data_addr.sin_addr.s_addr;
-		a[0] = a0 & 0xff;
-		a[1] = a1 & 0xff;
-		a[2] = a2 & 0xff;
-		a[3] = a3 & 0xff;
-		p = (char *)&data_addr.sin_port;
-		p[0] = p0 & 0xff;
-		p[1] = p1 & 0xff;
-
-		if (connect(data, (struct sockaddr *)&data_addr,
-			    sizeof(data_addr)) < 0) {
-			perror("ftp: connect");
-			goto bad;
-		}
-#if defined(IP_TOS) && defined(IPTOS_THROUGPUT)
-		on = IPTOS_THROUGHPUT;
-		if (setsockopt(data, IPPROTO_IP, IP_TOS, (char *)&on,
-			       sizeof(int)) < 0)
-			perror("ftp: setsockopt TOS (ignored)");
-#endif
-		return(0);
-	}
 
 noport:
 	data_addr = myctladdr;
@@ -1169,7 +1050,7 @@ noport:
 	}
 	if (tmpno)
 		sendport = 1;
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
+#ifdef IP_TOS
 	on = IPTOS_THROUGHPUT;
 	if (setsockopt(data, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -1189,9 +1070,6 @@ dataconn(lmode)
 	struct sockaddr_in from;
 	int s, fromlen = sizeof (from), tos;
 
-	if (passivemode)
-		return (fdopen(data, lmode));
-
 	s = accept(data, (struct sockaddr *) &from, &fromlen);
 	if (s < 0) {
 		warn("accept");
@@ -1200,7 +1078,7 @@ dataconn(lmode)
 	}
 	(void) close(data);
 	data = s;
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
+#ifdef IP_TOS
 	tos = IPTOS_THROUGHPUT;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		warn("setsockopt TOS (ignored)");
@@ -1215,16 +1093,15 @@ ptransfer(direction, bytes, t0, t1)
 	struct timeval *t0, *t1;
 {
 	struct timeval td;
-	float s;
-	long bs;
+	float s, bs;
 
 	if (verbose) {
 		tvsub(&td, t1, t0);
 		s = td.tv_sec + (td.tv_usec / 1000000.);
 #define	nz(x)	((x) == 0 ? 1 : (x))
 		bs = bytes / nz(s);
-		printf("%ld bytes %s in %.3g seconds (%ld bytes/s)\n",
-		    bytes, direction, s, bs);
+		printf("%ld bytes %s in %.2g seconds (%.2g Kbytes/s)\n",
+		    bytes, direction, s, bs / 1024.);
 	}
 }
 
@@ -1253,8 +1130,7 @@ tvsub(tdiff, t1, t0)
 }
 
 void
-psabort(sig)
-  int sig;
+psabort()
 {
 
 	abrtflag++;
@@ -1267,7 +1143,7 @@ pswitch(flag)
 	sig_t oldintr;
 	static struct comvars {
 		int connect;
-		char *name;
+		char name[MAXHOSTNAMELEN];
 		struct sockaddr_in mctl;
 		struct sockaddr_in hctl;
 		FILE *in;
@@ -1282,9 +1158,9 @@ pswitch(flag)
 		char nti[17];
 		char nto[17];
 		int mapflg;
-		char *mi;
-		char *mo;
-	} proxstruct = {0}, tmpstruct = {0};
+		char mi[MAXPATHLEN];
+		char mo[MAXPATHLEN];
+	} proxstruct, tmpstruct;
 	struct comvars *ip, *op;
 
 	abrtflag = 0;
@@ -1304,13 +1180,12 @@ pswitch(flag)
 	}
 	ip->connect = connected;
 	connected = op->connect;
-
-	if (ip->name)
-		free (ip->name);
-	ip->name = hostname;
+	if (hostname) {
+		(void) strncpy(ip->name, hostname, sizeof(ip->name) - 1);
+		ip->name[strlen(ip->name)] = '\0';
+	} else
+		ip->name[0] = 0;
 	hostname = op->name;
-	op->name = 0;
-
 	ip->hctl = hisctladdr;
 	hisctladdr = op->hctl;
 	ip->mctl = myctladdr;
@@ -1341,19 +1216,12 @@ pswitch(flag)
 	(void) strcpy(ntout, op->nto);
 	ip->mapflg = mapflag;
 	mapflag = op->mapflg;
-
-	if (ip->mi)
-		free (ip->mi);
-	ip->mi = mapin;
-	mapin = op->mi;
-	op->mi = 0;
-
-	if (ip->mo)
-		free (ip->mo);
-	ip->mo = mapout;
-	mapout = op->mo;
-	op->mo = 0;
-
+	(void) strncpy(ip->mi, mapin, MAXPATHLEN - 1);
+	(ip->mi)[strlen(ip->mi)] = '\0';
+	(void) strcpy(mapin, op->mi);
+	(void) strncpy(ip->mo, mapout, MAXPATHLEN - 1);
+	(ip->mo)[strlen(ip->mo)] = '\0';
+	(void) strcpy(mapout, op->mo);
 	(void) signal(SIGINT, oldintr);
 	if (abrtflag) {
 		abrtflag = 0;
@@ -1362,8 +1230,7 @@ pswitch(flag)
 }
 
 void
-abortpt(sig)
-  int sig;
+abortpt()
 {
 
 	printf("\n");
@@ -1381,7 +1248,7 @@ proxtrans(cmd, local, remote)
 	sig_t oldintr;
 	int secndflag = 0, prox_type, nfnd;
 	char *cmd2;
-	fd_set mask;
+	struct fd_set mask;
 
 	if (strcmp(cmd, "RETR"))
 		cmd2 = "RETR";
@@ -1498,7 +1365,7 @@ reset(argc, argv)
 	int argc;
 	char *argv[];
 {
-	fd_set mask;
+	struct fd_set mask;
 	int nfnd = 1;
 
 	FD_ZERO(&mask);
@@ -1519,7 +1386,7 @@ char *
 gunique(local)
 	char *local;
 {
-	static char *new = 0;
+	static char new[MAXPATHLEN];
 	char *cp = strrchr(local, '/');
 	int d, count=0;
 	char ext = '1';
@@ -1533,21 +1400,12 @@ gunique(local)
 		warn("local: %s", local);
 		return ((char *) 0);
 	}
-
-	if (new)
-		free (new);
-	new = malloc (strlen (local) + 1 + 3 + 1); /* '.' + 100 + '\0' */
-	if (! new) {
-		printf ("gunique: malloc failed.\n");
-		return 0;
-	}
-	strcpy (new, local);
-
+	(void) strcpy(new, local);
 	cp = new + strlen(new);
 	*cp++ = '.';
 	while (!d) {
 		if (++count == 100) {
- 			printf("runique: can't find unique file name.\n");
+			printf("runique: can't find unique file name.\n");
 			return ((char *) 0);
 		}
 		*cp++ = ext;
@@ -1576,7 +1434,7 @@ abort_remote(din)
 {
 	char buf[BUFSIZ];
 	int nfnd;
-	fd_set mask;
+	struct fd_set mask;
 
 	/*
 	 * send IAC in urgent mode instead of DM because 4.3BSD places oob mark

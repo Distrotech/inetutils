@@ -38,34 +38,12 @@ static char copyright[] =
 #endif /* not lint */
 
 #ifndef lint
-static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
+static char sccsid[] = "@(#)ftpd.c	8.4 (Berkeley) 4/16/94";
 #endif /* not lint */
 
 /*
  * FTP server.
  */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#if !defined (__GNUC__) && defined (_AIX)
- #pragma alloca
-#endif
-#ifndef alloca /* Make alloca work the best possible way.  */
-#ifdef __GNUC__
-#define alloca __builtin_alloca
-#else /* not __GNUC__ */
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#else /* not __GNUC__ or HAVE_ALLOCA_H */
-#ifndef _AIX /* Already did AIX, up at the top.  */
-char *alloca ();
-#endif /* not _AIX */
-#endif /* not HAVE_ALLOCA_H */
-#endif /* not __GNUC__ */
-#endif /* not alloca */
-
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -73,12 +51,8 @@ char *alloca ();
 #include <sys/wait.h>
 
 #include <netinet/in.h>
-#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
-#endif
-#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-#endif
 
 #define	FTP_NAMES
 #include <arpa/ftp.h>
@@ -87,54 +61,32 @@ char *alloca ();
 
 #include <ctype.h>
 #include <dirent.h>
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <getopt.h>
+#include <glob.h>
 #include <limits.h>
 #include <netdb.h>
 #include <pwd.h>
 #include <setjmp.h>
 #include <signal.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <time.h>
 #include <unistd.h>
-#include <crypt.h>
-/* Include glob.h last, because it may define "const" which breaks
-   system headers on some platforms. */
-#include <glob.h>
 
+#include "pathnames.h"
 #include "extern.h"
-#include "version.h"
 
-#ifndef LINE_MAX
-#define LINE_MAX 2048
+#if __STDC__
+#include <stdarg.h>
+#else
+#include <varargs.h>
 #endif
 
-#ifndef LOG_FTP
-#define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
-#endif
-
-#ifndef HAVE_FCLOSE_DECL
-/* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
-extern int fclose __P ((FILE *));
-#endif
+static char version[] = "Version 6.00";
 
 extern	off_t restart_point;
 extern	char cbuf[];
@@ -169,35 +121,8 @@ off_t	byte_count;
 #endif
 int	defumask = CMASK;		/* default umask value */
 char	tmpline[7];
-char	*hostname = 0;
-char	*remotehost = 0;
-
-#define NUM_SIMUL_OFF_TO_STRS 4
-
-/* Returns a string with the decimal representation of the off_t OFF, taking
-   into account that off_t might be longer than a long.  The return value is
-   a pointer to a static buffer, but a return value will only be reused every
-   NUM_SIMUL_OFF_TO_STRS calls, to allow multiple off_t's to be conveniently
-   printed with a single printf statement.  */
-static char *
-off_to_str (off)
-     off_t off;
-{
-  static char bufs[NUM_SIMUL_OFF_TO_STRS][80];
-  static char (*next_buf)[80] = bufs;
-
-  if (next_buf > (bufs+NUM_SIMUL_OFF_TO_STRS))
-    next_buf = bufs;
-
-  if (sizeof (off) > sizeof (long))
-    sprintf (*next_buf, "%qd", off);
-  else if (sizeof (off) == sizeof (long))
-    sprintf (*next_buf, "%ld", off);
-  else
-    sprintf (*next_buf, "%d", off);
-
-  return *next_buf++;
-}
+char	hostname[MAXHOSTNAMELEN];
+char	remotehost[MAXHOSTNAMELEN];
 
 /*
  * Timeout intervals for retrying connections
@@ -231,9 +156,8 @@ char	proctitle[LINE_MAX];	/* initial part of title */
 		    syslog(LOG_INFO,"%s %s%s", cmd, \
 			*(file) == '/' ? "" : curdir(), file); \
 		else \
-		    syslog(LOG_INFO, "%s %s%s = %s bytes", \
-			cmd, (*(file) == '/') ? "" : curdir(), file, \
-			   off_to_str (cnt)); \
+		    syslog(LOG_INFO, "%s %s%s = %qd bytes", \
+			cmd, (*(file) == '/') ? "" : curdir(), file, cnt); \
 	}
 
 static void	 ack __P((char *));
@@ -255,19 +179,12 @@ static char	*sgetsave __P((char *));
 static char *
 curdir()
 {
-        static char *path = 0;
-	if (path)
-	        free (path);
-	path = getcwd (0, 0);
-	if (! path)
+	static char path[MAXPATHLEN+1+1];	/* path + '/' + '\0' */
+
+	if (getcwd(path, sizeof(path)-2) == NULL)
 		return ("");
-	if (path[1] != '\0') {	/* special case for root dir. */
-	        char *new = realloc (path, strlen (path) + 2); /* '/' + '\0' */
-		if (! new)
-		        return "";
-		strcat(new, "/");
-		path = new;
-	}
+	if (path[1] != '\0')		/* special case for root dir. */
+		strcat(path, "/");
 	/* For guest account, skip / since it's chrooted */
 	return (guest ? path+1 : path);
 }
@@ -278,7 +195,6 @@ main(argc, argv, envp)
 	char *argv[];
 	char **envp;
 {
-        extern char *localhost ();
 	int addrlen, ch, on = 1, tos;
 	char *cp, line[LINE_MAX];
 	FILE *fd;
@@ -298,7 +214,7 @@ main(argc, argv, envp)
 		syslog(LOG_ERR, "getsockname (%s): %m",argv[0]);
 		exit(1);
 	}
-#if defined (IP_TOS) && defined (IPTOS_LOWDELAY) && defined (IPPROTO_IP)
+#ifdef IP_TOS
 	tos = IPTOS_LOWDELAY;
 	if (setsockopt(0, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
@@ -343,8 +259,7 @@ main(argc, argv, envp)
 
 			val = strtol(optarg, &optarg, 8);
 			if (*optarg != '\0' || val < 0)
-				fprintf (stderr,
-					 "%s: bad value for -u", argv[0]);
+				warnx("bad value for -u");
 			else
 				defumask = val;
 			break;
@@ -355,12 +270,11 @@ main(argc, argv, envp)
 			break;
 
 		default:
-			fprintf (stderr,
-				 "%s: unknown flag -%c ignored", argv[0]);
+			warnx("unknown flag -%c ignored", optopt);
 			break;
 		}
 	}
-	(void) freopen(PATH_DEVNULL, "w", stderr);
+	(void) freopen(_PATH_DEVNULL, "w", stderr);
 	(void) signal(SIGPIPE, lostconn);
 	(void) signal(SIGCHLD, SIG_IGN);
 	if ((int)signal(SIGURG, myoob) < 0)
@@ -388,7 +302,7 @@ main(argc, argv, envp)
 	tmpline[0] = '\0';
 
 	/* If logins are disabled, print out the message. */
-	if ((fd = fopen(PATH_NOLOGIN,"r")) != NULL) {
+	if ((fd = fopen(_PATH_NOLOGIN,"r")) != NULL) {
 		while (fgets(line, sizeof(line), fd) != NULL) {
 			if ((cp = strchr(line, '\n')) != NULL)
 				*cp = '\0';
@@ -399,7 +313,7 @@ main(argc, argv, envp)
 		reply(530, "System not available.");
 		exit(0);
 	}
-	if ((fd = fopen(PATH_FTPWELCOME, "r")) != NULL) {
+	if ((fd = fopen(_PATH_FTPWELCOME, "r")) != NULL) {
 		while (fgets(line, sizeof(line), fd) != NULL) {
 			if ((cp = strchr(line, '\n')) != NULL)
 				*cp = '\0';
@@ -409,13 +323,8 @@ main(argc, argv, envp)
 		(void) fclose(fd);
 		/* reply(220,) must follow */
 	}
-			
-	hostname = localhost ();
-	if (! hostname)
-		perror_reply (550, "Local resource failure: malloc");
-
-	reply(220, "%s FTP server (%s %s) ready.",
-	      hostname, inetutils_package, inetutils_version);
+	(void) gethostname(hostname, sizeof(hostname));
+	reply(220, "%s FTP server (%s) ready.", hostname, version);
 	(void) setjmp(errcatch);
 	for (;;)
 		(void) yyparse();
@@ -486,21 +395,141 @@ static int login_attempts;	/* number of failed login attempts */
 static int askpasswd;		/* had user command, ask for passwd */
 static char curname[10];	/* current USER name */
 
-static void
-complete_login (passwd)
-     char *passwd;
+/*
+ * USER command.
+ * Sets global passwd pointer pw if named account exists and is acceptable;
+ * sets askpasswd if a PASS command is expected.  If logged in previously,
+ * need to reset state.  If name is "ftp" or "anonymous", the name is not in
+ * _PATH_FTPUSERS, and ftp account exists, set guest and pw, then just return.
+ * If account doesn't exist, ask for passwd anyway.  Otherwise, check user
+ * requesting login privileges.  Disallow anyone who does not have a standard
+ * shell as returned by getusershell().  Disallow anyone mentioned in the file
+ * _PATH_FTPUSERS to allow people such as root and uucp to be avoided.
+ */
+void
+user(name)
+	char *name;
+{
+	char *cp, *shell;
+
+	if (logged_in) {
+		if (guest) {
+			reply(530, "Can't change user from guest login.");
+			return;
+		}
+		end_login();
+	}
+
+	guest = 0;
+	if (strcmp(name, "ftp") == 0 || strcmp(name, "anonymous") == 0) {
+		if (checkuser("ftp") || checkuser("anonymous"))
+			reply(530, "User %s access denied.", name);
+		else if ((pw = sgetpwnam("ftp")) != NULL) {
+			guest = 1;
+			askpasswd = 1;
+			reply(331,
+			    "Guest login ok, type your name as password.");
+		} else
+			reply(530, "User %s unknown.", name);
+		if (!askpasswd && logging)
+			syslog(LOG_NOTICE,
+			    "ANONYMOUS FTP LOGIN REFUSED FROM %s", remotehost);
+		return;
+	}
+	if (pw = sgetpwnam(name)) {
+		if ((shell = pw->pw_shell) == NULL || *shell == 0)
+			shell = _PATH_BSHELL;
+		while ((cp = getusershell()) != NULL)
+			if (strcmp(cp, shell) == 0)
+				break;
+		endusershell();
+
+		if (cp == NULL || checkuser(name)) {
+			reply(530, "User %s access denied.", name);
+			if (logging)
+				syslog(LOG_NOTICE,
+				    "FTP LOGIN REFUSED FROM %s, %s",
+				    remotehost, name);
+			pw = (struct passwd *) NULL;
+			return;
+		}
+	}
+	if (logging)
+		strncpy(curname, name, sizeof(curname)-1);
+	reply(331, "Password required for %s.", name);
+	askpasswd = 1;
+	/*
+	 * Delay before reading passwd after first failed
+	 * attempt to slow down passwd-guessing programs.
+	 */
+	if (login_attempts)
+		sleep((unsigned) login_attempts);
+}
+
+/*
+ * Check if a user is in the file _PATH_FTPUSERS
+ */
+static int
+checkuser(name)
+	char *name;
 {
 	FILE *fd;
+	int found = 0;
+	char *p, line[BUFSIZ];
 
-	if (!guest && (!pw || *pw->pw_passwd)) {
-		char *xpasswd;
+	if ((fd = fopen(_PATH_FTPUSERS, "r")) != NULL) {
+		while (fgets(line, sizeof(line), fd) != NULL)
+			if ((p = strchr(line, '\n')) != NULL) {
+				*p = '\0';
+				if (line[0] == '#')
+					continue;
+				if (strcmp(p, name) == 0) {
+					found = 1;
+					break;
+				}
+			}
+		(void) fclose(fd);
+	}
+	return (found);
+}
 
-		if (pw) {
-			char *salt = pw->pw_passwd;
-			xpasswd = CRYPT (passwd, salt);
-		}
+/*
+ * Terminate login as previous user, if any, resetting state;
+ * used when USER command is given or login fails.
+ */
+static void
+end_login()
+{
 
-		if (!pw || !xpasswd || strcmp (xpasswd, pw->pw_passwd) != 0) {
+	(void) seteuid((uid_t)0);
+	if (logged_in)
+		logwtmp(ttyline, "", "");
+	pw = NULL;
+	logged_in = 0;
+	guest = 0;
+}
+
+void
+pass(passwd)
+	char *passwd;
+{
+	char *salt, *xpasswd;
+	FILE *fd;
+
+	if (logged_in || askpasswd == 0) {
+		reply(503, "Login with USER first.");
+		return;
+	}
+	askpasswd = 0;
+	if (!guest) {		/* "ftp" is only account allowed no password */
+		if (pw == NULL)
+			salt = "xx";
+		else
+			salt = pw->pw_passwd;
+		xpasswd = crypt(passwd, salt);
+		/* The strcmp does not catch null passwords! */
+		if (pw == NULL || *pw->pw_passwd == '\0' ||
+		    strcmp(xpasswd, pw->pw_passwd)) {
 			reply(530, "Login incorrect.");
 			if (logging)
 				syslog(LOG_NOTICE,
@@ -516,7 +545,6 @@ complete_login (passwd)
 			return;
 		}
 	}
-
 	login_attempts = 0;		/* this time successful */
 	if (setegid((gid_t)pw->pw_gid) < 0) {
 		reply(550, "Can't set gid.");
@@ -526,7 +554,7 @@ complete_login (passwd)
 
 	/* open wtmp before chroot */
 	(void)sprintf(ttyline, "ftp%d", getpid());
-	logwtmp_keep_open (ttyline, pw->pw_name, remotehost);
+	logwtmp(ttyline, pw->pw_name, remotehost);
 	logged_in = 1;
 
 	if (guest) {
@@ -555,7 +583,7 @@ complete_login (passwd)
 	 * Display a login message, if it exists.
 	 * N.B. reply(230,) must follow the message.
 	 */
-	if ((fd = fopen(PATH_FTPLOGINMESG, "r")) != NULL) {
+	if ((fd = fopen(_PATH_FTPLOGINMESG, "r")) != NULL) {
 		char *cp, line[LINE_MAX];
 
 		while (fgets(line, sizeof(line), fd) != NULL) {
@@ -596,138 +624,6 @@ bad:
 	end_login();
 }
 
-/*
- * USER command.
- * Sets global passwd pointer pw if named account exists and is acceptable;
- * sets askpasswd if a PASS command is expected.  If logged in previously,
- * need to reset state.  If name is "ftp" or "anonymous", the name is not in
- * PATH_FTPUSERS, and ftp account exists, set guest and pw, then just return.
- * If account doesn't exist, ask for passwd anyway.  Otherwise, check user
- * requesting login privileges.  Disallow anyone who does not have a standard
- * shell as returned by getusershell().  Disallow anyone mentioned in the file
- * PATH_FTPUSERS to allow people such as root and uucp to be avoided.
- */
-void
-user(name)
-	char *name;
-{
-	char *cp, *shell;
-
-	if (logged_in) {
-		if (guest) {
-			reply(530, "Can't change user from guest login.");
-			return;
-		}
-		end_login();
-	}
-
-	guest = 0;
-	if (strcmp(name, "ftp") == 0 || strcmp(name, "anonymous") == 0) {
-		if (checkuser("ftp") || checkuser("anonymous"))
-			reply(530, "User %s access denied.", name);
-		else if ((pw = sgetpwnam("ftp")) != NULL) {
-			guest = 1;
-			askpasswd = 1;
-			reply(331,
-			    "Guest login ok, type your name as password.");
-		} else
-			reply(530, "User %s unknown.", name);
-		if (!askpasswd && logging)
-			syslog(LOG_NOTICE,
-			    "ANONYMOUS FTP LOGIN REFUSED FROM %s", remotehost);
-		return;
-	}
-	if (pw = sgetpwnam(name)) {
-		if ((shell = pw->pw_shell) == NULL || *shell == 0)
-			shell = PATH_BSHELL;
-		while ((cp = getusershell()) != NULL)
-			if (strcmp(cp, shell) == 0)
-				break;
-		endusershell();
-
-		if (cp == NULL || checkuser(name)) {
-			reply(530, "User %s access denied.", name);
-			if (logging)
-				syslog(LOG_NOTICE,
-				    "FTP LOGIN REFUSED FROM %s, %s",
-				    remotehost, name);
-			pw = (struct passwd *) NULL;
-			return;
-		}
-	}
-	if (logging)
-		strncpy(curname, name, sizeof(curname)-1);
-
-	if (!pw || *pw->pw_passwd) {
-		reply(331, "Password required for %s.", name);
-		askpasswd = 1;
-	} else
-	        complete_login (0);
-
-	/*
-	 * Delay before reading passwd after first failed
-	 * attempt to slow down passwd-guessing programs.
-	 */
-	if (login_attempts)
-		sleep((unsigned) login_attempts);
-}
-
-/*
- * Check if a user is in the file PATH_FTPUSERS
- */
-static int
-checkuser(name)
-	char *name;
-{
-	FILE *fd;
-	int found = 0;
-	char *p, line[BUFSIZ];
-
-	if ((fd = fopen(PATH_FTPUSERS, "r")) != NULL) {
-		while (fgets(line, sizeof(line), fd) != NULL)
-			if ((p = strchr(line, '\n')) != NULL) {
-				*p = '\0';
-				if (line[0] == '#')
-					continue;
-				if (strcmp(line, name) == 0) {
-					found = 1;
-					break;
-				}
-			}
-		(void) fclose(fd);
-	}
-	return (found);
-}
-
-/*
- * Terminate login as previous user, if any, resetting state;
- * used when USER command is given or login fails.
- */
-static void
-end_login()
-{
-
-	(void) seteuid((uid_t)0);
-	if (logged_in)
-		logwtmp_keep_open (ttyline, "", "");
-	pw = NULL;
-	logged_in = 0;
-	guest = 0;
-}
-
-void
-pass(passwd)
-	char *passwd;
-{
-	if (logged_in || askpasswd == 0) {
-		reply(503, "Login with USER first.");
-		return;
-	}
-	askpasswd = 0;
-
-	complete_login (passwd);
-}
-
 void
 retrieve(cmd, name)
 	char *cmd, *name;
@@ -735,7 +631,6 @@ retrieve(cmd, name)
 	FILE *fin, *dout;
 	struct stat st;
 	int (*closefunc) __P((FILE *));
-	size_t buffer_size=0;
 
 	if (cmd == 0) {
 		fin = fopen(name, "r"), closefunc = fclose;
@@ -743,11 +638,10 @@ retrieve(cmd, name)
 	} else {
 		char line[BUFSIZ];
 
-		snprintf (line, sizeof line, cmd, name);
-		name = line;
+		(void) sprintf(line, cmd, name), name = line;
 		fin = ftpd_popen(line, "r"), closefunc = ftpd_pclose;
 		st.st_size = -1;
-		buffer_size = BUFSIZ;
+		st.st_blksize = BUFSIZ;
 	}
 	if (fin == NULL) {
 		if (errno != 0) {
@@ -759,8 +653,7 @@ retrieve(cmd, name)
 		return;
 	}
 	byte_count = -1;
-	if (cmd == 0 && (fstat(fileno(fin), &st) < 0 || !S_ISREG(st.st_mode)
-			 || !(buffer_size = ST_BLKSIZE(st)))) {
+	if (cmd == 0 && (fstat(fileno(fin), &st) < 0 || !S_ISREG(st.st_mode))) {
 		reply(550, "%s: not a plain file.", name);
 		goto done;
 	}
@@ -779,7 +672,7 @@ retrieve(cmd, name)
 				if (c == '\n')
 					i++;
 			}
-		} else if (lseek(fileno(fin), restart_point, SEEK_SET) < 0) {
+		} else if (lseek(fileno(fin), restart_point, L_SET) < 0) {
 			perror_reply(550, name);
 			goto done;
 		}
@@ -787,7 +680,7 @@ retrieve(cmd, name)
 	dout = dataconn(name, st.st_size, "w");
 	if (dout == NULL)
 		goto done;
-	send_data(fin, dout, buffer_size);
+	send_data(fin, dout, st.st_blksize);
 	(void) fclose(dout);
 	data = -1;
 	pdata = -1;
@@ -842,11 +735,11 @@ store(name, mode, unique)
 			 * because we are changing from reading to
 			 * writing.
 			 */
-			if (fseek(fout, 0L, SEEK_CUR) < 0) {
+			if (fseek(fout, 0L, L_INCR) < 0) {
 				perror_reply(550, name);
 				goto done;
 			}
-		} else if (lseek(fileno(fout), restart_point, SEEK_SET) < 0) {
+		} else if (lseek(fileno(fout), restart_point, L_SET) < 0) {
 			perror_reply(550, name);
 			goto done;
 		}
@@ -896,7 +789,7 @@ getdatasock(mode)
 		sleep(tries);
 	}
 	(void) seteuid((uid_t)pw->pw_uid);
-#if defined (IP_TOS) && defined (IPTOS_THROUGHPUT) && defined (IPPROTO_IP)
+#ifdef IP_TOS
 	on = IPTOS_THROUGHPUT;
 	if (setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
@@ -924,7 +817,7 @@ dataconn(name, size, mode)
 	file_size = size;
 	byte_count = 0;
 	if (size != (off_t) -1)
-		(void) sprintf(sizebuf, " (%s bytes)", off_to_str (size));
+		(void) sprintf(sizebuf, " (%qd bytes)", size);
 	else
 		(void) strcpy(sizebuf, "");
 	if (pdata >= 0) {
@@ -940,7 +833,7 @@ dataconn(name, size, mode)
 		}
 		(void) close(pdata);
 		pdata = s;
-#if defined (IP_TOS) && defined (IPTOS_LOWDELAY) && defined (IPPROTO_IP)
+#ifdef IP_TOS
 		tos = IPTOS_LOWDELAY;
 		(void) setsockopt(s, IPPROTO_IP, IP_TOS, (char *)&tos,
 		    sizeof(int));
@@ -1183,8 +1076,8 @@ statcmd()
 	struct sockaddr_in *sin;
 	u_char *a, *p;
 
-	lreply(211, "%s FTP server status:", hostname);
-	printf("     ftpd (%s) %s\r\n", inetutils_package, inetutils_version);
+	lreply(211, "%s FTP server status:", hostname, version);
+	printf("     %s\r\n", version);
 	printf("     Connected to %s", remotehost);
 	if (!isdigit(remotehost[0]))
 		printf(" (%s)", inet_ntoa(his_addr.sin_addr));
@@ -1202,14 +1095,10 @@ statcmd()
 	if (type == TYPE_A || type == TYPE_E)
 		printf(", FORM: %s", formnames[form]);
 	if (type == TYPE_L)
-#ifdef CHAR_BIT
-		printf(" %d", CHAR_BIT);
-#else
 #if NBBY == 8
 		printf(" %d", NBBY);
 #else
 		printf(" %d", bytesize);	/* need definition! */
-#endif
 #endif
 	printf("; STRUcture: %s; transfer MODE: %s\r\n",
 	    strunames[stru], modenames[mode]);
@@ -1246,7 +1135,7 @@ fatal(s)
 }
 
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 reply(int n, const char *fmt, ...)
 #else
 reply(n, fmt, va_alist)
@@ -1256,7 +1145,7 @@ reply(n, fmt, va_alist)
 #endif
 {
 	va_list ap;
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -1272,7 +1161,7 @@ reply(n, fmt, va_alist)
 }
 
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 lreply(int n, const char *fmt, ...)
 #else
 lreply(n, fmt, va_alist)
@@ -1282,7 +1171,7 @@ lreply(n, fmt, va_alist)
 #endif
 {
 	va_list ap;
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -1370,20 +1259,8 @@ makedir(name)
 	LOGCMD("mkdir", name);
 	if (mkdir(name, 0777) < 0)
 		perror_reply(550, name);
-	else if (name[0] == '/')
-		reply (257, "\"%s\" new directory created.");
-	else {
-		/* We have to figure out what our current directory is so that we can
-		   give an absolute name in the reply.  */
-		char *cwd = getcwd (0, 0);
-		if (cwd) {
-			if (cwd[1] == '\0')
-				cwd[0] = '\0';
-			reply (257, "\"%s/%s\" new directory created.", cwd, name);
-			free (cwd);
-		} else
-			reply (257, "(unknown absolute name) new directory created.");
-	}
+	else
+		reply(257, "MKD command successful.");
 }
 
 void
@@ -1401,12 +1278,12 @@ removedir(name)
 void
 pwd()
 {
-	char *path = getcwd (0, 0);
-	if (path) {
+	char path[MAXPATHLEN + 1];
+
+	if (getwd(path) == (char *)NULL)
+		reply(550, "%s.", path);
+	else
 		reply(257, "\"%s\" is current directory.", path);
-		free (path);
-	} else
-		reply(550, "%s.", strerror (errno));
 }
 
 char *
@@ -1439,22 +1316,16 @@ static void
 dolog(sin)
 	struct sockaddr_in *sin;
 {
-	const char *name;
 	struct hostent *hp = gethostbyaddr((char *)&sin->sin_addr,
 		sizeof(struct in_addr), AF_INET);
 
 	if (hp)
-		name = hp->h_name;
+		(void) strncpy(remotehost, hp->h_name, sizeof(remotehost));
 	else
-		name = inet_ntoa(sin->sin_addr);
-
-	if (remotehost)
-		free (remotehost);
-	remotehost = malloc (strlen (name));
-	strcpy (remotehost, name);
-
+		(void) strncpy(remotehost, inet_ntoa(sin->sin_addr),
+		    sizeof(remotehost));
 #ifdef SETPROCTITLE
-	snprintf (proctitle, sizeof(proctitle), "%s: connected", remotehost);
+	snprintf(proctitle, sizeof(proctitle), "%s: connected", remotehost);
 	setproctitle(proctitle);
 #endif /* SETPROCTITLE */
 
@@ -1470,15 +1341,10 @@ void
 dologout(status)
 	int status;
 {
-  /* racing condition with SIGURG: If SIGURG is receive
-     here, it will jump back has root in the main loop
-     David Greenman:dg@root.com
-  */
-  transflag = 0; 
 
 	if (logged_in) {
 		(void) seteuid((uid_t)0);
-		logwtmp_keep_open (ttyline, "", "");
+		logwtmp(ttyline, "", "");
 	}
 	/* beware of flushing buffers after a SIGPIPE */
 	_exit(status);
@@ -1494,7 +1360,7 @@ myoob(signo)
 	if (!transflag)
 		return;
 	cp = tmpline;
-	if (telnet_fgets(cp, 7, stdin) == NULL) {
+	if (getline(cp, 7, stdin) == NULL) {
 		reply(221, "You could at least say goodbye.");
 		dologout(0);
 	}
@@ -1507,11 +1373,10 @@ myoob(signo)
 	}
 	if (strcmp(cp, "STAT\r\n") == 0) {
 		if (file_size != (off_t) -1)
-			reply(213, "Status: %s of %s bytes transferred",
-			    off_to_str (byte_count), off_to_str (file_size));
+			reply(213, "Status: %qd of %qd bytes transferred",
+			    byte_count, file_size);
 		else
-			reply(213, "Status: %s bytes transferred",
-			      off_to_str (byte_count));
+			reply(213, "Status: %qd bytes transferred", byte_count);
 	}
 }
 
@@ -1570,7 +1435,7 @@ static char *
 gunique(local)
 	char *local;
 {
-	static char *new = 0;
+	static char new[MAXPATHLEN];
 	struct stat st;
 	int count;
 	char *cp;
@@ -1584,22 +1449,14 @@ gunique(local)
 	}
 	if (cp)
 		*cp = '/';
-
-	if (new)
-		free (new);
-
-	new = malloc (strlen (local) + 5); /* '.' + DIG + DIG + '\0' */
-	if (new) {
-		strcpy(new, local);
-		cp = new + strlen(new);
-		*cp++ = '.';
-		for (count = 1; count < 100; count++) {
-			(void)sprintf(cp, "%d", count);
-			if (stat(new, &st) < 0)
-				return (new);
-		}
+	(void) strcpy(new, local);
+	cp = new + strlen(new);
+	*cp++ = '.';
+	for (count = 1; count < 100; count++) {
+		(void)sprintf(cp, "%d", count);
+		if (stat(new, &st) < 0)
+			return (new);
 	}
-
 	reply(452, "Unique file name cannot be created.");
 	return (NULL);
 }
@@ -1635,17 +1492,7 @@ send_file_list(whichf)
 	glob_t gl;
 
 	if (strpbrk(whichf, "~{[*?") != NULL) {
-		int flags = GLOB_NOCHECK;
-
-#ifdef GLOB_BRACE
-		flags |= GLOB_BRACE;
-#endif
-#ifdef GLOB_QUOTE
-		flags |= GLOB_QUOTE;
-#endif
-#ifdef GLOB_TILDE
-		flags |= GLOB_TILDE;
-#endif
+		int flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
 
 		memset(&gl, 0, sizeof(gl));
 		freeglob = 1;
@@ -1707,15 +1554,14 @@ send_file_list(whichf)
 			continue;
 
 		while ((dir = readdir(dirp)) != NULL) {
-			char *nbuf;
+			char nbuf[MAXPATHLEN];
 
-			if (dir->d_name[0] == '.' && dir->d_name[1] == '\0')
+			if (dir->d_name[0] == '.' && dir->d_namlen == 1)
 				continue;
 			if (dir->d_name[0] == '.' && dir->d_name[1] == '.' &&
-			    dir->d_name[2] == '\0')
+			    dir->d_namlen == 2)
 				continue;
 
-			nbuf = (char *) alloca (strlen (dirname) + 1 + strlen (dir->d_name) + 1);
 			sprintf(nbuf, "%s/%s", dirname, dir->d_name);
 
 			/*
@@ -1769,7 +1615,7 @@ out:
  * have much of an environment or arglist to overwrite.
  */
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 setproctitle(const char *fmt, ...)
 #else
 setproctitle(fmt, va_alist)
@@ -1782,7 +1628,7 @@ setproctitle(fmt, va_alist)
 	char *p, *bp, ch;
 	char buf[LINE_MAX];
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#if __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);

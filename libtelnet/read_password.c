@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)read_password.c	8.3 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)read_password.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
 
 /*
@@ -49,10 +49,6 @@ static char sccsid[] = "@(#)read_password.c	8.3 (Berkeley) 5/30/95";
  * output as a prompt, and reads a password string without
  * echoing.
  */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #if	defined(RSA_ENCPWD) || defined(KRB4_ENCPWD)
 
@@ -90,7 +86,7 @@ local_des_read_pw_string(s,max,prompt,verify)
     }
 
     /* XXX assume jmp_buf is typedef'ed to an array */
-    memmove((char *)env, (char *)old_env, sizeof(env));
+    bcopy((char *)old_env, (char *)env, sizeof(env));
     if (setjmp(env))
 	goto lose;
 
@@ -109,7 +105,7 @@ local_des_read_pw_string(s,max,prompt,verify)
 	(void) fflush(stdout);
 	while (!fgets(s, max, stdin));
 
-	if ((ptr = strchr(s, '\n')))
+	if ((ptr = index(s, '\n')))
 	    *ptr = '\0';
 	if (verify) {
 	    printf("\nVerifying, please re-enter %s",prompt);
@@ -118,7 +114,7 @@ local_des_read_pw_string(s,max,prompt,verify)
 		clearerr(stdin);
 		continue;
 	    }
-	    if ((ptr = strchr(key_string, '\n')))
+            if ((ptr = index(key_string, '\n')))
 	    *ptr = '\0';
 	    if (strcmp(s,key_string)) {
 		printf("\n\07\07Mismatch - try again\n");
@@ -131,7 +127,7 @@ local_des_read_pw_string(s,max,prompt,verify)
 
 lose:
     if (!ok)
-	memset(s, 0, max);
+	bzero(s, max);
     printf("\n");
     /* turn echo back on */
     tty_state.sg_flags |= ECHO;
@@ -140,9 +136,9 @@ lose:
 /*
     pop_signals();
 */
-    memmove((char *)old_env, (char *)env, sizeof(env));
+    bcopy((char *)env, (char *)old_env, sizeof(env));
     if (verify)
-	memset(key_string, 0, sizeof (key_string));
+	bzero(key_string, sizeof (key_string));
     s[max-1] = 0;		/* force termination */
     return !ok;			/* return nonzero if not okay */
 }

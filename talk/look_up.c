@@ -35,16 +35,9 @@
 static char sccsid[] = "@(#)look_up.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <errno.h>
 #include "talk_ctl.h"
@@ -59,11 +52,13 @@ check_local()
 	register CTL_RESPONSE *rp = &response;
 
 	/* the rest of msg was set up in get_names */
-	msg.ctl_addr.sa_family = htons (ctl_addr.sin_family);
-	memcpy (msg.ctl_addr.sa_data,
-		((struct sockaddr *)&ctl_addr)->sa_data,
-		sizeof ((struct sockaddr *)&ctl_addr)->sa_data);
-
+#ifdef MSG_EOR
+	/* copy new style sockaddr to old, swap family (short in old) */
+	msg.ctl_addr = *(struct osockaddr *)&ctl_addr;
+	msg.ctl_addr.sa_family = htons(ctl_addr.sin_family);
+#else
+	msg.ctl_addr = *(struct sockaddr *)&ctl_addr;
+#endif
 	/* must be initiating a talk */
 	if (!look_for_invite(rp))
 		return (0);

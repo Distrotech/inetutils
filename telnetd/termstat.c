@@ -32,12 +32,8 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)termstat.c	8.2 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)termstat.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include "telnetd.h"
 
@@ -445,7 +441,7 @@ clientstat(code, parm1, parm2)
 				useeditmode = 0;
 				if (tty_isediting())
 					useeditmode |= MODE_EDIT;
-				if (tty_istrapsig())
+				if (tty_istrapsig)
 					useeditmode |= MODE_TRAPSIG;
 				if (tty_issofttab())
 					useeditmode |= MODE_SOFT_TAB;
@@ -636,7 +632,7 @@ defer_terminit()
 	if (def_col || def_row) {
 		struct winsize ws;
 
-		memset((char *)&ws, 0, sizeof(ws));
+		bzero((char *)&ws, sizeof(ws));
 		ws.ws_col = def_col;
 		ws.ws_row = def_row;
 		(void) ioctl(pty, TIOCSWINSZ, (char *)&ws);

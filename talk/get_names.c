@@ -35,22 +35,15 @@
 static char sccsid[] = "@(#)get_names.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
-#ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <pwd.h>
 #include "talk.h"
 
 char	*getlogin();
 char	*ttyname();
+char	*rindex();
 extern	CTL_MSG msg;
 
 /*
@@ -60,7 +53,7 @@ get_names(argc, argv)
 	int argc;
 	char *argv[];
 {
-	extern char *localhost ();
+	char hostname[MAXHOSTNAMELEN];
 	char *his_name, *my_name;
 	char *my_machine_name, *his_machine_name;
 	char *my_tty, *his_tty;
@@ -83,15 +76,10 @@ get_names(argc, argv)
 		}
 		my_name = pw->pw_name;
 	}
-
-	my_machine_name = localhost ();
-	if (! my_machine_name) {
-		perror ("Cannot get local hostname");
-		exit (-1);
-	}
-
+	gethostname(hostname, sizeof (hostname));
+	my_machine_name = hostname;
 	/* check for, and strip out, the machine name of the target */
-	for (cp = argv[1]; *cp && !strchr ("@:!.", *cp); cp++)
+	for (cp = argv[1]; *cp && !index("@:!.", *cp); cp++)
 		;
 	if (*cp == '\0') {
 		/* this is a local to local talk */
@@ -127,6 +115,4 @@ get_names(argc, argv)
 	msg.r_name[NAME_SIZE - 1] = '\0';
 	strncpy(msg.r_tty, his_tty, TTY_SIZE);
 	msg.r_tty[TTY_SIZE - 1] = '\0';
-
-	free (my_machine_name);
 }

@@ -35,17 +35,13 @@
 static char sccsid[] = "@(#)getent.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 static char *area;
 
 /*ARGSUSED*/
 getent(cp, name)
 char *cp, *name;
 {
-#ifdef	HAVE_CGETENT
+#ifdef	HAS_CGETENT
 	char *dba[2];
 
 	dba[0] = "/etc/gettytab";
@@ -62,7 +58,7 @@ char *
 getstr(id, cpp)
 char *id, **cpp;
 {
-# ifdef	HAVE_CGETENT
+# ifdef	HAS_CGETENT
 	char *answer;
 	return((cgetstr(area, id, &answer) > 0) ? answer : 0);
 # else
