@@ -112,6 +112,28 @@ int	doencrypt = 0;
 #define S_ISTXT S_ISVTX
 #endif
 
+static const char *short_options = OPTIONS;
+static struct option long_options[] =
+{
+  { "recursive", required_argument, 0, 'r' },
+  { "preserve", no_argument, 0, 'p' },
+#ifdef KERBEROS
+  { "kerberos", no_argument, 0, 'K' },
+  { "realm", required_argument, 0, 'k' },
+# ifdef CRYPT
+  { "encrypt", no_argument, 0, 'x' },
+# endif
+#endif
+  { "help", no_argument, 0, 'h' },
+  { "version", no_argument, 0, 'V' },
+  /* Server option.  */
+  { "directory", required_argument, 0, 'd' },
+  { "from", required_argument, 0, 'f' },
+  { "to", required_argument, 0, 't' },
+  { 0, 0, 0, 0 }
+};
+
+
 struct passwd *pwd;
 u_short	port;
 uid_t	userid;
@@ -132,6 +154,7 @@ void	 source __P ((int, char *[]));
 void	 tolocal __P ((int, char *[]));
 void	 toremote __P ((char *, int, char *[]));
 void	 usage __P ((void));
+void	 help __P ((void));
 
 int
 main (int argc, char *argv[])
@@ -147,7 +170,8 @@ main (int argc, char *argv[])
 #endif
 
   fflag = tflag = 0;
-  while ((ch = getopt (argc, argv, OPTIONS)) != EOF)
+  while ((ch = getopt_long (argc, argv, short_options, long_options, 0))
+	 != EOF)
     switch(ch)
       {			/* User-visible flags. */
       case 'K':
@@ -191,6 +215,15 @@ main (int argc, char *argv[])
       case 't':			/* "to" */
 	iamremote = 1;
 	tflag = 1;
+	break;
+
+      case 'V':
+	printf ("rcp (%s) %s\n", inetutils_package, inetutils_version);
+	exit (0);
+	break;
+
+      case 'h':
+	help ();
 	break;
 
       case '?':
@@ -1024,6 +1057,38 @@ usage ()
 	   "usage: rcp [-p] f1 f2; or: rcp [-pr] f1 ... fn directory\n");
 #endif
   exit (1);
+}
+
+void
+help ()
+{
+  puts ("rcp - remote file copy.");
+  puts ("usage: rcp [-p] f1 f2; or: rcp [-pr] f1 ... fn directory\n");
+  puts ("\
+  -p, --preserve    attempt to preserve (duplicate) in its copies the\n\
+                    modification times and modes of the source files");
+  puts ("\
+  -r, --recursive   If any of the source files are directories, copies\n\
+                    each subtree rooted at that name; in this case the\n\
+                    destination must be a directory");
+
+#ifdef KERBEROS
+  puts ("\
+  -K, --kerberos    turns off all Kerberos authentication");
+  puts ("\
+  -k, --realm REALM Obtain tickets for the remote host in REALM\n\
+                    instead of the remote host's realm");
+# ifdef CRYPT
+  puts ("\
+  -x, --encrypt     encrypt all data using DES");
+# endif
+#endif
+  puts ("\
+      --help        give this help list");
+  puts ("\
+  -V, --version     print program version");
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+  exit (0);
 }
 
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
