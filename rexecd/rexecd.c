@@ -78,6 +78,9 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #else
 #include <varargs.h>
 #endif
+#ifdef HAVE_SHADOW_H
+# include <shadow.h>
+#endif
 
 void error __P ((const char *fmt, ...));
 /*
@@ -121,11 +124,23 @@ struct	sockaddr_in asin = { AF_INET };
 
 char *getstr __P ((const char *));
 
+static char *
+get_user_password(struct passwd *pwd)
+{
+  char *pw_text = pwd->pw_passwd;
+#ifdef HAVE_SHADOW_H
+  struct spwd *spwd = getspnam(pwd->pw_name);
+  if (spwd)
+    pw_text = spwd->sp_pwdp;
+#endif
+  return pw_text;
+}
+
 int
 doit(int f, struct sockaddr_in *fromp)
 {
 	char *cmdbuf, *cp, *namep;
-	char *user, *pass;
+	char *user, *pass, *pw_password;
 	struct passwd *pwd;
 	int s;
 	u_short port;
@@ -186,9 +201,10 @@ doit(int f, struct sockaddr_in *fromp)
 		exit(1);
 	}
 	endpwent();
-	if (*pwd->pw_passwd != '\0') {
-		namep = CRYPT (pass, pwd->pw_passwd);
-		if (strcmp(namep, pwd->pw_passwd)) {
+	pw_password = get_user_password(pwd);
+	if (*pw_password != '\0') {
+	        namep = CRYPT (pass, pw_password);
+		if (strcmp(namep, pw_password)) {
 			error("Password incorrect.\n");
 			exit(1);
 		}
