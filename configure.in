@@ -171,6 +171,7 @@ AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(getusershell herror memcmp memcpy memmove memset \
 	         setenv strdup strcasecmp strsignal waitpid poll)
+IU_INCLUDED_REGEX(libinetutils/regex.c)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -223,6 +224,7 @@ IU_CHECK_MACRO(__P,
 
 # If revoke hasn't been defined yet, just define a dummy version
 AC_REPLACE_FUNCS(revoke)
+
 
 AC_HEADER_DIRENT
 AC_FUNC_CLOSEDIR_VOID
