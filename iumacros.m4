@@ -74,7 +74,7 @@ changequote([,])dnl
 #endif]),
       IU_CVAR[=yes],
       IU_CVAR[=no])) dnl
-  IU_RESULT_ACTIONS(IU_CVAR, $1, $4, $5) dnl
+  IU_RESULT_ACTIONS(IU_CVAR, [$1], [$4], [$5]) dnl
   undefine([IU_CVAR]) undefine([IU_TAG])])dnl
 
 dnl IU_CHECK_DECL -- See if a function/variable is declared
