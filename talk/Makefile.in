@@ -20,22 +20,15 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(bindir)/talk $(man1dir)/talk.1
+
 LDLIBS := -lcurses -ltermcap $(LDLIBS)
 
 all: talk
 talk: talk.o ctl.o ctl_transact.o display.o get_addrs.o get_names.o \
 	init_disp.o invite.o io.o look_up.o msgs.o
 
-install: installdirs talk $(srcdir)/talk.1
-	$(INSTALL_PROGRAM) talk $(bindir)/talk
-	-$(INSTALL_DATA) $(srcdir)/talk.1 $(man1dir)/talk.1
-uninstall:
-	-$(RM) -f $(bindir)/talk $(man1dir)/talk.1
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o talk 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
