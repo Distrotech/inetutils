@@ -1,3 +1,7 @@
+2001-10-25  Sergey Poznyakoff
+
+	* Makefile.am: Added missing LDADD.
+
 2001-09-05 Sergey Poznyakoff
 
 	* Makefile.am: List built headers in BUILT_SOURCES so the 

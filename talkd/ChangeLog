@@ -8,6 +8,7 @@
 	* acl.c: (new) Access-control lists.
 	* Makefile.am: Added new sources.
 	* talkd.c: Completely rewritten.
+	* table.c: Likewise.
 	* announce.c: Likewise.
 	* print.c: Likewise.
 	* process.c: Likewise.

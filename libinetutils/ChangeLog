@@ -1,3 +1,11 @@
+2001-10-25  Sergey Poznyakoff
+
+	* argcv.c: (new) Simple string tokenizer. Needed by talkd acls.
+	* argcv.h: (new) Definitions for argcv.c
+	* regex.c: (new) Regex functions.
+	* regex.h: (new) Definitions for regex functions.
+	* Makefile.am: Added argcv.[ch], regex.[ch]
+
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
  	* openpty.c: Set RMSGN|RPROTDAT on master side of pty pair, so it
 	can be read using read() call.

@@ -1,3 +1,8 @@
+2001-10-25  Sergey Poznyakoff
+
+	* pam.c: Provide replacements for PAM_CONV_AGAIN and
+	PAM_INCOMPLETE for systems that miss them (e.g. Solaris)
+
 2001-08-27  Alain Magloire
 
 	* Makefile.am: Add EXTRA_DIST = ftpcmd.c.  To force the

@@ -1,3 +1,10 @@
+2001-10-25  Sergey Poznyakoff
+
+	* acinclude.m4: IU_INCLUDED_REGEX: Check for working regex,
+	provide replacement, if necessary.
+	* configure.in: Check for regex.
+	
+
 2001-09-06  Alain Magloire
 
 	* configure.in: Check for strsignal().
