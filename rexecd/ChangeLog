@@ -1,3 +1,8 @@
+2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* rexecd.c: Use HAVE_STRUCT_type_member instead
+	  of HAVE_type_member.
+
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* Makefile.am (inetdaemon_PROGRAMS): Use rexecd_BUILD instead of

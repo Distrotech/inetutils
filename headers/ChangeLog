@@ -1,3 +1,9 @@
+2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* crypt.h: Checks for HAVE_DECL variables must read
+	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
+	  declares HAVE_DECL, either to 0 or to 1. 	  
+
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* Makefile.am (EXTRA_DIST): Removed version.h.in from the list.

@@ -82,7 +82,7 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 
 #include "extern.h"
 
-#ifndef HAVE_DECL_STRERROR
+#if !HAVE_DECL_STRERROR
 extern const char *strerror __P ((int));
 #endif
 
@@ -464,9 +464,6 @@ tolocal (int argc, char *argv[])
 	  continue;
 	}
       seteuid (userid);
-#define IP_TOS 0
-#define IPPROTO_IP 1
-#define IPTOS_THROUGHPUT 2
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
       tos = IPTOS_THROUGHPUT;
       if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int)) < 0)

@@ -1,3 +1,9 @@
+2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* Makefile.am: Removed obsolete OMIT_DEPENDENCIES.
+	* system.h: Use HAVE_STRUCT_type_member instead of
+	  HAVE_type_member.
+
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* system/solaris.c, system/qnx.c, system/osf.c, system/linux.c,

@@ -1,3 +1,22 @@
+2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* configure.ac: AC_CHECK_MEMBERS (as of version 2.53 ) fails to
+	  recognize the presense of a structure member which is itself
+	  of an aggregate type. Thus, tests for struct ifreq.ifr_netmask
+	  and struct ifreq.ifr_broadaddr always fail. To work around the
+	  bug, first check for a non-aggregate sub-member of the member
+	  in question and then create an appropriate HAVE_ define.
+
+	  Use AC_CHECK_DECLS on crypt and errno, as AC_CHECK_DECL does
+	  not generate HAVE_DECL_ define.
+
+	  (AH_BOTTOMs): Checks for HAVE_DECL variables must read
+	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
+	  declares HAVE_DECL, either to 0 or to 1. The only
+	  exception is HAVE_DECL_HSTRERROR, whose AC_CHECK_DECLS
+	  is under a conditional expression, so we have to
+	  check for !defined(HAVE_DECL_HSTRERROR) first.
+
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* configure.ac (VERSION): Variable removed.
