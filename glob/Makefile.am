@@ -1,5 +1,7 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
+INCLUDES=-I$(top_builddir)/include
+
 noinst_LIBRARIES = @BUILD_LIBGLOB@
 
 EXTRA_LIBRARIES = libglob.a
