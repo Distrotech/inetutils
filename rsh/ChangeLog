@@ -1,0 +1,5 @@
+1999-03-13 Alain Magloire
+
+	* ChangeLog : New file.
+
+	* Before doing an exec revert euid to real uid.

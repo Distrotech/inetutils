@@ -1,0 +1,15 @@
+1999-03-13 Alain Magloire
+
+	* ChangeLog : New file.
+
+	* Use STD{IN,OUT,ERR}_FILENO.
+
+	* Use memcmp() instead of bcmp().
+
+	* Add LOGNAME to environment variable exported to child.
+
+	* Restricted port to > IPPORT_RESERVED/2 && >= IPPORT_RESERVED
+
+	* initialise s(socket descriuptor) s = 0.
+
+	* Add more comments.
