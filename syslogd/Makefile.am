@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @BUILD_SYSLOGD@
+inetdaemon_PROGRAMS = @syslogd_BUILD@
 
 EXTRA_PROGRAMS = syslogd
 
