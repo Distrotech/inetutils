@@ -1,3 +1,9 @@
+2002-06-24  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* ping.c (main): Moved ping startup code to after the parsing
+	of the command line.
+	(is_root): Variable moved into main().
+
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* ping_timestamp.c, ping_router.c, ping_echo.c, ping_address.c
