@@ -1,3 +1,8 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+	(LDADD): Added `-L../lib -lgnu'.
+	
 2005-01-13  Alfred M. Szmidt  <ams@gnu.org>
 
 	* cmds.c (setpeer): Changed type of PORT to `int'.  Check that the

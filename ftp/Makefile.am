@@ -12,9 +12,9 @@ man_MANS = ftp.1
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_TMP) $(PATHDEF_BSHELL) -I$(top_builddir)/include
+INCLUDES = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
 READLINE=@LIBREADLINE@ @LIBTERMCAP@
-LDADD = -L../libinetutils -linetutils $(LIBGLOB) $(READLINE)
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBGLOB) $(READLINE)
 
 EXTRA_DIST = $(man_MANS)
