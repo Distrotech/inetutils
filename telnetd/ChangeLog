@@ -1,3 +1,17 @@
+2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	Started fixing horrible mess in telnetd. To begin with,
+	segregated pty-related functions from tty-related ones.
+	Use forkpty instead of manually fiddling with lots of ifdefs.
+	The stuff has been tested on GNU/Linux and Solaris.
+	
+	* pty.c (new): PTY-related functions. 
+	* Makefile.am: Added pty.c
+	* ext.c: Changed definition of line.
+	* sys_term.c: Removed unneeded functions. Some of them
+          are re-implemented in pty.c
+	* telnetd.c (doit, telnet, readstream): Reorganized. 
+
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
