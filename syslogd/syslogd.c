@@ -226,7 +226,7 @@ main(argc, argv)
 	struct sockaddr_in sin, frominet;
 	FILE *fp;
 	char *p;
-#ifdef HAVE_SYS_MSGBUF_H
+#ifdef MSG_BSIZE
 	char line[MSG_BSIZE + 1];
 #else
 	char line[MAXLINE + 1];
@@ -500,13 +500,26 @@ logmsg(pri, msg, from, flags)
 	int flags;
 {
 	struct filed *f;
-	int fac, msglen, omask, prilev;
+	int fac, msglen, prilev;
+#ifdef HAVE_SIGACTION
+	sigset_t sigs, osigs;
+#else
+	int omask;
+#endif
+	
 	const char *timestamp;
 
 	dprintf("logmsg: pri %o, flags %x, from %s, msg %s\n",
 	    pri, flags, from, msg);
 
+#ifdef HAVE_SIGACTION
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGHUP);
+	sigaddset(&sigs, SIGALRM);
+	sigprocmask(SIG_BLOCK, &sigs, &osigs);
+#else
 	omask = sigblock(sigmask(SIGHUP)|sigmask(SIGALRM));
+#endif
 
 	/*
 	 * Check to see if msg looks non-standard.
@@ -541,7 +554,11 @@ logmsg(pri, msg, from, flags)
 			fprintlog(f, flags, msg);
 			(void)close(f->f_file);
 		}
+#ifdef HAVE_SIGACTION
+		sigprocmask(SIG_SETMASK, &osigs, 0);
+#else
 		(void)sigsetmask(omask);
+#endif
 		return;
 	}
 	for (f = Files; f; f = f->f_next) {
@@ -600,7 +617,11 @@ logmsg(pri, msg, from, flags)
 			}
 		}
 	}
+#ifdef HAVE_SIGACTION
+	sigprocmask(SIG_SETMASK, &osigs, 0);
+#else
 	(void)sigsetmask(omask);
+#endif
 }
 
 void
@@ -789,9 +810,11 @@ void
 reapchild(signo)
 	int signo;
 {
-	union wait status;
-
-	while (wait3((int *)&status, WNOHANG, (struct rusage *)NULL) > 0)
+#ifdef HAVE_WAITPID
+	while (waitpid(-1, 0, WNOHANG) > 0)
+#else
+	while (wait3(0, WNOHANG, (struct rusage *)NULL) > 0)
+#endif
 		;
 }
 
