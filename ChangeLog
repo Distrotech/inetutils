@@ -1,5 +1,9 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* uucpd/Makefile.am (INCLUDES): Added `$(PATHDEF_TTY)'.
+	
+	(LDADD): Added `-L../libinetutils -linetutils'.
+
 	* telnetd/Makefile.am: Added a line that reads `@PATHDEFS_MAKE@'.
 	
 	(INCLUDES): Added `$(PATHDEF_TTY) $(PATHDEF_LOGIN)'.
