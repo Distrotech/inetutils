@@ -262,6 +262,11 @@ extern char *slc_names[];
 
 #define	AUTHTYPE_TEST		99
 
+/* should we be encrypting? (not yet formally standardized) */
+#define AUTH_ENCRYPT_OFF        0
+#define AUTH_ENCRYPT_ON         4
+#define AUTH_ENCRYPT_MASK       4
+
 #ifdef	AUTH_NAMES
 char *authtype_names[] = {
 	"NULL", "KERBEROS_V4", "KERBEROS_V5", "SPX", "MINK", 0,
