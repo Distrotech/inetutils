@@ -1,14 +1,18 @@
+2000-08-10  Michael Vogt <mvo@debian.org>
+
+	* ftpd/ftpd.c: cleaned up PAM code.
+
 2000-07-30  Alain Magloire
 
-	* ftpd.c: protect initgroups() with HAVE_INITGROUPS
+	* ftpd.c: protect initgroups() with HAVE_INITGROUPS.
 
 2000-07-30  Michael Vogt <mvo@debian.org>
 
-	* ftpd.c(main): added TCP_WRAPPER support for daemon mode
+	* ftpd.c(main): added TCP_WRAPPER support for daemon mode.
 
 2000-07-26  Michael Vogt  <mvo@debian.org>
 
-	* ftpd.c(pass): added pam support
+	* ftpd.c(pass): added pam support.
 
 2000-07-08  Michael Vogt  <mvo@debian.org>
 
@@ -18,7 +22,7 @@
 2000-07-08  Michael Vogt  <mvo@debian.org>
 
 	* ftpd.c(main): added new option "-D" for daemon-mode,
-	ftpd can now run without inetd
+	ftpd can now run without inetd.
 
 2000-07-07 Alain Magloire
 
