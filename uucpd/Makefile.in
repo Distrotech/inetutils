@@ -1,4 +1,4 @@
-# Makefile for rshd
+# Makefile for uucpd
 # Copyright (C) 1995 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,6 @@ VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 libexecdir = @libexecdir@
-mandir = @mandir@
-man8dir = $(mandir)/man8
 
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -39,18 +37,18 @@ RM = @RM@
 
 LDLIBS = $(LIBS)
 
-CFLAGS += $(DEFS)
+# the /libexec/uucp/... path is consistent with netbsd.
+CFLAGS += $(DEFS) -D_PATH_UUCICO=\"$(libexecdir)/uucp/uucicio\"
 
-rshd: rshd.o
+uucpd: uucpd.o
 
-install: installdirs rshd $(srcdir)/rshd.8
-	$(INSTALL_PROGRAM) rshd $(libexecdir)/in.rshd
-	$(INSTALL_DATA) $(srcdir)/rshd.8 $(man8dir)
+install: installdirs uucpd
+	$(INSTALL_PROGRAM) uucpd $(libexecdir)/in.uucpd
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir)
 
 clean:
-	$(RM) -f *.o rshd 
+	$(RM) -f *.o uucpd 
 distclean: clean
 	$(RM) -f Makefile
