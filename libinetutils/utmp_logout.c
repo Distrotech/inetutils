@@ -27,8 +27,8 @@
 #else
 # include <time.h>
 #endif
-#ifdef HAVE_UTMPX_H
-#define __USE_GNU
+#if defined(UTMPX) && defined(HAVE_UTMPX_H)
+# define __USE_GNU
 # include <utmpx.h>
 #else
 # include <utmp.h>
@@ -44,7 +44,7 @@
 void
 utmp_logout(char   *line)
 {
-#ifdef HAVE_UTMPX_H
+#ifdef UTMPX
 	struct utmpx utx;
 	struct utmpx *ut;
 
@@ -80,8 +80,12 @@ utmp_logout(char   *line)
 #endif
 		pututline(ut);
 #ifdef HAVE_UPDWTMP
+		ut->ut_name[0] = 0;
+		ut->ut_host[0] = 0;
 		updwtmp(WTMP_FILE, ut);
-#endif /* XXX #else logwtmp ? */
+#else
+		logwtmp(ut->ut_line, "", "");
+#endif 
 	}
 	endutent();
 #endif
