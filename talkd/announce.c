@@ -90,7 +90,10 @@ strvis (dst, src, ignored)
 	if (isgraph (ch))
 	  *dst++ = ch;
 	else
-	  dst += sprintf (dst, "\\%03o", ch);
+	{
+	  sprintf (dst, "\\%03o", ch);
+	  dst += strlen(dst);
+	}
       }
   *dst = 0;
 }
