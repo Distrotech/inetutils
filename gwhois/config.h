@@ -7,10 +7,7 @@
 /* 6bone referto: support */
 #define EXT_6BONE
 
-/* Compile code to suppress legal disclaimers */
-#define HIDE_DISCL
-
-/* Hide them by default */
+/* Always hide legal disclaimers */
 #undef ALWAYS_HIDE_DISCL
 
 /* Default server */

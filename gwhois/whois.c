@@ -51,7 +51,9 @@ int main(int argc, char *argv[])
 {
     int ch, nopar = 0;
     const char *server = NULL, *port = NULL;
-    char *p, *q, *qstring = NULL, fstring[64] = "\0";
+    char *p, *q, *qstring, fstring[64] = "\0";
+    extern char *optarg;
+    extern int optind;
 
 #ifdef ENABLE_NLS
     setlocale(LC_MESSAGES, "");
@@ -110,11 +112,12 @@ int main(int argc, char *argv[])
     if (argc == 0 && !nopar)	/* there is no parameter */
 	usage();
 
+    /* On some systems realloc only works on non-NULL buffers */
+    qstring = malloc(1);
+    *qstring = '\0';
+
     /* parse other parameters, if any */
-    if (nopar) {
-	qstring = malloc(1);
-	*qstring = '\0';
-    } else {
+    if (!nopar) {
 	int qslen = 0;
 
 	while (1) {
@@ -322,9 +325,7 @@ void do_query(const int sock, const char *query)
 {
     char buf[200], *p;
     FILE *fi;
-#ifdef HIDE_DISCL
     int i = 0, hide = hide_discl;
-#endif
 
     fi = fdopen(sock, "r");
     if (write(sock, query, strlen(query)) < 0)
@@ -332,7 +333,6 @@ void do_query(const int sock, const char *query)
     if (shutdown(sock, 1) < 0)
 	err_sys("shutdown");
     while (fgets(buf, 200, fi)) {	/* XXX errors? */
-#ifdef HIDE_DISCL
 	if (hide == 1) {
 	    if (strncmp(buf, hide_strings[i+1], strlen(hide_strings[i+1]))==0)
 		hide = 2;	/* stop hiding */
@@ -348,7 +348,6 @@ void do_query(const int sock, const char *query)
 	    if (hide == 1)
 		continue;	/* hide the first line */
 	}
-#endif
 #ifdef EXT_6BONE
 	/* % referto: whois -h whois.arin.net -p 43 as 1 */
 	if (strncmp(buf, "% referto:", 10) == 0) {
@@ -374,11 +373,9 @@ void do_query(const int sock, const char *query)
     if (ferror(fi))
 	err_sys("fgets");
 
-#ifdef HIDE_DISCL
     if (hide == 1)
 	err_quit(_("Catastrophic error: disclaimer text has been changed.\n"
 		   "Please upgrade this program.\n"));
-#endif
 }
 
 const char *query_crsnic(const int sock, const char *query)

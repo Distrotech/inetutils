@@ -3,6 +3,7 @@
 # UPR means the TLD is managed by UPR, but I could not find any info
 ######## means I haven't checked yet this TLD
 #
+# centralnic domains are currently not supported
 .br.com	whois.centralnic.net
 .cn.com	whois.centralnic.net
 .eu.com	whois.centralnic.net
@@ -19,10 +20,6 @@
 .us.com	whois.centralnic.net
 .uy.com	whois.centralnic.net
 .za.com	whois.centralnic.net
-#.com	whois.networksolutions.com
-#.net	whois.networksolutions.com
-#.org	whois.networksolutions.com
-#.edu	whois.networksolutions.com
 .gov	whois.nic.gov
 .int	whois.isi.edu
 .mil	whois.nic.mil
@@ -85,7 +82,7 @@
 .cx	whois.nic.cx
 .cy	whois.ripe.net
 .cz	whois.ripe.net
-.de	whois.ripe.net
+.de	whois.denic.de
 #.dj	NONE		# NIC? http://www.intnet.dj
 .dk	whois.dk-hostmaster.dk
 #.dm			# NIC? (UPR)
@@ -138,12 +135,13 @@
 .io	WEB http://www.io.io/whois.html
 #.iq			# NIC?
 .ir	WEB http://aria.nic.ir/forms/whois.html
-.is	whois.ripe.net
+.is	whois.isnet.is
 .it	whois.nic.it
 .je	NONE 		# http://www.isles.net
 #.jm			# NIC? uwimona.edu.jm ns.jm
 .jo	NONE		# www.nic.gov.jo
 .jp	whois.nic.ad.jp
+# there is a server run by Randy bush, but I forgot the address!
 .ke	NONE		# http://www.nbnet.co.ke/domain.htm
 .kg	whois.domain.kg
 #.kh			# NIC? http://www.camnet.com.kh
@@ -271,7 +269,7 @@
 .vg	whois.adamsnames.tc
 #.vi			# NIC? http://www.usvi.net/cobex/
 #.vn		http://www.batin.com.vn/	# NIC?
-.vu	WEB http://www.vunic.vu/whois?
+.vu	WEB http://www.vunic.vu/whois
 #.wf			# NIC-FR!
 .ws	whois.samoanic.ws
 #.ye			# NIC? www.y.net.ye
@@ -292,6 +290,7 @@
 -ap	whois.apnic.net
 -au	whois.aunic.net
 -ti	whois.telstra.net
+-is	whois.isnet.is
 -6bone	whois.6bone.net
 -norid	whois.norid.no
 -ripn	whois.ripn.net

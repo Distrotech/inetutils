@@ -1,3 +1,8 @@
+2001-01-16  Alain Magloire
+
+	* gwhois/whois.c gwhois/TODO gwhois/Makefile: Update from the
+	patch send by Marco d'Itri.
+
 2001-01-16  Marcus Brinkmann  <marcus@gnu.org>
 
 	* main.c: Terminate array longopts with an element containing all

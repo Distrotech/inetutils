@@ -54,7 +54,6 @@ const char *gtlds[] = {
     NULL
 };
 
-#ifdef HIDE_DISCL
 const char *hide_strings[] = {
     "The Data in Network", "this query",
     "The data in Register", "By submitting",
@@ -65,7 +64,6 @@ const char *hide_strings[] = {
     "* Copyright (C) 1998 by SGNIC", "* modification.",
     NULL, NULL
 };
-#endif
 
 const char *nic_handles[] = {
     "net-",	"whois.arin.net",
