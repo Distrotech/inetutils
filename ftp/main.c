@@ -254,14 +254,16 @@ main(argc, argv)
 }
 
 void
-intr()
+intr(sig)
+  int sig;
 {
 
 	longjmp(toplevel, 1);
 }
 
 void
-lostpeer()
+lostpeer(sig)
+  int sig;
 {
 
 	if (connected) {
