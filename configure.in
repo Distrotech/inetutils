@@ -25,9 +25,7 @@ AC_INIT(inetd/inetd.c)
 # the production of headers/config.h.in.
 AC_PREREQ(2.12)
 
-AM_INIT_AUTOMAKE([inetutils], [1.3.3])
-GNU_PACKAGE="GNU $PACKAGE"
-AC_DEFINE_UNQUOTED(GNU_PACKAGE, "$GNU_PACKAGE")
+AM_INIT_AUTOMAKE([inetutils], [1.3.3], nodef)
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
@@ -40,12 +38,6 @@ AM_CONFIG_HEADER(include/config.h:headers/config.h.in)
 
 # config.h turns this on, so make sure it's on for our tests too
 #CPPFLAGS=-D_BSD_SOURCE
-
-AC_AIX
-AC_MINIX
-AC_ISC_POSIX
-AC_CONST
-AC_HEADER_STDC
 
 # Include files that we link into our own include directory from headers.
 # Initialize it with the things we always want to use.
@@ -94,12 +86,19 @@ AC_PROG_MAKE_SET
 
 AC_PROG_CC
 AC_PROG_CPP
+AC_AIX
+AC_MINIX
+AC_ISC_POSIX
+
 AC_C_CONST
 AC_PROG_INSTALL
 AC_PROG_YACC
 AC_CHECK_TOOL(AR, ar)
 AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
+
+AC_CONST
+AC_HEADER_STDC
 
 AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 stdlib.h sys/tty.h sys/utsname.h glob.h sys/ptyvar.h \
@@ -311,11 +310,10 @@ else
     AC_MSG_WARN([curses is not available, so not building talk])
   fi
   enable_talk=no
+  BUILD_TALK=''
 fi
 
 if test "$enable_talk" = yes; then
-  SERVERS="$SERVERS talkd"
-  CLIENTS="$CLIENTS talk"
   # We may need our own definition for struct osockaddr (equivalent to the
   # old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
   IU_CHECK_TYPE(struct osockaddr,
@@ -326,8 +324,6 @@ if test "$enable_talk" = yes; then
     [ #include <sys/types.h>
       #include <netinet/in.h> ])
 fi
-# SUBDIRS gets talk subdirs regardless of whether we're building them
-#SUBDIRS="$SUBDIRS talkd talk"
 
 # Look for a system `glob' function, and use our own if we can't find one (or
 # if the system one is missing features we need).
@@ -343,12 +339,15 @@ if test "$ac_cv_header_glob_h" = yes; then
   LIBS="$_SAVE_LIBS"
 fi
 if test "$sys_glob" != yes; then
-  AC_CONFIG_SUBDIRS(glob)
+  BUILD_LIBGLOB=libglob.a
   LINK_SRCS="$LINK_SRCS glob/glob.h"
   LINK_DSTS="$LINK_DSTS include/glob.h"
   LIBGLOB="-L../glob -lglob"
+else
+  BUILD_LIBGLOB=''
 fi
 AC_SUBST(LIBGLOB)
+AC_SUBST(BUILD_LIBGLOB)
 
 if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
   # Look for Kerberos and DES libraries
