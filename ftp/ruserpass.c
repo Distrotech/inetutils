@@ -81,7 +81,6 @@ ruserpass(host, aname, apass, aacct)
 {
 	char *hdir, buf[BUFSIZ], *tmp;
 	char *myname = 0, *mydomain;
-	int myname_len = 0;
 	int t, i, c, usedefault = 0;
 	struct stat stb;
 
@@ -96,29 +95,9 @@ ruserpass(host, aname, apass, aacct)
 		return (0);
 	}
 
-	errno = 0;
-	do {
-		if (myname) {
-		        myname_len += myname_len;
-			myname = realloc (myname, myname_len);
-		} else {
-			myname_len = 128; /* Initial guess */
-			myname = malloc (myname_len);
-		}
-		if (! myname)
-		        break;
-	} while ((gethostname(myname, myname_len) == 0
-		  && ! memchr (myname, '\0', myname_len))
-		 || errno == ENAMETOOLONG);
-
-	if (errno && myname) {
-		free (myname);
-		myname = 0;
-	}
-	if (! myname) {
+	myname = localhost ();
+	if (! myname)
 		myname = "";
-		myname_len = 0;
-	}
 
 	if ((mydomain = strchr(myname, '.')) == NULL)
 		mydomain = "";
@@ -258,12 +237,12 @@ next:
 	}
 done:
 	(void) fclose(cfile);
-	if (myname && myname_len > 0)
+	if (myname && *myname)
 		free (myname);
 	return (0);
 bad:
 	(void) fclose(cfile);
-	if (myname && myname_len > 0)
+	if (myname && *myname)
 		free (myname);
 	return (-1);
 }
