@@ -104,7 +104,7 @@ extern  char *__progname;
 #else
 #define	OPTIONS	"8KLdel:nVh"
 #endif
-static const char *short_options = OPTIONS;
+static const char *short_options = "+" OPTIONS;
 static struct option long_options[] =
 {
   { "debug", no_argument, 0, 'd' },
