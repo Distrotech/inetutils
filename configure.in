@@ -129,6 +129,18 @@ IU_CHECK_DECL(getusershell, [#include <unistd.h>])
 IU_CHECK_DECL(strerror, [#include <string.h>])
 IU_CHECK_DECL(strchr, [#include <string.h>])
 
+# See if getcwd accepts a size argument of 0
+AC_CACHE_CHECK([if getcwd accepts a 0 size argument], inetutils_cv_getcwd_zero_size,
+  AC_TRY_RUN([
+#include <unistd.h>
+int main () { char *wd = getcwd (0, 0); if (wd) exit (0); else exit (1); }
+],
+    inetutils_cv_getcwd_zero_size=yes, inetutils_cv_getcwd_zero_size=no,
+    inetutils_cv_getcwd_zero_size=no))
+if test "$inetutils_cv_getcwd_zero_size" = yes; then
+  AC_DEFINE(HAVE_GETCWD_ZERO_SIZE)
+fi
+
 IU_CHECK_DECL(htons,
   [ #ifdef HAVE_SYS_TYPES_H
     # include <sys/types.h>
@@ -356,7 +368,7 @@ fi
 AC_CHECK_FUNC(strerror, , LIBOBJS="$LIBOBJS strerror.o")
 if test "$ac_cv_func_strerror" = no; then
   # No strerror, so see if the SYS_ERRLIST variable can be used by ours
-  AC_CHECK_FUNC(sys_errlist)
+  AC_CHECK_FUNC(sys_errlist, AC_DEFINE(HAVE_SYS_ERRLIST))
   if test "$ac_cv_func_sys_errlist" = yes; then
     IU_CHECK_DECL(sys_errlist, [
       #include <stdio.h>
