@@ -35,7 +35,7 @@ START-INFO-DIR-ENTRY
 * rshd: (inetutils)rshd invocation.             Remote shell server.
 * logger: (inetutils)logger invocation.         Logger.
 * syslogd: (inetutils)syslogd invocation.       Syslog server.
-@c * talk: (inetutils)talk invocation.             Talk client.
+* talk: (inetutils)talk invocation.             Talk client.
 @c * talkd: (inetutils)talkd invocation.           Talk server.
 @c * telnet: (inetutils)telnet invocation.         User interface to TELNET.
 @c * telnetd: (inetutils)telnetd invocation.       Telnet server.
@@ -121,7 +121,7 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 * rshd::                        Remote shell server.
 * logger::                      Logger.
 * syslogd::                     Syslog server.
-@c * talk::                        Talk client.
+* talk::                        Talk client.
 @c * talkd::                       Talk server.
 @c * telnet::                      User interface to TELNET.
 @c * telnetd::                     Telnet server.
@@ -183,7 +183,7 @@ Print the version number, then exit successfully.
 @include rshd.texi
 @include logger.texi
 @include syslogd.texi
-@c @include talk.texi
+@include talk.texi
 @c @include talkd.texi
 @c @include telnet.texi
 @c @include telnetd.texi
