@@ -51,6 +51,9 @@ if test "$enable_talk" != no; then
 fi
 AC_TYPE_SIGNAL
 
+# Use `setpgid' if it's around, otherwise assume a BSD setpgrp
+AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
+
 if test "$enable_talk" = maybe; then
   enable_talk=$ac_cv_lib_curses
 fi
