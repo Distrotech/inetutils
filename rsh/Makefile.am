@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-bin_PROGRAMS = @BUILD_RSH@
+bin_PROGRAMS = @rsh_BUILD@
 
 EXTRA_PROGRAMS = rsh
 
