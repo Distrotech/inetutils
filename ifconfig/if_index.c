@@ -30,9 +30,6 @@
 /* Solaris at least earlier 2.6 and before does not include
    the ioctl definitions if BSD_COMP is not set.  */
 #if defined(__svr4__)
-/* FIXME: Is this solaris specific or it goes for all __svr4__ ?
-   Maybe we should ignore SIOGIFINDEX all together ???  */
-# define ifr_ifindex ifr_index
 # define BSD_COMP 1
 #endif
 
