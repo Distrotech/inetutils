@@ -760,8 +760,8 @@ recvrequest(cmd, local, remote, lmode, printnames)
 	FILE *fout, *din = 0;
 	int (*closefunc) __P((FILE *));
 	sig_t oldintr, oldintp;
-	int c, d, is_retr, tcrflag, bare_lfs = 0;
-	static int bufsize;
+	int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
+	static int bufsize=0;
 	static char *buf;
 	long bytes = 0, hashbytes = HASHBYTES;
 	struct timeval start, stop;
@@ -885,18 +885,20 @@ recvrequest(cmd, local, remote, lmode, printnames)
 		}
 		closefunc = fclose;
 	}
-	if (fstat(fileno(fout), &st) < 0 || st.st_blksize == 0)
-		st.st_blksize = BUFSIZ;
-	if (st.st_blksize > bufsize) {
+	if (fstat(fileno(fout), &st) < 0 || ST_BLKSIZE(st) == 0)
+		blksize = BUFSIZ;
+	else
+	        blksize = ST_BLKSIZE(st);
+	if (blksize > bufsize) {
 		if (buf)
 			(void) free(buf);
-		buf = malloc((unsigned)st.st_blksize);
+		buf = malloc((unsigned)blksize);
 		if (buf == NULL) {
 			warn("malloc");
 			bufsize = 0;
 			goto abort;
 		}
-		bufsize = st.st_blksize;
+		bufsize = blksize;
 	}
 	(void) gettimeofday(&start, (struct timezone *)0);
 	switch (curtype) {
