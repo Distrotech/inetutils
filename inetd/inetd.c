@@ -131,6 +131,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#include <grp.h>
 
 #define	TOOMANY		40		/* don't start more than TOOMANY */
 #define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */

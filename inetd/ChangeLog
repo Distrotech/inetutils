@@ -1,3 +1,7 @@
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* inetd.c: Include <grp.h> for initgroups().
+
 2000-07-18 Alain Magloire
 
 	* inetd.c(main): Check for SIGPIPE too.
