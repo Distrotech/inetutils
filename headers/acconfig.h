@@ -92,6 +92,9 @@
 /* Define this if H_ERRNO is declared in <netdb.h>  */
 #undef HAVE_H_ERRNO_DECL
 
+/* Define this if struct hostent has a h_addr_list field.  */
+#undef HAVE_HOSTENT_H_ADDR_LIST
+
 /* Define this if the system supplies the __PROGNAME variable.  */
 #undef HAVE___PROGNAME
 
@@ -129,10 +132,16 @@
 /* Define this if pclose is declared by including <stdio.h>.  */
 #undef HAVE_PCLOSE_DECL
 
-/* Define this if getpass is declared by including <stdlib.h>.  */
+/* Define this if getcwd is declared by including <unistd.h>.  */
+#undef HAVE_GETCWD_DECL
+
+/* Define this if getlogin is declared by including <unistd.h>.  */
+#undef HAVE_GETLOGIN_DECL
+
+/* Define this if getpass is declared by including <unistd.h>.  */
 #undef HAVE_GETPASS_DECL
 
-/* Define this if getusershell is declared by including <stdlib.h>.  */
+/* Define this if getusershell is declared by including <unistd.h>.  */
 #undef HAVE_GETUSERSHELL_DECL
 
 /* Define this if strchr is declared by including <stdlib.h> & <string.h>.  */
@@ -155,6 +164,9 @@
 #undef SEEK_SET
 #undef SEEK_CUR
 #undef SEEK_END
+#undef STDIN_FILENO
+#undef STDOUT_FILENO
+#undef STDERR_FILENO
 
 /* If the fd_set macros (FD_ZERO &c) are defined by including <sys/time.h> (a
    truly bizarre place), define this.  */
@@ -287,6 +299,14 @@ extern int vsnprintf __P ((char *, size_t, const char *, va_list));
 # define ST_BLKSIZE(statbuf) ((statbuf).st_blksize > 0 \
                               ? (statbuf).st_blksize : DEV_BSIZE)
 #endif /* HAVE_ST_BLKSIZE */
+
+#ifndef HAVE_GETCWD_DECL
+extern char *getcwd __P((char *, size_t));
+#endif
+
+#ifndef HAVE_GETLOGIN_DECL
+extern char *getlogin __P((void));
+#endif
 
 #ifndef HAVE_GETPASS_DECL
 extern char *getpass __P((const char *));
