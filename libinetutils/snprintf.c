@@ -1,6 +1,6 @@
 /* A bogus version of snprintf (that ignores the buffer limit)
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__)
 
 #include <stdarg.h>
 
@@ -39,7 +39,7 @@ snprintf (char *buf, int len, char *fmt, ...)
   return rv;
 }
 
-#else  /* !HAVE_STDARG_H */
+#else  /* ! (HAVE_STDARG_H && __STDC__) */
 
 #include <varargs.h>
 
@@ -52,9 +52,9 @@ snprintf (va_alist) va_dcl
 
   va_start (ap);
 
-  buf = va_arg (char *);
-  va_arg (int);			/* skip the length */
-  fmt = va_arg (char *);
+  buf = va_arg (ap, char *);
+  va_arg (ap, int);			/* skip the length */
+  fmt = va_arg (ap, char *);
   rv = vsprintf (buf, fmt, ap);
 
   va_end (ap);
@@ -65,7 +65,11 @@ snprintf (va_alist) va_dcl
 #endif /* HAVE_STDARG_H */
 
 int
-vsnprintf (char *buf, int len, va_list ap)
+vsnprintf (buf, len, fmt, ap)
+  char *buf;
+  int len;
+  const char *fmt;
+  va_list ap;
 {
-  return vsprintf (buf, ap);
+  return vsprintf (buf, fmt, ap);
 }
