@@ -1,3 +1,29 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* __progname.c, err.c, forkpty.c, getopt.c, getopt.h, getopt1.c,
+	getpass.c, gettext.h, getusershell.c, herror.c, hstrerror.c,
+	iruserok.c, login.c, login_tty.c, logout.c, malloc.c, memcmp.c,
+	memcpy.c, memmove.c, memset.c, obstack.c, obstack.h, openpty.c,
+	opieclient.c, pathmax.h, poll.c, readstream.c, realloc.c, regex.c,
+	regex.h, revoke.c, ruserok.c, setenv.c, setenv.h, snprintf.c,
+	snprintf.h, strcasecmp.c, strdup.c, strerror.c, strsignal.c,
+	stub_tgetent.c, syslog.c, waitpid.c, xalloc.h, xgetcwd.c,
+	xgetcwd.h, xmalloc.c, xstrdup.c: Files removed.
+
+	* localhost.c (localhost): Removed extern declaration of `xrealloc'.
+	Use `realloc' instead of `xrealloc'.
+	
+	* xalloc_die.c: New file.
+	* Makefile.am (libinetutils_a_SOURCES): Added `xalloc_die.c'.
+
+	* Makefile.am (libinetutils_a_SOURCES): Removed xmalloc.c,
+	xstrdup.c, and xgetcwd.c.
+	(libinetutils_a_LIBADD): Removed `@LIBOBJS@'.  Added
+	`$(top_builddir)/lib/libgnu.a'.
+	(noinst_HEADERS): Variable removed.
+	(INCLUDES): Removed `-I$(top_builddir)/include'. Added
+	`-I$(top_srcdir)/headers', and `-I$(top_srcdir)/lib'.
+
 2003-05-24  Alain Magloire
 
 	* snprintf.c: Change to be under LGPL not GPL.

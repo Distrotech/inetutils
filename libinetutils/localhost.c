@@ -1,6 +1,6 @@
 /* A slightly more convenient wrapper for gethostname
 
-   Copyright (C) 1996, 1997, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 2000, 2005 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -36,13 +36,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#if __STDC__
-# define VOID void
-#else
-# define VOID char
-#endif
-extern VOID *xrealloc __P((VOID *p, size_t n));
-
 /* Return the name of the localhost.  This is just a wrapper for gethostname,
    which takes care of allocating a big enough buffer, and caches the result
    after the first call (so the result should be copied before modification).
@@ -62,8 +55,7 @@ localhost (void)
       errno = 0;
 
       buf_len += 256;	/* Initial guess */
-      tmp = xrealloc (buf, buf_len);
-
+      tmp = realloc (buf, buf_len);
       if (tmp == NULL)
 	{
 	  errno = ENOMEM;
