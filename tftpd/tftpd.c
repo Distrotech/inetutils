@@ -75,10 +75,6 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 
 #include "tftpsubs.h"
 
-#if !HAVE_DECL_STRERROR
-extern const char *strerror __P ((int));
-#endif
-
 #define	TIMEOUT		5
 
 #ifndef LOG_FTP
