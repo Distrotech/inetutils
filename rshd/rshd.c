@@ -412,6 +412,7 @@ doit(fromp)
 
 	locuser = getstr ("locuser");
 	cmdbuf = getstr ("command");
+
 	setpwent();
 	pwd = getpwnam(locuser);
 	if (pwd == NULL) {
