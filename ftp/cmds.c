@@ -59,6 +59,68 @@ static char sccsid[] = "@(#)cmds.c	8.5 (Berkeley) 4/6/94";
 #include "ftp_var.h"
 #include "pathnames.h"
 
+#ifndef HAVE_STRDUP
+static char *
+strdup (str)
+	char *str;
+{
+	char *dup;
+	if (str) {
+		dup = malloc (strlen (str) + 1);
+		if (dup)
+			strcpy (dup, str);
+	} else
+		dup = 0;
+	return dup;
+}
+#endif
+
+/* Returns true if STR is entirely lower case.  */
+static int
+all_lower (str)
+	char *str;
+{
+	while (*str)
+		if (isupper (*str++))
+			return 0;
+	return 1;
+}
+
+/* Returns true if STR is entirely upper case.  */
+static int
+all_upper (str)
+	char *str;
+{
+	while (*str)
+		if (islower (*str++))
+			return 0;
+	return 1;
+}
+
+/* Destructively converts STR to upper case.  */
+static char *
+strup (str)
+	char *str;
+{
+	char *p;
+	for (p = str; *p; p++)
+		if (islower (*p))
+			*p = toupper (*p);
+	return str;
+}
+
+/* Destructively converts STR to lower case.  */
+static char *
+strdown (str)
+	char *str;
+{
+	char *p;
+	for (p = str; *p; p++)
+		if (isupper (*p))
+			*p = tolower (*p);
+	return str;
+}
+
 jmp_buf	jabort;
 char   *mname;
 char   *home = "/";
@@ -397,9 +459,8 @@ put(argc, argv)
 	int argc;
 	char *argv[];
 {
-	char *cmd;
+	char *cmd, *local, *remote;
 	int loc = 0;
-	char *oldargv1, *oldargv2;
 
 	if (argc == 2) {
 		argc++;
@@ -414,28 +475,38 @@ usage:
 		code = -1;
 		return;
 	}
-	oldargv1 = argv[1];
-	oldargv2 = argv[2];
-	if (!globulize(&argv[1])) {
+
+	local = globulize (argv[1]);
+	if (! local) {
 		code = -1;
 		return;
 	}
+
 	/*
 	 * If "globulize" modifies argv[1], and argv[2] is a copy of
 	 * the old argv[1], make it a copy of the new argv[1].
 	 */
-	if (argv[1] != oldargv1 && argv[2] == oldargv1) {
-		argv[2] = argv[1];
-	}
+	if (loc)
+		remote = strdup (local);
+	else
+		remote = strdup (argv[2]);
+
 	cmd = (argv[0][0] == 'a') ? "APPE" : ((sunique) ? "STOU" : "STOR");
 	if (loc && ntflag) {
-		argv[2] = dotrans(argv[2]);
+		char *new = dotrans(remote);
+		free (remote);
+		remote = new;
 	}
 	if (loc && mapflag) {
-		argv[2] = domap(argv[2]);
+		char *new = domap(remote);
+		free (remote);
+		remote = new;
 	}
-	sendrequest(cmd, argv[1], argv[2],
-	    argv[1] != oldargv1 || argv[2] != oldargv2);
+	sendrequest(cmd, local, remote,
+		    strcmp (argv[1], local) != 0
+		    || strcmp (argv[2], remote) != 0);
+	free (local);
+	free (remote);
 }
 
 /*
@@ -449,7 +520,6 @@ mput(argc, argv)
 	int i;
 	sig_t oldintr;
 	int ointer;
-	char *tp;
 
 	if (argc < 2 && !another(&argc, &argv, "local-files")) {
 		printf("usage: %s local-files\n", argv[0]);
@@ -467,39 +537,22 @@ mput(argc, argv)
 			if (*cp == 0)
 				mflag = 0;
 			if (mflag && confirm(argv[0], cp)) {
-				tp = cp;
+				char *tp = cp;
+
 				if (mcase) {
-					while (*tp && !islower(*tp))
-						tp++;
-
-					if (*tp)
-						/* Some LC, don't mess.  */
-						tp = cp;
-					else {
-						/* All upper case.  */
-						char *buf =
-						  malloc (strlen (cp) + 1);
-						char *p = buf;
-
-						for (tp = cp; *tp; tp++)
-							if (isupper (*tp))
-								*p++ = tolower (*tp);
-							else
-								*p++ = *tp;
-
-						tp = buf;
-
-						free (cp);
-					}
+					if (all_upper (tp))
+						tp = strdown (strdup (tp));
 				}
 				if (ntflag) {
 					char *new = dotrans(tp);
-					free (tp);
+					if (tp != cp)
+						free (tp);
 					tp = new;
 				}
 				if (mapflag) {
 					char *new = domap(tp);
-					free (tp);
+					if (tp != cp)
+						free (tp);
 					tp = new;
 				}
 				sendrequest((sunique) ? "STOU" : "STOR",
@@ -512,10 +565,12 @@ mput(argc, argv)
 					}
 					interactive = ointer;
 				}
+
+				if (tp != cp)
+					free (tp);
 			}
 
-			/* If TP != CP, then CP has already been freed. */
-			free (tp);
+			free (cp);
 		}
 		(void) signal(SIGINT, oldintr);
 		mflag = 0;
@@ -528,8 +583,15 @@ mput(argc, argv)
 
 		if (!doglob) {
 			if (mflag && confirm(argv[0], argv[i])) {
-				tp = (ntflag) ? dotrans(argv[i]) : argv[i];
-				tp = (mapflag) ? domap(tp) : tp;
+				char *tp = argv[i];
+				if (ntflag)
+					tp = dotrans (tp);
+				if (mapflag) {
+					char *new = domap (tp);
+					if (tp != argv[i])
+						free (tp);
+					tp = new;
+				}
 				sendrequest((sunique) ? "STOU" : "STOR",
 				    argv[i], tp, tp != argv[i] || !interactive);
 				if (!mflag && fromatty) {
@@ -540,12 +602,17 @@ mput(argc, argv)
 					}
 					interactive = ointer;
 				}
+				if (tp != argv[i])
+					free (tp);
 			}
 			continue;
 		}
 
 		memset(&gl, 0, sizeof(gl));
-		flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
+		flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_TILDE;
+#ifdef GLOB_QUOTE
+		flags |= GLOB_QUOTE;
+#endif
 		if (glob(argv[i], flags, NULL, &gl) || gl.gl_pathc == 0) {
 			warnx("%s: not found", argv[i]);
 			globfree(&gl);
@@ -553,8 +620,15 @@ mput(argc, argv)
 		}
 		for (cpp = gl.gl_pathv; cpp && *cpp != NULL; cpp++) {
 			if (mflag && confirm(argv[0], *cpp)) {
-				tp = (ntflag) ? dotrans(*cpp) : *cpp;
-				tp = (mapflag) ? domap(tp) : tp;
+				char *tp = *cpp;
+				if (ntflag)
+					tp = dotrans (tp);
+				if (mapflag) {
+					char *new = domap (tp);
+					if (tp != *cpp)
+						free (tp);
+					tp = new;
+				}
 				sendrequest((sunique) ? "STOU" : "STOR",
 				    *cpp, tp, *cpp != tp || !interactive);
 				if (!mflag && fromatty) {
@@ -565,6 +639,8 @@ mput(argc, argv)
 					}
 					interactive = ointer;
 				}
+				if (tp != *cpp)
+					free (tp);
 			}
 		}
 		globfree(&gl);
@@ -602,7 +678,7 @@ getit(argc, argv, restartit, mode)
 	int restartit;
 {
 	int loc = 0;
-	char *oldargv1, *oldargv2;
+	char *local;
 
 	if (argc == 2) {
 		argc++;
@@ -624,37 +700,27 @@ usage:
 		code = -1;
 		return (0);
 	}
-	if (loc && mcase) {
-		char *tp = argv[1], *tp2, tmpbuf[MAXPATHLEN];
-
-		while (*tp && !islower(*tp)) {
-			tp++;
-		}
-		if (!*tp) {
-			tp = argv[2];
-			tp2 = tmpbuf;
-			while ((*tp2 = *tp) != NULL) {
-				if (isupper(*tp2)) {
-					*tp2 = 'a' + *tp2 - 'A';
-				}
-				tp++;
-				tp2++;
-			}
-			argv[2] = tmpbuf;
-		}
+	if (loc && mcase && all_upper (local))
+		strdown (local);
+	if (loc && ntflag) {
+		char *new = dotrans(local);
+		free (local);
+		local = new;
 	}
-	if (loc && ntflag)
-		argv[2] = dotrans(argv[2]);
-	if (loc && mapflag)
-		argv[2] = domap(argv[2]);
+	if (loc && mapflag) {
+		char *new = domap(local);
+		free (local);
+		local = new;
+	}
 	if (restartit) {
 		struct stat stbuf;
 		int ret;
 
-		ret = stat(argv[2], &stbuf);
+		ret = stat(local, &stbuf);
 		if (restartit == 1) {
 			if (ret < 0) {
-				warn("local: %s", argv[2]);
+				warn("local: %s", local);
+				free (local);
 				return (0);
 			}
 			restart_point = stbuf.st_size;
@@ -674,8 +740,10 @@ usage:
 					    &yy, &mo, &day, &hour, &min, &sec);
 					tm = gmtime(&stbuf.st_mtime);
 					tm->tm_mon++;
-					if (tm->tm_year > yy%100)
+					if (tm->tm_year > yy%100) {
+						free (local);
 						return (1);
+					}
 					if ((tm->tm_year == yy%100 && 
 					    tm->tm_mon > mo) ||
 					   (tm->tm_mon == mo && 
@@ -685,20 +753,23 @@ usage:
 					   (tm->tm_hour == hour && 
 					    tm->tm_min > min) ||
 					   (tm->tm_min == min && 
-					    tm->tm_sec > sec))
+					    tm->tm_sec > sec)) {
+						free (local);
 						return (1);
+					}
 				} else {
 					printf("%s\n", reply_string);
 					verbose = overbose;
+					free (local);
 					return (0);
 				}
 			}
 		}
 	}
 
-	recvrequest("RETR", argv[2], argv[1], mode,
-	    argv[1] != oldargv1 || argv[2] != oldargv2);
+	recvrequest("RETR", local, argv[1], mode, strcmp (local, argv[2]) != 0);
 	restart_point = 0;
+	free (local);
 	return (0);
 }
 
@@ -734,7 +805,7 @@ mget(argc, argv)
 {
 	sig_t oldintr;
 	int ch, ointer;
-	char *cp, *tp, *tp2, tmpbuf[MAXPATHLEN];
+	char *cp, *tp, *tp2;
 
 	if (argc < 2 && !another(&argc, &argv, "remote-files")) {
 		printf("usage: %s remote-files\n", argv[0]);
@@ -785,11 +856,10 @@ remglob(argv,doswitch)
 	int doswitch;
 {
 	char temp[16];
-	static char buf[MAXPATHLEN];
 	static FILE *ftemp = NULL;
 	static char **args;
 	int oldverbose, oldhash;
-	char *cp, *mode;
+	char *cp, *mode, *end;
 
 	if (!mflag) {
 		if (!doglob) {
@@ -831,13 +901,30 @@ remglob(argv,doswitch)
 			return (NULL);
 		}
 	}
-	if (fgets(buf, sizeof (buf), ftemp) == NULL) {
-		(void) fclose(ftemp), ftemp = NULL;
-		return (NULL);
+
+	buf_len = 100;		/* Any old size */
+	buf = malloc (buf_len + 1);
+	sofar = 0;
+	for (;;) {
+		if (! buf) {
+			printf ("malloc failure\n");
+			return 0;
+		}
+		if (! fgets(buf + sofar, buf_len - sofar, ftemp)) {
+			fclose(ftemp);
+			ftemp = NULL;
+			free (buf);
+			return 0;
+		}
+
+		sofar = strlen (buf);
+		if (buf[sofar - 1] == '\n')
+			return buf;
+
+		/* Make more room and read some more... */
+		buf_len += buf_len;
+		buf = realloc (buf, buf_len);
 	}
-	if ((cp = strchr(buf, '\n')) != NULL)
-		*cp = '\0';
-	return (buf);
 }
 
 char *
@@ -1217,13 +1304,17 @@ ls(argc, argv)
 			code = -1;
 			return;
 		}
-	}
-	if (&&&&&&&&& strcmp(, "-") && *argv[2] != '|')
-		if (!globulize(&argv[2]) || !confirm("output to local-file:", argv[2])) {
+		if (*dest != '|' && !confirm("output to local-file:", dest)) {
 			code = -1;
-			return;
-	}
-	recvrequest(cmd, argv[2], argv[1], "w", 0);
+			goto out;
+		}
+	} else
+		dest = 0;
+
+	recvrequest(cmd, dest ? dest : "-", argv[1], "w", 0);
+ out:
+	if (dest)
+		free (dest);
 }
 
 /*
@@ -1247,14 +1338,23 @@ usage:
 		code = -1;
 		return;
 	}
+
 	dest = argv[argc - 1];
 	argv[argc - 1] = NULL;
-	if (strcmp(dest, "-") && *dest != '|')
-		if (!globulize(&dest) ||
-		    !confirm("output to local-file:", dest)) {
+	if (strcmp(dest, "-") && *dest != '|') {
+		dest = globulize (dest);
+		if (! dest) {
 			code = -1;
 			return;
-	}
+		}
+		if (! confirm("output to local-file:", dest)) {
+			code = -1;
+			free (dest);
+			return;
+		}
+	} else
+		dest = strdup (dest);
+
 	cmd = argv[0][1] == 'l' ? "NLST" : "LIST";
 	mname = argv[0];
 	mflag = 1;
@@ -1272,8 +1372,10 @@ usage:
 			interactive = ointer;
 		}
 	}
+
 	(void) signal(SIGINT, oldintr);
 	mflag = 0;
+	free (dest);
 }
 
 /*
@@ -1633,29 +1735,29 @@ fatal(msg)
  * Can't control multiple values being expanded
  * from the expression, we return only the first.
  */
-int
-globulize(cpp)
-	char **cpp;
+char *
+globulize(cp)
+	char *cp;
 {
 	glob_t gl;
 	int flags;
 
 	if (!doglob)
-		return (1);
+		return strdup (cp);
 
 	flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
 	memset(&gl, 0, sizeof(gl));
-	if (glob(*cpp, flags, NULL, &gl) ||
+	if (glob(cp, flags, NULL, &gl) ||
 	    gl.gl_pathc == 0) {
-		warnx("%s: not found", *cpp);
+		warnx("%s: not found", cp);
 		globfree(&gl);
 		return (0);
 	}
 	
-	*cpp = strdup(gl.gl_pathv[0]);
+	cp = strdup(gl.gl_pathv[0]);
 	globfree(&gl);
 
-	return (1);
+	return cp;
 }
 
 void
@@ -1864,15 +1966,13 @@ setnmap(argc, argv)
 
 	if (mapin)
 		free (mapin);
-	mapin = malloc (strlen (altarg) + 1);
-	strcpy(mapin, altarg);
+	mapin = strdup (altarg);
 
 	while (*++cp == ' ')
 		continue;
 	if (mapout)
 		free (mapout);
-	mapout = malloc (strlen (cp) + 1);
-	strcpy (mapout, cp);
+	mapout = strdup (cp);
 }
 
 static int
