@@ -7,7 +7,7 @@
 	* Makefile.am (dist-hook): Target removed.
 	(header_dirs): Variable removed.
 	(EXTRA_DIST): Variable removed.
-	
+
 	* confpaths.h.in, crypt.h, err.h, getopt.h, obstack.h,
 	osockaddr.h, paths.h, poll.h, syslog-int.h, arpa/DISTFILES,
 	arpa/ftp.h, arpa/telnet.h, arpa/tftp.h, protocols/DISTFILES,
@@ -21,7 +21,7 @@
 
 	* crypt.h: Checks for HAVE_DECL variables must read
 	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
-	  declares HAVE_DECL, either to 0 or to 1. 	  
+	  declares HAVE_DECL, either to 0 or to 1.
 
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
@@ -31,7 +31,7 @@
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* crypt.h [HAVE_CRYPT_DECL]: Renamed to HAVE_DECL_CRYPT.
-	
+
 2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* obstack.h: (new)
@@ -60,4 +60,3 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
-

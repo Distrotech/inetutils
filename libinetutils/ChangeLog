@@ -16,7 +16,7 @@
 
 	* localhost.c (localhost): Removed extern declaration of `xrealloc'.
 	Use `realloc' instead of `xrealloc'.
-	
+
 	* xalloc_die.c: New file.
 	* Makefile.am (libinetutils_a_SOURCES): Added `xalloc_die.c'.
 
@@ -37,15 +37,15 @@
 
 2003-05-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
-	* libinetutils/ttymsg.c (ttymsg): Bugfix: typecast is not 
-        a valid lvalue
+	* libinetutils/ttymsg.c (ttymsg): Bugfix: typecast is not
+	a valid lvalue
 
 2003-04-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* setenv.c: Provide an extern declaration of
 	environ if necessary
 	* xmalloc.c: Use err() instead of error().
-	
+
 2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* Makefile.am: Added malloc.c and realloc.c
@@ -85,7 +85,7 @@
 	* xgetcwd.c: Update from Gnulib CVS
 	* xmalloc.c: Update from Gnulib CVS
 	* xstrdup.c: Update from Gnulib CVS
-	
+
 2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* libinetutils/iruserok.c (iruserok): Removed unneded
@@ -95,12 +95,12 @@
 
 	* herror.c: Checks for HAVE_DECL variables must read
 	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
-	  declares HAVE_DECL, either to 0 or to 1. 	  
+	  declares HAVE_DECL, either to 0 or to 1.
 	* hstrerror.c: Likewise.
 	* logwtmp.c: Likewise.
-	* revoke.c: Likewise. 
+	* revoke.c: Likewise.
 	* setenv.c: Likewise.
-	
+
 	* iruserok.c: Use HAVE_STRUCT_type_member instead
 	  of HAVE_type_member.
 	* logout.c: Likewise.
@@ -128,7 +128,7 @@
 
 	* libinetutils/obstack.c: new
 	* libinetutils/Makefile.am: Added obstack.c
-	
+
 	* libinetutils/utmp_init.c: Use ifdef UTMPX, instead of
 	  HAVE_UTMPX_H.
 	* libinetutils/utmp_logout.c: Likewise. (utmp_logout): fallback
@@ -169,7 +169,7 @@
 	* Makefile.am: Added argcv.[ch], regex.[ch]
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
- 	* openpty.c: Set RMSGN|RPROTDAT on master side of pty pair, so it
+	* openpty.c: Set RMSGN|RPROTDAT on master side of pty pair, so it
 	can be read using read() call.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
