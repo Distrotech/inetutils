@@ -1063,9 +1063,9 @@ set_proc_title(a, s)
 	cp = Argv[0];
 	size = sizeof(sin);
 	if (getpeername(s, (struct sockaddr *)&sin, &size) == 0)
-		(void) sprintf(buf, "-%s [%s]", a, inet_ntoa(sin.sin_addr)); 
+		snprintf (buf, sizeof buf, "-%s [%s]", a, inet_ntoa(sin.sin_addr)); 
 	else
-		(void) sprintf(buf, "-%s", a); 
+		snprintf (buf, sizeof buf, "-%s", a); 
 	strncpy(cp, buf, LastArg - cp);
 	cp += strlen(cp);
 	while (cp < LastArg)
