@@ -150,7 +150,7 @@ AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       flock ftruncate wait3 memcpy bcopy bzero setsid ptsname \
 	       cfsetspeed strchr waitpid seteuid setegid setreuid setregid \
 	       setresuid setresgid killpg setlinebuf tzset utimes utime \
-	       updwtmp updwtmpx)
+	       updwtmp updwtmpx getcwd)
 # Functions that we will define (in libinetutils) if necessary.
 AC_REPLACE_FUNCS(daemon strdup strcasecmp setenv memcmp memset memmove \
 	herror getusershell)
@@ -170,18 +170,6 @@ IU_CHECK_DECL(ttyname, [#include <unistd.h>])
 IU_CHECK_DECL(strerror, [#include <string.h>])
 IU_CHECK_DECL(strchr, [#include <string.h>])
 IU_CHECK_DECL(getgrnam, [#include <grp.h>])
-
-# See if getcwd accepts a size argument of 0
-AC_CACHE_CHECK([if getcwd accepts a 0 size argument], inetutils_cv_getcwd_zero_size,
-  AC_TRY_RUN([
-#include <unistd.h>
-int main () { char *wd = getcwd (0, 0); if (wd) exit (0); else exit (1); }
-],
-    inetutils_cv_getcwd_zero_size=yes, inetutils_cv_getcwd_zero_size=no,
-    inetutils_cv_getcwd_zero_size=no))
-if test "$inetutils_cv_getcwd_zero_size" = yes; then
-  AC_DEFINE(HAVE_GETCWD_ZERO_SIZE)
-fi
 
 IU_CHECK_DECL(htons,
   [ #ifdef HAVE_SYS_TYPES_H

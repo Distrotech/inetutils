@@ -6,6 +6,7 @@
 	* libinetutils/openpty.c : a new version that should be
 	compatible with SYSV STREAM.
 	* paths : add check for PATH_UTMPX and PATH_WTMPX
+	* configure.in : add check for getcwd, since we use xgetcwd.
 
 1999-05-18 Alain Magloire
 	* headers/arpa/tftp.h : changing tu_cloc to be unsigned to handle
