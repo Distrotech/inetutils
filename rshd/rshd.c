@@ -65,7 +65,6 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
 
 #include <errno.h>
 #include <fcntl.h>
-#include <paths.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -223,7 +222,7 @@ doit(fromp)
 	(void) signal(SIGQUIT, SIG_DFL);
 	(void) signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
-	{ int t = open(_PATH_TTY, 2);
+	{ int t = open(PATH_TTY, 2);
 	  if (t >= 0) {
 		ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
@@ -474,7 +473,7 @@ fail:
 			exit(1);
 		}
 
-	if (pwd->pw_uid && !access(_PATH_NOLOGIN, F_OK)) {
+	if (pwd->pw_uid && !access(PATH_NOLOGIN, F_OK)) {
 		error("Logins currently disabled.\n");
 		exit(1);
 	}
@@ -633,7 +632,7 @@ fail:
 			    FD_ISSET(pv[0], &readfrom));
 			exit(0);
 		}
-		setpgrp(0, getpid());
+		setpgid (0, getpid ());
 		(void) close(s);
 		(void) close(pv[0]);
 #ifdef CRYPT
@@ -651,7 +650,7 @@ fail:
 		close(pv[1]);
 	}
 	if (*pwd->pw_shell == '\0')
-		pwd->pw_shell = _PATH_BSHELL;
+		pwd->pw_shell = PATH_BSHELL;
 #if	BSD > 43
 	if (setlogin(pwd->pw_name) < 0)
 		syslog(LOG_ERR, "setlogin() failed: %m");
@@ -661,7 +660,7 @@ fail:
 	(void) setuid((uid_t)pwd->pw_uid);
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
-	strcat(path, _PATH_DEFPATH);
+	strcat(path, PATH_DEFPATH);
 	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
 	strncat(username, pwd->pw_name, sizeof(username)-6);
 	cp = strrchr(pwd->pw_shell, '/');
