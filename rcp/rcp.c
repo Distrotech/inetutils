@@ -74,6 +74,10 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 
 #include "extern.h"
 
+#ifndef HAVE_STRERROR_DECL
+extern const char *strerror __P ((int));
+#endif
+
 #ifdef KERBEROS
 #include <kerberosIV/des.h>
 #include <kerberosIV/krb.h>
