@@ -85,7 +85,7 @@ telnet_getenv(char *val)
 char *
 telnet_gets(char *prompt, char *result, int length, int echo)
 {
-#ifndef HAVE_GETPASS_DECL
+#ifndef HAVE_DECL_GETPASS
 	extern char *getpass();
 #endif
 	extern int globalmode;
