@@ -99,28 +99,6 @@ dnl For gnulib
 gl_MODULES(xalloc snprintf obstack memcpy getpass getopt memset strerror malloc poll memcmp strdup realloc getusershell memmove setenv xgetcwd argp regex unlocked-io readutmp error)
 gl_INIT
 
-dnl __P is the standard name for the ansi-or-not-ansi arg-decl macro.
-dnl We define our own version in <config.h> if the system doesn't supply one.
-dnl NOTE: This check has to be done pretty early because we use __P in
-dnl       <config.h>
-IU_CHECK_MACRO(__P, [#include <sys/cdefs.h>])
-
-AH_BOTTOM(
-[#ifdef HAVE___P
-/* The system defines __P; we tested for it in <sys/cdefs.h>, so include that
-   if we can.  */
-# ifdef HAVE_SYS_CDEFS_H
-#  include <sys/cdefs.h>
-# endif
-#else /* !HAVE___P */
-/* If the system includes don't seem to define __P, do it here instead.  */
-# if defined (__GNUC__) || (defined (__STDC__) && __STDC__) || defined (__cplusplus)
-#  define	__P(args)	args	/* Use prototypes.  */
-#else
-#  define	__P(args)	()	/* No prototypes.  */
-#endif
-#endif /* HAVE___P */])
-
 ### Checks for libraries.
 AC_CHECK_LIB(bsd, revoke)
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -218,7 +196,6 @@ else
 fi
 AC_SUBST(LIBGLOB)
 AC_SUBST(libglob_BUILD)
-
 
 dnl FIXME: Make this test case a bit more robust.  Is there a reason why
 dnl        KRB4 exists?
@@ -339,10 +316,6 @@ dnl sig_t is the type of a signal handler (4.4BSD)
 AC_CHECK_TYPES(sig_t, , ,
   [#include <sys/types.h>
    #include <signal.h> ])
-AH_BOTTOM(
-[#ifndef HAVE_SIG_T
-typedef RETSIGTYPE (*sig_t) ();
-#endif])
 
 dnl sigset_t is a set of signals (4.4BSD)
 AC_CHECK_TYPE(sigset_t, , AC_DEFINE(sigset_t, unsigned long, [FIXME]),
@@ -408,33 +381,6 @@ IU_CHECK_MEMBERS([struct hostent.h_addr_list], , , [#include <netdb.h>])
 
 IU_CHECK_MEMBERS([struct stat.st_blksize])
 
-AH_BOTTOM(
-[#ifdef HAVE_SYS_PARAM_H
-#include <sys/types.h>
-#include <sys/param.h>
-#endif
-/* Get or fake the disk device blocksize.
-   Usually defined by sys/param.h (if at all).  */
-#if !defined(DEV_BSIZE) && defined(BSIZE)
-#define DEV_BSIZE BSIZE
-#endif
-#if !defined(DEV_BSIZE) && defined(BBSIZE) /* SGI */
-#define DEV_BSIZE BBSIZE
-#endif
-#ifndef DEV_BSIZE
-#define DEV_BSIZE 4096
-#endif
-
-/* Extract or fake data from a `struct stat'.
-   ST_BLKSIZE: Optimal I/O blocksize for the file, in bytes. */
-#ifndef HAVE_STRUCT_STAT_ST_BLKSIZE
-# define ST_BLKSIZE(statbuf) DEV_BSIZE
-#else /* HAVE_STRUCT_STAT_ST_BLKSIZE */
-/* Some systems, like Sequents, return st_blksize of 0 on pipes. */
-# define ST_BLKSIZE(statbuf) ((statbuf).st_blksize > 0 \
-                              ? (statbuf).st_blksize : DEV_BSIZE)
-#endif /* HAVE_STRUCT_STAT_ST_BLKSIZE */])
-
 ### Checks for compiler characteristics.
 AM_C_PROTOTYPES dnl FIXME: Does inetutils even compile on pre-ANSI compilers?
 AC_C_CONST
@@ -465,15 +411,6 @@ AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
                utime uname \
                updwtmp updwtmpx vhangup wait3 wait4)
-AH_BOTTOM(
-[#ifndef HAVE_BCOPY
-#define bcopy(f,t,z) memmove(t,f,z)
-#endif])
-
-AH_BOTTOM(
-[#ifndef HAVE_BZERO
-#define bzero(x,z) memset(x,0,z)
-#endif])
 
 dnl Functions that we will define if necessary.
 AC_REPLACE_FUNCS(getpass getusershell memcmp memcpy memmove memset \
@@ -484,26 +421,6 @@ _SAVE_LIBS="$LIBS"
 LIBS="$LIBCRYPT $LIBS"
 AC_CHECK_FUNCS(crypt)
 LIBS="$_SAVE_LIBS"
-
-AH_BOTTOM(
-[#ifndef HAVE_MEMCPY
-#define memcpy memmove
-#endif])
-AH_BOTTOM(
-[#if !defined(HAVE_MEMMOVE) || !defined(HAVE_MEMSET)
-/* Make sure size_t is defined */
-#include <sys/types.h>
-#endif])
-AH_BOTTOM(
-[#ifndef HAVE_MEMMOVE
-/* Declare our own silly version.  */
-extern void *memmove __P ((void *to, const void *from, size_t sz));
-#endif])
-AH_BOTTOM(
-[#ifndef HAVE_MEMSET
-/* Declare our own silly version.  */
-extern void memset __P ((void *mem, int val, size_t sz));
-#endif])
 
 jm_INCLUDED_REGEX(libinetutils/regex.c)
 
@@ -531,17 +448,6 @@ AC_CHECK_FUNC(snprintf,
 dnl See if vsnprintf exists, otherwise use our own.
 AC_CHECK_FUNC(vsnprintf,
   [AC_DEFINE(HAVE_VSNPRINTF, 1, [Define to one if you have vsnprintf])])
-
-AH_BOTTOM(
-[#ifndef HAVE_VSNPRINTF
-#include <sys/types.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
-extern int vsnprintf __P ((char *, size_t, const char *, va_list));
-#endif])
 
 dnl See if the system has strerror, and replace it if not
 AC_CHECK_FUNC(strerror)
@@ -577,11 +483,6 @@ if test "$ac_cv_func_hstrerror" = yes -o "$ac_cv_func_h_errlist" = yes; then
   AC_DEFINE(HAVE_HSTRERROR, 1, [Define to one if you have hstrerror.])
 fi
 
-AH_BOTTOM(
-[#if !defined(HAVE_DECL_HSTRERROR) || !HAVE_DECL_HSTRERROR
-extern const char *hstrerror __P ((int));
-#endif])
-
 ## Checks for function declarations.
 
 AC_DECL_SYS_SIGLIST
@@ -614,43 +515,8 @@ dnl int), at least in the expected header file.  Check.
 AC_CHECK_DECLS([fclose, pclose], , , [#include <stdio.h>])
 AC_CHECK_DECLS([getcwd, getlogin, getpass, getusershell, ttyname], , ,
                [#include <unistd.h>])
-AH_BOTTOM(
-[#if !HAVE_DECL_GETLOGIN
-extern char *getlogin __P((void));
-#endif])
-AH_BOTTOM(
-[#if !HAVE_DECL_GETCWD
-extern char *getcwd __P((char *, size_t));
-#endif])
-AH_BOTTOM(
-[#if !HAVE_DECL_GETPASS
-extern char *getpass __P((const char *));
-#endif])
-AH_BOTTOM(
-[#if !HAVE_DECL_TTYNAME
-extern char *ttyname __P ((int));
-#endif])
-
-AC_CHECK_DECLS([strerror, strchr], , , [#include <string.h>])
-AH_BOTTOM(
-[#if !HAVE_DECL_STRERROR
-extern const char *strerror __P ((int));
-#endif])
-AH_BOTTOM(
-[#if !HAVE_DECL_STRCHR
-extern char *strchr __P ((char *str, int ch));
-extern char *strrchr __P ((char *str, int ch));
-#endif
-#ifndef HAVE_STRCHR
-#define strchr index
-#define strrchr rindex
-#endif])
 
 AC_CHECK_DECLS([getgrnam, initgroups], , , [#include <grp.h>])
-AH_BOTTOM(
-[#ifndef HAVE_DECl_GETGRNAM
-extern struct group *getgrnam __P ((const char *));
-#endif])
 
 AC_CHECK_DECLS(htons, , ,
   [ #ifdef HAVE_SYS_TYPES_H
@@ -660,7 +526,6 @@ AC_CHECK_DECLS(htons, , ,
     # include <sys/param.h>
     #endif
     #include <netinet/in.h> ])
-
 
 dnl Our home-grown version of setenv needs to use ENVIRON
 AC_CHECK_DECLS(environ, , ,

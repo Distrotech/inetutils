@@ -1,3 +1,11 @@
+2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
+
+	* lib/.cvsignore: New file.
+
+	* configure.ac: Don't check for __P.  Removed almost all
+	references to AH_BOTTOM, the only one that is left is so that we
+	don't have to include <confpaths.h> everywhere.
+	
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	Imported files from gnulib.
