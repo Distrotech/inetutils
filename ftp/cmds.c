@@ -55,9 +55,9 @@ static char sccsid[] = "@(#)cmds.c	8.5 (Berkeley) 4/6/94";
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <paths.h>
 
 #include "ftp_var.h"
-#include "pathnames.h"
 
 #ifndef HAVE_STRDUP
 static char *
