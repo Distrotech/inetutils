@@ -254,7 +254,7 @@ AC_SUBST(LIBUTIL)
 # not actually be in libutil), and and use our own versions if necesary.
 _SAVE_LIBS="$LIBS"
 LIBS="$LIBUTIL $LIBS"
-AC_REPLACE_FUNCS(login logout logwtmp openpty forkpty iruserok login_tty)
+AC_REPLACE_FUNCS(login logout logwtmp openpty forkpty ruserok iruserok login_tty)
 LIBS="$_SAVE_LIBS"
 
 # See if `weak refs' are possible; these make it possible (with shared

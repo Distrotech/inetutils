@@ -73,35 +73,12 @@
 #endif
 #include <resolv.h>
 
-static int __ivaliduser __P ((FILE *hostf, u_long raddr, const char *luser, const char *ruser));
+static int __ivaliduser __P ((FILE *hostf, u_long raddr,
+			      const char *luser, const char *ruser));
 static int __icheckhost __P ((u_long raddr, register char *lhost));
 
 int     __check_rhosts_file = 1;
 char    *__rcmd_errstr;
-
-
-int
-ruserok(const char *rhost, int superuser, const char *ruser, const char *luser)
-{
-  struct hostent *hp;
-  u_long addr;
-  char **ap;
-
-  if ((hp = gethostbyname(rhost)) == NULL)
-    return (-1);
-#ifdef HAVE_HOSTENT_H_ADDR_LIST
-  for (ap = hp->h_addr_list; *ap; ++ap) {
-    bcopy(*ap, &addr, sizeof(addr));
-    if (iruserok(addr, superuser, ruser, luser) == 0)
-      return (0);
-  }
-#else
-  bcopy(hp->h_addr, &addr, sizeof(addr));
-  if (iruserok(addr, superuser, ruser, luser) == 0)
-    return (0);
-#endif
-  return (-1);
-}
 
 /*
  * New .rhosts strategy: We are passed an ip address. We spin through
@@ -113,7 +90,7 @@ ruserok(const char *rhost, int superuser, const char *ruser, const char *luser)
  * Returns 0 if ok, -1 if not ok.
  */
 int
-iruserok(u_long raddr, int superuser, const char *ruser, const char *luser)
+iruserok (u_long raddr, int superuser, const char *ruser, const char *luser)
 {
   register char *cp;
   struct stat sbuf;
@@ -124,65 +101,70 @@ iruserok(u_long raddr, int superuser, const char *ruser, const char *luser)
   char *pbuf;
 
   first = 1;
-  hostf = superuser ? NULL : fopen(PATH_HEQUIV, "r");
+  hostf = superuser ? NULL : fopen (PATH_HEQUIV, "r");
  again:
-  if (hostf) {
-    if (__ivaliduser(hostf, raddr, luser, ruser) == 0) {
-      (void) fclose(hostf);
-      return(0);
-    }
-    (void) fclose(hostf);
+  if (hostf)
+    {
+      if (__ivaliduser (hostf, raddr, luser, ruser) == 0)
+	{
+	  (void) fclose (hostf);
+	  return 0;
+	}
+      (void) fclose (hostf);
   }
-  if (first == 1 && (__check_rhosts_file || superuser)) {
-    first = 0;
-    if ((pwd = getpwnam(luser)) == NULL)
-      return(-1);
-
-    pbuf = malloc (strlen (pwd->pw_dir) + sizeof "/.rhosts");
-    if (! pbuf)
-      {
-	errno = ENOMEM;
+  if (first == 1 && (__check_rhosts_file || superuser))
+    {
+      first = 0;
+      pwd = getpwnam (luser);
+      if (pwd == NULL)
 	return -1;
-      }
-    strcpy (pbuf, pwd->pw_dir);
-    strcat (pbuf, "/.rhosts");
 
-    /*
-     * Change effective uid while opening .rhosts.  If root and
-     * reading an NFS mounted file system, can't read files that
-     * are protected read/write owner only.
-     */
-    uid = geteuid();
-    (void)seteuid(pwd->pw_uid);
-    hostf = fopen(pbuf, "r");
-    (void)seteuid(uid);
+      pbuf = malloc (strlen (pwd->pw_dir) + sizeof "/.rhosts");
+      if (! pbuf)
+	{
+	  errno = ENOMEM;
+	  return -1;
+	}
+      strcpy (pbuf, pwd->pw_dir);
+      strcat (pbuf, "/.rhosts");
 
-    if (hostf == NULL)
-      return(-1);
-    /*
-     * If not a regular file, or is owned by someone other than
-     * user or root or if writeable by anyone but the owner, quit.
-     */
-    cp = NULL;
-    if (lstat(pbuf, &sbuf) < 0)
-      cp = ".rhosts not regular file";
-    else if (!S_ISREG(sbuf.st_mode))
-      cp = ".rhosts not regular file";
-    else if (fstat(fileno(hostf), &sbuf) < 0)
-      cp = ".rhosts fstat failed";
-    else if (sbuf.st_uid && sbuf.st_uid != pwd->pw_uid)
-      cp = "bad .rhosts owner";
-    else if (sbuf.st_mode & (S_IWGRP|S_IWOTH))
-      cp = ".rhosts writeable by other than owner";
-    /* If there were any problems, quit. */
-    if (cp) {
-      __rcmd_errstr = cp;
-      fclose(hostf);
-      return(-1);
+      /*
+       * Change effective uid while opening .rhosts.  If root and
+       * reading an NFS mounted file system, can't read files that
+       * are protected read/write owner only.
+       */
+      uid = geteuid();
+      (void)seteuid (pwd->pw_uid);
+      hostf = fopen (pbuf, "r");
+      (void)seteuid (uid);
+
+      if (hostf == NULL)
+	return -1;
+      /*
+       * If not a regular file, or is owned by someone other than
+       * user or root or if writeable by anyone but the owner, quit.
+       */
+      cp = NULL;
+      if (lstat (pbuf, &sbuf) < 0)
+	cp = ".rhosts not regular file";
+      else if (!S_ISREG(sbuf.st_mode))
+	cp = ".rhosts not regular file";
+      else if (fstat (fileno(hostf), &sbuf) < 0)
+	cp = ".rhosts fstat failed";
+      else if (sbuf.st_uid && sbuf.st_uid != pwd->pw_uid)
+	cp = "bad .rhosts owner";
+      else if (sbuf.st_mode & (S_IWGRP|S_IWOTH))
+	cp = ".rhosts writeable by other than owner";
+      /* If there were any problems, quit. */
+      if (cp)
+	{
+	  __rcmd_errstr = cp;
+	  fclose (hostf);
+	  return -1;
+	}
+      goto again;
     }
-    goto again;
-  }
-  return (-1);
+  return -1;
 }
 
 /*
@@ -203,61 +185,68 @@ __ivaliduser (FILE *hostf, u_long raddr, const char *luser, const char *ruser)
   if (! buf)
     return -1;
 
-  while (fgets(buf + buf_offs, buf_len - buf_offs, hostf)) {
-    int ch;
-    register char *user, *p;
+  while (fgets(buf + buf_offs, buf_len - buf_offs, hostf))
+    {
+      int ch;
+      register char *user, *p;
 
-    if (strchr(buf + buf_offs, '\n') == NULL) {
-      /* No newline yet, read some more.  */
-      buf_offs += strlen (buf + buf_offs);
+      if (strchr(buf + buf_offs, '\n') == NULL)
+	{
+	  /* No newline yet, read some more.  */
+	  buf_offs += strlen (buf + buf_offs);
 
-      if (buf_offs >= buf_len - 1) {
-				/* Make more room in BUF.  */
-	char *new_buf;
+	  if (buf_offs >= buf_len - 1)
+	    {
+	      /* Make more room in BUF.  */
+	      char *new_buf;
 
-	buf_len += buf_len;
-	new_buf = realloc (buf, buf_len);
+	      buf_len += buf_len;
+	      new_buf = realloc (buf, buf_len);
 
-	if (! new_buf) {
-	  free (buf);
-	  return -1;
+	      if (! new_buf)
+		{
+		  free (buf);
+		  return -1;
+		}
+
+	      buf = new_buf;
+	    }
+
+	  continue;
 	}
 
-	buf = new_buf;
-      }
+      buf_offs = 0;	/* Start at beginning next time around.  */
 
-      continue;
+      p = buf;
+      while (*p != '\n' && *p != ' ' && *p != '\t' && *p != '\0')
+	{
+	  /* *p = isupper(*p) ? tolower(*p) : *p;  -- Uli */
+	  *p = tolower (*p);	/* works for linux libc */
+	  p++;
+	}
+      if (*p == ' ' || *p == '\t')
+	{
+	  *p++ = '\0';
+	  while (*p == ' ' || *p == '\t')
+	    p++;
+	  user = p;
+	  while (*p != '\n' && *p != ' ' &&
+		 *p != '\t' && *p != '\0')
+	    p++;
+	} else
+	  user = p;
+      *p = '\0';
+
+      if (__icheckhost (raddr, buf) && !strcmp (ruser, *user ? user : luser))
+	{
+	  free (buf);
+	  return 0;
+	}
     }
-
-    buf_offs = 0;			/* Start at beginning next time around.  */
-
-    p = buf;
-    while (*p != '\n' && *p != ' ' && *p != '\t' && *p != '\0') {
-      /* *p = isupper(*p) ? tolower(*p) : *p;  -- Uli */
-      *p = tolower(*p);	/* works for linux libc */
-      p++;
-    }
-    if (*p == ' ' || *p == '\t') {
-      *p++ = '\0';
-      while (*p == ' ' || *p == '\t')
-	p++;
-      user = p;
-      while (*p != '\n' && *p != ' ' &&
-	     *p != '\t' && *p != '\0')
-	p++;
-    } else
-      user = p;
-    *p = '\0';
-
-    if (__icheckhost(raddr, buf) && !strcmp(ruser, *user ? user : luser)) {
-      free (buf);
-      return (0);
-    }
-  }
 
   free (buf);
 
-  return (-1);
+  return -1;
 }
 
 /*
@@ -271,23 +260,24 @@ __icheckhost (u_long raddr, register char *lhost)
   register char **pp;
 
   /* Try for raw ip address first. */
-  if (isdigit(*lhost) && (long)(laddr = inet_addr(lhost)) != -1)
+  if (isdigit (*lhost) && (long)(laddr = inet_addr (lhost)) != -1)
     return (raddr == laddr);
 
   /* Better be a hostname. */
-  if ((hp = gethostbyname(lhost)) == NULL)
-    return (0);
+  hp = gethostbyname (lhost);
+  if (hp == NULL)
+    return 0;
 
   /* Spin through ip addresses. */
 #ifdef HAVE_HOSTENT_H_ADDR_LIST
   for (pp = hp->h_addr_list; *pp; ++pp)
-    if (!bcmp(&raddr, *pp, sizeof(u_long)))
-      return (1);
+    if (!memcmp (&raddr, *pp, sizeof (u_long)))
+      return 1;
 #else
-  if (!bcmp(&raddr, hp->h_addr, sizeof(u_long)))
-    return (1);
+  if (!memcmp (&raddr, hp->h_addr, sizeof (u_long)))
+    return 1;
 #endif
 
   /* No match. */
-  return (0);
+  return 0;
 }
