@@ -1,5 +1,8 @@
 Thu Mar 26 20:40:06 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* configure.in: Call IU_ENABLE_CLIENT for ping.  Call AC_SUBST for
+ 	BUILD_PING.
+
 	* glob/Makefile.am (AUTOMAKE_OPTIONS): Removed; the options are
  	set adaquaely in ../Makefile.am.
 	
