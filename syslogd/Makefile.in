@@ -21,17 +21,19 @@ srcdir = @srcdir@
 include ../config.make
 
 CPPFLAGS += \
-	-D_PATH_SYSLOGUSERS=\"$(sysconfdir)/syslogusers\" \
-        -D_PATH_SYSLOGWELCOME=\"$(sysconfdir)/syslogwelcome\" \
-	-D_PATH_SYSLOGLOGINMESG=\"$(sysconfdir)/motd\" \
-	-D_PATH_NOLOGIN=\"$(sysconfdir)/nologin\"
+	-D_PATH_KLOG=\"/dev/klog\" \
+	-D_PATH_LOGCONF=\"$(sysconfdir)/syslog.conf\" \
+	-D_PATH_LOGPID=\"$(localstatedir)/run/syslog.pid\"
 
 all: syslogd
-syslogd: syslogd.o syslogcmd.o logwtmp.o popen.o
+syslogd: syslogd.o ttymsg.o
 
-install: installdirs syslogd $(srcdir)/syslogd.8
+ttymsg.o: $(top_srcdir)/common/ttymsg.c
+	$(COMPILE.c) $<
+
+install: installdirs syslogd $(srcdir)/syslog.conf.5 $(srcdir)/syslogd.8
 	$(INSTALL_PROGRAM) syslogd $(libexecdir)/in.syslogd
-	-$(INSTALL_DATA) $(srcdir)/syslogd.conf.5 $(man5dir)/syslogd.conf.5
+	-$(INSTALL_DATA) $(srcdir)/syslog.conf.5 $(man5dir)/syslog.conf.5
 	-$(INSTALL_DATA) $(srcdir)/syslogd.8 $(man8dir)/syslogd.8
 uninstall:
 	-$(RM) -f $(libexecdir)/in.syslogd $(man8dir)/syslogd.8
