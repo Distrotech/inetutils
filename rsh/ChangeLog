@@ -3,3 +3,5 @@
 	* ChangeLog : New file.
 
 	* Before doing an exec revert euid to real uid.
+
+	* Use the right maxfd in select().

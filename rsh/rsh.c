@@ -200,7 +200,7 @@ main(argc, argv)
 	struct servent *sp;
 	sigset_t sigs, osigs;
 	int argoff, asrsh, ch, dflag, nflag, one, rem;
-	pid_t pid;
+	pid_t pid = 0;
 	uid_t uid;
 	char *args, *host, *p, *user;
 
@@ -406,6 +406,7 @@ try_connect:
 			warn("setsockopt");
 	}
 
+	(void)seteuid(uid);
 	(void)setuid(uid);
 #ifdef HAVE_SIGACTION
 	sigemptyset(&sigs);
@@ -462,14 +463,14 @@ talk (nflag, osigs, pid, rem)
 		(void)close(rfd2);
 
 reread:		errno = 0;
-		if ((cc = read(0, buf, sizeof buf)) <= 0)
+		if ((cc = read(STDIN_FILENO, buf, sizeof buf)) <= 0)
 			goto done;
 		bp = buf;
 
 rewrite:	
 		FD_ZERO(&rembits);
 		FD_SET(rem, &rembits);
-		if (select(16, 0, &rembits, 0, 0) < 0) {
+		if (select(rem + 1, 0, &rembits, 0, 0) < 0) {
 			if (errno != EINTR)
 				err(1, "select");
 			goto rewrite;
@@ -508,8 +509,11 @@ done:
 	FD_SET(rfd2, &readfrom);
 	FD_SET(rem, &readfrom);
 	do {
+	    	int maxfd = rem;
+		if (rfd2 > maxfd)
+		    maxfd = rfd2;
 		ready = readfrom;
-		if (select(16, &ready, 0, 0, 0) < 0) {
+		if (select(maxfd + 1, &ready, 0, 0, 0) < 0) {
 			if (errno != EINTR)
 				err(1, "select");
 			continue;
