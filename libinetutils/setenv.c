@@ -40,6 +40,9 @@ extern int errno;
 
 #if _LIBC - 0 == 0
 # define __environ	environ
+# ifndef HAVE_ENVIRON_DECL
+extern char **environ;
+# endif
 #endif
 
 #if _LIBC - 0
