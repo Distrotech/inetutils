@@ -96,6 +96,5 @@ extern void
 	ring_clearto P((Ring *ring));
 #endif	/* ENCRYPTION */
 
-extern void
-    ring_clear_mark __P ((void)),
-    ring_mark __P ((void));
+extern void ring_clear_mark P ((Ring *));
+extern void ring_mark P ((Ring *));
