@@ -18,7 +18,7 @@
 #
 
 srcdir = @srcdir@
-include ../config.mk
+include ../config.make
 
 OPTIONS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
