@@ -32,7 +32,7 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
 AC_CHECK_HEADERS(malloc.h termio.h termios.h sys/tty.h sys/utsname.h \
-		 krb.h des.h netinet/in_systm.h \
+		 sys/msgbuf.h krb.h des.h netinet/in_systm.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h paths.h)
 AC_CHECK_FUNCS(cgetent uname strdup)
 AC_CHECK_LIB(util, logout)
