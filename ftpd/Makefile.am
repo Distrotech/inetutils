@@ -26,4 +26,4 @@ LIBLS = @LIBLS@
 
 LDADD = $(LIBLS) -L../libinetutils -linetutils $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
 
-EXTRA_DIST = $(man_MANS)
+EXTRA_DIST = $(man_MANS) ftpcmd.c
