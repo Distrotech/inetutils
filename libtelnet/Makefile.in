@@ -20,23 +20,16 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libdir)/libtelnet.a
 OBJS = auth.o encrypt.o genget.o getent.o misc.o \
-	kerberos.o enc_des.o kerberos5.o
+       kerberos.o enc_des.o kerberos5.o
 
 all: libtelnet.a
 libtelnet.a: $(OBJS)
 	$(AR) rcv $@ $(OBJS)
 	$(RANLIB) $@
 
-install: installdirs libtelnet.a
-	$(INSTALL_DATA) libtelnet.a $(libdir)/libtelnet.a
-uninstall:
-	-$(RM) -f $(libdir)/libtelnet.a
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o libtelnet.a
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
