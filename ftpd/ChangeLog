@@ -21,12 +21,12 @@
 
 2000-08-21  Alain Magloire
 
-The idea is to reduce the number of side effects i.e. reducing the number
-of global variables.  To help we regroup some of them in a structure
-call credentials, that is pass around.  The second approach to help
-detect side effects; when possible the variables are pass by parameter.
-All the gots of the authentication have move out elsewere(auth.c, pam.c)
-this will save us from the pesky #ifdef's.
+	The idea is to reduce the number of side effects i.e. reducing the
+	number of global variables.  To help we regroup some of them in a
+	structure call credentials, that is pass around.  The second approach
+	to help detect side effects; when possible the variables are pass by
+	parameter. All the gots of the authentication have move out
+	elsewere(auth.c, pam.c) this will save us from the pesky #ifdef's.
 
 	* ftpd.c: Passwd handling code removed.  PAM code removed.
 	Variables guess, pw, logged_in, remotehost part of
