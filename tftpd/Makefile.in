@@ -20,6 +20,8 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libexecdir)/in.tftpd $(man8dir)/tftpd.8
+
 CPPFLAGS += -I$(top_srcdir)/tftp
 
 all: tftpd
@@ -28,16 +30,7 @@ tftpd: tftpd.o tftpsubs.o
 tftpsubs.o: $(top_srcdir)/tftp/tftpsubs.c
 	$(COMPILE.c) $<
 
-install: installdirs tftpd $(srcdir)/tftpd.8
-	$(INSTALL_PROGRAM) tftpd $(libexecdir)/in.tftpd
-	-$(INSTALL_DATA) $(srcdir)/tftpd.8 $(man8dir)/tftpd.8
-uninstall:
-	-$(RM) -f $(libexecdir)/in.tftpd $(man8dir)/tftpd.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o tftpd 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
