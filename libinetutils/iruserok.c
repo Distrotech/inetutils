@@ -66,8 +66,11 @@ int     __check_rhosts_file = 1;
 char    *__rcmd_errstr;
 
 int
-ruserok(const char *rhost, int superuser, const char *ruser,
-	const char *luser)
+ruserok(rhost, superuser, ruser, luser)
+  const char *rhost;
+  int superuser;
+  const char *ruser;
+  const char *luser;
 {
 	struct hostent *hp;
 	u_long addr;
@@ -93,7 +96,11 @@ ruserok(const char *rhost, int superuser, const char *ruser,
  * Returns 0 if ok, -1 if not ok.
  */
 int
-iruserok(u_long raddr, int superuser, const char *ruser, const char *luser)
+iruserok(raddr, superuser, ruser, luser)
+  u_long raddr;
+  int superuser;
+  const char *ruser;
+  const char *luser;
 {
 	register char *cp;
 	struct stat sbuf;
@@ -165,7 +172,11 @@ again:
  * Returns 0 if ok, -1 if not ok.
  */
 int
-__ivaliduser(FILE *hostf, u_long raddr, const char *luser, const char *ruser)
+__ivaliduser(hostf, raddr, luser, ruser)
+  FILE *hostf;
+  u_long raddr;
+  const char *luser;
+  const char *ruser;
 {
 	register char *user, *p;
 	int ch;
@@ -207,7 +218,9 @@ __ivaliduser(FILE *hostf, u_long raddr, const char *luser, const char *ruser)
  * Returns "true" if match, 0 if no match.
  */
 int
-__icheckhost(u_long raddr, register char *lhost)
+__icheckhost(raddr, lhost)
+  u_long raddr;
+  register char *lhost;
 {
 	register struct hostent *hp;
 	register u_long laddr;
