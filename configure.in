@@ -1,6 +1,6 @@
 # Configuration for inetutils
 #
-# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 #
 # Written by Miles Bader <miles@gnu.ai.mit.edu>
 #
@@ -21,12 +21,20 @@
 
 AC_INIT(inetd/inetd.c)
 
+# Versions of autoconf before 2.12 had bugs in autoheader that screwed up
+# the production of headers/config.h.in.
+AC_PREREQ(2.12)
+
 # Get macros that we use
 builtin(include, iumacros.m4)
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
-# directory, which holds those actually needed for compilation
+# directory, which holds those actually needed for compilation.
+#
+# If config.h.in needs to be regenerated (because of changes in configure.in
+# or headers/acconfig.h, use the command `autoheader -l headers'.
+#
 AC_CONFIG_HEADER(include/config.h:headers/config.h.in)
 
 # config.h turns this on, so make sure it's on for our tests too
@@ -54,7 +62,7 @@ AC_SUBST(LIBOBJS)
 
 # Include files that we link into our own include directory from headers.
 # Initialize it with the things we always want to use.
-INCLUDES="version.h crypt.h arpa/telnet.h arpa/ftp.h arpa/tftp.h"
+INCLUDES="version.h crypt.h arpa/telnet.h arpa/ftp.h arpa/tftp.h protocols/talkd.h"
 
 # Files that we link from somewhere other than headers to includes .  The
 # number of entries in LINK_SRCS should match that in LINK_DSTS.
@@ -65,7 +73,7 @@ LINK_DSTS=''
 AC_ARG_ENABLE(servers, [  --disable-servers       don't compile servers],
 	      , enable_servers=yes)
 AC_ARG_ENABLE(clients, [  --disable-clients       don't compile clients],
-	      , enable_clients=yes)
+\	      , enable_clients=yes)
 # By default, talk is only compiled if we can find libcurses
 AC_ARG_ENABLE(talk,    [  --disable-talk          don't compile talk or talkd],
               , enable_talk=maybe)
@@ -91,15 +99,29 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 		 stdlib.h sys/tty.h sys/utsname.h glob.h \
 		 sys/msgbuf.h krb.h des.h netinet/in_systm.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
-		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h)
+		 sys/ioctl_compat.h sys/cdefs.h utmp.h utmpx.h sys/stream.h)
 
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
-	       flock ftruncate wait3)
+	       flock ftruncate wait3 memcpy bcopy bzero)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup memmove setenv)
+AC_REPLACE_FUNCS(daemon strdup setenv memset memmove)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
+
+# Some systems don't declare fclose in <stdio.h>!
+IU_CHECK_DECL(fclose, [#include <stdio.h>])
+
+if test "$ac_cv_func_setenv" = no; then
+  # Our home-grown version of setenv needs to use ENVIRON
+  IU_CHECK_DECL(environ,
+    [ #ifdef HAVE_UNISTD_H
+      # include <unistd.h>
+      #endif
+      #ifdef HAVE_STDLIB_H
+      # include <stdlib.h>
+      #endif ])
+fi
 
 # EWOULDBLOCK is more or less the BSD version of posix EAGAIN.
 IU_CHECK_MACRO(EWOULDBLOCK, [#include <errno.h>], ,
@@ -115,6 +137,8 @@ IU_CHECK_MACRO(__P,
 
 AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(socket, getpeername)
+AC_CHECK_LIB(resolv, gethostname)
+
 AC_FUNC_ALLOCA
 
 # libutil is a 4.4BSD library that defines several functions handy for
@@ -164,7 +188,7 @@ IU_CHECK_MACRO(SEEK_ macros,
 # See where to find fd_set (bit-vectors for select) manipulation macros.
 IU_CHECK_MACRO(fd_set macros, [#include <sys/types.h>],
   FD_ZERO FD_CLR FD_SET FD_ISSET)
-if test "$inetutils_cv_fd_set_macros" = no; then
+if test "$inetutils_cv_macro_fd_set_macros" = no; then
   IU_CHECK_MACRO(fd_set macros in <sys/time.h>, [#include <sys/time.h>],
     FD_ZERO FD_CLR FD_SET FD_ISSET)
 fi
@@ -302,6 +326,11 @@ AC_TYPE_SIGNAL
 IU_CHECK_TYPE(sig_t,
   [ #include <sys/types.h>
     #include <sys/signal.h> ])
+# I'm not sure what this is, but netbsd has it; just use int if necessary.
+IU_CHECK_TYPE(sig_atomic_t, 
+  [ #include <sys/types.h>
+    #include <sys/signal.h> ],
+  :, AC_DEFINE(sig_atomic_t, int))
 
 # See if the __PROGNAME variable is defined, otherwise use our own.
 AC_CHECK_FUNC(__progname,
