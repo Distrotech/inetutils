@@ -1,7 +1,7 @@
 Inetutils NEWS -- history of user-visible changes
 Please send inetutils bug reports to bug-inetutils@gnu.ai.mit.edu.
 
-Release 1.2o:
+Release 1.3:
  More portable again than 1.2.  It is still very BSD-specific, but now
  works on many popular systems, such as linux and sunos/solaris.
  
