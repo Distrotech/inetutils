@@ -872,6 +872,7 @@ remglob(argv,doswitch)
 	char *buf = 0;
 	int sofar = 0;
 	int oldverbose, oldhash;
+	int fd;
 	char *cp, *mode, *end;
 
 	if (!mflag) {
@@ -898,7 +899,13 @@ remglob(argv,doswitch)
 
 		strcpy (temp, PATH_TMP);
 		strcat (temp, "XXXXXX");
-		mktemp (temp);
+		fd = mkstemp (temp);
+		if (fd < 0) {
+		  printf("unable to create temporary file %s: %s\n", temp,
+			 strerror(errno));
+		  return (NULL);
+		}
+		close (fd);
 
 		oldverbose = verbose, verbose = 0;
 		oldhash = hash, hash = 0;

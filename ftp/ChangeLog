@@ -1,3 +1,8 @@
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* cmds.c (remglob): New variable fd, use it to create temporary
+	file with mkstemp(), and not insecure mktemp().
+
 2000-08-08 Alain Magloire
 
 	* extern.h: Remove empty() declaration, one the arg
