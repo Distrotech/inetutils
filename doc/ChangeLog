@@ -1,5 +1,9 @@
 2001-11-10  Alain Magloire
 
+	* tftp.texi: New file.
+	* Makefile.am: Added tftp.texi.
+	* inetutils.texi: Enable tftp.texi.
+
 	* ping.texi: New file.
 	* Makefile.am: Added ping.texi.
 	* inetutils.texi: Enable ping.texi.

@@ -40,7 +40,7 @@ START-INFO-DIR-ENTRY
 * talkd: (inetutils)talkd invocation.           Talk server.
 @c * telnet: (inetutils)telnet invocation.         User interface to TELNET.
 @c * telnetd: (inetutils)telnetd invocation.       Telnet server.
-@c * tftp: (inetutils)tftp invocation.             Trivial FTP.
+* tftp: (inetutils)tftp invocation.             Trivial FTP.
 @c * tftpd: (inetutils)tftpd invocation.           TFTP server.
 @c * uucpd: (inetutils)uucpd invocation.           Unix to Unix Copy.
 @c * whois: (inetutils)whois invocation.           Whois user interface.
@@ -127,7 +127,7 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 * talkd::                       Talk server.
 @c * telnet::                      User interface to TELNET.
 @c * telnetd::                     Telnet server.
-@c * tftp::                        Trivial FTP.
+* tftp::                        Trivial FTP.
 @c * tftpd::                       TFTP server.
 @c * uucpd::                       Unix to Unix Copy.
 @c * whois::                       Whois user interface.
@@ -190,7 +190,7 @@ Print the version number, then exit successfully.
 @include talkd.texi
 @c @include telnet.texi
 @c @include telnetd.texi
-@c @include tftp.texi
+@include tftp.texi
 @c @include tftpd.texi
 @c @include uucpd.texi
 @c @include whois.texi
