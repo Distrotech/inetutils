@@ -47,10 +47,13 @@ AC_CHECK_TOOL(AR, ar)
 AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
-AC_CHECK_HEADERS(malloc.h termio.h termios.h sys/tty.h sys/utsname.h \
+AC_CHECK_HEADERS(malloc.h termio.h termios.h stdlib.h sys/tty.h sys/utsname.h \
 		 sys/msgbuf.h krb.h des.h netinet/in_systm.h \
 		 netinet/ip.h netinet/ip_icmp.h netinet/ip_var.h vis.h \
-		 sys/ioctl_compat.h)
+		 sys/ioctl_compat.h sys/cdefs.h)
+
+# Headers that we use our own version of if the system doesn't have them.
+AC_CHECK_HEADER(paths.h, , INCLUDES="$INCLUDES paths.h")
 
 AC_CHECK_FUNCS(cgetent uname strdup setutent_r logwtmp fpathconf tcgetattr)
 
@@ -106,10 +109,11 @@ if test "$enable_talk" = maybe; then
   enable_talk=$ac_cv_lib_curses_initscr
 fi
 
-AC_CACHE_CHECK(for __P in <stdlib.h>,
-	       inetutils_cv_macro___p,
+AC_CACHE_CHECK(for __P, inetutils_cv_macro___p,
 AC_EGREP_CPP(HAVE___P,
-[#include <stdlib.h>
+[#ifdef HAVE_SYS_CDEFS_H
+#include <sys/cdefs.h>
+#endif
 #ifdef __P
 HAVE___P
 #endif],
