@@ -34,7 +34,7 @@ void free ();
 #define _(msgid) gettext (msgid)
 #define N_(msgid) msgid
 
-#include "error.h"
+#include "err.h"
 #include "xalloc.h"
 
 #ifndef EXIT_FAILURE
@@ -57,11 +57,7 @@ xalloc_die (void)
 {
   if (xalloc_fail_func)
     (*xalloc_fail_func) ();
-  error (xalloc_exit_failure, 0, "%s", _(xalloc_msg_memory_exhausted));
-  /* The `noreturn' cannot be given to error, since it may return if
-     its first argument is 0.  To help compilers understand the
-     xalloc_die does terminate, call exit. */
-  exit (EXIT_FAILURE);
+  err (xalloc_exit_failure, "%s", _(xalloc_msg_memory_exhausted));
 }
 
 /* Allocate N bytes of memory dynamically, with error checking.  */
