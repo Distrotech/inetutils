@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -35,6 +31,9 @@
 static char sccsid[] = "@(#)genget.c	8.2 (Berkeley) 5/30/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <ctype.h>
 
@@ -49,22 +48,22 @@ static char sccsid[] = "@(#)genget.c	8.2 (Berkeley) 5/30/95";
 isprefix(s1, s2)
 	register char *s1, *s2;
 {
-	register int n = 0;
-	char *os1;
+        register int n = 0;
+        char *os1;
 	register char c1, c2;
 
-	if (*s1 == '\0')
-		return(-1);
-	os1 = s1;
+        if (*s1 == '\0')
+                return(-1);
+        os1 = s1;
 	c1 = *s1;
 	c2 = *s2;
-	while (LOWER(c1) == LOWER(c2)) {
+        while (LOWER(c1) == LOWER(c2)) {
 		if (c1 == '\0')
 			break;
-		c1 = *++s1;
-		c2 = *++s2;
-	}
-	return(*s1 ? 0 : (*s2 ? (s1 - os1) : (os1 - s1)));
+                c1 = *++s1;
+                c2 = *++s2;
+        }
+        return(*s1 ? 0 : (*s2 ? (s1 - os1) : (os1 - s1)));
 }
 
 static char *ambiguous;		/* special return value for command routines */

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -224,7 +220,7 @@ main(argc, argv)
 	}
 #endif
 
-	/* 
+	/*
 	 * We assusme we're incoked by inetd, so the socket that the connection
 	 * is on, is open on descriptor 0, 1 and 2.
 	 * STD{IN,OUT,ERR}_FILENO
@@ -813,7 +809,7 @@ do_krb_login(dest)
 	/* returns nonzero for no access */
 	if (kuserok(kdata, lusername) != 0)
 		return (-1);
-	
+
 	return (0);
 
 }

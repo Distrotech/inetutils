@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -37,6 +33,15 @@
 # define BSD 43
 #endif
 
+#ifdef HAVE_TERMIOS_H
+#define USE_TERMIO
+#else /* !HAVE_TERMIOS_H */
+#ifdef HAVE_TERMIO_H
+#define USE_TERMIO
+#define SYSV_TERMIO
+#endif
+#endif /* HAVE_TERMIOS_H */
+
 /*
  * ucb stdio.h defines BSD as something wierd
  */
@@ -55,9 +60,8 @@
 #if defined(CRAY) && !defined(NO_BSD_SETJMP)
 #include <bsdsetjmp.h>
 #endif
-#ifndef	FILIO_H
 #include <sys/ioctl.h>
-#else
+#ifdef HAVE_SYS_FILIO_H
 #include <sys/filio.h>
 #endif
 #ifdef CRAY
@@ -66,10 +70,9 @@
 #ifdef	USE_TERMIO
 # ifndef	VINTR
 #  ifdef SYSV_TERMIO
-#   include <sys/termio.h>
+#   include <termio.h>
 #  else
-#   include <sys/termios.h>
-#   define termio termios
+#   include <termios.h>
 #  endif
 # endif
 #endif
@@ -79,6 +82,10 @@ typedef char cc_t;
 # else
 typedef unsigned char cc_t;
 # endif
+#endif
+
+#if defined (USE_TERMIO) && !defined (SYSV_TERMIO)
+# define termio termios
 #endif
 
 #ifndef	NO_STRING_H
@@ -119,12 +126,12 @@ extern int
     flushout,		/* flush output */
     connected,		/* Are we connected to the other side? */
     globalmode,		/* Mode tty should be in */
-    In3270,		/* Are we in 3270 mode? */
+    In3270,			/* Are we in 3270 mode? */
     telnetport,		/* Are we connected to the telnet port? */
     localflow,		/* Flow control handled locally */
     restartany,		/* If flow control, restart output on any character */
     localchars,		/* we recognize interrupt/quit */
-    donelclchars,	/* the user has set "localchars" */
+    donelclchars,		/* the user has set "localchars" */
     showoptions,
     net,		/* Network file descriptor */
     tin,		/* Terminal input file descriptor */
@@ -138,13 +145,11 @@ extern int
     crmod,
     netdata,		/* Print out network data flow */
     prettydump,		/* Print "netdata" output in user readable format */
-#if	defined(unix)
 #if	defined(TN3270)
     cursesdata,		/* Print out curses data flow */
     apitrace,		/* Trace API transactions */
 #endif	/* defined(TN3270) */
     termdata,		/* Print out terminal data flow */
-#endif	/* defined(unix) */
     debug;		/* Debug level */
 
 extern cc_t escape;	/* Escape to command mode */

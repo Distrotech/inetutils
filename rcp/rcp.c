@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -399,10 +395,10 @@ tolocal(argc, argv)
 		if ((bp = malloc(len)) == NULL)
 			err(1, NULL);
 		(void)snprintf(bp, len, "%s -f %s", cmd, src);
-		rem = 
+		rem =
 #ifdef KERBEROS
-		    use_kerberos ? 
-			kerberos(&host, bp, pwd->pw_name, suser) : 
+		    use_kerberos ?
+			kerberos(&host, bp, pwd->pw_name, suser) :
 #endif
 			rcmd(&host, port, pwd->pw_name, suser, bp, 0);
 		(void)free(bp);
@@ -805,7 +801,7 @@ bad:			run_err("%s: %s", np, strerror(errno));
 					j = write(ofd, bp->buf, count);
 					if (j != count) {
 						wrerr = YES;
-						wrerrno = j >= 0 ? EIO : errno; 
+						wrerrno = j >= 0 ? EIO : errno;
 					}
 				}
 				count = 0;
@@ -815,7 +811,7 @@ bad:			run_err("%s: %s", np, strerror(errno));
 		if (count != 0 && wrerr == NO &&
 		    (j = write(ofd, bp->buf, count)) != count) {
 			wrerr = YES;
-			wrerrno = j >= 0 ? EIO : errno; 
+			wrerrno = j >= 0 ? EIO : errno;
 		}
 		if (ftruncate(ofd, size)) {
 			run_err("%s: truncate: %s", np, strerror(errno));
@@ -880,9 +876,9 @@ again:
 		errno = 0;
 		if (dest_realm == NULL)
 			dest_realm = krb_realmofhost(*host);
-		rem = 
+		rem =
 #ifdef CRYPT
-		    doencrypt ? 
+		    doencrypt ?
 			krcmd_mutual(host,
 			    port, user, bp, 0, dest_realm, &cred, schedule) :
 #endif

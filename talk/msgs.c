@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -35,12 +31,25 @@
 static char sccsid[] = "@(#)msgs.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
-/* 
+/*
  * A package to display what is happening every MSG_INTERVAL seconds
  * if we are slow connecting.
  */
 
-#include <sys/time.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <signal.h>
 #include <stdio.h>
 #include "talk.h"
@@ -51,7 +60,8 @@ char	*current_state;
 int	current_line = 0;
 
 void
-disp_msg()
+disp_msg(sig)
+  int sig;
 {
 	message(current_state);
 }

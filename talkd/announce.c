@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -79,7 +75,7 @@ extern char *ttymsg ();
 /*
  * Announce an invitation to talk.
  */
-	
+
 #ifndef HAVE_VIS_H
 
 #define VIS_CSTYLE 0		/* dummy value */
@@ -119,7 +115,7 @@ strvis (dst, src, ignored)
 #endif /* !HAVE_VIS_H */
 
 /*
- * See if the user is accepting messages. If so, announce that 
+ * See if the user is accepting messages. If so, announce that
  * a talk is requested.
  */
 announce(request, remote_machine)
@@ -141,7 +137,7 @@ announce(request, remote_machine)
 #define N_CHARS 256
 
 /*
- * Build a block of characters containing the message. 
+ * Build a block of characters containing the message.
  * It is sent blank filled and in a single block to
  * try to keep the message in one piece if the recipient
  * in in vi at the time

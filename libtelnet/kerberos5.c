@@ -26,10 +26,6 @@ char rcsid_kerberos5_c[] = "$Id$";
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -86,7 +82,7 @@ static char sccsid[] = "@(#)kerberos5.c	8.3 (Berkeley) 5/30/95";
 
 /* kerberos 5 include files (ext-proto.h) will get an appropriate stdlib.h
    and string.h/strings.h */
- 
+
 #include "encrypt.h"
 #include "auth.h"
 #include "misc.h"
@@ -206,7 +202,7 @@ kerberos5_send(ap)
 	ksum.contents = sum;
 	ksum.length = sizeof(sum);
 	memset((Voidptr )sum, 0, sizeof(sum));
-	
+
         if (!UserNameRequested) {
                 if (auth_debug_mode) {
                         printf("Kerberos V5: no user name supplied\r\n");
@@ -256,7 +252,7 @@ kerberos5_send(ap)
 		krb5_free_host_realm(realms);
 		return(0);
 	}
-					 
+
 
 	memset((char *)&creds, 0, sizeof(creds));
 	creds.server = server;
@@ -286,7 +282,7 @@ kerberos5_send(ap)
 	    ap_opts = AP_OPTS_MUTUAL_REQUIRED;
 	else
 	    ap_opts = 0;
-	    
+
 	r = krb5_mk_req_extended(ap_opts, &ksum, krb5_kdc_default_options, 0,
 #ifdef	ENCRYPTION
 				 &newkey,
@@ -443,7 +439,7 @@ kerberos5_is(ap, data, cnt)
 			goto errout;
 		    }
 		    Data(ap, KRB_RESPONSE, outbuf.data, outbuf.length);
-		} 
+		}
 		if (krb5_unparse_name(authdat->ticket->enc_part2 ->client,
 				      					&name))
 			name = 0;
@@ -453,7 +449,7 @@ kerberos5_is(ap, data, cnt)
 							name ? name : "");
 		}
                 auth_finished(ap, AUTH_USER);
-		
+
 		free(name);
 	    	if (authdat->authenticator->subkey &&
 		    authdat->authenticator->subkey->keytype == KEYTYPE_DES) {
@@ -467,7 +463,7 @@ kerberos5_is(ap, data, cnt)
 			sizeof(Block));
 		} else
 		    break;
-		
+
 #ifdef ENCRYPTION
 		skey.type = SK_DES;
 		skey.length = 8;
@@ -479,17 +475,17 @@ kerberos5_is(ap, data, cnt)
 	case KRB_FORWARD:
 		inbuf.data = (char *)data;
 		inbuf.length = cnt;
-		if (r = rd_and_store_for_creds(&inbuf, authdat->ticket, 
+		if (r = rd_and_store_for_creds(&inbuf, authdat->ticket,
 					       UserNameRequested)) {
 		    char errbuf[128];
-		    
+
 		    (void) strcpy(errbuf, "Read forwarded creds failed: ");
 		    (void) strcat(errbuf, error_message(r));
 		    Data(ap, KRB_FORWARD_REJECT, errbuf, -1);
 		    if (auth_debug_mode)
 		      printf("Could not read forwarded credentials\r\n");
 		}
-		else 
+		else
 		  Data(ap, KRB_FORWARD_ACCEPT, 0, 0);
 		  if (auth_debug_mode)
 		    printf("Forwarded credentials obtained\r\n");
@@ -694,16 +690,16 @@ kerberos5_forward(ap)
     krb5_ccache ccache;
     int i;
 
-    if (!(local_creds = (krb5_creds *) 
+    if (!(local_creds = (krb5_creds *)
 	  calloc(1, sizeof(*local_creds)))) {
-	if (auth_debug_mode) 
+	if (auth_debug_mode)
 	  printf("Kerberos V5: could not allocate memory for credentials\r\n");
 	return;
     }
 
     if (r = krb5_sname_to_principal(RemoteHostName, "host", 1,
 				    &local_creds->server)) {
-	if (auth_debug_mode) 
+	if (auth_debug_mode)
 	  printf("Kerberos V5: could not build server name - %s\r\n",
 		 error_message(r));
 	krb5_free_creds(local_creds);
@@ -711,7 +707,7 @@ kerberos5_forward(ap)
     }
 
     if (r = krb5_cc_default(&ccache)) {
-	if (auth_debug_mode) 
+	if (auth_debug_mode)
 	  printf("Kerberos V5: could not get default ccache - %s\r\n",
 		 error_message(r));
 	krb5_free_creds(local_creds);
@@ -719,7 +715,7 @@ kerberos5_forward(ap)
     }
 
     if (r = krb5_cc_get_principal(ccache, &local_creds->client)) {
-	if (auth_debug_mode) 
+	if (auth_debug_mode)
 	  printf("Kerberos V5: could not get default principal - %s\r\n",
 		 error_message(r));
 	krb5_free_creds(local_creds);
@@ -728,7 +724,7 @@ kerberos5_forward(ap)
 
     /* Get ticket from credentials cache */
     if (r = krb5_get_credentials(KRB5_GC_CACHED, ccache, local_creds)) {
-	if (auth_debug_mode) 
+	if (auth_debug_mode)
 	  printf("Kerberos V5: could not obtain credentials - %s\r\n",
 		 error_message(r));
 	krb5_free_creds(local_creds);
@@ -742,13 +738,13 @@ kerberos5_forward(ap)
 			  &local_creds->keyblock,
 			  forward_flags & OPTS_FORWARDABLE_CREDS,
 			  &forw_creds)) {
-	if (auth_debug_mode) 
+	if (auth_debug_mode)
 	  printf("Kerberos V5: error getting forwarded creds - %s\r\n",
 		 error_message(r));
 	krb5_free_creds(local_creds);
 	return;
     }
-    
+
     /* Send forwarded credentials */
     if (!Data(ap, KRB_FORWARD, forw_creds.data, forw_creds.length)) {
 	if (auth_debug_mode)

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -36,46 +32,67 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 /*
- * This file contains the I/O handling and the exchange of 
+ * This file contains the I/O handling and the exchange of
  * edit characters. This connection itself is established in
  * ctl.c
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <sys/types.h>
 #include <sys/ioctl.h>
-#include <sys/time.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 #include "talk.h"
 
 #define A_LONG_TIME 10000000
-#define STDIN_MASK (1<<fileno(stdin))	/* the bit mask for standard
-					   input */
 
 /*
  * The routine to do the actual talking
  */
 talk()
 {
-	register int read_template, sockt_mask;
-	int read_set, nb;
+	fd_set read_template, read_set;
+	int stdin_fd = fileno (stdin);
+	int nb, num_fds;
 	char buf[BUFSIZ];
 	struct timeval wait;
 
 	message("Connection established\007\007\007");
 	current_line = 0;
-	sockt_mask = (1<<sockt);
 
 	/*
-	 * Wait on both the other process (sockt_mask) and 
-	 * standard input ( STDIN_MASK )
+	 * Wait on both the other process (SOCKET) and stdin.
 	 */
-	read_template = sockt_mask | STDIN_MASK;
+	FD_ZERO (&read_template);
+	FD_SET (sockt, &read_template);
+	FD_SET (stdin_fd, &read_template);
+	num_fds = (stdin_fd > sockt ? stdin_fd : sockt) + 1;
+
 	for (;;) {
 		read_set = read_template;
 		wait.tv_sec = A_LONG_TIME;
 		wait.tv_usec = 0;
-		nb = select(32, &read_set, 0, 0, &wait);
+		nb = select (num_fds, &read_set, 0, 0, &wait);
 		if (nb <= 0) {
 			if (errno == EINTR) {
 				read_set = read_template;
@@ -85,7 +102,7 @@ talk()
 			p_error("Unexpected error from select");
 			quit();
 		}
-		if (read_set & sockt_mask) { 
+		if (FD_ISSET (sockt, &read_set)) {
 			/* There is data on sockt */
 			nb = read(sockt, buf, sizeof buf);
 			if (nb <= 0) {
@@ -94,7 +111,7 @@ talk()
 			}
 			display(&his_win, buf, nb);
 		}
-		if (read_set & STDIN_MASK) {
+		if (FD_ISSET (stdin_fd, &read_set)) {
 			/*
 			 * We can't make the tty non_blocking, because
 			 * curses's output routines would screw up
@@ -115,7 +132,7 @@ extern	int sys_nerr;
  * p_error prints the system error message on the standard location
  * on the screen and then exits. (i.e. a curses version of perror)
  */
-p_error(string) 
+p_error(string)
 	char *string;
 {
 	wmove(my_win.x_win, current_line%my_win.x_nlines, 0);

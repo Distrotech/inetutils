@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -344,7 +340,7 @@ va_dcl
 #endif
 		if (strncmp("PASS ", fmt, 5) == 0)
 			printf("PASS XXXX");
-		else 
+		else
 			vfprintf(stdout, fmt, ap);
 		va_end(ap);
 		printf("\n");
@@ -675,7 +671,7 @@ sendrequest(cmd, local, remote, printnames)
 		if (c < 0)
 			warn("local: %s", local);
 		if (d < 0) {
-			if (errno != EPIPE) 
+			if (errno != EPIPE)
 				warn("netout");
 			bytes = -1;
 		}
@@ -699,7 +695,7 @@ sendrequest(cmd, local, remote, printnames)
 	/*		if (c == '\r') {			  	*/
 	/*		(void)	putc('\0', dout);  // this violates rfc */
 	/*			bytes++;				*/
-	/*		}                          			*/	
+	/*		}                          			*/
 		}
 		if (hash) {
 			if (bytes < hashbytes)
@@ -1097,7 +1093,7 @@ initconn()
 noport:
 	data_addr = myctladdr;
 	if (sendport)
-		data_addr.sin_port = 0;	/* let system pick one */ 
+		data_addr.sin_port = 0;	/* let system pick one */
 	if (data != -1)
 		(void) close(data);
 	data = socket(AF_INET, SOCK_STREAM, 0);
@@ -1559,7 +1555,7 @@ abort_remote(din)
 	(void) fflush(cout);
 	FD_ZERO(&mask);
 	FD_SET(fileno(cin), &mask);
-	if (din) { 
+	if (din) {
 		FD_SET(fileno(din), &mask);
 	}
 	if ((nfnd = empty(&mask, 10)) <= 0) {

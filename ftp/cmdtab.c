@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -34,6 +30,10 @@
 #ifndef lint
 static char sccsid[] = "@(#)cmdtab.c	8.4 (Berkeley) 10/9/94";
 #endif /* not lint */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <stdio.h>
 #include "ftp_var.h"
@@ -133,7 +133,7 @@ struct cmd cmdtab[] = {
 	{ "glob",	globhelp,	0,	0,	0,	setglob },
 	{ "hash",	hashhelp,	0,	0,	0,	sethash },
 	{ "help",	helphelp,	0,	0,	1,	help },
-	{ "idle",	idlehelp,	0,	1,	1,	idle },
+	{ "idle",	idlehelp,	0,	1,	1,	site_idle },
 	{ "image",	binaryhelp,	0,	1,	1,	setbinary },
 	{ "lcd",	lcdhelp,	0,	0,	0,	lcd },
 	{ "ls",		lshelp,		1,	1,	1,	ls },

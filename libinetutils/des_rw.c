@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -74,7 +70,7 @@ des_clear_key()
 	bzero((char *) key, sizeof(C_Block));
 	bzero((char *) key_schedule, sizeof(Key_schedule));
 }
-	
+
 
 int
 des_read(fd, buf, len)
@@ -98,7 +94,7 @@ des_read(fd, buf, len)
 		len -= nstored;
 		nstored = 0;
 	}
-	
+
 	if (krb_net_read(fd, (char *)&net_len, sizeof(net_len)) !=
 	    sizeof(net_len)) {
 		/* XXX can't read enough, pipe
@@ -141,7 +137,7 @@ des_read(fd, buf, len)
 		nreturned += nstored;
 		nstored = 0;
 	}
-	
+
 	return(nreturned);
 }
 

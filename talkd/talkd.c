@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -43,22 +39,40 @@ static char sccsid[] = "@(#)talkd.c	8.1 (Berkeley) 6/4/93";
 
 /*
  * The top level of the daemon, the format is heavily borrowed
- * from rwhod.c. Basically: find out who and where you are; 
+ * from rwhod.c. Basically: find out who and where you are;
  * disconnect all descriptors and ttys, and then endless
  * loop on waiting for and processing requests
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
+#ifdef HAVE_OSOCKADDR_H
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <signal.h>
 #include <syslog.h>
-#include <time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <paths.h>
+
+extern char *localhost ();
 
 CTL_MSG		request;
 CTL_RESPONSE	response;
@@ -68,7 +82,7 @@ int	debug = 0;
 void	timeout();
 long	lastmsgtime;
 
-char	hostname[32];
+char	*hostname;
 
 #define TIMEOUT 30
 #define MAXIDLE 120
@@ -85,12 +99,13 @@ main(argc, argv)
 		exit(1);
 	}
 	openlog("talkd", LOG_PID, LOG_DAEMON);
-	if (gethostname(hostname, sizeof (hostname) - 1) < 0) {
-		syslog(LOG_ERR, "gethostname: %m");
+	hostname = localhost ();
+	if (! hostname) {
+		syslog(LOG_ERR, "localhost: %m");
 		_exit(1);
 	}
-	if (chdir(_PATH_DEV) < 0) {
-		syslog(LOG_ERR, "chdir: %s: %m", _PATH_DEV);
+	if (chdir(PATH_DEV) < 0) {
+		syslog(LOG_ERR, "chdir: %s: %m", PATH_DEV);
 		_exit(1);
 	}
 	if (argc > 1 && strcmp(argv[1], "-d") == 0)

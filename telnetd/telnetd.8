@@ -9,10 +9,6 @@
 .\" 2. Redistributions in binary form must reproduce the above copyright
 .\"    notice, this list of conditions and the following disclaimer in the
 .\"    documentation and/or other materials provided with the distribution.
-.\" 3. All advertising materials mentioning features or use of this software
-.\"    must display the following acknowledgement:
-.\"	This product includes software developed by the University of
-.\"	California, Berkeley and its contributors.
 .\" 4. Neither the name of the University nor the names of its contributors
 .\"    may be used to endorse or promote products derived from this software
 .\"    without specific prior written permission.
@@ -74,7 +70,7 @@ option may be used to start up
 .Nm telnetd
 manually, instead of through
 .Xr inetd 8 .
-If started up this way, 
+If started up this way,
 .Ar port
 may be specified to run
 .Nm telnetd
@@ -154,7 +150,7 @@ to print out debugging information
 to the connection, allowing the user to see what
 .Nm telnetd
 is doing.
-There are several possible values for 
+There are several possible values for
 .Ar debugmode:
 .Bl -tag -width exercise
 .It Cm options
@@ -162,7 +158,7 @@ Prints information about the negotiation of
 .Tn TELNET
 options.
 .It Cm report
-Prints the 
+Prints the
 .Cm options
 information, plus some additional information
 about what processing is going on.
@@ -333,7 +329,7 @@ a specific authentication type without having to recompile
 operates by allocating a pseudo-terminal device (see
 .Xr pty 4 )
 for a client, then creating a login process which has
-the slave side of the pseudo-terminal as 
+the slave side of the pseudo-terminal as
 .Dv stdin ,
 .Dv stdout
 and
@@ -347,7 +343,7 @@ between the remote client and the login process.
 .Pp
 When a
 .Tn TELNET
-session is started up, 
+session is started up,
 .Nm telnetd
 sends
 .Tn TELNET

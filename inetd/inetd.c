@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -56,7 +52,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
  * to receive further messages on, or ``take over the socket'',
  * processing all arriving datagrams and, eventually, timing
  * out.	 The first type of server is said to be ``multi-threaded'';
- * the second type of server ``single-threaded''. 
+ * the second type of server ``single-threaded''.
  *
  * Inetd uses a configuration file which is read at startup
  * and, possibly, at some later time in response to a hangup signal.
@@ -260,7 +256,7 @@ main(argc, argv, envp)
 #ifdef HAVE_SIGVEC
 	struct sigvec sv;
 #endif
-#endif	
+#endif
 	int tmpint, ch, dofork;
 	pid_t pid;
 	char buf[50];
@@ -540,7 +536,7 @@ main(argc, argv, envp)
 				if (pwd->pw_uid) {
 					if (setgid(pwd->pw_gid) < 0) {
 						syslog(LOG_ERR,
-						  "%s: can't set gid %d: %m", 
+						  "%s: can't set gid %d: %m",
 						  sep->se_service, pwd->pw_gid);
 						_exit(1);
 					}
@@ -548,7 +544,7 @@ main(argc, argv, envp)
 							pwd->pw_gid);
 					if (setuid(pwd->pw_uid) < 0) {
 						syslog(LOG_ERR,
-						  "%s: can't set uid %d: %m", 
+						  "%s: can't set uid %d: %m",
 						  sep->se_service, pwd->pw_uid);
 						_exit(1);
 					}
@@ -584,7 +580,7 @@ reapchild(signo)
 		if (pid <= 0)
 			break;
 		if (debug)
-			fprintf(stderr, "%d reaped, status %#x\n", 
+			fprintf(stderr, "%d reaped, status %#x\n",
 				pid, status);
 		for (sep = servtab; sep; sep = sep->se_next)
 			if (sep->se_wait == pid) {
@@ -647,10 +643,10 @@ config(signo)
 			/*
 			 * sep->se_wait may be holding the pid of a daemon
 			 * that we're waiting for.  If so, don't overwrite
-			 * it unless the config file explicitly says don't 
+			 * it unless the config file explicitly says don't
 			 * wait.
 			 */
-			if (cp->se_bi == 0 && 
+			if (cp->se_bi == 0 &&
 			    (sep->se_wait == 1 || cp->se_wait == 0))
 				sep->se_wait = cp->se_wait;
 #define SWAP(a, b) { char *c = a; a = b; b = c; }
@@ -748,7 +744,7 @@ setup(sep)
 
 	if ((sep->se_fd = socket(AF_INET, sep->se_socktype, 0)) < 0) {
 		if (debug)
-			fprintf(stderr, "socket failed on %s/%s: %s\n", 
+			fprintf(stderr, "socket failed on %s/%s: %s\n",
 				sep->se_service, sep->se_proto,
 				strerror(errno));
 		syslog(LOG_ERR, "%s/%s: socket: %m",
@@ -979,13 +975,13 @@ more:
 		sep->se_wait = 0;
 
 		if (strcmp(sep->se_proto, "tcp")) {
-			syslog(LOG_ERR, 
+			syslog(LOG_ERR,
 				"%s: bad protocol for tcpmux service %s",
 				CONFIG, sep->se_service);
 			goto more;
 		}
 		if (sep->se_socktype != SOCK_STREAM) {
-			syslog(LOG_ERR, 
+			syslog(LOG_ERR,
 				"%s: bad socket type for tcpmux service %s",
 				CONFIG, sep->se_service);
 			goto more;
@@ -1123,9 +1119,9 @@ set_proc_title(a, s)
 	cp = Argv[0];
 	size = sizeof(sin);
 	if (getpeername(s, (struct sockaddr *)&sin, &size) == 0)
-		snprintf (buf, sizeof buf, "-%s [%s]", a, inet_ntoa(sin.sin_addr)); 
+		snprintf (buf, sizeof buf, "-%s [%s]", a, inet_ntoa(sin.sin_addr));
 	else
-		snprintf (buf, sizeof buf, "-%s", a); 
+		snprintf (buf, sizeof buf, "-%s", a);
 	strncpy(cp, buf, LastArg - cp);
 	cp += strlen(cp);
 	while (cp < LastArg)

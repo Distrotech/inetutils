@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -232,7 +228,7 @@ TerminalSpecialChars(c)
 /*
  * Flush output to the terminal
  */
- 
+
     void
 TerminalFlushOutput()
 {
@@ -691,7 +687,7 @@ TerminalNewMode(f)
 	  sigaddset(&sigs, SIGTSTP);
 	  sigprocmask(SIG_UNBLOCK, &sigs, 0);
 	}
-# else	
+# else
 	(void) sigsetmask(sigblock(0) & ~(1<<(SIGTSTP-1)));
 # endif /* HAVE_SIGACTION */
 #endif	/* SIGTSTP */
@@ -1017,7 +1013,7 @@ process_rings(netin, netout, netex, ttyin, ttyout, poll)
 
     if (netout) {
 	FD_SET(net, &obits);
-    } 
+    }
     if (ttyout) {
 	FD_SET(tout, &obits);
     }

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -40,9 +36,23 @@ static char sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
 /*
  * TFTP User Program -- Protocol Machines
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 
 #include <netinet/in.h>
 
@@ -52,12 +62,19 @@ static char sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
 #include <setjmp.h>
 #include <signal.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "extern.h"
 #include "tftpsubs.h"
 
+#ifndef HAVE_ERRNO_DECL
 extern	int errno;
+#endif
+
+#ifndef HAVE_STRERROR_DECL
+extern const char *strerror __P ((int));
+#endif
 
 extern  struct sockaddr_in peeraddr;	/* filled in by main */
 extern  int     f;			/* the opened socket */
@@ -69,7 +86,6 @@ extern  int     maxtimeout;
 #define PKTSIZE    SEGSIZE+4
 char    ackbuf[PKTSIZE];
 int	timeout;
-jmp_buf	toplevel;
 jmp_buf	timeoutbuf;
 
 static void nak __P((int));
@@ -125,7 +141,7 @@ sendfile(fd, name, mode)
 send_data:
 		if (trace)
 			tpacket("sent", dp, size + 4);
-		n = sendto(f, dp, size + 4, 0,
+		n = sendto(f, (const char *)dp, size + 4, 0,
 		    (struct sockaddr *)&peeraddr, sizeof(peeraddr));
 		if (n != size + 4) {
 			perror("tftp: sendto");
@@ -240,7 +256,7 @@ send_ack:
 			alarm(rexmtval);
 			do  {
 				fromlen = sizeof(from);
-				n = recvfrom(f, dp, PKTSIZE, 0,
+				n = recvfrom(f, (char *)dp, PKTSIZE, 0,
 				    (struct sockaddr *)&from, &fromlen);
 			} while (n <= 0);
 			alarm(0);
@@ -319,7 +335,7 @@ makerequest(request, name, tp, mode)
 
 struct errmsg {
 	int	e_code;
-	char	*e_msg;
+	const char *e_msg;
 } errmsgs[] = {
 	{ EUNDEF,	"Undefined error code" },
 	{ ENOTFOUND,	"File not found" },
@@ -345,7 +361,6 @@ nak(error)
 	register struct errmsg *pe;
 	register struct tftphdr *tp;
 	int length;
-	char *strerror();
 
 	tp = (struct tftphdr *)ackbuf;
 	tp->th_opcode = htons((u_short)ERROR);
@@ -376,7 +391,6 @@ tpacket(s, tp, n)
 	   { "#0", "RRQ", "WRQ", "DATA", "ACK", "ERROR" };
 	register char *cp, *file;
 	u_short op = ntohs(tp->th_opcode);
-	char *index();
 
 	if (op < RRQ || op > ERROR)
 		printf("%s opcode=%x ", s, op);
@@ -388,7 +402,7 @@ tpacket(s, tp, n)
 	case WRQ:
 		n -= 2;
 		file = cp = tp->th_stuff;
-		cp = index(cp, '\0');
+		cp = strchr (cp, '\0');
 		printf("<file=%s, mode=%s>\n", file, cp + 1);
 		break;
 

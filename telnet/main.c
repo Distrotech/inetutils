@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -73,7 +69,7 @@ tninit()
     init_terminal();
 
     init_network();
-    
+
     init_telnet();
 
     init_sys();
@@ -274,7 +270,7 @@ main(argc, argv)
 		case 'f':
 #if defined(AUTHENTICATION) && defined(KRB5) && defined(FORWARD)
 			if (forward_flags & OPTS_FORWARD_CREDS) {
-			    fprintf(stderr, 
+			    fprintf(stderr,
 				    "%s: Only one of -f and -F allowed.\n",
 				    prompt);
 			    help (0);
@@ -282,14 +278,14 @@ main(argc, argv)
 			forward_flags |= OPTS_FORWARD_CREDS;
 #else
 			fprintf(stderr,
-			 "%s: Warning: -f ignored, no Kerberos V5 support.\n", 
+			 "%s: Warning: -f ignored, no Kerberos V5 support.\n",
 				prompt);
 #endif
 			break;
 		case 'F':
 #if defined(AUTHENTICATION) && defined(KRB5) && defined(FORWARD)
 			if (forward_flags & OPTS_FORWARD_CREDS) {
-			    fprintf(stderr, 
+			    fprintf(stderr,
 				    "%s: Only one of -f and -F allowed.\n",
 				    prompt);
 			    help (0);
@@ -298,7 +294,7 @@ main(argc, argv)
 			forward_flags |= OPTS_FORWARDABLE_CREDS;
 #else
 			fprintf(stderr,
-			 "%s: Warning: -F ignored, no Kerberos V5 support.\n", 
+			 "%s: Warning: -F ignored, no Kerberos V5 support.\n",
 				prompt);
 #endif
 			break;

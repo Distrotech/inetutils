@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -452,7 +448,7 @@ main(argc, argv)
 				printline(cvthname(&frominet), line);
 			} else if (i < 0 && errno != EINTR)
 				logerror("recvfrom inet");
-		} 
+		}
 	}
 }
 
@@ -471,7 +467,7 @@ Start system log daemon.
   -p FILE        Specify the pathname of an alternate log socket instead of
                  the default " PATH_LOG ".
   -V             Print version information and exit.
-  
+
 Report bugs to %s.\n", inetutils_bugaddr);
 	exit(1);
 }
@@ -584,7 +580,7 @@ logmsg(pri, msg, from, flags)
 #else
 	int omask;
 #endif
-	
+
 	const char *timestamp;
 
 	dprintf("logmsg: pri %o, flags %x, from %s, msg %s\n",
@@ -792,7 +788,7 @@ fprintlog(f, from, flags, msg)
 				"time left: %d\n",
 				INET_SUSPEND_TIME - fwd_suspend);
 		break;
-		
+
 	case F_FORW:
 	f_forw:
 		dprintf(" %s\n", f->f_un.f_forw.f_hname);
@@ -845,7 +841,7 @@ fprintlog(f, from, flags, msg)
 			/* XXX: If a named pipe is full, ignore it. */
 			if (f->f_type == F_PIPE && e == EAGAIN)
 				break;
-		
+
 			(void)close(f->f_file);
 			/*
 			 * Check for errors on TTY's due to loss of tty
@@ -973,7 +969,7 @@ cvthname(f)
 	for (p = hp->h_name; *p ; p++)
 		if (isupper(*p))
 			*p = tolower(*p);
-	                                        
+
 	if ((p = strchr(hp->h_name, '.')) && strcmp(p + 1, LocalDomain) == 0)
 		*p = '\0';
 	return (hp->h_name);

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -37,8 +33,15 @@ static char sccsid[] = "@(#)print.c	8.1 (Berkeley) 6/4/93";
 
 /* debug print routines */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
+#ifdef HAVE_OSOCKADDR_H
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <syslog.h>
 #include <stdio.h>
@@ -46,7 +49,7 @@ static char sccsid[] = "@(#)print.c	8.1 (Berkeley) 6/4/93";
 static	char *types[] =
     { "leave_invite", "look_up", "delete", "announce" };
 #define	NTYPES	(sizeof (types) / sizeof (types[0]))
-static	char *answers[] = 
+static	char *answers[] =
     { "success", "not_here", "failed", "machine_unknown", "permission_denied",
       "unknown_request", "badversion", "badaddr", "badctladdr" };
 #define	NANSWERS	(sizeof (answers) / sizeof (answers[0]))
@@ -56,7 +59,7 @@ print_request(cp, mp)
 	register CTL_MSG *mp;
 {
 	char tbuf[80], *tp;
-	
+
 	if (mp->type > NTYPES) {
 		(void)sprintf(tbuf, "type %d", mp->type);
 		tp = tbuf;
@@ -71,7 +74,7 @@ print_response(cp, rp)
 	register CTL_RESPONSE *rp;
 {
 	char tbuf[80], *tp, abuf[80], *ap;
-	
+
 	if (rp->type > NTYPES) {
 		(void)sprintf(tbuf, "type %d", rp->type);
 		tp = tbuf;

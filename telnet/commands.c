@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -35,27 +31,46 @@
 static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #endif /* not lint */
 
-#if	defined(unix)
-#include <sys/param.h>
-#if	defined(CRAY) || defined(sysV88)
-#include <sys/types.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
+
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
 #include <sys/file.h>
-#else
-#include <sys/types.h>
-#endif	/* defined(unix) */
+
 #include <sys/socket.h>
 #include <netinet/in.h>
-#ifdef	CRAY
-#include <fcntl.h>
+
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
 #endif	/* CRAY */
 
 #include <signal.h>
 #include <netdb.h>
 #include <ctype.h>
 #include <pwd.h>
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#include <stdarg.h>
+#else
 #include <varargs.h>
+#endif
 #include <errno.h>
+
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
 
 #include <arpa/telnet.h>
 
@@ -68,24 +83,24 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #include "types.h"
 
 #if !defined(CRAY) && !defined(sysV88)
+#ifdef HAVE_NETINET_IN_SYSTM_H
 #include <netinet/in_systm.h>
+#endif
 # if (defined(vax) || defined(tahoe) || defined(hp300)) && !defined(ultrix)
 # include <machine/endian.h>
 # endif /* vax */
 #endif /* !defined(CRAY) && !defined(sysV88) */
+
+#ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
-
-
-#ifndef	MAXHOSTNAMELEN
-#define	MAXHOSTNAMELEN 64
-#endif	MAXHOSTNAMELEN
+#endif
 
 #if	defined(IPPROTO_IP) && defined(IP_TOS)
 int tos = -1;
 #endif	/* defined(IPPROTO_IP) && defined(IP_TOS) */
 
 char	*hostname;
-static char _hostname[MAXHOSTNAMELEN];
+static char *_hostname = 0;
 
 extern char *getenv();
 
@@ -93,7 +108,8 @@ extern int isprefix();
 extern char **genget();
 extern int Ambiguous();
 
-static call();
+typedef int (*intrtn_t) __P((int, char *[]));
+static call __P((intrtn_t, ...));
 
 typedef struct {
 	char	*name;		/* command name */
@@ -747,13 +763,11 @@ static struct togglelist Togglelist[] = {
 	    0,
 		&showoptions,
 		    "show option processing" },
-#if	defined(unix)
     { "termdata",
 	"(debugging) toggle printing of hexadecimal terminal data",
 	    0,
 		&termdata,
 		    "print hexadecimal representation of terminal traffic" },
-#endif	/* defined(unix) */
     { "?",
 	0,
 	    togglehelp },
@@ -1139,13 +1153,13 @@ dolmmode(bit, on)
 }
 
     int
-setmode(bit)
+set_mode(bit)
 {
     return dolmmode(bit, 1);
 }
 
     int
-clearmode(bit)
+clear_mode(bit)
 {
     return dolmmode(bit, 0);
 }
@@ -1171,18 +1185,18 @@ static struct modelist ModeList[] = {
 #endif
     { "", "", 0 },
     { "",	"These require the LINEMODE option to be enabled", 0 },
-    { "isig",	"Enable signal trapping",	setmode, 1, MODE_TRAPSIG },
-    { "+isig",	0,				setmode, 1, MODE_TRAPSIG },
-    { "-isig",	"Disable signal trapping",	clearmode, 1, MODE_TRAPSIG },
-    { "edit",	"Enable character editing",	setmode, 1, MODE_EDIT },
-    { "+edit",	0,				setmode, 1, MODE_EDIT },
-    { "-edit",	"Disable character editing",	clearmode, 1, MODE_EDIT },
-    { "softtabs", "Enable tab expansion",	setmode, 1, MODE_SOFT_TAB },
-    { "+softtabs", 0,				setmode, 1, MODE_SOFT_TAB },
-    { "-softtabs", "Disable character editing",	clearmode, 1, MODE_SOFT_TAB },
-    { "litecho", "Enable literal character echo", setmode, 1, MODE_LIT_ECHO },
-    { "+litecho", 0,				setmode, 1, MODE_LIT_ECHO },
-    { "-litecho", "Disable literal character echo", clearmode, 1, MODE_LIT_ECHO },
+    { "isig",	"Enable signal trapping",	set_mode, 1, MODE_TRAPSIG },
+    { "+isig",	0,				set_mode, 1, MODE_TRAPSIG },
+    { "-isig",	"Disable signal trapping",	clear_mode, 1, MODE_TRAPSIG },
+    { "edit",	"Enable character editing",	set_mode, 1, MODE_EDIT },
+    { "+edit",	0,				set_mode, 1, MODE_EDIT },
+    { "-edit",	"Disable character editing",	clear_mode, 1, MODE_EDIT },
+    { "softtabs", "Enable tab expansion",	set_mode, 1, MODE_SOFT_TAB },
+    { "+softtabs", 0,				set_mode, 1, MODE_SOFT_TAB },
+    { "-softtabs", "Disable character editing",	clear_mode, 1, MODE_SOFT_TAB },
+    { "litecho", "Enable literal character echo", set_mode, 1, MODE_LIT_ECHO },
+    { "+litecho", 0,				set_mode, 1, MODE_LIT_ECHO },
+    { "-litecho", "Disable literal character echo", clear_mode, 1, MODE_LIT_ECHO },
     { "help",	0,				modehelp, 0 },
 #ifdef	KLUDGELINEMODE
     { "kludgeline", 0,				dokludgemode, 1 },
@@ -1403,7 +1417,9 @@ shell(argc, argv)
 	     * Fire up the shell in the child.
 	     */
 	    register char *shellp, *shellname;
+#ifndef strrchr
 	    extern char *strrchr();
+#endif
 
 	    shellp = getenv("SHELL");
 	    if (shellp == NULL)
@@ -1544,14 +1560,14 @@ slccmd(argc, argv)
     }
     c = getslc(argv[1]);
     if (c == 0) {
-	fprintf(stderr, "'%s': unknown argument ('slc ?' for help).\n",
+        fprintf(stderr, "'%s': unknown argument ('slc ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     if (Ambiguous(c)) {
-	fprintf(stderr, "'%s': ambiguous argument ('slc ?' for help).\n",
+        fprintf(stderr, "'%s': ambiguous argument ('slc ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     (*c->handler)(c->arg);
     slcstate();
@@ -1640,14 +1656,14 @@ env_cmd(argc, argv)
     }
     c = getenvcmd(argv[1]);
     if (c == 0) {
-	fprintf(stderr, "'%s': unknown argument ('environ ?' for help).\n",
+        fprintf(stderr, "'%s': unknown argument ('environ ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     if (Ambiguous(c)) {
-	fprintf(stderr, "'%s': ambiguous argument ('environ ?' for help).\n",
+        fprintf(stderr, "'%s': ambiguous argument ('environ ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     if (c->narg + 2 != argc) {
 	fprintf(stderr,
@@ -1690,7 +1706,9 @@ env_init()
 	extern char **environ;
 	register char **epp, *cp;
 	register struct env_lst *ep;
+#ifndef strchr
 	extern char *strchr();
+#endif
 
 	for (epp = environ; *epp; epp++) {
 		if (cp = strchr(*epp, '=')) {
@@ -1708,16 +1726,18 @@ env_init()
 	 */
 	if ((ep = env_find("DISPLAY"))
 	    && ((*ep->value == ':')
-		|| (strncmp((char *)ep->value, "unix:", 5) == 0))) {
-		char hbuf[256+1];
+	        || (strncmp((char *)ep->value, "unix:", 5) == 0))) {
+		extern char *localhost ();
+		char *hostname = localhost ();
 		char *cp2 = strchr((char *)ep->value, ':');
 
-		gethostname(hbuf, 256);
-		hbuf[256] = '\0';
-		cp = (char *)malloc(strlen(hbuf) + strlen(cp2) + 1);
-		sprintf((char *)cp, "%s%s", hbuf, cp2);
+		cp = malloc(strlen(hostname) + strlen(cp2) + 1);
+		sprintf(cp, "%s%s", hostname, cp2);
+
 		free(ep->value);
 		ep->value = (unsigned char *)cp;
+
+		free (hostname);
 	}
 	/*
 	 * If USER is not defined, but LOGNAME is, then add
@@ -1802,7 +1822,7 @@ env_send(var)
 {
 	register struct env_lst *ep;
 
-	if (my_state_is_wont(TELOPT_NEW_ENVIRON)
+        if (my_state_is_wont(TELOPT_NEW_ENVIRON)
 #ifdef	OLD_ENVIRON
 	    && my_state_is_wont(TELOPT_OLD_ENVIRON)
 #endif
@@ -1964,14 +1984,14 @@ auth_cmd(argc, argv)
     c = (struct authlist *)
 		genget(argv[1], (char **) AuthList, sizeof(struct authlist));
     if (c == 0) {
-	fprintf(stderr, "'%s': unknown argument ('auth ?' for help).\n",
+        fprintf(stderr, "'%s': unknown argument ('auth ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     if (Ambiguous(c)) {
-	fprintf(stderr, "'%s': ambiguous argument ('auth ?' for help).\n",
+        fprintf(stderr, "'%s': ambiguous argument ('auth ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     if (c->narg + 2 != argc) {
 	fprintf(stderr,
@@ -2070,14 +2090,14 @@ encrypt_cmd(argc, argv)
     c = (struct encryptlist *)
 		genget(argv[1], (char **) EncryptList, sizeof(struct encryptlist));
     if (c == 0) {
-	fprintf(stderr, "'%s': unknown argument ('encrypt ?' for help).\n",
+        fprintf(stderr, "'%s': unknown argument ('encrypt ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     if (Ambiguous(c)) {
-	fprintf(stderr, "'%s': ambiguous argument ('encrypt ?' for help).\n",
+        fprintf(stderr, "'%s': ambiguous argument ('encrypt ?' for help).\n",
     				argv[1]);
-	return 0;
+        return 0;
     }
     argc -= 2;
     if (argc < c->minarg || argc > c->maxarg) {
@@ -2234,7 +2254,10 @@ tn(argc, argv)
     unsigned long temp;
     extern char *inet_ntoa();
 #if	defined(IP_OPTIONS) && defined(IPPROTO_IP)
-    char *srp = 0, *strrchr();
+    char *srp = 0;
+#ifndef strrchr
+    char *strrchr();
+#endif
     unsigned long sourceroute(), srlen;
 #endif
     char *cmd, *hostp = 0, *portp = 0, *user = 0;
@@ -2316,8 +2339,18 @@ tn(argc, argv)
 	if (temp != (unsigned long) -1) {
 	    sin.sin_addr.s_addr = temp;
 	    sin.sin_family = AF_INET;
-	    (void) strcpy(_hostname, hostp);
-	    hostname = _hostname;
+
+	    if (_hostname)
+		free (_hostname);
+	    _hostname = malloc (strlen (hostp) + 1);
+	    if (_hostname) {
+		strcpy (_hostname, hostp);
+		hostname = _hostname;
+	    } else {
+		printf ("Can't allocate memory to copy hostname\n");
+		setuid(getuid());
+		return 0;
+	    }
 	} else {
 	    host = gethostbyname(hostp);
 	    if (host) {
@@ -2328,12 +2361,21 @@ tn(argc, argv)
 #else	/* defined(h_addr) */
 		memmove((caddr_t)&sin.sin_addr, host->h_addr, host->h_length);
 #endif	/* defined(h_addr) */
-		strncpy(_hostname, host->h_name, sizeof(_hostname));
-		_hostname[sizeof(_hostname)-1] = '\0';
-		hostname = _hostname;
+
+		if (_hostname)
+		    free (_hostname);
+		_hostname = malloc (strlen (host->h_name) + 1);
+		if (_hostname) {
+		    strcpy (_hostname, host->h_name);
+		    hostname = _hostname;
+		} else {
+		    printf ("Can't allocate memory to copy hostname\n");
+		    setuid(getuid());
+		    return 0;
+		}
 	    } else {
 		herror(hostp);
-		setuid(getuid());
+	        setuid(getuid());
 		return 0;
 	    }
 	}
@@ -2353,21 +2395,23 @@ tn(argc, argv)
 		sin.sin_port = sp->s_port;
 	    else {
 		printf("%s: bad port number\n", portp);
-		setuid(getuid());
+	        setuid(getuid());
 		return 0;
 	    }
 	} else {
-#if	!defined(htons)
-	    u_short htons P((unsigned short));
-#endif	/* !defined(htons) */
-	    sin.sin_port = htons(sin.sin_port);
+#ifndef HAVE_HTONS_DECL
+#ifndef htons
+	    u_short htons __P((unsigned short));
+#endif
+#endif
+	    sin.sin_port = htons (sin.sin_port);
 	}
     } else {
 	if (sp == 0) {
 	    sp = getservbyname("telnet", "tcp");
 	    if (sp == 0) {
 		fprintf(stderr, "telnet: tcp/telnet: unknown service\n");
-		setuid(getuid());
+	        setuid(getuid());
 		return 0;
 	    }
 	    sin.sin_port = sp->s_port;
@@ -2541,17 +2585,26 @@ static Command cmdtab2[] = {
 
     /*VARARGS1*/
     static
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+call(intrtn_t routine, ...)
+#else
 call(va_alist)
     va_dcl
+#endif
 {
     va_list ap;
-    typedef int (*intrtn_t)();
+#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
     intrtn_t routine;
+#endif
     char *args[100];
     int argno = 0;
 
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+    va_start(ap, routine);
+#else
     va_start(ap);
     routine = (va_arg(ap, intrtn_t));
+#endif
     while ((args[argno++] = va_arg(ap, char *)) != 0) {
 	;
     }
@@ -2601,7 +2654,7 @@ command(top, tbuf, cnt)
 		goto getline;
 	    *cp = '\0';
 	    if (rlogin == _POSIX_VDISABLE)
-		printf("%s\n", line);
+	        printf("%s\n", line);
 	} else {
 	getline:
 	    if (rlogin != _POSIX_VDISABLE)

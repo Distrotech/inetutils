@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -43,16 +39,23 @@ static char sccsid[] = "@(#)process.c	8.2 (Berkeley) 11/16/93";
  *		  in the table for the local user
  *	DELETE - delete invitation
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifdef HAVE_OSOCKADDR_H
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <netdb.h>
 #include <syslog.h>
 #include <stdio.h>
 #include <string.h>
-#include <paths.h>
 
 CTL_MSG *find_request();
 CTL_MSG *find_match();
@@ -66,7 +69,7 @@ process_request(mp, rp)
 
 	rp->vers = TALK_VERSION;
 	rp->type = mp->type;
-	rp->id_num = htonl(0);
+	rp->id_num = htonl((long)0);
 	if (mp->vers != TALK_VERSION) {
 		syslog(LOG_WARNING, "Bad protocol version %d", mp->vers);
 		rp->answer = BADVERSION;
@@ -183,15 +186,15 @@ find_user(name, tty)
 	FILE *fd;
 	struct stat statb;
 	char line[sizeof(ubuf.ut_line) + 1];
-	char ftty[sizeof(_PATH_DEV) - 1 + sizeof(line)];
+	char ftty[sizeof(PATH_DEV) - 1 + sizeof(line)];
 
-	if ((fd = fopen(_PATH_UTMP, "r")) == NULL) {
-		fprintf(stderr, "talkd: can't read %s.\n", _PATH_UTMP);
+	if ((fd = fopen(PATH_UTMP, "r")) == NULL) {
+		fprintf(stderr, "talkd: can't read %s.\n", PATH_UTMP);
 		return (FAILED);
 	}
 #define SCMPN(a, b)	strncmp(a, b, sizeof (a))
 	status = NOT_HERE;
-	(void) strcpy(ftty, _PATH_DEV);
+	(void) strcpy(ftty, PATH_DEV);
 	while (fread((char *) &ubuf, sizeof ubuf, 1, fd) == 1)
 		if (SCMPN(ubuf.ut_name, name) == 0) {
 			strncpy(line, ubuf.ut_line, sizeof(ubuf.ut_line));
@@ -199,7 +202,7 @@ find_user(name, tty)
 			if (*tty == '\0') {
 				status = PERMISSION_DENIED;
 				/* no particular tty was requested */
-				(void) strcpy(ftty + sizeof(_PATH_DEV) - 1,
+				(void) strcpy(ftty + sizeof(PATH_DEV) - 1,
 				    line);
 				if (stat(ftty, &statb) == 0) {
 					if (!(statb.st_mode & 020))

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -36,7 +32,7 @@ static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 /*
- * Copyright (C) 1990 by the Massachusetts Institute of Technology
+ * Copyright (C) 1990, 2000 by the Massachusetts Institute of Technology
  *
  * Export of this software from the United States of America is assumed
  * to require a specific license from the United States Government.
@@ -55,6 +51,10 @@ static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
  * or implied warranty.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifdef	ENCRYPTION
 
 #define	ENCRYPT_NAMES
@@ -63,7 +63,7 @@ static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
 #include "encrypt.h"
 #include "misc.h"
 
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H

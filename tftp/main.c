@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -46,6 +42,11 @@ static char sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
 /*
  * TFTP User Program -- Command Interface.
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/file.h>
@@ -56,6 +57,7 @@ static char sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
 
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -97,7 +99,7 @@ void	settrace __P((int, char **));
 void	setverbose __P((int, char **));
 void	status __P((int, char **));
 
-static __dead void command __P((void));
+static void command __P((void));
 
 static void getusage __P((char *));
 static void makeargv __P((void));
@@ -145,8 +147,6 @@ struct cmd cmdtab[] = {
 
 struct	cmd *getcmd();
 char	*tail();
-char	*index();
-char	*rindex();
 
 int
 main(argc, argv)
@@ -185,6 +185,28 @@ main(argc, argv)
 
 char    hostname[100];
 
+/* Prompt for more arguments from the user with PROMPT, putting the results
+   into ARGC & ARGV, with an initial argument of ARG0.  Global variables
+   LINE, MARGC, and MARGV are changed.  */
+static void
+get_args (arg0, prompt, argc, argv)
+     char *arg0, *prompt;
+     int *argc;
+     char ***argv;
+{
+  size_t arg0_len = strlen (arg0);
+
+  strcpy (line, arg0);
+  strcat (line, " ");
+
+  printf(prompt);
+  fgets (line + arg0_len + 1, sizeof line - arg0_len - 1, stdin);
+
+  makeargv();
+  *argc = margc;
+  *argv = margv;
+}
+
 void
 setpeer(argc, argv)
 	int argc;
@@ -192,14 +214,9 @@ setpeer(argc, argv)
 {
 	struct hostent *host;
 
-	if (argc < 2) {
-		strcpy(line, "Connect ");
-		printf("(to) ");
-		gets(&line[strlen(line)]);
-		makeargv();
-		argc = margc;
-		argv = margv;
-	}
+	if (argc < 2)
+	  get_args ("Connect", "(to) ", &argc, &argv);
+
 	if (argc > 3) {
 		printf("usage: %s host-name [port]\n", argv[0]);
 		return;
@@ -284,7 +301,7 @@ void
 setbinary(argc, argv)
 	int argc;
 	char *argv[];
-{      
+{
 
 	settftpmode("octet");
 }
@@ -320,30 +337,25 @@ put(argc, argv)
 	register int n;
 	register char *cp, *targ;
 
-	if (argc < 2) {
-		strcpy(line, "send ");
-		printf("(file) ");
-		gets(&line[strlen(line)]);
-		makeargv();
-		argc = margc;
-		argv = margv;
-	}
+	if (argc < 2)
+	  get_args ("send", "(file) ", &argc, &argv);
+
 	if (argc < 2) {
 		putusage(argv[0]);
 		return;
 	}
 	targ = argv[argc - 1];
-	if (index(argv[argc - 1], ':')) {
+	if (strchr (argv[argc - 1], ':')) {
 		char *cp;
 		struct hostent *hp;
 
 		for (n = 1; n < argc - 1; n++)
-			if (index(argv[n], ':')) {
+			if (strchr (argv[n], ':')) {
 				putusage(argv[0]);
 				return;
 			}
 		cp = argv[argc - 1];
-		targ = index(cp, ':');
+		targ = strchr (cp, ':');
 		*targ++ = 0;
 		hp = gethostbyname(cp);
 		if (hp == NULL) {
@@ -376,7 +388,7 @@ put(argc, argv)
 	}
 				/* this assumes the target is a directory */
 				/* on a remote unix system.  hmmmm.  */
-	cp = index(targ, '\0'); 
+	cp = strchr (targ, '\0');
 	*cp++ = '/';
 	for (n = 1; n < argc - 1; n++) {
 		strcpy(cp, tail(argv[n]));
@@ -414,27 +426,22 @@ get(argc, argv)
 	register char *cp;
 	char *src;
 
-	if (argc < 2) {
-		strcpy(line, "get ");
-		printf("(files) ");
-		gets(&line[strlen(line)]);
-		makeargv();
-		argc = margc;
-		argv = margv;
-	}
+	if (argc < 2)
+	  get_args ("get", "(files) ", &argc, &argv);
+
 	if (argc < 2) {
 		getusage(argv[0]);
 		return;
 	}
 	if (!connected) {
 		for (n = 1; n < argc ; n++)
-			if (index(argv[n], ':') == 0) {
+			if (strchr (argv[n], ':') == 0) {
 				getusage(argv[0]);
 				return;
 			}
 	}
 	for (n = 1; n < argc ; n++) {
-		src = index(argv[n], ':');
+		src = strchr (argv[n], ':');
 		if (src == NULL)
 			src = argv[n];
 		else {
@@ -498,14 +505,9 @@ setrexmt(argc, argv)
 {
 	int t;
 
-	if (argc < 2) {
-		strcpy(line, "Rexmt-timeout ");
-		printf("(value) ");
-		gets(&line[strlen(line)]);
-		makeargv();
-		argc = margc;
-		argv = margv;
-	}
+	if (argc < 2)
+	  get_args ("Rexmt-timeout", "(value) ", &argc, &argv);
+
 	if (argc != 2) {
 		printf("usage: %s value\n", argv[0]);
 		return;
@@ -526,14 +528,9 @@ settimeout(argc, argv)
 {
 	int t;
 
-	if (argc < 2) {
-		strcpy(line, "Maximum-timeout ");
-		printf("(value) ");
-		gets(&line[strlen(line)]);
-		makeargv();
-		argc = margc;
-		argv = margv;
-	}
+	if (argc < 2)
+	  get_args ("Maximum-timeout", "(value) ", &argc, &argv);
+
 	if (argc != 2) {
 		printf("usage: %s value\n", argv[0]);
 		return;
@@ -574,9 +571,9 @@ tail(filename)
 	char *filename;
 {
 	register char *s;
-	
+
 	while (*filename) {
-		s = rindex(filename, '/');
+		s = strrchr (filename, '/');
 		if (s == NULL)
 			break;
 		if (s[1])
@@ -589,14 +586,14 @@ tail(filename)
 /*
  * Command parser.
  */
-static __dead void
+static void
 command()
 {
 	register struct cmd *c;
 
 	for (;;) {
 		printf("%s> ", prompt);
-		if (gets(line) == 0) {
+		if (fgets (line, sizeof line, stdin) == 0) {
 			if (feof(stdin)) {
 				exit(0);
 			} else {

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -40,34 +36,62 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
  * as well as the signal handling routines.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#else
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_IOCTL_COMPAT_H
 #include <sys/ioctl_compat.h>
+#endif
+#endif
 
 #include <signal.h>
 #include <err.h>
 #include "talk.h"
 
-/* 
+/*
  * Set up curses, catch the appropriate signals,
  * and build the various windows.
  */
 init_display()
 {
 	void sig_sent();
+#ifdef HAVE_SIGACTION
+	struct sigaction siga;
+#else
+#ifdef HAVE_SIGVEC
 	struct sigvec sigv;
+#endif
+#endif
 
 	if (initscr() == NULL)
 		errx(1, "Terminal type unset or lacking necessary features.");
-	(void) sigvec(SIGTSTP, (struct sigvec *)0, &sigv);
-	sigv.sv_mask |= sigmask(SIGALRM);
-	(void) sigvec(SIGTSTP, &sigv, (struct sigvec *)0);
+
+#ifdef HAVE_SIGACTION
+	sigaction (SIGTSTP, (struct sigaction *)0, &siga);
+	sigaddset(&siga.sa_mask, SIGALRM);
+	sigaction (SIGTSTP, &siga, (struct sigaction *)0);
+#else /* !HAVE_SIGACTION */
+#ifdef HAVE_SIGVEC
+	sigvec (SIGTSTP, (struct sigvec *)0, &sigv);
+	sigv.sv_mask |= sigmask (SIGALRM);
+	sigvec (SIGTSTP, &sigv, (struct sigvec *)0);
+#endif /* HAVE_SIGVEC */
+#endif /* HAVE_SIGACTION */
+
 	curses_initialized = 1;
 	clear();
 	refresh();
 	noecho();
 	crmode();
+
 	signal(SIGINT, sig_sent);
 	signal(SIGPIPE, sig_sent);
+
 	/* curses takes care of ^Z */
 	my_win.x_nlines = LINES / 2;
 	my_win.x_ncols = COLS;
@@ -96,11 +120,41 @@ init_display()
  */
 set_edit_chars()
 {
-	char buf[3];
 	int cc;
+	char buf[3];
+
+#ifdef HAVE_TCGETATTR
+  	struct termios tty;
+	cc_t disable = (cc_t)-1, erase, werase, kill;
+
+#if !defined (_POSIX_VDISABLE) && defined (HAVE_FPATHCONF) && defined (_PC_VDISABLE)
+	disable = fpathconf (0, _PC_VDISABLE);
+#endif
+
+	erase = werase = kill = disable;
+
+	if (tcgetattr (0, &tty) >= 0) {
+		erase = tty.c_cc[VERASE];
+#ifdef VWERASE
+		werase = tty.c_cc[VWERASE];
+#endif
+		kill = tty.c_cc[VKILL];
+	}
+
+	if (erase == disable)
+		erase = '\177';	/* rubout */
+	if (werase == disable)
+		werase = '\027'; /* ^W */
+	if (kill == disable)
+		kill = '\025';	/* ^U */
+
+	my_win.cerase = erase;
+	my_win.werase = werase;
+	my_win.kill = kill;
+#else /* !HAVE_TCGETATTR */
 	struct sgttyb tty;
 	struct ltchars ltc;
-	
+
 	ioctl(0, TIOCGETP, &tty);
 	ioctl(0, TIOCGLTC, (struct sgttyb *)&ltc);
 	my_win.cerase = tty.sg_erase;
@@ -109,6 +163,8 @@ set_edit_chars()
 		my_win.werase = '\027';	 /* control W */
 	else
 		my_win.werase = ltc.t_werasc;
+#endif /* HAVE_TCGETATTR */
+
 	buf[0] = my_win.cerase;
 	buf[1] = my_win.kill;
 	buf[2] = my_win.werase;

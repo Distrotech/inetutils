@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -34,6 +30,10 @@
 #ifndef lint
 static char sccsid[] = "@(#)termstat.c	8.2 (Berkeley) 5/30/95";
 #endif /* not lint */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include "telnetd.h"
 
@@ -441,7 +441,7 @@ clientstat(code, parm1, parm2)
 				useeditmode = 0;
 				if (tty_isediting())
 					useeditmode |= MODE_EDIT;
-				if (tty_istrapsig)
+				if (tty_istrapsig())
 					useeditmode |= MODE_TRAPSIG;
 				if (tty_issofttab())
 					useeditmode |= MODE_SOFT_TAB;

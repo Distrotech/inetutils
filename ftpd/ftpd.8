@@ -9,10 +9,6 @@
 .\" 2. Redistributions in binary form must reproduce the above copyright
 .\"    notice, this list of conditions and the following disclaimer in the
 .\"    documentation and/or other materials provided with the distribution.
-.\" 3. All advertising materials mentioning features or use of this software
-.\"    must display the following acknowledgement:
-.\"	This product includes software developed by the University of
-.\"	California, Berkeley and its contributors.
 .\" 4. Neither the name of the University nor the names of its contributors
 .\"    may be used to endorse or promote products derived from this software
 .\"    without specific prior written permission.
@@ -60,7 +56,7 @@ Available options:
 .It Fl d
 Debugging information is written to the syslog using LOG_FTP.
 .It Fl l
-Each successful and failed 
+Each successful and failed
 .Xr ftp 1
 session is logged using syslog with a facility of LOG_FTP.
 If this option is specified twice, the retrieve (get), store (put), append,
@@ -90,7 +86,7 @@ If the file
 .Pa /etc/ftpwelcome
 exists,
 .Nm
-prints it before issuing the 
+prints it before issuing the
 .Dq ready
 message.
 If the file
@@ -182,7 +178,7 @@ This allows users to utilize the metacharacters
 .Dq Li \&*?[]{}~ .
 .Pp
 .Nm Ftpd
-authenticates users according to three rules. 
+authenticates users according to three rules.
 .Pp
 .Bl -enum -offset indent
 .It
@@ -195,7 +191,7 @@ file operations may be performed.
 The login name must not appear in the file
 .Pa /etc/ftpusers .
 .It
-The user must have a standard shell returned by 
+The user must have a standard shell returned by
 .Xr getusershell 3 .
 .It
 If the user name is
@@ -211,10 +207,10 @@ to log in by specifying any password (by convention an email address for
 the user should be used as the password).
 .El
 .Pp
-In the last case, 
+In the last case,
 .Nm ftpd
 takes special measures to restrict the client's access privileges.
-The server performs a 
+The server performs a
 .Xr chroot 2
 to the home directory of the
 .Dq ftp
@@ -245,7 +241,7 @@ The files
 .Xr passwd 5
 and
 .Xr group 5
-must be present for the 
+must be present for the
 .Xr ls
 command to be able to produce owner names rather than numbers.
 The password field in

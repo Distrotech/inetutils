@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -723,7 +719,7 @@ printsub(direction, pointer, length)
 		    break;
 		}
 		break;
-		
+
 	    case LM_SLC:
 		sprintf(nfrontp, "SLC");
 		nfrontp += strlen(nfrontp);
@@ -873,7 +869,7 @@ printsub(direction, pointer, length)
 			nfrontp += strlen(nfrontp);
 
 			break;
-				
+
 		    default:
 			sprintf(nfrontp, " %d", pointer[i]);
 			nfrontp += strlen(nfrontp);
@@ -976,7 +972,7 @@ printsub(direction, pointer, length)
 	case TELOPT_AUTHENTICATION:
 	    sprintf(nfrontp, "AUTHENTICATION");
 	    nfrontp += strlen(nfrontp);
-	
+
 	    if (length < 2) {
 		sprintf(nfrontp, " (empty suboption??\?)");
 		nfrontp += strlen(nfrontp);
@@ -1181,13 +1177,13 @@ printdata(tag, ptr, cnt)
 		nfrontp += strlen(nfrontp);
 		for (i = 0; i < 20 && cnt; i++) {
 			sprintf(nfrontp, "%02x", *ptr);
-			nfrontp += strlen(nfrontp); 
+			nfrontp += strlen(nfrontp);
 			if (isprint(*ptr)) {
 				xbuf[i] = *ptr;
 			} else {
 				xbuf[i] = '.';
 			}
-			if (i % 2) { 
+			if (i % 2) {
 				*nfrontp = ' ';
 				nfrontp++;
 			}
@@ -1197,6 +1193,6 @@ printdata(tag, ptr, cnt)
 		xbuf[i] = '\0';
 		sprintf(nfrontp, " %s\r\n", xbuf );
 		nfrontp += strlen(nfrontp);
-	} 
+	}
 }
 #endif /* DIAGNOSTICS */

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -36,7 +32,7 @@ static char sccsid[] = "@(#)kerberos.c	8.3 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 /*
- * Copyright (C) 1990 by the Massachusetts Institute of Technology
+ * Copyright (C) 1990, 2000 by the Massachusetts Institute of Technology
  *
  * Export of this software from the United States of America is assumed
  * to require a specific license from the United States Government.
@@ -55,13 +51,17 @@ static char sccsid[] = "@(#)kerberos.c	8.3 (Berkeley) 5/30/95";
  * or implied warranty.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifdef	KRB4
 #include <sys/types.h>
 #include <arpa/telnet.h>
 #include <stdio.h>
-#include <des.h>	/* BSD wont include this in krb.h, so we do it here */
+#include <des.h>        /* BSD wont include this in krb.h, so we do it here */
 #include <krb.h>
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
@@ -113,32 +113,32 @@ Data(ap, type, d, c)
 	void *d;
 	int c;
 {
-	unsigned char *p = str_data + 4;
+        unsigned char *p = str_data + 4;
 	unsigned char *cd = (unsigned char *)d;
 
 	if (c == -1)
 		c = strlen((char *)cd);
 
-	if (auth_debug_mode) {
-		printf("%s:%d: [%d] (%d)",
-			str_data[3] == TELQUAL_IS ? ">>>IS" : ">>>REPLY",
-			str_data[3],
-			type, c);
-		printd(d, c);
-		printf("\r\n");
-	}
+        if (auth_debug_mode) {
+                printf("%s:%d: [%d] (%d)",
+                        str_data[3] == TELQUAL_IS ? ">>>IS" : ">>>REPLY",
+                        str_data[3],
+                        type, c);
+                printd(d, c);
+                printf("\r\n");
+        }
 	*p++ = ap->type;
 	*p++ = ap->way;
 	*p++ = type;
-	while (c-- > 0) {
-		if ((*p++ = *cd++) == IAC)
-			*p++ = IAC;
-	}
-	*p++ = IAC;
-	*p++ = SE;
+        while (c-- > 0) {
+                if ((*p++ = *cd++) == IAC)
+                        *p++ = IAC;
+        }
+        *p++ = IAC;
+        *p++ = SE;
 	if (str_data[3] == TELQUAL_IS)
 		printsub('>', &str_data[2], p - (&str_data[2]));
-	return(net_write(str_data, p - str_data));
+        return(net_write(str_data, p - str_data));
 }
 
 	int

@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -38,14 +34,31 @@ static char sccsid[] = "@(#)table.c	8.1 (Berkeley) 6/4/93";
 /*
  * Routines to handle insertion, deletion, etc on the table
  * of requests kept by the daemon. Nothing fancy here, linear
- * search on a double-linked list. A time is kept with each 
+ * search on a double-linked list. A time is kept with each
  * entry so that overly old invitations can be eliminated.
  *
  * Consider this a mis-guided attempt at modularity
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/param.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/socket.h>
+#ifdef HAVE_OSOCKADDR_H
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <syslog.h>
 #include <unistd.h>
@@ -110,7 +123,7 @@ find_match(request)
 
 /*
  * Look for an identical request, as opposed to a complimentary
- * one as find_match does 
+ * one as find_match does
  */
 CTL_MSG *
 find_request(request)

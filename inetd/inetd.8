@@ -9,10 +9,6 @@
 .\" 2. Redistributions in binary form must reproduce the above copyright
 .\"    notice, this list of conditions and the following disclaimer in the
 .\"    documentation and/or other materials provided with the distribution.
-.\" 3. All advertising materials mentioning features or use of this software
-.\"    must display the following acknowledgement:
-.\"	This product includes software developed by the University of
-.\"	California, Berkeley and its contributors.
 .\" 4. Neither the name of the University nor the names of its contributors
 .\"    may be used to endorse or promote products derived from this software
 .\"    without specific prior written permission.
@@ -97,22 +93,22 @@ server program
 server program arguments
 .Ed
 .Pp
-There are two types of services that 
+There are two types of services that
 .Nm inetd
 can start: standard and TCPMUX.
 A standard service has a well-known port assigned to it;
 it may be a service that implements an official Internet standard or is a
 BSD-specific service.
-As described in 
+As described in
 .Tn RFC 1078 ,
-TCPMUX services are nonstandard services that do not have a 
+TCPMUX services are nonstandard services that do not have a
 well-known port assigned to them.
 They are invoked from
-.Nm inetd 
+.Nm inetd
 when a program connects to the
 .Dq tcpmux
 well-known port and specifies
-the service name.  
+the service name.
 This feature is useful for adding locally-developed servers.
 .Pp
 The
@@ -132,10 +128,10 @@ For TCPMUX services, the value of the
 field consists of the string
 .Dq tcpmux
 followed by a slash and the
-locally-chosen service name. 
-The service names listed in 
+locally-chosen service name.
+The service names listed in
 .Pa /etc/services
-and the name 
+and the name
 .Dq help
 are reserved.
 Try to choose unique names for your TCPMUX services by prefixing them with
@@ -152,7 +148,7 @@ or
 .Dq seqpacket ,
 depending on whether the socket is a stream, datagram, raw,
 reliably delivered message, or sequenced packet socket.
-TCPMUX services must use 
+TCPMUX services must use
 .Dq stream .
 .Pp
 The
@@ -163,7 +159,7 @@ Examples might be
 .Dq tcp
 or
 .Dq udp .
-TCPMUX services must use 
+TCPMUX services must use
 .Dq tcp .
 .Pp
 The
@@ -219,7 +215,7 @@ are started with the listening service socket, and must accept
 at least one connection request before exiting.
 Such a server would normally accept and process incoming connection
 requests until a timeout.
-TCPMUX services must use 
+TCPMUX services must use
 .Dq nowait .
 .Pp
 The
@@ -278,7 +274,7 @@ Services may be added, deleted or modified when the configuration file
 is reread.
 .Sh TCPMUX
 .Pp
-.Tn RFC 1078 
+.Tn RFC 1078
 describes the TCPMUX protocol:
 ``A TCP client connects to a foreign host on TCP port 1.  It sends the
 service name followed by a carriage-return line-feed <CRLF>.  The
@@ -332,7 +328,7 @@ a 'denial of service' attack, or
 4) the invoked service program has an error that causes clients
 to retry quickly.
 Use the
-.Op Fl R 
+.Op Fl R
 option,
 as described above, to change the rate limit.
 Once the limit is reached, the service will be
@@ -342,9 +338,9 @@ reenabled automatically in 10 minutes.
 \fIservice\fP/\fIprotocol\fP: No such user '\fIuser\fP', service ignored
 \fIservice\fP/\fIprotocol\fP: getpwnam: \fIuser\fP: No such user
 .Ed
-No entry for 
+No entry for
 .Em user
-exists in the 
+exists in the
 .Pa passwd
 file. The first message
 occurs when
@@ -356,7 +352,7 @@ service is invoked.
 \fIservice\fP: can't set uid \fInumber\fP
 \fIservice\fP: can't set gid \fInumber\fP
 .Ed
-The user or group ID for the entry's 
+The user or group ID for the entry's
 .Em user
 is invalid.
 .Sh SEE ALSO

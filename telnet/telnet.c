@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -35,6 +31,10 @@
 static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 
 #if	defined(unix)
@@ -48,6 +48,9 @@ static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
 #include <arpa/telnet.h>
 
 #include <ctype.h>
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
 
 #include "ring.h"
 
@@ -745,7 +748,7 @@ char termbuf[1024];
 
 	/*ARGSUSED*/
 	int
-setupterm(tname, fd, errp)
+init_term (tname, fd, errp)
 	char *tname;
 	int fd, *errp;
 {
@@ -779,7 +782,7 @@ gettermname()
 		if (tnamep && tnamep != unknown)
 			free(tnamep);
 		if ((tname = (char *)env_getvalue((unsigned char *)"TERM")) &&
-				(setupterm(tname, 1, &err) == 0)) {
+				(init_term (tname, 1, &err) == 0)) {
 			tnamep = mklist(termbuf, tname);
 		} else {
 			if (tname && ((int)strlen(tname) <= 40)) {
@@ -1810,7 +1813,7 @@ telrcv()
 			TTYADD('\n');
 		    } else {
 #ifdef	ENCRYPTION
-			if (decrypt_input)
+		        if (decrypt_input)
 			    (*decrypt_input)(-1);
 #endif	/* ENCRYPTION */
 
@@ -2220,7 +2223,7 @@ Scheduler(block)
 					ring_full_consecutive(&ttyiring));
 	    if (c) {
 		returnValue = 1;
-		ring_consumed(&ttyiring, c);
+	        ring_consumed(&ttyiring, c);
 	    }
 	} else {
 #   endif /* defined(TN3270) */
@@ -2251,12 +2254,12 @@ telnet(user)
 
 #if	defined(AUTHENTICATION) || defined(ENCRYPTION)
     {
-	static char local_host[256] = { 0 };
+	extern char *localhost ();
+	static char *local_host = 0;
 
-	if (!local_host[0]) {
-		gethostname(local_host, sizeof(local_host));
-		local_host[sizeof(local_host)-1] = 0;
-	}
+	if (!local_host)
+		local_host = localhost ();
+
 	auth_encrypt_init(local_host, hostname, "TELNET", 0);
 	auth_encrypt_user(user);
     }

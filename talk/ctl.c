@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -41,16 +37,29 @@ static char sccsid[] = "@(#)ctl.c	8.1 (Berkeley) 6/6/93";
  * the progress
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
+#ifdef HAVE_OSOCKADDR_H
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <netinet/in.h>
 #include "talk.h"
 #include "talk_ctl.h"
 
+#ifdef HAVE_SOCKADDR_IN_SIN_LEN
 struct	sockaddr_in daemon_addr = { sizeof(daemon_addr), AF_INET };
 struct	sockaddr_in ctl_addr = { sizeof(ctl_addr), AF_INET };
 struct	sockaddr_in my_addr = { sizeof(my_addr), AF_INET };
+#else /* !HAVE_SOCKADDR_IN_SIN_LEN */
+struct	sockaddr_in daemon_addr = { AF_INET };
+struct	sockaddr_in ctl_addr = { AF_INET };
+struct	sockaddr_in my_addr = { AF_INET };
+#endif /* HAVE_SOCKADDR_IN_SIN_LEN */
 
 	/* inet addresses of the two machines */
 struct	in_addr my_machine_addr;
@@ -81,7 +90,7 @@ open_sockt()
 }
 
 /* open the ctl socket */
-open_ctl() 
+open_ctl()
 {
 	int length;
 

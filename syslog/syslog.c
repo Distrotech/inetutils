@@ -10,10 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -41,22 +37,30 @@ static char copyright[] =
 static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <getopt.h>
 
 #define	SYSLOG_NAMES
 #include <syslog.h>
+#ifndef HAVE_SYSLOG_INTERNAL
+#include <syslog-int.h>
+#endif
 
 int	decode __P((char *, CODE *));
 int	pencode __P((char *));
 void	usage __P((void));
 
 /*
- * logger -- read and log utility
+ * syslog -- read and log utility
  *
  *	Reads from an input and arranges to write the result on the system
  *	log.
@@ -76,7 +80,7 @@ main(argc, argv)
 		switch((char)ch) {
 		case 'f':		/* file to log */
 			if (freopen(optarg, "r", stdin) == NULL) {
-				(void)fprintf(stderr, "logger: %s: %s.\n",
+				(void)fprintf(stderr, "syslog: %s: %s.\n",
 				    optarg, strerror(errno));
 				exit(1);
 			}
@@ -88,7 +92,12 @@ main(argc, argv)
 			pri = pencode(optarg);
 			break;
 		case 's':		/* log to standard error */
+#ifdef LOG_PERROR
 			logflags |= LOG_PERROR;
+#else
+			fprintf (stderr, "%s: -s: option not implemented\n", argv[0]);
+			exit (1);
+#endif
 			break;
 		case 't':		/* tag */
 			tag = optarg;
@@ -148,7 +157,7 @@ pencode(s)
 		fac = decode(save, facilitynames);
 		if (fac < 0) {
 			(void)fprintf(stderr,
-			    "logger: unknown facility name: %s.\n", save);
+			    "syslog: unknown facility name: %s.\n", save);
 			exit(1);
 		}
 		*s++ = '.';
@@ -160,7 +169,7 @@ pencode(s)
 	lev = decode(s, prioritynames);
 	if (lev < 0) {
 		(void)fprintf(stderr,
-		    "logger: unknown priority name: %s.\n", save);
+		    "syslog: unknown priority name: %s.\n", save);
 		exit(1);
 	}
 	return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));
@@ -187,6 +196,6 @@ void
 usage()
 {
 	(void)fprintf(stderr,
-	    "logger: [-is] [-f file] [-p pri] [-t tag] [ message ... ]\n");
+	    "syslog: [-is] [-f file] [-p pri] [-t tag] [ message ... ]\n");
 	exit(1);
 }
