@@ -1392,7 +1392,6 @@ startslave(host, autologin, autoname)
 	char *autoname;
 {
 	register int i;
-	long time();
 	char name[256];
 #ifdef	NEWINIT
 	extern char *ptyip;
