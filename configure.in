@@ -67,7 +67,7 @@ IU_ENABLE_SERVER(tftpd)
 IU_ENABLE_SERVER(uucpd)
 
 IU_ENABLE_CLIENT(ftp)
-IU_ENABLE_CLIENT(ping)
+#IU_ENABLE_CLIENT(ping)
 IU_ENABLE_CLIENT(rcp)
 IU_ENABLE_CLIENT(rlogin)
 IU_ENABLE_CLIENT(rsh)
@@ -527,7 +527,7 @@ AC_FUNC_MMAP
 AC_SUBST(VERSION)
 
 AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
-ftp/Makefile ftpd/Makefile inetd/Makefile ping/Makefile rcp/Makefile
+ftp/Makefile ftpd/Makefile inetd/Makefile rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile syslog/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
