@@ -24,6 +24,9 @@
 
 #include <unistd.h>
 #include <malloc.h>
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
 #include <string.h>
 #include <errno.h>
 
