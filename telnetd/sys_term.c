@@ -68,7 +68,9 @@ struct	utmp wtmp;
 #  endif
 # endif /* HAVE_UTMPX_H */
 
+#ifdef HAVE_UTMP_UT_HOST
 int	utmp_len = sizeof(wtmp.ut_host);
+#endif
 # ifndef PARENT_DOES_UTMP
 char	wtmpf[]	= PATH_WTMP;
 char	utmpf[] = PATH_UTMP;
@@ -2251,7 +2253,9 @@ rmut()
 		if (f >= 0) {
 			SCPYN(wtmp.ut_line, line+5);
 			SCPYN(wtmp.ut_name, "");
+#ifdef HAVE_UTMP_UT_HOST
 			SCPYN(wtmp.ut_host, "");
+#endif
 #ifdef HAVE_WTMP_UT_TV
 			(void) time(&wtmp.ut_tv.tv_sec);
 #else
