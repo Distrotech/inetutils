@@ -1,3 +1,8 @@
+2003-01-15  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* Makefile.am: Removed libm dependency.
+	* ping_echo.c: Removed call to sqrt.
+
 2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* ping/ping.c (main): Added spaces between cases in a switch
