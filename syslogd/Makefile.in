@@ -21,10 +21,9 @@ srcdir = @srcdir@
 include ../config.make
 
 INSTALL_TARGETS= \
-  $(libexecdir)/in.syslogd $(man5dir)/syslog.conf.5 $(man8dir)/syslogd.8
+  $(sbindir)/syslogd $(man5dir)/syslog.conf.5 $(man8dir)/syslogd.8
 
 CPPFLAGS += \
-	-D_PATH_KLOG=\"/dev/klog\" \
 	-D_PATH_LOGCONF=\"$(sysconfdir)/syslog.conf\" \
 	-D_PATH_LOGPID=\"$(localstatedir)/run/syslog.pid\"
 
