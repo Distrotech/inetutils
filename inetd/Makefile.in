@@ -1,6 +1,6 @@
 # Makefile for inetd
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,12 +20,14 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(sbindir)/inetd $(man8dir)/inetd.8
+INSTALL_TARGETS = $(sbindir)/inetd $(man8dir)/inetd.8
+SRCS = inetd.c
+DISTFILES = $(SRCS) inetd.8 Makefile.in
 
 CPPFLAGS += -D_PATH_INETDCONF=\"$(sysconfdir)/inetd.conf\"
 
 all: inetd
-inetd: inetd.o
+inetd: $(SRCS:.c=.o)
 
 clean:
 	$(RM) -f *.o inetd
