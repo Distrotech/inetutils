@@ -1,6 +1,7 @@
 2001-12-25  Alain Magloire
 
 	* poll.c: Added <time.h>
+	* getpass.c: New file, getpass().
 	Bert De Knuydt <Bert.Deknuydt@esat.kuleuven.ac.be>.
 
 2001-11-03  Alain Magloire

@@ -1,6 +1,7 @@
 2001-12-25  Alain Magloire
 
 	* configure.in:  Add check for mkstemp ().
+	Check for getpass().
 	Note from Bert De Knuydt <Bert.Deknuydt@esat.kuleuven.ac.be>.
 
 2001-11-21  Sergey Poznyakoff

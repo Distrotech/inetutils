@@ -172,7 +172,7 @@ AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
                updwtmp updwtmpx vhangup wait3 wait4)
 
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(getusershell herror memcmp memcpy memmove memset \
+AC_REPLACE_FUNCS(getpass getusershell herror memcmp memcpy memmove memset \
 	         setenv strdup strcasecmp strsignal waitpid poll)
 IU_INCLUDED_REGEX(libinetutils/regex.c)
 
