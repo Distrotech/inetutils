@@ -57,9 +57,13 @@ lookup_request (CTL_MSG *request, int (*comp)())
   time (&now);
   
   if (debug)
-    print_request ("find_match", request);
+    print_request ("lookup_request", request);
+
   for (ptr = table; ptr; ptr = ptr->next)
     {
+      if (debug)
+	print_request ("comparing against: ", &ptr->request);
+
       if ((ptr->time - now) > max_request_ttl)
 	{
 	  /* the entry is too old */
@@ -77,6 +81,8 @@ lookup_request (CTL_MSG *request, int (*comp)())
 	    }
 	}
     }
+  if (debug)
+    syslog (LOG_DEBUG, "not found");
   return NULL;
 }
 
@@ -149,6 +155,10 @@ insert_table (CTL_MSG *request, CTL_RESPONSE *response)
     }
 
   request->id_num = new_id ();
+
+  if (debug)
+    print_request ("insert_table", request);
+
   response->id_num = htonl (request->id_num);
 
   time (&ptr->time);
