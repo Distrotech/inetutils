@@ -1,5 +1,16 @@
 Tue Mar 24 00:28:27 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* telnet/Makefile.am (noinst_HEADERS): Remove krb4-proto.h;
+ 	Kerberos 4 doesn't meet our definition of `free software'.
+	
+	(INCLUDES): Add `-DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK'.
+	
+	(LDADD): Add `-L../libinetutils -L../libtelnet -linetutils -ltelnet
+	$(LIBTERMCAP) $(LIBCRYPT)'.
+	
+	(LIBTERMCAP): Set make variable from coresponding configure variable
+	(LIBCRYPT): Likewise.
+
 	* uucpd/Makefile.am (INCLUDES): Added `$(PATHDEF_UUCICO)'.
 	
 	Added a line that reads `@PATHDEFS_MAKE@'.
