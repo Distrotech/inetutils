@@ -60,7 +60,6 @@ host_triplet = @host@
 AR = @AR@
 CC = @CC@
 CPP = @CPP@
-DIRS = @DIRS@
 LIBAUTH = @LIBAUTH@
 LIBCRYPT = @LIBCRYPT@
 LIBCURSES = @LIBCURSES@
@@ -84,13 +83,19 @@ talk_SOURCES = ctl.c ctl_transact.c display.c get_addrs.c get_names.c init_disp.
 noinst_HEADERS = talk.h talk_ctl.h
 
 man_MANS = talk.1
+
+INCLUDES = $(NCURSES_INCLUDE)
+
+LDADD = $(LIBCURSES) -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = ../headers/config.h
+CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS = @DEFS@ -I. -I$(srcdir) -I../headers
+DEFS = @DEFS@ -I. -I$(srcdir) -I../include
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@

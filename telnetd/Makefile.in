@@ -60,14 +60,10 @@ host_triplet = @host@
 AR = @AR@
 CC = @CC@
 CPP = @CPP@
-DIRS = @DIRS@
 LIBAUTH = @LIBAUTH@
-LIBCRYPT = @LIBCRYPT@
 LIBCURSES = @LIBCURSES@
 LIBGLOB = @LIBGLOB@
 LIBNCURSES = @LIBNCURSES@
-LIBTERMCAP = @LIBTERMCAP@
-LIBUTIL = @LIBUTIL@
 MAKEINFO = @MAKEINFO@
 NCURSES_INCLUDE = @NCURSES_INCLUDE@
 PACKAGE = @PACKAGE@
@@ -84,13 +80,24 @@ telnetd_SOURCES = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat
 noinst_HEADERS = defs.h ext.h telnetd.h
 
 man_MANS = telnetd.8
+
+INCLUDES = $(PATHDEF_TTY) $(PATHDEF_LOGIN)
+
+LIBTERMCAP = @LIBTERMCAP@
+LIBCRYPT = @LIBCRYPT@
+LIBUTIL = @LIBUTIL@
+
+LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet \
+	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT)
+
+EXTRA_DIST = $(man_MANS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = ../headers/config.h
+CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS = @DEFS@ -I. -I$(srcdir) -I../headers
+DEFS = @DEFS@ -I. -I$(srcdir) -I../include
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
@@ -322,6 +329,8 @@ install uninstall all installdirs mostlyclean-generic distclean-generic \
 clean-generic maintainer-clean-generic clean mostlyclean distclean \
 maintainer-clean
 
+
+@PATHDEFS_MAKE@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

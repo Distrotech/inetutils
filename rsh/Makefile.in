@@ -85,6 +85,8 @@ man_MANS = rsh.1
 INCLUDES = $(PATHDEF_RLOGIN)
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 

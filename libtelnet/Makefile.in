@@ -60,7 +60,6 @@ host_triplet = @host@
 AR = @AR@
 CC = @CC@
 CPP = @CPP@
-DIRS = @DIRS@
 LIBAUTH = @LIBAUTH@
 LIBCRYPT = @LIBCRYPT@
 LIBCURSES = @LIBCURSES@
@@ -83,12 +82,12 @@ libtelnet_a_SOURCES = auth.c enc_des.c encrypt.c forward.c genget.c getent.c ker
 
 noinst_HEADERS = auth-proto.h auth.h enc-proto.h encrypt.h key-proto.h misc-proto.h misc.h
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = ../headers/config.h
+CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
 
 
-DEFS = @DEFS@ -I. -I$(srcdir) -I../headers
+DEFS = @DEFS@ -I. -I$(srcdir) -I../include
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@

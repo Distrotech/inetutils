@@ -62,7 +62,6 @@ host_triplet = @host@
 AR = @AR@
 CC = @CC@
 CPP = @CPP@
-DIRS = @DIRS@
 LIBAUTH = @LIBAUTH@
 LIBCRYPT = @LIBCRYPT@
 LIBCURSES = @LIBCURSES@
@@ -79,7 +78,7 @@ SERVERS_OR_CLIENTS = @SERVERS_OR_CLIENTS@
 VERSION = @VERSION@
 YACC = @YACC@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = ../headers/config.h
+CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 
 DIST_COMMON =  Makefile.am Makefile.in
 

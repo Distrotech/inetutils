@@ -60,7 +60,6 @@ host_triplet = @host@
 AR = @AR@
 CC = @CC@
 CPP = @CPP@
-DIRS = @DIRS@
 LIBAUTH = @LIBAUTH@
 LIBCRYPT = @LIBCRYPT@
 LIBCURSES = @LIBCURSES@
@@ -79,32 +78,38 @@ YACC = @YACC@
 
 noinst_LIBRARIES = libinetutils.a
 
-libinetutils_a_SOURCES = __progname.c cleansess.c daemon.c des_rw.c err.c forkpty.c getopt.c getopt1.c herror.c hstrerror.c iruserok.c kcmd.c krcmd.c localhost.c login.c login_tty.c logout.c logwtmp.c logwtmpko.c memmove.c memset.c openpty.c revoke.c setenv.c setsig.c snprintf.c strdup.c strerror.c stub_tgetent.c syslog.c ttymsg.c version.c xmalloc.c xstrdup.c
+libinetutils_a_SOURCES = cleansess.c des_rw.c kcmd.c krcmd.c localhost.c \
+	logwtmpko.c setsig.c tftpsubs.c ttymsg.c xmalloc.c xstrdup.c
 
-noinst_HEADERS = snprintf.h version.h
+libinetutils_a_LIBADD = @LIBOBJS@
+
+noinst_HEADERS = snprintf.h
+
+INCLUDES = $(PATHDEF_TTY_PFX) $(PATHDEF_DEVNULL) $(PATHDEF_HEQUIV)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = ../headers/config.h
+CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 
 LIBRARIES =  $(noinst_LIBRARIES)
 
 
-DEFS = @DEFS@ -I. -I$(srcdir) -I../headers
+DEFS = @DEFS@ -I. -I$(srcdir) -I../include
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libinetutils_a_LIBADD = 
-libinetutils_a_OBJECTS =  __progname.o cleansess.o daemon.o des_rw.o \
-err.o forkpty.o getopt.o getopt1.o herror.o hstrerror.o iruserok.o \
-kcmd.o krcmd.o localhost.o login.o login_tty.o logout.o logwtmp.o \
-logwtmpko.o memmove.o memset.o openpty.o revoke.o setenv.o setsig.o \
-snprintf.o strdup.o strerror.o stub_tgetent.o syslog.o ttymsg.o \
-version.o xmalloc.o xstrdup.o
+libinetutils_a_DEPENDENCIES =  @LIBOBJS@
+libinetutils_a_OBJECTS =  cleansess.o des_rw.o kcmd.o krcmd.o \
+localhost.o logwtmpko.o setsig.o tftpsubs.o ttymsg.o xmalloc.o \
+xstrdup.o
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 HEADERS =  $(noinst_HEADERS)
 
-DIST_COMMON =  Makefile.am Makefile.in
+DIST_COMMON =  Makefile.am Makefile.in __progname.c daemon.c err.c \
+forkpty.c getopt.c getopt1.c getusershell.c herror.c hstrerror.c \
+iruserok.c login.c login_tty.c logout.c logwtmp.c memmove.c memset.c \
+openpty.c revoke.c setenv.c snprintf.c strdup.c strerror.c \
+stub_tgetent.c
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -113,13 +118,13 @@ TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/__progname.P .deps/cleansess.P .deps/daemon.P \
 .deps/des_rw.P .deps/err.P .deps/forkpty.P .deps/getopt.P \
-.deps/getopt1.P .deps/herror.P .deps/hstrerror.P .deps/iruserok.P \
-.deps/kcmd.P .deps/krcmd.P .deps/localhost.P .deps/login.P \
-.deps/login_tty.P .deps/logout.P .deps/logwtmp.P .deps/logwtmpko.P \
-.deps/memmove.P .deps/memset.P .deps/openpty.P .deps/revoke.P \
-.deps/setenv.P .deps/setsig.P .deps/snprintf.P .deps/strdup.P \
-.deps/strerror.P .deps/stub_tgetent.P .deps/syslog.P .deps/ttymsg.P \
-.deps/version.P .deps/xmalloc.P .deps/xstrdup.P
+.deps/getopt1.P .deps/getusershell.P .deps/herror.P .deps/hstrerror.P \
+.deps/iruserok.P .deps/kcmd.P .deps/krcmd.P .deps/localhost.P \
+.deps/login.P .deps/login_tty.P .deps/logout.P .deps/logwtmp.P \
+.deps/logwtmpko.P .deps/memmove.P .deps/memset.P .deps/openpty.P \
+.deps/revoke.P .deps/setenv.P .deps/setsig.P .deps/snprintf.P \
+.deps/strdup.P .deps/strerror.P .deps/stub_tgetent.P .deps/tftpsubs.P \
+.deps/ttymsg.P .deps/xmalloc.P .deps/xstrdup.P
 SOURCES = $(libinetutils_a_SOURCES)
 OBJECTS = $(libinetutils_a_OBJECTS)
 
@@ -295,6 +300,8 @@ installcheck install-exec install-data install uninstall all \
 installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
+
+@PATHDEFS_MAKE@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

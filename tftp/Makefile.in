@@ -60,7 +60,6 @@ host_triplet = @host@
 AR = @AR@
 CC = @CC@
 CPP = @CPP@
-DIRS = @DIRS@
 LIBAUTH = @LIBAUTH@
 LIBCRYPT = @LIBCRYPT@
 LIBCURSES = @LIBCURSES@
@@ -79,22 +78,26 @@ YACC = @YACC@
 
 bin_PROGRAMS = tftp
 
-tftp_SOURCES = main.c tftp.c tftpsubs.c
+tftp_SOURCES = main.c tftp.c
 
-noinst_HEADERS = extern.h tftpsubs.h
+noinst_HEADERS = extern.h
 
 man_MANS = tftp.1
+
+LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = ../headers/config.h
+CONFIG_HEADER = ../include/config.h
 CONFIG_CLEAN_FILES = 
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS = @DEFS@ -I. -I$(srcdir) -I../headers
+DEFS = @DEFS@ -I. -I$(srcdir) -I../include
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-tftp_OBJECTS =  main.o tftp.o tftpsubs.o
+tftp_OBJECTS =  main.o tftp.o
 tftp_LDADD = $(LDADD)
 tftp_DEPENDENCIES = 
 tftp_LDFLAGS = 
@@ -113,7 +116,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP = --best
-DEP_FILES =  .deps/main.P .deps/tftp.P .deps/tftpsubs.P
+DEP_FILES =  .deps/main.P .deps/tftp.P
 SOURCES = $(tftp_SOURCES)
 OBJECTS = $(tftp_OBJECTS)
 
