@@ -39,13 +39,14 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-CFLAGS += $(DEFS)
+CFLAGS += $(DEFS) -I$(top_srcdir)/tftp
 LDLIBS = $(LIBS)
 
 all: tftpd
 tftpd: tftpd.o tftpsubs.o
 
 tftpsubs.o: $(top_srcdir)/tftp/tftpsubs.c
+	$(CC) -c $(CFLAGS) $<
 
 install: installdirs tftpd $(srcdir)/tftpd.8
 	$(INSTALL_PROGRAM) tftpd $(libexecdir)/in.tftpd
