@@ -164,6 +164,8 @@ int	type;
 int	form;
 int	stru;			/* avoid C keyword */
 int	mode;
+int     anon_only = 0;		/* allow only anonymous login */
+int	quiet = 0;		/* don't print version to client */
 int	usedefault = 1;		/* for data transfers */
 int     daemon_mode = 0;        /* start in daemon mode */
 int	pdata = -1;		/* for passive mode */
@@ -312,8 +314,11 @@ main(argc, argv, envp)
 	LastArgv = envp[-1] + strlen(envp[-1]);
 #endif /* SETPROCTITLE */
 
-	while ((ch = getopt(argc, argv, "a:Ddlt:T:u:v")) != EOF) {
+	while ((ch = getopt(argc, argv, "Aa:Ddqlt:T:u:v")) != EOF) {
 		switch (ch) {
+		case 'A':
+			anon_only = 1;
+			break;
 		case 'a':
 			anonymous_login_name = optarg;
 			break;
@@ -323,7 +328,9 @@ main(argc, argv, envp)
 		case 'd':
 			debug = 1;
 			break;
-
+		case 'q':
+			quiet = 1;
+			break;
 		case 'l':
 			logging++;	/* > 1 == extra logging */
 			break;
@@ -518,8 +525,13 @@ main(argc, argv, envp)
 	if (! hostname)
 		perror_reply (550, "Local resource failure: malloc");
 
-	reply(220, "%s FTP server (%s %s) ready.",
-	      hostname, inetutils_package, inetutils_version);
+        if (!quiet) {
+        	reply(220, "%s FTP server (%s %s) ready.",
+		      hostname, inetutils_package, inetutils_version);
+	} else {
+		reply(220, "%s FTP server ready.", hostname);
+	}
+
 	(void) setjmp(errcatch);
 	for (;;)
 		(void) yyparse();
@@ -782,6 +794,11 @@ user(name)
 			    "ANONYMOUS FTP LOGIN REFUSED FROM %s", remotehost);
 		return;
 	}
+	if (anon_only) {
+                reply(530, "Sorry, only anonymous ftp allowed.");
+                return;
+        }
+	
 	if (pw = sgetpwnam(name)) {
 		if ((shell = pw->pw_shell) == NULL || *shell == 0)
 			shell = PATH_BSHELL;
@@ -1388,7 +1405,9 @@ statcmd()
 	u_char *a, *p;
 
 	lreply(211, "%s FTP server status:", hostname);
-	printf("     ftpd (%s) %s\r\n", inetutils_package, inetutils_version);
+	if (!quiet)
+		printf("     ftpd (%s) %s\r\n", 
+			inetutils_package, inetutils_version);
 	printf("     Connected to %s", remotehost);
 	if (!isdigit(remotehost[0]))
 		printf(" (%s)", inet_ntoa(his_addr.sin_addr));

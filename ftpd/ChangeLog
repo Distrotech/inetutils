@@ -1,5 +1,10 @@
 2000-07-08  Michael Vogt  <mvo@debian.org>
 
+	* ftpd.c(main): added new option "-A" anonymous login only
+	added new option "-q" quiet to  do not print ftpd version.
+
+2000-07-08  Michael Vogt  <mvo@debian.org>
+
 	* ftpd.c(main): added new option "-D" for daemon-mode,
 	ftpd can now run without inetd
 
