@@ -46,24 +46,24 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+#  include <config.h>
 #endif
 
 #if !defined (__GNUC__) && defined (_AIX)
  #pragma alloca
 #endif
 #ifndef alloca /* Make alloca work the best possible way.  */
-#ifdef __GNUC__
-#define alloca __builtin_alloca
-#else /* not __GNUC__ */
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#else /* not __GNUC__ or HAVE_ALLOCA_H */
-#ifndef _AIX /* Already did AIX, up at the top.  */
-char *alloca ();
-#endif /* not _AIX */
-#endif /* not HAVE_ALLOCA_H */
-#endif /* not __GNUC__ */
+#  ifdef __GNUC__
+#    define alloca __builtin_alloca
+#  else /* not __GNUC__ */
+#    if HAVE_ALLOCA_H
+#      include <alloca.h>
+#    else /* not __GNUC__ or HAVE_ALLOCA_H */
+#      ifndef _AIX /* Already did AIX, up at the top.  */
+          char *alloca ();
+#      endif /* not _AIX */
+#    endif /* not HAVE_ALLOCA_H */
+#  endif /* not __GNUC__ */
 #endif /* not alloca */
 
 #include <sys/param.h>
@@ -71,15 +71,15 @@ char *alloca ();
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+#  include <sys/wait.h>
 #endif
 
 #include <netinet/in.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
-#include <netinet/in_systm.h>
+#  include <netinet/in_systm.h>
 #endif
 #ifdef HAVE_NETINET_IP_H
-#include <netinet/ip.h>
+#  include <netinet/ip.h>
 #endif
 
 #define	FTP_NAMES
@@ -98,26 +98,29 @@ char *alloca ();
 #include <setjmp.h>
 #include <signal.h>
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
+#  include <stdarg.h>
 #else
-#include <varargs.h>
+#  include <varargs.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
 #ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
 #  include <sys/time.h>
-# else
 #  include <time.h>
-# endif
+#else
+#  ifdef HAVE_SYS_TIME_H
+#    include <sys/time.h>
+#  else
+#    include <time.h>
+#  endif
 #endif
 #include <unistd.h>
 #include <crypt.h>
+#ifdef HAVE_MMAP
+#include <sys/mman.h>
+#endif
 /* Include glob.h last, because it may define "const" which breaks
    system headers on some platforms. */
 #include <glob.h>
@@ -126,11 +129,11 @@ char *alloca ();
 #include "version.h"
 
 #ifndef LINE_MAX
-#define LINE_MAX 2048
+#  define LINE_MAX 2048
 #endif
 
 #ifndef LOG_FTP
-#define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
+#  define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
 #endif
 
 #ifndef HAVE_FCLOSE_DECL
@@ -261,13 +264,15 @@ curdir()
         static char *path = 0;
 	if (path)
 	        free (path);
-	path = getcwd (0, 0);
+	path = xgetcwd ();
 	if (! path)
 		return ("");
 	if (path[1] != '\0') {	/* special case for root dir. */
 	        char *new = realloc (path, strlen (path) + 2); /* '/' + '\0' */
-		if (! new)
-		        return "";
+		if (! new) {
+		    free(path);
+		    return "";
+		}
 		strcat(new, "/");
 		path = new;
 	}
@@ -286,6 +291,9 @@ main(argc, argv, envp)
 	char *cp, line[LINE_MAX];
 	FILE *fd;
 
+#ifdef HAVE_TZSET
+	tzset(); /* in case no timezon database in ~ftp */
+#endif
 	/*
 	 * LOG_NDELAY sets up the logging connection immediately,
 	 * necessary for anonymous ftp's that chroot and can't do it later.
@@ -531,7 +539,7 @@ complete_login (passwd)
 	(void) initgroups(pw->pw_name, pw->pw_gid);
 
 	/* open wtmp before chroot */
-	(void)sprintf(ttyline, "ftp%d", getpid());
+	(void)snprintf(ttyline, sizeof(ttyline), "ftp%d", getpid());
 	logwtmp_keep_open (ttyline, pw->pw_name, remotehost);
 	logged_in = 1;
 
@@ -930,14 +938,18 @@ dataconn(name, size, mode)
 	file_size = size;
 	byte_count = 0;
 	if (size != (off_t) -1)
-		(void) sprintf(sizebuf, " (%s bytes)", off_to_str (size));
+		(void) snprintf(sizebuf, sizeof(sizebuf), " (%s bytes)",
+				off_to_str (size));
 	else
-		(void) strcpy(sizebuf, "");
+	    	*sizebuf = '\0';
 	if (pdata >= 0) {
 		struct sockaddr_in from;
 		int s, fromlen = sizeof(from);
 
+		(void) signal(SIGALRM, toolong);
+		(void) alarm((unsigned) timeout);
 		s = accept(pdata, (struct sockaddr *)&from, &fromlen);
+		(void) alarm (0);
 		if (s < 0) {
 			reply(425, "Can't open data connection.");
 			(void) close(pdata);
@@ -1001,24 +1013,62 @@ send_data(instr, outstr, blksize)
 	off_t blksize;
 {
 	int c, cnt, filefd, netfd;
-	char *buf;
+	char *buf, *bp;
+	off_t curpos;
+	size_t len, filesize;
 
 	transflag++;
 	if (setjmp(urgcatch)) {
 		transflag = 0;
 		return;
 	}
+
+	netfd = fileno(outstr);
+	filefd = fileno(instr);
+#ifdef HAVE_MMAP
+	if (file_size > 0) {
+	    curpos = lseek (filefd, 0, SEEK_CUR);
+	    if (curpos >= 0) {
+		filesize = file_size - curpos;
+		buf = mmap (0, filesize, PROT_READ, MAP_SHARED, filefd, curpos);
+	    }
+	}
+#endif
+
 	switch (type) {
 
 	case TYPE_A:
-		while ((c = getc(instr)) != EOF) {
+#ifdef HAVE_MMAP
+	    	if (file_size > 0 && curpos >= 0 && buf != MAP_FAILED)
+		{
+		    len = 0;
+		    while (len < filesize) {
 			byte_count++;
-			if (c == '\n') {
-				if (ferror(outstr))
-					goto data_err;
-				(void) putc('\r', outstr);
+			if (buf[len] == '\n') {
+			    if (ferror(outstr))
+				break;
+			    (void) putc('\r', outstr);
 			}
-			(void) putc(c, outstr);
+			(void) putc(buf[len], outstr);
+			len++;
+		    }
+		    fflush(outstr);
+		    transflag = 0;
+		    munmap (buf, filesize);
+		    if (ferror(outstr))
+			goto data_err;
+		    reply(226, "Transfer complete.");
+		    return;
+		}
+#endif
+		while ((c = getc(instr)) != EOF) {
+		    byte_count++;
+		    if (c == '\n') {
+			if (ferror(outstr))
+			    goto data_err;
+			(void) putc('\r', outstr);
+		    }
+		    (void) putc(c, outstr);
 		}
 		fflush(outstr);
 		transflag = 0;
@@ -1031,13 +1081,30 @@ send_data(instr, outstr, blksize)
 
 	case TYPE_I:
 	case TYPE_L:
+#ifdef HAVE_MMAP
+	    	if (file_size > 0 && curpos >= 0 && buf != MAP_FAILED)
+		{
+		    bp = buf;
+		    len = filesize;
+		    do {
+			cnt = write (netfd, bp, len);
+			len -= cnt;
+			bp += cnt;
+			if (cnt > 0) byte_count += cnt;
+		    } while (cnt > 0 && len > 0);
+		    transflag = 0;
+		    munmap (buf, (size_t)filesize);
+		    if (cnt < 0)
+			goto data_err;
+		    reply (226, "Transfer complete.");
+		    return;
+		}
+#endif
 		if ((buf = malloc((u_int)blksize)) == NULL) {
 			transflag = 0;
 			perror_reply(451, "Local resource failure: malloc");
 			return;
 		}
-		netfd = fileno(outstr);
-		filefd = fileno(instr);
 		while ((cnt = read(filefd, buf, (u_int)blksize)) > 0 &&
 		    write(netfd, buf, cnt) == cnt)
 			byte_count += cnt;
@@ -1381,7 +1448,7 @@ makedir(name)
 	else {
 		/* We have to figure out what our current directory is so that we can
 		   give an absolute name in the reply.  */
-		char *cwd = getcwd (0, 0);
+		char *cwd = xgetcwd ();
 		if (cwd) {
 			if (cwd[1] == '\0')
 				cwd[0] = '\0';
@@ -1407,7 +1474,7 @@ removedir(name)
 void
 pwd()
 {
-	char *path = getcwd (0, 0);
+	char *path = xgetcwd ();
 	if (path) {
 		reply(257, "\"%s\" is current directory.", path);
 		free (path);

@@ -1,0 +1,32 @@
+_________________________________________________________________
+CERT* Advisory CA-97.27: FTP Bounce
+
+Original issue date: Dec. 10, 1997
+Last revised: July 9, 1998 
+	Updated information for Digital Equipment Corporation
+
+Description:
+	The core component of the problem is that by using the PORT command in
+	active FTP mode, an attacker may be able to establish connections to
+	arbitrary ports on machines other than the originating client. This
+	behavior is RFC compliant, but it is also potentially a source of
+	security problems for some sites. The example attacks described in the
+	tech tip demonstrate the potential of this vulnerability.
+
+inetutils: corrected in version 1.4
+_________________________________________________________________
+CERT* Advisory CA-97.16 : ftpd Signal Handling Vulnerability
+Original issue date: May 29, 1997
+Last Revised: December 5, 1997
+	Added vendor information for NCR Corporation to the Updates section.
+
+Description:
+	This vulnerability is caused by a signal handling routine increasing
+	process privileges to root, while still continuing to catch other
+	signals. This introduces a race condition which may allow regular, as
+	well as anonymous ftp, users to access files with root privileges.
+	Depending on the configuration of the ftpd server, this may allow
+	intruders to read or write to arbitrary files on the server.
+
+inetutils: not affected from release after 1.2.x
+_________________________________________________________________
