@@ -1143,7 +1143,7 @@ pswitch(flag)
 	sig_t oldintr;
 	static struct comvars {
 		int connect;
-		char name[MAXHOSTNAMELEN];
+		char *name;
 		struct sockaddr_in mctl;
 		struct sockaddr_in hctl;
 		FILE *in;
@@ -1158,9 +1158,9 @@ pswitch(flag)
 		char nti[17];
 		char nto[17];
 		int mapflg;
-		char mi[MAXPATHLEN];
-		char mo[MAXPATHLEN];
-	} proxstruct, tmpstruct;
+		char *mi;
+		char *mo;
+	} proxstruct = {0}, tmpstruct = {0};
 	struct comvars *ip, *op;
 
 	abrtflag = 0;
@@ -1180,12 +1180,12 @@ pswitch(flag)
 	}
 	ip->connect = connected;
 	connected = op->connect;
-	if (hostname) {
-		(void) strncpy(ip->name, hostname, sizeof(ip->name) - 1);
-		ip->name[strlen(ip->name)] = '\0';
-	} else
-		ip->name[0] = 0;
+
+	if (ip->name)
+		free (ip->name);
+	ip->name = hostname;
 	hostname = op->name;
+
 	ip->hctl = hisctladdr;
 	hisctladdr = op->hctl;
 	ip->mctl = myctladdr;
@@ -1216,12 +1216,17 @@ pswitch(flag)
 	(void) strcpy(ntout, op->nto);
 	ip->mapflg = mapflag;
 	mapflag = op->mapflg;
-	(void) strncpy(ip->mi, mapin, MAXPATHLEN - 1);
-	(ip->mi)[strlen(ip->mi)] = '\0';
-	(void) strcpy(mapin, op->mi);
-	(void) strncpy(ip->mo, mapout, MAXPATHLEN - 1);
-	(ip->mo)[strlen(ip->mo)] = '\0';
-	(void) strcpy(mapout, op->mo);
+
+	if (ip->mi)
+		free (ip->mi);
+	ip->mi = mapin;
+	mapin = op->mi;
+
+	if (ip->mo)
+		free (ip->mo);
+	ip->mo = mapout;
+	mapout = op->mo;
+
 	(void) signal(SIGINT, oldintr);
 	if (abrtflag) {
 		abrtflag = 0;
@@ -1386,7 +1391,7 @@ char *
 gunique(local)
 	char *local;
 {
-	static char new[MAXPATHLEN];
+	static char *new = 0;
 	char *cp = strrchr(local, '/');
 	int d, count=0;
 	char ext = '1';
@@ -1400,12 +1405,21 @@ gunique(local)
 		warn("local: %s", local);
 		return ((char *) 0);
 	}
-	(void) strcpy(new, local);
+
+	if (new)
+		free (new);
+	new = malloc (strlen (local) + 1 + 3 + 1); /* '.' + 100 + '\0' */
+	if (! new) {
+		printf ("gunique: malloc failed.\n");
+		return 0;
+	}
+	strcpy (new, local);
+
 	cp = new + strlen(new);
 	*cp++ = '.';
 	while (!d) {
 		if (++count == 100) {
-			printf("runique: can't find unique file name.\n");
+ 			printf("runique: can't find unique file name.\n");
 			return ((char *) 0);
 		}
 		*cp++ = ext;
