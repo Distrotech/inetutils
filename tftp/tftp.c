@@ -90,7 +90,6 @@ extern  int     maxtimeout;
 #define PKTSIZE    SEGSIZE+4
 char    ackbuf[PKTSIZE];
 int	timeout;
-jmp_buf	toplevel;
 jmp_buf	timeoutbuf;
 
 static void nak __P((int));
