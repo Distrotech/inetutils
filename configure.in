@@ -150,7 +150,10 @@ AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
 		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
 		 sys/proc.h sys/select.h sys/time.h sys/wait.h sys/resource.h \
 		 stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h \
-                 vis.h poll.h sys/poll.h)
+                 vis.h)
+AC_CHECK_HEADER(poll.h,
+                [],
+                [INCLUDES="$INCLUDES poll.h"]) 
 AC_HEADER_TIME
 
 AC_CHECK_LIB(nsl, inet_ntoa)
