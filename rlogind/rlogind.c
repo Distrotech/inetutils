@@ -42,12 +42,19 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #endif /* not lint */
 
 /*
- * remote login server:
+ * relmote login server:  the following data is sent across the network
+ * connection by the rcmd() function that the rlogin client uses:
  *	\0
  *	remuser\0
  *	locuser\0
  *	terminal_type/speed\0
  *	data
+ * Define OLD_LOGIN for compatibility with the 4.2BSD and 4.3BSD /bin/login.
+ * If this iisn't defined, a newer protocol is used  whereby rlogind does
+ * the user verification.  This newer version of login is on the Berkeley
+ * Networking Release 1.0 tape.
+ * Alain: we don't use the OLD_LOGIN stuff anymore, by default we'll
+ * call do_rlogin() that call ruserok() to do the authentication.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -168,7 +175,6 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	extern int __check_rhosts_file;
 	struct sockaddr_in from;
 	int ch, fromlen, on;
 
@@ -181,10 +187,14 @@ main(argc, argv)
 			check_all = 1;
 			break;
 		case 'l':
-			__check_rhosts_file = 0;
+			{
+				extern int __check_rhosts_file;
+				/* don't check .rhosts file */
+				__check_rhosts_file = 0;
+			}
 			break;
 		case 'n':
-			keepalive = 0;
+			keepalive = 0; /* don't enable SO_KEEPALIVE */
 			break;
 #ifdef KERBEROS
 		case 'k':
@@ -213,25 +223,35 @@ main(argc, argv)
 		fatal(STDERR_FILENO, "only one of -k and -v allowed", 0);
 	}
 #endif
+
+	/* 
+	 * We assusme we're incoked by inetd, so the socket that the connection
+	 * is on, is open on descriptor 0, 1 and 2.
+	 * STD{IN,OUT,ERR}_FILENO
+	 *
+	 * First get the Internet address o the client process.
+	 * This is required for all the authentication we perform.
+	 */
 	fromlen = sizeof (from);
-	if (getpeername(0, (struct sockaddr *)&from, &fromlen) < 0) {
+	if (getpeername(STDIN_FILENO, (struct sockaddr *)&from, &fromlen) < 0) {
 		syslog(LOG_ERR,"Can't get peer name of remote host: %m");
 		fatal(STDERR_FILENO, "Can't get peer name of remote host", 1);
 	}
 
 	on = 1;
 	if (keepalive &&
-	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, (char *) &on,
+	    setsockopt(STDIN_FILENO, SOL_SOCKET, SO_KEEPALIVE, (char *) &on,
 		       sizeof (on)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
 
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
 	on = IPTOS_LOWDELAY;
-	if (setsockopt(0, IPPROTO_IP, IP_TOS, (char *)&on, sizeof(int)) < 0)
+	if (setsockopt(STDIN_FILENO, IPPROTO_IP, IP_TOS, (char *)&on,
+		sizeof(int)) < 0)
 		syslog(LOG_WARNING, "setsockopt (IP_TOS): %m");
 #endif
 
-	doit(0, &from);
+	doit(STDIN_FILENO, &from);
 }
 
 int	child;
@@ -254,6 +274,14 @@ doit(f, fromp)
 	const char *raw_hostname;
 	char c;
 
+	/*
+	 * Read the null byte from the client.  This byte is really
+	 * written by the rcmd() function as the secondary port number.
+	 * However, the rlogin client calls rcmd() specifying a secondary
+	 * port of 0, so all that rcmd() sends is the null byte.
+	 * We set a timer of 60 seconds to do this read, else we assume
+	 * something is wrong.
+	 */
 	alarm(60);
 	read(f, &c, 1);
 
@@ -265,6 +293,10 @@ doit(f, fromp)
 #endif
 
 	alarm(0);
+	/*
+	 * Try to look up the client's name, given its internet
+	 * address, since we use the name for the authentication.
+	 */
 	fromp->sin_port = ntohs((u_short)fromp->sin_port);
 	hp = gethostbyaddr((char *)&fromp->sin_addr, sizeof(struct in_addr),
 	    fromp->sin_family);
@@ -355,9 +387,9 @@ doit(f, fromp)
 		{
 			char * utmp_ptsid();
 			void utmp_init();
-			char * ut_id = utmp_id(line, "rl");
+			char * ut_id = utmp_ptsid(line, "rl");
 			utmp_init(line + sizeof("/dev/") -1, ".rlogin",
-				utmp_id);
+				ut_id);
 		}
 #endif
 		if (authenticated) {
