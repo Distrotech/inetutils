@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-bin_PROGRAMS = @BUILD_FTP@
+bin_PROGRAMS = @ftp_BUILD@
 
 EXTRA_PROGRAMS = ftp
 
