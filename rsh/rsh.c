@@ -65,8 +65,6 @@ static char sccsid[] = "@(#)rsh.c	8.3 (Berkeley) 4/6/94";
 #include <unistd.h>
 #include <varargs.h>
 
-#include "pathnames.h"
-
 #ifdef KERBEROS
 #include <kerberosIV/des.h>
 #include <kerberosIV/krb.h>
