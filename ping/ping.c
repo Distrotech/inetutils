@@ -7,7 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2, or (at your option)
 any later version.
 
-GNU Emacs is distributed in the hope that it will be useful,
+GNU Inetutils is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -25,6 +25,7 @@ Boston, MA 02111-1307, USA. */
 #include <netinet/in.h>
 #include <netdb.h>
 #include "getopt.h"
+#include "version.h"
 
 static void
 show_usage (void)
@@ -35,7 +36,7 @@ Usage: ping [OPTION]... [ADDRESS]...\n\
   -h, --help      display this help and exit\n\
   -v, --version   output version information and exit\n\
 \n\
-report bugs to <bug-inetutils@gnu.org>.\n\
+report bugs to " inetutils_bugaddr ".\n\
 ");
 }
 
@@ -59,7 +60,7 @@ main (int argc, char **argv)
         switch (opt)
           {
           case 'v':
-            printf ("ping - %s %s\n", GNU_PACKAGE, VERSION);
+            printf ("ping - GNU inetutils %s\n", inetutils_version);
             printf ("Copyright (C) 1998 Free Software Foundation, Inc.\n");
             printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", GNU_PACKAGE);
             printf ("You may redistribute copies of %s\n", PACKAGE);
