@@ -461,10 +461,13 @@ AC_DEFUN([IU_ENABLE_FOO],
                 [enable_]$1[=$enable_]$2)
 [if test "$enable_$1" = yes; then 
    $1_BUILD=$1
+   $1_INSTALL_HOOK="install-$1-hook"
 else
    $1_BUILD=''
+   $1_INSTALL_HOOK=''
 fi;]
   AC_SUBST([$1_BUILD])
+  AC_SUBST([$1_INSTALL_HOOK])
 ])
 
 AC_DEFUN([IU_ENABLE_CLIENT], [IU_ENABLE_FOO($1, clients)])
@@ -558,7 +561,7 @@ dnl if it is set and not "yes".
 dnl VERSION should be either 4 or 5
 dnl Defines KRB_CFLAGS and KRB_LIBS if found.
 dnl Defines KRB_IMPL to "Heimdal", "MIT", or "OldMIT", or "none" if not found
-AC_DEFUN(IU_CHECK_KRB5,
+AC_DEFUN([IU_CHECK_KRB5],
 [
  if test "x$iu_cv_lib_krb5_libs" = x; then
   cache=""
