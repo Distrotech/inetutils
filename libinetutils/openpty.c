@@ -183,6 +183,11 @@ static int ptys_open(fdm, pts_name)
 		close(fds);
 		return -8;
 	}
+	if (ioctl(fds, I_PUSH, "pckt") < 0) {
+		close(fdm);
+		close(fds);
+		return -8;
+	}
 	return fds;
 #else
 	int gid;
