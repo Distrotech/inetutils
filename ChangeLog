@@ -1,3 +1,7 @@
+2001-02-09  Jeff Bailey  <jbailey@oasis.zugzug.com>
+
+	* Makefile.am: Use 4 digit year for `make release'
+
 2001-01-16  Alain Magloire
 
 	* gwhois/whois.c gwhois/TODO gwhois/Makefile: Update from the

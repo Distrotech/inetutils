@@ -12,4 +12,4 @@ DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
 AUTOHEADER = @AUTOHEADER@ -l headers
 
 release:
-	$(MAKE) dist distdir=$(PACKAGE)`date +"%y%m%d"`
+	$(MAKE) dist distdir=$(PACKAGE)-`date +"%Y%m%d"`
