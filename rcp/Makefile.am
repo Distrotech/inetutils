@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-bin_PROGRAMS = @BUILD_RCP@
+bin_PROGRAMS = @rcp_BUILD@
 
 EXTRA_PROGRAMS = rcp
 
