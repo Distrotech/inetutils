@@ -1,8 +1,11 @@
 dnl Autoconf macros used by inetutils
 dnl
-dnl Copyright (C) 1996, 1997 Free Software Foundation, Inc.
+dnl Copyright (C) 1996, 1997, 1998 Free Software Foundation, Inc.
 dnl
-dnl Written by Miles Bader <miles@gnu.ai.mit.edu>
+dnl Mostly written by Miles Bader <miles@gnu.ai.mit.edu>
+dnl
+dnl Joel N. Weber II <devnull@gnu.org> wrote
+dnl IU_ENABLE_CLIENT, IU_ENABLE_SERVER and IU_ENABLE_FOO.
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -493,3 +496,21 @@ HAVE_$iu_sym
 EOF
   done >$[$3]
   AC_SUBST_FILE([$3])])
+
+AC_DEFUN([IU_ENABLE_FOO], [
+AC_ARG_ENABLE($1, [  --disable-$1       don't compile $1], ,
+[enable_]$1[=$enable_]$2
+)
+
+[if test enable_$1 = yes; then 
+BUILD_]translit($1, [a-z], [A-Z])[=$1]
+[else BUILD_]translit($1, [a-z], [A-Z])=''; fi
+
+AC_SUBST([BUILD_]translit($1, [a-z], [A-Z]))
+])dnl
+
+AC_DEFUN([IU_ENABLE_CLIENT], [
+IU_ENABLE_FOO($1, client)])
+
+AC_DEFUN([IU_ENABLE_SERVER], [
+IU_ENABLE_FOO($1, server)])
