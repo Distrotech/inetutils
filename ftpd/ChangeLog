@@ -1,0 +1,35 @@
+
+	The security fixes are gather from different sources:
+	folks of OpenBSD, FreeBSD, Debian, Redhat and wu-ftpd.
+	Heads-up for their nice work.
+
+1999-02-26 Alain Magloire
+
+	* popen.c : overflow in argv[] and gargv[] fix.
+
+1999-02-17 Alain Magloire
+
+	* ftpd.c(send_data): Use mmap() if possible, HAVE_MMAP.
+	* extern.h : Add toolong() to be exported.
+	* ftpcmnd.y : toolong() no longer a static function.
+	* ftpd.c : Set the alarm(timeout) when doing an accept() for
+	the data port and use signal(SIGALRM, toolong).
+	* ftpd.c(maing): tzset(), in case no timezone database in ~ftp.
+	* ftpd.c(datacon) : Use snprintf() instead of sprintf() for
+	fix array buffers. Assign *sizebuf ='\0' instead of 
+	strcpy (sizebuf, "");
+	* Use xgetcwd() from libinetutils instead of getcwd();
+
+1999-02-13 Alain Magloire
+
+	* ftpcmd.y : PORT command disallow PORT if :
+		- port <= 1023 || data_addr.sin_addr != his_addr.sin_addr
+	This will take care of FTP bounce. See README.sec 
+	* ftpcmd.y : PASS clear passwd var(memset) asap.
+	* ftpcmd.y : PASV check if loggin.
+	* ftpcmd.y : RNTO check loggin and free $4 pointer.
+	* ftpcmd.y : HELP free $3 pointer.
+	* ftpcmd.y : SITE free $5 pointer.
+	* ftpcmd.y : RNFR free $4 pointer.
+	* ftpcmd.y : MDTM year 2000 compliant use %04d (tm_year + 1900).
+	* ftpcmd.y : SITE IDLE not permit to disable timeout and check login.
