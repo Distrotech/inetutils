@@ -7,6 +7,7 @@ VPATH = $(srcdir)
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
+bindir = @bindir@
 includedir = @includedir@
 libdir = @libdir@
 sbindir = @sbindir@
@@ -21,6 +22,8 @@ man8dir = $(mandir)/man8
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
+AR = @AR@
+RANLIB = @RANLIB@
 CC = @CC@
 YACC = @YACC@
 DEFS = @DEFS@
