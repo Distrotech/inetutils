@@ -5,6 +5,7 @@
 	until we either have a maximum partial line or a full line.  Log
 	that, and all following lines collected so far, and in the case of
 	the maximum partial line skip the remainder of the current line.
+	Reported by Davin McCall <davmac@iname.com>.
 
 2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
