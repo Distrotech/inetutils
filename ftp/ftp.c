@@ -68,7 +68,7 @@ static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -295,16 +295,16 @@ cmdabort(sig)
 
 /*VARARGS*/
 int
-#ifdef HAVE_STDARG_H
-command (char *fmt, ...)
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+command (const char *fmt, ...)
 #else
 command(va_alist)
 va_dcl
 #endif
 {
 	va_list ap;
-#ifndef HAVE_STDARG_H
-	char *fmt;
+#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
+	const char *fmt;
 #endif
 	int r;
 	sig_t oldintr;
@@ -312,7 +312,7 @@ va_dcl
 	abrtflag = 0;
 	if (debug) {
 		printf("---> ");
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 		va_start (ap, fmt);
 #else
 		va_start(ap);
@@ -332,7 +332,7 @@ va_dcl
 		return (0);
 	}
 	oldintr = signal(SIGINT, cmdabort);
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start (ap, fmt);
 #else
 	va_start(ap);
