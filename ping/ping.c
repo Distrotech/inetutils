@@ -51,9 +51,6 @@
 #include <ping.h>
 #include <ping_impl.h>
 
-#define PACKAGE "ping"
-#define GNU_PACKAGE "GNU ping"
-
 static char short_options[] = "VLhc:dfi:l:np:qRrs:t:v";
 static struct option long_options[] = 
 {
@@ -135,10 +132,10 @@ main(int argc, char **argv)
       switch (c)
 	{
 	case 'V':
-	  printf ("ping - GNU inetutils %s\n", inetutils_version);
+	  printf ("ping - %s %s\n", inetutils_package, inetutils_version);
 	  printf ("Copyright (C) 1998,2001 Free Software Foundation, Inc.\n");
-	  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", GNU_PACKAGE);
-	  printf ("You may redistribute copies of %s\n", PACKAGE);
+	  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", inetutils_package);
+	  printf ("You may redistribute copies of %s\n", inetutils_package);
 	  printf ("under the terms of the GNU General Public License.\n");
 	  printf ("For more information about these matters, ");
 	  printf ("see the files named COPYING.\n");
