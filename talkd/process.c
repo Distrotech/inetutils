@@ -190,15 +190,15 @@ find_user(name, tty)
 	FILE *fd;
 	struct stat statb;
 	char line[sizeof(ubuf.ut_line) + 1];
-	char ftty[sizeof(_PATH_DEV) - 1 + sizeof(line)];
+	char ftty[sizeof(PATH_DEV) - 1 + sizeof(line)];
 
-	if ((fd = fopen(_PATH_UTMP, "r")) == NULL) {
-		fprintf(stderr, "talkd: can't read %s.\n", _PATH_UTMP);
+	if ((fd = fopen(PATH_UTMP, "r")) == NULL) {
+		fprintf(stderr, "talkd: can't read %s.\n", PATH_UTMP);
 		return (FAILED);
 	}
 #define SCMPN(a, b)	strncmp(a, b, sizeof (a))
 	status = NOT_HERE;
-	(void) strcpy(ftty, _PATH_DEV);
+	(void) strcpy(ftty, PATH_DEV);
 	while (fread((char *) &ubuf, sizeof ubuf, 1, fd) == 1)
 		if (SCMPN(ubuf.ut_name, name) == 0) {
 			strncpy(line, ubuf.ut_line, sizeof(ubuf.ut_line));
@@ -206,7 +206,7 @@ find_user(name, tty)
 			if (*tty == '\0') {
 				status = PERMISSION_DENIED;
 				/* no particular tty was requested */
-				(void) strcpy(ftty + sizeof(_PATH_DEV) - 1,
+				(void) strcpy(ftty + sizeof(PATH_DEV) - 1,
 				    line);
 				if (stat(ftty, &statb) == 0) {
 					if (!(statb.st_mode & 020))
