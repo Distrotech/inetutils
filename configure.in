@@ -25,7 +25,9 @@ AC_INIT(inetd/inetd.c)
 # the production of headers/config.h.in.
 AC_PREREQ(2.12)
 
-AM_INIT_AUTOMAKE([inetutils], [1.3.3], nodefs)
+AM_INIT_AUTOMAKE([inetutils], [1.3.3])
+GNU_PACKAGE="GNU $PACKAGE"
+AC_DEFINE_UNQUOTED(GNU_PACKAGE, "$GNU_PACKAGE")
 
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
