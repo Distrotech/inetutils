@@ -1,3 +1,7 @@
+2002-04-29  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* version.h.in: Removed.
+
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* crypt.h [HAVE_CRYPT_DECL]: Renamed to HAVE_DECL_CRYPT.
