@@ -502,15 +502,13 @@ AC_ARG_ENABLE($1, [  --disable-$1       don't compile $1], ,
 [enable_]$1[=$enable_]$2
 )
 
-[if test enable_$1 = yes; then 
+[if test "$enable_$1" = yes; then 
 BUILD_]translit($1, [a-z], [A-Z])[=$1]
 [else BUILD_]translit($1, [a-z], [A-Z])=''; fi
-
-AC_SUBST([BUILD_]translit($1, [a-z], [A-Z]))
 ])dnl
 
 AC_DEFUN([IU_ENABLE_CLIENT], [
-IU_ENABLE_FOO($1, client)])
+IU_ENABLE_FOO($1, clients)])
 
 AC_DEFUN([IU_ENABLE_SERVER], [
-IU_ENABLE_FOO($1, server)])
+IU_ENABLE_FOO($1, servers)])
