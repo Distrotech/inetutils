@@ -20,19 +20,12 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(bindir)/ftp $(man1dir)/ftp.1
+
 all: ftp
 ftp: cmds.o cmdtab.o ftp.o main.o ruserpass.o domacro.o
 
-install: installdirs ftp ftp.1
-	$(INSTALL_PROGRAM) ftp $(bindir)/ftp
-	-$(INSTALL_DATA) $(srcdir)/ftp.1 $(man1dir)/ftp.1
-uninstall:
-	-$(RM) -f $(bindir)/ftp $(man1dir)/ftp.1
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o ftp
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
