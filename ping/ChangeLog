@@ -1,12 +1,19 @@
 2005-01-20  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ping.c: Comply with GCS.
+	(init_data_buffer): Use xmalloc().
+	(show_usage): Print the "report bugs" string as all other GNU
+	programs do.
+
+2005-01-20  Alfred M. Szmidt  <ams@gnu.org>
+
 	* ping.c: Include <stdbool.h>
 	(ping_cvt_number): Function removed.
 	(main): Store the values for -c, -i and -t in variables, and don't
 	use `ping_cvt_number' to check if the arguments to an option are
 	valid, do it manually.  Set them accordingly after ping_init() is
 	done.
-	
+
 	* ping.c (main): Changed type of `is_root' to `bool'.  Update all
 	usage accordingly.
 
@@ -113,22 +120,21 @@
 
 
 2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
-        * Makefile.am: use @BUILD_PING@ instead of directly
-          assigning bin_PROGRAMS.
+	* Makefile.am: use @BUILD_PING@ instead of directly
+	  assigning bin_PROGRAMS.
 	* ping.h: changed counters in struct PING from int to longs.
 	* ping.c,ping_address.c,ping_echo.c,
-          ping_impl.h,ping_router.c,ping_timestamp.c:
-                Fixed a bunch of inconsistencies (thanks to Alain).
-                Changes to make gcc -Wall less verbose.
+	  ping_impl.h,ping_router.c,ping_timestamp.c:
+		Fixed a bunch of inconsistencies (thanks to Alain).
+		Changes to make gcc -Wall less verbose.
 
 2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
 	* Makefile.am: added OMIT_DEPENDENCIES
 	* ping.c,ping_address.c,ping_echo.c,ping_impl.h,ping_timestamp.c:
 		Implemented ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests.
-          None of existing routers answers the latter, though.
+	  None of existing routers answers the latter, though.
 
 2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
 	* ping.c: implemented
 	* ping_address.c, ping_echo.c, ping_impl.h, ping_router.c,
 	  ping_timestamp.c: added to repository.
-

@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002, 2005 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -251,7 +251,8 @@ main (int argc, char **argv)
       exit (0);
     }
 
-  if ((ping = ping_init (ICMP_ECHO, getpid ())) == NULL)
+  ping = ping_init (ICMP_ECHO, getpid ());
+  if (ping == NULL)
     {
       fprintf (stderr, "can't init ping: %s\n", strerror (errno));
       exit (1);
@@ -283,12 +284,9 @@ init_data_buffer (u_char *pat, int len)
 
   if (data_length == 0)
     return;
-  data_buffer = malloc (data_length);
-  if (!data_buffer)
-    {
-      fprintf (stderr, "ping: out of memory\n");
-      exit (1);
-    }
+
+  data_buffer = (u_char *) xmalloc (data_length);
+
   if (pat)
     {
       for (p = data_buffer; p < data_buffer + data_length; p++)
@@ -407,7 +405,8 @@ ping_run (PING *ping, int (*finish)())
       if (timeout.tv_sec < 0)
 	timeout.tv_sec = timeout.tv_usec = 0;
       
-      if ((n = select (fdmax, &fdset, NULL, NULL, &timeout)) < 0)
+      n = select (fdmax, &fdset, NULL, NULL, &timeout);
+      if (n < 0)
 	{
 	  if (errno != EINTR)
 	    perror ("select");
@@ -431,9 +430,7 @@ ping_run (PING *ping, int (*finish)())
 	    {
 	      send_echo (ping);
 	      if (!(options & OPT_QUIET) && options & OPT_FLOOD)
-		{
-		  putchar ('.');
-		}
+		putchar ('.');
 	    }
 	  else if (finishing)
 	    break;
@@ -485,8 +482,8 @@ ping_finish ()
 	printf ("-- somebody's printing up packets!");
       else
 	printf ("%d%% packet loss",
-	       (int) (((ping->ping_num_xmit - ping->ping_num_recv) * 100) /
-		      ping->ping_num_xmit));
+		(int) (((ping->ping_num_xmit - ping->ping_num_recv) * 100) /
+		       ping->ping_num_xmit));
 
     }
   printf ("\n");
@@ -526,7 +523,7 @@ Options valid for --echo requests:\n\
 \n\
 Options marked with an * are available only to super-user\n\
 \n\
-report bugs to " PACKAGE_BUGREPORT ".\n\
+Report bugs to <" PACKAGE_BUGREPORT ">.\n\
 ");
 }
 
