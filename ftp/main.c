@@ -66,6 +66,8 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 #include <getopt.h>
 #include <version.h>
 
+/* Define macro to nothing so declarations in ftp_var.h become definitions. */
+#define FTP_EXTERN
 #include "ftp_var.h"
 
 #define USAGE "Usage: %s [OPTION...] [HOST [PORT]]\n"
