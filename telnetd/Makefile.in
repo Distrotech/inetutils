@@ -21,7 +21,6 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-INSTALL_TARGETS = $(libexecdir)/in.telnetd $(man8dir)/telnetd.8
 SRCS = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat.c \
        utility.c
 HDRS = defs.h ext.h telnetd.h
@@ -29,13 +28,13 @@ DISTFILES = $(SRCS) $(HDRS) telnetd.8
 
 OPTIONS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
 
-CPPFLAGS += $(OPTIONS) -D_PATH_LOGIN=\"$(bindir)/login\"
+INSTALL_TARGETS = $(libexecdir)/in.telnetd $(man8dir)/telnetd.8
+OBJS = $(SRCS:.c=.o)
 LDLIBS := -L../libtelnet -ltelnet $(LIBTERMCAP) $(LDLIBS)
+CPPFLAGS += $(OPTIONS) -D_PATH_LOGIN=\"$(bindir)/login\"
+CLEAN = telnetd $(OBJS)
 
 all: telnetd
-telnetd: $(SRCS:.c=.o)
-
-clean:
-	$(RM) -f *.o telnetd 
+telnetd: $(OBJS)
 
 include $(RULES)
