@@ -61,7 +61,7 @@ main(int argc, char *argv[])
   int c;
   char *acl_file = NULL;
 
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
+ while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
     switch (c)
       {
@@ -103,13 +103,6 @@ main(int argc, char *argv[])
 void
 talkd_init ()
 {
-  if (getuid ())
-    {
-      /* fprintf (stderr, "talkd: not super-user\n");
-	 exit (1);  */
-      syslog (LOG_NOTICE, "talkd: not super-user\n");
-    }
-
   openlog ("talkd", LOG_PID, LOG_FACILITY);
   hostname = localhost ();
   if (!hostname)
