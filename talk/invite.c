@@ -91,9 +91,9 @@ invite_remote()
 		p_error("Error on attempt to listen for caller");
 
 	msg.addr.sa_family = htons (my_addr.sin_family);
-	bcopy (msg.addr.sa_data,
-	       ((struct sockaddr *)&my_addr)->sa_data,
-	       sizeof ((struct sockaddr *)&my_addr)->sa_data);
+	memcpy (msg.addr.sa_data,
+		((struct sockaddr *)&my_addr)->sa_data,
+		sizeof ((struct sockaddr *)&my_addr)->sa_data);
 
 	msg.id_num = htonl(-1);		/* an impossible id_num */
 	invitation_waiting = 1;
