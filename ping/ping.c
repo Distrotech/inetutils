@@ -112,6 +112,13 @@ main (int argc, char **argv)
   u_char *patptr = NULL;
   int is_root = getuid () == 0;
 
+  if ((ping = ping_init (ICMP_ECHO, getpid ())) == NULL)
+    {
+      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
+      exit (1);
+    }
+  ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
+
   /* Parse command line */
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
@@ -214,6 +221,9 @@ main (int argc, char **argv)
 	}
     }
 
+  /* Reset root privileges */
+  setuid (getuid ());
+ 
   argc -= optind;
   argv += optind;
   if (argc == 0) 
