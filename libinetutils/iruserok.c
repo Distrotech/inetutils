@@ -269,7 +269,7 @@ __icheckhost (u_long raddr, register char *lhost)
     return 0;
 
   /* Spin through ip addresses. */
-#ifdef HAVE_HOSTENT_H_ADDR_LIST
+#ifdef HAVE_STRUCT_HOSTENT_H_ADDR_LIST
   for (pp = hp->h_addr_list; *pp; ++pp)
     if (!memcmp (&raddr, *pp, sizeof (u_long)))
       return 1;

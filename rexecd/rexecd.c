@@ -113,7 +113,7 @@ char	*envinit[] =
 	    {homedir, shell, path, username, logname, 0};
 extern char	**environ;
 
-#ifdef HAVE_SOCKADDR_IN_SIN_LEN
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
 struct	sockaddr_in asin = { sizeof(asin), AF_INET };
 #else
 struct	sockaddr_in asin = { AF_INET };

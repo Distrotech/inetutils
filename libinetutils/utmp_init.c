@@ -53,22 +53,22 @@ utmp_init(char   *line, char   *user, char   *id)
 #endif
 
     memset((char *) &utx, 0, sizeof(utx));
-#if defined(HAVE_UTMP_UT_ID)
+#if defined(HAVE_STRUCT_UTMP_UT_ID)
     strncpy(utx.ut_id, id, sizeof(utx.ut_id));
 #endif
-#if defined(HAVE_UTMP_UT_USER)
+#if defined(HAVE_STRUCT_UTMP_UT_USER)
     strncpy(utx.ut_user, user, sizeof(utx.ut_user));
 #else
     strncpy(utx.ut_name, user, sizeof(utx.ut_name));
 #endif
     strncpy(utx.ut_line, line, sizeof(utx.ut_line));
-#if defined(HAVE_UTMP_UT_PID)
+#if defined(HAVE_STRUCT_UTMP_UT_PID)
     utx.ut_pid = getpid();
 #endif
-#if defined(HAVE_UTMP_UT_TYPE)
+#if defined(HAVE_STRUCT_UTMP_UT_TYPE)
     utx.ut_type = LOGIN_PROCESS;
 #endif
-#if defined(HAVE_UTMPX_UT_TV)
+#if defined(HAVE_STRUCT_UTMPX_UT_TV)
     gettimeofday(&(utx.ut_tv), 0);
 #else
     time(&(utx.ut_time));

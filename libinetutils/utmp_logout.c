@@ -66,14 +66,14 @@ utmp_logout(char   *line)
 	strncpy(utx.ut_line, line, sizeof(utx.ut_line));
 
 	if (ut = getutline(&utx)) {
-#ifdef HAVE_UTMP_UT_TYPE
+#ifdef HAVE_STRUCT_UTMP_UT_TYPE
 		ut->ut_type = DEAD_PROCESS;
 #endif
-#ifdef HAVE_UTMP_UT_EXIT
+#ifdef HAVE_STRUCT_UTMP_UT_EXIT
 		ut->ut_exit.e_termination = 0;
 		ut->ut_exit.e_exit = 0;
 #endif
-#ifdef HAVE_UTMP_UT_TV
+#ifdef HAVE_STRUCT_UTMP_UT_TV
 		gettimeofday (&(ut->ut_tv), 0);
 #else
 		time(&(ut->ut_time));

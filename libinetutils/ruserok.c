@@ -87,7 +87,7 @@ ruserok (const char *rhost, int superuser, const char *ruser,
   hp = gethostbyname (rhost);
   if (hp == NULL)
     return -1;
-#ifdef HAVE_HOSTENT_H_ADDR_LIST
+#ifdef HAVE_STRUCT_HOSTENT_H_ADDR_LIST
   for (ap = hp->h_addr_list; *ap; ++ap)
     {
       memcpy (&addr, *ap, sizeof (addr));

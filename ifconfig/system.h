@@ -75,15 +75,15 @@ int system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *__ifs)
 
 /* For systems which loose.  */
 
-#ifndef HAVE_IFREQ_IFR_INDEX
+#ifndef HAVE_STRUCT_IFREQ_IFR_INDEX
 # define ifr_index ifr_ifindex
 #endif
 
-#ifndef HAVE_IFREQ_IFR_NETMASK
+#ifndef HAVE_STRUCT_IFREQ_IFR_NETMASK
 # define ifr_netmask ifr_addr
 #endif
 
-#ifndef HAVE_IFREQ_IFR_BROADADDR
+#ifndef HAVE_STRUCT_IFREQ_IFR_BROADADDR
 # define ifr_broadaddr ifr_addr
 #endif
 

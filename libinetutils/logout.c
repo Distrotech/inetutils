@@ -52,7 +52,7 @@ logout (char *line)
 
   setutent ();
 
-#ifdef HAVE_UTMP_UT_TYPE
+#ifdef HAVE_STRUCT_UTMP_UT_TYPE
   search.ut_type = USER_PROCESS;
 #endif
   strncpy (search.ut_line, line, sizeof search.ut_line);
@@ -60,10 +60,10 @@ logout (char *line)
   ut = getutline (&search);
   if (ut)
     {
-#ifdef HAVE_UTMP_UT_HOST
+#ifdef HAVE_STRUCT_UTMP_UT_HOST
       bzero (ut->ut_host, sizeof ut->ut_host);
 #endif
-#ifdef HAVE_UTMP_UT_TV
+#ifdef HAVE_STRUCT_UTMP_UT_TV
       gettimeofday (&ut->ut_tv, NULL);
 #else
       time (&ut->ut_time);
@@ -122,10 +122,10 @@ logout (char *line)
 	      {
 		/* Zero out entries describing who's logged in.  */
 		bzero (ut->ut_name, sizeof ut->ut_name);
-#ifdef HAVE_UTMP_UT_HOST
+#ifdef HAVE_STRUCT_UTMP_UT_HOST
 		bzero (ut->ut_host, sizeof ut->ut_host);
 #endif
-#ifdef HAVE_UTMP_UT_TV
+#ifdef HAVE_STRUCT_UTMP_UT_TV
 		gettimeofday (&ut->ut_tv, NULL);
 #else
 		time (&ut->ut_time);
