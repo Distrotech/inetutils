@@ -1,0 +1,8 @@
+# This is the configuration file for the GNU whois client; it lists the
+# pattern for a whois query on the left, and the whois server on the right.
+# Comments start with # characters and go to the end of the line.
+
+*-arin		whois.arin.net
+[0-9]*		whois.arin.net
+*.mil		nic.ddn.net
+*		whois.internic.net
