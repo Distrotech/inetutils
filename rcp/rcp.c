@@ -929,7 +929,7 @@ usage()
 	exit(1);
 }
 
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -937,7 +937,7 @@ usage()
 
 #ifdef KERBEROS
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 oldw(const char *fmt, ...)
 #else
 oldw(fmt, va_alist)
@@ -946,7 +946,7 @@ oldw(fmt, va_alist)
 #endif
 {
 	va_list ap;
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -959,7 +959,7 @@ oldw(fmt, va_alist)
 #endif
 
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 run_err(const char *fmt, ...)
 #else
 run_err(fmt, va_alist)
@@ -969,7 +969,7 @@ run_err(fmt, va_alist)
 {
 	static FILE *fp;
 	va_list ap;
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
