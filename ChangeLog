@@ -1,5 +1,10 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* syslogd/Makefile.am: Added a line that reads `@PATHDEFS_MAKE@'.
+	
+	(INCLUDES): Added `$(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGPID)
+	$(PATHDEF_CONSOLE)'.
+
 	* rshd/Makefile.am (INCLUDES): Added `$(PATHDEF_BSHELL)
  	$(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)'.
 	
