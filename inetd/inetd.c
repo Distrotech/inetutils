@@ -1330,9 +1330,9 @@ print_service(action, sep)
 	struct servtab *sep;
 {
 	fprintf(stderr,
-	    "%s: %s proto=%s, wait=%d, user=%s builtin=%x server=%s\n",
+	    "%s: %s proto=%s, wait=%d, user=%s builtin=%lx server=%s\n",
 	    action, sep->se_service, sep->se_proto,
-	    sep->se_wait, sep->se_user, (int)sep->se_bi, sep->se_server);
+	    sep->se_wait, sep->se_user, (long)sep->se_bi, sep->se_server);
 }
 
 /*
