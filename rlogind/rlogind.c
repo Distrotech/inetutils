@@ -611,10 +611,10 @@ fatal(f, msg, syserr)
 	if (!confirmed)
 		*bp++ = '\01';		/* error indicator */
 	if (syserr)
-		sprintf(bp, "rlogind: %s: %s.\r\n",
-		    msg, strerror(errno));
+		snprintf (bp, sizeof buf - (bp - buf),
+				  "rlogind: %s: %s.\r\n", msg, strerror(errno));
 	else
-		sprintf(bp, "rlogind: %s.\r\n", msg);
+		snprintf (bp, sizeof buf - (bp - buf), "rlogind: %s.\r\n", msg);
 	len = strlen (bp);
 	(void) write(f, buf, bp + len - buf);
 	exit(1);
