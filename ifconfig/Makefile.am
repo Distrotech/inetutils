@@ -1,5 +1,7 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
+SUBDIRS=system
+
 bin_PROGRAMS = @BUILD_IFCONFIG@
 
 EXTRA_PROGRAMS = ifconfig

@@ -1,5 +1,7 @@
 2001-05-07  Jeff Bailey  <jbailey@oasis.zugzug.com>
 
+	* system/Makefile.am: New File, for 'make dist' derived targets.
+
 	* Makefile.am: Add printif.h and system.h to noinst_HEADERS.
 
 2001-02-27  Marcus Brinkmann  <marcus@gnu.org>
