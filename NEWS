@@ -2,6 +2,11 @@ Inetutils NEWS -- history of user-visible changes
 Please send inetutils bug reports to bug-inetutils@gnu.ai.mit.edu.
 
 Release 1.3.2:
+ This release attempts to get the encryption/authentication options to
+ compile correctly; they appear to work on systems with the appropriate
+ libraries, but have not been well tested.
+
+Release 1.3.1:
  This release fixes various small problems.
 
  Telnet now won't force the stripping of 8-bit characters when not in binary
