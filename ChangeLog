@@ -6,6 +6,7 @@
 	* ping/ping.c: implemented
 	* ping_address.c, ping_echo.c, ping_impl.h, ping_router.c,
 	  ping_timestamp.c: added to repository.
+	* paths: PATH_HEQUIV needs search in <netdb.h> (for Solaris)
 
 2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
 
