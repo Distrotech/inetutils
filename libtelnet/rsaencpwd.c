@@ -461,7 +461,9 @@ rsaencpwd_printsub(data, cnt, buf, buflen)
 int rsaencpwd_passwdok(name, passwd)
 char *name, *passwd;
 {
+#ifdef HAVE_CRYPT
   char *crypt();
+#endif
   char *salt, *p;
   struct passwd *pwd;
   int   passwdok_status = 0;
@@ -470,7 +472,11 @@ char *name, *passwd;
     salt = pwd->pw_passwd;
   else salt = "xx";
 
+#ifdef HAVE_CRYPT
   p = crypt(passwd, salt);
+#else
+  p = passwd;
+#else
 
   if (pwd && !strcmp(p, pwd->pw_passwd)) {
     passwdok_status = 1;
