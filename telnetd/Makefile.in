@@ -30,7 +30,7 @@ OPTIONS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
 
 INSTALL_TARGETS = $(libexecdir)/in.telnetd $(man8dir)/telnetd.8
 OBJS = $(SRCS:.c=.o)
-LDLIBS := -L../libtelnet -ltelnet $(LIBTERMCAP) $(LDLIBS)
+LDLIBS += -L../libtelnet -ltelnet $(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT)
 CPPFLAGS += $(OPTIONS) -D_PATH_LOGIN=\"$(bindir)/login\"
 CLEAN = telnetd $(OBJS)
 

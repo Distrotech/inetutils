@@ -30,7 +30,7 @@ OPTIONS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
 INSTALL_TARGETS = $(bindir)/telnet $(man1dir)/telnet.1
 OBJS = $(SRCS:.c=.o)
-LDLIBS := -L../libtelnet -ltelnet $(LIBTERMCAP) $(LDLIBS)
+LDLIBS += -L../libtelnet -ltelnet $(LIBTERMCAP) $(LIBCRYPT)
 CPPFLAGS += $(OPTIONS)
 CLEAN = telnet $(OBJS)
 
