@@ -125,6 +125,10 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 # define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
 #endif
 
+#ifndef MAP_FAILED
+# define MAP_FAILED (void*)-1
+#endif
+
 #ifndef HAVE_FCLOSE_DECL
 /* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
 extern int fclose __P ((FILE *));
