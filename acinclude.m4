@@ -558,6 +558,8 @@ AC_DEFUN(IU_CHECK_KRB5,
 [
  if test "x$iu_cv_lib_krb5_libs" = x; then
   cache=""
+  ## Make sure we have res_query
+  AC_CHECK_LIB(resolv, res_query)
   KRB5_PREFIX=[$2]
   KRB5_IMPL="none"
   # First try krb5-config
@@ -582,18 +584,19 @@ AC_DEFUN(IU_CHECK_KRB5,
       CPPFLAGS="$CPPFLAGS $KRB5_CFLAGS"
       LDFLAGS="$LDFLAGS $KRB5_LDFLAGS"
     fi
+    KRB4_LIBS="-lkrb4 -ldes425"
 
     ## Check for new MIT kerberos V support
     AC_CHECK_LIB(krb5, krb5_init_context,
-      [KRB5_IMPL="MIT",
-       KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -lk5crypto -lcom_err"]
+      [KRB5_IMPL="MIT"
+       KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lk5crypto -lcom_err"]
        ,, -lk5crypto -lcom_err)
 
     ## Heimdal kerberos V support
     if test "$KRB5_IMPL" = "none"; then
       AC_CHECK_LIB(krb5, krb5_init_context,
         [KRB5_IMPL="Heimdal"
-         KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"]
+         KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"]
          ,, -ldes -lasn1 -lroken -lcrypt -lcom_err)
     fi
 
@@ -603,17 +606,17 @@ AC_DEFUN(IU_CHECK_KRB5,
     if test "$KRB5_IMPL" = "none"; then
       AC_CHECK_LIB(krb5, krb5_init_context,
         [KRB5_IMPL="OldMIT",
-         KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -lkrb5 -lcrypto -lcom_err"]
+         KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lkrb5 -lcrypto -lcom_err"]
         ,, -lcrypto -lcom_err)
     fi
+
+    LDFLAGS="$saved_LDFLAGS"
+    LIBS="$saved_LIBS"
   fi
 
   iu_cv_lib_krb5_cflags="$KRB5_CFLAGS"
   iu_cv_lib_krb5_libs="$KRB5_LIBS"
   iu_cv_lib_krb5_impl="$KRB5_IMPL"
-
-  LDFLAGS="$saved_LDFLAGS"
-  LIBS="$saved_LIBS"
  else
   cached=" (cached) "
   KRB5_CFLAGS="$iu_cv_lib_krb5_cflags"
