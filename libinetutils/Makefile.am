@@ -1,11 +1,12 @@
 noinst_LIBRARIES = libinetutils.a
 
 libinetutils_a_SOURCES = cleansess.c des_rw.c kcmd.c krcmd.c localhost.c \
-	logwtmpko.c setsig.c tftpsubs.c ttymsg.c xmalloc.c xstrdup.c
+	logwtmpko.c setsig.c tftpsubs.c ttymsg.c xmalloc.c xstrdup.c \
+	xgetcwd.c
 
 libinetutils_a_LIBADD = @LIBOBJS@
 
-noinst_HEADERS = snprintf.h
+noinst_HEADERS = snprintf.h pathmax.h
 
 @PATHDEFS_MAKE@
 
