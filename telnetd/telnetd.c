@@ -98,6 +98,7 @@ int	restartany;	/* restart output on any character state */
 int	diagnostic;	/* telnet diagnostic capabilities */
 #if defined(AUTHENTICATION)
 int	auth_level;
+int     autologin;
 #endif
 
 slcfun	slctab[NSLC + 1];	/* slc mapping table */
@@ -357,12 +358,6 @@ telnetd_setup (int fd)
 
   io_setup ();
   
-  /*FIXME: KLUDGE*/
-#ifdef  ENCRYPTION
-  nclearto = 0;
-#endif  /* ENCRYPTION */
-  /**/
-				  
   /* get terminal type. */
   uname[0] = 0;
   level = getterminaltype (uname);

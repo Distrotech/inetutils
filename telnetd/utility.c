@@ -35,6 +35,9 @@
 
 static char netobuf[BUFSIZ+NETSLOP], *nfrontp, *nbackp;
 static char *neturg;    /* one past last byte of urgent data */
+#ifdef  ENCRYPTION
+static char *nclearto;
+#endif
 
 static char ptyobuf[BUFSIZ+NETSLOP], *pfrontp, *pbackp;
 
@@ -150,6 +153,9 @@ io_setup ()
 {
   pfrontp = pbackp = ptyobuf;
   nfrontp = nbackp = netobuf;
+#ifdef  ENCRYPTION
+  nclearto = 0;
+#endif 
   netip = netibuf;
   ptyip = ptyibuf;
 }
@@ -554,7 +560,7 @@ netflush ()
   
   if ((n = nfrontp - nbackp) > 0)
     {
-      NET_ENCRYPT ()
+      NET_ENCRYPT ();
 
       /*
        * if no urgent data, or if the other side appears to be an

@@ -250,6 +250,7 @@ extern int	restartany;	/* restart output on any character state */
 extern int	diagnostic;	/* telnet diagnostic capabilities */
 #if defined(AUTHENTICATION)
 extern int	auth_level;
+extern int      autologin;
 #endif
 
 extern slcfun	slctab[NSLC + 1];	/* slc mapping table */
@@ -377,7 +378,6 @@ extern void wontoption P((int));
 #ifdef	ENCRYPTION
 extern void	(*encrypt_output) P((unsigned char *, int));
 extern int	(*decrypt_input) P((int));
-extern char	*nclearto;
 #endif	/* ENCRYPTION */
 
 
