@@ -1,3 +1,12 @@
+Tue Jan 21 15:32:56 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/openpty.c (openpty): Only use TIOCSWINSZ if it's
+	defined.
+
+	* configure.in: Add existance & decl tests for h_errno.
+	* headers/acconfig.h (HAVE_H_ERRNO, HAVE_H_ERRNO_DECL): New define
+	slots.
+
 Mon Jan 20 20:35:53 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/herror.c (herror): New file.
@@ -20,6 +29,26 @@ Wed Jan 15 16:52:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* ftpd/ftpd.c (makedir): Provide the absolute name of the new
 	directory in the reply, as per rfc959.
+
+Mon Jan 20 19:55:30 1997  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* ftp/extern.h (command): Constify fmt argument.
+	
+	* ftp/ftp.c (command): Normalize variable argument list usage.
+  	Require both HAVE_STDARG_H && __STDC__==1 to allow inclusion of
+ 	<stdarg.h> and use of ellipses, failing either we fall back on
+ 	<varargs.h> and va_alist.  Ensure stdarg.h/varargs.h appears
+	before syslog.h in all cases to avoid problems on solaris.
+	* ftp/ruserpass.c: Likewise.
+	* ftpd/ftpd.c (reply, lreply, setproctitle): Likewise.
+	* headers/err.h: Likewise.
+	* libinetutils/err.c (warn, warnx, err, errx): Likewise.
+	* libinetutils/snprintf.c (snprintf): Likewise.
+	* rcp/rcp.c (oldw, run_err): Likewise.
+	* rlogin/rlogin.c (warning): Likewise.
+	* rsh/rsh.c (warning): Likewise.
+	* rshd/rshd.c (error): Likewise.
+	* telnet/commands.c (call): Likewise.
 
 Mon Jan 13 22:17:38 1997  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
 
