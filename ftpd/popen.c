@@ -39,16 +39,24 @@
 static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 
 #include <errno.h>
-#include <glob.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+/* Include glob.h last, because it may define "const" which breaks
+   system headers on some platforms. */
+#include <glob.h>
 
 #include "extern.h"
 
@@ -57,8 +65,18 @@ static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
  * may create a pipe to a hidden program as a side effect of a list or dir
  * command.
  */
-static int *pids;
-static int fds;
+
+#define MAX_ARGC 100
+#define MAX_GARGC 1000
+
+struct file_pid {
+  	FILE *file;
+	pid_t pid;
+	struct file_pid *next;
+};
+
+/* A linked list associating ftpd_popen'd FILEs with pids.  */
+struct file_pid *file_pids = 0;
 
 FILE *
 ftpd_popen(program, type)
@@ -66,32 +84,38 @@ ftpd_popen(program, type)
 {
 	char *cp;
 	FILE *iop;
+	struct file_pid *fpid;
 	int argc, gargc, pdes[2], pid;
-	char **pop, *argv[100], *gargv[1000];
+	char **pop, *argv[MAX_ARGC], *gargv[MAX_GARGC];
 
 	if (*type != 'r' && *type != 'w' || type[1])
 		return (NULL);
 
-	if (!pids) {
-		if ((fds = getdtablesize()) <= 0)
-			return (NULL);
-		if ((pids = (int *)malloc((u_int)(fds * sizeof(int)))) == NULL)
-			return (NULL);
-		memset(pids, 0, fds * sizeof(int));
-	}
 	if (pipe(pdes) < 0)
 		return (NULL);
 
 	/* break up string into pieces */
-	for (argc = 0, cp = program;; cp = NULL)
+	for (argc = 0, cp = program;; cp = NULL) {
 		if (!(argv[argc++] = strtok(cp, " \t\n")))
 			break;
 
+    if (argc > MAX_ARGC) return(NULL); /* AUSCERT */
+  }
 	/* glob each piece */
 	gargv[0] = argv[0];
 	for (gargc = argc = 1; argv[argc]; argc++) {
 		glob_t gl;
-		int flags = GLOB_BRACE|GLOB_NOCHECK|GLOB_QUOTE|GLOB_TILDE;
+		int flags = GLOB_NOCHECK;
+
+#ifdef GLOB_BRACE
+				flags |= GLOB_BRACE;
+#endif
+#ifdef GLOB_QUOTE
+				flags |= GLOB_QUOTE;
+#endif
+#ifdef GLOB_TILDE
+				flags |= GLOB_TILDE;
+#endif
 
 		memset(&gl, 0, sizeof(gl));
 		if (glob(argv[argc], flags, NULL, &gl))
@@ -136,7 +160,14 @@ ftpd_popen(program, type)
 		iop = fdopen(pdes[1], type);
 		(void)close(pdes[0]);
 	}
-	pids[fileno(iop)] = pid;
+
+	fpid = (struct file_pid *) malloc (sizeof (struct file_pid));
+	if (fpid) {
+		fpid->file = iop;
+		fpid->pid = pid;
+		fpid->next = file_pids;
+		file_pids = fpid;
+	}
 
 pfree:	for (argc = 1; gargv[argc] != NULL; argc++)
 		free(gargv[argc]);
@@ -148,21 +179,51 @@ int
 ftpd_pclose(iop)
 	FILE *iop;
 {
-	int fdes, omask, status;
+	struct file_pid *fpid = file_pids, *prev_fpid = 0;
+	int fdes, status;
+#ifdef HAVE_SIGACTION
+	sigset_t sigs, osigs;
+#else
+	int omask;
+#endif
 	pid_t pid;
 
 	/*
 	 * pclose returns -1 if stream is not associated with a
 	 * `popened' command, or, if already `pclosed'.
 	 */
-	if (pids == 0 || pids[fdes = fileno(iop)] == 0)
-		return (-1);
+	while (fpid && fpid->file != iop) {
+	     prev_fpid = fpid;
+	     fpid = fpid->next;
+	}
+	if (! fpid)
+        	return -1;
+
+	if (prev_fpid)
+		prev_fpid->next = fpid->next;
+	else
+		file_pids = fpid->next;
+
 	(void)fclose(iop);
+#ifdef HAVE_SIGACTION
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGINT);
+	sigaddset(&sigs, SIGQUIT);
+	sigaddset(&sigs, SIGHUP);
+	sigprocmask(SIG_BLOCK, &sigs, &osigs);
+#else
 	omask = sigblock(sigmask(SIGINT)|sigmask(SIGQUIT)|sigmask(SIGHUP));
-	while ((pid = waitpid(pids[fdes], &status, 0)) < 0 && errno == EINTR)
+#endif
+	while ((pid = waitpid(fpid->pid, &status, 0)) < 0 && errno == EINTR)
 		continue;
+
+	free (fpid);
+
+#ifdef HAVE_SIGACTION
+	sigprocmask(SIG_SETMASK, &osigs, 0);
+#else
 	(void)sigsetmask(omask);
-	pids[fdes] = 0;
+#endif
 	if (pid < 0)
 		return (pid);
 	if (WIFEXITED(status))

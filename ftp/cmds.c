@@ -43,7 +43,9 @@ static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
 #endif
 
 #include <sys/param.h>
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

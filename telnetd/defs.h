@@ -43,6 +43,15 @@
 # define	BSD 43
 #endif
 
+#ifdef HAVE_TERMIOS_H
+#define USE_TERMIO
+#else  /* !HAVE_TERMIOS_H */
+#ifdef HAVE_TERMIO_H
+#define USE_TERMIO
+#define SYSV_TERMIO
+#endif
+#endif /* HAVE_TERMIOS_H */
+
 #if	defined(CRAY) && !defined(LINEMODE)
 # define SYSV_TERMIO
 # define LINEMODE
@@ -71,25 +80,43 @@
 #endif
 
 #include <sys/socket.h>
-#ifndef	CRAY
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
-#endif	/* CRAY */
+#endif
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/stat.h>
-#include <sys/time.h>
-#ifndef	FILIO_H
-#include <sys/ioctl.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
 #else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+#include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
 #include <sys/filio.h>
+#endif
+#ifdef HAVE_SYS_STREAM_H
+#include <sys/stream.h>
+#endif
+#ifdef HAVE_SYS_TTY_H
+#include <sys/tty.h>
+#endif
+#ifdef HAVE_SYS_PTYVAR_H
+#include <sys/ptyvar.h>
 #endif
 
 #include <netinet/in.h>
 
+#undef SE
 #include <arpa/telnet.h>
 
 #include <stdio.h>
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #include <signal.h>
@@ -122,7 +149,7 @@
 typedef unsigned char cc_t;
 #endif
 
-#ifdef	__STDC__
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
@@ -133,7 +160,6 @@ typedef unsigned char cc_t;
 #  define _POSIX_VDISABLE ((unsigned char)'\377')
 # endif
 #endif
-
 
 #ifdef	CRAY
 # ifdef	CRAY1

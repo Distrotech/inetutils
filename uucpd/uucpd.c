@@ -49,8 +49,14 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
  * uucico's TCP channel causes this server to be run at the remote end.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -58,14 +64,31 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <netdb.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <pwd.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "pathnames.h"
+#include <crypt.h>
+#ifdef HAVE_TERMIOS_H
+# include <termios.h>
+#endif
+#ifdef HAVE_UTMP_H
+# include <utmp.h>
+#endif
+
+void dologin ();
 
 struct	sockaddr_in hisctladdr;
 int hisaddrlen = sizeof hisctladdr;
@@ -86,9 +109,9 @@ char **argv;
 #ifndef BSDINETD
 	register int s, tcp_socket;
 	struct servent *sp;
-#endif !BSDINETD
+#endif /* !BSDINETD */
 	extern int errno;
-	int dologout();
+	void dologout();
 
 	environ = nenv;
 #ifdef BSDINETD
@@ -104,7 +127,7 @@ char **argv;
 		doit(&hisctladdr);
 	dologout();
 	exit(1);
-#else !BSDINETD
+#else /* !BSDINETD */
 	sp = getservbyname("uucp", "tcp");
 	if (sp == NULL){
 		perror("uucpd: getservbyname");
@@ -112,7 +135,7 @@ char **argv;
 	}
 	if (fork())
 		exit(0);
-	if ((s=open(_PATH_TTY, 2)) >= 0){
+	if ((s=open(PATH_TTY, O_RDWR)) >= 0){
 		ioctl(s, TIOCNOTTY, (char *)0);
 		close(s);
 	}
@@ -150,17 +173,18 @@ char **argv;
 		}
 		close(s);
 	}
-#endif BSD4_2
+#endif /* BSD4_2 */
 
-#endif	!BSDINETD
+#endif /* !BSDINETD */
 }
 
-doit(sinp)
-struct sockaddr_in *sinp;
+void
+doit (sinp)
+     struct sockaddr_in *sinp;
 {
-	char user[64], passwd[64];
-	char *xpasswd, *crypt();
 	struct passwd *pw, *getpwnam();
+	char user[64], passwd[64];
+	char *xpasswd;
 
 	alarm(60);
 	printf("login: "); fflush(stdout);
@@ -175,7 +199,7 @@ struct sockaddr_in *sinp;
 		fprintf(stderr, "user unknown\n");
 		return;
 	}
-	if (strcmp(pw->pw_shell, _PATH_UUCICO)) {
+	if (strcmp(pw->pw_shell, PATH_UUCICO)) {
 		fprintf(stderr, "Login incorrect.");
 		return;
 	}
@@ -185,7 +209,7 @@ struct sockaddr_in *sinp;
 			fprintf(stderr, "passwd read\n");
 			return;
 		}
-		xpasswd = crypt(passwd, pw->pw_passwd);
+		xpasswd = CRYPT (passwd, pw->pw_passwd);
 		if (strcmp(xpasswd, pw->pw_passwd)) {
 			fprintf(stderr, "Login incorrect.");
 			return;
@@ -197,12 +221,12 @@ struct sockaddr_in *sinp;
 	setgid(pw->pw_gid);
 #ifdef BSD4_2
 	initgroups(pw->pw_name, pw->pw_gid);
-#endif BSD4_2
+#endif /* BSD4_2 */
 	chdir(pw->pw_dir);
 	setuid(pw->pw_uid);
 #ifdef BSD4_2
 	execl(UUCICO, "uucico", (char *)0);
-#endif BSD4_2
+#endif /* BSD4_2 */
 	perror("uucico server: execl");
 }
 
@@ -225,43 +249,38 @@ register int n;
 	return(-1);
 }
 
-#include <utmp.h>
 #ifdef BSD4_2
 #include <fcntl.h>
-#endif BSD4_2
+#endif /* BSD4_2 */
 
-#define	SCPYN(a, b)	strncpy(a, b, sizeof (a))
-
-struct	utmp utmp;
-
+void
 dologout()
 {
-	union wait status;
-	int pid, wtmp;
+  int pid;
 
-#ifdef BSDINETD
-	while ((pid=wait((int *)&status)) > 0) {
-#else  !BSDINETD
-	while ((pid=wait3((int *)&status,WNOHANG,0)) > 0) {
-#endif !BSDINETD
-		wtmp = open(_PATH_WTMP, O_WRONLY|O_APPEND);
-		if (wtmp >= 0) {
-			sprintf(utmp.ut_line, "uucp%.4d", pid);
-			SCPYN(utmp.ut_name, "");
-			SCPYN(utmp.ut_host, "");
-			(void) time(&utmp.ut_time);
-			(void) write(wtmp, (char *)&utmp, sizeof (utmp));
-			(void) close(wtmp);
-		}
-	}
+#ifdef HAVE_WAITPID
+  while ((pid = waitpid (-1, 0, WNOHANG)) > 0)
+#else
+# ifdef HAVE_WAIT3
+  while ((pid = wait3 (0, WNOHANG, 0)) > 0)
+# else
+  while ((pid = wait (0)) > 0)
+#endif /* HAVE_WAIT3 */
+#endif /* HAVE_WAITPID */
+    {
+      char line[100];
+      sprintf(line, "uucp%.4d", pid);
+      logwtmp (line, "", "");
+    }
 }
 
 /*
  * Record login in wtmp file.
  */
+void
 dologin(pw, sin)
-struct passwd *pw;
-struct sockaddr_in *sin;
+     struct passwd *pw;
+     struct sockaddr_in *sin;
 {
 	char line[32];
 	char remotehost[32];
@@ -275,18 +294,14 @@ struct sockaddr_in *sin;
 	} else
 		strncpy(remotehost, inet_ntoa(sin->sin_addr),
 		    sizeof (remotehost));
-	wtmp = open(_PATH_WTMP, O_WRONLY|O_APPEND);
-	if (wtmp >= 0) {
-		/* hack, but must be unique and no tty line */
-		sprintf(line, "uucp%.4d", getpid());
-		SCPYN(utmp.ut_line, line);
-		SCPYN(utmp.ut_name, pw->pw_name);
-		SCPYN(utmp.ut_host, remotehost);
-		time(&utmp.ut_time);
-		(void) write(wtmp, (char *)&utmp, sizeof (utmp));
-		(void) close(wtmp);
-	}
-	if ((f = open(_PATH_LASTLOG, O_RDWR)) >= 0) {
+
+	sprintf(line, "uucp%.4d", getpid());
+
+	logwtmp (line, pw->pw_name, remotehost);
+
+#if defined (PATH_LASTLOG) && defined (HAVE_STRUCT_LASTLOG)
+#define	SCPYN(a, b)	strncpy(a, b, sizeof (a))
+	if ((f = open(PATH_LASTLOG, O_RDWR)) >= 0) {
 		struct lastlog ll;
 
 		time(&ll.ll_time);
@@ -297,4 +312,5 @@ struct sockaddr_in *sin;
 		(void) write(f, (char *) &ll, sizeof ll);
 		(void) close(f);
 	}
+#endif
 }

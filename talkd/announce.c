@@ -35,28 +35,89 @@
 static char sccsid[] = "@(#)announce.c	8.3 (Berkeley) 4/28/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <sys/stat.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 #include <sys/socket.h>
+#ifdef HAVE_OSOCKADDR_H
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
-#include <sgtty.h>
 #include <errno.h>
 #include <syslog.h>
 #include <unistd.h>
 #include <stdio.h>
+#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
 #include <string.h>
+#ifdef HAVE_VIS_H
 #include <vis.h>
-#include <paths.h>
+#endif
 
-extern char hostname[];
+extern char *hostname;
+
+extern char *ttymsg ();
 
 /*
  * Announce an invitation to talk.
  */
 	
+#ifndef HAVE_VIS_H
+
+#define VIS_CSTYLE 0		/* dummy value */
+
+/* A simpler version of bsd's vis function.  */
+static void
+strvis (dst, src, ignored)
+     char *dst, *src;
+     int ignored;
+{
+  int ch;
+  while (*src)
+    switch (ch = *src++)
+      {
+      case '\b': *dst++ = '\\'; *dst++ = 'b'; break;
+      case '\n': *dst++ = '\\'; *dst++ = 'n'; break;
+      case '\t': *dst++ = '\\'; *dst++ = 't'; break;
+#ifdef __STDC__
+      case '\a':
+#else
+      case '\007':
+#endif
+                 *dst++ = '\\'; *dst++ = 'a'; break;
+      case '\f': *dst++ = '\\'; *dst++ = 'f'; break;
+      case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
+      default:
+	if (isgraph (ch))
+	  *dst++ = ch;
+	else
+	{
+	  sprintf (dst, "\\%03o", ch);
+	  dst += strlen(dst);
+	}
+      }
+  *dst = 0;
+}
+#endif /* !HAVE_VIS_H */
+
 /*
  * See if the user is accepting messages. If so, announce that 
  * a talk is requested.
@@ -66,14 +127,13 @@ announce(request, remote_machine)
 	char *remote_machine;
 {
 	char full_tty[32];
-	FILE *tf;
 	struct stat stbuf;
 
 	(void)snprintf(full_tty, sizeof(full_tty),
-	    "%s%s", _PATH_DEV, request->r_tty);
+	    "%s%s", PATH_DEV, request->r_tty);
 	if (stat(full_tty, &stbuf) < 0 || (stbuf.st_mode&020) == 0)
 		return (PERMISSION_DENIED);
-	return (print_mesg(request->r_tty, tf, request, remote_machine));
+	return (print_mesg(request->r_tty, request, remote_machine));
 }
 
 #define max(a,b) ( (a) > (b) ? (a) : (b) )
@@ -86,9 +146,8 @@ announce(request, remote_machine)
  * try to keep the message in one piece if the recipient
  * in in vi at the time
  */
-print_mesg(tty, tf, request, remote_machine)
+print_mesg(tty, request, remote_machine)
 	char *tty;
-	FILE *tf;
 	CTL_MSG *request;
 	char *remote_machine;
 {
@@ -111,20 +170,21 @@ print_mesg(tty, tf, request, remote_machine)
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
-	(void)sprintf(line_buf[i], "Message from Talk_Daemon@%s at %d:%02d ...",
+	snprintf (line_buf[i], sizeof line_buf[i],
+			 "Message from Talk_Daemon@%s at %d:%02d ...",
 	hostname, localclock->tm_hour , localclock->tm_min );
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
-	vis_user = (char *) malloc(strlen(request->l_name) * 4 + 1);
+	vis_user = malloc(strlen(request->l_name) * 4 + 1);
 	strvis(vis_user, request->l_name, VIS_CSTYLE);
-	(void)sprintf(line_buf[i], "talk: connection requested by %s@%s",
-		vis_user, remote_machine);
+	snprintf (line_buf[i], sizeof line_buf[i],
+			  "talk: connection requested by %s@%s", vis_user, remote_machine);
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
-	(void)sprintf(line_buf[i], "talk: respond with:  talk %s@%s",
-		vis_user, remote_machine);
+	snprintf (line_buf[i], sizeof line_buf[i],
+			  "talk: respond with:  talk %s@%s", vis_user, remote_machine);
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
@@ -132,6 +192,7 @@ print_mesg(tty, tf, request, remote_machine)
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
+	free (vis_user);
 	bptr = big_buf;
 	*bptr++ = ''; /* send something to wake them up */
 	*bptr++ = '\r';	/* add a \r in case of raw mode */

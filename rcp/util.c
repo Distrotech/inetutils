@@ -44,7 +44,9 @@ static char sccsid[] = "@(#)util.c	8.2 (Berkeley) 4/2/94";
 #include <sys/sysmacros.h>
 #endif
 #include <sys/stat.h>
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 
 #include <ctype.h>
 #include <err.h>
