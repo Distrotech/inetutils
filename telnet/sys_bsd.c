@@ -227,10 +227,11 @@ TerminalSpecialChars(int c)
 void
 TerminalFlushOutput()
 {
+    int flags = 0;
 #ifdef	TIOCFLUSH
-    (void) ioctl(fileno(stdout), TIOCFLUSH, (char *) 0);
+    (void) ioctl(fileno(stdout), TIOCFLUSH, &flags);
 #else
-    (void) ioctl(fileno(stdout), TCFLSH, (char *) 0);
+    (void) ioctl(fileno(stdout), TCFLSH, &flags);
 #endif
 }
 
