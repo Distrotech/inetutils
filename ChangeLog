@@ -1,3 +1,8 @@
+2001-03-14  Joachim Gabler <joga@sun.com>
+
+   * rlogind/rlogind.c: exec to /bin/login requires additional
+     parameters on SOLARIS
+
 2001-02-09  Jeff Bailey  <jbailey@oasis.zugzug.com>
 
 	* Makefile.am: Use 4 digit year for `make release'
