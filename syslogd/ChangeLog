@@ -1,5 +1,14 @@
 2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
 
+	Merged from the Linux source (sysklogd 1.3):
+	* syslogd.c: New global variable static.
+	(main): Main loop: If restart is set, call init()
+	and reset restart.
+	Install sighup_handler as SIGHUP handler.
+	(sighup_handler): New prototype, new function.
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
 I think this is among others the equivalent to the following Linux change:
 Mon Feb 23 23:32:35 CET 1998: Topi Miettinen <Topi.Miettinen@ml.tele.fi>
 Re-worked handling of Unix and UDP sockets to support closing /

@@ -122,6 +122,7 @@ char	*PidFile = PATH_LOGPID;
 char	ctty[] = PATH_CONSOLE;
 
 static int debugging_on = 0;
+static int restart = 0;
 
 #ifndef LINE_MAX
 #define LINE_MAX 2048
@@ -261,6 +262,7 @@ void    debug_switch __P((int));
 #define dprintf mydprintf
 #endif /* __GLIBC__ */
 static void dprintf __P((char *, ...));
+void sighup_handler __P((int));
 static int create_unix_socket __P((const char *path));
 static int create_inet_socket __P(());
 
@@ -409,7 +411,7 @@ main(int argc, char *argv[])
 	dprintf("off & running....\n");
 
 	init(0);
-	(void)signal(SIGHUP, init);
+	(void)signal(SIGHUP, sighup_handler);
 
 	if (Debug) {
 		dprintf("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
@@ -453,6 +455,12 @@ main(int argc, char *argv[])
 		dprintf("readfds = %#x\n", readfds);
 		nfds = select(maxfds+1, (fd_set *)&readfds, (fd_set *)NULL,
 		    (fd_set *)NULL, (struct timeval *)NULL);
+		if (restart) {
+			dprintf("\nReceived SIGHUP, reloading syslogd.\n");
+			init();
+			restart = 0;
+			continue;
+		}
 		if (nfds == 0)
 			continue;
 		if (nfds < 0) {
@@ -1679,4 +1687,17 @@ dprintf(char *fmt, ...)
 	va_end(ap);
 
 	fflush(stdout);
+}
+
+/*
+ * The following function is resposible for handling a SIGHUP signal.  Since
+ * we are now doing mallocs/free as part of init we had better not being
+ * doing this during a signal handler.  Instead this function simply sets
+ * a flag variable which will tell the main loop to go through a restart.
+ */
+void
+sighup_handler(int signo)
+{
+	restart = 1;
+	return;
 }
