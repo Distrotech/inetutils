@@ -1,5 +1,7 @@
 Thu Mar 26 00:08:39 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* ftp/Makefile.am (LDADD): Added `$(LIBTERMCAP)'.
+
 	* Makefile.am (SUBDIRS): Added whois.
 	
 	(DISTCLEANFILES): Added `pathdefs.make paths.defs'.
