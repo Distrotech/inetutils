@@ -36,7 +36,7 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 
-#include "if_index.h"
+#include <ifconfig.h>
 
 unsigned int
 if_nametoindex (const char *ifname)
