@@ -89,7 +89,7 @@ static char sccsid[] = "@(#)rlogin.c	8.4 (Berkeley) 4/29/95";
 #include <string.h>
 #include <unistd.h>
 
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -919,7 +919,7 @@ msg(str)
 #ifdef KERBEROS
 /* VARARGS */
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 warning(const char *fmt, ...)
 #else
 warning(fmt, va_alist)
@@ -930,7 +930,7 @@ warning(fmt, va_alist)
 	va_list ap;
 
 	(void)fprintf(stderr, "rlogin: warning, using standard rlogin: ");
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);

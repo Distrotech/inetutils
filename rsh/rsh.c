@@ -73,7 +73,7 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#ifdef HAVE_STDARG_H
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
@@ -102,7 +102,7 @@ char   *copyargs __P((char **));
 void	sendsig __P((int));
 void	talk __P((int, sigset_t *, pid_t, int));
 void	usage __P((void));
-void	warning __P(());
+void	warning __P((const char *, ...));
 
 /* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
 extern char *__progname;
@@ -557,14 +557,24 @@ sendsig(sig)
 #ifdef KERBEROS
 /* VARARGS */
 void
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+warning(const char * fmt, ...)
+#else
 warning(va_alist)
 va_dcl
+#endif
 {
 	va_list ap;
-	char *fmt;
+#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
+	const char *fmt;
+#endif
 
 	fprintf(stderr, "%s: warning, using standard rsh: ", __progname);
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+	va_start(ap, fmt);
+#else
 	va_start(ap);
+#endif
 	fmt = va_arg(ap, char *);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
