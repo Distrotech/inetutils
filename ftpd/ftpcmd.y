@@ -64,6 +64,9 @@ static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
 #include <time.h>
 #include <unistd.h>
 #include <limits.h>
+#ifdef HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
 
 #include "extern.h"
 
@@ -82,7 +85,7 @@ extern	int debug;
 extern	int timeout;
 extern	int maxtimeout;
 extern  int pdata;
-extern	char hostname[], remotehost[];
+extern	char *hostname, *remotehost;
 extern	char proctitle[];
 extern	int usedefault;
 extern  int transflag;
@@ -464,16 +467,41 @@ cmd
 		}
 	| SYST CRLF
 		{
-#ifdef unix
+		        char *type; /* The official rfc-defined os type.  */
+			char *version = 0; /* A more specific type. */
+
+#ifdef HAVE_UNAME
+			struct utsname u;
+			if (uname (&u) == 0) {
+				version =
+				  malloc (strlen (u.sysname)
+					  + 1 + strlen (u.release) + 1);
+				if (version)
+					sprintf (version, "%s %s",
+						 u.sysname, u.release);
+		        }
+#else
 #ifdef BSD
-			reply(215, "UNIX Type: L%d Version: BSD-%d",
-				NBBY, BSD);
-#else /* BSD */
-			reply(215, "UNIX Type: L%d", NBBY);
-#endif /* BSD */
-#else /* unix */
-			reply(215, "UNKNOWN Type: L%d", NBBY);
-#endif /* unix */
+			version = "BSD";
+#endif
+#endif
+
+#ifdef unix
+			type = "UNIX";
+#else
+			type = "UNKNOWN";
+#endif
+
+			if (version)
+				reply(215, "%s Type: L%d Version: %s",
+				      type, NBBY, version);
+			else
+				reply(215, "%s Type: L%d", type, NBBY);
+
+#ifdef HAVE_UNAME
+			if (version)
+				free (version);
+#endif
 		}
 
 		/*
