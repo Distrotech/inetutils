@@ -47,12 +47,12 @@ extern int errno;
 # endif
 #endif /* HAVE_H_ERRNO */
 
-extern const char *hstrerror __P ((int));
+/* FIXME add autoconf extern const char *hstrerror __P ((int)); */
 
 /* Print an error message on stderror containing the latest host error.  */
 void
 herror (pfx)
-  char *pfx;
+  const char *pfx;
 {
 #ifdef HAVE_H_ERRNO
   int herr = h_errno;

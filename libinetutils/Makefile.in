@@ -1,51 +1,301 @@
-# Makefile for libinetutils
-#
-# Copyright (C) 1996, 1997 Free Software Foundation, Inc.
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2, or (at your option)
-# any later version.
-#
+# Makefile.in generated automatically by automake 1.2d from Makefile.am
+
+# Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
 # This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-#
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = /bin/sh
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
-include ../config.make
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
 
-SRCS = \
-__progname.c alloca.c cleansess.c daemon.c err.c forkpty.c getopt.c \
-getopt1.c getusershell.c herror.c hstrerror.c iruserok.c localhost.c \
-login.c login_tty.c logout.c logwtmp.c logwtmpko.c memmove.c memset.c \
-openpty.c revoke.c setenv.c setsig.c snprintf.c strdup.c strerror.c \
-stub_tgetent.c ttymsg.c version.c xmalloc.c xstrdup.c syslog.c \
-krcmd.c kcmd.c des_rw.c
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
 
-DISTFILES = $(SRCS) snprintf.h
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
 
-OBJS = setsig.o ttymsg.o version.o localhost.o cleansess.o logwtmpko.o  \
-       @LIBOBJS@ @ALLOCA@ xmalloc.o krcmd.o kcmd.o des_rw.o
-CLEAN = libinetutils.a $(OBJS)
+top_builddir = ..
 
-CPPFLAGS-logout.c = $(PATHDEF_UTMP)
-CPPFLAGS-logwtmp.c = $(PATHDEF_WTMP)
-CPPFLAGS-logwtmpko.c = $(PATHDEF_WTMP)
-CPPFLAGS-ttymsg.c = $(PATHDEF_TTY_PFX)
-CPPFLAGS-cleansess.c = $(PATHDEF_TTY_PFX)
-CPPFLAGS-daemon.c = $(PATHDEF_DEVNULL)
-CPPFLAGS-iruserok.c = $(PATHDEF_HEQUIV)
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
 
-all: libinetutils.a
-libinetutils.a: $(OBJS)
-	$(AR) rcv $@ $?
-	$(RANLIB) $@
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
 
-include $(RULES)
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AR = @AR@
+CC = @CC@
+CPP = @CPP@
+DIRS = @DIRS@
+LIBAUTH = @LIBAUTH@
+LIBCRYPT = @LIBCRYPT@
+LIBCURSES = @LIBCURSES@
+LIBGLOB = @LIBGLOB@
+LIBNCURSES = @LIBNCURSES@
+LIBTERMCAP = @LIBTERMCAP@
+LIBUTIL = @LIBUTIL@
+MAKEINFO = @MAKEINFO@
+NCURSES_INCLUDE = @NCURSES_INCLUDE@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+RM = @RM@
+SERVERS_OR_CLIENTS = @SERVERS_OR_CLIENTS@
+VERSION = @VERSION@
+YACC = @YACC@
+
+noinst_LIBRARIES = libinetutils.a
+
+libinetutils_a_SOURCES = __progname.c cleansess.c daemon.c des_rw.c err.c forkpty.c getopt.c getopt1.c herror.c hstrerror.c iruserok.c kcmd.c krcmd.c localhost.c login.c login_tty.c logout.c logwtmp.c logwtmpko.c memmove.c memset.c openpty.c revoke.c setenv.c setsig.c snprintf.c strdup.c strerror.c stub_tgetent.c syslog.c ttymsg.c version.c xmalloc.c xstrdup.c
+
+noinst_HEADERS = snprintf.h version.h
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../headers/config.h
+CONFIG_CLEAN_FILES = 
+LIBRARIES =  $(noinst_LIBRARIES)
+
+
+DEFS = @DEFS@ -I. -I$(srcdir) -I../headers
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+libinetutils_a_LIBADD = 
+libinetutils_a_OBJECTS =  __progname.o cleansess.o daemon.o des_rw.o \
+err.o forkpty.o getopt.o getopt1.o herror.o hstrerror.o iruserok.o \
+kcmd.o krcmd.o localhost.o login.o login_tty.o logout.o logwtmp.o \
+logwtmpko.o memmove.o memset.o openpty.o revoke.o setenv.o setsig.o \
+snprintf.o strdup.o strerror.o stub_tgetent.o syslog.o ttymsg.o \
+version.o xmalloc.o xstrdup.o
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(CFLAGS) $(LDFLAGS) -o $@
+HEADERS =  $(noinst_HEADERS)
+
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP = --best
+DEP_FILES =  .deps/__progname.P .deps/cleansess.P .deps/daemon.P \
+.deps/des_rw.P .deps/err.P .deps/forkpty.P .deps/getopt.P \
+.deps/getopt1.P .deps/herror.P .deps/hstrerror.P .deps/iruserok.P \
+.deps/kcmd.P .deps/krcmd.P .deps/localhost.P .deps/login.P \
+.deps/login_tty.P .deps/logout.P .deps/logwtmp.P .deps/logwtmpko.P \
+.deps/memmove.P .deps/memset.P .deps/openpty.P .deps/revoke.P \
+.deps/setenv.P .deps/setsig.P .deps/snprintf.P .deps/strdup.P \
+.deps/strerror.P .deps/stub_tgetent.P .deps/syslog.P .deps/ttymsg.P \
+.deps/version.P .deps/xmalloc.P .deps/xstrdup.P
+SOURCES = $(libinetutils_a_SOURCES)
+OBJECTS = $(libinetutils_a_OBJECTS)
+
+default: all
+
+.SUFFIXES:
+.SUFFIXES: .S .c .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu libinetutils/Makefile
+
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-noinstLIBRARIES:
+
+clean-noinstLIBRARIES:
+	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+
+distclean-noinstLIBRARIES:
+
+maintainer-clean-noinstLIBRARIES:
+
+.c.o:
+	$(COMPILE) -c $<
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+libinetutils.a: $(libinetutils_a_OBJECTS) $(libinetutils_a_DEPENDENCIES)
+	-rm -f libinetutils.a
+	$(AR) cru libinetutils.a $(libinetutils_a_OBJECTS) $(libinetutils_a_LIBADD)
+	$(RANLIB) libinetutils.a
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $(SOURCES) $(HEADERS) $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	test -z "$(ETAGS_ARGS)$(SOURCES)$(HEADERS)$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $(SOURCES) $(HEADERS) $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = libinetutils
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu libinetutils/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  test -f $(distdir)/$$file \
+	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $$d/$$file $(distdir)/$$file; \
+	done
+
+MKDEP = $(CC) -M $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+-include .deps/.P
+.deps/.P: $(BUILT_SOURCES)
+	echo > $@
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+
+maintainer-clean-depend:
+	-rm -rf .deps
+
+.deps/%.P: %.c
+	@echo "Computing dependencies for $<..."
+	@o='o'; \
+	test -n "$o" && o='$$o'; \
+	$(MKDEP) $< >$@.tmp \
+	  && sed "s,^\(.*\)\.o:,\1.$$o \1.l$$o $@:," < $@.tmp > $@ \
+	  && rm -f $@.tmp
+info:
+dvi:
+check: all
+	$(MAKE)
+installcheck:
+install-exec: 
+	@$(NORMAL_INSTALL)
+
+install-data: 
+	@$(NORMAL_INSTALL)
+
+install: install-exec install-data all
+	@:
+
+uninstall: 
+
+all: Makefile $(LIBRARIES) $(HEADERS)
+
+install-strip:
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+installdirs:
+
+
+mostlyclean-generic:
+	-test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
+
+clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean-generic:
+	-rm -f Makefile $(DISTCLEANFILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+
+maintainer-clean-generic:
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+mostlyclean:  mostlyclean-noinstLIBRARIES mostlyclean-compile \
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+
+clean:  clean-noinstLIBRARIES clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean
+
+distclean:  distclean-noinstLIBRARIES distclean-compile distclean-tags \
+		distclean-depend distclean-generic clean
+	-rm -f config.status
+
+maintainer-clean:  maintainer-clean-noinstLIBRARIES \
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+.PHONY: default mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
+clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info dvi \
+installcheck install-exec install-data install uninstall all \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

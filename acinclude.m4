@@ -474,6 +474,7 @@ HAVE_$iu_sym
       iu_path="`echo $iu_var | sed -e 's/^inetutils_cv_//' -e y/${iu_lcase}/${IU_UCASE}/`"
       iu_pathdef="`echo $iu_path | sed 's/^PATH_/PATHDEF_/'`"
       echo $iu_pathdef = -D$iu_path='\"'"$iu_val"'\"'
+      AC_DEFINE_UNQUOTED($iu_path,"$iu_val")
     fi
   done >$[$2]
   AC_SUBST_FILE([$2])
