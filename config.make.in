@@ -57,6 +57,8 @@ LIBCRYPT = @LIBCRYPT@
 LIBUTIL = @LIBUTIL@
 LIBGLOB = @LIBGLOB@
 
+NCURSES_INCLUDE = @NCURSES_INCLUDE@
+
 CPPFLAGS += $(DEFS) -I$(srcdir) -I../include $(CPPFLAGS-$(<F))
 LDLIBS += -L../libinetutils -linetutils $(LIBS)
 
