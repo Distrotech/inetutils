@@ -1,6 +1,6 @@
 # Configuration for inetutils
 #
-# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
 #
 # Written by Miles Bader <miles@gnu.ai.mit.edu>
 #
@@ -27,9 +27,6 @@ AC_PREREQ(2.12)
 
 AM_INIT_AUTOMAKE([inetutils], [1.3.3])
 
-dnl JB - # Get macros that we use
-dnl JB - builtin(include, iumacros.m4)
-
 # Generate <config.h>; note that we use a `header' subdirectory, which
 # contains all include files distributed with inetutils, and an `include'
 # directory, which holds those actually needed for compilation.
@@ -37,8 +34,7 @@ dnl JB - builtin(include, iumacros.m4)
 # If config.h.in needs to be regenerated (because of changes in configure.in
 # or headers/acconfig.h, use the command `autoheader -l headers'.
 #
-dnl AM_CONFIG_HEADER(include/config.h:headers/config.h.in)
-AM_CONFIG_HEADER(headers/config.h)
+AM_CONFIG_HEADER(include/config.h:headers/config.h.in)
 
 # config.h turns this on, so make sure it's on for our tests too
 #CPPFLAGS=-D_BSD_SOURCE
@@ -50,27 +46,16 @@ AM_CONFIG_HEADER(headers/config.h)
 COMMON='libtelnet libinetutils'
 SERVERS='inetd ftpd telnetd rshd rlogind uucpd rexecd syslogd tftpd'
 CLIENTS='telnet ftp rsh rcp rlogin tftp syslog'
-#AC_SUBST(COMMON)
-#AC_SUBST(SERVERS)
-#AC_SUBST(CLIENTS)
-
-# All subdirectories, whether built or not
-DIRS="headers $SERVERS $CLIENTS $COMMON"
-AC_SUBST(DIRS)
-
-# Optional things we put into libinetutils (we use the name `LIBOBJS' because
-# that's what AC_REPLACE_FUNCS uses).
-#LIBOBJS=''
-#AC_SUBST(LIBOBJS)
 
 # Include files that we link into our own include directory from headers.
 # Initialize it with the things we always want to use.
-#INCLUDES="version.h crypt.h arpa/telnet.h arpa/ftp.h arpa/tftp.h protocols/talkd.h"
+INCLUDES="crypt.h arpa/telnet.h arpa/ftp.h arpa/tftp.h protocols/talkd.h
+	tftpsubs.h"
 
 # Files that we link from somewhere other than headers to includes .  The
 # number of entries in LINK_SRCS should match that in LINK_DSTS.
-#LINK_SRCS=''
-#LINK_DSTS=''
+LINK_SRCS=''
+LINK_DSTS=''
 
 # By default we compile both servers and clients, but see what the user wants
 AC_ARG_ENABLE(servers, [  --disable-servers       don't compile servers],
@@ -118,7 +103,7 @@ AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       strchr waitpid seteuid setegid setreuid setregid setresuid \
 	       setresgid killpg setlinebuf utimes utime)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup setenv memset memmove iruserok herror xstrdup getusershell)
+AC_REPLACE_FUNCS(daemon strdup setenv memset memmove herror getusershell)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -181,7 +166,7 @@ IU_CHECK_MACRO(__P,
     #endif ])
 
 # If revoke hasn't been defined yet, just define a dummy version
-#AC_REPLACE_FUNCS(revoke)
+AC_REPLACE_FUNCS(revoke)
 
 AC_FUNC_ALLOCA
 AC_FUNC_SETVBUF_REVERSED
@@ -331,7 +316,7 @@ if test "$ac_cv_header_glob_h" = yes; then
   _SAVE_LIBS="$LIBS"
   LIBS="$LIBGLOB $LIBS"
   AC_CHECK_FUNC(glob,
-    IU_CHECK_MACRO(system glob is ok,
+    IU_CHECK_MACRO(ok system glob,
       [#include <glob.h>], GLOB_BRACE GLOB_TILDE,
       sys_glob=yes))
   LIBS="$_SAVE_LIBS"
@@ -478,15 +463,17 @@ PATHS_DEFS=paths.defs
 IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
 
 # Supply optional header files by linking a copy into the object include dir
-#LINK_SRCS="$LINK_SRCS `for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
-#LINK_DSTS="$LINK_DSTS `for I in $INCLUDES; do echo $ac_n ' 'include/$I$ac_c; done`"
-#AC_LINK_FILES($LINK_SRCS, $LINK_DSTS)
+LINK_SRCS="$LINK_SRCS `for I in $INCLUDES; do echo $ac_n ' 'headers/$I$ac_c; done`"
+LINK_DSTS="$LINK_DSTS `for I in $INCLUDES; do echo $ac_n ' 'include/$I$ac_c; done`"
+AC_LINK_FILES($LINK_SRCS, $LINK_DSTS)
 
-dnl JB - SUBDIR_MAKEFILES="`for D in $SUBDIRS; do echo $ac_n ' '$D/Makefile$ac_c; done`"
+AC_SUBST(VERSION)
 
-dnl Test
-AC_DEFINE_UNQUOTED(TEEHEE,"LALA")
+AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile
+ftp/Makefile ftpd/Makefile inetd/Makefile ping/Makefile rcp/Makefile
+rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
+rshd/Makefile syslog/Makefile syslogd/Makefile talk/Makefile
+talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
+tftpd/Makefile uucpd/Makefile include/confpaths.h:headers/confpaths.h.in
+headers/Makefile include/version.h:headers/version.h.in)
 
-AC_OUTPUT(Makefile libinetutils/Makefile libtelnet/Makefile ftp/Makefile ftpd/Makefile inetd/Makefile ping/Makefile rcp/Makefile rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile rshd/Makefile syslog/Makefile syslogd/Makefile talk/Makefile talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile tftpd/Makefile uucpd/Makefile headers/confpaths.h headers/Makefile)
-dnl JB - AC_OUTPUT(Makefile config.make include/confpaths.h:headers/confpaths.h.in \
-dnl JB -	  $SUBDIR_MAKEFILES)
