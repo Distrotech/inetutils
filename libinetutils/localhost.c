@@ -31,6 +31,10 @@
 #endif
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
 
 #if __STDC__
 # define VOID void
@@ -81,5 +85,21 @@ localhost (void)
       buf = 0;
     }
 
+  /* Determine FQDN */
+  {
+    struct hostent *hp = gethostbyname(buf);
+
+    if (hp)
+      {
+	struct in_addr addr;
+	addr.s_addr = *(unsigned int*) hp->h_addr;
+	hp = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET);
+	if (hp)
+	  {
+	    free(buf);
+	    buf = strdup(hp->h_name);
+	  }
+      }
+  }
   return buf;
 }
