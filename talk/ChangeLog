@@ -1,3 +1,7 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+
 2003-04-05  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* display.c (display): Allow use of 8-bit ascii.

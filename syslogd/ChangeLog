@@ -1,3 +1,7 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+
 2004-08-13  Jeff Bailey  <jbailey@raspberryginger.com>
 
 	* syslogd.c: Fix disable forwarding option.

@@ -1,3 +1,7 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+
 2004-06-16  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* rsh.c (short_options): Prefix with '+' to disable

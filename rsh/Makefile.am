@@ -10,7 +10,7 @@ man_MANS = rsh.1
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_RLOGIN) -I$(top_builddir)/include
+INCLUDES = $(PATHDEF_RLOGIN)
 
 LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 

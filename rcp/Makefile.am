@@ -12,7 +12,7 @@ man_MANS = rcp.1
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_RSH) $(PATHDEF_CP) $(PATHDEF_BSHELL) -I$(top_builddir)/include
+INCLUDES = $(PATHDEF_RSH) $(PATHDEF_CP) $(PATHDEF_BSHELL)
 
 LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 

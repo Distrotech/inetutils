@@ -1,3 +1,7 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+
 2002-12-06  Sergey Poznyakoff  
 
 	* libtelnet/auth-proto.h: Renamed Authenticator to

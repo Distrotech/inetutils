@@ -1,3 +1,7 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+
 2003-02-08  Simon Josefsson  <jas@extundo.com>
 
         * commands.c (tn): Don't set hostname to DNS canonicalized value.
