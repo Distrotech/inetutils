@@ -31,10 +31,6 @@
 static char sccsid[] = "@(#)termstat.c	8.2 (Berkeley) 5/30/95";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "telnetd.h"
 
 /*
@@ -44,15 +40,12 @@ int def_tspeed = -1, def_rspeed = -1;
 #ifdef	TIOCSWINSZ
 int def_row = 0, def_col = 0;
 #endif
-#ifdef	LINEMODE
 static int _terminit = 0;
-#endif	/* LINEMODE */
 
 #if	defined(CRAY2) && defined(UNICOS5)
 int	newmap = 1;	/* nonzero if \n maps to ^M^J */
 #endif
 
-#ifdef	LINEMODE
 /*
  * localstat
  *
@@ -224,10 +217,8 @@ localstat()
 			send_wont(TELOPT_ECHO, 1);
 		else
 			need_will_echo = 1;
-#ifdef	KLUDGELINEMODE
 		if (lmodetype == KLUDGE_OK)
 			lmodetype = KLUDGE_LINEMODE;
-#endif
 	}
 
 	/*
@@ -235,26 +226,20 @@ localstat()
 	 * command and then we're all done.
 	 */
 	 if (!uselinemode && linemode) {
-# ifdef	KLUDGELINEMODE
 		if (lmodetype == REAL_LINEMODE) {
-# endif	/* KLUDGELINEMODE */
 			send_dont(TELOPT_LINEMODE, 1);
-# ifdef	KLUDGELINEMODE
 		} else if (lmodetype == KLUDGE_LINEMODE)
 			send_will(TELOPT_SGA, 1);
-# endif	/* KLUDGELINEMODE */
 		send_will(TELOPT_ECHO, 1);
 		linemode = uselinemode;
 		goto done;
 	}
 
-# ifdef	KLUDGELINEMODE
 	/*
 	 * If using real linemode check edit modes for possible later use.
 	 * If we are in kludge linemode, do the SGA negotiation.
 	 */
 	if (lmodetype == REAL_LINEMODE) {
-# endif	/* KLUDGELINEMODE */
 		useeditmode = 0;
 		if (tty_isediting())
 			useeditmode |= MODE_EDIT;
@@ -264,47 +249,38 @@ localstat()
 			useeditmode |= MODE_SOFT_TAB;
 		if (tty_islitecho())
 			useeditmode |= MODE_LIT_ECHO;
-# ifdef	KLUDGELINEMODE
 	} else if (lmodetype == KLUDGE_LINEMODE) {
 		if (tty_isediting() && uselinemode)
 			send_wont(TELOPT_SGA, 1);
 		else
 			send_will(TELOPT_SGA, 1);
 	}
-# endif	/* KLUDGELINEMODE */
 
 	/*
 	 * Negotiate linemode on if pty state has changed to turn it on.
 	 * Send appropriate command and send along edit mode, then all done.
 	 */
 	if (uselinemode && !linemode) {
-# ifdef	KLUDGELINEMODE
 		if (lmodetype == KLUDGE_LINEMODE) {
 			send_wont(TELOPT_SGA, 1);
 		} else if (lmodetype == REAL_LINEMODE) {
-# endif	/* KLUDGELINEMODE */
 			send_do(TELOPT_LINEMODE, 1);
 			/* send along edit modes */
-			(void) sprintf(nfrontp, "%c%c%c%c%c%c%c", IAC, SB,
+			net_output_data("%c%c%c%c%c%c%c", IAC, SB,
 				TELOPT_LINEMODE, LM_MODE, useeditmode,
 				IAC, SE);
-			nfrontp += 7;
 			editmode = useeditmode;
-# ifdef	KLUDGELINEMODE
 		}
-# endif	/* KLUDGELINEMODE */
 		linemode = uselinemode;
 		goto done;
 	}
 
-# ifdef	KLUDGELINEMODE
 	/*
 	 * None of what follows is of any value if not using
 	 * real linemode.
 	 */
 	if (lmodetype < REAL_LINEMODE)
 		goto done;
-# endif	/* KLUDGELINEMODE */
 
 	if (linemode && his_state_is_will(TELOPT_LINEMODE)) {
 		/*
@@ -314,10 +290,9 @@ localstat()
 			/*
 			 * Send along appropriate edit mode mask.
 			 */
-			(void) sprintf(nfrontp, "%c%c%c%c%c%c%c", IAC, SB,
+			net_output_data("%c%c%c%c%c%c%c", IAC, SB,
 				TELOPT_LINEMODE, LM_MODE, useeditmode,
 				IAC, SE);
-			nfrontp += 7;
 			editmode = useeditmode;
 		}
 
@@ -348,7 +323,6 @@ done:
 	return;
 
 }  /* end of localstat */
-#endif	/* LINEMODE */
 
 /*
  * flowstat
@@ -361,20 +335,18 @@ flowstat()
 	if (his_state_is_will(TELOPT_LFLOW)) {
 		if (tty_flowmode() != flowmode) {
 			flowmode = tty_flowmode();
-			(void) sprintf(nfrontp, "%c%c%c%c%c%c",
+			net_output_data ("%c%c%c%c%c%c",
 					IAC, SB, TELOPT_LFLOW,
 					flowmode ? LFLOW_ON : LFLOW_OFF,
 					IAC, SE);
-			nfrontp += 6;
 		}
 		if (tty_restartany() != restartany) {
 			restartany = tty_restartany();
-			(void) sprintf(nfrontp, "%c%c%c%c%c%c",
+			net_output_data ("%c%c%c%c%c%c",
 					IAC, SB, TELOPT_LFLOW,
 					restartany ? LFLOW_RESTART_ANY
 						   : LFLOW_RESTART_XON,
 					IAC, SE);
-			nfrontp += 6;
 		}
 	}
 }
@@ -401,7 +373,6 @@ clientstat(register int code, register int parm1, register int parm2)
 	 * Process request from client. code tells what it is.
 	 */
 	switch (code) {
-#ifdef	LINEMODE
 	case TELOPT_LINEMODE:
 		/*
 		 * Don't do anything unless client is asking us to change
@@ -409,7 +380,6 @@ clientstat(register int code, register int parm1, register int parm2)
 		 */
 		uselinemode = (parm1 == WILL);
 		if (uselinemode != linemode) {
-# ifdef	KLUDGELINEMODE
 			/*
 			 * If using kludge linemode, make sure that
 			 * we can do what the client asks.
@@ -433,9 +403,7 @@ clientstat(register int code, register int parm1, register int parm2)
 			 * turned on, send along the edit mode mask.
 			 */
 			if (lmodetype == REAL_LINEMODE && uselinemode)
-# else	/* KLUDGELINEMODE */
 			if (uselinemode)
-# endif	/* KLUDGELINEMODE */
 			{
 				useeditmode = 0;
 				if (tty_isediting())
@@ -446,10 +414,9 @@ clientstat(register int code, register int parm1, register int parm2)
 					useeditmode |= MODE_SOFT_TAB;
 				if (tty_islitecho())
 					useeditmode |= MODE_LIT_ECHO;
-				(void) sprintf(nfrontp, "%c%c%c%c%c%c%c", IAC,
+				net_output_data ("%c%c%c%c%c%c%c", IAC,
 					SB, TELOPT_LINEMODE, LM_MODE,
 							useeditmode, IAC, SE);
-				nfrontp += 7;
 				editmode = useeditmode;
 			}
 
@@ -505,11 +472,10 @@ clientstat(register int code, register int parm1, register int parm2)
 			set_termbuf();
 
  			if (!ack) {
- 				(void) sprintf(nfrontp, "%c%c%c%c%c%c%c", IAC,
+ 				net_output_data ("%c%c%c%c%c%c%c", IAC,
 					SB, TELOPT_LINEMODE, LM_MODE,
  					useeditmode|MODE_ACK,
  					IAC, SE);
- 				nfrontp += 7;
  			}
 
 			editmode = useeditmode;
@@ -518,7 +484,6 @@ clientstat(register int code, register int parm1, register int parm2)
 		break;
 
 	    }  /* end of case LM_MODE */
-#endif	/* LINEMODE */
 
 	case TELOPT_NAWS:
 #ifdef	TIOCSWINSZ
@@ -527,14 +492,12 @@ clientstat(register int code, register int parm1, register int parm2)
 
 		def_col = parm1;
 		def_row = parm2;
-#ifdef	LINEMODE
 		/*
 		 * Defer changing window size until after terminal is
 		 * initialized.
 		 */
 		if (terminit() == 0)
 			return;
-#endif	/* LINEMODE */
 
 		/*
 		 * Change window size as requested by client.
@@ -552,13 +515,11 @@ clientstat(register int code, register int parm1, register int parm2)
 	    {
 		def_tspeed = parm1;
 		def_rspeed = parm2;
-#ifdef	LINEMODE
 		/*
 		 * Defer changing the terminal speed.
 		 */
 		if (terminit() == 0)
 			return;
-#endif	/* LINEMODE */
 		/*
 		 * Change terminal speed as requested by client.
 		 * We set the receive speed first, so that if we can't
@@ -606,7 +567,6 @@ _termstat()
 }
 #endif	/* defined(CRAY2) && defined(UNICOS5) */
 
-#ifdef	LINEMODE
 /*
  * defer_terminit
  *
@@ -656,4 +616,3 @@ terminit()
 	return(_terminit);
 
 }  /* end of terminit */
-#endif	/* LINEMODE */

@@ -31,15 +31,10 @@
 static char sccsid[] = "@(#)slc.c	8.2 (Berkeley) 5/30/95";
 #endif /* not lint */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include "telnetd.h"
 
-#ifdef	LINEMODE
 /*
- * local varibles
+ * local variables
  */
 static unsigned char	*def_slcbuf = (unsigned char *)0;
 static int		def_slclen = 0;
@@ -94,7 +89,6 @@ default_slc()
 	slcchange = 1;
 
 }  /* end of default_slc */
-#endif	/* LINEMODE */
 
 /*
  * get_slc_defaults
@@ -117,7 +111,6 @@ get_slc_defaults()
 
 }  /* end of get_slc_defaults */
 
-#ifdef	LINEMODE
 /*
  * add_slc
  *
@@ -196,9 +189,10 @@ end_slc(register unsigned char **bufp)
 			(void) sprintf((char *)slcptr, "%c%c", IAC, SE);
 			slcptr += 2;
 			len = slcptr - slcbuf;
-			writenet(slcbuf, len);
+			net_output_datalen(slcbuf, len);
 			netflush();  /* force it out immediately */
-			DIAG(TD_OPTIONS, printsub('>', slcbuf+2, len-2););
+			DEBUG(debug_options, 1,
+                              printsub('>', slcbuf+2, len-2));
 		}
 	}
 	return (0);
@@ -370,10 +364,6 @@ change_slc(register char func, register char flag, register cc_t val)
 
 }  /* end of change_slc */
 
-#if	defined(USE_TERMIO) && (VEOF == VMIN)
-cc_t oldeofc = '\004';
-#endif
-
 /*
  * check_slc
  *
@@ -388,21 +378,8 @@ check_slc()
 	register int i;
 
 	for (i = 1; i <= NSLC; i++) {
-#if	defined(USE_TERMIO) && (VEOF == VMIN)
-		/*
-		 * In a perfect world this would be a neat little
-		 * function.  But in this world, we should not notify
-		 * client of changes to the VEOF char when
-		 * ICANON is off, because it is not representing
-		 * a special character.
-		 */
-		if (i == SLC_EOF) {
-			if (!tty_isediting())
-				continue;
-			else if (slctab[i].sptr)
-				oldeofc = *(slctab[i].sptr);
-		}
-#endif	/* defined(USE_TERMIO) && defined(SYSV_TERMIO) */
+		if (i == SLC_EOF && term_change_eof ())
+		  continue;
 		if (slctab[i].sptr &&
 				(*(slctab[i].sptr) != slctab[i].current.val)) {
 			slctab[i].current.val = *(slctab[i].sptr);
@@ -426,7 +403,7 @@ check_slc()
  * ptr points to the beginning of the buffer, len is the length.
  */
 void
-do_opt_slc(register unsigend char *ptr, register int len)
+do_opt_slc(register unsigned char *ptr, register int len)
 {
 	register unsigned char func, flag;
 	cc_t val;
@@ -478,4 +455,3 @@ deferslc()
 
 }  /* end of deferslc */
 
-#endif	/* LINEMODE */
