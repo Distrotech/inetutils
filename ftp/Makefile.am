@@ -6,3 +6,4 @@ noinst_HEADERS = extern.h ftp_var.h
 
 man_MANS = ftp.1
 
+LDADD = -L../libinetutils -linetutils
