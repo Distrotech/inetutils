@@ -113,7 +113,7 @@ ruserok(const char *rhost, int superuser, const char *ruser, const char *luser)
  * Returns 0 if ok, -1 if not ok.
  */
 int
-iruserok(u_long raddr, int superuser, const char *ruser, const char *luserw)
+iruserok(u_long raddr, int superuser, const char *ruser, const char *luser)
 {
   register char *cp;
   struct stat sbuf;
