@@ -9,8 +9,13 @@
 
 
 2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
-	* icmp_timestamp.c: forgotten to commit yesterday :^)
+        * Makefile.am: use @BUILD_PING@ instead of directly
+          assigning bin_PROGRAMS.
 	* ping.h: changed counters in struct PING from int to longs.
+	* ping.c,ping_address.c,ping_echo.c,
+          ping_impl.h,ping_router.c,ping_timestamp.c:
+                Fixed a bunch of inconsistencies (thanks to Alain).
+                Changes to make gcc -Wall less verbose.
 
 2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
 	* Makefile.am: added OMIT_DEPENDENCIES
