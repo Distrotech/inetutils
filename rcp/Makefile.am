@@ -1,4 +1,6 @@
-bin_PROGRAMS = rcp
+bin_PROGRAMS = @BUILD_RCP@
+
+EXTRA_PROGRAMS = rcp
 
 rcp_SOURCES = rcp.c util.c
 

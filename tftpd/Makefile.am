@@ -1,4 +1,6 @@
-bin_PROGRAMS = tftpd
+bin_PROGRAMS = @BUILD_TFTPD@
+
+EXTRA_PROGRAMS = tftpd
 
 tftpd_SOURCES = tftpd.c
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = ftp
+bin_PROGRAMS = @BUILD_FTP@
+
+EXTRA_PROGRAMS = ftp
 
 ftp_SOURCES = cmds.c cmdtab.c domacro.c ftp.c main.c ruserpass.c
 

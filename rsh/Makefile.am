@@ -1,4 +1,6 @@
-bin_PROGRAMS = rsh
+bin_PROGRAMS = @BUILD_RSH@
+
+EXTRA_PROGRAMS = rsh
 
 rsh_SOURCES = rsh.c
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = rshd
+bin_PROGRAMS = @BUILD_RSHD@
+
+EXTRA_PROGRAMS = rshd
 
 rshd_SOURCES = rshd.c
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = syslog
+bin_PROGRAMS = @BUILD_SYSLOG@
+
+EXTRA_PROGRAMS = syslog
 
 syslog_SOURCES = syslog.c
 

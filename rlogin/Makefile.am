@@ -1,4 +1,6 @@
-bin_PROGRAMS = rlogin
+bin_PROGRAMS = @BUILD_RLOGIN@
+
+EXTRA_PROGRAMS = rlogin
 
 rlogin_SOURCES = rlogin.c
 

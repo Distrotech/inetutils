@@ -1,4 +1,6 @@
-bin_PROGRAMS = rlogind
+bin_PROGRAMS = @BUILD_RLOGIND@
+
+EXTRA_PROGRAMS = rlogind
 
 rlogind_SOURCES = rlogind.c
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = ftpd
+bin_PROGRAMS = @BUILD_FTPD@
+
+EXTRA_PROGRAMS = ftpd
 
 ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c
 

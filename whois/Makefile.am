@@ -1,4 +1,6 @@
-bin_PROGRAMS = whois
+bin_PROGRAMS = @BUILD_WHOIS@
+
+EXTRA_PROGRAMS = whois
 
 whois_SOURCES = main.c net.c
 

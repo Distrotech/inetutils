@@ -1,4 +1,6 @@
-bin_PROGRAMS = inetd
+bin_PROGRAMS = @BUILD_INETD@
+
+EXTRA_PROGRAMS = inetd
 
 inetd_SOURCES = inetd.c
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = talkd
+bin_PROGRAMS = @BUILD_TALKD@
+
+EXTRA_PROGRAMS = talkd
 
 talkd_SOURCES = announce.c print.c process.c table.c talkd.c
 

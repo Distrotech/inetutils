@@ -1,4 +1,6 @@
-bin_PROGRAMS = tftp
+bin_PROGRAMS = @BUILD_TFTP@
+
+EXTRA_PROGRAMS = tftp
 
 tftp_SOURCES = main.c tftp.c
 

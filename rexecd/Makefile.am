@@ -1,4 +1,6 @@
-bin_PROGRAMS = rexecd
+bin_PROGRAMS = @BUILD_REXECD@
+
+EXTRA_PROGRAMS = rexecd
 
 rexecd_SOURCES = rexecd.c
 

@@ -1,4 +1,6 @@
-bin_PROGRAMS = uucpd
+bin_PROGRAMS = @BUILD_UUCPD@
+
+EXTRA_PROGRAMS = uucpd
 
 uucpd_SOURCES = uucpd.c
 

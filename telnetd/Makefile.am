@@ -1,4 +1,6 @@
-bin_PROGRAMS = telnetd
+bin_PROGRAMS = @BUILD_TELNETD@
+
+EXTRA_PROGRAMS = telnetd
 
 telnetd_SOURCES = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat.c utility.c
 
