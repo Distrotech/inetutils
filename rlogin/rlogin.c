@@ -306,6 +306,10 @@ main(int argc, char *argv[])
           printf ("rlogin (%s %s)\n", inetutils_package, inetutils_version);
           exit (0);
 
+	case '?':
+	  usage (1);
+	  break;
+
 	case 'h':
 	default:
 	  usage (0);
