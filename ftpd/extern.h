@@ -42,7 +42,7 @@ void	fatal __P((char *));
 int	ftpd_pclose __P((FILE *));
 FILE   *ftpd_popen __P((char *, char *));
 char   *telnet_fgets __P((char *, int, FILE *));
-void	logwtmp __P((char *, char *, char *));
+void	logwtmp __P((const char *, const char *, const char *));
 void	lreply __P((int, const char *, ...));
 void	makedir __P((char *));
 void	nack __P((char *));

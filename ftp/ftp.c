@@ -1052,7 +1052,7 @@ initconn()
 			perror("ftp: connect");
 			goto bad;
 		}
-#ifdef IP_TOS
+#if defined(IP_TOS) && defined(IPTOS_THROUGPUT)
 		on = IPTOS_THROUGHPUT;
 		if (setsockopt(data, IPPROTO_IP, IP_TOS, (char *)&on,
 			       sizeof(int)) < 0)

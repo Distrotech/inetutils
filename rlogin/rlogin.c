@@ -115,7 +115,7 @@ struct	winsize winsize;
 
 void		catch_child __P((int));
 void		copytochild __P((int));
-void		doit __P((long));
+void		doit __P((sigset_t *));
 void		done __P((int));
 void		echo __P((char));
 u_int		getescape __P((char *));

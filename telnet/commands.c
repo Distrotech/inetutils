@@ -32,7 +32,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)commands.c	8.2 (Berkeley) 12/15/93";
+static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 #if	defined(unix)
@@ -1366,7 +1366,7 @@ suspend()
 	(void) kill(0, SIGTSTP);
 	/*
 	 * If we didn't get the window size before the SUSPEND, but we
-	 * can get them now (???), then send the NAWS to make sure that
+	 * can get them now (?), then send the NAWS to make sure that
 	 * we are set up for the right window size.
 	 */
 	if (TerminalWindowSize(&newrows, &newcols) && connected &&
@@ -1406,12 +1406,12 @@ shell(argc, argv)
 	     * Fire up the shell in the child.
 	     */
 	    register char *shellp, *shellname;
-	    extern char *rindex();
+	    extern char *strrchr();
 
 	    shellp = getenv("SHELL");
 	    if (shellp == NULL)
 		shellp = "/bin/sh";
-	    if ((shellname = rindex(shellp, '/')) == 0)
+	    if ((shellname = strrchr(shellp, '/')) == 0)
 		shellname = shellp;
 	    else
 		shellname++;
@@ -1693,10 +1693,10 @@ env_init()
 	extern char **environ;
 	register char **epp, *cp;
 	register struct env_lst *ep;
-	extern char *index();
+	extern char *strchr();
 
 	for (epp = environ; *epp; epp++) {
-		if (cp = index(*epp, '=')) {
+		if (cp = strchr(*epp, '=')) {
 			*cp = '\0';
 			ep = env_define((unsigned char *)*epp,
 					(unsigned char *)cp+1);
@@ -1713,7 +1713,7 @@ env_init()
 	    && ((*ep->value == ':')
 	        || (strncmp((char *)ep->value, "unix:", 5) == 0))) {
 		char hbuf[256+1];
-		char *cp2 = index((char *)ep->value, ':');
+		char *cp2 = strchr((char *)ep->value, ':');
 
 		gethostname(hbuf, 256);
 		hbuf[256] = '\0';
@@ -1918,8 +1918,8 @@ struct authlist {
 };
 
 extern int
-	auth_enable P((int)),
-	auth_disable P((int)),
+	auth_enable P((char *)),
+	auth_disable P((char *)),
 	auth_status P((void));
 static int
 	auth_help P((void));
@@ -1957,6 +1957,12 @@ auth_cmd(argc, argv)
     char *argv[];
 {
     struct authlist *c;
+
+    if (argc < 2) {
+	fprintf(stderr,
+	    "Need an argument to 'auth' command.  'auth ?' for help.\n");
+	return 0;
+    }
 
     c = (struct authlist *)
 		genget(argv[1], (char **) AuthList, sizeof(struct authlist));
@@ -2014,7 +2020,7 @@ struct encryptlist EncryptList[] = {
 						EncryptEnable, 1, 1, 2 },
     { "disable", "Disable encryption. ('encrypt enable ?' for more)",
 						EncryptDisable, 0, 1, 2 },
-    { "type", "Set encryptiong type. ('encrypt type ?' for more)",
+    { "type", "Set encryption type. ('encrypt type ?' for more)",
 						EncryptType, 0, 1, 1 },
     { "start", "Start encryption. ('encrypt start ?' for more)",
 						EncryptStart, 1, 0, 1 },
@@ -2057,6 +2063,12 @@ encrypt_cmd(argc, argv)
     char *argv[];
 {
     struct encryptlist *c;
+
+    if (argc < 2) {
+	fprintf(stderr,
+	    "Need an argument to 'encrypt' command.  'encrypt ?' for help.\n");
+	return 0;
+    }
 
     c = (struct encryptlist *)
 		genget(argv[1], (char **) EncryptList, sizeof(struct encryptlist));
@@ -2231,7 +2243,7 @@ tn(argc, argv)
     char *cmd, *hostp = 0, *portp = 0, *user = 0;
 
     /* clear the socket address prior to use */
-    bzero((char *)&sin, sizeof(sin));
+    memset((char *)&sin, 0, sizeof(sin));
 
     if (connected) {
 	printf("?Already connected to %s\n", hostname);
@@ -2249,7 +2261,7 @@ tn(argc, argv)
     cmd = *argv;
     --argc; ++argv;
     while (argc) {
-	if (isprefix(*argv, "help") || isprefix(*argv, "?"))
+	if (strcmp(*argv, "help") == 0 || isprefix(*argv, "?"))
 	    goto usage;
 	if (strcmp(*argv, "-l") == 0) {
 	    --argc; ++argv;
@@ -2324,10 +2336,10 @@ tn(argc, argv)
 	    if (host) {
 		sin.sin_family = host->h_addrtype;
 #if	defined(h_addr)		/* In 4.3, this is a #define */
-		memcpy((caddr_t)&sin.sin_addr,
+		memmove((caddr_t)&sin.sin_addr,
 				host->h_addr_list[0], host->h_length);
 #else	/* defined(h_addr) */
-		memcpy((caddr_t)&sin.sin_addr, host->h_addr, host->h_length);
+		memmove((caddr_t)&sin.sin_addr, host->h_addr, host->h_length);
 #endif	/* defined(h_addr) */
 
 		if (_hostname)
@@ -2427,7 +2439,7 @@ tn(argc, argv)
 		errno = oerrno;
 		perror((char *)0);
 		host->h_addr_list++;
-		memcpy((caddr_t)&sin.sin_addr, 
+		memmove((caddr_t)&sin.sin_addr,
 			host->h_addr_list[0], host->h_length);
 		(void) NetClose(net);
 		continue;
@@ -2911,16 +2923,16 @@ sourceroute(arg, cpp, lenp)
 			sin_addr.s_addr = tmp;
 		} else if (host = gethostbyname(cp)) {
 #if	defined(h_addr)
-			memcpy((caddr_t)&sin_addr,
+			memmove((caddr_t)&sin_addr,
 				host->h_addr_list[0], host->h_length);
 #else
-			memcpy((caddr_t)&sin_addr, host->h_addr, host->h_length);
+			memmove((caddr_t)&sin_addr, host->h_addr, host->h_length);
 #endif
 		} else {
 			*cpp = cp;
 			return(0);
 		}
-		memcpy(lsrp, (char *)&sin_addr, 4);
+		memmove(lsrp, (char *)&sin_addr, 4);
 		lsrp += 4;
 		if (cp2)
 			cp = cp2;
