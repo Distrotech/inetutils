@@ -85,7 +85,7 @@ strvis (dst, src, ignored)
       case '\f': *dst++ = '\\'; *dst++ = 'f'; break;
       case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
       default:
-	if (isgraph (*src))
+	if (isgraph (ch))
 	  *dst++ = ch;
 	else
 	  dst += sprintf (dst, "\\%03o", ch);
