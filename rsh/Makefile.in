@@ -1,4 +1,4 @@
-# Makefile for rcp
+# Makefile for rsh
 # Copyright (C) 1995 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -39,18 +39,18 @@ RM = @RM@
 
 LDLIBS = $(LIBS)
 
-CFLAGS += $(DEFS)
+CFLAGS += $(DEFS) -D_PATH_RLOGIN=\"$(bindir)/rlogin\"
 
-rcp: rcp.o util.o
+rsh: rsh.o
 
-install: installdirs rcp $(srcdir)/rcp.1
-	$(INSTALL_PROGRAM) rcp $(bindir)/in.rcp
-	$(INSTALL_DATA) $(srcdir)/rcp.1 $(man1dir)
+install: installdirs rsh $(srcdir)/rsh.1
+	$(INSTALL_PROGRAM) rsh $(bindir)/in.rsh
+	$(INSTALL_DATA) $(srcdir)/rsh.1 $(man1dir)
 
 installdirs:
 	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
 clean:
-	$(RM) -f *.o rcp 
+	$(RM) -f *.o rsh 
 distclean: clean
 	$(RM) -f Makefile
