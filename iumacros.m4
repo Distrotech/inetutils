@@ -1,6 +1,6 @@
 dnl Autoconf macros used by inetutils
 dnl
-dnl Copyright (C) 1996 Free Software Foundation, Inc.
+dnl Copyright (C) 1996, 1997 Free Software Foundation, Inc.
 dnl
 dnl Written by Miles Bader <miles@gnu.ai.mit.edu>
 dnl
@@ -218,8 +218,12 @@ dnl defines it to be that system define, unless it is already defined (which
 dnl will be case if overridden by make).
 dnl
 AC_DEFUN([IU_CONFIG_PATHS], [
+  dnl
+  dnl We need to know if we're cross compiling.
+  dnl
+  AC_REQUIRE([AC_PROG_CC])
+  dnl
   AC_CHECK_HEADER(paths.h, AC_DEFINE(HAVE_PATHS_H) iu_paths_h="<paths.h>")
-  AC_C_CROSS
   dnl 
   dnl A slightly bogus use of AC_ARG_WITH; we never actually use
   dnl $with_PATHVAR, we just want to get this entry put into the help list.
@@ -232,6 +236,8 @@ AC_DEFUN([IU_CONFIG_PATHS], [
                           downcased, with \`_' changed to \`-'
   --without-PATHVAR       Never define PATHVAR by any method])dnl
 
+  iu_cache_file="/tmp/iu-path-cache.$$"
+  ac_clean_files="$ac_clean_files $iu_cache_file"
   while read iu_path iu_search; do
     test "$iu_path" = "#" -o -z "$iu_path" && continue
 
@@ -360,34 +366,47 @@ EOF
       AC_MSG_RESULT(${iu_cached}${iu_defaulted}$iu_val)
       test "$iu_cross_conflict" -a "$iu_defaulted" \
 	&& AC_MSG_WARN(may be incorrect because of cross-compilation)
-      if test "$iu_val" != no; then
-	iu_pathdef="`echo $iu_path | sed 's/^PATH_/PATHDEF_/'`"
-	echo $iu_pathdef = -D$iu_path='\"'"$iu_val"'\"'
-      fi
       # Put the value in the autoconf cache.  We replace $( with @( to avoid
       # variable evaluation problems when autoconf reads the cache later.
-      test "$iu_cached" || eval inetutils_cv_$iu_pathvar=\'"`echo "$iu_val" | sed 's/\$(/@(/g'`"\'
+      echo inetutils_cv_$iu_pathvar=\'"`echo "$iu_val" | sed 's/\$(/@(/g'`"\'
     elif test "$iu_hdr"; then
       AC_MSG_RESULT(${iu_cached}from $iu_sym in $iu_hdr)
-      test "$iu_cached" || eval inetutils_cv_hdr_$iu_pathvar=\'"$iu_hdr"\'
-      test "$iu_cached" || eval inetutils_cv_hdr_sym_$iu_pathvar=\'"$iu_sym"\'
+      echo inetutils_cv_hdr_$iu_pathvar=\'"$iu_hdr"\'
+      echo inetutils_cv_hdr_sym_$iu_pathvar=\'"$iu_sym"\'
     fi
-  done <[$1] >$[$2]
+  done <[$1] >$iu_cache_file
+
+  # Read the cache values constructed by the previous loop, 
+  . $iu_cache_file
+
+  # Construct the pathdefs file -- a file of make variable definitions, of
+  # the form PATHDEF_FOO, that contain cc -D switches to define the cpp macro
+  # PATH_FOO.
+  grep -v '^inetutils_cv_hdr_' < $iu_cache_file | \
+  while read iu_cache_set; do
+    iu_var="`echo $iu_cache_set | sed 's/=.*$//'`"
+    eval iu_val=\"'$'"$iu_var"\"
+    # invert escaped $(...) notation used in autoconf cache
+    eval iu_val=\"\`echo \'"$iu_val"\' \| sed \''s/@(/$\(/g'\'\`\"
+    if test "$iu_val" != no; then
+      iu_path="`echo $iu_var | sed -e 's/^inetutils_cv_//' -e y/${iu_lcase}/${IU_UCASE}/`"
+      iu_pathdef="`echo $iu_path | sed 's/^PATH_/PATHDEF_/'`"
+      echo $iu_pathdef = -D$iu_path='\"'"$iu_val"'\"'
+    fi
+  done >$[$2]
   AC_SUBST_FILE([$2])
 
   # Generate a file of #ifdefs that defaults PATH_FOO macros to _PATH_FOO (or
   # some other symbol) (excluding any who's value is set to `no').
-  while read iu_path iu_search; do
-    test "$iu_path" = "#" -o -z "$iu_path" && continue
-    iu_pathvar="`echo $iu_path  | sed y/${IU_UCASE}/${iu_lcase}/`"
-    test "`eval echo '$'{inetutils_cv_$iu_pathvar}`" = no && continue
-    eval iu_sym=\"'$'inetutils_cv_hdr_sym_$iu_pathvar\"
-    if test "$iu_sym"; then
-      cat <<EOF
+  grep '^inetutils_cv_hdr_sym_' < $iu_cache_file | \
+  while read iu_cache_set; do
+    iu_sym_var="`echo "$iu_cache_set" | sed 's/=.*$//'`"
+    eval iu_sym=\"'$'"$iu_sym_var"\"
+    iu_path="`echo $iu_sym_var | sed -e 's/^inetutils_cv_hdr_sym_//' -e y/${iu_lcase}/${IU_UCASE}/`"
+    cat <<EOF
 #ifndef $iu_path
 #define $iu_path $iu_sym
 #endif
 EOF
-    fi
-  done <[$1] >$[$3]
+  done >$[$3]
   AC_SUBST_FILE([$3])])
