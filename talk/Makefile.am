@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-bin_PROGRAMS = @BUILD_TALK@
+bin_PROGRAMS = @talk_BUILD@
 
 EXTRA_PROGRAMS = talk
 
