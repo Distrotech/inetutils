@@ -1,5 +1,8 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* libinetutils/Makefile.am (INCLUDES): Added `$(PATHDEF_TTY_PFX)
+ 	$(PATHDEF_DEVNULL) $(PATHDEF_HEQUIV)'.
+
 	* inetd/Makefile.am (LDADD): Added `-L../libinetutils
  	-linetutils'.
 
