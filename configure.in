@@ -2,8 +2,12 @@
 
 AC_INIT(inetd/inetd.c)
 
-AC_ARG_ENABLE(encryption, enable connection encryption, AC_DEFINE(ENCRYPTION))
-AC_ARG_ENABLE(authentication, enable connection authentication, AC_DEFINE(AUTHENTICATION))
+AC_ARG_ENABLE(encryption, enable connection encryption,, enable_encryption=no)
+AC_ARG_ENABLE(authentication, enable connection authentication,, enable_authentication=no)
+
+# By default we compile both servers and clients, but see what the user wants
+AC_ARG_ENABLE(servers, compile servers by default,, enable_servers=yes)
+AC_ARG_ENABLE(clients, compile clients by default,, enable_clients=yes)
 
 AC_PROG_MAKE_SET
 
@@ -14,18 +18,37 @@ AC_CHECK_TOOL(AR, ar)
 AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
-AC_CHECK_HEADERS(termio.h termios.h sys/tty.h krb.h des.h netinet/ip.h netinet/in_systm.h)
-AC_CHECK_FUNCS(cgetent)
+AC_CHECK_HEADERS(malloc.h termio.h termios.h sys/tty.h sys/utsname.h \
+		 krb.h des.h netinet/ip.h netinet/in_systm.h)
+AC_CHECK_FUNCS(cgetent uname)
 AC_CHECK_LIB(krb, krb_mk_req)
 AC_CHECK_LIB(des, des_key_sched)
 AC_CHECK_LIB(util, logout)
+AC_TYPE_SIGNAL
 
-if test "$ac_cv_lib_krb" = yes; then
+SERVERS_OR_CLIENTS=
+if test "$enable_servers" = yes; then
+  SERVERS_OR_CLIENTS='$(SERVERS)'
+fi
+if test "$enable_clients" = yes; then
+  SERVERS_OR_CLIENTS="$SERVERS_OR_CLIENTS "'$(CLIENTS)'
+fi
+AC_SUBST(SERVERS_OR_CLIENTS)
+
+if test "$enable_authentication" = yes; then
+  AC_DEFINE(AUTHENTICATION)
+fi
+if test "$enable_encryption" = yes; then
+  AC_DEFINE(ENCRYPTION)
+fi
+
+if test "$enable_authentication" = yes -a "$ac_cv_lib_krb" = yes; then
   AC_DEFINE(KRB4)
 fi
-if test "$ac_cv_lib_des" = yes; then
+if test "$enable_encryption" = yes -a "$ac_cv_lib_des" = yes; then
   AC_DEFINE(DES_ENCRYPTION)
 fi
 
-AC_OUTPUT(inetd/Makefile libtelnet/Makefile telnetd/Makefile ftpd/Makefile
-	  rshd/Makefile rlogind/Makefile uucpd/Makefile)
+AC_OUTPUT(Makefile inetd/Makefile libtelnet/Makefile telnetd/Makefile
+	  ftpd/Makefile rshd/Makefile rlogind/Makefile uucpd/Makefile
+	  telnet/Makefile)
