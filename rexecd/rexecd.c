@@ -61,6 +61,7 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <crypt.h>
 
 /*VARARGS1*/
 int error();
@@ -164,11 +165,7 @@ doit(f, fromp)
 	}
 	endpwent();
 	if (*pwd->pw_passwd != '\0') {
-#ifdef HAVE_CRYPT
-		namep = crypt(pass, pwd->pw_passwd);
-#else
-		namep = pass;
-#endif
+		namep = CRYPT (pass, pwd->pw_passwd);
 		if (strcmp(namep, pwd->pw_passwd)) {
 			error("Password incorrect.\n");
 			exit(1);

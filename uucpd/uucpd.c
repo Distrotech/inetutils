@@ -70,6 +70,9 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <stdlib.h>
 #include <string.h>
 #include <paths.h>
+#include <crypt.h>
+
+void dologin ();
 
 struct	sockaddr_in hisctladdr;
 int hisaddrlen = sizeof hisctladdr;
@@ -159,15 +162,13 @@ char **argv;
 #endif	!BSDINETD
 }
 
-doit(sinp)
-struct sockaddr_in *sinp;
+void
+doit (sinp)
+     struct sockaddr_in *sinp;
 {
+	struct passwd *pw, *getpwnam();
 	char user[64], passwd[64];
 	char *xpasswd;
-#ifdef HAVE_CRYPT
-	char *crypt();
-#endif
-	struct passwd *pw, *getpwnam();
 
 	alarm(60);
 	printf("login: "); fflush(stdout);
@@ -192,11 +193,7 @@ struct sockaddr_in *sinp;
 			fprintf(stderr, "passwd read\n");
 			return;
 		}
-#ifdef HAVE_CRYPT
-		xpasswd = crypt(passwd, pw->pw_passwd);
-#else
-		xpasswd = passwd;
-#endif
+		xpasswd = CRYPT (passwd, pw->pw_passwd);
 		if (strcmp(xpasswd, pw->pw_passwd)) {
 			fprintf(stderr, "Login incorrect.");
 			return;
