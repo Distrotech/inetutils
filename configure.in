@@ -102,7 +102,7 @@ if test "$enable_encryption" = yes -a "$ac_cv_lib_des" = yes; then
   AC_DEFINE(DES_ENCRYPTION)
 fi
 
-AC_OUTPUT(Makefile config.mk
+AC_OUTPUT(Makefile config.make
 	  inetd/Makefile libtelnet/Makefile telnetd/Makefile
 	  ftpd/Makefile rshd/Makefile rlogind/Makefile uucpd/Makefile
 	  rexecd/Makefile talkd/Makefile tftpd/Makefile
