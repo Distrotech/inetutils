@@ -49,9 +49,7 @@ acl_t *acl_head, *acl_tail;
 #define DOTTED_QUAD_LEN 16
 
 int
-read_address (line_ptr, ptr)
-     char **line_ptr;
-     char *ptr;
+read_address (char **line_ptr, char *ptr)
 {
   char *startp = *line_ptr;
   char *endp;
@@ -291,10 +289,14 @@ acl_free (acl_t *acl)
 void
 discard_acl (acl_t *mark)
 {
-  acl_free (mark);
-  acl_tail = mark;
-  if (!mark)
-    acl_head = NULL;
+  if (mark)
+    {
+      acl_free (mark->next);
+      acl_tail = mark;
+      acl_tail->next = NULL;
+    }
+  else
+    acl_head = acl_tail = NULL;
 }
 
 int
@@ -302,7 +304,6 @@ acl_match (CTL_MSG *msg, struct sockaddr_in *sa_in)
 {
   acl_t *acl, *mark;
   unsigned int ip;
-  int action = ACT_DENY;
 
   mark = open_users_acl (msg->r_name);
   ip = sa_in->sin_addr.s_addr;
@@ -320,9 +321,8 @@ acl_match (CTL_MSG *msg, struct sockaddr_in *sa_in)
 		  return acl->action;
 		}
 	    }
-	  action = acl->action;
 	}
     }
   discard_acl (mark);
-  return !action;
+  return ACT_ALLOW;
 }
