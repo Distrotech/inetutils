@@ -7,9 +7,12 @@ In particular:
   NIIBE Yutaka		 (Security fixes & making talk finally work)
   Nathan Neulinger       (tftpd)
   Thomas Bushnell        (sockaddr sin_len field)
+  Jeff Bailey            (Much porting on Hurd)
+  Jeff Smith             (Y2K problems typos, etc ...)
 ----------------------
 Email of contributors in alphabetical order:
-Jeff Bailey     <jbailey@nisa.net>
+Dan Stromberg   <strombrg@nis.acs.uci.edu>
 Frederic Goudal <goudal@enserb.u-bordeaux.fr>
 Gerald Combs    <gerald@unicom.net>
-Dan Stromberg   <strombrg@nis.acs.uci.edu>
+Jeff Bailey     <jbailey@nisa.net>
+Jeff Smith      <jeff@dcs.warwick.ac.uk>
