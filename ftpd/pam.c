@@ -11,6 +11,13 @@
 #include <security/pam_appl.h>
 #endif
 
+#ifndef PAM_CONV_AGAIN
+# define PAM_CONV_AGAIN PAM_TRY_AGAIN
+#endif
+#ifndef PAM_INCOMPLETE
+# define PAM_INCOMPLETE PAM_TRY_AGAIN
+#endif
+
 #ifdef WITH_PAM
 
 static int PAM_conv __P ((int num_msg, const struct pam_message **msg,
