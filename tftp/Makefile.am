@@ -7,3 +7,5 @@ noinst_HEADERS = extern.h
 man_MANS = tftp.1
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

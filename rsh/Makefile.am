@@ -9,3 +9,5 @@ man_MANS = rsh.1
 INCLUDES = $(PATHDEF_RLOGIN)
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

@@ -9,3 +9,5 @@ man_MANS = rshd.8
 INCLUDES = $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

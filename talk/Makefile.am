@@ -9,3 +9,5 @@ man_MANS = talk.1
 INCLUDES = $(NCURSES_INCLUDE)
 
 LDADD = $(LIBCURSES) -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

@@ -9,3 +9,5 @@ man_MANS = inetd.8
 INCLUDES = $(PATHDEF_INETDCONF)
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

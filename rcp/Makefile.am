@@ -11,3 +11,5 @@ man_MANS = rcp.1
 INCLUDES = $(PATHDEF_RSH) $(PATHDEF_CP) $(PATHDEF_BSHELL)
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

@@ -9,3 +9,5 @@ man_MANS = talkd.8
 INCLUDES = $(PATHDEF_DEV)
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

@@ -9,3 +9,5 @@ man_MANS = rexecd.8
 INCLUDES = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
 
 LDADD = -L../libinetutils -linetutils
+
+EXTRA_DIST = $(man_MANS)

@@ -13,3 +13,5 @@ INCLUDES = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
 	$(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)
 
 LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet
+
+EXTRA_DIST = $(man_MANS)
