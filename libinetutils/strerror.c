@@ -26,17 +26,17 @@
 #endif
 
 #if defined (HAVE_SYS_ERRLIST) && !defined (HAVE_SYS_ERRLIST_DECL)
-extern int sys_nerrs;
+extern int sys_nerr;
 extern char *sys_errlist[];
 #endif
 
 /* Return a string describing the system error code ERR.  The returned value
    may be in a static buffer (and in any case shouldn't be written to).  */
-char *
+const char *
 strerror (int err)
 {
 #ifdef HAVE_SYS_ERRLIST
-  if (err >= 0 && err < sys_nerrs && sys_errlist[err])
+  if (err >= 0 && err < sys_nerr && sys_errlist[err])
     return sys_errlist[err];
   else
 #endif
