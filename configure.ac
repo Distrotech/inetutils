@@ -106,11 +106,9 @@ AC_PROG_YACC
 
 dnl __P is the standard name for the ansi-or-not-ansi arg-decl macro.
 dnl We define our own version in <config.h> if the system doesn't supply one.
-dnl NOTE: This check has to be done pretty early because we use __P in <config.h>
-IU_CHECK_MACRO(__P,
-  [ #ifdef HAVE_SYS_CDEFS_H
-    #include <sys/cdefs.h>
-    #endif ])
+dnl NOTE: This check has to be done pretty early because we use __P in
+dnl       <config.h>
+IU_CHECK_MACRO(__P, [#include <sys/cdefs.h>])
 
 AH_BOTTOM(
 [#ifdef HAVE___P
@@ -642,11 +640,9 @@ dnl See whether <syslog.h> will declare special internal stuff if we define
 dnl SYSLOG_NAMES before including it.  We check for various syslog internal
 dnl macros, the typedef `CODE', and the variable `prioritynames'.
 define([iu_syslog_includes],
-  [[ #ifdef HAVE_STDLIB_H
-     #include <stdlib.h>
-     #endif
-     #define SYSLOG_NAMES
-     #include <syslog.h> ]])
+  [[#include <stdlib.h>
+    #define SYSLOG_NAMES
+    #include <syslog.h> ]])
 IU_CHECK_MACRO(syslog internal macros,
   iu_syslog_includes,
   [LOG_MAKEPRI LOG_PRI LOG_FAC],
