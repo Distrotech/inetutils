@@ -144,11 +144,17 @@
 /* Define this if getusershell is declared by including <unistd.h>.  */
 #undef HAVE_GETUSERSHELL_DECL
 
+/* Define this if ttyname is declared by including <unistd.h>.  */
+#undef HAVE_TTYNAME_DECL
+
 /* Define this if strchr is declared by including <stdlib.h> & <string.h>.  */
 #undef HAVE_STRCHR_DECL
 
 /* Define this if strerror is declared by including <stdlib.h> & <string.h>.  */
 #undef HAVE_STRERROR_DECL
+
+/* Define this if getgrnam is declared by including <grp.h>.  */
+#undef HAVE_GETGRNAM_DECL
 
 /* Define this if htons is declared by including <sys/types.h>,
    <sys/param.h>, & <netinet/in.h>.  */
@@ -316,8 +322,16 @@ extern char *getpass __P((const char *));
 extern const char *hstrerror __P ((int));
 #endif
 
+#ifndef HAVE_TTYNAME_DECL
+extern char *ttyname __P ((int));
+#endif
+
 #ifndef HAVE_STRERROR_DECL
 extern const char *strerror __P ((int));
+#endif
+
+#ifndef HAVE_GETGRNAM_DECL
+extern struct group *getgrnam __P ((const char *));
 #endif
 
 /* Defaults for PATH_ variables.  */
