@@ -1350,7 +1350,7 @@ telnet(f, p, host)
 			} else {
 				if (pcc <= 0)
 					break;
-
+#if	!defined(CRAY2) || !defined(UNICOS5)
 #if defined (LINEMODE) && defined (TIOCPKT_IOCTL)
 				/*
 				 * If ioctl from pty, pass it through net
