@@ -1721,7 +1721,7 @@ env_init()
 		char *cp2 = strchr((char *)ep->value, ':');
 
 		cp = (char *)malloc(strlen(hostname) + strlen(cp2) + 1);
-		sprintf((char *)cp, "%s%s", localhost, cp2);
+		sprintf((char *)cp, "%s%s", hostname, cp2);
 
 		free(ep->value);
 		ep->value = (unsigned char *)cp;
