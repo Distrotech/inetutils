@@ -50,7 +50,13 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 #include <string.h>
 #include <stdlib.h>
 
+#if !defined (O_NONBLOCK) && defined (O_NDELAY)
+#define O_NONBLOCK O_NDELAY	/* O_NDELAY is an old BSD name for this.  */
+#endif
+
 #define MAX_ERRBUF 1024
+
+
 /*
  * Display the contents of a uio structure on a terminal.  Used by wall(1),
  * syslogd(8), and talkd(8).  Forks and finishes in child if write would block,
@@ -65,8 +71,8 @@ ttymsg(iov, iovcnt, line, tmout)
 	char *line;
 	int tmout;
 {
-	static char device[MAXNAMLEN] = PATH_TTY_PFX;
 	static char errbuf[MAX_ERRBUF];
+	char *device;
 	register int cnt, fd, left, wret;
 	struct iovec localiov[6];
 	int forked = 0;
@@ -74,20 +80,24 @@ ttymsg(iov, iovcnt, line, tmout)
 	if (iovcnt > sizeof(localiov) / sizeof(localiov[0]))
 		return ("too many iov's (change code in wall/ttymsg.c)");
 
-/* 
- * we're watching for '/', ".", ".."
- * '/' --> somebody could specify tty as ../etc/passwd
- * ".", ".." those are not security related it's just
- * sanity checks
- */
+	/* we're watching for '/', ".", ".."  '/' --> somebody could specify
+  	   tty as ../etc/passwd ".", ".." those are not security related it's
+  	   just sanity checks */
 	if (strchr(line, '/') && ! strcmp(line, ".") && ! strcmp(line, "..")) {
 		/* A slash is an attempt to break security... */
-		(void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"",
-		    device);
+		(void) snprintf(errbuf, sizeof(errbuf), "'/' in \"%s\"", line);
 		return (errbuf);
 	}
-	(void) strncpy(device + sizeof(PATH_TTY_PFX) - 1, line, MAXNAMLEN - sizeof(PATH_TTY_PFX));
-  device[MAXNAMLEN -1] = '\0';
+
+	device = malloc (sizeof PATH_TTY_PFX - 1 + strlen (line) + 1);
+	if (! device)
+	  {
+	    snprintf (errbuf, sizeof errbuf, "Not enough memory for tty device name");
+	    return errbuf;
+	  }
+
+	strcpy (device, PATH_TTY_PFX);
+	strcat (device, line);
 
 	/*
 	 * open will fail on slip lines or exclusive-use lines
@@ -98,6 +108,7 @@ ttymsg(iov, iovcnt, line, tmout)
 			return (NULL);
 		(void) snprintf(errbuf, sizeof(errbuf),
 		    "%s: %s", device, strerror(errno));
+		free (device);
 		return (errbuf);
 	}
 
@@ -138,10 +149,12 @@ ttymsg(iov, iovcnt, line, tmout)
 				(void) snprintf(errbuf, sizeof(errbuf),
 				    "fork: %s", strerror(errno));
 				(void) close(fd);
+				free (device);
 				return (errbuf);
 			}
 			if (cpid) {	/* parent */
 				(void) close(fd);
+				free (device);
 				return (NULL);
 			}
 			forked++;
@@ -172,9 +185,11 @@ ttymsg(iov, iovcnt, line, tmout)
 			_exit(1);
 		(void) snprintf(errbuf, sizeof(errbuf),
 		    "%s: %s", device, strerror(errno));
+		free (device);
 		return (errbuf);
 	}
 
+	free (device);
 	(void) close(fd);
 	if (forked)
 		_exit(0);
