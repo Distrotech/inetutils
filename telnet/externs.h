@@ -37,6 +37,15 @@
 # define BSD 43
 #endif
 
+#ifdef HAVE_TERMIOS_H
+#define USE_TERMIO
+#endif
+
+#ifdef HAVE_TERMIO_H
+#define USE_TERMIO
+#define SYSV_TERMIO
+#endif
+
 /*
  * ucb stdio.h defines BSD as something wierd
  */
