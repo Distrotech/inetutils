@@ -23,7 +23,7 @@ AC_SUBST(LIBOBJS)
 
 # Include files that we link into our own include directory from headers.
 # Initialize it with the things we always want to use.
-INCLUDES="version.h arpa/telnet.h arpa/ftp.h arpa/tftp.h"
+INCLUDES="version.h crypt.h arpa/telnet.h arpa/ftp.h arpa/tftp.h"
 
 AC_ARG_ENABLE(encryption, [  --enable-encryption     enable encryption],
 	      , enable_encryption=no)
@@ -138,6 +138,43 @@ HAVE___P
   [inetutils_cv_macro___p=no]))
 if test "$inetutils_cv_macro___p" = yes; then
   AC_DEFINE(HAVE___P)
+fi
+
+# This can't just be a compile-check, as gcc somtimes accepts the syntax even
+# if feature isn't actually supported.
+AC_CACHE_CHECK(whether gcc weak references work,
+	       inetutils_cv_weak_refs,
+AC_TRY_LINK([],
+  [extern char *not_defined (char *, char *) __attribute__ ((weak));
+   if (not_defined) puts ("yes"); ],
+  [inetutils_cv_weak_refs=yes],
+  [inetutils_cv_weak_refs=no]))
+if test "$inetutils_cv_weak_refs" = yes; then
+  AC_DEFINE(HAVE_WEAK_REFS)
+else
+  AC_CACHE_CHECK(whether pragma weak references work,
+		 inetutils_cv_pragma_weak_refs,
+  AC_TRY_LINK([],
+    [extern char *not_defined (char *, char *);
+#pragma weak not_defined
+     if (not_defined) puts ("yes"); ],
+    [inetutils_cv_pragma_weak_refs=yes],
+    [inetutils_cv_pragma_weak_refs=no]))
+  if test "$inetutils_cv_pragma_weak_refs" = yes; then
+    AC_DEFINE(HAVE_PRAGMA_WEAK_REFS)
+  else
+    AC_CACHE_CHECK(whether asm weak references work,
+		   inetutils_cv_asm_weak_refs,
+    AC_TRY_LINK([],
+      [extern char *not_defined (char *, char *);
+       asm (".weak not_defined");
+       if (not_defined) puts ("yes"); ],
+      [inetutils_cv_asm_weak_refs=yes],
+      [inetutils_cv_asm_weak_refs=no]))
+    if test "$inetutils_cv_asm_weak_refs" = yes; then
+      AC_DEFINE(HAVE_ASM_WEAK_REFS)
+    fi
+  fi
 fi
 
 AC_CACHE_CHECK(whether struct stat has timespec fields,
