@@ -40,8 +40,14 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
  * as well as the signal handling routines.
  */
 
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#else
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_IOCTL_COMPAT_H
 #include <sys/ioctl_compat.h>
+#endif
+#endif
 
 #include <signal.h>
 #include <err.h>
@@ -96,8 +102,38 @@ init_display()
  */
 set_edit_chars()
 {
-	char buf[3];
 	int cc;
+	char buf[3];
+
+#ifdef HAVE_TCGETATTR
+  	struct termios tty;
+	cc_t disable = (cc_t)-1, erase, werase, kill;
+
+#if !defined (_POSIX_VDISABLE) && defined (HAVE_FPATHCONF) && defined (_PC_VDISABLE)
+	disable = fpathconf (0, _PC_VDISABLE);
+#endif
+
+	erase = werase = kill = disable;
+
+	if (tcgetattr (0, &tty) >= 0) {
+		erase = tty.c_cc[VERASE];
+#ifdef VWERASE
+		werase = tty.c_cc[VWERASE];
+#endif
+		kill = tty.c_cc[VKILL];
+	}
+
+	if (erase == disable)
+		erase = '\177';	/* rubout */
+	if (werase == disable)
+		werase = '\027'; /* ^W */
+	if (kill == disable)
+		kill = '\025';	/* ^U */
+
+	my_win.cerase = erase;
+	my_win.werase = werase;
+	my_win.kill = kill;
+#else /* !HAVE_TCGETATTR */
 	struct sgttyb tty;
 	struct ltchars ltc;
 	
@@ -109,6 +145,8 @@ set_edit_chars()
 		my_win.werase = '\027';	 /* control W */
 	else
 		my_win.werase = ltc.t_werasc;
+#endif /* HAVE_TCGETATTR */
+
 	buf[0] = my_win.cerase;
 	buf[1] = my_win.kill;
 	buf[2] = my_win.werase;
