@@ -336,6 +336,16 @@ if test "$ac_cv_func_strerror" = no; then
   fi
 fi
 
+# See if we have h_errno (the test is here so we can use -lresolv if necessary).
+AC_CACHE_CHECK([for h_errno], inetutils_cv_var_h_errno,
+  AC_TRY_COMPILE([#include <netdb.h>],
+    [ extern int h_errno; int iu_x = h_errno; ],
+    inetutils_cv_var_h_errno=yes, inetutils_cv_var_h_errno=no))
+if test "$inetutils_cv_var_h_errno" = yes; then
+  AC_DEFINE(HAVE_H_ERRNO)
+  IU_CHECK_DECL(h_errno, [#include <netdb.h>])
+fi
+
 # See if the system has hstrerror, and replace it if not
 AC_CHECK_FUNC(hstrerror, , LIBOBJS="$LIBOBJS hstrerror.o")
 if test "$ac_cv_func_hstrerror" = yes; then
