@@ -1,3 +1,10 @@
+2000-03-28  Alain Magloire
+
+	* sys_term.c: STREAMSPTY change for HAVE_STREAMSPTY
+	UTMPX change for HAVE_UTMPX.
+	* sys_term.c: modutx() change for updwtmpx().
+	* telnetd: STREAMSPTY change to HAVE_STREAMSPTY
+
 1999-05-19 Alain Magloire
 	* telnetd.h: If HAVE_PTSNAME is defined, we assume that the
 	platform can handle SYSVR4 pseudo ttys and define STREAMSPTY.
