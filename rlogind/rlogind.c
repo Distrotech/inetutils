@@ -392,12 +392,22 @@ doit(int f, struct sockaddr_in *fromp)
 				    kdata->pname, kdata->pinst, kdata->prealm,
 				    hostname);
 #endif
-
+#ifdef SOLARIS
+ 			execle(PATH_LOGIN, "login", "-p", 
+ 			    "-h", hostname, term, "-f", "--", lusername, NULL, env); 
+#else
 			execle(PATH_LOGIN, "login", "-p",
 			    "-h", hostname, "-f", "--", lusername, NULL, env);
-		} else
+#endif
+		} else {
+#ifdef SOLARIS
+ 			execle(PATH_LOGIN, "login", "-p", 
+ 			    "-h", hostname, term, "--", lusername, NULL, env);
+#else
 			execle(PATH_LOGIN, "login", "-p",
 			    "-h", hostname, "--", lusername, NULL, env);
+#endif
+      }       
 		fatal(STDERR_FILENO, PATH_LOGIN, 1);
 		/*NOTREACHED*/
 	}
