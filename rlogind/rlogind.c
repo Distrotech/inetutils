@@ -182,7 +182,7 @@ rlogind_sigchld(int sig)
     --numchildren;
   signal(sig, rlogind_sigchld);
 }
-  
+
 #define MODE_INETD 0
 #define MODE_DAEMON 1
 
@@ -216,7 +216,7 @@ main(int argc, char *argv[])
   int maxchildren = DEFMAXCHILDREN;
   int mode = MODE_INETD;
   int c;
-  
+
   while ((c = getopt_long(argc, argv, short_options, long_options, NULL))
 	 != EOF)
     {
@@ -263,7 +263,7 @@ main(int argc, char *argv[])
 	case 'r':
 	  reverse_required = 1;
 	  break;
-	  
+
 	case 'V':
 	  printf ("rlogind (%s %s)\n", inetutils_package, inetutils_version);
 	  exit(0);
@@ -295,7 +295,7 @@ main(int argc, char *argv[])
 	  exit(1);
 	}
       local_dot_count = 2;
-      local_domain_name = topdomain(p, local_dot_count); 
+      local_domain_name = topdomain(p, local_dot_count);
     }
   else
     {
@@ -305,7 +305,7 @@ main(int argc, char *argv[])
 	if (*p == '.')
 	  local_dot_count++;
     }
-  
+
   if (mode == MODE_DAEMON)
     rlogin_daemon (maxchildren, port);
   else
@@ -314,7 +314,7 @@ main(int argc, char *argv[])
   /* To pacify lint */
   return 0;
 }
-      
+
 
 void
 rlogin_daemon (int maxchildren, int port)
@@ -363,7 +363,7 @@ rlogin_daemon (int maxchildren, int port)
       close(i);
 
     /* Hold first three descriptors. This is needed so that master/slave
-       pty fds do not clash with standard in,out,err. The first three 
+       pty fds do not clash with standard in,out,err. The first three
        descriptors will be dup'ed in openpty() anyway. */
     for (i = 0; i < 3; i++)
       i = open("/dev/null", O_RDWR);
@@ -443,7 +443,7 @@ rlogind_auth(int fd, struct auth_data *ap)
   struct hostent *hp;
   char *hostname;
   int authenticated = 0;
-  
+
   confirmed = 0;
 
   /* Check the remote host name */
@@ -541,10 +541,10 @@ rlogind_auth(int fd, struct auth_data *ap)
     }
 
   IF_ENCRYPT(des_write (fd, SECURE_MESSAGE, sizeof (SECURE_MESSAGE) - 1));
-  
+
   return authenticated;
 }
-  
+
 void
 setup_tty (int fd, struct auth_data *ap)
 {
@@ -683,7 +683,7 @@ rlogind_mainloop (int infd, int outfd)
     {
       /* Child */
       if (infd > 2)
-	close(infd); 
+	close(infd);
 
       setup_tty(0, &auth_data);
       setup_utmp(line);
@@ -703,8 +703,8 @@ rlogind_mainloop (int infd, int outfd)
   signal (SIGCHLD, SIG_IGN);
   cleanup (0);
 }
-	
-      
+
+
 int
 do_rlogin(int infd, struct auth_data *ap)
 {
@@ -754,7 +754,7 @@ do_krb_login(int infd, struct auth_data *ap)
   instance[0] = '*';
   instance[1] = '\0';
 
-#ifdef CRYPT  
+#ifdef CRYPT
   if (encrypt)
     {
       rc = sizeof (faddr);
@@ -799,7 +799,7 @@ do_krb_login(int infd, struct auth_data *ap)
 	    "%s Kerberos login from %s.%s@%s on %s\n",
 	    pwd->pw_name,
 	    kdata->pname, kdata->pinst, kdata->prealm, ap->hostname);
-  
+
   return 0;
 }
 #endif
@@ -820,7 +820,7 @@ getstr(int infd, char **ptr, char *prefix)
       if (size < len + 1)
 	size = len + 1;
     }
-	
+
   buf = malloc(size);
   if (!buf)
     {
@@ -834,7 +834,7 @@ getstr(int infd, char **ptr, char *prefix)
       strcpy(buf, prefix);
       pos += strlen(buf);
     }
-  
+
   do
     {
       if (read (infd, &c, 1) != 1)
@@ -887,7 +887,7 @@ protocol(int f, int p)
       syslog (LOG_ERR, "select mask too small, increase FD_SETSIZE");
       fatal (f, "internal error (select mask too small)", 0);
     }
-  
+
   while (1)
     {
       fd_set ibits, obits, ebits, *omask;
@@ -896,7 +896,7 @@ protocol(int f, int p)
       FD_ZERO (&ibits);
       FD_ZERO (&obits);
       omask = (fd_set *) NULL;
-      
+
       if (fcc)
 	{
 	  FD_SET (p, &obits);
@@ -904,7 +904,7 @@ protocol(int f, int p)
 	}
       else
 	FD_SET (f, &ibits);
-      
+
       if (pcc >= 0)
 	if (pcc)
 	  {
@@ -915,7 +915,7 @@ protocol(int f, int p)
 	  FD_SET (p, &ibits);
 
       FD_SET (p, &ebits);
-      
+
       if ((n = select (nfd, &ibits, omask, &ebits, 0)) < 0)
 	{
 	  if (errno == EINTR)
@@ -928,7 +928,7 @@ protocol(int f, int p)
 	  sleep (5);
 	  continue;
 	}
-      
+
       if (FD_ISSET (p, &ebits))
 	{
 	  cc = read (p, &cntl, 1);
@@ -943,11 +943,11 @@ protocol(int f, int p)
 		}
 	    }
 	}
-      
+
       if (FD_ISSET (f, &ibits))
 	{
 	  ENC_READ (fcc, f, fibuf, sizeof (fibuf));
-	  
+
 	  if (fcc < 0 && errno == EWOULDBLOCK)
 	    fcc = 0;
 	  else
@@ -976,7 +976,7 @@ protocol(int f, int p)
 	      FD_SET (p, &obits);	/* try write */
 	    }
 	}
-      
+
       if (FD_ISSET (p, &obits) && fcc > 0)
 	{
 	  cc = write (p, fbp, fcc);
@@ -986,11 +986,11 @@ protocol(int f, int p)
 	      fbp += cc;
 	    }
 	}
-      
+
       if (FD_ISSET (p, &ibits))
 	{
 	  char dbuf[1024 + 1];
-	  
+
 	  pcc = read (p, dbuf, sizeof(dbuf));
 
 	  pbp = dbuf;
@@ -1021,7 +1021,7 @@ protocol(int f, int p)
 	      pcc = 0;
 	    }
 	}
-      
+
       if ((FD_ISSET (f, &obits)) && pcc > 0)
 	{
 	  ENC_WRITE(cc, f, pbp, pcc);
@@ -1095,13 +1095,13 @@ in_local_domain(char *hostname)
   char *p = topdomain(hostname, local_dot_count);
   return p && strcasecmp(p, local_domain_name) == 0;
 }
-  
+
 char *
 topdomain(char *name, int max_dots)
 {
   char *p;
   int dot_count = 0;
-  
+
   for (p = name + strlen(name) - 1; p >= name; p--)
     {
       if (*p == '.' && ++dot_count == max_dots)
