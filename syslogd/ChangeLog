@@ -1,5 +1,15 @@
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
 
+This is the equivalent to the following Linux change:
+Mon Oct 12 20:49:18 MET DST 1998: Martin Schulze <joey@infodrom.north.de>
+Avoid logging of SIGCHLD when syslogd is in the process of
+exiting and closing its files.  Again thanks to Topi.
+	
+	* syslogd.c (init): New variable was_initialized.
+	Set Initialize to 0 temporarily to avoid logging of SIGCHLD.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c (main): Really fix getopt argument this time.
 	Break after acting on option '-n'.
 	(crunch_list): Remove semicolon that makes a prototype from
