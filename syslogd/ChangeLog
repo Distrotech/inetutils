@@ -1,5 +1,25 @@
 2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c (cfline): Instead number 0 use char '\0'.
+	Make debug output nicer by better alignment.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (init): Replace hard coded "/dev/console"
+	by PATH_CONSOLE.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (cfline): Fix off-by-one error. We have to
+	take into account "LOG_MARK" which has facility number
+	LOG_NFACILITIES.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): Add "-s" option to getopt invocation.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
 This is based on the equivalent Linux change:
 Thu Oct 19 00:02:07 MET 1995:  Martin Schulze
 The default behavior has changed for security reasons. The

@@ -273,7 +273,7 @@ main(int argc, char *argv[])
 	char line[MAXLINE + 1];
 #endif
 
-	while ((ch = getopt(argc, argv, "dhf:l:m:np:rV")) != EOF)
+	while ((ch = getopt(argc, argv, "dhf:l:m:np:rsV")) != EOF)
 		switch(ch) {
 		case 'd':		/* debug */
 			Debug++;
@@ -1219,7 +1219,7 @@ init(int signo)
 	if ((cf = fopen(ConfFile, "r")) == NULL) {
 		dprintf("cannot open %s\n", ConfFile);
 		*nextp = (struct filed *)calloc(1, sizeof(*f));
-		cfline("*.ERR\t/dev/console", *nextp);
+		cfline("*.ERR\t" PATH_CONSOLE, *nextp);
 		(*nextp)->f_next = (struct filed *)calloc(1, sizeof(*f));
 		cfline("*.PANIC\t*", (*nextp)->f_next);
 		Initialized = 1;
@@ -1238,7 +1238,7 @@ init(int signo)
 		 */
 		for (p = cline; isspace(*p); ++p)
 			continue;
-		if (*p == 0 || *p == '#')
+		if (*p == '\0' || *p == '#')
 			continue;
 		strcpy(cline, p);
 		for (p = strchr(cline, '\0'); isspace(*--p);)
@@ -1270,9 +1270,9 @@ init(int signo)
 		for (f = Files; f; f = f->f_next) {
 			for (i = 0; i <= LOG_NFACILITIES; i++)
 				if (f->f_pmask[i] == INTERNAL_NOPRI)
-					printf("X ");
+					printf(" X ");
 				else
-					printf("%d ", f->f_pmask[i]);
+					printf("%2d ", f->f_pmask[i]);
 			printf("%s: ", TypeNames[f->f_type]);
 			switch (f->f_type) {
 			case F_FILE:
@@ -1388,7 +1388,7 @@ cfline(char *line, struct filed *f)
 				*bp++ = *p++;
 			*bp = '\0';
 			if (*buf == '*')
-				for (i = 0; i < LOG_NFACILITIES; i++) {
+				for (i = 0; i <= LOG_NFACILITIES; i++) {
 					f->f_pmask[i] &= ~pri_clear;
 					f->f_pmask[i] |= pri_set;
 				}
