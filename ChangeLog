@@ -1,3 +1,9 @@
+2000-07-06  Jeff Bailey  <jbailey@nisa.net>
+
+	* autogen.sh: New file for generating build environment for
+	the first time from a CVS checkout.  Not added to Makefile.am
+	for distribution.
+
 2000-06-23  Jakob 'sparky' Kaivo  <jkaivo@timothy.nodomainname.net>
 
 	* paths: add PATH_INETDDIR
