@@ -37,20 +37,22 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
+CFLAGS += $(DEFS)
 LDLIBS = $(LIBS)
 
-CFLAGS += $(DEFS)
-
+all: rexecd
 rexecd: rexecd.o
 
 install: installdirs rexecd $(srcdir)/rexecd.8
 	$(INSTALL_PROGRAM) rexecd $(libexecdir)/in.rexecd
-	$(INSTALL_DATA) $(srcdir)/rexecd.8 $(man8dir)
+	-$(INSTALL_DATA) $(srcdir)/rexecd.8 $(man8dir)/rexecd.8
+uninstall:
+	-$(RM) -f $(libexecdir)/in.rexecd $(man8dir)/rexecd.8
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o rexecd 
 distclean: clean
 	$(RM) -f Makefile
