@@ -55,7 +55,8 @@ char	*current_state;
 int	current_line = 0;
 
 void
-disp_msg()
+disp_msg(sig)
+  int sig;
 {
 	message(current_state);
 }
