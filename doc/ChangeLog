@@ -3,7 +3,9 @@
 	* rlogind.texi: New file.
 	* rlogin.texi: New file.
 	* Makefile.am: Add rlogin.texi and rlogind.texi in dependencies.
+	SUBDIRS added rfc.
 	* inetutils.texi: Enable rlogin and rlogind.
+	* rfc/1282.txt: New file.
 
 2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
 
