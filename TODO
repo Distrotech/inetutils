@@ -26,6 +26,8 @@ not sure is needed, but might be.
 Make sure that both sgtty and termios/termio are supported equally well in
 all programs (currently only termios is really tested).
 
+Add support for sysv-style ptys, whatever that is.
+
 Supply versions of the rcmd functionality needed by the r* programs.
 
 Supply a version of the syslog function for systems that don't have it.

@@ -1,3 +1,125 @@
+Fri Jan 10 14:22:18 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.2f'.
+
+	* tftp/main.c (put, get): Use strchr rather than index.
+	(tail): Use strrchr rather than rindex.
+	(index, rindex): Declarations removed.
+	* rlogind/rlogind.c (setup_term): Use strchr rather than index.
+	* talk/get_names.c (get_names): Likewise.
+	* tftp/tftp.c (tpacket): Likewise.
+	<string.h>: New include.
+
+	* rcp/rcp.c, tftp/tftp.c, tftpd/tftpd.c [!HAVE_STRERROR_DECL]
+	(strerror): New declaration.
+	* tftp/tftp.c (nak): Remove declaration of strerror.
+	(errno): Protect declaration with !HAVE_ERRNO_DECL.
+	* headers/acconfig.h
+	[HAVE_STRCHR] (strchr, strrchr): New macros.
+	[HAVE_STRCHR_DECL] (strchr, strrchr): New declarations.
+	(HAVE_STRCHR_DECL, HAVE_STRERROR_DECL): New define slots.
+	* configure.in (AC_CHECK_FUNCS): Add index & strchr.
+	(strchr, strerror): New declaration tests.
+
+	* libinetutils/iruserok.c (rcmd, rresvport): Functions removed.
+
+	* talk/io.c (talk): Use fd_setsinstead of ints for select.
+	(STDIN_MASK): Macro removed.
+	<sys/types.h>: New include.
+
+	* libinetutils/err.c (_VA, vwarnx, vwarn, warn, warnx, verr,
+	verrx, err, errx): Make FORMAT const.
+	* headers/err.h: Update prototypes to include const where appropriate.
+	* tftpd/tftpd.c (verifyhost, errtomsg): Add const to return type.
+	(struct errmsg): Make E_MSG field const.
+	* tftp/tftp.c (struct errmsg): Make E_MSG field const.
+	* syslogd/syslogd.c (cvthname, printline, printsys, logmsg,
+	fprintlog, decode, logerror): Add const all over the place.
+	* ftpd/ftpd.c (dolog): Add const to decl of NAME.
+	* rshd/rshd.c (doit): Add const to decls of HOSTNAME, ERRORSTR,
+	and ERRORHOST.
+	(local_domain, topdomain): Add const to decl of H.
+	* rlogind/rlogind.c (doit): Add const to decl of RAW_HOSTNAME.
+
+	* syslog/syslog.c (main): If LOG_PERROR isn't defined, don't
+	support -s option.
+
+	* rlogin/rlogin.c (main, setsignal, done, lostpeer, reader, stop,
+	writeroob): Use setsig instead of sigaction crap.
+	(setsig): New declaration.
+	[!_POSIX_VDISABLE] (_POSIX_VDISABLE): New macro.
+
+	* libinetutils/setsig.c: New file.
+	* libinetutils/Makefile.in (OBJS): Add setsig.o.
+	(SRCS): Add setsig.c.
+
+	* headers/syslog-int.h: New file.
+	* headers/Makefile.in (DISTFILES): Add syslog-int.h.
+	* syslog/syslog.c [!HAVE_SYSLOG_INTERNAL] <syslog-int.h>: New include.
+	* syslogd/syslogd.c: Likewise.
+	* configure.in: Add check for the special stuff in <syslog.h>
+	enabled by defining SYSLOG_NAMES.
+	* headers/acconfig.h (HAVE_SYSLOG_INTERNAL): New define slot.
+	
+	* iumacros.m4 (IO_CHECK_MACRO): Quote arguments to IU_RESULT_ACTIONS.
+
+Wed Jan  8 14:55:47 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* rlogind/rlogind.c (setup_term): Use cfsetispeed & cfsetospeed if
+	cfsetspeed isn't defined.
+	* configure.in (AC_CHECK_FUNCS): Add cfsetspeed.
+
+	* telnetd/sys_term.c [HAVE_SYS_TTY_H] <sys/tty.h>: Include removed.
+	[t_erase] (t_erase, t_kill, t_intrc, t_quitc, t_startc, t_stopc,
+	t_eofc, t_brkc, t_suspc, t_dsuspc, t_rprntc, t_flushc, t_werasc,
+	t_lnextc): Undefs removed.
+
+Tue Jan  7 13:10:05 1997  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* configure.in (IU_CHECK_DESC): Add checks for pclose, getpass
+ 	and getusershell.  Change sig_t, sig_atomic_t tests to look in
+	signal.h, not sys/signal.h.  Add check for sys/filio.h,
+	sys/ptyvar.h and sys/sockio.h.
+	* ftp/extern.h: Test HAVE_GETPASS_DECL.
+	* telnet/authenc.c: Likewise.
+	* ftp/ftp.c: Test HAVE_PCLOSE_DECL.
+	* ftpd/extern.h: Test HAVE_GETUSERSHELL_DECL.
+	* ftpd/ftpd.c: Change &array[x] to array+x to pacify sunos4 cc.
+	Cast the result of alloca().
+	* ftpd/popen.c: Cast the result of malloc().
+	* headers/acconfig.h: Add slots for pclose, getpass and getusershell.
+	* headers.crypt.h: Test HAVE_CRYPT_DECL, not HAVE_CRYPT, when
+	deciding to declare crypt().
+	* libinetutils/snprintf.c: Add missing arg "ap" to calls to
+	va_arg().  KNRize function signature of vsnprintf() and add
+	missing format parameter.  Also, check __STDC__ in addition to
+	HAVE_STDARG_H since hpux cc has the header but does not understand
+	elipses in function signatures by default.
+	* libtelnet/auth.c: Test HAVE_*_H macro, not __STDC__ for headers.
+	* libtelnet/enc_des.c: Likewise.
+	* libtelnet/encrypt.c: Likewise.
+	* libtelnet/kerberos.c: Likewise.
+	* libtelnet/krb4encpwd.c: Likewise.
+	* libtelnet/rsaencpwd.c: Likewise.
+	* libtelnet/spx.c: Likewise.
+	* telnetd/defs.h: Likewise.  Also test HAVE_SYS_FILIO_H, not
+	FILIO_H, and do not base include <ioctl.h> on !FILIO_H.
+	Test and include sys/stream.h, sys/tty.h and sys/ptyvar.h.
+	* telnet/externs.h: Likewise for filio.h stuff.
+	* rlogin/rlogin.c: Include sys/stream.h, sys/tty.h, sys/ptyvar.h,
+	and sys/sockio.h.
+	* libtelnet/kerberos5.c: Don't base "const" support on __STDC__.
+	* rshd/rshd.c: Add alloca() support and cast the result of
+	alloca().  Also test and include sys/filio.h.
+	* rlogind/rlogind.c: Likewise for sys/filio.h. Test and include
+	sys/stream.h, sys/tty.h, sys/ptyvar.h, and sys/sockio.h. 
+	* rexecd/rexecd.c: Likewise for filio.h.
+	* tftp/tftpsubs.c: Likewise.
+	* rsh/rsh.c: Likewise.
+	* talk/io.c: Likewise.
+	* talkd/announce.c: Don't assume sprintf() returns int.
+	* syslogd/syslogd.c: Likewise.  Also cast the result of malloc().
+
 Tue Jan  7 15:33:14 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/revoke.c: New file.
@@ -19,7 +141,7 @@ Tue Jan  7 15:33:14 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 	(CPPFLAGS): Add $(CPPFLAGS-$<)
 	(CPPFLAGS-iruserok.c): New variable.
 
-Tue Jan  7 18:06:37 1997  Bernhard Rosenkraenzer <bero@startrek.in-trier.de>
+Tue Jan  7 18:06:37 1997  Bernhard Rosenkraenzer  <bero@startrek.in-trier.de>
 
 	* configure.in: Check for bsd library, which enables some
  	bsd-style functions (revoke()) under Linux (and probably a few
