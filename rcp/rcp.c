@@ -542,7 +542,7 @@ rsource(char *name, struct stat *statp)
 		last++;
 
 	if (pflag) {
-		write_stat_time (rem, &statp);
+		write_stat_time (rem, statp);
 		if (response() < 0) {
 			closedir(dirp);
 			return;
