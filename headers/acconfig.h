@@ -193,6 +193,30 @@ typedef RETSIGTYPE (*sig_t) ();
 #define memcpy memmove
 #endif
 
+#ifndef HAVE_KILLPG
+#define killpg(pid, sig) kill(-(pid), (sig))
+#endif
+
+#ifndef HAVE_SETEUID
+#ifdef HAVE_SETREUID
+#define seteuid(uid) setreuid(-1, (uid))
+#else /* !HAVE_SETREUID */
+#ifdef HAVE_SETRESUID
+#define seteuid(uid) setresuid(-1, (uid), -1)
+#endif /* HAVE_SETRESUID */
+#endif /* HAVE_SETREUID */
+#endif /* ! HAVE_SETEUID */
+
+#ifndef HAVE_SETEGID
+#ifdef HAVE_SETREGID
+#define setegid(gid) setregid(-1, (gid))
+#else /* !HAVE_SETREGID */
+#ifdef HAVE_SETRESGID
+#define setegid(gid) setresgid(-1, (gid), -1)
+#endif /* HAVE_SETRESGID */
+#endif /* HAVE_SETREGID */
+#endif /* ! HAVE_SETEGID */
+
 #if !defined(HAVE_MEMMOVE) || !defined(HAVE_MEMSET)
 /* Make sure size_t is defined */
 #include <sys/types.h>
