@@ -4,6 +4,9 @@ The conventions used by telnet & ftp should be followed.
 Merge the functionality of Noah [Friedman]'s ftp client into ftp (readline
 support, &c), and add readline to the distribution.
 
+Merge changes between the bsd-lite-2 release (which is the latest bsd source
+that this code is based on) and some recent version of netbsd.
+
 Move the horrible mess of code from telnetd/sys_term.c into functions in
 libinetutils using the BSD libutil functionality (such that they can be
 elided if a system libutil exists); specifically:

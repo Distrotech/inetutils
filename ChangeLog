@@ -1,3 +1,20 @@
+Mon Jan 13 14:06:24 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.2g'.
+
+	* iumacros.m4 (IU_LIB_CURSES): Add --disable-ncurses option.
+	Use _iu_curses_needs_termcap to keep the requirements of curses
+	and ncurses separate.
+	(_iu_curses_needs_termcap): New macro.
+
+Sat Jan 11 16:42:43 1997  Kaveh R. Ghazi  <ghazi@caip.rutgers.edu>
+
+	* libinetutils/forkpty.c: sunos4 cc chokes on indented cpp
+	directives.  Put # in first column and put indentation after it.
+	* libinetutils/openpty.c: Likewise.  Also change auto variable
+	declaration to avoid zero sized array error on sunos4 cc.
+	* libinetutils/iruserok.c: KNRize function signatures.
+
 Fri Jan 10 14:22:18 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.2f'.
