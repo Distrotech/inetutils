@@ -1,6 +1,6 @@
 # Makefile for rshd
 #
-# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ include ../config.make
 DISTFILES = rshd.c rshd.8
 
 INSTALL_TARGETS = $(libexecdir)/in.rshd $(man8dir)/rshd.8
+LDLIBS += $(LIBAUTH)
 CLEAN = rshd rshd.o
 
 CPPFLAGS += $(PATHDEF_TTY) $(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL) \
