@@ -274,7 +274,7 @@ main(int argc, char *argv[])
 	char line[MAXLINE + 1];
 #endif
 
-	while ((ch = getopt(argc, argv, "dhf:l:m:np:rsV")) != EOF)
+	while ((ch = getopt(argc, argv, "dhf:l:m:np:rs:V")) != EOF)
 		switch(ch) {
 		case 'd':		/* debug */
 			Debug++;
@@ -290,6 +290,7 @@ main(int argc, char *argv[])
 			break;
 		case 'n':		/* don't run in the background */
 			NoDetach = 1;
+			break;
 		case 'p':		/* path */
 			LogName = optarg;
 			break;
@@ -525,7 +526,7 @@ Report bugs to %s.\n", inetutils_package, inetutils_version, inetutils_bugaddr);
 }
 
 char **
-crunch_list(char *list);
+crunch_list(char *list)
 {
 	int count, i;
 	char *p, *q;

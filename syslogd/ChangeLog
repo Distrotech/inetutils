@@ -1,5 +1,12 @@
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c (main): Really fix getopt argument this time.
+	Break after acting on option '-n'.
+	(crunch_list): Remove semicolon that makes a prototype from
+	the implementation (doh!).
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c (usage): Beautify with package name and version number.
 
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
