@@ -20,19 +20,12 @@
 srcdir = @srcdir@
 include ../config.make
 
+INST_PROG_FLAGS=-o root -m 04755
+INSTALL_TARGETS=$(bindir)/rlogin $(man1dir)/rlogin.1
+
 all: rlogin
-rlogin: rlogin.o
 
-install: installdirs rlogin $(srcdir)/rlogin.1
-	$(INSTALL_PROGRAM) -o root -m 04755 rlogin $(bindir)/rlogin
-	-$(INSTALL_DATA) $(srcdir)/rlogin.1 $(man1dir)/rlogin.1
-uninstall:
-	-$(RM) -f  $(bindir)/rlogin $(man1dir)/rlogin.1
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o rlogin 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
