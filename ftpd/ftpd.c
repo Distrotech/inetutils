@@ -85,6 +85,7 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <time.h>
 #include <unistd.h>
 #include <paths.h>
+#include <crypt.h>
 
 #include "extern.h"
 
@@ -575,11 +576,7 @@ pass(passwd)
 	askpasswd = 0;
 	if (!guest && (!pw || *pw->pw_passwd)) {
 		salt = pw ? pw->pw_passwd : "xx";
-#ifdef HAVE_CRYPT
-		xpasswd = crypt(passwd, salt);
-#else
-		xpasswd = passwd;
-#endif
+		xpasswd = CRYPT (passwd, salt);
 		if (pw && *pw->pw_passwd && strcmp(xpasswd, pw->pw_passwd)) {
 			reply(530, "Login incorrect.");
 			if (logging)
