@@ -415,25 +415,41 @@ void
 setsignal(sig)
 	int sig;
 {
-	int omask = sigblock(sigmask(sig));
+	struct sigaction sa;
+	sigset_t sigs;
 
-	if (signal(sig, exit) == SIG_IGN)
-		(void)signal(sig, SIG_IGN);
-	(void)sigsetmask(omask);
+	sigemptyset(&sigs);
+	sigaddset(&sigs, sig);
+	sigprocmask(SIG_BLOCK, &sigs, &sigs);
+
+	sigemptyset(&sa.sa_mask);
+	sa.sa_handler = exit;
+	sa.sa_flags = SA_RESTART;
+	(void)sigaction(sig, &sa, &sa);
+	if (sa.sa_handler == SIG_IGN)
+		(void)sigaction(sig, &sa, (struct sigaction *) 0);
+
+	(void)sigprocmask(SIG_SETMASK, &sigs, (sigset_t *) 0);
 }
 
 void
 done(status)
 	int status;
 {
-	int w, wstatus;
+	pid_t w;
+	int wstatus;
+	struct sigaction sa;
 
 	mode(0);
 	if (child > 0) {
 		/* make sure catch_child does not snap it up */
-		(void)signal(SIGCHLD, SIG_DFL);
+		sigemptyset(&sa.sa_mask);
+		sa.sa_handler = SIG_DFL;
+		sa.sa_flags = 0;
+		(void)sigaction(SIGCHLD, &sa, (struct sigaction *) 0);
 		if (kill(child, SIGKILL) >= 0)
-			while ((w = wait(&wstatus)) > 0 && w != child);
+			while ((w = wait(&wstatus)) > 0 && w != child)
+				continue;
 	}
 	exit(status);
 }
