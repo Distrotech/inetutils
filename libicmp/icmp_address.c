@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -23,7 +23,7 @@
 
 #include <sys/socket.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -36,12 +36,12 @@ int
 icmp_address_encode(u_char *buffer, size_t bufsize, int ident, int seqno)
 {
   icmphdr_t *icmp;
-  
+
   if (bufsize < 12)
     return -1;
 
+  icmp = (icmphdr_t *)buffer;
   icmp->icmp_mask = 0;
   icmp_generic_encode(buffer, bufsize, ICMP_ADDRESS, ident, seqno);
   return 0;
 }
-
