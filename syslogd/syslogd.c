@@ -502,7 +502,8 @@ usage()
 {
 
 	(void)fprintf(stderr,
-"Usage: syslogd [OPTION]...\n\
+"%s, version %s\n\
+Usage: syslogd [OPTION]...\n\
 Start system log daemon.\n\
 \n\
   -f FILE        Read configuration from FILE instead from " PATH_LOGCONF ".\n\
@@ -519,7 +520,7 @@ Start system log daemon.\n\
                  from FQDNs of hosts before logging them.\n\
   -V             Print version information and exit.\n\
 \n\
-Report bugs to %s.\n", inetutils_bugaddr);
+Report bugs to %s.\n", inetutils_package, inetutils_version, inetutils_bugaddr);
 	exit(1);
 }
 

@@ -1,5 +1,9 @@
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c (usage): Beautify with package name and version number.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c (cvthname): Fix some really stupid errors in last change.
 
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
