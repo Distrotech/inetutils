@@ -38,6 +38,9 @@ static char sccsid[] = "@(#)get_addrs.c	8.1 (Berkeley) 6/6/93";
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifndef HAVE_OSOCKADDR
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <netdb.h>
 #include <stdio.h>
