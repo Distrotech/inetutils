@@ -77,7 +77,7 @@ init_display()
 
 #ifdef HAVE_SIGACTION
 	sigaction (SIGTSTP, (struct sigaction *)0, &siga);
-	siga.sa_mask |= sigmask (SIGALRM);
+	sigaddset(&siga.sa_mask, SIGALRM);
 	sigaction (SIGTSTP, &siga, (struct sigaction *)0);
 #else /* !HAVE_SIGACTION */
 #ifdef HAVE_SIGVEC
