@@ -1,3 +1,8 @@
+2001-11-21  Sergey Poznyakoff
+
+	* syslogd.c: Removed redeclaration of hstrerror: it is
+	provided in include/config.h when missing.
+
 2001-10-25  Alain Magloire
 
 	* syslogd/syslogd.c:  Use the same code in talkd/talkd.c to handle

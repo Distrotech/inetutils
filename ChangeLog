@@ -1,3 +1,9 @@
+2001-11-21  Sergey Poznyakoff
+
+	* configure.in: Removed poll.h, sys/poll.h from AC_CHECK_HEADERS.
+	Added individual check for poll.h, since syslogd uses it
+	unconditionally.
+
 2001-11-03  Alain Magloire
 
 	* configure.in: Added doc/rfc/Makefile.
