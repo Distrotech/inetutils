@@ -171,7 +171,12 @@ ftpd_pclose(iop)
 	FILE *iop;
 {
 	struct file_pid *fpid = file_pids, *prev_fpid = 0;
-	int fdes, omask, status;
+	int fdes, status;
+#ifdef HAVE_SIGACTION
+	sigset_t sigs, osigs;
+#else
+	int omask;
+#endif
 	pid_t pid;
 
 	/*
@@ -191,13 +196,25 @@ ftpd_pclose(iop)
 		file_pids = fpid->next;
 
 	(void)fclose(iop);
+#ifdef HAVE_SIGACTION
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGINT);
+	sigaddset(&sigs, SIGQUIT);
+	sigaddset(&sigs, SIGHUP);
+	sigprocmask(SIG_BLOCK, &sigs, &osigs);
+#else
 	omask = sigblock(sigmask(SIGINT)|sigmask(SIGQUIT)|sigmask(SIGHUP));
+#endif
 	while ((pid = waitpid(fpid->pid, &status, 0)) < 0 && errno == EINTR)
 		continue;
 
 	free (fpid);
 
+#ifdef HAVE_SIGACTION
+	sigprocmask(SIG_SETMASK, &osigs, 0);
+#else
 	(void)sigsetmask(omask);
+#endif
 	if (pid < 0)
 		return (pid);
 	if (WIFEXITED(status))

@@ -286,7 +286,10 @@ main(argc, argv, envp)
 
 #ifdef HAVE_SIGACTION
 	bzero (&sa, sizeof (sa));
-	sa.sa_mask = SIGBLOCK;
+	sigemptyset(&sa.sa_mask);
+	sigaddset(&sa.sa_mask, SIGCHLD);
+	sigaddset(&sa.sa_mask, SIGHUP);
+	sigaddset(&sa.sa_mask, SIGALRM);
 #ifdef SA_RESTART
 	sa.sa_flags = SA_RESTART;
 #endif
@@ -331,10 +334,29 @@ main(argc, argv, envp)
 	    fd_set readable;
 
 	    if (nsock == 0) {
+#ifdef HAVE_SIGACTION
+	      {
+	        sigset_t sigs;
+		sigemptyset(&sigs);
+		sigaddset(&sigs, SIGCHLD);
+		sigaddset(&sigs, SIGHUP);
+		sigaddset(&sigs, SIGALRM);
+		sigprocmask(SIG_BLOCK, &sigs, 0);
+	      }
+#else
 		(void) sigblock(SIGBLOCK);
+#endif
 		while (nsock == 0)
 		    sigpause(0L);
+#ifdef HAVE_SIGACTION
+		{
+		  sigset_t empty;
+		  sigemptyset(&empty);
+		  sigprocmask(SIG_SETMASK, &empty, 0);
+		}
+#else
 		(void) sigsetmask(0L);
+#endif
 	    }
 	    readable = allsock;
 	    if ((n = select(maxsock + 1, &readable, (fd_set *)0,
@@ -375,7 +397,18 @@ main(argc, argv, envp)
 			    }
 		    } else
 			    ctrl = sep->se_fd;
+#ifdef HAVE_SIGACTION
+		    {
+		      sigset_t sigs;
+		      sigemptyset(&sigs);
+		      sigaddset(&sigs, SIGCHLD);
+		      sigaddset(&sigs, SIGHUP);
+		      sigaddset(&sigs, SIGALRM);
+		      sigprocmask(SIG_BLOCK, &sigs, 0);
+		    }
+#else
 		    (void) sigblock(SIGBLOCK);
+#endif
 		    pid = 0;
 		    dofork = (sep->se_bi == 0 || sep->se_bi->bi_fork);
 		    if (dofork) {
@@ -395,7 +428,15 @@ main(argc, argv, envp)
 			"%s/%s server failing (looping), service terminated",
 					    sep->se_service, sep->se_proto);
 					close_sep(sep);
+#ifdef HAVE_SIGACTION
+					{
+					  sigset_t empty;
+					  sigemptyset(&empty);
+					  sigprocmask(SIG_SETMASK, &empty, 0);
+					}
+#else
 					sigsetmask(0L);
+#endif
 					if (!timingout) {
 						timingout = 1;
 						alarm(RETRYTIME);
@@ -410,7 +451,15 @@ main(argc, argv, envp)
 			    if (!sep->se_wait &&
 				sep->se_socktype == SOCK_STREAM)
 				    close(ctrl);
+#ifdef HAVE_SIGACTION
+			    {
+			      sigset_t empty;
+			      sigemptyset(&empty);
+			      sigprocmask(SIG_SETMASK, &empty, 0);
+			    }
+#else
 			    sigsetmask(0L);
+#endif
 			    sleep(1);
 			    continue;
 		    }
@@ -421,7 +470,15 @@ main(argc, argv, envp)
 			        nsock--;
 			    }
 		    }
+#ifdef HAVE_SIGACTION
+		    {
+		      sigset_t empty;
+		      sigemptyset(&empty);
+		      sigprocmask(SIG_SETMASK, &empty, 0);
+		    }
+#else
 		    sigsetmask(0L);
+#endif
 		    if (pid == 0) {
 			    if (debug && dofork)
 				setsid();
@@ -519,7 +576,11 @@ config(signo)
 {
 	struct servtab *sep, *cp, **sepp;
 	struct passwd *pwd;
+#ifdef HAVE_SIGACTION
+	sigset_t sigs, osigs;
+#else
 	long omask;
+#endif
 
 	if (!setconfig()) {
 		syslog(LOG_ERR, "%s: %m", CONFIG);
@@ -541,7 +602,15 @@ config(signo)
 		if (sep != 0) {
 			int i;
 
+#ifdef HAVE_SIGACTION
+			sigemptyset(&sigs);
+			sigaddset(&sigs, SIGCHLD);
+			sigaddset(&sigs, SIGHUP);
+			sigaddset(&sigs, SIGALRM);
+			sigprocmask(SIG_BLOCK, &sigs, &osigs);
+#else
 			omask = sigblock(SIGBLOCK);
+#endif
 			/*
 			 * sep->se_wait may be holding the pid of a daemon
 			 * that we're waiting for.  If so, don't overwrite
@@ -558,7 +627,11 @@ config(signo)
 				SWAP(sep->se_server, cp->se_server);
 			for (i = 0; i < MAXARGV; i++)
 				SWAP(sep->se_argv[i], cp->se_argv[i]);
+#ifdef HAVE_SIGACTION
+			sigprocmask(SIG_SETMASK, &osigs, 0);
+#else
 			sigsetmask(omask);
+#endif
 			freeconfig(cp);
 			if (debug)
 				print_service("REDO", sep);
@@ -592,7 +665,15 @@ config(signo)
 	/*
 	 * Purge anything not looked at above.
 	 */
+#ifdef HAVE_SIGACTION
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGCHLD);
+	sigaddset(&sigs, SIGHUP);
+	sigaddset(&sigs, SIGALRM);
+	sigprocmask(SIG_BLOCK, &sigs, &osigs);
+#else
 	omask = sigblock(SIGBLOCK);
+#endif
 	sepp = &servtab;
 	while (sep = *sepp) {
 		if (sep->se_checked) {
@@ -607,7 +688,11 @@ config(signo)
 		freeconfig(sep);
 		free((char *)sep);
 	}
+#ifdef HAVE_SIGACTION
+	sigprocmask(SIG_SETMASK, &osigs, 0);
+#else
 	(void) sigsetmask(omask);
+#endif
 }
 
 void
@@ -700,7 +785,11 @@ enter(cp)
 	struct servtab *cp;
 {
 	struct servtab *sep;
+#ifdef HAVE_SIGACTION
+	sigset_t sigs, osigs;
+#else
 	long omask;
+#endif
 
 	sep = (struct servtab *)malloc(sizeof (*sep));
 	if (sep == (struct servtab *)0) {
@@ -709,10 +798,22 @@ enter(cp)
 	}
 	*sep = *cp;
 	sep->se_fd = -1;
+#ifdef HAVE_SIGACTION
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGCHLD);
+	sigaddset(&sigs, SIGHUP);
+	sigaddset(&sigs, SIGALRM);
+	sigprocmask(SIG_BLOCK, &sigs, &osigs);
+#else
 	omask = sigblock(SIGBLOCK);
+#endif
 	sep->se_next = servtab;
 	servtab = sep;
+#ifdef HAVE_SIGACTION
+	sigprocmask(SIG_SETMASK, &osigs, 0);
+#else
 	sigsetmask(omask);
+#endif
 	return (sep);
 }
 

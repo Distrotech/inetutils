@@ -666,11 +666,16 @@ TerminalNewMode(f)
 #endif
 #ifdef	SIGTSTP
 	(void) signal(SIGTSTP, SIG_DFL);
-# ifndef SOLARIS
+# ifdef HAVE_SIGACTION
+	{
+	  sigset_t sigs;
+	  sigemptyset(&sigs);
+	  sigaddset(&sigs, SIGTSTP);
+	  sigprocmask(SIG_UNBLOCK, &sigs, 0);
+	}
+# else	
 	(void) sigsetmask(sigblock(0) & ~(1<<(SIGTSTP-1)));
-# else	SOLARIS
-	(void) sigrelse(SIGTSTP);
-# endif	SOLARIS
+# endif /* HAVE_SIGACTION */
 #endif	/* SIGTSTP */
 #ifndef USE_TERMIO
 	ltc = oltc;

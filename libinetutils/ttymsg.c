@@ -140,7 +140,15 @@ ttymsg(iov, iovcnt, line, tmout)
 			/* wait at most tmout seconds */
 			(void) signal(SIGALRM, SIG_DFL);
 			(void) signal(SIGTERM, SIG_DFL); /* XXX */
+#ifdef HAVE_SIGACTION
+			{
+			  sigset_t empty;
+			  sigemptyset(&empty);
+			  sigprocmask(SIG_SETMASK, &empty, 0);
+			}
+#else
 			(void) sigsetmask(0);
+#endif
 			(void) alarm((u_int)tmout);
 			(void) fcntl(fd, O_NONBLOCK, &off);
 			continue;
