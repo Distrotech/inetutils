@@ -70,6 +70,10 @@ static char sccsid[] = "@(#)logwtmp.c	8.1 (Berkeley) 6/4/93";
 #include <string.h>
 #include "extern.h"
 
+#if !defined (_PATH_WTMP) && defined (WTMP_FILE)
+#define _PATH_WTMP WTMP_FILE
+#endif
+
 /*
  * Modified version of logwtmp that holds wtmp file open
  * after first call, for use with ftp (which may chroot
@@ -98,7 +102,7 @@ logwtmp(line, name, host)
   time (&ut.ut_time);
 #endif
 
-#ifdef HAVE_SETUTENT_R
+#if defined (HAVE_UTMPNAME) && defined (HAVE_SETUTENT_R)
   /* XXX I think frobbing the details of DATA is GNU libc specific.  */
   {
     static struct utmp_data data = { -1 };
@@ -123,6 +127,7 @@ logwtmp(line, name, host)
     pututline_r (&ut, &data);
   }
 #else
+  /* Do things the old way.  */
   {  
 	struct utmp ut;
 	struct stat buf;
