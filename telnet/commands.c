@@ -2469,7 +2469,7 @@ static char
 	sethelp[] = 	"set operating parameters ('set ?' for more)",
 	unsethelp[] = 	"unset operating parameters ('unset ?' for more)",
 	togglestring[] ="toggle operating parameters ('toggle ?' for more)",
-	slchelp[] =	"change state of special charaters ('slc ?' for more)",
+	slchelp[] =	"change state of special characters ('slc ?' for more)",
 	displayhelp[] =	"display operating parameters",
 #if	defined(TN3270) && defined(unix)
 	transcomhelp[] = "specify Unix command for transparent mode pipe",
