@@ -36,23 +36,23 @@
  */
 
 #ifdef HAVE_CONFIG_H
-	#include <config.h>
+# include <config.h>
 #endif
 #ifdef HAVE_SYS_CDEFS_H
-	#include <sys/cdefs.h>
+# include <sys/cdefs.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #ifdef HAVE_TERMIOS_H
-	#include <termios.h>
+# include <termios.h>
 #endif
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
 #ifdef HAVE_STRING_H
-	#include <string.h>
+# include <string.h>
 #endif
 #include <grp.h>
 
