@@ -193,7 +193,10 @@ main(argc, argv)
 	extern char *optarg;
 	extern int optind;
 	int ch;
-	char *user, *strrchr();
+	char *user;
+#ifndef strrchr
+	char *strrchr();
+#endif
 #ifdef	FORWARD
 	extern int forward_flags;
 #endif	/* FORWARD */
