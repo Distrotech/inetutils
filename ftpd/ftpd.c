@@ -85,20 +85,18 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 #include <time.h>
 #include <unistd.h>
 #include <crypt.h>
-
-#include "extern.h"
-
 #if __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
 #endif
 
+#include "extern.h"
+#include "version.h"
+
 #ifndef LOG_FTP
 #define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
 #endif
-
-extern char *inetutils_version;
 
 extern	off_t restart_point;
 extern	char cbuf[];
