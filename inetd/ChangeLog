@@ -1,3 +1,13 @@
+2000-10-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* inetd.c: Remove COPYRIGHT (it's in the header)
+	and "#if 0"-out SCCSID.
+	Declare __PROGNAME.
+	New variables SHORT_OPTIONS and LONG_OPTIONS.
+	(main): Initialize __progname if not HAVE___PROGNAME.
+	Rename CH to OPTION. Rework option parsing to use getopt_long.
+	(usage): Completely new and conforming to the others.
+	
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
 	* inetd.c: Include <grp.h> for initgroups().

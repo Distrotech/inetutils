@@ -27,15 +27,9 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1983, 1991, 1993, 1994\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
+#if 0
 static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
-#endif /* not lint */
+#endif
 
 /*
  * Inetd - Internet super-server
@@ -133,6 +127,8 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #endif
 #include <grp.h>
 
+#include <version.h>
+
 #define	TOOMANY		40		/* don't start more than TOOMANY */
 #define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */
 #define	RETRYTIME	(60*10)		/* retry after bind or server fail */
@@ -142,6 +138,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #endif
 #define	SIGBLOCK	(sigmask(SIGCHLD)|sigmask(SIGHUP)|sigmask(SIGALRM))
 
+extern char *__progname;
 
 int	debug = 0;
 int	nsock, maxsock;
@@ -205,7 +202,6 @@ void		setup __P((struct servtab *));
 char	       *sskip __P((char **));
 char	       *skip __P((char **));
 void		tcpmux __P((int s, struct servtab *sep));
-void		usage __P((void));
 void		set_proc_title __P ((char *, int));
 void		initring __P((void));
 long		machtime __P((void));
@@ -250,103 +246,157 @@ const char    *CONFIG_DIR = PATH_INETDDIR;
 char	**Argv;
 char 	*LastArg;
 
+static void
+usage (int err)
+{
+  if (err != 0)
+    {
+      fprintf (stderr, "Usage: %s [OPTION...] [CONF-FILE [CONF-DIR]]\n", __progname);
+      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+    }
+  else
+    {
+      fprintf (stdout, "Usage: %s [OPTION...] [CONF-FILE [CONF-DIR]]\n", __progname);
+      puts ("Internet super-server.\n\n\
+  -d, --debug               Debug mode\n\
+  -R, --rate NUMBER         Maximum invocation rate (per second)\n\
+      --help                Display this help and exit\n\
+  -V, --version             Output version information and exit");
+
+      fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
+    }
+  exit (err);
+}
+
+static const char *short_options = "dR:V";
+static struct option long_options[] =
+{
+  { "debug", no_argument, 0, 'd' },
+  { "rate", required_argument, 0, 'R' },
+  { "help", no_argument, 0, '&' },
+  { "version", no_argument, 0, 'V' },
+  { 0, 0, 0, 0 }
+};
+
 int
 main(int argc, char *argv[], char *envp[])
 {
-	struct servtab *sep;
+  int option;
+  struct servtab *sep;
 #ifdef HAVE_SIGACTION
-	struct sigaction sa;
+  struct sigaction sa;
 #else
 #ifdef HAVE_SIGVEC
-	struct sigvec sv;
+  struct sigvec sv;
 #endif
 #endif
-	int tmpint, ch, dofork;
-	pid_t pid;
+  int tmpint, dofork;
+  pid_t pid;
 
-	Argv = argv;
-	if (envp == 0 || *envp == 0)
-		envp = argv;
-	while (*envp)
-		envp++;
-	LastArg = envp[-1] + strlen(envp[-1]);
+#ifndef HAVE___PROGNAME
+  __progname = argv[0];
+#endif
 
-	while ((ch = getopt(argc, argv, "dR:")) != EOF)
-		switch(ch) {
-		case 'd':
-			debug = 1;
-			options |= SO_DEBUG;
-			break;
-		case 'R': {	/* invocation rate */
-			char *p;
+  Argv = argv;
+  if (envp == 0 || *envp == 0)
+    envp = argv;
+  while (*envp)
+    envp++;
+  LastArg = envp[-1] + strlen (envp[-1]);
 
-			tmpint = strtol(optarg, &p, 0);
-			if (tmpint < 1 || *p)
-				syslog(LOG_ERR,
-			         "-R %s: bad value for service invocation rate",
-					optarg);
-			else
-				toomany = tmpint;
-			break;
-		}
-		case '?':
-		default:
-			usage();
-		}
-	argc -= optind;
-	argv += optind;
+  while ((option = getopt_long (argc, argv, short_options,
+				long_options, 0)) != EOF)
+    {
+      switch (option)
+	{
+	case 'd': /* Debug.  */
+	  debug = 1;
+	  options |= SO_DEBUG;
+	  break;
 
-	if (argc > 1)
+	case 'R': /* Invocation rate.  */
 	  {
-	    CONFIG_DIR = argv[1];
-	    argc--;
-	  }
-	if (argc > 0)
-		CONFIG = argv[0];
-	if (debug == 0) {
-		daemon(0, 0);
-	}
+	    char *p;
 
-	openlog("inetd", LOG_PID | LOG_NOWAIT, LOG_DAEMON);
+	    tmpint = strtol (optarg, &p, 0);
+	    if (tmpint < 1 || *p)
+	      syslog (LOG_ERR,
+		      "-R %s: bad value for service invocation rate",
+		      optarg);
+	    else
+	      toomany = tmpint;
+	    break;
+	  }
+
+	case '&': /* Usage.  */
+	  usage (0);
+	  /* Not reached.  */
+
+	case 'V': /* Version.  */
+	  printf ("inetd (%s) %s\n", inetutils_package, inetutils_version);
+	  exit (0);
+
+	case '?':
+	default:
+	  usage (1);
+	  /* Not reached.  */
+	}
+    }
+
+  argc -= optind;
+  argv += optind;
+
+  if (argc > 1)
+    {
+      CONFIG_DIR = argv[1];
+      argc--;
+    }
+  if (argc > 0)
+    CONFIG = argv[0];
+  if (debug == 0) {
+    daemon (0, 0);
+  }
+
+  openlog ("inetd", LOG_PID | LOG_NOWAIT, LOG_DAEMON);
 
 #ifdef HAVE_SIGACTION
-	memset((char *)&sa, 0, sizeof(sa));
-	sigemptyset(&sa.sa_mask);
-	sigaddset(&sa.sa_mask, SIGCHLD);
-	sigaddset(&sa.sa_mask, SIGHUP);
-	sigaddset(&sa.sa_mask, SIGALRM);
+  memset ((char *)&sa, 0, sizeof(sa));
+  sigemptyset (&sa.sa_mask);
+  sigaddset (&sa.sa_mask, SIGCHLD);
+  sigaddset (&sa.sa_mask, SIGHUP);
+  sigaddset (&sa.sa_mask, SIGALRM);
 #ifdef SA_RESTART
-	sa.sa_flags = SA_RESTART;
+  sa.sa_flags = SA_RESTART;
 #endif
-	sa.sa_handler = retry;
-	sigaction (SIGALRM, &sa, (struct sigaction *)0);
-	config (SIGHUP);
-	sa.sa_handler = config;
-	sigaction (SIGHUP, &sa, (struct sigaction *)0);
-	sa.sa_handler = reapchild;
-	sigaction (SIGCHLD, &sa, (struct sigaction *)0);
-	sa.sa_handler = SIG_IGN;
-	sigaction (SIGPIPE, &sa, (struct sigaction *)0);
+  sa.sa_handler = retry;
+  sigaction (SIGALRM, &sa, (struct sigaction *)0);
+  config (SIGHUP);
+  sa.sa_handler = config;
+  sigaction (SIGHUP, &sa, (struct sigaction *)0);
+  sa.sa_handler = reapchild;
+  sigaction (SIGCHLD, &sa, (struct sigaction *)0);
+  sa.sa_handler = SIG_IGN;
+  sigaction (SIGPIPE, &sa, (struct sigaction *)0);
 #else
 #ifdef HAVE_SIGVEC
-	memset(&sv, 0, sizeof(sv));
-	sv.sv_mask = SIGBLOCK;
-	sv.sv_handler = retry;
-	sigvec(SIGALRM, &sv, (struct sigvec *)0);
-	config(SIGHUP);
-	sv.sv_handler = config;
-	sigvec(SIGHUP, &sv, (struct sigvec *)0);
-	sv.sv_handler = reapchild;
-	sigvec(SIGCHLD, &sv, (struct sigvec *)0);
-	sv.sv_mask = 0L;
-	sv.sv_handler = SIG_IGN;
-	sigvec(SIGPIPE, &sv, (struct sigvec *)0);
+  memset (&sv, 0, sizeof(sv));
+  sv.sv_mask = SIGBLOCK;
+  sv.sv_handler = retry;
+  sigvec (SIGALRM, &sv, (struct sigvec *)0);
+  config (SIGHUP);
+  sv.sv_handler = config;
+  sigvec (SIGHUP, &sv, (struct sigvec *)0);
+  sv.sv_handler = reapchild;
+  sigvec (SIGCHLD, &sv, (struct sigvec *)0);
+  sv.sv_mask = 0L;
+  sv.sv_handler = SIG_IGN;
+  sigvec (SIGPIPE, &sv, (struct sigvec *)0);
 #else /* !HAVE_SIGVEC */
-	signal (SIGALRM, retry);
-	config (SIGHUP);
-	signal (SIGHUP, config);
-	signal (SIGCHLD, reapchild);
-	signal (SIGPIPE, SIG_IGN);
+  signal (SIGALRM, retry);
+  config (SIGHUP);
+  signal (SIGHUP, config);
+  signal (SIGCHLD, reapchild);
+  signal (SIGPIPE, SIG_IGN);
 #endif /* HAVE_SIGVEC */
 #endif /* HAVE_SIGACTION */
 
@@ -562,13 +612,6 @@ run_service(int ctrl, struct servtab *sep)
 		syslog(LOG_ERR, "cannot execute %s: %m", sep->se_server);
 		_exit(1);
 	}
-}
-
-void
-usage(void)
-{
-	fprintf(stderr, "usage: inetd [-d] [-R rate] [conf-file [conf-dir]]");
-	exit(1);
 }
 
 void
