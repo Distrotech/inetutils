@@ -1,3 +1,7 @@
+1999-04-18 Alain Magloire
+	* configure.in: ping disable.
+	* configure.in: make links for fnmatch
+
 1999-02-17 Alain Magloire
 
 	* configure.in: Force the check of HAVE_SOCKADDR_IN_SIN_LEN

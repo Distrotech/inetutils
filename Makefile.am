@@ -1,4 +1,4 @@
-AUTOMAKE_OPTIONS = gnits 1.2d
+AUTOMAKE_OPTIONS = 1.2d
 
 EXTRA_DIST = paths
 
