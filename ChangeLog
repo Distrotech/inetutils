@@ -1,5 +1,11 @@
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* telnetd/Makefile.am (LIBTERMCAP, LIBCRYPT, LIBUTIL): Set make
+ 	variables corresponding to the configure variables.
+	
+	(LDADD): Added `-L../libinetutils -L../libtelnet -linetutils -ltelnet
+	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT)'.
+
 	* talkd/Makefile.am (LDADD): Added `-L../libinetutils
  	-linetutils'.
 
