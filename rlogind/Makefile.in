@@ -20,21 +20,13 @@
 srcdir = @srcdir@
 include ../config.make
 
+INSTALL_TARGETS=$(libexecdir)/in.rlogind $(man8dir)/rlogind.8
+
 CPPFLAGS += -D_PATH_LOGIN=\"$(bindir)/login\"
 
 all: rlogind
-rlogind: rlogind.o
 
-install: installdirs rlogind $(srcdir)/rlogind.8
-	$(INSTALL_PROGRAM) rlogind $(libexecdir)/in.rlogind
-	-$(INSTALL_DATA) $(srcdir)/rlogind.8 $(man8dir)/rlogind.8
-uninstall:
-	-$(RM) -f $(libexecdir)/in.rlogind $(man8dir)/rlogind.8
-
-installdirs:
-	@$(SHELL) $(top_srcdir)/mkinstalldirs $(libdir)
-
-clean mostlyclean:
+clean:
 	$(RM) -f *.o rlogind 
-distclean: clean
-	$(RM) -f Makefile
+
+include $(RULES)
