@@ -56,7 +56,7 @@ int	pencode __P((char *));
 void	usage __P((void));
 
 /*
- * logger -- read and log utility
+ * syslog -- read and log utility
  *
  *	Reads from an input and arranges to write the result on the system
  *	log.
@@ -76,7 +76,7 @@ main(argc, argv)
 		switch((char)ch) {
 		case 'f':		/* file to log */
 			if (freopen(optarg, "r", stdin) == NULL) {
-				(void)fprintf(stderr, "logger: %s: %s.\n",
+				(void)fprintf(stderr, "syslog: %s: %s.\n",
 				    optarg, strerror(errno));
 				exit(1);
 			}
@@ -148,7 +148,7 @@ pencode(s)
 		fac = decode(save, facilitynames);
 		if (fac < 0) {
 			(void)fprintf(stderr,
-			    "logger: unknown facility name: %s.\n", save);
+			    "syslog: unknown facility name: %s.\n", save);
 			exit(1);
 		}
 		*s++ = '.';
@@ -160,7 +160,7 @@ pencode(s)
 	lev = decode(s, prioritynames);
 	if (lev < 0) {
 		(void)fprintf(stderr,
-		    "logger: unknown priority name: %s.\n", save);
+		    "syslog: unknown priority name: %s.\n", save);
 		exit(1);
 	}
 	return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));
@@ -187,6 +187,6 @@ void
 usage()
 {
 	(void)fprintf(stderr,
-	    "logger: [-is] [-f file] [-p pri] [-t tag] [ message ... ]\n");
+	    "syslog: [-is] [-f file] [-p pri] [-t tag] [ message ... ]\n");
 	exit(1);
 }
