@@ -27,15 +27,9 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1983, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
+#if 0
 static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -61,7 +55,7 @@ int decode __P((char *, CODE *));
 int pencode __P((char *));
 static void usage __P((int));
 
-char *program;			/* The invocation name of the program.  */
+extern char *__progname;
 
 static const char *short_options = "isf:p:t:";
 static struct option long_options[] =
@@ -79,13 +73,13 @@ usage (int err)
 {
   if (err != 0)
     {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", program);
-      fprintf (stderr, "Try `%s --help' for more information.\n", program);
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", __progname);
+      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", program);
-      fprintf (stdout, "       %s [OPTION] ... MESSAGE\n", program);
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", __progname);
+      fprintf (stdout, "       %s [OPTION] ... MESSAGE\n", __progname);
       puts ("Make entries in the system log.\n\n\
   -i                  Log the process id with every line");
 #ifdef LOG_PERROR
@@ -112,7 +106,10 @@ main (int argc, char *argv[])
   int option, logflags, pri;
   char *tag, buf[1024];
 
-  program = argv[0];
+#ifndef HAVE___PROGNAME
+  __progname = argv[0];
+#endif
+
   tag = NULL;
   pri = LOG_NOTICE;
   logflags = 0;
@@ -124,7 +121,7 @@ main (int argc, char *argv[])
 	case 'f': /* Log from file.  */
 	  if (freopen (optarg, "r", stdin) == NULL)
 	    {
-	      fprintf (stderr, "%s: %s: %s\n", program, optarg,
+	      fprintf (stderr, "%s: %s: %s\n", __progname, optarg,
 		       strerror (errno));
 	      exit(1);
 	    }
@@ -142,7 +139,7 @@ main (int argc, char *argv[])
 #ifdef LOG_PERROR
 	  logflags |= LOG_PERROR;
 #else
-	  fprintf (stderr, "%s: -s: option not implemented\n", program);
+	  fprintf (stderr, "%s: -s: option not implemented\n", __progname);
 	  exit (1);
 #endif
 	  break;
@@ -219,7 +216,7 @@ pencode (char *s)
       fac = decode (save, facilitynames);
       if (fac < 0)
 	{
-	  fprintf (stderr, "%s: unknown facility name: %s\n", program,
+	  fprintf (stderr, "%s: unknown facility name: %s\n", __progname,
 		   save);
 	  exit (1);
 	}
@@ -233,7 +230,7 @@ pencode (char *s)
   lev = decode (s, prioritynames);
   if (lev < 0)
     {
-      fprintf (stderr, "%s: unknown priority name: %s\n", program, save);
+      fprintf (stderr, "%s: unknown priority name: %s\n", __progname, save);
       exit(1);
     }
   return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));

@@ -1,3 +1,13 @@
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* logger.c: Declare __PROGNAME. Remove PROGRAM.
+	Remove COPYRIGHT (it's in the header) and replace "#ifndef lint"
+	with "#if 0" for SCCSID.
+	(main): Initialize __PROGNAME if not HAVE___PROGNAME.
+	Use __PROGNAME instead PROGRAM.
+	(pencode): Likewise.
+	(usage): Likewise.
+
 2000-08-16  Alain Magloire
 
 	* logger.c: syslog.c rename logger.c
