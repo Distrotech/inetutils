@@ -1,3 +1,7 @@
+Mon Mar  9 17:04:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
+
+	* inetd/Makefile.am (INCLUDES): Set PATH_INETDCONF.
+
 Thu Jan 08 00:16:00 1997  Jeff Bailey   <jbailey@gnu.org>
 
 	* Makefile.am, configure.in:  Don't actually define SUBDIRS
