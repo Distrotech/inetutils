@@ -459,13 +459,15 @@ printline(hname, msg)
 
 	q = line;
 
-	while ((c = *p++ & 0177) != '\0' &&
+	while ((c = *p++) != '\0' &&
 	    q < &line[sizeof(line) - 1])
 		if (iscntrl(c))
 			if (c == '\n')
 				*q++ = ' ';
 			else if (c == '\t')
 				*q++ = '\t';
+			else if (c >= 0177)
+				*q++ = c;
 			else {
 				*q++ = '^';
 				*q++ = c ^ 0100;
