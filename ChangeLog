@@ -1,3 +1,9 @@
+2002-07-27  Marcus Brinkmann  <marcus@gnu.org>
+
+	* NEWS: Update to reflect the recent changes, and change its
+	format to match current GNU practice.  Add a copyright statement,
+	and some emacs local variables to support editing it.
+
 2002-06-26  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* .cvsignore (config.h.in): Removed.

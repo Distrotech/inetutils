@@ -1,23 +1,37 @@
-Inetutils NEWS -- history of user-visible changes
-Please send inetutils bug reports to bug-inetutils@gnu.org.
+GNU inetutils NEWS -- history of user-visible changes.  2002-07-27
+Copyright (C) 2002 Free Software Foundation, Inc.
+See the end for copying conditions.
 
-Release 1.4.0:
- It is now possible to specify whether to compile individual utilities using
- arguments to configure.
+Please send inetutils bug reports to <bug-inetutils@gnu.org>.
+
+Version 1.4.0:
 
- If you have the GNU readline library installed, it will now be used by the
- ftp client.
+* It is now possible to specify whether to compile individual
+  utilities using arguments to configure.
 
- There is now a whois client.
+* The GNU networking utilities manual has been started.
 
- Security fixes.
+* If you have the GNU readline library installed, it will now be used
+  by the ftp client.
 
- Talk essentially rewritten.
+* There is now a whois client.
 
- Ping added.
+* Several security fixes and other bug fixes have been applied.
 
- Inetutils should generally compile on most platforms now.
+* The inetd server can read configuration file snippets from
+  /etc/inetd.d/.
 
+* The talkd and telnetd servers have been essentially rewritten.
+
+* The ping program was added.
+
+* The syslogd server supports several new features in the
+  configuration file, like omitting file sync, piping messages into
+  programs etc.  It also supports several new options on the command
+  line.
+
+* Inetutils should generally compile on most platforms now.
+
 Release 1.3.2:
  This release attempts to get the encryption/authentication options to
  compile correctly; they appear to work on systems with the appropriate
@@ -55,3 +69,23 @@ Release 1.1:
 
  This release adds checking for crypt at both compile and runtime (on
  systems where weak refs are supported).
+
+----------------------------------------------------------------------
+Copyright information:
+
+Copyright (C) 2002 Free Software Foundation, Inc.
+
+   Permission is granted to anyone to make or distribute verbatim copies
+   of this document as received, in any medium, provided that the
+   copyright notice and this permission notice are preserved,
+   thus giving the recipient permission to redistribute in turn.
+
+   Permission is granted to distribute modified versions
+   of this document, or of portions of it,
+   under the above conditions, provided also that they
+   carry prominent notices stating who last changed them.
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:
