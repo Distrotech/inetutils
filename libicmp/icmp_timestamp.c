@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -23,7 +23,7 @@
 
 #include <sys/socket.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -38,14 +38,14 @@ icmp_timestamp_encode(u_char *buffer, size_t bufsize, int ident, int seqno)
   icmphdr_t *icmp;
   struct timeval tv;
   unsigned long v;
-  
+
   if (bufsize < 20)
     return -1;
 
   gettimeofday(&tv, NULL);
   v = htonl((tv.tv_sec % 86400) * 1000 + tv.tv_usec / 1000);
+
   icmp = (icmphdr_t *)buffer;
-  
   icmp->icmp_otime = v;
   icmp->icmp_rtime = v;
   icmp->icmp_ttime = v;

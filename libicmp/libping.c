@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -24,7 +24,7 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
@@ -85,7 +85,7 @@ ping_init(int type, int ident)
       close(fd);
       return p;
     }
-  
+
   memset(p, 0, sizeof(*p));
 
   p->ping_fd = fd;
@@ -93,7 +93,8 @@ ping_init(int type, int ident)
   p->ping_count = 0;
   p->ping_interval = PING_INTERVAL;
   p->ping_datalen  = sizeof(icmphdr_t);
-  p->ping_ident = ident;
+  /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
+  p->ping_ident = ident & 0xFFFF;
   p->ping_cktab_size = PING_CKTABSIZE;
   return p;
 }
@@ -144,7 +145,7 @@ int
 ping_set_data(PING *p, void *data, size_t off, size_t len)
 {
   icmphdr_t *icmp;
-  
+
   if (_ping_setbuf(p))
     return -1;
   if (p->ping_datalen < off + len)
@@ -161,9 +162,9 @@ ping_xmit(PING *p)
 
   if (_ping_setbuf(p))
     return -1;
-  
+
   buflen = _ping_packetsize(p);
-  
+
   /* Mark sequence number as sent */
   _PING_CLR(p, p->ping_num_xmit % p->ping_cktab_size);
 
@@ -195,7 +196,7 @@ ping_xmit(PING *p)
     {
       perror("ping: sendto");
     }
-  else 
+  else
     {
       p->ping_num_xmit++;
       if (i != buflen)
@@ -255,7 +256,7 @@ ping_recv(PING *p)
 	  _PING_SET(p, icmp->icmp_seq % p->ping_cktab_size);
 	  dupflag = 0;
 	}
-      
+
       if (p->ping_event)
 	(*p->ping_event)(dupflag ? PEV_DUPLICATE : PEV_RESPONSE,
 			 p->ping_closure,
@@ -263,7 +264,7 @@ ping_recv(PING *p)
 			 &p->ping_from,
 			 ip, icmp, n);
       break;
-      
+
     default:
       if (p->ping_event)
 	(*p->ping_event)(PEV_NOECHO,
@@ -309,23 +310,23 @@ ping_set_packetsize(PING *ping, int size)
 int
 ping_set_dest(PING *ping, char *host)
 {
-  struct sockaddr_in *sin = &ping->ping_dest;
-  sin->sin_family = AF_INET;
-  if (inet_aton(host, &sin->sin_addr))
+  struct sockaddr_in *s_in = &ping->ping_dest;
+  s_in->sin_family = AF_INET;
+  if (inet_aton(host, &s_in->sin_addr))
     {
       ping->ping_hostname = strdup(host);
     }
   else
     {
       struct hostent *hp = gethostbyname(host);
-      if (!hp) 
+      if (!hp)
 	return 1;
 
-      sin->sin_family = hp->h_addrtype;
-      if (hp->h_length > (int)sizeof(sin->sin_addr)) 
-	hp->h_length = sizeof(sin->sin_addr);
+      s_in->sin_family = hp->h_addrtype;
+      if (hp->h_length > (int)sizeof(s_in->sin_addr))
+	hp->h_length = sizeof(s_in->sin_addr);
 
-      memcpy(&sin->sin_addr, hp->h_addr, hp->h_length);
+      memcpy(&s_in->sin_addr, hp->h_addr, hp->h_length);
       ping->ping_hostname = strdup(hp->h_name);
     }
   return 0;

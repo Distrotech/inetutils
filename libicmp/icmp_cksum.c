@@ -1,4 +1,4 @@
-/* Copyright (C) 1998 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -30,7 +30,7 @@ icmp_cksum(u_char *addr, int len)
   register int sum = 0;
   u_short answer = 0;
   u_short *wp;
-  
+
   for (wp = (u_short*)addr; len > 1; wp++, len -= 2)
     sum += *wp;
 
