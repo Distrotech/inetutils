@@ -1,0 +1,5 @@
+2000-03-28  Alain Magloire
+
+	* Makefile.am : added PATHDEF_WTMPX in INCLUDES.
+	* libinetutils/utmp_logout.c: WTMPX_FILE change for PATH_WTMPX.
+
