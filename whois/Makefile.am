@@ -4,6 +4,12 @@ EXTRA_PROGRAMS = whois
 
 whois_SOURCES = main.c net.c
 
+whois_DEPENDENCIES = config.o
+
+whois_LDADD = config.o
+
+CLEANFILES = config.c
+
 INCLUDES = -DSYSCONFDIR=\"$(sysconfdir)\" -DDATADIR=\"$(datadir)\"
 
 inetdatadir = $(datadir)/inet

@@ -189,6 +189,9 @@
 /* Define if you have <alloca.h> and it should be used (not on Ultrix).  */
 #undef HAVE_ALLOCA_H
 
+/* Define if you have a working `mmap' system call.  */
+#undef HAVE_MMAP
+
 /* Define if your struct stat has st_blksize.  */
 #undef HAVE_ST_BLKSIZE
 
@@ -267,6 +270,8 @@
 #undef HAVE_UTMP_UT_TV
 /* Define this if struct utmpx has a ut_tv field.  */
 #undef HAVE_UTMPX_UT_TV
+/* Define this if struct utmp has a ut_exit field.  */
+#undef HAVE_UTMP_UT_EXIT
 
 /* Define this if using Kerberos version 4.  */
 #undef KRB4
@@ -375,9 +380,6 @@
 /* Define this if <paths.h> exists.  */
 #undef HAVE_PATHS_H
 
-/* Define this if getcwd (0, 0) works.  */
-#undef HAVE_GETCWD_ZERO_SIZE
-
 /* If these aren't defined by <unistd.h>, define them here. */
 #undef SEEK_SET
 #undef SEEK_CUR
@@ -396,6 +398,16 @@
 
 /* If EWOULDBLOCK isn't defined by <errno.h>, define it here.  */
 #undef EWOULDBLOCK
+
+/* SOLARIS uses STREAM ptys and other funky things */
+#undef SOLARIS
+#undef HAVE_STREAMSPTY
+
+/* certain system must have an entry in utmpx before login work */
+#undef UTMPX
+
+/* Define if you have the bcmp function.  */
+#undef HAVE_BCMP
 
 /* Define if you have the bcopy function.  */
 #undef HAVE_BCOPY
@@ -427,6 +439,12 @@
 /* Define if you have the ftruncate function.  */
 #undef HAVE_FTRUNCATE
 
+/* Define if you have the getcwd function.  */
+#undef HAVE_GETCWD
+
+/* Define if you have the getpagesize function.  */
+#undef HAVE_GETPAGESIZE
+
 /* Define if you have the getusershell function.  */
 #undef HAVE_GETUSERSHELL
 
@@ -451,6 +469,9 @@
 /* Define if you have the logwtmp function.  */
 #undef HAVE_LOGWTMP
 
+/* Define if you have the memcmp function.  */
+#undef HAVE_MEMCMP
+
 /* Define if you have the memcpy function.  */
 #undef HAVE_MEMCPY
 
@@ -462,6 +483,9 @@
 
 /* Define if you have the openpty function.  */
 #undef HAVE_OPENPTY
+
+/* Define if you have the ptsname function.  */
+#undef HAVE_PTSNAME
 
 /* Define if you have the revoke function.  */
 #undef HAVE_REVOKE
@@ -502,6 +526,9 @@
 /* Define if you have the sigvec function.  */
 #undef HAVE_SIGVEC
 
+/* Define if you have the strcasecmp function.  */
+#undef HAVE_STRCASECMP
+
 /* Define if you have the strchr function.  */
 #undef HAVE_STRCHR
 
@@ -511,8 +538,17 @@
 /* Define if you have the tcgetattr function.  */
 #undef HAVE_TCGETATTR
 
+/* Define if you have the tzset function.  */
+#undef HAVE_TZSET
+
 /* Define if you have the uname function.  */
 #undef HAVE_UNAME
+
+/* Define if you have the updwtmp function.  */
+#undef HAVE_UPDWTMP
+
+/* Define if you have the updwtmpx function.  */
+#undef HAVE_UPDWTMPX
 
 /* Define if you have the utime function.  */
 #undef HAVE_UTIME
@@ -576,6 +612,9 @@
 
 /* Define if you have the <string.h> header file.  */
 #undef HAVE_STRING_H
+
+/* Define if you have the <stropts.h> header file.  */
+#undef HAVE_STROPTS_H
 
 /* Define if you have the <sys/cdefs.h> header file.  */
 #undef HAVE_SYS_CDEFS_H
@@ -670,8 +709,8 @@
 /* Define if you have the socket library (-lsocket).  */
 #undef HAVE_LIBSOCKET
 
-/* Define if you have the termcap library (-ltermcap).  */
-#undef HAVE_LIBTERMCAP
+/* Define if you have the z library (-lz).  */
+#undef HAVE_LIBZ
 
 #ifdef HAVE___P
 /* The system defines __P; we tested for it in <sys/cdefs.h>, so include that
