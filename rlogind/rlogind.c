@@ -62,8 +62,15 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #endif
 #include <signal.h>
 #include <termios.h>
-#ifdef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
 #ifdef HAVE_SYS_STREAM_H
 #include <sys/stream.h>
@@ -94,6 +101,9 @@ static char sccsid[] = "@(#)rlogind.c	8.2 (Berkeley) 4/28/95";
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 #ifndef TIOCPKT_WINDOW
 #define TIOCPKT_WINDOW 0x80
@@ -211,7 +221,8 @@ main(argc, argv)
 
 	on = 1;
 	if (keepalive &&
-	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof (on)) < 0)
+	    setsockopt(0, SOL_SOCKET, SO_KEEPALIVE, (char *) &on,
+		       sizeof (on)) < 0)
 		syslog(LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
 
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)

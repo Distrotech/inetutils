@@ -58,8 +58,15 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
 #include <sys/filio.h>
 #endif
 #include <sys/file.h>
-#ifdef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
 
 #include <netinet/in.h>
@@ -79,6 +86,9 @@ static char sccsid[] = "@(#)rsh.c	8.4 (Berkeley) 4/29/95";
 #include <varargs.h>
 #endif
 #include <getopt.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 #ifdef KERBEROS
 #include <kerberosIV/des.h>
@@ -386,10 +396,10 @@ try_connect:
 	if (rfd2 < 0)
 		errx(1, "can't establish stderr");
 	if (dflag) {
-		if (setsockopt(rem, SOL_SOCKET, SO_DEBUG, &one,
+		if (setsockopt(rem, SOL_SOCKET, SO_DEBUG, (char *) &one,
 		    sizeof(one)) < 0)
 			warn("setsockopt");
-		if (setsockopt(rfd2, SOL_SOCKET, SO_DEBUG, &one,
+		if (setsockopt(rfd2, SOL_SOCKET, SO_DEBUG, (char *) &one,
 		    sizeof(one)) < 0)
 			warn("setsockopt");
 	}
