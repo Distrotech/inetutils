@@ -373,7 +373,7 @@
 /* Define this if getgrnam is declared by including <grp.h>.  */
 #undef HAVE_GETGRNAM_DECL
 
-* Define this if getgrnam is declared by including <grp.h>.  */
+/* Define this if getgrnam is declared by including <grp.h>.  */
 #undef HAVE_INITGROUPS_DECL
 
 /* Define this if htons is declared by including <sys/types.h>,
