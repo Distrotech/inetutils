@@ -1,5 +1,9 @@
 2003-11-11  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
+	* inetd.c: Signal handling rewritten.
+	
+2003-11-11  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
 	* inetd.c: Use argcv_get to parse configuration files.
 	Improved config error diagnostics.
 	Removed obvious bsdisms.
