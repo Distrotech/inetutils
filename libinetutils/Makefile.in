@@ -21,13 +21,14 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-SRCS = ttymsg.c version.c getopt.c getopt1.c stub_tgetent.c \
-	localhost.c daemon.c strerror.c hstrerror.c strdup.c logout.c \
-	logwtmp.c logwtmpko.c cleansess.c openpty.c
+SRCS = \
+__progname.c alloca.c cleansess.c daemon.c err.c forkpty.c getopt.c		\
+getopt1.c hstrerror.c localhost.c login.c logout.c logwtmp.c logwtmpko.c	\
+openpty.c snprintf.c strdup.c strerror.c stub_tgetent.c ttymsg.c version.c
 
 DISTFILES = $(SRCS)
 
-OBJS = ttymsg.o version.o localhost.o cleansess.o logwtmpko.o @LIBOBJS@
+OBJS = ttymsg.o version.o localhost.o cleansess.o logwtmpko.o @LIBOBJS@ @ALLOCA@
 CLEAN = libinetutils.a $(OBJS)
 
 CPPFLAGS += $(PATHDEF_DEVNULL) $(PATHDEF_TTY_PFX) \
