@@ -95,7 +95,7 @@ ftpd_popen(program, type)
 		return (NULL);
 
 	/* break up string into pieces */
-	for (argc = 0, cp = program; argc < MAX_ARGV - 1; cp = NULL, argc++)
+	for (argc = 0, cp = program; argc < MAX_ARGC - 1; cp = NULL, argc++)
 		if (!(argv[argc] = strtok(cp, " \t\n")))
 			break;
 	argv[MAX_ARGV - 1] = NULL;
