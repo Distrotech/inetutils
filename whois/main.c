@@ -32,19 +32,19 @@
 #endif
 
 #if HAVE_STRING_H
-#include <string.h>
+# include <string.h>
+#else
+# include <strings.h>
 #endif
 
 #if STDC_HEADERS
 # include <stdlib.h>
-# include <string.h>
 #else
 # ifndef HAVE_STRCHR
 #  define strchr index
 #  define strrchr rindex
 # endif
 #endif
-char *strchr (), *strrchr ();
 
 
 static int version = 0, help = 0;
