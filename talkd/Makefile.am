@@ -21,6 +21,6 @@ man_MANS = talkd.8
 
 INCLUDES = $(PATHDEF_DEV) -I${top_srcdir}/libinetutils
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils
 
 EXTRA_DIST = $(man_MANS)

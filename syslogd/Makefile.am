@@ -15,6 +15,6 @@ man_MANS = syslog.conf.5 syslogd.8
 INCLUDES = $(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGPID) \
 	$(PATHDEF_CONSOLE)
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils
 
 EXTRA_DIST = $(man_MANS)

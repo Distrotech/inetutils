@@ -16,6 +16,6 @@ INCLUDES = $(PATHDEF_DEV) $(PATHDEF_LOGIN)
 
 LIBUTIL = @LIBUTIL@
 
-LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)

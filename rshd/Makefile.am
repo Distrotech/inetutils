@@ -14,6 +14,6 @@ man_MANS = rshd.8
 
 INCLUDES = $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
 
-LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)

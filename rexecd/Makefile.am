@@ -16,6 +16,6 @@ INCLUDES = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
 
 LIBCRYPT = @LIBCRYPT@
 
-LDADD = -L../libinetutils -linetutils $(LIBCRYPT)
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBCRYPT)
 
 EXTRA_DIST = $(man_MANS)

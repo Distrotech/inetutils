@@ -13,8 +13,8 @@ man_MANS = inetd.8
 @PATHDEFS_MAKE@
 
 INCLUDES = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) \
-	$(PATHDEF_INETDPID)
+           $(PATHDEF_INETDPID)
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../lib -lgnu -L../libinetutils -linetutils
 
 EXTRA_DIST = $(man_MANS)
