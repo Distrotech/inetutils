@@ -39,19 +39,23 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #include <config.h>
 #endif
 
-#if	defined(unix)
-#include <sys/param.h>
-#if	defined(CRAY) || defined(sysV88)
-#include <sys/types.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
+#ifdef HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
 #include <sys/file.h>
-#else
-#include <sys/types.h>
-#endif	/* defined(unix) */
+
 #include <sys/socket.h>
 #include <netinet/in.h>
-#ifdef	CRAY
-#include <fcntl.h>
+
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
 #endif	/* CRAY */
 
 #include <signal.h>
@@ -87,6 +91,7 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 # include <machine/endian.h>
 # endif /* vax */
 #endif /* !defined(CRAY) && !defined(sysV88) */
+
 #ifdef HAVE_NETINET_IP_H
 #include <netinet/ip.h>
 #endif
@@ -2388,10 +2393,10 @@ tn(argc, argv)
 		return 0;
 	    }
 	} else {
-#if	!defined(htons)
+#ifndef HAVE_HTONS_DECL
 	    u_short htons P((unsigned short));
-#endif	/* !defined(htons) */
-	    sin.sin_port = htons(sin.sin_port);
+#endif
+	    sin.sin_port = htons (sin.sin_port);
 	}
     } else {
 	if (sp == 0) {
