@@ -136,6 +136,10 @@ char dst_realm_buf[REALM_SZ], *dest_realm = NULL;
 # endif
 #endif
 
+/* Returned by speed() when the specified fd is not associated with a
+   terminal.  */
+#define SPEED_NOTATTY	(-1)
+
 int eight, litout, rem;
 
 int noescape;
@@ -191,6 +195,7 @@ main(argc, argv)
 	uid_t uid;
 	int argoff, ch, dflag, one;
 	char *host, *p, *user, term[1024];
+	int term_speed;
 
 #ifndef HAVE___PROGNAME
 	extern char *__progname;
@@ -306,10 +311,14 @@ main(argc, argv)
 	if (sp == NULL)
 		errx(1, "login/tcp: unknown service.");
 
-	(void)snprintf(term, sizeof(term), "%s/%d",
-			((p = getenv("TERM")) ? p : "network"),
-			speed(0));
-
+	term_speed = speed(0);
+	if (term_speed == SPEED_NOTATTY)
+		(void)snprintf(term, sizeof(term), "%s",
+			       ((p = getenv("TERM")) ? p : "network"));
+	else
+		(void)snprintf(term, sizeof(term), "%s/%d",
+			       ((p = getenv("TERM")) ? p : "network"),
+			       term_speed);
 	(void)get_window_size(0, &winsize);
 
 	setsig (SIGPIPE, lostpeer);
@@ -393,6 +402,8 @@ try_connect:
 	/*NOTREACHED*/
 }
 
+/* Returns the terminal speed for the file descriptor FD, or
+   SPEED_NOTATTY if FD is not associated with a terminal.  */
 #if BSD >= 198810
 int
 speed(fd)
@@ -400,9 +411,10 @@ speed(fd)
 {
 	struct termios tt;
 
-	(void)tcgetattr(fd, &tt);
-
-	return ((int) cfgetispeed(&tt));
+	if (tcgetattr(fd, &tt) == 0)
+		return ((int) cfgetispeed(&tt));
+	else
+		return (SPEED_NOTATTY);
 }
 #else
 int    speeds[] = {	/* for older systems, B0 .. EXTB */
@@ -418,9 +430,10 @@ speed(fd)
 {
 	struct termios tt;
 
-	(void)tcgetattr(fd, &tt);
-
-	return (speeds[(int)cfgetispeed(&tt)]);
+	if (tcgetattr(fd, &tt) == 0)
+		return (speeds[(int)cfgetispeed(&tt)]);
+	else
+		return (SPEED_NOTATTY);
 }
 #endif
 
