@@ -1,3 +1,15 @@
+2000-08-05  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (help): --no-forward does not override -r,
+	but -h.
+	(init): Create inet socket if either AcceptRemote or
+	Forwarding is true, but with Forwarding only if not
+	--no-forward was provided. This is less restrictive than
+	before, where --no-forward would prevent incoming messages
+	allowed with -r, which was documented but not intended.
+	* syslogd.8: Document (badly) all the new options from
+	last change.
+
 2000-08-04  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd.c: In the whole file, change the formatting

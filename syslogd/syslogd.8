@@ -37,6 +37,7 @@
 .Nm syslogd
 .Op Fl V
 .Op Fl a Ar socket
+.Op Fl d
 .Op Fl f Ar config_file
 .Op Fl h
 .Op Fl l Ar host_list
@@ -45,6 +46,9 @@
 .Op Fl p Ar log_socket
 .Op Fl r
 .Op Fl s Ar domain_list
+.Op Fl -no-klog
+.Op Fl -no-unixaf
+.Op Fl -no-forward
 .Sh DESCRIPTION
 .Nm Syslogd
 reads and logs messages to the system console, log files, other
@@ -53,38 +57,49 @@ The options are as follows:
 .Bl -tag -width Ds
 .It Fl V
 Print version number and exit.
+.It Fl -help
+Display help information and exit.
+.It Fl d
+Enter debug mode. syslogd does not put itself in the background, does
+not fork and shows debug information.
 .It Fl a
 Specify additional sockets from that syslogd has to listen to.
 This is needed if you are going to let some daemon run within
 a chroot()'ed environment. You can specify up to 19 additional
 sockets.
-.It Fl f
+.It \fB-f\fR, \fB--rcfile\fR=\fIFILE\fP
 Specify the pathname of an alternate configuration file;
-the default is
-.Pa /etc/syslog.conf .
-.It Fl h
+the default is system specific and displayed in the help output.
+.It \fB-h\fR, \fB--hop\fR
 Enable forwarding remote messages. By default syslogd will not
 forward messages it receives from remote hosts.
 .It Fl l
 A colon-seperated lists of hosts which should be considered local;
 they are logged by their hostnames instead by their FQDN.
-.It Fl m
+.It \fB-m\fR, \fB--mark\fR=\fIINTERVAL/fP
 Select the number of minutes between ``mark'' messages;
 the default is 20 minutes. Setting it to 0 disables timestamps.
-.It Fl n
+.It \fB-n\fR, \fB--no-detach\fR
 Suppress backgrounding and detachment of the daemon from its
 controlling terminal.
-.It Fl p
-Specify the pathname of an alternate log socket;
-the default is
-.It Fl r
+.It \fB-p\fR, \fB--socket\fR=\fIPATH\fP
+Specify the pathname of an alternate log socket.
+The default is systemspecific and displayed in the help output.
+.It \fB-r\fR, \fB--inet\fR
 Enable to receive remote messages using an internet domain socket.
 The default is to not receive any messages from the network. Older
 version always accepted remote messages.
-.Pa /dev/log .
 .It Fl s
 A colon-seperated list of domainnames which should be stripped from
 the FQDNs of hosts when logging.
+.It Fl -no-klog
+Do not listen to the kernel log device. This is only supported on
+systems which define a kernel log device, on all others this is already
+the default, and the option will be silently ignored.
+.It Fl -no-unixaf
+Do not listen to any unix domain socket. This option overrides \-p and \-a.
+.It Fl -no-forward
+Do not forward any messages. This overrides \-h.
 .El
 .Pp
 .Nm Syslogd

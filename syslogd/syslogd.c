@@ -1636,7 +1636,7 @@ init(int signo)
     }
   }
 
-  if (!NoForward && (Forwarding || AcceptRemote)) {
+  if (AcceptRemote || (!NoForward && Forwarding)) {
     if (finet < 0) {
       finet = create_inet_socket ();
       if (finet >= 0)
