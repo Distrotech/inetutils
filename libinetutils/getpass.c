@@ -1,99 +1,102 @@
-/* GNU mailutils - a suite of utilities for electronic mail
-   Copyright (C) 1999, 2000, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1992,93,94,95,96,97,98,99,2000, 2001 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Library Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Library General Public License for more details.
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
 
-   You should have received a copy of the GNU Library General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
 
-#include  <stdio.h>
-#include  <string.h>
-#include  <stdlib.h>
-#include  <termios.h>
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
-/* Alain: Parts originally from GNU Lib C.  */
+#include <stdio.h>
+#include <termios.h>
+#include <unistd.h>
+#include "getline.h"
+#include "unlocked-io.h"
 
-static void
-echo_off(int fd, struct termios *stored_settings)
-{
-  struct termios new_settings;
-  tcgetattr (fd, stored_settings);
-  new_settings = *stored_settings;
-  new_settings.c_lflag &= (~ECHO);
-  tcsetattr (fd, TCSANOW, &new_settings);
-}
+/* It is desirable to use this bit on systems that have it.
+   The only bit of terminal state we want to twiddle is echoing, which is
+   done in software; there is no need to change the state of the terminal
+   hardware.  */
 
-static void
-echo_on(int fd, struct termios *stored_settings)
-{
-  tcsetattr (fd, TCSANOW, stored_settings);
-}
+#ifndef TCSASOFT
+# define TCSASOFT 0
+#endif
 
 char *
-getpass (const char * prompt)
+getpass (const char *prompt)
 {
   FILE *in, *out;
-  struct termios stored_settings;
+  struct termios s, t;
+  int tty_changed;
   static char *buf;
-  static size_t buf_size;
-  char *pbuf;
+  static size_t bufsize;
+  ssize_t nread;
 
-  /* First pass initialize the buffer.  */
-  if (buf_size == 0)
+  /* Try to write to and read from the terminal if we can.
+     If we can't open the terminal, use stderr and stdin.  */
+
+  in = fopen ("/dev/tty", "w+");
+  if (in == NULL)
     {
-      buf_size = 256;
-      buf = calloc (1, buf_size);
-      if (buf == NULL)
-	return NULL;
+      in = stdin;
+      out = stderr;
     }
   else
-    memset (buf, '\0', buf_size);
+    out = in;
 
   /* Turn echoing off if it is on now.  */
-  echo_off (fileno (stdin), &stored_settings);
+
+  if (tcgetattr (fileno (in), &t) == 0)
+    {
+      /* Save the old one. */
+      s = t;
+      /* Tricky, tricky. */
+      t.c_lflag &= ~(ECHO|ISIG);
+      tty_changed = (tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &t) == 0);
+    }
+  else
+    tty_changed = 0;
 
   /* Write the prompt.  */
-  fputs (prompt, stdout);
-  fflush (stdout);
+  fputs (prompt, out);
+  fflush (out);
 
   /* Read the password.  */
-  pbuf = fgets (buf, buf_size, stdin);
-  if (pbuf)
+  nread = getline (&buf, &bufsize, in);
+  if (buf != NULL)
     {
-      size_t nread = strlen (pbuf);
-      if (nread && pbuf[nread - 1] == '\n')
-        {
-          /* Remove the newline.  */
-          pbuf[nread - 1] = '\0';
-	  /* Write the newline that was not echoed.  */
-	  putc ('\n', stdout);
-        }
+      if (nread < 0)
+	buf[0] = '\0';
+      else if (buf[nread - 1] == '\n')
+	{
+	  /* Remove the newline.  */
+	  buf[nread - 1] = '\0';
+	  if (tty_changed)
+	    /* Write the newline that was not echoed.  */
+	    putc ('\n', out);
+	}
     }
 
   /* Restore the original setting.  */
-  echo_on (fileno (stdin), &stored_settings);
+  if (tty_changed)
+    (void) tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &s);
 
-  return pbuf;
+  if (in != stdin)
+    /* We opened the terminal; now close it.  */
+    fclose (in);
+
+  return buf;
 }
-
-#ifdef _GETPASS_STANDALONE_TEST
-
-int
-main ()
-{
-  char *p;
-  p = getpass ("my prompt: ");
-  if (p)
-    printf ("Passwd: %s\n", p);
-  return 0;
-}
-#endif

@@ -1,5 +1,5 @@
 /* getusershell.c -- Return names of valid user shells.
-   Copyright (C) 1991, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1991, 1997, 2000, 2001 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -12,37 +12,54 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+   along with this program; if not, write to the Free Software Foundation,
+   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
 /* Written by David MacKenzie <djm@gnu.ai.mit.edu> */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifndef SHELLS_FILE
+# ifndef __DJGPP__
 /* File containing a list of nonrestricted shells, one per line. */
-#define SHELLS_FILE "/etc/shells"
+#  define SHELLS_FILE "/etc/shells"
+# else
+/* This is a horrible kludge.  Isn't there a better way?  */
+#  define SHELLS_FILE "/dev/env/DJDIR/etc/shells"
+# endif
 #endif
 
 #include <stdio.h>
+#if HAVE_STDLIB_H
+# include <stdlib.h>
+#endif
 #include <ctype.h>
+#include "unlocked-io.h"
+#include "xalloc.h"
 
-#ifdef STDC_HEADERS
-#include <stdlib.h>
+#if defined (STDC_HEADERS) || (!defined (isascii) && !defined (HAVE_ISASCII))
+# define IN_CTYPE_DOMAIN(c) 1
 #else
-char *malloc __P (());
-char *realloc __P (());
+# define IN_CTYPE_DOMAIN(c) isascii(c)
 #endif
 
-char *xstrdup __P ((const char *));
+#define ISSPACE(c) (IN_CTYPE_DOMAIN (c) && isspace (c))
 
-static int readname __P ((char **name, int *size, FILE *stream));
+static int readname ();
+
+#if ! defined ADDITIONAL_DEFAULT_SHELLS && defined __MSDOS__
+# define ADDITIONAL_DEFAULT_SHELLS \
+  "c:/dos/command.com", "c:/windows/command.com", "c:/command.com",
+#else
+# define ADDITIONAL_DEFAULT_SHELLS /* empty */
+#endif
 
 /* List of shells to use if the shells file is missing. */
 static char const* const default_shells[] =
 {
+  ADDITIONAL_DEFAULT_SHELLS
   "/bin/sh", "/bin/csh", "/usr/bin/sh", "/usr/bin/csh", NULL
 };
 
@@ -100,10 +117,8 @@ void
 setusershell ()
 {
   default_index = 0;
-  if (shellstream == NULL)
-    shellstream = fopen (SHELLS_FILE, "r");
-  else
-    fseek (shellstream, 0L, 0);
+  if (shellstream)
+    rewind (shellstream);
 }
 
 /* Close the shells file. */
@@ -127,7 +142,10 @@ endusershell ()
    if some nonempty sequence was found, otherwise 0.  */
 
 static int
-readname (char **name, int *size, FILE *stream)
+readname (name, size, stream)
+     char **name;
+     int *size;
+     FILE *stream;
 {
   int c;
   int name_index = 0;
@@ -139,10 +157,10 @@ readname (char **name, int *size, FILE *stream)
     }
 
   /* Skip blank space.  */
-  while ((c = getc (stream)) != EOF && isspace (c))
+  while ((c = getc (stream)) != EOF && ISSPACE (c))
     /* Do nothing. */ ;
 
-  while (c != EOF && !isspace (c))
+  while (c != EOF && !ISSPACE (c))
     {
       (*name)[name_index++] = c;
       while (name_index >= *size)

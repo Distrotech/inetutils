@@ -1,4 +1,5 @@
-/* Copyright (C) 1995, 1997, 2000 Free Software Foundation, Inc.
+/* xgetcwd -- return current directory with unlimited length
+   Copyright (C) 1995, 2001 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,22 +15,13 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
-/* Written by Jim Meyering <meyering@na-net.ornl.gov>.  */
-
-#if HAVE_CONFIG_H
-# include <config.h>
+#ifndef PARAMS
+# if __STDC__ || defined __GNUC__ || defined __SUNPRO_C || defined __cplusplus || __PROTOTYPES
+#  define PARAMS(args) args
+# else
+#  define PARAMS(args) ()
+# endif
 #endif
 
-/* Copy LEN bytes starting at SRCADDR to DESTADDR.  Result undefined
-   if the source overlaps with the destination.
-   Return DESTADDR. */
-
-char *
-memcpy (char *destaddr, const char *srcaddr, int len)
-{
-  char *dest = destaddr;
-
-  while (len-- > 0)
-    *destaddr++ = *srcaddr++;
-  return dest;
-}
+/* Wrapper function with error checking for standard function.  */
+extern char *xgetcwd PARAMS ((void));

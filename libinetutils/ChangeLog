@@ -1,3 +1,31 @@
+2002-12-11  Jeff Bailey  <jbailey@gnu.org>
+
+	* getopt.h: New file from Gnulib CVS
+	* obstack.h: New file from Gnulib CVS
+	* setenv.h: New file from Gnulib CVS
+	* gettext.h: New file from Gnulib CVS
+	* xalloc.h: New file from Gnulib CVS
+	* xgetcwd.h: New file from Gnulib CVS
+	* malloc.c: New file from Gnulib CVS
+	* realloc.c: New file from Gnulib CVS
+	* getopt.c: Update from Gnulib CVS
+	* getopt1.c: Update from Gnulib CVS
+	* getpass.c: Update from Gnulib CVS
+	* getusershell.c: Update from Gnulib CVS
+	* memcmp.c: Update from Gnulib CVS
+	* memcpy.c: Update from Gnulib CVS
+	* memmove.c: Update from Gnulib CVS
+	* memset.c: Update from Gnulib CVS
+	* obstack.c: Update from Gnulib CVS
+	* pathmax.h: Update from Gnulib CVS
+	* setenv.c: Update from Gnulib CVS
+	* strcasecmp.c: Update from Gnulib CVS
+	* strdup.c: Update from Gnulib CVS
+	* strerror.c: Update from Gnulib CVS
+	* xgetcwd.c: Update from Gnulib CVS
+	* xmalloc.c: Update from Gnulib CVS
+	* xstrdup.c: Update from Gnulib CVS
+	
 2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* libinetutils/iruserok.c (iruserok): Removed unneded

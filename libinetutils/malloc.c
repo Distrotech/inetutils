@@ -1,4 +1,5 @@
-/* Copyright (C) 1995, 1997, 2000 Free Software Foundation, Inc.
+/* Work around bug on some systems where malloc (0) fails.
+   Copyright (C) 1997, 1998 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,22 +15,24 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
-/* Written by Jim Meyering <meyering@na-net.ornl.gov>.  */
+/* written by Jim Meyering */
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
+#undef malloc
 
-/* Copy LEN bytes starting at SRCADDR to DESTADDR.  Result undefined
-   if the source overlaps with the destination.
-   Return DESTADDR. */
+#include <sys/types.h>
+
+char *malloc ();
+
+/* Allocate an N-byte block of memory from the heap.
+   If N is zero, allocate a 1-byte block.  */
 
 char *
-memcpy (char *destaddr, const char *srcaddr, int len)
+rpl_malloc (size_t n)
 {
-  char *dest = destaddr;
-
-  while (len-- > 0)
-    *destaddr++ = *srcaddr++;
-  return dest;
+  if (n == 0)
+    n = 1;
+  return malloc (n);
 }

@@ -1,5 +1,5 @@
 /* xmalloc.c -- malloc with out of memory checking
-   Copyright (C) 1990, 91, 92, 93, 94, 95, 96 Free Software Foundation, Inc.
+   Copyright (C) 1990-1999, 2000, 2002 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,105 +19,95 @@
 # include <config.h>
 #endif
 
-#if __STDC__
-# define VOID void
-#else
-# define VOID char
-#endif
-
 #include <sys/types.h>
 
 #if STDC_HEADERS
 # include <stdlib.h>
 #else
-VOID *calloc ();
-VOID *malloc ();
-VOID *realloc ();
+void *calloc ();
+void *malloc ();
+void *realloc ();
 void free ();
 #endif
 
-#if ENABLE_NLS
-# include <libintl.h>
-# define _(Text) gettext (Text)
-#else
-# define textdomain(Domain)
-# define _(Text) Text
-#endif
+#include "gettext.h"
+#define _(msgid) gettext (msgid)
+#define N_(msgid) msgid
 
-#include "err.h"
+#include "error.h"
+#include "xalloc.h"
 
 #ifndef EXIT_FAILURE
 # define EXIT_FAILURE 1
 #endif
 
-/* Prototypes for functions defined here.  */
-#if defined (__STDC__) && __STDC__
-static VOID *fixup_null_alloc (size_t n);
-VOID *xmalloc (size_t n);
-VOID *xcalloc (size_t n, size_t s);
-VOID *xrealloc (VOID *p, size_t n);
+/* The following tests require AC_PREREQ(2.54).  */
+
+#ifndef HAVE_MALLOC
+"you must run the autoconf test for a GNU libc compatible malloc"
 #endif
 
+#ifndef HAVE_REALLOC
+"you must run the autoconf test for a GNU libc compatible realloc"
+#endif
 
 /* Exit value when the requested amount of memory is not available.
    The caller may set it to some other value.  */
-int xmalloc_exit_failure = EXIT_FAILURE;
+int xalloc_exit_failure = EXIT_FAILURE;
 
-static VOID *
-fixup_null_alloc (n)
-     size_t n;
+/* If non NULL, call this function when memory is exhausted. */
+void (*xalloc_fail_func) PARAMS ((void)) = 0;
+
+/* If XALLOC_FAIL_FUNC is NULL, or does return, display this message
+   before exiting when memory is exhausted.  Goes through gettext. */
+char const xalloc_msg_memory_exhausted[] = N_("memory exhausted");
+
+void
+xalloc_die (void)
 {
-  VOID *p;
-
-  p = 0;
-  if (n == 0)
-    p = malloc ((size_t) 1);
-  if (p == 0)
-    err (xmalloc_exit_failure, _("Memory exhausted"));
-  return p;
+  if (xalloc_fail_func)
+    (*xalloc_fail_func) ();
+  error (xalloc_exit_failure, 0, "%s", _(xalloc_msg_memory_exhausted));
+  /* The `noreturn' cannot be given to error, since it may return if
+     its first argument is 0.  To help compilers understand the
+     xalloc_die does terminate, call exit. */
+  exit (EXIT_FAILURE);
 }
 
 /* Allocate N bytes of memory dynamically, with error checking.  */
 
-VOID *
-xmalloc (n)
-     size_t n;
+void *
+xmalloc (size_t n)
 {
-  VOID *p;
+  void *p;
 
   p = malloc (n);
   if (p == 0)
-    p = fixup_null_alloc (n);
+    xalloc_die ();
+  return p;
+}
+
+/* Change the size of an allocated block of memory P to N bytes,
+   with error checking.  */
+
+void *
+xrealloc (void *p, size_t n)
+{
+  p = realloc (p, n);
+  if (p == 0)
+    xalloc_die ();
   return p;
 }
 
 /* Allocate memory for N elements of S bytes, with error checking.  */
 
-VOID *
-xcalloc (n, s)
-     size_t n, s;
+void *
+xcalloc (size_t n, size_t s)
 {
-  VOID *p;
+  void *p;
 
   p = calloc (n, s);
   if (p == 0)
-    p = fixup_null_alloc (n);
-  return p;
-}
-
-/* Change the size of an allocated block of memory P to N bytes,
-   with error checking.
-   If P is NULL, run xmalloc.  */
-
-VOID *
-xrealloc (p, n)
-     VOID *p;
-     size_t n;
-{
-  if (p == 0)
-    return xmalloc (n);
-  p = realloc (p, n);
-  if (p == 0)
-    p = fixup_null_alloc (n);
+    xalloc_die ();
   return p;
 }
