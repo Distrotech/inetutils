@@ -71,7 +71,10 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <string.h>
 #include <crypt.h>
 #ifdef HAVE_TERMIOS_H
-#include <termios.h>
+# include <termios.h>
+#endif
+#ifdef HAVE_UTMP_H
+# include <utmp.h>
 #endif
 
 void dologin ();
@@ -185,7 +188,7 @@ doit (sinp)
 		fprintf(stderr, "user unknown\n");
 		return;
 	}
-	if (strcmp(pw->pw_shell, _PATH_UUCICO)) {
+	if (strcmp(pw->pw_shell, PATH_UUCICO)) {
 		fprintf(stderr, "Login incorrect.");
 		return;
 	}
@@ -282,9 +285,9 @@ dologin(pw, sin)
 
 	logwtmp (line, pw->pw_name, remotehost);
 
-#if defined (_PATH_LASTLOG) && defined (HAVE_STRUCT_LASTLOG)
+#if defined (PATH_LASTLOG) && defined (HAVE_STRUCT_LASTLOG)
 #define	SCPYN(a, b)	strncpy(a, b, sizeof (a))
-	if ((f = open(_PATH_LASTLOG, O_RDWR)) >= 0) {
+	if ((f = open(PATH_LASTLOG, O_RDWR)) >= 0) {
 		struct lastlog ll;
 
 		time(&ll.ll_time);
