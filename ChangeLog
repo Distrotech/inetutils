@@ -1,5 +1,12 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* rexecd/Makefile.am (INCLUDES): Added `$(PATHDEF_DEFPATH)
+ 	$(PATHDEF_BSHELL)'.
+	
+	(LDADD): Added `-L../libinetutils -linetutils'.
+	
+	Added a line reading `@PATHDEFS_MAKE@'.
+
 	* rcp/Makefile.am (INCLUDES): Added `$(PATHDEF_BSHELL)'.
 
 	* libinetutils/Makefile.am (INCLUDES): Added `$(PATHDEF_TTY_PFX)
