@@ -81,7 +81,7 @@ static char sccsid[] = "@(#)krb4encpwd.c	8.3 (Berkeley) 5/30/95";
 
 #include <des.h>
 #include <krb.h>
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H

@@ -78,7 +78,7 @@ static char sccsid[] = "@(#)rsaencpwd.c	8.3 (Berkeley) 5/30/95";
 #include <pwd.h>
 #include <stdio.h>
 
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H

@@ -67,7 +67,7 @@ static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
 #include "encrypt.h"
 #include "misc.h"
 
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H

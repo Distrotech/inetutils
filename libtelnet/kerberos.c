@@ -65,7 +65,7 @@ static char sccsid[] = "@(#)kerberos.c	8.3 (Berkeley) 5/30/95";
 #include <stdio.h>
 #include <des.h>        /* BSD wont include this in krb.h, so we do it here */
 #include <krb.h>
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H

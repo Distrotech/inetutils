@@ -77,7 +77,7 @@ static char sccsid[] = "@(#)spx.c	8.2 (Berkeley) 5/30/95";
 #include <arpa/telnet.h>
 #include <stdio.h>
 #include "gssapi_defs.h"
-#ifdef	__STDC__
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef	NO_STRING_H
