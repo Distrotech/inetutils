@@ -28,8 +28,8 @@
 #else
 # include <time.h>
 #endif
-#ifdef HAVE_UTMPX_H
-#define __USE_GNU
+#if defined (UTMPX) && defined(HAVE_UTMPX_H)
+# define __USE_GNU
 # include <utmpx.h>
 #else
 # include <utmp.h>
@@ -46,7 +46,7 @@
 void
 utmp_init(char   *line, char   *user, char   *id)
 {
-#ifdef HAVE_UTMPX_H
+#ifdef UTMPX
     struct utmpx utx;
 #else
     struct utmp utx;
@@ -73,7 +73,7 @@ utmp_init(char   *line, char   *user, char   *id)
 #else
     time(&(utx.ut_time));
 #endif
-#ifdef HAVE_UTMPX_H
+#ifdef UTMPX
     pututxline(&utx);
 # ifdef HAVE_UPDWTMPX
     updwtmpx(PATH_WTMPX, &utx);
