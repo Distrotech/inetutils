@@ -28,6 +28,8 @@ INSTALL_TARGETS = $(libexecdir)/in.talkd $(man8dir)/talkd.8
 OBJS = $(SRCS:.c=.o)
 CLEAN = talkd $(OBJS)
 
+CPPFLAGS += $(PATHDEF_DEV) $(PATHDEF_UTMP)
+
 all: talkd
 talkd: $(OBJS)
 

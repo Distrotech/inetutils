@@ -27,6 +27,8 @@ INSTALL_TARGETS=$(libexecdir)/in.rexecd $(man8dir)/rexecd.8
 LDLIBS += $(LIBCRYPT)
 CLEAN = rexecd rexecd.o
 
+CPPFLAGS += $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
+
 all: rexecd
 
 include $(RULES)
