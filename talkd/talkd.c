@@ -49,6 +49,9 @@ static char sccsid[] = "@(#)talkd.c	8.1 (Berkeley) 6/4/93";
  */
 #include <sys/types.h>
 #include <sys/socket.h>
+#ifndef HAVE_OSOCKADDR
+#include <osockaddr.h>
+#endif
 #include <protocols/talkd.h>
 #include <signal.h>
 #include <syslog.h>
@@ -60,6 +63,8 @@ static char sccsid[] = "@(#)talkd.c	8.1 (Berkeley) 6/4/93";
 #include <string.h>
 #include <paths.h>
 
+extern char *localhost ();
+
 CTL_MSG		request;
 CTL_RESPONSE	response;
 
@@ -68,7 +73,7 @@ int	debug = 0;
 void	timeout();
 long	lastmsgtime;
 
-char	hostname[32];
+char	*hostname;
 
 #define TIMEOUT 30
 #define MAXIDLE 120
@@ -85,8 +90,9 @@ main(argc, argv)
 		exit(1);
 	}
 	openlog("talkd", LOG_PID, LOG_DAEMON);
-	if (gethostname(hostname, sizeof (hostname) - 1) < 0) {
-		syslog(LOG_ERR, "gethostname: %m");
+	hostname = localhost ();
+	if (! hostname) {
+		syslog(LOG_ERR, "localhost: %m");
 		_exit(1);
 	}
 	if (chdir(_PATH_DEV) < 0) {
