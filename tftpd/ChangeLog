@@ -1,0 +1,9 @@
+1999-17-02 Alain Magloire
+
+	* It has to do with handling of files with more than 32766 blocks. The
+	TFTP packets should be able to handle up to 65535 blocks. But many
+	tftpd's seem to treat the block# as a short instead of an unsigned
+	short. This appears to be caused by the arpa/tftp.h header declaring it
+	as a short. The relevant RFC's do not indicate that this is supposed to
+	be the case.
+	Patch and Email exchange from Nathan Neulinger.
