@@ -1,3 +1,8 @@
+2000-07-08 Michael Vogt <mvo@debian.org>
+
+	* ftpd/Makefile.am (INCLUDES): Added $(PATHDEF_FTPDPID)
+	* paths: add PATHDEF_FTPDPID
+
 2000-07-07  Alain Magloire
 
 	* configure.in: check for <shadow.h>

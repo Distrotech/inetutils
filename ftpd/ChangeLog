@@ -1,3 +1,8 @@
+2000-07-08  Michael Vogt  <mvo@debian.org>
+
+	* ftpd.c(main): added new option "-D" for daemon-mode,
+	ftpd can now run without inetd
+
 2000-07-07 Alain Magloire
 
 	* ftpd.c(sgetpwnam()): if HAVE_GETSPNAM && HAVE_SHADOW_H, call

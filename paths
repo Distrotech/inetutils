@@ -78,6 +78,7 @@ PATH_DEVNULL	c /dev/null
 PATH_FTPLOGINMESG /etc/motd
 PATH_FTPUSERS	$(sysconfdir)/ftpusers
 PATH_FTPWELCOME $(sysconfdir)/ftpwelcome
+PATH_FTPDPID	$(localstatedir)/run/ftpd.pid
 PATH_INETDCONF	$(sysconfdir)/inetd.conf
 PATH_INETDDIR	$(sysconfdir)/inetd.d
 PATH_UTMP	<utmp.h> <utmp.h>:UTMP_FILE $(localstatedir)/run/utmp search:utmp:/var/run:/var/adm:/etc
