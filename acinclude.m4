@@ -1,6 +1,6 @@
 dnl Autoconf macros used by inetutils
 dnl
-dnl Copyright (C) 1996, 1997, 1998, 2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1996, 1997, 1998, 2002, 2004 Free Software Foundation, Inc.
 dnl
 dnl Mostly written by Miles Bader <miles@gnu.ai.mit.edu>
 dnl
@@ -179,6 +179,7 @@ AC_DEFUN([IU_LIB_NCURSES], [
       fi
       if test "$inetutils_cv_includedir_ncurses" = none; then
         NCURSES_INCLUDE=""
+	LIBNCURSES=''
       else
         NCURSES_INCLUDE="-I$inetutils_cv_includedir_ncurses"
       fi
