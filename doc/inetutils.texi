@@ -32,7 +32,7 @@ START-INFO-DIR-ENTRY
 * rlogin: (inetutils)rlogin invocation.         Remote login.
 * rlogind: (inetutils)rlogind invocation.       Remote login server.
 @c * rsh: (inetutils)rsh invocation.               Remote shell.
-@c * rshd: (inetutils)rshd invocation.             Remote shell server.
+* rshd: (inetutils)rshd invocation.             Remote shell server.
 * logger: (inetutils)logger invocation.         Logger.
 * syslogd: (inetutils)syslogd invocation.       Syslog server.
 @c * talk: (inetutils)talk invocation.             Talk client.
@@ -118,7 +118,7 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 * rlogin::                      Remote login.
 * rlogind::                     Remote login server.
 @c * rsh::                         Remote shell.
-@c * rshd::                        Remote shell server.
+* rshd::                        Remote shell server.
 * logger::                      Logger.
 * syslogd::                     Syslog server.
 @c * talk::                        Talk client.
@@ -180,7 +180,7 @@ Print the version number, then exit successfully.
 @include rlogin.texi
 @include rlogind.texi
 @c @include rsh.texi
-@c @include rshd.texi
+@include rshd.texi
 @include logger.texi
 @include syslogd.texi
 @c @include talk.texi
