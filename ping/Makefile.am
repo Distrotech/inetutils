@@ -7,7 +7,7 @@ EXTRA_PROGRAMS = ping
 man_MANS = ping.8
 EXTRA_DIST = $(man_MANS)
 
-LDADD = -L../libinetutils -linetutils -lm -L../libicmp -licmp
+LDADD = -L../libinetutils -linetutils -L../libicmp -licmp
 INCLUDES = -I$(top_srcdir)/libicmp -I$(top_builddir)/include
 
 ping_SOURCES = ping.c \

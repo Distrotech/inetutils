@@ -43,7 +43,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include <math.h>
 #include <limits.h>
 
 #include "getopt.h"
@@ -583,6 +582,25 @@ tvsub (out, in)
 	out->tv_sec -= in->tv_sec;
 }
 
+double
+nsqrt (double a, double prec)
+{
+  double x0, x1;
+  
+  if (a < 0)
+    return 0; 
+  if (a < prec)
+    return 0;
+  x1 = a/2;
+  do
+    {
+      x0 = x1;
+      x1 = (x0 + a/x0) / 2;
+    }
+  while (fabs (x1 - x0) > prec);
+
+  return x1;
+}
 
 int
 echo_finish ()
@@ -596,10 +614,10 @@ echo_finish ()
       double vari = ping_stat->tsumsq / total - avg * avg;
 
       printf ("round-trip min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms\n",
-	     ping_stat->tmin,
-	     avg,
-	     ping_stat->tmax,
-	     sqrt (vari));
+	      ping_stat->tmin,
+	      avg,
+	      ping_stat->tmax,
+	      nsqrt (vari, 0.0005));
     }
   exit (ping->ping_num_recv == 0);
 }
