@@ -106,6 +106,21 @@
 /* Define this if fclose is declared by including <stdio.h>.  */
 #undef HAVE_FCLOSE_DECL
 
+/* Define this if pclose is declared by including <stdio.h>.  */
+#undef HAVE_PCLOSE_DECL
+
+/* Define this if getpass is declared by including <stdlib.h>.  */
+#undef HAVE_GETPASS_DECL
+
+/* Define this if getusershell is declared by including <stdlib.h>.  */
+#undef HAVE_GETUSERSHELL_DECL
+
+/* Define this if strchr is declared by including <stdlib.h> & <string.h>.  */
+#undef HAVE_STRCHR_DECL
+
+/* Define this if strerror is declared by including <stdlib.h> & <string.h>.  */
+#undef HAVE_STRERROR_DECL
+
 /* Define this if <paths.h> exists.  */
 #undef HAVE_PATHS_H
 
@@ -117,6 +132,10 @@
 /* If the fd_set macros (FD_ZERO &c) are defined by including <sys/time.h> (a
    truly bizarre place), define this.  */
 #undef HAVE_FD_SET_MACROS_IN_SYS_TIME_H
+
+/* If <syslog.h> declares special internal stuff when SYSLOG_NAMES is
+   defined, define this.  */
+#undef HAVE_SYSLOG_INTERNAL
 
 /* If EWOULDBLOCK isn't defined by <errno.h>, define it here.  */
 #undef EWOULDBLOCK
@@ -170,6 +189,16 @@ extern void *memmove __P ((void *to, const void *from, size_t sz));
 #ifndef HAVE_MEMSET
 /* Declare our own silly version.  */
 extern void memset __P ((void *mem, int val, size_t sz));
+#endif
+
+/* Define string index ops. */
+#ifndef HAVE_STRCHR_DECL
+extern char *strchr __P ((char *str, int ch));
+extern char *strrchr __P ((char *str, int ch));
+#endif
+#ifndef HAVE_STRCHR
+#define strchr index
+#define strrchr rindex
 #endif
 
 /* Defaults for PATH_ variables.  */
