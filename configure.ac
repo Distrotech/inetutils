@@ -804,7 +804,6 @@ rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile logger/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
 tftpd/Makefile uucpd/Makefile gwhois/Makefile libls/Makefile
-libicmp/Makefile ping/Makefile
 include/confpaths.h:headers/confpaths.h.in
 headers/Makefile
 doc/Makefile doc/rfc/Makefile])
