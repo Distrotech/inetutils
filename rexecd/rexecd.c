@@ -134,7 +134,7 @@ doit(f, fromp)
 	int s;
 	u_short port;
 	int pv[2], pid, cc;
-	fd_set readrom, ready;
+	fd_set readfrom, ready;
 	char buf[BUFSIZ], sig;
 	int one = 1;
 
