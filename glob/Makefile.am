@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 INCLUDES=-I$(top_builddir)/include
 
-noinst_LIBRARIES = @BUILD_LIBGLOB@
+noinst_LIBRARIES = @libglob_BUILD@
 
 EXTRA_LIBRARIES = libglob.a
 
