@@ -130,7 +130,6 @@ AH_BOTTOM(
 #endif
 #endif /* HAVE___P */])
 
-
 ### Checks for libraries.
 AC_CHECK_LIB(bsd, revoke)
 AC_CHECK_LIB(nsl, inet_ntoa)
@@ -317,7 +316,6 @@ dnl you have to define some global variables
 fi
 AC_SUBST(LIBWRAP)
 
-
 ### Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_TIME
@@ -337,7 +335,6 @@ AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
 
 AC_CHECK_HEADER(poll.h, , [INCLUDES="$INCLUDES poll.h"])
 
-
 ### Checks for types.
 dnl Checks return type of signal handlers
 AC_TYPE_SIGNAL
@@ -391,7 +388,6 @@ AC_CHECK_TYPES(cc_t, , ,
   # include <sgtty.h>
   #endif ])
 
-
 ### Checks for structures.
 AC_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
     [ #include <sys/types.h>
@@ -448,7 +444,7 @@ AH_BOTTOM(
 # define ST_BLKSIZE(statbuf) ((statbuf).st_blksize > 0 \
                               ? (statbuf).st_blksize : DEV_BSIZE)
 #endif /* HAVE_STRUCT_STAT_ST_BLKSIZE */])
-
+
 ### Checks for compiler characteristics.
 AM_C_PROTOTYPES dnl FIXME: Does inetutils even compile on pre-ANSI compilers?
 AC_C_CONST
@@ -460,7 +456,6 @@ dnl version programs that automatically adapt -- in inetutils case, to whether
 dnl or not crypt is available.
 IU_CHECK_WEAK_REFS
 
-
 ### Checks for library functions.
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_ALLOCA
