@@ -28,4 +28,4 @@ if test "$ac_cv_lib_des" = yes; then
 fi
 
 AC_OUTPUT(inetd/Makefile libtelnet/Makefile telnetd/Makefile ftpd/Makefile
-	  rshd/Makefile rlogind/Makefile)
+	  rshd/Makefile rlogind/Makefile uucpd/Makefile)
