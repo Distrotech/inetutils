@@ -1,5 +1,8 @@
 Thu Mar 26 00:08:39 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* ftp/ftp_var.h [HAVE_LIBREADLINE]: Declare `char *line' instead
+ 	of `char line[200]'.
+
 	* ftp/Makefile.am (LDADD): Added `$(LIBTERMCAP)'.
 
 	* Makefile.am (SUBDIRS): Added whois.
