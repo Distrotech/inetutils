@@ -1,10 +1,14 @@
+@node logger
+@chapter logger
+@cindex logger
+
 @command{logger} is a program to make entries in the system log files.
 It provides a shell command interface to the system log module.
 @xref{Syslog, , Syslog, libc, The GNU C Library Reference Manual}, for
 details.
 
 The message can contain a priority code, which should be a preceding
-decimal number in angle braces, for example, @code{<5.>} This priority
+decimal number in angle braces, for example, @code{<5>}.  This priority
 code should map into the priorities defined in the include file
 @code{<sys/syslog.h>}.
 

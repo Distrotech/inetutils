@@ -1,3 +1,7 @@
+@node syslogd
+@chapter syslogd
+@cindex syslogd
+
 @command{syslogd} is a system service that provides error logging
 facility.  Messages are read from the @acronym{UNIX} domain socket
 @file{/dev/log}, from an Internet domain socket specified in
