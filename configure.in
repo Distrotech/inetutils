@@ -80,6 +80,7 @@ AC_PROG_MAKE_SET
 
 AC_PROG_CC
 AC_PROG_CPP
+AC_C_CONST
 AC_PROG_INSTALL
 AC_PROG_YACC
 AC_CHECK_TOOL(AR, ar)
@@ -95,7 +96,7 @@ AC_CHECK_HEADERS(malloc.h errno.h string.h stdarg.h termio.h termios.h \
 AC_CHECK_FUNCS(cgetent uname setutent_r fpathconf tcgetattr sigvec sigaction \
 	       flock ftruncate wait3)
 # Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(daemon strdup)
+AC_REPLACE_FUNCS(daemon strdup memmove setenv)
 
 # Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp))
@@ -111,6 +112,10 @@ IU_CHECK_MACRO(__P,
   [ #ifdef HAVE_SYS_CDEFS_H
     #include <sys/cdefs.h>
     #endif ])
+
+AC_CHECK_LIB(nsl, inet_ntoa)
+AC_CHECK_LIB(socket, getpeername)
+AC_FUNC_ALLOCA
 
 # libutil is a 4.4BSD library that defines several functions handy for
 # inetutil daemons, doing such things as utmp frobbing, and pty setup.
