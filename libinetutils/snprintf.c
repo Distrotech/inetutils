@@ -585,7 +585,7 @@ va_list args;
 #ifndef HAVE_SNPRINTF
 
 PUBLIC int
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 snprintf(char *string, size_t length, const char * format, ...)
 #else
 snprintf(string, length, format, va_alist)
@@ -598,7 +598,7 @@ va_dcl
   int rval;
   va_list args;
 
-#ifdef __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start(args, format);
 #else
   va_start(args);
