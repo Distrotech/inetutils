@@ -35,6 +35,10 @@
 static char sccsid[] = "@(#)utility.c	8.4 (Berkeley) 5/30/95";
 #endif /* not lint */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #define PRINTOPTIONS
 #include "telnetd.h"
 
@@ -345,7 +349,7 @@ fatal(f, msg)
 {
 	char buf[BUFSIZ];
 
-	(void) sprintf(buf, "telnetd: %s.\r\n", msg);
+	snprintf (buf, sizeof buf, "telnetd: %s.\r\n", msg);
 #ifdef	ENCRYPTION
 	if (encrypt_output) {
 		/*
@@ -366,9 +370,9 @@ fatalperror(f, msg)
 	int f;
 	char *msg;
 {
-	char buf[BUFSIZ], *strerror();
+	char buf[BUFSIZ];
 
-	(void) sprintf(buf, "%s: %s", msg, strerror(errno));
+	snprintf (buf, sizeof buf, "%s: %s", msg, strerror(errno));
 	fatal(f, buf);
 }
 
@@ -380,7 +384,9 @@ edithost(pat, host)
 	register char *host;
 {
 	register char *res = editedhost;
+#ifndef strncpy
 	char *strncpy();
+#endif
 
 	if (!pat)
 		pat = "";
@@ -449,9 +455,13 @@ putf(cp, where)
 	time_t t;
 	char db[100];
 #ifdef	STREAMSPTY
+#ifndef strchr
 	extern char *strchr();
+#endif
 #else
+#ifndef strrchr
 	extern char *strrchr();
+#endif
 #endif
 
 	putlocation = where;
@@ -522,7 +532,7 @@ printsub(direction, pointer, length)
     register int i;
     char buf[512];
 
-	if (!(diagnostic & TD_OPTIONS))
+        if (!(diagnostic & TD_OPTIONS))
 		return;
 
 	if (direction) {
@@ -713,7 +723,7 @@ printsub(direction, pointer, length)
 		    break;
 		}
 		break;
-
+		
 	    case LM_SLC:
 		sprintf(nfrontp, "SLC");
 		nfrontp += strlen(nfrontp);
@@ -863,7 +873,7 @@ printsub(direction, pointer, length)
 			nfrontp += strlen(nfrontp);
 
 			break;
-
+				
 		    default:
 			sprintf(nfrontp, " %d", pointer[i]);
 			nfrontp += strlen(nfrontp);
@@ -966,7 +976,7 @@ printsub(direction, pointer, length)
 	case TELOPT_AUTHENTICATION:
 	    sprintf(nfrontp, "AUTHENTICATION");
 	    nfrontp += strlen(nfrontp);
-
+	
 	    if (length < 2) {
 		sprintf(nfrontp, " (empty suboption??\?)");
 		nfrontp += strlen(nfrontp);
@@ -1134,9 +1144,9 @@ printsub(direction, pointer, length)
 
 	default:
 	    if (TELOPT_OK(pointer[0]))
-		sprintf(nfrontp, "%s (unknown)", TELOPT(pointer[0]));
+	        sprintf(nfrontp, "%s (unknown)", TELOPT(pointer[0]));
 	    else
-		sprintf(nfrontp, "%d (unknown)", pointer[i]);
+	        sprintf(nfrontp, "%d (unknown)", pointer[i]);
 	    nfrontp += strlen(nfrontp);
 	    for (i = 1; i < length; i++) {
 		sprintf(nfrontp, " %d", pointer[i]);
@@ -1171,13 +1181,13 @@ printdata(tag, ptr, cnt)
 		nfrontp += strlen(nfrontp);
 		for (i = 0; i < 20 && cnt; i++) {
 			sprintf(nfrontp, "%02x", *ptr);
-			nfrontp += strlen(nfrontp);
+			nfrontp += strlen(nfrontp); 
 			if (isprint(*ptr)) {
 				xbuf[i] = *ptr;
 			} else {
 				xbuf[i] = '.';
 			}
-			if (i % 2) {
+			if (i % 2) { 
 				*nfrontp = ' ';
 				nfrontp++;
 			}
@@ -1187,6 +1197,6 @@ printdata(tag, ptr, cnt)
 		xbuf[i] = '\0';
 		sprintf(nfrontp, " %s\r\n", xbuf );
 		nfrontp += strlen(nfrontp);
-	}
+	} 
 }
 #endif /* DIAGNOSTICS */
