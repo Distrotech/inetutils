@@ -165,20 +165,21 @@ print_mesg(tty, tf, request, remote_machine)
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
-	(void)sprintf(line_buf[i], "Message from Talk_Daemon@%s at %d:%02d ...",
+	snprintf (line_buf[i], sizeof line_buf[i],
+			 "Message from Talk_Daemon@%s at %d:%02d ...",
 	hostname, localclock->tm_hour , localclock->tm_min );
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
 	vis_user = malloc(strlen(request->l_name) * 4 + 1);
 	strvis(vis_user, request->l_name, VIS_CSTYLE);
-	(void)sprintf(line_buf[i], "talk: connection requested by %s@%s",
-		vis_user, remote_machine);
+	snprintf (line_buf[i], sizeof line_buf[i],
+			  "talk: connection requested by %s@%s", vis_user, remote_machine);
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
-	(void)sprintf(line_buf[i], "talk: respond with:  talk %s@%s",
-		vis_user, remote_machine);
+	snprintf (line_buf[i], sizeof line_buf[i],
+			  "talk: respond with:  talk %s@%s", vis_user, remote_machine);
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
