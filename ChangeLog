@@ -1,3 +1,28 @@
+2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* confpaths.h.in: New file.
+
+	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
+	(SUBDIRS): Added lib.
+
+	* configure.ac: Moved AC_PROG_CC check up a bit eariler and added
+	gl_EARLY directly after it.  Call gl_MODULES and gl_INIT after
+	inital program checks.  Removed all usage of AC_LIBOBJ.  Don't
+	check for herror, strcasecmp, strsignal, waitpid, and revoke.
+	Removed all references to LINK_POLL_H and LINK_SYSLOG_INIT_H.
+	Removed checks for verrx, __progname, login, logout, logwtmp,
+	openpty, forkpty, ruserok, iruserok, and login_tty.  Removed check
+	for libutil.
+
+	* configure.ac: Use <confpaths.h> instead of
+	<include/confpaths.h>.
+	(AC_CONFIG_FILES): Added lib/Makefile.  Changed
+	`include/confpaths.h:headers/confpaths.h.in' to
+	`confpaths.h:confpaths.h.in'.
+	
+	* acinclude.m4 (IU_CONFIG_LINKS): Function removed.
+	* configure.ac: Removed all references to IU_CONFIG_LINKS.
+
 2004-12-28  Alfred M. Szmidt  <ams@gnu.org>
 
 	* NEWS: Added news entries for 1.4.3.  Based on suggestions from

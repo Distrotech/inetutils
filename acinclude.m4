@@ -1,6 +1,6 @@
 dnl Autoconf macros used by inetutils
 dnl
-dnl Copyright (C) 1996, 1997, 1998, 2002, 2004 Free Software Foundation, Inc.
+dnl Copyright (C) 1996, 1997, 1998, 2002, 2004, 2005 Free Software Foundation, Inc.
 dnl
 dnl Mostly written by Miles Bader <miles@gnu.ai.mit.edu>
 dnl
@@ -675,8 +675,3 @@ AC_DEFUN([IU_CHECK_MEMBERS],
 $2],
                  [$3],
                  [$4])])])
-
-AC_DEFUN([IU_CONFIG_LINKS],
- [m4_foreach([AC_Header], [$1],
-   [AC_CONFIG_LINKS([include/]AC_Header:[headers/]AC_Header)])])
-

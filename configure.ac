@@ -1,6 +1,6 @@
 # Configuration for inetutils
 #
-# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005 Free Software Foundation, Inc.
 #
 # Written by Miles Bader <miles@gnu.ai.mit.edu>
 #
@@ -29,11 +29,6 @@ AC_CANONICAL_SYSTEM # FIXME: Why not just _HOST?
 
 # config.h turns this on, so make sure it's on for our tests too
 #CPPFLAGS=-D_BSD_SOURCE
-
-# Include files that we link into our own include directory from headers.
-# Initialize it with the things we always want to use.
-IU_CONFIG_LINKS([crypt.h, arpa/telnet.h, arpa/ftp.h, arpa/tftp.h,
-                 protocols/talkd.h, tftpsubs.h])
 
 dnl For now, we always use libexecdir; later we may want to vary where the
 dnl daemons go.
@@ -87,17 +82,22 @@ IU_ENABLE_CLIENT(ifconfig)
 AM_INIT_AUTOMAKE
 
 ### Checks for programs.
+AC_PROG_CC
+gl_EARLY
 AC_AIX
 AC_CHECK_TOOL(AR, ar)
 AC_ISC_POSIX
 AC_MINIX
 AC_PATH_PROG(RM, rm, rm)
-AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_YACC
+
+dnl For gnulib
+gl_MODULES(xalloc snprintf obstack memcpy getpass getopt memset strerror malloc poll memcmp strdup realloc getusershell memmove setenv xgetcwd argp regex unlocked-io readutmp error)
+gl_INIT
 
 dnl __P is the standard name for the ansi-or-not-ansi arg-decl macro.
 dnl We define our own version in <config.h> if the system doesn't supply one.
@@ -131,14 +131,6 @@ AC_CHECK_LIB(z, gzdopen)
 
 # See if a termcap library is available (under one of several names)
 IU_LIB_TERMCAP
-# If not, add a bogus version of tgetent to libinetutils, as that's the only
-# function actually used (to check terminal type validity), modulo any
-# dependencies from curses.
-if test -z "$LIBTERMCAP"; then
-  # Some packages include termcap just ;
-  # for those cases, we really don't need termcap.
-  AC_LIBOBJ(stub_tgetent)
-fi
 
 # We want to use libreadline if it is available.  However, it seems that the
 # guile hackers have had problems because there is a Solaris libreadline
@@ -335,8 +327,7 @@ dnl We may need our own definition for struct osockaddr (equivalent to the
 dnl old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
 AC_CHECK_TYPE(struct osockaddr, ,
               [AC_DEFINE(HAVE_OSOCKADDR_H, 1,
-                         [Define to one if you have <osockaddr.h>.])
-               IU_CONFIG_LINKS(osockaddr.h)],
+                         [Define to one if you have <osockaddr.h>.])],
 	      [#include <sys/types.h>
                #include <sys/socket.h> ])
 
@@ -484,16 +475,9 @@ AH_BOTTOM(
 #define bzero(x,z) memset(x,0,z)
 #endif])
 
-dnl Functions that we will define (in libinetutils) if necessary.
-AC_REPLACE_FUNCS(getpass getusershell herror memcmp memcpy memmove memset \
-	         setenv strdup strcasecmp strsignal waitpid poll)
-
-dnl Look for the functions typically defined by libutil (which of course may
-dnl not actually be in libutil), and and use our own versions if necesary.
-_SAVE_LIBS="$LIBS"
-LIBS="$LIBUTIL $LIBS"
-AC_REPLACE_FUNCS(login logout logwtmp openpty forkpty ruserok iruserok login_tty)
-LIBS="$_SAVE_LIBS"
+dnl Functions that we will define if necessary.
+AC_REPLACE_FUNCS(getpass getusershell memcmp memcpy memmove memset \
+	         setenv strdup poll)
 
 dnl Look for the crypt function itself (in libcrypt if possible)
 _SAVE_LIBS="$LIBS"
@@ -521,15 +505,9 @@ AH_BOTTOM(
 extern void memset __P ((void *mem, int val, size_t sz));
 #endif])
 
-dnl FIXME: I don't understand this.
-dnl If revoke hasn't been defined yet, just define a dummy version
-AC_REPLACE_FUNCS(revoke)
-
 jm_INCLUDED_REGEX(libinetutils/regex.c)
 
-AC_CHECK_FUNC(_obstack_free, ,
-  [AC_LIBOBJ(obstack)
-   IU_CONFIG_LINKS(obstack.h)])
+AC_CHECK_FUNC(_obstack_free)
 
 dnl Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp,
@@ -537,43 +515,22 @@ AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp,
 
 dnl We use our own version of getopt (including our own header file) if the
 dnl system one doesn't have getopt_long.
-AC_CHECK_FUNC(getopt_long, ,
-  [AC_LIBOBJ(getopt)
-   AC_LIBOBJ(getopt1)
-   IU_CONFIG_LINKS(getopt.h)])
+AC_CHECK_FUNC(getopt_long)
 
-AC_CHECK_HEADER(poll.h, , [LINK_POLL_H=yes])
+AC_CHECK_HEADER(poll.h)
 
 dnl Supply a version of poll() if the libray is missing.
 dnl syslogd uses poll() unconditionnaly.
 AC_CHECK_FUNC(poll, ,
-  [AC_DEFINE(HAVE_POLL_H, 1, [Define to one if you have <poll.h>])
-   AC_LIBOBJ(poll)
-   LINK_POLL_H=yes])
-
-if test "$LINK_POLL_H" = "yes"; then
-  IU_CONFIG_LINKS(poll.h)
-fi
-
-dnl Supply versions of the BSD error reporting functions if the system doesn't
-AC_CHECK_FUNC(verrx, ,
-  [AC_LIBOBJ(err)
-   IU_CONFIG_LINKS(err.h)])
-
-dnl See if the __PROGNAME variable is defined, otherwise use our own.
-AC_CHECK_FUNC(__progname,
-  [AC_DEFINE(HAVE___PROGNAME, 1, [Define to one if you have __progname])],
-  [AC_LIBOBJ(__progname)])
+  [AC_DEFINE(HAVE_POLL_H, 1, [Define to one if you have <poll.h>])])
 
 dnl See if snprintf exists, otherwise just use a bogus version
 AC_CHECK_FUNC(snprintf,
-  [AC_DEFINE(HAVE_SNPRINTF, 1, [Define to one if you have snprintf])],
-  [AC_LIBOBJ(snprintf)])
+  [AC_DEFINE(HAVE_SNPRINTF, 1, [Define to one if you have snprintf])])
 
 dnl See if vsnprintf exists, otherwise use our own.
 AC_CHECK_FUNC(vsnprintf,
-  [AC_DEFINE(HAVE_VSNPRINTF, 1, [Define to one if you have vsnprintf])],
-  [AC_LIBOBJ(snprintf)])
+  [AC_DEFINE(HAVE_VSNPRINTF, 1, [Define to one if you have vsnprintf])])
 
 AH_BOTTOM(
 [#ifndef HAVE_VSNPRINTF
@@ -587,7 +544,7 @@ extern int vsnprintf __P ((char *, size_t, const char *, va_list));
 #endif])
 
 dnl See if the system has strerror, and replace it if not
-AC_CHECK_FUNC(strerror, , [AC_LIBOBJ(strerror)])
+AC_CHECK_FUNC(strerror)
 if test "$ac_cv_func_strerror" = no; then
   # No strerror, so see if the SYS_ERRLIST variable can be used by ours
   AC_CHECK_FUNC(sys_errlist, AC_DEFINE(HAVE_SYS_ERRLIST, 1,
@@ -602,7 +559,7 @@ if test "$ac_cv_func_strerror" = no; then
 fi
 
 dnl See if the system has hstrerror, and replace it if not
-AC_CHECK_FUNC(hstrerror, , [AC_LIBOBJ(hstrerror)])
+AC_CHECK_FUNC(hstrerror)
 if test "$ac_cv_func_hstrerror" = yes; then
   AC_CHECK_DECL(hstrerror, , , [#include <netdb.h>])
 else
@@ -648,16 +605,9 @@ IU_CHECK_MACRO(syslog internal macros,
   [LOG_MAKEPRI LOG_PRI LOG_FAC],
   AC_CHECK_TYPE(CODE,
     AC_CHECK_DECL(prioritynames,
-      AC_DEFINE(HAVE_SYSLOG_INTERNAL, 1, [FIXME]),
-      LINK_SYSLOG_INT_H=yes,
-      iu_syslog_includes),
-    LINK_SYSLOG_INT_H=yes, iu_syslog_includes),
-  LINK_SYSLOG_INT_H=yes)
+      AC_DEFINE(HAVE_SYSLOG_INTERNAL, 1, [FIXME]),,
+      iu_syslog_includes), , iu_syslog_includes),)
 undefine([iu_syslog_includes])
-
-if test "$LINK_SYSLOG_INT_H" = "yes"; then
-  IU_CONFIG_LINKS(syslog-int.h)
-fi
 
 dnl Some systems don't declare common functions (especially if they return
 dnl int), at least in the expected header file.  Check.
@@ -773,7 +723,7 @@ PATHS_DEFS=paths.defs
 IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
 AH_BOTTOM(
 [/* Defaults for PATH_ variables.  */
-#include <include/confpaths.h>])
+#include <confpaths.h>])
 
 dnl Ok this is the end of the rope, even autoconf can't help.
 dnl For example on certain system login(1) will not work if we
@@ -791,14 +741,15 @@ case "$host" in
   ;;
 esac
 
-AC_CONFIG_FILES([Makefile libinetutils/Makefile libtelnet/Makefile glob/Makefile
+AC_CONFIG_FILES([Makefile lib/Makefile
+libinetutils/Makefile libtelnet/Makefile glob/Makefile
 libicmp/Makefile ping/Makefile ftp/Makefile ftpd/Makefile inetd/Makefile
 rcp/Makefile
 rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile logger/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
 tftpd/Makefile uucpd/Makefile gwhois/Makefile libls/Makefile
-include/confpaths.h:headers/confpaths.h.in
+confpaths.h:confpaths.h.in
 headers/Makefile
 doc/Makefile doc/rfc/Makefile])
 AC_OUTPUT
