@@ -366,7 +366,6 @@
 #undef HAVE_STREAMSPTY
 
 /* Certain system must have an entry in utmpx before login work.  */
-#undef HAVE_UTMPX_H
 #undef UTMPX
 
 /*  For feature PAM.  */
@@ -379,6 +378,9 @@
 /* Define if you want internal ls(libls.a).  */
 #undef WITH_LIBLS
 
+#undef HAVE_CC_T
+
+#undef HAVE_LIBREADLINE
 
 @BOTTOM@
 
