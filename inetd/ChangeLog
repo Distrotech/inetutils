@@ -1,3 +1,7 @@
+2001-08-26  Sergey Poznyakoff
+
+	* inetd.c: Fixed memory overrun in main.
+
 2001-08-26  Alain Magloire
 
 	The idea is to provide an easy way to add services without

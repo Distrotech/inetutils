@@ -349,7 +349,7 @@ main (int argc, char *argv[], char *envp[])
     }
   else
     {
-      config_files = calloc (1, sizeof (*config_files));
+      config_files = calloc (2, sizeof (*config_files)); 
       config_files[0] = newstr (PATH_INETDCONF);
       config_files[1] = newstr (PATH_INETDDIR);
     }
