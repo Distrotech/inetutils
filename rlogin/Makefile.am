@@ -10,7 +10,7 @@ rlogin_SOURCES = rlogin.c
 
 man_MANS = rlogin.1
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)
 

@@ -12,7 +12,7 @@ man_MANS = rsh.1
 
 INCLUDES = $(PATHDEF_RLOGIN) -I$(top_builddir)/include
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)
 

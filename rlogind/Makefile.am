@@ -16,6 +16,6 @@ INCLUDES = $(PATHDEF_DEV) $(PATHDEF_LOGIN) -I$(top_builddir)/include
 
 LIBUTIL = @LIBUTIL@
 
-LDADD = -L../libinetutils -linetutils $(LIBUTIL)
+LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)

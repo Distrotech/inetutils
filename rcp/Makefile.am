@@ -14,7 +14,7 @@ man_MANS = rcp.1
 
 INCLUDES = $(PATHDEF_RSH) $(PATHDEF_CP) $(PATHDEF_BSHELL) -I$(top_builddir)/include
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)
 
