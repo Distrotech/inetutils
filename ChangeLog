@@ -1,4 +1,12 @@
-2001-08-25  Alaian Magloire
+2001-08-26  Alain Magloire
+
+	Marco D'Itri whois is much more complete then the original
+	one provided by Joel N. Weber II (devnull).  So it is enable.
+
+	* configure.in: use gwhois instead whois
+	* Makefile.am: SUBDIRS have gwhois instead of whois.
+
+2001-08-25  Alain Magloire
 
 	* configure.in: AC_ARG_ENABLE(libls ..) libls will not work
 	on all platforms, make it possible to disable it.
