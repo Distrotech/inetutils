@@ -1,5 +1,10 @@
 Tue Mar 24 11:46:55 1998  Joel N. Weber II  <nemo@koa.iolani.honolulu.hi.us>
 
+	* rlogind/Makefile.am (INCLUDES): Added `$(PATHDEF_DEV)
+ 	$(PATHDEF_LOGIN)'.
+	
+	Added a line reading `@PATHDEFS_MAKE@'.
+
 	* rexecd/Makefile.am (INCLUDES): Added `$(PATHDEF_DEFPATH)
  	$(PATHDEF_BSHELL)'.
 	
