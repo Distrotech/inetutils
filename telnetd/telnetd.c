@@ -45,6 +45,8 @@ static char sccsid[] = "@(#)telnetd.c	8.4 (Berkeley) 5/30/95";
 #include <config.h>
 #endif
 
+/* Assume that is HAVE_PTSNAME is set we can use SYSVR4 pseudo tty facility */
+#ifdef
 #include "telnetd.h"
 
 #if	defined(_SC_CRAY_SECURE_SYS) && !defined(SCM_SECURITY)

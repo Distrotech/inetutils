@@ -1,4 +1,8 @@
-1999-17-02 Alain Magloire
+1999-05-19 Alain Magloire
+	* telnetd.h: If HAVE_PTSNAME is defined, we assume that the
+	platform can handle SYSVR4 pseudo ttys and define STREAMSPTY.
+
+1999-02-17 Alain Magloire
 
 	* rexecd.c : check HAVE_SOCKADDR_IN_SIN_LEN before
 	doing static initialization.

@@ -33,6 +33,10 @@
  *	@(#)telnetd.h	8.1 (Berkeley) 6/4/93
  */
 
+/* Assume that is HAVE_PTSNAME is set we can use SYSVR4 pseudo tty facility */
+#ifdef HAVE_PTSNAME
+# define STREAMSPTY
+#endif
 
 #include "defs.h"
 #include "ext.h"
