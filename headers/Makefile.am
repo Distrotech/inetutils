@@ -1,5 +1,5 @@
 EXTRA_DIST = crypt.h err.h getopt.h osockaddr.h paths.h syslog-int.h \
-	tftpsubs.h version.h.in
+	tftpsubs.h version.h.in confpaths.h.in
 
 dist-hook:
 	mkdir $(distdir)/arpa
