@@ -1,8 +1,6 @@
-/* ifconfig.h
+/* if_index.h
 
    Copyright (C) 2001 Free Software Foundation, Inc.
-
-   Written by Marcus Brinkmann.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -19,15 +17,19 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#ifndef IFCONFIG_IFCONFIG_H
-#define IFCONFIG_IFCONFIG_H
+#ifndef IF_INDEX_H
+#define IF_INDEX_H
 
-#include "flags.h"
-#include "if_index.h"
-#include "options.h"
-#include "printif.h"
-#include "system.h"
-/* XXX */
-extern int configure_if (int sfd, struct ifconfig *ifp);
+#ifndef HAVE_STRUCT_IF_NAMEINDEX
+struct if_nameindex
+{
+  char *if_name;
+  int if_index;
+};
+extern unsigned int if_nametoindex (const char *ifname);
+extern char *if_indextoname (unsigned int ifindex, char *ifname);
+extern struct if_nameindex *if_nameindex (void);
+extern void if_freenameindex (struct if_nameindex *ptr);
+#endif
 
 #endif

@@ -107,8 +107,8 @@ print_hwaddr_rose (format_data_t form, unsigned char *data)
 
 struct arphrd_symbol
 {
-  char *name;
-  char *title;
+  const char *name;
+  const char *title;
   int value;
   void (*print_hwaddr) (format_data_t form, unsigned char *data);
 } arphrd_symbols[] =
@@ -282,7 +282,7 @@ arphrd_findvalue (int value)
 
 /* Output format stuff.  */
 
-char *system_default_format = "net-tools";
+const char *system_default_format = "net-tools";
 
 void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])
 {
@@ -394,12 +394,12 @@ system_fh_txqlen (format_data_t form, int argc, char *argv[])
 
 /* Argument parsing stuff.  */
 
-char *system_help = "\
+const char *system_help = "\
   NAME [ADDR] [broadcast BRDADDR]\n\
   [pointopoint|dstaddr DSTADDR] [netmask MASK]\n\
   [metric N] [mtu N] [txqueuelen N]";
 
-char *system_help_options =
+const char *system_help_options =
 "      --txqlen N        Set transmit queue length to N";
 
 void

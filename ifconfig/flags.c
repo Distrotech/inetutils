@@ -31,6 +31,7 @@
 # include <strings.h>
 #endif
 
+#include <sys/socket.h>
 #include <net/if.h>
 #include "ifconfig.h"
 
@@ -38,7 +39,7 @@
    The mask must be a power of 2.  */
 struct if_flag
 {
-  char *name;
+  const char *name;
   int mask;
 } if_flags[] =
 {
@@ -236,11 +237,11 @@ struct if_flag
    that should be avoided if alternative names with the same flag value
    exists.  The first unavoided match is returned, or the first avoided
    match if no better is available.  */
-char *
-if_flagtoname (int flag, char *avoid)
+const char *
+if_flagtoname (int flag, const char *avoid)
 {
   struct if_flag *fp = if_flags;
-  char *first_match = NULL;
+  const char *first_match = NULL;
   char *start;
 
   while (fp->name)
@@ -275,7 +276,7 @@ if_flagtoname (int flag, char *avoid)
 /* Return the flag mask corresponding to flag name NAME.  If no flag
    with this name is found, return 0.  */
 int
-if_nametoflag (char *name)
+if_nametoflag (const char *name)
 {
   struct if_flag *fp = if_flags;
 
@@ -289,10 +290,10 @@ if_nametoflag (char *name)
    SEPERATOR between individual flags.  Returns the number of
    characters printed.  */
 int
-print_if_flags (int flags, char *avoid, char seperator)
+print_if_flags (int flags, const char *avoid, char seperator)
 {
   int f = 1;
-  char *name;
+  const char *name;
   int first = 1;
   int length = 0;
 

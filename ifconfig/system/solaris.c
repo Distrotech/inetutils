@@ -59,16 +59,16 @@
 
 /* Output format stuff.  */
 
-char *system_default_format = "unix";
+const char *system_default_format = "unix";
 
 
 /* Argument parsing stuff.  */
 
-char *system_help = "\
+const char *system_help = "\
   NAME [ADDR [DSTADDR]] [broadcast BRDADDR]\n\
   [netmask MASK] [metric N] [mtu N]";
 
-char *system_help_options;
+const char *system_help_options;
 
 int
 system_parse_opt(struct ifconfig **ifp, char option, char *optarg)
@@ -167,4 +167,34 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
     usage (EXIT_FAILURE);
 
   return 1;
+}
+
+int
+system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
+{
+#ifdef IF_VALID_TXQLEN
+  if (ifs->valid & IF_VALID_TXQLEN)
+    {
+#ifndef SIOCSIFTXQLEN
+      printf ("%s: Don't know how to set the txqlen on this system.\n",
+	      __progname);
+      return -1;
+#else
+      int err = 0;
+
+      ifr->ifr_qlen = ifs->txqlen;
+      err = ioctl (sfd, SIOCSIFTXQLEN, ifr);
+      if (err < 0)
+	{
+	  fprintf (stderr, "%s: SIOCSIFTXQLEN failed: %s\n",
+		   __progname, strerror (errno));
+	  return -1;
+	}
+      if (verbose)
+	printf ("Set txqlen value of `%s' to `%i'.\n",
+		ifr->ifr_name, ifr->ifr_qlen);
+#endif
+    }
+  return 0;
+#endif
 }

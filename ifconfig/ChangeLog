@@ -1,3 +1,25 @@
+2001-06-04  Alain Magloire
+
+	After patches and feedback From Sergey and Marcus.
+
+	* ifconfig/if_index.h: New file, prototypes for if_nameindex().
+	* ifconfig/if_index.c: New version base on the one in GLIBC.
+	* ifconfig/Makefile.am: Added if_index.c unconditionnaly.
+	* ifconfig/changeif.c(configure_if): memset(0) ifr, it helps debugging.
+	* ifconfig/flags.c: const consistencies.
+	* ifconfig/ifconfig.h: include if_index.h
+	* ifconfig/options.c: Defined SYSTEM_SHORT_OPTIONS SYSTEM_LONG_OPTIONS.
+	* ifconfig/options.h: const consistencies.
+	* ifconfig/printif.c: const consistencies.
+	* ifconfig/printif.h: const consistencies.
+	Check for HAVE_IFREQ_IFR_INDEX HAVE_IFREQ_IFR_NETMASK
+	HAVE_IFREQ_IFR_BROADADDR.
+	* ifconfig/system.c: Use marcor processor #elif for clarity.
+	* ifconfig/system.h: const consistencies.
+	* ifconfig/system/qnx.c: New file.
+	* ifconfig/system/qnx.h: New file.
+	* ifconfig/system/solaris.c: Define system_configure.
+
 2001-06-04  Marcus Brinkmann  <marcus@gnu.org>
 
 	* options.c (long_options): Only add SYSTEM_LONG_OPTIONS

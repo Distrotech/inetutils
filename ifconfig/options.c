@@ -3,7 +3,7 @@
    Copyright (C) 2001 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
-  
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2
@@ -43,8 +43,16 @@
 # include <strings.h>
 #endif
 
+#include <sys/socket.h>
 #include <net/if.h>
 #include "ifconfig.h"
+
+#ifndef SYSTEM_SHORT_OPTIONS
+# define SYSTEM_SHORT_OPTIONS
+#endif
+#ifndef SYSTEM_LONG_OPTIONS
+# define SYSTEM_LONG_OPTIONS
+#endif
 
 /* Be verbose about actions.  */
 int verbose;
@@ -90,7 +98,7 @@ struct format formats[] =
     "${exists?}{txqlen?}{${txqlen?}{  tx queue len ${tab}{16}${txqlen}${\\n}}}"
   },
   /* Resembles the output of ifconfig 1.39 (1999-03-19) in net-tools 1.52.  */
-  { 
+  {
     "net-tools",
     "${format}{check-existance}" \
     "${name}${exists?}{hwtype?}{${hwtype?}{${tab}{10}Link encap:${hwtype}}" \
@@ -108,7 +116,7 @@ struct format formats[] =
   },
   /* Resembles the output of ifconfig shipped with unix systems like
      Solaris 2.7 or HPUX 10.20.  */
-  { 
+  {
     "unix",
     "${format}{check-existance}" \
     "${name}: flags=${flags}{number}<${flags}{string}{,}>" \
@@ -121,7 +129,7 @@ struct format formats[] =
     "}${exists?}{hwaddr?}{${hwaddr?}{ ${hwaddr}}}${\\n}}"
   },
   /* Resembles the output of ifconfig shipped with OSF 4.0g.  */
-  { 
+  {
     "osf",
     "${format}{check-existance}" \
     "${name}: flags=${flags}{number}{%x}<${flags}{string}{,}>${\\n}" \
@@ -132,7 +140,7 @@ struct format formats[] =
     "${mtu?}{ ipmtu ${mtu}}${\\n}}"
   },
   /* If interface does not exist, print error message and exit. */
-  { 
+  {
     "check-existance",
     "${index?}{}" \
     "{${error}{${progname}: error: interface `${name}' does not exist${\\n}}" \
@@ -142,7 +150,7 @@ struct format formats[] =
 };
 
 /* Default format.  */
-char *default_format;
+const char *default_format;
 
 /* The "+" is necessary to avoid parsing of system specific pseudo options
    like `-promisc'.  */
@@ -312,10 +320,10 @@ parse_opt_set_af (struct ifconfig *ifp, char *af)
 }
 
 void
-parse_opt_set_default_format (char *new_format)
+parse_opt_set_default_format (const char *new_format)
 {
   struct format *frm = formats;
-  char *format = new_format;
+  const char *format = new_format;
 
   if (! format)
     format = system_default_format ?
@@ -432,7 +440,6 @@ parse_opt (int argc, char *argv[])
 	usage (EXIT_FAILURE);
       parse_opt_finalize (ifp);
     }
-
   if (!ifs)
     {
       /* No interfaces specified.  Get a list of all interfaces.  */

@@ -3,7 +3,7 @@
    Copyright (C) 2001 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
-    
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
    as published by the Free Software Foundation; either version 2
@@ -206,6 +206,7 @@ configure_if (int sfd, struct ifconfig *ifp)
   int err = 0;
   struct ifreq ifr;
 
+  memset (&ifr, 0, sizeof (ifr));
   strncpy (ifr.ifr_name, ifp->name, IFNAMSIZ);
   ifr.ifr_name[IFNAMSIZ - 1] = '\0';
 

@@ -57,14 +57,14 @@
 
 /* Output format stuff.  */
 
-char *system_default_format "unix";
+const char *system_default_format "unix";
 
-char *system_help_options;
+const char *system_help_options;
 
 
 /* Argument parsing stuff.  */
 
-char *system_help = "\
+const char *system_help = "\
   NAME [AF]
 or
   NAME AF [ADDR [DSTADDR]] [broadcast BRDADDR]\n\

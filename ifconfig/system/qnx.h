@@ -1,4 +1,4 @@
-/* ifconfig.h
+/* solaris.h
 
    Copyright (C) 2001 Free Software Foundation, Inc.
 
@@ -19,15 +19,33 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#ifndef IFCONFIG_IFCONFIG_H
-#define IFCONFIG_IFCONFIG_H
+#ifndef IFCONFIG_SYSTEM_SOLARIS_H
+#define IFCONFIG_SYSTEM_SOLARIS_H
 
-#include "flags.h"
-#include "if_index.h"
-#include "options.h"
-#include "printif.h"
-#include "system.h"
-/* XXX */
-extern int configure_if (int sfd, struct ifconfig *ifp);
+#include "../printif.h"
+#include "../options.h"
+#include <sys/sockio.h>
+
+
+
+#define ifr_netmask ifr_addr
+
+
+/* Option support.  */
+
+struct system_ifconfig
+{
+  int valid;
+};
+
+
+/* Output format support.  */
+void qfh_netmask (format_data_t form, int argc, char *argv[]);
+void qfh_brdaddr (format_data_t form, int argc, char *argv[]);
+
+#define SYSTEM_FORMAT_HANDLER \
+  {"qnx", fh_nothing}, \
+  {"netmask?", qfh_netmask}, \
+  {"broadcast?", qfh_brdaddr},
 
 #endif

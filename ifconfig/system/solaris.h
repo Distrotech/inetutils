@@ -24,6 +24,7 @@
 
 #include "../printif.h"
 #include "../options.h"
+#include <sys/sockio.h>
 
 
 /* XXX: Gross. Have autoconf check and put in system.h or so.

@@ -121,7 +121,7 @@ put_char (format_data_t form, char c)
    column.  Of course, terminal behaviour can defeat this.  We should
    provide a handler to switch on/off column counting.  */
 void
-put_string (format_data_t form, char *s)
+put_string (format_data_t form, const char *s)
 {
   while (*s != '\0')
     put_char (form, *(s++));
@@ -179,7 +179,7 @@ put_int (format_data_t form, int argc, char *argv[], int nr)
   *column += printf (fmt, nr);
   had_output = 1;
 }
-  
+
 void
 select_arg (format_data_t form, int argc, char *argv[], int nr)
 {
@@ -227,9 +227,9 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
 {
   /* XXX */
   short int f = 1;
-  char *name;
+  const char *name;
   int first = 1;
-  
+
   while (flags && f)
     {
       if (f & flags)
@@ -267,7 +267,7 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
 /* Format handler can mangle form->format, so update it after calling
    here.  */
 void
-format_handler (char *name, format_data_t form, int argc, char *argv[])
+format_handler (const char *name, format_data_t form, int argc, char *argv[])
 {
   struct format_handle *fh;
   fh = format_handles;
@@ -373,7 +373,7 @@ fh_exists_query (format_data_t form, int argc, char *argv[])
       select_arg (form, argc, argv, (fh->name != NULL) ? 1 : 2);
     }
 }
-    
+
 void
 fh_format (format_data_t form, int argc, char *argv[])
 {
@@ -385,7 +385,7 @@ fh_format (format_data_t form, int argc, char *argv[])
 
       while (frm->name && strcmp (argv[i], frm->name))
 	frm++;
-      
+
       if (frm->name)
 	{
 	  /* XXX: Avoid infinite recursion by appending name to a list
@@ -405,7 +405,7 @@ fh_error (format_data_t form, int argc, char *argv[])
   int i = 0;
   FILE *s = ostream;
   int *c = column;
-  
+
   ostream = stderr;
   column = &column_stderr;
   while (i < argc)
@@ -447,15 +447,15 @@ fh_index_query (format_data_t form, int argc, char *argv[])
 void
 fh_index (format_data_t form, int argc, char *argv[])
 {
-  int index = if_nametoindex (form->name);
-  
-  if (index == 0)
+  int indx = if_nametoindex (form->name);
+
+  if (indx == 0)
     {
       fprintf (stderr, "%s: No index number found for interface `%s': %s\n",
 	       __progname, form->name, strerror (errno));
       exit (EXIT_FAILURE);
     }
-  *column += printf ("%i", index);
+  *column += printf ("%i", indx);
   had_output = 1;
 }
 
@@ -697,8 +697,8 @@ fh_flags (format_data_t form, int argc, char *argv[])
 void
 print_interfaceX (format_data_t form, int quiet)
 {
-  char *p = form->format;
-  char *q;
+  const char *p = form->format;
+  const char *q;
 
   form->depth++;
 
@@ -729,7 +729,7 @@ print_interfaceX (format_data_t form, int quiet)
 	  p++;
 	  continue;
 	  /* Not reached.  */
-	  
+
 	case '{':
 	  p++;
 	  break;
@@ -774,7 +774,7 @@ print_interfaceX (format_data_t form, int quiet)
 	    {
 	      int argc = 0;
 	      char *argv[strlen (q) / 2];
-	      
+
 	      while (*p == '{')
 		{
 		  p++;
@@ -789,9 +789,9 @@ print_interfaceX (format_data_t form, int quiet)
 		  p = q;
 		  argc++;
 		}
-	      
+
 	      format_handler (id, form, argc, argv);
-	      
+
 	      /* Clean up.  */
 	      form->format = p;
 	      while (--argc >= 0)
@@ -802,10 +802,11 @@ print_interfaceX (format_data_t form, int quiet)
 
   form->format = p;
   form->depth--;
-}  
+}
 
 void
-print_interface (int sfd, char *name, struct ifreq *ifr, char *format)
+print_interface (int sfd, const char *name, struct ifreq *ifr,
+		 const char *format)
 {
   struct format_data form;
   static int first_passed_already;
@@ -826,4 +827,3 @@ print_interface (int sfd, char *name, struct ifreq *ifr, char *format)
 
   print_interfaceX (&form, 0);
 }
-

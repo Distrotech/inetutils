@@ -57,18 +57,18 @@
 
 /* Output format stuff.  */
 
-char *system_default_format "osf"
+const char *system_default_format "osf"
 
 
 /* Argument parsing stuff.  */
 
-char *system_help = "\
+const char *system_help = "\
   NAME [AF]
 or
   NAME AF [ADDR [DSTADDR]] [broadcast BRDADDR]\n\
   [netmask MASK] [metric N]";
 
-char *system_help_options;
+const char *system_help_options;
 
 int
 system_parse_opt(struct ifconfig **ifp, char option, char *optarg)

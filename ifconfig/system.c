@@ -1,13 +1,11 @@
-#ifdef __linux__
-#include "system/linux.c"
+#if defined(__linux__)
+# include "system/linux.c"
+#elif defined(__sun__)
+# include "system/solaris.c"
+#elif defined(__hpux__)
+# include "system/hpux.c"
+#elif defined(__QNXNTO__)
+# include "system/qnx.c"
 #else
-#ifdef __sun__
-#include "system/solaris.c"
-#else
-#ifdef __hpux__
-#include "system/hpux.c"
-#else
-#include "system/generic.c"
-#endif
-#endif
+# include "system/generic.c"
 #endif

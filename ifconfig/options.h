@@ -34,7 +34,7 @@ struct ifconfig
 #define IF_VALID_SYSTEM		0x001
   struct system_ifconfig *system;
 #define IF_VALID_FORMAT		0x002
-  char *format;
+  const char *format;
 #define IF_VALID_AF		0x004
   sa_family_t af;
 #define IF_VALID_ADDR		0x008
@@ -53,8 +53,8 @@ struct ifconfig
 
 struct format
 {
-  char *name;
-  char *templ;
+  const char *name;
+  const char *templ;
 };
 
 extern struct format formats[];
@@ -76,7 +76,7 @@ void parse_opt_set_dstaddr (struct ifconfig *ifp, char *addr);
 void parse_opt_set_netmask (struct ifconfig *ifp, char *addr);
 void parse_opt_set_mtu (struct ifconfig *ifp, char *addr);
 void parse_opt_set_metric (struct ifconfig *ifp, char *addr);
-void parse_opt_set_default_format (char *format);
+void parse_opt_set_default_format (const char *format);
 void parse_opt_finalize (struct ifconfig *ifp);
 
 void parse_opt (int argc, char *argv[]);

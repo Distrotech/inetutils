@@ -34,11 +34,11 @@ extern int had_output;
 
 struct format_data
 {
-  char *name;	/* Name of interface as specified on the command line.  */
+  const char *name;/* Name of interface as specified on the command line.  */
   struct ifreq *ifr;
   int sfd;	/* Socket file descriptor to use.  */
   int first;	/* This is the first interface.  */
-  char *format;	/* The format string.  */
+  const char *format;	/* The format string.  */
   int depth;	/* Depth of nesting in parsing.  */
 };
 
@@ -48,18 +48,33 @@ typedef void (*format_handler_t)(format_data_t, int, char **);
 
 struct format_handle
 {
-  char *name;	/* The name of the handler.  */
+  const char *name;	/* The name of the handler.  */
   format_handler_t handler;
 };
 
 extern struct format_handle format_handles[];
+
+/* Many platforms do not provide the pseudo macros, check them here
+   for a lack of better place.  */
+
+#ifndef HAVE_IFREQ_IFR_INDEX
+# define ifr_index ifr_ifindex
+#endif
+
+#ifndef HAVE_IFREQ_IFR_NETMASK
+# define ifr_netmask ifr_addr
+#endif
+
+#ifndef HAVE_IFREQ_IFR_BROADADDR
+# define ifr_broadaddr ifr_addr
+#endif
 
 /* Each TAB_STOP characters is a default tab stop, which is also used
    by '\t'.  */
 #define TAB_STOP 8
 
 void put_char (format_data_t form, char c);
-void put_string (format_data_t form, char *s);
+void put_string (format_data_t form, const char *s);
 void put_int (format_data_t form, int argc, char *argv[], int nr);
 void select_arg (format_data_t form, int argc, char *argv[], int nr);
 void put_addr (format_data_t form, int argc, char *argv[], struct sockaddr *sa);
@@ -67,7 +82,7 @@ void put_flags (format_data_t form, int argc, char *argv[], short flags);
 
 /* Format handler can mangle form->format, so update it after calling
    here.  */
-void format_handler (char *name, format_data_t form, int argc, char *argv[]);
+void format_handler (const char *name, format_data_t form, int argc, char *argv[]);
 
 void fh_nothing (format_data_t form, int argc, char *argv[]);
 void fh_newline (format_data_t form, int argc, char *argv[]);
@@ -101,6 +116,6 @@ void fh_metric (format_data_t form, int argc, char *argv[]);
 /* Used for recursion by format handlers.  */
 void print_interfaceX (format_data_t form, int quiet);
 
-void print_interface (int sfd, char *name, struct ifreq *ifr, char *format);
+void print_interface (int sfd, const char *name, struct ifreq *ifr, const char *format);
 
 #endif

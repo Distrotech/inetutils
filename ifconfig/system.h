@@ -28,9 +28,9 @@
 /* Define this if ifconfig supports parsing the remaining non-option
    arguments on the command line (see system_parse_opt_rest) to a string
    usable in the help info.  Like "  <addr> [ netmask <mask> ]" */
-extern char *system_help;
+extern const char *system_help;
 
-extern char *system_help_options;
+extern const char *system_help_options;
 
 /* Additional short options.  */
 #undef SYSTEM_SHORT_OPTIONS
@@ -62,29 +62,27 @@ extern int system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 /* Define this if you want to set a system specific default output
    format.  Possible value is a string with the same meaning as an
    argument to the --format option, e.g. `"gnu"', or `"${name}:"'.  */
-extern char *system_default_format;
+extern const char *system_default_format;
 
 /* Define this to a list of struct format_handler items.  Add a
    trailing comma, too.  */
 #undef SYSTEM_FORMAT_HANDLER
 
 
-int system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs);
+int system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *__ifs);
 
 
 
-#ifdef __linux__
-#include "system/linux.h"
-#else
-#ifdef __sun__
-#include "system/solaris.h"
-#else
-#ifdef __hpux__
-#include "system/hpux.h"
+#if defined(__linux__)
+# include "system/linux.h"
+#elif defined(__sun__)
+# include "system/solaris.h"
+#elif defined(__hpux__)
+# include "system/hpux.h"
+#elif defined(__QNXNTO__)
+# include "system/qnx.h"
 #else
 #include "system/generic.h"
-#endif
-#endif
 #endif
 
 #endif

@@ -40,15 +40,15 @@
    that should be avoided if alternative names with the same flag value
    exists.  The first unavoided match is returned, or the first avoided
    match if no better is available.  */
-char *if_flagtoname (int flag, char *avoid);
+const char *if_flagtoname (int flag, const char *avoid);
 
 /* Return the flag mask corresponding to flag name NAME.  If no flag
    with this name is found, return 0.  */
-int if_nametoflag (char *name);
+int if_nametoflag (const char *name);
 
 /* Print the flags in FLAGS, using AVOID as in if_flagtoname, and
    SEPERATOR between individual flags.  Returns the number of
    characters printed.  */
-int print_if_flags (int flags, char *avoid, char seperator);
+int print_if_flags (int flags, const char *avoid, char seperator);
 
 #endif
