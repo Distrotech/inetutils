@@ -121,7 +121,7 @@ doit(f, fromp)
 	(void) signal(SIGQUIT, SIG_DFL);
 	(void) signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
-	{ int t = open(_PATH_TTY, 2);
+	{ int t = open(_PATH_TTY, O_RDWR);
 	  if (t >= 0) {
 		ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
