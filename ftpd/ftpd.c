@@ -173,6 +173,7 @@ int	defumask = CMASK;		/* default umask value */
 char	tmpline[7];
 char	*hostname = 0;
 char	*remotehost = 0;
+char    *anonymous_login_name = "ftp";
 
 #define NUM_SIMUL_OFF_TO_STRS 4
 
@@ -317,8 +318,11 @@ main(argc, argv, envp)
 	LastArgv = envp[-1] + strlen(envp[-1]);
 #endif /* SETPROCTITLE */
 
-	while ((ch = getopt(argc, argv, "dlt:T:u:v")) != EOF) {
+	while ((ch = getopt(argc, argv, "a:dlt:T:u:v")) != EOF) {
 		switch (ch) {
+		case 'a':
+			anonymous_login_name = optarg;
+			break;
 		case 'd':
 			debug = 1;
 			break;
@@ -627,7 +631,7 @@ user(name)
 	if (strcmp(name, "ftp") == 0 || strcmp(name, "anonymous") == 0) {
 		if (checkuser("ftp") || checkuser("anonymous"))
 			reply(530, "User %s access denied.", name);
-		else if ((pw = sgetpwnam("ftp")) != NULL) {
+		else if ((pw = sgetpwnam(anonymous_login_name)) != NULL) {
 			guest = 1;
 			askpasswd = 1;
 			reply(331,
