@@ -1,4 +1,4 @@
-# Makefile for rshd
+# Makefile for rcp
 # Copyright (C) 1995 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -23,9 +23,9 @@ VPATH = @srcdir@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-libexecdir = @libexecdir@
+bindir = @bindir@
 mandir = @mandir@
-man8dir = $(mandir)/man8
+man1dir = $(mandir)/man1
 
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -41,16 +41,16 @@ LDLIBS = $(LIBS)
 
 CFLAGS += $(DEFS)
 
-rshd: rshd.o
+rcp: rcp.o util.o
 
-install: installdirs rshd $(srcdir)/rshd.8
-	$(INSTALL_PROGRAM) rshd $(libexecdir)/in.rshd
-	$(INSTALL_DATA) $(srcdir)/rshd.8 $(man8dir)
+install: installdirs rcp $(srcdir)/rcp.1
+	$(INSTALL_PROGRAM) rcp $(bindir)/in.rcp
+	$(INSTALL_DATA) $(srcdir)/rcp.1 $(man1dir)
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(libexecdir) $(man8dir)
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
 clean:
-	$(RM) -f *.o rshd 
+	$(RM) -f *.o rcp 
 distclean: clean
 	$(RM) -f Makefile
