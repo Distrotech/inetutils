@@ -7,7 +7,7 @@ In particular:
   NIIBE Yutaka		 (Security fixes & making talk finally work)
   Nathan Neulinger       (tftpd)
   Thomas Bushnell        (sockaddr sin_len field)
-  Jeff Bailey            (Much porting on Hurd)
+  Jeff Bailey            (Much porting on the Hurd)
   Jeff Smith             (Y2K problems typos, etc ...)
 
 Please see */ChangeLog for full credits.
