@@ -204,7 +204,7 @@ printcol(dp)
 
 		if ((a =
 		    realloc(array, dp->entries * sizeof(FTSENT *))) == NULL) {
-			fprintf(stderr, "realloci: %s \n", strerr(errno));
+			fprintf(stderr, "realloci: %s \n", strerror(errno));
 			printscol(dp);
 			return;
 		}
