@@ -32,7 +32,7 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_PATH_PROG(RM, rm, rm)
 
 AC_CHECK_HEADERS(malloc.h termio.h termios.h sys/tty.h sys/utsname.h \
-		 krb.h des.h netinet/ip.h netinet/in_systm.h)
+		 krb.h des.h netinet/ip.h netinet/in_systm.h paths.h)
 AC_CHECK_FUNCS(cgetent uname strdup)
 AC_CHECK_LIB(util, logout)
 if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
@@ -102,7 +102,8 @@ if test "$enable_encryption" = yes -a "$ac_cv_lib_des" = yes; then
   AC_DEFINE(DES_ENCRYPTION)
 fi
 
-AC_OUTPUT(Makefile inetd/Makefile libtelnet/Makefile telnetd/Makefile
+AC_OUTPUT(Makefile
+	  inetd/Makefile libtelnet/Makefile telnetd/Makefile
 	  ftpd/Makefile rshd/Makefile rlogind/Makefile uucpd/Makefile
 	  rexecd/Makefile talkd/Makefile tftpd/Makefile
 	  telnet/Makefile ftp/Makefile rsh/Makefile rcp/Makefile
