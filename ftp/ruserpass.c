@@ -80,7 +80,8 @@ ruserpass(host, aname, apass, aacct)
 	char *host, **aname, **apass, **aacct;
 {
 	char *hdir, buf[BUFSIZ], *tmp;
-	char myname[MAXHOSTNAMELEN], *mydomain;
+	char *myname = 0, *mydomain;
+	int myname_len = 0;
 	int t, i, c, usedefault = 0;
 	struct stat stb;
 
@@ -94,8 +95,31 @@ ruserpass(host, aname, apass, aacct)
 			warn("%s", buf);
 		return (0);
 	}
-	if (gethostname(myname, sizeof(myname)) < 0)
-		myname[0] = '\0';
+
+	errno = 0;
+	do {
+		if (myname) {
+		        myname_len += myname_len;
+			myname = realloc (myname, myname_len);
+		} else {
+			myname_len = 128; /* Initial guess */
+			myname = malloc (myname_len);
+		}
+		if (! myname)
+		        break;
+	} while ((gethostname(myname, myname_len) == 0
+		  && ! memchr (myname, '\0', myname_len))
+		 || errno == ENAMETOOLONG);
+
+	if (errno && myname) {
+		free (myname);
+		myname = 0;
+	}
+	if (! myname) {
+		myname = "";
+		myname_len = 0;
+	}
+
 	if ((mydomain = strchr(myname, '.')) == NULL)
 		mydomain = "";
 next:
@@ -169,10 +193,9 @@ next:
 			}
 			break;
 		case MACDEF:
-			if (proxy) {
-				(void) fclose(cfile);
-				return (0);
-			}
+			if (proxy) 
+				goto done;
+
 			while ((c=getc(cfile)) != EOF && c == ' ' || c == '\t');
 			if (c == EOF || c == '\n') {
 				printf("Missing macdef name argument.\n");
@@ -235,9 +258,13 @@ next:
 	}
 done:
 	(void) fclose(cfile);
+	if (myname && myname_len > 0)
+		free (myname);
 	return (0);
 bad:
 	(void) fclose(cfile);
+	if (myname && myname_len > 0)
+		free (myname);
 	return (-1);
 }
 
