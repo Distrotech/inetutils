@@ -357,8 +357,10 @@ rlogin_daemon (int maxchildren, int port)
 	port = DEFPORT;
     }
 
-  /* Become a daemon.  */
-  if (daemon (1,1) < 0)
+  /* Become a daemon. Take care to close inherited fds and to hold
+     first three one, lest master/slave ptys clash with standard
+     in,out,err   */
+  if (daemon (0, 0) < 0)
     {
       syslog (LOG_ERR, "failed to become a daemon %s", strerror (errno));
       fatal (fileno (stderr), "fork failed, exiting", 0);
