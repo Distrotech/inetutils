@@ -1,5 +1,9 @@
 Mon Jan 20 20:35:53 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
+	* libinetutils/herror.c (herror): New file.
+	* configure.in (AC_REPLACE_FUNCS): Add herror.
+	* libinetutils/Makefile.in (SRCS): Add herror.c.
+
 	* rsh/rsh.c (main): Always use sigset_t & OSIGS & SIGS variables,
 	and pass a pointer to the talk function.
 	(talk): Always use a pointer for the OSIGS arg (was OMASK).
