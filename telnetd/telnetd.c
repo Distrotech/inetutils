@@ -1209,9 +1209,7 @@ telnet(f, p, host)
 		register int c;
 
 		if (ncc < 0 && pcc < 0)
-		  { cprintf ("Breaking because NCC = %d, PCC = %d\n", ncc, pcc);
 			break;
-		  }
 
 #if	defined(CRAY2) && defined(UNICOS5)
 		if (needtermstat)
@@ -1319,11 +1317,8 @@ telnet(f, p, host)
 		    if (ncc < 0 && errno == EWOULDBLOCK)
 			ncc = 0;
 		    else {
-			if (ncc <= 0) {
-			  cprintf ("Breaking because NCC = %d: %s\n", ncc,
-				   strerror (errno));
+			if (ncc <= 0)
 			    break;
-			}
 			netip = netibuf;
 		    }
 		    DIAG((TD_REPORT | TD_NETDATA),
@@ -1354,11 +1349,8 @@ telnet(f, p, host)
 				pcc = 0;
 			} else {
 				if (pcc <= 0)
-				  { 
-				    cprintf ("Breaking because PCC = %d\n", pcc);
 					break;
-				  }
-#if	!defined(CRAY2) || !defined(UNICOS5)
+
 #if defined (LINEMODE) && defined (TIOCPKT_IOCTL)
 				/*
 				 * If ioctl from pty, pass it through net
