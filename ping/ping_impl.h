@@ -10,6 +10,7 @@
 #define PING_TIMING(s) (s >= PING_HEADER_LEN)
 #define	PING_HEADER_LEN	sizeof (struct timeval)
 #define	PING_DATALEN	(64 - PING_HEADER_LEN)	/* default data length */
+#define PING_MAX_DATALEN (65535 - MAXIPLEN - MAXICMPLEN)
 
 struct ping_stat
 {
