@@ -6,3 +6,9 @@
 	* Use STD{IN,OUT,ERR}_FILENO.
 
 	* Set also sete{g,u}id(pw->{g,u}id).
+
+	* Set the number of file desc. for select() correctly.
+
+	* Initialize pid to 0;
+
+	* Use FD_ISSET/FD_CLR/FD_SET macros instead.

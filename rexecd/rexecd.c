@@ -104,6 +104,7 @@ main(argc, argv)
 		exit(1);
 	}
 	doit(sockfd, &from);
+	exit (0);
 }
 
 char	username[20] = "USER=";
@@ -212,21 +213,26 @@ doit(f, fromp)
 			(void) close(STDOUT_FILENO);
 			(void) close(STDERR_FILENO);
 			(void) close(f); (void) close(pv[1]);
-			readfrom = (1<<s) | (1<<pv[0]);
+			FD_ZERO(&readfrom);
+			FD_SET(s, &readfrom);
+			FD_SET(pf[0], &readfrom);
 			ioctl(pv[1], FIONBIO, (char *)&one);
 			/* should set s nbio! */
 			do {
+			        int maxfd = s;
 				ready = readfrom;
-				(void) select(16, (fd_set *)&ready,
+				if (pv[0] > maxfd)
+				    maxfd = pv[0];  
+				(void) select(maxfd + 1, (fd_set *)&ready,
 				    (fd_set *)NULL, (fd_set *)NULL,
 				    (struct timeval *)NULL);
-				if (ready & (1<<s)) {
+				if (FD_ISSET(s, &ready)) {
 					if (read(s, &sig, 1) <= 0)
 						readfrom &= ~(1<<s);
 					else
 						killpg(pid, sig);
 				}
-				if (ready & (1<<pv[0])) {
+				if (FD_ISSET(pv[0], &ready)) {
 					cc = read(pv[0], buf, sizeof (buf));
 					if (cc <= 0) {
 						shutdown(s, 1+1);
@@ -234,7 +240,8 @@ doit(f, fromp)
 					} else
 						(void) write(s, buf, cc);
 				}
-			} while (readfrom);
+			} while (FD_ISSET(s, &ready) ||
+				FD_ISSET(pv[0], &ready));
 			exit(0);
 		}
 		setpgid (0, getpid());
