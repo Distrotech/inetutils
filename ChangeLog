@@ -1,5 +1,8 @@
 Sun Feb 23 13:22:41 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
+	From NIIBE Yutaka <gniibe@mri.co.jp>:
+	* talk/ctl_transact.c (ctl_transact): Zero CTL_MASK before using.
+
 	* libinetutils/version.c (inetutils_version): Change to `1.2n'.
 
 	* rules.make ($(bindir)/%: % $(bindir)): Test $USER as well as the
