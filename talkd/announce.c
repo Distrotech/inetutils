@@ -95,7 +95,12 @@ strvis (dst, src, ignored)
       case '\b': *dst++ = '\\'; *dst++ = 'b'; break;
       case '\n': *dst++ = '\\'; *dst++ = 'n'; break;
       case '\t': *dst++ = '\\'; *dst++ = 't'; break;
-      case '\a': *dst++ = '\\'; *dst++ = 'a'; break;
+#ifdef __STDC__
+      case '\a':
+#else
+      case '\007':
+#endif
+                 *dst++ = '\\'; *dst++ = 'a'; break;
       case '\f': *dst++ = '\\'; *dst++ = 'f'; break;
       case '\\': *dst++ = '\\'; *dst++ = '\\'; break;
       default:
@@ -120,14 +125,13 @@ announce(request, remote_machine)
 	char *remote_machine;
 {
 	char full_tty[32];
-	FILE *tf;
 	struct stat stbuf;
 
 	(void)snprintf(full_tty, sizeof(full_tty),
 	    "%s%s", PATH_DEV, request->r_tty);
 	if (stat(full_tty, &stbuf) < 0 || (stbuf.st_mode&020) == 0)
 		return (PERMISSION_DENIED);
-	return (print_mesg(request->r_tty, tf, request, remote_machine));
+	return (print_mesg(request->r_tty, request, remote_machine));
 }
 
 #define max(a,b) ( (a) > (b) ? (a) : (b) )
@@ -140,9 +144,8 @@ announce(request, remote_machine)
  * try to keep the message in one piece if the recipient
  * in in vi at the time
  */
-print_mesg(tty, tf, request, remote_machine)
+print_mesg(tty, request, remote_machine)
 	char *tty;
-	FILE *tf;
 	CTL_MSG *request;
 	char *remote_machine;
 {
@@ -187,6 +190,7 @@ print_mesg(tty, tf, request, remote_machine)
 	sizes[i] = strlen(line_buf[i]);
 	max_size = max(max_size, sizes[i]);
 	i++;
+	free (vis_user);
 	bptr = big_buf;
 	*bptr++ = ''; /* send something to wake them up */
 	*bptr++ = '\r';	/* add a \r in case of raw mode */
