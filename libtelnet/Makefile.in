@@ -1,6 +1,6 @@
 # Makefile for libtelnet
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,9 +20,11 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(libdir)/libtelnet.a
-OBJS = auth.o encrypt.o genget.o getent.o misc.o \
-       kerberos.o enc_des.o kerberos5.o
+INSTALL_TARGETS = $(libdir)/libtelnet.a
+SRCS = auth.c encrypt.c genget.c getent.c misc.c kerberos.c enc_des.c kerberos5.c
+DISTFILES = $(SRCS) Makefile.in
+
+OBJS = $(SRCS:.c=.o)
 
 all: libtelnet.a
 libtelnet.a: $(OBJS)
