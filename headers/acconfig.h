@@ -30,8 +30,8 @@
 /* Define this symbol if connection DES encryption is enabled.  */
 #undef DES_ENCRYPTION
 
-/* Define this symbol if `struct osockaddr' is undefd in <sys/socket.h>.  */
-#undef HAVE_OSOCKADDR
+/* Define this symbol if `struct osockaddr' is defined by <osockaddr.h>.  */
+#undef HAVE_OSOCKADDR_H
 
 /* Define this symbol if `struct lastlog' is defined in <utmp.h>.  */
 #undef HAVE_STRUCT_LASTLOG
