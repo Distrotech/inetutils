@@ -175,7 +175,7 @@ ptys_open(int fdm, char * pts_name)
 		close(fds);
 		return -8;
 	}
-	if (ioctl(fds, I_PUSH, "pckt") < 0) {
+	if (ioctl(fdm, I_PUSH, "pckt") < 0) {
 		close(fdm);
 		close(fds);
 		return -8;

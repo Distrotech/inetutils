@@ -1,3 +1,9 @@
+2001-02-26  Alain Magloire
+
+	* openpty.c (ptys_open) : ioctl of "pckt" should be done
+	on the master file descriptor.
+	Found by Joachim Gabler <Joachim.Gabler@germany.sun.com>
+
 2000-11-03  Marcus Brinkmann  <marcus@gnu.org>
 
 	* localhost.c (localhost): Make an initial guess of 256 for the
