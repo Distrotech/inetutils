@@ -54,6 +54,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 #define MAX_ERRBUF 1024
 
 static int fork2 __P ((void));
+static char *normalize_path __P ((char *path, const char *delim));
 
 /*
  * Display the contents of a uio structure on a terminal.  Used by wall(1),
@@ -84,7 +85,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 
   strcpy (device, PATH_TTY_PFX);
   strcat (device, line);
-  normalize_path (device);
+  normalize_path (device, "/");
   if (strncmp (device, PATH_TTY_PFX, strlen(PATH_TTY_PFX)))
     {
       /* An attempt to break security... */
@@ -247,7 +248,7 @@ normalize_path (char *path, const char *delim)
 {
   int len;
   char *p;
-  
+
   if (!path)
     return path;
 
@@ -256,7 +257,7 @@ normalize_path (char *path, const char *delim)
   /* Empty string is returned as is */
   if (len == 0)
     return path;
-  
+
   /* delete trailing delimiter if any */
   if (len && path[len-1] == delim[0])
     path[len-1] = 0;
@@ -294,7 +295,7 @@ normalize_path (char *path, const char *delim)
       path[0] = delim[0];
       path[1] = 0;
     }
-  
+
   return path;
 }
-	      
+
