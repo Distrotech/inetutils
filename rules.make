@@ -19,16 +19,20 @@
 
 all:
 
-install: $(INSTALL_TARGETS)
-uninstall: -$(RM) -f $(INSTALL_TARGETS)
+.PHONY: install uninstall clean mostlyclean distclean maintainer-clean dist
 
-mostlyclean: clean
-distclean: clean
+install:: $(INSTALL_TARGETS)
+uninstall::
+	-$(RM) -f $(INSTALL_TARGETS)
+
+clean mostlyclean::
+	$(RM) -f $(CLEAN)
+distclean:: clean
 	$(RM) -f Makefile $(DISTCLEAN)
-maintainer-clean: distclean
-	$(RM) -f $(MAINTCLEAN)
+maintainer-clean:: clean
+	$(RM) -f Makefile $(DISTCLEAN) $(MAINTCLEAN)
 
-dist: $(DISTFILES)
+dist:: $(DISTFILES)
 	$(LINK_DISTFILES)
 
 $(bindir)/%: % $(bindir)
