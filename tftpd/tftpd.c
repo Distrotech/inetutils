@@ -424,7 +424,7 @@ validate_access(filep, mode)
 			return (err);
 		*filep = filename = pathname;
 	}
-	fd = open(filename, mode == RRQ ? O_RDONLY : O_WRONLY);
+	fd = open(filename, mode == RRQ ? O_RDONLY : (O_WRONLY | O_TRUNC));
 	if (fd < 0)
 		return (errno + 100);
 	file = fdopen(fd, (mode == RRQ)? "r":"w");
