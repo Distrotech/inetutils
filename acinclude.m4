@@ -272,6 +272,10 @@ AC_DEFUN([IU_CONFIG_PATHS], [
                           downcased, with \`_' changed to \`-'
   --without-PATHVAR       Never define PATHVAR by any method])dnl
 
+  # For case-conversion with sed
+  IU_UCASE=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  iu_lcase=abcdefghijklmnopqrstuvwxyz
+
   iu_cache_file="/tmp/,iu-path-cache.$$"
   iu_tmp_file="/tmp/,iu-tmp.$$"
   ac_clean_files="$ac_clean_files $iu_cache_file $iu_tmp_file"
