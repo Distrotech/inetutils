@@ -54,6 +54,9 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 
 #include <sys/param.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <sys/stat.h>
 #include <sys/socket.h>
 
@@ -421,7 +424,7 @@ validate_access(filep, mode)
 			return (err);
 		*filep = filename = pathname;
 	}
-	fd = open(filename, mode == RRQ ? 0 : 1);
+	fd = open(filename, mode == RRQ ? O_RDONLY : O_WRONLY);
 	if (fd < 0)
 		return (errno + 100);
 	file = fdopen(fd, (mode == RRQ)? "r":"w");
@@ -435,7 +438,8 @@ int	timeout;
 jmp_buf	timeoutbuf;
 
 void
-timer()
+timer(sig)
+  int sig;
 {
 
 	timeout += rexmtval;
@@ -472,7 +476,7 @@ sendfile(pf)
 		(void)setjmp(timeoutbuf);
 
 send_data:
-		if (send(peer, dp, size + 4, 0) != size + 4) {
+		if (send(peer, (const char *)dp, size + 4, 0) != size + 4) {
 			syslog(LOG_ERR, "tftpd: write: %m\n");
 			goto abort;
 		}
@@ -508,7 +512,8 @@ abort:
 }
 
 void
-justquit()
+justquit(sig)
+  int sig;
 {
 	exit(0);
 }
@@ -544,7 +549,7 @@ send_ack:
 		write_behind(file, pf->f_convert);
 		for ( ; ; ) {
 			alarm(rexmtval);
-			n = recv(peer, dp, PKTSIZE, 0);
+			n = recv(peer, (char *)dp, PKTSIZE, 0);
 			alarm(0);
 			if (n < 0) {            /* really? */
 				syslog(LOG_ERR, "tftpd: read: %m\n");
