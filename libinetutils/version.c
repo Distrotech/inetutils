@@ -1,2 +1,2 @@
 #include "version.h"
-const char *version_string = "GNU inetutils 1.0";
+const char *inetutils_version = "GNU inetutils 1.0";

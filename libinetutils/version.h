@@ -1,1 +1,1 @@
-extern const char *version_string;
+extern const char *inetutils_version;

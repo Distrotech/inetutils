@@ -43,9 +43,13 @@ static char sccsid[] = "@(#)main.c	8.3 (Berkeley) 5/30/95";
 
 #include <sys/types.h>
 
+#include <getopt.h>
+
 #include "ring.h"
 #include "externs.h"
 #include "defines.h"
+
+#include "version.h"
 
 /* These values need to be the same as defined in libtelnet/kerberos5.c */
 /* Either define them in both places, or put in some common header file. */
@@ -74,42 +78,116 @@ tninit()
     init_3270();
 #endif
 }
+
+#define USAGE "Usage: %s [OPTION...] [HOST [PORT]]\n"
 
-	void
-usage()
+/* Output a usage help message; if LONG is true, then describe all options to
+   STDOUT and exit with a status of 0, otherwise simply print a message
+   saying to use --help to STDERR, and exit with a status of 1.  */
+static void
+help (int long_fmt)
 {
-	fprintf(stderr, "Usage: %s %s%s%s%s\n",
-	    prompt,
-#ifdef	AUTHENTICATION
-	    "[-8] [-E] [-K] [-L] [-S tos] [-X atype] [-a] [-c] [-d] [-e char]",
-	    "\n\t[-k realm] [-l user] [-f/-F] [-n tracefile] ",
-#else
-	    "[-8] [-E] [-L] [-S tos] [-a] [-c] [-d] [-e char] [-l user]",
-	    "\n\t[-n tracefile]",
+  if (long_fmt)
+    {
+      fprintf (stdout, USAGE, prompt);
+
+      puts ("\n\
+  -8, --binary		     Use an 8-bit data path\n\
+  -a, --login                Attempt automatic login\n\
+  -c, --no-rc                Don't read the user's .telnetrc file\n\
+  -d, --debug                Turn on debugging\n\
+  -e CHAR, --escape=CHAR     Use CHAR as an escape character\n\
+  -E, --no-escape            Use no escape character\n
+  -K, --no-login             Don't automatically login to the remove system\n\
+  -l USER, --user=USER       If the remote system understands the ENVIRON\n\
+                             option, then USER will be sent to the remote\n\
+                             system as the value for the variable USER.\n\
+                             This option implies the -a option\n\
+  -L, --binary-output        Use an 8-bit data path for output only\n\
+  -n FILE, --trace=FILE      Record trace information into FILE\n\
+  -r, --rlogin               Use a user-interface similar to rlogin\n\
+  -S TOS, --tos=TOS          Use the IP type-of-service TOS\n\
+  -X ATYPE, --disable-auth=ATYPE   Disable type ATYPE authentication\n\
+");
+
+#ifdef ENCRYPTION
+      puts ("\
+  -x, --encrypt              Turns on encryption of the data stream if possible\n\
+");
 #endif
+
+#ifdef AUTHENTICATION
+      puts ("\n\
+ When using Kerberos authentication:\n\
+  -f, --fwd-credentials      Allow the the local credentials to be forwarded\n\
+  -k REALM, --realm=REALM    Obtain tickets for the remote host in REALM\n\
+                             instead of the remote host's realm\n\
+");
+#endif
+
 #if defined(TN3270) && defined(unix)
-# ifdef AUTHENTICATION
-	    "[-noasynch] [-noasynctty]\n\t[-noasyncnet] [-r] [-t transcom] ",
-# else
-	    "[-noasynch] [-noasynctty] [-noasyncnet] [-r]\n\t[-t transcom]",
-# endif
-#else
-	    "[-r] ",
+      puts ("\n\
+ TN3270 options (note non-standard option syntax):\n\
+      -noasynch\n\
+      -noasynctty\n\
+      -noasyncnet\n\
+  -t LINE, --transcom=LINE\n\
+");
 #endif
-#ifdef	ENCRYPTION
-	    "[-x] [host-name [port]]"
-#else	/* ENCRYPTION */
-	    "[host-name [port]]"
-#endif	/* ENCRYPTION */
-	);
-	exit(1);
+
+#if defined (ENCRYPTION) || defined (AUTHENTICATION) || defined (TN3270)
+      putc ('\n');
+#endif
+
+      puts ("\
+      --help  		     Give this help list\n\
+      --version              Print program version\n\
+");
+
+      exit (0);
+    }
+  else
+    {
+      fprintf (stderr, "Try `%s --help' for more information.\n", prompt);
+      exit (1);
+    }
 }
 
+/* Print a usage message to STDERR and exit with a status of 1.  */
+static void
+usage ()
+{
+  fprintf (stderr, USAGE, prompt);
+  help (0);
+}
+
+static struct option long_options[] =
+{
+  { "binary", no_argument, 0, '8' },
+  { "login", no_argument, 0, 'a' },
+  { "no-rc", no_argument, 0, 'c' },
+  { "debug", no_argument, 0, 'd' },
+  { "escape", required_argument, 0, 'e' },
+  { "no-escape", no_argument, 0, 'E' },
+  { "no-login", no_argument, 0, 'K' },
+  { "user", required_argument, 0, 'l' },
+  { "binary-output", no_argument, 0, 'L' },
+  { "trace", required_argument, 0, 'n' },
+  { "rlogin", no_argument, 0, 'r' },
+  { "tos", required_argument, 0, 'S' },
+  { "disable-auth", required_argument, 0, 'X' },
+  { "encrypt", no_argument, 0, 'x' },
+  { "fwd-credentials", no_argument, 0, 'f' },
+  { "realm", required_argument, 0, 'k' },
+  { "transcom", required_argument, 0, 't' },
+  { "help", no_argument, 0, '&' },
+  { "version", no_argument, 0, 'V' },
+  { 0 }
+};
+
 /*
  * main.  Parse arguments, invoke the protocol or command parser.
  */
-
-
 main(argc, argv)
 	int argc;
 	char *argv[];
@@ -139,7 +217,10 @@ main(argc, argv)
 	rlogin = (strncmp(prompt, "rlog", 4) == 0) ? '~' : _POSIX_VDISABLE;
 	autologin = -1;
 
-	while ((ch = getopt(argc, argv, "8EKLS:X:acde:fFk:l:n:rt:x")) != EOF) {
+	while ((ch = getopt_long (argc, argv, "8EKLS:X:acde:fFk:l:n:rt:x",
+				  long_options, 0))
+	       != EOF)
+	{
 		switch(ch) {
 		case '8':
 			eight = 3;	/* binary output and input */
@@ -195,7 +276,7 @@ main(argc, argv)
 			    fprintf(stderr, 
 				    "%s: Only one of -f and -F allowed.\n",
 				    prompt);
-			    usage();
+			    help (0);
 			}
 			forward_flags |= OPTS_FORWARD_CREDS;
 #else
@@ -210,7 +291,7 @@ main(argc, argv)
 			    fprintf(stderr, 
 				    "%s: Only one of -f and -F allowed.\n",
 				    prompt);
-			    usage();
+			    help (0);
 			}
 			forward_flags |= OPTS_FORWARD_CREDS;
 			forward_flags |= OPTS_FORWARDABLE_CREDS;
@@ -276,9 +357,18 @@ main(argc, argv)
 								prompt);
 #endif	/* ENCRYPTION */
 			break;
+
+		case '&':
+			help (1);
+		case 'V':
+			puts (inetutils_version);
+			exit (0);
+
 		case '?':
+			help (0);
+
 		default:
-			usage();
+			usage ();
 			/* NOTREACHED */
 		}
 	}
@@ -292,7 +382,7 @@ main(argc, argv)
 		char *args[7], **argp = args;
 
 		if (argc > 2)
-			usage();
+			usage ();
 		*argp++ = prompt;
 		if (user) {
 			*argp++ = "-l";

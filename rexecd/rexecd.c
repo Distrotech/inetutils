@@ -206,7 +206,7 @@ doit(f, fromp)
 			} while (readfrom);
 			exit(0);
 		}
-		setpgrp(0, getpid());
+		setpgid (0, getpid());
 		(void) close(s); (void)close(pv[0]);
 		dup2(pv[1], 2);
 	}
