@@ -62,7 +62,16 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <netdb.h>
 #include <signal.h>
 #include <fcntl.h>
-#include <time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <pwd.h>
 #include <unistd.h>
 #include <errno.h>
@@ -98,7 +107,7 @@ char **argv;
 #ifndef BSDINETD
 	register int s, tcp_socket;
 	struct servent *sp;
-#endif !BSDINETD
+#endif /* !BSDINETD */
 	extern int errno;
 	void dologout();
 
@@ -116,7 +125,7 @@ char **argv;
 		doit(&hisctladdr);
 	dologout();
 	exit(1);
-#else !BSDINETD
+#else /* !BSDINETD */
 	sp = getservbyname("uucp", "tcp");
 	if (sp == NULL){
 		perror("uucpd: getservbyname");
@@ -162,9 +171,9 @@ char **argv;
 		}
 		close(s);
 	}
-#endif BSD4_2
+#endif /* BSD4_2 */
 
-#endif	!BSDINETD
+#endif /* !BSDINETD */
 }
 
 void
@@ -210,12 +219,12 @@ doit (sinp)
 	setgid(pw->pw_gid);
 #ifdef BSD4_2
 	initgroups(pw->pw_name, pw->pw_gid);
-#endif BSD4_2
+#endif /* BSD4_2 */
 	chdir(pw->pw_dir);
 	setuid(pw->pw_uid);
 #ifdef BSD4_2
 	execl(UUCICO, "uucico", (char *)0);
-#endif BSD4_2
+#endif /* BSD4_2 */
 	perror("uucico server: execl");
 }
 
@@ -240,7 +249,7 @@ register int n;
 
 #ifdef BSD4_2
 #include <fcntl.h>
-#endif BSD4_2
+#endif /* BSD4_2 */
 
 void
 dologout()
