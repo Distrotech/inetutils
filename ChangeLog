@@ -1,4 +1,12 @@
-2001-06-02  Sergey Poznyakoff
+2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
+        * ftpd/ftpd.c: MAP_FAILED is not defined on some systems
+          (e.g. Solaris, SunOS)
+        * headers/paths.h: Added missing _PATH_LOGCONF, _PATH_LOGPID,
+          _PATH_LOG
+        * libls/print.c: Provided defaults for major() and minor() macros
+          for systems lacking them.
+
+2001-06-02  Sergey Poznyakoff  <gray@farlep.net>
 
 	* libinetutils/ttymsg.c: Simple check for '/' in the line name is
 	way too week: it doesn't work for tty names like pts/2, which are
