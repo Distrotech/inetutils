@@ -22,6 +22,7 @@ top_srcdir = @top_srcdir@
 include ../config.make
 
 INSTALL_TARGETS = $(bindir)/rcp $(man1dir)/rcp.1
+INST_PROG_FLAGS=-o root -m 04755
 SRCS = rcp.c util.c
 DISTFILES = $(SRCS) extern.h rcp.1
 
