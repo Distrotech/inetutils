@@ -61,7 +61,10 @@ localhost ()
 	    return 0;
 	  }
       } while ((gethostname(buf, buf_len) == 0 && !memchr (buf, '\0', buf_len))
-	       || errno == ENAMETOOLONG);
+#ifdef ENAMETOOLONG
+	       || errno == ENAMETOOLONG
+#endif
+		);
 
       if (errno)
 	/* gethostname failed, abort.  */
