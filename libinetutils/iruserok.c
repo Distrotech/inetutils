@@ -93,11 +93,17 @@ ruserok(rhost, superuser, ruser, luser)
 
 	if ((hp = gethostbyname(rhost)) == NULL)
 		return (-1);
+#ifdef HAVE_HOSTENT_H_ADDR_LIST
 	for (ap = hp->h_addr_list; *ap; ++ap) {
 		bcopy(*ap, &addr, sizeof(addr));
 		if (iruserok(addr, superuser, ruser, luser) == 0)
 			return (0);
 	}
+#else
+	bcopy(hp->h_addr, &addr, sizeof(addr));
+	if (iruserok(addr, superuser, ruser, luser) == 0)
+		return (0);
+#endif
 	return (-1);
 }
 
@@ -285,9 +291,14 @@ __icheckhost(raddr, lhost)
 		return (0);
 
 	/* Spin through ip addresses. */
+#ifdef HAVE_HOSTENT_H_ADDR_LIST
 	for (pp = hp->h_addr_list; *pp; ++pp)
 		if (!bcmp(&raddr, *pp, sizeof(u_long)))
 			return (1);
+#else
+	if (!bcmp(&raddr, hp->h_addr, sizeof(u_long)))
+		return (1);
+#endif
 
 	/* No match. */
 	return (0);
