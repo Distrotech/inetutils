@@ -45,7 +45,11 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
 #include <config.h>
 #endif
 
+#include <sys/types.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <sys/time.h>
 #include <stdio.h>
 #include <errno.h>
@@ -53,33 +57,34 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
 #include "talk.h"
 
 #define A_LONG_TIME 10000000
-#define STDIN_MASK (1<<fileno(stdin))	/* the bit mask for standard
-					   input */
 
 /*
  * The routine to do the actual talking
  */
 talk()
 {
-	register int read_template, sockt_mask;
-	int read_set, nb;
+	fd_set read_template, read_set;
+	int stdin_fd = fileno (stdin);
+	int nb, num_fds;
 	char buf[BUFSIZ];
 	struct timeval wait;
 
 	message("Connection established\007\007\007");
 	current_line = 0;
-	sockt_mask = (1<<sockt);
 
 	/*
-	 * Wait on both the other process (sockt_mask) and 
-	 * standard input ( STDIN_MASK )
+	 * Wait on both the other process (SOCKET) and stdin.
 	 */
-	read_template = sockt_mask | STDIN_MASK;
+	FD_ZERO (&read_template);
+	FD_SET (sockt, &read_template);
+	FD_SET (stdin_fd, &read_template);
+	num_fds = (stdin_fd > sockt ? stdin_fd : sockt) + 1;
+
 	for (;;) {
 		read_set = read_template;
 		wait.tv_sec = A_LONG_TIME;
 		wait.tv_usec = 0;
-		nb = select(32, &read_set, 0, 0, &wait);
+		nb = select (num_fds, &read_set, 0, 0, &wait);
 		if (nb <= 0) {
 			if (errno == EINTR) {
 				read_set = read_template;
@@ -89,7 +94,7 @@ talk()
 			p_error("Unexpected error from select");
 			quit();
 		}
-		if (read_set & sockt_mask) { 
+		if (FD_ISSET (sockt, &read_set)) {
 			/* There is data on sockt */
 			nb = read(sockt, buf, sizeof buf);
 			if (nb <= 0) {
@@ -98,7 +103,7 @@ talk()
 			}
 			display(&his_win, buf, nb);
 		}
-		if (read_set & STDIN_MASK) {
+		if (FD_ISSET (stdin_fd, &read_set)) {
 			/*
 			 * We can't make the tty non_blocking, because
 			 * curses's output routines would screw up
