@@ -1,3 +1,7 @@
+Wed Jan 22 20:51:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.2h'.
+
 Tue Jan 21 15:32:56 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/openpty.c (openpty): Only use TIOCSWINSZ if it's
