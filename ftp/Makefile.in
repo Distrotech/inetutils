@@ -39,19 +39,22 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-LDLIBS = $(LIBS)
 CFLAGS += $(DEFS)
+LDLIBS = $(LIBS)
 
+all: ftp
 ftp: cmds.o cmdtab.o ftp.o main.o ruserpass.o domacro.o
 
 install: installdirs ftp ftp.1
 	$(INSTALL_PROGRAM) ftp $(bindir)/ftp
-	$(INSTALL_DATA) ftp.1 $(man1dir)/ftp.1
+	-$(INSTALL_DATA) $(srcdir)/ftp.1 $(man1dir)/ftp.1
+uninstall:
+	-$(RM) -f $(bindir)/ftp $(man1dir)/ftp.1
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
+	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
-clean:
+clean mostlyclean:
 	$(RM) -f *.o ftp
 distclean: clean
 	$(RM) -f Makefile
