@@ -86,7 +86,6 @@ extern int ping_address __P ((int argc, char **argv));
 extern int ping_router __P ((int argc, char **argv));
 
 PING *ping;
-int is_root;        /* were we started with root privileges */
 u_char *data_buffer;
 size_t data_length = PING_DATALEN;
 unsigned options;
@@ -111,19 +110,8 @@ main (int argc, char **argv)
   u_char pattern[16];
   int pattern_len = 16;
   u_char *patptr = NULL;
-  
-  is_root = getuid () == 0;
+  int is_root = getuid () == 0;
 
-  if ((ping = ping_init (ICMP_ECHO, getpid ())) == NULL)
-    {
-      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
-      exit (1);
-    }
-  ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
-
-  /* Reset root privileges */
-  setuid (getuid ());
- 
   /* Parse command line */
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
@@ -235,6 +223,17 @@ main (int argc, char **argv)
     }
 
   init_data_buffer (patptr, pattern_len);
+
+  ping = ping_init (ICMP_ECHO, getpid ());
+  if (ping == NULL)
+    {
+      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
+      exit (1);
+    }
+  ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
+  
+  /* Reset root privileges */
+  setuid (getuid ());
   
   return (*ping_type)(argc, argv);
 }
