@@ -26,6 +26,8 @@ VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
+mandir = @mandir@
+man1dir = $(mandir)/man1
 
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -45,11 +47,12 @@ CFLAGS += $(OPTION_FLAGS) $(DEFS)
 telnet: authenc.o commands.o main.o network.o ring.o sys_bsd.o telnet.o \
 	terminal.o tn3270.o utilities.o
 
-install: installdirs telnet
+install: installdirs telnet telnet.1
 	$(INSTALL_PROGRAM) telnet $(bindir)/telnet
+	$(INSTALL_DATA) telnet.1 $(man1dir)/telnet.1
 
 installdirs:
-	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir)
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
 clean:
 	$(RM) -f *.o telnet
