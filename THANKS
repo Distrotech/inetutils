@@ -9,6 +9,8 @@ In particular:
   Thomas Bushnell        (sockaddr sin_len field)
   Jeff Bailey            (Much porting on Hurd)
   Jeff Smith             (Y2K problems typos, etc ...)
+
+Please see */ChangeLog for full credits.
 ----------------------
 Email of contributors in alphabetical order:
 Dan Stromberg   <strombrg@nis.acs.uci.edu>

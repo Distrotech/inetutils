@@ -8,11 +8,10 @@
 	* paths : add check for PATH_UTMPX and PATH_WTMPX
 	* configure.in : add check for getcwd, since we use xgetcwd.
 
-1999-05-18 Alain Magloire
-	* headers/arpa/tftp.h : changing tu_cloc to be unsigned to handle
+1999-05-18 Dan Stromberg
+	* headers/arpa/tftp.h : changing tu_clock to be unsigned to handle
 	larger files (twice as big), without sacrificing anything.
 	We need this to allow sgis to roboinst from a sun tftp server.
-	Patch sent from Dan Stromberg.
 
 1999-05-16 Alain Magloire
 	* config.{guess,sub} : files removed from the repository.
