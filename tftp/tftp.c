@@ -68,11 +68,11 @@ static char sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
 #include "extern.h"
 #include "tftpsubs.h"
 
-#ifndef HAVE_DECL_ERRNO
+#if !HAVE_DECL_ERRNO
 extern	int errno;
 #endif
 
-#ifndef HAVE_DECL_STRERROR
+#if !HAVE_DECL_STRERROR
 extern const char *strerror __P ((int));
 #endif
 

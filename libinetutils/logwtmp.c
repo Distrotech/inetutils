@@ -56,7 +56,7 @@
 #include <string.h>
 #endif
 
-#ifndef HAVE_DECL_ERRNO
+#if !HAVE_DECL_ERRNO
 extern int errno;
 #endif
 
@@ -113,16 +113,16 @@ logwtmp (char *line, char *name, char *host)
 
   /* Set information in new entry.  */
   bzero (&ut, sizeof (ut));
-#ifdef HAVE_UTMP_UT_TYPE
+#ifdef HAVE_STRUCT_UTMP_UT_TYPE
   ut.ut_type = USER_PROCESS;
 #endif
   strncpy (ut.ut_line, line, sizeof ut.ut_line);
   strncpy (ut.ut_name, name, sizeof ut.ut_name);
-#ifdef HAVE_UTMP_UT_HOST
+#ifdef HAVE_STRUCT_UTMP_UT_HOST
   strncpy (ut.ut_host, host, sizeof ut.ut_host);
 #endif
 
-#ifdef HAVE_UTMP_UT_TV
+#ifdef HAVE_STRUCT_UTMP_UT_TV
   gettimeofday (&ut.ut_tv, NULL);
 #else
   time (&ut.ut_time);

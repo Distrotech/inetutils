@@ -35,14 +35,14 @@
 #include <netdb.h>
 
 #ifdef HAVE_H_ERRNO
-# ifndef HAVE_DECL_H_ERRNO
+# if !HAVE_DECL_H_ERRNO
 extern int h_errno;
 # endif /* !HAVE_DECL_H_ERRNO */
 #else /* !HAVE_H_ERRNO */
 # ifdef HAVE_ERRNO_H
 #  include <errno.h>
 # endif
-# ifndef HAVE_DECL_ERRNO
+# if !HAVE_DECL_ERRNO
 extern int errno;
 # endif
 #endif /* HAVE_H_ERRNO */

@@ -40,7 +40,7 @@ extern void dologout       __P ((int));
 extern void fatal          __P ((const char *));
 extern int  ftpd_pclose    __P ((FILE *));
 extern FILE *ftpd_popen    __P ((char *, const char *));
-#ifndef HAVE_DECL_GETUSERSHELL
+#if !HAVE_DECL_GETUSERSHELL
 extern char *getusershell  __P ((void));
 #endif
 extern void logwtmp        __P ((const char *, const char *, const char *));

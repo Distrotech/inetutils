@@ -84,12 +84,12 @@ static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 
 #include "ftp_var.h"
 
-#ifndef HAVE_DECL_FCLOSE
+#if !HAVE_DECL_FCLOSE
 /* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
 extern int fclose __P ((FILE *));
 #endif
 
-#ifndef HAVE_DECL_PCLOSE
+#if !HAVE_DECL_PCLOSE
 /* Some systems don't declare pclose in <stdio.h>, so do it ourselves.  */
 extern int pclose __P ((FILE *));
 #endif
@@ -140,7 +140,7 @@ hookup(host, port)
 		}
 		hisctladdr.sin_family = hp->h_addrtype;
 		memmove((caddr_t)&hisctladdr.sin_addr,
-#ifdef HAVE_HOSTENT_H_ADDR_LIST
+#ifdef HAVE_STRUCT_HOSTENT_H_ADDR_LIST
 				hp->h_addr_list[0],
 #else
 				hp->h_addr,
@@ -157,7 +157,7 @@ hookup(host, port)
 	}
 	hisctladdr.sin_port = port;
 	while (connect(s, (struct sockaddr *)&hisctladdr, sizeof (hisctladdr)) < 0) {
-#ifdef HAVE_HOSTENT_H_ADDR_LIST
+#ifdef HAVE_STRUCT_HOSTENT_H_ADDR_LIST
 		if (hp && hp->h_addr_list[1]) {
 			int oerrno = errno;
 			char *ia;
