@@ -259,8 +259,9 @@ AC_DEFUN([IU_CONFIG_PATHS], [
                           downcased, with \`_' changed to \`-'
   --without-PATHVAR       Never define PATHVAR by any method])dnl
 
-  iu_cache_file="/tmp/iu-path-cache.$$"
-  ac_clean_files="$ac_clean_files $iu_cache_file"
+  iu_cache_file="/tmp/,iu-path-cache.$$"
+  iu_tmp_file="/tmp/,iu-tmp.$$"
+  ac_clean_files="$ac_clean_files $iu_cache_file $iu_tmp_file"
   while read iu_path iu_search; do
     test "$iu_path" = "#" -o -z "$iu_path" && continue
 
@@ -314,19 +315,20 @@ HAVE_$iu_sym
 	    # Path searches always generate potential conflicts
 	    test "$cross_compiling" = yes && { iu_cross_conflict=yes; continue; }
 
-	    IFS="${IFS= 	}"; iu_save_ifs="$IFS"; IFS="${IFS}:"
-	    read iu_cmd iu_name iu_spath <<EOF
-$iu_try
-EOF
+	    changequote(,)	dnl Avoid problems with [ ] in regexps
+	    iu_name="`echo $iu_try | sed 's/^search:\([^:]*\).*$/\1/'`"
+	    iu_spath="`echo $iu_try | sed 's/^search:\([^:]*\)//'`"
+	    changequote([,])
+
 	    test "$iu_spath" || iu_spath="$PATH"
-	    for iu_dir in $iu_spath; do
+
+	    for iu_dir in `echo "$iu_spath" | sed 'y/:/ /'`; do
 	      test -z "$iu_dir" && iu_dir=.
 	      if test -$iu_test_type "$iu_dir/$iu_name"; then
 		iu_val="$iu_dir/$iu_name"
 		break
 	      fi
 	    done
-	    IFS="$iu_save_ifs"
 	    ;;
 
 	  no) iu_default=no;;
