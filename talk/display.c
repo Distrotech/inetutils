@@ -56,8 +56,7 @@ int	curses_initialized = 0;
 int
 max(int a, int b)
 {
-
-	return (a > b ? a : b);
+  return a > b ? a : b;
 }
 
 /*
@@ -65,25 +64,29 @@ max(int a, int b)
  * characters while we are at it.
  */
 int
-display(register xwin_t *win, register char *text, int size)
+display (register xwin_t * win, register unsigned char *text, int size)
 {
 	register int i;
-	char cch;
+  unsigned char cch;
 
-	for (i = 0; i < size; i++) {
-		if (*text == '\n') {
+  for (i = 0; i < size; i++)
+    {
+      if (*text == '\n')
+	{
 			xscroll(win, 0);
 			text++;
 			continue;
 		}
-		if (*text == '\a') {
+      if (*text == '\a')
+	{
 			beep();
 			wrefresh(curscr);
 			text++;
 			continue;
 		}
 		/* erase character */
-		if (*text == win->cerase) {
+      if (*text == win->cerase)
+	{
 			wmove(win->x_win, win->x_line, max(--win->x_col, 0));
 			getyx(win->x_win, win->x_line, win->x_col);
 			waddch(win->x_win, ' ');
@@ -97,18 +100,21 @@ display(register xwin_t *win, register char *text, int size)
 		 * the beginning of a word or the beginning of
 		 * the line.
 		 */
-		if (*text == win->werase) {
+      if (*text == win->werase)
+	{
 			int endcol, xcol, i, c;
 
 			endcol = win->x_col;
 			xcol = endcol - 1;
-			while (xcol >= 0) {
+	  while (xcol >= 0)
+	    {
 				c = readwin(win->x_win, win->x_line, xcol);
 				if (c != ' ')
 					break;
 				xcol--;
 			}
-			while (xcol >= 0) {
+	  while (xcol >= 0)
+	    {
 				c = readwin(win->x_win, win->x_line, xcol);
 				if (c == ' ')
 					break;
@@ -123,31 +129,36 @@ display(register xwin_t *win, register char *text, int size)
 			continue;
 		}
 		/* line kill */
-		if (*text == win->kill) {
+      if (*text == win->kill)
+	{
 			wmove(win->x_win, win->x_line, 0);
 			wclrtoeol(win->x_win);
 			getyx(win->x_win, win->x_line, win->x_col);
 			text++;
 			continue;
 		}
-		if (*text == '\f') {
+      if (*text == '\f')
+	{
 			if (win == &my_win)
 				wrefresh(curscr);
 			text++;
 			continue;
 		}
-		if (win->x_col == COLS-1) {
+      if (win->x_col == COLS - 1)
+	{
 			/* check for wraparound */
 			xscroll(win, 0);
 		}
-		if (*text < ' ' && *text != '\t') {
+      if (*text < ' ' && *text != '\t')
+	{
 			waddch(win->x_win, '^');
 			getyx(win->x_win, win->x_line, win->x_col);
 			if (win->x_col == COLS-1) /* check for wraparound */
 				xscroll(win, 0);
 			cch = (*text & 63) + 64;
 			waddch(win->x_win, cch);
-		} else
+	}
+      else
 			waddch(win->x_win, *text);
 		getyx(win->x_win, win->x_line, win->x_col);
 		text++;
@@ -178,8 +189,8 @@ readwin(WINDOW *win, int line, int col)
 int
 xscroll(register xwin_t *win, int flag)
 {
-
-	if (flag == -1) {
+  if (flag == -1)
+    {
 		wmove(win->x_win, 0, 0);
 		win->x_line = 0;
 		win->x_col = 0;
