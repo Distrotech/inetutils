@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-INCLUDES = -I$(top_builddir)/include
+INCLUDES = -I$(top_builddir)/include @INCAUTH@
 
 noinst_LIBRARIES = libtelnet.a
 
