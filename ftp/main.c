@@ -79,7 +79,7 @@ static void
 ohelp ()
 {
   fprintf (stdout, USAGE, __progname);
-  puts ("\n\
+  puts ("Remote file transfer\n\n\
   -d, --debug                Turn on debugging mode\n\
   -g, --no-glob              Turn off file name globbing\n\
   -i, --no-prompt            Don't prompt during multiple-file transfers\n\
@@ -88,6 +88,7 @@ ohelp ()
   -v, --verbose              Be verbose\n\
       --help                 Give this help list\n\
       --version              Print program version");
+  fprintf (stdout, "\nSubmit bug reports to %s.\n", inetutils_bugaddr);
   exit (0);
 }
 
@@ -174,7 +175,8 @@ main(argc, argv)
 		case '&':
 			ohelp ();
 		case 'V':
-			puts (inetutils_version);
+			printf ("ftp (%s) %s\n",
+				inetutils_package, inetutils_version);
 			exit (0);
 
 		case '?':
