@@ -49,9 +49,40 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
  *	command\0
  *	data
  */
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#if !defined (__GNUC__) && defined (_AIX)
+ #pragma alloca
+#endif
+#ifndef alloca /* Make alloca work the best possible way.  */
+#ifdef __GNUC__
+#define alloca __builtin_alloca
+#else /* not __GNUC__ */
+#if HAVE_ALLOCA_H
+#include <alloca.h>
+#else /* not __GNUC__ or HAVE_ALLOCA_H */
+#ifndef _AIX /* Already did AIX, up at the top.  */
+char *alloca ();
+#endif /* not _AIX */
+#endif /* not HAVE_ALLOCA_H */
+#endif /* not __GNUC__ */
+#endif /* not alloca */
+
 #include <sys/param.h>
 #include <sys/ioctl.h>
-#include <sys/time.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include <sys/socket.h>
 
 #include <netinet/in.h>
@@ -60,14 +91,25 @@ static char sccsid[] = "@(#)rshd.c	8.2 (Berkeley) 4/6/94";
 
 #include <errno.h>
 #include <fcntl.h>
-#include <paths.h>
+#ifdef HAVE_SYS_FILIO_H
+#include <sys/filio.h>
+#endif
 #include <pwd.h>
 #include <signal.h>
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+#include <stdarg.h>
+#else
+#include <varargs.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <getopt.h>
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 int	keepalive = 1;
 int	check_all;
@@ -76,9 +118,9 @@ int	sent_null;
 
 void	 doit __P((struct sockaddr_in *));
 void	 error __P((const char *, ...));
-void	 getstr __P((char *, int, char *));
-int	 local_domain __P((char *));
-char	*topdomain __P((char *));
+char	*getstr __P((char *));
+int	 local_domain __P((const char *));
+const char *topdomain __P((const char *));
 void	 usage __P((void));
 
 #ifdef	KERBEROS
@@ -128,7 +170,7 @@ main(argc, argv)
 			vacuous = 1;
 			break;
 
-#ifdef CRYPT
+#ifdef ENCRYPTION
 		case 'x':
 			doencrypt = 1;
 			break;
@@ -151,7 +193,7 @@ main(argc, argv)
 		syslog(LOG_ERR, "only one of -k and -v allowed");
 		exit(2);
 	}
-#ifdef CRYPT
+#ifdef ENCRYPTION
 	if (doencrypt && !use_kerberos) {
 		syslog(LOG_ERR, "-k is required for -x");
 		exit(2);
@@ -183,7 +225,7 @@ char	shell[64] = "SHELL=";
 char	path[100] = "PATH=";
 char	*envinit[] =
 	    {homedir, shell, path, username, 0};
-char	**environ;
+extern char	**environ;
 
 void
 doit(fromp)
@@ -196,10 +238,9 @@ doit(fromp)
 	fd_set ready, readfrom;
 	int cc, nfd, pv[2], pid, s;
 	int one = 1;
-	char *hostname, *errorstr, *errorhost;
+	const char *hostname, *errorstr, *errorhost;
 	char *cp, sig, buf[BUFSIZ];
-	char cmdbuf[NCARGS+1], locuser[16], remuser[16];
-	char remotehost[2 * MAXHOSTNAMELEN + 1];
+	char *cmdbuf, *locuser, *remuser;
 
 #ifdef	KERBEROS
 	AUTH_DAT	*kdata = (AUTH_DAT *) NULL;
@@ -218,7 +259,7 @@ doit(fromp)
 	(void) signal(SIGQUIT, SIG_DFL);
 	(void) signal(SIGTERM, SIG_DFL);
 #ifdef DEBUG
-	{ int t = open(_PATH_TTY, 2);
+	{ int t = open(PATH_TTY, O_RDWR);
 	  if (t >= 0) {
 		ioctl(t, TIOCNOTTY, (char *)0);
 		(void) close(t);
@@ -336,33 +377,37 @@ doit(fromp)
 		if (!use_kerberos)
 #endif
 		if (check_all || local_domain(hp->h_name)) {
-			strncpy(remotehost, hp->h_name, sizeof(remotehost) - 1);
-			remotehost[sizeof(remotehost) - 1] = 0;
-			errorhost = remotehost;
-			hp = gethostbyname(remotehost);
-			if (hp == NULL) {
-				syslog(LOG_INFO,
-				    "Couldn't look up address for %s",
-				    remotehost);
-				errorstr =
-				"Couldn't look up address for your host (%s)\n";
-				hostname = inet_ntoa(fromp->sin_addr);
-			} else for (; ; hp->h_addr_list++) {
-				if (hp->h_addr_list[0] == NULL) {
-					syslog(LOG_NOTICE,
-					  "Host addr %s not listed for host %s",
-					    inet_ntoa(fromp->sin_addr),
-					    hp->h_name);
+			char *remotehost = (char *) alloca (strlen (hp->h_name) + 1);
+			if (! remotehost)
+				errorstr = "Out of memory\n";
+			else {
+				strcpy(remotehost, hp->h_name);
+				errorhost = remotehost;
+				hp = gethostbyname(remotehost);
+				if (hp == NULL) {
+					syslog(LOG_INFO,
+					    "Couldn't look up address for %s",
+					    remotehost);
 					errorstr =
-					    "Host address mismatch for %s\n";
+			       "Couldn't look up address for your host (%s)\n";
 					hostname = inet_ntoa(fromp->sin_addr);
-					break;
-				}
-				if (!bcmp(hp->h_addr_list[0],
-				    (caddr_t)&fromp->sin_addr,
-				    sizeof(fromp->sin_addr))) {
-					hostname = hp->h_name;
-					break;
+				} else for (; ; hp->h_addr_list++) {
+					if (hp->h_addr_list[0] == NULL) {
+						syslog(LOG_NOTICE,
+					 "Host addr %s not listed for host %s",
+						    inet_ntoa(fromp->sin_addr),
+						    hp->h_name);
+						errorstr =
+					      "Host address mismatch for %s\n";
+						hostname = inet_ntoa(fromp->sin_addr);
+						break;
+					}
+					if (!bcmp(hp->h_addr_list[0],
+					    (caddr_t)&fromp->sin_addr,
+					    sizeof(fromp->sin_addr))) {
+						hostname = hp->h_name;
+						break;
+					}
 				}
 			}
 		}
@@ -376,7 +421,7 @@ doit(fromp)
 		authopts = 0L;
 		strcpy(instance, "*");
 		version[VERSION_SIZE - 1] = '\0';
-#ifdef CRYPT
+#ifdef ENCRYPTION
 		if (doencrypt) {
 			struct sockaddr_in local_addr;
 			rc = sizeof(local_addr);
@@ -405,10 +450,11 @@ doit(fromp)
 		}
 	} else
 #endif
-		getstr(remuser, sizeof(remuser), "remuser");
+		remuser = getstr ("remuser");
 
-	getstr(locuser, sizeof(locuser), "locuser");
-	getstr(cmdbuf, sizeof(cmdbuf), "command");
+	locuser = getstr ("locuser");
+	cmdbuf = getstr ("command");
+
 	setpwent();
 	pwd = getpwnam(locuser);
 	if (pwd == NULL) {
@@ -464,7 +510,7 @@ fail:
 			exit(1);
 		}
 
-	if (pwd->pw_uid && !access(_PATH_NOLOGIN, F_OK)) {
+	if (pwd->pw_uid && !access(PATH_NOLOGIN, F_OK)) {
 		error("Logins currently disabled.\n");
 		exit(1);
 	}
@@ -477,7 +523,7 @@ fail:
 			error("Can't make pipe.\n");
 			exit(1);
 		}
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 		if (doencrypt) {
 			if (pipe(pv1) < 0) {
@@ -497,7 +543,7 @@ fail:
 			exit(1);
 		}
 		if (pid) {
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 			if (doencrypt) {
 				static char msg[] = SECURE_MESSAGE;
@@ -522,7 +568,7 @@ fail:
 				nfd = pv[0];
 			else
 				nfd = s;
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 			if (doencrypt) {
 				FD_ZERO(&writeto);
@@ -540,7 +586,7 @@ fail:
 			nfd++;
 			do {
 				ready = readfrom;
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 				if (doencrypt) {
 					wready = writeto;
@@ -556,7 +602,7 @@ fail:
 						break;
 				if (FD_ISSET(s, &ready)) {
 					int	ret;
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 					if (doencrypt)
 						ret = des_read(s, &sig, 1);
@@ -576,7 +622,7 @@ fail:
 						shutdown(s, 1+1);
 						FD_CLR(pv[0], &readfrom);
 					} else {
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 						if (doencrypt)
 							(void)
@@ -588,7 +634,7 @@ fail:
 							  write(s, buf, cc);
 					}
 				}
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 				if (doencrypt && FD_ISSET(pv1[0], &ready)) {
 					errno = 0;
@@ -615,7 +661,7 @@ fail:
 #endif
 
 			} while (FD_ISSET(s, &readfrom) ||
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 			    (doencrypt && FD_ISSET(pv1[0], &readfrom)) ||
 #endif
@@ -623,10 +669,10 @@ fail:
 			    FD_ISSET(pv[0], &readfrom));
 			exit(0);
 		}
-		setpgrp(0, getpid());
+		setpgid (0, getpid ());
 		(void) close(s);
 		(void) close(pv[0]);
-#ifdef CRYPT
+#ifdef ENCRYPTION
 #ifdef KERBEROS
 		if (doencrypt) {
 			close(pv1[0]); close(pv2[0]);
@@ -641,7 +687,7 @@ fail:
 		close(pv[1]);
 	}
 	if (*pwd->pw_shell == '\0')
-		pwd->pw_shell = _PATH_BSHELL;
+		pwd->pw_shell = PATH_BSHELL;
 #if	BSD > 43
 	if (setlogin(pwd->pw_name) < 0)
 		syslog(LOG_ERR, "setlogin() failed: %m");
@@ -651,7 +697,7 @@ fail:
 	(void) setuid((uid_t)pwd->pw_uid);
 	environ = envinit;
 	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
-	strcat(path, _PATH_DEFPATH);
+	strcat(path, PATH_DEFPATH);
 	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
 	strncat(username, pwd->pw_name, sizeof(username)-6);
 	cp = strrchr(pwd->pw_shell, '/');
@@ -682,14 +728,9 @@ fail:
  * connected to client, or older clients will hang waiting for that
  * connection first.
  */
-#if __STDC__
-#include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 
 void
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 error(const char *fmt, ...)
 #else
 error(fmt, va_alist)
@@ -700,7 +741,7 @@ error(fmt, va_alist)
 	va_list ap;
 	int len;
 	char *bp, buf[BUFSIZ];
-#if __STDC__
+#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 	va_start(ap, fmt);
 #else
 	va_start(ap);
@@ -715,22 +756,44 @@ error(fmt, va_alist)
 	(void)write(STDERR_FILENO, buf, len + strlen(bp));
 }
 
-void
-getstr(buf, cnt, err)
-	char *buf, *err;
-	int cnt;
+char *
+getstr(err)
+	char *err;
 {
-	char c;
+	size_t buf_len = 100;
+	char *buf = malloc (buf_len), *end = buf;
+
+	if (! buf) {
+		error ("Out of space reading %s\n", err);
+		exit (1);
+	}
 
 	do {
-		if (read(STDIN_FILENO, &c, 1) != 1)
-			exit(1);
-		*buf++ = c;
-		if (--cnt == 0) {
-			error("%s too long\n", err);
+		/* Oh this is efficient, oh yes.  [But what can be done?] */
+		int rd = read(STDIN_FILENO, end, 1);
+		if (rd <= 0) {
+			if (rd == 0)
+				error ("EOF reading %s\n", err);
+			else
+				perror (err);
 			exit(1);
 		}
-	} while (c != 0);
+
+		end += rd;
+		if ((buf + buf_len - end) < (buf_len >> 3)) {
+			/* Not very much room left in our buffer, grow it. */
+			size_t end_offs = end - buf;
+			buf_len += buf_len;
+			buf = realloc (buf, buf_len);
+			if (! buf) {
+				error ("Out of space reading %s\n", err);
+				exit (1);
+			}
+			end = buf + end_offs;
+		}
+	} while (*(end - 1));
+
+	return buf;
 }
 
 /*
@@ -743,25 +806,32 @@ getstr(buf, cnt, err)
  */
 int
 local_domain(h)
-	char *h;
+	const char *h;
 {
-	char localhost[MAXHOSTNAMELEN];
-	char *p1, *p2;
+	extern char *localhost ();
+	char *hostname = localhost ();
 
-	localhost[0] = 0;
-	(void) gethostname(localhost, sizeof(localhost));
-	p1 = topdomain(localhost);
-	p2 = topdomain(h);
-	if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
-		return (1);
-	return (0);
+	if (! hostname)
+		return 0;
+	else {
+		int is_local = 0;
+		const char *p1 = topdomain (hostname);
+		const char *p2 = topdomain (h);
+
+		if (p1 == NULL || p2 == NULL || !strcasecmp(p1, p2))
+			is_local = 1;
+
+		free (hostname);
+
+		return is_local;
+	}
 }
 
-char *
+const char *
 topdomain(h)
-	char *h;
+	const char *h;
 {
-	char *p, *maybe = NULL;
+	const char *p, *maybe = NULL;
 	int dots = 0;
 
 	for (p = h + strlen(h); p >= h; p--) {
