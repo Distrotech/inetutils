@@ -18,7 +18,7 @@
 #
 
 srcdir = @srcdir@
-include ../config.mk
+include ../config.make
 
 all: tftp
 tftp: main.o tftp.o tftpsubs.o
