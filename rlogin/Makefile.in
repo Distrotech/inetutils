@@ -1,6 +1,6 @@
 # Makefile for rlogin
 #
-# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 include ../config.make
 
-DISTFILES = rlogin.c krb.h rlogin.1
+DISTFILES = rlogin.c rlogin.1
 
 INSTALL_TARGETS = $(bindir)/rlogin $(man1dir)/rlogin.1
 INST_PROG_FLAGS=-o root -m 04755
+LDLIBS += $(LIBAUTH)
 CLEAN = rlogin rlogin.o
 
 all: rlogin
