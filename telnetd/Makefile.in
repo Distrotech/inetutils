@@ -1,6 +1,6 @@
 # Makefile for telnetd
 #
-# Copyright (C) 1995 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996 Free Software Foundation, Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,10 @@
 srcdir = @srcdir@
 include ../config.make
 
-INSTALL_TARGETS=$(libexecdir)/in.telnetd $(man8dir)/telnetd.8
+INSTALL_TARGETS = $(libexecdir)/in.telnetd $(man8dir)/telnetd.8
+SRCS = authenc.c global.c slc.c state.c sys_term.c telnetd.c termstat.c \
+	utility.c
+DISTFILES = $(SRCS) telnetd.8 Makefile.in
 
 OPTIONS = -DLINEMODE -DKLUDGELINEMODE -DDIAGNOSTICS -DENV_HACK -DOLD_ENVIRON
 
@@ -28,8 +31,7 @@ CPPFLAGS += $(OPTIONS) -D_PATH_LOGIN=\"$(bindir)/login\"
 LDLIBS := -L../libtelnet -ltelnet -ltermcap $(LDLIBS)
 
 all: telnetd
-telnetd: authenc.o global.o slc.o state.o sys_term.o telnetd.o termstat.o \
-	utility.o
+telnetd: $(SRCS:.c=.o)
 
 clean:
 	$(RM) -f *.o telnetd 
