@@ -17,32 +17,13 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-SHELL = /bin/sh
-
 srcdir = @srcdir@
-top_srcdir = @top_srcdir@
-VPATH = @srcdir@
-
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-bindir = @bindir@
-mandir = @mandir@
-man1dir = $(mandir)/man1
-
-INSTALL = @INSTALL@
-INSTALL_DATA = @INSTALL_DATA@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
-CC = @CC@
-DEFS = @DEFS@
-LIBS = @LIBS@
-CFLAGS = @CFLAGS@
-LDFLAGS = @LDFLAGS@
-RM = @RM@
+include ../config.mk
 
 OPTIONS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
-CFLAGS += $(OPTIONS) $(DEFS)
-LDLIBS = -L../libtelnet -ltelnet -ltermcap $(LIBS)
+CPPFLAGS += $(OPTIONS)
+LDLIBS := -L../libtelnet -ltelnet -ltermcap $(LDLIBS)
 
 all: telnet
 telnet: authenc.o commands.o main.o network.o ring.o sys_bsd.o telnet.o \
