@@ -1,3 +1,8 @@
+2002-02-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* Makefile.am (INCLUDES): Added -I$(top_builddir)/include (needed
+	  for fnmatch.h and confpaths.h)
+
 2000-07-07 Alain Magloire
 
 	* Makefile.am: EXTRA_DIST add configure.bat and SMakefile
