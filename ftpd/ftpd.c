@@ -667,7 +667,10 @@ complete_login (char* passwd)
 		reply(550, "Can't set gid.");
 		return;
 	}
+
+#ifdef HAVE_INITGROUPS
 	(void) initgroups(pw->pw_name, pw->pw_gid);
+#endif
 
 	/* open wtmp before chroot */
 	(void)snprintf(ttyline, sizeof(ttyline), "ftp%d", getpid());
