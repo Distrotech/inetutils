@@ -50,39 +50,47 @@ static char sccsid[] = "@(#)sys_term.c	8.4 (Berkeley) 5/30/95";
 #endif
 
 #ifdef	NEWINIT
+
 #include <initreq.h>
 int	utmp_len = MAXHOSTNAMELEN;	/* sizeof(init_request.host) */
-#else	/* NEWINIT*/
+#else	/* !NEWINIT*/
 # ifdef	HAVE_UTMPX_H
-# include <utmpx.h>
+#  include <utmpx.h>
 struct	utmpx wtmp;
-# else
-# include <utmp.h>
+#  ifdef HAVE_UTMPX_UT_TV
+#   define HAVE_WTMP_UT_TV HAVE_UTMPX_UT_TV
+#  endif
+# else /* !HAVE_UTMPX_H */
+#  include <utmp.h>
 struct	utmp wtmp;
-# endif /* UTMPX */
+#  ifdef HAVE_UTMP_UT_TV
+#   define HAVE_WTMP_UT_TV HAVE_UTMP_UT_TV
+#  endif
+# endif /* HAVE_UTMPX_H */
 
 int	utmp_len = sizeof(wtmp.ut_host);
 # ifndef PARENT_DOES_UTMP
-char	wtmpf[]	= "/usr/adm/wtmp";
-char	utmpf[] = "/etc/utmp";
+char	wtmpf[]	= PATH_WTMP;
+char	utmpf[] = PATH_UTMP;
 # else /* PARENT_DOES_UTMP */
-char	wtmpf[]	= "/etc/wtmp";
+char	wtmpf[]	= PATH_WTMP;
 # endif /* PARENT_DOES_UTMP */
 
 # ifdef CRAY
-#include <tmpdir.h>
-#include <sys/wait.h>
+#  include <tmpdir.h>
+#  include <sys/wait.h>
 #  if (UNICOS_LVL == '7.0') || (UNICOS_LVL == '7.1')
 #   define UNICOS7x
 #  endif
 
 #  ifdef UNICOS7x
-#include <sys/sysv.h>
-#include <sys/secstat.h>
+#   include <sys/sysv.h>
+#   include <sys/secstat.h>
 extern int secflag;
 extern struct sysv sysv;
 #  endif /* UNICOS7x */
 # endif	/* CRAY */
+
 #endif	/* NEWINIT */
 
 #ifdef	STREAMSPTY
@@ -1335,11 +1343,8 @@ login_tty(t)
 	 * setsid() call above may have set our pgrp, so clear
 	 * it out before opening the tty...
 	 */
-#  ifndef SOLARIS
-	(void) setpgrp(0, 0);
-#  else
-	(void) setpgrp();
-#  endif
+	setpgid (0, 0);
+
 	close(open(line, O_RDWR));
 # endif
 	if (t != 0)
