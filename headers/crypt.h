@@ -19,27 +19,37 @@
 #ifndef __CRYPT_H__
 #define __CRYPT_H__
 
-#ifdef HAVE_WEAK_REFS
-extern char *crypt __P ((char *str, char salt[2])) __attribute__ ((weak));
+#ifdef HAVE_CRYPT_DECL
+/* Avoid arg-mismatch with system decl by being vague.  */
+#define CRYPT_ARGS ()
 #else
-#ifdef HAVE_PRAGMA_WEAK_REFS
-extern char *crypt __P ((char *str, char salt[2]));
-#pragma weak crypt
-#else
-#ifdef HAVE_ASM_WEAK_REFS
-extern char *crypt __P ((char *str, char salt[2]));
-asm (".weak crypt");
-#else
-#ifdef HAVE_CRYPT
-extern char *crypt __P ((char *str, char salt[2]));
-#endif
-#endif
-#endif
+#define CRYPT_ARGS __P ((char *str, char salt[2]))
 #endif
 
+#ifdef HAVE_ATTR_WEAK_REFS
+extern char *crypt CRYPT_ARGS __attribute__ ((weak));
+#else /* !HAVE_ATTR_WEAK_REFS */
+extern char *crypt CRYPT_ARGS;
+#ifdef HAVE_PRAGMA_WEAK_REFS
+#pragma weak crypt
+#else /* !HAVE_PRAGMA_WEAK_REFS */
+#ifdef HAVE_ASM_WEAK_REFS
+asm (".weak crypt");
+#endif /* HAVE_ASM_WEAK_REFS */
+#endif /* HAVE_PRAGMA_WEAK_REFS */
+#endif /* HAVE_ATTR_WEAK_REFS */
+
+#undef CRYPT_ARGS
+
 /* Call crypt, or just return STR if there is none.  */
-#if defined (HAVE_WEAK_REFS) || defined (HAVE_PRAGMA_WEAK_REFS) || defined (HAVE_ASM_WEAK_REFS)
+#ifdef HAVE_WEAK_REFS
+#ifdef __GNUC__
+/* this is slightly convoluted to avoid an apparent gcc bug.  */
+#define CRYPT(str, salt) \
+  ({ char *__str = (str); if (crypt) __str = crypt (__str, salt); __str; })
+#else
 #define CRYPT(str, salt) (crypt ? crypt (str, salt) : (str))
+#endif /* __GCC__ */
 #else
 #ifdef HAVE_CRYPT
 #define CRYPT(str, salt) crypt (str, salt)
