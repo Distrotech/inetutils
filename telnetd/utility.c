@@ -22,7 +22,6 @@
 #define SLC_NAMES
 #include "telnetd.h"
 #include <stdarg.h>
-#include <termio.h>
 
 #if defined(AUTHENTICATION) || defined(ENCRYPTION)
 # include <libtelnet/misc.h>
@@ -149,6 +148,7 @@ io_setup ()
   pfrontp = pbackp = ptyobuf;
   nfrontp = nbackp = netobuf;
   netip = netibuf;
+  ptyip = ptyibuf;
 }
 
 void
@@ -326,6 +326,15 @@ pty_get_char (int peek)
       pcc--;
       return *ptyip++ & 0377;
     }
+}
+
+int
+pty_input_putback (const char *str, size_t len)
+{
+  if (len > &ptyibuf[BUFSIZ] - ptyip)
+    len = &ptyibuf[BUFSIZ] - ptyip;
+  strncpy (ptyip, str, len);
+  pcc += len;
 }
 
 int
@@ -1537,3 +1546,259 @@ telnet_spin()
 
 
 #endif
+
+/* ************************************************************************* */
+/* String expansion functions */
+
+#define EXP_STATE_CONTINUE 0
+#define EXP_STATE_SUCCESS  1
+#define EXP_STATE_ERROR    2
+
+struct line_expander
+{
+  int state;           /* Current state */
+  int level;           /* The nesting level */
+  char *source;        /* The source string */
+  char *cp;            /* Current position in the source */
+  struct obstack stk;  /* Obstack for expanded version */
+};
+
+static char *_var_short_name P((struct line_expander *exp));
+static char *_var_long_name P((struct line_expander *exp,
+			       char *start, int length));
+static char *_expand_var P((struct line_expander *exp));
+static void _expand_cond P((struct line_expander *exp));
+static void _skip_block P((struct line_expander *exp));
+static void _expand_block P((struct line_expander *exp));
+     
+/* Expand a variable referenced by its short one-symbol name.
+   Input: exp->cp points to the variable name.
+   FIXME: not implemented */
+char *
+_var_short_name (struct line_expander *exp)
+{
+  char *q;
+  char timebuf[64];
+  time_t t;
+  
+  switch (*exp->cp++)
+    {
+    case 'a':
+#ifdef AUTHENTICATION
+      if (auth_level >= 0 && autologin == AUTH_VALID)
+	return xstrdup ("ok");
+#endif
+      return NULL;
+      
+    case 'd':
+      time (&t);
+      strftime(timebuf, sizeof (timebuf),
+	       "%l:%M%P on %A, %d %B %Y", localtime(&t));
+      return xstrdup (timebuf);
+
+    case 'h':
+      return xstrdup (remote_hostname);
+      
+    case 'l':
+      return xstrdup (local_hostname);
+	
+    case 't':
+      q = strchr (line + 1, '/');
+      if (q)
+	q++;
+      else
+	q = line;
+      return xstrdup (q);
+      
+    case 'T':
+      return terminaltype ? xstrdup (terminaltype) : NULL;
+	
+    case 'u':
+      return user_name ? xstrdup (user_name) : NULL;
+
+    default:
+      exp->state = EXP_STATE_ERROR;
+      return NULL;
+    }
+}
+
+/* Expand a variable referenced by its long name.
+   Input: exp->cp points to initial '('
+   FIXME: not implemented */
+char *
+_var_long_name (struct line_expander *exp, char *start, int length)
+{
+  exp->state = EXP_STATE_ERROR;
+  return NULL;
+}
+
+/* Expand a variable to its value.
+   Input: exp->cp points one character _past_ % (or ?) */
+char *
+_expand_var (struct line_expander *exp)
+{
+  char *p;
+  switch (*exp->cp)
+    {
+    case '{':
+      /* Collect variable name */
+      for (p = ++exp->cp; *exp->cp && *exp->cp != '}'; exp->cp++)
+	;
+      if (*exp->cp == 0)
+	{
+	  exp->cp = p;
+	  exp->state = EXP_STATE_ERROR;
+	  break;
+	}
+      p = _var_long_name (exp, p, exp->cp - p);
+      exp->cp++;
+      break;
+
+    default:
+      p = _var_short_name (exp);
+      break;
+    }
+  return p;
+}
+
+/* Expand a conditional block. A conditional block is:
+       %?<var>{true-stmt}[{false-stmt}]
+   <var> may be either a one-symbol variable name or (string). The latter
+   is not handled yet.
+   On input exp->cp points to % character */
+void
+_expand_cond (struct line_expander *exp)
+{
+  char *p;
+
+  if (*++exp->cp == '?')
+    {
+      /* condition */
+      exp->cp++;
+      p = _expand_var (exp);
+      if (p)
+	{
+	  _expand_block (exp);
+	  _skip_block (exp);
+	}
+      else
+	{
+	  _skip_block (exp);
+	  _expand_block (exp);
+	}
+      free (p);
+    }
+  else
+    {
+      p = _expand_var (exp);
+      if (p)
+	obstack_grow (&exp->stk, p, strlen (p));
+      free (p);
+    }
+}
+
+/* Skip the block. If the exp->cp does not point to the beginning of a
+   block ({ character), the function does nothing */
+void
+_skip_block (struct line_expander *exp)
+{
+  int level = exp->level;
+  if (*exp->cp != '{')
+    return;
+  for (; *exp->cp; exp->cp++)
+    {
+      switch (*exp->cp)
+	{
+	case '{':
+	  exp->level++;
+	  break;
+	  
+	case '}':
+	  exp->level--;
+	  if (exp->level == level)
+	    {
+	      exp->cp++;
+	      return;
+	    }
+	}
+    }
+}
+
+/* Expand a block within the formatted line. Stops either when end of source
+   line was reached or the nesting reaches the initial value */
+void
+_expand_block (struct line_expander *exp)
+{
+  int level = exp->level;
+  if (*exp->cp == '{')
+    {
+      exp->level++;
+      exp->cp++;/*FIXME?*/
+    }
+  while (exp->state == EXP_STATE_CONTINUE)
+    {
+      for (; *exp->cp && *exp->cp != '%'; exp->cp++)
+	{
+	  switch (*exp->cp)
+	    {
+	    case '{':
+	      exp->level++;
+	      break;
+	      
+	    case '}':
+	      exp->level--;
+	      if (exp->level == level)
+		{
+		  exp->cp++;
+		  return;
+		}
+	      break;
+	      
+	    case '\\':
+	      exp->cp++;
+	      break;
+	    }
+	  obstack_1grow (&exp->stk, *exp->cp);
+	}
+      
+      if (*exp->cp == 0)
+	{
+	  obstack_1grow (&exp->stk, 0);
+	  exp->state = EXP_STATE_SUCCESS;
+	  break;
+	}
+      else if (*exp->cp == '%' && exp->cp[1] == '%')
+	{
+	  obstack_1grow (&exp->stk, *exp->cp);
+	  exp->cp += 2;
+	  continue;
+	}
+
+      _expand_cond (exp);
+    }
+}
+
+/* Expand a format line */
+char *
+expand_line (const char *line)
+{
+  char *p = NULL;
+  struct line_expander exp;
+
+  exp.state = EXP_STATE_CONTINUE;
+  exp.level = 0;
+  exp.source = line;
+  exp.cp = line;
+  obstack_init (&exp.stk);
+  _expand_block (&exp);
+  if (exp.state == EXP_STATE_SUCCESS)
+    p = xstrdup (obstack_finish (&exp.stk));
+  else
+    {
+      syslog (LOG_ERR, "can't expand line: %s", line);
+      syslog (LOG_ERR, "stopped near %s", exp.cp ? exp.cp : "(END)");
+    }
+  obstack_free (&exp.stk, NULL);
+  return p;
+}
+      
