@@ -43,6 +43,15 @@
 # define	BSD 43
 #endif
 
+#ifdef HAVE_TERMIOS_H
+#define USE_TERMIO
+#endif
+
+#ifdef HAVE_TERMIO_H
+#define USE_TERMIO
+#define SYSV_TERMIO
+#endif
+
 #if	defined(CRAY) && !defined(LINEMODE)
 # define SYSV_TERMIO
 # define LINEMODE
@@ -132,15 +141,6 @@ typedef unsigned char cc_t;
 # else
 #  define _POSIX_VDISABLE ((unsigned char)'\377')
 # endif
-#endif
-
-#ifdef HAVE_TERMIOS_H
-#define USE_TERMIO
-#endif
-
-#ifdef HAVE_TERMIO_H
-#define USE_TERMIO
-#define SYSV_TERMIO
 #endif
 
 #ifdef	CRAY

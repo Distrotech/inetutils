@@ -41,7 +41,7 @@ static char *area;
 getent(cp, name)
 char *cp, *name;
 {
-#ifdef	HAS_CGETENT
+#ifdef	HAVE_CGETENT
 	char *dba[2];
 
 	dba[0] = "/etc/gettytab";
@@ -58,7 +58,7 @@ char *
 getstr(id, cpp)
 char *id, **cpp;
 {
-# ifdef	HAS_CGETENT
+# ifdef	HAVE_CGETENT
 	char *answer;
 	return((cgetstr(area, id, &answer) > 0) ? answer : 0);
 # else
