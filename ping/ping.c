@@ -345,7 +345,8 @@ ping_run (PING *ping, int (*finish)())
   struct timeval last, intvl, now;
   struct timeval *t = NULL;
   int finishing = 0;
-  
+  int nresp = 0;
+
   signal (SIGINT, sig_int);
   
   fdmax = ping->ping_fd+1;
@@ -399,19 +400,15 @@ ping_run (PING *ping, int (*finish)())
 	}
       else if (n == 1)
 	{
-	  len = ping_recv (ping);
+	  if (ping_recv (ping) == 0)
+	    nresp++;
 	  if (t == 0)
 	    {
 	      gettimeofday (&now, NULL);
 	      t = &now;
 	    }
-	  if (ping->ping_count && ping->ping_num_xmit >= ping->ping_count)
-            { 
-              struct timeval tmp = last;
-              tmp.tv_sec += 10; /* FIXME: should I make it configurable? */
-              if (timercmp (&tmp, &now, <=))
+	  if (ping->ping_count && nresp >= ping->ping_count)
 	    break;
-	}
 	}
       else
 	{
@@ -426,7 +423,7 @@ ping_run (PING *ping, int (*finish)())
 	  else if (finishing)
 	    break;
 	  else
-	    {
+ 	    {
 	      finishing = 1;
 
 	      intvl.tv_sec = MAXWAIT;
