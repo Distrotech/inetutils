@@ -1,3 +1,26 @@
+1997-05-27  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* iumacros.m4: Doc fixes.
+
+Fri Apr 18 00:11:22 1997  Miles Bader  <miles@gnu.ai.mit.edu>
+
+	* libinetutils/version.c (inetutils_version): Change to `1.3b'.
+
+Tue Mar  4 12:49:00 1997  Philippe De Muyter  <phdm@info.ucl.ac.be>
+
+	* paths (PATH_TMP): Added a trailing '/' to default value.
+
+Mon Mar  3 23:53:45 1997  Philippe De Muyter  <phdm@info.ucl.ac.be>
+
+	* headers/acconfig.h (HAVE_SYS_ERRLIST): New macro.
+	(hstrerror, strerror): New function declarations, if needed.
+	inetd/inetd.c (reapchild): Use wait, if not HAVE_WAIT3.
+	libinetutils/hstrerror.c (hstrerror): Function made const.
+	libinetutils/strerror.c (strerror): Function made const.
+	(sys_nerr): Fixed variable name.
+ 	configure.in (sys_errlist): If variable exists,
+ 	AC_DEFINE(HAVE_SYS_ERRLIST).
+
 Thu Apr 17 12:47:31 1997  Miles Bader  <miles@gnu.ai.mit.edu>
 
 	* libinetutils/version.c (inetutils_version): Change to `1.3a'.
