@@ -1,5 +1,8 @@
 Mon Mar 23 11:47:37 1998  Joel N. Weber II  <nemo@nautilus.sub>
 
+	* syslogd/Makefile.am (LDADD): Added `-L../libinetutils
+ 	-linetutils'.
+
 	* rshd/Makefile.am (LDADD): Added `-L../libinetutils -linetutils'.
 
 	* rlogin/Makefile.am (LDADD): Added `-L../libinetutils
