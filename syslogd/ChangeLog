@@ -1,5 +1,9 @@
 2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
 
+	* syslogd.c (cvthname): Fix some really stupid errors in last change.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c (domark): Don't log mark if MarkInterval is <= 0.
 	* syslogd.8 (SYNOPSIS): Add '-l', '-r', '-n' and '-s' (oops).
 	Document behaviour of '-m 0'.

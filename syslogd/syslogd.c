@@ -1106,23 +1106,26 @@ cvthname(struct sockaddr_in *f)
 		if (isupper(*p))
 			*p = tolower(*p);
 
-	if ((p = strchr(hp->h_name, '.')) && strcmp(p + 1, LocalDomain) == 0) {
-		*p = '\0';
-		return (hp->h_name);
-	} else {
-		if (StripDomains) {
-			count=0;
-			while (StripDomains[count]) {
-				if (strcmp(p + 1, StripDomains[count]) == 0) {
-					*p = '\0';
-					return (hp->h_name);
+	if (p = strchr(hp->h_name, '.')) {
+		if (strcmp(p + 1, LocalDomain) == 0)
+			*p = '\0';
+		else {
+			int count;
+
+			if (StripDomains) {
+				count=0;
+				while (StripDomains[count]) {
+					if (strcmp(p + 1, StripDomains[count]) == 0) {
+						*p = '\0';
+						return (hp->h_name);
+					}
+					count++;
 				}
-				count++;
 			}
 			if (LocalHosts) {
 				count=0;
 				while (LocalHosts[count]) {
-					if (!strcmp(hp->h_name, LocalHosts[count])) {
+					if (strcmp(hp->h_name, LocalHosts[count]) == 0) {
 						*p = '\0';
 						return (hp->h_name);
 					}
