@@ -1,19 +1,21 @@
-# Makefile for rsh
+# Makefile for tftp
+#
 # Copyright (C) 1995 Free Software Foundation, Inc.
-
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2, or (at your option)
 # any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
 
 SHELL = /bin/sh
 
@@ -37,22 +39,22 @@ CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
 RM = @RM@
 
-CFLAGS += $(DEFS) -D_PATH_RLOGIN=\"$(bindir)/rlogin\"
+CFLAGS += $(DEFS)
 LDLIBS = $(LIBS)
 
-all: rsh
-rsh: rsh.o
+all: tftp
+tftp: main.o tftp.o tftpsubs.o
 
-install: installdirs rsh $(srcdir)/rsh.1
-	$(INSTALL_PROGRAM) rsh $(bindir)/rsh
-	-$(INSTALL_DATA) $(srcdir)/rsh.1 $(man1dir)/rsh.1
+install: installdirs tftp $(srcdir)/tftp.1
+	$(INSTALL_PROGRAM) tftp $(bindir)/tftp
+	-$(INSTALL_DATA) $(srcdir)/tftp.1 $(man1dir)/tftp.1
 uninstall:
-	-$(RM) -f $(bindir)/rsh $(man1dir)/rsh.1
+	-$(RM) -f $(bindir)/tftp $(man1dir)/tftp.1
 
 installdirs:
 	@$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
 
 clean mostlyclean:
-	$(RM) -f *.o rsh 
+	$(RM) -f *.o tftp 
 distclean: clean
 	$(RM) -f Makefile
