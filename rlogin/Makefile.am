@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = ../ansi2knr
 
 INCLUDES = -I$(top_builddir)/include
 
-bin_PROGRAMS = @BUILD_RLOGIN@
+bin_PROGRAMS = @rlogin_BUILD@
 
 EXTRA_PROGRAMS = rlogin
 
