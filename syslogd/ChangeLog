@@ -1,5 +1,15 @@
 2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
 
+This is the equivalent to the following Linux change:
+Mon Feb 10 00:09:11 MET DST 1997:  Martin Schulze
+Improved debug code to decode the numeric facility/priority
+pair into textual information.
+
+	* syslogd.c (textpri): New prototype and function.
+	(logmsg): Use textpri in log message.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
 	* syslogd.c (cfline): Instead number 0 use char '\0'.
 	Make debug output nicer by better alignment.
 

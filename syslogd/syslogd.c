@@ -252,6 +252,7 @@ void	usage __P((void));
 void	wallmsg __P((struct filed *, struct iovec *));
 extern char *localhost __P ((void));
 char **crunch_list __P((char *list));
+char   *textpri __P((int pri));
 void    debug_switch __P(());
 #if defined(__GLIBC__)
 #define dprintf mydprintf
@@ -670,6 +671,25 @@ printsys(const char *msg)
 	}
 }
 
+/*
+ * Decode a priority into textual information like auth.emerg.
+ */
+char *
+textpri(int pri)
+{
+	static char res[20];
+	CODE *c_pri, *c_fac;
+
+	for (c_fac = facilitynames; c_fac->c_name
+		&& !(c_fac->c_val == LOG_FAC(pri)<<3); c_fac++);
+	for (c_pri = prioritynames; c_pri->c_name
+		&& !(c_pri->c_val == LOG_PRI(pri)); c_pri++);
+
+	snprintf (res, sizeof(res), "%s.%s", c_fac->c_name, c_pri->c_name);
+
+	return res;
+}
+
 time_t	now;
 
 /*
@@ -689,8 +709,8 @@ logmsg(int pri, const char *msg, const char *from, int flags)
 
 	const char *timestamp;
 
-	dprintf("logmsg: pri %o, flags %x, from %s, msg %s\n",
-	    pri, flags, from, msg);
+	dprintf("logmsg: %s (%d), flags %x, from %s, msg %s\n",
+	    textpri(pri), pri, flags, from, msg);
 
 #ifdef HAVE_SIGACTION
 	sigemptyset(&sigs);
