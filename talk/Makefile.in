@@ -1,0 +1,56 @@
+# Makefile for rlogin
+# Copyright (C) 1995 Free Software Foundation, Inc.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+SHELL = /bin/sh
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+mandir = @mandir@
+man1dir = $(mandir)/man1
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+CC = @CC@
+DEFS = @DEFS@
+LIBS = @LIBS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+RM = @RM@
+
+LDLIBS = $(LIBS)
+
+CFLAGS += $(DEFS)
+
+rlogin: rlogin.o
+
+install: installdirs rlogin $(srcdir)/rlogin.1
+	$(INSTALL_PROGRAM) rlogin $(bindir)/in.rlogin
+	$(INSTALL_DATA) $(srcdir)/rlogin.1 $(man1dir)
+
+installdirs:
+	$(SHELL) $(top_srcdir)/mkinstalldirs $(bindir) $(man1dir)
+
+clean:
+	$(RM) -f *.o rlogin 
+distclean: clean
+	$(RM) -f Makefile
