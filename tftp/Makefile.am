@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = ../ansi2knr
 
-INCLUDES = -I$(top_builddir)/include
+INCLUDES = -I$(top_builddir)/include -I$(top_builddir)/libinetutils
 
 bin_PROGRAMS = @tftp_BUILD@
 
