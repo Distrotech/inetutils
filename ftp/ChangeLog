@@ -1,3 +1,8 @@
+2005-05-01  Alfred M. Szmidt  <ams@gnu.org>
+
+	* cmdtab.c (cmdtab): Changed type to pointer.
+	* extern.h (cmdtab): Updated extern declaration.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftp.c (recvrequest): Removed unused variable `st'.  Don't use

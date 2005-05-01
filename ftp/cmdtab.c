@@ -109,7 +109,7 @@ char	umaskhelp[] =	"get (set) umask on remote side";
 char	userhelp[] =	"send new user information";
 char	verbosehelp[] =	"toggle verbose mode";
 
-struct cmd cmdtab[] = {
+struct cmd *cmdtab = {
 	{ "!",		shellhelp,	0,	0,	0,	shell },
 	{ "$",		domachelp,	1,	0,	0,	domacro },
 	{ "account",	accounthelp,	0,	1,	1,	account},

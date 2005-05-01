@@ -137,7 +137,7 @@ void	user __P((int, char **));
 
 extern jmp_buf	abortprox;
 extern int	abrtflag;
-extern struct	cmd cmdtab[];
+extern struct	cmd *cmdtab;
 extern FILE	*cout;
 extern int	data;
 extern char    *home;
