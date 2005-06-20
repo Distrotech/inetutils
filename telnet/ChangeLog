@@ -1,3 +1,15 @@
+2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
+
+	* commands.c: Include <arpa/telnet.h>. Remove variable tos and
+	_hostname.
+	(tn): Rewritten. Removed support for source routing and added
+	support for IPv6.
+	(sourceroute): Function removed.
+	* main.c (help): Add "-4" and "-6", remove "-S".
+	(long_options): Add "ipv4" and "ipv6", remove "tos".
+	(main): New variable family. Implement "-4" and "-6" options and
+	remove "-S" option.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* telnet.c (init_term): New variable err.  Only do tgetent if we
