@@ -78,8 +78,13 @@ or ``seqpacket'', depending on whether the socket is a stream, datagram,
 raw, reliably delivered message, or sequenced packet socket.  TCPMUX services
 must use ``stream''.
 
-The protocol must be a valid protocol as given in /etc/protocols. Examples
-might be ``tcp'' or ``udp''. TCPMUX services must use ``tcp''.
+The protocol must be a valid protocol as given in /etc/protocols.
+Examples might be ``tcp'' or ``udp''.  TCPMUX services must use
+``tcp''.  If IPv6 support is enabled the sockets will accept both IPv4
+and IPv6 connections if that is supported by the OS.  If inetd should only
+accept IPv4 or IPv6 connections, add ``4'' or ``6'' to the protocol.
+For example ``tcp4'' will only accept IPv4 tcp connections and
+``udp6'' will only accept IPv6 udp connections.
 
 The wait/nowait entry specifies whether the server that is invoked by inetd
 will take over the socket associated with the service access point,

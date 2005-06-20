@@ -1,3 +1,7 @@
+2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
+
+	* inetd.texi (inetd): Document IPv6 configuration options.
+
 2002-09-02  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* doc/syslogd.texi: Documented ** extensions, provided
