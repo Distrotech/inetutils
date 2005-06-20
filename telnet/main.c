@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1988, 1990, 1993, 2002
+ * Copyright (c) 1988, 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,9 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1988, 1990, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
+#if 0
 static char sccsid[] = "@(#)main.c	8.3 (Berkeley) 5/30/95";
-#endif /* not lint */
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -44,6 +38,7 @@ static char sccsid[] = "@(#)main.c	8.3 (Berkeley) 5/30/95";
 #include <sys/types.h>
 
 #include <getopt.h>
+#include <stdlib.h>
 
 #include "ring.h"
 #include "externs.h"
@@ -87,6 +82,8 @@ help ()
   fprintf (stdout, USAGE, prompt);
 
   puts ("Login to remote system HOST (optionally, on service port PORT)\n\n\
+  -4, --ipv4                 Use only IPv4\n\
+  -6, --ipv6                 Use only IPv6\n\
   -8, --binary               Use an 8-bit data path\n\
   -a, --login                Attempt automatic login\n\
   -c, --no-rc                Don't read the user's .telnetrc file\n\
@@ -98,7 +95,6 @@ help ()
   -L, --binary-output        Use an 8-bit data path for output only\n\
   -n FILE, --trace=FILE      Record trace information into FILE\n\
   -r, --rlogin               Use a user-interface similar to rlogin\n\
-  -S TOS, --tos=TOS          Use the IP type-of-service TOS\n\
   -X ATYPE, --disable-auth=ATYPE   Disable type ATYPE authentication");
 
 #ifdef ENCRYPTION
@@ -155,6 +151,8 @@ usage ()
 
 static struct option long_options[] =
 {
+  { "ipv4", no_argument, 0, '4'},
+  { "ipv6", no_argument, 0, '6'},
   { "binary", no_argument, 0, '8' },
   { "login", no_argument, 0, 'a' },
   { "no-rc", no_argument, 0, 'c' },
@@ -166,7 +164,6 @@ static struct option long_options[] =
   { "binary-output", no_argument, 0, 'L' },
   { "trace", required_argument, 0, 'n' },
   { "rlogin", no_argument, 0, 'r' },
-  { "tos", required_argument, 0, 'S' },
   { "disable-auth", required_argument, 0, 'X' },
   { "encrypt", no_argument, 0, 'x' },
   { "fwd-credentials", no_argument, 0, 'f' },
@@ -186,6 +183,7 @@ main(int argc, char *argv[])
 	extern char *optarg;
 	extern int optind;
 	int ch;
+	int family = 0;
 	char *user;
 #ifndef strrchr
 	char *strrchr();
@@ -211,11 +209,19 @@ main(int argc, char *argv[])
 	rlogin = (strncmp(prompt, "rlog", 4) == 0) ? '~' : _POSIX_VDISABLE;
 	autologin = -1;
 
-	while ((ch = getopt_long (argc, argv, "8EKLS:X:acde:fFk:l:n:rt:x",
+	while ((ch = getopt_long (argc, argv, "468EKLS:X:acde:fFk:l:n:rt:x",
 				  long_options, 0))
 	       != EOF)
 	{
 		switch(ch) {
+		case '4':
+			family = 4;
+			break;
+
+		case '6':
+			family = 6;
+			break;
+			
 		case '8':
 			eight = 3;	/* binary output and input */
 			break;
@@ -229,23 +235,6 @@ main(int argc, char *argv[])
 			break;
 		case 'L':
 			eight |= 2;	/* binary output only */
-			break;
-		case 'S':
-		    {
-#ifdef	HAS_GETTOS
-			extern int tos;
-
-			if ((tos = parsetos(optarg, "tcp")) < 0)
-				fprintf(stderr, "%s%s%s%s\n",
-					prompt, ": Bad TOS argument '",
-					optarg,
-					"; will try to use default TOS");
-#else
-			fprintf(stderr,
-			   "%s: Warning: -S ignored, no parsetos() support.\n",
-								prompt);
-#endif
-		    }
 			break;
 		case 'X':
 #ifdef	AUTHENTICATION
@@ -374,7 +363,7 @@ main(int argc, char *argv[])
 	argv += optind;
 
 	if (argc) {
-		char *args[7], **argp = args;
+		char *args[8], **argp = args;
 
 		if (argc > 2)
 			usage ();
@@ -383,6 +372,11 @@ main(int argc, char *argv[])
 			*argp++ = "-l";
 			*argp++ = user;
 		}
+		if (family == 4)
+		  *argp++ = "-4";
+		else if (family == 6)
+		  *argp++ = "-6";
+
 		*argp++ = argv[0];		/* host */
 		if (argc > 1)
 			*argp++ = argv[1];	/* port */
