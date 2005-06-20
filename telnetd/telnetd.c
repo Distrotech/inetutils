@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2004x Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -275,10 +275,16 @@ extern char *localhost __P ((void));
 void
 telnetd_setup (int fd)
 {
+#ifdef IPV6
+  struct sockaddr_storage saddr;
+  char buf[256], buf2[256]; /* FIXME: We should use dynamic allocation. */
+  int err;
+#else
   struct sockaddr_in saddr;
+  struct hostent *hp;
+#endif
   int true = 1;
   socklen_t len;
-  struct hostent *hp;
   char uname[256]; /*FIXME*/
   int level;
  
@@ -289,8 +295,84 @@ telnetd_setup (int fd)
       exit (1);
     }
 
-  syslog (LOG_INFO, "Connect from %s", inet_ntoa (saddr.sin_addr));
-  
+#ifdef IPV6
+  err = getnameinfo ((struct sockaddr *) &saddr, sizeof (saddr), buf,
+		     sizeof (buf), NULL, 0, NI_NUMERICHOST);
+  if (err)
+    {
+      const char *errmsg;
+      
+      if (err == EAI_SYSTEM)
+	errmsg = strerror (errno);
+      else
+	errmsg = gai_strerror (err);
+      
+      syslog (LOG_AUTH|LOG_NOTICE, "Cannot get address: %s", errmsg);
+      fatal (fd, "Cannot get address.");
+    }
+
+  /* We use a second buffer so we don't have to call getnameinfo again
+     if we need the numeric host below.  */
+  err = getnameinfo ((struct sockaddr *) &saddr, sizeof (saddr), buf2,
+		     sizeof (buf2), NULL, 0, NI_NAMEREQD);
+
+  if (reverse_lookup)
+    {
+      struct addrinfo *result, *aip;
+
+      if (err)
+	{
+	  const char *errmsg;
+	  
+	  if (err == EAI_SYSTEM)
+	    errmsg = strerror (errno);
+	  else
+	    errmsg = gai_strerror (err);
+	  
+	  syslog (LOG_AUTH|LOG_NOTICE, "Can't resolve %s: %s", buf, errmsg);
+	  fatal (fd, "Cannot resolve address.");
+	}
+
+      remote_hostname = xstrdup (buf2);
+
+      err = getaddrinfo (remote_hostname, NULL, NULL, &result);
+      if (err)
+	{
+	  const char *errmsg;
+	  
+	  if (err == EAI_SYSTEM)
+	    errmsg = strerror (errno);
+	  else
+	    errmsg = gai_strerror (err);
+	  
+	  syslog (LOG_AUTH|LOG_NOTICE, "Forward resolve of %s failed: %s",
+		  remote_hostname, errmsg);
+	  fatal (fd, "Cannot resolve address.");
+	}
+
+      for (aip = result; aip; aip = aip->ai_next)
+	if (!memcmp (aip->ai_addr, &saddr, aip->ai_addrlen))
+	  break;
+
+      if (aip == NULL)
+	{
+	  syslog (LOG_AUTH|LOG_NOTICE,
+		  "None of addresses of %s matched %s",
+		  remote_hostname,
+		  buf);
+	  exit (0);
+	}
+
+      freeaddrinfo (result);
+    }
+  else
+    {
+      if (!err)
+	remote_hostname = xstrdup (buf2);
+      else
+	remote_hostname = xstrdup (buf);
+    }
+#else
   hp = gethostbyaddr ((char*)&saddr.sin_addr.s_addr,
 		      sizeof (saddr.sin_addr.s_addr), AF_INET);
   if (reverse_lookup)
@@ -337,6 +419,7 @@ telnetd_setup (int fd)
       else
 	remote_hostname = xstrdup (inet_ntoa (saddr.sin_addr));
     }
+#endif
   
   /* Set socket options */
 

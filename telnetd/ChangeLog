@@ -1,3 +1,7 @@
+2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
+
+	* telnetd.c (telnetd_setup): Add support for IPv6.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* utility.c (terminaltypeok): Just do tgetent if HAVE_LIBREADLINE
