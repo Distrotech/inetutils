@@ -1,3 +1,9 @@
+2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
+
+	* acinclude.m4 (IU_ENABLE_FOO): Use AS_HELP_STRING.
+	
+	* configure.ac: Add checks for IPv6.
+
 2005-01-31  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (AUTOMAKE_OPTIONS): Require automake 1.9.

@@ -69,6 +69,7 @@ IU_ENABLE_SERVER(uucpd)
 
 IU_ENABLE_CLIENT(ftp)
 IU_ENABLE_CLIENT(ping)
+IU_ENABLE_CLIENT(ping6)
 IU_ENABLE_CLIENT(rcp)
 IU_ENABLE_CLIENT(rlogin)
 IU_ENABLE_CLIENT(rsh)
@@ -250,6 +251,111 @@ if test ".$LIBAUTH" != .; then
   test "$enable_encryption" = yes     && AC_DEFINE(ENCRYPTION, 1,
                    [Define to one if you want encryption.])
 fi
+
+dnl Checks for IPv6 support.
+
+AC_ARG_ENABLE(ipv6,
+  AS_HELP_STRING([--disable-ipv6], [disable IPv6 support]),
+  [case "${enable_ipv6}" in
+  no)
+    AC_MSG_NOTICE([Disabling IPv6 at user request])
+    ipv6=no
+    ;;
+  *)
+    ipv6=yes
+    ;;
+  esac],
+  [ipv6=auto]
+)
+
+working_ipv6=yes
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  IU_CHECK_MACRO(AF_INET6, [#include <sys/socket.h>], , , working_ipv6=no)
+fi
+
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  IU_CHECK_MACRO(IPV6_V6ONLY, [#include <netinet/in.h>], , , working_ipv6=no)
+fi
+
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  AC_CHECK_TYPE(struct sockaddr_storage, , working_ipv6=no, [#include <sys/socket.h>])
+fi
+
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  AC_CHECK_TYPE(struct sockaddr_in6, , working_ipv6=no, [#include <netinet/in.h>])
+fi
+
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  AC_CHECK_TYPE(struct addrinfo, , working_ipv6=no, [#include <netdb.h>])
+fi
+
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  AC_CHECK_FUNC(getaddrinfo, ,working_ipv6=no, [#include <netdb.h>])
+fi
+
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  AC_CHECK_FUNC(getnameinfo, ,working_ipv6=no, [#include <netdb.h>])
+fi
+
+if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+  AC_DEFINE(IPV6, 1, [Define to one if you want IPv6.])
+else 
+  if test "X$ipv6" = "Xyes"; then
+    AC_MSG_FAILURE([IPv6 support not available])
+  else 
+    if test "X$ipv6" = "Xauto"; then
+      AC_MSG_WARN([IPv6 support not available, disabling IPv6])
+    fi
+  fi
+fi
+
+if test "X$ipv6" = "Xno" -o "X$working_ipv6" = "Xno";then
+  ping6_BUILD=''
+else
+  working_icmp6=yes
+
+  AC_CHECK_HEADER(netinet/icmp6.h, , working_icmp6=no)
+
+  if test "X$working_icmp6" = "Xyes"; then
+    AC_CHECK_HEADER(netinet/ip6.h, , working_icmp6=no)
+  fi
+
+  if test "X$working_icmp6" = "Xyes"; then
+    AC_CHECK_TYPE(struct icmp6_filter, , working_icmp6=no, [#include <netinet/icmp6.h>])
+  fi
+
+  if test "X$working_icmp6" = "Xyes"; then
+    AC_CHECK_TYPE(struct icmp6_hdr, , working_icmp6=no, [#include <netinet/icmp6.h>])
+  fi
+
+  if test "X$working_icmp6" = "Xyes"; then
+    IU_CHECK_MACRO(IPV6_RECVHOPLIMIT, [#include <netinet/in.h>], ,
+    		   [have_recvhoplimt=yes], [have_recvhoplimt=no])
+    if test "X$have_recvhoplimt" = "Xno"; then
+      IU_CHECK_MACRO(IPV6_HOPLIMIT, [#include <netinet/in.h>], , [
+        AC_DEFINE(IPV6_RECVHOPLIMIT, IPV6_HOPLIMIT,
+                  [Define to IPV6_HOPLIMIT if not available])
+      ], [working_icmp6=no])
+    fi
+  fi
+
+  if test "X$working_icmp6" = "Xyes"; then
+    IU_CHECK_MACRO(ICMP6_DST_UNREACH_BEYONDSCOPE, [#include <netinet/icmp6.h>], ,
+    		   [have_beyondscope=yes], [have_beyondscope=no])
+    if test "X$have_beyondscope" = "Xno"; then
+      IU_CHECK_MACRO(ICMP6_DST_UNREACH_NOTNEIGHBOR, [#include <netinet/icmp6.h>], , [
+        AC_DEFINE(ICMP6_DST_UNREACH_BEYONDSCOPE, ICMP6_DST_UNREACH_NOTNEIGHBOR,
+                  [Define to ICMP6_DST_UNREACH_NOTNEIGHBOR if not available])
+      ], [working_icmp6=no])
+    fi
+  fi
+
+  if test "X$working_icmp6" = "Xno"; then
+    AC_MSG_WARN([ICMPv6 support not available, disabling ping6])
+    ping6_BUILD=''
+  fi
+fi
+
 
 dnl Check if they want support for Wrap.  Certain daemons like
 dnl ftpd have support for it.
