@@ -1,5 +1,24 @@
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write to
+   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA. */
+
 /*
- * Copyright (c) 1983, 1991, 1993, 1994, 2002
+ * Copyright (c) 1983, 1991, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -144,13 +163,12 @@ fd_set	allsock;
 int	options;
 int	timingout;
 int	toomany = TOOMANY;
-struct	servent *sp;
 
 struct	servtab {
   char	*se_service;		/* name of service */
   int	se_socktype;		/* type of socket to use */
   char	*se_proto;		/* protocol used */
-  short	se_wait;		/* single threaded server */
+  pid_t	se_wait;		/* single threaded server */
   short	se_checked;		/* looked at during merge */
   char	*se_user;		/* user name to run as */
   struct biltin *se_bi;		/* if built-in, description */
@@ -159,7 +177,13 @@ struct	servtab {
   size_t se_argc;               /* number of arguments */
   int	se_fd;			/* open descriptor */
   int	se_type;		/* type */
+  sa_family_t se_family;	/* address family of the socket */
+  char	se_v4mapped;		/* 1 = accept v4mapped connection, 0 = don't */
+#ifdef IPV6
+  struct sockaddr_storage se_ctrladdr;/* bound address */
+#else
   struct sockaddr_in se_ctrladdr;/* bound address */
+#endif
   int	se_count;		/* number started since se_time */
   struct	timeval se_time;	/* start of se_count */
   struct	servtab *se_next;
@@ -218,7 +242,7 @@ struct biltin {
   { "discard",	SOCK_STREAM,	1, 0,	discard_stream },
   { "discard",	SOCK_DGRAM,	0, 0,	discard_dg },
 
-  /* Return 32 bit time since 1970 */
+  /* Return 32 bit time since 1900 */
   { "time",	SOCK_STREAM,	0, 0,	machtime_stream },
   { "time",	SOCK_DGRAM,	0, 0,	machtime_dg },
 
@@ -267,7 +291,7 @@ signal_set_handler (int signo, RETSIGTYPE (*handler) ())
   struct sigvec sv;
   memset (&sv, 0, sizeof(sv));
   sv.sv_mask = SIGBLOCK;
-  sv.sv_handler = retry;
+  sv.sv_handler = handler;
   sigvec (signo, &sv, NULL);
 #else /* !HAVE_SIGVEC */
   signal (signo, handler);
@@ -719,6 +743,9 @@ config (int signo)
 void
 nextconfig (const char *file)
 {
+#ifndef IPV6
+  struct servent *sp;
+#endif
   struct servtab *sep, *cp, **sepp;
   struct passwd *pwd;
   FILE * fconfig;
@@ -748,8 +775,6 @@ nextconfig (const char *file)
 	  break;
       if (sep != 0)
 	{
-	  int i;
-
 	  signal_block (&sigstatus);
 	  /*
 	   * sep->se_wait may be holding the pid of a daemon
@@ -787,6 +812,7 @@ nextconfig (const char *file)
 	  sep->se_fd = -1;
 	  continue;
 	}
+#ifndef IPV6 /* This code is moved to setup() for IPV6.  */
       sp = getservbyname (sep->se_service, sep->se_proto);
       if (sp == 0)
 	{
@@ -802,6 +828,7 @@ nextconfig (const char *file)
 	  if (sep->se_fd >= 0)
 	    close_sep (sep);
 	}
+#endif
       if (sep->se_fd == -1)
 	setup (sep);
     }
@@ -844,27 +871,132 @@ retry (int signo)
 void
 setup (struct servtab *sep)
 {
-  int on = 1;
+  int err;
+  const int on = 1;
+#ifdef IPV6
+  const int off = 0;
+  struct addrinfo *result, hints;
+  struct protoent *proto;
 
-  if ((sep->se_fd = socket (AF_INET, sep->se_socktype, 0)) < 0)
+ tryagain:
+#endif
+  sep->se_fd = socket (sep->se_family, sep->se_socktype, 0);
+  if (sep->se_fd < 0)
     {
+#ifdef IPV6
+      /* If we don't support creating AF_INET6 sockets, create AF_INET
+	 sockets.  */
+      if (errno == EAFNOSUPPORT && sep->se_family == AF_INET6 && sep->se_v4mapped)
+	{
+	  /* Fall back to IPv6 silently.  */
+	  sep->se_family = AF_INET;
+	  goto tryagain;
+	}
+#endif
+      
       if (debug)
 	fprintf (stderr, "socket failed on %s/%s: %s\n",
 		 sep->se_service, sep->se_proto, strerror (errno));
       syslog(LOG_ERR, "%s/%s: socket: %m", sep->se_service, sep->se_proto);
       return;
     }
-#define	turnon(fd, opt) \
-setsockopt(fd, SOL_SOCKET, opt, (char *)&on, sizeof (on))
-  if (strcmp (sep->se_proto, "tcp") == 0 && (options & SO_DEBUG)
-      && turnon(sep->se_fd, SO_DEBUG) < 0)
-    syslog (LOG_ERR, "setsockopt (SO_DEBUG): %m");
-  if (turnon (sep->se_fd, SO_REUSEADDR) < 0)
-    syslog (LOG_ERR, "setsockopt (SO_REUSEADDR): %m");
-#undef turnon
-  if (bind (sep->se_fd, (struct sockaddr *)&sep->se_ctrladdr,
-	    sizeof (sep->se_ctrladdr)) < 0)
+
+#ifdef IPV6
+  /* Make sure that tcp6 etc also work.  */
+  if (strncmp (sep->se_proto, "tcp", 3) == 0)
+    proto = getprotobyname ("tcp");
+  else if (strncmp (sep->se_proto, "udp", 3) == 0)
+    proto = getprotobyname ("udp");
+  else
+    proto = getprotobyname (sep->se_proto);
+   
+  if (!proto)
     {
+      syslog (LOG_ERR, "%s: Unknown protocol", sep->se_proto);
+      close (sep->se_fd);
+      sep->se_fd = -1;
+      return;
+    }
+  
+  memset (&hints, 0, sizeof (hints));
+
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_family = sep->se_family;
+  hints.ai_socktype = sep->se_socktype;
+  hints.ai_protocol = proto->p_proto;
+
+  err = getaddrinfo (NULL, sep->se_service, &hints, &result);
+  if (err)
+    {
+      const char *errmsg;
+
+      if (err == EAI_FAMILY && sep->se_family == AF_INET6 && sep->se_v4mapped)
+	{
+	  /* Fall back to IPv6 silently.  */
+	  sep->se_family = AF_INET;
+	  close (sep->se_fd);
+	  goto tryagain;
+	}
+
+      if (err == EAI_SYSTEM)
+	errmsg = strerror (errno);
+      else
+	errmsg = gai_strerror (err);
+      
+      syslog (LOG_ERR, "%s/%s: getaddrinfo: %s",
+	      sep->se_service, sep->se_proto, errmsg);
+      
+      close (sep->se_fd);
+      sep->se_fd = -1;
+      return;
+    }
+
+  memcpy (&sep->se_ctrladdr, result->ai_addr, result->ai_addrlen);
+
+  freeaddrinfo (result);
+
+  if (sep->se_family == AF_INET6)
+    {
+      if (sep->se_v4mapped)
+	err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
+			  (char *)&off, sizeof(off));
+      else
+	err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
+			  (char *)&on, sizeof(on));
+      
+      if (err < 0)
+	syslog (LOG_ERR, "setsockopt (IPV6_V6ONLY): %m");
+    }
+#endif
+  
+  if (strncmp (sep->se_proto, "tcp", 3) == 0 && (options & SO_DEBUG))
+    {
+      err = setsockopt(sep->se_fd, SOL_SOCKET, SO_DEBUG,
+		       (char *)&on, sizeof (on));
+      if (err < 0)
+	syslog (LOG_ERR, "setsockopt (SO_DEBUG): %m");
+    }
+  
+  err = setsockopt(sep->se_fd, SOL_SOCKET, SO_REUSEADDR,
+		   (char *)&on, sizeof (on));
+  if (err < 0)
+    syslog (LOG_ERR, "setsockopt (SO_REUSEADDR): %m");
+
+  err = bind (sep->se_fd, (struct sockaddr *)&sep->se_ctrladdr,
+	      sizeof (sep->se_ctrladdr));
+  if (err < 0)
+    {
+#ifdef IPV6
+      /* If we can't bind with AF_INET6 try again with AF_INET.  */
+      if ((errno == EADDRNOTAVAIL || errno == EAFNOSUPPORT)
+	  && sep->se_family == AF_INET6 && sep->se_v4mapped)
+	{	
+	  /* Fall back to IPv6 silently.  */
+	  sep->se_family = AF_INET;
+	  close (sep->se_fd);
+	  goto tryagain;
+	}
+#endif
       if (debug)
 	fprintf (stderr, "bind failed on %s/%s: %s\n",
 		 sep->se_service, sep->se_proto, strerror (errno));
@@ -963,7 +1095,7 @@ endconfig (FILE *fconfig)
 #define INETD_SERVER_PATH  5   /* server program path */ 
 #define INETD_SERVER_ARGS  6   /* server program arguments */
 
-#define INETD_FIELDS_MIN   7   /* Minimum number of fields in entry */
+#define INETD_FIELDS_MIN   6   /* Minimum number of fields in entry */
 
 struct servtab *
 getconfigent (FILE *fconfig, const char *file, size_t *line)
@@ -971,7 +1103,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
   struct servtab *sep = &serv;
   size_t argc = 0, i;
   char **argv = NULL;
-  char *cp, *arg;
+  char *cp;
   static char TCPMUX_TOKEN[] = "tcpmux/";
 #define MUX_LEN		(sizeof(TCPMUX_TOKEN)-1)
 
@@ -1036,6 +1168,37 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
       
       sep->se_proto = newstr (argv[INETD_PROTOCOL]);
 
+#ifdef IPV6
+      /* We default to IPv6, in setup() we'll fall back to IPv4 if
+	 it doesn't work.  */
+      sep->se_family = AF_INET6;
+      sep->se_v4mapped = 1;
+      
+      if ((strncmp (sep->se_proto, "tcp", 3) == 0)
+	  || (strncmp (sep->se_proto, "udp", 3) == 0))
+	{
+	  if (sep->se_proto[3] == '6')
+	    {
+	      sep->se_family = AF_INET6;
+	      sep->se_v4mapped = 0;
+	    }
+	  else if (sep->se_proto[3] == '4')
+	    {
+	      sep->se_family = AF_INET;
+	    }
+	}
+#else
+      if ((strncmp (sep->se_proto, "tcp6", 4) == 0)
+	  || (strncmp (sep->se_proto, "udp6", 4) == 0))
+	{
+	  syslog (LOG_ERR, "%s:%lu: %s: IPv6 support isn't eneabled",
+		  file, (unsigned long) *line, sep->se_proto);
+	  continue;
+	}
+      
+      sep->se_family = AF_INET;
+#endif
+      
       if (strcmp (argv[INETD_WAIT], "wait") == 0)
 	sep->se_wait = 1;
       else if (strcmp (argv[INETD_WAIT], "nowait") == 0)
@@ -1054,7 +1217,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	   */
 	  sep->se_wait = 0;
 	  
-	  if (strcmp (sep->se_proto, "tcp"))
+	  if (strncmp (sep->se_proto, "tcp", 3))
 	    {
 	      syslog (LOG_ERR, "%s:%lu: bad protocol for tcpmux service %s",
 		      file, (unsigned long) *line, sep->se_service);
@@ -1114,8 +1277,6 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 void
 freeconfig (struct servtab *cp)
 {
-  int i;
-
   if (cp->se_service)
     free (cp->se_service);
   if (cp->se_proto)
@@ -1155,13 +1316,31 @@ set_proc_title (char *a, int s)
 {
   int size;
   char *cp;
-  struct sockaddr_in lsin;
+#ifdef IPV6
+  struct sockaddr_storage saddr;
+#else
+  struct sockaddr_in saddr;
+#endif
   char buf[80];
 
   cp = Argv[0];
-  size = sizeof lsin;
-  if (getpeername (s, (struct sockaddr *)&lsin, &size) == 0)
-    snprintf (buf, sizeof buf, "-%s [%s]", a, inet_ntoa (lsin.sin_addr));
+  size = sizeof saddr;
+  if (getpeername (s, (struct sockaddr *)&saddr, &size) == 0)
+    {
+#ifdef IPV6
+      int err;
+      char buf2[80];
+
+      err = getnameinfo ((struct sockaddr *) &saddr, sizeof (saddr), buf2,
+			 sizeof (buf2), NULL, 0, NI_NUMERICHOST);
+      if (!err)
+	snprintf (buf, sizeof buf, "-%s [%s]", a, buf2);
+      else
+	snprintf (buf, sizeof buf, "-%s", a);
+#else
+      snprintf (buf, sizeof buf, "-%s [%s]", a, inet_ntoa (saddr.sin_addr));
+#endif
+    }
   else
     snprintf (buf, sizeof buf, "-%s", a);
   strncpy (cp, buf, LastArg - cp);
@@ -1197,13 +1376,18 @@ echo_dg (int s, struct servtab *sep)
 {
   char buffer[BUFSIZE];
   int i, size;
+#ifdef IPV6
+  struct sockaddr_storage sa;
+#else
   struct sockaddr sa;
+#endif
 
   (void)sep;
   size = sizeof sa;
-  if ((i = recvfrom (s, buffer, sizeof buffer, 0, &sa, &size)) < 0)
+  i = recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *)&sa, &size);
+  if (i < 0)
     return;
-  sendto (s, buffer, i, 0, &sa, sizeof sa);
+  sendto (s, buffer, i, 0, (struct sockaddr *) &sa, sizeof sa);
 }
 
 /* ARGSUSED */
@@ -1292,7 +1476,11 @@ chargen_stream (int s, struct servtab *sep)
 void
 chargen_dg (int s, struct servtab *sep)
 {
+#ifdef IPV6
+  struct sockaddr_storage sa;
+#else
   struct sockaddr sa;
+#endif
   static char *rs;
   int len, size;
   char text[LINESIZ+2];
@@ -1305,7 +1493,7 @@ chargen_dg (int s, struct servtab *sep)
     }
 
   size = sizeof sa;
-  if (recvfrom (s, text, sizeof text, 0, &sa, &size) < 0)
+  if (recvfrom (s, text, sizeof text, 0, (struct sockaddr *)&sa, &size) < 0)
     return;
 
   if ((len = endring - rs) >= LINESIZ)
@@ -1319,7 +1507,7 @@ chargen_dg (int s, struct servtab *sep)
     rs = ring;
   text[LINESIZ] = '\r';
   text[LINESIZ + 1] = '\n';
-  sendto (s, text, sizeof text, 0, &sa, sizeof sa);
+  sendto (s, text, sizeof text, 0, (struct sockaddr *)&sa, sizeof sa);
 }
 
 /*
@@ -1362,15 +1550,21 @@ void
 machtime_dg (int s, struct servtab *sep)
 {
   long result;
+#ifdef IPV6
+  struct sockaddr_storage sa;
+#else
   struct sockaddr sa;
+#endif
   int size;
 
   (void)sep; /* shutup gcc */
   size = sizeof sa;
-  if (recvfrom (s, (char *)&result, sizeof result, 0, &sa, &size) < 0)
+  if (recvfrom (s, (char *)&result, sizeof result, 0, 
+		(struct sockaddr *)&sa, &size) < 0)
     return;
   result = machtime ();
-  sendto (s, (char *) &result, sizeof result, 0, &sa, sizeof sa);
+  sendto (s, (char *) &result, sizeof result, 0, 
+	  (struct sockaddr *)&sa, sizeof sa);
 }
 
 /* ARGSUSED */
@@ -1395,17 +1589,21 @@ daytime_dg(int s, struct servtab *sep)
 {
   char buffer[256];
   time_t lclock;
+#ifdef IPV6
+  struct sockaddr_storage sa;
+#else
   struct sockaddr sa;
+#endif
   int size;
 
   (void)sep; /* shutup gcc */
   lclock = time ((time_t *) 0);
 
   size = sizeof sa;
-  if (recvfrom (s, buffer, sizeof buffer, 0, &sa, &size) < 0)
+  if (recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *)&sa, &size) < 0)
     return;
   sprintf (buffer, "%.24s\r\n", ctime (&lclock));
-  sendto (s, buffer, strlen(buffer), 0, &sa, sizeof sa);
+  sendto (s, buffer, strlen(buffer), 0, (struct sockaddr *)&sa, sizeof sa);
 }
 
 /*

@@ -1,3 +1,20 @@
+2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
+
+	* inetd.c: Move global variable sp to...
+	(nextconfig): Here. Only use the getservbyname code when
+	[!IPV6]. Remove unused variable i.
+	(struct servtab): Change type of to pid_t. Add se_family.
+	[IPV6] Add se_v4mapped. Change se_ctrladdr to struct
+	sockaddr_storage.
+	(setup): Add support for IPv6.
+	(INETD_FIELDS_MIN): Define to 6.
+	(getconfigent): Add support for IPv6. Remove unused variable arg.
+	(set_proc_title): Add support for IPv6.
+	(echo_dg): Likewise.
+	(chargen_dg): Likewise.
+	(machtime_dg): Likewise.
+	(daytime_dg): Likewise.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (LDADD): Added `-L../lib -lgnu'.
