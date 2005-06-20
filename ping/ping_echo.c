@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2002, 2004 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -45,18 +45,17 @@
 #include <errno.h>
 #include <limits.h>
 
-#include "getopt.h"
 #include <icmp.h>
 #include <ping.h>
-#include <ping_impl.h>
+#include "ping_common.h"
+#include "ping_impl.h"
 
 #define	NROUTES		9		/* number of record route slots */
 #ifndef MAX_IPOPTLEN
 # define MAX_IPOPTLEN 40
 #endif
 
-extern char *xstrdup (const char *);
-extern char *xmalloc (size_t);
+#include <xalloc.h>
 
 static int handler (int code, void *closure,
 		   struct sockaddr_in *dest, struct sockaddr_in *from,
@@ -69,8 +68,6 @@ static int echo_finish (void);
 void print_icmp_header (struct sockaddr_in *from,
 			      struct ip *ip, icmphdr_t *icmp, int len);
 static void print_ip_opt (struct ip *ip, int hlen);
-
-static void tvsub (struct timeval *out, struct timeval *in);
 
 int
 ping_echo (int argc, char **argv)
@@ -524,48 +521,6 @@ print_ip_opt (struct ip *ip, int hlen)
 	printf ("\nunknown option %x", *cp);
 	break;
       }
-}
-
-/*
- * tvsub --
- *	Subtract 2 timeval structs:  out = out - in.  Out is assumed to
- * be >= in.
- */
-static void
-tvsub (struct timeval *out, struct timeval *in)
-{
-  if ((out->tv_usec -= in->tv_usec) < 0)
-    {
-      --out->tv_sec;
-      out->tv_usec += 1000000;
-    }
-  out->tv_sec -= in->tv_sec;
-}
-
-double
-nabs (double a)
-{
-  return (a < 0) ? -a : a;
-}
-
-double
-nsqrt (double a, double prec)
-{
-  double x0, x1;
-  
-  if (a < 0)
-    return 0; 
-  if (a < prec)
-    return 0;
-  x1 = a/2;
-  do
-    {
-      x0 = x1;
-      x1 = (x0 + a/x0) / 2;
-    }
-  while (nabs (x1 - x0) > prec);
-
-  return x1;
 }
 
 int

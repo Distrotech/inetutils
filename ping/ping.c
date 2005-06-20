@@ -46,10 +46,11 @@
 #include <errno.h>
 #include <limits.h>
 
-#include "getopt.h"
+#include <getopt.h>
 #include <icmp.h>
 #include <ping.h>
-#include <ping_impl.h>
+#include "ping_common.h"
+#include "ping_impl.h"
 
 static char short_options[] = "VLhc:dfi:l:np:qRrs:t:v";
 static struct option long_options[] = 
@@ -81,25 +82,21 @@ static struct option long_options[] =
   {NULL,      no_argument, NULL, 0}
 };
 
-extern int ping_echo __P ((int argc, char **argv));
-extern int ping_timestamp __P ((int argc, char **argv));
-extern int ping_address __P ((int argc, char **argv));
-extern int ping_router __P ((int argc, char **argv));
+extern int ping_echo (int argc, char **argv);
+extern int ping_timestamp (int argc, char **argv);
+extern int ping_address (int argc, char **argv);
+extern int ping_router (int argc, char **argv);
 
 PING *ping;
 u_char *data_buffer;
 size_t data_length = PING_DATALEN;
 unsigned options;
 unsigned long preload = 0;
-int (*ping_type) __P ((int argc, char **argv)) = ping_echo;
+int (*ping_type) (int argc, char **argv) = ping_echo;
 
 
 static void show_usage (void);
-static void show_license (void);
-static void decode_pattern (const char *text, int *pattern_len, 
-		           u_char *pattern_data);
 static void decode_type (const char *optarg);
-static void init_data_buffer (u_char *pat, int len);
 static int send_echo (PING *ping);
 
 int
@@ -128,7 +125,7 @@ main (int argc, char **argv)
 	{
 	case 'V':
 	  printf ("ping - %s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  printf ("Copyright (C) 1998,2001 Free Software Foundation, Inc.\n");
+	  printf ("Copyright (C) 2005 Free Software Foundation, Inc.\n");
 	  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", PACKAGE_NAME);
 	  printf ("You may redistribute copies of %s\n", PACKAGE_NAME);
 	  printf ("under the terms of the GNU General Public License.\n");
@@ -230,10 +227,20 @@ main (int argc, char **argv)
 	  break;
 	  
 	case ICMP_ADDRESS:
+	  if (!is_root)
+	    {
+	      fprintf (stderr, "ping: option not allowed: --address\n");
+	      exit (1);
+	    }
 	  decode_type ("address");
 	  break;
 	  
 	case ICMP_ROUTERDISCOVERY:
+	  if (!is_root)
+	    {
+	      fprintf (stderr, "ping: option not allowed: --router\n");
+	      exit (1);
+	    }
 	  decode_type ("router");
 	  break;
 	  
@@ -276,33 +283,7 @@ main (int argc, char **argv)
   return (*ping_type)(argc, argv);
 }
 
-void
-init_data_buffer (u_char *pat, int len)
-{
-  int i = 0;
-  u_char *p;
 
-  if (data_length == 0)
-    return;
-
-  data_buffer = (u_char *) xmalloc (data_length);
-
-  if (pat)
-    {
-      for (p = data_buffer; p < data_buffer + data_length; p++)
-	{
-	  *p = pat[i];
-	  if (i++ >= len)
-	    i = 0;
-	}
-    }
-  else
-    {
-      for (i = 0; i < data_length; i++)
-	data_buffer[i] = i;
-    }
-}
-  
 
 void
 decode_type (const char *optarg)
@@ -322,23 +303,6 @@ decode_type (const char *optarg)
       fprintf (stderr, "unsupported packet type: %s\n", optarg);
       exit (1);
     }
-}
-
-void
-decode_pattern (const char *text, int *pattern_len, u_char *pattern_data)
-{
-  int i, c, off;
-
-  for (i = 0; *text && i < *pattern_len; i++)
-    {
-      if (sscanf (text, "%2x%n", &c, &off) != 1)
-	{
-	  fprintf (stderr, "ping: error in pattern near %s\n", text);
-	  exit (1);
-	}
-      text += off;
-    }
-  *pattern_len = i;
 }
 
 int volatile stop = 0;
@@ -383,7 +347,7 @@ ping_run (PING *ping, int (*finish)())
 
   while (!stop)
     {
-      int n, len;
+      int n;
       
       FD_ZERO (&fdset);
       FD_SET (ping->ping_fd, &fdset);
@@ -502,9 +466,9 @@ Informational options:\n\
   -V, --version      output version information and exit\n\
 Options controlling ICMP request types:\n\
   --echo             Send ICMP_ECHO requests (default)\n\
-  --address          Send ICMP_ADDRESS packets\n\
+* --address          Send ICMP_ADDRESS packets\n\
   --timestamp        Send ICMP_TIMESTAMP packets\n\
-  --router           Send ICMP_ROUTERDISCOVERY packets\n\
+* --router           Send ICMP_ROUTERDISCOVERY packets\n\
 Options valid for all request types:\n\
   -c, --count N      stop after sending N packets\n\
   -d, --debug        set the SO_DEBUG option\n\
@@ -526,24 +490,3 @@ Options marked with an * are available only to super-user\n\
 Report bugs to <" PACKAGE_BUGREPORT ">.\n\
 ");
 }
-
-void
-show_license (void)
-{
-  static char license_text[] =
-"   This program is free software; you can redistribute it and/or modify\n"
-"   it under the terms of the GNU General Public License as published by\n"
-"   the Free Software Foundation; either version 2, or (at your option)\n"
-"   any later version.\n"
-"\n"
-"   This program is distributed in the hope that it will be useful,\n"
-"   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-"   GNU General Public License for more details.\n"
-"\n"
-"   You should have received a copy of the GNU General Public License\n"
-"   along with this program; if not, write to the Free Software\n"
-"   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
-  printf ("%s", license_text);
-}
-

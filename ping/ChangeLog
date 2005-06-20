@@ -1,3 +1,20 @@
+2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
+
+	* Makefile.am: Add ping6.
+	(ping_SOURCES): Add ping_common.c and ping_common.h.
+	* ping6.c: New file.
+	* ping6.h: Likewise.
+	* ping_common.c: Likewise.
+	* ping_common.h: Likewise.
+	* ping.c: Include "ping_common.h". Remove __P macro in
+	prototypes.
+	(ping_cvt_number, init_data_buffer,
+	 decode_pattern, show_license): Move to ...
+	* ping_common.c: ... here.
+	* ping_echo.c: Include "ping_common.h".
+	(tvsub, nabs, nsqrt): Move to ...
+	* ping_common.c: ... here.
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
