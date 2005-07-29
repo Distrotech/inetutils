@@ -1,3 +1,10 @@
+2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* extern.h: Reverted changes made 2005-05-01. Initializing a
+	scalar type (struct cmd *cmdtab) with a vector is an error, which leads
+	to coredump when trying to access cmdtab.
+	* cmdtab.c: Likewise
+	
 2005-05-01  Alfred M. Szmidt  <ams@gnu.org>
 
 	* cmdtab.c (cmdtab): Changed type to pointer.

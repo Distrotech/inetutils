@@ -1,3 +1,14 @@
+2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* ping.c (main): Changed types of count and interval
+	(ping_cvt_number): Restored function. atoi should not be
+	used to convert to size_t. According to POSIX "The atoi() function
+	is subsumed by strtol() but is retained because it is used
+	extensively in existing code. If the number is not known to be in
+	range, strtol() should be used because atoi() is not required to
+	perform any error checking. 
+	* ping_common.h (ping_cvt_number): Remove prototype
+
 2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
 
 	* Makefile.am: Add ping6.

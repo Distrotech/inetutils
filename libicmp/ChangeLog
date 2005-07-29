@@ -1,3 +1,9 @@
+2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* libicmp/libping.c (ping_set_count,ping_set_interval)
+	(ping_set_packetsize): Second argument is size_t
+	* libicmp/ping.h: Likewise
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (INCLUDES): Variable removed.
