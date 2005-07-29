@@ -16,7 +16,7 @@
 
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
 #ifndef _REGEX_H
 #define _REGEX_H 1
@@ -193,7 +193,7 @@ extern reg_syntax_t re_syntax_options;
    & ~(RE_DOT_NOT_NULL | RE_INTERVALS | RE_CONTEXT_INDEP_OPS		\
        | RE_CONTEXT_INVALID_OPS ))
 
-#define RE_SYNTAX_POSIX_AWK 						\
+#define RE_SYNTAX_POSIX_AWK						\
   (RE_SYNTAX_POSIX_EXTENDED | RE_BACKSLASH_ESCAPE_IN_LISTS		\
    | RE_INTERVALS	    | RE_NO_GNU_OPS)
 

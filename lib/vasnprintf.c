@@ -1,5 +1,5 @@
 /* vsprintf with automatic memory allocation.
-   Copyright (C) 1999, 2002-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2002-2005 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
 /* Tell glibc's <stdio.h> to provide a prototype for snprintf().
    This must come before <config.h> because <config.h> may include
@@ -50,6 +50,11 @@
 
 /* Checked size_t computations.  */
 #include "xsize.h"
+
+/* Some systems, like OSF/1 4.0 and Woe32, don't have EOVERFLOW.  */
+#ifndef EOVERFLOW
+# define EOVERFLOW E2BIG
+#endif
 
 #ifdef HAVE_WCHAR_T
 # ifdef HAVE_WCSLEN

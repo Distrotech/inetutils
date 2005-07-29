@@ -1,5 +1,5 @@
 /* Hierarchial argument parsing help output
-   Copyright (C) 1995-2003, 2004 Free Software Foundation, Inc.
+   Copyright (C) 1995-2003, 2004, 2005 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Miles Bader <miles@gnu.ai.mit.edu>.
 
@@ -15,7 +15,7 @@
 
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE	1
@@ -1055,7 +1055,13 @@ hol_entry_help (struct hol_entry *entry, const struct argp_state *state,
   int old_wm = __argp_fmtstream_wmargin (stream);
   /* PEST is a state block holding some of our variables that we'd like to
      share with helper functions.  */
-  struct pentry_state pest = { entry, stream, hhstate, 1, state };
+  struct pentry_state pest;
+
+  pest.entry = entry;
+  pest.stream = stream;
+  pest.hhstate = hhstate;
+  pest.first = 1;
+  pest.state = state;
 
   if (! odoc (real))
     for (opt = real, num = entry->num; num > 0; opt++, num--)
@@ -1663,7 +1669,10 @@ Try `%s --help' or `%s --usage' for more information.\n"),
 void __argp_help (const struct argp *argp, FILE *stream,
 		  unsigned flags, char *name)
 {
-  _help (argp, 0, stream, flags, name);
+  struct argp_state state;
+  memset (&state, 0, sizeof state);
+  state.root_argp = argp;
+  _help (argp, &state, stream, flags, name);
 }
 #ifdef weak_alias
 weak_alias (__argp_help, argp_help)
@@ -1739,7 +1748,8 @@ __argp_error (const struct argp_state *state, const char *fmt, ...)
 	    {
 	      char *buf;
 
-	      __asprintf (&buf, fmt, ap);
+	      if (__asprintf (&buf, fmt, ap) < 0)
+		buf = NULL;
 
 	      __fwprintf (stream, L"%s: %s\n",
 			  state ? state->name : __argp_short_program_name (),
@@ -1817,7 +1827,8 @@ __argp_failure (const struct argp_state *state, int status, int errnum,
 		{
 		  char *buf;
 
-		  __asprintf (&buf, fmt, ap);
+		  if (__asprintf (&buf, fmt, ap) < 0)
+		    buf = NULL;
 
 		  __fwprintf (stream, L": %s", buf);
 
@@ -1857,7 +1868,8 @@ __argp_failure (const struct argp_state *state, int status, int errnum,
 #endif
 #if !_LIBC
 		  if (! s && ! (s = strerror (errnum)))
-		    s = "Unknown system error"; /* FIXME: translate this */
+		    s = dgettext (state->root_argp->argp_domain,
+				  "Unknown system error");
 #endif
 		  fputs (s, stream);
 		}

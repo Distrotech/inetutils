@@ -15,7 +15,7 @@
 
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation,
-   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
+   Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
 #ifndef _ARGP_H
 #define _ARGP_H
@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <getopt.h>
+#include <limits.h>
 
 #define __need_error_t
 #include <errno.h>
@@ -579,7 +580,7 @@ __NTH (__option_is_short (__const struct argp_option *__opt))
   else
     {
       int __key = __opt->key;
-      return __key > 0 && isprint (__key);
+      return __key > 0 && __key <= UCHAR_MAX && isprint (__key);
     }
 }
 
