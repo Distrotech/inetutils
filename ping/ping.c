@@ -99,31 +99,6 @@ static void show_usage (void);
 static void decode_type (const char *optarg);
 static int send_echo (PING *ping);
 
-static size_t
-ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
-{
-  char *p;
-  size_t n;
-  
-  n = strtoul (optarg, &p, 0);
-  if (*p)
-    {
-      fprintf (stderr, "Invalid value (`%s' near `%s')\n", optarg, p);
-      exit (1);
-    }
-  if (n == 0 && !allow_zero)
-    {
-      fprintf (stderr, "Option value too small: %s\n", optarg);
-      exit (1);
-    }
-  if (maxval && n > maxval)
-    {
-      fprintf (stderr, "Option value too big: %s\n", optarg);
-      exit (1);
-    }
-  return n;
-}
-
 int
 main (int argc, char **argv)
 {

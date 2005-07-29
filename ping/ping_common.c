@@ -28,8 +28,8 @@
 extern unsigned char *data_buffer;
 extern size_t data_length;
 
-unsigned long int
-ping_cvt_number (const char *optarg, unsigned long int maxval, int allow_zero)
+size_t
+ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
 {
   char *p;
   unsigned long int n;
