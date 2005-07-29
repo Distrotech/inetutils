@@ -24,9 +24,6 @@ double nsqrt (double a, double prec);
   
 void show_license (void);
 
-unsigned long int ping_cvt_number (const char *optarg,
-				   unsigned long int maxval, int allow_zero);
-
 void init_data_buffer (unsigned char *pat, int len);
 
 void decode_pattern (const char *text, int *pattern_len,
