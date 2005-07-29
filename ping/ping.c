@@ -99,6 +99,31 @@ static void show_usage (void);
 static void decode_type (const char *optarg);
 static int send_echo (PING *ping);
 
+static size_t
+ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
+{
+  char *p;
+  size_t n;
+  
+  n = strtoul (optarg, &p, 0);
+  if (*p)
+    {
+      fprintf (stderr, "Invalid value (`%s' near `%s')\n", optarg, p);
+      exit (1);
+    }
+  if (n == 0 && !allow_zero)
+    {
+      fprintf (stderr, "Option value too small: %s\n", optarg);
+      exit (1);
+    }
+  if (maxval && n > maxval)
+    {
+      fprintf (stderr, "Option value too big: %s\n", optarg);
+      exit (1);
+    }
+  return n;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -110,9 +135,9 @@ main (int argc, char **argv)
   u_char *patptr = NULL;
   bool is_root = false;
 
-  int count = 0;
+  size_t count = 0;
   int socket_type = 0;
-  int interval = 0;
+  size_t interval = 0;
  
   if (getuid () == 0)
     is_root = true;
@@ -144,9 +169,7 @@ main (int argc, char **argv)
 	  break;
 	  
 	case 'c':
-	  count = atoi (optarg);
-	  if (count <= 0)
-	    error (1, 0, "invalid count: %i", count);
+	  count = ping_cvt_number (optarg, 0, 0);
 	  break;
 	  
 	case 'd':
@@ -159,8 +182,7 @@ main (int argc, char **argv)
 	  
 	case 'i':
 	  options |= OPT_INTERVAL;
-	  if (interval <= 0)
-	    error (1, 0, "invalid interval: %i", interval);
+	  interval = ping_cvt_number (optarg, 0, 0);
 	  break;
 	  
 	case 'p':
@@ -169,9 +191,7 @@ main (int argc, char **argv)
 	  break;
 	  
  	case 's':
-	  data_length = atoi (optarg);
-	  if (data_length < 1 || data_length > PING_MAX_DATALEN)
-	    error (1, 0, "invalid data length: %i", data_length);
+	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN, 1);
  	  break;
 	  
 	case 'n':
