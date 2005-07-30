@@ -99,6 +99,8 @@ static void show_usage (void);
 static void decode_type (const char *optarg);
 static int send_echo (PING *ping);
 
+#define MIN_USER_INTERVAL (200000/PING_PRECISION)
+
 int
 main (int argc, char **argv)
 {
@@ -156,8 +158,25 @@ main (int argc, char **argv)
 	  break;
 	  
 	case 'i':
-	  options |= OPT_INTERVAL;
-	  interval = ping_cvt_number (optarg, 0, 0);
+	  {
+	    double v;
+
+	    v = strtod (optarg, &p);
+	    if (*p)
+	      {
+		fprintf (stderr, "Invalid value (`%s' near `%s')\n",
+			 optarg, p);
+		exit (1);
+	      }
+	    
+	    options |= OPT_INTERVAL;
+	    interval = v * PING_PRECISION;
+	    if (!is_root && interval < MIN_USER_INTERVAL)
+	      {
+		fprintf (stderr, "Option value too small: %s\n", optarg);
+		exit (1);
+	      }
+	  }
 	  break;
 	  
 	case 'p':
@@ -186,7 +205,7 @@ main (int argc, char **argv)
 	  break;
 	  
 	case 'l':
-	  if (is_root == false)
+	  if (!is_root)
 	    {
 	      fprintf (stderr, "ping: option not allowed: --preload\n");
 	      exit (1);
@@ -332,10 +351,7 @@ ping_run (PING *ping, int (*finish)())
       intvl.tv_usec = 10000;
     }
   else
-    {
-      intvl.tv_sec = ping->ping_interval;
-      intvl.tv_usec = 0;
-    }
+    PING_SET_INTERVAL(intvl, ping->ping_interval);
   
   gettimeofday (&last, NULL);
   send_echo (ping);
