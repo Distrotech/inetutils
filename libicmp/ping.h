@@ -54,8 +54,13 @@ struct ping_data
 #define PEV_DUPLICATE 1
 #define PEV_NOECHO  2
 
-#define PING_INTERVAL 1
+#define PING_DEFAULT_INTERVAL 1000  /* Milliseconds */
+#define PING_PRECISION 1000 /* Millisecond precision */
 #define	PING_CKTABSIZE 128
+#define PING_SET_INTERVAL(t,i) do {\
+ (t).tv_sec = (i)/PING_PRECISION;\
+ (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
+} while (0)
 
 #define _PING_BUFLEN(p) ((p)->ping_datalen + sizeof (icmphdr_t))
 
