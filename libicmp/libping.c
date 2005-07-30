@@ -91,7 +91,7 @@ ping_init (int type, int ident)
   p->ping_fd = fd;
   p->ping_type = type;
   p->ping_count = 0;
-  p->ping_interval = PING_INTERVAL;
+  p->ping_interval = PING_DEFAULT_INTERVAL;
   p->ping_datalen  = sizeof (icmphdr_t);
   /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
   p->ping_ident = ident & 0xFFFF;
