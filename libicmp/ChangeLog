@@ -1,3 +1,10 @@
+2005-07-30  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* libping.c (ping_init): Use PING_DEFAULT_INTERVAL
+	* ping.h (PING_INTERVAL): Renamed to to
+	PING_DEFAULT_INTERVAL
+	(PING_PRECISION,PING_SET_INTERVAL): New defines
+
 2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* libicmp/libping.c (ping_set_count,ping_set_interval)

@@ -1,3 +1,8 @@
+2005-07-30  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* ping.c (main,ping_run): Handle ping intervals with millisecond
+	precision. 
+
 2005-07-29  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ping_common.h (ping_cvt_number): Prototype restored (but with
