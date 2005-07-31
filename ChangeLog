@@ -1,3 +1,20 @@
+2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* COPYING: Updated FSF postal mail address.
+	* lib/Makefile.am: Removed unused argp
+	* lib/getcwd.c,lib/getcwd.h,lib/regex.c,lib/regex.h
+	m4/getcwd-path-max.m4,m4/getcwd.m4,m4/getopt.m4,m4/gnulib.m4
+	m4/poll.m4,m4/regex.m4,m4/size_max.m4: Updated from gnulib
+	* lib/dup-safer.c,lib/fd-safer.c,lib/fopen-safer.c,
+	lib/regcomp.c,lib/regex_internal.c,lib/regex_internal.h,
+	lib/regexec.c,lib/size_max.h,lib/stdio-safer.h,
+	lib/unistd-safer.h,m4/glibc2.m4,m4/minmax.m4,
+	m4/stdio-safer.m4,m4/unistd-safer.m4: Likewise
+	* lib/argp-ba.c,lib/argp-eexst.c,lib/argp-fmtstream.c,
+	lib/argp-fmtstream.h,lib/argp-fs-xinl.c,lib/argp-help.c,
+	lib/argp-namefrob.h,lib/argp-parse.c,lib/argp-pv.c,
+	lib/argp-pvh.c,lib/argp-xinl.c,lib/argp.h: Removed unused files.
+
 2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* configure.ac: Remove AC_AIX, AC_MINIX, these are called by

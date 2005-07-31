@@ -1,3 +1,8 @@
+2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* pty.c,telnetd.c,telnetd.h,term.c,utility.c: Updated FSF postal
+	mail address. 
+
 2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
 
 	* telnetd.c (telnetd_setup): Add support for IPv6.

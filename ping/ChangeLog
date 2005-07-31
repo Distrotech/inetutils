@@ -1,3 +1,9 @@
+2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* ping.c,ping6.c,ping6.h,ping_address.c,ping_common.c
+	ping_common.h,ping_echo.c,ping_router.c,ping_timestamp.c: Updated
+	FSF postal mail address. 
+
 2005-07-30  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* ping.c (main,ping_run): Handle ping intervals with millisecond

@@ -1,3 +1,7 @@
+2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* kerberos5.c: Updated FSF postal mail address.
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.

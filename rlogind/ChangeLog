@@ -1,3 +1,7 @@
+2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* rlogind.c: Updated FSF postal mail address.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (LDADD): Added `-L../lib -lgnu'.

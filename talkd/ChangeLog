@@ -1,3 +1,8 @@
+2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* acl.c,announce.c,intalkd.h,print.c,process.c,
+	table.c,talkd.c: Updated FSF postal mail address.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (LDADD): Added `-L../lib -lgnu'.
