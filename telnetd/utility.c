@@ -13,9 +13,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write to
-   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA. */
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #define TELOPTS
 #define TELCMDS
@@ -370,8 +370,8 @@ pty_read ()
 
 
 /* io_drain ()
- * 
- *
+ *   
+ *  
  *	A small subroutine to flush the network output buffer, get some data
  * from the network, and pass it through the telnet state machine.  We
  * also flush the pty input buffer (by dropping its data) if it becomes
@@ -440,7 +440,7 @@ stilloob (int s)
 
 /*
  * nextitem()
- *
+ *  
  *	Return the address of the next "item" in the TELNET data
  * stream.  This will be the address of the next character if
  * the current address is a user data character, or it will
@@ -480,15 +480,15 @@ nextitem (char *current)
 
 /*
  * netclear()
- *
+ *  
  *	We are about to do a TELNET SYNCH operation.  Clear
  * the path to the network.
- *
+ *  
  *	Things are a bit tricky since we may have sent the first
  * byte or so of a previous TELNET command into the network.
  * So, we have to scan the network buffer from the beginning
  * until we are up to where we want to be.
- *
+ *  
  *	A side effect of what we do, just to keep things
  * simple, is to clear the urgent data pointer.  The principal
  * caller should be setting the urgent data pointer AFTER calling

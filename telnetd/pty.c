@@ -13,9 +13,9 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write to
-   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA. */
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #include "telnetd.h"
 #include <sys/wait.h>
@@ -83,10 +83,10 @@ startslave (char *host, int autologin, char *autoname)
 extern char **environ;
 /*
  * scrub_env()
- *
+ *  
  * Remove a few things from the environment that
  * don't need to be there.
- *
+ *  
  * Security fix included in telnet-95.10.23.NE of David Borman <deb@cray.com>.
  */
 static void
