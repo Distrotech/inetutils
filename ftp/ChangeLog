@@ -1,3 +1,7 @@
+2005-08-27  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ftp_var.h: #include "extern.h" at the end.
+
 2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* extern.h: Reverted changes made 2005-05-01. Initializing a

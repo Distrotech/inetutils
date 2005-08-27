@@ -36,8 +36,6 @@
 #include <sys/param.h>
 #include <setjmp.h>
 
-#include "extern.h"
-
 #ifndef FTP_EXTERN
 #define FTP_EXTERN extern
 #endif
@@ -132,3 +130,5 @@ struct macel {
 FTP_EXTERN int macnum;			/* number of defined macros */
 FTP_EXTERN struct macel macros[16];
 FTP_EXTERN char macbuf[4096];
+
+#include "extern.h"
