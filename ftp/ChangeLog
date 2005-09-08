@@ -1,3 +1,9 @@
+2005-09-08  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* main.c (getcmd,help): Moved to cmdtab.c
+	* cmdtab.c (getcmd,help): Moved from main.c
+	* extern.h (cmdtab): Remove declaration
+
 2005-08-27  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftp_var.h: #include "extern.h" at the end.
