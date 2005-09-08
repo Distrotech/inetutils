@@ -109,7 +109,7 @@ char	umaskhelp[] =	"get (set) umask on remote side";
 char	userhelp[] =	"send new user information";
 char	verbosehelp[] =	"toggle verbose mode";
 
-struct cmd cmdtab[] = {
+static struct cmd cmdtab[] = {
 	{ "!",		shellhelp,	0,	0,	0,	shell },
 	{ "$",		domachelp,	1,	0,	0,	domacro },
 	{ "account",	accounthelp,	0,	1,	1,	account},
@@ -185,6 +185,113 @@ struct cmd cmdtab[] = {
 	{ 0 },
 };
 
-int	NCMDS = (sizeof (cmdtab) / sizeof (cmdtab[0])) - 1;
+#define NCMDS (sizeof (cmdtab) / sizeof (cmdtab[0]) - 1)
+
+struct cmd *
+getcmd (char *name)
+{
+  char *p, *q;
+  struct cmd *c, *found;
+  int nmatches, longest;
+
+  longest = 0;
+  nmatches = 0;
+  found = 0;
+  for (c = cmdtab; (p = c->c_name); c++)
+    {
+      for (q = name; *q == *p++; q++)
+	if (*q == 0)		/* exact match? */
+	  return c;
+      if (!*q)
+	{			/* the name was a prefix */
+	  if (q - name > longest)
+	    {
+	      longest = q - name;
+	      nmatches = 1;
+	      found = c;
+	    }
+	  else if (q - name == longest)
+	    nmatches++;
+	}
+    }
+  if (nmatches > 1)
+    return (struct cmd *)-1;
+  return found;
+}
+
+#define HELPINDENT ((int) sizeof ("directory"))
+
+/*
+ * Help command.
+ * Call each command handler with argc == 0 and argv[0] == name.
+ */
+void
+help (int argc, char *argv[])
+{
+  struct cmd *c;
+
+  if (argc == 1)
+    {
+      int i, j, w, k;
+      int columns, width = 0, lines;
+
+      printf ("Commands may be abbreviated.  Commands are:\n\n");
+      for (c = cmdtab; c < &cmdtab[NCMDS]; c++)
+	{
+	  int len = strlen (c->c_name);
+
+	  if (len > width)
+	    width = len;
+	}
+      width = (width + 8) &~ 7;
+      columns = 80 / width;
+      if (columns == 0)
+	columns = 1;
+      lines = (NCMDS + columns - 1) / columns;
+      for (i = 0; i < lines; i++)
+	{
+	  for (j = 0; j < columns; j++)
+	    {
+	      c = cmdtab + j * lines + i;
+	      if (c->c_name && (!proxy || c->c_proxy))
+		{
+		  printf ("%s", c->c_name);
+		}
+	      else if (c->c_name)
+		{
+		  for (k=0; k < strlen (c->c_name); k++)
+		    putchar (' ');
+		}
+	      if (c + lines >= &cmdtab[NCMDS])
+		{
+		  printf ("\n");
+		  break;
+		}
+	      w = strlen (c->c_name);
+	      while (w < width)
+		{
+		  w = (w + 8) &~ 7;
+		  putchar ('\t');
+		}
+	    }
+	}
+      return;
+    }
+  
+  while (--argc > 0)
+    {
+      char *arg;
+      arg = *++argv;
+      c = getcmd(arg);
+      if (c == (struct cmd *)-1)
+	printf("?Ambiguous help command %s\n", arg);
+      else if (c == (struct cmd *)0)
+	printf("?Invalid help command %s\n", arg);
+      else
+	printf("%-*s\t%s\n", HELPINDENT, c->c_name, c->c_help);
+    }
+}
+
+
 
 
