@@ -1,3 +1,12 @@
+2005-09-22  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* changeif.c, flags.c, flags.h, if_index.c, if_index.h,
+	ifconfig.c, ifconfig.h, options.c, options.h, printif.c,
+	printif.h, system.h, system/generic.c, system/generic.h,
+	system/hpux.c, system/hpux.h, system/linux.c, system/linux.h,
+	system/osf.c, system/osf.h, system/qnx.c, system/qnx.h,
+	system/solaris.c, system/solaris.h: Updated FSF postal mail address.
+
 2003-10-24  Marcus Brinkmann  <marcus@gnu.org>
 
 	* options.c (PARSE_OPT_SET_ADDR): Fix macro for gcc 3.3.

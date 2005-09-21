@@ -13,14 +13,14 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write to
-   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA. */
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
 
 /*
  * Copyright (c) 1983, 1991, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
- *
+ *  
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -32,7 +32,7 @@
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- *
+ *  
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -52,12 +52,12 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 
 /*
  * Inetd - Internet super-server
- *
+ *  
  * This program invokes all internet services as needed.  Connection-oriented
  * services are invoked each time a connection is made, by creating a process.
  * This process is passed the connection as file descriptor 0 and is expected
  * to do a getpeername to find out the source host and port.
- *
+ *  
  * Datagram oriented services are invoked when a datagram
  * arrives; a process is created and passed a pending message
  * on file descriptor 0.  Datagram servers may either connect
@@ -66,13 +66,13 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
  * processing all arriving datagrams and, eventually, timing
  * out.	 The first type of server is said to be ``multi-threaded'';
  * the second type of server ``single-threaded''.
- *
+ *  
  * Inetd uses a configuration file which is read at startup
  * and, possibly, at some later time in response to a hangup signal.
  * The configuration file is ``free format'' with fields given in the
  * order shown below.  Continuation lines for an entry must being with
  * a space or tab.  All fields must be present in each entry.
- *
+ *  
  *	service name			must be in /etc/services or must
  *					name a tcpmux service
  *	socket type			stream/dgram/raw/rdm/seqpacket
@@ -81,7 +81,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
  *	user				user to run daemon as
  *	server program			full path name
  *	server program arguments	arguments starting with argv[0]
- *
+ *  
  * TCP services without official port numbers are handled with the
  * RFC1078-based tcpmux internal service. Tcpmux listens on port 1 for
  * requests. When a connection is made from a foreign host, the service
@@ -96,7 +96,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
  * special server code in them. Services that use tcpmux are "nowait"
  * because they do not have a well-known port and hence cannot listen
  * for new requests.
- *
+ *  
  * Comment lines are indicated by a `#' in column 1.
  */
 
