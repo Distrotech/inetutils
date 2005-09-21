@@ -1,3 +1,7 @@
+2005-09-22  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* main.c: Changed FSF postal mail address.
+
 2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* main.c <version.h>: Include removed.

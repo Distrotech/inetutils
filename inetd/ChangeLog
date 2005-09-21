@@ -1,3 +1,7 @@
+2005-09-22  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* inetd.c: Updated FSF postal mail address.
+
 2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
 
 	* inetd.c: Move global variable sp to...
