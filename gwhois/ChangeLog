@@ -1,3 +1,8 @@
+2005-09-22  Alfred M. Szmidt  <ams@gnu.org>
+
+	* whois.c (main): Output version information to stdout.
+	(usage): Output usage information to stdout.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (LDADD): Added `-L../lib -lgnu'.
