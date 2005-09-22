@@ -28,8 +28,7 @@
  */
 
 #ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1983, 1993\n\
+static char copyright[] = "@(#) Copyright (c) 1983, 1993\n\
 	The Regents of the University of California.  All rights reserved.\n";
 #endif /* not lint */
 
@@ -70,6 +69,7 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #include <string.h>
 #include <unistd.h>
 #include <crypt.h>
+#include <getopt.h>
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
@@ -83,6 +83,15 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #endif
 
 void error __P ((const char *fmt, ...));
+void usage (void);
+
+static const char *short_options = "hV";
+static struct option long_options[] = {
+  {"help", no_argument, 0, 'h'},
+  {"version", no_argument, 0, 'V'},
+  {0}
+};
+
 /*
  * remote execute server:
  *	username\0
@@ -92,44 +101,60 @@ void error __P ((const char *fmt, ...));
  */
 /*ARGSUSED*/
 int
-main(int argc, char **argv)
+main (int argc, char **argv)
 {
-	struct sockaddr_in from;
-	int fromlen, sockfd = STDIN_FILENO;
+  struct sockaddr_in from;
+  int fromlen, sockfd = STDIN_FILENO;
+  int c;
 
-	fromlen = sizeof (from);
-	if (getpeername(sockfd, (struct sockaddr *)&from, &fromlen) < 0) {
-		fprintf(stderr,
-			"rexecd: getpeername: %s\n", strerror(errno));
-		exit(1);
+  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
+	 != EOF)
+    {
+      switch (c)
+	{
+	case 'V':
+	  printf ("rexecd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
+	  exit (0);
+
+	case 'h':
+	default:
+	  usage ();
+	  exit (0);
 	}
-	doit(sockfd, &from);
-	exit (0);
+    }
+
+  fromlen = sizeof (from);
+  if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
+    {
+      fprintf (stderr, "rexecd: getpeername: %s\n", strerror (errno));
+      exit (1);
+    }
+  doit (sockfd, &from);
+  exit (0);
 }
 
-char	username[20] = "USER=";
-char	logname[23] = "LOGNAME=";
-char	homedir[64] = "HOME=";
-char	shell[64] = "SHELL=";
-char	path[sizeof(PATH_DEFPATH) + sizeof("PATH=")] = "PATH=";
-char	*envinit[] =
-	    {homedir, shell, path, username, logname, 0};
-extern char	**environ;
+char username[20] = "USER=";
+char logname[23] = "LOGNAME=";
+char homedir[64] = "HOME=";
+char shell[64] = "SHELL=";
+char path[sizeof (PATH_DEFPATH) + sizeof ("PATH=")] = "PATH=";
+char *envinit[] = { homedir, shell, path, username, logname, 0 };
+extern char **environ;
 
 #ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-struct	sockaddr_in asin = { sizeof(asin), AF_INET };
+struct sockaddr_in asin = { sizeof (asin), AF_INET };
 #else
-struct	sockaddr_in asin = { AF_INET };
+struct sockaddr_in asin = { AF_INET };
 #endif
 
 char *getstr __P ((const char *));
 
 static char *
-get_user_password(struct passwd *pwd)
+get_user_password (struct passwd *pwd)
 {
   char *pw_text = pwd->pw_passwd;
 #ifdef HAVE_SHADOW_H
-  struct spwd *spwd = getspnam(pwd->pw_name);
+  struct spwd *spwd = getspnam (pwd->pw_name);
   if (spwd)
     pw_text = spwd->sp_pwdp;
 #endif
@@ -137,208 +162,246 @@ get_user_password(struct passwd *pwd)
 }
 
 int
-doit(int f, struct sockaddr_in *fromp)
+doit (int f, struct sockaddr_in *fromp)
 {
-	char *cmdbuf, *cp, *namep;
-	char *user, *pass, *pw_password;
-	struct passwd *pwd;
-	int s;
-	u_short port;
-	int pv[2], pid, cc;
-	fd_set readfrom, ready;
-	char buf[BUFSIZ], sig;
-	int one = 1;
+  char *cmdbuf, *cp, *namep;
+  char *user, *pass, *pw_password;
+  struct passwd *pwd;
+  int s;
+  u_short port;
+  int pv[2], pid, cc;
+  fd_set readfrom, ready;
+  char buf[BUFSIZ], sig;
+  int one = 1;
 
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
-	signal(SIGTERM, SIG_DFL);
+  signal (SIGINT, SIG_DFL);
+  signal (SIGQUIT, SIG_DFL);
+  signal (SIGTERM, SIG_DFL);
 #ifdef DEBUG
-	{ int t = open(_PATH_TTY, O_RDWR);
-	  if (t >= 0) {
-		ioctl(t, TIOCNOTTY, (char *)0);
-		close(t);
-	  }
-	}
+  {
+    int t = open (_PATH_TTY, O_RDWR);
+    if (t >= 0)
+      {
+	ioctl (t, TIOCNOTTY, (char *) 0);
+	close (t);
+      }
+  }
 #endif
-	if (f != STDIN_FILENO) {
-	    dup2(f, STDIN_FILENO);
-	    dup2(f, STDOUT_FILENO);
-	    dup2(f, STDERR_FILENO);
-	}
+  if (f != STDIN_FILENO)
+    {
+      dup2 (f, STDIN_FILENO);
+      dup2 (f, STDOUT_FILENO);
+      dup2 (f, STDERR_FILENO);
+    }
 
-	alarm(60);
-	port = 0;
-	for (;;) {
-		char c;
-		if (read(f, &c, 1) != 1)
-			exit(1);
-		if (c == 0)
-			break;
-		port = port * 10 + c - '0';
-	}
-	alarm(0);
-	if (port != 0) {
-		s = socket(AF_INET, SOCK_STREAM, 0);
-		if (s < 0)
-			exit(1);
-		if (bind(s, (struct sockaddr *)&asin, sizeof (asin)) < 0)
-			exit(1);
-		alarm(60);
-		fromp->sin_port = htons(port);
-		if (connect(s, (struct sockaddr *)fromp, sizeof (*fromp)) < 0)
-			exit(1);
-		alarm(0);
-	}
+  alarm (60);
+  port = 0;
+  for (;;)
+    {
+      char c;
+      if (read (f, &c, 1) != 1)
+	exit (1);
+      if (c == 0)
+	break;
+      port = port * 10 + c - '0';
+    }
+  alarm (0);
+  if (port != 0)
+    {
+      s = socket (AF_INET, SOCK_STREAM, 0);
+      if (s < 0)
+	exit (1);
+      if (bind (s, (struct sockaddr *) &asin, sizeof (asin)) < 0)
+	exit (1);
+      alarm (60);
+      fromp->sin_port = htons (port);
+      if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
+	exit (1);
+      alarm (0);
+    }
 
-	user = getstr ("username");
-	pass = getstr ("password");
-	cmdbuf = getstr ("command");
+  user = getstr ("username");
+  pass = getstr ("password");
+  cmdbuf = getstr ("command");
 
-	setpwent();
-	pwd = getpwnam(user);
-	if (pwd == NULL) {
-		error("Login incorrect.\n");
-		exit(1);
+  setpwent ();
+  pwd = getpwnam (user);
+  if (pwd == NULL)
+    {
+      error ("Login incorrect.\n");
+      exit (1);
+    }
+  endpwent ();
+  pw_password = get_user_password (pwd);
+  if (*pw_password != '\0')
+    {
+      namep = crypt (pass, pw_password);
+      if (strcmp (namep, pw_password))
+	{
+	  error ("Password incorrect.\n");
+	  exit (1);
 	}
-	endpwent();
-	pw_password = get_user_password(pwd);
-	if (*pw_password != '\0') {
-	        namep = crypt (pass, pw_password);
-		if (strcmp(namep, pw_password)) {
-			error("Password incorrect.\n");
-			exit(1);
-		}
+    }
+  write (STDERR_FILENO, "\0", 1);
+  if (port)
+    {
+      pipe (pv);
+      pid = fork ();
+      if (pid == -1)
+	{
+	  error ("Try again.\n");
+	  exit (1);
 	}
-	write(STDERR_FILENO, "\0", 1);
-	if (port) {
-		pipe(pv);
-		pid = fork();
-		if (pid == -1)  {
-			error("Try again.\n");
-			exit(1);
+      if (pid)
+	{
+	  close (STDIN_FILENO);
+	  close (STDOUT_FILENO);
+	  close (STDERR_FILENO);
+	  close (f);
+	  close (pv[1]);
+	  FD_ZERO (&readfrom);
+	  FD_SET (s, &readfrom);
+	  FD_SET (pv[0], &readfrom);
+	  ioctl (pv[1], FIONBIO, (char *) &one);
+	  /* should set s nbio! */
+	  do
+	    {
+	      int maxfd = s;
+	      ready = readfrom;
+	      if (pv[0] > maxfd)
+		maxfd = pv[0];
+	      select (maxfd + 1, (fd_set *) & ready,
+		      (fd_set *) NULL, (fd_set *) NULL,
+		      (struct timeval *) NULL);
+	      if (FD_ISSET (s, &ready))
+		{
+		  if (read (s, &sig, 1) <= 0)
+		    FD_CLR (s, &readfrom);
+		  else
+		    killpg (pid, sig);
 		}
-		if (pid) {
-			close(STDIN_FILENO);
-			close(STDOUT_FILENO);
-			close(STDERR_FILENO);
-			close(f); close(pv[1]);
-			FD_ZERO(&readfrom);
-			FD_SET(s, &readfrom);
-			FD_SET(pv[0], &readfrom);
-			ioctl(pv[1], FIONBIO, (char *)&one);
-			/* should set s nbio! */
-			do {
-			        int maxfd = s;
-				ready = readfrom;
-				if (pv[0] > maxfd)
-				    maxfd = pv[0];
-				select(maxfd + 1, (fd_set *)&ready,
-				    (fd_set *)NULL, (fd_set *)NULL,
-				    (struct timeval *)NULL);
-				if (FD_ISSET(s, &ready)) {
-					if (read(s, &sig, 1) <= 0)
-						FD_CLR(s, &readfrom);
-					else
-						killpg(pid, sig);
-				}
-				if (FD_ISSET(pv[0], &ready)) {
-					cc = read(pv[0], buf, sizeof (buf));
-					if (cc <= 0) {
-						shutdown(s, 1+1);
-						FD_CLR(pv[0], &readfrom);
-					} else
-						write(s, buf, cc);
-				}
-			} while (FD_ISSET(pv[0], &readfrom) ||
-				FD_ISSET(s, &readfrom));
-			exit(0);
+	      if (FD_ISSET (pv[0], &ready))
+		{
+		  cc = read (pv[0], buf, sizeof (buf));
+		  if (cc <= 0)
+		    {
+		      shutdown (s, 1 + 1);
+		      FD_CLR (pv[0], &readfrom);
+		    }
+		  else
+		    write (s, buf, cc);
 		}
-		setpgid (0, getpid());
-		close(s);
-		close(pv[0]);
-		dup2(pv[1], STDERR_FILENO);
+	    }
+	  while (FD_ISSET (pv[0], &readfrom) || FD_ISSET (s, &readfrom));
+	  exit (0);
 	}
-	if (*pwd->pw_shell == '\0')
-		pwd->pw_shell = PATH_BSHELL;
-	if (f > 2)
-		close(f);
-	setegid((gid_t)pwd->pw_gid);
-	setgid((gid_t)pwd->pw_gid);
+      setpgid (0, getpid ());
+      close (s);
+      close (pv[0]);
+      dup2 (pv[1], STDERR_FILENO);
+    }
+  if (*pwd->pw_shell == '\0')
+    pwd->pw_shell = PATH_BSHELL;
+  if (f > 2)
+    close (f);
+  setegid ((gid_t) pwd->pw_gid);
+  setgid ((gid_t) pwd->pw_gid);
 #ifdef HAVE_INITGROUPS
-	initgroups(pwd->pw_name, pwd->pw_gid);
+  initgroups (pwd->pw_name, pwd->pw_gid);
 #endif
-	setuid((uid_t)pwd->pw_uid);
-	if (chdir(pwd->pw_dir) < 0) {
-		error("No remote directory.\n");
-		exit(1);
-	}
-	strcat(path, PATH_DEFPATH);
-	environ = envinit;
-	strncat(homedir, pwd->pw_dir, sizeof(homedir)-6);
-	strncat(shell, pwd->pw_shell, sizeof(shell)-7);
-	strncat(username, pwd->pw_name, sizeof(username)-6);
-	cp = strrchr(pwd->pw_shell, '/');
-	if (cp)
-		cp++;
-	else
-		cp = pwd->pw_shell;
-	execl(pwd->pw_shell, cp, "-c", cmdbuf, 0);
-	perror(pwd->pw_shell);
-	exit(1);
+  setuid ((uid_t) pwd->pw_uid);
+  if (chdir (pwd->pw_dir) < 0)
+    {
+      error ("No remote directory.\n");
+      exit (1);
+    }
+  strcat (path, PATH_DEFPATH);
+  environ = envinit;
+  strncat (homedir, pwd->pw_dir, sizeof (homedir) - 6);
+  strncat (shell, pwd->pw_shell, sizeof (shell) - 7);
+  strncat (username, pwd->pw_name, sizeof (username) - 6);
+  cp = strrchr (pwd->pw_shell, '/');
+  if (cp)
+    cp++;
+  else
+    cp = pwd->pw_shell;
+  execl (pwd->pw_shell, cp, "-c", cmdbuf, 0);
+  perror (pwd->pw_shell);
+  exit (1);
 }
 
 /*VARARGS1*/
 void
-error(const char *fmt, ...)
+error (const char *fmt, ...)
 {
   va_list ap;
   int len;
   char buf[BUFSIZ];
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-        va_start(ap, fmt);
+  va_start (ap, fmt);
 #else
-        va_start(ap);
+  va_start (ap);
 #endif
   buf[0] = 1;
   snprintf (buf + 1, sizeof buf - 1, fmt, ap);
-  write (STDERR_FILENO, buf, strlen(buf));
+  write (STDERR_FILENO, buf, strlen (buf));
 }
 
 char *
-getstr(const char *err)
+getstr (const char *err)
 {
-	size_t buf_len = 100;
-	char *buf = malloc (buf_len), *end = buf;
+  size_t buf_len = 100;
+  char *buf = malloc (buf_len), *end = buf;
 
-	if (! buf) {
-		error ("Out of space reading %s\n", err);
-		exit (1);
+  if (!buf)
+    {
+      error ("Out of space reading %s\n", err);
+      exit (1);
+    }
+
+  do
+    {
+      /* Oh this is efficient, oh yes.  [But what can be done?] */
+      int rd = read (STDIN_FILENO, end, 1);
+      if (rd <= 0)
+	{
+	  if (rd == 0)
+	    error ("EOF reading %s\n", err);
+	  else
+	    perror (err);
+	  exit (1);
 	}
 
-	do {
-		/* Oh this is efficient, oh yes.  [But what can be done?] */
-		int rd = read(STDIN_FILENO, end, 1);
-		if (rd <= 0) {
-			if (rd == 0)
-				error ("EOF reading %s\n", err);
-			else
-				perror (err);
-			exit(1);
-		}
+      end += rd;
+      if ((buf + buf_len - end) < (buf_len >> 3))
+	{
+	  /* Not very much room left in our buffer, grow it. */
+	  size_t end_offs = end - buf;
+	  buf_len += buf_len;
+	  buf = realloc (buf, buf_len);
+	  if (!buf)
+	    {
+	      error ("Out of space reading %s\n", err);
+	      exit (1);
+	    }
+	  end = buf + end_offs;
+	}
+    }
+  while (*(end - 1));
 
-		end += rd;
-		if ((buf + buf_len - end) < (buf_len >> 3)) {
-			/* Not very much room left in our buffer, grow it. */
-			size_t end_offs = end - buf;
-			buf_len += buf_len;
-			buf = realloc (buf, buf_len);
-			if (! buf) {
-				error ("Out of space reading %s\n", err);
-				exit (1);
-			}
-			end = buf + end_offs;
-		}
-	} while (*(end - 1));
+  return buf;
+}
 
-	return buf;
+
+static const char usage_str[] =
+  "Usage: rexecd [OPTIONS...]\n"
+  "\n"
+  "Options are:\n"
+  "       --help              Display usage instructions\n"
+  "       --version           Display program version\n";
+
+void
+usage (void)
+{
+  printf ("%s\n" "Send bug reports to <%s>\n", usage_str, PACKAGE_BUGREPORT);
 }

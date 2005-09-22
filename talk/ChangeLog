@@ -1,3 +1,10 @@
+2005-09-22  Alfred M. Szmidt  <ams@gnu.org>
+
+	* talk.c: #include <getopt.h>
+	(usage): New function.
+	(long_options, short_options, usage_str): New variables.
+	(main): Added new options `--help' and `--version'.
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
