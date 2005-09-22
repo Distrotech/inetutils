@@ -1,3 +1,7 @@
+2005-09-22  Alfred M. Szmidt  <ams@gnu.org>
+
+	* autogen.sh: Don't pass `-s' to autoreconf.
+
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* COPYING: Updated FSF postal mail address.
