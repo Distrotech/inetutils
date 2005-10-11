@@ -37,7 +37,11 @@ static char sccsid[] = "@(#)enc_des.c	8.3 (Berkeley) 5/30/95";
 
 #ifdef	ENCRYPTION
 # ifdef	AUTHENTICATION
-#  ifdef DES_ENCRYPTION
+#  if defined (DES_ENCRYPTION) || defined (SHISHI)
+#ifdef SHISHI
+#include <shishi.h>
+extern Shishi * shishi_handle;
+#endif
 #include <arpa/telnet.h>
 #include <stdio.h>
 #ifdef HAVE_STDLIB_H
@@ -74,7 +78,7 @@ struct fb {
 		Block		str_output;
 		Block		str_feed;
 		Block		str_iv;
-		Block		str_ikey;
+	        Block		str_ikey;
 		Schedule	str_sched;
 		int		str_index;
 		int		str_flagshift;
@@ -119,7 +123,18 @@ static void fb64_session P((Session_Key *, int, struct fb *));
 void fb64_stream_key P((Block, struct stinfo *));
 int fb64_keyid P((int, unsigned char *, int *, struct fb *));
 
-	void
+#ifdef SHISHI
+void shishi_des_ecb_encrypt (Shishi * h, const char key[8], const char * in, char * out)
+{
+  char * tmp;
+  
+  shishi_des (h, 0, key, NULL, NULL, in, 8, &tmp);
+  memcpy (out, tmp, 8);
+  free (tmp);
+}
+#endif
+
+void
 cfb64_init(server)
 	int server;
 {
@@ -215,9 +230,16 @@ fb64_start(fbp, dir, server)
 		/*
 		 * Create a random feed and send it over.
 		 */
+#ifdef SHISHI
+		if (shishi_randomize (shishi_handle, 0,
+				      fbp->temp_feed, 8) != SHISHI_OK)
+		  return(FAILED);
+		
+#else
 		des_new_random_key(fbp->temp_feed);
 		des_ecb_encrypt(fbp->temp_feed, fbp->temp_feed,
 				fbp->krbdes_sched, 1);
+#endif
 		p = fbp->fb_feed + 3;
 		*p++ = ENCRYPT_IS;
 		p++;
@@ -417,6 +439,7 @@ fb64_session(key, server, fbp)
 {
 
 	if (!key || key->type != SK_DES) {
+	  /* FIXME: Support RFC 2952 approach instead of giving up here. */
 		if (encrypt_debug_mode)
 			printf("Can't set krbdes's session key (%d != %d)\r\n",
 				key ? key->type : -1, SK_DES);
@@ -428,10 +451,14 @@ fb64_session(key, server, fbp)
 	fb64_stream_key(fbp->krbdes_key, &fbp->streams[DIR_DECRYPT-1]);
 
 	if (fbp->once == 0) {
+#ifndef SHISHI
 		des_set_random_generator_seed(fbp->krbdes_key);
+#endif
 		fbp->once = 1;
 	}
+#ifndef SHISHI
 	des_key_sched(fbp->krbdes_key, fbp->krbdes_sched);
+#endif
 	/*
 	 * Now look to see if krbdes_start() was was waiting for
 	 * the key to show up.  If so, go ahead an call it now
@@ -552,7 +579,9 @@ fb64_stream_iv(seed, stp)
 	memmove((void *)stp->str_iv, (void *)seed, sizeof(Block));
 	memmove((void *)stp->str_output, (void *)seed, sizeof(Block));
 
+#ifndef SHISHI
 	des_key_sched(stp->str_ikey, stp->str_sched);
+#endif
 
 	stp->str_index = sizeof(Block);
 }
@@ -563,8 +592,9 @@ fb64_stream_key(key, stp)
 	register struct stinfo *stp;
 {
 	memmove((void *)stp->str_ikey, (void *)key, sizeof(Block));
+#ifndef SHISHI
 	des_key_sched(key, stp->str_sched);
-
+#endif
 	memmove((void *)stp->str_output, (void *)stp->str_iv, sizeof(Block));
 
 	stp->str_index = sizeof(Block);
@@ -604,7 +634,12 @@ cfb64_encrypt(s, c)
 	while (c-- > 0) {
 		if (index == sizeof(Block)) {
 			Block b;
+#ifdef SHISHI
+			shishi_des_ecb_encrypt (shishi_handle, fb[CFB].krbdes_key,
+						stp->str_output, b);
+#else
 			des_ecb_encrypt(stp->str_output, b, stp->str_sched, 1);
+#endif
 			memmove((void *)stp->str_feed, (void *)b, sizeof(Block));
 			index = 0;
 		}
@@ -638,7 +673,12 @@ cfb64_decrypt(data)
 	index = stp->str_index++;
 	if (index == sizeof(Block)) {
 		Block b;
+#ifdef SHISHI
+		shishi_des_ecb_encrypt (shishi_handle, fb[CFB].krbdes_key,
+					stp->str_output, b);
+#else
 		des_ecb_encrypt(stp->str_output, b, stp->str_sched, 1);
+#endif
 		memmove((void *)stp->str_feed, (void *)b, sizeof(Block));
 		stp->str_index = 1;	/* Next time will be 1 */
 		index = 0;		/* But now use 0 */
@@ -680,7 +720,12 @@ ofb64_encrypt(s, c)
 	while (c-- > 0) {
 		if (index == sizeof(Block)) {
 			Block b;
+#ifdef SHISHI
+			shishi_des_ecb_encrypt (shishi_handle, fb[OFB].krbdes_key,
+						stp->str_feed, b);
+#else
 			des_ecb_encrypt(stp->str_feed, b, stp->str_sched, 1);
+#endif
 			memmove((void *)stp->str_feed, (void *)b, sizeof(Block));
 			index = 0;
 		}
@@ -711,7 +756,12 @@ ofb64_decrypt(data)
 	index = stp->str_index++;
 	if (index == sizeof(Block)) {
 		Block b;
+#ifdef SHISHI
+		shishi_des_ecb_encrypt (shishi_handle, fb[OFB].krbdes_key,
+					stp->str_feed, b);
+#else
 		des_ecb_encrypt(stp->str_feed, b, stp->str_sched, 1);
+#endif
 		memmove((void *)stp->str_feed, (void *)b, sizeof(Block));
 		stp->str_index = 1;	/* Next time will be 1 */
 		index = 0;		/* But now use 0 */

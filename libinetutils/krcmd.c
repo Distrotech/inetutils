@@ -28,7 +28,7 @@
  */
 
 #ifndef lint
-static char sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
+static char     sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 /*
@@ -44,7 +44,7 @@ static char sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
 #include <config.h>
 #endif
 
-#ifdef KERBEROS
+#if defined(KERBEROS) || defined(SHISHI)
 #include <sys/types.h>
 #ifdef ENCRYPTION
 #include <sys/socket.h>
@@ -52,16 +52,28 @@ static char sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
 
 #include <netinet/in.h>
 
+#ifdef KERBEROS
 #include <kerberosIV/des.h>
 #include <kerberosIV/krb.h>
+#elif defined(SHISHI)
+#include <shishi.h>
+#include "shishi_def.h"
+#endif
 
 #include <stdio.h>
 
 #define	SERVICE_NAME	"rcmd"
 
-int	kcmd __P((int *, char **, u_short, char *, char *, char *, int *,
-	    KTEXT, char *, char *, CREDENTIALS *, Key_schedule, MSG_DAT *,
-	    struct sockaddr_in *, struct sockaddr_in *, long));
+#if defined(SHISHI)
+int kcmd        __P ((Shishi **, int *, char **, u_short, char *, char **,
+		      char *, int *, char *, char *, Shishi_key **,
+		      struct sockaddr_in *, struct sockaddr_in *, long));
+#else
+int kcmd        __P ((int *, char **, u_short, char *, char *, char *, int *,
+		      KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
+		      MSG_DAT *,
+		      struct sockaddr_in *, struct sockaddr_in *, long));
+#endif
 
 /*
  * krcmd: simplified version of Athena's "kcmd"
@@ -69,90 +81,119 @@ int	kcmd __P((int *, char **, u_short, char *, char *, char *, int *,
  *	if fd2p is non-NULL, another socket is filled in for it
  */
 
+#if defined(SHISHI)
 int
-krcmd(ahost, rport, remuser, cmd, fd2p, realm)
-	char	**ahost;
-	u_short	rport;
-	char	*remuser, *cmd;
-	int	*fd2p;
-	char	*realm;
+krcmd (Shishi ** h, char **ahost, u_short rport, char **remuser, char *cmd,
+       int *fd2p, char *realm)
 {
-	int		sock = -1, err = 0;
-	KTEXT_ST	ticket;
-	long		authopts = 0L;
+  int             sock = -1, err = 0;
+  long            authopts = 0L;
 
-	err = kcmd(
-		&sock,
-		ahost,
-		rport,
-		NULL,	/* locuser not used */
-		remuser,
-		cmd,
-		fd2p,
-		&ticket,
-		SERVICE_NAME,
-		realm,
-		(CREDENTIALS *)  NULL,		/* credentials not used */
-		(bit_64 *) NULL,		/* key schedule not used */
-		(MSG_DAT *) NULL,		/* MSG_DAT not used */
-		(struct sockaddr_in *) NULL,	/* local addr not used */
-		(struct sockaddr_in *) NULL,	/* foreign addr not used */
-		authopts
-	);
+  err = kcmd (h, &sock, ahost, rport, NULL,	/* locuser not used */
+	      remuser, cmd, fd2p, SERVICE_NAME, realm,
+	      NULL,	/* key schedule not used */
+	      NULL,	/* local addr not used */
+	      NULL,	/* foreign addr not used */
+	      authopts);
 
-	if (err > KSUCCESS && err < MAX_KRB_ERRORS) {
-		fprintf(stderr, "krcmd: %s\n", krb_err_txt[err]);
-		return(-1);
-	}
-	if (err < 0)
-		return(-1);
-	return(sock);
+  if (err > SHISHI_OK)
+    {
+      fprintf (stderr, "krcmd: %s\n", "error");
+      return (-1);
+    }
+  if (err < 0)
+    return (-1);
+  return (sock);
 }
+
+#elif defined(KERBEROS)
+int
+krcmd (char **ahost, u_short rport, char *remuser, char *cmd, int *fd2p,
+       char *realm)
+{
+  int             sock = -1, err = 0;
+  KTEXT_ST        ticket;
+  long            authopts = 0L;
+
+  err = kcmd (&sock, ahost, rport, NULL,	/* locuser not used */
+	      remuser, cmd, fd2p, &ticket, SERVICE_NAME, realm,
+	      NULL,	/* credentials not used */
+	      (bit_64 *) NULL,	/* key schedule not used */
+	      (MSG_DAT *) NULL,	/* MSG_DAT not used */
+	      (struct sockaddr_in *) NULL,	/* local addr not used */
+	      (struct sockaddr_in *) NULL,	/* foreign addr not used */
+	      authopts);
+
+  if (err > KSUCCESS && err < MAX_KRB_ERRORS)
+    {
+      fprintf (stderr, "krcmd: %s\n", krb_err_txt[err]);
+      return (-1);
+    }
+  if (err < 0)
+    return (-1);
+  return (sock);
+}
+#endif
 
 #ifdef ENCRYPTION
+
+#if defined(SHISHI)
 int
-krcmd_mutual(ahost, rport, remuser, cmd, fd2p, realm, cred, sched)
-	char		**ahost;
-	u_short		rport;
-	char		*remuser, *cmd;
-	int		*fd2p;
-	char		*realm;
-	CREDENTIALS	*cred;
-	Key_schedule	sched;
+krcmd_mutual (Shishi ** h, char **ahost, u_short rport, char **remuser,
+	      char *cmd, int *fd2p, char *realm, Shishi_key ** key)
 {
-	int		sock, err;
-	KTEXT_ST	ticket;
-	MSG_DAT		msg_dat;
-	struct sockaddr_in	laddr, faddr;
-	long authopts = KOPT_DO_MUTUAL;
+  int             sock = -1, err = 0;
+  struct sockaddr_in laddr, faddr;
+  long            authopts = SHISHI_APOPTIONS_MUTUAL_REQUIRED;
 
-	err = kcmd(
-		&sock,
-		ahost,
-		rport,
-		NULL,	/* locuser not used */
-		remuser,
-		cmd,
-		fd2p,
-		&ticket,
-		SERVICE_NAME,
-		realm,
-		cred,		/* filled in */
-		sched,		/* filled in */
-		&msg_dat,	/* filled in */
-		&laddr,		/* filled in */
-		&faddr,		/* filled in */
-		authopts
-	);
+  err = kcmd (h, &sock, ahost, rport, NULL,	/* locuser not used */
+	      remuser, cmd, fd2p, SERVICE_NAME, realm,
+	      key,        	/* filled in */
+	      &laddr,		/* filled in */
+	      &faddr,		/* filled in */
+	      authopts);
 
-	if (err > KSUCCESS && err < MAX_KRB_ERRORS) {
-		fprintf(stderr, "krcmd_mutual: %s\n", krb_err_txt[err]);
-		return(-1);
-	}
+  if (err > SHISHI_OK)
+    {
+      fprintf (stderr, "krcmd_mutual: %s\n", "error");
+      return (-1);
+    }
 
-	if (err < 0)
-		return (-1);
-	return(sock);
+  if (err < 0)
+    return (-1);
+  return (sock);
+}
+
+#elif defined(KERBEROS)
+int
+krcmd_mutual (char **ahost, u_short rport, char *remuser, char *cmd,
+	      int *fd2p, char *realm, CREDENTIALS * cred, Key_schedule sched)
+{
+  int             sock, err;
+  KTEXT_ST        ticket;
+  MSG_DAT         msg_dat;
+  struct sockaddr_in laddr, faddr;
+  long            authopts = KOPT_DO_MUTUAL;
+
+  err = kcmd (&sock, ahost, rport, NULL,	/* locuser not used */
+	      remuser, cmd, fd2p, &ticket, SERVICE_NAME, realm,
+	      cred,	        /* filled in */
+	      sched,		/* filled in */
+	      &msg_dat,		/* filled in */
+	      &laddr,		/* filled in */
+	      &faddr,		/* filled in */
+	      authopts);
+
+  if (err > KSUCCESS && err < MAX_KRB_ERRORS)
+    {
+      fprintf (stderr, "krcmd_mutual: %s\n", krb_err_txt[err]);
+      return (-1);
+    }
+
+  if (err < 0)
+    return (-1);
+  return (sock);
 }
 #endif /* CRYPT */
+#endif /* KERBEROS */
 #endif /* KERBEROS */

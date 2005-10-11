@@ -89,4 +89,14 @@ void kerberos5_reply P((TN_Authenticator *, unsigned char *, int));
 int kerberos5_status P((TN_Authenticator *, char *, int));
 void kerberos5_printsub P((unsigned char *, int, unsigned char *, int));
 #endif
+
+#ifdef	SHISHI
+int krb5shishi_init P((TN_Authenticator *, int));
+int krb5shishi_send P((TN_Authenticator *));
+void krb5shishi_is P((TN_Authenticator *, unsigned char *, int));
+void krb5shishi_reply P((TN_Authenticator *, unsigned char *, int));
+int krb5shishi_status P((TN_Authenticator *, char *, int));
+void krb5shishi_printsub P((unsigned char *, int, unsigned char *, int));
+void krb5shishi_cleanup P((TN_Authenticator *));
+#endif
 #endif

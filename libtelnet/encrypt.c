@@ -104,7 +104,7 @@ static long remote_supports_encrypt = 0;
 static long remote_supports_decrypt = 0;
 
 static Encryptions encryptions[] = {
-#ifdef	DES_ENCRYPTION
+#if defined (DES_ENCRYPTION) || defined (SHISHI)
     { "DES_CFB64",	ENCTYPE_DES_CFB64,
 			cfb64_encrypt,
 			cfb64_decrypt,
