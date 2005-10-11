@@ -127,9 +127,8 @@ talkd_init ()
 time_t last_msg_time;
 
 static void
-alarm_handler (int err)
+alarm_handler (int err ARG_UNUSED)
 {
-  err;
   if ((time (NULL) - last_msg_time) >= max_idle_time)
     exit(0);
   alarm (timeout);
