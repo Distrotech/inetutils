@@ -94,6 +94,7 @@ typedef struct {
 } Encryptions;
 
 #define	SK_DES		1	/* Matched Kerberos v5 KEYTYPE_DES */
+#define	SK_OTHER	2	/* Non-DES key. */
 
 #include "enc-proto.h"
 
