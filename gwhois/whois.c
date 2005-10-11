@@ -94,10 +94,10 @@ int main(int argc, char *argv[])
 	    break;
 	case 1:
 #ifdef VERSION
-	    fprintf(stdout, _("Version %s.\n\nReport bugs to %s.\n"),
+	    fprintf(stderr, _("Version %s.\n\nReport bugs to %s.\n"),
 		    VERSION, "<md+whois@linux.it>");
 #else
-	    fprintf(stdout, "%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
+	    fprintf(stderr, "%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 #endif
 	    exit(0);
 	default:
@@ -467,7 +467,7 @@ void closeconn(const int fd)
     close(fd);
 }
 
-void sighandler(int signum)
+RETSIGTYPE sighandler(int signum)
 {
     closeconn(sockfd);
     err_quit(_("Interrupted by signal %d..."), signum);
@@ -512,7 +512,7 @@ unsigned long myinet_aton(const char *s)
 
 void usage(void)
 {
-    fprintf(stdout, _(
+    fprintf(stderr, _(
 "Usage: whois [OPTION]... OBJECT...\n\n"
 "-a                     search all databases\n"
 "-F                     fast raw output (implies -r)\n"
