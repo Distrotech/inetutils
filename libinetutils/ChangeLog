@@ -1,3 +1,15 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* daemon.c: Signal handlers return RETSIGTYPE
+	* kcmd.c: Do not include <kerberosIV/kparse.h>
+	Add Shishi support based on patch by Simon Josefsson
+	* krcmd.c: Add Shishi support. Patch by Simon Josefsson.
+	* ttymsg.c: Remove leftover BSD-isms:
+	err,errx,warn,warnx, cast to (void) before function calls. Use GNU
+	error() uniformly
+	* shishi.c: New file
+	* Makefile.am (libinetutils_a_SOURCES): Add shishi.c
+	
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* xalloc_die.c: Updated FSF postal mail address.

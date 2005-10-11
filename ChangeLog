@@ -1,3 +1,15 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* acinclude.m4: Properly quote arguments to AC_ARG_ENABLE and
+	AC_ARG_WITH. Use AC_HELP_STRING where appropriate.
+	* configure.ac: Likewise.
+	Add --with-shishi options. Patch by Simon Josefsson
+	* THANKS: Add Simon Joseffson
+	* lib/getpass.c: Remove leftover BSD-isms: err,errx,warn,warnx, cast
+	to (void) before function calls. Use GNU error() uniformly
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+	
 2005-09-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* autogen.sh: Don't pass `-s' to autoreconf.

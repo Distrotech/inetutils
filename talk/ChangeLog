@@ -1,3 +1,12 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* init_disp.c: Remove leftover BSD-isms:
+	err,errx,warn,warnx, cast to (void) before function calls. Use GNU
+	error() uniformly.
+	Signal handlers return RETSIGTYPE.
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+
 2005-09-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* talk.c: #include <getopt.h>

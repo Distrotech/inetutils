@@ -1,3 +1,12 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* conf.c: Remove leftover BSD-isms: err,errx,warn,warnx, cast
+	to (void) before function calls. Use GNU error() uniformly
+	* ftpd.c: Likewise
+	* server_mode.c: Likewise
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* logwtmp.c: Updated FSF postal mail address.

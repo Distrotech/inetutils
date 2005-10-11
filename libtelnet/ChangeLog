@@ -1,3 +1,16 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* auth.c: Signal handlers return RETSIGTYPE
+	Add Shishi support. Patch by Simon Josefsson.
+	* auth-proto.h: Add Shishi support. Patch by Simon
+	Josefsson.
+	* auth.h: Likewise.
+	* enc_des.c: Likewise.
+	* encrypt.c: Likewise.
+	* encrypt.h: Define SK_OTHER
+	* shishi.c: New file
+	* Makefile.am (libtelnet_a_SOURCES): Add shishi.c
+	
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* kerberos5.c: Updated FSF postal mail address.

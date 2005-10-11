@@ -1,3 +1,12 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* table.c: Remove leftover BSD-isms:
+	err,errx,warn,warnx, cast to (void) before function calls. Use GNU
+	error() uniformly.
+	* talkd.c: Likewise
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* acl.c,announce.c,intalkd.h,print.c,process.c,

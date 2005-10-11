@@ -1,3 +1,14 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* cmds.c: Remove leftover BSD-isms: err,errx,warn,warnx, cast
+	to (void) before function calls. Use GNU error() uniformly
+	* ftp.c: Likewise.
+	* main.c: Likewise.
+	* ruserpass.c: Likewise.
+	* domacro.c: Likewise. Use do while loop instead of goto.
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+	
 2005-09-08  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* main.c (getcmd,help): Moved to cmdtab.c

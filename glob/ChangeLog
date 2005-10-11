@@ -1,3 +1,8 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+	
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (INCLUDES): Variable removed.

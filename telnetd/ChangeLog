@@ -1,3 +1,8 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* pty.c,telnetd.c,telnetd.h,term.c,utility.c: Updated FSF postal

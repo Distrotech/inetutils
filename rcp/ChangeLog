@@ -1,3 +1,12 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* rcp.c: Remove leftover BSD-isms:
+	err,errx,warn,warnx, cast to (void) before function calls. Use GNU
+	error() uniformly
+	* util.c: Likewise.
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* rcp.c [!HAVE_DECL_STRERROR]: Removed extern declaration for

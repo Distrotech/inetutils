@@ -3,6 +3,8 @@
 	* icmp.h,icmp_address.c,icmp_cksum.c,icmp_echo.c,
 	icmp_timestamp.c,libping.c,ping.h: Updated FSF postal mail
 	address. 
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
 
 2005-07-30  Sergey Poznyakoff  <gray@gnu.org.ua>
 

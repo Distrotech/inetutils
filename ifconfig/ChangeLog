@@ -1,3 +1,10 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+	* system/Makefile.am: Remove ansi2knr. Add copyleft header.
+	Update INCLUDES.
+	
 2005-09-22  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* changeif.c, flags.c, flags.h, if_index.c, if_index.h,

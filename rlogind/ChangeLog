@@ -1,3 +1,10 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* rlogind.c: Signal handlers return RETSIGTYPE.
+	Add Shishi support based on patch by Simon Josefsson
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* rlogind.c: Updated FSF postal mail address.

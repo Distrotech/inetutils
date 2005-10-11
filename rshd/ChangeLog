@@ -1,3 +1,13 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* rshd.c: Remove leftover BSD-isms:
+	err,errx,warn,warnx, cast to (void) before function calls. Use GNU
+	error() uniformly.
+	Signal handlers return RETSIGTYPE.
+	Add Shishi support. Patch by Simon Josefsson
+	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
+	INCLUDES.
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (LDADD): Added `-L../lib -lgnu'.

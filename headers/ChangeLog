@@ -1,3 +1,8 @@
+2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* shishi_def.h: New file. 
+	* Makefile.am (noinst_HEADERS): Add shishi_def.h
+
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (noinst_HEADERS): New variable.
