@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
+#include <error.h>
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -82,16 +83,15 @@
 
 #define MAXFD 64
 
-void
+RETSIGTYPE
 waitdaemon_timeout (int signo)
 {
   int left;
 
-  (void)signo;
   left = alarm (0);
   signal (SIGALRM, SIG_DFL);
   if (left == 0)
-    errx (1, "timed out waiting for child");
+    error (1, 0, "timed out waiting for child");
 }
 
 /* waitdaemon is like daemon, but optionally the parent pause up

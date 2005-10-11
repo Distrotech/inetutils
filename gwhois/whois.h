@@ -43,7 +43,7 @@ const char *query_crsnic(const int, const char *);
 int openconn(const char *, const char *);
 void closeconn(const int);
 void usage(void);
-void sighandler(int);
+RETSIGTYPE sighandler(int);
 unsigned long myinet_aton(const char *);
 int domcmp(const char *, const char *);
 int domfind(const char *, const char *[]);
