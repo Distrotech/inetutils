@@ -140,22 +140,22 @@ dnl specification, and possibly defines NCURSES_INCLUDE with the appropriate
 dnl -I flag to get access to ncurses include files.
 dnl
 AC_DEFUN([IU_LIB_NCURSES], [
-  AC_ARG_ENABLE(ncurses,    [  --disable-ncurses       don't prefer -lncurses over -lcurses],
-              , enable_ncurses=yes)
+  AC_ARG_ENABLE([ncurses],
+                AC_HELP_STRING([--disable-ncurses],
+                               [don't prefer -lncurses over -lcurses]),
+              , [enable_ncurses=yes])
   if test "$enable_ncurses" = yes; then
     AC_CHECK_LIB(ncurses, initscr, LIBNCURSES="-lncurses")
     if test "$LIBNCURSES"; then
       # Use ncurses header files instead of the ordinary ones, if possible;
       # is there a better way of doing this, that avoids looking in specific
       # directories?
-      AC_ARG_WITH(ncurses-include-dir,
-[  --with-ncurses-include-dir=DIR
-                          Set directory containing the include files for
+      AC_ARG_WITH([ncurses-include-dir],
+                  AC_HELP_STRING([--with-ncurses-include-dir=DIR],
+                                 [Set directory containing the include files for
                           use with -lncurses, when it isn't installed as
                           the default curses library.  If DIR is "none",
-                          then no special ncurses include files are used.
-  --without-ncurses-include-dir
-                          Equivalent to --with-ncurses-include-dir=none])dnl
+                          then no special ncurses include files are used.]))
       if test "${with_ncurses_include_dir+set}" = set; then
         AC_MSG_CHECKING(for ncurses include dir)
 	case "$with_ncurses_include_dir" in
@@ -267,11 +267,11 @@ AC_DEFUN([IU_CONFIG_PATHS], [
   dnl $with_PATHVAR, we just want to get this entry put into the help list.
   dnl We actually look for `with_' variables corresponding to each path
   dnl configured.
-  AC_ARG_WITH(PATHVAR,
-[  --with-PATHVAR=PATH     Set the value of PATHVAR to PATH
+  AC_ARG_WITH([PATHVAR],
+              AC_HELP_STRING([--with-PATHVAR=PATH],
+                             [Set the value of PATHVAR to PATH
                           PATHVAR is the name of a \`PATH_FOO' variable,
-                          downcased, with \`_' changed to \`-'
-  --without-PATHVAR       Never define PATHVAR by any method])dnl
+                          downcased, with \`_' changed to \`-']))
 
   # For case-conversion with sed
   IU_UCASE=ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -542,10 +542,11 @@ AC_DEFUN([jm_INCLUDED_REGEX],
     m4_syscmd([test -f $1])
     ifelse(m4_sysval, 0,
       [
-	AC_ARG_WITH(included-regex,
-	[  --without-included-regex don't compile regex; this is the default on
+	AC_ARG_WITH([included-regex],
+	            AC_HELP_STRING([--without-included-regex],
+                                   [don't compile regex; this is the default on
                           systems with version 2 of the GNU C library
-                          (use with caution on other system)],
+                          (use with caution on other system)]),
 		    jm_with_regex=$withval,
 		    jm_with_regex=$ac_use_included_regex)
 	if test "$jm_with_regex" = yes; then
@@ -560,7 +561,7 @@ dnl IU_CHECK_KRB5(VERSION,PREFIX)
 dnl Search for a Kerberos implementation in the standard locations plus PREFIX,
 dnl if it is set and not "yes".
 dnl VERSION should be either 4 or 5
-dnl Defines KRB_CFLAGS and KRB_LIBS if found.
+dnl Defines KRB5_CFLAGS and KRB5_LIBS if found.
 dnl Defines KRB_IMPL to "Heimdal", "MIT", or "OldMIT", or "none" if not found
 AC_DEFUN([IU_CHECK_KRB5],
 [
