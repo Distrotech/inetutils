@@ -35,26 +35,58 @@ dnl daemons go.
 inetdaemondir='$(libexecdir)'
 AC_SUBST(inetdaemondir)
 
-AC_ARG_ENABLE(servers, [  --disable-servers       don't compile servers],
-	      , enable_servers=yes)
-AC_ARG_ENABLE(clients, [  --disable-clients       don't compile clients],
-	      , enable_clients=yes)
-AC_ARG_ENABLE(libls,   [  --disable-libls         disable support for libls ],
-              , enable_libls=yes)
-AC_ARG_ENABLE(encryption, [  --enable-encryption     enable encryption],
-	      , enable_encryption=no)
-AC_ARG_ENABLE(authentication,
-              [  --enable-authentication enable connection authentication],
-	      , enable_authentication=no)
-
-AC_ARG_WITH(krb4, [  --with-krb4[[=PATH]]      Compile with Kerberos IV],
+AC_ARG_WITH([krb4],
+            AC_HELP_STRING([--with-krb4[[=PATH]]],
+                           [Compile with Kerberos IV]),
             [KERBEROS_VERSION=4
              KERBEROS_DIR=$withval])
-AC_ARG_WITH(krb5, [  --with-krb5[[=PATH]]      Compile with Kerberos V],
+AC_ARG_WITH([krb5],
+            AC_HELP_STRING([--with-krb5[[=PATH]]],
+                           [Compile with Kerberos V]),
             [KERBEROS_VERSION=5
              KERBEROS_DIR=$withval])
-AC_ARG_WITH(wrap, [  --with-wrap    add tcp wrapper support])
-AC_ARG_WITH(pam,  [  --with-pam    add support for PAM])
+AC_ARG_WITH([shishi],
+            AC_HELP_STRING([--with-shishi[[=PATH]]],
+		           [Compile with Shishi (Kerberos 5)]),
+            [KERBEROS_VERSION=Shishi
+             KERBEROS_DIR=$withval])
+
+AC_ARG_ENABLE([servers],
+              AC_HELP_STRING([--disable-servers],
+                             [don't compile servers]),
+	      , [enable_servers=yes])
+AC_ARG_ENABLE([clients],
+              AC_HELP_STRING([--disable-clients],
+                             [don't compile clients]),
+	      , [enable_clients=yes])
+AC_ARG_ENABLE([libls],
+              AC_HELP_STRING([--disable-libls],
+                             [disable support for libls ]),
+              , [enable_libls=yes])
+AC_ARG_ENABLE([encryption],
+              AC_HELP_STRING([--enable-encryption],
+                             [enable encryption]),
+              [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-encryption is given but no Kerberos version is required])],
+              [test -z "$KERBEROS_VERSION" && enable_encryption=no])
+AC_ARG_ENABLE([authentication],
+              AC_HELP_STRING([--enable-authentication],
+                             [enable connection authentication]),
+              [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-authentication is given but no Kerberos version is required])],
+	      [test -z "$KERBEROS_VERSION" && enable_authentication=no])
+
+if test -n "$KERBEROS_VERSION"; then
+  if test -z "$enable_authentication$enable_encryption"; then
+    enable_authentication=yes
+    enable_encryption=yes
+  fi
+fi
+
+AC_ARG_WITH([wrap],
+            AC_HELP_STRING([--with-wrap],
+                           [add tcp wrapper support]))
+AC_ARG_WITH([pam],
+            AC_HELP_STRING([--with-pam],
+                           [add support for PAM]))
 
 IU_ENABLE_SERVER(ftpd)
 IU_ENABLE_SERVER(inetd)
@@ -197,17 +229,18 @@ fi
 AC_SUBST(LIBGLOB)
 AC_SUBST(libglob_BUILD)
 
-dnl FIXME: Make this test case a bit more robust.  Is there a reason why
-dnl        KRB4 exists?
+dnl FIXME: Make this test case a bit more robust. Remove KRB4
 LIBAUTH=
 INCAUTH=
 if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
   AH_TEMPLATE(KERBEROS, [Define to one if you have Kerberos])
   AH_TEMPLATE(KRB4, [Define to one if you have Kerberos IV])
   AH_TEMPLATE(KRB5, [Define to one if you have Kerberos V])
+  AH_TEMPLATE(SHISHI, [Define to 1 if you have Shishi])
   AH_TEMPLATE(DES_ENCRYPTION, [FIXME])
-  
-  if test "$KERBEROS_VERSION" = 4; then
+
+  case $KERBEROS_VERSION in
+  4)
     AC_CHECK_LIB(krb, krb_mk_req,
                  [LIBAUTH=-lkrb
                   AC_DEFINE(KRB4)],
@@ -224,21 +257,33 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
       test "$enable_encryption" = yes -a "$ac_cv_lib_des_des_key_sched" = yes \
         && AC_DEFINE(DES_ENCRYPTION)
     fi
-  else
+    ;;
+  5)
     IU_CHECK_KRB5($KERBEROS_VERSION,$KERBEROS_DIR)
-    LIBAUTH=$KRB5_LIBS
-    INCAUTH=$KRB_CFLAGS
+    LIBAUTH="$KRB5_LIBS" # FIXME
+    INCAUTH=$KRB5_CFLAGS
     if test ".$LIBAUTH" != . ;then
-      case $KERBEROS_VERSION in
-      4) AC_DEFINE(KERBEROS)
-         AC_DEFINE(KRB4)
-         ;;
-      5) AC_DEFINE(KERBEROS)
-	 AC_DEFINE(KRB5)
-         ;;
-      esac
+      AC_DEFINE(KERBEROS)
+      AC_DEFINE(KRB5)
     fi
-  fi
+    ;;
+  *)
+    if test x$KERBEROS_DIR != x; then
+      LIBAUTH=-L$KERBEROS_DIR/lib
+      INCAUTH=-I$KERBEROS_DIR/include
+    fi
+    LIBAUTH="$LIBAUTH -lshishi"
+    save_LIBS=$LIBS
+    LIBS="$LIBS $LIBAUTH"
+    save_CPPFLAGS=$CPPFLAGS
+    CPPFLAGS="$CPPFLAGS $INCAUTH"
+    AC_CHECK_HEADER(shishi.h,
+      AC_CHECK_LIB(shishi, shishi_check_version,
+        AC_DEFINE(SHISHI),
+        [INCAUTH= LIBAUTH=]))
+    LIBS=$save_LIBS
+    CPPFLAGS=$save_CPPFLAGS
+  esac
 fi
 AC_SUBST(LIBAUTH)
 AC_SUBST(INCAUTH)
@@ -253,7 +298,7 @@ fi
 
 dnl Checks for IPv6 support.
 
-AC_ARG_ENABLE(ipv6,
+AC_ARG_ENABLE([ipv6],
   AS_HELP_STRING([--disable-ipv6], [disable IPv6 support]),
   [case "${enable_ipv6}" in
   no)
@@ -694,6 +739,18 @@ IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
 AH_BOTTOM(
 [/* Defaults for PATH_ variables.  */
 #include <confpaths.h>])
+
+dnl Define ARG_UNUSED macro
+dnl
+AH_BOTTOM([
+#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 7)
+#  define __attribute__(x)
+#endif
+
+#ifndef ARG_UNUSED
+# define ARG_UNUSED __attribute__ ((__unused__))
+#endif
+])
 
 dnl Ok this is the end of the rope, even autoconf can't help.
 dnl For example on certain system login(1) will not work if we
