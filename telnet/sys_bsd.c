@@ -229,9 +229,9 @@ TerminalFlushOutput()
 {
     int flags = 0;
 #ifdef	TIOCFLUSH
-    (void) ioctl(fileno(stdout), TIOCFLUSH, &flags);
+    ioctl(fileno(stdout), TIOCFLUSH, &flags);
 #else
-    (void) ioctl(fileno(stdout), TCFLSH, &flags);
+    ioctl(fileno(stdout), TCFLSH, &flags);
 #endif
 }
 
@@ -623,10 +623,10 @@ TerminalNewMode(register int f)
 #endif
 
 #ifdef	SIGTSTP
-	(void) signal(SIGTSTP, susp);
+	signal(SIGTSTP, susp);
 #endif	/* SIGTSTP */
 #ifdef	SIGINFO
-	(void) signal(SIGINFO, ayt);
+	signal(SIGINFO, ayt);
 #endif
 #if	defined(USE_TERMIO) && defined(NOKERNINFO)
 	tmp_tc.c_lflag |= NOKERNINFO;
@@ -670,10 +670,10 @@ TerminalNewMode(register int f)
 #ifdef	SIGINFO
 	RETSIGTYPE ayt_status();
 
-	(void) signal(SIGINFO, ayt_status);
+	signal(SIGINFO, ayt_status);
 #endif
 #ifdef	SIGTSTP
-	(void) signal(SIGTSTP, SIG_DFL);
+	signal(SIGTSTP, SIG_DFL);
 # ifdef HAVE_SIGACTION
 	{
 	  sigset_t sigs;
@@ -682,7 +682,7 @@ TerminalNewMode(register int f)
 	  sigprocmask(SIG_UNBLOCK, &sigs, 0);
 	}
 # else
-	(void) sigsetmask(sigblock(0) & ~(1<<(SIGTSTP-1)));
+	sigsetmask(sigblock(0) & ~(1<<(SIGTSTP-1)));
 # endif /* HAVE_SIGACTION */
 #endif	/* SIGTSTP */
 #ifndef USE_TERMIO
@@ -935,17 +935,17 @@ ayt(int sig)
 void
 sys_telnet_init()
 {
-    (void) signal(SIGINT, intr);
-    (void) signal(SIGQUIT, intr2);
-    (void) signal(SIGPIPE, deadpeer);
+    signal(SIGINT, intr);
+    signal(SIGQUIT, intr2);
+    signal(SIGPIPE, deadpeer);
 #ifdef	SIGWINCH
-    (void) signal(SIGWINCH, sendwin);
+    signal(SIGWINCH, sendwin);
 #endif
 #ifdef	SIGTSTP
-    (void) signal(SIGTSTP, susp);
+    signal(SIGTSTP, susp);
 #endif
 #ifdef	SIGINFO
-    (void) signal(SIGINFO, ayt);
+    signal(SIGINFO, ayt);
 #endif
 
     setconnmode(0);
@@ -1058,7 +1058,7 @@ process_rings(int netin, int netout, int netex, int ttyin, int ttyout, int poll)
     if (FD_ISSET(net, &xbits)) {
 	FD_CLR(net, &xbits);
 	SYNCHing = 1;
-	(void) ttyflush(1);	/* flush already enqueued data */
+	ttyflush(1);	/* flush already enqueued data */
     }
 
     /*

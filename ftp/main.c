@@ -46,7 +46,7 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 #include <arpa/ftp.h>
 
 #include <ctype.h>
-#include <err.h>
+#include <error.h>
 #include <netdb.h>
 #include <pwd.h>
 #include <signal.h>
@@ -121,7 +121,7 @@ main (int argc, char *argv[])
 
   sp = getservbyname ("ftp", "tcp");
   if (sp == 0)
-    errx (1, "ftp/tcp: unknown service");
+    error (1, 0, "ftp/tcp: unknown service");
   doglob = 1;
   interactive = 1;
   autologin = 1;
@@ -213,8 +213,8 @@ main (int argc, char *argv[])
 
       if (setjmp (toplevel))
 	exit (0);
-      (void) signal(SIGINT, intr);
-      (void) signal(SIGPIPE, lostpeer);
+      signal(SIGINT, intr);
+      signal(SIGPIPE, lostpeer);
       xargv[0] = __progname;
       xargv[1] = argv[0];
       xargv[2] = argv[1];
@@ -225,8 +225,8 @@ main (int argc, char *argv[])
   top = setjmp (toplevel) == 0;
   if (top)
     {
-      (void) signal (SIGINT, intr);
-      (void) signal (SIGPIPE, lostpeer);
+      signal (SIGINT, intr);
+      signal (SIGPIPE, lostpeer);
     }
   for (;;)
     {
@@ -235,27 +235,27 @@ main (int argc, char *argv[])
     }
 }
 
-void
-intr (int sig)
+RETSIGTYPE
+intr (int sig ARG_UNUSED)
 {
   longjmp (toplevel, 1);
 }
 
-void
-lostpeer (int sig)
+RETSIGTYPE
+lostpeer (int sig ARG_UNUSED)
 {
   if (connected)
     {
       if (cout != NULL)
 	{
-	  (void) shutdown (fileno (cout), 1+1);
-	  (void) fclose (cout);
+	  shutdown (fileno (cout), 1+1);
+	  fclose (cout);
 	  cout = NULL;
 	}
       if (data >= 0)
 	{
-	  (void) shutdown (data, 1+1);
-	  (void) close (data);
+	  shutdown (data, 1+1);
+	  close (data);
 	  data = -1;
 	}
       connected = 0;
@@ -265,8 +265,8 @@ lostpeer (int sig)
     {
       if (cout != NULL)
 	{
-	  (void) shutdown (fileno(cout), 1+1);
-	  (void) fclose (cout);
+	  shutdown (fileno(cout), 1+1);
+	  fclose (cout);
 	  cout = NULL;
 	}
       connected = 0;
@@ -304,7 +304,7 @@ cmdscanner (int top)
   int l;
 
   if (!top)
-    (void) putchar ('\n');
+    putchar ('\n');
   for (;;)
     {
 
@@ -375,12 +375,12 @@ cmdscanner (int top)
 	}
       (*c->c_handler) (margc, margv);
       if (bell && c->c_bell)
-	(void) putchar('\007');
+	putchar('\007');
       if (c->c_handler != help)
 	break;
     }
-  (void) signal (SIGINT, intr);
-  (void) signal (SIGPIPE, lostpeer);
+  signal (SIGINT, intr);
+  signal (SIGPIPE, lostpeer);
 }
 
 /*

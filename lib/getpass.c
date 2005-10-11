@@ -205,7 +205,7 @@ getpass (const char *prompt)
 
   /* Restore the original setting.  */
   if (tty_changed)
-    (void) tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &s);
+    tcsetattr (fileno (in), TCSAFLUSH|TCSASOFT, &s);
 
   funlockfile (out);
 

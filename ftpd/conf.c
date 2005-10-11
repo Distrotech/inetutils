@@ -24,8 +24,8 @@ display_file (const char *name, int code)
 	    *cp = '\0';
 	  lreply (code, "%s", line);
 	}
-      (void) fflush (stdout);
-      (void) fclose (fp);
+      fflush (stdout);
+      fclose (fp);
       return 0;
     }
   return errno;
@@ -58,7 +58,7 @@ checkuser (const char *filename, const char *name)
 		}
 	    }
 	}
-      (void) fclose (fp);
+      fclose (fp);
     }
   return (found);
 }

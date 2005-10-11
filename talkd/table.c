@@ -87,9 +87,8 @@ lookup_request (CTL_MSG *request, int (*comp)(table_t *, CTL_MSG *, time_t *))
 }
 
 static int
-fuzzy_comp (table_t *ptr, CTL_MSG *request, time_t *unused)
+fuzzy_comp (table_t *ptr, CTL_MSG *request, time_t *unused ARG_UNUSED)
 {
-  (void)unused;
   if (ptr->request.type == LEAVE_INVITE
       && strcmp(request->l_name, ptr->request.r_name) == 0
       && strcmp(request->r_name, ptr->request.l_name) == 0)

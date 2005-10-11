@@ -102,7 +102,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
     {
       if (errno == EBUSY || errno == EACCES)
 	return (NULL);
-      (void) snprintf (errbuf, sizeof (errbuf),
+      snprintf (errbuf, sizeof (errbuf),
 		      "%s: %s", device, strerror (errno));
       free (device);
       return errbuf;
@@ -143,28 +143,28 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 
 	  if (forked)
 	    {
-	      (void) close (fd);
+	      close (fd);
 	      _exit(1);
 	    }
 	  cpid = fork2 ();
 	  if (cpid < 0)
 	    {
-	      (void) snprintf (errbuf, sizeof (errbuf),
+	      snprintf (errbuf, sizeof (errbuf),
 			      "fork: %s", strerror (errno));
-	      (void) close (fd);
+	      close (fd);
 	      free (device);
 	      return (errbuf);
 	    }
 	  if (cpid)  /* Parent.  */
 	    {
-	      (void) close (fd);
+	      close (fd);
 	      free (device);
 	      return (NULL);
 	    }
 	  forked++;
 	  /* wait at most tmout seconds */
-	  (void) signal (SIGALRM, SIG_DFL);
-	  (void) signal (SIGTERM, SIG_DFL); /* XXX */
+	  signal (SIGALRM, SIG_DFL);
+	  signal (SIGTERM, SIG_DFL); /* XXX */
 #ifdef HAVE_SIGACTION
 	  {
 	    sigset_t empty;
@@ -172,10 +172,10 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 	    sigprocmask (SIG_SETMASK, &empty, 0);
 	  }
 #else
-	  (void) sigsetmask (0);
+	  sigsetmask (0);
 #endif
-	  (void) alarm ((u_int)tmout);
-	  (void) fcntl (fd, O_NONBLOCK, &off);
+	  alarm ((u_int)tmout);
+	  fcntl (fd, O_NONBLOCK, &off);
 	  continue;
 	}
       /*
@@ -184,17 +184,17 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
        */
       if (errno == ENODEV || errno == EIO)
 	break;
-      (void) close (fd);
+      close (fd);
       if (forked)
 	_exit (1);
-      (void) snprintf(errbuf, sizeof (errbuf),
+      snprintf(errbuf, sizeof (errbuf),
 		      "%s: %s", device, strerror (errno));
       free (device);
       return (errbuf);
     }
 
   free (device);
-  (void) close (fd);
+  close (fd);
   if (forked)
     _exit(0);
   return (NULL);

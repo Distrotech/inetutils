@@ -362,7 +362,7 @@ sendcmd(int  argc, char **argv)
     for (i = 1; i < argc; i++) {
 	if ((s = GETSEND(argv[i])) == 0) {
 	    fprintf(stderr, "Telnet 'send' error - argument disappeared!\n");
-	    (void) quit();
+	    quit();
 	    /*NOTREACHED*/
 	}
 	if (s->handler) {
@@ -1311,7 +1311,7 @@ setescape(int argc, char *argv[])
 		arg = argv[1];
 	else {
 		printf("new escape character: ");
-		(void) fgets(buf, sizeof(buf), stdin);
+		fgets(buf, sizeof(buf), stdin);
 		arg = buf;
 	}
 	if (arg[0] != '\0')
@@ -1319,7 +1319,7 @@ setescape(int argc, char *argv[])
 	if (!In3270) {
 		printf("Escape character is '%s'.\n", control(escape));
 	}
-	(void) fflush(stdout);
+	fflush(stdout);
 	return 1;
 }
 
@@ -1330,7 +1330,7 @@ togcrmod()
     crmod = !crmod;
     printf("Deprecated usage - please use 'toggle crmod' in the future.\n");
     printf("%s map carriage return on output.\n", crmod ? "Will" : "Won't");
-    (void) fflush(stdout);
+    fflush(stdout);
     return 1;
 }
 
@@ -1344,7 +1344,7 @@ suspend()
 	long oldrows, oldcols, newrows, newcols, err;
 
 	err = (TerminalWindowSize(&oldrows, &oldcols) == 0) ? 1 : 0;
-	(void) kill(0, SIGTSTP);
+	kill(0, SIGTSTP);
 	/*
 	 * If we didn't get the window size before the SUSPEND, but we
 	 * can get them now (?), then send the NAWS to make sure that
@@ -1404,7 +1404,7 @@ shell(int argc, char *argv[])
 	    _exit(1);
 	}
     default:
-	    (void)wait((int *)0);	/* Wait for the shell to complete */
+	    wait((int *)0);	/* Wait for the shell to complete */
 
 	    if (TerminalWindowSize(&newrows, &newcols) && connected &&
 		(err || ((oldrows != newrows) || (oldcols != newcols)))) {
@@ -1427,9 +1427,9 @@ bye(int  argc, char *argv[])
     extern int resettermname;
 
     if (connected) {
-	(void) shutdown(net, 2);
+	shutdown(net, 2);
 	printf("Connection closed.\n");
-	(void) NetClose(net);
+	NetClose(net);
 	connected = 0;
 	resettermname = 1;
 #if	defined(AUTHENTICATION) || defined(ENCRYPTION)
@@ -1452,7 +1452,7 @@ bye(int  argc, char *argv[])
 int
 quit()
 {
-	(void) call(bye, "bye", "fromquit", 0);
+	call(bye, "bye", "fromquit", 0);
 	Exit(0);
 	/*NOTREACHED*/
 }
@@ -1462,7 +1462,7 @@ int
 logout()
 {
 	send_do(TELOPT_LOGOUT, 1);
-	(void) netflush();
+	netflush();
 	return 1;
 }
 
@@ -2152,7 +2152,7 @@ status(int	 argc, char *argv[])
     }
 #   if !defined(TN3270)
     printf("Escape character is '%s'.\n", control(escape));
-    (void) fflush(stdout);
+    fflush(stdout);
 #   else /* !defined(TN3270) */
     if ((!In3270) && ((argc < 2) || strcmp(argv[1], "notmuch"))) {
 	printf("Escape character is '%s'.\n", control(escape));
@@ -2176,7 +2176,7 @@ status(int	 argc, char *argv[])
        printf("Transparent mode command is '%s'.\n", transcom);
     }
 #   endif /* defined(unix) */
-    (void) fflush(stdout);
+    fflush(stdout);
     if (In3270) {
 	return 0;
     }
@@ -2191,7 +2191,7 @@ status(int	 argc, char *argv[])
 int
 ayt_status()
 {
-    (void) call(status, "status", "notmuch", 0);
+    call(status, "status", "notmuch", 0);
 }
 #endif
 
@@ -2224,9 +2224,9 @@ tn(int argc, char *argv[])
     }
   if (argc < 2)
     {
-      (void) strcpy(line, "open ");
+      strcpy(line, "open ");
       printf("(to) ");
-      (void) fgets(&line[strlen(line)], sizeof(line) - strlen(line), stdin);
+      fgets(&line[strlen(line)], sizeof(line) - strlen(line), stdin);
       makeargv();
       argc = margc;
       argv = margv;
@@ -2504,7 +2504,7 @@ tn(int argc, char *argv[])
       env_define((unsigned char *)"USER", (unsigned char *)user);
       env_export((unsigned char *)"USER");
     }
-  (void) call(status, "status", "notmuch", 0);
+  call(status, "status", "notmuch", 0);
   if (setjmp(peerdied) == 0)
     telnet(user);
 
@@ -2648,8 +2648,8 @@ command(int top, char *tbuf, int cnt)
 	putchar('\n');
 #if	defined(unix)
     } else {
-	(void) signal(SIGINT, SIG_DFL);
-	(void) signal(SIGQUIT, SIG_DFL);
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 #endif	/* defined(unix) */
     }
     for (;;) {
@@ -2672,7 +2672,7 @@ command(int top, char *tbuf, int cnt)
 		printf("%s> ", prompt);
 	    if (fgets(line, sizeof(line), stdin) == NULL) {
 		if (feof(stdin) || ferror(stdin)) {
-		    (void) quit();
+		    quit();
 		    /*NOTREACHED*/
 		}
 		break;

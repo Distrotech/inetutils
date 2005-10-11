@@ -352,8 +352,8 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
       strcpy (line, remotehost);
       SCPYN (ll.ll_line, line);
       SCPYN (ll.ll_host, remotehost);
-      (void) write (f, (char *) &ll, sizeof ll);
-      (void) close (f);
+      write (f, (char *) &ll, sizeof ll);
+      close (f);
     }
 #endif
 }

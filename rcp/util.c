@@ -100,7 +100,8 @@ okname(char *cp0)
 	} while (*++cp);
 	return (1);
 
-bad:	warnx("%s: invalid user name", cp0);
+bad:	
+	error (0, 0, "%s: invalid user name", cp0);
 	return (0);
 }
 
@@ -157,10 +158,10 @@ allocbuf(BUF *bp, int fd, int blksize)
 	return (bp);
 }
 
-void
+RETSIGTYPE
 lostconn(int signo)
 {
 	if (!iamremote)
-		warnx("lost connection");
+		error (0, 0, "lost connection");
 	exit(1);
 }

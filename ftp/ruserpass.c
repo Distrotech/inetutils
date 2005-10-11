@@ -108,7 +108,7 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
   if (cfile == NULL)
     {
       if (errno != ENOENT)
-	warn("%s", buf);
+	error (0, errno, "%s", buf);
       return (0);
     }
 
@@ -161,7 +161,7 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
 		if (*aname == 0)
 		  {
 		    *aname = xmalloc((unsigned) strlen(tokval) + 1);
-		    (void) strcpy(*aname, tokval);
+		    strcpy(*aname, tokval);
 		  }
 		else
 		  {
@@ -174,28 +174,28 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
 		  && fstat(fileno(cfile), &stb) >= 0
 		  && (stb.st_mode & 077) != 0)
 		{
-		  warnx("Error: .netrc file is readable by others.");
-		  warnx("Remove password or make file unreadable by others.");
+		  error (0, 0, "Error: .netrc file is readable by others.");
+		  error (0, 0, "Remove password or make file unreadable by others.");
 		  goto bad;
 		}
 	      if (token() && *apass == 0)
 		{
 		  *apass = xmalloc((unsigned) strlen(tokval) + 1);
-		  (void) strcpy(*apass, tokval);
+		  strcpy(*apass, tokval);
 		}
 	      break;
 	    case ACCOUNT:
 	      if (fstat(fileno(cfile), &stb) >= 0
 		  && (stb.st_mode & 077) != 0)
 		{
-		  warnx("Error: .netrc file is readable by others.");
-		  warnx("Remove account or make file unreadable by others.");
+		  error (0, 0, "Error: .netrc file is readable by others.");
+		  error (0, 0, "Remove account or make file unreadable by others.");
 		  goto bad;
 		}
 	      if (token() && *aacct == 0)
 		{
 		  *aacct = xmalloc((unsigned) strlen(tokval) + 1);
-		  (void) strcpy(*aacct, tokval);
+		  strcpy(*aacct, tokval);
 		}
 	      break;
 	    case MACDEF:
@@ -270,18 +270,18 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
 		}
 	      break;
 	    default:
-	      warnx("Unknown .netrc keyword %s", tokval);
+	      error (0, 0, "Unknown .netrc keyword %s", tokval);
 	      break;
 	    }
 	goto done;
       }
  done:
-  (void) fclose(cfile);
+  fclose(cfile);
   if (myname)
     free (myname);
   return (0);
  bad:
-  (void) fclose(cfile);
+  fclose(cfile);
   if (myname)
     free (myname);
   return (-1);

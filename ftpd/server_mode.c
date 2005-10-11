@@ -64,12 +64,11 @@ check_host (struct sockaddr *sa)
 }
 #endif
 
-static void
-reapchild (int signo)
+static RETSIGTYPE
+reapchild (int signo ARG_UNUSED)
 {
   int save_errno = errno;
 
-  (void)signo;
   while (waitpid (-1, NULL, WNOHANG) > 0)
     ;
   errno = save_errno;
@@ -89,7 +88,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
       syslog (LOG_ERR, "failed to become a daemon");
       return -1;
     }
-  (void) signal (SIGCHLD, reapchild);
+  signal (SIGCHLD, reapchild);
 
   /* Get port for ftp/tcp.  */
   sv = getservbyname ("ftp", "tcp");
@@ -147,8 +146,8 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
       fd = accept (ctl_sock, (struct sockaddr *)phis_addr, &addrlen);
       if (fork () == 0) /* child */
 	{
-	  (void) dup2 (fd, 0);
-	  (void) dup2 (fd, 1);
+	  dup2 (fd, 0);
+	  dup2 (fd, 1);
 	  close (ctl_sock);
 	  break;
 	}

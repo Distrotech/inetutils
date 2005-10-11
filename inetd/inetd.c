@@ -455,7 +455,7 @@ main (int argc, char *argv[], char *envp[])
     if (fp != NULL)
       {
         fprintf (fp, "%d\n", getpid ());
-        (void) fclose (fp);
+        fclose (fp);
       }
     else
       syslog (LOG_CRIT, "can't open %s: %s\n", PATH_INETDPID, strerror (errno));
@@ -652,7 +652,7 @@ reapchild (int signo)
   pid_t pid;
   struct servtab *sep;
 
-  (void)signo; /* shutup gcc */
+  signo; /* shutup gcc */
   for (;;)
     {
 #ifdef HAVE_WAIT3
@@ -687,7 +687,7 @@ config (int signo)
   struct stat stats;
   struct servtab *sep;
 
-  (void)signo; /* Shutup gcc.  */
+  signo; /* Shutup gcc.  */
 
   for (sep = servtab; sep; sep = sep->se_next)
     sep->se_checked = 0;
@@ -861,7 +861,7 @@ retry (int signo)
 {
   struct servtab *sep;
 
-  (void)signo; /* shutup gcc */
+  signo; /* shutup gcc */
   timingout = 0;
   for (sep = servtab; sep; sep = sep->se_next)
     if (sep->se_fd == -1 && !ISMUX (sep))
@@ -1382,7 +1382,7 @@ echo_dg (int s, struct servtab *sep)
   struct sockaddr sa;
 #endif
 
-  (void)sep;
+  sep;
   size = sizeof sa;
   i = recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *)&sa, &size);
   if (i < 0)
@@ -1415,7 +1415,7 @@ void
 discard_dg (int s, struct servtab *sep)
 {
   char buffer[BUFSIZE];
-  (void)sep; /* shutup gcc */
+  sep; /* shutup gcc */
   read (s, buffer, sizeof buffer);
 }
 
@@ -1485,7 +1485,7 @@ chargen_dg (int s, struct servtab *sep)
   int len, size;
   char text[LINESIZ+2];
 
-  (void)sep; /* shutup gcc */
+  sep; /* shutup gcc */
   if (endring == 0)
     {
       initring ();
@@ -1540,7 +1540,7 @@ machtime_stream (int s, struct servtab *sep)
 {
   long result;
 
-  (void)sep; /* shutup gcc */
+  sep; /* shutup gcc */
   result = machtime ();
   write (s, (char *) &result, sizeof result);
 }
@@ -1557,7 +1557,7 @@ machtime_dg (int s, struct servtab *sep)
 #endif
   int size;
 
-  (void)sep; /* shutup gcc */
+  sep; /* shutup gcc */
   size = sizeof sa;
   if (recvfrom (s, (char *)&result, sizeof result, 0, 
 		(struct sockaddr *)&sa, &size) < 0)
@@ -1575,7 +1575,7 @@ daytime_stream (int s, struct servtab *sep)
   char buffer[256];
   time_t lclock;
 
-  (void)sep; /*shutup gcc*/
+  sep; /*shutup gcc*/
   lclock = time ((time_t *) 0);
 
   sprintf (buffer, "%.24s\r\n", ctime(&lclock));
@@ -1596,7 +1596,7 @@ daytime_dg(int s, struct servtab *sep)
 #endif
   int size;
 
-  (void)sep; /* shutup gcc */
+  sep; /* shutup gcc */
   lclock = time ((time_t *) 0);
 
   size = sizeof sa;

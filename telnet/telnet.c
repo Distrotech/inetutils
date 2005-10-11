@@ -1307,7 +1307,7 @@ slc_export()
 	}
     }
     slc_end_reply();
-    (void)slc_update();
+    slc_update();
     setconnmode(1);	/* Make sure the character values are set */
 }
 
@@ -1828,7 +1828,7 @@ process_iac:
 		     */
 		printoption("RCVD", IAC, DM);
 		SYNCHing = 1;
-		(void) ttyflush(1);
+		ttyflush(1);
 		SYNCHing = stilloob();
 		settimer(gotDM);
 		break;
@@ -2170,7 +2170,7 @@ Scheduler(int block)
 #   if defined(TN3270) && defined(unix)
     if (HaveInput) {
 	HaveInput = 0;
-	(void) signal(SIGIO, inputAvailable);
+	signal(SIGIO, inputAvailable);
     }
 #endif	/* defined(TN3270) && defined(unix) */
 
@@ -2420,7 +2420,7 @@ doflush()
     NETADD(TELOPT_TM);
     flushline = 1;
     flushout = 1;
-    (void) ttyflush(1);			/* Flush/drop output */
+    ttyflush(1);			/* Flush/drop output */
     /* do printoption AFTER flush, otherwise the output gets tossed... */
     printoption("SENT", DO, TELOPT_TM);
 }

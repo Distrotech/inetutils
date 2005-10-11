@@ -182,7 +182,7 @@ main (int argc, char *argv[])
       setpeer (argc, argv);
     }
   if (setjmp (toplevel) != 0)
-    (void) putchar ('\n');
+    putchar ('\n');
   command ();
 }
 

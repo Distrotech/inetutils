@@ -440,7 +440,7 @@ main(int argc, char *argv[], char **envp)
   /* LOG_NDELAY sets up the logging connection immediately,
      necessary for anonymous ftp's that chroot and can't do it later.  */
   openlog ("ftpd", LOG_PID | LOG_NDELAY, LOG_FTP);
-  (void) freopen (PATH_DEVNULL, "w", stderr);
+  freopen (PATH_DEVNULL, "w", stderr);
 
   /* If not running via inetd, we detach and dup(fd, 0), dup(fd, 1) the
      fd = accept(). tcpd is check if compile with the support  */
@@ -460,12 +460,12 @@ main(int argc, char *argv[], char **envp)
 	}
     }
 
-  (void) signal (SIGHUP, sigquit);
-  (void) signal (SIGINT, sigquit);
-  (void) signal (SIGQUIT, sigquit);
-  (void) signal (SIGTERM, sigquit);
-  (void) signal (SIGPIPE, lostconn);
-  (void) signal (SIGCHLD, SIG_IGN);
+  signal (SIGHUP, sigquit);
+  signal (SIGINT, sigquit);
+  signal (SIGQUIT, sigquit);
+  signal (SIGTERM, sigquit);
+  signal (SIGPIPE, lostconn);
+  signal (SIGCHLD, SIG_IGN);
   if (signal (SIGURG, myoob) == SIG_ERR)
     syslog (LOG_ERR, "signal: %m");
 
@@ -526,7 +526,7 @@ main(int argc, char *argv[], char **envp)
 
   /* Display a Welcome message if exists,
      N.B. reply(220,) must follow.  */
-  (void) display_file (PATH_FTPWELCOME, 220);
+  display_file (PATH_FTPWELCOME, 220);
 
   hostname = localhost ();
   if (! hostname)
@@ -541,11 +541,11 @@ main(int argc, char *argv[], char **envp)
 
   /* Set the jump, if we have an error parsing,
      come here and start fresh.  */
-  (void) setjmp (errcatch);
+  setjmp (errcatch);
 
   /* Roll.  */
   for (;;)
-    (void) yyparse ();
+    yyparse ();
   /* NOTREACHED */
 }
 
@@ -574,7 +574,7 @@ curdir (void)
   return (cred.guest ? path+1 : path);
 }
 
-static void
+static RETSIGTYPE
 sigquit (int signo)
 {
   syslog (LOG_ERR, "got signal %s", strsignal (signo));
@@ -582,10 +582,10 @@ sigquit (int signo)
 }
 
 
-static void
-lostconn (int signo)
+static RETSIGTYPE
+lostconn (int signo ARG_UNUSED)
 {
-  (void)signo;
+  signo;
   if (debug)
     syslog (LOG_DEBUG, "lost connection");
   dologout (-1);
@@ -624,11 +624,11 @@ complete_login (struct credentials *pcred)
     }
 
 #ifdef HAVE_INITGROUPS
-  (void) initgroups (pcred->name, pcred->gid);
+  initgroups (pcred->name, pcred->gid);
 #endif
 
   /* open wtmp before chroot */
-  (void)snprintf (ttyline, sizeof (ttyline), "ftp%d", getpid ());
+  snprintf (ttyline, sizeof (ttyline), "ftp%d", getpid ());
   logwtmp_keep_open (ttyline, pcred->name, pcred->remotehost);
 
   if (pcred->guest)
@@ -671,7 +671,7 @@ complete_login (struct credentials *pcred)
 
   /* Display a login message, if it exists.
     N.B. reply(230,) must follow the message.  */
-  (void) display_file (PATH_FTPLOGINMESG, 230);
+  display_file (PATH_FTPLOGINMESG, 230);
 
   if (pcred->guest)
     {
@@ -697,7 +697,7 @@ complete_login (struct credentials *pcred)
 	syslog (LOG_INFO, "FTP LOGIN FROM %s as %s",
 		pcred->remotehost, pcred->name);
     }
-  (void) umask(defumask);
+  umask(defumask);
   return;
 bad:
   /* Forget all about it... */
@@ -777,7 +777,7 @@ end_login (struct credentials *pcred)
 {
   char *remotehost = pcred->remotehost;
   int atype = pcred->auth_type;
-  (void) seteuid ((uid_t)0);
+  seteuid ((uid_t)0);
   if (pcred->logged_in)
     logwtmp_keep_open (ttyline, "", "");
 
@@ -920,7 +920,7 @@ retrieve (const char *cmd, const char *name)
   if (dout == NULL)
     goto done;
   send_data (fin, dout, buffer_size);
-  (void) fclose (dout);
+  fclose (dout);
   data = -1;
   pdata = -1;
 done:
@@ -999,7 +999,7 @@ store (const char *name, const char *mode, int unique)
       else
 	reply (226, "Transfer complete.");
     }
-  (void) fclose (din);
+  fclose (din);
   data = -1;
   pdata = -1;
  done:
@@ -1014,7 +1014,7 @@ getdatasock (const char *mode)
 
   if (data >= 0)
     return fdopen (data, mode);
-  (void) seteuid ((uid_t)0);
+  seteuid ((uid_t)0);
   s = socket (AF_INET, SOCK_STREAM, 0);
   if (s < 0)
     goto bad;
@@ -1039,7 +1039,7 @@ getdatasock (const char *mode)
 	goto bad;
       sleep (tries);
     }
-  (void) seteuid ((uid_t)cred.uid);
+  seteuid ((uid_t)cred.uid);
 
 #if defined (IP_TOS) && defined (IPTOS_THROUGHPUT) && defined (IPPROTO_IP)
   {
@@ -1053,8 +1053,8 @@ getdatasock (const char *mode)
  bad:
   /* Return the real value of errno (close may change it) */
   t = errno;
-  (void) seteuid ((uid_t)cred.uid);
-  (void) close(s);
+  seteuid ((uid_t)cred.uid);
+  close(s);
   errno = t;
   return NULL;
 }
@@ -1069,7 +1069,7 @@ dataconn (const char *name, off_t size, const char *mode)
   file_size = size;
   byte_count = 0;
   if (size != (off_t) -1)
-    (void) snprintf(sizebuf, sizeof(sizebuf), " (%s bytes)",
+    snprintf(sizebuf, sizeof(sizebuf), " (%s bytes)",
 		    off_to_str (size));
   else
     *sizebuf = '\0';
@@ -1078,31 +1078,31 @@ dataconn (const char *name, off_t size, const char *mode)
       struct sockaddr_in from;
       int s, fromlen = sizeof (from);
 
-      (void) signal (SIGALRM, toolong);
-      (void) alarm ((unsigned) timeout);
+      signal (SIGALRM, toolong);
+      alarm ((unsigned) timeout);
       s = accept (pdata, (struct sockaddr *)&from, &fromlen);
-      (void) alarm (0);
+      alarm (0);
       if (s < 0)
 	{
 	  reply(425, "Can't open data connection.");
-	  (void) close (pdata);
+	  close (pdata);
 	  pdata = -1;
 	  return NULL;
 	}
-      (void) close (pdata);
+      close (pdata);
       pdata = s;
 #if defined (IP_TOS) && defined (IPTOS_THROUGHPUT) && defined (IPPROTO_IP)
       /* Optimize throughput.  */
       {
 	int tos = IPTOS_THROUGHPUT;
-	(void) setsockopt (s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof (int));
+	setsockopt (s, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof (int));
       }
 #endif
 #ifdef SO_KEEPALIVE
       /* Set keepalives on the socket to detect dropped conns.  */
       {
 	int keepalive = 1;
-	(void) setsockopt (s, SOL_SOCKET, SO_KEEPALIVE,
+	setsockopt (s, SOL_SOCKET, SO_KEEPALIVE,
 			   (char *)&keepalive, sizeof (int));
       }
 #endif
@@ -1139,7 +1139,7 @@ dataconn (const char *name, off_t size, const char *mode)
 	  continue;
 	}
       perror_reply (425, "Can't build data connection");
-      (void) fclose (file);
+      fclose (file);
       data = -1;
       return NULL;
     }
@@ -1196,9 +1196,9 @@ send_data (FILE *instr, FILE *outstr, off_t blksize)
 		{
 		  if (ferror (outstr))
 		    break;
-		  (void) putc ('\r', outstr);
+		  putc ('\r', outstr);
 		}
-	      (void) putc (buf[len], outstr);
+	      putc (buf[len], outstr);
 	      len++;
 	    }
 	  fflush (outstr);
@@ -1217,9 +1217,9 @@ send_data (FILE *instr, FILE *outstr, off_t blksize)
 	    {
 	      if (ferror (outstr))
 		goto data_err;
-	      (void) putc ('\r', outstr);
+	      putc ('\r', outstr);
 	    }
-	  (void) putc (c, outstr);
+	  putc (c, outstr);
 	}
       fflush (outstr);
       transflag = 0;
@@ -1263,7 +1263,7 @@ send_data (FILE *instr, FILE *outstr, off_t blksize)
 	     write(netfd, buf, cnt) == cnt)
 	byte_count += cnt;
       transflag = 0;
-      (void)free (buf);
+      free (buf);
       if (cnt != 0)
 	{
 	  if (cnt < 0)
@@ -1338,12 +1338,12 @@ receive_data (FILE *instr, FILE *outstr)
 	      c = getc (instr);
 	      if (c != '\n')
 		{
-		  (void) putc ('\r', outstr);
+		  putc ('\r', outstr);
 		  if (c == '\0' || c == EOF)
 		    goto contin2;
 		}
 	    }
-	  (void) putc (c, outstr);
+	  putc (c, outstr);
 	contin2:	;
 	}
       fflush(outstr);
@@ -1356,7 +1356,7 @@ receive_data (FILE *instr, FILE *outstr)
 	{
 	  lreply (226, "WARNING! %d bare linefeeds received in ASCII mode",
 		  bare_lfs);
-	  (void)printf ("   File may not have transferred correctly.\r\n");
+	  printf ("   File may not have transferred correctly.\r\n");
 	}
       return (0);
     default:
@@ -1383,7 +1383,7 @@ statfilecmd (const char *filename)
   int c;
   char line[LINE_MAX];
 
-  (void)snprintf (line, sizeof(line), "/bin/ls -lgA %s", filename);
+  snprintf (line, sizeof(line), "/bin/ls -lgA %s", filename);
   fin = ftpd_popen (line, "r");
   lreply (211, "status of %s:", filename);
   while ((c = getc (fin)) != EOF)
@@ -1393,21 +1393,21 @@ statfilecmd (const char *filename)
 	  if (ferror (stdout))
 	    {
 	      perror_reply (421, "control connection");
-	      (void) ftpd_pclose (fin);
+	      ftpd_pclose (fin);
 	      dologout (1);
 				/* NOTREACHED */
 	    }
 	  if (ferror (fin))
 	    {
 	      perror_reply (551, filename);
-	      (void) ftpd_pclose (fin);
+	      ftpd_pclose (fin);
 	      return;
 	    }
-	  (void) putc ('\r', stdout);
+	  putc ('\r', stdout);
 	}
-      (void) putc (c, stdout);
+      putc (c, stdout);
     }
-  (void) ftpd_pclose (fin);
+  ftpd_pclose (fin);
   reply (211, "End of Status");
 }
 
@@ -1494,10 +1494,10 @@ reply (int n, const char *fmt, ...)
 #else
   va_start (ap);
 #endif
-  (void)printf ("%d ", n);
-  (void)vprintf (fmt, ap);
-  (void)printf ("\r\n");
-  (void)fflush (stdout);
+  printf ("%d ", n);
+  vprintf (fmt, ap);
+  printf ("\r\n");
+  fflush (stdout);
   if (debug)
     {
       syslog (LOG_DEBUG, "<--- %d ", n);
@@ -1514,10 +1514,10 @@ lreply (int n, const char *fmt, ...)
 #else
   va_start (ap);
 #endif
-  (void)printf ("%d- ", n);
-  (void)vprintf (fmt, ap);
-  (void)printf ("\r\n");
-  (void)fflush (stdout);
+  printf ("%d- ", n);
+  vprintf (fmt, ap);
+  printf ("\r\n");
+  fflush (stdout);
   if (debug)
     {
       syslog (LOG_DEBUG, "<--- %d- ", n);
@@ -1687,19 +1687,18 @@ dologout (int status)
 
   if (cred.logged_in)
     {
-      (void) seteuid ((uid_t)0);
+      seteuid ((uid_t)0);
       logwtmp_keep_open (ttyline, "", "");
     }
   /* beware of flushing buffers after a SIGPIPE */
   _exit (status);
 }
 
-static void
-myoob (int signo)
+static RETSIGTYPE
+myoob (int signo ARG_UNUSED)
 {
   char *cp;
 
-  (void)signo;
   /* only process if transfer occurring */
   if (!transflag)
     return;
@@ -1746,13 +1745,13 @@ passive (void)
     }
   pasv_addr = ctrl_addr;
   pasv_addr.sin_port = 0;
-  (void) seteuid ((uid_t)0);
+  seteuid ((uid_t)0);
   if (bind (pdata, (struct sockaddr *)&pasv_addr, sizeof (pasv_addr)) < 0)
     {
-      (void) seteuid ((uid_t)cred.uid);
+      seteuid ((uid_t)cred.uid);
       goto pasv_error;
     }
-  (void) seteuid ((uid_t)cred.uid);
+  seteuid ((uid_t)cred.uid);
   len = sizeof(pasv_addr);
   if (getsockname (pdata, (struct sockaddr *) &pasv_addr, &len) < 0)
     goto pasv_error;
@@ -1768,7 +1767,7 @@ passive (void)
   return;
 
  pasv_error:
-  (void) close (pdata);
+  close (pdata);
   pdata = -1;
   perror_reply (425, "Can't open passive connection");
   return;
@@ -1807,7 +1806,7 @@ gunique (const char *local)
       *cp++ = '.';
       for (count = 1; count < 100; count++)
 	{
-	  (void)sprintf (cp, "%d", count);
+	  sprintf (cp, "%d", count);
 	  if (stat (string, &st) < 0)
 	    return string;
 	}
@@ -1901,7 +1900,7 @@ send_file_list (const char *whichf)
 	  perror_reply (550, whichf);
 	  if (dout != NULL)
 	    {
-	      (void) fclose (dout);
+	      fclose (dout);
 	      transflag = 0;
 	      data = -1;
 	      pdata = -1;
@@ -1963,7 +1962,7 @@ send_file_list (const char *whichf)
 	      byte_count += strlen (nbuf) + 1;
 	    }
 	}
-      (void) closedir (dirp);
+      closedir (dirp);
     }
 
   if (dout == NULL)
@@ -1975,7 +1974,7 @@ send_file_list (const char *whichf)
 
   transflag = 0;
   if (dout != NULL)
-    (void) fclose (dout);
+    fclose (dout);
   data = -1;
   pdata = -1;
  out:

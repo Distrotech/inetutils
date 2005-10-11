@@ -508,7 +508,7 @@ send_file (struct formats *pf)
       dp->th_opcode = htons ((u_short) DATA);
       dp->th_block = htons ((u_short) block);
       timeout = 0;
-      (void) setjmp (timeoutbuf);
+      setjmp (timeoutbuf);
 
     send_data:
       if (send (peer, (const char *) dp, size + 4, 0) != size + 4)
@@ -538,7 +538,7 @@ send_file (struct formats *pf)
 	      if ((u_short) ap->th_block == (u_short) block)
 		break;
 	      /* Re-synchronize with the other side */
-	      (void) synchnet (peer);
+	      synchnet (peer);
 	      if ((u_short) ap->th_block == (u_short) (block - 1))
 		goto send_data;
 	    }
@@ -548,7 +548,7 @@ send_file (struct formats *pf)
     }
   while (size == SEGSIZE);
 abort:
-  (void) fclose (file);
+  fclose (file);
 }
 
 void
@@ -579,7 +579,7 @@ recvfile (struct formats *pf)
       ap->th_opcode = htons ((u_short) ACK);
       ap->th_block = htons ((u_short) block);
       block++;
-      (void) setjmp (timeoutbuf);
+      setjmp (timeoutbuf);
     send_ack:
       if (send (peer, ackbuf, 4, 0) != 4)
 	{
@@ -608,7 +608,7 @@ recvfile (struct formats *pf)
 		  break;	/* normal */
 		}
 	      /* Re-synchronize with the other side */
-	      (void) synchnet (peer);
+	      synchnet (peer);
 	      if (dp->th_block == (block - 1))
 		goto send_ack;	/* rexmit */
 	    }
@@ -626,11 +626,11 @@ recvfile (struct formats *pf)
     }
   while (size == SEGSIZE);
   write_behind (file, pf->f_convert);
-  (void) fclose (file);		/* close data file */
+  fclose (file);		/* close data file */
 
   ap->th_opcode = htons ((u_short) ACK);	/* send the "final" ack */
   ap->th_block = htons ((u_short) (block));
-  (void) send (peer, ackbuf, 4, 0);
+  send (peer, ackbuf, 4, 0);
 
   signal (SIGALRM, justquit);	/* just quit on timeout */
   alarm (rexmtval);
@@ -640,7 +640,7 @@ recvfile (struct formats *pf)
       dp->th_opcode == DATA &&	/* and got a data block */
       block == dp->th_block)
     {				/* then my last ack was lost */
-      (void) send (peer, ackbuf, 4, 0);	/* resend final ack */
+      send (peer, ackbuf, 4, 0);	/* resend final ack */
     }
 abort:
   return;

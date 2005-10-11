@@ -51,7 +51,7 @@ static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
 #include <arpa/ftp.h>
 
 #include <ctype.h>
-#include <err.h>
+#include <error.h>
 #include <errno.h>
 #include <netdb.h>
 #include <signal.h>
@@ -623,7 +623,7 @@ mput(argc, argv)
 		flags |= GLOB_QUOTE;
 #endif
 		if (glob(argv[i], flags, NULL, &gl) || gl.gl_pathc == 0) {
-			warnx("%s: not found", argv[i]);
+			error (0, 0, "%s: not found", argv[i]);
 			globfree(&gl);
 			continue;
 		}
@@ -727,7 +727,7 @@ usage:
 		ret = stat(local, &stbuf);
 		if (restartit == 1) {
 			if (ret < 0) {
-				warn("local: %s", local);
+				error (0, errno, "local: %s", local);
 				free (local);
 				return (0);
 			}
@@ -782,9 +782,8 @@ usage:
 }
 
 /* ARGSUSED */
-void
-mabort(signo)
-	int signo;
+RETSIGTYPE
+mabort(int signo ARG_UNUSED)
 {
 	int ointer;
 
@@ -1219,7 +1218,7 @@ lcd(argc, argv)
 	}
 
 	if (chdir(dir) < 0) {
-		warn("dir: %s", dir);
+		error (0, errno, "dir: %s", dir);
 		free (dir);
 		code = -1;
 		return;
@@ -1232,7 +1231,7 @@ lcd(argc, argv)
 		printf("Local directory now %s\n", dir);
 		free (dir);
 	} else
-		warnx("getcwd: %s", strerror (errno));
+		error (0, errno, "getcwd");
 	code = 0;
 }
 
@@ -1459,7 +1458,7 @@ shell(argc, argv)
 		else {
 			execl(shell,shellnam,(char *)0);
 		}
-		warn("%s", shell);
+		error (0, errno, "shell");
 		code = -1;
 		exit(1);
 	}
@@ -1469,7 +1468,7 @@ shell(argc, argv)
 	(void) signal(SIGINT, old1);
 	(void) signal(SIGQUIT, old2);
 	if (pid == -1) {
-		warn("%s", "Try again later");
+		error (0, errno, "Try again later");
 		code = -1;
 	}
 	else {
@@ -1766,7 +1765,7 @@ fatal(msg)
 	char *msg;
 {
 
-	errx(1, "%s", msg);
+	error(1, 0, "%s", msg);
 }
 
 /*
@@ -1793,7 +1792,7 @@ globulize(cp)
 	memset(&gl, 0, sizeof(gl));
 	if (glob(cp, flags, NULL, &gl) ||
 	    gl.gl_pathc == 0) {
-		warnx("%s: not found", cp);
+		error (0, 0, "%s: not found", cp);
 		globfree(&gl);
 		return (0);
 	}

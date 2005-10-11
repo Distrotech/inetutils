@@ -165,7 +165,7 @@ main (int argc, char *argv[])
   
   /* Setup for logging.  */
   openlog (tag ? tag : getlogin(), logflags, 0);
-  (void) fclose (stdout);
+  fclose (stdout);
   
   /* Log input line if appropriate.  */
   if (argc > 0)

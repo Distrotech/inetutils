@@ -126,7 +126,7 @@ DataToNetwork(register char *buffer, register int  count, int  done)
 	    netflush();
 	    while (NETROOM() < 6) {
 		FD_SET(net, &o);
-		(void) select(net+1, (fd_set *) 0, &o, (fd_set *) 0,
+		select(net+1, (fd_set *) 0, &o, (fd_set *) 0,
 						(struct timeval *) 0);
 		netflush();
 	    }
@@ -174,7 +174,7 @@ inputAvailable(int signo)
 void
 outputPurge()
 {
-    (void) ttyflush(1);
+    ttyflush(1);
 }
 
 
@@ -207,14 +207,14 @@ DataToTerminal(register char *buffer, register int count)
 
 	    FD_ZERO(&o);
 #endif	/* defined(unix) */
-	    (void) ttyflush(0);
+	    ttyflush(0);
 	    while (TTYROOM() == 0) {
 #if	defined(unix)
 		FD_SET(tout, &o);
-		(void) select(tout+1, (fd_set *) 0, &o, (fd_set *) 0,
+		select(tout+1, (fd_set *) 0, &o, (fd_set *) 0,
 						(struct timeval *) 0);
 #endif	/* defined(unix) */
-		(void) ttyflush(0);
+		ttyflush(0);
 	    }
 	}
 	c = TTYROOM();
@@ -247,7 +247,7 @@ Push3270()
 	    }
 	}
 	if (Ifrontp+save < Ibuf+sizeof Ibuf) {
-	    (void)telrcv();
+	    telrcv();
 	}
     }
     return save != ring_full_count(&netiring);
@@ -280,7 +280,7 @@ StringToTerminal(char *s)
 
     count = strlen(s);
     if (count) {
-	(void) DataToTerminal(s, count);	/* we know it always goes... */
+	DataToTerminal(s, count);	/* we know it always goes... */
     }
 }
 
@@ -300,7 +300,7 @@ _putchar(char c)
 	Dump('>', &c, 1);
     }
     if (!TTYROOM()) {
-	(void) DataToTerminal(&c, 1);
+	DataToTerminal(&c, 1);
     } else {
 	TTYADD(c);
     }
@@ -394,10 +394,10 @@ settranscom(int argc, char *argv[])
 	   return 1;
 	}
 	transcom = tline;
-	(void) strcpy(transcom, argv[1]);
+	strcpy(transcom, argv[1]);
 	for (i = 2; i < argc; ++i) {
-	    (void) strcat(transcom, " ");
-	    (void) strcat(transcom, argv[i]);
+	    strcat(transcom, " ");
+	    strcat(transcom, argv[i]);
 	}
 	return 1;
 }

@@ -64,7 +64,7 @@ static char sccsid[] = "@(#)rcp.c	8.2 (Berkeley) 4/2/94";
 
 #include <ctype.h>
 #include <dirent.h>
-#include <err.h>
+#include <error.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
@@ -248,11 +248,11 @@ main (int argc, char *argv[])
   sp = getservbyname (shell = "shell", "tcp");
 #endif
   if (sp == NULL)
-    errx (1, "%s/tcp: unknown service", shell);
+    error (1, 0, "%s/tcp: unknown service", shell);
   port = sp->s_port;
 
   if ((pwd = getpwuid (userid = getuid ())) == NULL)
-    errx(1, "unknown user %d", (int)userid);
+    error (1, 0, "unknown user %d", (int)userid);
 
   rem = STDIN_FILENO;		/* XXX */
 
@@ -393,7 +393,7 @@ toremote (char *targ, int argc, char *argv[])
 	      tos = IPTOS_THROUGHPUT;
 	      if (setsockopt (rem, IPPROTO_IP, IP_TOS,
 			      (char *) &tos, sizeof(int)) < 0)
-		warn("TOS (ignored)");
+		error (0, errno, "TOS (ignored)");
 #endif
 	      if (response () < 0)
 		exit(1);
@@ -463,7 +463,7 @@ tolocal (int argc, char *argv[])
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
       tos = IPTOS_THROUGHPUT;
       if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int)) < 0)
-	warn ("TOS (ignored)");
+	error (0, errno, "TOS (ignored)");
 #endif
       sink (1, argv + argc - 1);
       seteuid (0);
@@ -978,7 +978,7 @@ kerberos (char **host, char *bp, char *locuser, char *user)
 	{
 	  use_kerberos = 0;
 	  if ((sp = getservbyname ("shell", "tcp")) == NULL)
-	    errx (1, "unknown service shell/tcp");
+	    error (1, 0, "unknown service shell/tcp");
 	  if (errno == ECONNREFUSED)
 	    oldw ("remote host doesn't support Kerberos");
 	  else if (errno == ENOENT)
@@ -991,7 +991,7 @@ kerberos (char **host, char *bp, char *locuser, char *user)
     {
 #ifdef CRYPT
       if (doencrypt)
-	errx (1, "the -x option requires Kerberos authentication");
+	error (1, 0, "the -x option requires Kerberos authentication");
 #endif
       rem = rcmd (host, port, locuser, user, bp, 0);
     }
