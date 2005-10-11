@@ -541,12 +541,12 @@ main (int argc, char *argv[])
   consfile.f_type = F_CONSOLE;
   consfile.f_un.f_fname = strdup (ctty);
 
-  (void) signal (SIGTERM, die);
-  (void) signal (SIGINT, Debug ? die : SIG_IGN);
-  (void) signal (SIGQUIT, Debug ? die : SIG_IGN);
-  (void) signal (SIGALRM, domark);
-  (void) signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
-  (void) alarm (TIMERINTVL);
+  signal (SIGTERM, die);
+  signal (SIGINT, Debug ? die : SIG_IGN);
+  signal (SIGQUIT, Debug ? die : SIG_IGN);
+  signal (SIGALRM, domark);
+  signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
+  alarm (TIMERINTVL);
 
   /* We add  2 = 1(klog) + 1(inet), even if they may be not use.  */
   fdarray = (struct pollfd *) malloc ((nfunix + 2) * sizeof (*fdarray));
@@ -616,7 +616,7 @@ main (int argc, char *argv[])
   if (fp != NULL)
     {
       fprintf (fp, "%d\n", getpid ());
-      (void) fclose (fp);
+      fclose (fp);
     }
 
   dbg_printf ("off & running....\n");
@@ -817,11 +817,11 @@ create_unix_socket (const char *path)
   if (path[0] == '\0')
     return -1;
 
-  (void) unlink (path);
+  unlink (path);
 
   memset (&sunx, 0, sizeof (sunx));
   sunx.sun_family = AF_UNIX;
-  (void) strncpy (sunx.sun_path, path, sizeof (sunx.sun_path));
+  strncpy (sunx.sun_path, path, sizeof (sunx.sun_path));
   fd = socket (AF_UNIX, SOCK_DGRAM, 0);
   if (fd < 0 || bind(fd, (struct sockaddr *) &sunx, SUN_LEN (&sunx)) < 0
       || chmod(path, 0666) < 0)
@@ -1081,7 +1081,7 @@ logmsg (int pri, const char *msg, const char *from, int flags)
       msg[9] != ':' || msg[12] != ':' || msg[15] != ' ')
     flags |= ADDDATE;
 
-  (void) time (&now);
+  time (&now);
   if (flags & ADDDATE)
     timestamp = ctime (&now) + 4;
   else
@@ -1107,12 +1107,12 @@ logmsg (int pri, const char *msg, const char *from, int flags)
       if (f->f_file >= 0)
 	{
 	  fprintlog (f, from, flags, msg);
-	  (void) close (f->f_file);
+	  close (f->f_file);
 	}
 #ifdef HAVE_SIGACTION
       sigprocmask (SIG_SETMASK, &osigs, 0);
 #else
-      (void) sigsetmask (omask);
+      sigsetmask (omask);
 #endif
       return;
     }
@@ -1133,7 +1133,7 @@ logmsg (int pri, const char *msg, const char *from, int flags)
       if ((flags & MARK) == 0 && msglen == f->f_prevlen && f->f_prevhost
 	  && !strcmp (msg, f->f_prevline) && !strcmp (from, f->f_prevhost))
 	{
-	  (void) strncpy (f->f_lasttime, timestamp,
+	  strncpy (f->f_lasttime, timestamp,
 			  sizeof (f->f_lasttime) - 1);
 	  f->f_prevcount++;
 	  dbg_printf ("msg repeated %d times, %ld sec of %d\n",
@@ -1154,7 +1154,7 @@ logmsg (int pri, const char *msg, const char *from, int flags)
 	  if (f->f_prevcount)
 	    fprintlog (f, from, 0, (char *)NULL);
 	  f->f_repeatcount = 0;
-	  (void) strncpy (f->f_lasttime, timestamp,
+	  strncpy (f->f_lasttime, timestamp,
 			  sizeof (f->f_lasttime) - 1);
 	  if (f->f_prevhost)
 	    free (f->f_prevhost);
@@ -1163,7 +1163,7 @@ logmsg (int pri, const char *msg, const char *from, int flags)
 	    {
 	      f->f_prevlen = msglen;
 	      f->f_prevpri = pri;
-	      (void) strcpy (f->f_prevline, msg);
+	      strcpy (f->f_prevline, msg);
 	      fprintlog (f, from, flags, (char *)NULL);
 	    }
 	  else
@@ -1177,7 +1177,7 @@ logmsg (int pri, const char *msg, const char *from, int flags)
 #ifdef HAVE_SIGACTION
   sigprocmask (SIG_SETMASK, &osigs, 0);
 #else
-  (void) sigsetmask (omask);
+  sigsetmask (omask);
 #endif
 }
 
@@ -1359,7 +1359,7 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	  if (f->f_type == F_PIPE && e == EAGAIN)
 	    break;
 
-	  (void) close (f->f_file);
+	  close (f->f_file);
 	  /* Check for errors on TTY's due to loss of tty. */
 	  if ((e == EIO || e == EBADF)
 	      && (f->f_type == F_TTY || f->f_type == F_CONSOLE))
@@ -1381,7 +1381,7 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	    }
 	}
       else if ((flags & SYNC_FILE) && !(f->f_flags & OMIT_SYNC))
-	(void) fsync (f->f_file);
+	fsync (f->f_file);
       break;
 
     case F_USERS:
@@ -1524,7 +1524,7 @@ domark (int signo)
 {
   struct filed *f;
 
-  (void)signo; /* Ignored.  */
+  signo; /* Ignored.  */
   now = time ((time_t *) NULL);
   if (MarkInterval > 0)
     {
@@ -1547,7 +1547,7 @@ domark (int signo)
 	  BACKOFF (f);
 	}
     }
-  (void) alarm (TIMERINTVL);
+  alarm (TIMERINTVL);
 }
 
 /* Print syslogd errors some place.  */
@@ -1557,16 +1557,16 @@ logerror (const char *type)
   char buf[100];
 
   if (errno)
-    (void) snprintf (buf, sizeof (buf),
+    snprintf (buf, sizeof (buf),
 		     "syslogd: %s: %s", type, strerror(errno));
   else
-    (void) snprintf (buf, sizeof (buf), "syslogd: %s", type);
+    snprintf (buf, sizeof (buf), "syslogd: %s", type);
   errno = 0;
   dbg_printf ("%s\n", buf);
   logmsg (LOG_SYSLOG | LOG_ERR, buf, LocalHostName, ADDDATE);
 }
 
-void
+RETSIGTYPE
 die (int signo)
 {
   struct filed *f;
@@ -1598,7 +1598,7 @@ die (int signo)
       {
 	close (funix[i].fd);
 	if (funix[i].name)
-	  (void) unlink (funix[i].name);
+	  unlink (funix[i].name);
       }
 
   if (finet >= 0)
@@ -1608,7 +1608,7 @@ die (int signo)
 }
 
 /* INIT -- Initialize syslogd from configuration table.  */
-void
+RETSIGTYPE
 init (int signo)
 {
   FILE *cf;
@@ -1623,7 +1623,6 @@ init (int signo)
   int cont_line = 0;
   struct servent *sp;
 
-  (void) signo;  /* Ignored.  */
   dbg_printf ("init\n");
   sp = getservbyname ("syslog", "udp");
   if (sp == NULL)
@@ -1649,7 +1648,7 @@ init (int signo)
 	case F_TTY:
 	case F_CONSOLE:
 	case F_PIPE:
-	  (void) close (f->f_file);
+	  close (f->f_file);
 	  break;
 	}
       next = f->f_next;
@@ -1766,7 +1765,7 @@ init (int signo)
     }
 
   /* Close the configuration file.  */
-  (void) fclose (cf);
+  fclose (cf);
   free (cbuf);
 
   Initialized = 1;
@@ -2055,12 +2054,11 @@ decode (const char *name, CODE *codetab)
   return -1;
 }
 
-void
-dbg_toggle(int signo)
+RETSIGTYPE
+dbg_toggle(int signo ARG_UNUSED)
 {
   int dbg_save = dbg_output;
 
-  (void) signo;  /* Ignored.  */
   dbg_output = 1;
   dbg_printf ("Switching dbg_output to %s.\n",
 	      dbg_save == 0 ? "true" : "false");
@@ -2094,10 +2092,9 @@ dbg_printf (const char *fmt, ...)
    not being doing this during a signal handler.  Instead we simply
    set a flag variable which will tell the main loop to go through a
    restart.  */
-void
-trigger_restart (int signo)
+RETSIGTYPE
+trigger_restart (int signo ARG_UNUSED)
 {
-  (void) signo;  /* Ignored.  */
   restart = 1;
 }
 

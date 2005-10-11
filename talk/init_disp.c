@@ -50,8 +50,16 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
 #endif
 
 #include <signal.h>
-#include <err.h>
+#include <error.h>
 #include "talk.h"
+
+RETSIGTYPE
+sig_sent(int sig ARG_UNUSED)
+{
+
+	message("Connection closing. Exiting");
+	quit();
+}
 
 /*
  * Set up curses, catch the appropriate signals,
@@ -60,7 +68,6 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
 int
 init_display()
 {
-	void sig_sent();
 #ifdef HAVE_SIGACTION
 	struct sigaction siga;
 #else
@@ -70,7 +77,8 @@ init_display()
 #endif
 
 	if (initscr() == NULL)
-		errx(1, "Terminal type unset or lacking necessary features.");
+		error (1, 0, 
+                       "Terminal type unset or lacking necessary features.");
 
 #ifdef HAVE_SIGACTION
 	sigaction (SIGTSTP, (struct sigaction *)0, &siga);
@@ -179,14 +187,6 @@ set_edit_chars()
 	his_win.cerase = buf[0];
 	his_win.kill = buf[1];
 	his_win.werase = buf[2];
-}
-
-void
-sig_sent()
-{
-
-	message("Connection closing. Exiting");
-	quit();
 }
 
 /*
