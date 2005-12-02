@@ -60,6 +60,7 @@ AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
   gl_SIZE_MAX
   gl_FUNC_SNPRINTF
   AM_STDBOOL_H
+  gl_STDINT_H
   gl_STDIO_SAFER
   gl_STRCASE
   gl_FUNC_STRCHRNUL
@@ -146,6 +147,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/snprintf.c
   lib/snprintf.h
   lib/stdbool_.h
+  lib/stdint_.h
   lib/stdio--.h
   lib/stdio-safer.h
   lib/strcase.h
@@ -236,6 +238,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/size_max.m4
   m4/snprintf.m4
   m4/stdbool.m4
+  m4/stdint.m4
   m4/stdint_h.m4
   m4/stdio-safer.m4
   m4/strcase.m4

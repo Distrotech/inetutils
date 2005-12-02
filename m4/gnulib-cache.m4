@@ -14,10 +14,10 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --aux-dir=. --macro-prefix=gl alloca alloca-opt allocsa error exit exitfail extensions free getcwd getline getopt getpass gettext gettext-h getusershell malloc memcmp memcpy memmove mempcpy memset minmax obstack poll readutmp realloc regex restrict setenv size_max snprintf stdbool stdio-safer strcase strchrnul strdup strerror strndup strnlen sysexits unistd-safer unlocked-io vasnprintf vsnprintf xalloc xalloc-die xgetcwd xsize
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --aux-dir=. --macro-prefix=gl alloca alloca-opt allocsa error exit exitfail extensions free getcwd getline getopt getpass gettext gettext-h getusershell malloc memcmp memcpy memmove mempcpy memset minmax obstack poll readutmp realloc regex restrict setenv size_max snprintf stdbool stdint stdio-safer strcase strchrnul strdup strerror strndup strnlen sysexits unistd-safer unlocked-io vasnprintf vsnprintf xalloc xalloc-die xgetcwd xsize
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
-gl_MODULES([alloca alloca-opt allocsa error exit exitfail extensions free getcwd getline getopt getpass gettext gettext-h getusershell malloc memcmp memcpy memmove mempcpy memset minmax obstack poll readutmp realloc regex restrict setenv size_max snprintf stdbool stdio-safer strcase strchrnul strdup strerror strndup strnlen sysexits unistd-safer unlocked-io vasnprintf vsnprintf xalloc xalloc-die xgetcwd xsize])
+gl_MODULES([alloca alloca-opt allocsa error exit exitfail extensions free getcwd getline getopt getpass gettext gettext-h getusershell malloc memcmp memcpy memmove mempcpy memset minmax obstack poll readutmp realloc regex restrict setenv size_max snprintf stdbool stdint stdio-safer strcase strchrnul strdup strerror strndup strnlen sysexits unistd-safer unlocked-io vasnprintf vsnprintf xalloc xalloc-die xgetcwd xsize])
 gl_AVOID([])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([m4])

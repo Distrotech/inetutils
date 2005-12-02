@@ -1,5 +1,12 @@
 2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
 
+	Imported GNUlib module: stdint.
+
+	* lib/Makefile.am, m4/gnulib-cache.m4, m4/gnulib-comp.m4: Updated.
+	* m4/stdint.m4, lib/stdint_.h: New files.
+
+2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
+
 	Update from GNUlib.
 
 	* config.rpath, lib/getdelim.c, lib/getdelim.h, lib/mbchar.c,
