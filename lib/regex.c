@@ -18,31 +18,7 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#ifdef _AIX
-#pragma alloca
-#else
-# ifndef allocax           /* predefined by HP cc +Olibcalls */
-#  ifdef __GNUC__
-#   define alloca(size) __builtin_alloca (size)
-#  else
-#   if HAVE_ALLOCA_H
-#    include <alloca.h>
-#   else
-#    ifdef __hpux
-        void *alloca ();
-#    else
-#     if !defined __OS2__ && !defined WIN32
-        char *alloca ();
-#     else
-#      include <malloc.h>       /* OS/2 defines alloca in here */
-#     endif
-#    endif
-#   endif
-#  endif
-# endif
+# include <config.h>
 #endif
 
 #ifdef _LIBC
@@ -69,10 +45,6 @@
 
 # include "../locale/localeinfo.h"
 #endif
-
-/* POSIX says that <sys/types.h> must be included (by the caller) before
-   <regex.h>.  */
-#include <sys/types.h>
 
 /* On some systems, limits.h sets RE_DUP_MAX to a lower value than
    GNU regex allows.  Include it before <regex.h>, which correctly

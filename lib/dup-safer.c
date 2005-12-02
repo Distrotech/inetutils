@@ -17,7 +17,7 @@
 
 /* Written by Paul Eggert.  */
 
-#if HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
 
@@ -25,9 +25,7 @@
 
 #include <fcntl.h>
 
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 #ifndef STDERR_FILENO
 # define STDERR_FILENO 2
 #endif

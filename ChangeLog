@@ -1,5 +1,34 @@
 2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
 
+	Update from GNUlib.
+
+	* config.rpath, lib/getdelim.c, lib/getdelim.h, lib/mbchar.c,
+	lib/mbchar.h, lib/mbuiter.h, lib/memchr.c, lib/pipe-safer.c,
+	lib/stdio--.h, lib/strnlen.h, lib/strnlen1.c, lib/strnlen1.h,
+	lib/unistd--.h, m4/getdelim.m4, m4/gnulib-cache.m4,
+	m4/gnulib-comp.m4, m4/gnulib-tool.m4, m4/mbchar.m4, m4/mbiter.m4,
+	m4/mbrtowc.m4, m4/memchr.m4: New files.
+	* lib/Makefile.am, lib/dup-safer.c, lib/exitfail.c,
+	lib/fd-safer.c, lib/fopen-safer.c, lib/free.c, lib/getcwd.c,
+	lib/getcwd.h, lib/getline.c, lib/getline.h, lib/getopt1.c,
+	lib/getopt_.h, lib/getpass.c, lib/getusershell.c, lib/malloc.c,
+	lib/memcmp.c, lib/memcpy.c, lib/memmove.c, lib/obstack.c,
+	lib/obstack.h, lib/poll.c, lib/readutmp.c, lib/realloc.c,
+	lib/regcomp.c, lib/regex.c, lib/regex.h, lib/regex_internal.c,
+	lib/regex_internal.h, lib/regexec.c, lib/strcase.h,
+	lib/strcasecmp.c, lib/strerror.c, lib/strncasecmp.c,
+	lib/strndup.c, lib/strnlen.c, lib/unistd-safer.h,
+	lib/xalloc-die.c, lib/xgetcwd.c, lib/xmalloc.c, m4/free.m4,
+	m4/getcwd.m4, m4/getline.m4, m4/getopt.m4, m4/getpass.m4,
+	m4/lib-link.m4, m4/lib-prefix.m4, m4/minmax.m4,
+	m4/onceonly_2_57.m4, m4/regex.m4, m4/stdbool.m4,
+	m4/stdio-safer.m4, m4/strcase.m4, m4/strndup.m4, m4/strnlen.m4,
+	m4/unistd-safer.m4, m4/xgetcwd.m4: Updated from gnulib.
+	* lib/getndelim2.c, lib/getndelim2.h, m4/argp.m4,
+	m4/getndelim2.m4, m4/gnulib.m4, m4/ssize_t.m4: Removed files.
+
+2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
+
 	* configure.ac (gl_MODULES): Removed call to function.
 
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>

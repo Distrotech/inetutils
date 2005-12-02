@@ -16,8 +16,8 @@
    with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
-#ifdef	HAVE_CONFIG_H
-# include "config.h"
+#ifdef HAVE_CONFIG_H
+# include <config.h>
 #endif
 
 #if !_LIBC
@@ -60,10 +60,7 @@
 # define _D_ALLOC_NAMLEN(d) (_D_EXACT_NAMLEN (d) + 1)
 #endif
 
-#if HAVE_UNISTD_H || _LIBC
-# include <unistd.h>
-#endif
-
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -204,6 +201,8 @@ __getcwd (char *buf, size_t size)
       ino_t dotino;
       bool mount_point;
       int parent_status;
+      size_t dirroom;
+      size_t namlen;
 
       /* Look at the parent directory.  */
 #ifdef AT_FDCWD
@@ -244,11 +243,20 @@ __getcwd (char *buf, size_t size)
 	goto lose;
       dotlist[dotlen++] = '/';
 #endif
-      /* Clear errno to distinguish EOF from error if readdir returns
-	 NULL.  */
-      __set_errno (0);
-      while ((d = __readdir (dirstream)) != NULL)
+      for (;;)
 	{
+	  /* Clear errno to distinguish EOF from error if readdir returns
+	     NULL.  */
+	  __set_errno (0);
+	  d = __readdir (dirstream);
+	  if (d == NULL)
+	    {
+	      if (errno == 0)
+		/* EOF on dirstream, which means that the current directory
+		   has been removed.  */
+		__set_errno (ENOENT);
+	      goto lose;
+	    }
 	  if (d->d_name[0] == '.' &&
 	      (d->d_name[1] == '\0' ||
 	       (d->d_name[1] == '.' && d->d_name[2] == '\0')))
@@ -306,48 +314,38 @@ __getcwd (char *buf, size_t size)
 		break;
 	    }
 	}
-      if (d == NULL)
-	{
-	  if (errno == 0)
-	    /* EOF on dirstream, which means that the current directory
-	       has been removed.  */
-	    __set_errno (ENOENT);
-	  goto lose;
-	}
-      else
-	{
-	  size_t dirroom = dirp - dir;
-	  size_t namlen = _D_EXACT_NAMLEN (d);
 
-	  if (dirroom <= namlen)
+      dirroom = dirp - dir;
+      namlen = _D_EXACT_NAMLEN (d);
+
+      if (dirroom <= namlen)
+	{
+	  if (size != 0)
 	    {
-	      if (size != 0)
-		{
-		  __set_errno (ERANGE);
-		  goto lose;
-		}
-	      else
-		{
-		  char *tmp;
-		  size_t oldsize = allocated;
-
-		  allocated += MAX (allocated, namlen);
-		  if (allocated < oldsize
-		      || ! (tmp = realloc (dir, allocated)))
-		    goto memory_exhausted;
-
-		  /* Move current contents up to the end of the buffer.
-		     This is guaranteed to be non-overlapping.  */
-		  dirp = memcpy (tmp + allocated - (oldsize - dirroom),
-				 tmp + dirroom,
-				 oldsize - dirroom);
-		  dir = tmp;
-		}
+	      __set_errno (ERANGE);
+	      goto lose;
 	    }
-	  dirp -= namlen;
-	  memcpy (dirp, d->d_name, namlen);
-	  *--dirp = '/';
+	  else
+	    {
+	      char *tmp;
+	      size_t oldsize = allocated;
+
+	      allocated += MAX (allocated, namlen);
+	      if (allocated < oldsize
+		  || ! (tmp = realloc (dir, allocated)))
+		goto memory_exhausted;
+
+	      /* Move current contents up to the end of the buffer.
+		 This is guaranteed to be non-overlapping.  */
+	      dirp = memcpy (tmp + allocated - (oldsize - dirroom),
+			     tmp + dirroom,
+			     oldsize - dirroom);
+	      dir = tmp;
+	    }
 	}
+      dirp -= namlen;
+      memcpy (dirp, d->d_name, namlen);
+      *--dirp = '/';
 
       thisdev = dotdev;
       thisino = dotino;
