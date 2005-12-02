@@ -1,3 +1,7 @@
+2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
+
+	* configure.ac (gl_MODULES): Removed call to function.
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* acinclude.m4: Properly quote arguments to AC_ARG_ENABLE and

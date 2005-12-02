@@ -127,8 +127,6 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_YACC
 
-dnl For gnulib
-gl_MODULES(xalloc snprintf obstack memcpy getpass getopt memset strerror malloc poll memcmp strdup realloc getusershell memmove setenv xgetcwd argp regex unlocked-io readutmp error)
 gl_INIT
 
 ### Checks for libraries.
