@@ -1,3 +1,7 @@
+2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
+
+	* localhost.c: Include <stdint.h>
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* daemon.c: Signal handlers return RETSIGTYPE

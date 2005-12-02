@@ -29,6 +29,7 @@
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
 #endif
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
