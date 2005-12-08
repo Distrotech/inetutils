@@ -1,3 +1,8 @@
+2005-12-08  Alfred M. Szmidt  <ams@gnu.org>
+
+	* README: Reformated.  Mention that GNU Inetutils doesn't work on
+	Solaris.
+
 2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
 
 	Imported GNUlib module: stdint.
