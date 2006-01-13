@@ -1,3 +1,8 @@
+2006-01-14  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* rcp.c (write_stat_time): Pass modification times first. Patch by
+	Tim Adye <T.J.Adye@rl.ac.uk>
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* rcp.c: Remove leftover BSD-isms:
