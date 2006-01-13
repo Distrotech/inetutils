@@ -494,7 +494,7 @@ write_stat_time (int fd, struct stat *stat)
 #endif
 
   snprintf (buf, sizeof(buf), "T%ld %ld %ld %ld\n",
-	    a_sec, a_usec, m_sec, m_usec);
+	    m_sec, m_usec, a_sec, a_usec);
   return write (fd, buf, strlen (buf));
 }
 
