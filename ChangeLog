@@ -1,6 +1,8 @@
 2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	* THANKS: Add Guillem Jover
 	* configure.ac: Use build-aux as an auxiliary tools directory
+	(AC_CHECK_HEADERS): Add readline/readline.h
 
 2005-12-08  Alfred M. Szmidt  <ams@gnu.org>
 
