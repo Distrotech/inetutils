@@ -1,4 +1,4 @@
-# Copyright (C) 2005 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2006 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -28,8 +28,9 @@ man_MANS = syslog.conf.5 syslogd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGPID) \
-	$(PATHDEF_CONSOLE)
+INCLUDES = -I$(top_srcdir)/libinetutils \
+           $(PATHDEF_LOG) $(PATHDEF_KLOG) $(PATHDEF_LOGCONF) \
+           $(PATHDEF_LOGPID) $(PATHDEF_CONSOLE)
 
 LDADD = -L../lib -lgnu -L../libinetutils -linetutils
 
