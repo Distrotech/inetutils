@@ -1,3 +1,8 @@
+2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
+	* get_names.c: Include libinetutils.h
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* init_disp.c: Remove leftover BSD-isms:

@@ -1,3 +1,7 @@
+2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* talkd.c: Include libinetutils.h
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* table.c: Remove leftover BSD-isms:

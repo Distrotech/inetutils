@@ -1,3 +1,8 @@
+2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* libinetutils.h: New file
+	* Makefile.am (noinst_HEADERS): Add libinetutils.h
+
 2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
 
 	* localhost.c: Include <stdint.h>

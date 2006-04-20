@@ -1,3 +1,7 @@
+2006-04-20  Guillem Jover  <guillem@hadrons.org>
+
+	* Makefile.am (LDADD): Link against gnulib.
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* Makefile.am: Remove ansi2knr. Add copyleft header. Update

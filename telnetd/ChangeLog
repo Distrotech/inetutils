@@ -1,3 +1,9 @@
+2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
+	* pty.c: Include libinetutils.h
+	* telnetd.c: Likewise
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* Makefile.am: Remove ansi2knr. Add copyleft header. Update

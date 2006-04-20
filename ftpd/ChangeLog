@@ -1,3 +1,9 @@
+2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+ 	* Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
+	* extern.h (logwtmp): Remove prototype
+	* ftpd.c: Include libinetutils.h
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* conf.c: Remove leftover BSD-isms: err,errx,warn,warnx, cast

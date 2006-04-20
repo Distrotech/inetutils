@@ -1,3 +1,7 @@
+2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* Makefile.am (LDADD): Add libgnu
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* logger.c: Remove leftover BSD-isms:

@@ -1,5 +1,7 @@
 2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	* main.c [HAVE_READLINE_READLINE_H]: Include <readline/readline.h>
+
 	* Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
 	* ruserpass.c: Include libinetutils.h and xalloc.h
 	
