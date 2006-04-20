@@ -431,7 +431,8 @@ AC_HEADER_DIRENT
 AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
                  krb.h memory.h malloc.h netinet/in_systm.h netinet/ip.h \
                  netinet/ip_icmp.h netinet/ip_var.h \
-                 security/pam_appl.h \
+		 readline/readline.h \
+		 security/pam_appl.h \
                  shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \
                  sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \
                  sys/ioctl_compat.h sys/cdefs.h sys/stream.h sys/mkdev.h \
@@ -775,6 +776,8 @@ rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
 rshd/Makefile logger/Makefile syslogd/Makefile talk/Makefile
 talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
 tftpd/Makefile uucpd/Makefile gwhois/Makefile libls/Makefile
+ifconfig/Makefile
+ifconfig/system/Makefile
 confpaths.h:confpaths.h.in
 headers/Makefile
 doc/Makefile doc/rfc/Makefile])
