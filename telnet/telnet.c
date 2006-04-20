@@ -52,6 +52,8 @@ static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
 #include <stdlib.h>
 #endif
 
+#include <libinetutils.h>
+
 #include "ring.h"
 
 #include "defines.h"
@@ -2219,7 +2221,6 @@ telnet(char *user)
 
 #if	defined(AUTHENTICATION) || defined(ENCRYPTION)
     {
-	extern char *localhost ();
 	static char *local_host = 0;
 
 	if (!local_host)

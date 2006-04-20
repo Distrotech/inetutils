@@ -98,6 +98,8 @@ char *alloca ();
 # include <sys/select.h>
 #endif
 
+#include <libinetutils.h>
+
 int	keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
 int	check_all;
 int	log_success;		/* If TRUE, log all successful accesses */
@@ -1187,7 +1189,6 @@ getstr(const char *err)
 int
 local_domain (const char *h)
 {
-  extern char *localhost __P ((void));
   char *hostname = localhost ();
 
   if (! hostname)

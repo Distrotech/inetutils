@@ -22,6 +22,7 @@
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
+#include <libinetutils.h>
 
 static char short_options[] = "a:D::d:E:HhLl::nS:Uu:VX:";
 
@@ -269,8 +270,6 @@ parse_debug_level (char *str)
 
 
 typedef unsigned int ip_addr_t; /*FIXME*/
-
-extern char *localhost __P ((void));
 
 void
 telnetd_setup (int fd)

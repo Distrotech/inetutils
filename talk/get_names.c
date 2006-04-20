@@ -43,6 +43,7 @@ static char sccsid[] = "@(#)get_names.c	8.1 (Berkeley) 6/6/93";
 #endif
 #include <protocols/talkd.h>
 #include <pwd.h>
+#include <libinetutils.h>
 #include "talk.h"
 
 char	*getlogin();
@@ -55,7 +56,6 @@ extern	CTL_MSG msg;
 int
 get_names(int argc, char *argv[])
 {
-	extern char *localhost ();
 	char *his_name, *my_name;
 	char *my_machine_name, *his_machine_name;
 	char *my_tty, *his_tty;

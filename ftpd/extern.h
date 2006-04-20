@@ -44,7 +44,6 @@ extern FILE *ftpd_popen    __P ((char *, const char *));
 #if !HAVE_DECL_GETUSERSHELL
 extern char *getusershell  __P ((void));
 #endif
-extern void logwtmp        __P ((const char *, const char *, const char *));
 extern void lreply         __P ((int, const char *, ...));
 extern void makedir        __P ((const char *));
 extern void nack           __P ((const char *));

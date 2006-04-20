@@ -114,6 +114,7 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
    system headers on some platforms. */
 #include <glob.h>
 
+#include <libinetutils.h>
 #include "extern.h"
 
 #ifndef LINE_MAX
@@ -327,7 +328,6 @@ usage (int err)
 int
 main(int argc, char *argv[], char **envp)
 {
-  extern char *localhost __P ((void));
   int option;
 
 #ifndef HAVE___PROGNAME

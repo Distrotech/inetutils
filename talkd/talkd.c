@@ -20,6 +20,7 @@
 #include <intalkd.h>
 #include <signal.h>
 #include <getopt.h>
+#include <libinetutils.h>
 
 #ifndef LOG_FACILITY
 # define LOG_FACILITY LOG_DAEMON
@@ -114,7 +115,6 @@ main(int argc, char *argv[])
 void
 talkd_init ()
 {
-  extern char * localhost(void);
   openlog ("talkd", LOG_PID, LOG_FACILITY);
   hostname = localhost ();
   if (!hostname)

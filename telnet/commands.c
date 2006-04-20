@@ -75,6 +75,8 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 #include <arpa/inet.h>
 #include <arpa/telnet.h>
 
+#include <libinetutils.h>
+
 #include "general.h"
 
 #include "ring.h"
@@ -1693,7 +1695,6 @@ env_init()
 	if ((ep = env_find("DISPLAY"))
 	    && ((*ep->value == ':')
 	        || (strncmp((char *)ep->value, "unix:", 5) == 0))) {
-		extern char *localhost ();
 		char *hostname = localhost ();
 		char *cp2 = strchr((char *)ep->value, ':');
 

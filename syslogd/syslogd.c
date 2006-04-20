@@ -135,6 +135,8 @@ typedef struct utmp UTMP;
 # include <syslog-int.h>
 #endif
 
+#include <libinetutils.h>
+
 /* A mask of all facilities mentioned explicitly in the configuration file
  *
  * This is used to support a virtual facility "**" that covers all the rest,
@@ -275,7 +277,6 @@ time_t  now;                    /* Time use for mark and forward supending.  */
 int force_sync;                 /* GNU/Linux behaviour to sync on every line.
 				   This off by default. Set to 1 to enable.  */
 
-extern char *localhost __P ((void));
 extern int waitdaemon __P ((int nochdir, int noclose, int maxwait));
 extern char *__progname;
 

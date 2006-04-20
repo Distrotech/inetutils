@@ -73,6 +73,8 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>		/* Needed for chmod() */
 
+#include <libinetutils.h>
+
 /*
   The TIOCPKT_* macros may not be implemented in the pty driver.
   Defining them here allows the program to be compiled.  */

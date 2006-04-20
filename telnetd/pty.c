@@ -23,7 +23,7 @@
 #ifdef AUTHENTICATION
 # include <libtelnet/auth.h>
 #endif
-
+#include <libinetutils.h>
 
 void
 setup_utmp (char *line)
