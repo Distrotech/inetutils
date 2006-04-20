@@ -1,4 +1,5 @@
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -270,8 +271,12 @@ char **config_files;
 
 #if defined(HAVE_SIGACTION)
 # define SIGSTATUS sigset_t
+# define sigstatus_empty(s) sigemptyset(&s)
+# define inetd_pause(s) sigsuspend(&s)
 #else
 # define SIGSTATUS long
+# define sigstatus_empty(s) s = 0
+# define inetd_pause(s) sigpause (s)
 #endif
 
 void
@@ -458,7 +463,8 @@ main (int argc, char *argv[], char *envp[])
         fclose (fp);
       }
     else
-      syslog (LOG_CRIT, "can't open %s: %s\n", PATH_INETDPID, strerror (errno));
+      syslog (LOG_CRIT, "can't open %s: %s\n", PATH_INETDPID,
+	      strerror (errno));
   }
 
   signal_set_handler (SIGALRM, retry);
@@ -484,9 +490,12 @@ main (int argc, char *argv[], char *envp[])
 
       if (nsock == 0)
 	{
+	  SIGSTATUS stat;
+	  sigstatus_empty (stat);
+	  
 	  signal_block (NULL);
 	  while (nsock == 0)
-	    sigpause (0L);
+	    inetd_pause (stat);
 	  signal_unblock (NULL);
 	}
       readable = allsock;
