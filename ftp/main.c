@@ -58,6 +58,11 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 /* Define macro to nothing so declarations in ftp_var.h become definitions. */
 #define FTP_EXTERN
 #include "ftp_var.h"
+
+#if HAVE_READLINE_READLINE_H
+# include <readline/readline.h>
+#endif
+
 
 /* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
 extern char *__progname;
