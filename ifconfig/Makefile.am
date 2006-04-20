@@ -28,4 +28,4 @@ noinst_HEADERS = ifconfig.h if_index.h flags.h options.h printif.h system.h
 
 @PATHDEFS_MAKE@
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
