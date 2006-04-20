@@ -18,7 +18,7 @@
 
 noinst_LIBRARIES = libinetutils.a
 
-noinst_HEADERS = argcv.h
+noinst_HEADERS = argcv.h libinetutils.h
 
 EXTRA_DIST = logwtmp.c
 
