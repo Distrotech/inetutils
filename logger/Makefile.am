@@ -18,7 +18,7 @@
 
 bin_PROGRAMS = @logger_BUILD@
 
-LDADD = -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
 
 EXTRA_PROGRAMS = logger
 

@@ -28,7 +28,8 @@ man_MANS = rshd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/headers $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils \
+           $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
 
 LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 

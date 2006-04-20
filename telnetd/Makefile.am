@@ -30,7 +30,8 @@ man_MANS = telnetd.8
 @PATHDEFS_MAKE@
 
 INCLUDES = $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN) \
-	   -I$(top_srcdir) -I$(top_srcdir)/lib @INCAUTH@
+	   -I$(top_srcdir) -I$(top_srcdir)/lib -I$(top_srcdir)/libinetutils\
+           @INCAUTH@
 
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@

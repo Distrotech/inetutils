@@ -27,7 +27,7 @@ noinst_HEADERS = defines.h externs.h fdset.h general.h ring.h types.h
 
 man_MANS = telnet.1
 
-INCLUDES = -I$(top_srcdir)
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/libinetutils
 AM_CPPFLAGS=-DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
 LIBTERMCAP = @LIBTERMCAP@

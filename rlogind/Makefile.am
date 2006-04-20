@@ -28,7 +28,8 @@ man_MANS = rlogind.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/headers $(PATHDEF_DEV) $(PATHDEF_LOGIN)
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils\
+           $(PATHDEF_DEV) $(PATHDEF_LOGIN)
 
 LIBUTIL = @LIBUTIL@
 

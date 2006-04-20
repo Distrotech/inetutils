@@ -28,7 +28,8 @@ man_MANS = ftp.1
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
+INCLUDES = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib\
+           $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
 READLINE=@LIBREADLINE@ @LIBTERMCAP@
 LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBGLOB) $(READLINE)
