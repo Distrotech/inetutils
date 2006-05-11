@@ -1,3 +1,5 @@
+Add proper check for yacc to configure.ac.
+
 Add long options to programs libls/ls.c, rcp, rlogind, rlogin, rshd,
 telnetd, tftpd, especially the clients.  The conventions used by
 telnet & ftp should be followed.
