@@ -1,3 +1,7 @@
+2006-05-12  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (SUBDIRS): Added `ifconfig'.
+
 2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* THANKS: Add Guillem Jover
