@@ -1,3 +1,10 @@
+2006-07-25  Alfred M. Szmidt  <ams@gnu.org>
+
+	* inetutils.texi: Updated the license to the GNU Free
+	Documentation License.
+	(GNU Free Documentatio License): New node.
+	* fdl.texi: New file.
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
