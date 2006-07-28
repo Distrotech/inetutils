@@ -38,6 +38,8 @@
 .Nm inetd
 .Op Fl d
 .Op Fl R Ar rate
+.Op Fl -environment
+.Op Fl -resolve
 .Op Ar configuration_files ...
 .Sh DESCRIPTION
 The
@@ -65,14 +67,21 @@ reducing load on the system.
 The options available for
 .Nm inetd:
 .Bl -tag -width Ds
-.It Fl d, --debug
+.It Fl d, -debug
 Turns on debugging.
-.It Fl R, --rate Ar rate
+.It Fl -environment
+Pass local and remote address data via environment variables. See
+\fBENVIRONMENT\fP below.
+.It Fl R, -rate Ar rate
 Specifies the maximum number of times a service can be invoked
 in one minute; the default is 1000.
-.It Fl --version
+.It Fl -resolve
+Resolve local and remote IP addresses and pass them to the server program
+via \fBTCPLOCALHOST\fP and \fBTCPREMOTEHOST\fP environment variables. See
+\fBENVIRONMENT\fP below. This option implies \fB--environment\fP.
+.It Fl -version
 Shows the version.
-.It Fl --help
+.It Fl -help
 Shows the help.
 .El
 .Pp
@@ -305,6 +314,30 @@ causes
 to list TCPMUX services in
 .Pa inetd.conf .
 .ne 1i
+.Sh "ENVIRONMENT"
+If a connection is made with a streaming protocol (TCP) and if
+\fB--environment\fP option has been given, inetd will set
+the following environment variables before starting the program:
+.Pp
+\fBPROTO\fP: always "TCP".
+.Pp
+\fBTCPLOCALIP\fP: the local IP address of the interface which accepted the connection.
+.Pp
+\fBTCPLOCALPORT\fP: the port number on which the TCP connection was established.
+.Pp
+\fBTCPREMOTEIP\fP: the IP address of the remote client.
+.Pp
+\fBTCPREMOTEPORT\fP: the port number on the client side of the TCP connection.
+
+.Pp
+In addition, if given the \fB--remote\fP option,
+.Nm inetd
+will set the following environment variables:
+.Pp
+\fBTCPLOCALHOST\fP: the DNS name of \fITCPLOCALIP\fR.
+.Pp
+\fBTCPREMOTEHOST\fP: the DNS name of \fITCPREMOTEIP\fR.
+
 .Sh "EXAMPLES"
 .Pp
 Here are several example service entries for the various types of services:
@@ -371,6 +404,9 @@ is invalid.
 .Xr rshd 8 ,
 .Xr telnetd 8 ,
 .Xr tftpd 8
+.Sh BUGS
+The environment variables (see \fBENVIRONMENT\fP) are set only for
+TCP IPv4 nowait connections.
 .Sh HISTORY
 The
 .Nm
