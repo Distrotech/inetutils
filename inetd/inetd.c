@@ -227,6 +227,7 @@ void		set_proc_title __P ((char *, int));
 void		initring __P((void));
 long		machtime __P((void));
 void            run_service __P ((int ctrl, struct servtab *sep));
+void            prepenv __P ((int ctrl, struct sockaddr_in sa_client));
 
 struct biltin {
   const char	*bi_service;	/* internally provided service name */
@@ -354,7 +355,11 @@ usage (int err)
 	       __progname);
       puts ("Internet super-server.\n\n\
   -d, --debug               Debug mode\n\
+      --environment         Pass local and remote socket information in\n\
+                            environment variables\n\
   -R, --rate NUMBER         Maximum invocation rate (per second)\n\
+      --resolve             Resolve IP addresses when setting environment\n\
+                            variables (see --environment)\n\
       --help                Display this help and exit\n\
   -V, --version             Output version information and exit");
 
@@ -363,6 +368,9 @@ usage (int err)
   exit (err);
 }
 
+static int env_option;      /* Set environment variables */
+static int resolve_option;  /* Resolve IP addresses */
+
 static const char *short_options = "dR:V";
 static struct option long_options[] =
 {
@@ -370,6 +378,8 @@ static struct option long_options[] =
   { "rate", required_argument, 0, 'R' },
   { "help", no_argument, 0, '&' },
   { "version", no_argument, 0, 'V' },
+  { "resolve", no_argument, &resolve_option, 1 },
+  { "environment", no_argument, &env_option, 1 },
   { 0, 0, 0, 0 }
 };
 
@@ -425,6 +435,9 @@ main (int argc, char *argv[], char *envp[])
 	  exit (0);
 	  /* Not reached.  */
 
+	case 0:
+	  break;
+	  
 	case '?':
 	default:
 	  usage (1);
@@ -432,6 +445,9 @@ main (int argc, char *argv[], char *envp[])
 	}
     }
 
+  if (resolve_option)
+    env_option = 1;
+  
   if (optind < argc)
     {
       int i;
@@ -514,7 +530,11 @@ main (int argc, char *argv[], char *envp[])
 	      fprintf (stderr, "someone wants %s\n", sep->se_service);
 	    if (!sep->se_wait && sep->se_socktype == SOCK_STREAM)
 	      {
-		ctrl = accept (sep->se_fd, NULL, NULL);
+		struct sockaddr_in sa_client;
+		socklen_t len = sizeof (sa_client);
+		
+		ctrl = accept (sep->se_fd, (struct sockaddr *)&sa_client,
+			       &len);
 		if (debug)
 		  fprintf (stderr, "accept, ctrl %d\n", ctrl);
 		if (ctrl < 0)
@@ -524,6 +544,8 @@ main (int argc, char *argv[], char *envp[])
 			      sep->se_service);
 		    continue;
 		  }
+		if (env_option)
+		  prepenv (ctrl, sa_client);
 	      }
 	    else
 	      ctrl = sep->se_fd;
@@ -821,14 +843,26 @@ nextconfig (const char *file)
 	  sep->se_fd = -1;
 	  continue;
 	}
-#ifndef IPV6 /* This code is moved to setup() for IPV6.  */
+#ifndef IPV6 /* FIXME: This code is moved to setup() for IPV6, which is
+	        wrong */
       sp = getservbyname (sep->se_service, sep->se_proto);
       if (sp == 0)
 	{
-	  syslog (LOG_ERR, "%s/%s: unknown service",
-		  sep->se_service, sep->se_proto);
-	  sep->se_checked = 0;
-	  continue;
+	  static struct servent servent;
+	  char *p;
+	  unsigned long val;
+	  unsigned short port;
+
+	  val = strtoul (sep->se_service, &p, 0);
+	  if (*p || (port = val) != val)
+	    {
+	      syslog (LOG_ERR, "%s/%s: unknown service",
+		      sep->se_service, sep->se_proto);
+	      sep->se_checked = 0;
+	      continue;
+	    }
+	  servent.s_port = htons (port);
+	  sp = &servent;
 	}
       if (sp->s_port != sep->se_ctrladdr.sin_port)
 	{
@@ -1711,4 +1745,72 @@ tcpmux(int s, struct servtab *sep)
     }
   strwrite (s, "-Service not available\r\n");
   exit (1);
+}
+
+/* Set TCP environment variables, modelled after djb's ucspi-tcp tools:
+   http://cr.yp.to/ucspi-tcp/environment.html
+   FIXME: This needs support for IPv6
+*/
+void
+prepenv (int ctrl, struct sockaddr_in sa_client)
+{
+  char str[16];
+  char *ip;
+  struct hostent *host;
+  struct sockaddr_in sa_server;
+  socklen_t len = sizeof (sa_server);
+
+  setenv ("PROTO", "TCP", 1);
+  unsetenv ("TCPLOCALIP");
+  unsetenv ("TCPLOCALHOST");
+  unsetenv ("TCPLOCALPORT");
+  unsetenv ("TCPREMOTEIP");
+  unsetenv ("TCPREMOTEPORT");
+  unsetenv ("TCPREMOTEHOST");
+  
+  if (getsockname (ctrl, (struct sockaddr*)&sa_server, &len) < 0)
+    syslog (LOG_WARNING, "getsockname(): %m");
+  else
+    {
+      ip = inet_ntoa (sa_server.sin_addr);
+      if (ip)
+	{
+	  if (setenv ("TCPLOCALIP", ip, 1) < 0)
+	    syslog (LOG_WARNING, "setenv (TCPLOCALIP): %m");
+	}
+
+      snprintf (str, sizeof (str), "%d", ntohs (sa_server.sin_port));
+      setenv ("TCPLOCALPORT", str, 1);
+
+      if (resolve_option)
+	{
+	  if ((host = gethostbyaddr((char *) &sa_server.sin_addr,
+				    sizeof (sa_server.sin_addr),
+				    AF_INET)) == NULL)
+	    syslog (LOG_WARNING, "gethostbyaddr: %m");
+	  else if (setenv ("TCPLOCALHOST", host->h_name, 1) < 0)
+	    syslog (LOG_WARNING, "setenv(TCPLOCALHOST): %m");
+	}
+    }
+
+  ip = inet_ntoa (sa_client.sin_addr);
+  if (ip)
+    {
+      if (setenv ("TCPREMOTEIP", ip, 1) < 0)
+	syslog (LOG_WARNING, "setenv(TCPREMOTEIP): %m");
+    }
+
+  snprintf (str, sizeof (str), "%d", ntohs (sa_client.sin_port));
+  if (setenv ("TCPREMOTEPORT", str, 1) < 0)
+    syslog (LOG_WARNING, "setenv(TCPREMOTEPORT): %m");
+
+  if (resolve_option)
+    {
+      if ((host = gethostbyaddr ((char *) &sa_client.sin_addr,
+				 sizeof (sa_client.sin_addr),
+				 AF_INET)) == NULL)
+	syslog (LOG_WARNING, "gethostbyaddr: %m");
+      else if (setenv ("TCPREMOTEHOST", host->h_name, 1) < 0)
+	syslog (LOG_WARNING, "setenv(TCPREMOTEHOST): %m");
+    }
 }
