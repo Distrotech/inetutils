@@ -1,3 +1,15 @@
+2006-07-28  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Implement passing client/server data via environment variables,
+	based on the patch by Dirk Jagdmann <doj@cubic.org>
+	
+	* inetd.c: New options: --environment, to enable passing
+	client/server data via environment variables, and --resolve,
+	to resolve IP addresses when doing so.
+	(prepenv): New function
+	(nextconfig): Allow numeric port values as service names.
+	* inetd.8: Document new options
+
 2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* inetd.c (main): Use sigsuspend in favor of sigpause. Change
