@@ -41,6 +41,10 @@
 	m4/stdint_h.m4, m4/stdio-safer.m4, m4/strdup.m4, m4/strndup.m4,
 	m4/strnlen.m4, m4/ulonglong.m4, m4/unistd-safer.m4,
 	m4/unlocked-io.m4, m4/xalloc.m4, m4/xgetcwd.m4:	Update from gnulib    
+
+	* lib/wcwidth.h, m4/absolute-header.m4, m4/getcwd-abort-bug.m4,
+	m4/getndelim2.m4, m4/inttypes-h.m4, m4/lock.m4, m4/ssize_t.m4,
+	m4/unistd_h.m4, m4/visibility.m4, m4/wcwidth.m4: New files from gnulib
 	
 	* ftp/extern.h, ftp/ftp.c, ftp/ftp_var.h, ftp/main.c,
 	ftp/ruserpass.c, ftpd/auth.c, ftpd/extern.h, ftpd/ftpcmd.y,
