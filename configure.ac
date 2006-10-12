@@ -428,18 +428,33 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
 
-AC_CHECK_HEADERS(arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
-                 krb.h memory.h malloc.h netinet/in_systm.h netinet/ip.h \
-                 netinet/ip_icmp.h netinet/ip_var.h \
-		 readline/readline.h \
-		 security/pam_appl.h \
-                 shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \
-                 sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \
-                 sys/ioctl_compat.h sys/cdefs.h sys/stream.h sys/mkdev.h \
-		 sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
-		 sys/proc.h sys/select.h sys/time.h sys/wait.h sys/resource.h \
-		 stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h \
-                 vis.h)
+AC_CHECK_HEADERS([arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
+                  krb.h memory.h malloc.h netinet/in_systm.h netinet/ip.h \
+                  netinet/ip_icmp.h netinet/ip_var.h \
+		  readline/readline.h \
+		  security/pam_appl.h \
+                  shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \
+                  sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \
+                  sys/ioctl_compat.h sys/cdefs.h sys/stream.h sys/mkdev.h \
+		  sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
+		  sys/proc.h sys/select.h sys/time.h sys/wait.h \
+                  sys/resource.h \
+		  stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h \
+                  vis.h], [], [], [
+#include <sys/types.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
+# include <netinet/in_systm.h>
+#endif
+#include <netinet/in.h>
+#ifdef HAVE_NETINET_IP_H
+# include <netinet/ip.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
+]
+
+)
 
 ### Checks for types.
 dnl Checks return type of signal handlers
@@ -459,7 +474,8 @@ AC_CHECK_TYPE(struct osockaddr, ,
                #include <sys/socket.h> ])
 
 AC_CHECK_TYPES(struct if_nameindex, , ,
-  [#include <sys/socket.h>
+  [#include <sys/types.h>
+   #include <sys/socket.h>
    #include <net/if.h>])
 
 dnl sig_t is the type of a signal handler (4.4BSD)
@@ -509,9 +525,7 @@ if test "$ac_cv_header_utmp_h" = yes; then
                     struct utmp.ut_id, struct utmp.ut_user,
 		    struct utmp.ut_host, struct utmp.ut_tv, 
 		    struct utmp.ut_exit], , ,
-		   [#ifdef HAVE_SYS_TYPES_H
-                    # include <sys/types.h>
-                    #endif
+		   [#include <sys/types.h>
 		    #include <utmp.h>])
 fi
 if test "$ac_cv_header_utmpx_h" = yes; then
@@ -521,7 +535,8 @@ fi
 IU_CHECK_MEMBERS([stuct ifreq.ifr_index,
                   struct ifreq.ifr_netmask,
                   struct ifreq.ifr_broadaddr], , ,
-                 [#include <sys/socket.h>
+                 [#include <sys/types.h>
+                  #include <sys/socket.h>
                   #include <net/if.h>])
 
 IU_CHECK_MEMBERS([struct sockaddr.sa_len], , ,
