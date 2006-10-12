@@ -18,11 +18,11 @@
    Fifth Floor, Boston, MA 02110-1301 USA. */
 
 typedef struct ping_data PING;
-typedef int (*ping_efp) __P ((int code,
-			     void *closure,
-			     struct sockaddr_in *dest, 
-			     struct sockaddr_in *from,
-			     struct ip *ip, icmphdr_t *icmp, int datalen));
+typedef int (*ping_efp) (int code,
+			 void *closure,
+			 struct sockaddr_in *dest, 
+			 struct sockaddr_in *from,
+			 struct ip *ip, icmphdr_t *icmp, int datalen);
 
 
 struct ping_data

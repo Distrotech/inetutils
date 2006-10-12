@@ -113,14 +113,6 @@ extern int errno;		/* outside this world */
 # endif
 #endif /* !CRAY */
 
-#ifndef __P
-# ifdef	__STDC__
-#  define	__P(x)	x
-# else
-#  define	__P(x)	()
-# endif
-#endif
-
 extern int
     autologin,		/* Autologin enabled */
     skiprc,		/* Don't process the ~/.telnetrc file */
@@ -243,79 +235,79 @@ extern FILE
 extern unsigned char
     NetTraceFile[];	/* Name of file where debugging output goes */
 extern void
-    SetNetTrace __P((char *));	/* Function to change where debugging goes */
+    SetNetTrace (char *);	/* Function to change where debugging goes */
 
 extern jmp_buf
     peerdied,
     toplevel;		/* For error conditions. */
 
 extern void
-    command __P((int, char *, int)),
-    Dump __P((char, unsigned char *, int)),
-    init_3270 __P((void)),
-    printoption __P((char *, int, int)),
-    printsub __P((char, unsigned char *, int)),
-    sendnaws __P((void)),
-    setconnmode __P((int)),
-    setcommandmode __P((void)),
-    setneturg __P((void)),
-    sys_telnet_init __P((void)),
-    telnet __P((char *)),
-    tel_enter_binary __P((int)),
-    TerminalFlushOutput __P((void)),
-    TerminalNewMode __P((int)),
-    TerminalRestoreState __P((void)),
-    TerminalSaveState __P((void)),
-    tninit __P((void)),
-    upcase __P((char *)),
-    willoption __P((int)),
-    wontoption __P((int));
+    command (int, char *, int),
+    Dump (char, unsigned char *, int),
+    init_3270 (void),
+    printoption (char *, int, int),
+    printsub (char, unsigned char *, int),
+    sendnaws (void),
+    setconnmode (int),
+    setcommandmode (void),
+    setneturg (void),
+    sys_telnet_init (void),
+    telnet (char *),
+    tel_enter_binary (int),
+    TerminalFlushOutput (void),
+    TerminalNewMode (int),
+    TerminalRestoreState (void),
+    TerminalSaveState (void),
+    tninit (void),
+    upcase (char *),
+    willoption (int),
+    wontoption (int);
 
 extern void
-    send_do __P((int, int)),
-    send_dont __P((int, int)),
-    send_will __P((int, int)),
-    send_wont __P((int, int));
+    send_do (int, int),
+    send_dont (int, int),
+    send_will (int, int),
+    send_wont (int, int);
 
 extern void
-    lm_will __P((unsigned char *, int)),
-    lm_wont __P((unsigned char *, int)),
-    lm_do __P((unsigned char *, int)),
-    lm_dont __P((unsigned char *, int)),
-    lm_mode __P((unsigned char *, int, int));
+    lm_will (unsigned char *, int),
+    lm_wont (unsigned char *, int),
+    lm_do (unsigned char *, int),
+    lm_dont (unsigned char *, int),
+    lm_mode (unsigned char *, int, int);
 
 extern void
-    slc_init __P((void)),
-    slcstate __P((void)),
-    slc_mode_export __P((void)),
-    slc_mode_import __P((int)),
-    slc_import __P((int)),
-    slc_export __P((void)),
-    slc __P((unsigned char *, int)),
-    slc_check __P((void)),
-    slc_start_reply __P((void)),
-    slc_add_reply __P((unsigned char, unsigned char, cc_t)),
-    slc_end_reply __P((void));
+    slc_init (void),
+    slcstate (void),
+    slc_mode_export (void),
+    slc_mode_import (int),
+    slc_import (int),
+    slc_export (void),
+    slc (unsigned char *, int),
+    slc_check (void),
+    slc_start_reply (void),
+    slc_add_reply (unsigned char, unsigned char, cc_t),
+    slc_end_reply (void);
 extern int
-    slc_update __P((void));
+    slc_update (void);
 
 extern void
-    env_opt __P((unsigned char *, int)),
-    env_opt_start __P((void)),
-    env_opt_start_info __P((void)),
-    env_opt_add __P((unsigned char *)),
-    env_opt_end __P((int));
+    env_opt (unsigned char *, int),
+    env_opt_start (void),
+    env_opt_start_info (void),
+    env_opt_add (unsigned char *),
+    env_opt_end (int);
 
 extern unsigned char
-    *env_default __P((int, int)),
-    *env_getvalue __P((unsigned char *));
+    *env_default (int, int),
+    *env_getvalue (unsigned char *);
 
 extern int
-    get_status __P((void)),
-    dosynch __P((void));
+    get_status (void),
+    dosynch (void);
 
 extern cc_t
-    *tcval __P((int));
+    *tcval (int);
 
 #ifndef	USE_TERMIO
 
@@ -482,8 +474,8 @@ extern char
     *transcom;		/* Transparent command */
 
 extern int
-    settranscom __P((int, char**));
+    settranscom (int, char**);
 
 extern void
-    inputAvailable __P((int));
+    inputAvailable (int);
 #endif	/* defined(TN3270) */

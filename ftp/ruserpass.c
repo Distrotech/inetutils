@@ -55,7 +55,7 @@ static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #include <libinetutils.h>
 #include <xalloc.h>
 
-static	int token __P((void));
+static	int token (void);
 static	FILE *cfile;
 
 /* protect agains os headers */

@@ -86,12 +86,12 @@ static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
 
 #if !HAVE_DECL_FCLOSE
 /* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
-extern int fclose __P ((FILE *));
+extern int fclose (FILE *);
 #endif
 
 #if !HAVE_DECL_PCLOSE
 /* Some systems don't declare pclose in <stdio.h>, so do it ourselves.  */
-extern int pclose __P ((FILE *));
+extern int pclose (FILE *);
 #endif
 
 extern int h_errno;
@@ -129,10 +129,10 @@ hookup(host, port)
 #ifdef HAVE_HSTRERROR
 			error (0, 0, "%s: %s", host, hstrerror(h_errno));
 #else
-			extern char *__progname;
+			extern char *program_name;
 			char *pfx =
-			  malloc (strlen (__progname) + 2 + strlen (host) + 1);
-			sprintf (pfx, "%s: %s", __progname, host);
+			  malloc (strlen (program_name) + 2 + strlen (host) + 1);
+			sprintf (pfx, "%s: %s", program_name, host);
 			herror (pfx);
 #endif
 			code = -1;
@@ -514,7 +514,7 @@ sendrequest(cmd, local, remote, printnames)
 	struct timeval start, stop;
 	int c, d;
 	FILE *fin, *dout = 0, *popen();
-	int (*closefunc) __P((FILE *));
+	int (*closefunc) (FILE *);
 	sig_t oldintr, oldintp;
 	long bytes = 0, local_hashbytes=hashbytes;
 	char *lmode, buf[BUFSIZ], *bufp;
@@ -769,7 +769,7 @@ recvrequest(cmd, local, remote, lmode, printnames)
 	int printnames;
 {
 	FILE *fout, *din = 0;
-	int (*closefunc) __P((FILE *));
+	int (*closefunc) (FILE *);
 	sig_t oldintr, oldintp;
 	int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
 	static int bufsize=0;

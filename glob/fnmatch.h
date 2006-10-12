@@ -23,19 +23,6 @@ Cambridge, MA 02139, USA.  */
 extern "C" {
 #endif
 
-#if (defined (__cplusplus) || (defined (__STDC__) && __STDC__) \
-     || defined (WIN32))
-#undef	__P
-#define	__P(protos)	protos
-#else /* Not C++ or ANSI C.  */
-#undef	__P
-#define	__P(protos)	()
-/* We can get away without defining `const' here only because in this file
-   it is used only inside the prototype for `fnmatch', which is elided in
-   non-ANSI C where `const' is problematical.  */
-#endif /* C++ or ANSI C.  */
-
-
 /* We #undef these before defining them because some losing systems
    (HP-UX A.08.07 for example) define these in <unistd.h>.  */
 #undef	FNM_PATHNAME
@@ -58,8 +45,7 @@ extern "C" {
 
 /* Match STRING against the filename pattern PATTERN,
    returning zero if it matches, FNM_NOMATCH if not.  */
-extern int fnmatch __P ((const char *__pattern, const char *__string,
-			 int __flags));
+extern int fnmatch (const char *__pattern, const char *__string, int __flags);
 
 #ifdef	__cplusplus
 }

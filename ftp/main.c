@@ -64,8 +64,7 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 #endif
 
 
-/* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
-extern char *__progname;
+char *program_name;
 
 #define DEFAULT_PROMPT "ftp> "
 static char *prompt = 0;
@@ -75,12 +74,12 @@ usage (int err)
 {
   if (err != 0)
     {
-      fprintf (stderr, "Usage: %s [OPTION...] [HOST [PORT]]\n", __progname);
-      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+      fprintf (stderr, "Usage: %s [OPTION...] [HOST [PORT]]\n", program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION...] [HOST [PORT]]\n", __progname);
+      fprintf (stdout, "Usage: %s [OPTION...] [HOST [PORT]]\n", program_name);
       puts ("Remote file transfer.\n\n\
   -d, --debug                Turn on debugging mode\n\
   -g, --no-glob              Turn off file name globbing\n\
@@ -120,9 +119,7 @@ main (int argc, char *argv[])
   struct passwd *pw = NULL;
   char *cp;
 
-#ifndef HAVE___PROGNAME
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   sp = getservbyname ("ftp", "tcp");
   if (sp == 0)
@@ -220,7 +217,7 @@ main (int argc, char *argv[])
 	exit (0);
       signal(SIGINT, intr);
       signal(SIGPIPE, lostpeer);
-      xargv[0] = __progname;
+      xargv[0] = program_name;
       xargv[1] = argv[0];
       xargv[2] = argv[1];
       xargv[3] = argv[2];

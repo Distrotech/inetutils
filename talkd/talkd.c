@@ -54,6 +54,7 @@ time_t max_idle_time = 120;
 time_t max_request_ttl = MAX_LIFE;
 
 char *hostname;
+char *program_name;
 
 int
 main(int argc, char *argv[])
@@ -61,6 +62,8 @@ main(int argc, char *argv[])
   int c;
   char *acl_file = NULL;
 
+  program_name = argv[0];
+  
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
     {

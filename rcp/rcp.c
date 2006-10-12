@@ -139,17 +139,19 @@ int pflag, iamremote, iamrecursive, targetshouldbedirectory;
 char cmd[CMDNEEDS];		/* must hold "rcp -r -p -d\0" */
 
 #ifdef KERBEROS
-int	 kerberos __P ((char **, char *, char *, char *));
-void	 oldw __P ((const char *, ...));
+int	 kerberos (char **, char *, char *, char *);
+void	 oldw (const char *, ...);
 #endif
-int	 response __P ((void));
-void	 rsource __P ((char *, struct stat *));
-void	 sink __P ((int, char *[]));
-void	 source __P ((int, char *[]));
-void	 tolocal __P ((int, char *[]));
-void	 toremote __P ((char *, int, char *[]));
-void	 usage __P ((void));
-void	 help __P ((void));
+int	 response (void);
+void	 rsource (char *, struct stat *);
+void	 sink (int, char *[]);
+void	 source (int, char *[]);
+void	 tolocal (int, char *[]);
+void	 toremote (char *, int, char *[]);
+void	 usage (void);
+void	 help (void);
+
+char *program_name;
 
 int
 main (int argc, char *argv[])
@@ -159,10 +161,7 @@ main (int argc, char *argv[])
   char *targ;
   const char *shell;
 
-#ifndef HAVE___PROGNAME
-  extern char *__progname;
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   fflag = tflag = 0;
   while ((ch = getopt_long (argc, argv, short_options, long_options, 0))

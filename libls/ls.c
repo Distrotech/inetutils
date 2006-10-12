@@ -69,15 +69,15 @@ static char rcsid[] = "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
 #include "ls.h"
 #include "extern.h"
 
-char	*group_from_gid __P((u_int, int));
-char	*user_from_uid __P((u_int, int));
+char	*group_from_gid (u_int, int);
+char	*user_from_uid (u_int, int);
 
-static void	 display __P((FTSENT *, FTSENT *));
-static int	 mastercmp __P((const FTSENT **, const FTSENT **));
-static void	 traverse __P((int, char **, int));
+static void	 display (FTSENT *, FTSENT *);
+static int	 mastercmp (const FTSENT **, const FTSENT **);
+static void	 traverse (int, char **, int);
 
-static void (*printfcn) __P((DISPLAY *));
-static int (*sortfcn) __P((const FTSENT *, const FTSENT *));
+static void (*printfcn) (DISPLAY *);
+static int (*sortfcn) (const FTSENT *, const FTSENT *);
 
 #define	BY_NAME 0
 #define	BY_SIZE 1

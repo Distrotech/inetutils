@@ -85,26 +85,26 @@ jmp_buf         toplevel;
 void            intr ();
 struct servent *sp;
 
-void get        __P ((int, char **));
-void help       __P ((int, char **));
-void modecmd    __P ((int, char **));
-void put        __P ((int, char **));
-void quit       __P ((int, char **));
-void setascii   __P ((int, char **));
-void setbinary  __P ((int, char **));
-void setpeer    __P ((int, char **));
-void setrexmt   __P ((int, char **));
-void settimeout __P ((int, char **));
-void settrace   __P ((int, char **));
-void setverbose __P ((int, char **));
-void status     __P ((int, char **));
+void get        (int, char **);
+void help       (int, char **);
+void modecmd    (int, char **);
+void put        (int, char **);
+void quit       (int, char **);
+void setascii   (int, char **);
+void setbinary  (int, char **);
+void setpeer    (int, char **);
+void setrexmt   (int, char **);
+void settimeout (int, char **);
+void settrace   (int, char **);
+void setverbose (int, char **);
+void status     (int, char **);
 
-static void command __P ((void));
+static void command (void);
 
-static void getusage __P ((char *));
-static void makeargv __P ((void));
-static void putusage __P ((char *));
-static void settftpmode __P ((char *));
+static void getusage (char *);
+static void makeargv (void);
+static void putusage (char *);
+static void settftpmode (char *);
 
 #define HELPINDENT (sizeof("connect"))
 
@@ -112,7 +112,7 @@ struct cmd
 {
   char           *name;
   char           *help;
-  void            (*handler) __P ((int, char **));
+  void            (*handler) (int, char **);
 };
 
 char            vhelp[] = "toggle verbose mode";
@@ -149,10 +149,14 @@ struct cmd      cmdtab[] = {
 struct cmd     *getcmd ();
 char           *tail ();
 
+char *program_name;
+
 int
 main (int argc, char *argv[])
 {
   struct sockaddr_in sin;
+
+  program_name = argv[0];
 
   sp = getservbyname ("tftp", "udp");
   if (sp == 0)

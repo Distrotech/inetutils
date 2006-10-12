@@ -105,13 +105,13 @@ int	check_all;
 int	log_success;		/* If TRUE, log all successful accesses */
 int	sent_null;
 
-void	 doit __P ((int, struct sockaddr_in *));
-void	 rshd_error __P ((const char *, ...));
-char	*getstr __P ((const char *));
-int	 local_domain __P ((const char *));
-const char *topdomain __P ((const char *));
-void	 usage __P ((void));
-void     help __P ((void));
+void	 doit (int, struct sockaddr_in *);
+void	 rshd_error (const char *, ...);
+char	*getstr (const char *);
+int	 local_domain (const char *);
+const char *topdomain (const char *);
+void	 usage (void);
+void     help (void);
 
 #if defined(KERBEROS) || defined(SHISHI)
 #ifdef KERBEROS
@@ -152,6 +152,8 @@ static struct option long_options[] =
   {0, 0, 0, 0}
 };
 
+char *program_name;
+
 /* Remote shell server. We're invoked by the rcmd(3) function. */
 int
 main (int argc, char *argv[])
@@ -162,6 +164,7 @@ main (int argc, char *argv[])
   struct sockaddr_in from;
   int sockfd;
 
+  program_name = argv[0];
   opterr = 0;
   while ((ch = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)

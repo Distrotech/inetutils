@@ -49,11 +49,11 @@ static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 # include <syslog-int.h>
 #endif
 
-int decode __P((char *, CODE *));
-int pencode __P((char *));
-static void usage __P((int));
+int decode (char *, CODE *);
+int pencode (char *);
+static void usage (int);
 
-extern char *__progname;
+char *program_name;
 
 static const char *short_options = "isf:p:t:";
 static struct option long_options[] =
@@ -71,13 +71,13 @@ usage (int err)
 {
   if (err != 0)
     {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", __progname);
-      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", __progname);
-      fprintf (stdout, "       %s [OPTION] ... MESSAGE\n", __progname);
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", program_name);
+      fprintf (stdout, "       %s [OPTION] ... MESSAGE\n", program_name);
       puts ("Make entries in the system log.\n\n\
   -i                  Log the process id with every line");
 #ifdef LOG_PERROR
@@ -104,9 +104,7 @@ main (int argc, char *argv[])
   int option, logflags, pri;
   char *tag, buf[1024];
 
-#ifndef HAVE___PROGNAME
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   tag = NULL;
   pri = LOG_NOTICE;
@@ -119,7 +117,7 @@ main (int argc, char *argv[])
 	case 'f': /* Log from file.  */
 	  if (freopen (optarg, "r", stdin) == NULL)
 	    {
-	      fprintf (stderr, "%s: %s: %s\n", __progname, optarg,
+	      fprintf (stderr, "%s: %s: %s\n", program_name, optarg,
 		       strerror (errno));
 	      exit(1);
 	    }
@@ -137,7 +135,7 @@ main (int argc, char *argv[])
 #ifdef LOG_PERROR
 	  logflags |= LOG_PERROR;
 #else
-	  fprintf (stderr, "%s: -s: option not implemented\n", __progname);
+	  fprintf (stderr, "%s: -s: option not implemented\n", program_name);
 	  exit (1);
 #endif
 	  break;
@@ -214,7 +212,7 @@ pencode (char *s)
       fac = decode (save, facilitynames);
       if (fac < 0)
 	{
-	  fprintf (stderr, "%s: unknown facility name: %s\n", __progname,
+	  fprintf (stderr, "%s: unknown facility name: %s\n", program_name,
 		   save);
 	  exit (1);
 	}
@@ -228,7 +226,7 @@ pencode (char *s)
   lev = decode (s, prioritynames);
   if (lev < 0)
     {
-      fprintf (stderr, "%s: unknown priority name: %s\n", __progname, save);
+      fprintf (stderr, "%s: unknown priority name: %s\n", program_name, save);
       exit(1);
     }
   return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));

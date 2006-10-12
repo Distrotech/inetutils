@@ -131,10 +131,10 @@ static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
 
 #if !HAVE_DECL_FCLOSE
 /* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
-extern int fclose __P ((FILE *));
+extern int fclose (FILE *);
 #endif
 
-extern char *__progname;
+char *program_name;
 
 /* Exported to ftpcmd.h.  */
 struct	sockaddr_in data_dest; /* Data port.  */
@@ -241,24 +241,24 @@ char	proctitle[LINE_MAX];	/* initial part of title */
 			   off_to_str (cnt)); \
 	}
 
-static void ack __P ((const char *));
-static void authentication_setup __P ((const char *));
+static void ack (const char *);
+static void authentication_setup (const char *);
 #ifdef HAVE_LIBWRAP
-static int  check_host __P ((struct sockaddr *sa));
+static int  check_host (struct sockaddr *sa);
 #endif
-static void complete_login __P ((struct credentials *));
-static char *curdir __P ((void));
-static FILE *dataconn __P ((const char *, off_t, const char *));
-static void dolog __P ((struct sockaddr_in *, struct credentials *));
-static void end_login __P ((struct credentials *));
-static FILE *getdatasock __P ((const char *));
-static char *gunique __P ((const char *));
-static void lostconn __P ((int));
-static void myoob __P ((int));
-static int  receive_data __P ((FILE *, FILE *));
-static void send_data __P ((FILE *, FILE *, off_t));
-static void sigquit __P ((int));
-static void usage __P ((int));
+static void complete_login (struct credentials *);
+static char *curdir (void);
+static FILE *dataconn (const char *, off_t, const char *);
+static void dolog (struct sockaddr_in *, struct credentials *);
+static void end_login (struct credentials *);
+static FILE *getdatasock (const char *);
+static char *gunique (const char *);
+static void lostconn (int);
+static void myoob (int);
+static int  receive_data (FILE *, FILE *);
+static void send_data (FILE *, FILE *, off_t);
+static void sigquit (int);
+static void usage (int);
 
 static const char *short_options = "Aa:Ddlp:qt:T:u:";
 static struct option long_options[] =
@@ -283,12 +283,12 @@ usage (int err)
 {
   if (err != 0)
     {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", __progname);
-      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", __progname);
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", program_name);
       puts ("Internet File Transfer Protocol server.\n\n\
   -A, --anonymous-only      Server configure for anonymous service only\n\
   -D, --daemon              Start the ftpd standalone\n\
@@ -330,9 +330,7 @@ main(int argc, char *argv[], char **envp)
 {
   int option;
 
-#ifndef HAVE___PROGNAME
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
 #ifdef HAVE_TZSET
   tzset(); /* In case no timezone database in ~ftp.  */
@@ -455,7 +453,7 @@ main(int argc, char *argv[], char **envp)
       if (getpeername (STDIN_FILENO, (struct sockaddr *)&his_addr,
 		       &addrlen) < 0)
 	{
-	  syslog (LOG_ERR, "getpeername (%s): %m", __progname);
+	  syslog (LOG_ERR, "getpeername (%s): %m", program_name);
 	  exit (1);
 	}
     }
@@ -475,7 +473,7 @@ main(int argc, char *argv[], char **envp)
     if (getsockname (STDIN_FILENO, (struct sockaddr *)&ctrl_addr,
 		     &addrlen) < 0)
       {
-	syslog (LOG_ERR, "getsockname (%s): %m", __progname);
+	syslog (LOG_ERR, "getsockname (%s): %m", program_name);
 	exit (1);
       }
   }
@@ -553,7 +551,7 @@ static char *
 curdir (void)
 {
   static char *path = 0;
-  extern char *xgetcwd __P ((void));
+  extern char *xgetcwd (void);
   if (path)
     free (path);
   path = xgetcwd ();
@@ -852,7 +850,7 @@ retrieve (const char *cmd, const char *name)
 {
   FILE *fin, *dout;
   struct stat st;
-  int (*closefunc) __P ((FILE *));
+  int (*closefunc) (FILE *);
   size_t buffer_size = 0;
 
   if (cmd == 0)
@@ -934,7 +932,7 @@ store (const char *name, const char *mode, int unique)
 {
   FILE *fout, *din;
   struct stat st;
-  int (*closefunc) __P ((FILE *));
+  int (*closefunc) (FILE *);
 
   if (unique && stat (name, &st) == 0
       && (name = gunique (name)) == NULL)
@@ -1578,7 +1576,7 @@ cwd (const char *path)
 void
 makedir (const char *name)
 {
-  extern char *xgetcwd __P ((void));
+  extern char *xgetcwd (void);
 
   LOGCMD ("mkdir", name);
   if (mkdir (name, 0777) < 0)
@@ -1615,7 +1613,7 @@ removedir (const char *name)
 void
 pwd (void)
 {
-  extern char *xgetcwd __P ((void));
+  extern char *xgetcwd (void);
   char *path = xgetcwd ();
   if (path)
     {

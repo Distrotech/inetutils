@@ -7,7 +7,9 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <pwd.h>
-#include <crypt.h>
+#ifdef HAVE_CRYPT_H
+# include <crypt.h>
+#endif
 #ifdef HAVE_SHADOW_H
 #include <shadow.h>
 #endif

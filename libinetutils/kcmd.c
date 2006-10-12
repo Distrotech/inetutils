@@ -70,7 +70,7 @@ static char     sccsid[] = "@(#)kcmd.c	8.2 (Berkeley) 8/19/93";
 
 #define	START_PORT	5120	/* arbitrary */
 
-int getport     __P ((int *));
+int getport     (int *);
 
 #if defined (KERBEROS)
 int
@@ -258,6 +258,8 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 			      cred, schedule,
 			      laddr, faddr, "KCMDV0.1")) != KSUCCESS)
     goto bad2;
+
+  write (s, remuser, strlen (remuser) + 1);
 #elif defined(SHISHI)
   if (authopts & SHISHI_APOPTIONS_MUTUAL_REQUIRED)
     {
@@ -279,9 +281,9 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 		    realm)) != SHISHI_OK)
     goto bad2;
 
+  write (s, *remuser, strlen (*remuser) + 1);
 #endif /* SHISHI */
 
-  write (s, *remuser, strlen (*remuser) + 1);
   write (s, cmd, strlen (cmd) + 1);
 
 #ifdef SHISHI

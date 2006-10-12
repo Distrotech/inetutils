@@ -21,6 +21,8 @@
 # include <config.h>
 #endif
 
+#include <sys/types.h>
+#include <sys/time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <xalloc.h>

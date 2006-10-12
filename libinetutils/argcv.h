@@ -27,18 +27,10 @@
 extern "C" {
 #endif
 
-#ifndef __P
-# ifdef __STDC__
-#  define __P(args) args
-# else
-#  define __P(args) ()
-# endif
-#endif /*__P */
-
-extern int argcv_get    __P ((const char *command, const char *delim,
-			      int *argc, char ***argv));
-extern int argcv_string __P ((int argc, char **argv, char **string));
-extern int argcv_free   __P ((int argc, char **argv));
+extern int argcv_get    (const char *command, const char *delim,
+			 int *argc, char ***argv);
+extern int argcv_string (int argc, char **argv, char **string);
+extern int argcv_free   (int argc, char **argv);
 
 #ifdef __cplusplus
 }

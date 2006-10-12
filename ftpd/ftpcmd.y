@@ -105,12 +105,12 @@ struct tab
 
 extern struct tab cmdtab[];
 extern struct tab sitetab[];
-static char *copy         __P ((char *));
-static void help          __P ((struct tab *, char *));
-static struct tab *lookup __P ((struct tab *, char *));
-static void sizecmd       __P ((char *));
-static int yylex          __P ((void));
-static void yyerror       __P ((const char *s));
+static char *copy         (char *);
+static void help          (struct tab *, char *);
+static struct tab *lookup (struct tab *, char *);
+static void sizecmd       (char *);
+static int yylex          (void);
+static void yyerror       (const char *s);
 
 %}
 

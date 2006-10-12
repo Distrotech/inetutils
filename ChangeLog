@@ -1,3 +1,81 @@
+2006-10-12  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* configure.ac (AC_CHECK_HEADERS): Add dependecy headers
+	* doc/Makefile.am (inetutils_TEXINFOS): Add fdl.texi
+	* ftp/Makefile.am, ftpd/Makefile.am, gwhois/Makefile.am,
+	ifconfig/Makefile.am, inetd/Makefile.am, libinetutils/Makefile.am,
+	logger/Makefile.am, ping/Makefile.am, rcp/Makefile.am,
+	rexecd/Makefile.am, rlogin/Makefile.am, rlogind/Makefile.am,
+	rsh/Makefile.am, rshd/Makefile.am, syslogd/Makefile.am,
+	talk/Makefile.am, talkd/Makefile.am, telnet/Makefile.am,
+	telnetd/Makefile.am, tftp/Makefile.am, tftpd/Makefile.am,
+	uucpd/Makefile.am, whois/Makefile.am: Move pathdefs to AM_CPPFLAGS.
+	Load libgnu after libinetutils.
+
+	* lib/Makefile.am: Fresh import from the CVS gnulib
+	* lib/alloca.c, lib/alloca_.h, lib/allocsa.c, lib/allocsa.h,
+	lib/asnprintf.c, lib/dup-safer.c, lib/error.c, lib/error.h,
+	lib/exit.h, lib/exitfail.c, lib/fd-safer.c, lib/fopen-safer.c,
+	lib/free.c, lib/getcwd.c, lib/getopt.c, lib/getopt1.c,
+	lib/getpass.c, lib/gettext.h, lib/getusershell.c, lib/malloc.c,
+	lib/mbchar.c, lib/mbchar.h, lib/memchr.c, lib/memcmp.c,
+	lib/memcpy.c, lib/memmove.c, lib/obstack.c, lib/pipe-safer.c,
+	lib/printf-args.c, lib/printf-parse.c, lib/readutmp.c,
+	lib/readutmp.h, lib/realloc.c, lib/regcomp.c, lib/regex.c,
+	lib/regex.h, lib/regex_internal.c, lib/regex_internal.h,
+	lib/regexec.c, lib/setenv.c, lib/size_max.h, lib/snprintf.c,
+	lib/stdbool_.h, lib/stdint_.h, lib/stdio--.h, lib/stdio-safer.h,
+	lib/strcasecmp.c, lib/strdup.c, lib/strerror.c, lib/strncasecmp.c,
+	lib/strndup.c, lib/strnlen.c, lib/strnlen1.c, lib/strnlen1.h,
+	lib/sysexit_.h, lib/unsetenv.c, lib/vasnprintf.c, lib/vsnprintf.c,
+	lib/xalloc-die.c, lib/xgetcwd.c, lib/xmalloc.c, m4/codeset.m4,
+	m4/d-ino.m4, m4/exitfail.m4, m4/extensions.m4,
+	m4/getcwd-path-max.m4, m4/getcwd.m4, m4/getdelim.m4,
+	m4/getline.m4, m4/getopt.m4, m4/getpass.m4, m4/gettext.m4,
+	m4/getusershell.m4, m4/gnulib-cache.m4, m4/gnulib-comp.m4,
+	m4/intmax_t.m4, m4/inttypes-pri.m4, m4/inttypes_h.m4,
+	m4/lib-link.m4, m4/longdouble.m4, m4/longlong.m4, m4/mbchar.m4,
+	m4/mempcpy.m4, m4/nls.m4, m4/onceonly_2_57.m4, m4/po.m4,
+	m4/poll.m4, m4/readutmp.m4, m4/regex.m4, m4/setenv.m4,
+	m4/signed.m4, m4/size_max.m4, m4/stdbool.m4, m4/stdint.m4,
+	m4/stdint_h.m4, m4/stdio-safer.m4, m4/strdup.m4, m4/strndup.m4,
+	m4/strnlen.m4, m4/ulonglong.m4, m4/unistd-safer.m4,
+	m4/unlocked-io.m4, m4/xalloc.m4, m4/xgetcwd.m4:	Update from gnulib    
+	
+	* ftp/extern.h, ftp/ftp.c, ftp/ftp_var.h, ftp/main.c,
+	ftp/ruserpass.c, ftpd/auth.c, ftpd/extern.h, ftpd/ftpcmd.y,
+	ftpd/ftpd.c, ftpd/pam.c, ftpd/server_mode.c, glob/fnmatch.h,
+	glob/glob.c, glob/glob.h, headers/tftpsubs.h, inetd/inetd.c,
+	libicmp/ping.h, libinetutils/argcv.h, libinetutils/des_rw.c,
+	libinetutils/kcmd.c, libinetutils/krcmd.c,
+	libinetutils/tftpsubs.c, libinetutils/ttymsg.c, libls/extern.h,
+	libls/fts.c, libls/fts.h, libls/ls.c, libls/print.c,
+	libtelnet/auth-proto.h, libtelnet/misc.c,  logger/logger.c, 
+	ping/ping.c, ping/ping6.c, ping/ping_common.c, rcp/extern.h,
+	rcp/rcp.c, rexecd/rexecd.c, rlogin/rlogin.c, rlogind/rlogind.c, 
+	rsh/rsh.c, rshd/rshd.c, talk/talk.c, talkd/talkd.c,
+	telnet/commands.c, telnet/externs.h, telnetd/telnetd.c,
+	tftp/extern.h, tftp/main.c, tftp/tftp.c, tftpd/tftpd.c, 
+	uucpd/uucpd.c: Remove __P wrappers, use program_name instead of
+	__progname, define it in main (required by error.c)
+	
+	* ifconfig/changeif.c, ifconfig/flags.c, ifconfig/ifconfig.c,
+	ifconfig/options.c, ifconfig/options.h, ifconfig/printif.c,
+	ifconfig/system/hpux.c, ifconfig/system/linux.c,
+	ifconfig/system/osf.c, ifconfig/system/solaris.c: Include
+	sys/types.h before sys/socket.h and netinet/in.h before
+	arpa/inet.h
+	Use program_name instead of __progname.
+
+	* libicmp/icmp_address.c,
+	libicmp/icmp_echo.c, libicmp/icmp_timestamp.c: Include
+	sys/types.h before sys/socket.h 
+
+	* syslogd/syslogd.c: Use read_utmp instead of manually fiddling
+	with utmp(x) subtleties. Remove __P wrappers, use program_name
+	instead of __progname.
+	* talkd/process.c: Likewise
+	
 2006-07-28  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* THANKS: Add Dirk Jagdmann

@@ -66,15 +66,14 @@ static struct option long_options[] = {
   {0}
 };
 
+char *program_name;
+
 int
 main (int argc, char *argv[])
 {
-#ifndef HAVE___PROGNAME
-  extern char *__progname;
-  __progname = argv[0];
-#endif
-
   int c;
+
+  program_name = argv[0];
 
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)

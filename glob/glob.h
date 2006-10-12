@@ -27,12 +27,8 @@ extern "C"
 #undef	__ptr_t
 #if (defined (__cplusplus) || (defined (__STDC__) && __STDC__) \
      || defined (WIN32))
-#undef	__P
-#define	__P(protos)	protos
 #define	__ptr_t	void *
 #else /* Not C++ or ANSI C.  */
-#undef	__P
-#define	__P(protos)	()
 #undef	const
 #define	const
 #define	__ptr_t	char *
@@ -78,11 +74,11 @@ typedef struct
 
     /* If the GLOB_ALTDIRFUNC flag is set, the following functions
        are used instead of the normal file access functions.  */
-    void (*gl_closedir) __P ((void *));
-    struct dirent *(*gl_readdir) __P ((void *));
-    __ptr_t (*gl_opendir) __P ((const char *));
-    int (*gl_lstat) __P ((const char *, struct stat *));
-    int (*gl_stat) __P ((const char *, struct stat *));
+    void (*gl_closedir) (void *);
+    struct dirent *(*gl_readdir) (void *);
+    __ptr_t (*gl_opendir) (const char *);
+    int (*gl_lstat) (const char *, struct stat *);
+    int (*gl_stat) (const char *, struct stat *);
   } glob_t;
 
 /* Do glob searching for PATTERN, placing results in PGLOB.
@@ -93,12 +89,12 @@ typedef struct
    `glob' returns GLOB_ABEND; if it returns zero, the error is ignored.
    If memory cannot be allocated for PGLOB, GLOB_NOSPACE is returned.
    Otherwise, `glob' returns zero.  */
-extern int glob __P ((const char *__pattern, int __flags,
-		      int (*__errfunc) __P ((const char *, int)),
-		      glob_t *__pglob));
+extern int glob (const char *__pattern, int __flags,
+		 int (*__errfunc) (const char *, int),
+		 glob_t *__pglob);
 
 /* Free storage allocated in PGLOB by a previous `glob' call.  */
-extern void globfree __P ((glob_t *__pglob));
+extern void globfree (glob_t *__pglob);
 
 
 #ifdef	__cplusplus

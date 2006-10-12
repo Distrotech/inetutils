@@ -20,8 +20,8 @@
 
 #ifdef WITH_PAM
 
-static int PAM_conv __P ((int num_msg, const struct pam_message **msg,
-			  struct pam_response **resp, void *appdata_ptr));
+static int PAM_conv (int num_msg, const struct pam_message **msg,
+	 	     struct pam_response **resp, void *appdata_ptr);
 
 /* FIXME: We still have a side effect since we use the global variable
    cred.  A better approach would be to use the pcred parameter

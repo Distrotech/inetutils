@@ -33,39 +33,39 @@
 #include <setjmp.h>
 #include <sys/types.h>
 
-extern void cwd            __P ((const char *));
-extern int  checkuser      __P ((const char *filename, const char *name));
-extern void delete         __P ((const char *));
-extern int  display_file   __P ((const char *name, int code));
-extern void dologout       __P ((int));
-extern void fatal          __P ((const char *));
-extern int  ftpd_pclose    __P ((FILE *));
-extern FILE *ftpd_popen    __P ((char *, const char *));
+extern void cwd            (const char *);
+extern int  checkuser      (const char *filename, const char *name);
+extern void delete         (const char *);
+extern int  display_file   (const char *name, int code);
+extern void dologout       (int);
+extern void fatal          (const char *);
+extern int  ftpd_pclose    (FILE *);
+extern FILE *ftpd_popen    (char *, const char *);
 #if !HAVE_DECL_GETUSERSHELL
-extern char *getusershell  __P ((void));
+extern char *getusershell  (void);
 #endif
-extern void lreply         __P ((int, const char *, ...));
-extern void makedir        __P ((const char *));
-extern void nack           __P ((const char *));
-extern void pass           __P ((const char *));
-extern void passive        __P ((void));
-extern void perror_reply   __P ((int, const char *));
-extern void pwd            __P ((void));
-extern void removedir      __P ((const char *));
-extern void renamecmd      __P ((const char *, const char *));
-extern char *renamefrom    __P ((const char *));
-extern void reply          __P ((int, const char *, ...));
-extern void retrieve       __P ((const char *, const char *));
-extern void send_file_list __P ((const char *));
-extern void setproctitle   __P ((const char *, ...));
-extern void statcmd        __P ((void));
-extern void statfilecmd    __P ((const char *));
-extern void store          __P ((const char *, const char *, int));
-extern void toolong        __P ((int));
-extern char *telnet_fgets  __P ((char *, int, FILE *));
-extern void upper          __P ((char *));
-extern void user           __P ((const char *));
-extern char *sgetsave      __P ((const char *));
+extern void lreply         (int, const char *, ...);
+extern void makedir        (const char *);
+extern void nack           (const char *);
+extern void pass           (const char *);
+extern void passive        (void);
+extern void perror_reply   (int, const char *);
+extern void pwd            (void);
+extern void removedir      (const char *);
+extern void renamecmd      (const char *, const char *);
+extern char *renamefrom    (const char *);
+extern void reply          (int, const char *, ...);
+extern void retrieve       (const char *, const char *);
+extern void send_file_list (const char *);
+extern void setproctitle   (const char *, ...);
+extern void statcmd        (void);
+extern void statfilecmd    (const char *);
+extern void store          (const char *, const char *, int);
+extern void toolong        (int);
+extern char *telnet_fgets  (char *, int, FILE *);
+extern void upper          (char *);
+extern void user           (const char *);
+extern char *sgetsave      (const char *);
 
 /* Exported from ftpd.c.  */
 jmp_buf  errcatch;
@@ -91,8 +91,7 @@ extern char tmpline[];
 extern off_t restart_point;
 
 /* Exported from server_mode.c.  */
-extern int server_mode __P ((const char *pidfile,
-			     struct sockaddr_in *phis_addr));
+extern int server_mode (const char *pidfile, struct sockaddr_in *phis_addr);
 
 /* Credential for the request.  */
 struct credentials
@@ -119,12 +118,12 @@ struct credentials
 };
 
 extern struct credentials cred;
-extern int  sgetcred       __P ((const char *, struct credentials *));
-extern int  auth_user      __P ((const char *, struct credentials *));
-extern int  auth_pass      __P ((const char *, struct credentials *));
+extern int  sgetcred       (const char *, struct credentials *);
+extern int  auth_user      (const char *, struct credentials *);
+extern int  auth_pass      (const char *, struct credentials *);
 
 /* Exported from pam.c */
 #ifdef WITH_PAM
-extern int  pam_user       __P ((const char *, struct credentials *));
-extern int  pam_pass       __P ((const char *, struct credentials *));
+extern int  pam_user       (const char *, struct credentials *);
+extern int  pam_pass       (const char *, struct credentials *);
 #endif

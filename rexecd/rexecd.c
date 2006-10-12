@@ -68,7 +68,9 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <crypt.h>
+#ifdef HAVE_CRYPT_H
+# include <crypt.h>
+#endif
 #include <getopt.h>
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -82,7 +84,7 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 # include <shadow.h>
 #endif
 
-void error __P ((const char *fmt, ...));
+void error (const char *fmt, ...);
 void usage (void);
 
 static const char *short_options = "hV";
@@ -147,7 +149,7 @@ struct sockaddr_in asin = { sizeof (asin), AF_INET };
 struct sockaddr_in asin = { AF_INET };
 #endif
 
-char *getstr __P ((const char *));
+char *getstr (const char *);
 
 static char *
 get_user_password (struct passwd *pwd)

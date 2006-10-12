@@ -49,54 +49,46 @@
  * or implied warranty.
  */
 
-#if	!defined(P)
-#ifdef	__STDC__
-#define	P(x)	x
-#else
-#define	P(x)	()
-#endif
-#endif
-
 #if	defined(AUTHENTICATION)
-TN_Authenticator *findauthenticator P((int, int));
+TN_Authenticator *findauthenticator (int, int);
 
-void auth_init P((char *, int));
-int auth_cmd P((int, char **));
-void auth_request P((void));
-void auth_send P((unsigned char *, int));
-void auth_send_retry P((void));
-void auth_is P((unsigned char *, int));
-void auth_reply P((unsigned char *, int));
-void auth_finished P((TN_Authenticator *, int));
-int auth_wait P((char *));
-void auth_disable_name P((char *));
-void auth_gen_printsub P((unsigned char *, int, unsigned char *, int));
+void auth_init (char *, int);
+int auth_cmd (int, char **);
+void auth_request (void);
+void auth_send (unsigned char *, int);
+void auth_send_retry (void);
+void auth_is (unsigned char *, int);
+void auth_reply (unsigned char *, int);
+void auth_finished (TN_Authenticator *, int);
+int auth_wait (char *);
+void auth_disable_name (char *);
+void auth_gen_printsub (unsigned char *, int, unsigned char *, int);
 
 #ifdef	KRB4
-int kerberos4_init P((TN_Authenticator *, int));
-int kerberos4_send P((TN_Authenticator *));
-void kerberos4_is P((TN_Authenticator *, unsigned char *, int));
-void kerberos4_reply P((TN_Authenticator *, unsigned char *, int));
-int kerberos4_status P((TN_Authenticator *, char *, int));
-void kerberos4_printsub P((unsigned char *, int, unsigned char *, int));
+int kerberos4_init (TN_Authenticator *, int);
+int kerberos4_send (TN_Authenticator *);
+void kerberos4_is (TN_Authenticator *, unsigned char *, int);
+void kerberos4_reply (TN_Authenticator *, unsigned char *, int);
+int kerberos4_status (TN_Authenticator *, char *, int);
+void kerberos4_printsub (unsigned char *, int, unsigned char *, int);
 #endif
 
 #ifdef	KRB5
-int kerberos5_init P((TN_Authenticator *, int));
-int kerberos5_send P((TN_Authenticator *));
-void kerberos5_is P((TN_Authenticator *, unsigned char *, int));
-void kerberos5_reply P((TN_Authenticator *, unsigned char *, int));
-int kerberos5_status P((TN_Authenticator *, char *, int));
-void kerberos5_printsub P((unsigned char *, int, unsigned char *, int));
+int kerberos5_init (TN_Authenticator *, int);
+int kerberos5_send (TN_Authenticator *);
+void kerberos5_is (TN_Authenticator *, unsigned char *, int);
+void kerberos5_reply (TN_Authenticator *, unsigned char *, int);
+int kerberos5_status (TN_Authenticator *, char *, int);
+void kerberos5_printsub (unsigned char *, int, unsigned char *, int);
 #endif
 
 #ifdef	SHISHI
-int krb5shishi_init P((TN_Authenticator *, int));
-int krb5shishi_send P((TN_Authenticator *));
-void krb5shishi_is P((TN_Authenticator *, unsigned char *, int));
-void krb5shishi_reply P((TN_Authenticator *, unsigned char *, int));
-int krb5shishi_status P((TN_Authenticator *, char *, int));
-void krb5shishi_printsub P((unsigned char *, int, unsigned char *, int));
-void krb5shishi_cleanup P((TN_Authenticator *));
+int krb5shishi_init (TN_Authenticator *, int);
+int krb5shishi_send (TN_Authenticator *);
+void krb5shishi_is (TN_Authenticator *, unsigned char *, int);
+void krb5shishi_reply (TN_Authenticator *, unsigned char *, int);
+int krb5shishi_status (TN_Authenticator *, char *, int);
+void krb5shishi_printsub (unsigned char *, int, unsigned char *, int);
+void krb5shishi_cleanup (TN_Authenticator *);
 #endif
 #endif

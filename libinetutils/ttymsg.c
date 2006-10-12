@@ -53,8 +53,8 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 
 #define MAX_ERRBUF 1024
 
-static int fork2 __P ((void));
-static char *normalize_path __P ((char *path, const char *delim));
+static int fork2 (void);
+static char *normalize_path (char *path, const char *delim);
 
 /*
  * Display the contents of a uio structure on a terminal.  Used by wall(1),

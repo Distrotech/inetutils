@@ -20,7 +20,7 @@
 #include <tcpd.h>
 #endif
 
-static void reapchild __P ((int));
+static void reapchild (int);
 
 #define DEFPORT 21
 

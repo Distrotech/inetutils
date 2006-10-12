@@ -64,7 +64,7 @@ auth_encrypt_init(char *local, char *remote, char *name, int server)
 void
 auth_encrypt_user(char *name)
 {
-	extern char *strdup __P ((const char *));
+	extern char *strdup (const char *);
 
 	if (UserNameRequested)
 		free(UserNameRequested);

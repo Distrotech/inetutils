@@ -65,14 +65,14 @@ static char     sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
 #define	SERVICE_NAME	"rcmd"
 
 #if defined(SHISHI)
-int kcmd        __P ((Shishi **, int *, char **, u_short, char *, char **,
-		      char *, int *, char *, char *, Shishi_key **,
-		      struct sockaddr_in *, struct sockaddr_in *, long));
+int kcmd        (Shishi **, int *, char **, u_short, char *, char **,
+		 char *, int *, char *, char *, Shishi_key **,
+		 struct sockaddr_in *, struct sockaddr_in *, long);
 #else
-int kcmd        __P ((int *, char **, u_short, char *, char *, char *, int *,
-		      KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
-		      MSG_DAT *,
-		      struct sockaddr_in *, struct sockaddr_in *, long));
+int kcmd        (int *, char **, u_short, char *, char *, char *, int *,
+		 KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
+		 MSG_DAT *,
+		 struct sockaddr_in *, struct sockaddr_in *, long);
 #endif
 
 /*

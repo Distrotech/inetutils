@@ -107,11 +107,13 @@ char	*terminaltype;
 
 int	SYNCHing;		/* we are in TELNET SYNCH mode */
 struct telnetd_clocks clocks;
+char *program_name;
 
 int
 main (int argc, char **argv)
 {
   int c;
+  program_name = argv[0];
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
     {

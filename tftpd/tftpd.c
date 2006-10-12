@@ -92,7 +92,7 @@ char ackbuf[PKTSIZE];
 struct sockaddr_in from;
 int fromlen;
 
-void tftp __P ((struct tftphdr *, int));
+void tftp (struct tftphdr *, int);
 
 /*
  * Null-terminated directory prefix list for absolute pathname requests and
@@ -110,9 +110,9 @@ static struct dirlist
 static int suppress_naks;
 static int logging;
 
-static const char *errtomsg __P ((int));
-static void nak __P ((int));
-static const char *verifyhost __P ((struct sockaddr_in *));
+static const char *errtomsg (int);
+static void nak (int);
+static const char *verifyhost (struct sockaddr_in *);
 
 static const char *short_options = "hVln";
 static struct option long_options[] = {
@@ -268,16 +268,16 @@ main (int argc, char *argv[])
 }
 
 struct formats;
-int validate_access __P ((char **, int));
-void send_file __P ((struct formats *));
-void recvfile __P ((struct formats *));
+int validate_access (char **, int);
+void send_file (struct formats *);
+void recvfile (struct formats *);
 
 struct formats
 {
   char *f_mode;
-  int (*f_validate) __P ((char **, int));
-  void (*f_send) __P ((struct formats *));
-  void (*f_recv) __P ((struct formats *));
+  int (*f_validate) (char **, int);
+  void (*f_send) (struct formats *);
+  void (*f_recv) (struct formats *);
   int f_convert;
 } formats[] = {
   {"netascii", validate_access, send_file, recvfile, 1},

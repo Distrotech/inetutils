@@ -29,6 +29,6 @@
  *	@(#)extern.h	8.1 (Berkeley) 6/6/93
  */
 
-void	recvfile __P((int, char *, char *));
-void	send_file __P((int, char *, char *));
+void	recvfile (int, char *, char *);
+void	send_file (int, char *, char *);
 extern jmp_buf	toplevel;

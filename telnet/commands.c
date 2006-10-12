@@ -100,14 +100,14 @@ static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
 
 char	*hostname = 0;
 
-extern char *getenv __P((const char *));
+extern char *getenv (const char *);
 
-extern int isprefix __P((register char *s1, register char *s2));
-extern char **genget __P((char *, char **, int ));
-extern int Ambiguous __P(());
+extern int isprefix (register char *s1, register char *s2);
+extern char **genget (char *, char **, int );
+extern int Ambiguous ();
 
-typedef int (*intrtn_t) __P((int, char *[]));
-static int call __P((intrtn_t, ...));
+typedef int (*intrtn_t) (int, char *[]);
+static int call (intrtn_t, ...);
 
 typedef struct {
 	const char	*name;		/* command name */

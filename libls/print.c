@@ -79,11 +79,11 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 # define minor(x)        ((int)((x)&0377))
 #endif
 
-static int	printaname __P((FTSENT *, u_long, u_long));
-static void	printlink __P((FTSENT *));
-static void	printtime __P((time_t));
-static int	printtype __P((u_int));
-static int	compute_columns __P((DISPLAY *, int *));
+static int	printaname (FTSENT *, u_long, u_long);
+static void	printlink (FTSENT *);
+static void	printtime (time_t);
+static int	printtype (u_int);
+static int	compute_columns (DISPLAY *, int *);
 
 #define	IS_NOPRINT(p)	((p)->fts_number == NO_PRINT)
 

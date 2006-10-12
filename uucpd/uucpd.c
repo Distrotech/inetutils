@@ -76,7 +76,9 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <crypt.h>
+#ifdef HAVE_CRYPT_H
+# include <crypt.h>
+#endif
 #ifdef HAVE_TERMIOS_H
 # include <termios.h>
 #endif

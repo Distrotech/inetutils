@@ -243,13 +243,13 @@ extern char *alloca ();
 #undef	GLOB_PERIOD
 #include <glob.h>
 
-static int glob_pattern_p __P ((const char *pattern, int quote));
-static int glob_in_dir __P ((const char *pattern, const char *directory,
-			     int flags,
-			     int (*errfunc) __P ((const char *, int)),
-			     glob_t *pglob));
-static int prefix_array __P ((const char *prefix, char **array, size_t n));
-static int collated_compare __P ((const __ptr_t, const __ptr_t));
+static int glob_pattern_p (const char *pattern, int quote);
+static int glob_in_dir (const char *pattern, const char *directory,
+			int flags,
+			int (*errfunc) (const char *, int),
+			glob_t *pglob);
+static int prefix_array (const char *prefix, char **array, size_t n);
+static int collated_compare (const __ptr_t, const __ptr_t);
 
 /* Do glob searching for PATTERN, placing results in PGLOB.
    The bits defined above may be set in FLAGS.
@@ -263,7 +263,7 @@ int
 glob (pattern, flags, errfunc, pglob)
      const char *pattern;
      int flags;
-     int (*errfunc) __P ((const char *, int));
+     int (*errfunc) (const char *, int);
      glob_t *pglob;
 {
   const char *filename;
@@ -463,7 +463,7 @@ glob (pattern, flags, errfunc, pglob)
 #else
 	  if (dirname == NULL || dirname[0] == '\0')
 	    {
-	      extern char *getlogin __P ((void));
+	      extern char *getlogin (void);
 	      char *name = getlogin ();
 	      if (name != NULL)
 		{
@@ -767,7 +767,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
      const char *pattern;
      const char *directory;
      int flags;
-     int (*errfunc) __P ((const char *, int));
+     int (*errfunc) (const char *, int);
      glob_t *pglob;
 {
   __ptr_t stream;

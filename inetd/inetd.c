@@ -156,7 +156,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #endif
 #define	SIGBLOCK	(sigmask(SIGCHLD)|sigmask(SIGHUP)|sigmask(SIGALRM))
 
-extern char *__progname;
+char *program_name;
 
 int	debug = 0;
 int	nsock, maxsock;
@@ -198,43 +198,43 @@ struct	servtab {
 #define ISMUXPLUS(sep)	((sep)->se_type == MUXPLUS_TYPE)
 
 
-void		chargen_dg __P((int, struct servtab *));
-void		chargen_stream __P((int, struct servtab *));
-void		close_sep __P((struct servtab *));
-void		config __P((int));
-void		daytime_dg __P((int, struct servtab *));
-void		daytime_stream __P((int, struct servtab *));
-void		discard_dg __P((int, struct servtab *));
-void		discard_stream __P((int, struct servtab *));
-void		echo_dg __P((int, struct servtab *));
-void		echo_stream __P((int, struct servtab *));
-void		endconfig __P((FILE *));
-struct servtab *enter __P((struct servtab *));
-void		freeconfig __P((struct servtab *));
-struct servtab *getconfigent __P((FILE *, const char *, size_t *));
-void		machtime_dg __P((int, struct servtab *));
-void		machtime_stream __P((int, struct servtab *));
-char	       *newstr __P((const char *));
-char	       *nextline __P((FILE *));
-void		nextconfig __P((const char *));
-void		print_service __P((const char *, const char *, struct servtab *));
-void		reapchild __P((int));
-void		retry __P((int));
-FILE           *setconfig __P((const char *));
-void		setup __P((struct servtab *));
-void		tcpmux __P((int s, struct servtab *sep));
-void		set_proc_title __P ((char *, int));
-void		initring __P((void));
-long		machtime __P((void));
-void            run_service __P ((int ctrl, struct servtab *sep));
-void            prepenv __P ((int ctrl, struct sockaddr_in sa_client));
+void		chargen_dg (int, struct servtab *);
+void		chargen_stream (int, struct servtab *);
+void		close_sep (struct servtab *);
+void		config (int);
+void		daytime_dg (int, struct servtab *);
+void		daytime_stream (int, struct servtab *);
+void		discard_dg (int, struct servtab *);
+void		discard_stream (int, struct servtab *);
+void		echo_dg (int, struct servtab *);
+void		echo_stream (int, struct servtab *);
+void		endconfig (FILE *);
+struct servtab *enter (struct servtab *);
+void		freeconfig (struct servtab *);
+struct servtab *getconfigent (FILE *, const char *, size_t *);
+void		machtime_dg (int, struct servtab *);
+void		machtime_stream (int, struct servtab *);
+char	       *newstr (const char *);
+char	       *nextline (FILE *);
+void		nextconfig (const char *);
+void		print_service (const char *, const char *, struct servtab *);
+void		reapchild (int);
+void		retry (int);
+FILE           *setconfig (const char *);
+void		setup (struct servtab *);
+void		tcpmux (int s, struct servtab *sep);
+void		set_proc_title (char *, int);
+void		initring (void);
+long		machtime (void);
+void            run_service (int ctrl, struct servtab *sep);
+void            prepenv (int ctrl, struct sockaddr_in sa_client);
 
 struct biltin {
   const char	*bi_service;	/* internally provided service name */
   int	bi_socktype;		/* type of socket supported */
   short	bi_fork;		/* 1 if should fork before call */
   short	bi_wait;		/* 1 if should wait for child */
-  void	(*bi_fn) __P((int s, struct servtab *)); /*function which performs it */
+  void	(*bi_fn) (int s, struct servtab *); /*function which performs it */
 } biltins[] = {
   /* Echo received data */
   { "echo",	SOCK_STREAM,	1, 0,	echo_stream },
@@ -346,13 +346,13 @@ usage (int err)
   if (err != 0)
     {
       fprintf (stderr, "Usage: %s [OPTION...] [CONF-FILE [CONF-DIR]] ...\n",
-	       __progname);
-      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+	       program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
     }
   else
     {
       fprintf (stdout, "Usage: %s [OPTION...] [CONF-FILE [CONF-DIR]] ...\n",
-	       __progname);
+	       program_name);
       puts ("Internet super-server.\n\n\
   -d, --debug               Debug mode\n\
       --environment         Pass local and remote socket information in\n\
@@ -391,9 +391,7 @@ main (int argc, char *argv[], char *envp[])
   int dofork;
   pid_t pid;
 
-#ifndef HAVE___PROGNAME
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   Argv = argv;
   if (envp == 0 || *envp == 0)

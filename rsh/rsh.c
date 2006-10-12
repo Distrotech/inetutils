@@ -106,14 +106,13 @@ int wlen;
  */
 int	rfd2;
 
-char *copyargs __P ((char **));
-RETSIGTYPE sendsig   __P ((int));
-void talk      __P ((int, sigset_t *, pid_t, int));
-void usage     __P ((void));
-void warning   __P ((const char *, ...));
+char *copyargs (char **);
+RETSIGTYPE sendsig   (int);
+void talk      (int, sigset_t *, pid_t, int);
+void usage     (void);
+void warning   (const char *, ...);
 
-/* basename (argv[0]).  NetBSD, linux, & gnu libc all define it.  */
-extern  char *__progname;
+char *program_name;
 
 #ifdef KERBEROS
 #ifdef ENCRYPTION
@@ -147,7 +146,7 @@ pusage (FILE *stream)
 {
   fprintf (stream,
 	  "Usage: %s [-nd%s]%s[-l USER] [USER@]HOST [COMMAND [ARG...]]\n",
-	   __progname,
+	   program_name,
 #if defined(KERBEROS) || defined(SHISHI)
 #ifdef ENCRYPTION
 	    "x", " [-k REALM] "
@@ -206,7 +205,7 @@ help (void)
 static void
 try_help (void)
 {
-  fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+  fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
   exit (1);
 }
 
@@ -229,10 +228,7 @@ main (int argc, char **argv)
   uid_t uid;
   char *args, *host, *user;
 
-#ifndef HAVE___PROGNAME
-  extern char *__progname;
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   asrsh = dflag = nflag = 0;
   host = user = NULL;
@@ -747,7 +743,7 @@ warning (const char * fmt, ...)
 {
   va_list ap;
 
-  fprintf (stderr, "%s: warning, using standard rsh: ", __progname);
+  fprintf (stderr, "%s: warning, using standard rsh: ", program_name);
   va_start (ap, fmt);
   fmt = va_arg (ap, char *);
   vfprintf (stderr, fmt, ap);

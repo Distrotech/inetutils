@@ -262,6 +262,8 @@ rlogind_sigchld (int sig)
 # define ENC_WRITE(c, fd, buf, size, ap) c = write (fd, buf, size)
 #endif
 
+char *program_name;
+
 int
 main (int argc, char *argv[])
 {
@@ -270,6 +272,7 @@ main (int argc, char *argv[])
   int             mode = MODE_INETD;
   int             c;
 
+  program_name = argv[0];
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
     {
@@ -1552,11 +1555,4 @@ usage ()
 {
   printf ("%s\n" "Send bug reports to %s\n", usage_str, PACKAGE_BUGREPORT);
 }
-
-int volatile    _st;
-
-stop ()
-{
-  for (_st = 0; !_st;)
-    _st = _st;
-}
+ 

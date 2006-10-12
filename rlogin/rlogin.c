@@ -175,38 +175,38 @@ struct winsize
   unsigned short ws_ypixel; /* Vertical size. pixels.  */
 };
 
-int   get_window_size __P ((int, struct winsize *));
+int   get_window_size (int, struct winsize *);
 #else
 # define	get_window_size(fd, wp)	ioctl (fd, TIOCGWINSZ, wp)
 #endif
 struct	winsize winsize;
 
-RETSIGTYPE catch_child __P ((int));
-RETSIGTYPE copytochild __P ((int));
-void  doit        __P ((sigset_t *));
-void  done        __P ((int));
-void  echo        __P ((char));
-u_int getescape   __P ((char *));
-RETSIGTYPE lostpeer    __P ((int));
-void  mode        __P ((int));
-void  msg         __P ((const char *));
-RETSIGTYPE oob         __P ((int));
-int   reader      __P ((sigset_t *));
-void  sendwindow  __P ((void));
-void  setsignal   __P ((int));
-int   speed       __P ((int));
-unsigned int speed_translate __P ((unsigned int));
-RETSIGTYPE sigwinch    __P ((int));
-void  stop        __P ((char));
-void  usage       __P ((int));
-void  writer      __P ((void));
-RETSIGTYPE writeroob __P ((int));
+RETSIGTYPE catch_child (int);
+RETSIGTYPE copytochild (int);
+void  doit        (sigset_t *);
+void  done        (int);
+void  echo        (char);
+u_int getescape   (char *);
+RETSIGTYPE lostpeer    (int);
+void  mode        (int);
+void  msg         (const char *);
+RETSIGTYPE oob         (int);
+int   reader      (sigset_t *);
+void  sendwindow  (void);
+void  setsignal   (int);
+int   speed       (int);
+unsigned int speed_translate (unsigned int);
+RETSIGTYPE sigwinch    (int);
+void  stop        (char);
+void  usage       (int);
+void  writer      (void);
+RETSIGTYPE writeroob (int);
 
 #if defined(KERBEROS) || defined(SHISHI)
-void  warning    __P ((const char *, ...));
+void  warning    (const char *, ...);
 #endif
 
-extern sig_t setsig __P ((int, sig_t));
+extern sig_t setsig (int, sig_t);
 
 #if defined(KERBEROS) || defined(SHISHI)
 #define	OPTIONS	"8EKde:k:l:xhV"
@@ -231,6 +231,8 @@ static struct option long_options [] =
   { NULL, 0, 0, 0}
 };
 
+char *program_name;
+
 int
 main(int argc, char *argv[])
 {
@@ -242,10 +244,7 @@ main(int argc, char *argv[])
   int term_speed;
   char *host, *user, term[1024];
 
-#ifndef HAVE___PROGNAME
-  extern char *__progname;
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   dflag = 0;
   host = user = NULL;

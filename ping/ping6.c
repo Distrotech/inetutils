@@ -76,6 +76,8 @@ static int ping_echo (int argc, char **argv);
 static void show_usage (void);
 static int send_echo (PING *ping);
 
+char *program_name;
+
 int
 main (int argc, char **argv)
 {
@@ -87,6 +89,7 @@ main (int argc, char **argv)
   u_char *patptr = NULL;
   int is_root = getuid () == 0;
 
+  program_name = argv[0];
   if ((ping = ping_init (0, getpid ())) == NULL)
     {
       fprintf (stderr, "can't init ping: %s\n", strerror (errno));

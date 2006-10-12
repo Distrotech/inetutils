@@ -101,6 +101,8 @@ static int send_echo (PING *ping);
 
 #define MIN_USER_INTERVAL (200000/PING_PRECISION)
 
+char *program_name;
+
 int
 main (int argc, char **argv)
 {
@@ -115,7 +117,9 @@ main (int argc, char **argv)
   size_t count = 0;
   int socket_type = 0;
   size_t interval = 0;
- 
+
+  program_name = argv[0];
+  
   if (getuid () == 0)
     is_root = true;
 
