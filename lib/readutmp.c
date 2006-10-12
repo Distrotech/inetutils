@@ -1,5 +1,7 @@
 /* GNU's read utmp module.
-   Copyright (C) 1992-2001, 2003, 2004, 2005 Free Software Foundation, Inc.
+
+   Copyright (C) 1992-2001, 2003, 2004, 2005, 2006 Free Software
+   Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,9 +19,7 @@
 
 /* Written by jla; revised by djm */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include "readutmp.h"
 
@@ -69,10 +69,10 @@ extract_trimmed_name (const STRUCT_UTMP *ut)
 static inline bool
 desirable_utmp_entry (STRUCT_UTMP const *u, int options)
 {
-  return ! (options & READ_UTMP_CHECK_PIDS
-	    && IS_USER_PROCESS (u)
-	    && (UT_PID (u) <= 0
-		|| (kill (UT_PID (u), 0) < 0 && errno == ESRCH)));
+  return  (options & READ_UTMP_CHECK_PIDS) == 0
+           || (IS_USER_PROCESS (u)
+	       && !(UT_PID (u) <= 0
+		    || (kill (UT_PID (u), 0) < 0 && errno == ESRCH)));
 }
 
 /* Read the utmp entries corresponding to file FILE into freshly-

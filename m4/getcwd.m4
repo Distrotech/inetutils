@@ -1,6 +1,6 @@
 # getcwd.m4 - check for working getcwd that is compatible with glibc
 
-# Copyright (C) 2001, 2003, 2004, 2005 Free Software Foundation, Inc.
+# Copyright (C) 2001, 2003, 2004, 2005, 2006 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -9,8 +9,6 @@
 
 AC_DEFUN([gl_FUNC_GETCWD_NULL],
   [
-   AC_LIBSOURCES([getcwd.c, getcwd.h])
-
    AC_CACHE_CHECK([whether getcwd (NULL, 0) allocates memory for result],
      [gl_cv_func_getcwd_null],
      [AC_TRY_RUN(
@@ -40,12 +38,15 @@ AC_DEFUN([gl_FUNC_GETCWD],
 [
   AC_REQUIRE([gl_FUNC_GETCWD_NULL])
 
+  gl_abort_bug=no
   case $gl_cv_func_getcwd_null in
-  yes) gl_FUNC_GETCWD_PATH_MAX;;
+  yes)
+    gl_FUNC_GETCWD_PATH_MAX
+    gl_FUNC_GETCWD_ABORT_BUG([gl_abort_bug=yes]);;
   esac
 
-  case $gl_cv_func_getcwd_null,$gl_cv_func_getcwd_path_max in
-  yes,yes) ;;
+  case $gl_cv_func_getcwd_null,$gl_cv_func_getcwd_path_max,$gl_abort_bug in
+  yes,yes,no) ;;
   *)
     AC_LIBOBJ([getcwd])
     AC_DEFINE([__GETCWD_PREFIX], [[rpl_]],
@@ -58,7 +59,6 @@ AC_DEFUN([gl_FUNC_GETCWD],
 AC_DEFUN([gl_PREREQ_GETCWD],
 [
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
-  AC_REQUIRE([AC_HEADER_DIRENT])
   AC_REQUIRE([gl_CHECK_TYPE_STRUCT_DIRENT_D_INO])
   :
 ])

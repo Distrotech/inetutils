@@ -1,4 +1,5 @@
-# Copyright (C) 2004 Free Software Foundation, Inc.
+# Copyright (C) 2004-2006 Free Software Foundation, Inc.
+#
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
 # Public License, this file may be distributed as part of a program
@@ -14,13 +15,16 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --aux-dir=. --macro-prefix=gl alloca alloca-opt allocsa error exit exitfail extensions free getcwd getline getopt getpass gettext gettext-h getusershell malloc memcmp memcpy memmove mempcpy memset minmax obstack poll readutmp realloc regex restrict setenv size_max snprintf stdbool stdint stdio-safer strcase strchrnul strdup strerror strndup strnlen sysexits unistd-safer unlocked-io vasnprintf vsnprintf xalloc xalloc-die xgetcwd xsize
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=lib --m4-base=m4 --doc-base=doc --aux-dir=. --no-libtool --macro-prefix=gl alloca alloca-opt allocsa error exit exitfail extensions free getcwd getline getopt getpass gettext gettext-h getusershell malloc memcmp memcpy memmove mempcpy memset minmax obstack poll readutmp realloc regex restrict setenv size_max snprintf stdbool stdint stdio-safer strcase strchrnul strdup strerror strndup strnlen sysexits unistd-safer unlocked-io vasnprintf vsnprintf xalloc xalloc-die xgetcwd xsize
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
+gl_LOCAL_DIR([])
 gl_MODULES([alloca alloca-opt allocsa error exit exitfail extensions free getcwd getline getopt getpass gettext gettext-h getusershell malloc memcmp memcpy memmove mempcpy memset minmax obstack poll readutmp realloc regex restrict setenv size_max snprintf stdbool stdint stdio-safer strcase strchrnul strdup strerror strndup strnlen sysexits unistd-safer unlocked-io vasnprintf vsnprintf xalloc xalloc-die xgetcwd xsize])
 gl_AVOID([])
 gl_SOURCE_BASE([lib])
 gl_M4_BASE([m4])
+gl_DOC_BASE([doc])
 gl_TESTS_BASE([tests])
 gl_LIB([libgnu])
+gl_MAKEFILE_NAME([])
 gl_MACRO_PREFIX([gl])

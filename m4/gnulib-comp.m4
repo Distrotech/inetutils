@@ -1,4 +1,5 @@
-# Copyright (C) 2004 Free Software Foundation, Inc.
+# Copyright (C) 2004-2006 Free Software Foundation, Inc.
+#
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
 # Public License, this file may be distributed as part of a program
@@ -18,20 +19,30 @@
 # any checks for libraries, header files, types and library functions.
 AC_DEFUN([gl_EARLY],
 [
+  m4_pattern_forbid([^gl_[A-Z]])dnl the gnulib macro namespace
+  m4_pattern_allow([^gl_ES$])dnl a valid locale name
+  AC_REQUIRE([AC_PROG_RANLIB])
   AC_REQUIRE([AC_GNU_SOURCE])
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+  AC_REQUIRE([gl_LOCK_EARLY])
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
 # "Check for header files, types and library functions".
 AC_DEFUN([gl_INIT],
 [
-AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
+  AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
+  gl_cond_libtool=false
+  gl_libdeps=
+  gl_ltlibdeps=
+  gl_source_base='lib'
   gl_FUNC_ALLOCA
   gl_ALLOCSA
+  gl_CHECK_TYPE_STRUCT_DIRENT_D_INO
   gl_ERROR
   gl_EXITFAIL
   dnl gl_USE_SYSTEM_EXTENSIONS must be added quite early to configure.ac.
+  gl_FOPEN_SAFER
   gl_FUNC_FREE
   gl_FUNC_GETCWD
   gl_FUNC_GETDELIM
@@ -39,7 +50,8 @@ AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
   gl_GETOPT
   gl_FUNC_GETPASS
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
-  gl_PREREQ_GETUSERSHELL
+  AM_GNU_GETTEXT_VERSION([0.15])
+  gl_FUNC_GETUSERSHELL
   AC_FUNC_MALLOC
   gl_MBCHAR
   gl_MBITER
@@ -50,18 +62,18 @@ AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
   gl_FUNC_MEMPCPY
   gl_FUNC_MEMSET
   gl_MINMAX
-  gl_OBSTACK
+  AC_FUNC_OBSTACK
+  dnl Note: AC_FUNC_OBSTACK does AC_LIBSOURCES([obstack.h, obstack.c]).
   gl_FUNC_POLL
   gl_READUTMP
   AC_FUNC_REALLOC
   gl_REGEX
-  gl_C_RESTRICT
   gt_FUNC_SETENV
   gl_SIZE_MAX
   gl_FUNC_SNPRINTF
+  gt_TYPE_SSIZE_T
   AM_STDBOOL_H
   gl_STDINT_H
-  gl_STDIO_SAFER
   gl_STRCASE
   gl_FUNC_STRCHRNUL
   gl_FUNC_STRDUP
@@ -69,13 +81,19 @@ AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
   gl_FUNC_STRNDUP
   gl_FUNC_STRNLEN
   gl_SYSEXITS
+  gl_HEADER_UNISTD
   gl_UNISTD_SAFER
   gl_FUNC_GLIBC_UNLOCKED_IO
   gl_FUNC_VASNPRINTF
   gl_FUNC_VSNPRINTF
+  gl_FUNC_WCWIDTH
   gl_XALLOC
   gl_XGETCWD
   gl_XSIZE
+  LIBGNU_LIBDEPS="$gl_libdeps"
+  AC_SUBST([LIBGNU_LIBDEPS])
+  LIBGNU_LTLIBDEPS="$gl_ltlibdeps"
+  AC_SUBST([LIBGNU_LTLIBDEPS])
 ])
 
 # This macro records the list of files which have been installed by
@@ -173,12 +191,14 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/vasnprintf.h
   lib/vsnprintf.c
   lib/vsnprintf.h
+  lib/wcwidth.h
   lib/xalloc-die.c
   lib/xalloc.h
   lib/xgetcwd.c
   lib/xgetcwd.h
   lib/xmalloc.c
   lib/xsize.h
+  m4/absolute-header.m4
   m4/alloca.m4
   m4/allocsa.m4
   m4/codeset.m4
@@ -189,6 +209,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/exitfail.m4
   m4/extensions.m4
   m4/free.m4
+  m4/getcwd-abort-bug.m4
   m4/getcwd-path-max.m4
   m4/getcwd.m4
   m4/getdelim.m4
@@ -203,14 +224,14 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/intdiv0.m4
   m4/intmax.m4
   m4/intmax_t.m4
+  m4/inttypes-h.m4
   m4/inttypes-pri.m4
-  m4/inttypes.m4
   m4/inttypes_h.m4
-  m4/isc-posix.m4
   m4/lcmessage.m4
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
+  m4/lock.m4
   m4/longdouble.m4
   m4/longlong.m4
   m4/mbchar.m4
@@ -224,7 +245,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/memset.m4
   m4/minmax.m4
   m4/nls.m4
-  m4/obstack.m4
   m4/onceonly_2_57.m4
   m4/po.m4
   m4/poll.m4
@@ -232,11 +252,11 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/progtest.m4
   m4/readutmp.m4
   m4/regex.m4
-  m4/restrict.m4
   m4/setenv.m4
   m4/signed.m4
   m4/size_max.m4
   m4/snprintf.m4
+  m4/ssize_t.m4
   m4/stdbool.m4
   m4/stdint.m4
   m4/stdint_h.m4
@@ -245,17 +265,19 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strchrnul.m4
   m4/strdup.m4
   m4/strerror.m4
-  m4/strerror_r.m4
   m4/strndup.m4
   m4/strnlen.m4
   m4/sysexits.m4
   m4/uintmax_t.m4
   m4/ulonglong.m4
   m4/unistd-safer.m4
+  m4/unistd_h.m4
   m4/unlocked-io.m4
   m4/vasnprintf.m4
+  m4/visibility.m4
   m4/vsnprintf.m4
   m4/wchar_t.m4
+  m4/wcwidth.m4
   m4/wint_t.m4
   m4/xalloc.m4
   m4/xgetcwd.m4
