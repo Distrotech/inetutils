@@ -32,9 +32,11 @@
 # include <strings.h>
 #endif
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include "ifconfig.h"
@@ -48,13 +50,13 @@
   if (!err)								\
     {									\
       fprintf (stderr, "%s: `%s' is not a valid address\n",		\
-	       __progname, addr);					\
+	       program_name, addr);					\
       return -1;							\
     }									\
   err = ioctl (sfd, SIOCSIF##type, ifr);				\
   if (err < 0)								\
     {									\
-      fprintf (stderr, "%s: %s failed: %s\n", __progname,		\
+      fprintf (stderr, "%s: %s failed: %s\n", program_name,		\
                "SIOCSIF" #type, strerror (errno));			\
       return -1;							\
     }
@@ -69,7 +71,7 @@ set_address (int sfd, struct ifreq *ifr, char *address)
 {
 #ifndef SIOCSIFADDR
   fprintf (stderr, "%s: Don't know how to set an interface address on this system.\n",
-	  __progname);
+	  program_name);
   return -1;
 #else
   char *addr;
@@ -77,14 +79,14 @@ set_address (int sfd, struct ifreq *ifr, char *address)
 
   if (! host)
     {
-      fprintf (stderr, "%s: can not resolve `%s': ", __progname,
+      fprintf (stderr, "%s: can not resolve `%s': ", program_name,
                address);
       herror (NULL);
       return -1;
     }
   if (host->h_addrtype != AF_INET)
     {
-      fprintf (stderr, "%s: `%s' refers to an unknown address type", __progname,
+      fprintf (stderr, "%s: `%s' refers to an unknown address type", program_name,
 	       address);
       return -1;
     }
@@ -106,7 +108,7 @@ set_netmask (int sfd, struct ifreq *ifr, char *netmask)
 {
 #ifndef SIOCSIFNETMASK
   printf ("%s: Don't know how to set an interface netmask on this system.\n",
-	  __progname);
+	  program_name);
   return -1;
 #else
 
@@ -123,7 +125,7 @@ set_dstaddr (int sfd, struct ifreq *ifr, char *dstaddr)
 {
 #ifndef SIOCSIFDSTADDR
   printf ("%s: Don't know how to set an interface peer address on this system.\n",
-	  __progname);
+	  program_name);
   return -1;
 #else
   SIOCSIF(DSTADDR, dstaddr)
@@ -139,7 +141,7 @@ set_brdaddr (int sfd, struct ifreq *ifr, char *brdaddr)
 {
 #ifndef SIOCSIFBRDADDR
   printf ("%s: Don't know how to set an interface broadcast address on this system.\n",
-	  __progname);
+	  program_name);
   return -1;
 #else
   SIOCSIF(BRDADDR, brdaddr)
@@ -155,7 +157,7 @@ set_mtu (int sfd, struct ifreq *ifr, int mtu)
 {
 #ifndef SIOCSIFMTU
   printf ("%s: Don't know how to set the interface mtu on this system.\n",
-	  __progname);
+	  program_name);
   return -1;
 #else
   int err = 0;
@@ -165,7 +167,7 @@ set_mtu (int sfd, struct ifreq *ifr, int mtu)
   if (err < 0)
     {
       fprintf (stderr, "%s: SIOCSIFMTU failed: %s\n",
-	       __progname, strerror (errno));
+	       program_name, strerror (errno));
       return -1;
     }
   if (verbose)
@@ -180,7 +182,7 @@ set_metric (int sfd, struct ifreq *ifr, int metric)
 {
 #ifndef SIOCSIFMETRIC
   printf ("%s: Don't know how to set the interface metric on this system.\n",
-	  __progname);
+	  program_name);
   return -1;
 #else
   int err = 0;
@@ -190,7 +192,7 @@ set_metric (int sfd, struct ifreq *ifr, int metric)
   if (err < 0)
     {
       fprintf (stderr, "%s: SIOCSIFMETRIC failed: %s\n",
-	       __progname, strerror (errno));
+	       program_name, strerror (errno));
       return -1;
     }
   if (verbose)

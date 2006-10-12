@@ -22,6 +22,7 @@
 #ifndef IFCONFIG_OPTIONS_H
 #define IFCONFIG_OPTIONS_H
 
+#include <sys/types.h>
 #include <sys/socket.h>
 
 struct ifconfig *parse_opt_new_ifs (char *name);
@@ -60,7 +61,7 @@ struct format
 extern struct format formats[];
 
 /* The name of the program, as invoked on the command line.  */
-extern char *__progname;
+extern char *program_name;
 
 /* Array of interfaces mentioned on the command line.  */
 extern struct ifconfig *ifs;

@@ -142,22 +142,22 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
     {
     case EXPECT_BROADCAST:
       fprintf (stderr, "%s: option `broadcast' requires an argument\n",
-	       __progname);
+	       program_name);
       break;
 
     case EXPECT_NETMASK:
       fprintf (stderr, "%s: option `netmask' requires an argument\n",
-	       __progname);
+	       program_name);
       break;
 
     case EXPECT_METRIC:
       fprintf (stderr, "%s: option `metric' requires an argument\n",
-	       __progname);
+	       program_name);
       break;
 
     case EXPECT_MTU:
       fprintf (stderr, "%s: option `mtu' requires an argument\n",
-	       __progname);
+	       program_name);
       break;
 
     case EXPECT_NOTHING:
@@ -177,7 +177,7 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
     {
 #ifndef SIOCSIFTXQLEN
       printf ("%s: Don't know how to set the txqlen on this system.\n",
-	      __progname);
+	      program_name);
       return -1;
 #else
       int err = 0;
@@ -187,7 +187,7 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
       if (err < 0)
 	{
 	  fprintf (stderr, "%s: SIOCSIFTXQLEN failed: %s\n",
-		   __progname, strerror (errno));
+		   program_name, strerror (errno));
 	  return -1;
 	}
       if (verbose)

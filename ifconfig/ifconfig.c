@@ -66,7 +66,7 @@ main(int argc, char *argv[])
   if (sfd < 0)
     {
       fprintf (stderr, "%s: socket error: %s\n",
-		   __progname, strerror (errno));
+		   program_name, strerror (errno));
       exit (1);
     }
 

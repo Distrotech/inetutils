@@ -173,13 +173,13 @@ usage (int err)
 {
   if (err != EXIT_SUCCESS)
     {
-      fprintf (stderr, "Usage: %s [OPTION]...%s\n", __progname,
+      fprintf (stderr, "Usage: %s [OPTION]...%s\n", program_name,
 	       system_help ? " [SYSTEM OPTION]..." : "");
-      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION]...%s\n", __progname,
+      fprintf (stdout, "Usage: %s [OPTION]...%s\n", program_name,
 	       system_help ? " [SYSTEM OPTION]..." : "");
       puts ("Configure network interfaces.\n\n\
 Options are:\n\
@@ -223,7 +223,7 @@ parse_opt_new_ifs (char *name)
   if (!ifs)
     {
       fprintf (stderr, "%s: can't get memory for interface "
-	       "configuration: %s\n", __progname, strerror (errno));
+	       "configuration: %s\n", program_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   ifp = &ifs[nifs - 1];
@@ -239,14 +239,14 @@ parse_opt_set_##field (struct ifconfig *ifp, char *addr)	\
   if (!ifp)							\
     {								\
       fprintf (stderr, "%s: no interface specified for " #fname	\
-	       " `%s'\n", __progname, addr);			\
+	       " `%s'\n", program_name, addr);			\
       usage (EXIT_FAILURE);					\
     }								\
   if (ifp->valid & IF_VALID_##fvalid)				\
     {								\
       fprintf (stderr, "%s: only one " #fname			\
 	       " allowed for interface `%s'\n",			\
-	       __progname, ifp->name);				\
+	       program_name, ifp->name);				\
       usage (EXIT_FAILURE);					\
     }								\
   ifp->field = addr;						\
@@ -266,14 +266,14 @@ parse_opt_set_##field (struct ifconfig *ifp, char *arg)		\
   if (!ifp)							\
     {								\
       fprintf (stderr, "%s: no interface specified for " #fname	\
-	       " `%s'\n", __progname, arg);			\
+	       " `%s'\n", program_name, arg);			\
       usage (EXIT_FAILURE);					\
     }								\
   if (ifp->valid & IF_VALID_##fvalid)				\
     {								\
       fprintf (stderr, "%s: only one " #fname			\
 	       " allowed for interface `%s'\n",			\
-	       __progname, ifp->name);				\
+	       program_name, ifp->name);				\
       usage (EXIT_FAILURE);					\
     }								\
   ifp->field =  strtol (arg, &end, 0);				\
@@ -281,7 +281,7 @@ parse_opt_set_##field (struct ifconfig *ifp, char *arg)		\
     {								\
       fprintf (stderr, "%s: mtu value `%s' for interface `%s' "	\
               "is not a number.\n",				\
-	      __progname, optarg, ifp->name);			\
+	      program_name, optarg, ifp->name);			\
       exit (EXIT_FAILURE);					\
     }								\
   ifp->valid |= IF_VALID_##fvalid;				\
@@ -296,7 +296,7 @@ parse_opt_set_af (struct ifconfig *ifp, char *af)
   if (!ifp)
     {
       fprintf (stderr, "%s: no interface specified for address"
-	       " family `%s'\n", __progname, af);
+	       " family `%s'\n", program_name, af);
       usage (EXIT_FAILURE);
     }
 
@@ -305,7 +305,7 @@ parse_opt_set_af (struct ifconfig *ifp, char *af)
   else
     {
       fprintf (stderr, "%s: unknown address family `%s' for interface `%s'"
-	       " is not a number.\n", __progname, optarg, ifp->name);
+	       " is not a number.\n", program_name, optarg, ifp->name);
       exit (EXIT_FAILURE);
     }
   ifp->valid |= IF_VALID_AF;
@@ -348,15 +348,15 @@ parse_opt_finalize (struct ifconfig *ifp)
     }
 }
 
+char *program_name;
+
 void
 parse_opt (int argc, char *argv[])
 {
   int option;
   struct ifconfig *ifp = ifs;
 
-#ifndef HAVE___PROGNAME
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   parse_opt_set_default_format (NULL);
 
@@ -446,7 +446,7 @@ parse_opt (int argc, char *argv[])
 	  if (!ifs)
 	    {
 	      fprintf (stderr, "%s: can't get memory for interface "
-		       "configuration: %s\n", __progname, strerror (errno));
+		       "configuration: %s\n", program_name, strerror (errno));
 	      exit (EXIT_FAILURE);
 	    }
 	  ifp = &ifs[nifs - 1];

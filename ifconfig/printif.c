@@ -46,9 +46,11 @@
 #endif
 
 #include <ctype.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include "ifconfig.h"
 
@@ -416,7 +418,7 @@ fh_error (format_data_t form, int argc, char *argv[])
 void
 fh_progname (format_data_t form, int argc, char *argv[])
 {
-  put_string (form, __progname);
+  put_string (form, program_name);
 }
 
 void
@@ -451,7 +453,7 @@ fh_index (format_data_t form, int argc, char *argv[])
   if (indx == 0)
     {
       fprintf (stderr, "%s: No index number found for interface `%s': %s\n",
-	       __progname, form->name, strerror (errno));
+	       program_name, form->name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   *column += printf ("%i", indx);
@@ -476,7 +478,7 @@ fh_addr (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFADDR, form->ifr) < 0)
     {
       fprintf (stderr, "%s: SIOCGIFADDR failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
+	       program_name, form->ifr->ifr_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   else
@@ -505,7 +507,7 @@ fh_netmask (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFNETMASK, form->ifr) < 0)
     {
       fprintf (stderr, "%s: SIOCGIFNETMASK failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
+	       program_name, form->ifr->ifr_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   else
@@ -545,7 +547,7 @@ fh_brdaddr (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFBRDADDR, form->ifr) < 0)
     {
       fprintf (stderr, "%s: SIOCGIFBRDADDR failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
+	       program_name, form->ifr->ifr_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   else
@@ -585,7 +587,7 @@ fh_dstaddr (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFDSTADDR, form->ifr) < 0)
     {
       fprintf (stderr, "%s: SIOCGIFDSTADDR failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
+	       program_name, form->ifr->ifr_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   else
@@ -614,7 +616,7 @@ fh_mtu (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFMTU, form->ifr) < 0)
     {
       fprintf (stderr, "%s: SIOCGIFMTU failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
+	       program_name, form->ifr->ifr_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   else
@@ -643,7 +645,7 @@ fh_metric (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) < 0)
     {
       fprintf (stderr, "%s: SIOCGIFMETRIC failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
+	       program_name, form->ifr->ifr_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   else
@@ -672,7 +674,7 @@ fh_flags (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
     {
       fprintf (stderr, "%s: SIOCGIFFLAGS failed for interface `%s': %s\n",
-	       __progname, form->ifr->ifr_name, strerror (errno));
+	       program_name, form->ifr->ifr_name, strerror (errno));
       exit (EXIT_FAILURE);
     }
   else

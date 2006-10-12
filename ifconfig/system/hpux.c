@@ -145,17 +145,17 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
     {
     case EXPECT_BROADCAST:
       fprintf (stderr, "%s: option `broadcast' requires an argument\n",
-	       __progname);
+	       program_name);
       break;
 
     case EXPECT_NETMASK:
       fprintf (stderr, "%s: option `netmask' requires an argument\n",
-	       __progname);
+	       program_name);
       break;
 
     case EXPECT_METRIC:
       fprintf (stderr, "%s: option `metric' requires an argument\n",
-	       __progname);
+	       program_name);
       break;
 
     case EXPECT_NAME:
