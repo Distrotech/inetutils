@@ -21,6 +21,7 @@
 # include <config.h>
 #endif
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <signal.h>
