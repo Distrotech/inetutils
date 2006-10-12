@@ -28,9 +28,10 @@ man_MANS = inetd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) \
+INCLUDES = -I$(top_srcdir)/lib -I../lib 
+AM_CPPFLAGS = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) \
            $(PATHDEF_INETDPID)
 
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu
 
 EXTRA_DIST = $(man_MANS)

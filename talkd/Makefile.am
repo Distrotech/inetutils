@@ -35,8 +35,9 @@ man_MANS = talkd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_DEV) -I${top_srcdir}/libinetutils
+AM_CPPFLAGS = $(PATHDEF_DEV) 
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I${top_srcdir}/libinetutils
 
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu
 
 EXTRA_DIST = $(man_MANS)

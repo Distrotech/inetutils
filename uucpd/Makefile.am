@@ -29,6 +29,6 @@ LIBCRYPT = @LIBCRYPT@
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_UUCICO) $(PATHDEF_TTY)
-
-LDADD = -L../libinetutils -linetutils $(LIBUTIL) $(LIBCRYPT)
+AM_CPPFLAGS = $(PATHDEF_UUCICO) $(PATHDEF_TTY)
+INCLUDES = -I$(top_srcdir)/lib -I../lib 
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) $(LIBCRYPT)

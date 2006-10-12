@@ -18,6 +18,7 @@
 
 bin_PROGRAMS = @logger_BUILD@
 
+INCLUDES = -I$(top_srcdir)/lib -I../lib 
 LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
 
 EXTRA_PROGRAMS = logger

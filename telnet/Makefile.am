@@ -27,13 +27,13 @@ noinst_HEADERS = defines.h externs.h fdset.h general.h ring.h types.h
 
 man_MANS = telnet.1
 
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/libinetutils
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 AM_CPPFLAGS=-DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 
-LDADD = -L../lib -lgnu -L../libinetutils -L../libtelnet -linetutils	\
-	-ltelnet $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
+LDADD = -L../libinetutils -L../libtelnet -linetutils	\
+	-ltelnet -L../lib -lgnu $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
 
 EXTRA_DIST = $(man_MANS)

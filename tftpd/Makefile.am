@@ -20,7 +20,7 @@ inetdaemondir = @inetdaemondir@
 
 inetdaemon_PROGRAMS = @tftpd_BUILD@
 
-INCLUDES = -I$(top_srcdir)/headers
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib 
 
 EXTRA_PROGRAMS = tftpd
 
@@ -28,6 +28,6 @@ tftpd_SOURCES = tftpd.c
 
 man_MANS = tftpd.8
 
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu
 
 EXTRA_DIST = $(man_MANS)

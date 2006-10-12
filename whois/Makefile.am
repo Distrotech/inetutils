@@ -10,7 +10,8 @@ whois_DEPENDENCIES = config.o
 
 CLEANFILES = config.c
 
-INCLUDES = -DSYSCONFDIR=\"$(sysconfdir)\" -DDATADIR=\"$(datadir)\"
+INCLUDES = -I$(top_srcdir)/lib -I../lib 
+AM_CPPFLAGS = -DSYSCONFDIR=\"$(sysconfdir)\" -DDATADIR=\"$(datadir)\"
 
 inetdatadir = $(datadir)/inet
 
@@ -18,7 +19,7 @@ inetdata_DATA = whois-servers
 
 EXTRA_DIST = whois-servers
 
-LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet
+LDADD = -L../libinetutils -L../libtelnet -linetutils -ltelnet -L../lib -lgnu
 
 whois_LDADD = config.o $(LDADD)
 

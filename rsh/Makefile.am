@@ -26,9 +26,11 @@ man_MANS = rsh.1
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/headers $(PATHDEF_RLOGIN)
+AM_CPPFLAGS = $(PATHDEF_RLOGIN)
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib 
 
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu \
+         $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)
 

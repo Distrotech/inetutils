@@ -16,7 +16,7 @@
 # to the Free Software Foundation, Inc., 51 Franklin Street,
 # Fifth Floor, Boston, MA 02110-1301 USA.
 
-INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib
 
 bin_PROGRAMS = @tftp_BUILD@
 
@@ -28,6 +28,6 @@ noinst_HEADERS = extern.h
 
 man_MANS = tftp.1
 
-LDADD = -L../lib -lgnu -L$(top_builddir)/libinetutils -linetutils
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu
 
 EXTRA_DIST = $(man_MANS)

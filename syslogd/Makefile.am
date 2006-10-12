@@ -28,10 +28,11 @@ man_MANS = syslog.conf.5 syslogd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/libinetutils \
-           $(PATHDEF_LOG) $(PATHDEF_KLOG) $(PATHDEF_LOGCONF) \
-           $(PATHDEF_LOGPID) $(PATHDEF_CONSOLE)
+AM_CPPFLAGS = $(PATHDEF_LOG) $(PATHDEF_KLOG) $(PATHDEF_LOGCONF) \
+              $(PATHDEF_LOGPID) $(PATHDEF_CONSOLE) $(PATHDEF_UTMP)
 
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils
+INCLUDES = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
+
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu
 
 EXTRA_DIST = $(man_MANS)

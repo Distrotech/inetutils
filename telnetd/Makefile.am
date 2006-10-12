@@ -29,17 +29,17 @@ man_MANS = telnetd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN) \
-	   -I$(top_srcdir) -I$(top_srcdir)/lib -I$(top_srcdir)/libinetutils\
+AM_CPPFLAGS =  $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN) 
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils\
            @INCAUTH@
 
 LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 LIBUTIL = @LIBUTIL@
 
-LDADD = -L../lib -lgnu \
-	-L../libinetutils -linetutils \
+LDADD = -L../libinetutils -linetutils \
         -L../libtelnet -ltelnet \
+        -L../lib -lgnu \
 	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT) @LIBAUTH@ 
 
 EXTRA_DIST = $(man_MANS)

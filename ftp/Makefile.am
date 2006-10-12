@@ -28,10 +28,10 @@ man_MANS = ftp.1
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib\
-           $(PATHDEF_TMP) $(PATHDEF_BSHELL)
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils 
+AM_CPPFLAGS = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
 READLINE=@LIBREADLINE@ @LIBTERMCAP@
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBGLOB) $(READLINE)
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBGLOB) $(READLINE)
 
 EXTRA_DIST = $(man_MANS)

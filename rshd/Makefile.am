@@ -28,9 +28,10 @@ man_MANS = rshd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils \
-           $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
+AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
 
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+LDADD = -L../libinetutils -linetutils  -L../lib -lgnu \
+        $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)

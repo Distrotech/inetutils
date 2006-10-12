@@ -24,8 +24,8 @@ rlogin_SOURCES = rlogin.c
 
 man_MANS = rlogin.1
 
-INCLUDES = -I$(top_srcdir)/headers
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib 
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 EXTRA_DIST = $(man_MANS)
 

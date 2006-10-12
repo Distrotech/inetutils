@@ -28,10 +28,11 @@ man_MANS = rexecd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
+AM_CPPFLAGS = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
+INCLUDES=-I$(top_srcdir)/lib -I../lib 
 
 LIBCRYPT = @LIBCRYPT@
 
-LDADD = -L../lib -lgnu -L../libinetutils -linetutils $(LIBCRYPT)
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBCRYPT)
 
 EXTRA_DIST = $(man_MANS)

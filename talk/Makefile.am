@@ -26,8 +26,8 @@ noinst_HEADERS = talk.h talk_ctl.h
 
 man_MANS = talk.1
 
-INCLUDES = -I$(top_srcdir)/libinetutils $(NCURSES_INCLUDE)
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils $(NCURSES_INCLUDE)
 
-LDADD = $(LIBCURSES) -L../libinetutils -linetutils
+LDADD = $(LIBCURSES) -L../libinetutils -linetutils -L../lib -lgnu
 
 EXTRA_DIST = $(man_MANS)

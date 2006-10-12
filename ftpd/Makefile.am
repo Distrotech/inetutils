@@ -31,8 +31,8 @@ man_MANS = ftpd.8
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/libinetutils \
-           $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils 
+AM_CPPFLAGS = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
            $(PATHDEF_FTPLOGINMESG) $(PATHDEF_FTPCHROOT) $(PATHDEF_FTPDPID) \
            $(PATHDEF_DEVNULL)  $(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)
 
@@ -41,7 +41,7 @@ LIBWRAP = @LIBWRAP@
 LIBPAM = @LIBPAM@
 LIBLS = @LIBLS@
 
-LDADD = -L../lib -lgnu \
-	-L../libinetutils -linetutils $(LIBLS) $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu \
+          $(LIBLS) $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
 
 EXTRA_DIST = $(man_MANS) ftpcmd.c
