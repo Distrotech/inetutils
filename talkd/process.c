@@ -18,6 +18,7 @@
    Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #include <intalkd.h>
+#include <readutmp.h>
 
 int find_user (char *name, char *tty);
 void do_announce (CTL_MSG *mp, CTL_RESPONSE *rp);
@@ -159,30 +160,12 @@ do_announce (CTL_MSG *mp, CTL_RESPONSE *rp)
     }
 }
 
-#ifdef HAVE_UTMP_H
-# include <utmp.h>
-#endif
-
-#ifdef UTMPX
-# ifdef HAVE_UTMPX_H
-#  include <utmpx.h>
-# endif
-typedef struct utmpx UTMP;
-# define SETUTENT() setutxent()
-# define GETUTENT() getutxent()
-# define ENDUTENT() endutxent()
-#else
-typedef struct utmp UTMP;
-# define SETUTENT() setutent()
-# define GETUTENT() getutent()
-# define ENDUTENT() endutent()
-#endif
-
 /* Search utmp for the local user */
 int
 find_user (char *name, char *tty)
 {
-  UTMP *uptr;
+  STRUCT_UTMP *utmpbuf, *uptr;
+  size_t utmp_count;
   int status;
   struct stat statb;
   char ftty[sizeof (PATH_DEV) + sizeof (uptr->ut_line)];
@@ -194,15 +177,11 @@ find_user (char *name, char *tty)
   status = NOT_HERE;
   strcpy(ftty, PATH_DEV);
 
-  SETUTENT ();
+  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf, READ_UTMP_CHECK_PIDS);
 
-  while ((uptr = GETUTENT ()) != NULL)
+  for (uptr = utmpbuf; uptr < utmpbuf + utmp_count; uptr++)
     {
-#ifdef USER_PROCESS
-      if (uptr->ut_type != USER_PROCESS)
-	continue;
-#endif
-      if (!strncmp (uptr->ut_name, name, sizeof(uptr->ut_name)))
+      if (!strncmp (UT_USER (uptr), name, sizeof (UT_USER (uptr))))
 	{
 	  if (notty)
 	    {
@@ -237,7 +216,7 @@ find_user (char *name, char *tty)
 	}
     }
 
-  ENDUTENT ();
+  free (utmpbuf);
   return status;
 }
 

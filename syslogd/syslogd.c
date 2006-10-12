@@ -104,25 +104,6 @@ static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
 #include <unistd.h>
 #include <getopt.h>
 
-#ifdef HAVE_UTMP_H
-# include <utmp.h>
-#endif
-
-#ifdef UTMPX
-# ifdef HAVE_UTMPX_H
-#  include <utmpx.h>
-# endif
-typedef struct utmpx UTMP;
-# define SETUTENT() setutxent()
-# define GETUTENT() getutxent()
-# define ENDUTENT() endutxent()
-#else
-typedef struct utmp UTMP;
-# define SETUTENT() setutent()
-# define GETUTENT() getutent()
-# define ENDUTENT() endutent()
-#endif
-
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #else
@@ -136,6 +117,7 @@ typedef struct utmp UTMP;
 #endif
 
 #include <libinetutils.h>
+#include <readutmp.h>
 
 /* A mask of all facilities mentioned explicitly in the configuration file
  *
@@ -277,43 +259,43 @@ time_t  now;                    /* Time use for mark and forward supending.  */
 int force_sync;                 /* GNU/Linux behaviour to sync on every line.
 				   This off by default. Set to 1 to enable.  */
 
-extern int waitdaemon __P ((int nochdir, int noclose, int maxwait));
-extern char *__progname;
+char *program_name;
+extern int waitdaemon (int nochdir, int noclose, int maxwait);
 
-void cfline __P ((const char *, struct filed *));
-const char *cvthname __P ((struct sockaddr_in *));
-int decode __P ((const char *, CODE *));
-void die __P ((int));
-void domark __P ((int));
-void fprintlog __P ((struct filed *, const char *, int, const char *));
-void init __P ((int));
-void logerror __P ((const char *));
-void logmsg __P ((int, const char *, const char *, int));
-void printline __P ((const char *, const char *));
-void printsys __P ((const char *));
-char *ttymsg __P ((struct iovec *, int, char *, int));
-static void usage __P ((int));
-void wallmsg __P ((struct filed *, struct iovec *));
-char **crunch_list __P ((char **oldlist, char *list));
-char *textpri __P ((int pri));
-void dbg_toggle __P ((int));
-static void dbg_printf __P ((const char *, ...));
-void trigger_restart __P ((int));
-static void add_funix __P ((const char *path));
-static int create_unix_socket __P ((const char *path));
-static int create_inet_socket __P ((void));
+void cfline (const char *, struct filed *);
+const char *cvthname (struct sockaddr_in *);
+int decode (const char *, CODE *);
+void die (int);
+void domark (int);
+void fprintlog (struct filed *, const char *, int, const char *);
+void init (int);
+void logerror (const char *);
+void logmsg (int, const char *, const char *, int);
+void printline (const char *, const char *);
+void printsys (const char *);
+char *ttymsg (struct iovec *, int, char *, int);
+static void usage (int);
+void wallmsg (struct filed *, struct iovec *);
+char **crunch_list (char **oldlist, char *list);
+char *textpri (int pri);
+void dbg_toggle (int);
+static void dbg_printf (const char *, ...);
+void trigger_restart (int);
+static void add_funix (const char *path);
+static int create_unix_socket (const char *path);
+static int create_inet_socket (void);
 
 static void
 usage (int err)
 {
   if (err != 0)
     {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", __progname);
-      fprintf (stderr, "Try `%s --help' for more information.\n", __progname);
+      fprintf (stderr, "Usage: %s [OPTION] ...\n", program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
     }
   else
     {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", __progname);
+      fprintf (stdout, "Usage: %s [OPTION] ...\n", program_name);
       puts ("Log system messages.\n\n\
   -f, --rcfile=FILE  Override configuration file (default: " PATH_LOGCONF ")\n\
       --pidfile=FILE Override pidfile (default: " PATH_LOGPID ")\n\
@@ -382,9 +364,7 @@ main (int argc, char *argv[])
   struct pollfd *fdarray;
   unsigned long nfds = 0;
 
-#ifndef HAVE___PROGNAME
-  __progname = argv[0];
-#endif
+  program_name = argv[0];
 
   /* Initiliaze PATH_LOG as the first element of the unix sockets array.  */
   add_funix (PATH_LOG);
@@ -491,7 +471,7 @@ main (int argc, char *argv[])
       if (ppid < 0)
 	{
 	  fprintf (stderr, "%s: could not become daemon: %s\n",
-		   __progname, strerror (errno));
+		   program_name, strerror (errno));
 	  exit (1);
 	}
     }
@@ -506,7 +486,7 @@ main (int argc, char *argv[])
   if (LocalHostName == NULL)
     {
       fprintf (stderr, "%s: can't get local host name: %s\n",
-	       __progname, strerror (errno));
+	       program_name, strerror (errno));
       exit (2);
     }
   /* Get the domainname.  */
@@ -554,7 +534,7 @@ main (int argc, char *argv[])
   if (fdarray == NULL)
     {
       fprintf (stderr, "%s: can't allocate fd table: %s\n",
-	       __progname, strerror (errno));
+	       program_name, strerror (errno));
       exit (2);
     }
 
@@ -800,7 +780,7 @@ add_funix (const char *name)
   if (funix == NULL)
     {
       fprintf (stderr, "%s: cannot allocate space for unix sockets: %s\n",
-	       __progname, strerror (errno));
+	       program_name, strerror (errno));
       exit (1);
     }
   funix[nfunix].name = name;
@@ -896,7 +876,7 @@ crunch_list (char **oldlist, char *list)
   if (oldlist == NULL)
     {
       fprintf (stderr, "%s: can't allocate memory: %s",
-	       __progname, strerror (errno));
+	       program_name, strerror (errno));
       exit (1);
     }
 
@@ -913,7 +893,7 @@ crunch_list (char **oldlist, char *list)
       if (oldlist[count] == NULL)
 	{
 	  fprintf (stderr, "%s: can't allocate memory: %s",
-		   __progname, strerror (errno));
+		   program_name, strerror (errno));
 	  exit (1);
 	}
       strncpy (oldlist[count], p, q - p);
@@ -925,7 +905,7 @@ crunch_list (char **oldlist, char *list)
   if (oldlist[count] == NULL)
     {
       fprintf (stderr, "%s: can't allocate memory: %s",
-	       __progname, strerror (errno));
+	       program_name, strerror (errno));
       exit(1);
     }
   strcpy (oldlist[count], p);
@@ -1405,7 +1385,8 @@ void
 wallmsg (struct filed *f, struct iovec *iov)
 {
   static int reenter;	/* avoid calling ourselves */
-  UTMP *utp;
+  STRUCT_UTMP *utmpbuf, *utp;
+  size_t utmp_count;
   int i;
   char *p;
   char line[sizeof(utp->ut_line) + 1];
@@ -1413,17 +1394,10 @@ wallmsg (struct filed *f, struct iovec *iov)
   if (reenter++)
     return;
 
-  SETUTENT();
+  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf, READ_UTMP_CHECK_PIDS);
 
-  while ((utp = GETUTENT ()) != NULL)
+  for (utp = utmpbuf; utp < utmpbuf + utmp_count; utp++)
     {
-      /* We only want interrested to send to actual
-	 process, USER_PROCESS where somebody might listen. */
-      if (utp->ut_user[0] == '\0'
-	  || utp->ut_line[0] == '\0'
-	  || utp->ut_type != USER_PROCESS)
-	continue;
-
       strncpy (line, utp->ut_line, sizeof (utp->ut_line));
       line[sizeof (utp->ut_line)] = '\0';
       if (f->f_type == F_WALL)
@@ -1441,8 +1415,8 @@ wallmsg (struct filed *f, struct iovec *iov)
 	}
       /* Should we send the message to this user? */
       for (i = 0; i < f->f_un.f_user.f_nusers; i++)
-	if (!strncmp (f->f_un.f_user.f_unames[i], utp->ut_user,
-		      sizeof (utp->ut_user)))
+	if (!strncmp (f->f_un.f_user.f_unames[i], UT_USER (utp),
+		      sizeof (UT_USER (utp))))
 	  {
 	    p = ttymsg (iov, IOVCNT, line, TTYMSGTIME);
 	    if (p != NULL)
@@ -1453,7 +1427,7 @@ wallmsg (struct filed *f, struct iovec *iov)
 	    break;
 	  }
     }
-  ENDUTENT ();
+  free (utmpbuf);
   reenter = 0;
 }
 
@@ -1585,7 +1559,7 @@ die (int signo)
   Initialized = was_initialized;
   if (signo)
     {
-      dbg_printf ("%s: exiting on signal %d\n", __progname, signo);
+      dbg_printf ("%s: exiting on signal %d\n", program_name, signo);
       snprintf (buf, sizeof (buf), "exiting on signal %d", signo);
       errno = 0;
       logerror (buf);
