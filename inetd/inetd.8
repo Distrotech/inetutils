@@ -27,7 +27,7 @@
 .\"
 .\"     @(#)inetd.8	8.4 (Berkeley) 6/1/94
 .\"
-.Dd June 1, 1994
+.Dd October 21, 2006
 .Dt INETD 8
 .Os BSD 4.4
 .Sh NAME
@@ -88,8 +88,8 @@ Shows the help.
 Upon execution,
 .Nm inetd
 reads its configuration information from a configuration
-pathnames on the command line, by default,
-.Pa /etc/inetd.conf and /etc/initd.d .
+file on the command line, by default,
+.Pa /etc/inetd.conf and /etc/inetd.d .
 If the configuration pathname is a directory, all the files in the
 directory are read like a configuration file. All of the configuration
 files are read and merged.
