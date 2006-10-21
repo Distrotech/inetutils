@@ -102,7 +102,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -111,7 +111,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+# include <sys/wait.h>
 #endif
 #ifdef TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -124,7 +124,7 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 # endif
 #endif
 #ifdef HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
+# include <sys/resource.h>
 #endif
 
 #include <netinet/in.h>
@@ -143,51 +143,52 @@ static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
 #include <unistd.h>
 #include <getopt.h>
 #ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
+# include <sys/select.h>
 #endif
 #include <grp.h>
 
-#define	TOOMANY		40		/* don't start more than TOOMANY */
-#define	CNT_INTVL	60		/* servers in CNT_INTVL sec. */
-#define	RETRYTIME	(60*10)		/* retry after bind or server fail */
+#define TOOMANY		40	/* don't start more than TOOMANY */
+#define CNT_INTVL	60	/* servers in CNT_INTVL sec. */
+#define RETRYTIME	(60*10)	/* retry after bind or server fail */
 
 #ifndef SIGCHLD
-#define SIGCHLD	SIGCLD
+# define SIGCHLD	SIGCLD
 #endif
-#define	SIGBLOCK	(sigmask(SIGCHLD)|sigmask(SIGHUP)|sigmask(SIGALRM))
+#define SIGBLOCK	(sigmask(SIGCHLD)|sigmask(SIGHUP)|sigmask(SIGALRM))
 
 char *program_name;
 
-int	debug = 0;
-int	nsock, maxsock;
-fd_set	allsock;
-int	options;
-int	timingout;
-int	toomany = TOOMANY;
+int debug = 0;
+int nsock, maxsock;
+fd_set allsock;
+int options;
+int timingout;
+int toomany = TOOMANY;
 
-struct	servtab {
-  char	*se_service;		/* name of service */
-  int	se_socktype;		/* type of socket to use */
-  char	*se_proto;		/* protocol used */
-  pid_t	se_wait;		/* single threaded server */
-  short	se_checked;		/* looked at during merge */
-  char	*se_user;		/* user name to run as */
+struct servtab
+{
+  char *se_service;		/* name of service */
+  int se_socktype;		/* type of socket to use */
+  char *se_proto;		/* protocol used */
+  pid_t se_wait;		/* single threaded server */
+  short se_checked;		/* looked at during merge */
+  char *se_user;		/* user name to run as */
   struct biltin *se_bi;		/* if built-in, description */
-  char	*se_server;		/* server program */
-  char	**se_argv;	        /* program arguments */
-  size_t se_argc;               /* number of arguments */
-  int	se_fd;			/* open descriptor */
-  int	se_type;		/* type */
+  char *se_server;		/* server program */
+  char **se_argv;		/* program arguments */
+  size_t se_argc;		/* number of arguments */
+  int se_fd;			/* open descriptor */
+  int se_type;			/* type */
   sa_family_t se_family;	/* address family of the socket */
-  char	se_v4mapped;		/* 1 = accept v4mapped connection, 0 = don't */
+  char se_v4mapped;		/* 1 = accept v4mapped connection, 0 = don't */
 #ifdef IPV6
-  struct sockaddr_storage se_ctrladdr;/* bound address */
+  struct sockaddr_storage se_ctrladdr;	/* bound address */
 #else
-  struct sockaddr_in se_ctrladdr;/* bound address */
+  struct sockaddr_in se_ctrladdr;	/* bound address */
 #endif
-  int	se_count;		/* number started since se_time */
-  struct	timeval se_time;	/* start of se_count */
-  struct	servtab *se_next;
+  int se_count;			/* number started since se_time */
+  struct timeval se_time;	/* start of se_count */
+  struct servtab *se_next;
 } *servtab;
 
 #define NORM_TYPE	0
@@ -198,76 +199,84 @@ struct	servtab {
 #define ISMUXPLUS(sep)	((sep)->se_type == MUXPLUS_TYPE)
 
 
-void		chargen_dg (int, struct servtab *);
-void		chargen_stream (int, struct servtab *);
-void		close_sep (struct servtab *);
-void		config (int);
-void		daytime_dg (int, struct servtab *);
-void		daytime_stream (int, struct servtab *);
-void		discard_dg (int, struct servtab *);
-void		discard_stream (int, struct servtab *);
-void		echo_dg (int, struct servtab *);
-void		echo_stream (int, struct servtab *);
-void		endconfig (FILE *);
+void chargen_dg (int, struct servtab *);
+void chargen_stream (int, struct servtab *);
+void close_sep (struct servtab *);
+void config (int);
+void daytime_dg (int, struct servtab *);
+void daytime_stream (int, struct servtab *);
+void discard_dg (int, struct servtab *);
+void discard_stream (int, struct servtab *);
+void echo_dg (int, struct servtab *);
+void echo_stream (int, struct servtab *);
+void endconfig (FILE *);
 struct servtab *enter (struct servtab *);
-void		freeconfig (struct servtab *);
+void freeconfig (struct servtab *);
 struct servtab *getconfigent (FILE *, const char *, size_t *);
-void		machtime_dg (int, struct servtab *);
-void		machtime_stream (int, struct servtab *);
-char	       *newstr (const char *);
-char	       *nextline (FILE *);
-void		nextconfig (const char *);
-void		print_service (const char *, const char *, struct servtab *);
-void		reapchild (int);
-void		retry (int);
-FILE           *setconfig (const char *);
-void		setup (struct servtab *);
-void		tcpmux (int s, struct servtab *sep);
-void		set_proc_title (char *, int);
-void		initring (void);
-long		machtime (void);
-void            run_service (int ctrl, struct servtab *sep);
-void            prepenv (int ctrl, struct sockaddr_in sa_client);
+void machtime_dg (int, struct servtab *);
+void machtime_stream (int, struct servtab *);
+char *newstr (const char *);
+char *nextline (FILE *);
+void nextconfig (const char *);
+void print_service (const char *, const char *, struct servtab *);
+void reapchild (int);
+void retry (int);
+FILE *setconfig (const char *);
+void setup (struct servtab *);
+void tcpmux (int s, struct servtab *sep);
+void set_proc_title (char *, int);
+void initring (void);
+long machtime (void);
+void run_service (int ctrl, struct servtab *sep);
+void prepenv (int ctrl, struct sockaddr_in sa_client);
 
-struct biltin {
-  const char	*bi_service;	/* internally provided service name */
-  int	bi_socktype;		/* type of socket supported */
-  short	bi_fork;		/* 1 if should fork before call */
-  short	bi_wait;		/* 1 if should wait for child */
-  void	(*bi_fn) (int s, struct servtab *); /*function which performs it */
-} biltins[] = {
+struct biltin
+{
+  const char *bi_service;	/* internally provided service name */
+  int bi_socktype;		/* type of socket supported */
+  short bi_fork;		/* 1 if should fork before call */
+  short bi_wait;		/* 1 if should wait for child */
+  void (*bi_fn) (int s, struct servtab *);	/*function which performs it */
+} biltins[] =
+{
   /* Echo received data */
-  { "echo",	SOCK_STREAM,	1, 0,	echo_stream },
-  { "echo",	SOCK_DGRAM,	0, 0,	echo_dg },
-
-  /* Internet /dev/null */
-  { "discard",	SOCK_STREAM,	1, 0,	discard_stream },
-  { "discard",	SOCK_DGRAM,	0, 0,	discard_dg },
-
-  /* Return 32 bit time since 1900 */
-  { "time",	SOCK_STREAM,	0, 0,	machtime_stream },
-  { "time",	SOCK_DGRAM,	0, 0,	machtime_dg },
-
-  /* Return human-readable time */
-  { "daytime",	SOCK_STREAM,	0, 0,	daytime_stream },
-  { "daytime",	SOCK_DGRAM,	0, 0,	daytime_dg },
-
-  /* Familiar character generator */
-  { "chargen",	SOCK_STREAM,	1, 0,	chargen_stream },
-  { "chargen",	SOCK_DGRAM,	0, 0,	chargen_dg },
-
-  { "tcpmux",	SOCK_STREAM,	1, 0,	tcpmux },
-
-  { NULL, 0, 0, 0, NULL }
+  {
+  "echo", SOCK_STREAM, 1, 0, echo_stream},
+  {
+  "echo", SOCK_DGRAM, 0, 0, echo_dg},
+    /* Internet /dev/null */
+  {
+  "discard", SOCK_STREAM, 1, 0, discard_stream},
+  {
+  "discard", SOCK_DGRAM, 0, 0, discard_dg},
+    /* Return 32 bit time since 1900 */
+  {
+  "time", SOCK_STREAM, 0, 0, machtime_stream},
+  {
+  "time", SOCK_DGRAM, 0, 0, machtime_dg},
+    /* Return human-readable time */
+  {
+  "daytime", SOCK_STREAM, 0, 0, daytime_stream},
+  {
+  "daytime", SOCK_DGRAM, 0, 0, daytime_dg},
+    /* Familiar character generator */
+  {
+  "chargen", SOCK_STREAM, 1, 0, chargen_stream},
+  {
+  "chargen", SOCK_DGRAM, 0, 0, chargen_dg},
+  {
+  "tcpmux", SOCK_STREAM, 1, 0, tcpmux},
+  {
+  NULL, 0, 0, 0, NULL}
 };
 
 #define NUMINT	(sizeof(intab) / sizeof(struct inent))
-char	**Argv;
-char 	*LastArg;
+char **Argv;
+char *LastArg;
 
 char **config_files;
-
 
+
 /* Signal handling */
 
 #if defined(HAVE_SIGACTION)
@@ -285,17 +294,17 @@ signal_set_handler (int signo, RETSIGTYPE (*handler) ())
 {
 #if defined(HAVE_SIGACTION)
   struct sigaction sa;
-  memset ((char *)&sa, 0, sizeof(sa));
+  memset ((char *) &sa, 0, sizeof (sa));
   sigemptyset (&sa.sa_mask);
   sigaddset (&sa.sa_mask, signo);
-#ifdef SA_RESTART
+# ifdef SA_RESTART
   sa.sa_flags = SA_RESTART;
-#endif
+# endif
   sa.sa_handler = handler;
   sigaction (signo, &sa, NULL);
 #elif defined(HAVE_SIGVEC)
   struct sigvec sv;
-  memset (&sv, 0, sizeof(sv));
+  memset (&sv, 0, sizeof (sv));
   sv.sv_mask = SIGBLOCK;
   sv.sv_handler = handler;
   sigvec (signo, &sv, NULL);
@@ -305,11 +314,11 @@ signal_set_handler (int signo, RETSIGTYPE (*handler) ())
 }
 
 void
-signal_block (SIGSTATUS *old_status)
+signal_block (SIGSTATUS * old_status)
 {
 #ifdef HAVE_SIGACTION
   sigset_t sigs;
-  
+
   sigemptyset (&sigs);
   sigaddset (&sigs, SIGCHLD);
   sigaddset (&sigs, SIGHUP);
@@ -323,7 +332,7 @@ signal_block (SIGSTATUS *old_status)
 }
 
 void
-signal_unblock (SIGSTATUS *status)
+signal_unblock (SIGSTATUS * status)
 {
 #ifdef HAVE_SIGACTION
   if (status)
@@ -338,8 +347,8 @@ signal_unblock (SIGSTATUS *status)
   sigsetmask (status ? *status : 0);
 #endif
 }
-
 
+
 static void
 usage (int err)
 {
@@ -347,7 +356,8 @@ usage (int err)
     {
       fprintf (stderr, "Usage: %s [OPTION...] [CONF-FILE [CONF-DIR]] ...\n",
 	       program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n",
+	       program_name);
     }
   else
     {
@@ -368,19 +378,18 @@ usage (int err)
   exit (err);
 }
 
-static int env_option;      /* Set environment variables */
-static int resolve_option;  /* Resolve IP addresses */
+static int env_option;		/* Set environment variables */
+static int resolve_option;	/* Resolve IP addresses */
 
 static const char *short_options = "dR:V";
-static struct option long_options[] =
-{
-  { "debug", no_argument, 0, 'd' },
-  { "rate", required_argument, 0, 'R' },
-  { "help", no_argument, 0, '&' },
-  { "version", no_argument, 0, 'V' },
-  { "resolve", no_argument, &resolve_option, 1 },
-  { "environment", no_argument, &env_option, 1 },
-  { 0, 0, 0, 0 }
+static struct option long_options[] = {
+  {"debug", no_argument, 0, 'd'},
+  {"rate", required_argument, 0, 'R'},
+  {"help", no_argument, 0, '&'},
+  {"version", no_argument, 0, 'V'},
+  {"resolve", no_argument, &resolve_option, 1},
+  {"environment", no_argument, &env_option, 1},
+  {0, 0, 0, 0}
 };
 
 int
@@ -405,37 +414,36 @@ main (int argc, char *argv[], char *envp[])
     {
       switch (option)
 	{
-	case 'd': /* Debug.  */
+	case 'd':		/* Debug.  */
 	  debug = 1;
 	  options |= SO_DEBUG;
 	  break;
 
-	case 'R': /* Invocation rate.  */
+	case 'R':		/* Invocation rate.  */
 	  {
 	    char *p;
 	    int number;
 	    number = strtol (optarg, &p, 0);
 	    if (number < 1 || *p)
 	      syslog (LOG_ERR,
-		      "-R %s: bad value for service invocation rate",
-		      optarg);
+		      "-R %s: bad value for service invocation rate", optarg);
 	    else
 	      toomany = number;
 	    break;
 	  }
 
-	case '&': /* Usage.  */
+	case '&':		/* Usage.  */
 	  usage (0);
 	  /* Not reached.  */
 
-	case 'V': /* Version.  */
+	case 'V':		/* Version.  */
 	  printf ("inetd (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
 	  exit (0);
 	  /* Not reached.  */
 
 	case 0:
 	  break;
-	  
+
 	case '?':
 	default:
 	  usage (1);
@@ -445,7 +453,7 @@ main (int argc, char *argv[], char *envp[])
 
   if (resolve_option)
     env_option = 1;
-  
+
   if (optind < argc)
     {
       int i;
@@ -473,8 +481,8 @@ main (int argc, char *argv[], char *envp[])
     FILE *fp = fopen (PATH_INETDPID, "w");
     if (fp != NULL)
       {
-        fprintf (fp, "%d\n", getpid ());
-        fclose (fp);
+	fprintf (fp, "%d\n", getpid ());
+	fclose (fp);
       }
     else
       syslog (LOG_CRIT, "can't open %s: %s\n", PATH_INETDPID,
@@ -489,12 +497,12 @@ main (int argc, char *argv[], char *envp[])
 
   {
     /* space for daemons to overwrite environment for ps */
-#define	DUMMYSIZE	100
+#define DUMMYSIZE	100
     char dummy[DUMMYSIZE];
 
-    memset(dummy, 'x', DUMMYSIZE - 1);
+    memset (dummy, 'x', DUMMYSIZE - 1);
     dummy[DUMMYSIZE - 1] = '\0';
-    setenv("inetd_dummy", dummy, 1);
+    setenv ("inetd_dummy", dummy, 1);
   }
 
   for (;;)
@@ -506,7 +514,7 @@ main (int argc, char *argv[], char *envp[])
 	{
 	  SIGSTATUS stat;
 	  sigstatus_empty (stat);
-	  
+
 	  signal_block (NULL);
 	  while (nsock == 0)
 	    inetd_pause (stat);
@@ -530,8 +538,8 @@ main (int argc, char *argv[], char *envp[])
 	      {
 		struct sockaddr_in sa_client;
 		socklen_t len = sizeof (sa_client);
-		
-		ctrl = accept (sep->se_fd, (struct sockaddr *)&sa_client,
+
+		ctrl = accept (sep->se_fd, (struct sockaddr *) &sa_client,
 			       &len);
 		if (debug)
 		  fprintf (stderr, "accept, ctrl %d\n", ctrl);
@@ -681,7 +689,7 @@ reapchild (int signo)
   pid_t pid;
   struct servtab *sep;
 
-  signo; /* shutup gcc */
+  signo;			/* shutup gcc */
   for (;;)
     {
 #ifdef HAVE_WAIT3
@@ -716,7 +724,7 @@ config (int signo)
   struct stat stats;
   struct servtab *sep;
 
-  signo; /* Shutup gcc.  */
+  signo;			/* Shutup gcc.  */
 
   for (sep = servtab; sep; sep = sep->se_next)
     sep->se_checked = 0;
@@ -741,9 +749,10 @@ config (int signo)
 					   + strlen (dp->d_name) + 2, 1);
 		      if (path)
 			{
-			  sprintf (path,"%s/%s", config_files[i], dp->d_name);
+			  sprintf (path, "%s/%s", config_files[i],
+				   dp->d_name);
 			  if (stat (path, &stats) == 0
-			      && S_ISREG(stats.st_mode))
+			      && S_ISREG (stats.st_mode))
 			    {
 			      nextconfig (path);
 			    }
@@ -762,7 +771,7 @@ config (int signo)
 	{
 	  if (signo == 0)
 	    fprintf (stderr, "inetd: %s, %s\n",
-		     config_files[i], strerror(errno));
+		     config_files[i], strerror (errno));
 	  else
 	    syslog (LOG_ERR, "%s: %m", config_files[i]);
 	}
@@ -777,11 +786,11 @@ nextconfig (const char *file)
 #endif
   struct servtab *sep, *cp, **sepp;
   struct passwd *pwd;
-  FILE * fconfig;
+  FILE *fconfig;
   SIGSTATUS sigstatus;
-  
+
   size_t line = 0;
-  
+
   fconfig = setconfig (file);
   if (!fconfig)
     {
@@ -792,15 +801,15 @@ nextconfig (const char *file)
     {
       if ((pwd = getpwnam (cp->se_user)) == NULL)
 	{
-	  syslog(LOG_ERR, "%s/%s: No such user '%s', service ignored",
-		 cp->se_service, cp->se_proto, cp->se_user);
+	  syslog (LOG_ERR, "%s/%s: No such user '%s', service ignored",
+		  cp->se_service, cp->se_proto, cp->se_user);
 	  continue;
 	}
       /* Checking/Removing duplicates */
       for (sep = servtab; sep; sep = sep->se_next)
 	if (strcmp (sep->se_service, cp->se_service) == 0
 	    && strcmp (sep->se_proto, cp->se_proto) == 0
-	    && ISMUX(sep) == ISMUX (cp))
+	    && ISMUX (sep) == ISMUX (cp))
 	  break;
       if (sep != 0)
 	{
@@ -811,15 +820,14 @@ nextconfig (const char *file)
 	   * it unless the config file explicitly says don't
 	   * wait.
 	   */
-	  if (cp->se_bi == 0
-	      && (sep->se_wait == 1 || cp->se_wait == 0))
+	  if (cp->se_bi == 0 && (sep->se_wait == 1 || cp->se_wait == 0))
 	    sep->se_wait = cp->se_wait;
 #define SWAP(a, b) { char *c = a; a = b; b = c; }
 	  if (cp->se_user)
-	    SWAP(sep->se_user, cp->se_user);
+	    SWAP (sep->se_user, cp->se_user);
 	  if (cp->se_server)
-	    SWAP(sep->se_server, cp->se_server);
-	  argcv_free(sep->se_argc, sep->se_argv);
+	    SWAP (sep->se_server, cp->se_server);
+	  argcv_free (sep->se_argc, sep->se_argv);
 	  sep->se_argc = cp->se_argc;
 	  sep->se_argv = cp->se_argv;
 	  cp->se_argc = 0;
@@ -841,8 +849,8 @@ nextconfig (const char *file)
 	  sep->se_fd = -1;
 	  continue;
 	}
-#ifndef IPV6 /* FIXME: This code is moved to setup() for IPV6, which is
-	        wrong */
+#ifndef IPV6			/* FIXME: This code is moved to setup() for IPV6, which is
+				   wrong */
       sp = getservbyname (sep->se_service, sep->se_proto);
       if (sp == 0)
 	{
@@ -892,7 +900,7 @@ nextconfig (const char *file)
       if (debug)
 	print_service (file, "FREE", sep);
       freeconfig (sep);
-      free ((char *)sep);
+      free ((char *) sep);
     }
   signal_unblock (&sigstatus);
 }
@@ -902,7 +910,7 @@ retry (int signo)
 {
   struct servtab *sep;
 
-  signo; /* shutup gcc */
+  signo;			/* shutup gcc */
   timingout = 0;
   for (sep = servtab; sep; sep = sep->se_next)
     if (sep->se_fd == -1 && !ISMUX (sep))
@@ -919,26 +927,27 @@ setup (struct servtab *sep)
   struct addrinfo *result, hints;
   struct protoent *proto;
 
- tryagain:
+tryagain:
 #endif
   sep->se_fd = socket (sep->se_family, sep->se_socktype, 0);
   if (sep->se_fd < 0)
     {
 #ifdef IPV6
       /* If we don't support creating AF_INET6 sockets, create AF_INET
-	 sockets.  */
-      if (errno == EAFNOSUPPORT && sep->se_family == AF_INET6 && sep->se_v4mapped)
+         sockets.  */
+      if (errno == EAFNOSUPPORT && sep->se_family == AF_INET6
+	  && sep->se_v4mapped)
 	{
 	  /* Fall back to IPv6 silently.  */
 	  sep->se_family = AF_INET;
 	  goto tryagain;
 	}
 #endif
-      
+
       if (debug)
 	fprintf (stderr, "socket failed on %s/%s: %s\n",
 		 sep->se_service, sep->se_proto, strerror (errno));
-      syslog(LOG_ERR, "%s/%s: socket: %m", sep->se_service, sep->se_proto);
+      syslog (LOG_ERR, "%s/%s: socket: %m", sep->se_service, sep->se_proto);
       return;
     }
 
@@ -950,7 +959,7 @@ setup (struct servtab *sep)
     proto = getprotobyname ("udp");
   else
     proto = getprotobyname (sep->se_proto);
-   
+
   if (!proto)
     {
       syslog (LOG_ERR, "%s: Unknown protocol", sep->se_proto);
@@ -958,7 +967,7 @@ setup (struct servtab *sep)
       sep->se_fd = -1;
       return;
     }
-  
+
   memset (&hints, 0, sizeof (hints));
 
   hints.ai_flags = AI_PASSIVE;
@@ -983,10 +992,10 @@ setup (struct servtab *sep)
 	errmsg = strerror (errno);
       else
 	errmsg = gai_strerror (err);
-      
+
       syslog (LOG_ERR, "%s/%s: getaddrinfo: %s",
 	      sep->se_service, sep->se_proto, errmsg);
-      
+
       close (sep->se_fd);
       sep->se_fd = -1;
       return;
@@ -1000,30 +1009,30 @@ setup (struct servtab *sep)
     {
       if (sep->se_v4mapped)
 	err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
-			  (char *)&off, sizeof(off));
+			  (char *) &off, sizeof (off));
       else
 	err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
-			  (char *)&on, sizeof(on));
-      
+			  (char *) &on, sizeof (on));
+
       if (err < 0)
 	syslog (LOG_ERR, "setsockopt (IPV6_V6ONLY): %m");
     }
 #endif
-  
+
   if (strncmp (sep->se_proto, "tcp", 3) == 0 && (options & SO_DEBUG))
     {
-      err = setsockopt(sep->se_fd, SOL_SOCKET, SO_DEBUG,
-		       (char *)&on, sizeof (on));
+      err = setsockopt (sep->se_fd, SOL_SOCKET, SO_DEBUG,
+			(char *) &on, sizeof (on));
       if (err < 0)
 	syslog (LOG_ERR, "setsockopt (SO_DEBUG): %m");
     }
-  
-  err = setsockopt(sep->se_fd, SOL_SOCKET, SO_REUSEADDR,
-		   (char *)&on, sizeof (on));
+
+  err = setsockopt (sep->se_fd, SOL_SOCKET, SO_REUSEADDR,
+		    (char *) &on, sizeof (on));
   if (err < 0)
     syslog (LOG_ERR, "setsockopt (SO_REUSEADDR): %m");
 
-  err = bind (sep->se_fd, (struct sockaddr *)&sep->se_ctrladdr,
+  err = bind (sep->se_fd, (struct sockaddr *) &sep->se_ctrladdr,
 	      sizeof (sep->se_ctrladdr));
   if (err < 0)
     {
@@ -1031,7 +1040,7 @@ setup (struct servtab *sep)
       /* If we can't bind with AF_INET6 try again with AF_INET.  */
       if ((errno == EADDRNOTAVAIL || errno == EAFNOSUPPORT)
 	  && sep->se_family == AF_INET6 && sep->se_v4mapped)
-	{	
+	{
 	  /* Fall back to IPv6 silently.  */
 	  sep->se_family = AF_INET;
 	  close (sep->se_fd);
@@ -1041,7 +1050,7 @@ setup (struct servtab *sep)
       if (debug)
 	fprintf (stderr, "bind failed on %s/%s: %s\n",
 		 sep->se_service, sep->se_proto, strerror (errno));
-      syslog(LOG_ERR, "%s/%s: bind: %m", sep->se_service, sep->se_proto);
+      syslog (LOG_ERR, "%s/%s: bind: %m", sep->se_service, sep->se_proto);
       close (sep->se_fd);
       sep->se_fd = -1;
       if (!timingout)
@@ -1059,7 +1068,7 @@ setup (struct servtab *sep)
     maxsock = sep->se_fd;
   if (debug)
     {
-      fprintf(stderr, "registered %s on %d\n", sep->se_server, sep->se_fd);
+      fprintf (stderr, "registered %s on %d\n", sep->se_server, sep->se_fd);
     }
 }
 
@@ -1090,8 +1099,8 @@ enter (struct servtab *cp)
 {
   struct servtab *sep;
   SIGSTATUS sigstatus;
-  
-  sep = (struct servtab *)malloc (sizeof (*sep));
+
+  sep = (struct servtab *) malloc (sizeof (*sep));
   if (sep == NULL)
     {
       syslog (LOG_ERR, "Out of memory.");
@@ -1106,11 +1115,11 @@ enter (struct servtab *cp)
   return sep;
 }
 
-struct	servtab serv;
+struct servtab serv;
 #ifdef LINE_MAX
-char	line[LINE_MAX];
+char line[LINE_MAX];
 #else
-char 	line[2048];
+char line[2048];
 #endif
 
 FILE *
@@ -1120,7 +1129,7 @@ setconfig (const char *file)
 }
 
 void
-endconfig (FILE *fconfig)
+endconfig (FILE * fconfig)
 {
   if (fconfig)
     {
@@ -1128,18 +1137,18 @@ endconfig (FILE *fconfig)
     }
 }
 
-#define INETD_SERVICE      0   /* service name */
-#define INETD_SOCKET       1   /* socket type */
-#define INETD_PROTOCOL     2   /* protocol */
-#define INETD_WAIT         3   /* wait/nowait */
-#define INETD_USER         4   /* user */
-#define INETD_SERVER_PATH  5   /* server program path */ 
-#define INETD_SERVER_ARGS  6   /* server program arguments */
+#define INETD_SERVICE      0	/* service name */
+#define INETD_SOCKET       1	/* socket type */
+#define INETD_PROTOCOL     2	/* protocol */
+#define INETD_WAIT         3	/* wait/nowait */
+#define INETD_USER         4	/* user */
+#define INETD_SERVER_PATH  5	/* server program path */
+#define INETD_SERVER_ARGS  6	/* server program arguments */
 
-#define INETD_FIELDS_MIN   6   /* Minimum number of fields in entry */
+#define INETD_FIELDS_MIN   6	/* Minimum number of fields in entry */
 
 struct servtab *
-getconfigent (FILE *fconfig, const char *file, size_t *line)
+getconfigent (FILE * fconfig, const char *file, size_t * line)
 {
   struct servtab *sep = &serv;
   size_t argc = 0, i;
@@ -1148,23 +1157,23 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
   static char TCPMUX_TOKEN[] = "tcpmux/";
 #define MUX_LEN		(sizeof(TCPMUX_TOKEN)-1)
 
-  memset ((caddr_t)sep, 0, sizeof *sep);
-  
+  memset ((caddr_t) sep, 0, sizeof *sep);
+
   while (1)
     {
       argcv_free (argc, argv);
       freeconfig (sep);
-      memset ((caddr_t)sep, 0, sizeof *sep);
-      
+      memset ((caddr_t) sep, 0, sizeof *sep);
+
       while ((cp = nextline (fconfig)) && (*cp == '#' || *cp == '\0'))
-	++*line;
+	++ * line;
       ++*line;
       if (cp == NULL)
 	return NULL;
-      
+
       if (argcv_get (cp, "", &argc, &argv))
 	continue;
-      
+
       if (argc < INETD_FIELDS_MIN)
 	{
 	  syslog (LOG_ERR, "%s:%lu: not enough fields",
@@ -1189,7 +1198,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	  sep->se_service = newstr (argv[INETD_SERVICE]);
 	  sep->se_type = NORM_TYPE;
 	}
-      
+
       if (strcmp (argv[INETD_SOCKET], "stream") == 0)
 	sep->se_socktype = SOCK_STREAM;
       else if (strcmp (argv[INETD_SOCKET], "dgram") == 0)
@@ -1206,15 +1215,15 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 		  file, (unsigned long) *line);
 	  sep->se_socktype = -1;
 	}
-      
+
       sep->se_proto = newstr (argv[INETD_PROTOCOL]);
 
 #ifdef IPV6
       /* We default to IPv6, in setup() we'll fall back to IPv4 if
-	 it doesn't work.  */
+         it doesn't work.  */
       sep->se_family = AF_INET6;
       sep->se_v4mapped = 1;
-      
+
       if ((strncmp (sep->se_proto, "tcp", 3) == 0)
 	  || (strncmp (sep->se_proto, "udp", 3) == 0))
 	{
@@ -1236,10 +1245,10 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 		  file, (unsigned long) *line, sep->se_proto);
 	  continue;
 	}
-      
+
       sep->se_family = AF_INET;
 #endif
-      
+
       if (strcmp (argv[INETD_WAIT], "wait") == 0)
 	sep->se_wait = 1;
       else if (strcmp (argv[INETD_WAIT], "nowait") == 0)
@@ -1249,7 +1258,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	  syslog (LOG_WARNING, "%s:%lu: bad wait type",
 		  file, (unsigned long) *line);
 	}
-  
+
       if (ISMUX (sep))
 	{
 	  /*
@@ -1257,7 +1266,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	   * they don't have an assigned port to listen on.
 	   */
 	  sep->se_wait = 0;
-	  
+
 	  if (strncmp (sep->se_proto, "tcp", 3))
 	    {
 	      syslog (LOG_ERR, "%s:%lu: bad protocol for tcpmux service %s",
@@ -1272,7 +1281,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	      continue;
 	    }
 	}
-      
+
       sep->se_user = newstr (argv[INETD_USER]);
       sep->se_server = newstr (argv[INETD_SERVER_PATH]);
       if (strcmp (sep->se_server, "internal") == 0)
@@ -1291,8 +1300,9 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	    }
 	  sep->se_bi = bi;
 	  sep->se_wait = bi->bi_wait;
-	} else
-	  sep->se_bi = NULL;
+	}
+      else
+	sep->se_bi = NULL;
 
       sep->se_argc = argc - INETD_FIELDS_MIN + 1;
       sep->se_argv = calloc (sep->se_argc + 1, sizeof sep->se_argv[0]);
@@ -1302,7 +1312,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 		  file, (unsigned long) *line);
 	  exit (-1);
 	}
-      
+
       for (i = 0; i < sep->se_argc; i++)
 	{
 	  sep->se_argv[i] = argv[INETD_SERVER_ARGS + i];
@@ -1326,11 +1336,11 @@ freeconfig (struct servtab *cp)
     free (cp->se_user);
   if (cp->se_server)
     free (cp->se_server);
-  argcv_free(cp->se_argc, cp->se_argv);
+  argcv_free (cp->se_argc, cp->se_argv);
 }
 
 char *
-nextline (FILE *fd)
+nextline (FILE * fd)
 {
   char *cp;
 
@@ -1366,7 +1376,7 @@ set_proc_title (char *a, int s)
 
   cp = Argv[0];
   size = sizeof saddr;
-  if (getpeername (s, (struct sockaddr *)&saddr, &size) == 0)
+  if (getpeername (s, (struct sockaddr *) &saddr, &size) == 0)
     {
 #ifdef IPV6
       int err;
@@ -1393,9 +1403,8 @@ set_proc_title (char *a, int s)
 /*
  * Internet services provided internally by inetd:
  */
-#define	BUFSIZE	8192
+#define BUFSIZE	8192
 
-/* ARGSUSED */
 /* Echo service -- echo data back */
 void
 echo_stream (int s, struct servtab *sep)
@@ -1410,7 +1419,6 @@ echo_stream (int s, struct servtab *sep)
   exit (0);
 }
 
-/* ARGSUSED */
 /* Echo service -- echo data back */
 void
 echo_dg (int s, struct servtab *sep)
@@ -1425,13 +1433,12 @@ echo_dg (int s, struct servtab *sep)
 
   sep;
   size = sizeof sa;
-  i = recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *)&sa, &size);
+  i = recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *) &sa, &size);
   if (i < 0)
     return;
   sendto (s, buffer, i, 0, (struct sockaddr *) &sa, sizeof sa);
 }
 
-/* ARGSUSED */
 /* Discard service -- ignore data */
 void
 discard_stream (int s, struct servtab *sep)
@@ -1450,13 +1457,12 @@ discard_stream (int s, struct servtab *sep)
   exit (0);
 }
 
-/* ARGSUSED */
 void
 /* Discard service -- ignore data */
 discard_dg (int s, struct servtab *sep)
 {
   char buffer[BUFSIZE];
-  sep; /* shutup gcc */
+  sep;				/* shutup gcc */
   read (s, buffer, sizeof buffer);
 }
 
@@ -1477,13 +1483,12 @@ initring (void)
       *endring++ = i;
 }
 
-/* ARGSUSED */
 /* Character generator */
 void
 chargen_stream (int s, struct servtab *sep)
 {
   int len;
-  char *rs, text[LINESIZ+2];
+  char *rs, text[LINESIZ + 2];
 
   set_proc_title (sep->se_service, s);
 
@@ -1508,11 +1513,10 @@ chargen_stream (int s, struct servtab *sep)
 	rs = ring;
       if (write (s, text, sizeof text) != sizeof text)
 	break;
-	}
+    }
   exit (0);
 }
 
-/* ARGSUSED */
 /* Character generator */
 void
 chargen_dg (int s, struct servtab *sep)
@@ -1524,9 +1528,9 @@ chargen_dg (int s, struct servtab *sep)
 #endif
   static char *rs;
   int len, size;
-  char text[LINESIZ+2];
+  char text[LINESIZ + 2];
 
-  sep; /* shutup gcc */
+  sep;				/* shutup gcc */
   if (endring == 0)
     {
       initring ();
@@ -1534,7 +1538,7 @@ chargen_dg (int s, struct servtab *sep)
     }
 
   size = sizeof sa;
-  if (recvfrom (s, text, sizeof text, 0, (struct sockaddr *)&sa, &size) < 0)
+  if (recvfrom (s, text, sizeof text, 0, (struct sockaddr *) &sa, &size) < 0)
     return;
 
   if ((len = endring - rs) >= LINESIZ)
@@ -1548,7 +1552,7 @@ chargen_dg (int s, struct servtab *sep)
     rs = ring;
   text[LINESIZ] = '\r';
   text[LINESIZ + 1] = '\n';
-  sendto (s, text, sizeof text, 0, (struct sockaddr *)&sa, sizeof sa);
+  sendto (s, text, sizeof text, 0, (struct sockaddr *) &sa, sizeof sa);
 }
 
 /*
@@ -1570,23 +1574,21 @@ machtime (void)
 	fprintf (stderr, "Unable to get time of day\n");
       return 0L;
     }
-#define	OFFSET ((u_long)25567 * 24*60*60)
-  return (htonl ((long)(tv.tv_sec + OFFSET)));
+#define OFFSET ((u_long)25567 * 24*60*60)
+  return (htonl ((long) (tv.tv_sec + OFFSET)));
 #undef OFFSET
 }
 
-/* ARGSUSED */
 void
 machtime_stream (int s, struct servtab *sep)
 {
   long result;
 
-  sep; /* shutup gcc */
+  sep;				/* shutup gcc */
   result = machtime ();
   write (s, (char *) &result, sizeof result);
 }
 
-/* ARGSUSED */
 void
 machtime_dg (int s, struct servtab *sep)
 {
@@ -1598,17 +1600,16 @@ machtime_dg (int s, struct servtab *sep)
 #endif
   int size;
 
-  sep; /* shutup gcc */
+  sep;				/* shutup gcc */
   size = sizeof sa;
-  if (recvfrom (s, (char *)&result, sizeof result, 0, 
-		(struct sockaddr *)&sa, &size) < 0)
+  if (recvfrom (s, (char *) &result, sizeof result, 0,
+		(struct sockaddr *) &sa, &size) < 0)
     return;
   result = machtime ();
-  sendto (s, (char *) &result, sizeof result, 0, 
-	  (struct sockaddr *)&sa, sizeof sa);
+  sendto (s, (char *) &result, sizeof result, 0,
+	  (struct sockaddr *) &sa, sizeof sa);
 }
 
-/* ARGSUSED */
 void
 /* Return human-readable time of day */
 daytime_stream (int s, struct servtab *sep)
@@ -1616,17 +1617,16 @@ daytime_stream (int s, struct servtab *sep)
   char buffer[256];
   time_t lclock;
 
-  sep; /*shutup gcc*/
+  sep;				/*shutup gcc */
   lclock = time ((time_t *) 0);
 
-  sprintf (buffer, "%.24s\r\n", ctime(&lclock));
-  write (s, buffer, strlen(buffer));
+  sprintf (buffer, "%.24s\r\n", ctime (&lclock));
+  write (s, buffer, strlen (buffer));
 }
 
-/* ARGSUSED */
 /* Return human-readable time of day */
 void
-daytime_dg(int s, struct servtab *sep)
+daytime_dg (int s, struct servtab *sep)
 {
   char buffer[256];
   time_t lclock;
@@ -1637,14 +1637,15 @@ daytime_dg(int s, struct servtab *sep)
 #endif
   int size;
 
-  sep; /* shutup gcc */
+  sep;				/* shutup gcc */
   lclock = time ((time_t *) 0);
 
   size = sizeof sa;
-  if (recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *)&sa, &size) < 0)
+  if (recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *) &sa, &size) <
+      0)
     return;
   sprintf (buffer, "%.24s\r\n", ctime (&lclock));
-  sendto (s, buffer, strlen(buffer), 0, (struct sockaddr *)&sa, sizeof sa);
+  sendto (s, buffer, strlen (buffer), 0, (struct sockaddr *) &sa, sizeof sa);
 }
 
 /*
@@ -1657,7 +1658,7 @@ print_service (const char *file, const char *action, struct servtab *sep)
   fprintf (stderr,
 	   "%s:%s: %s proto=%s, wait=%d, user=%s builtin=%lx server=%s\n",
 	   file, action, sep->se_service, sep->se_proto,
-	   sep->se_wait, sep->se_user, (long)sep->se_bi, sep->se_server);
+	   sep->se_wait, sep->se_user, (long) sep->se_bi, sep->se_server);
 }
 
 /*
@@ -1672,31 +1673,33 @@ fd_getline (int fd, char *buf, int len)
 {
   int count = 0, n;
 
-  do {
-    n = read (fd, buf, len-count);
-    if (n == 0)
-      return count;
-    if (n < 0)
-      return -1;
-    while (--n >= 0)
-      {
-	if (*buf == '\r' || *buf == '\n' || *buf == '\0')
-	  return count;
-	count++;
-	buf++;
-      }
-  } while (count < len);
+  do
+    {
+      n = read (fd, buf, len - count);
+      if (n == 0)
+	return count;
+      if (n < 0)
+	return -1;
+      while (--n >= 0)
+	{
+	  if (*buf == '\r' || *buf == '\n' || *buf == '\0')
+	    return count;
+	  count++;
+	  buf++;
+	}
+    }
+  while (count < len);
   return count;
 }
 
-#define MAX_SERV_LEN	(256+2)		/* 2 bytes for \r\n */
+#define MAX_SERV_LEN	(256+2)	/* 2 bytes for \r\n */
 
 #define strwrite(fd, buf)	write(fd, buf, sizeof(buf)-1)
 
 void
-tcpmux(int s, struct servtab *sep)
+tcpmux (int s, struct servtab *sep)
 {
-  char service[MAX_SERV_LEN+1];
+  char service[MAX_SERV_LEN + 1];
   int len;
 
   /* Get requested service name */
@@ -1765,8 +1768,8 @@ prepenv (int ctrl, struct sockaddr_in sa_client)
   unsetenv ("TCPREMOTEIP");
   unsetenv ("TCPREMOTEPORT");
   unsetenv ("TCPREMOTEHOST");
-  
-  if (getsockname (ctrl, (struct sockaddr*)&sa_server, &len) < 0)
+
+  if (getsockname (ctrl, (struct sockaddr *) &sa_server, &len) < 0)
     syslog (LOG_WARNING, "getsockname(): %m");
   else
     {
@@ -1782,9 +1785,9 @@ prepenv (int ctrl, struct sockaddr_in sa_client)
 
       if (resolve_option)
 	{
-	  if ((host = gethostbyaddr((char *) &sa_server.sin_addr,
-				    sizeof (sa_server.sin_addr),
-				    AF_INET)) == NULL)
+	  if ((host = gethostbyaddr ((char *) &sa_server.sin_addr,
+				     sizeof (sa_server.sin_addr),
+				     AF_INET)) == NULL)
 	    syslog (LOG_WARNING, "gethostbyaddr: %m");
 	  else if (setenv ("TCPLOCALHOST", host->h_name, 1) < 0)
 	    syslog (LOG_WARNING, "setenv(TCPLOCALHOST): %m");

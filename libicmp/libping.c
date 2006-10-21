@@ -42,15 +42,14 @@
 #include <icmp.h>
 #include "ping.h"
 
-static void _ping_freebuf (PING *p);
-static int _ping_setbuf (PING *p);
-static size_t _ping_packetsize (PING *p);
+static void _ping_freebuf (PING * p);
+static int _ping_setbuf (PING * p);
+static size_t _ping_packetsize (PING * p);
 
 size_t
-_ping_packetsize (PING *p)
+_ping_packetsize (PING * p)
 {
-  if (p->ping_type == ICMP_TIMESTAMP
-      || p->ping_type == ICMP_TIMESTAMPREPLY)
+  if (p->ping_type == ICMP_TIMESTAMP || p->ping_type == ICMP_TIMESTAMPREPLY)
     return 20;
   return 8 + p->ping_datalen;
 }
@@ -92,7 +91,7 @@ ping_init (int type, int ident)
   p->ping_type = type;
   p->ping_count = 0;
   p->ping_interval = PING_DEFAULT_INTERVAL;
-  p->ping_datalen  = sizeof (icmphdr_t);
+  p->ping_datalen = sizeof (icmphdr_t);
   /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
   p->ping_ident = ident & 0xFFFF;
   p->ping_cktab_size = PING_CKTABSIZE;
@@ -100,20 +99,20 @@ ping_init (int type, int ident)
 }
 
 void
-ping_set_type (PING *p, int type)
+ping_set_type (PING * p, int type)
 {
   p->ping_type = type;
 }
 
 void
-ping_set_datalen (PING *p, size_t len)
+ping_set_datalen (PING * p, size_t len)
 {
   _ping_freebuf (p);
   p->ping_datalen = len;
 }
 
 void
-_ping_freebuf (PING *p)
+_ping_freebuf (PING * p)
 {
   if (p->ping_buffer)
     {
@@ -123,7 +122,7 @@ _ping_freebuf (PING *p)
 }
 
 int
-_ping_setbuf (PING *p)
+_ping_setbuf (PING * p)
 {
   if (!p->ping_buffer)
     {
@@ -135,14 +134,14 @@ _ping_setbuf (PING *p)
     {
       p->ping_cktab = malloc (p->ping_cktab_size);
       if (!p->ping_cktab)
-        return -1;
+	return -1;
       memset (p->ping_cktab, 0, p->ping_cktab_size);
     }
   return 0;
 }
 
 int
-ping_set_data (PING *p, void *data, size_t off, size_t len)
+ping_set_data (PING * p, void *data, size_t off, size_t len)
 {
   icmphdr_t *icmp;
 
@@ -150,13 +149,13 @@ ping_set_data (PING *p, void *data, size_t off, size_t len)
     return -1;
   if (p->ping_datalen < off + len)
     return -1;
-  icmp = (icmphdr_t *)p->ping_buffer;
+  icmp = (icmphdr_t *) p->ping_buffer;
   memcpy (icmp->icmp_data + off, data, len);
   return 0;
 }
 
 int
-ping_xmit (PING *p)
+ping_xmit (PING * p)
 {
   int i, buflen;
 
@@ -175,26 +174,25 @@ ping_xmit (PING *p)
       icmp_echo_encode (p->ping_buffer, buflen, p->ping_ident,
 			p->ping_num_xmit);
       break;
-      
+
     case ICMP_TIMESTAMP:
       icmp_timestamp_encode (p->ping_buffer, buflen, p->ping_ident,
 			     p->ping_num_xmit);
       break;
-      
+
     case ICMP_ADDRESS:
       icmp_address_encode (p->ping_buffer, buflen, p->ping_ident,
 			   p->ping_num_xmit);
       break;
-      
+
     default:
-      icmp_generic_encode (p->ping_buffer, buflen, p->ping_type, p->ping_ident,
-			   p->ping_num_xmit);
+      icmp_generic_encode (p->ping_buffer, buflen, p->ping_type,
+			   p->ping_ident, p->ping_num_xmit);
       break;
     }
-  
-  i = sendto (p->ping_fd, (char *)p->ping_buffer, buflen, 0,
-	      (struct sockaddr*) &p->ping_dest,
-	      sizeof (struct sockaddr_in));
+
+  i = sendto (p->ping_fd, (char *) p->ping_buffer, buflen, 0,
+	      (struct sockaddr *) &p->ping_dest, sizeof (struct sockaddr_in));
   if (i < 0)
     perror ("ping: sendto");
   else
@@ -208,11 +206,11 @@ ping_xmit (PING *p)
 }
 
 static int
-my_echo_reply (PING *p, icmphdr_t *icmp)
+my_echo_reply (PING * p, icmphdr_t * icmp)
 {
   struct ip *orig_ip = &icmp->icmp_ip;
-  icmphdr_t *orig_icmp = (icmphdr_t *)(orig_ip + 1);
-  
+  icmphdr_t *orig_icmp = (icmphdr_t *) (orig_ip + 1);
+
   return (orig_ip->ip_dst.s_addr == p->ping_dest.sin_addr.s_addr
 	  && orig_ip->ip_p == IPPROTO_ICMP
 	  && orig_icmp->icmp_type == ICMP_ECHO
@@ -220,7 +218,7 @@ my_echo_reply (PING *p, icmphdr_t *icmp)
 }
 
 int
-ping_recv (PING *p)
+ping_recv (PING * p)
 {
   int fromlen = sizeof (p->ping_from);
   int n, rc;
@@ -229,34 +227,34 @@ ping_recv (PING *p)
   int dupflag;
 
   n = recvfrom (p->ping_fd,
-		(char *)p->ping_buffer, _PING_BUFLEN (p), 0,
-		(struct sockaddr *)&p->ping_from, &fromlen);
+		(char *) p->ping_buffer, _PING_BUFLEN (p), 0,
+		(struct sockaddr *) &p->ping_from, &fromlen);
   if (n < 0)
     return -1;
-  
+
   rc = icmp_generic_decode (p->ping_buffer, n, &ip, &icmp);
   if (rc < 0)
     {
-      /*FIXME: conditional*/
+      /*FIXME: conditional */
       fprintf (stderr, "packet too short (%d bytes) from %s\n", n,
 	       inet_ntoa (p->ping_from.sin_addr));
       return -1;
     }
-  
+
   switch (icmp->icmp_type)
     {
     case ICMP_ECHOREPLY:
     case ICMP_TIMESTAMPREPLY:
     case ICMP_ADDRESSREPLY:
-      /*    case ICMP_ROUTERADV:*/
-      
+      /*    case ICMP_ROUTERADV: */
+
       if (icmp->icmp_id != p->ping_ident)
 	return -1;
-      
+
       if (rc)
 	fprintf (stderr, "checksum mismatch from %s\n",
 		 inet_ntoa (p->ping_from.sin_addr));
-      
+
       p->ping_num_recv++;
       if (_PING_TST (p, icmp->icmp_seq % p->ping_cktab_size))
 	{
@@ -271,11 +269,9 @@ ping_recv (PING *p)
 	}
 
       if (p->ping_event)
-	(*p->ping_event)(dupflag ? PEV_DUPLICATE : PEV_RESPONSE,
-			 p->ping_closure,
-			 &p->ping_dest,
-			 &p->ping_from,
-			 ip, icmp, n);
+	(*p->ping_event) (dupflag ? PEV_DUPLICATE : PEV_RESPONSE,
+			  p->ping_closure,
+			  &p->ping_dest, &p->ping_from, ip, icmp, n);
       break;
 
     case ICMP_ECHO:
@@ -284,52 +280,50 @@ ping_recv (PING *p)
       return -1;
 
     default:
-      if (!my_echo_reply(p, icmp))
+      if (!my_echo_reply (p, icmp))
 	return -1;
-      
+
       if (p->ping_event)
-	(*p->ping_event)(PEV_NOECHO,
-			 p->ping_closure,
-			 &p->ping_dest,
-			 &p->ping_from,
-			 ip, icmp, n);
+	(*p->ping_event) (PEV_NOECHO,
+			  p->ping_closure,
+			  &p->ping_dest, &p->ping_from, ip, icmp, n);
     }
   return 0;
 }
 
 void
-ping_set_event_handler (PING *ping, ping_efp pf, void *closure)
+ping_set_event_handler (PING * ping, ping_efp pf, void *closure)
 {
   ping->ping_event = pf;
   ping->ping_closure = closure;
 }
 
 void
-ping_set_count (PING *ping, size_t count)
+ping_set_count (PING * ping, size_t count)
 {
   ping->ping_count = count;
 }
 
 void
-ping_set_sockopt (PING *ping, int opt, void *val, int valsize)
+ping_set_sockopt (PING * ping, int opt, void *val, int valsize)
 {
-  setsockopt (ping->ping_fd, SOL_SOCKET, opt, (char*)&val, valsize);
+  setsockopt (ping->ping_fd, SOL_SOCKET, opt, (char *) &val, valsize);
 }
 
 void
-ping_set_interval (PING *ping, size_t interval)
+ping_set_interval (PING * ping, size_t interval)
 {
   ping->ping_interval = interval;
 }
 
 void
-ping_set_packetsize (PING *ping, size_t size)
+ping_set_packetsize (PING * ping, size_t size)
 {
   ping->ping_datalen = size;
 }
 
 int
-ping_set_dest (PING *ping, char *host)
+ping_set_dest (PING * ping, char *host)
 {
   struct sockaddr_in *s_in = &ping->ping_dest;
   s_in->sin_family = AF_INET;
@@ -342,7 +336,7 @@ ping_set_dest (PING *ping, char *host)
 	return 1;
 
       s_in->sin_family = hp->h_addrtype;
-      if (hp->h_length > (int)sizeof (s_in->sin_addr))
+      if (hp->h_length > (int) sizeof (s_in->sin_addr))
 	hp->h_length = sizeof (s_in->sin_addr);
 
       memcpy (&s_in->sin_addr, hp->h_addr, hp->h_length);
@@ -350,5 +344,3 @@ ping_set_dest (PING *ping, char *host)
     }
   return 0;
 }
-
- 

@@ -49,8 +49,8 @@
  * or implied warranty.
  */
 
-#ifndef	__KEY_PROTO__
-#define	__KEY_PROTO__
+#ifndef __KEY_PROTO__
+# define __KEY_PROTO__
 int key_file_exists (void);
 void key_lookup (unsigned char *, Block);
 void key_stream_init (Block, Block, int);

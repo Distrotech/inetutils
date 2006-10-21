@@ -18,9 +18,9 @@
    MA 02110-1301 USA. */
 
 #ifndef IF_INDEX_H
-#define IF_INDEX_H
+# define IF_INDEX_H
 
-#ifndef HAVE_STRUCT_IF_NAMEINDEX
+# ifndef HAVE_STRUCT_IF_NAMEINDEX
 struct if_nameindex
 {
   char *if_name;
@@ -30,6 +30,6 @@ extern unsigned int if_nametoindex (const char *ifname);
 extern char *if_indextoname (unsigned int ifindex, char *ifname);
 extern struct if_nameindex *if_nameindex (void);
 extern void if_freenameindex (struct if_nameindex *ptr);
-#endif
+# endif
 
 #endif

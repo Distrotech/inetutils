@@ -44,60 +44,60 @@
 /* utmp_init - update utmp and wtmp before login */
 
 void
-utmp_init(char   *line, char   *user, char   *id)
+utmp_init (char *line, char *user, char *id)
 {
 #ifdef UTMPX
-    struct utmpx utx;
+  struct utmpx utx;
 #else
-    struct utmp utx;
+  struct utmp utx;
 #endif
 
-    memset((char *) &utx, 0, sizeof(utx));
+  memset ((char *) &utx, 0, sizeof (utx));
 #if defined(HAVE_STRUCT_UTMP_UT_ID)
-    strncpy(utx.ut_id, id, sizeof(utx.ut_id));
+  strncpy (utx.ut_id, id, sizeof (utx.ut_id));
 #endif
 #if defined(HAVE_STRUCT_UTMP_UT_USER)
-    strncpy(utx.ut_user, user, sizeof(utx.ut_user));
+  strncpy (utx.ut_user, user, sizeof (utx.ut_user));
 #else
-    strncpy(utx.ut_name, user, sizeof(utx.ut_name));
+  strncpy (utx.ut_name, user, sizeof (utx.ut_name));
 #endif
-    strncpy(utx.ut_line, line, sizeof(utx.ut_line));
+  strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 #if defined(HAVE_STRUCT_UTMP_UT_PID)
-    utx.ut_pid = getpid();
+  utx.ut_pid = getpid ();
 #endif
 #if defined(HAVE_STRUCT_UTMP_UT_TYPE)
-    utx.ut_type = LOGIN_PROCESS;
+  utx.ut_type = LOGIN_PROCESS;
 #endif
 #if defined(HAVE_STRUCT_UTMPX_UT_TV)
-    gettimeofday(&(utx.ut_tv), 0);
+  gettimeofday (&(utx.ut_tv), 0);
 #else
-    time(&(utx.ut_time));
+  time (&(utx.ut_time));
 #endif
 #ifdef UTMPX
-    pututxline(&utx);
+  pututxline (&utx);
 # ifdef HAVE_UPDWTMPX
-    updwtmpx(PATH_WTMPX, &utx);
+  updwtmpx (PATH_WTMPX, &utx);
 # endif
-    endutxent();
+  endutxent ();
 #else
-    pututline(&utx);
+  pututline (&utx);
 # ifdef HAVE_UPDWTMP
-    updwtmp(PATH_WTMP, &utx);
+  updwtmp (PATH_WTMP, &utx);
 # else
-    logwtmp(line, user, id);
+  logwtmp (line, user, id);
 # endif
-    endutent();
+  endutent ();
 #endif
 }
 
 /* utmp_ptsid - generate utmp id for pseudo terminal */
 
-char   *
-utmp_ptsid(char   *line, char   *tag)
+char *
+utmp_ptsid (char *line, char *tag)
 {
-    static char buf[5];
+  static char buf[5];
 
-    strncpy(buf, tag, 2);
-    strncpy(buf + 2, line + strlen(line) - 2, 2);
-    return (buf);
+  strncpy (buf, tag, 2);
+  strncpy (buf + 2, line + strlen (line) - 2, 2);
+  return (buf);
 }

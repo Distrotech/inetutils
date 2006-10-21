@@ -36,12 +36,12 @@ static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+# include <sys/wait.h>
 #endif
 
 #include <errno.h>
@@ -66,178 +66,191 @@ extern optind;
 #define MAX_ARGC 100
 #define MAX_GARGC 1000
 
-struct file_pid {
-  	FILE *file;
-	pid_t pid;
-	struct file_pid *next;
+struct file_pid
+{
+  FILE *file;
+  pid_t pid;
+  struct file_pid *next;
 };
 
 /* A linked list associating ftpd_popen'd FILEs with pids.  */
 struct file_pid *file_pids = 0;
 
 FILE *
-ftpd_popen(char *program, const char *type)
+ftpd_popen (char *program, const char *type)
 {
-	char *cp;
-	FILE *iop;
-	struct file_pid *fpid;
-	int argc, gargc, pdes[2], pid;
-	char **pop, *argv[MAX_ARGC], *gargv[MAX_GARGC];
+  char *cp;
+  FILE *iop;
+  struct file_pid *fpid;
+  int argc, gargc, pdes[2], pid;
+  char **pop, *argv[MAX_ARGC], *gargv[MAX_GARGC];
 
-	if (*type != 'r' && *type != 'w' || type[1])
-		return (NULL);
+  if (*type != 'r' && *type != 'w' || type[1])
+    return (NULL);
 
-	if (pipe(pdes) < 0)
-		return (NULL);
+  if (pipe (pdes) < 0)
+    return (NULL);
 
-	/* break up string into pieces */
-	for (argc = 0, cp = program; argc < MAX_ARGC - 1; cp = NULL, argc++)
-		if (!(argv[argc] = strtok(cp, " \t\n")))
-			break;
-	argv[MAX_ARGC - 1] = NULL;
+  /* break up string into pieces */
+  for (argc = 0, cp = program; argc < MAX_ARGC - 1; cp = NULL, argc++)
+    if (!(argv[argc] = strtok (cp, " \t\n")))
+      break;
+  argv[MAX_ARGC - 1] = NULL;
 
-	/* glob each piece */
-	gargv[0] = argv[0];
-	for (gargc = argc = 1; argv[argc]; argc++) {
-		glob_t gl;
-		int flags = GLOB_NOCHECK;
+  /* glob each piece */
+  gargv[0] = argv[0];
+  for (gargc = argc = 1; argv[argc]; argc++)
+    {
+      glob_t gl;
+      int flags = GLOB_NOCHECK;
 
 #ifdef GLOB_BRACE
-		flags |= GLOB_BRACE;
+      flags |= GLOB_BRACE;
 #endif
 #ifdef GLOB_QUOTE
-		flags |= GLOB_QUOTE;
+      flags |= GLOB_QUOTE;
 #endif
 #ifdef GLOB_TILDE
-		flags |= GLOB_TILDE;
+      flags |= GLOB_TILDE;
 #endif
 
-		memset(&gl, 0, sizeof(gl));
-		if (glob(argv[argc], flags, NULL, &gl))
-			gargv[gargc++] = strdup(argv[argc]);
-		else
-			for (pop = gl.gl_pathv; *pop; pop++)
-				gargv[gargc++] = strdup(*pop);
-		globfree(&gl);
-	}
-	gargv[gargc] = NULL;
+      memset (&gl, 0, sizeof (gl));
+      if (glob (argv[argc], flags, NULL, &gl))
+	gargv[gargc++] = strdup (argv[argc]);
+      else
+	for (pop = gl.gl_pathv; *pop; pop++)
+	  gargv[gargc++] = strdup (*pop);
+      globfree (&gl);
+    }
+  gargv[gargc] = NULL;
 
-	iop = NULL;
+  iop = NULL;
 
 #ifdef WITH_LIBLS
-        /* Do not use vfork() for internal ls.  */
-	pid = (strcmp(gargv[0], "/bin/ls") == 0) ? fork() : vfork();
-	switch(pid)
+  /* Do not use vfork() for internal ls.  */
+  pid = (strcmp (gargv[0], "/bin/ls") == 0) ? fork () : vfork ();
+  switch (pid)
 #else
-	switch(pid = vfork())
+  switch (pid = vfork ())
 #endif
+    {
+    case -1:			/* error */
+      close (pdes[0]);
+      close (pdes[1]);
+      goto pfree;
+      /* NOTREACHED */
+    case 0:			/* child */
+      if (*type == 'r')
 	{
-	case -1:			/* error */
-		close(pdes[0]);
-		close(pdes[1]);
-		goto pfree;
-		/* NOTREACHED */
-	case 0:				/* child */
-		if (*type == 'r') {
-			if (pdes[1] != STDOUT_FILENO) {
-				dup2(pdes[1], STDOUT_FILENO);
-				close(pdes[1]);
-			}
-			dup2(STDOUT_FILENO, STDERR_FILENO); /* stderr too! */
-			close(pdes[0]);
-		} else {
-			if (pdes[0] != STDIN_FILENO) {
-				dup2(pdes[0], STDIN_FILENO);
-				close(pdes[0]);
-			}
-			close(pdes[1]);
-		}
+	  if (pdes[1] != STDOUT_FILENO)
+	    {
+	      dup2 (pdes[1], STDOUT_FILENO);
+	      close (pdes[1]);
+	    }
+	  dup2 (STDOUT_FILENO, STDERR_FILENO);	/* stderr too! */
+	  close (pdes[0]);
+	}
+      else
+	{
+	  if (pdes[0] != STDIN_FILENO)
+	    {
+	      dup2 (pdes[0], STDIN_FILENO);
+	      close (pdes[0]);
+	    }
+	  close (pdes[1]);
+	}
 
 #ifdef WITH_LIBLS
-		/* mvo: should this be a config-option? */
-		if(strcmp(gargv[0], "/bin/ls") == 0) {
-			optind = 0;
-			exit(ls_main(gargc, gargv));
-		}
+      /* mvo: should this be a config-option? */
+      if (strcmp (gargv[0], "/bin/ls") == 0)
+	{
+	  optind = 0;
+	  exit (ls_main (gargc, gargv));
+	}
 #endif
 
-		execv(gargv[0], gargv);
-		_exit(1);
-	}
-	/* parent; assume fdopen can't fail...  */
-	if (*type == 'r') {
-		iop = fdopen(pdes[0], type);
-		close(pdes[1]);
-	} else {
-		iop = fdopen(pdes[1], type);
-		close(pdes[0]);
-	}
+      execv (gargv[0], gargv);
+      _exit (1);
+    }
+  /* parent; assume fdopen can't fail...  */
+  if (*type == 'r')
+    {
+      iop = fdopen (pdes[0], type);
+      close (pdes[1]);
+    }
+  else
+    {
+      iop = fdopen (pdes[1], type);
+      close (pdes[0]);
+    }
 
-	fpid = (struct file_pid *) malloc (sizeof (struct file_pid));
-	if (fpid) {
-		fpid->file = iop;
-		fpid->pid = pid;
-		fpid->next = file_pids;
-		file_pids = fpid;
-	}
+  fpid = (struct file_pid *) malloc (sizeof (struct file_pid));
+  if (fpid)
+    {
+      fpid->file = iop;
+      fpid->pid = pid;
+      fpid->next = file_pids;
+      file_pids = fpid;
+    }
 
-pfree:	for (argc = 1; gargv[argc] != NULL; argc++)
-		free(gargv[argc]);
+pfree:for (argc = 1; gargv[argc] != NULL; argc++)
+    free (gargv[argc]);
 
-	return (iop);
+  return (iop);
 }
 
 int
-ftpd_pclose(FILE *iop)
+ftpd_pclose (FILE * iop)
 {
-	struct file_pid *fpid = file_pids, *prev_fpid = 0;
-	int fdes, status;
+  struct file_pid *fpid = file_pids, *prev_fpid = 0;
+  int fdes, status;
 #ifdef HAVE_SIGACTION
-	sigset_t sigs, osigs;
+  sigset_t sigs, osigs;
 #else
-	int omask;
+  int omask;
 #endif
-	pid_t pid;
+  pid_t pid;
 
-	/*
-	 * pclose returns -1 if stream is not associated with a
-	 * `popened' command, or, if already `pclosed'.
-	 */
-	while (fpid && fpid->file != iop) {
-	     prev_fpid = fpid;
-	     fpid = fpid->next;
-	}
-	if (! fpid)
-        	return -1;
+  /*
+   * pclose returns -1 if stream is not associated with a
+   * `popened' command, or, if already `pclosed'.
+   */
+  while (fpid && fpid->file != iop)
+    {
+      prev_fpid = fpid;
+      fpid = fpid->next;
+    }
+  if (!fpid)
+    return -1;
 
-	if (prev_fpid)
-		prev_fpid->next = fpid->next;
-	else
-		file_pids = fpid->next;
+  if (prev_fpid)
+    prev_fpid->next = fpid->next;
+  else
+    file_pids = fpid->next;
 
-	fclose(iop);
+  fclose (iop);
 #ifdef HAVE_SIGACTION
-	sigemptyset(&sigs);
-	sigaddset(&sigs, SIGINT);
-	sigaddset(&sigs, SIGQUIT);
-	sigaddset(&sigs, SIGHUP);
-	sigprocmask(SIG_BLOCK, &sigs, &osigs);
+  sigemptyset (&sigs);
+  sigaddset (&sigs, SIGINT);
+  sigaddset (&sigs, SIGQUIT);
+  sigaddset (&sigs, SIGHUP);
+  sigprocmask (SIG_BLOCK, &sigs, &osigs);
 #else
-	omask = sigblock(sigmask(SIGINT)|sigmask(SIGQUIT)|sigmask(SIGHUP));
+  omask = sigblock (sigmask (SIGINT) | sigmask (SIGQUIT) | sigmask (SIGHUP));
 #endif
-	while ((pid = waitpid(fpid->pid, &status, 0)) < 0 && errno == EINTR)
-		continue;
+  while ((pid = waitpid (fpid->pid, &status, 0)) < 0 && errno == EINTR)
+    continue;
 
-	free (fpid);
+  free (fpid);
 
 #ifdef HAVE_SIGACTION
-	sigprocmask(SIG_SETMASK, &osigs, 0);
+  sigprocmask (SIG_SETMASK, &osigs, 0);
 #else
-	sigsetmask(omask);
+  sigsetmask (omask);
 #endif
-	if (pid < 0)
-		return (pid);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	return (1);
+  if (pid < 0)
+    return (pid);
+  if (WIFEXITED (status))
+    return (WEXITSTATUS (status));
+  return (1);
 }

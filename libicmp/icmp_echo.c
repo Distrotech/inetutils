@@ -34,13 +34,14 @@
 #include <icmp.h>
 
 int
-icmp_generic_encode (u_char *buffer, size_t bufsize, int type, int ident, int seqno)
+icmp_generic_encode (u_char * buffer, size_t bufsize, int type, int ident,
+		     int seqno)
 {
   icmphdr_t *icmp;
 
   if (bufsize < 8)
     return -1;
-  icmp = (icmphdr_t *)buffer;
+  icmp = (icmphdr_t *) buffer;
   icmp->icmp_type = type;
   icmp->icmp_code = 0;
   icmp->icmp_cksum = 0;
@@ -52,8 +53,8 @@ icmp_generic_encode (u_char *buffer, size_t bufsize, int type, int ident, int se
 }
 
 int
-icmp_generic_decode (u_char *buffer, size_t bufsize,
-		    struct ip **ipp, icmphdr_t **icmpp)
+icmp_generic_decode (u_char * buffer, size_t bufsize,
+		     struct ip **ipp, icmphdr_t ** icmpp)
 {
   size_t hlen;
   u_short cksum;
@@ -61,13 +62,13 @@ icmp_generic_decode (u_char *buffer, size_t bufsize,
   icmphdr_t *icmp;
 
   /* IP header */
-  ip = (struct ip*) buffer;
+  ip = (struct ip *) buffer;
   hlen = ip->ip_hl << 2;
   if (bufsize < hlen + ICMP_MINLEN)
     return -1;
 
   /* ICMP header */
-  icmp = (icmphdr_t*)(buffer + hlen);
+  icmp = (icmphdr_t *) (buffer + hlen);
 
   /* Prepare return values */
   *ipp = ip;
@@ -76,23 +77,21 @@ icmp_generic_decode (u_char *buffer, size_t bufsize,
   /* Recompute checksum */
   cksum = icmp->icmp_cksum;
   icmp->icmp_cksum = 0;
-  icmp->icmp_cksum = icmp_cksum ((u_char*)icmp, bufsize-hlen);
+  icmp->icmp_cksum = icmp_cksum ((u_char *) icmp, bufsize - hlen);
   if (icmp->icmp_cksum != cksum)
     return 1;
   return 0;
 }
 
 int
-icmp_echo_encode (u_char *buffer, size_t bufsize, int ident, int seqno)
+icmp_echo_encode (u_char * buffer, size_t bufsize, int ident, int seqno)
 {
   return icmp_generic_encode (buffer, bufsize, ICMP_ECHO, ident, seqno);
 }
 
 int
-icmp_echo_decode (u_char *buffer, size_t bufsize,
-		 struct ip **ipp, icmphdr_t **icmpp)
+icmp_echo_decode (u_char * buffer, size_t bufsize,
+		  struct ip **ipp, icmphdr_t ** icmpp)
 {
   return icmp_generic_decode (buffer, bufsize, ipp, icmpp);
 }
-
-

@@ -31,28 +31,28 @@ typedef struct termio TERMDESC;
 
 #else
 
-#define IOCTL_INTERFACE
+# define IOCTL_INTERFACE
 
-typedef struct 
+typedef struct
 {
   struct sgttyb sg;
   struct tchars tc;
   struct ltchars ltc;
   int state;
   int lflags;
-#define termdesc_eofc   tc.t_eofc
-#define termdesc_erase  tc.sg.sg_erase
-#define termdesc_kill   sg.sg_kill
-#define termdesc_ip     tc.t_intrc
-#define termdesc_abort  tc.t_quitc
-#define termdesc_xon    tc.t_startc
-#define termdesc_xoff   tc.t_stopc
-#define termdesc_ao     ltc.t_flushc
-#define termdesc_susp   ltc.t_suspc
-#define termdesc_ew     ltc.t_werasc
-#define termdesc_rp     ltc.t_rprntc
-#define termdesc_lnext  ltc.t_lnextc
-#define termdesc_forw1  tc.t_brkc
+# define termdesc_eofc   tc.t_eofc
+# define termdesc_erase  tc.sg.sg_erase
+# define termdesc_kill   sg.sg_kill
+# define termdesc_ip     tc.t_intrc
+# define termdesc_abort  tc.t_quitc
+# define termdesc_xon    tc.t_startc
+# define termdesc_xoff   tc.t_stopc
+# define termdesc_ao     ltc.t_flushc
+# define termdesc_susp   ltc.t_suspc
+# define termdesc_ew     ltc.t_werasc
+# define termdesc_rp     ltc.t_rprntc
+# define termdesc_lnext  ltc.t_lnextc
+# define termdesc_forw1  tc.t_brkc
 } TERMDESC;
 
 # define cfsetospeed(tp, val) (tp)->sg.sg_ospeed = (val)
@@ -61,13 +61,13 @@ typedef struct
 # define cfgetispeed(tp)      (tp)->sg.sg_ispeed
 
 int
-_term_getattr (int fd, TERMDESC *tp)
+_term_getattr (int fd, TERMDESC * tp)
 {
-  ioctl (fd, TIOCGETP, (char *)&tp->sg);
-  ioctl (fd, TIOCGETC, (char *)&tp->tc);
-  ioctl (fd, TIOCGLTC, (char *)&tp->ltc);
+  ioctl (fd, TIOCGETP, (char *) &tp->sg);
+  ioctl (fd, TIOCGETC, (char *) &tp->tc);
+  ioctl (fd, TIOCGLTC, (char *) &tp->ltc);
 # ifdef	TIOCGSTATE
-  ioctl (fd, TIOCGSTATE, (char *)&tp->state);
+  ioctl (fd, TIOCGSTATE, (char *) &tp->state);
 # endif
   return 0;
 }
@@ -78,18 +78,18 @@ TERMDESC termbuf, termbuf2;
 #ifdef IOCTL_INTERFACE
 
 void
-_term_setattr (int fd, TERMDESC *tp)
+_term_setattr (int fd, TERMDESC * tp)
 {
-  ioctl (fd, TIOCSETN, (char *)&tp->sg);
-  ioctl (fd, TIOCSETC, (char *)&tp->tc);
-  ioctl (fd, TIOCSLTC, (char *)&tp->ltc);
+  ioctl (fd, TIOCSETN, (char *) &tp->sg);
+  ioctl (fd, TIOCSETC, (char *) &tp->tc);
+  ioctl (fd, TIOCSLTC, (char *) &tp->ltc);
   ioctl (fd, TIOCLSET, &tp->lflags);
 }
 
 void
 term_send_eof ()
 {
-  /*nothing*/
+  /*nothing */
 }
 
 int
@@ -99,7 +99,7 @@ term_change_eof ()
 }
 
 int
-tty_linemode()
+tty_linemode ()
 {
   return termbuf.state & TS_EXTPROC;
 }
@@ -107,18 +107,18 @@ tty_linemode()
 void
 tty_setlinemode (int on)
 {
-#ifdef	TIOCEXT
+# ifdef	TIOCEXT
   set_termbuf ();
-  ioctl (pty, TIOCEXT, (char *)&on);
+  ioctl (pty, TIOCEXT, (char *) &on);
   init_termbuf ();
-#else	/* !TIOCEXT */
-# ifdef	EXTPROC
+# else /* !TIOCEXT */
+#  ifdef	EXTPROC
   if (on)
     termbuf.c_lflag |= EXTPROC;
   else
     termbuf.c_lflag &= ~EXTPROC;
-# endif
-#endif	/* TIOCEXT */
+#  endif
+# endif	/* TIOCEXT */
 }
 
 int
@@ -144,12 +144,12 @@ tty_restartany ()
 }
 
 void
-tty_setecho(int on)
+tty_setecho (int on)
 {
   if (on)
-    termbuf.sg.sg_flags |= ECHO|CRMOD;
+    termbuf.sg.sg_flags |= ECHO | CRMOD;
   else
-    termbuf.sg.sg_flags &= ~(ECHO|CRMOD);
+    termbuf.sg.sg_flags &= ~(ECHO | CRMOD);
 }
 
 int
@@ -158,16 +158,16 @@ tty_israw ()
   return termbuf.sg.sg_flags & RAW;
 }
 
-#if defined (AUTHENTICATION) && defined(NO_LOGIN_F) && defined(LOGIN_R)
+# if defined (AUTHENTICATION) && defined(NO_LOGIN_F) && defined(LOGIN_R)
 int
-tty_setraw(int on)
+tty_setraw (int on)
 {
   if (on)
     termbuf.sg.sg_flags |= RAW;
   else
     termbuf.sg.sg_flags &= ~RAW;
 }
-#endif
+# endif
 
 void
 tty_binaryin (int on)
@@ -202,13 +202,13 @@ tty_isbinaryout ()
 int
 tty_isediting ()
 {
-  return !(termbuf.sg.sg_flags & (CBREAK|RAW));
+  return !(termbuf.sg.sg_flags & (CBREAK | RAW));
 }
 
 int
-tty_istrapsig()
+tty_istrapsig ()
 {
-  return !(termbuf.sg.sg_flags&RAW);
+  return !(termbuf.sg.sg_flags & RAW);
 }
 
 void
@@ -309,49 +309,49 @@ static cc_t oldeofc = '\004';
 void
 term_send_eof ()
 {
-#if VEOF == VMIN
-  if (!tty_isediting())
+# if VEOF == VMIN
+  if (!tty_isediting ())
     pty_output_byte (oldeofc);
-#endif
+# endif
 }
 
 int
 term_change_eof ()
 {
-#if VEOF == VMIN
-  if (!tty_isediting())
+# if VEOF == VMIN
+  if (!tty_isediting ())
     return 1;
   if (slctab[SLC_EOF].sptr)
     oldeofc = *slctab[SLC_EOF].sptr;
   return 0;
-#endif
+# endif
 }
 
 int
-tty_linemode()
+tty_linemode ()
 {
-#ifdef EXTPROC
+# ifdef EXTPROC
   return (termbuf.c_lflag & EXTPROC);
-#else
-  return 0;		/* Can't ever set it either. */
-#endif /* EXTPROC */
+# else
+  return 0;			/* Can't ever set it either. */
+# endif	/* EXTPROC */
 }
 
 void
 tty_setlinemode (int on)
 {
-#ifdef	TIOCEXT
+# ifdef	TIOCEXT
   set_termbuf ();
-  ioctl (pty, TIOCEXT, (char *)&on);
+  ioctl (pty, TIOCEXT, (char *) &on);
   init_termbuf ();
-#else	/* !TIOCEXT */
-# ifdef	EXTPROC
+# else /* !TIOCEXT */
+#  ifdef	EXTPROC
   if (on)
     termbuf.c_lflag |= EXTPROC;
   else
     termbuf.c_lflag &= ~EXTPROC;
-# endif
-#endif	/* TIOCEXT */
+#  endif
+# endif	/* TIOCEXT */
 }
 
 int
@@ -373,7 +373,7 @@ tty_restartany ()
 }
 
 void
-tty_setecho(int on)
+tty_setecho (int on)
 {
   if (on)
     termbuf.c_lflag |= ECHO;
@@ -387,23 +387,23 @@ tty_israw ()
   return !(termbuf.c_lflag & ICANON);
 }
 
-#if defined (AUTHENTICATION) && defined(NO_LOGIN_F) && defined(LOGIN_R)
+# if defined (AUTHENTICATION) && defined(NO_LOGIN_F) && defined(LOGIN_R)
 int
-tty_setraw(int on)
+tty_setraw (int on)
 {
   if (on)
     termbuf.c_lflag &= ~ICANON;
   else
     termbuf.c_lflag |= ICANON;
 }
-#endif
+# endif
 
 void
 tty_binaryin (int on)
 {
   if (on)
     termbuf.c_iflag &= ~ISTRIP;
-  else 
+  else
     termbuf.c_iflag |= ISTRIP;
 }
 
@@ -412,14 +412,14 @@ tty_binaryout (int on)
 {
   if (on)
     {
-      termbuf.c_cflag &= ~(CSIZE|PARENB);
+      termbuf.c_cflag &= ~(CSIZE | PARENB);
       termbuf.c_cflag |= CS8;
       termbuf.c_oflag &= ~OPOST;
     }
   else
     {
       termbuf.c_cflag &= ~CSIZE;
-      termbuf.c_cflag |= CS7|PARENB;
+      termbuf.c_cflag |= CS7 | PARENB;
       termbuf.c_oflag |= OPOST;
     }
 }
@@ -433,7 +433,7 @@ tty_isbinaryin ()
 int
 tty_isbinaryout ()
 {
-  return !(termbuf.c_oflag&OPOST);
+  return !(termbuf.c_oflag & OPOST);
 }
 
 int
@@ -443,7 +443,7 @@ tty_isediting ()
 }
 
 int
-tty_istrapsig()
+tty_istrapsig ()
 {
   return termbuf.c_lflag & ISIG;
 }
@@ -511,9 +511,9 @@ tty_islitecho ()
 # ifdef	TCTLECH
   return !(termbuf.c_lflag & TCTLECH);
 # endif
-# if!defined(ECHOCTL) && !defined(TCTLECH)
-  return 0;	/* assumes ctl chars are echoed '^x' */
-#endif
+# if !defined(ECHOCTL) && !defined(TCTLECH)
+  return 0;			/* assumes ctl chars are echoed '^x' */
+# endif
 }
 
 void
@@ -554,8 +554,8 @@ void
 copy_termbuf ()
 {
   int len = 0;
-  char *cp = (char*) &termbuf;
-  
+  char *cp = (char *) &termbuf;
+
   while (pty_input_level () > 0)
     {
       if (len >= sizeof (termbuf))
@@ -582,32 +582,32 @@ set_termbuf ()
  
    It returns the SLC_ level of support for this function. */
 
-#define	setval(a, b)	*valp = termbuf.a ; \
+#define setval(a, b)	*valp = termbuf.a ; \
 			*valpp = &termbuf.a ; \
 			return b;
-#define	defval(a)       *valp = ((cc_t)a); \
+#define defval(a)       *valp = ((cc_t)a); \
                         *valpp = (cc_t *)0; \
 			return SLC_DEFAULT;
 
 int
-spcset (int func, cc_t *valp, cc_t **valpp)
+spcset (int func, cc_t * valp, cc_t ** valpp)
 {
   switch (func)
     {
     case SLC_EOF:
       setval (termdesc_eofc, SLC_VARIABLE);
-      
+
     case SLC_EC:
       setval (termdesc_erase, SLC_VARIABLE);
-      
+
     case SLC_EL:
       setval (termdesc_kill, SLC_VARIABLE);
-      
+
     case SLC_IP:
-      setval (termdesc_ip, SLC_VARIABLE|SLC_FLUSHIN|SLC_FLUSHOUT);
-      
+      setval (termdesc_ip, SLC_VARIABLE | SLC_FLUSHIN | SLC_FLUSHOUT);
+
     case SLC_ABORT:
-      setval (termdesc_abort, SLC_VARIABLE|SLC_FLUSHIN|SLC_FLUSHOUT);
+      setval (termdesc_abort, SLC_VARIABLE | SLC_FLUSHIN | SLC_FLUSHOUT);
 
     case SLC_XON:
 #ifdef termdesc_xon
@@ -615,59 +615,59 @@ spcset (int func, cc_t *valp, cc_t **valpp)
 #else
       defval (0x13);
 #endif
-      
+
     case SLC_XOFF:
 #ifdef termdesc_xoff
       setval (termdesc_xoff, SLC_VARIABLE);
 #else
       defval (0x11);
 #endif
-      
+
     case SLC_EW:
 #ifdef termdesc_ew
       setval (termdesc_ew, SLC_VARIABLE);
 #else
       defval (0);
 #endif
-      
+
     case SLC_RP:
 #ifdef termdesc_rp
       setval (termdesc_rp, SLC_VARIABLE);
 #else
-      defval(0);
+      defval (0);
 #endif
-      
+
     case SLC_LNEXT:
 #ifdef termdesc_lnext
       setval (termdesc_lnext, SLC_VARIABLE);
 #else
       defval (0);
 #endif
-      
+
     case SLC_AO:
-#ifdef termdesc_ao      
-      setval (termdesc_ao, SLC_VARIABLE|SLC_FLUSHOUT);
+#ifdef termdesc_ao
+      setval (termdesc_ao, SLC_VARIABLE | SLC_FLUSHOUT);
 #else
       defval (0);
 #endif
-      
+
     case SLC_SUSP:
 #ifdef termdesc_susp
-      setval (termdesc_susp, SLC_VARIABLE|SLC_FLUSHIN);
+      setval (termdesc_susp, SLC_VARIABLE | SLC_FLUSHIN);
 #else
       defval (0);
 #endif
-      
+
 #ifdef termdesc_forw1
     case SLC_FORW1:
       setval (termdesc_forw1, SLC_VARIABLE);
 #endif
-      
+
 #ifdef termdesc_forw2
     case SLC_FORW2:
       setval (termdesc_forw2, SLC_VARIABLE);
 #endif
-      
+
     case SLC_AYT:
 #ifdef termdesc_status
       setval (termdesc_status, SLC_VARIABLE);
@@ -688,7 +688,7 @@ spcset (int func, cc_t *valp, cc_t **valpp)
 }
 
 #if B4800 != 4800
-#define	DECODE_BAUD
+# define DECODE_BAUD
 #endif
 
 #ifdef	DECODE_BAUD
@@ -696,43 +696,76 @@ spcset (int func, cc_t *valp, cc_t **valpp)
 /*
  * A table of available terminal speeds
  */
-struct termspeeds {
-  int	speed;
-  int	value;
-} termspeeds[] = {
-  { 0,     B0 },    { 50,    B50 },   { 75,    B75 },
-  { 110,   B110 },  { 134,   B134 },  { 150,   B150 },
-  { 200,   B200 },  { 300,   B300 },  { 600,   B600 },
-  { 1200,  B1200 }, { 1800,  B1800 }, { 2400,  B2400 },
-  { 4800,   B4800 },
-#ifdef	B7200
-  { 7200,  B7200 },
-#endif
-  { 9600,   B9600 },
-#ifdef	B14400
-  { 14400,  B14400 },
-#endif
-#ifdef	B19200
-  { 19200,  B19200 },
-#endif
-#ifdef	B28800
-  { 28800,  B28800 },
-#endif
-#ifdef	B38400
-  { 38400,  B38400 },
-#endif
-#ifdef	B57600
-  { 57600,  B57600 },
-#endif
-#ifdef	B115200
-  { 115200, B115200 },
-#endif
-#ifdef	B230400
-  { 230400, B230400 },
-#endif
-  { -1,     0 }
+struct termspeeds
+{
+  int speed;
+  int value;
+} termspeeds[] =
+{
+  {
+  0, B0},
+  {
+  50, B50},
+  {
+  75, B75},
+  {
+  110, B110},
+  {
+  134, B134},
+  {
+  150, B150},
+  {
+  200, B200},
+  {
+  300, B300},
+  {
+  600, B600},
+  {
+  1200, B1200},
+  {
+  1800, B1800},
+  {
+  2400, B2400},
+  {
+  4800, B4800},
+# ifdef	B7200
+  {
+  7200, B7200},
+# endif
+  {
+  9600, B9600},
+# ifdef	B14400
+  {
+  14400, B14400},
+# endif
+# ifdef	B19200
+  {
+  19200, B19200},
+# endif
+# ifdef	B28800
+  {
+  28800, B28800},
+# endif
+# ifdef	B38400
+  {
+  38400, B38400},
+# endif
+# ifdef	B57600
+  {
+  57600, B57600},
+# endif
+# ifdef	B115200
+  {
+  115200, B115200},
+# endif
+# ifdef	B230400
+  {
+  230400, B230400},
+# endif
+  {
+  -1, 0}
 };
-#endif	/* DECODE_BAUD */
+#endif /* DECODE_BAUD */
 
 void
 tty_tspeed (int val)
@@ -742,10 +775,10 @@ tty_tspeed (int val)
 
   for (tp = termspeeds; (tp->speed != -1) && (val > tp->speed); tp++)
     ;
-  if (tp->speed == -1)	/* back up to last valid value */
+  if (tp->speed == -1)		/* back up to last valid value */
     --tp;
   val = tp->value;
-#endif	
+#endif
   cfsetospeed (&termbuf, val);
 }
 
@@ -757,13 +790,9 @@ tty_rspeed (int val)
 
   for (tp = termspeeds; (tp->speed != -1) && (val > tp->speed); tp++)
     ;
-  if (tp->speed == -1)	/* back up to last valid value */
+  if (tp->speed == -1)		/* back up to last valid value */
     --tp;
   val = tp->value;
 #endif
   cfsetispeed (&termbuf, val);
 }
-
-
- 
-

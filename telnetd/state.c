@@ -35,10 +35,10 @@ static char sccsid[] = "@(#)state.c	8.5 (Berkeley) 5/30/95";
 #include <stdarg.h>
 
 /* Format lines for corresponing commands */
-unsigned char doopt[] = {IAC, DO, '%', 'c', 0};
-unsigned char dont[] = {IAC, DONT, '%', 'c', 0};
-unsigned char will[] = {IAC, WILL, '%', 'c', 0};
-unsigned char wont[] = {IAC, WONT, '%', 'c', 0};
+unsigned char doopt[] = { IAC, DO, '%', 'c', 0 };
+unsigned char dont[] = { IAC, DONT, '%', 'c', 0 };
+unsigned char will[] = { IAC, WILL, '%', 'c', 0 };
+unsigned char wont[] = { IAC, WONT, '%', 'c', 0 };
 int not42 = 1;
 
 /*
@@ -47,34 +47,34 @@ int not42 = 1;
  */
 unsigned char subbuffer[512], *subpointer = subbuffer, *subend = subbuffer;
 
-#define	SB_CLEAR()	subpointer = subbuffer
-#define	SB_TERM()	{ subend = subpointer; SB_CLEAR(); }
-#define	SB_ACCUM(c)	if (subpointer < (subbuffer+sizeof subbuffer)) { \
+#define SB_CLEAR()	subpointer = subbuffer
+#define SB_TERM()	{ subend = subpointer; SB_CLEAR(); }
+#define SB_ACCUM(c)	if (subpointer < (subbuffer+sizeof subbuffer)) { \
 				*subpointer++ = (c); \
 			}
-#define	SB_GET()	((*subpointer++)&0xff)
-#define	SB_EOF()	(subpointer >= subend)
-#define	SB_LEN()	(subend - subpointer)
+#define SB_GET()	((*subpointer++)&0xff)
+#define SB_EOF()	(subpointer >= subend)
+#define SB_LEN()	(subend - subpointer)
 
 #ifdef	ENV_HACK
 unsigned char *subsave;
-#define SB_SAVE()	subsave = subpointer;
-#define	SB_RESTORE()	subpointer = subsave;
+# define SB_SAVE()	subsave = subpointer;
+# define SB_RESTORE()	subpointer = subsave;
 #endif
 
 
 /*
  * State for recv fsm
  */
-#define	TS_DATA		0	/* base state */
-#define	TS_IAC		1	/* look for double IAC's */
-#define	TS_CR		2	/* CR-LF ->'s CR */
-#define	TS_SB		3	/* throw away begin's... */
-#define	TS_SE		4	/* ...end's (suboption negotiation) */
-#define	TS_WILL		5	/* will option negotiation */
-#define	TS_WONT		6	/* wont " */
-#define	TS_DO		7	/* do " */
-#define	TS_DONT		8	/* dont " */
+#define TS_DATA		0	/* base state */
+#define TS_IAC		1	/* look for double IAC's */
+#define TS_CR		2	/* CR-LF ->'s CR */
+#define TS_SB		3	/* throw away begin's... */
+#define TS_SE		4	/* ...end's (suboption negotiation) */
+#define TS_WILL		5	/* will option negotiation */
+#define TS_WONT		6	/* wont " */
+#define TS_DO		7	/* do " */
+#define TS_DONT		8	/* dont " */
 
 static void
 send_eof ()
@@ -92,7 +92,7 @@ send_eof ()
 static void
 recv_ayt ()
 {
-#if	defined(SIGINFO) && defined(TCSIG)
+#if defined(SIGINFO) && defined(TCSIG)
   if (slctab[SLC_AYT].sptr && *slctab[SLC_AYT].sptr != _POSIX_VDISABLE)
     {
       ioctl (pty, TCSIG, (char *) SIGINFO);
@@ -107,12 +107,12 @@ send_susp ()
 {
 #ifdef	SIGTSTP
   ptyflush ();			/* half-hearted */
-#ifdef	TCSIG
+# ifdef	TCSIG
   ioctl (pty, TCSIG, (char *) SIGTSTP);
-#else /* TCSIG */
+# else /* TCSIG */
   pty_output_byte (slctab[SLC_SUSP].sptr ?
 		   (unsigned char) *slctab[SLC_SUSP].sptr : '\032');
-#endif /* TCSIG */
+# endif	/* TCSIG */
 #endif /* SIGTSTP */
 }
 
@@ -152,13 +152,13 @@ send_intr ()
     ioctl (pty, I_FLUSH, FLUSHR);
   }
 #else
-#ifdef	TCSIG
+# ifdef	TCSIG
   ioctl (pty, TCSIG, (char *) SIGINT);
-#else /* TCSIG */
+# else /* TCSIG */
   init_termbuf ();
   pty_output_byte (slctab[SLC_IP].sptr ?
 		   (unsigned char) *slctab[SLC_IP].sptr : '\177');
-#endif /* TCSIG */
+# endif	/* TCSIG */
 #endif
 }
 
@@ -168,7 +168,7 @@ telrcv ()
   register int c;
   static int state = TS_DATA;
 
-  while (net_input_level () > 0 & !pty_buffer_is_full () )
+  while (net_input_level () > 0 & !pty_buffer_is_full ())
     {
       c = net_get_char (0);
 #ifdef	ENCRYPTION
@@ -217,7 +217,7 @@ telrcv ()
 		  && net_input_level () > 0
 		  && (('\n' == nc) || (!nc && tty_iscrnl ())))
 		{
-		  net_get_char (0); /* Remove from the buffer */
+		  net_get_char (0);	/* Remove from the buffer */
 		  c = '\n';
 		}
 	      else
@@ -243,14 +243,12 @@ telrcv ()
 	       * interrupt char; depending on the tty mode.
 	       */
 	    case IP:
-	      DEBUG (debug_options, 1,
-		    printoption ("td: recv IAC", c));
+	      DEBUG (debug_options, 1, printoption ("td: recv IAC", c));
 	      send_intr ();
 	      break;
 
 	    case BREAK:
-	      DEBUG (debug_options, 1,
-		    printoption ("td: recv IAC", c));
+	      DEBUG (debug_options, 1, printoption ("td: recv IAC", c));
 	      send_brk ();
 	      break;
 
@@ -258,8 +256,7 @@ telrcv ()
 	       * Are You There?
 	       */
 	    case AYT:
-	      DEBUG (debug_options, 1,
-                     printoption ("td: recv IAC", c));
+	      DEBUG (debug_options, 1, printoption ("td: recv IAC", c));
 	      recv_ayt ();
 	      break;
 
@@ -268,8 +265,7 @@ telrcv ()
 	       */
 	    case AO:
 	      {
-                DEBUG (debug_options, 1,
-		      printoption ("td: recv IAC", c));
+		DEBUG (debug_options, 1, printoption ("td: recv IAC", c));
 		ptyflush ();	/* half-hearted */
 		init_termbuf ();
 
@@ -280,8 +276,7 @@ telrcv ()
 		netclear ();	/* clear buffer back */
 		net_output_data ("%c%c", IAC, DM);
 		set_neturg ();
-		DEBUG(debug_options, 1,
-		      printoption ("td: send IAC", DM));
+		DEBUG (debug_options, 1, printoption ("td: send IAC", DM));
 		break;
 	      }
 
@@ -294,8 +289,7 @@ telrcv ()
 	      {
 		cc_t ch;
 
-                DEBUG(debug_options, 1,            
-		      printoption ("td: recv IAC", c));
+		DEBUG (debug_options, 1, printoption ("td: recv IAC", c));
 		ptyflush ();	/* half-hearted */
 		init_termbuf ();
 		if (c == EC)
@@ -303,7 +297,7 @@ telrcv ()
 		else
 		  ch = *slctab[SLC_EL].sptr;
 		if (ch != (cc_t) (_POSIX_VDISABLE))
-		  pty_output_byte ((unsigned char)ch);
+		  pty_output_byte ((unsigned char) ch);
 		break;
 	      }
 
@@ -311,8 +305,7 @@ telrcv ()
 	       * Check for urgent data...
 	       */
 	    case DM:
-	      DEBUG(debug_options, 1,
-		    printoption ("td: recv IAC", c));
+	      DEBUG (debug_options, 1, printoption ("td: recv IAC", c));
 	      SYNCHing = stilloob (net);
 	      settimer (gotDM);
 	      break;
@@ -520,7 +513,7 @@ send_do (int option, int init)
     }
   net_output_data (doopt, option);
 
-  DEBUG(debug_options, 1, printoption ("td: send do", option));
+  DEBUG (debug_options, 1, printoption ("td: send do", option));
 }
 
 #ifdef	AUTHENTICATION
@@ -541,7 +534,7 @@ willoption (int option)
    * process input from peer.
    */
 
-  DEBUG(debug_options, 1, printoption ("td: recv will", option));
+  DEBUG (debug_options, 1, printoption ("td: recv will", option));
 
   if (do_dont_resp[option])
     {
@@ -738,7 +731,7 @@ send_dont (int option, int init)
     }
   net_output_data (dont, option);
 
-  DEBUG(debug_options, 1, printoption ("td: send dont", option));
+  DEBUG (debug_options, 1, printoption ("td: send dont", option));
 }
 
 void
@@ -748,7 +741,7 @@ wontoption (int option)
    * Process client input.
    */
 
-  DEBUG(debug_options, 1, printoption ("td: recv wont", option));
+  DEBUG (debug_options, 1, printoption ("td: recv wont", option));
 
   if (do_dont_resp[option])
     {
@@ -805,7 +798,7 @@ wontoption (int option)
 	      slctab[SLC_XOFF].defset.flag |= SLC_CANTCHANGE;
 	      break;
 
-#if	defined(AUTHENTICATION)
+#if defined(AUTHENTICATION)
 	    case TELOPT_AUTHENTICATION:
 	      auth_finished (0, AUTH_REJECT);
 	      break;
@@ -860,7 +853,7 @@ wontoption (int option)
 		}
 	      break;
 
-#if	defined(AUTHENTICATION)
+#if defined(AUTHENTICATION)
 	    case TELOPT_AUTHENTICATION:
 	      auth_finished (0, AUTH_REJECT);
 	      break;
@@ -887,7 +880,7 @@ send_will (int option, int init)
     }
   net_output_data (will, option);
 
-  DEBUG(debug_options, 1,printoption ("td: send will", option));
+  DEBUG (debug_options, 1, printoption ("td: send will", option));
 }
 
 void
@@ -899,7 +892,7 @@ dooption (int option)
    * Process client input.
    */
 
-  DEBUG(debug_options, 1, printoption ("td: recv do", option));
+  DEBUG (debug_options, 1, printoption ("td: recv do", option));
 
   if (will_wont_resp[option])
     {
@@ -1030,7 +1023,7 @@ send_wont (int option, int init)
     }
   net_output_data (wont, option);
 
-  DEBUG(debug_options, 1, printoption ("td: send wont", option));
+  DEBUG (debug_options, 1, printoption ("td: send wont", option));
 }
 
 void
@@ -1040,7 +1033,7 @@ dontoption (int option)
    * Process client input.
    */
 
-  DEBUG(debug_options, 1,printoption ("td: recv dont", option));
+  DEBUG (debug_options, 1, printoption ("td: recv dont", option));
 
   if (will_wont_resp[option])
     {
@@ -1059,8 +1052,7 @@ dontoption (int option)
 	  break;
 
 	case TELOPT_ECHO:	/* we should stop echoing */
-	  if ((lmodetype != REAL_LINEMODE) &&
-	      (lmodetype != KLUDGE_LINEMODE))
+	  if ((lmodetype != REAL_LINEMODE) && (lmodetype != KLUDGE_LINEMODE))
 	    {
 	      init_termbuf ();
 	      tty_setecho (0);
@@ -1074,8 +1066,7 @@ dontoption (int option)
 	   * must process an incoming do SGA for
 	   * linemode purposes.
 	   */
-	  if ((lmodetype == KLUDGE_LINEMODE) ||
-	      (lmodetype == KLUDGE_OK))
+	  if ((lmodetype == KLUDGE_LINEMODE) || (lmodetype == KLUDGE_OK))
 	    {
 	      /*
 	       * The client is asking us to turn
@@ -1108,8 +1099,8 @@ dontoption (int option)
 int env_ovar = -1;
 int env_ovalue = -1;
 #else /* ENV_HACK */
-#define env_ovar OLD_ENV_VAR
-#define env_ovalue OLD_ENV_VALUE
+# define env_ovar OLD_ENV_VAR
+# define env_ovalue OLD_ENV_VALUE
 #endif /* ENV_HACK */
 
 /*
@@ -1130,7 +1121,7 @@ suboption ()
 {
   register int subchar;
 
-  DEBUG(debug_options, 1, printsub ('<', subpointer, SB_LEN () + 2));
+  DEBUG (debug_options, 1, printsub ('<', subpointer, SB_LEN () + 2));
 
   subchar = SB_GET ();
   switch (subchar)
@@ -1161,13 +1152,13 @@ suboption ()
       }				/* end of case TELOPT_TSPEED */
 
     case TELOPT_TTYPE:
-      {				
+      {
 	static struct obstack stk;
 	char *p;
-	
+
 	if (his_state_is_wont (TELOPT_TTYPE))	/* Ignore if option disabled */
 	  break;
-	
+
 	settimer (ttypesubopt);
 
 	if (SB_EOF () || SB_GET () != TELQUAL_IS)
@@ -1175,7 +1166,7 @@ suboption ()
 
 	if (terminaltype)
 	  free (terminaltype);
-	
+
 	obstack_init (&stk);
 	while (!SB_EOF ())
 	  {
@@ -1219,7 +1210,7 @@ suboption ()
 	register int request;
 
 	/* Ignore if option disabled */
-	if (his_state_is_wont (TELOPT_LINEMODE)) 
+	if (his_state_is_wont (TELOPT_LINEMODE))
 	  break;
 	/*
 	 * Process linemode suboptions.
@@ -1342,7 +1333,7 @@ suboption ()
 	     */
 	    if (env_ovar < 0)
 	      {
-		register int last = -1;		/* invalid value */
+		register int last = -1;	/* invalid value */
 		int empty = 0;
 		int got_var = 0, got_value = 0, got_uservar = 0;
 
@@ -1435,9 +1426,9 @@ suboption ()
 		  env_ovar_wrong:
 		    env_ovar = OLD_ENV_VALUE;
 		    env_ovalue = OLD_ENV_VAR;
-		    DEBUG(debug_options, 1,
-			  debug_output_data (
-				 "ENVIRON VALUE and VAR are reversed!\r\n"));
+		    DEBUG (debug_options, 1,
+			   debug_output_data
+			   ("ENVIRON VALUE and VAR are reversed!\r\n"));
 		  }
 	      }
 	    SB_RESTORE ();
@@ -1503,7 +1494,7 @@ suboption ()
 	  unsetenv (varp);
 	break;
       }				/* end of case TELOPT_NEW_ENVIRON */
-#if	defined(AUTHENTICATION)
+#if defined(AUTHENTICATION)
     case TELOPT_AUTHENTICATION:
       if (SB_EOF ())
 	break;
@@ -1685,7 +1676,7 @@ send_status ()
   net_output_datalen (statusbuf, ncp - statusbuf);
   netflush ();			/* Send it on its way */
 
-  DEBUG(debug_options, 1, printsub ('>', statusbuf, ncp - statusbuf));
+  DEBUG (debug_options, 1, printsub ('>', statusbuf, ncp - statusbuf));
   return;
 
 trunc:
@@ -1694,4 +1685,3 @@ trunc:
 #undef ADD
 #undef ADD_DATA
 }
-

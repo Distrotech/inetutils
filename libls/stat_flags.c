@@ -31,15 +31,16 @@
  */
 
 #ifndef lint
-#if 0
+# if 0
 static char sccsid[] = "@(#)stat_flags.c	8.2 (Berkeley) 7/28/94";
-#else
-static char rcsid[] = "$OpenBSD: stat_flags.c,v 1.4 1999/09/08 07:21:29 millert Exp $";
-#endif
+# else
+static char rcsid[] =
+  "$OpenBSD: stat_flags.c,v 1.4 1999/09/08 07:21:29 millert Exp $";
+# endif
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -48,7 +49,7 @@ static char rcsid[] = "$OpenBSD: stat_flags.c,v 1.4 1999/09/08 07:21:29 millert 
 #include <stddef.h>
 #include <string.h>
 
-#define	SAPPEND(s) {							\
+#define SAPPEND(s) {							\
 	if (prefix != NULL)						\
 		strcat(string, prefix);				\
 	strcat(string, s);					\
@@ -61,35 +62,35 @@ static char rcsid[] = "$OpenBSD: stat_flags.c,v 1.4 1999/09/08 07:21:29 millert 
  *	are set, return the default string.
  */
 char *
-flags_to_string(flags, def)
-	u_int flags;
-	char *def;
+flags_to_string (flags, def)
+     u_int flags;
+     char *def;
 {
-	static char string[128];
-	char *prefix;
+  static char string[128];
+  char *prefix;
 
-	string[0] = '\0';
-	prefix = NULL;
+  string[0] = '\0';
+  prefix = NULL;
 #ifdef ORIGINAL_SOURCE
-	if (flags & UF_APPEND)
-		SAPPEND("uappnd");
-	if (flags & UF_IMMUTABLE)
-		SAPPEND("uchg");
-	if (flags & UF_NODUMP)
-		SAPPEND("nodump");
-	if (flags & UF_OPAQUE)
-		SAPPEND("opaque");
-	if (flags & SF_APPEND)
-		SAPPEND("sappnd");
-	if (flags & SF_ARCHIVED)
-		SAPPEND("arch");
-	if (flags & SF_IMMUTABLE)
-		SAPPEND("schg");
+  if (flags & UF_APPEND)
+    SAPPEND ("uappnd");
+  if (flags & UF_IMMUTABLE)
+    SAPPEND ("uchg");
+  if (flags & UF_NODUMP)
+    SAPPEND ("nodump");
+  if (flags & UF_OPAQUE)
+    SAPPEND ("opaque");
+  if (flags & SF_APPEND)
+    SAPPEND ("sappnd");
+  if (flags & SF_ARCHIVED)
+    SAPPEND ("arch");
+  if (flags & SF_IMMUTABLE)
+    SAPPEND ("schg");
 #endif /* ORIGINAL_SOURCE */
-	return (prefix == NULL && def != NULL ? def : string);
+  return (prefix == NULL && def != NULL ? def : string);
 }
 
-#define	TEST(a, b, f) {							\
+#define TEST(a, b, f) {							\
 	if (!memcmp(a, b, sizeof(b))) {					\
 		if (clear) {						\
 			if (clrp)					\
@@ -107,58 +108,60 @@ flags_to_string(flags, def)
  *	to the offending token.
  */
 int
-string_to_flags(stringp, setp, clrp)
-	char **stringp;
-	u_int *setp, *clrp;
+string_to_flags (stringp, setp, clrp)
+     char **stringp;
+     u_int *setp, *clrp;
 {
-	int clear;
-	char *string, *p;
+  int clear;
+  char *string, *p;
 
-	if (setp)
-		*setp = 0;
-	if (clrp)
-		*clrp = 0;
-	string = *stringp;
+  if (setp)
+    *setp = 0;
+  if (clrp)
+    *clrp = 0;
+  string = *stringp;
 #ifdef ORIGINAL_SOURCE
-	while ((p = strsep(&string, "\t ,")) != NULL) {
-		clear = 0;
-		*stringp = p;
-		if (*p == '\0')
-			continue;
-		if (p[0] == 'n' && p[1] == 'o') {
-			clear = 1;
-			p += 2;
-		}
-		switch (p[0]) {
-		case 'a':
-			TEST(p, "arch", SF_ARCHIVED);
-			TEST(p, "archived", SF_ARCHIVED);
-			return (1);
-		case 'd':
-			clear = !clear;
-			TEST(p, "dump", UF_NODUMP);
-			return (1);
-		case 'o':
-			TEST(p, "opaque", UF_OPAQUE);
-			return (1);
-		case 's':
-			TEST(p, "sappnd", SF_APPEND);
-			TEST(p, "sappend", SF_APPEND);
-			TEST(p, "schg", SF_IMMUTABLE);
-			TEST(p, "schange", SF_IMMUTABLE);
-			TEST(p, "simmutable", SF_IMMUTABLE);
-			return (1);
-		case 'u':
-			TEST(p, "uappnd", UF_APPEND);
-			TEST(p, "uappend", UF_APPEND);
-			TEST(p, "uchg", UF_IMMUTABLE);
-			TEST(p, "uchange", UF_IMMUTABLE);
-			TEST(p, "uimmutable", UF_IMMUTABLE);
-			/* FALLTHROUGH */
-		default:
-			return (1);
-		}
+  while ((p = strsep (&string, "\t ,")) != NULL)
+    {
+      clear = 0;
+      *stringp = p;
+      if (*p == '\0')
+	continue;
+      if (p[0] == 'n' && p[1] == 'o')
+	{
+	  clear = 1;
+	  p += 2;
 	}
+      switch (p[0])
+	{
+	case 'a':
+	  TEST (p, "arch", SF_ARCHIVED);
+	  TEST (p, "archived", SF_ARCHIVED);
+	  return (1);
+	case 'd':
+	  clear = !clear;
+	  TEST (p, "dump", UF_NODUMP);
+	  return (1);
+	case 'o':
+	  TEST (p, "opaque", UF_OPAQUE);
+	  return (1);
+	case 's':
+	  TEST (p, "sappnd", SF_APPEND);
+	  TEST (p, "sappend", SF_APPEND);
+	  TEST (p, "schg", SF_IMMUTABLE);
+	  TEST (p, "schange", SF_IMMUTABLE);
+	  TEST (p, "simmutable", SF_IMMUTABLE);
+	  return (1);
+	case 'u':
+	  TEST (p, "uappnd", UF_APPEND);
+	  TEST (p, "uappend", UF_APPEND);
+	  TEST (p, "uchg", UF_IMMUTABLE);
+	  TEST (p, "uchange", UF_IMMUTABLE);
+	  TEST (p, "uimmutable", UF_IMMUTABLE);
+	default:
+	  return (1);
+	}
+    }
 #endif /* ORIGINAL_SOURCE */
-	return (0);
+  return (0);
 }

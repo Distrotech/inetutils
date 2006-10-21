@@ -41,20 +41,20 @@
 #endif
 
 #if !defined (__GNUC__) && defined (_AIX)
-#pragma alloca
+# pragma alloca
 #endif
-#ifndef alloca /* Make alloca work the best possible way.  */
+#ifndef alloca			/* Make alloca work the best possible way.  */
 # ifdef __GNUC__
 #  define alloca __builtin_alloca
 # else /* not __GNUC__ */
 #  if HAVE_ALLOCA_H
 #   include <alloca.h>
-#  else /* not __GNUC__ or HAVE_ALLOCA_H */
-#   ifndef _AIX /* Already did AIX, up at the top.  */
+#  else	/* not __GNUC__ or HAVE_ALLOCA_H */
+#   ifndef _AIX			/* Already did AIX, up at the top.  */
 char *alloca ();
 #   endif /* not _AIX */
 #  endif /* not HAVE_ALLOCA_H */
-# endif /* not __GNUC__ */
+# endif	/* not __GNUC__ */
 #endif /* not alloca */
 
 #include <sys/param.h>
@@ -100,47 +100,46 @@ char *alloca ();
 
 #include <libinetutils.h>
 
-int	keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
-int	check_all;
-int	log_success;		/* If TRUE, log all successful accesses */
-int	sent_null;
+int keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
+int check_all;
+int log_success;		/* If TRUE, log all successful accesses */
+int sent_null;
 
-void	 doit (int, struct sockaddr_in *);
-void	 rshd_error (const char *, ...);
-char	*getstr (const char *);
-int	 local_domain (const char *);
+void doit (int, struct sockaddr_in *);
+void rshd_error (const char *, ...);
+char *getstr (const char *);
+int local_domain (const char *);
 const char *topdomain (const char *);
-void	 usage (void);
-void     help (void);
+void usage (void);
+void help (void);
 
 #if defined(KERBEROS) || defined(SHISHI)
-#ifdef KERBEROS
-# include <kerberosIV/des.h>
-# include <kerberosIV/krb.h>
-Key_schedule	schedule;
-char	authbuf[sizeof(AUTH_DAT)];
-char	tickbuf[sizeof(KTEXT_ST)];
-#elif defined(SHISHI)
-# include <shishi.h>
-# include <shishi_def.h>
-Shishi * h;
-Shishi_ap * ap;
-Shishi_key * enckey;
+# ifdef KERBEROS
+#  include <kerberosIV/des.h>
+#  include <kerberosIV/krb.h>
+Key_schedule schedule;
+char authbuf[sizeof (AUTH_DAT)];
+char tickbuf[sizeof (KTEXT_ST)];
+# elif defined(SHISHI)
+#  include <shishi.h>
+#  include <shishi_def.h>
+Shishi *h;
+Shishi_ap *ap;
+Shishi_key *enckey;
 shishi_ivector iv1, iv2, iv3, iv4;
 shishi_ivector *ivtab[4];
 int protocol;
-#endif
-# define	VERSION_SIZE	9
+# endif
+# define VERSION_SIZE	9
 # define SECURE_MESSAGE  "This rsh session is using DES encryption for all transmissions.\r\n"
-# define	OPTIONS		"alnkvxLVh"
-int	doencrypt, use_kerberos, vacuous;
+# define OPTIONS		"alnkvxLVh"
+int doencrypt, use_kerberos, vacuous;
 #else
-# define	OPTIONS	"alnLVh"
+# define OPTIONS	"alnLVh"
 #endif
 
 static const char *short_options = OPTIONS;
-static struct option long_options[] =
-{
+static struct option long_options[] = {
   {"verify-hostname", no_argument, 0, 'a'},
   {"no-rhosts", no_argument, 0, 'l'},
   {"no-keepalive", no_argument, 0, 'n'},
@@ -158,7 +157,7 @@ char *program_name;
 int
 main (int argc, char *argv[])
 {
-  extern int __check_rhosts_file; /* hook in rcmd(3) */
+  extern int __check_rhosts_file;	/* hook in rcmd(3) */
   struct linger linger;
   int ch, on = 1, fromlen;
   struct sockaddr_in from;
@@ -176,11 +175,11 @@ main (int argc, char *argv[])
 	  break;
 
 	case 'l':
-	  __check_rhosts_file = 0; /* don't check .rhosts file */
+	  __check_rhosts_file = 0;	/* don't check .rhosts file */
 	  break;
 
 	case 'n':
-	  keepalive = 0; /* don't enable SO_KEEPALIVE */
+	  keepalive = 0;	/* don't enable SO_KEEPALIVE */
 	  break;
 
 #if defined(KERBEROS) || defined(SHISHI)
@@ -192,22 +191,22 @@ main (int argc, char *argv[])
 	  vacuous = 1;
 	  break;
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
 	case 'x':
 	  doencrypt = 1;
 	  break;
-#endif
+# endif
 #endif
 
 	case 'L':
 	  log_success = 1;
 	  break;
 
-       case 'V':
-          printf ("rshd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-          exit (0);
+	case 'V':
+	  printf ("rshd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
+	  exit (0);
 
-        case 'h':
+	case 'h':
 	  help ();
 	  exit (0);
 
@@ -233,13 +232,13 @@ main (int argc, char *argv[])
       syslog (LOG_ERR, "only one of -k and -v allowed");
       exit (2);
     }
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   if (doencrypt && !use_kerberos)
     {
       syslog (LOG_ERR, "-k is required for -x");
       exit (2);
     }
-#endif
+# endif
 #endif
 
   /*
@@ -256,19 +255,19 @@ main (int argc, char *argv[])
    */
 
   fromlen = sizeof from;
-  if (getpeername (sockfd, (struct sockaddr *)&from, &fromlen) < 0)
+  if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
     {
       syslog (LOG_ERR, "getpeername: %m");
       _exit (1);
     }
 
   /* Set the socket options: SO_KEEPALIVE and SO_LINGER */
-  if (keepalive && setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&on,
-			      sizeof on) < 0)
+  if (keepalive && setsockopt (sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *) &on,
+			       sizeof on) < 0)
     syslog (LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
   linger.l_onoff = 1;
-  linger.l_linger = 60;			/* XXX */
-  if (setsockopt (sockfd, SOL_SOCKET, SO_LINGER, (char *)&linger,
+  linger.l_linger = 60;		/* XXX */
+  if (setsockopt (sockfd, SOL_SOCKET, SO_LINGER, (char *) &linger,
 		  sizeof linger) < 0)
     syslog (LOG_WARNING, "setsockopt (SO_LINGER): %m");
   doit (sockfd, &from);
@@ -276,13 +275,13 @@ main (int argc, char *argv[])
   return 0;
 }
 
-char	username[20] = "USER=";
-char	logname[23] = "LOGNAME=";
-char	homedir[64] = "HOME=";
-char	shell[64] = "SHELL=";
-char	path[100] = "PATH=";
-char	*envinit[] = { homedir, shell, path, logname, username, 0 };
-extern char	**environ;
+char username[20] = "USER=";
+char logname[23] = "LOGNAME=";
+char homedir[64] = "HOME=";
+char shell[64] = "SHELL=";
+char path[100] = "PATH=";
+char *envinit[] = { homedir, shell, path, logname, username, 0 };
+extern char **environ;
 
 void
 doit (int sockfd, struct sockaddr_in *fromp)
@@ -299,34 +298,34 @@ doit (int sockfd, struct sockaddr_in *fromp)
   char *cmdbuf, *locuser, *remuser;
 
 #ifdef	KERBEROS
-  AUTH_DAT	*kdata = (AUTH_DAT *) NULL;
-  KTEXT		ticket = (KTEXT) NULL;
-  char		instance[INST_SZ], version[VERSION_SIZE];
-  struct		sockaddr_in	fromaddr;
-  int		rc;
-  long		authopts;
-  int		pv1[2], pv2[2];
-  fd_set		wready, writeto;
+  AUTH_DAT *kdata = (AUTH_DAT *) NULL;
+  KTEXT ticket = (KTEXT) NULL;
+  char instance[INST_SZ], version[VERSION_SIZE];
+  struct sockaddr_in fromaddr;
+  int rc;
+  long authopts;
+  int pv1[2], pv2[2];
+  fd_set wready, writeto;
 
   fromaddr = *fromp;
 #elif defined SHISHI
   int n;
-  int		pv1[2], pv2[2];
-  fd_set		wready, writeto;
+  int pv1[2], pv2[2];
+  fd_set wready, writeto;
   int keytype, keylen;
   int cksumtype, cksumlen;
   char *cksum = NULL;
 #endif
 
-  signal(SIGINT, SIG_DFL);
-  signal(SIGQUIT, SIG_DFL);
-  signal(SIGTERM, SIG_DFL);
+  signal (SIGINT, SIG_DFL);
+  signal (SIGQUIT, SIG_DFL);
+  signal (SIGTERM, SIG_DFL);
 #ifdef DEBUG
   {
-    int t = open(PATH_TTY, O_RDWR);
+    int t = open (PATH_TTY, O_RDWR);
     if (t >= 0)
       {
-	ioctl (t, TIOCNOTTY, (char *)0);
+	ioctl (t, TIOCNOTTY, (char *) 0);
 	close (t);
       }
   }
@@ -340,16 +339,16 @@ doit (int sockfd, struct sockaddr_in *fromp)
     }
 #ifdef IP_OPTIONS
   {
-    u_char optbuf[BUFSIZ/3], *cp;
+    u_char optbuf[BUFSIZ / 3], *cp;
     char lbuf[BUFSIZ], *lp;
-    int optsize = sizeof(optbuf), ipproto;
+    int optsize = sizeof (optbuf), ipproto;
     struct protoent *ip;
 
     if ((ip = getprotobyname ("ip")) != NULL)
       ipproto = ip->p_proto;
     else
       ipproto = IPPROTO_IP;
-    if (!getsockopt (sockfd, ipproto, IP_OPTIONS, (char *)optbuf,
+    if (!getsockopt (sockfd, ipproto, IP_OPTIONS, (char *) optbuf,
 		     &optsize) && optsize != 0)
       {
 	lp = lbuf;
@@ -357,14 +356,14 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	 * Use syslog() to record the fact.
 	 */
 	for (cp = optbuf; optsize > 0; cp++, optsize--, lp += 3)
-	  sprintf(lp, " %2.2x", *cp);
-	syslog(LOG_NOTICE,
-	       "Connection received from %s using IP options (ignored):%s",
-	       inet_ntoa (fromp->sin_addr), lbuf);
+	  sprintf (lp, " %2.2x", *cp);
+	syslog (LOG_NOTICE,
+		"Connection received from %s using IP options (ignored):%s",
+		inet_ntoa (fromp->sin_addr), lbuf);
 
 	/* Turn off the options.  If this doesn't work, we quit */
 	if (setsockopt (sockfd, ipproto, IP_OPTIONS,
-			(char *)NULL, optsize) != 0)
+			(char *) NULL, optsize) != 0)
 	  {
 	    syslog (LOG_ERR, "setsockopt IP_OPTIONS NULL: %m");
 	    exit (1);
@@ -374,17 +373,17 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #endif
 
   /* Need host byte ordered port# to compare */
-  fromp->sin_port = ntohs((u_short)fromp->sin_port);
+  fromp->sin_port = ntohs ((u_short) fromp->sin_port);
   /* Verify that the client's address was bound to a reserved port */
 #if defined(KERBEROS) || defined(SHISHI)
   if (!use_kerberos)
 #endif
     if (fromp->sin_port >= IPPORT_RESERVED
-	|| fromp->sin_port < IPPORT_RESERVED/2)
+	|| fromp->sin_port < IPPORT_RESERVED / 2)
       {
-	syslog (LOG_NOTICE|LOG_AUTH,
+	syslog (LOG_NOTICE | LOG_AUTH,
 		"Connection from %s on illegal port %u",
-		inet_ntoa(fromp->sin_addr), fromp->sin_port);
+		inet_ntoa (fromp->sin_addr), fromp->sin_port);
 	exit (1);
       }
 
@@ -406,7 +405,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  exit (1);
 	}
       /* null byte terminates the string */
-      if (c== 0)
+      if (c == 0)
 	break;
       port = port * 10 + c - '0';
     }
@@ -432,7 +431,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #if defined(KERBEROS) || defined(SHISHI)
       if (!use_kerberos)
 #endif
-	if (port >= IPPORT_RESERVED || port < IPPORT_RESERVED/2)
+	if (port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
 	  {
 	    syslog (LOG_ERR, "2nd port not reserved\n");
 	    exit (1);
@@ -445,7 +444,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       syslog (LOG_ERR, "2nd port not reserved %d\n", port);
 
       fromp->sin_port = htons (port);
-      if (connect (s, (struct sockaddr *)fromp, sizeof (*fromp)) < 0)
+      if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
 	{
 	  syslog (LOG_INFO, "connect second port %d: %m", port);
 	  exit (1);
@@ -472,8 +471,8 @@ doit (int sockfd, struct sockaddr_in *fromp)
    * used for the authentication below.
    */
   errorstr = NULL;
-  hp = gethostbyaddr((char *)&fromp->sin_addr, sizeof (struct in_addr),
-		     fromp->sin_family);
+  hp = gethostbyaddr ((char *) &fromp->sin_addr, sizeof (struct in_addr),
+		      fromp->sin_family);
   if (hp)
     {
       /*
@@ -489,7 +488,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	if (check_all || local_domain (hp->h_name))
 	  {
 	    char *remotehost = (char *) alloca (strlen (hostname) + 1);
-	    if (! remotehost)
+	    if (!remotehost)
 	      errorstr = "Out of memory\n";
 	    else
 	      {
@@ -500,11 +499,12 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		  {
 		    syslog (LOG_INFO,
 			    "Couldn't look up address for %s", remotehost);
-		    errorstr = "Couldn't look up address for your host (%s)\n";
+		    errorstr =
+		      "Couldn't look up address for your host (%s)\n";
 		    hostname = inet_ntoa (fromp->sin_addr);
 		  }
 		else
-		  for (; ; hp->h_addr_list++)
+		  for (;; hp->h_addr_list++)
 		    {
 		      if (hp->h_addr_list[0] == NULL)
 			{
@@ -516,11 +516,11 @@ doit (int sockfd, struct sockaddr_in *fromp)
 			  break;
 			}
 		      if (!memcmp (hp->h_addr_list[0],
-				   (caddr_t)&fromp->sin_addr,
+				   (caddr_t) & fromp->sin_addr,
 				   sizeof fromp->sin_addr))
 			{
 			  hostname = hp->h_name;
-			  break; /* equal, OK */
+			  break;	/* equal, OK */
 			}
 		    }
 	      }
@@ -537,13 +537,13 @@ doit (int sockfd, struct sockaddr_in *fromp)
       authopts = 0L;
       strcpy (instance, "*");
       version[VERSION_SIZE - 1] = '\0';
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
       if (doencrypt)
 	{
 	  struct sockaddr_in local_addr;
 	  rc = sizeof local_addr;
 	  if (getsockname (STDIN_FILENO,
-			   (struct sockaddr *)&local_addr, &rc) < 0)
+			   (struct sockaddr *) &local_addr, &rc) < 0)
 	    {
 	      syslog (LOG_ERR, "getsockname: %m");
 	      rshd_error ("rlogind: getsockname: %s", strerror (errno));
@@ -552,151 +552,161 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  authopts = KOPT_DO_MUTUAL;
 	  rc = krb_recvauth (authopts, 0, ticket,
 			     "rcmd", instance, &fromaddr,
-			     &local_addr, kdata, "", schedule,
-			     version);
+			     &local_addr, kdata, "", schedule, version);
 	  des_set_key (kdata->session, schedule);
 	}
       else
-#endif
+# endif
 	rc = krb_recvauth (authopts, 0, ticket, "rcmd",
 			   instance, &fromaddr,
 			   (struct sockaddr_in *) 0,
 			   kdata, "", (bit_64 *) 0, version);
       if (rc != KSUCCESS)
 	{
-	  rshd_error ("Kerberos authentication failure: %s\n", krb_err_txt[rc]);
+	  rshd_error ("Kerberos authentication failure: %s\n",
+		      krb_err_txt[rc]);
 	  exit (1);
 	}
     }
   else
 #elif defined (SHISHI)
-    if (use_kerberos)
-      {
-	int rc;
-	char *err_msg;
+  if (use_kerberos)
+    {
+      int rc;
+      char *err_msg;
 
-	rc = get_auth (STDIN_FILENO, &h, &ap, &enckey, &err_msg, &protocol,
-		       &cksumtype, &cksum, &cksumlen);
-	if (rc != SHISHI_OK)
-	  {
-	    rshd_error ("Kerberos authentication failure: %s\n",
-			err_msg ? err_msg : shishi_strerror (rc));
+      rc = get_auth (STDIN_FILENO, &h, &ap, &enckey, &err_msg, &protocol,
+		     &cksumtype, &cksum, &cksumlen);
+      if (rc != SHISHI_OK)
+	{
+	  rshd_error ("Kerberos authentication failure: %s\n",
+		      err_msg ? err_msg : shishi_strerror (rc));
 	  exit (1);
 	}
-      }
+    }
   else
 #endif
-      remuser = getstr ("remuser");
+    remuser = getstr ("remuser");
 
   /* Read three strings from the client. */
   locuser = getstr ("locuser");
   cmdbuf = getstr ("command");
 
 #ifdef SHISHI
- {
-   int error;
-   int rc;
-   char * compcksum;
-   size_t compcksumlen;
-   char cksumdata[100];
-   struct sockaddr_in sock;
-   size_t socklen;    
+  {
+    int error;
+    int rc;
+    char *compcksum;
+    size_t compcksumlen;
+    char cksumdata[100];
+    struct sockaddr_in sock;
+    size_t socklen;
 
-#ifdef ENCRYPTION
-   if (strlen (cmdbuf) >= 3)
-     if (!strncmp (cmdbuf, "-x ", 3))
+# ifdef ENCRYPTION
+    if (strlen (cmdbuf) >= 3)
+      if (!strncmp (cmdbuf, "-x ", 3))
+	{
+	  doencrypt = 1;
+	  int i;
+
+	  ivtab[0] = &iv1;
+	  ivtab[1] = &iv2;
+	  ivtab[2] = &iv3;
+	  ivtab[3] = &iv4;
+
+	  keytype = shishi_key_type (enckey);
+	  keylen = shishi_cipher_blocksize (keytype);
+
+	  for (i = 0; i < 4; i++)
+	    {
+	      ivtab[i]->ivlen = keylen;
+
+	      switch (keytype)
+		{
+		case SHISHI_DES_CBC_CRC:
+		case SHISHI_DES_CBC_MD4:
+		case SHISHI_DES_CBC_MD5:
+		case SHISHI_DES_CBC_NONE:
+		case SHISHI_DES3_CBC_HMAC_SHA1_KD:
+		  ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
+		  ivtab[i]->iv = malloc (ivtab[i]->ivlen);
+		  memset (ivtab[i]->iv, 2 * i - 3 * (i >= 2),
+			  ivtab[i]->ivlen);
+		  ivtab[i]->ctx =
+		    shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				   shishi_key_type (enckey), ivtab[i]->iv,
+				   ivtab[i]->ivlen);
+		  break;
+
+		case SHISHI_ARCFOUR_HMAC:
+		case SHISHI_ARCFOUR_HMAC_EXP:
+		  ivtab[i]->keyusage =
+		    SHISHI_KEYUSAGE_KCMD_DES + 4 * (i < 2) + 2 + 2 * (i % 2);
+		  ivtab[i]->ctx =
+		    shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				   shishi_key_type (enckey), NULL, 0);
+		  break;
+
+		default:
+		  ivtab[i]->keyusage =
+		    SHISHI_KEYUSAGE_KCMD_DES + 4 * (i < 2) + 2 + 2 * (i % 2);
+		  ivtab[i]->iv = malloc (ivtab[i]->ivlen);
+		  memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
+		  if (protocol == 2)
+		    ivtab[i]->ctx =
+		      shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				     shishi_key_type (enckey), ivtab[i]->iv,
+				     ivtab[i]->ivlen);
+		}
+	    }
+
+	}
+# endif
+
+    remuser = getstr ("remuser");
+    rc = read (STDIN_FILENO, &error, sizeof (int));
+    if ((rc != sizeof (int)) && rc)
+      exit (1);
+
+    /* verify checksum */
+
+    /* Doesn't give socket port ? 
+       if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
        {
-	 doencrypt = 1;
-	 int i;
-
-	 ivtab[0] = &iv1;
-	 ivtab[1] = &iv2;
-	 ivtab[2] = &iv3;
-	 ivtab[3] = &iv4;
-
-	 keytype = shishi_key_type (enckey);
-	 keylen = shishi_cipher_blocksize (keytype);		
-
-	 for (i=0; i<4; i++)
-	   {
-	     ivtab[i]->ivlen = keylen;
-
-	     switch (keytype)
-	       {
-	       case SHISHI_DES_CBC_CRC:
-	       case SHISHI_DES_CBC_MD4:
-	       case SHISHI_DES_CBC_MD5:
-	       case SHISHI_DES_CBC_NONE:
-	       case SHISHI_DES3_CBC_HMAC_SHA1_KD:
-		 ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
-		 ivtab[i]->iv = malloc (ivtab[i]->ivlen);
-		 memset (ivtab[i]->iv, 2*i -3*(i>=2), ivtab[i]->ivlen);
-		 ivtab[i]->ctx = shishi_crypto (h, enckey, ivtab[i]->keyusage, shishi_key_type (enckey),
-						ivtab[i]->iv, ivtab[i]->ivlen);
-		 break;
-		 
-	       case SHISHI_ARCFOUR_HMAC:
-	       case SHISHI_ARCFOUR_HMAC_EXP:
-		 ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES + 4*(i<2) + 2 + 2*(i%2);
-		 ivtab[i]->ctx = shishi_crypto (h, enckey, ivtab[i]->keyusage, shishi_key_type (enckey),
-						NULL, 0);
-		 break;
-		 
-	       default :  
-		 ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES + 4*(i<2) + 2 + 2*(i%2);
-		 ivtab[i]->iv = malloc (ivtab[i]->ivlen);
-		 memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
-		 if (protocol == 2)
-		   ivtab[i]->ctx = shishi_crypto (h, enckey, ivtab[i]->keyusage, shishi_key_type (enckey),
-						  ivtab[i]->iv, ivtab[i]->ivlen);
-	       }
-	   }
-
-       }
-#endif
-
-   remuser = getstr ("remuser");
-   rc = read (STDIN_FILENO, &error, sizeof (int));
-   if ((rc != sizeof (int)) && rc)
-     exit (1);
-
-   /* verify checksum */
-   
-   /* Doesn't give socket port ? 
-   if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
-     {
        syslog (LOG_ERR, "Can't get sock name");
        exit (1);
-     }
-   */
-   snprintf (cksumdata, 100, "544:%s%s", /*ntohs(sock.sin_port),*/ cmdbuf, locuser);  
-   rc = shishi_checksum (h, enckey, 0, cksumtype, cksumdata,
-			 strlen (cksumdata), &compcksum, &compcksumlen);
-   free (cksum);
-   if (rc != SHISHI_OK
-       || compcksumlen != cksumlen
-       || memcmp (compcksum, cksum, cksumlen) != 0)
-     {
-       /* err_msg crash ? */
-       /* *err_msg = "checksum verify failed"; */
-       syslog (LOG_ERR, "checksum verify failed: %s", shishi_error (h));
-       free (compcksum);
-       exit (1);       
-     }
+       }
+     */
+    snprintf (cksumdata, 100, "544:%s%s", /*ntohs(sock.sin_port), */ cmdbuf,
+	      locuser);
+    rc =
+      shishi_checksum (h, enckey, 0, cksumtype, cksumdata, strlen (cksumdata),
+		       &compcksum, &compcksumlen);
+    free (cksum);
+    if (rc != SHISHI_OK
+	|| compcksumlen != cksumlen
+	|| memcmp (compcksum, cksum, cksumlen) != 0)
+      {
+	/* err_msg crash ? */
+	/* *err_msg = "checksum verify failed"; */
+	syslog (LOG_ERR, "checksum verify failed: %s", shishi_error (h));
+	free (compcksum);
+	exit (1);
+      }
 
-   rc = shishi_authorized_p (h, shishi_ap_tkt (ap), locuser);
-   if (!rc)
-     {
-       syslog (LOG_ERR, "User is not authorized to log in as: %s", locuser);
-       shishi_ap_done (ap);
-       exit (1);
-     }
+    rc = shishi_authorized_p (h, shishi_ap_tkt (ap), locuser);
+    if (!rc)
+      {
+	syslog (LOG_ERR, "User is not authorized to log in as: %s", locuser);
+	shishi_ap_done (ap);
+	exit (1);
+      }
 
-   free (compcksum);
+    free (compcksum);
 
-   shishi_ap_done (ap);
+    shishi_ap_done (ap);
 
- }
+  }
 #endif
 
   /* Look up locuser in the passerd file.  The locuser has\* to be a
@@ -706,7 +716,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   pwd = getpwnam (locuser);
   if (pwd == NULL)
     {
-      syslog (LOG_INFO|LOG_AUTH, "%s@%s as %s: unknown login. cmd='%.80s'",
+      syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: unknown login. cmd='%.80s'",
 	      remuser, hostname, locuser, cmdbuf);
       if (errorstr == NULL)
 	errorstr = "Login incorrect.\n";
@@ -720,7 +730,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	{
 	  if (kuserok (kdata, locuser) != 0)
 	    {
-	      syslog (LOG_INFO|LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
+	      syslog (LOG_INFO | LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
 		      kdata->pname, kdata->pinst, kdata->prealm);
 	      rshd_error ("Permission denied.\n");
 	      exit (1);
@@ -730,38 +740,38 @@ doit (int sockfd, struct sockaddr_in *fromp)
   else
 #elif defined(SHISHI)
   if (use_kerberos)
-    {/*
-      if (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0')
-	{
-	  if (kuserok (kdata, locuser) != 0)
-	    {
-	      syslog (LOG_INFO|LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
-		      kdata->pname, kdata->pinst, kdata->prealm);
-	      rshd_error ("Permission denied.\n");
-	      exit (1);
-	    }
-	    }*/
+    {				/*
+				   if (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0')
+				   {
+				   if (kuserok (kdata, locuser) != 0)
+				   {
+				   syslog (LOG_INFO|LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
+				   kdata->pname, kdata->pinst, kdata->prealm);
+				   rshd_error ("Permission denied.\n");
+				   exit (1);
+				   }
+				   } */
     }
   else
 #endif
-    if (errorstr || pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
+  if (errorstr || pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
 	&& (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
-		      remuser, locuser)) < 0)
-      {
-	if (__rcmd_errstr)
-	  syslog (LOG_INFO|LOG_AUTH,
-		  "%s@%s as %s: permission denied (%s). cmd='%.80s'",
-		  remuser, hostname, locuser, __rcmd_errstr, cmdbuf);
-	else
-	  syslog (LOG_INFO|LOG_AUTH,
-		  "%s@%s as %s: permission denied. cmd='%.80s'",
-		  remuser, hostname, locuser, cmdbuf);
-      fail:
-	if (errorstr == NULL)
-	  errorstr = "Permission denied.\n";
-	rshd_error (errorstr, errorhost);
-	exit (1);
-      }
+			remuser, locuser)) < 0)
+    {
+      if (__rcmd_errstr)
+	syslog (LOG_INFO | LOG_AUTH,
+		"%s@%s as %s: permission denied (%s). cmd='%.80s'",
+		remuser, hostname, locuser, __rcmd_errstr, cmdbuf);
+      else
+	syslog (LOG_INFO | LOG_AUTH,
+		"%s@%s as %s: permission denied. cmd='%.80s'",
+		remuser, hostname, locuser, cmdbuf);
+    fail:
+      if (errorstr == NULL)
+	errorstr = "Permission denied.\n";
+      rshd_error (errorstr, errorhost);
+      exit (1);
+    }
 
   /* If the locuser isn't root, then check if logins are disabled. */
   if (pwd->pw_uid && !access (PATH_NOLOGIN, F_OK))
@@ -798,7 +808,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  exit (1);
 	}
 #ifdef ENCRYPTION
-#if defined(KERBEROS) || defined(SHISHI)
+# if defined(KERBEROS) || defined(SHISHI)
       if (doencrypt)
 	{
 	  if (pipe (pv1) < 0)
@@ -812,7 +822,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      exit (1);
 	    }
 	}
-#endif
+# endif
 #endif
       pid = fork ();
       if (pid == -1)
@@ -828,23 +838,23 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	   *         signal.
 	   */
 #ifdef ENCRYPTION
-#if defined(KERBEROS)
+# if defined(KERBEROS)
 	  if (doencrypt)
 	    {
 	      static char msg[] = SECURE_MESSAGE;
 	      close (pv1[1]);
 	      close (pv2[1]);
-	      des_write (s, msg, sizeof(msg) - 1);
+	      des_write (s, msg, sizeof (msg) - 1);
 	    }
 	  else
-#elif defined(SHISHI)
+# elif defined(SHISHI)
 	  if (doencrypt)
 	    {
 	      close (pv1[1]);
 	      close (pv2[1]);
 	    }
 	  else
-#endif
+# endif
 #endif
 	    {
 	      /* child handles the original socket */
@@ -853,7 +863,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      close (STDOUT_FILENO);
 	    }
 	  close (STDERR_FILENO);
-	  close (pv[1]); /* close write end of pipe */
+	  close (pv[1]);	/* close write end of pipe */
 
 	  FD_ZERO (&readfrom);
 	  FD_SET (s, &readfrom);
@@ -864,7 +874,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  else
 	    nfd = s;
 #ifdef ENCRYPTION
-#if defined(KERBEROS) || defined(SHISHI)
+# if defined(KERBEROS) || defined(SHISHI)
 	  if (doencrypt)
 	    {
 	      FD_ZERO (&writeto);
@@ -875,47 +885,47 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      nfd = MAX (nfd, pv1[0]);
 	    }
 	  else
+# endif
 #endif
-#endif
-	    ioctl (pv[0], FIONBIO, (char *)&one);
+	    ioctl (pv[0], FIONBIO, (char *) &one);
 	  /* should set s nbio! */
 	  nfd++;
 	  do
 	    {
 	      ready = readfrom;
 #ifdef ENCRYPTION
-#if defined(KERBEROS) || defined(SHISHI)
+# if defined(KERBEROS) || defined(SHISHI)
 	      if (doencrypt)
 		{
-#ifdef SHISHI
+#  ifdef SHISHI
 		  wready = readfrom;
-#else
-                  wready = writeto;
-#endif
+#  else
+		  wready = writeto;
+#  endif
 		  if (select (nfd, &ready, &wready, (fd_set *) 0,
 			      (struct timeval *) 0) < 0)
 		    break;
 		}
 	      else
+# endif
 #endif
-#endif
-		if (select (nfd, &ready, (fd_set *)0,
-			    (fd_set *)0, (struct timeval *)0) < 0)
-		  /* wait until something to read */
-		  break;
+	      if (select (nfd, &ready, (fd_set *) 0,
+			    (fd_set *) 0, (struct timeval *) 0) < 0)
+		/* wait until something to read */
+		break;
 	      if (FD_ISSET (s, &ready))
 		{
-		  int	ret;
+		  int ret;
 #ifdef ENCRYPTION
-#ifdef KERBEROS
+# ifdef KERBEROS
 		  if (doencrypt)
 		    ret = des_read (s, &sig, 1);
 		  else
-#elif defined(SHISHI)
-		    if (doencrypt)
-		      readenc (h, s, &sig, &ret, &iv2, enckey, protocol);
+# elif defined(SHISHI)
+		  if (doencrypt)
+		    readenc (h, s, &sig, &ret, &iv2, enckey, protocol);
 		  else
-#endif
+# endif
 #endif
 		    ret = read (s, &sig, 1);
 		  if (ret <= 0)
@@ -929,69 +939,71 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		  cc = read (pv[0], buf, sizeof buf);
 		  if (cc <= 0)
 		    {
-		      shutdown (s, 1+1);
+		      shutdown (s, 1 + 1);
 		      FD_CLR (pv[0], &readfrom);
 		    }
 		  else
 		    {
 #ifdef ENCRYPTION
-#ifdef KERBEROS
+# ifdef KERBEROS
 		      if (doencrypt)
 			des_write (s, buf, cc);
 		      else
-#elif defined(SHISHI)
-			if (doencrypt)
-			  writeenc (h, s, buf, cc, &n, &iv4, enckey, protocol);
+# elif defined(SHISHI)
+		      if (doencrypt)
+			writeenc (h, s, buf, cc, &n, &iv4, enckey, protocol);
 		      else
-#endif
+# endif
 #endif
 			write (s, buf, cc);
 		    }
 		}
 #ifdef ENCRYPTION
-#if defined(KERBEROS) || defined(SHISHI)
-	      if (doencrypt && FD_ISSET(pv1[0], &ready))
+# if defined(KERBEROS) || defined(SHISHI)
+	      if (doencrypt && FD_ISSET (pv1[0], &ready))
 		{
 		  errno = 0;
-		  cc = read (pv1[0], buf, sizeof(buf));
+		  cc = read (pv1[0], buf, sizeof (buf));
 		  if (cc <= 0)
 		    {
-		      shutdown (pv1[0], 1+1);
+		      shutdown (pv1[0], 1 + 1);
 		      FD_CLR (pv1[0], &readfrom);
 		    }
 		  else
-#ifdef SHISHI
-		    writeenc (h, STDOUT_FILENO, buf, cc, &n, &iv3, enckey, protocol);
-#else
+#  ifdef SHISHI
+		    writeenc (h, STDOUT_FILENO, buf, cc, &n, &iv3, enckey,
+			      protocol);
+#  else
 		    des_write (STDOUT_FILENO, buf, cc);
-#endif
+#  endif
 		}
 
-	      if (doencrypt && FD_ISSET(pv2[0], &wready))
+	      if (doencrypt && FD_ISSET (pv2[0], &wready))
 		{
 		  errno = 0;
-#ifdef SHISHI
+#  ifdef SHISHI
 		  readenc (h, STDIN_FILENO, buf, &cc, &iv1, enckey, protocol);
-#else
+#  else
 		  cc = des_read (STDIN_FILENO, buf, sizeof buf);
-#endif
+#  endif
 		  if (cc <= 0)
 		    {
-		      shutdown (pv2[0], 1+1);
+		      shutdown (pv2[0], 1 + 1);
 		      FD_CLR (pv2[0], &writeto);
 		    }
 		  else
 		    write (pv2[0], buf, cc);
 		}
+# endif
 #endif
-#endif
-	    } while (FD_ISSET (s, &readfrom) ||
+	    }
+	  while (FD_ISSET (s, &readfrom) ||
 #ifdef ENCRYPTION
-#if defined(KERBEROS) || defined(SHISHI)
-		     (doencrypt && FD_ISSET (pv1[0], &readfrom)) ||
+# if defined(KERBEROS) || defined(SHISHI)
+		 (doencrypt && FD_ISSET (pv1[0], &readfrom)) ||
+# endif
 #endif
-#endif
-		     FD_ISSET (pv[0], &readfrom));
+		 FD_ISSET (pv[0], &readfrom));
 	  /* The pipe will generat an EOR whe the shell
 	   * terminates.  The socket will terninate whe the
 	   * client process terminates.
@@ -1006,62 +1018,63 @@ doit (int sockfd, struct sockaddr_in *fromp)
        * the fork above.
        */
       setpgid (0, getpid ());
-      close(s); /* control process handles this fd */
-      close (pv[0]); /* close read end of pipe */
+      close (s);		/* control process handles this fd */
+      close (pv[0]);		/* close read end of pipe */
 #ifdef ENCRYPTION
-#if defined(KERBEROS) || defined(SHISHI)
+# if defined(KERBEROS) || defined(SHISHI)
       if (doencrypt)
 	{
-	  close (pv1[0]); close (pv2[0]);
+	  close (pv1[0]);
+	  close (pv2[0]);
 	  dup2 (pv1[1], 1);
 	  dup2 (pv2[1], 0);
 	  close (pv1[1]);
 	  close (pv2[1]);
 	}
-#endif
+# endif
 #endif
 
 #if defined(SHISHI)
-  if (use_kerberos)
-    {
-      int i;
-      
-      shishi_done (h);
-#ifdef ENCRYPTION
-      if (doencrypt)
+      if (use_kerberos)
 	{
-	  shishi_key_done (enckey);
-	  for (i = 0; i < 4; i++)
+	  int i;
+
+	  shishi_done (h);
+# ifdef ENCRYPTION
+	  if (doencrypt)
 	    {
-	      shishi_crypto_close (ivtab[i]->ctx);
-	      free (ivtab[i]->iv);
-	    }	  
+	      shishi_key_done (enckey);
+	      for (i = 0; i < 4; i++)
+		{
+		  shishi_crypto_close (ivtab[i]->ctx);
+		  free (ivtab[i]->iv);
+		}
+	    }
+# endif
 	}
-#endif
-    }
 
 #endif
 
-      dup2 (pv[1], STDERR_FILENO); /* stderr of shell has to go
-				      pipe to control process */
+      dup2 (pv[1], STDERR_FILENO);	/* stderr of shell has to go
+					   pipe to control process */
       close (pv[1]);
     }
   if (*pwd->pw_shell == '\0')
     pwd->pw_shell = PATH_BSHELL;
-#if	BSD > 43
+#if BSD > 43
   if (setlogin (pwd->pw_name) < 0)
     syslog (LOG_ERR, "setlogin() failed: %m");
 #endif
 
   /* Set the fid, then uid to become the user specified by "locuser" */
-  setegid ((gid_t)pwd->pw_gid);
-  setgid ((gid_t)pwd->pw_gid);
+  setegid ((gid_t) pwd->pw_gid);
+  setgid ((gid_t) pwd->pw_gid);
 #ifdef HAVE_INITGROUPS
-  initgroups (pwd->pw_name, pwd->pw_gid); /* BSD groups */
+  initgroups (pwd->pw_name, pwd->pw_gid);	/* BSD groups */
 #endif
 
-  setuid ((uid_t)pwd->pw_uid);
-  
+  setuid ((uid_t) pwd->pw_uid);
+
   /* We'll execute the client's command in the home directory
    * of locuser. Note, that the chdir must be executed after
    * setuid(), otherwise it may fail on NFS mounted directories
@@ -1070,8 +1083,9 @@ doit (int sockfd, struct sockaddr_in *fromp)
   if (chdir (pwd->pw_dir) < 0)
     {
       chdir ("/");
-      syslog (LOG_INFO|LOG_AUTH, "%s@%s as %s: no home directory. cmd='%.80s'",
-	      remuser, hostname, locuser, cmdbuf);
+      syslog (LOG_INFO | LOG_AUTH,
+	      "%s@%s as %s: no home directory. cmd='%.80s'", remuser,
+	      hostname, locuser, cmdbuf);
       rshd_error ("No remote directory.\n");
 #ifdef notdef
       exit (1);
@@ -1080,32 +1094,32 @@ doit (int sockfd, struct sockaddr_in *fromp)
 
   /* Set up an initial environment for the shell that we exec() */
   environ = envinit;
-  strncat (homedir, pwd->pw_dir, sizeof(homedir)-6);
+  strncat (homedir, pwd->pw_dir, sizeof (homedir) - 6);
   strcat (path, PATH_DEFPATH);
-  strncat (shell, pwd->pw_shell, sizeof(shell)-7);
-  strncat (username, pwd->pw_name, sizeof(username)-6);
+  strncat (shell, pwd->pw_shell, sizeof (shell) - 7);
+  strncat (username, pwd->pw_name, sizeof (username) - 6);
   cp = strrchr (pwd->pw_shell, '/');
   if (cp)
-    cp++; /* step past first slash */
+    cp++;			/* step past first slash */
   else
-    cp = pwd->pw_shell; /* no slash in shell string */
+    cp = pwd->pw_shell;		/* no slash in shell string */
   endpwent ();
   if (log_success || pwd->pw_uid == 0)
     {
 #ifdef	KERBEROS
       if (use_kerberos)
-	syslog (LOG_INFO|LOG_AUTH,
+	syslog (LOG_INFO | LOG_AUTH,
 		"Kerberos shell from %s.%s@%s on %s as %s, cmd='%.80s'",
 		kdata->pname, kdata->pinst, kdata->prealm,
 		hostname, locuser, cmdbuf);
       else
 #endif
-	syslog (LOG_INFO|LOG_AUTH, "%s@%s as %s: cmd='%.80s'",
+	syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: cmd='%.80s'",
 		remuser, hostname, locuser, cmdbuf);
     }
 #ifdef SHISHI
   if (doencrypt)
-    execl (pwd->pw_shell, cp, "-c", cmdbuf+3, 0);
+    execl (pwd->pw_shell, cp, "-c", cmdbuf + 3, 0);
   else
 #endif
     execl (pwd->pw_shell, cp, "-c", cmdbuf, 0);
@@ -1131,19 +1145,20 @@ rshd_error (const char *fmt, ...)
     {
       *bp++ = 1;
       len = 1;
-    } else
-      len = 0;
-  vsnprintf (bp, sizeof(buf) - 1, fmt, ap);
+    }
+  else
+    len = 0;
+  vsnprintf (bp, sizeof (buf) - 1, fmt, ap);
   write (STDERR_FILENO, buf, len + strlen (bp));
 }
 
 char *
-getstr(const char *err)
+getstr (const char *err)
 {
   size_t buf_len = 100;
   char *buf = malloc (buf_len), *end = buf;
 
-  if (! buf)
+  if (!buf)
     {
       rshd_error ("Out of space reading %s\n", err);
       exit (1);
@@ -1169,14 +1184,15 @@ getstr(const char *err)
 	  size_t end_offs = end - buf;
 	  buf_len += buf_len;
 	  buf = realloc (buf, buf_len);
-	  if (! buf)
+	  if (!buf)
 	    {
 	      rshd_error ("Out of space reading %s\n", err);
 	      exit (1);
 	    }
 	  end = buf + end_offs;
 	}
-    } while (*(end - 1));
+    }
+  while (*(end - 1));
 
   return buf;
 }
@@ -1194,7 +1210,7 @@ local_domain (const char *h)
 {
   char *hostname = localhost ();
 
-  if (! hostname)
+  if (!hostname)
     return 0;
   else
     {
@@ -1217,7 +1233,7 @@ topdomain (const char *h)
   const char *p, *maybe = NULL;
   int dots = 0;
 
-  for (p = h + strlen(h); p >= h; p--)
+  for (p = h + strlen (h); p >= h; p--)
     {
       if (*p == '.')
 	{
@@ -1251,10 +1267,10 @@ help (void)
 #if defined(KERBEROS) || defined(SHISHI)
   puts ("\
    -k, --kerberos          Use kerberos IV authentication");
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   puts ("\
    -x, --encrypt           Use DES encryption");
-#endif /* ENCRYPTION */
+# endif	/* ENCRYPTION */
 #endif /* KERBEROS */
   puts ("\
    -h, --help              Display usage instructions");

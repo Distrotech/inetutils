@@ -22,20 +22,20 @@
  */
 
 #ifndef IFCONFIG_SYSTEM_GENERIC_H
-#define IFCONFIG_SYSTEM_GENERIC_H
-
+# define IFCONFIG_SYSTEM_GENERIC_H
 
+
 /* Option support.  */
 
-#undef SYSTEM_SHORT_OPTIONS
-#undef SYSTEM_LONG_OPTIONS
+# undef SYSTEM_SHORT_OPTIONS
+# undef SYSTEM_LONG_OPTIONS
 
 struct system_ifconfig
 {
   int valid;
 };
-
 
+
 /* Output format support.  */
 
 /* Set this to a comma seperated, comma terminated list of struct
@@ -46,7 +46,7 @@ struct system_ifconfig
    { "newline", system_fh_newline },
    Define some architecture symbol like "foobar", so it can be tested
    for in generic format strings with ${exists?}{foobar?}.  */
-#undef SYSTEM_FORMAT_HANDLER
+# undef SYSTEM_FORMAT_HANDLER
 
 /* Prototype system_fh_* functions here. 
    void system_fh_newline (format_data_t, int, char **);

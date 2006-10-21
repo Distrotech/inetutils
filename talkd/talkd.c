@@ -33,8 +33,7 @@ void talkd_init (void);
 void talkd_run (int fd);
 
 static char short_options[] = "VLha:di:r:t:";
-static struct option long_options[] =
-{
+static struct option long_options[] = {
   /* Help options */
   {"version", no_argument, NULL, 'V'},
   {"license", no_argument, NULL, 'L'},
@@ -57,13 +56,13 @@ char *hostname;
 char *program_name;
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   int c;
   char *acl_file = NULL;
 
   program_name = argv[0];
-  
+
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)
     {
@@ -133,7 +132,7 @@ static void
 alarm_handler (int err ARG_UNUSED)
 {
   if ((time (NULL) - last_msg_time) >= max_idle_time)
-    exit(0);
+    exit (0);
   alarm (timeout);
 }
 
@@ -151,7 +150,8 @@ talkd_run (int fd)
       int len;
 
       len = sizeof sa_in;
-      rc = recvfrom (fd, &msg, sizeof msg, 0, (struct sockaddr *)&sa_in, &len);
+      rc =
+	recvfrom (fd, &msg, sizeof msg, 0, (struct sockaddr *) &sa_in, &len);
       if (rc != sizeof msg)
 	{
 	  if (rc < 0 && errno != EINTR)
@@ -161,8 +161,9 @@ talkd_run (int fd)
       last_msg_time = time (NULL);
       if (process_request (&msg, &sa_in, &resp) == 0)
 	{
-	  rc = sendto(fd, &resp, sizeof resp, 0,
-		      (struct sockaddr *)&msg.ctl_addr, sizeof (msg.ctl_addr));
+	  rc = sendto (fd, &resp, sizeof resp, 0,
+		       (struct sockaddr *) &msg.ctl_addr,
+		       sizeof (msg.ctl_addr));
 	  if (rc != sizeof resp)
 	    syslog (LOG_WARNING, "sendto: %m");
 	}
@@ -186,19 +187,19 @@ void
 show_license (void)
 {
   static char license_text[] =
-"   This program is free software; you can redistribute it and/or modify\n"
-"   it under the terms of the GNU General Public License as published by\n"
-"   the Free Software Foundation; either version 2, or (at your option)\n"
-"   any later version.\n"
-"\n"
-"   This program is distributed in the hope that it will be useful,\n"
-"   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-"   GNU General Public License for more details.\n"
-"\n"
-"   You should have received a copy of the GNU General Public License\n"
-"   along with this program; if not, write to the Free Software\n"
-"   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+    "   This program is free software; you can redistribute it and/or modify\n"
+    "   it under the terms of the GNU General Public License as published by\n"
+    "   the Free Software Foundation; either version 2, or (at your option)\n"
+    "   any later version.\n"
+    "\n"
+    "   This program is distributed in the hope that it will be useful,\n"
+    "   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+    "   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+    "   GNU General Public License for more details.\n"
+    "\n"
+    "   You should have received a copy of the GNU General Public License\n"
+    "   along with this program; if not, write to the Free Software\n"
+    "   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
   printf ("%s", license_text);
 }
 

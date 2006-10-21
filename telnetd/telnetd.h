@@ -73,12 +73,12 @@ typedef unsigned char cc_t;
 
 typedef enum debug_mode
 {
-    debug_options,
-    debug_report,
-    debug_net_data,
-    debug_pty_data,
-    debug_auth,
-    debug_max_mode
+  debug_options,
+  debug_report,
+  debug_net_data,
+  debug_pty_data,
+  debug_auth,
+  debug_max_mode
 } debug_mode_t;
 
 #define MAX_DEBUG_LEVEL 100
@@ -89,45 +89,45 @@ extern int debug_level[];
 
 struct telnetd_clocks
 {
-  int system;           /* what the current time is */         
-  int echotoggle;	/* last time user entered echo character */ 
-  int modenegotiated;	/* last time operating mode negotiated */
-  int didnetreceive;	/* last time we read data from network */
-  int ttypesubopt;	/* ttype subopt is received */         
-  int tspeedsubopt;	/* tspeed subopt is received */        
-  int environsubopt;	/* environ subopt is received */       
-  int oenvironsubopt;	/* old environ subopt is received */   
-  int xdisplocsubopt;	/* xdisploc subopt is received */      
-  int baseline;		/* time started to do timed action */  
-  int gotDM;		/* when did we last see a data mark */ 
+  int system;			/* what the current time is */
+  int echotoggle;		/* last time user entered echo character */
+  int modenegotiated;		/* last time operating mode negotiated */
+  int didnetreceive;		/* last time we read data from network */
+  int ttypesubopt;		/* ttype subopt is received */
+  int tspeedsubopt;		/* tspeed subopt is received */
+  int environsubopt;		/* environ subopt is received */
+  int oenvironsubopt;		/* old environ subopt is received */
+  int xdisplocsubopt;		/* xdisploc subopt is received */
+  int baseline;			/* time started to do timed action */
+  int gotDM;			/* when did we last see a data mark */
 };
-#define	settimer(x)	(clocks.x = ++clocks.system)
-#define	sequenceIs(x,y)	(clocks.x < clocks.y)
+#define settimer(x)	(clocks.x = ++clocks.system)
+#define sequenceIs(x,y)	(clocks.x < clocks.y)
 
 /*
  * Structures of information for each special character function.
  */
 typedef struct
 {
-  unsigned char	flag;  /* the flags for this function */
-  cc_t		val;   /* the value of the special character */
+  unsigned char flag;		/* the flags for this function */
+  cc_t val;			/* the value of the special character */
 } slcent, *Slcent;
 
 typedef struct
 {
-  slcent defset;       /* the default settings */
-  slcent current;      /* the current settings */
-  cc_t *sptr;	       /* a pointer to the char in */
-		       /* system data structures */
+  slcent defset;		/* the default settings */
+  slcent current;		/* the current settings */
+  cc_t *sptr;			/* a pointer to the char in */
+  /* system data structures */
 } slcfun, *Slcfun;
 
 #ifdef HAVE_UNAME
    /* Prefix and suffix if the IM string can be generated from uname.  */
-#  define UNAME_IM_PREFIX "\r\n"
-#  define UNAME_IM_SUFFIX " (%h) (%t)\r\n\n"
+# define UNAME_IM_PREFIX "\r\n"
+# define UNAME_IM_SUFFIX " (%h) (%t)\r\n\n"
 #else /* ! HAVE_UNAME */
-#  define UNAME_IM_PREFIX "\r\n"
-#  define UNAME_IM_SUFFIX "\r\n"
+# define UNAME_IM_PREFIX "\r\n"
+# define UNAME_IM_SUFFIX "\r\n"
 #endif
 
 /* ********************* */
@@ -136,34 +136,34 @@ typedef struct
  * We keep track of each side of the option negotiation.
  */
 
-#define	MY_STATE_WILL		0x01
-#define	MY_WANT_STATE_WILL	0x02
-#define	MY_STATE_DO		0x04
-#define	MY_WANT_STATE_DO	0x08
+#define MY_STATE_WILL		0x01
+#define MY_WANT_STATE_WILL	0x02
+#define MY_STATE_DO		0x04
+#define MY_WANT_STATE_DO	0x08
 
 /*
  * Macros to check the current state of things
  */
 
-#define	my_state_is_do(opt)		(options[opt]&MY_STATE_DO)
-#define	my_state_is_will(opt)		(options[opt]&MY_STATE_WILL)
+#define my_state_is_do(opt)		(options[opt]&MY_STATE_DO)
+#define my_state_is_will(opt)		(options[opt]&MY_STATE_WILL)
 #define my_want_state_is_do(opt)	(options[opt]&MY_WANT_STATE_DO)
 #define my_want_state_is_will(opt)	(options[opt]&MY_WANT_STATE_WILL)
 
-#define	my_state_is_dont(opt)		(!my_state_is_do(opt))
-#define	my_state_is_wont(opt)		(!my_state_is_will(opt))
+#define my_state_is_dont(opt)		(!my_state_is_do(opt))
+#define my_state_is_wont(opt)		(!my_state_is_will(opt))
 #define my_want_state_is_dont(opt)	(!my_want_state_is_do(opt))
 #define my_want_state_is_wont(opt)	(!my_want_state_is_will(opt))
 
-#define	set_my_state_do(opt)		(options[opt] |= MY_STATE_DO)
-#define	set_my_state_will(opt)		(options[opt] |= MY_STATE_WILL)
-#define	set_my_want_state_do(opt)	(options[opt] |= MY_WANT_STATE_DO)
-#define	set_my_want_state_will(opt)	(options[opt] |= MY_WANT_STATE_WILL)
+#define set_my_state_do(opt)		(options[opt] |= MY_STATE_DO)
+#define set_my_state_will(opt)		(options[opt] |= MY_STATE_WILL)
+#define set_my_want_state_do(opt)	(options[opt] |= MY_WANT_STATE_DO)
+#define set_my_want_state_will(opt)	(options[opt] |= MY_WANT_STATE_WILL)
 
-#define	set_my_state_dont(opt)		(options[opt] &= ~MY_STATE_DO)
-#define	set_my_state_wont(opt)		(options[opt] &= ~MY_STATE_WILL)
-#define	set_my_want_state_dont(opt)	(options[opt] &= ~MY_WANT_STATE_DO)
-#define	set_my_want_state_wont(opt)	(options[opt] &= ~MY_WANT_STATE_WILL)
+#define set_my_state_dont(opt)		(options[opt] &= ~MY_STATE_DO)
+#define set_my_state_wont(opt)		(options[opt] &= ~MY_STATE_WILL)
+#define set_my_want_state_dont(opt)	(options[opt] &= ~MY_WANT_STATE_DO)
+#define set_my_want_state_wont(opt)	(options[opt] &= ~MY_WANT_STATE_WILL)
 
 /*
  * Tricky code here.  What we want to know is if the MY_STATE_WILL
@@ -182,30 +182,30 @@ typedef struct
  * Make everything symetrical
  */
 
-#define	HIS_STATE_WILL			MY_STATE_DO
-#define	HIS_WANT_STATE_WILL		MY_WANT_STATE_DO
+#define HIS_STATE_WILL			MY_STATE_DO
+#define HIS_WANT_STATE_WILL		MY_WANT_STATE_DO
 #define HIS_STATE_DO			MY_STATE_WILL
 #define HIS_WANT_STATE_DO		MY_WANT_STATE_WILL
 
-#define	his_state_is_do			my_state_is_will
-#define	his_state_is_will		my_state_is_do
+#define his_state_is_do			my_state_is_will
+#define his_state_is_will		my_state_is_do
 #define his_want_state_is_do		my_want_state_is_will
 #define his_want_state_is_will		my_want_state_is_do
 
-#define	his_state_is_dont		my_state_is_wont
-#define	his_state_is_wont		my_state_is_dont
+#define his_state_is_dont		my_state_is_wont
+#define his_state_is_wont		my_state_is_dont
 #define his_want_state_is_dont		my_want_state_is_wont
 #define his_want_state_is_wont		my_want_state_is_dont
 
-#define	set_his_state_do		set_my_state_will
-#define	set_his_state_will		set_my_state_do
-#define	set_his_want_state_do		set_my_want_state_will
-#define	set_his_want_state_will		set_my_want_state_do
+#define set_his_state_do		set_my_state_will
+#define set_his_state_will		set_my_state_do
+#define set_his_want_state_do		set_my_want_state_will
+#define set_his_want_state_will		set_my_want_state_do
 
-#define	set_his_state_dont		set_my_state_wont
-#define	set_his_state_wont		set_my_state_dont
-#define	set_his_want_state_dont		set_my_want_state_wont
-#define	set_his_want_state_wont		set_my_want_state_dont
+#define set_his_state_dont		set_my_state_wont
+#define set_his_state_wont		set_my_state_dont
+#define set_his_want_state_dont		set_my_want_state_wont
+#define set_his_want_state_wont		set_my_want_state_dont
 
 #define his_will_wont_is_changing	my_do_dont_is_changing
 #define his_do_dont_is_changing		my_will_wont_is_changing
@@ -219,7 +219,7 @@ void fatal (int f, char *msg);
  */
 #define REAL_LINEMODE	0x04
 #define KLUDGE_OK	0x03
-#define	NO_AUTOKLUDGE	0x02
+#define NO_AUTOKLUDGE	0x02
 #define KLUDGE_LINEMODE	0x01
 #define NO_LINEMODE	0x00
 
@@ -230,24 +230,24 @@ void fatal (int f, char *msg);
 #define ttloop(c) while (c) io_drain ()
 
 /* External variables */
-extern char	options[256];
-extern char	do_dont_resp[256];
-extern char	will_wont_resp[256];
-extern int	linemode;	/* linemode on/off */
-extern int	uselinemode;	/* what linemode to use (on/off) */
-extern int	editmode;	/* edit modes in use */
-extern int	useeditmode;	/* edit modes to use */
-extern int	alwayslinemode;	/* command line option */
-extern int	lmodetype;	/* Client support for linemode */
-extern int	flowmode;	/* current flow control state */
-extern int	restartany;	/* restart output on any character state */
-extern int	diagnostic;	/* telnet diagnostic capabilities */
+extern char options[256];
+extern char do_dont_resp[256];
+extern char will_wont_resp[256];
+extern int linemode;		/* linemode on/off */
+extern int uselinemode;		/* what linemode to use (on/off) */
+extern int editmode;		/* edit modes in use */
+extern int useeditmode;		/* edit modes to use */
+extern int alwayslinemode;	/* command line option */
+extern int lmodetype;		/* Client support for linemode */
+extern int flowmode;		/* current flow control state */
+extern int restartany;		/* restart output on any character state */
+extern int diagnostic;		/* telnet diagnostic capabilities */
 #if defined(AUTHENTICATION)
-extern int	auth_level;
-extern int      autologin;
+extern int auth_level;
+extern int autologin;
 #endif
 
-extern slcfun	slctab[NSLC + 1];	/* slc mapping table */
+extern slcfun slctab[NSLC + 1];	/* slc mapping table */
 
 extern char *terminaltype;
 extern char *remote_hostname;
@@ -255,27 +255,27 @@ extern char *local_hostname;
 extern char *login_invocation;
 extern char *user_name;
 
-extern int	pty, net;
-extern int	SYNCHing;		/* we are in TELNET SYNCH mode */
+extern int pty, net;
+extern int SYNCHing;		/* we are in TELNET SYNCH mode */
 extern struct telnetd_clocks clocks;
 extern char line[];
 
 extern char *xstrdup (const char *);
 extern int argcv_get (const char *command, const char *delim,
-			int *argc, char ***argv);
+		      int *argc, char ***argv);
 
 void io_setup (void);
 int net_has_data (void);
 int net_get_char (int peek);
 void set_neturg (void);
-int net_output_data (const char *format,...);
+int net_output_data (const char *format, ...);
 int net_output_datalen (const void *buf, size_t l);
 int net_buffer_level (void);
 void io_drain (void);
 
 int stilloob (int s);
 void ptyflush (void);
-char * nextitem (char *current);
+char *nextitem (char *current);
 void netclear ();
 void netflush ();
 
@@ -294,7 +294,7 @@ extern void debug_output_data (const char *fmt, ...);
 /* TTY functions */
 extern void init_termbuf (void);
 extern void set_termbuf (void);
-extern int spcset (int func, cc_t *valp, cc_t **valpp);
+extern int spcset (int func, cc_t * valp, cc_t ** valpp);
 extern void term_send_eof (void);
 extern int term_change_eof (void);
 
@@ -322,7 +322,7 @@ extern void tty_setsig (int);
 extern void tty_setsofttab (int);
 extern void tty_tspeed (int);
 
-extern char * expand_line (const char *fmt);
+extern char *expand_line (const char *fmt);
 
 /*  FIXME */
 extern void _termstat (void);
@@ -359,7 +359,7 @@ extern void start_slave (char *, int, char *);
 
 extern void suboption (void);
 extern void telrcv (void);
-  
+
 extern int end_slc (unsigned char **);
 extern int spcset (int, cc_t *, cc_t **);
 extern int stilloob (int);
@@ -369,11 +369,6 @@ extern void willoption (int);
 extern void wontoption (int);
 
 #ifdef	ENCRYPTION
-extern void	(*encrypt_output) (unsigned char *, int);
-extern int	(*decrypt_input) (int);
-#endif	/* ENCRYPTION */
-
-
-
-
-
+extern void (*encrypt_output) (unsigned char *, int);
+extern int (*decrypt_input) (int);
+#endif /* ENCRYPTION */

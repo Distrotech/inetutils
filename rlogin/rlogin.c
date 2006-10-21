@@ -32,7 +32,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -49,31 +49,31 @@
 # endif
 #endif
 #ifdef HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
+# include <sys/resource.h>
 #endif
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+# include <sys/wait.h>
 #endif
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_STREAM_H
-#include <sys/stream.h>
+# include <sys/stream.h>
 #endif
 #ifdef HAVE_SYS_TTY_H
-#include <sys/tty.h>
+# include <sys/tty.h>
 #endif
 #ifdef HAVE_SYS_PTYVAR_H
-#include <sys/ptyvar.h>
+# include <sys/ptyvar.h>
 #endif
 #ifdef HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
+# include <sys/sockio.h>
 #endif
 
 #include <netinet/in.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
-#include <netinet/in_systm.h>
+# include <netinet/in_systm.h>
 #endif
 #ifdef HAVE_NETINET_IP_H
-#include <netinet/ip.h>
+# include <netinet/ip.h>
 #endif
 
 #include <error.h>
@@ -91,39 +91,39 @@
 #include <unistd.h>
 
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
+# include <stdarg.h>
 #else
-#include <varargs.h>
+# include <varargs.h>
 #endif
 
 #ifdef SHISHI
-#define REALM_SZ 1040
+# define REALM_SZ 1040
 #endif
 
 #if defined(KERBEROS) || defined(SHISHI)
 int use_kerberos = 1, doencrypt;
-#ifdef KERBEROS
-#include <kerberosIV/des.h>
-#include <kerberosIV/krb.h>
+# ifdef KERBEROS
+#  include <kerberosIV/des.h>
+#  include <kerberosIV/krb.h>
 char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
 CREDENTIALS cred;
 Key_schedule schedule;
 
 # elif defined(SHISHI)
-# include <shishi.h>
-# include "shishi_def.h"
+#  include <shishi.h>
+#  include "shishi_def.h"
 char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
 
-Shishi * handle;
-Shishi_key * key;
+Shishi *handle;
+Shishi_key *key;
 shishi_ivector iv1, iv2;
-shishi_ivector * ivtab[2];
+shishi_ivector *ivtab[2];
 
 int keytype;
 int keylen;
 int rc;
 int wlen;
-#endif
+# endif
 #endif /* KERBEROS */
 
 /*
@@ -135,32 +135,27 @@ int wlen;
 # define TIOCPKT_NOSTOP          0x10
 # define TIOCPKT_DOSTOP          0x20
 #endif /*TIOCPKT*/
-
 /* The server sends us a TIOCPKT_WINDOW notification when it starts up.
    The value for this (0x80) can not overlap the kernel defined TIOCPKT_xxx
    values.  */
 #ifndef TIOCPKT_WINDOW
-#define	TIOCPKT_WINDOW	0x80
+# define TIOCPKT_WINDOW	0x80
 #endif
-
 /* Concession to Sun.  */
 #ifndef SIGUSR1
-#define	SIGUSR1	30
+# define SIGUSR1	30
 #endif
-
-#ifndef	_POSIX_VDISABLE
+#ifndef _POSIX_VDISABLE
 # ifdef VDISABLE
 #  define _POSIX_VDISABLE VDISABLE
 # else
 #  define _POSIX_VDISABLE ((cc_t)'\377')
 # endif
 #endif
-
 /* Returned by speed() when the specified fd is not associated with a
    terminal.  */
 #define SPEED_NOTATTY	(-1)
-
-int eight=0, rem;
+int eight = 0, rem;
 
 int noescape;
 u_char escapechar = '~';
@@ -169,72 +164,71 @@ u_char escapechar = '~';
 
 struct winsize
 {
-  unsigned short ws_row;    /* Rows, in characters.  */
-  unsigned short ws_col;    /* Columns , in characters.  */
-  unsigned short ws_xpixel; /* Horizontal size, pixels.  */
-  unsigned short ws_ypixel; /* Vertical size. pixels.  */
+  unsigned short ws_row;	/* Rows, in characters.  */
+  unsigned short ws_col;	/* Columns , in characters.  */
+  unsigned short ws_xpixel;	/* Horizontal size, pixels.  */
+  unsigned short ws_ypixel;	/* Vertical size. pixels.  */
 };
 
-int   get_window_size (int, struct winsize *);
+int get_window_size (int, struct winsize *);
 #else
-# define	get_window_size(fd, wp)	ioctl (fd, TIOCGWINSZ, wp)
+# define get_window_size(fd, wp)	ioctl (fd, TIOCGWINSZ, wp)
 #endif
-struct	winsize winsize;
+struct winsize winsize;
 
 RETSIGTYPE catch_child (int);
 RETSIGTYPE copytochild (int);
-void  doit        (sigset_t *);
-void  done        (int);
-void  echo        (char);
-u_int getescape   (char *);
-RETSIGTYPE lostpeer    (int);
-void  mode        (int);
-void  msg         (const char *);
-RETSIGTYPE oob         (int);
-int   reader      (sigset_t *);
-void  sendwindow  (void);
-void  setsignal   (int);
-int   speed       (int);
+void doit (sigset_t *);
+void done (int);
+void echo (char);
+u_int getescape (char *);
+RETSIGTYPE lostpeer (int);
+void mode (int);
+void msg (const char *);
+RETSIGTYPE oob (int);
+int reader (sigset_t *);
+void sendwindow (void);
+void setsignal (int);
+int speed (int);
 unsigned int speed_translate (unsigned int);
-RETSIGTYPE sigwinch    (int);
-void  stop        (char);
-void  usage       (int);
-void  writer      (void);
+RETSIGTYPE sigwinch (int);
+void stop (char);
+void usage (int);
+void writer (void);
 RETSIGTYPE writeroob (int);
 
 #if defined(KERBEROS) || defined(SHISHI)
-void  warning    (const char *, ...);
+void warning (const char *, ...);
 #endif
 
 extern sig_t setsig (int, sig_t);
 
 #if defined(KERBEROS) || defined(SHISHI)
-#define	OPTIONS	"8EKde:k:l:xhV"
+# define OPTIONS	"8EKde:k:l:xhV"
 #else
-#define	OPTIONS	"8EKde:l:hV"
+# define OPTIONS	"8EKde:l:hV"
 #endif
 static const char *short_options = OPTIONS;
-static struct option long_options [] =
-{
-  { "debug", no_argument, 0, 'd' },
-  { "user", required_argument, 0, 'l' },
-  { "escape", required_argument, 0, 'e' },
-  { "no-escape", no_argument, 0, 'E' },
-  { "8-bit", no_argument, 0, '8' },
-  { "kerberos", no_argument, 0, 'K' },
+static struct option long_options[] = {
+  {"debug", no_argument, 0, 'd'},
+  {"user", required_argument, 0, 'l'},
+  {"escape", required_argument, 0, 'e'},
+  {"no-escape", no_argument, 0, 'E'},
+  {"8-bit", no_argument, 0, '8'},
+  {"kerberos", no_argument, 0, 'K'},
 #if defined(KERBEROS) || defined(SHISHI)
-  { "realm", required_argument, 0, 'k' },
-  { "encrypt", no_argument, 0, 'x' },
+  {"realm", required_argument, 0, 'k'},
+  {"encrypt", no_argument, 0, 'x'},
 #endif
-  { "help", no_argument, 0, 'h' },
-  { "version", no_argument, 0, 'V' },
-  { NULL, 0, 0, 0}
+  {"help", no_argument, 0, 'h'},
+  {"version", no_argument, 0, 'V'},
+  {NULL, 0, 0, 0}
 };
 
 char *program_name;
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   struct passwd *pw;
   struct servent *sp;
@@ -315,16 +309,16 @@ main(int argc, char *argv[])
 # if defined(KERBEROS) || defined (SHISHI)
 	case 'x':
 	  doencrypt = 1;
-# if defined(KERBEROS)
+#  if defined(KERBEROS)
 	  des_set_key (cred.session, schedule);
-#endif
+#  endif
 	  break;
 # endif
 #endif
 
 	case 'V':
-          printf ("rlogin (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-          exit (0);
+	  printf ("rlogin (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
+	  exit (0);
 
 	case '?':
 	  usage (1);
@@ -426,7 +420,7 @@ main(int argc, char *argv[])
   setsig (SIGUSR1, writeroob);
 
 #if defined (KERBEROS) || defined(SHISHI)
- try_connect:
+try_connect:
   if (use_kerberos)
     {
       struct hostent *hp;
@@ -436,33 +430,33 @@ main(int argc, char *argv[])
       if (hp != NULL && !(host = strdup (hp->h_name)))
 	error (1, errno, "strdup");
 
-#if defined (KERBEROS) 
+# if defined (KERBEROS)
       rem = KSUCCESS;
       errno = 0;
       if (dest_realm == NULL)
 	dest_realm = krb_realmofhost (host);
-#elif defined (SHISHI)
+# elif defined (SHISHI)
       rem = SHISHI_OK;
       errno = 0;
-#endif
+# endif
 
 # ifdef ENCRYPTION
       if (doencrypt)
-#if defined(SHISHI)
+#  if defined(SHISHI)
 	{
 	  int i;
-	  
+
 	  rem = krcmd_mutual (&handle, &host, sp->s_port, &user, term, 0,
 			      dest_realm, &key);
 	  if (rem > 0)
 	    {
 	      keytype = shishi_key_type (key);
-	      keylen = shishi_cipher_blocksize (keytype);		
-      
+	      keylen = shishi_cipher_blocksize (keytype);
+
 	      ivtab[0] = &iv1;
 	      ivtab[1] = &iv2;
-	      
-	      for (i=0; i<2; i++)
+
+	      for (i = 0; i < 2; i++)
 		{
 		  ivtab[i]->ivlen = keylen;
 
@@ -476,40 +470,47 @@ main(int argc, char *argv[])
 		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
 		      ivtab[i]->iv = malloc (ivtab[i]->ivlen);
 		      memset (ivtab[i]->iv, !i, ivtab[i]->ivlen);
-		      ivtab[i]->ctx = shishi_crypto (handle, key, ivtab[i]->keyusage, shishi_key_type (key),
-						     ivtab[i]->iv, ivtab[i]->ivlen);
+		      ivtab[i]->ctx =
+			shishi_crypto (handle, key, ivtab[i]->keyusage,
+				       shishi_key_type (key), ivtab[i]->iv,
+				       ivtab[i]->ivlen);
 		      break;
 		    case SHISHI_ARCFOUR_HMAC:
 		    case SHISHI_ARCFOUR_HMAC_EXP:
-		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES + 2 + 4*i;
-		      ivtab[i]->ctx = shishi_crypto (handle, key, ivtab[i]->keyusage, shishi_key_type (key),
-						     NULL, 0);
+		      ivtab[i]->keyusage =
+			SHISHI_KEYUSAGE_KCMD_DES + 2 + 4 * i;
+		      ivtab[i]->ctx =
+			shishi_crypto (handle, key, ivtab[i]->keyusage,
+				       shishi_key_type (key), NULL, 0);
 		      break;
-		    default :  
-		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES + 2 + 4*i;
+		    default:
+		      ivtab[i]->keyusage =
+			SHISHI_KEYUSAGE_KCMD_DES + 2 + 4 * i;
 		      ivtab[i]->iv = malloc (ivtab[i]->ivlen);
 		      memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
-		      ivtab[i]->ctx = shishi_crypto (handle, key, ivtab[i]->keyusage, shishi_key_type (key),
-						     ivtab[i]->iv, ivtab[i]->ivlen);
-		    } 
+		      ivtab[i]->ctx =
+			shishi_crypto (handle, key, ivtab[i]->keyusage,
+				       shishi_key_type (key), ivtab[i]->iv,
+				       ivtab[i]->ivlen);
+		    }
 		}
 	    }
 	}
 
       else
-#else
+#  else
 	rem = krcmd_mutual (&host, sp->s_port, user, term, 0,
 			    dest_realm, &cred, schedule);
       else
-#endif
-#endif /* CRYPT */
-	
+#  endif
+# endif	/* CRYPT */
+
 	rem = krcmd (
-#if defined (SHISHI)
-		     &handle, &host, sp->s_port, &user, term, 0, dest_realm);
-#else
-	             &host, sp->s_port, user, term, 0, dest_realm);
-#endif
+# if defined (SHISHI)
+		      &handle, &host, sp->s_port, &user, term, 0, dest_realm);
+# else
+		      &host, sp->s_port, user, term, 0, dest_realm);
+# endif
       if (rem < 0)
 	{
 	  use_kerberos = 0;
@@ -523,21 +524,21 @@ main(int argc, char *argv[])
 	  goto try_connect;
 	}
     }
-  
+
   else
     {
 # ifdef ENCRYPTION
       if (doencrypt)
 	error (1, 0, "the -x flag requires Kerberos authentication.");
-#endif /* CRYPT */
+# endif	/* CRYPT */
       if (!user)
 	user = pw->pw_name;
-  
+
       rem = rcmd (&host, sp->s_port, pw->pw_name, user, term, 0);
     }
 #else
   if (!user)
-      user = pw->pw_name;
+    user = pw->pw_name;
 
   rem = rcmd (&host, sp->s_port, pw->pw_name, user, term, 0);
 
@@ -556,7 +557,7 @@ main(int argc, char *argv[])
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
   {
     int one = IPTOS_LOWDELAY;
-    if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *)&one, sizeof (int)) < 0)
+    if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &one, sizeof (int)) < 0)
       error (0, errno, "setsockopt TOS (ignored)");
   }
 #endif
@@ -569,8 +570,7 @@ main(int argc, char *argv[])
 
   doit (&smask);
 
-  /*NOTREACHED*/
-  return 0;
+   /*NOTREACHED*/ return 0;
 }
 
 /* Some systems, like QNX/Neutrino , The constant B0, B50,.. maps straigth to
@@ -580,11 +580,11 @@ main(int argc, char *argv[])
    So to be portable we have to the conversion ourselves.  */
 /* Some values are not not define by POSIX.  */
 #ifndef B7200
-#define B7200   B4800
+# define B7200   B4800
 #endif
 
 #ifndef B14400
-#define B14400  B9600
+# define B14400  B9600
 #endif
 
 #ifndef B19200
@@ -592,7 +592,7 @@ main(int argc, char *argv[])
 #endif
 
 #ifndef B28800
-#define B28800  B19200
+# define B28800  B19200
 #endif
 
 #ifndef B38400
@@ -600,19 +600,19 @@ main(int argc, char *argv[])
 #endif
 
 #ifndef B57600
-#define B57600  B38400
+# define B57600  B38400
 #endif
 
 #ifndef B76800
-#define B76800  B57600
+# define B76800  B57600
 #endif
 
 #ifndef B115200
-#define B115200 B76800
+# define B115200 B76800
 #endif
 
 #ifndef B230400
-#define B230400 B115200
+# define B230400 B115200
 #endif
 struct termspeeds
 {
@@ -620,14 +620,52 @@ struct termspeeds
   unsigned int sym;
 } termspeeds[] =
 {
-  { 0,     B0 },     { 50,    B50 },   { 75,    B75 },
-  { 110,   B110 },   { 134,   B134 },  { 150,   B150 },
-  { 200,   B200 },   { 300,   B300 },  { 600,   B600 },
-  { 1200,  B1200 },  { 1800,  B1800 }, { 2400,  B2400 },
-  { 4800,   B4800 },   { 7200,  B7200 },  { 9600,   B9600 },
-  { 14400,  B14400 },  { 19200, B19200 }, { 28800,  B28800 },
-  { 38400,  B38400 },  { 57600, B57600 }, { 115200, B115200 },
-  { 230400, B230400 }, { -1,    B230400 }
+  {
+  0, B0},
+  {
+  50, B50},
+  {
+  75, B75},
+  {
+  110, B110},
+  {
+  134, B134},
+  {
+  150, B150},
+  {
+  200, B200},
+  {
+  300, B300},
+  {
+  600, B600},
+  {
+  1200, B1200},
+  {
+  1800, B1800},
+  {
+  2400, B2400},
+  {
+  4800, B4800},
+  {
+  7200, B7200},
+  {
+  9600, B9600},
+  {
+  14400, B14400},
+  {
+  19200, B19200},
+  {
+  28800, B28800},
+  {
+  38400, B38400},
+  {
+  57600, B57600},
+  {
+  115200, B115200},
+  {
+  230400, B230400},
+  {
+  -1, B230400}
 };
 
 unsigned int
@@ -664,13 +702,13 @@ struct termios ixon_state;
 struct termios nott;
 
 void
-doit (sigset_t *smask)
+doit (sigset_t * smask)
 {
   int i;
 
   for (i = 0; i < NCCS; i++)
     nott.c_cc[i] = _POSIX_VDISABLE;
-  tcgetattr(0, &deftt);
+  tcgetattr (0, &deftt);
   nott.c_cc[VSTART] = deftt.c_cc[VSTART];
   nott.c_cc[VSTOP] = deftt.c_cc[VSTOP];
 
@@ -696,9 +734,9 @@ doit (sigset_t *smask)
 	  exit (0);
 	}
       /* If the reader () returns nonzero, the socket to the server
-	 returned an error.  Somethingg went wrong.  */
+         returned an error.  Somethingg went wrong.  */
       sleep (1);
-      msg ("\007connection closed."); /* 007 == ASCII bell.  */
+      msg ("\007connection closed.");	/* 007 == ASCII bell.  */
       exit (1);
     }
 
@@ -728,7 +766,7 @@ doit (sigset_t *smask)
   if (use_kerberos)
     {
       shishi_done (handle);
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
       if (doencrypt)
 	{
 	  shishi_key_done (key);
@@ -737,10 +775,10 @@ doit (sigset_t *smask)
 	  free (iv1.iv);
 	  free (iv2.iv);
 	}
-#endif
+# endif
     }
 #endif
-  
+
   done (0);
 }
 
@@ -753,15 +791,15 @@ setsignal (int sig)
   sig_t handler;
   sigset_t sigs;
 
-  sigemptyset(&sigs);
-  sigaddset(&sigs, sig);
-  sigprocmask(SIG_BLOCK, &sigs, &sigs);
+  sigemptyset (&sigs);
+  sigaddset (&sigs, sig);
+  sigprocmask (SIG_BLOCK, &sigs, &sigs);
 
   handler = setsig (sig, exit);
   if (handler == SIG_IGN)
     setsig (sig, handler);
 
-  sigprocmask(SIG_SETMASK, &sigs, (sigset_t *) 0);
+  sigprocmask (SIG_SETMASK, &sigs, (sigset_t *) 0);
 }
 
 /* This function is called by the parent:
@@ -777,7 +815,7 @@ done (int status)
   pid_t w;
   int wstatus;
 
-  mode(0);
+  mode (0);
   if (child > 0)
     {
       /* make sure catch_child does not snap it up */
@@ -862,42 +900,44 @@ writer ()
 	      local = 1;
 	      continue;
 	    }
-	} else if (local)
-	  {
-	    local = 0;
-	    if (c == '.' || c == deftt.c_cc[VEOF])
-	      {
-		echo (c);
-		break;
-	      }
-	    if (c == deftt.c_cc[VSUSP]
+	}
+      else if (local)
+	{
+	  local = 0;
+	  if (c == '.' || c == deftt.c_cc[VEOF])
+	    {
+	      echo (c);
+	      break;
+	    }
+	  if (c == deftt.c_cc[VSUSP]
 #ifdef VDSUSP
-		|| c == deftt.c_cc[VDSUSP]
+	      || c == deftt.c_cc[VDSUSP]
 #endif
-		)
-	      {
-		bol = 1;
-		echo (c);
-		stop (c);
-		continue;
-	      }
-	    if (c != escapechar)
+	    )
+	    {
+	      bol = 1;
+	      echo (c);
+	      stop (c);
+	      continue;
+	    }
+	  if (c != escapechar)
 #ifdef ENCRYPTION
-#ifdef KERBEROS
-	      if (doencrypt)
-		des_write (rem, (char *)&escapechar, 1);
-	      else
-#elif defined(SHISHI)
-	      if (doencrypt)
-		writeenc (handle, rem, (char *)&escapechar, 1, &wlen, &iv2, key, 2);
-	      else
+# ifdef KERBEROS
+	    if (doencrypt)
+	      des_write (rem, (char *) &escapechar, 1);
+	    else
+# elif defined(SHISHI)
+	    if (doencrypt)
+	      writeenc (handle, rem, (char *) &escapechar, 1, &wlen, &iv2,
+			key, 2);
+	    else
+# endif
 #endif
-#endif
-		write (rem, &escapechar, 1);
-	  }
+	      write (rem, &escapechar, 1);
+	}
 
 #ifdef ENCRYPTION
-#ifdef KERBEROS
+# ifdef KERBEROS
       if (doencrypt)
 	{
 	  if (des_write (rem, &c, 1) == 0)
@@ -905,24 +945,26 @@ writer ()
 	      msg ("line gone");
 	      break;
 	    }
-	} else
-#elif defined(SHISHI)
+	}
+      else
+# elif defined(SHISHI)
       if (doencrypt)
 	{
-          writeenc (handle, rem, &c, 1, &wlen, &iv2, key, 2);
+	  writeenc (handle, rem, &c, 1, &wlen, &iv2, key, 2);
 	  if (wlen == 0)
 	    {
 	      msg ("line gone");
 	      break;
 	    }
-	} else
+	}
+      else
+# endif
 #endif
-#endif
-	  if (write (rem, &c, 1) == 0)
-	    {
-	      msg ("line gone");
-	      break;
-	    }
+      if (write (rem, &c, 1) == 0)
+	{
+	  msg ("line gone");
+	  break;
+	}
       bol = c == deftt.c_cc[VKILL] || c == deftt.c_cc[VEOF] ||
 	c == deftt.c_cc[VINTR] || c == deftt.c_cc[VSUSP] ||
 	c == '\r' || c == '\n';
@@ -966,13 +1008,13 @@ stop (char cmdc)
   sigwinch (0);			/* check for size changes */
 }
 
-RETSIGTYPE 
+RETSIGTYPE
 sigwinch (int signo ARG_UNUSED)
 {
   struct winsize ws;
 
-  if (dosigwinch && get_window_size(0, &ws) == 0
-      && memcmp(&ws, &winsize, sizeof ws))
+  if (dosigwinch && get_window_size (0, &ws) == 0
+      && memcmp (&ws, &winsize, sizeof ws))
     {
       winsize = ws;
       sendwindow ();
@@ -988,7 +1030,7 @@ sendwindow ()
   struct winsize *wp;
   char obuf[4 + sizeof (struct winsize)];
 
-  wp = (struct winsize *)(obuf+4);
+  wp = (struct winsize *) (obuf + 4);
   obuf[0] = 0377;
   obuf[1] = 0377;
   obuf[2] = 's';
@@ -999,15 +1041,15 @@ sendwindow ()
   wp->ws_ypixel = htons (winsize.ws_ypixel);
 
 #ifdef ENCRYPTION
-#ifdef KERBEROS
-  if(doencrypt)
+# ifdef KERBEROS
+  if (doencrypt)
     des_write (rem, obuf, sizeof obuf);
   else
-#elif defined(SHISHI)
-  if(doencrypt)
+# elif defined(SHISHI)
+  if (doencrypt)
     writeenc (handle, rem, obuf, sizeof obuf, &wlen, &iv2, key, 2);
   else
-#endif
+# endif
 #endif
     write (rem, obuf, sizeof obuf);
 }
@@ -1015,8 +1057,8 @@ sendwindow ()
 /*
  * reader: read from remote: line -> 1
  */
-#define	READING	1
-#define	WRITING	2
+#define READING	1
+#define WRITING	2
 
 jmp_buf rcvtop;
 pid_t ppid;
@@ -1033,7 +1075,7 @@ oob (int signo ARG_UNUSED)
 
   out = O_RDWR;
   rcvd = 0;
-  
+
 #ifndef SHISHI
   while (recv (rem, &mark, 1, MSG_OOB) < 0)
     {
@@ -1045,9 +1087,9 @@ oob (int signo ARG_UNUSED)
 	   * to send it yet if we are blocked for output and
 	   * our input buffer is full.
 	   */
-	  if ((size_t)rcvcnt < sizeof rcvbuf)
+	  if ((size_t) rcvcnt < sizeof rcvbuf)
 	    {
-	      n = read (rem, rcvbuf + rcvcnt, sizeof(rcvbuf) - rcvcnt);
+	      n = read (rem, rcvbuf + rcvcnt, sizeof (rcvbuf) - rcvcnt);
 	      if (n <= 0)
 		return;
 	      rcvd += n;
@@ -1079,8 +1121,8 @@ oob (int signo ARG_UNUSED)
     }
   if (!eight && (mark & TIOCPKT_DOSTOP))
     {
-      tcgetattr(0, &tt);
-      tt.c_iflag |= (IXON|IXOFF);
+      tcgetattr (0, &tt);
+      tt.c_iflag |= (IXON | IXOFF);
       tt.c_cc[VSTOP] = deftt.c_cc[VSTOP];
       tt.c_cc[VSTART] = deftt.c_cc[VSTART];
       tcsetattr (0, TCSANOW, &tt);
@@ -1088,7 +1130,7 @@ oob (int signo ARG_UNUSED)
   if (mark & TIOCPKT_FLUSHWRITE)
     {
 #ifdef TIOCFLUSH
-      ioctl (1, TIOCFLUSH, (char *)&out);
+      ioctl (1, TIOCFLUSH, (char *) &out);
 #endif
       for (;;)
 	{
@@ -1126,7 +1168,7 @@ oob (int signo ARG_UNUSED)
 
 /* reader: read from remote: line -> 1 */
 int
-reader (sigset_t *smask)
+reader (sigset_t * smask)
 {
   pid_t pid;
   int n, remaining;
@@ -1135,7 +1177,7 @@ reader (sigset_t *smask)
 #if BSD >= 43 || defined(SUNOS4)
   pid = getpid ();		/* modern systems use positives for pid */
 #else
-  pid = -getpid ();	/* old broken systems use negatives */
+  pid = -getpid ();		/* old broken systems use negatives */
 #endif
 
   setsig (SIGTTOU, SIG_IGN);
@@ -1146,7 +1188,7 @@ reader (sigset_t *smask)
   setjmp (rcvtop);
   sigprocmask (SIG_SETMASK, smask, (sigset_t *) 0);
   bufp = rcvbuf;
-  
+
   for (;;)
     {
 #ifdef SHISHI
@@ -1174,15 +1216,15 @@ reader (sigset_t *smask)
       rcvstate = READING;
 
 #ifdef ENCRYPTION
-#ifdef KERBEROS
+# ifdef KERBEROS
       if (doencrypt)
 	rcvcnt = des_read (rem, rcvbuf, sizeof rcvbuf);
       else
-#elif defined(SHISHI)
+# elif defined(SHISHI)
       if (doencrypt)
 	readenc (handle, rem, rcvbuf, &rcvcnt, &iv1, key, 2);
       else
-#endif
+# endif
 #endif
 	rcvcnt = read (rem, rcvbuf, sizeof rcvbuf);
       if (rcvcnt == 0)
@@ -1195,7 +1237,8 @@ reader (sigset_t *smask)
 	  return -1;
 	}
     }
-}void
+}
+void
 mode (int f)
 {
   struct termios tt;
@@ -1220,11 +1263,11 @@ mode (int f)
 	  tt.c_cc[VSTOP] = _POSIX_VDISABLE;
 	  tt.c_cc[VSTART] = _POSIX_VDISABLE;
 	}
-      if ((ixon_state.c_iflag & IXON) && ! eight)
+      if ((ixon_state.c_iflag & IXON) && !eight)
 	tt.c_iflag |= IXON;
       else
 	tt.c_iflag &= ~IXON;
-      tcsetattr(0, TCSADRAIN, &tt);
+      tcsetattr (0, TCSADRAIN, &tt);
       break;
 
     default:
@@ -1254,24 +1297,23 @@ msg (const char *str)
 }
 
 #if defined(KERBEROS) || defined(SHISHI)
-/* VARARGS */
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+# if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 warning (const char *fmt, ...)
-#else
+# else
 warning (fmt, va_alist)
      char *fmt;
      va_dcl
-#endif
+# endif
 {
   va_list ap;
 
   fprintf (stderr, "rlogin: warning, using standard rlogin: ");
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+# if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, fmt);
-#else
+# else
   va_start (ap);
-#endif
+# endif
   vfprintf (stderr, fmt, ap);
   va_end (ap);
   fprintf (stderr, ".\n");
@@ -1294,7 +1336,7 @@ usage (int status)
 #else
 	       "8EL", " "
 #endif
-	       );
+	);
       fprintf (stderr, "Try rlogin --help for more information.\n");
     }
   else
@@ -1311,7 +1353,7 @@ usage (int status)
       puts ("\
   -e, --escape=CHAR allows user specification of the escape character,\n\
                     which is ``~'' by default");
-  puts ("\
+      puts ("\
   -l, --user USER   run as USER on the remote system");
 #if defined(KERBEROS) || defined(SHISHI)
       puts ("\
@@ -1319,11 +1361,11 @@ usage (int status)
       puts ("\
   -k, --realm=REALM requests rlogin to obtain tickets for the remote host in\n\
                     REALM realm instead of the remote host's realm");
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
       puts ("\
   -x, --encrypt     turns on DES encryption for all data passed via the\n\
                     rlogin session");
-#endif
+# endif
 #endif
       puts ("\
   -V, --version     display program version");
@@ -1362,7 +1404,7 @@ getescape (register char *p)
   int len;
 
   if ((len = strlen (p)) == 1)	/* use any single char, including '\'.  */
-    return ((u_int)*p);
+    return ((u_int) * p);
   /* otherwise, \nnn */
   if (*p == '\\' && len >= 2 && len <= 4)
     {
@@ -1370,7 +1412,7 @@ getescape (register char *p)
       for (;;)
 	{
 	  if (!*++p)
-	    return ((u_int)val);
+	    return ((u_int) val);
 	  if (*p < '0' || *p > '8')
 	    break;
 	}

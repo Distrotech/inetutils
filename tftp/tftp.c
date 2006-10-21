@@ -28,7 +28,7 @@
  */
 
 #ifndef lint
-static char     sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
+static char sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 /* Many bug fixes are from Jim Guyton <guyton@rand-unix> */
@@ -38,7 +38,7 @@ static char     sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -69,16 +69,16 @@ static char     sccsid[] = "@(#)tftp.c	8.1 (Berkeley) 6/6/93";
 #include "tftpsubs.h"
 
 extern struct sockaddr_in peeraddr;	/* filled in by main */
-extern int      f;		/* the opened socket */
-extern int      trace;
-extern int      verbose;
-extern int      rexmtval;
-extern int      maxtimeout;
+extern int f;			/* the opened socket */
+extern int trace;
+extern int verbose;
+extern int rexmtval;
+extern int maxtimeout;
 
 #define PKTSIZE    SEGSIZE+4
-char            ackbuf[PKTSIZE];
-int             timeout;
-jmp_buf         timeoutbuf;
+char ackbuf[PKTSIZE];
+int timeout;
+jmp_buf timeoutbuf;
 
 static void nak (int);
 static int makerequest (int, const char *, struct tftphdr *, const char *);
@@ -96,12 +96,12 @@ send_file (int fd, char *name, char *mode)
 {
   register struct tftphdr *ap;	/* data and ack packets */
   struct tftphdr *r_init (), *dp;
-  register int    n;
-  volatile int    block, size, convert;
+  register int n;
+  volatile int block, size, convert;
   volatile unsigned long amount;
   struct sockaddr_in from;
-  int             fromlen;
-  FILE           *file;
+  int fromlen;
+  FILE *file;
 
   startclock ();		/* start stat's clock */
   dp = r_init ();		/* reset fillbuf/read-ahead code */
@@ -130,7 +130,7 @@ send_file (int fd, char *name, char *mode)
 	}
       timeout = 0;
       setjmp (timeoutbuf);
-      
+
     send_data:
       if (trace)
 	tpacket ("sent", dp, size + 4);
@@ -142,7 +142,7 @@ send_file (int fd, char *name, char *mode)
 	  goto abort;
 	}
       read_ahead (file, convert);
-      
+
       for (;;)
 	{
 	  alarm (rexmtval);
@@ -193,7 +193,7 @@ send_file (int fd, char *name, char *mode)
       block++;
     }
   while (size == SEGSIZE || block == 1);
-  
+
 abort:
   fclose (file);
   stopclock ();
@@ -209,13 +209,13 @@ recvfile (int fd, char *name, char *mode)
 {
   register struct tftphdr *ap;
   struct tftphdr *dp, *w_init ();
-  register int    n;
-  volatile int    block, size, firsttrip;
+  register int n;
+  volatile int block, size, firsttrip;
   volatile unsigned long amount;
   struct sockaddr_in from;
-  int             fromlen;
-  FILE           *file;
-  volatile int    convert;	/* true if converting crlf -> lf */
+  int fromlen;
+  FILE *file;
+  volatile int convert;		/* true if converting crlf -> lf */
 
   startclock ();
   dp = w_init ();
@@ -243,7 +243,7 @@ recvfile (int fd, char *name, char *mode)
 	}
       timeout = 0;
       setjmp (timeoutbuf);
-      
+
     send_ack:
       if (trace)
 	tpacket ("sent", ap, size);
@@ -255,7 +255,7 @@ recvfile (int fd, char *name, char *mode)
 	  goto abort;
 	}
       write_behind (file, convert);
-      
+
       for (;;)
 	{
 	  alarm (rexmtval);
@@ -266,7 +266,7 @@ recvfile (int fd, char *name, char *mode)
 			    (struct sockaddr *) &from, &fromlen);
 	    }
 	  while (n <= 0);
-	  
+
 	  alarm (0);
 	  if (n < 0)
 	    {
@@ -289,7 +289,7 @@ recvfile (int fd, char *name, char *mode)
 	      int j;
 
 	      if (dp->th_block == block)
-		break;	/* have next packet */
+		break;		/* have next packet */
 
 	      /* On an error, try to synchronize
 	       * both sides.
@@ -312,12 +312,11 @@ recvfile (int fd, char *name, char *mode)
       amount += size;
     }
   while (size == SEGSIZE);
-  
+
 abort:				/* ok to ack, since user */
   ap->th_opcode = htons ((u_short) ACK);	/* has seen err msg */
   ap->th_block = htons ((u_short) block);
-  sendto (f, ackbuf, 4, 0, (struct sockaddr *) &peeraddr,
-	  sizeof (peeraddr));
+  sendto (f, ackbuf, 4, 0, (struct sockaddr *) &peeraddr, sizeof (peeraddr));
   write_behind (file, convert);	/* flush last buffer */
   fclose (file);
   stopclock ();
@@ -329,7 +328,7 @@ static int
 makerequest (int request, const char *name, struct tftphdr *tp,
 	     const char *mode)
 {
-  register char  *cp;
+  register char *cp;
 
   tp->th_opcode = htons ((u_short) request);
   cp = tp->th_stuff;
@@ -344,20 +343,29 @@ makerequest (int request, const char *name, struct tftphdr *tp,
 
 struct errmsg
 {
-  int             e_code;
-  const char     *e_msg;
+  int e_code;
+  const char *e_msg;
 }
 errmsgs[] =
 {
-  { EUNDEF, "Undefined error code"},
-  { ENOTFOUND, "File not found"},
-  { EACCESS, "Access violation"},
-  { ENOSPACE, "Disk full or allocation exceeded"},
-  { EBADOP, "Illegal TFTP operation"},
-  { EBADID, "Unknown transfer ID"},
-  { EEXISTS, "File already exists"},
-  { ENOUSER, "No such user"},
-  { -1, 0}
+  {
+  EUNDEF, "Undefined error code"},
+  {
+  ENOTFOUND, "File not found"},
+  {
+  EACCESS, "Access violation"},
+  {
+  ENOSPACE, "Disk full or allocation exceeded"},
+  {
+  EBADOP, "Illegal TFTP operation"},
+  {
+  EBADID, "Unknown transfer ID"},
+  {
+  EEXISTS, "File already exists"},
+  {
+  ENOUSER, "No such user"},
+  {
+  -1, 0}
 };
 
 /*
@@ -379,7 +387,7 @@ nak (int error)
   for (pe = errmsgs; pe->e_code >= 0; pe++)
     if (pe->e_code == error)
       break;
-  
+
   if (pe->e_code < 0)
     {
       pe->e_msg = strerror (error - 100);
@@ -397,8 +405,8 @@ nak (int error)
 static void
 tpacket (const char *s, struct tftphdr *tp, int n)
 {
-  static char    *opcodes[] = { "#0", "RRQ", "WRQ", "DATA", "ACK", "ERROR" };
-  register char  *cp, *file;
+  static char *opcodes[] = { "#0", "RRQ", "WRQ", "DATA", "ACK", "ERROR" };
+  register char *cp, *file;
   u_short op = ntohs (tp->th_opcode);
 
   if (op < RRQ || op > ERROR)
@@ -429,8 +437,8 @@ tpacket (const char *s, struct tftphdr *tp, int n)
     }
 }
 
-struct timeval  tstart;
-struct timeval  tstop;
+struct timeval tstart;
+struct timeval tstop;
 
 static void
 startclock ()
@@ -451,7 +459,7 @@ printstats (const char *direction, unsigned long amount)
 
   /* compute delta in 1/10's second units */
   delta = ((tstop.tv_sec * 10.) + (tstop.tv_usec / 100000)) -
-           ((tstart.tv_sec * 10.) + (tstart.tv_usec / 100000));
+    ((tstart.tv_sec * 10.) + (tstart.tv_usec / 100000));
   delta = delta / 10.;		/* back to seconds */
   printf ("%s %d bytes in %.1f seconds", direction, amount, delta);
   if (verbose)

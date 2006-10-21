@@ -34,15 +34,16 @@
  */
 
 #ifndef lint
-#if 0
+# if 0
 static char sccsid[] = "@(#)print.c	8.5 (Berkeley) 7/28/94";
-#else
-static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $";
-#endif
+# else
+static char rcsid[] =
+  "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $";
+# endif
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/param.h>
@@ -61,14 +62,14 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 #include "bsdport.h"
 
 #ifdef HAVE_SYS_MKDEV_H
-#include <sys/mkdev.h>
+# include <sys/mkdev.h>
 #endif
 
 #include "ls.h"
 #include "extern.h"
 
 #ifndef howmany
-#define    howmany(x, y)   (((x)+((y)-1))/(y))
+# define howmany(x, y)   (((x)+((y)-1))/(y))
 #endif
 
 #ifndef major
@@ -79,166 +80,169 @@ static char rcsid[] = "$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $"
 # define minor(x)        ((int)((x)&0377))
 #endif
 
-static int	printaname (FTSENT *, u_long, u_long);
-static void	printlink (FTSENT *);
-static void	printtime (time_t);
-static int	printtype (u_int);
-static int	compute_columns (DISPLAY *, int *);
+static int printaname (FTSENT *, u_long, u_long);
+static void printlink (FTSENT *);
+static void printtime (time_t);
+static int printtype (u_int);
+static int compute_columns (DISPLAY *, int *);
 
-#define	IS_NOPRINT(p)	((p)->fts_number == NO_PRINT)
+#define IS_NOPRINT(p)	((p)->fts_number == NO_PRINT)
 
 void
-printscol(dp)
-	DISPLAY *dp;
+printscol (dp)
+     DISPLAY *dp;
 {
-	FTSENT *p;
+  FTSENT *p;
 
-	for (p = dp->list; p; p = p->fts_link) {
-		if (IS_NOPRINT(p))
-			continue;
-		printaname(p, dp->s_inode, dp->s_block);
-		putchar('\n');
-	}
+  for (p = dp->list; p; p = p->fts_link)
+    {
+      if (IS_NOPRINT (p))
+	continue;
+      printaname (p, dp->s_inode, dp->s_block);
+      putchar ('\n');
+    }
 }
 
 void
-printlong(dp)
-	DISPLAY *dp;
+printlong (dp)
+     DISPLAY *dp;
 {
-	struct stat *sp;
-	FTSENT *p;
-	NAMES *np;
-	char buf[20];
+  struct stat *sp;
+  FTSENT *p;
+  NAMES *np;
+  char buf[20];
 
-	if (dp->list->fts_level != FTS_ROOTLEVEL && (f_longform || f_size))
-		printf("total %lu\n", howmany(dp->btotal, blocksize));
+  if (dp->list->fts_level != FTS_ROOTLEVEL && (f_longform || f_size))
+    printf ("total %lu\n", howmany (dp->btotal, blocksize));
 
-	for (p = dp->list; p; p = p->fts_link) {
-		if (IS_NOPRINT(p))
-			continue;
-		sp = p->fts_statp;
+  for (p = dp->list; p; p = p->fts_link)
+    {
+      if (IS_NOPRINT (p))
+	continue;
+      sp = p->fts_statp;
 #ifdef ORIGINAL_SOURCE
-		if (f_inode)
-			printf("%*u ", dp->s_inode, sp->st_ino);
-		if (f_size)
-			printf("%*qd ",
-			    dp->s_block, howmany(sp->st_blocks, blocksize));
+      if (f_inode)
+	printf ("%*u ", dp->s_inode, sp->st_ino);
+      if (f_size)
+	printf ("%*qd ", dp->s_block, howmany (sp->st_blocks, blocksize));
 #else
-		if (f_inode)
-			printf("%*lu ", dp->s_inode, (unsigned long)sp->st_ino);
-		if (f_size)
-			printf("%*llu ",
-			    dp->s_block, (long long)howmany(sp->st_blocks, blocksize));
+      if (f_inode)
+	printf ("%*lu ", dp->s_inode, (unsigned long) sp->st_ino);
+      if (f_size)
+	printf ("%*llu ",
+		dp->s_block, (long long) howmany (sp->st_blocks, blocksize));
 #endif /* ORIGINAL_SOURCE */
-		strmode(sp->st_mode, buf);
-		np = p->fts_pointer;
-		printf("%s %*u %-*s  %-*s  ", buf, dp->s_nlink,
-		    sp->st_nlink, dp->s_user, np->user, dp->s_group,
-		    np->group);
-		if (f_flags)
-			printf("%-*s ", dp->s_flags, np->flags);
-		if (S_ISCHR(sp->st_mode) || S_ISBLK(sp->st_mode))
-			printf("%3d, %3d ",
-			    major(sp->st_rdev), minor(sp->st_rdev));
-		else if (dp->bcfile)
-			printf("%*s%*llu ",
-			    8 - dp->s_size, "", dp->s_size, (long long)sp->st_size);
-		else
-			printf("%*llu ", dp->s_size, (long long)sp->st_size);
-		if (f_accesstime)
-			printtime(sp->st_atime);
-		else if (f_statustime)
-			printtime(sp->st_ctime);
-		else
-			printtime(sp->st_mtime);
-		putname(p->fts_name);
-		if (f_type || (f_typedir && S_ISDIR(sp->st_mode)))
-			printtype(sp->st_mode);
-		if (S_ISLNK(sp->st_mode))
-			printlink(p);
-		putchar('\n');
-	}
+      strmode (sp->st_mode, buf);
+      np = p->fts_pointer;
+      printf ("%s %*u %-*s  %-*s  ", buf, dp->s_nlink,
+	      sp->st_nlink, dp->s_user, np->user, dp->s_group, np->group);
+      if (f_flags)
+	printf ("%-*s ", dp->s_flags, np->flags);
+      if (S_ISCHR (sp->st_mode) || S_ISBLK (sp->st_mode))
+	printf ("%3d, %3d ", major (sp->st_rdev), minor (sp->st_rdev));
+      else if (dp->bcfile)
+	printf ("%*s%*llu ",
+		8 - dp->s_size, "", dp->s_size, (long long) sp->st_size);
+      else
+	printf ("%*llu ", dp->s_size, (long long) sp->st_size);
+      if (f_accesstime)
+	printtime (sp->st_atime);
+      else if (f_statustime)
+	printtime (sp->st_ctime);
+      else
+	printtime (sp->st_mtime);
+      putname (p->fts_name);
+      if (f_type || (f_typedir && S_ISDIR (sp->st_mode)))
+	printtype (sp->st_mode);
+      if (S_ISLNK (sp->st_mode))
+	printlink (p);
+      putchar ('\n');
+    }
 }
 
 static int
-compute_columns(dp, pnum)
-	DISPLAY *dp;
-	int	*pnum;
+compute_columns (dp, pnum)
+     DISPLAY *dp;
+     int *pnum;
 {
-	int colwidth;
-	extern int termwidth;
-	int mywidth;
+  int colwidth;
+  extern int termwidth;
+  int mywidth;
 
-	colwidth = dp->maxlen;
-	if (f_inode)
-		colwidth += dp->s_inode + 1;
-	if (f_size)
-		colwidth += dp->s_block + 1;
-	if (f_type || f_typedir)
-		colwidth += 1;
+  colwidth = dp->maxlen;
+  if (f_inode)
+    colwidth += dp->s_inode + 1;
+  if (f_size)
+    colwidth += dp->s_block + 1;
+  if (f_type || f_typedir)
+    colwidth += 1;
 
-	colwidth += 1;
-	mywidth = termwidth + 1;	/* no extra space for last column */
+  colwidth += 1;
+  mywidth = termwidth + 1;	/* no extra space for last column */
 
-	if (mywidth < 2 * colwidth) {
-		printscol(dp);
-		return (0);
-	}
+  if (mywidth < 2 * colwidth)
+    {
+      printscol (dp);
+      return (0);
+    }
 
-	*pnum = mywidth / colwidth;
-	return (mywidth / *pnum);		/* spread out if possible */
+  *pnum = mywidth / colwidth;
+  return (mywidth / *pnum);	/* spread out if possible */
 }
 
 void
-printcol(dp)
-	DISPLAY *dp;
+printcol (dp)
+     DISPLAY *dp;
 {
-	static FTSENT **array;
-	static int lastentries = -1;
-	FTSENT *p;
-	int base, chcnt, col, colwidth, num;
-	int numcols, numrows, row;
+  static FTSENT **array;
+  static int lastentries = -1;
+  FTSENT *p;
+  int base, chcnt, col, colwidth, num;
+  int numcols, numrows, row;
 
-	if ( (colwidth = compute_columns(dp, &numcols)) == 0)
-		return;
-	/*
-	 * Have to do random access in the linked list -- build a table
-	 * of pointers.
-	 */
-	if (dp->entries > lastentries) {
-		FTSENT **a;
+  if ((colwidth = compute_columns (dp, &numcols)) == 0)
+    return;
+  /*
+   * Have to do random access in the linked list -- build a table
+   * of pointers.
+   */
+  if (dp->entries > lastentries)
+    {
+      FTSENT **a;
 
-		if ((a =
-		    realloc(array, dp->entries * sizeof(FTSENT *))) == NULL) {
-			fprintf(stderr, "realloci: %s \n", strerror(errno));
-			printscol(dp);
-			return;
-		}
-		lastentries = dp->entries;
-		array = a;
+      if ((a = realloc (array, dp->entries * sizeof (FTSENT *))) == NULL)
+	{
+	  fprintf (stderr, "realloci: %s \n", strerror (errno));
+	  printscol (dp);
+	  return;
 	}
-	for (p = dp->list, num = 0; p; p = p->fts_link)
-		if (p->fts_number != NO_PRINT)
-			array[num++] = p;
+      lastentries = dp->entries;
+      array = a;
+    }
+  for (p = dp->list, num = 0; p; p = p->fts_link)
+    if (p->fts_number != NO_PRINT)
+      array[num++] = p;
 
-	numrows = num / numcols;
-	if (num % numcols)
-		++numrows;
+  numrows = num / numcols;
+  if (num % numcols)
+    ++numrows;
 
-	if (dp->list->fts_level != FTS_ROOTLEVEL && (f_longform || f_size))
-		printf("total %lu\n", howmany(dp->btotal, blocksize));
-	for (row = 0; row < numrows; ++row) {
-		for (base = row, col = 0;;) {
-			chcnt = printaname(array[base], dp->s_inode, dp->s_block);
-			if ((base += numrows) >= num)
-				break;
-			if (++col == numcols)
-				break;
-			while (chcnt++ < colwidth)
-				putchar(' ');
-		}
-		putchar('\n');
+  if (dp->list->fts_level != FTS_ROOTLEVEL && (f_longform || f_size))
+    printf ("total %lu\n", howmany (dp->btotal, blocksize));
+  for (row = 0; row < numrows; ++row)
+    {
+      for (base = row, col = 0;;)
+	{
+	  chcnt = printaname (array[base], dp->s_inode, dp->s_block);
+	  if ((base += numrows) >= num)
+	    break;
+	  if (++col == numcols)
+	    break;
+	  while (chcnt++ < colwidth)
+	    putchar (' ');
 	}
+      putchar ('\n');
+    }
 }
 
 /*
@@ -246,173 +250,181 @@ printcol(dp)
  * return # of characters printed, no trailing characters.
  */
 static int
-printaname(p, inodefield, sizefield)
-	FTSENT *p;
-	u_long sizefield, inodefield;
+printaname (p, inodefield, sizefield)
+     FTSENT *p;
+     u_long sizefield, inodefield;
 {
-	struct stat *sp;
-	int chcnt;
+  struct stat *sp;
+  int chcnt;
 
-	sp = p->fts_statp;
-	chcnt = 0;
+  sp = p->fts_statp;
+  chcnt = 0;
 #ifdef ORIGINAL_SOURCE
-	if (f_inode)
-		chcnt += printf("%*u ", (int)inodefield, sp->st_ino);
-	if (f_size)
-		chcnt += printf("%*qd ",
-		    (int)sizefield, howmany(sp->st_blocks, blocksize));
+  if (f_inode)
+    chcnt += printf ("%*u ", (int) inodefield, sp->st_ino);
+  if (f_size)
+    chcnt += printf ("%*qd ",
+		     (int) sizefield, howmany (sp->st_blocks, blocksize));
 #else
-	if (f_inode)
-		chcnt += printf("%*lu ", (int)inodefield, (unsigned long)sp->st_ino);
-	if (f_size)
-		chcnt += printf("%*llu ",
-		    (int)sizefield, (long long)howmany(sp->st_blocks, blocksize));
+  if (f_inode)
+    chcnt += printf ("%*lu ", (int) inodefield, (unsigned long) sp->st_ino);
+  if (f_size)
+    chcnt += printf ("%*llu ",
+		     (int) sizefield, (long long) howmany (sp->st_blocks,
+							   blocksize));
 #endif /* ORIGINAL_SOURCE */
-	chcnt += putname(p->fts_name);
-	if (f_type || (f_typedir && S_ISDIR(sp->st_mode)))
-		chcnt += printtype(sp->st_mode);
-	return (chcnt);
+  chcnt += putname (p->fts_name);
+  if (f_type || (f_typedir && S_ISDIR (sp->st_mode)))
+    chcnt += printtype (sp->st_mode);
+  return (chcnt);
 }
 
 static void
-printtime(ftime)
-	time_t ftime;
+printtime (ftime)
+     time_t ftime;
 {
-	int i;
-	char *longstring;
+  int i;
+  char *longstring;
 
-	longstring = ctime(&ftime);
-	for (i = 4; i < 11; ++i)
-		putchar(longstring[i]);
+  longstring = ctime (&ftime);
+  for (i = 4; i < 11; ++i)
+    putchar (longstring[i]);
 
-#define	SIXMONTHS	((DAYSPERNYEAR / 2) * SECSPERDAY)
-	if (f_sectime)
-		for (i = 11; i < 24; i++)
-			putchar(longstring[i]);
-	else if (ftime + SIXMONTHS > time(NULL))
-		for (i = 11; i < 16; ++i)
-			putchar(longstring[i]);
-	else {
-		putchar(' ');
-		for (i = 20; i < 24; ++i)
-			putchar(longstring[i]);
-	}
-	putchar(' ');
+#define SIXMONTHS	((DAYSPERNYEAR / 2) * SECSPERDAY)
+  if (f_sectime)
+    for (i = 11; i < 24; i++)
+      putchar (longstring[i]);
+  else if (ftime + SIXMONTHS > time (NULL))
+    for (i = 11; i < 16; ++i)
+      putchar (longstring[i]);
+  else
+    {
+      putchar (' ');
+      for (i = 20; i < 24; ++i)
+	putchar (longstring[i]);
+    }
+  putchar (' ');
 }
 
 void
-printacol(dp)
-	DISPLAY *dp;
+printacol (dp)
+     DISPLAY *dp;
 {
-	FTSENT *p;
-	int chcnt, col, colwidth;
-	int numcols;
+  FTSENT *p;
+  int chcnt, col, colwidth;
+  int numcols;
 
-	if ( (colwidth = compute_columns(dp, &numcols)) == 0)
-		return;
+  if ((colwidth = compute_columns (dp, &numcols)) == 0)
+    return;
 
-	if (dp->list->fts_level != FTS_ROOTLEVEL && (f_longform || f_size))
-		printf("total %llu\n",
-		    (long long)(howmany(dp->btotal, blocksize)));
-	col = 0;
-	for (p = dp->list; p; p = p->fts_link) {
-		if (IS_NOPRINT(p))
-			continue;
-		if (col >= numcols) {
-			col = 0;
-			putchar('\n');
-		}
-		chcnt = printaname(p, dp->s_inode, dp->s_block);
-		col++;
-		if (col < numcols)
-			while (chcnt++ < colwidth)
-				putchar(' ');
+  if (dp->list->fts_level != FTS_ROOTLEVEL && (f_longform || f_size))
+    printf ("total %llu\n", (long long) (howmany (dp->btotal, blocksize)));
+  col = 0;
+  for (p = dp->list; p; p = p->fts_link)
+    {
+      if (IS_NOPRINT (p))
+	continue;
+      if (col >= numcols)
+	{
+	  col = 0;
+	  putchar ('\n');
 	}
-	putchar('\n');
+      chcnt = printaname (p, dp->s_inode, dp->s_block);
+      col++;
+      if (col < numcols)
+	while (chcnt++ < colwidth)
+	  putchar (' ');
+    }
+  putchar ('\n');
 }
 
 void
-printstream(dp)
-	DISPLAY *dp;
+printstream (dp)
+     DISPLAY *dp;
 {
-	extern int termwidth;
-	FTSENT *p;
-	int col;
-	int extwidth;
+  extern int termwidth;
+  FTSENT *p;
+  int col;
+  int extwidth;
 
-	extwidth = 0;
-	if (f_inode)
-		extwidth += dp->s_inode + 1;
-	if (f_size)
-		extwidth += dp->s_block + 1;
-	if (f_type)
-		extwidth += 1;
+  extwidth = 0;
+  if (f_inode)
+    extwidth += dp->s_inode + 1;
+  if (f_size)
+    extwidth += dp->s_block + 1;
+  if (f_type)
+    extwidth += 1;
 
-	for (col = 0, p = dp->list; p != NULL; p = p->fts_link) {
-		if (IS_NOPRINT(p))
-			continue;
-		if (col > 0) {
-			putchar(','), col++;
-			if (col + 1 + extwidth + p->fts_namelen >= termwidth)
-				putchar('\n'), col = 0;
-			else
-				putchar(' '), col++;
-		}
-		col += printaname(p, dp->s_inode, dp->s_block);
+  for (col = 0, p = dp->list; p != NULL; p = p->fts_link)
+    {
+      if (IS_NOPRINT (p))
+	continue;
+      if (col > 0)
+	{
+	  putchar (','), col++;
+	  if (col + 1 + extwidth + p->fts_namelen >= termwidth)
+	    putchar ('\n'), col = 0;
+	  else
+	    putchar (' '), col++;
 	}
-	putchar('\n');
+      col += printaname (p, dp->s_inode, dp->s_block);
+    }
+  putchar ('\n');
 }
 
 static int
-printtype(mode)
-	u_int mode;
+printtype (mode)
+     u_int mode;
 {
-	switch (mode & S_IFMT) {
-	case S_IFDIR:
-		putchar('/');
-		return (1);
-	case S_IFIFO:
-		putchar('|');
-		return (1);
-	case S_IFLNK:
-		putchar('@');
-		return (1);
-	case S_IFSOCK:
-		putchar('=');
-		return (1);
+  switch (mode & S_IFMT)
+    {
+    case S_IFDIR:
+      putchar ('/');
+      return (1);
+    case S_IFIFO:
+      putchar ('|');
+      return (1);
+    case S_IFLNK:
+      putchar ('@');
+      return (1);
+    case S_IFSOCK:
+      putchar ('=');
+      return (1);
 #ifdef ORIGINAL_SOURCE
-	case S_IFWHT:
-		putchar('%');
-		return (1);
+    case S_IFWHT:
+      putchar ('%');
+      return (1);
 #endif /* ORIGINAL_SOURCE */
-	}
-	if (mode & (S_IXUSR | S_IXGRP | S_IXOTH)) {
-		putchar('*');
-		return (1);
-	}
-	return (0);
+    }
+  if (mode & (S_IXUSR | S_IXGRP | S_IXOTH))
+    {
+      putchar ('*');
+      return (1);
+    }
+  return (0);
 }
 
 static void
-printlink(p)
-	FTSENT *p;
+printlink (p)
+     FTSENT *p;
 {
-	int lnklen;
+  int lnklen;
 #ifndef MAXPATHLEN
-#define MAXPATHLEN 1024
+# define MAXPATHLEN 1024
 #endif
-	char name[MAXPATHLEN], path[MAXPATHLEN];
+  char name[MAXPATHLEN], path[MAXPATHLEN];
 
-	if (p->fts_level == FTS_ROOTLEVEL)
-		snprintf(name, sizeof(name), "%s", p->fts_name);
-	else
-		snprintf(name, sizeof(name),
-		    "%s/%s", p->fts_parent->fts_accpath, p->fts_name);
-	if ((lnklen = readlink(name, path, sizeof(path) - 1)) == -1) {
-		fprintf(stderr, "\nls: %s: %s\n", name, strerror(errno));
-		return;
-	}
-	path[lnklen] = '\0';
-	printf(" -> ");
-	putname(path);
+  if (p->fts_level == FTS_ROOTLEVEL)
+    snprintf (name, sizeof (name), "%s", p->fts_name);
+  else
+    snprintf (name, sizeof (name),
+	      "%s/%s", p->fts_parent->fts_accpath, p->fts_name);
+  if ((lnklen = readlink (name, path, sizeof (path) - 1)) == -1)
+    {
+      fprintf (stderr, "\nls: %s: %s\n", name, strerror (errno));
+      return;
+    }
+  path[lnklen] = '\0';
+  printf (" -> ");
+  putname (path);
 }

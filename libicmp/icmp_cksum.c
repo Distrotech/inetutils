@@ -25,24 +25,24 @@
 #include <unistd.h>
 
 u_short
-icmp_cksum (u_char *addr, int len)
+icmp_cksum (u_char * addr, int len)
 {
   register int sum = 0;
   u_short answer = 0;
   u_short *wp;
 
-  for (wp = (u_short*)addr; len > 1; wp++, len -= 2)
+  for (wp = (u_short *) addr; len > 1; wp++, len -= 2)
     sum += *wp;
 
   /* Take in an odd byte if present */
   if (len == 1)
     {
-      *(u_char *)&answer = *(u_char*)wp;
+      *(u_char *) & answer = *(u_char *) wp;
       sum += answer;
     }
 
   sum = (sum >> 16) + (sum & 0xffff);	/* add high 16 to low 16 */
-  sum += (sum >> 16);			/* add carry */
-  answer = ~sum;			/* truncate to 16 bits */
+  sum += (sum >> 16);		/* add carry */
+  answer = ~sum;		/* truncate to 16 bits */
   return answer;
 }

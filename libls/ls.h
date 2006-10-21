@@ -50,24 +50,26 @@ extern int f_statustime;	/* use time of last mode change */
 extern int f_type;		/* add type character for non-regular files */
 extern int f_typedir;		/* add type character for directories */
 
-typedef struct {
-	FTSENT *list;
-	u_long btotal;
-	int bcfile;
-	int entries;
-	int maxlen;
-	int s_block;
-	int s_flags;
-	int s_group;
-	int s_inode;
-	int s_nlink;
-	int s_size;
-	int s_user;
+typedef struct
+{
+  FTSENT *list;
+  u_long btotal;
+  int bcfile;
+  int entries;
+  int maxlen;
+  int s_block;
+  int s_flags;
+  int s_group;
+  int s_inode;
+  int s_nlink;
+  int s_size;
+  int s_user;
 } DISPLAY;
 
-typedef struct {
-	char *user;
-	char *group;
-	char *flags;
-	char data[1];
+typedef struct
+{
+  char *user;
+  char *group;
+  char *flags;
+  char data[1];
 } NAMES;

@@ -20,9 +20,9 @@
    MA 02110-1301 USA. */
 
 #ifndef IFCONFIG_SYSTEM_H
-#define IFCONFIG_SYSTEM_H
-
+# define IFCONFIG_SYSTEM_H
 
+
 /* Option parsing.  */
 
 /* Define this if ifconfig supports parsing the remaining non-option
@@ -33,10 +33,10 @@ extern const char *system_help;
 extern const char *system_help_options;
 
 /* Additional short options.  */
-#undef SYSTEM_SHORT_OPTIONS
+# undef SYSTEM_SHORT_OPTIONS
 
 /* Addition long options.  */
-#undef SYSTEM_LONG_OPTIONS
+# undef SYSTEM_LONG_OPTIONS
 
 /* Hooked into a struct ifconfig (setting the flag IF_VALID_SYSTEM),
    to store system specific configurations from the command line
@@ -47,16 +47,18 @@ extern const char *system_help_options;
    it in IFP.  You may create a new struct ifconfig if appropriate,
    and store its pointer in IFP to make it the current one.
    Return 0 if option was not recognized, otherwise 1.  */
-extern int system_parse_opt(struct ifconfig **ifp, char option, char *optarg);
+extern int system_parse_opt (struct ifconfig **ifp, char option,
+			     char *optarg);
 
 /* Parse remaining ARGC arguments ARGV on the command line. IFP has
    the same meaning as in system_parse_opt.  (There is some
    post-processing, so you are not reliefed from setting IPF is
    appropriate.)
    Return 0 if all options were not recognized, otherwise 1.  */
-extern int system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[]);
-
+extern int system_parse_opt_rest (struct ifconfig **ifp, int argc,
+				  char *argv[]);
 
+
 /* Output format support.  */
 
 /* Define this if you want to set a system specific default output
@@ -66,39 +68,40 @@ extern const char *system_default_format;
 
 /* Define this to a list of struct format_handler items.  Add a
    trailing comma, too.  */
-#undef SYSTEM_FORMAT_HANDLER
-
+# undef SYSTEM_FORMAT_HANDLER
 
-int system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *__ifs);
 
+int system_configure (int sfd, struct ifreq *ifr,
+		      struct system_ifconfig *__ifs);
 
+
 
 /* For systems which loose.  */
 
-#ifndef HAVE_STRUCT_IFREQ_IFR_INDEX
-# define ifr_index ifr_ifindex
-#endif
+# ifndef HAVE_STRUCT_IFREQ_IFR_INDEX
+#  define ifr_index ifr_ifindex
+# endif
 
-#ifndef HAVE_STRUCT_IFREQ_IFR_NETMASK
-# define ifr_netmask ifr_addr
-#endif
+# ifndef HAVE_STRUCT_IFREQ_IFR_NETMASK
+#  define ifr_netmask ifr_addr
+# endif
 
-#ifndef HAVE_STRUCT_IFREQ_IFR_BROADADDR
-# define ifr_broadaddr ifr_addr
-#endif
-
+# ifndef HAVE_STRUCT_IFREQ_IFR_BROADADDR
+#  define ifr_broadaddr ifr_addr
+# endif
 
 
-#if defined(__linux__)
-# include "system/linux.h"
-#elif defined(__sun__)
-# include "system/solaris.h"
-#elif defined(__hpux__)
-# include "system/hpux.h"
-#elif defined(__QNX__)
-# include "system/qnx.h"
-#else
-#include "system/generic.h"
-#endif
+
+# if defined(__linux__)
+#  include "system/linux.h"
+# elif defined(__sun__)
+#  include "system/solaris.h"
+# elif defined(__hpux__)
+#  include "system/hpux.h"
+# elif defined(__QNX__)
+#  include "system/qnx.h"
+# else
+#  include "system/generic.h"
+# endif
 
 #endif

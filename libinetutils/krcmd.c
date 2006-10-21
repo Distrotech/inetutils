@@ -28,7 +28,7 @@
  */
 
 #ifndef lint
-static char     sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
+static char sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 /*
@@ -41,39 +41,38 @@ static char     sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #if defined(KERBEROS) || defined(SHISHI)
-#include <sys/types.h>
-#ifdef ENCRYPTION
-#include <sys/socket.h>
-#endif
+# include <sys/types.h>
+# ifdef ENCRYPTION
+#  include <sys/socket.h>
+# endif
 
-#include <netinet/in.h>
+# include <netinet/in.h>
 
-#ifdef KERBEROS
-#include <kerberosIV/des.h>
-#include <kerberosIV/krb.h>
-#elif defined(SHISHI)
-#include <shishi.h>
-#include "shishi_def.h"
-#endif
+# ifdef KERBEROS
+#  include <kerberosIV/des.h>
+#  include <kerberosIV/krb.h>
+# elif defined(SHISHI)
+#  include <shishi.h>
+#  include "shishi_def.h"
+# endif
 
-#include <stdio.h>
+# include <stdio.h>
 
-#define	SERVICE_NAME	"rcmd"
+# define SERVICE_NAME	"rcmd"
 
-#if defined(SHISHI)
-int kcmd        (Shishi **, int *, char **, u_short, char *, char **,
-		 char *, int *, char *, char *, Shishi_key **,
-		 struct sockaddr_in *, struct sockaddr_in *, long);
-#else
-int kcmd        (int *, char **, u_short, char *, char *, char *, int *,
-		 KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
-		 MSG_DAT *,
-		 struct sockaddr_in *, struct sockaddr_in *, long);
-#endif
+# if defined(SHISHI)
+int kcmd (Shishi **, int *, char **, u_short, char *, char **,
+	  char *, int *, char *, char *, Shishi_key **,
+	  struct sockaddr_in *, struct sockaddr_in *, long);
+# else
+int kcmd (int *, char **, u_short, char *, char *, char *, int *,
+	  KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
+	  MSG_DAT *, struct sockaddr_in *, struct sockaddr_in *, long);
+# endif
 
 /*
  * krcmd: simplified version of Athena's "kcmd"
@@ -81,19 +80,18 @@ int kcmd        (int *, char **, u_short, char *, char *, char *, int *,
  *	if fd2p is non-NULL, another socket is filled in for it
  */
 
-#if defined(SHISHI)
+# if defined(SHISHI)
 int
 krcmd (Shishi ** h, char **ahost, u_short rport, char **remuser, char *cmd,
        int *fd2p, char *realm)
 {
-  int             sock = -1, err = 0;
-  long            authopts = 0L;
+  int sock = -1, err = 0;
+  long authopts = 0L;
 
   err = kcmd (h, &sock, ahost, rport, NULL,	/* locuser not used */
-	      remuser, cmd, fd2p, SERVICE_NAME, realm,
-	      NULL,	/* key schedule not used */
-	      NULL,	/* local addr not used */
-	      NULL,	/* foreign addr not used */
+	      remuser, cmd, fd2p, SERVICE_NAME, realm, NULL,	/* key schedule not used */
+	      NULL,		/* local addr not used */
+	      NULL,		/* foreign addr not used */
 	      authopts);
 
   if (err > SHISHI_OK)
@@ -106,18 +104,17 @@ krcmd (Shishi ** h, char **ahost, u_short rport, char **remuser, char *cmd,
   return (sock);
 }
 
-#elif defined(KERBEROS)
+# elif defined(KERBEROS)
 int
 krcmd (char **ahost, u_short rport, char *remuser, char *cmd, int *fd2p,
        char *realm)
 {
-  int             sock = -1, err = 0;
-  KTEXT_ST        ticket;
-  long            authopts = 0L;
+  int sock = -1, err = 0;
+  KTEXT_ST ticket;
+  long authopts = 0L;
 
   err = kcmd (&sock, ahost, rport, NULL,	/* locuser not used */
-	      remuser, cmd, fd2p, &ticket, SERVICE_NAME, realm,
-	      NULL,	/* credentials not used */
+	      remuser, cmd, fd2p, &ticket, SERVICE_NAME, realm, NULL,	/* credentials not used */
 	      (bit_64 *) NULL,	/* key schedule not used */
 	      (MSG_DAT *) NULL,	/* MSG_DAT not used */
 	      (struct sockaddr_in *) NULL,	/* local addr not used */
@@ -133,22 +130,21 @@ krcmd (char **ahost, u_short rport, char *remuser, char *cmd, int *fd2p,
     return (-1);
   return (sock);
 }
-#endif
+# endif
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
 
-#if defined(SHISHI)
+#  if defined(SHISHI)
 int
 krcmd_mutual (Shishi ** h, char **ahost, u_short rport, char **remuser,
 	      char *cmd, int *fd2p, char *realm, Shishi_key ** key)
 {
-  int             sock = -1, err = 0;
+  int sock = -1, err = 0;
   struct sockaddr_in laddr, faddr;
-  long            authopts = SHISHI_APOPTIONS_MUTUAL_REQUIRED;
+  long authopts = SHISHI_APOPTIONS_MUTUAL_REQUIRED;
 
   err = kcmd (h, &sock, ahost, rport, NULL,	/* locuser not used */
-	      remuser, cmd, fd2p, SERVICE_NAME, realm,
-	      key,        	/* filled in */
+	      remuser, cmd, fd2p, SERVICE_NAME, realm, key,	/* filled in */
 	      &laddr,		/* filled in */
 	      &faddr,		/* filled in */
 	      authopts);
@@ -164,20 +160,19 @@ krcmd_mutual (Shishi ** h, char **ahost, u_short rport, char **remuser,
   return (sock);
 }
 
-#elif defined(KERBEROS)
+#  elif defined(KERBEROS)
 int
 krcmd_mutual (char **ahost, u_short rport, char *remuser, char *cmd,
 	      int *fd2p, char *realm, CREDENTIALS * cred, Key_schedule sched)
 {
-  int             sock, err;
-  KTEXT_ST        ticket;
-  MSG_DAT         msg_dat;
+  int sock, err;
+  KTEXT_ST ticket;
+  MSG_DAT msg_dat;
   struct sockaddr_in laddr, faddr;
-  long            authopts = KOPT_DO_MUTUAL;
+  long authopts = KOPT_DO_MUTUAL;
 
   err = kcmd (&sock, ahost, rport, NULL,	/* locuser not used */
-	      remuser, cmd, fd2p, &ticket, SERVICE_NAME, realm,
-	      cred,	        /* filled in */
+	      remuser, cmd, fd2p, &ticket, SERVICE_NAME, realm, cred,	/* filled in */
 	      sched,		/* filled in */
 	      &msg_dat,		/* filled in */
 	      &laddr,		/* filled in */
@@ -194,6 +189,6 @@ krcmd_mutual (char **ahost, u_short rport, char *remuser, char *cmd,
     return (-1);
   return (sock);
 }
-#endif /* CRYPT */
-#endif /* KERBEROS */
+#  endif /* CRYPT */
+# endif	/* KERBEROS */
 #endif /* KERBEROS */

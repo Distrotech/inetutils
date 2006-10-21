@@ -35,11 +35,11 @@
  *
  */
 
-#ifndef	FD_SETSIZE
+#ifndef FD_SETSIZE
 
-#define	FD_SET(n, p)	((p)->fds_bits[0] |= (1<<(n)))
-#define	FD_CLR(n, p)	((p)->fds_bits[0] &= ~(1<<(n)))
-#define	FD_ISSET(n, p)	((p)->fds_bits[0] & (1<<(n)))
-#define FD_ZERO(p)	((p)->fds_bits[0] = 0)
+# define FD_SET(n, p)	((p)->fds_bits[0] |= (1<<(n)))
+# define FD_CLR(n, p)	((p)->fds_bits[0] &= ~(1<<(n)))
+# define FD_ISSET(n, p)	((p)->fds_bits[0] & (1<<(n)))
+# define FD_ZERO(p)	((p)->fds_bits[0] = 0)
 
 #endif

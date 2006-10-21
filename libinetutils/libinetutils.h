@@ -21,4 +21,3 @@ char *utmp_ptsid (char *line, char *tag);
 char *localhost (void);
 void logwtmp (const char *, const char *, const char *);
 void cleanup_session (char *tty, int pty_fd);
-     

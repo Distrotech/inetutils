@@ -21,7 +21,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/stat.h>
@@ -29,7 +29,7 @@
 #include <errno.h>
 
 #if HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #if HAVE_STRING_H
@@ -55,13 +55,13 @@
 #include <netinet/if_ether.h>
 
 #include "../ifconfig.h"
-
 
+
 /* Output format stuff.  */
 
 const char *system_default_format = "unix";
-
 
+
 /* Argument parsing stuff.  */
 
 const char *system_help = "\
@@ -71,7 +71,7 @@ const char *system_help = "\
 const char *system_help_options;
 
 int
-system_parse_opt(struct ifconfig **ifp, char option, char *optarg)
+system_parse_opt (struct ifconfig **ifp, char option, char *optarg)
 {
   return 0;
 }
@@ -117,13 +117,13 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 
       if (expect != EXPECT_NOTHING)
 	expect = EXPECT_NOTHING;
-      else if (! strcmp (argv[i], "broadcast"))
+      else if (!strcmp (argv[i], "broadcast"))
 	expect = EXPECT_BROADCAST;
-      else if (! strcmp (argv[i], "netmask"))
+      else if (!strcmp (argv[i], "netmask"))
 	expect = EXPECT_NETMASK;
-      else if (! strcmp (argv[i], "metric"))
+      else if (!strcmp (argv[i], "metric"))
 	expect = EXPECT_METRIC;
-      else if (! strcmp (argv[i], "mtu"))
+      else if (!strcmp (argv[i], "mtu"))
 	expect = EXPECT_MTU;
       else
 	{
@@ -131,9 +131,9 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	  /* Recognize up/down.  */
 	  /* Also auto-revarp, trailers, -trailers,
 	     private, -private, arp, -arp, plumb, unplumb.  */
-	  if (! ((*ifp)->valid & IF_VALID_ADDR))
+	  if (!((*ifp)->valid & IF_VALID_ADDR))
 	    parse_opt_set_address (*ifp, argv[i]);
-	  else if (! ((*ifp)->valid & IF_VALID_DSTADDR))
+	  else if (!((*ifp)->valid & IF_VALID_DSTADDR))
 	    parse_opt_set_dstaddr (*ifp, argv[i]);
 	}
     }
@@ -175,11 +175,11 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
 #ifdef IF_VALID_TXQLEN
   if (ifs->valid & IF_VALID_TXQLEN)
     {
-#ifndef SIOCSIFTXQLEN
+# ifndef SIOCSIFTXQLEN
       printf ("%s: Don't know how to set the txqlen on this system.\n",
 	      program_name);
       return -1;
-#else
+# else
       int err = 0;
 
       ifr->ifr_qlen = ifs->txqlen;
@@ -193,7 +193,7 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
       if (verbose)
 	printf ("Set txqlen value of `%s' to `%i'.\n",
 		ifr->ifr_name, ifr->ifr_qlen);
-#endif
+# endif
     }
   return 0;
 #endif

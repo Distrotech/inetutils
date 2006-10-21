@@ -20,14 +20,14 @@
    MA 02110-1301 USA. */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
 
 #if HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #if HAVE_STRING_H
@@ -54,14 +54,13 @@
 #include <arpa/inet.h>
 #include "ifconfig.h"
 
-FILE *ostream;	/* Either stdout or stderror.  */
-int column_stdout;	/* The column position of the cursor on stdout.  */
-int column_stderr;	/* The column position of the cursor on stderr.  */
+FILE *ostream;			/* Either stdout or stderror.  */
+int column_stdout;		/* The column position of the cursor on stdout.  */
+int column_stderr;		/* The column position of the cursor on stderr.  */
 int *column = &column_stdout;	/* The column marker of ostream.  */
-int had_output;		/* True if we had any output.  */
+int had_output;			/* True if we had any output.  */
 
-struct format_handle format_handles[] =
-{
+struct format_handle format_handles[] = {
 #ifdef SYSTEM_FORMAT_HANDLER
   SYSTEM_FORMAT_HANDLER
 #endif
@@ -234,22 +233,22 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
   while (flags && f)
     {
       if (f & flags)
-        {
-          name = if_flagtoname (f, "" /* XXX: avoid */);
-          if (name)
-            {
-              if (!first)
+	{
+	  name = if_flagtoname (f, "" /* XXX: avoid */ );
+	  if (name)
+	    {
+	      if (!first)
 		{
 		  if (argc > 0)
 		    put_string (form, argv[0]);
 		  else
 		    put_char (form, ' ');
 		}
-              put_string (form, name);
-              flags &= ~f;
-              first = 0;
-            }
-        }
+	      put_string (form, name);
+	      flags &= ~f;
+	      first = 0;
+	    }
+	}
       f = f << 1;
     }
   if (flags)
@@ -275,7 +274,7 @@ format_handler (const char *name, format_data_t form, int argc, char *argv[])
 
   while (fh->name != NULL)
     {
-      if (! strcmp (fh->name, name))
+      if (!strcmp (fh->name, name))
 	break;
       fh++;
     }
@@ -367,7 +366,7 @@ fh_exists_query (format_data_t form, int argc, char *argv[])
     {
       while (fh->name != NULL)
 	{
-	  if (! strcmp (fh->name, argv[0]))
+	  if (!strcmp (fh->name, argv[0]))
 	    break;
 	  fh++;
 	}
@@ -390,9 +389,9 @@ fh_format (format_data_t form, int argc, char *argv[])
       if (frm->name)
 	{
 	  /* XXX: Avoid infinite recursion by appending name to a list
-	   during the next call (but removing it afterwards, and
-	   checking in this function if the name is in the list
-	   already.  */
+	     during the next call (but removing it afterwards, and
+	     checking in this function if the name is in the list
+	     already.  */
 	  form->format = frm->templ;
 	  print_interfaceX (form, 0);
 	}
@@ -441,8 +440,7 @@ fh_name (format_data_t form, int argc, char *argv[])
 void
 fh_index_query (format_data_t form, int argc, char *argv[])
 {
-  select_arg (form, argc, argv,
-	      (if_nametoindex (form->name) == 0) ? 1 : 0);
+  select_arg (form, argc, argv, (if_nametoindex (form->name) == 0) ? 1 : 0);
 }
 
 void
@@ -522,17 +520,17 @@ void
 fh_brdaddr_query (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFBRDADDR
-#ifdef SIOCGIFFLAGS
+# ifdef SIOCGIFFLAGS
   int f;
 
-  if (0 == (f = if_nametoflag("BROADCAST"))
+  if (0 == (f = if_nametoflag ("BROADCAST"))
       || (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
       || ((f & form->ifr->ifr_flags) == 0))
     {
       select_arg (form, argc, argv, 1);
       return;
     }
-#endif
+# endif
   if (ioctl (form->sfd, SIOCGIFBRDADDR, form->ifr) >= 0)
     select_arg (form, argc, argv, 0);
   else
@@ -562,17 +560,17 @@ void
 fh_dstaddr_query (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFDSTADDR
-#ifdef SIOCGIFFLAGS
+# ifdef SIOCGIFFLAGS
   int f;
 
-  if (0 == (f = if_nametoflag("POINTOPOINT"))
+  if (0 == (f = if_nametoflag ("POINTOPOINT"))
       || (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
       || ((f & form->ifr->ifr_flags) == 0))
     {
       select_arg (form, argc, argv, 1);
       return;
     }
-#endif
+# endif
   if (ioctl (form->sfd, SIOCGIFDSTADDR, form->ifr) >= 0)
     select_arg (form, argc, argv, 0);
   else
@@ -681,9 +679,9 @@ fh_flags (format_data_t form, int argc, char *argv[])
     {
       if (argc >= 1)
 	{
-	  if (! strcmp (argv[0], "number"))
+	  if (!strcmp (argv[0], "number"))
 	    put_int (form, argc - 1, &argv[1], form->ifr->ifr_flags);
-	  else if (! strcmp (argv[0], "string"))
+	  else if (!strcmp (argv[0], "string"))
 	    put_flags (form, argc - 1, &argv[1], form->ifr->ifr_flags);
 	}
       else
@@ -703,10 +701,10 @@ print_interfaceX (format_data_t form, int quiet)
 
   form->depth++;
 
-  while (! (*p == '\0' || (form->depth > 1 && *p == '}')))
+  while (!(*p == '\0' || (form->depth > 1 && *p == '}')))
     {
       /* Echo until end of string or '$'.  */
-      while (! (*p == '$' || *p == '\0' || (form->depth > 1 && *p == '}')))
+      while (!(*p == '$' || *p == '\0' || (form->depth > 1 && *p == '}')))
 	{
 	  quiet || (put_char (form, *p), 0);
 	  p++;
@@ -814,10 +812,10 @@ print_interface (int sfd, const char *name, struct ifreq *ifr,
   struct format_data form;
   static int first_passed_already;
 
-  if (! ostream)
+  if (!ostream)
     ostream = stdout;
 
-  if (! first_passed_already)
+  if (!first_passed_already)
     first_passed_already = form.first = 1;
   else
     form.first = 0;

@@ -37,16 +37,16 @@ static char sccsid[] = "@(#)display.c	8.1 (Berkeley) 6/6/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include "talk.h"
 
-xwin_t	my_win;
-xwin_t	his_win;
-WINDOW	*line_win;
+xwin_t my_win;
+xwin_t his_win;
+WINDOW *line_win;
 
-int	curses_initialized = 0;
+int curses_initialized = 0;
 
 #undef max
 /*
@@ -54,7 +54,7 @@ int	curses_initialized = 0;
  * a argument of the form --foo at least once.
  */
 int
-max(int a, int b)
+max (int a, int b)
 {
   return a > b ? a : b;
 }
@@ -66,120 +66,120 @@ max(int a, int b)
 int
 display (register xwin_t * win, register unsigned char *text, int size)
 {
-	register int i;
+  register int i;
   unsigned char cch;
 
   for (i = 0; i < size; i++)
     {
       if (*text == '\n')
 	{
-			xscroll(win, 0);
-			text++;
-			continue;
-		}
+	  xscroll (win, 0);
+	  text++;
+	  continue;
+	}
       if (*text == '\a')
 	{
-			beep();
-			wrefresh(curscr);
-			text++;
-			continue;
-		}
-		/* erase character */
+	  beep ();
+	  wrefresh (curscr);
+	  text++;
+	  continue;
+	}
+      /* erase character */
       if (*text == win->cerase)
 	{
-			wmove(win->x_win, win->x_line, max(--win->x_col, 0));
-			getyx(win->x_win, win->x_line, win->x_col);
-			waddch(win->x_win, ' ');
-			wmove(win->x_win, win->x_line, win->x_col);
-			getyx(win->x_win, win->x_line, win->x_col);
-			text++;
-			continue;
-		}
-		/*
-		 * On word erase search backwards until we find
-		 * the beginning of a word or the beginning of
-		 * the line.
-		 */
+	  wmove (win->x_win, win->x_line, max (--win->x_col, 0));
+	  getyx (win->x_win, win->x_line, win->x_col);
+	  waddch (win->x_win, ' ');
+	  wmove (win->x_win, win->x_line, win->x_col);
+	  getyx (win->x_win, win->x_line, win->x_col);
+	  text++;
+	  continue;
+	}
+      /*
+       * On word erase search backwards until we find
+       * the beginning of a word or the beginning of
+       * the line.
+       */
       if (*text == win->werase)
 	{
-			int endcol, xcol, i, c;
+	  int endcol, xcol, i, c;
 
-			endcol = win->x_col;
-			xcol = endcol - 1;
+	  endcol = win->x_col;
+	  xcol = endcol - 1;
 	  while (xcol >= 0)
 	    {
-				c = readwin(win->x_win, win->x_line, xcol);
-				if (c != ' ')
-					break;
-				xcol--;
-			}
+	      c = readwin (win->x_win, win->x_line, xcol);
+	      if (c != ' ')
+		break;
+	      xcol--;
+	    }
 	  while (xcol >= 0)
 	    {
-				c = readwin(win->x_win, win->x_line, xcol);
-				if (c == ' ')
-					break;
-				xcol--;
-			}
-			wmove(win->x_win, win->x_line, xcol + 1);
-			for (i = xcol + 1; i < endcol; i++)
-				waddch(win->x_win, ' ');
-			wmove(win->x_win, win->x_line, xcol + 1);
-			getyx(win->x_win, win->x_line, win->x_col);
-			text++;
-			continue;
-		}
-		/* line kill */
+	      c = readwin (win->x_win, win->x_line, xcol);
+	      if (c == ' ')
+		break;
+	      xcol--;
+	    }
+	  wmove (win->x_win, win->x_line, xcol + 1);
+	  for (i = xcol + 1; i < endcol; i++)
+	    waddch (win->x_win, ' ');
+	  wmove (win->x_win, win->x_line, xcol + 1);
+	  getyx (win->x_win, win->x_line, win->x_col);
+	  text++;
+	  continue;
+	}
+      /* line kill */
       if (*text == win->kill)
 	{
-			wmove(win->x_win, win->x_line, 0);
-			wclrtoeol(win->x_win);
-			getyx(win->x_win, win->x_line, win->x_col);
-			text++;
-			continue;
-		}
+	  wmove (win->x_win, win->x_line, 0);
+	  wclrtoeol (win->x_win);
+	  getyx (win->x_win, win->x_line, win->x_col);
+	  text++;
+	  continue;
+	}
       if (*text == '\f')
 	{
-			if (win == &my_win)
-				wrefresh(curscr);
-			text++;
-			continue;
-		}
+	  if (win == &my_win)
+	    wrefresh (curscr);
+	  text++;
+	  continue;
+	}
       if (win->x_col == COLS - 1)
 	{
-			/* check for wraparound */
-			xscroll(win, 0);
-		}
+	  /* check for wraparound */
+	  xscroll (win, 0);
+	}
       if (*text < ' ' && *text != '\t')
 	{
-			waddch(win->x_win, '^');
-			getyx(win->x_win, win->x_line, win->x_col);
-			if (win->x_col == COLS-1) /* check for wraparound */
-				xscroll(win, 0);
-			cch = (*text & 63) + 64;
-			waddch(win->x_win, cch);
+	  waddch (win->x_win, '^');
+	  getyx (win->x_win, win->x_line, win->x_col);
+	  if (win->x_col == COLS - 1)	/* check for wraparound */
+	    xscroll (win, 0);
+	  cch = (*text & 63) + 64;
+	  waddch (win->x_win, cch);
 	}
       else
-			waddch(win->x_win, *text);
-		getyx(win->x_win, win->x_line, win->x_col);
-		text++;
-	}
-	wrefresh(win->x_win);
+	waddch (win->x_win, *text);
+      getyx (win->x_win, win->x_line, win->x_col);
+      text++;
+    }
+  wrefresh (win->x_win);
 }
 
 /*
  * Read the character at the indicated position in win
  */
 int
-readwin(WINDOW *win, int line, int col)
+readwin (WINDOW * win, int line, int col)
 {
-	int oldline, oldcol;
-	register int c;
+  int oldline, oldcol;
+  register int c;
 
-	getyx(win, oldline, oldcol);
-	wmove(win, line, col);
-	c = winch(win);
-	wmove(win, oldline, oldcol);
-	return (c);
+  getyx (win, oldline, oldcol);
+  wmove (win, line, col);
+  c = winch (win);
+  wmove (win, oldline, oldcol);
+  return (c);
 }
 
 /*
@@ -187,20 +187,20 @@ readwin(WINDOW *win, int line, int col)
  * so that the current position is obvious
  */
 int
-xscroll(register xwin_t *win, int flag)
+xscroll (register xwin_t * win, int flag)
 {
   if (flag == -1)
     {
-		wmove(win->x_win, 0, 0);
-		win->x_line = 0;
-		win->x_col = 0;
-		return;
-	}
-	win->x_line = (win->x_line + 1) % win->x_nlines;
-	win->x_col = 0;
-	wmove(win->x_win, win->x_line, win->x_col);
-	wclrtoeol(win->x_win);
-	wmove(win->x_win, (win->x_line + 1) % win->x_nlines, win->x_col);
-	wclrtoeol(win->x_win);
-	wmove(win->x_win, win->x_line, win->x_col);
+      wmove (win->x_win, 0, 0);
+      win->x_line = 0;
+      win->x_col = 0;
+      return;
+    }
+  win->x_line = (win->x_line + 1) % win->x_nlines;
+  win->x_col = 0;
+  wmove (win->x_win, win->x_line, win->x_col);
+  wclrtoeol (win->x_win);
+  wmove (win->x_win, (win->x_line + 1) % win->x_nlines, win->x_col);
+  wclrtoeol (win->x_win);
+  wmove (win->x_win, win->x_line, win->x_col);
 }

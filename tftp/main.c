@@ -28,12 +28,12 @@
  */
 
 #ifndef lint
-static char     copyright[] = "@(#) Copyright (c) 1983, 1993\n\
+static char copyright[] = "@(#) Copyright (c) 1983, 1993\n\
 	The Regents of the University of California.  All rights reserved.\n";
 #endif /* not lint */
 
 #ifndef lint
-static char     sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
+static char sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 /* Many bug fixes are from Jim Guyton <guyton@rand-unix> */
@@ -43,7 +43,7 @@ static char     sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -68,36 +68,36 @@ static char     sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
 #include "xalloc.h"
 #include "extern.h"
 
-#define	TIMEOUT		5	/* secs between rexmt's */
+#define TIMEOUT		5	/* secs between rexmt's */
 
 struct sockaddr_in peeraddr;
-int             f;
-short           port;
-int             trace;
-int             verbose;
-int             connected;
-char            mode[32];
-char            line[200];
-int             margc;
-char           *margv[20];
-char           *prompt = "tftp";
-jmp_buf         toplevel;
-void            intr ();
+int f;
+short port;
+int trace;
+int verbose;
+int connected;
+char mode[32];
+char line[200];
+int margc;
+char *margv[20];
+char *prompt = "tftp";
+jmp_buf toplevel;
+void intr ();
 struct servent *sp;
 
-void get        (int, char **);
-void help       (int, char **);
-void modecmd    (int, char **);
-void put        (int, char **);
-void quit       (int, char **);
-void setascii   (int, char **);
-void setbinary  (int, char **);
-void setpeer    (int, char **);
-void setrexmt   (int, char **);
+void get (int, char **);
+void help (int, char **);
+void modecmd (int, char **);
+void put (int, char **);
+void quit (int, char **);
+void setascii (int, char **);
+void setbinary (int, char **);
+void setpeer (int, char **);
+void setrexmt (int, char **);
 void settimeout (int, char **);
-void settrace   (int, char **);
+void settrace (int, char **);
 void setverbose (int, char **);
-void status     (int, char **);
+void status (int, char **);
 
 static void command (void);
 
@@ -110,26 +110,26 @@ static void settftpmode (char *);
 
 struct cmd
 {
-  char           *name;
-  char           *help;
-  void            (*handler) (int, char **);
+  char *name;
+  char *help;
+  void (*handler) (int, char **);
 };
 
-char            vhelp[] = "toggle verbose mode";
-char            thelp[] = "toggle packet tracing";
-char            chelp[] = "connect to remote tftp";
-char            qhelp[] = "exit tftp";
-char            hhelp[] = "print help information";
-char            shelp[] = "send file";
-char            rhelp[] = "receive file";
-char            mhelp[] = "set file transfer mode";
-char            sthelp[] = "show current status";
-char            xhelp[] = "set per-packet retransmission timeout";
-char            ihelp[] = "set total retransmission timeout";
-char            ashelp[] = "set mode to netascii";
-char            bnhelp[] = "set mode to octet";
+char vhelp[] = "toggle verbose mode";
+char thelp[] = "toggle packet tracing";
+char chelp[] = "connect to remote tftp";
+char qhelp[] = "exit tftp";
+char hhelp[] = "print help information";
+char shelp[] = "send file";
+char rhelp[] = "receive file";
+char mhelp[] = "set file transfer mode";
+char sthelp[] = "show current status";
+char xhelp[] = "set per-packet retransmission timeout";
+char ihelp[] = "set total retransmission timeout";
+char ashelp[] = "set mode to netascii";
+char bnhelp[] = "set mode to octet";
 
-struct cmd      cmdtab[] = {
+struct cmd cmdtab[] = {
   {"connect", chelp, setpeer},
   {"mode", mhelp, modecmd},
   {"put", shelp, put},
@@ -146,8 +146,8 @@ struct cmd      cmdtab[] = {
   {0}
 };
 
-struct cmd     *getcmd ();
-char           *tail ();
+struct cmd *getcmd ();
+char *tail ();
 
 char *program_name;
 
@@ -194,7 +194,7 @@ char *hostname;
 
 #define RESOLVE_OK            0
 #define RESOLVE_FAIL         -1
-#define RESOLVE_NOT_RESOLVED  1 
+#define RESOLVE_NOT_RESOLVED  1
 
 /* Resolve NAME. Fill in peeraddr, hostname and set connected on success.
    Return value: RESOLVE_OK success
@@ -256,7 +256,7 @@ setpeer (int argc, char *argv[])
       printf ("usage: %s host-name [port]\n", argv[0]);
       return;
     }
-  
+
   switch (resolve_name (argv[1], 1))
     {
     case RESOLVE_OK:
@@ -264,8 +264,8 @@ setpeer (int argc, char *argv[])
 
     case RESOLVE_FAIL:
       return;
-      
-    case RESOLVE_NOT_RESOLVED: 
+
+    case RESOLVE_NOT_RESOLVED:
       peeraddr.sin_family = AF_INET;
       peeraddr.sin_addr.s_addr = inet_addr (argv[1]);
       if (peeraddr.sin_addr.s_addr == -1)
@@ -276,7 +276,7 @@ setpeer (int argc, char *argv[])
 	}
       hostname = xstrdup (argv[1]);
     }
-  
+
   port = sp->s_port;
   if (argc == 3)
     {
@@ -294,18 +294,24 @@ setpeer (int argc, char *argv[])
 
 struct modes
 {
-  char           *m_name;
-  char           *m_mode;
+  char *m_name;
+  char *m_mode;
 }
 modes[] =
 {
-  {"ascii", "netascii"},
-  {"netascii", "netascii"},
-  {"binary", "octet"},
-  {"image", "octet"},
-  {"octet", "octet"},
+  {
+  "ascii", "netascii"},
+  {
+  "netascii", "netascii"},
+  {
+  "binary", "octet"},
+  {
+  "image", "octet"},
+  {
+  "octet", "octet"},
 /*      { "mail",       "mail" },       */
-  {0, 0}
+  {
+  0, 0}
 };
 
 void
@@ -371,9 +377,9 @@ settftpmode (char *newmode)
 void
 put (int argc, char *argv[])
 {
-  int             fd;
-  register int    n;
-  register char  *cp, *targ;
+  int fd;
+  register int n;
+  register char *cp, *targ;
 
   if (argc < 2)
     get_args ("send", "(file) ", &argc, &argv);
@@ -455,10 +461,10 @@ putusage (char *s)
 void
 get (int argc, char *argv[])
 {
-  int             fd;
-  register int    n;
-  register char  *cp;
-  char           *src;
+  int fd;
+  register int n;
+  register char *cp;
+  char *src;
 
   if (argc < 2)
     get_args ("get", "(files) ", &argc, &argv);
@@ -488,7 +494,7 @@ get (int argc, char *argv[])
 	  if (resolve_name (argv[n], 0) != RESOLVE_OK)
 	    continue;
 	}
-      
+
       if (argc < 4)
 	{
 	  cp = argc == 3 ? argv[2] : tail (src);
@@ -596,7 +602,7 @@ intr ()
 char *
 tail (char *filename)
 {
-  register char  *s;
+  register char *s;
 
   while (*filename)
     {
@@ -651,7 +657,7 @@ command ()
 struct cmd *
 getcmd (register char *name)
 {
-  register char  *p, *q;
+  register char *p, *q;
   register struct cmd *c, *found;
   register int nmatches, longest;
 
@@ -663,7 +669,7 @@ getcmd (register char *name)
       for (q = name; *q == *p++; q++)
 	if (*q == 0)		/* exact match? */
 	  return (c);
-      
+
       if (!*q)
 	{			/* the name was a prefix */
 	  if (q - name > longest)
@@ -687,7 +693,7 @@ getcmd (register char *name)
 static void
 makeargv ()
 {
-  register char  *cp;
+  register char *cp;
   register char **argp = margv;
 
   margc = 0;
@@ -729,10 +735,10 @@ help (int argc, char *argv[])
 	printf ("%-*s\t%s\n", (int) HELPINDENT, c->name, c->help);
       return;
     }
-  
+
   while (--argc > 0)
     {
-      register char  *arg;
+      register char *arg;
 
       arg = *++argv;
       c = getcmd (arg);

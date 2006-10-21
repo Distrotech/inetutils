@@ -109,20 +109,20 @@ waitdaemon (int nochdir, int noclose, int maxwait)
 
   switch (childpid = fork ())
     {
-    case -1: /* Something went wrong.  */
+    case -1:			/* Something went wrong.  */
       return (-1);
 
-    case 0:  /* In the child.  */
+    case 0:			/* In the child.  */
       break;
 
-    default:   /* In the parent.  */
+    default:			/* In the parent.  */
       if (maxwait > 0)
 	{
 	  signal (SIGALRM, waitdaemon_timeout);
 	  alarm (maxwait);
 	  pause ();
 	}
-      _exit(0);
+      _exit (0);
     }
 
   if (setsid () == -1)

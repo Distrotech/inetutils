@@ -23,7 +23,7 @@
    between calls, and doesn't attempt to open the file after the first call. */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <unistd.h>
@@ -42,18 +42,18 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #ifdef HAVE_ERRNO_H
-#include <errno.h>
+# include <errno.h>
 #endif
 #ifdef HAVE_UTMP_H
-#include <utmp.h>
+# include <utmp.h>
 #else
-#ifdef  HAVE_UTMPX_H
-#include <utmpx.h>
-#define utmp utmpx		/* make utmpx look more like utmp */
-#endif
+# ifdef  HAVE_UTMPX_H
+#  include <utmpx.h>
+#  define utmp utmpx		/* make utmpx look more like utmp */
+# endif
 #endif
 #ifdef HAVE_STRING_H
-#include <string.h>
+# include <string.h>
 #endif
 
 #if !HAVE_DECL_ERRNO
@@ -67,9 +67,9 @@ _logwtmp (struct utmp *ut)
   static int fd = -1;
 
   if (fd < 0)
-    fd = open (PATH_WTMP, O_WRONLY|O_APPEND, 0);
+    fd = open (PATH_WTMP, O_WRONLY | O_APPEND, 0);
 #else
-  int fd = open (PATH_WTMP, O_WRONLY|O_APPEND, 0);
+  int fd = open (PATH_WTMP, O_WRONLY | O_APPEND, 0);
 #endif
 
   if (fd >= 0)
@@ -77,19 +77,19 @@ _logwtmp (struct utmp *ut)
       struct stat st;
 
 #ifdef HAVE_FLOCK
-      if (flock (fd, LOCK_EX|LOCK_NB) < 0 && errno != ENOSYS)
+      if (flock (fd, LOCK_EX | LOCK_NB) < 0 && errno != ENOSYS)
 	{
 	  sleep (1);
-	  flock (fd, LOCK_EX|LOCK_NB); /* ignore error */
+	  flock (fd, LOCK_EX | LOCK_NB);	/* ignore error */
 	}
 #endif
 
 #ifdef HAVE_FTRUNCATE
       if (fstat (fd, &st) == 0
-	  && write (fd, (char *)ut, sizeof *ut) != sizeof *ut)
+	  && write (fd, (char *) ut, sizeof *ut) != sizeof *ut)
 	ftruncate (fd, st.st_size);
 #else
-      write (fd, (char *)ut, sizeof *ut);
+      write (fd, (char *) ut, sizeof *ut);
 #endif
 
 #ifdef HAVE_FLOCK

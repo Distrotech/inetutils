@@ -51,47 +51,52 @@
 
 #ifdef	ENCRYPTION
 # ifndef __ENCRYPTION__
-# define __ENCRYPTION__
+#  define __ENCRYPTION__
 
-#define	DIR_DECRYPT		1
-#define	DIR_ENCRYPT		2
+#  define DIR_DECRYPT		1
+#  define DIR_ENCRYPT		2
 
-typedef	unsigned char Block[8];
+typedef unsigned char Block[8];
 typedef unsigned char *BlockT;
-typedef struct { Block _; } Schedule[16];
+typedef struct
+{
+  Block _;
+} Schedule[16];
 
-#define	VALIDKEY(key)	( key[0] | key[1] | key[2] | key[3] | \
+#  define VALIDKEY(key)	( key[0] | key[1] | key[2] | key[3] | \
 			  key[4] | key[5] | key[6] | key[7])
 
-#define	SAMEKEY(k1, k2)	(!bcmp((void *)k1, (void *)k2, sizeof(Block)))
+#  define SAMEKEY(k1, k2)	(!bcmp((void *)k1, (void *)k2, sizeof(Block)))
 
-typedef	struct {
-	short		type;
-	int		length;
-	unsigned char	*data;
+typedef struct
+{
+  short type;
+  int length;
+  unsigned char *data;
 } Session_Key;
 
-typedef struct {
-	char	*name;
-	int	type;
-	void	(*output) (unsigned char *, int);
-	int	(*input) (int);
-	void	(*init) (int);
-	int	(*start) (int, int);
-	int	(*is) (unsigned char *, int);
-	int	(*reply) (unsigned char *, int);
-	void	(*session) (Session_Key *, int);
-	int	(*keyid) (int, unsigned char *, int *);
-	void	(*printsub) (unsigned char *, int, unsigned char *, int);
+typedef struct
+{
+  char *name;
+  int type;
+  void (*output) (unsigned char *, int);
+  int (*input) (int);
+  void (*init) (int);
+  int (*start) (int, int);
+  int (*is) (unsigned char *, int);
+  int (*reply) (unsigned char *, int);
+  void (*session) (Session_Key *, int);
+  int (*keyid) (int, unsigned char *, int *);
+  void (*printsub) (unsigned char *, int, unsigned char *, int);
 } Encryptions;
 
-#define	SK_DES		1	/* Matched Kerberos v5 KEYTYPE_DES */
-#define	SK_OTHER	2	/* Non-DES key. */
+#  define SK_DES		1	/* Matched Kerberos v5 KEYTYPE_DES */
+#  define SK_OTHER	2	/* Non-DES key. */
 
-#include "enc-proto.h"
+#  include "enc-proto.h"
 
 extern int encrypt_debug_mode;
 extern int (*decrypt_input) (int);
 extern void (*encrypt_output) (unsigned char *, int);
-# endif /* __ENCRYPTION__ */
+# endif	/* __ENCRYPTION__ */
 #endif /* ENCRYPTION */

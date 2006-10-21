@@ -36,11 +36,11 @@ static char sccsid[] = "@(#)slc.c	8.2 (Berkeley) 5/30/95";
 /*
  * local variables
  */
-static unsigned char	*def_slcbuf = (unsigned char *)0;
-static int		def_slclen = 0;
-static int		slcchange;	/* change to slc is requested */
-static unsigned char	*slcptr;	/* pointer into slc buffer */
-static unsigned char	slcbuf[NSLC*6];	/* buffer for slc negotiation */
+static unsigned char *def_slcbuf = (unsigned char *) 0;
+static int def_slclen = 0;
+static int slcchange;		/* change to slc is requested */
+static unsigned char *slcptr;	/* pointer into slc buffer */
+static unsigned char slcbuf[NSLC * 6];	/* buffer for slc negotiation */
 
 /*
  * send_slc
@@ -48,23 +48,24 @@ static unsigned char	slcbuf[NSLC*6];	/* buffer for slc negotiation */
  * Write out the current special characters to the client.
  */
 void
-send_slc()
+send_slc ()
 {
-	register int i;
+  register int i;
 
-	/*
-	 * Send out list of triplets of special characters
-	 * to client.  We only send info on the characters
-	 * that are currently supported.
-	 */
-	for (i = 1; i <= NSLC; i++) {
-		if ((slctab[i].defset.flag & SLC_LEVELBITS) == SLC_NOSUPPORT)
-			continue;
-		add_slc((unsigned char)i, slctab[i].current.flag,
-							slctab[i].current.val);
-	}
+  /*
+   * Send out list of triplets of special characters
+   * to client.  We only send info on the characters
+   * that are currently supported.
+   */
+  for (i = 1; i <= NSLC; i++)
+    {
+      if ((slctab[i].defset.flag & SLC_LEVELBITS) == SLC_NOSUPPORT)
+	continue;
+      add_slc ((unsigned char) i, slctab[i].current.flag,
+	       slctab[i].current.val);
+    }
 
-}  /* end of send_slc */
+}				/* end of send_slc */
 
 /*
  * default_slc
@@ -72,44 +73,47 @@ send_slc()
  * Set pty special characters to all the defaults.
  */
 void
-default_slc()
+default_slc ()
 {
-	register int i;
+  register int i;
 
-	for (i = 1; i <= NSLC; i++) {
-		slctab[i].current.val = slctab[i].defset.val;
-		if (slctab[i].current.val == (cc_t)(_POSIX_VDISABLE))
-			slctab[i].current.flag = SLC_NOSUPPORT;
-		else
-			slctab[i].current.flag = slctab[i].defset.flag;
-		if (slctab[i].sptr) {
-			*(slctab[i].sptr) = slctab[i].defset.val;
-		}
+  for (i = 1; i <= NSLC; i++)
+    {
+      slctab[i].current.val = slctab[i].defset.val;
+      if (slctab[i].current.val == (cc_t) (_POSIX_VDISABLE))
+	slctab[i].current.flag = SLC_NOSUPPORT;
+      else
+	slctab[i].current.flag = slctab[i].defset.flag;
+      if (slctab[i].sptr)
+	{
+	  *(slctab[i].sptr) = slctab[i].defset.val;
 	}
-	slcchange = 1;
+    }
+  slcchange = 1;
 
-}  /* end of default_slc */
+}				/* end of default_slc */
 
 /*
  * get_slc_defaults
  *
  * Initialize the slc mapping table.
  */
-	void
-get_slc_defaults()
+void
+get_slc_defaults ()
 {
-	register int i;
+  register int i;
 
-	init_termbuf();
+  init_termbuf ();
 
-	for (i = 1; i <= NSLC; i++) {
-		slctab[i].defset.flag =
-			spcset(i, &slctab[i].defset.val, &slctab[i].sptr);
-		slctab[i].current.flag = SLC_NOSUPPORT;
-		slctab[i].current.val = 0;
-	}
+  for (i = 1; i <= NSLC; i++)
+    {
+      slctab[i].defset.flag =
+	spcset (i, &slctab[i].defset.val, &slctab[i].sptr);
+      slctab[i].current.flag = SLC_NOSUPPORT;
+      slctab[i].current.val = 0;
+    }
 
-}  /* end of get_slc_defaults */
+}				/* end of get_slc_defaults */
 
 /*
  * add_slc
@@ -117,19 +121,19 @@ get_slc_defaults()
  * Add an slc triplet to the slc buffer.
  */
 void
-add_slc(register char func, register char flag, register cc_t val)
+add_slc (register char func, register char flag, register cc_t val)
 {
 
-	if ((*slcptr++ = (unsigned char)func) == 0xff)
-		*slcptr++ = 0xff;
+  if ((*slcptr++ = (unsigned char) func) == 0xff)
+    *slcptr++ = 0xff;
 
-	if ((*slcptr++ = (unsigned char)flag) == 0xff)
-		*slcptr++ = 0xff;
+  if ((*slcptr++ = (unsigned char) flag) == 0xff)
+    *slcptr++ = 0xff;
 
-	if ((*slcptr++ = (unsigned char)val) == 0xff)
-		*slcptr++ = 0xff;
+  if ((*slcptr++ = (unsigned char) val) == 0xff)
+    *slcptr++ = 0xff;
 
-}  /* end of add_slc */
+}				/* end of add_slc */
 
 /*
  * start_slc
@@ -140,17 +144,16 @@ add_slc(register char func, register char flag, register cc_t val)
  * of the terminal control structures.
  */
 void
-start_slc(register int getit)
+start_slc (register int getit)
 {
 
-	slcchange = 0;
-	if (getit)
-		init_termbuf();
-	sprintf((char *)slcbuf, "%c%c%c%c",
-					IAC, SB, TELOPT_LINEMODE, LM_SLC);
-	slcptr = slcbuf + 4;
+  slcchange = 0;
+  if (getit)
+    init_termbuf ();
+  sprintf ((char *) slcbuf, "%c%c%c%c", IAC, SB, TELOPT_LINEMODE, LM_SLC);
+  slcptr = slcbuf + 4;
 
-}  /* end of start_slc */
+}				/* end of start_slc */
 
 /*
  * end_slc
@@ -158,46 +161,51 @@ start_slc(register int getit)
  * Finish up the slc negotiation.  If something to send, then send it.
  */
 int
-end_slc(register unsigned char **bufp)
+end_slc (register unsigned char **bufp)
 {
-	register int len;
-	void netflush();
+  register int len;
+  void netflush ();
 
-	/*
-	 * If a change has occured, store the new terminal control
-	 * structures back to the terminal driver.
-	 */
-	if (slcchange) {
-		set_termbuf();
+  /*
+   * If a change has occured, store the new terminal control
+   * structures back to the terminal driver.
+   */
+  if (slcchange)
+    {
+      set_termbuf ();
+    }
+
+  /*
+   * If the pty state has not yet been fully processed and there is a
+   * deferred slc request from the client, then do not send any
+   * sort of slc negotiation now.  We will respond to the client's
+   * request very soon.
+   */
+  if (def_slcbuf && (terminit () == 0))
+    {
+      return (0);
+    }
+
+  if (slcptr > (slcbuf + 4))
+    {
+      if (bufp)
+	{
+	  *bufp = &slcbuf[4];
+	  return (slcptr - slcbuf - 4);
 	}
-
-	/*
-	 * If the pty state has not yet been fully processed and there is a
-	 * deferred slc request from the client, then do not send any
-	 * sort of slc negotiation now.  We will respond to the client's
-	 * request very soon.
-	 */
-	if (def_slcbuf && (terminit() == 0)) {
-		return(0);
+      else
+	{
+	  sprintf ((char *) slcptr, "%c%c", IAC, SE);
+	  slcptr += 2;
+	  len = slcptr - slcbuf;
+	  net_output_datalen (slcbuf, len);
+	  netflush ();		/* force it out immediately */
+	  DEBUG (debug_options, 1, printsub ('>', slcbuf + 2, len - 2));
 	}
+    }
+  return (0);
 
-	if (slcptr > (slcbuf + 4)) {
-		if (bufp) {
-			*bufp = &slcbuf[4];
-			return(slcptr - slcbuf - 4);
-		} else {
-			sprintf((char *)slcptr, "%c%c", IAC, SE);
-			slcptr += 2;
-			len = slcptr - slcbuf;
-			net_output_datalen(slcbuf, len);
-			netflush();  /* force it out immediately */
-			DEBUG(debug_options, 1,
-                              printsub('>', slcbuf+2, len-2));
-		}
-	}
-	return (0);
-
-}  /* end of end_slc */
+}				/* end of end_slc */
 
 /*
  * process_slc
@@ -205,62 +213,73 @@ end_slc(register unsigned char **bufp)
  * Figure out what to do about the client's slc
  */
 void
-process_slc(register unsigned char func, register unsigned char flag, register cc_t val)
+process_slc (register unsigned char func, register unsigned char flag,
+	     register cc_t val)
 {
-	register int hislevel, mylevel, ack;
+  register int hislevel, mylevel, ack;
 
-	/*
-	 * Ensure that we know something about this function
-	 */
-	if (func > NSLC) {
-		add_slc(func, SLC_NOSUPPORT, 0);
-		return;
+  /*
+   * Ensure that we know something about this function
+   */
+  if (func > NSLC)
+    {
+      add_slc (func, SLC_NOSUPPORT, 0);
+      return;
+    }
+
+  /*
+   * Process the special case requests of 0 SLC_DEFAULT 0
+   * and 0 SLC_VARIABLE 0.  Be a little forgiving here, don't
+   * worry about whether the value is actually 0 or not.
+   */
+  if (func == 0)
+    {
+      if ((flag = flag & SLC_LEVELBITS) == SLC_DEFAULT)
+	{
+	  default_slc ();
+	  send_slc ();
 	}
-
-	/*
-	 * Process the special case requests of 0 SLC_DEFAULT 0
-	 * and 0 SLC_VARIABLE 0.  Be a little forgiving here, don't
-	 * worry about whether the value is actually 0 or not.
-	 */
-	if (func == 0) {
-		if ((flag = flag & SLC_LEVELBITS) == SLC_DEFAULT) {
-			default_slc();
-			send_slc();
-		} else if (flag == SLC_VARIABLE) {
-			send_slc();
-		}
-		return;
+      else if (flag == SLC_VARIABLE)
+	{
+	  send_slc ();
 	}
+      return;
+    }
 
-	/*
-	 * Appears to be a function that we know something about.  So
-	 * get on with it and see what we know.
-	 */
+  /*
+   * Appears to be a function that we know something about.  So
+   * get on with it and see what we know.
+   */
 
-	hislevel = flag & SLC_LEVELBITS;
-	mylevel = slctab[func].current.flag & SLC_LEVELBITS;
-	ack = flag & SLC_ACK;
-	/*
-	 * ignore the command if:
-	 * the function value and level are the same as what we already have;
-	 * or the level is the same and the ack bit is set
-	 */
-	if (hislevel == mylevel && (val == slctab[func].current.val || ack)) {
-		return;
-	} else if (ack) {
-		/*
-		 * If we get here, we got an ack, but the levels don't match.
-		 * This shouldn't happen.  If it does, it is probably because
-		 * we have sent two requests to set a variable without getting
-		 * a response between them, and this is the first response.
-		 * So, ignore it, and wait for the next response.
-		 */
-		return;
-	} else {
-		change_slc(func, flag, val);
-	}
+  hislevel = flag & SLC_LEVELBITS;
+  mylevel = slctab[func].current.flag & SLC_LEVELBITS;
+  ack = flag & SLC_ACK;
+  /*
+   * ignore the command if:
+   * the function value and level are the same as what we already have;
+   * or the level is the same and the ack bit is set
+   */
+  if (hislevel == mylevel && (val == slctab[func].current.val || ack))
+    {
+      return;
+    }
+  else if (ack)
+    {
+      /*
+       * If we get here, we got an ack, but the levels don't match.
+       * This shouldn't happen.  If it does, it is probably because
+       * we have sent two requests to set a variable without getting
+       * a response between them, and this is the first response.
+       * So, ignore it, and wait for the next response.
+       */
+      return;
+    }
+  else
+    {
+      change_slc (func, flag, val);
+    }
 
-}  /* end of process_slc */
+}				/* end of process_slc */
 
 /*
  * change_slc
@@ -269,100 +288,111 @@ process_slc(register unsigned char func, register unsigned char flag, register c
  * Compare client's request with what we are capable of supporting.
  */
 void
-change_slc(register char func, register char flag, register cc_t val)
+change_slc (register char func, register char flag, register cc_t val)
 {
-	register int hislevel, mylevel;
+  register int hislevel, mylevel;
 
-	hislevel = flag & SLC_LEVELBITS;
-	mylevel = slctab[func].defset.flag & SLC_LEVELBITS;
-	/*
-	 * If client is setting a function to NOSUPPORT
-	 * or DEFAULT, then we can easily and directly
-	 * accomodate the request.
-	 */
-	if (hislevel == SLC_NOSUPPORT) {
-		slctab[func].current.flag = flag;
-		slctab[func].current.val = (cc_t)_POSIX_VDISABLE;
-		flag |= SLC_ACK;
-		add_slc(func, flag, val);
-		return;
+  hislevel = flag & SLC_LEVELBITS;
+  mylevel = slctab[func].defset.flag & SLC_LEVELBITS;
+  /*
+   * If client is setting a function to NOSUPPORT
+   * or DEFAULT, then we can easily and directly
+   * accomodate the request.
+   */
+  if (hislevel == SLC_NOSUPPORT)
+    {
+      slctab[func].current.flag = flag;
+      slctab[func].current.val = (cc_t) _POSIX_VDISABLE;
+      flag |= SLC_ACK;
+      add_slc (func, flag, val);
+      return;
+    }
+  if (hislevel == SLC_DEFAULT)
+    {
+      /*
+       * Special case here.  If client tells us to use
+       * the default on a function we don't support, then
+       * return NOSUPPORT instead of what we may have as a
+       * default level of DEFAULT.
+       */
+      if (mylevel == SLC_DEFAULT)
+	{
+	  slctab[func].current.flag = SLC_NOSUPPORT;
 	}
-	if (hislevel == SLC_DEFAULT) {
-		/*
-		 * Special case here.  If client tells us to use
-		 * the default on a function we don't support, then
-		 * return NOSUPPORT instead of what we may have as a
-		 * default level of DEFAULT.
-		 */
-		if (mylevel == SLC_DEFAULT) {
-			slctab[func].current.flag = SLC_NOSUPPORT;
-		} else {
-			slctab[func].current.flag = slctab[func].defset.flag;
-		}
-		slctab[func].current.val = slctab[func].defset.val;
-		add_slc(func, slctab[func].current.flag,
-						slctab[func].current.val);
-		return;
+      else
+	{
+	  slctab[func].current.flag = slctab[func].defset.flag;
 	}
+      slctab[func].current.val = slctab[func].defset.val;
+      add_slc (func, slctab[func].current.flag, slctab[func].current.val);
+      return;
+    }
 
-	/*
-	 * Client wants us to change to a new value or he
-	 * is telling us that he can't change to our value.
-	 * Some of the slc's we support and can change,
-	 * some we do support but can't change,
-	 * and others we don't support at all.
-	 * If we can change it then we have a pointer to
-	 * the place to put the new value, so change it,
-	 * otherwise, continue the negotiation.
-	 */
-	if (slctab[func].sptr) {
-		/*
-		 * We can change this one.
-		 */
-		slctab[func].current.val = val;
-		*(slctab[func].sptr) = val;
-		slctab[func].current.flag = flag;
-		flag |= SLC_ACK;
-		slcchange = 1;
-		add_slc(func, flag, val);
-	} else {
-		/*
-		* It is not possible for us to support this
-		* request as he asks.
-		*
-		* If our level is DEFAULT, then just ack whatever was
-		* sent.
-		*
-		* If he can't change and we can't change,
-		* then degenerate to NOSUPPORT.
-		*
-		* Otherwise we send our level back to him, (CANTCHANGE
-		* or NOSUPPORT) and if CANTCHANGE, send
-		* our value as well.
-		*/
-		if (mylevel == SLC_DEFAULT) {
-			slctab[func].current.flag = flag;
-			slctab[func].current.val = val;
-			flag |= SLC_ACK;
-		} else if (hislevel == SLC_CANTCHANGE &&
-				    mylevel == SLC_CANTCHANGE) {
-			flag &= ~SLC_LEVELBITS;
-			flag |= SLC_NOSUPPORT;
-			slctab[func].current.flag = flag;
-		} else {
-			flag &= ~SLC_LEVELBITS;
-			flag |= mylevel;
-			slctab[func].current.flag = flag;
-			if (mylevel == SLC_CANTCHANGE) {
-				slctab[func].current.val =
-					slctab[func].defset.val;
-				val = slctab[func].current.val;
-			}
-		}
-		add_slc(func, flag, val);
+  /*
+   * Client wants us to change to a new value or he
+   * is telling us that he can't change to our value.
+   * Some of the slc's we support and can change,
+   * some we do support but can't change,
+   * and others we don't support at all.
+   * If we can change it then we have a pointer to
+   * the place to put the new value, so change it,
+   * otherwise, continue the negotiation.
+   */
+  if (slctab[func].sptr)
+    {
+      /*
+       * We can change this one.
+       */
+      slctab[func].current.val = val;
+      *(slctab[func].sptr) = val;
+      slctab[func].current.flag = flag;
+      flag |= SLC_ACK;
+      slcchange = 1;
+      add_slc (func, flag, val);
+    }
+  else
+    {
+      /*
+       * It is not possible for us to support this
+       * request as he asks.
+       *
+       * If our level is DEFAULT, then just ack whatever was
+       * sent.
+       *
+       * If he can't change and we can't change,
+       * then degenerate to NOSUPPORT.
+       *
+       * Otherwise we send our level back to him, (CANTCHANGE
+       * or NOSUPPORT) and if CANTCHANGE, send
+       * our value as well.
+       */
+      if (mylevel == SLC_DEFAULT)
+	{
+	  slctab[func].current.flag = flag;
+	  slctab[func].current.val = val;
+	  flag |= SLC_ACK;
 	}
+      else if (hislevel == SLC_CANTCHANGE && mylevel == SLC_CANTCHANGE)
+	{
+	  flag &= ~SLC_LEVELBITS;
+	  flag |= SLC_NOSUPPORT;
+	  slctab[func].current.flag = flag;
+	}
+      else
+	{
+	  flag &= ~SLC_LEVELBITS;
+	  flag |= mylevel;
+	  slctab[func].current.flag = flag;
+	  if (mylevel == SLC_CANTCHANGE)
+	    {
+	      slctab[func].current.val = slctab[func].defset.val;
+	      val = slctab[func].current.val;
+	    }
+	}
+      add_slc (func, flag, val);
+    }
 
-}  /* end of change_slc */
+}				/* end of change_slc */
 
 /*
  * check_slc
@@ -373,25 +403,26 @@ change_slc(register char func, register char flag, register cc_t val)
  * and flags up to the defaults.
  */
 void
-check_slc()
+check_slc ()
 {
-	register int i;
+  register int i;
 
-	for (i = 1; i <= NSLC; i++) {
-		if (i == SLC_EOF && term_change_eof ())
-		  continue;
-		if (slctab[i].sptr &&
-				(*(slctab[i].sptr) != slctab[i].current.val)) {
-			slctab[i].current.val = *(slctab[i].sptr);
-			if (*(slctab[i].sptr) == (cc_t)_POSIX_VDISABLE)
-				slctab[i].current.flag = SLC_NOSUPPORT;
-			else
-				slctab[i].current.flag = slctab[i].defset.flag;
-			add_slc((unsigned char)i, slctab[i].current.flag,
-						slctab[i].current.val);
-		}
+  for (i = 1; i <= NSLC; i++)
+    {
+      if (i == SLC_EOF && term_change_eof ())
+	continue;
+      if (slctab[i].sptr && (*(slctab[i].sptr) != slctab[i].current.val))
+	{
+	  slctab[i].current.val = *(slctab[i].sptr);
+	  if (*(slctab[i].sptr) == (cc_t) _POSIX_VDISABLE)
+	    slctab[i].current.flag = SLC_NOSUPPORT;
+	  else
+	    slctab[i].current.flag = slctab[i].defset.flag;
+	  add_slc ((unsigned char) i, slctab[i].current.flag,
+		   slctab[i].current.val);
 	}
-}  /* check_slc */
+    }
+}				/* check_slc */
 
 /*
  * do_opt_slc
@@ -403,38 +434,45 @@ check_slc()
  * ptr points to the beginning of the buffer, len is the length.
  */
 void
-do_opt_slc(register unsigned char *ptr, register int len)
+do_opt_slc (register unsigned char *ptr, register int len)
 {
-	register unsigned char func, flag;
-	cc_t val;
-	register unsigned char *end = ptr + len;
+  register unsigned char func, flag;
+  cc_t val;
+  register unsigned char *end = ptr + len;
 
-	if (terminit()) {  /* go ahead */
-		while (ptr < end) {
-			func = *ptr++;
-			if (ptr >= end) break;
-			flag = *ptr++;
-			if (ptr >= end) break;
-			val = (cc_t)*ptr++;
+  if (terminit ())
+    {				/* go ahead */
+      while (ptr < end)
+	{
+	  func = *ptr++;
+	  if (ptr >= end)
+	    break;
+	  flag = *ptr++;
+	  if (ptr >= end)
+	    break;
+	  val = (cc_t) * ptr++;
 
-			process_slc(func, flag, val);
+	  process_slc (func, flag, val);
 
-		}
-	} else {
-		/*
-		 * save this slc buffer if it is the first, otherwise dump
-		 * it.
-		 */
-		if (def_slcbuf == (unsigned char *)0) {
-			def_slclen = len;
-			def_slcbuf = (unsigned char *)malloc((unsigned)len);
-			if (def_slcbuf == (unsigned char *)0)
-				return;  /* too bad */
-			memmove(def_slcbuf, ptr, len);
-		}
 	}
+    }
+  else
+    {
+      /*
+       * save this slc buffer if it is the first, otherwise dump
+       * it.
+       */
+      if (def_slcbuf == (unsigned char *) 0)
+	{
+	  def_slclen = len;
+	  def_slcbuf = (unsigned char *) malloc ((unsigned) len);
+	  if (def_slcbuf == (unsigned char *) 0)
+	    return;		/* too bad */
+	  memmove (def_slcbuf, ptr, len);
+	}
+    }
 
-}  /* end of do_opt_slc */
+}				/* end of do_opt_slc */
 
 /*
  * deferslc
@@ -442,16 +480,16 @@ do_opt_slc(register unsigned char *ptr, register int len)
  * Do slc stuff that was deferred.
  */
 void
-deferslc()
+deferslc ()
 {
-	if (def_slcbuf) {
-		start_slc(1);
-		do_opt_slc(def_slcbuf, def_slclen);
-		end_slc(0);
-		free(def_slcbuf);
-		def_slcbuf = (unsigned char *)0;
-		def_slclen = 0;
-	}
+  if (def_slcbuf)
+    {
+      start_slc (1);
+      do_opt_slc (def_slcbuf, def_slclen);
+      end_slc (0);
+      free (def_slcbuf);
+      def_slcbuf = (unsigned char *) 0;
+      def_slclen = 0;
+    }
 
-}  /* end of deferslc */
-
+}				/* end of deferslc */

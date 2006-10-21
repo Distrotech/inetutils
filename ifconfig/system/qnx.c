@@ -21,13 +21,13 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 #include <stdio.h>
 #include <errno.h>
 
 #if HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #if STDC_HEADERS
@@ -38,13 +38,13 @@
 #include <net/if.h>
 
 #include "../ifconfig.h"
-
 
+
 /* Output format stuff.  */
 
 const char *system_default_format = "unix";
-
 
+
 /* Argument parsing stuff.  */
 
 const char *system_help;
@@ -52,7 +52,7 @@ const char *system_help;
 const char *system_help_options;
 
 int
-system_parse_opt(struct ifconfig **ifp, char option, char *optarg)
+system_parse_opt (struct ifconfig **ifp, char option, char *optarg)
 {
   return 0;
 }

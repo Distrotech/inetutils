@@ -28,11 +28,11 @@
  */
 
 #ifndef lint
-static char     sccsid[] = "@(#)domacro.c	8.3 (Berkeley) 4/2/94";
+static char sccsid[] = "@(#)domacro.c	8.3 (Berkeley) 4/2/94";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <ctype.h>
@@ -45,9 +45,9 @@ static char     sccsid[] = "@(#)domacro.c	8.3 (Berkeley) 4/2/94";
 void
 domacro (int argc, char *argv[])
 {
-  int             i, j, count = 2, loopflg = 0;
-  char           *cp1, *cp2, line2[200];
-  struct cmd     *c;
+  int i, j, count = 2, loopflg = 0;
+  char *cp1, *cp2, line2[200];
+  struct cmd *c;
 
   if (argc < 2 && !another (&argc, &argv, "macro name"))
     {
@@ -125,7 +125,7 @@ domacro (int argc, char *argv[])
 	  if (margv[0] == NULL)
 	    return;
 	  c = getcmd (margv[0]);
-	  
+
 	  if (c == (struct cmd *) -1)
 	    {
 	      printf ("?Ambiguous command\n");

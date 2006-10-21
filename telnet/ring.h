@@ -39,52 +39,48 @@
  *]]]
  *
  */
-typedef struct {
-    unsigned char	*consume,	/* where data comes out of */
-			*supply,	/* where data comes in to */
-			*bottom,	/* lowest address in buffer */
-			*top,		/* highest address+1 in buffer */
-			*mark;		/* marker (user defined) */
+typedef struct
+{
+  unsigned char *consume,	/* where data comes out of */
+   *supply,			/* where data comes in to */
+   *bottom,			/* lowest address in buffer */
+   *top,			/* highest address+1 in buffer */
+   *mark;			/* marker (user defined) */
 #ifdef	ENCRYPTION
-    unsigned char	*clearto;	/* Data to this point is clear text */
-    unsigned char	*encryyptedto;	/* Data is encrypted to here */
-#endif	/* ENCRYPTION */
-    int		size;		/* size in bytes of buffer */
-    u_long	consumetime,	/* help us keep straight full, empty, etc. */
-		supplytime;
+  unsigned char *clearto;	/* Data to this point is clear text */
+  unsigned char *encryyptedto;	/* Data is encrypted to here */
+#endif				/* ENCRYPTION */
+  int size;			/* size in bytes of buffer */
+  u_long consumetime,		/* help us keep straight full, empty, etc. */
+    supplytime;
 } Ring;
 
 /* Here are some functions and macros to deal with the ring buffer */
 
 /* Initialization routine */
-extern int
-	ring_init (Ring *ring, unsigned char *buffer, int count);
+extern int ring_init (Ring * ring, unsigned char *buffer, int count);
 
 /* Data movement routines */
-extern void
-	ring_supply_data (Ring *ring, unsigned char *buffer, int count);
+extern void ring_supply_data (Ring * ring, unsigned char *buffer, int count);
 #ifdef notdef
-extern void
-	ring_consume_data (Ring *ring, unsigned char *buffer, int count);
+extern void ring_consume_data (Ring * ring, unsigned char *buffer, int count);
 #endif
 
 /* Buffer state transition routines */
 extern void
-	ring_supplied (Ring *ring, int count),
-	ring_consumed (Ring *ring, int count);
+ring_supplied (Ring * ring, int count),
+ring_consumed (Ring * ring, int count);
 
 /* Buffer state query routines */
 extern int
-	ring_empty_count (Ring *ring),
-	ring_empty_consecutive (Ring *ring),
-	ring_full_count (Ring *ring),
-	ring_full_consecutive (Ring *ring);
+ring_empty_count (Ring * ring),
+ring_empty_consecutive (Ring * ring),
+ring_full_count (Ring * ring), ring_full_consecutive (Ring * ring);
 
 #ifdef	ENCRYPTION
 extern void
-	ring_encrypt (Ring *ring, void (*func())),
-	ring_clearto (Ring *ring);
-#endif	/* ENCRYPTION */
+ring_encrypt (Ring * ring, void (*func ())), ring_clearto (Ring * ring);
+#endif /* ENCRYPTION */
 
 extern void ring_clear_mark (Ring *);
 extern void ring_mark (Ring *);

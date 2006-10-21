@@ -21,10 +21,10 @@
 #include <readutmp.h>
 
 int find_user (char *name, char *tty);
-void do_announce (CTL_MSG *mp, CTL_RESPONSE *rp);
+void do_announce (CTL_MSG * mp, CTL_RESPONSE * rp);
 
 int
-process_request (CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
+process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
 {
   CTL_MSG *ptr;
 
@@ -33,7 +33,7 @@ process_request (CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
       print_request ("process_request", msg);
     }
 
-  if (acl_match(msg, sa_in))
+  if (acl_match (msg, sa_in))
     {
       syslog (LOG_NOTICE, "dropping request: %s@%s",
 	      msg->l_name, inet_ntoa (sa_in->sin_addr));
@@ -54,20 +54,19 @@ process_request (CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
   msg->addr.sa_family = ntohs (msg->addr.sa_family);
   if (msg->addr.sa_family != AF_INET)
     {
-      syslog(LOG_ERR, "Bad address, family %d",
-	     msg->addr.sa_family);
+      syslog (LOG_ERR, "Bad address, family %d", msg->addr.sa_family);
       rp->answer = BADADDR;
       return 0;
     }
   msg->ctl_addr.sa_family = ntohs (msg->ctl_addr.sa_family);
   if (msg->ctl_addr.sa_family != AF_INET)
     {
-      syslog(LOG_WARNING, "Bad control address, family %d",
-	     msg->ctl_addr.sa_family);
+      syslog (LOG_WARNING, "Bad control address, family %d",
+	      msg->ctl_addr.sa_family);
       rp->answer = BADCTLADDR;
       return 0;
     }
-  /* FIXME: compare address and sa_in?*/
+  /* FIXME: compare address and sa_in? */
 
   msg->pid = ntohl (msg->pid);
 
@@ -111,13 +110,13 @@ process_request (CTL_MSG *msg, struct sockaddr_in *sa_in, CTL_RESPONSE *rp)
     }
 
   if (debug)
-    print_response("process_request response", rp);
+    print_response ("process_request response", rp);
 
   return 0;
 }
 
 void
-do_announce (CTL_MSG *mp, CTL_RESPONSE *rp)
+do_announce (CTL_MSG * mp, CTL_RESPONSE * rp)
 {
   struct hostent *hp;
   CTL_MSG *ptr;
@@ -130,8 +129,8 @@ do_announce (CTL_MSG *mp, CTL_RESPONSE *rp)
       return;
     }
 
-  hp = gethostbyaddr((char*)&os2sin_addr(mp->ctl_addr),
-		     sizeof (struct in_addr), AF_INET);
+  hp = gethostbyaddr ((char *) &os2sin_addr (mp->ctl_addr),
+		      sizeof (struct in_addr), AF_INET);
   if (!hp)
     {
       rp->answer = MACHINE_UNKNOWN;
@@ -147,7 +146,7 @@ do_announce (CTL_MSG *mp, CTL_RESPONSE *rp)
   if (mp->id_num > ptr->id_num)
     {
       /* Explicit re-announce: update the id_num to avoid duplicates
-	 and re-announce the talk. */
+         and re-announce the talk. */
       ptr->id_num = new_id ();
       rp->id_num = htonl (ptr->id_num);
       rp->answer = announce (mp, hp->h_name);
@@ -175,10 +174,10 @@ find_user (char *name, char *tty)
   notty = (*tty == '\0');
 
   status = NOT_HERE;
-  strcpy(ftty, PATH_DEV);
+  strcpy (ftty, PATH_DEV);
 
-  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf, 
-             READ_UTMP_USER_PROCESS|READ_UTMP_CHECK_PIDS);
+  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf,
+	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
 
   for (uptr = utmpbuf; uptr < utmpbuf + utmp_count; uptr++)
     {
@@ -187,12 +186,11 @@ find_user (char *name, char *tty)
 	  if (notty)
 	    {
 	      /* no particular tty was requested */
-	      strncpy(ftty + sizeof(PATH_DEV) - 1,
-		      uptr->ut_line,
-		      sizeof(ftty) - sizeof(PATH_DEV) - 1);
-	      ftty[sizeof(ftty) - 1] = 0;
+	      strncpy (ftty + sizeof (PATH_DEV) - 1,
+		       uptr->ut_line, sizeof (ftty) - sizeof (PATH_DEV) - 1);
+	      ftty[sizeof (ftty) - 1] = 0;
 
-	      if (stat(ftty, &statb) == 0)
+	      if (stat (ftty, &statb) == 0)
 		{
 		  if (!(statb.st_mode & S_IWGRP))
 		    {
@@ -203,13 +201,13 @@ find_user (char *name, char *tty)
 		  if (statb.st_atime > last_time)
 		    {
 		      last_time = statb.st_atime;
-		      strcpy(tty, uptr->ut_line);
+		      strcpy (tty, uptr->ut_line);
 		      status = SUCCESS;
 		    }
 		  continue;
 		}
 	    }
-	  if (!strcmp(uptr->ut_line, tty))
+	  if (!strcmp (uptr->ut_line, tty))
 	    {
 	      status = SUCCESS;
 	      break;
@@ -220,4 +218,3 @@ find_user (char *name, char *tty)
   free (utmpbuf);
   return status;
 }
-

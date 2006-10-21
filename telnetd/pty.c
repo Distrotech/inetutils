@@ -38,7 +38,7 @@ startslave (char *host, int autologin, char *autoname)
 {
   pid_t pid;
   int master;
-  
+
 #ifdef AUTHENTICATION
   if (!autoname || !autoname[0])
     autologin = 0;
@@ -65,21 +65,21 @@ startslave (char *host, int autologin, char *autoname)
     }
 
   if (pid == 0)
-      {
-	/* Child */
-	if (net > 2)
-	  close (net);
+    {
+      /* Child */
+      if (net > 2)
+	close (net);
 
 #ifdef UTMPX
-	setup_utmp (line);
+      setup_utmp (line);
 #endif
-	start_login (host, autologin, line);
-      }
+      start_login (host, autologin, line);
+    }
 
   /* Master */
   return master;
 }
-  
+
 extern char **environ;
 /*
  * scrub_env()
@@ -96,10 +96,9 @@ scrub_env ()
 
   for (cpp2 = cpp = environ; *cpp; cpp++)
     {
-      if (strncmp (*cpp, "LD_", 3) 
-	  && strncmp (*cpp, "_RLD_", 5) 
-	  && strncmp (*cpp, "LIBPATH=", 8) 
-	  && strncmp (*cpp, "IFS=", 4))
+      if (strncmp (*cpp, "LD_", 3)
+	  && strncmp (*cpp, "_RLD_", 5)
+	  && strncmp (*cpp, "LIBPATH=", 8) && strncmp (*cpp, "IFS=", 4))
 	*cpp2++ = *cpp;
     }
   *cpp2 = 0;
@@ -111,7 +110,7 @@ start_login (char *host, int autologin, char *name)
   char *cmd;
   int argc;
   char **argv;
-  
+
   scrub_env ();
 
   /* Set the environment variable "LINEMODE" to indicate our linemode */
@@ -137,11 +136,11 @@ cleanup (int sig)
   if (sig)
     {
       int status;
-      pid_t pid = waitpid((pid_t)-1, &status, WNOHANG);
+      pid_t pid = waitpid ((pid_t) - 1, &status, WNOHANG);
       syslog (LOG_INFO, "child process %ld exited: %d",
-	      (long) pid, WEXITSTATUS(status));
+	      (long) pid, WEXITSTATUS (status));
     }
-  
+
   p = line + sizeof (PATH_DEV) - 1;
   utmp_logout (p);
   chmod (line, 0644);
@@ -149,5 +148,3 @@ cleanup (int sig)
   shutdown (net, 2);
   exit (1);
 }
-
-  

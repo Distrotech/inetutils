@@ -16,12 +16,12 @@ not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 /* Enable GNU extensions in fnmatch.h.  */
 #ifndef _GNU_SOURCE
-#define	_GNU_SOURCE	1
+# define _GNU_SOURCE	1
 #endif
 
 #include <errno.h>
@@ -40,9 +40,9 @@ Cambridge, MA 02139, USA.  */
 #if defined (_LIBC) || !defined (__GNU_LIBRARY__)
 
 
-#ifndef errno
+# ifndef errno
 extern int errno;
-#endif
+# endif
 
 /* Match STRING against the filename pattern PATTERN, returning zero if
    it matches, nonzero if not.  */
@@ -56,7 +56,7 @@ fnmatch (pattern, string, flags)
   register char c;
 
 /* Note that this evalutes C many times.  */
-#define FOLD(c)	((flags & FNM_CASEFOLD) && isupper (c) ? tolower (c) : (c))
+# define FOLD(c)	((flags & FNM_CASEFOLD) && isupper (c) ? tolower (c) : (c))
 
   while ((c = *p++) != '\0')
     {
@@ -227,4 +227,4 @@ fnmatch (pattern, string, flags)
   return FNM_NOMATCH;
 }
 
-#endif	/* _LIBC or not __GNU_LIBRARY__.  */
+#endif /* _LIBC or not __GNU_LIBRARY__.  */

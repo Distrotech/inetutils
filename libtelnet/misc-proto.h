@@ -49,8 +49,8 @@
  * or implied warranty.
  */
 
-#ifndef	__MISC_PROTO__
-#define	__MISC_PROTO__
+#ifndef __MISC_PROTO__
+# define __MISC_PROTO__
 
 void auth_encrypt_init (char *, char *, char *, int);
 void auth_encrypt_connect (int);

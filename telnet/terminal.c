@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)terminal.c	8.2 (Berkeley) 2/16/95";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <stdlib.h>
@@ -45,8 +45,8 @@ static char sccsid[] = "@(#)terminal.c	8.2 (Berkeley) 2/16/95";
 #include "externs.h"
 #include "types.h"
 
-Ring		ttyoring, ttyiring;
-unsigned char	ttyobuf[2*BUFSIZ], ttyibuf[BUFSIZ];
+Ring ttyoring, ttyiring;
+unsigned char ttyobuf[2 * BUFSIZ], ttyibuf[BUFSIZ];
 
 int termdata;			/* Debugging flag */
 
@@ -91,15 +91,17 @@ cc_t termAytChar;
  */
 
 void
-init_terminal()
+init_terminal ()
 {
-    if (ring_init(&ttyoring, ttyobuf, sizeof ttyobuf) != 1) {
-	exit(1);
+  if (ring_init (&ttyoring, ttyobuf, sizeof ttyobuf) != 1)
+    {
+      exit (1);
     }
-    if (ring_init(&ttyiring, ttyibuf, sizeof ttyibuf) != 1) {
-	exit(1);
+  if (ring_init (&ttyiring, ttyibuf, sizeof ttyibuf) != 1)
+    {
+      exit (1);
     }
-    autoflush = TerminalAutoFlush();
+  autoflush = TerminalAutoFlush ();
 }
 
 
@@ -115,48 +117,56 @@ init_terminal()
 
 
 int
-ttyflush(int drop)
+ttyflush (int drop)
 {
-    register int n, n0, n1;
+  register int n, n0, n1;
 
-    n0 = ring_full_count(&ttyoring);
-    if ((n1 = n = ring_full_consecutive(&ttyoring)) > 0) {
-	if (drop) {
-	    TerminalFlushOutput();
-	    /* we leave 'n' alone! */
-	} else {
-	    n = TerminalWrite(ttyoring.consume, n);
+  n0 = ring_full_count (&ttyoring);
+  if ((n1 = n = ring_full_consecutive (&ttyoring)) > 0)
+    {
+      if (drop)
+	{
+	  TerminalFlushOutput ();
+	  /* we leave 'n' alone! */
+	}
+      else
+	{
+	  n = TerminalWrite (ttyoring.consume, n);
 	}
     }
-    if (n > 0) {
-	if (termdata && n) {
-	    Dump('>', ttyoring.consume, n);
+  if (n > 0)
+    {
+      if (termdata && n)
+	{
+	  Dump ('>', ttyoring.consume, n);
 	}
-	/*
-	 * If we wrote everything, and the full count is
-	 * larger than what we wrote, then write the
-	 * rest of the buffer.
-	 */
-	if (n1 == n && n0 > n) {
-		n1 = n0 - n;
-		if (!drop)
-			n1 = TerminalWrite(ttyoring.bottom, n1);
-		if (n1 > 0)
-		n += n1;
+      /*
+       * If we wrote everything, and the full count is
+       * larger than what we wrote, then write the
+       * rest of the buffer.
+       */
+      if (n1 == n && n0 > n)
+	{
+	  n1 = n0 - n;
+	  if (!drop)
+	    n1 = TerminalWrite (ttyoring.bottom, n1);
+	  if (n1 > 0)
+	    n += n1;
 	}
-	ring_consumed(&ttyoring, n);
+      ring_consumed (&ttyoring, n);
     }
-    if (n < 0)
+  if (n < 0)
+    return -1;
+  if (n == n0)
+    {
+      if (n0)
 	return -1;
-    if (n == n0) {
-	if (n0)
-	    return -1;
-	return 0;
+      return 0;
     }
-    return n0 - n + 1;
+  return n0 - n + 1;
 }
-
 
+
 /*
  * These routines decides on what the mode should be (based on the values
  * of various global variables).
@@ -164,77 +174,85 @@ ttyflush(int drop)
 
 
 int
-getconnmode()
+getconnmode ()
 {
-    extern int linemode;
-    int mode = 0;
+  extern int linemode;
+  int mode = 0;
 #ifdef	KLUDGELINEMODE
-    extern int kludgelinemode;
+  extern int kludgelinemode;
 #endif
 
-    if (In3270)
-	return(MODE_FLOW);
+  if (In3270)
+    return (MODE_FLOW);
 
-    if (my_want_state_is_dont(TELOPT_ECHO))
-	mode |= MODE_ECHO;
+  if (my_want_state_is_dont (TELOPT_ECHO))
+    mode |= MODE_ECHO;
 
-    if (localflow)
-	mode |= MODE_FLOW;
+  if (localflow)
+    mode |= MODE_FLOW;
 
-    if (my_want_state_is_will(TELOPT_BINARY))
-	mode |= MODE_INBIN;
+  if (my_want_state_is_will (TELOPT_BINARY))
+    mode |= MODE_INBIN;
 
-    if (his_want_state_is_will(TELOPT_BINARY))
-	mode |= MODE_OUTBIN;
+  if (his_want_state_is_will (TELOPT_BINARY))
+    mode |= MODE_OUTBIN;
 
 #ifdef	KLUDGELINEMODE
-    if (kludgelinemode) {
-	if (my_want_state_is_dont(TELOPT_SGA)) {
-	    mode |= (MODE_TRAPSIG|MODE_EDIT);
-	    if (dontlecho && (clocks.echotoggle > clocks.modenegotiated)) {
-		mode &= ~MODE_ECHO;
+  if (kludgelinemode)
+    {
+      if (my_want_state_is_dont (TELOPT_SGA))
+	{
+	  mode |= (MODE_TRAPSIG | MODE_EDIT);
+	  if (dontlecho && (clocks.echotoggle > clocks.modenegotiated))
+	    {
+	      mode &= ~MODE_ECHO;
 	    }
 	}
-	return(mode);
+      return (mode);
     }
 #endif
-    if (my_want_state_is_will(TELOPT_LINEMODE))
-	mode |= linemode;
-    return(mode);
+  if (my_want_state_is_will (TELOPT_LINEMODE))
+    mode |= linemode;
+  return (mode);
 }
 
 void
-setconnmode(int force)
+setconnmode (int force)
 {
 #ifdef	ENCRYPTION
-    static int enc_passwd = 0;
-#endif	/* ENCRYPTION */
-    register int newmode;
+  static int enc_passwd = 0;
+#endif /* ENCRYPTION */
+  register int newmode;
 
-    newmode = getconnmode()|(force?MODE_FORCE:0);
+  newmode = getconnmode () | (force ? MODE_FORCE : 0);
 
-    TerminalNewMode(newmode);
+  TerminalNewMode (newmode);
 
 #ifdef  ENCRYPTION
-    if ((newmode & (MODE_ECHO|MODE_EDIT)) == MODE_EDIT) {
-	if (my_want_state_is_will(TELOPT_ENCRYPT)
-				&& (enc_passwd == 0) && !encrypt_output) {
-	    encrypt_request_start(0, 0);
-	    enc_passwd = 1;
-	}
-    } else {
-	if (enc_passwd) {
-	    encrypt_request_end();
-	    enc_passwd = 0;
+  if ((newmode & (MODE_ECHO | MODE_EDIT)) == MODE_EDIT)
+    {
+      if (my_want_state_is_will (TELOPT_ENCRYPT)
+	  && (enc_passwd == 0) && !encrypt_output)
+	{
+	  encrypt_request_start (0, 0);
+	  enc_passwd = 1;
 	}
     }
-#endif	/* ENCRYPTION */
+  else
+    {
+      if (enc_passwd)
+	{
+	  encrypt_request_end ();
+	  enc_passwd = 0;
+	}
+    }
+#endif /* ENCRYPTION */
 
 }
 
 
 void
-setcommandmode()
+setcommandmode ()
 {
-    TerminalNewMode(-1);
+  TerminalNewMode (-1);
 }

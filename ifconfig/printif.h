@@ -20,11 +20,11 @@
    MA 02110-1301 USA. */
 
 #ifndef IFCONFIG_PRINTIF_H
-#define IFCONFIG_PRINTIF_H
+# define IFCONFIG_PRINTIF_H
 
-#include <net/if.h>
-#include <arpa/inet.h>
-#include "ifconfig.h"
+# include <net/if.h>
+# include <arpa/inet.h>
+# include "ifconfig.h"
 
 /* The column position of the cursor.  */
 extern int *column;
@@ -34,21 +34,21 @@ extern int had_output;
 
 struct format_data
 {
-  const char *name;/* Name of interface as specified on the command line.  */
+  const char *name;		/* Name of interface as specified on the command line.  */
   struct ifreq *ifr;
-  int sfd;	/* Socket file descriptor to use.  */
-  int first;	/* This is the first interface.  */
-  const char *format;	/* The format string.  */
-  int depth;	/* Depth of nesting in parsing.  */
+  int sfd;			/* Socket file descriptor to use.  */
+  int first;			/* This is the first interface.  */
+  const char *format;		/* The format string.  */
+  int depth;			/* Depth of nesting in parsing.  */
 };
 
 typedef struct format_data *format_data_t;
 
-typedef void (*format_handler_t)(format_data_t, int, char **);
+typedef void (*format_handler_t) (format_data_t, int, char **);
 
 struct format_handle
 {
-  const char *name;	/* The name of the handler.  */
+  const char *name;		/* The name of the handler.  */
   format_handler_t handler;
 };
 
@@ -56,18 +56,20 @@ extern struct format_handle format_handles[];
 
 /* Each TAB_STOP characters is a default tab stop, which is also used
    by '\t'.  */
-#define TAB_STOP 8
+# define TAB_STOP 8
 
 void put_char (format_data_t form, char c);
 void put_string (format_data_t form, const char *s);
 void put_int (format_data_t form, int argc, char *argv[], int nr);
 void select_arg (format_data_t form, int argc, char *argv[], int nr);
-void put_addr (format_data_t form, int argc, char *argv[], struct sockaddr *sa);
+void put_addr (format_data_t form, int argc, char *argv[],
+	       struct sockaddr *sa);
 void put_flags (format_data_t form, int argc, char *argv[], short flags);
 
 /* Format handler can mangle form->format, so update it after calling
    here.  */
-void format_handler (const char *name, format_data_t form, int argc, char *argv[]);
+void format_handler (const char *name, format_data_t form, int argc,
+		     char *argv[]);
 
 void fh_nothing (format_data_t form, int argc, char *argv[]);
 void fh_newline (format_data_t form, int argc, char *argv[]);
@@ -101,6 +103,7 @@ void fh_metric (format_data_t form, int argc, char *argv[]);
 /* Used for recursion by format handlers.  */
 void print_interfaceX (format_data_t form, int quiet);
 
-void print_interface (int sfd, const char *name, struct ifreq *ifr, const char *format);
+void print_interface (int sfd, const char *name, struct ifreq *ifr,
+		      const char *format);
 
 #endif

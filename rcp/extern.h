@@ -29,18 +29,19 @@
  *	@(#)extern.h	8.1 (Berkeley) 5/31/93
  */
 
-typedef struct {
-	int cnt;
-	char *buf;
+typedef struct
+{
+  int cnt;
+  char *buf;
 } BUF;
 
 extern int iamremote;
 
-BUF	*allocbuf (BUF *, int, int);
-char	*colon (char *);
-void	 lostconn (int);
-void	 nospace (void);
-int	 okname (char *);
-void	 run_err (const char *, ...);
-int	 susystem (char *, int);
-void	 verifydir (char *);
+BUF *allocbuf (BUF *, int, int);
+char *colon (char *);
+void lostconn (int);
+void nospace (void);
+int okname (char *);
+void run_err (const char *, ...);
+int susystem (char *, int);
+void verifydir (char *);

@@ -34,11 +34,11 @@
  * server.
  */
 struct tftphdr *r_init (void);
-void	read_ahead (FILE *, int);
-int	readit (FILE *, struct tftphdr **, int);
+void read_ahead (FILE *, int);
+int readit (FILE *, struct tftphdr **, int);
 
-int	synchnet (int);
+int synchnet (int);
 
 struct tftphdr *w_init (void);
-int	write_behind (FILE *, int);
-int	writeit (FILE *, struct tftphdr **, int, int);
+int write_behind (FILE *, int);
+int writeit (FILE *, struct tftphdr **, int, int);

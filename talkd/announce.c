@@ -26,7 +26,7 @@
 #define N_LINES 5
 #define N_CHARS 256
 
-extern char * ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout);
+extern char *ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout);
 
 typedef struct
 {
@@ -34,17 +34,17 @@ typedef struct
   int max_size;
   char line[N_LINES][N_CHARS];
   int size[N_LINES];
-  char buf[N_LINES*N_CHARS+3];
+  char buf[N_LINES * N_CHARS + 3];
 } LINE;
 
 static void
-init_line (LINE *lp)
+init_line (LINE * lp)
 {
   memset (lp, 0, sizeof *lp);
 }
 
 static void
-format_line (LINE *lp, const char *fmt, ...)
+format_line (LINE * lp, const char *fmt, ...)
 {
   va_list ap;
   int i = lp->ind;
@@ -59,7 +59,7 @@ format_line (LINE *lp, const char *fmt, ...)
 }
 
 static char *
-finish_line (LINE *lp)
+finish_line (LINE * lp)
 {
   int i;
   char *p;
@@ -85,7 +85,7 @@ finish_line (LINE *lp)
 }
 
 static int
-print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
+print_mesg (char *tty, CTL_MSG * request, char *remote_machine)
 {
   time_t t;
   LINE ln;
@@ -99,7 +99,7 @@ print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
   init_line (&ln);
   format_line (&ln, "");
   format_line (&ln, "Message from Talk_Daemon@%s at %d:%02d ...",
-	       hostname, tm->tm_hour , tm->tm_min);
+	       hostname, tm->tm_hour, tm->tm_min);
   format_line (&ln, "talk: connection requested by %s@%s",
 	       request->l_name, remote_machine);
   format_line (&ln, "talk: respond with:  talk %s@%s",
@@ -113,7 +113,7 @@ print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
 
   if ((cp = ttymsg (&iovec, 1, tty, RING_WAIT - 5)) != NULL)
     {
-      syslog(LOG_CRIT, "%s", cp);
+      syslog (LOG_CRIT, "%s", cp);
       return FAILED;
     }
   return SUCCESS;
@@ -122,7 +122,7 @@ print_mesg (char *tty, CTL_MSG *request, char *remote_machine)
 /* See if the user is accepting messages. If so, announce that
    a talk is requested. */
 int
-announce (CTL_MSG *request, char *remote_machine)
+announce (CTL_MSG * request, char *remote_machine)
 {
   char *ttypath;
   int len;

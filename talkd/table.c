@@ -31,7 +31,7 @@ struct request_table
 static table_t *table;
 
 static void
-table_delete (table_t *ptr)
+table_delete (table_t * ptr)
 {
   table_t *t;
 
@@ -49,7 +49,8 @@ table_delete (table_t *ptr)
    Evil) */
 
 static CTL_MSG *
-lookup_request (CTL_MSG *request, int (*comp)(table_t *, CTL_MSG *, time_t *))
+lookup_request (CTL_MSG * request,
+		int (*comp) (table_t *, CTL_MSG *, time_t *))
 {
   table_t *ptr;
   time_t now;
@@ -87,11 +88,11 @@ lookup_request (CTL_MSG *request, int (*comp)(table_t *, CTL_MSG *, time_t *))
 }
 
 static int
-fuzzy_comp (table_t *ptr, CTL_MSG *request, time_t *unused ARG_UNUSED)
+fuzzy_comp (table_t * ptr, CTL_MSG * request, time_t * unused ARG_UNUSED)
 {
   if (ptr->request.type == LEAVE_INVITE
-      && strcmp(request->l_name, ptr->request.r_name) == 0
-      && strcmp(request->r_name, ptr->request.l_name) == 0)
+      && strcmp (request->l_name, ptr->request.r_name) == 0
+      && strcmp (request->r_name, ptr->request.l_name) == 0)
     return 0;
   return 1;
 }
@@ -99,18 +100,18 @@ fuzzy_comp (table_t *ptr, CTL_MSG *request, time_t *unused ARG_UNUSED)
 /* Look in the table for an invitation that matches the current
    request looking for an invitation */
 CTL_MSG *
-find_match (CTL_MSG *request)
+find_match (CTL_MSG * request)
 {
   return lookup_request (request, fuzzy_comp);
 }
 
 static int
-exact_comp (table_t *ptr, CTL_MSG *request, time_t *now)
+exact_comp (table_t * ptr, CTL_MSG * request, time_t * now)
 {
   if (request->type == ptr->request.type
       && request->pid == ptr->request.pid
-      && strcmp(request->r_name, ptr->request.r_name) == 0
-      && strcmp(request->l_name, ptr->request.l_name) == 0)
+      && strcmp (request->r_name, ptr->request.r_name) == 0
+      && strcmp (request->l_name, ptr->request.l_name) == 0)
     {
       ptr->time = *now;
       return 0;
@@ -122,7 +123,7 @@ exact_comp (table_t *ptr, CTL_MSG *request, time_t *now)
    one as find_match does */
 
 CTL_MSG *
-find_request (CTL_MSG *request)
+find_request (CTL_MSG * request)
 {
   return lookup_request (request, exact_comp);
 }
@@ -143,7 +144,7 @@ new_id ()
 }
 
 int
-insert_table (CTL_MSG *request, CTL_RESPONSE *response)
+insert_table (CTL_MSG * request, CTL_RESPONSE * response)
 {
   table_t *ptr;
 

@@ -60,7 +60,7 @@ static char sccsid[] = "@(#)logwtmp.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -75,7 +75,7 @@ static char sccsid[] = "@(#)logwtmp.c	8.1 (Berkeley) 6/4/93";
 #include "extern.h"
 
 #if !defined (_PATH_WTMP) && defined (WTMP_FILE)
-#define _PATH_WTMP WTMP_FILE
+# define _PATH_WTMP WTMP_FILE
 #endif
 
 /*
@@ -84,7 +84,7 @@ static char sccsid[] = "@(#)logwtmp.c	8.1 (Berkeley) 6/4/93";
  * after login, but before logout).
  */
 void
-logwtmp(const char *line, const char *name, const char *host)
+logwtmp (const char *line, const char *name, const char *host)
 {
   struct utmp ut;
 
@@ -132,17 +132,18 @@ logwtmp(const char *line, const char *name, const char *host)
 #else
   /* Do things the old way.  */
   {
-	struct utmp ut;
-	struct stat buf;
-	static int fd = -1;
+    struct utmp ut;
+    struct stat buf;
+    static int fd = -1;
 
-	if (fd < 0 && (fd = open(_PATH_WTMP, O_WRONLY|O_APPEND, 0)) < 0)
-		return;
-	if (fstat(fd, &buf) == 0) {
-		if (write(fd, (char *)&ut, sizeof(struct utmp)) !=
-		    sizeof(struct utmp))
-			ftruncate(fd, buf.st_size);
-	}
+    if (fd < 0 && (fd = open (_PATH_WTMP, O_WRONLY | O_APPEND, 0)) < 0)
+      return;
+    if (fstat (fd, &buf) == 0)
+      {
+	if (write (fd, (char *) &ut, sizeof (struct utmp)) !=
+	    sizeof (struct utmp))
+	  ftruncate (fd, buf.st_size);
+      }
   }
 #endif
 }

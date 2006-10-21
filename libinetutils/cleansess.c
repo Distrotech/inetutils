@@ -19,7 +19,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <unistd.h>
@@ -35,15 +35,15 @@
 # endif
 #endif
 #ifdef HAVE_UTMP_H
-#include <utmp.h>
+# include <utmp.h>
 #else
-#ifdef  HAVE_UTMPX_H
-#include <utmpx.h>
-#define utmp utmpx		/* make utmpx look more like utmp */
+# ifdef  HAVE_UTMPX_H
+#  include <utmpx.h>
+#  define utmp utmpx		/* make utmpx look more like utmp */
+# endif
 #endif
-#endif
-#ifdef HAVE_STRING_H 
-#include <string.h>
+#ifdef HAVE_STRING_H
+# include <string.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>

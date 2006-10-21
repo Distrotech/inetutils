@@ -28,83 +28,83 @@
  */
 
 #ifndef lint
-static char     Xsccsid[] = "derived from @(#)rcmd.c 5.17 (Berkeley) 6/27/88";
-static char     sccsid[] = "@(#)kcmd.c	8.2 (Berkeley) 8/19/93";
+static char Xsccsid[] = "derived from @(#)rcmd.c 5.17 (Berkeley) 6/27/88";
+static char sccsid[] = "@(#)kcmd.c	8.2 (Berkeley) 8/19/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #if defined(KERBEROS) || defined(SHISHI)
 
-#include <sys/param.h>
-#include <sys/file.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
+# include <sys/param.h>
+# include <sys/file.h>
+# include <sys/socket.h>
+# include <sys/stat.h>
 
-#include <netinet/in.h>
-#include <arpa/inet.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 
-#if defined(KERBEROS)
-# include <kerberosIV/des.h>
-# include <kerberosIV/krb.h>
-#elif defined(SHISHI)
-# include <shishi.h>
-# include "shishi_def.h"
-#endif
+# if defined(KERBEROS)
+#  include <kerberosIV/des.h>
+#  include <kerberosIV/krb.h>
+# elif defined(SHISHI)
+#  include <shishi.h>
+#  include "shishi_def.h"
+# endif
 
-#include <ctype.h>
-#include <errno.h>
-#include <netdb.h>
-#include <pwd.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+# include <ctype.h>
+# include <errno.h>
+# include <netdb.h>
+# include <pwd.h>
+# include <signal.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
 
-#ifndef MAXHOSTNAMELEN
-#define MAXHOSTNAMELEN 64
-#endif
+# ifndef MAXHOSTNAMELEN
+#  define MAXHOSTNAMELEN 64
+# endif
 
-#define	START_PORT	5120	/* arbitrary */
+# define START_PORT	5120	/* arbitrary */
 
-int getport     (int *);
+int getport (int *);
 
-#if defined (KERBEROS)
+# if defined (KERBEROS)
 int
 kcmd (int *sock, char **ahost, u_short rport, char *locuser,
       char *remuser, char *cmd, int *fd2p, KTEXT ticket,
       char *service, char *realm,
       CREDENTIALS * cred, Key_schedule schedule, MSG_DAT * msg_data,
       struct sockaddr_in *laddr, struct sockaddr_in *faddr, long authopts)
-#elif defined(SHISHI)
+# elif defined(SHISHI)
 int
 kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
       char **remuser, char *cmd, int *fd2p, char *service, char *realm,
       Shishi_key ** key,
       struct sockaddr_in *laddr, struct sockaddr_in *faddr, long authopts)
-#endif
+# endif
 {
-  int             s, timo = 1, pid;
-  long            oldmask;
+  int s, timo = 1, pid;
+  long oldmask;
   struct sockaddr_in sin, from;
-  char            c;
+  char c;
 
-#ifdef ATHENA_COMPAT
-  int             lport = IPPORT_RESERVED - 1;
-#else
-  int             lport = START_PORT;
-#endif
+# ifdef ATHENA_COMPAT
+  int lport = IPPORT_RESERVED - 1;
+# else
+  int lport = START_PORT;
+# endif
   struct hostent *hp;
-  int             rc;
-  char           *host_save;
-  int             status;
+  int rc;
+  char *host_save;
+  int status;
 
-#if defined(SHISHI)
-  int             zero = 0;
-#endif
+# if defined(SHISHI)
+  int zero = 0;
+# endif
 
   pid = getpid ();
   hp = gethostbyname (*ahost);
@@ -118,11 +118,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
   strcpy (host_save, hp->h_name);
   *ahost = host_save;
 
-#ifdef KERBEROS
+# ifdef KERBEROS
   /* If realm is null, look up from table */
   if (realm == NULL || realm[0] == '\0')
     realm = krb_realmofhost (host_save);
-#endif /* KERBEROS */
+# endif	/* KERBEROS */
 
   oldmask = sigblock (sigmask (SIGURG));
   for (;;)
@@ -139,11 +139,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 	}
       fcntl (s, F_SETOWN, pid);
       sin.sin_family = hp->h_addrtype;
-#if defined(ultrix) || defined(sun)
+# if defined(ultrix) || defined(sun)
       bcopy (hp->h_addr, (caddr_t) & sin.sin_addr, hp->h_length);
-#else
+# else
       bcopy (hp->h_addr_list[0], (caddr_t) & sin.sin_addr, hp->h_length);
-#endif
+# endif
       sin.sin_port = rport;
 
       if (connect (s, (struct sockaddr *) &sin, sizeof (sin)) >= 0)
@@ -163,10 +163,10 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 	  timo *= 2;
 	  continue;
 	}
-#if !(defined(ultrix) || defined(sun))
+# if !(defined(ultrix) || defined(sun))
       if (hp->h_addr_list[1] != NULL)
 	{
-	  int             oerrno = errno;
+	  int oerrno = errno;
 
 	  fprintf (stderr,
 		   "kcmd: connect to address %s: ", inet_ntoa (sin.sin_addr));
@@ -177,7 +177,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 	  fprintf (stderr, "Trying %s...\n", inet_ntoa (sin.sin_addr));
 	  continue;
 	}
-#endif /* !(defined(ultrix) || defined(sun)) */
+# endif	/* !(defined(ultrix) || defined(sun)) */
       if (errno != ECONNREFUSED)
 	perror (hp->h_name);
       sigsetmask (oldmask);
@@ -192,9 +192,9 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
     }
   else
     {
-      char            num[8];
-      int             s2 = getport (&lport), s3;
-      int             len = sizeof (from);
+      char num[8];
+      int s2 = getport (&lport), s3;
+      int len = sizeof (from);
 
       if (s2 < 0)
 	{
@@ -237,10 +237,10 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
   /* write(s, locuser, strlen(locuser)+1); */
 
   /* set up the needed stuff for mutual auth, but only if necessary */
-#ifdef KERBEROS
+# ifdef KERBEROS
   if (authopts & KOPT_DO_MUTUAL)
     {
-      int             sin_len;
+      int sin_len;
 
       *faddr = sin;
 
@@ -260,10 +260,10 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
     goto bad2;
 
   write (s, remuser, strlen (remuser) + 1);
-#elif defined(SHISHI)
+# elif defined(SHISHI)
   if (authopts & SHISHI_APOPTIONS_MUTUAL_REQUIRED)
     {
-      int             sin_len;
+      int sin_len;
 
       *faddr = sin;
 
@@ -282,14 +282,14 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
     goto bad2;
 
   write (s, *remuser, strlen (*remuser) + 1);
-#endif /* SHISHI */
+# endif	/* SHISHI */
 
   write (s, cmd, strlen (cmd) + 1);
 
-#ifdef SHISHI
+# ifdef SHISHI
   write (s, *remuser, strlen (*remuser) + 1);
   write (s, &zero, sizeof (int));
-#endif
+# endif
 
   if ((rc = read (s, &c, 1)) != 1)
     {
@@ -313,11 +313,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
     }
   sigsetmask (oldmask);
   *sock = s;
-#if defined(KERBEROS)
+# if defined(KERBEROS)
   return (KSUCCESS);
-#elif defined(SHISHI)
+# elif defined(SHISHI)
   return (SHISHI_OK);
-#endif
+# endif
 bad2:
   if (lport)
     close (*fd2p);
@@ -331,7 +331,7 @@ int
 getport (int *alport)
 {
   struct sockaddr_in sin;
-  int             s;
+  int s;
 
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = INADDR_ANY;
@@ -349,13 +349,13 @@ getport (int *alport)
 	  return (-1);
 	}
       (*alport)--;
-#ifdef ATHENA_COMPAT
+# ifdef ATHENA_COMPAT
       if (*alport == IPPORT_RESERVED / 2)
 	{
-#else
+# else
       if (*alport == IPPORT_RESERVED)
 	{
-#endif
+# endif
 	  close (s);
 	  errno = EAGAIN;	/* close */
 	  return (-1);

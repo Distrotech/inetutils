@@ -44,13 +44,13 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_FILIO_H
-#include <sys/filio.h>
+# include <sys/filio.h>
 #endif
 #include <sys/stat.h>
 #include <sys/socket.h>
@@ -76,17 +76,17 @@ static char sccsid[] = "@(#)tftpd.c	8.1 (Berkeley) 6/4/93";
 
 void usage (void);
 
-#define	TIMEOUT		5
+#define TIMEOUT		5
 
 #ifndef LOG_FTP
-#define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
+# define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
 #endif
 
 int peer;
 int rexmtval = TIMEOUT;
 int maxtimeout = 5 * TIMEOUT;
 
-#define	PKTSIZE	SEGSIZE+4
+#define PKTSIZE	SEGSIZE+4
 char buf[PKTSIZE];
 char ackbuf[PKTSIZE];
 struct sockaddr_in from;
@@ -279,13 +279,18 @@ struct formats
   void (*f_send) (struct formats *);
   void (*f_recv) (struct formats *);
   int f_convert;
-} formats[] = {
-  {"netascii", validate_access, send_file, recvfile, 1},
-  {"octet", validate_access, send_file, recvfile, 0},
+} formats[] =
+{
+  {
+  "netascii", validate_access, send_file, recvfile, 1},
+  {
+  "octet", validate_access, send_file, recvfile, 0},
 #ifdef notdef
-  {"mail", validate_user, sendmail, recvmail, 1},
+  {
+  "mail", validate_user, sendmail, recvmail, 1},
 #endif
-  {0}
+  {
+  0}
 };
 
 /*
@@ -650,16 +655,26 @@ struct errmsg
 {
   int e_code;
   const char *e_msg;
-} errmsgs[] = {
-  {EUNDEF, "Undefined error code"},
-  {ENOTFOUND, "File not found"},
-  {EACCESS, "Access violation"},
-  {ENOSPACE, "Disk full or allocation exceeded"},
-  {EBADOP, "Illegal TFTP operation"},
-  {EBADID, "Unknown transfer ID"},
-  {EEXISTS, "File already exists"},
-  {ENOUSER, "No such user"},
-  {-1, 0}
+} errmsgs[] =
+{
+  {
+  EUNDEF, "Undefined error code"},
+  {
+  ENOTFOUND, "File not found"},
+  {
+  EACCESS, "Access violation"},
+  {
+  ENOSPACE, "Disk full or allocation exceeded"},
+  {
+  EBADOP, "Illegal TFTP operation"},
+  {
+  EBADID, "Unknown transfer ID"},
+  {
+  EEXISTS, "File already exists"},
+  {
+  ENOUSER, "No such user"},
+  {
+  -1, 0}
 };
 
 static const char *

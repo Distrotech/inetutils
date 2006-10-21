@@ -1,5 +1,5 @@
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -12,17 +12,17 @@
 # include <crypt.h>
 #endif
 #ifdef HAVE_SHADOW_H
-#include <shadow.h>
+# include <shadow.h>
 #endif
 #ifdef TIME_WITH_SYS_TIME
-#  include <sys/time.h>
-#  include <time.h>
+# include <sys/time.h>
+# include <time.h>
 #else
-#  ifdef HAVE_SYS_TIME_H
-#    include <sys/time.h>
-#  else
-#    include <time.h>
-#  endif
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
 
 #include "extern.h"
@@ -70,14 +70,14 @@ auth_user (const char *name, struct credentials *pcred)
 	  return -1;
 
 	/* check for anonymous logging */
-	if (strcmp (name, "ftp") == 0
-	    || strcmp (name, "anonymous") == 0)
+	if (strcmp (name, "ftp") == 0 || strcmp (name, "anonymous") == 0)
 	  {
 	    int err = 0;
-	    if (checkuser (PATH_FTPUSERS , "ftp")
+	    if (checkuser (PATH_FTPUSERS, "ftp")
 		|| checkuser (PATH_FTPUSERS, "anonymous"))
 	      {
-		snprintf (pcred->message, len, "User %s access denied.", name);
+		snprintf (pcred->message, len, "User %s access denied.",
+			  name);
 		err = 1;
 	      }
 	    else if (sgetcred ("ftp", pcred) == 0)
@@ -121,12 +121,12 @@ auth_user (const char *name, struct credentials *pcred)
 	    pcred->message = NULL;
 	    return 1;
 	  }
-	pcred->dochroot = checkuser(PATH_FTPCHROOT, pcred->name);
+	pcred->dochroot = checkuser (PATH_FTPCHROOT, pcred->name);
 	snprintf (pcred->message, len,
 		  "Password required for %s.", pcred->name);
 	return 0;
       }
-    } 
+    }
   return -1;
 }
 
@@ -158,11 +158,11 @@ auth_pass (const char *passwd, struct credentials *pcred)
 	char *salt = pcred->passwd;
 	/* Try to authenticate the user.  */
 	if (pcred->passwd == NULL || *pcred->passwd == '\0')
-	  return 1; /* Failed. */
+	  return 1;		/* Failed. */
 	xpasswd = crypt (passwd, salt);
-	return  (!xpasswd || strcmp (xpasswd, pcred->passwd) != 0);
+	return (!xpasswd || strcmp (xpasswd, pcred->passwd) != 0);
       }
-    } /* switch (auth_type) */
+    }				/* switch (auth_type) */
   return -1;
 }
 
@@ -189,7 +189,7 @@ sgetcred (const char *name, struct credentials *pcred)
 #if defined(HAVE_GETSPNAM) && defined(HAVE_SHADOW_H)
   if (p->pw_passwd == NULL || strlen (p->pw_passwd) == 1)
     {
-      struct  spwd *spw;
+      struct spwd *spw;
 
       setspent ();
       spw = getspnam (p->pw_name);

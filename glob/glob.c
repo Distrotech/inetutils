@@ -17,16 +17,16 @@ Cambridge, MA 02139, USA.  */
 
 /* AIX requires this to be the first thing in the file.  */
 #if defined (_AIX) && !defined (__GNUC__)
- #pragma alloca
+# pragma alloca
 #endif
 
 #ifdef	HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 /* Enable GNU extensions in glob.h.  */
 #ifndef _GNU_SOURCE
-#define	_GNU_SOURCE	1
+# define _GNU_SOURCE	1
 #endif
 
 #include <errno.h>
@@ -44,93 +44,93 @@ Cambridge, MA 02139, USA.  */
 
 #define GLOB_INTERFACE_VERSION 1
 #if !defined (_LIBC) && defined (__GNU_LIBRARY__) && __GNU_LIBRARY__ > 1
-#include <gnu-versions.h>
-#if _GNU_GLOB_INTERFACE_VERSION == GLOB_INTERFACE_VERSION
-#define ELIDE_CODE
-#endif
+# include <gnu-versions.h>
+# if _GNU_GLOB_INTERFACE_VERSION == GLOB_INTERFACE_VERSION
+#  define ELIDE_CODE
+# endif
 #endif
 
 #ifndef ELIDE_CODE
 
-#ifdef	STDC_HEADERS
-#include <stddef.h>
-#endif
+# ifdef	STDC_HEADERS
+#  include <stddef.h>
+# endif
 
-#ifdef	HAVE_UNISTD_H
-#include <unistd.h>
-#ifndef POSIX
-#ifdef	_POSIX_VERSION
-#define	POSIX
-#endif
-#endif
-#endif
+# ifdef	HAVE_UNISTD_H
+#  include <unistd.h>
+#  ifndef POSIX
+#   ifdef	_POSIX_VERSION
+#    define POSIX
+#   endif
+#  endif
+# endif
 
-#if !defined (_AMIGA) && !defined (VMS) && !defined(WIN32)
-#include <pwd.h>
-#endif
+# if !defined (_AMIGA) && !defined (VMS) && !defined(WIN32)
+#  include <pwd.h>
+# endif
 
-#if !defined(__GNU_LIBRARY__) && !defined(STDC_HEADERS)
+# if !defined(__GNU_LIBRARY__) && !defined(STDC_HEADERS)
 extern int errno;
-#endif
-
-#ifndef	NULL
-#define	NULL	0
-#endif
-
-
-#if defined (HAVE_DIRENT_H) || defined (__GNU_LIBRARY__)
-# include <dirent.h>
-# define NAMLEN(dirent) strlen((dirent)->d_name)
-#else
-# define dirent direct
-# define NAMLEN(dirent) (dirent)->d_namlen
-# ifdef HAVE_SYS_NDIR_H
-#  include <sys/ndir.h>
 # endif
-# ifdef HAVE_SYS_DIR_H
-#  include <sys/dir.h>
+
+# ifndef NULL
+#  define NULL	0
 # endif
-# ifdef HAVE_NDIR_H
-#  include <ndir.h>
+
+
+# if defined (HAVE_DIRENT_H) || defined (__GNU_LIBRARY__)
+#  include <dirent.h>
+#  define NAMLEN(dirent) strlen((dirent)->d_name)
+# else
+#  define dirent direct
+#  define NAMLEN(dirent) (dirent)->d_namlen
+#  ifdef HAVE_SYS_NDIR_H
+#   include <sys/ndir.h>
+#  endif
+#  ifdef HAVE_SYS_DIR_H
+#   include <sys/dir.h>
+#  endif
+#  ifdef HAVE_NDIR_H
+#   include <ndir.h>
+#  endif
+#  ifdef HAVE_VMSDIR_H
+#   include "vmsdir.h"
+#  endif /* HAVE_VMSDIR_H */
 # endif
-# ifdef HAVE_VMSDIR_H
-#  include "vmsdir.h"
-# endif /* HAVE_VMSDIR_H */
-#endif
 
 
 /* In GNU systems, <dirent.h> defines this macro for us.  */
-#ifdef _D_NAMLEN
-#undef NAMLEN
-#define NAMLEN(d) _D_NAMLEN(d)
-#endif
+# ifdef _D_NAMLEN
+#  undef NAMLEN
+#  define NAMLEN(d) _D_NAMLEN(d)
+# endif
 
 
-#if (defined (POSIX) || defined (WIN32)) && !defined (__GNU_LIBRARY__)
+# if (defined (POSIX) || defined (WIN32)) && !defined (__GNU_LIBRARY__)
 /* Posix does not require that the d_ino field be present, and some
    systems do not provide it. */
-#define REAL_DIR_ENTRY(dp) 1
-#else
-#define REAL_DIR_ENTRY(dp) (dp->d_ino != 0)
-#endif /* POSIX */
+#  define REAL_DIR_ENTRY(dp) 1
+# else
+#  define REAL_DIR_ENTRY(dp) (dp->d_ino != 0)
+# endif	/* POSIX */
 
-#if	(defined (STDC_HEADERS) || defined (__GNU_LIBRARY__))
-#include <stdlib.h>
-#include <string.h>
-#define	ANSI_STRING
-#else	/* No standard headers.  */
+# if (defined (STDC_HEADERS) || defined (__GNU_LIBRARY__))
+#  include <stdlib.h>
+#  include <string.h>
+#  define ANSI_STRING
+# else /* No standard headers.  */
 
 extern char *getenv ();
 
-#ifdef HAVE_STRING_H
-#include <string.h>
-#define	ANSI_STRING
-#else
-#include <strings.h>
-#endif
-#ifdef	HAVE_MEMORY_H
-#include <memory.h>
-#endif
+#  ifdef HAVE_STRING_H
+#   include <string.h>
+#   define ANSI_STRING
+#  else
+#   include <strings.h>
+#  endif
+#  ifdef	HAVE_MEMORY_H
+#   include <memory.h>
+#  endif
 
 extern char *malloc (), *realloc ();
 extern void free ();
@@ -138,39 +138,39 @@ extern void free ();
 extern void qsort ();
 extern void abort (), exit ();
 
-#endif	/* Standard headers.  */
+# endif	/* Standard headers.  */
 
-#ifndef	ANSI_STRING
+# ifndef ANSI_STRING
 
-#ifndef	bzero
+#  ifndef bzero
 extern void bzero ();
-#endif
-#ifndef	bcopy
+#  endif
+#  ifndef bcopy
 extern void bcopy ();
-#endif
+#  endif
 
-#define	memcpy(d, s, n)	bcopy ((s), (d), (n))
-#define	strrchr	rindex
+#  define memcpy(d, s, n)	bcopy ((s), (d), (n))
+#  define strrchr	rindex
 /* memset is only used for zero here, but let's be paranoid.  */
-#define	memset(s, better_be_zero, n) \
+#  define memset(s, better_be_zero, n) \
   ((void) ((better_be_zero) == 0 ? (bzero((s), (n)), 0) : (abort(), 0)))
-#endif	/* Not ANSI_STRING.  */
+# endif	/* Not ANSI_STRING.  */
 
-#ifndef	HAVE_STRCOLL
-#define	strcoll	strcmp
-#endif
+# ifndef HAVE_STRCOLL
+#  define strcoll	strcmp
+# endif
 
 
-#ifndef	__GNU_LIBRARY__
-#ifdef	__GNUC__
+# ifndef __GNU_LIBRARY__
+#  ifdef	__GNUC__
 __inline
-#endif
-#ifndef __SASC
-#ifdef WIN32
+#  endif
+#  ifndef __SASC
+#   ifdef WIN32
 static void *
-#else
+#   else
 static char *
-#endif
+#   endif
 my_realloc (p, n)
      char *p;
      unsigned int n;
@@ -181,73 +181,73 @@ my_realloc (p, n)
     return (char *) malloc (n);
   return (char *) realloc (p, n);
 }
-#define	realloc	my_realloc
-#endif /* __SASC */
-#endif /* __GNU_LIBRARY__ */
+
+#   define realloc	my_realloc
+#  endif /* __SASC */
+# endif	/* __GNU_LIBRARY__ */
 
 
-#if	!defined(__alloca) && !defined(__GNU_LIBRARY__)
+# if !defined(__alloca) && !defined(__GNU_LIBRARY__)
 
-#ifdef	__GNUC__
-#undef	alloca
-#define	alloca(n)	__builtin_alloca (n)
-#else	/* Not GCC.  */
-#ifdef HAVE_ALLOCA_H
-#include <alloca.h>
-#else	/* Not HAVE_ALLOCA_H.  */
-#ifndef	_AIX
-#ifdef WIN32
-#include <malloc.h>
-#else
+#  ifdef	__GNUC__
+#   undef	alloca
+#   define alloca(n)	__builtin_alloca (n)
+#  else	/* Not GCC.  */
+#   ifdef HAVE_ALLOCA_H
+#    include <alloca.h>
+#   else /* Not HAVE_ALLOCA_H.  */
+#    ifndef _AIX
+#     ifdef WIN32
+#      include <malloc.h>
+#     else
 extern char *alloca ();
-#endif /* WIN32 */
-#endif	/* Not _AIX.  */
-#endif	/* sparc or HAVE_ALLOCA_H.  */
-#endif	/* GCC.  */
+#     endif /* WIN32 */
+#    endif /* Not _AIX.  */
+#   endif /* sparc or HAVE_ALLOCA_H.  */
+#  endif /* GCC.  */
 
-#define	__alloca	alloca
+#  define __alloca	alloca
 
-#endif
+# endif
 
-#ifndef __GNU_LIBRARY__
-#define __stat stat
-#ifdef STAT_MACROS_BROKEN
-#undef S_ISDIR
-#endif
-#ifndef S_ISDIR
-#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
-#endif
-#endif
+# ifndef __GNU_LIBRARY__
+#  define __stat stat
+#  ifdef STAT_MACROS_BROKEN
+#   undef S_ISDIR
+#  endif
+#  ifndef S_ISDIR
+#   define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+#  endif
+# endif
 
-#ifndef	STDC_HEADERS
-#undef	size_t
-#define	size_t	unsigned int
-#endif
+# ifndef STDC_HEADERS
+#  undef	size_t
+#  define size_t	unsigned int
+# endif
 
 /* Some system header files erroneously define these.
    We want our own definitions from <fnmatch.h> to take precedence.  */
-#undef	FNM_PATHNAME
-#undef	FNM_NOESCAPE
-#undef	FNM_PERIOD
-#include <fnmatch.h>
+# undef	FNM_PATHNAME
+# undef	FNM_NOESCAPE
+# undef	FNM_PERIOD
+# include <fnmatch.h>
 
 /* Some system header files erroneously define these.
    We want our own definitions from <glob.h> to take precedence.  */
-#undef	GLOB_ERR
-#undef	GLOB_MARK
-#undef	GLOB_NOSORT
-#undef	GLOB_DOOFFS
-#undef	GLOB_NOCHECK
-#undef	GLOB_APPEND
-#undef	GLOB_NOESCAPE
-#undef	GLOB_PERIOD
-#include <glob.h>
+# undef	GLOB_ERR
+# undef	GLOB_MARK
+# undef	GLOB_NOSORT
+# undef	GLOB_DOOFFS
+# undef	GLOB_NOCHECK
+# undef	GLOB_APPEND
+# undef	GLOB_NOESCAPE
+# undef	GLOB_PERIOD
+# include <glob.h>
 
 static int glob_pattern_p (const char *pattern, int quote);
 static int glob_in_dir (const char *pattern, const char *directory,
 			int flags,
-			int (*errfunc) (const char *, int),
-			glob_t *pglob);
+			int (*errfunc) (const char *, int), glob_t * pglob);
 static int prefix_array (const char *prefix, char **array, size_t n);
 static int collated_compare (const __ptr_t, const __ptr_t);
 
@@ -308,7 +308,7 @@ glob (pattern, flags, errfunc, pglob)
 		    break;
 		  continue;
 		case '\0':
-		  return glob (pattern, flags &~ GLOB_BRACE, errfunc, pglob);
+		  return glob (pattern, flags & ~GLOB_BRACE, errfunc, pglob);
 		}
 	      break;
 	    }
@@ -325,7 +325,7 @@ glob (pattern, flags, errfunc, pglob)
 	  if (!(flags & GLOB_APPEND))
 	    {
 	      /* This call is to set a new vector, so clear out the
-		 vector so we can append to it.  */
+	         vector so we can append to it.  */
 	      pglob->gl_pathc = 0;
 	      pglob->gl_pathv = NULL;
 	    }
@@ -337,12 +337,12 @@ glob (pattern, flags, errfunc, pglob)
 	  while (1)
 	    {
 	      /* Construct a whole name that is one of the brace
-		 alternatives in a temporary buffer.  */
+	         alternatives in a temporary buffer.  */
 	      int result;
 	      size_t bufsz = (begin - pattern) + (next - 1 - p) + restlen;
-#ifdef __GNUC__
+# ifdef __GNUC__
 	      char onealt[bufsz];
-#else
+# else
 	      char *onealt = malloc (bufsz);
 	      if (onealt == NULL)
 		{
@@ -350,17 +350,17 @@ glob (pattern, flags, errfunc, pglob)
 		    globfree (pglob);
 		  return GLOB_NOSPACE;
 		}
-#endif
+# endif
 	      memcpy (onealt, pattern, begin - pattern);
 	      memcpy (&onealt[begin - pattern], p, next - 1 - p);
 	      memcpy (&onealt[(begin - pattern) + (next - 1 - p)],
 		      end, restlen);
 	      result = glob (onealt,
-			     ((flags & ~(GLOB_NOCHECK|GLOB_NOMAGIC)) |
+			     ((flags & ~(GLOB_NOCHECK | GLOB_NOMAGIC)) |
 			      GLOB_APPEND), errfunc, pglob);
-#ifndef __GNUC__
+# ifndef __GNUC__
 	      free (onealt);
-#endif
+# endif
 
 	      /* If we got an error, return it.  */
 	      if (result && result != GLOB_NOMATCH)
@@ -396,7 +396,7 @@ glob (pattern, flags, errfunc, pglob)
 	    }
 
 	  if (pglob->gl_pathc == firstc &&
-	      !(flags & (GLOB_NOCHECK|GLOB_NOMAGIC)))
+	      !(flags & (GLOB_NOCHECK | GLOB_NOMAGIC)))
 	    return GLOB_NOMATCH;
 	}
     }
@@ -406,11 +406,11 @@ glob (pattern, flags, errfunc, pglob)
   if (filename == NULL)
     {
       filename = pattern;
-#ifdef _AMIGA
+# ifdef _AMIGA
       dirname = (char *) "";
-#else
+# else
       dirname = (char *) ".";
-#endif
+# endif
       dirlen = 0;
     }
   else if (filename == pattern)
@@ -434,7 +434,8 @@ glob (pattern, flags, errfunc, pglob)
     {
       int val = glob (dirname, flags | GLOB_MARK, errfunc, pglob);
       if (val == 0)
-	pglob->gl_flags = (pglob->gl_flags & ~GLOB_MARK) | (flags & GLOB_MARK);
+	pglob->gl_flags =
+	  (pglob->gl_flags & ~GLOB_MARK) | (flags & GLOB_MARK);
       return val;
     }
 
@@ -446,21 +447,21 @@ glob (pattern, flags, errfunc, pglob)
 
   oldcount = pglob->gl_pathc;
 
-#ifndef VMS
+# ifndef VMS
   if ((flags & GLOB_TILDE) && dirname[0] == '~')
     {
       if (dirname[1] == '\0')
 	{
 	  /* Look up home directory.  */
 	  dirname = getenv ("HOME");
-#ifdef _AMIGA
+#  ifdef _AMIGA
 	  if (dirname == NULL || dirname[0] == '\0')
 	    dirname = "SYS:";
-#else
-#ifdef WIN32
+#  else
+#   ifdef WIN32
 	  if (dirname == NULL || dirname[0] == '\0')
-            dirname = "c:/users/default"; /* poor default */
-#else
+	    dirname = "c:/users/default";	/* poor default */
+#   else
 	  if (dirname == NULL || dirname[0] == '\0')
 	    {
 	      extern char *getlogin (void);
@@ -473,53 +474,52 @@ glob (pattern, flags, errfunc, pglob)
 		}
 	    }
 	  if (dirname == NULL || dirname[0] == '\0')
-	    dirname = (char *) "~"; /* No luck.  */
-#endif /* WIN32 */
-#endif
+	    dirname = (char *) "~";	/* No luck.  */
+#   endif /* WIN32 */
+#  endif
 	}
       else
 	{
-#ifdef _AMIGA
+#  ifdef _AMIGA
 	  if (dirname == NULL || dirname[0] == '\0')
 	    dirname = "SYS:";
-#else
-#ifdef WIN32
+#  else
+#   ifdef WIN32
 	  if (dirname == NULL || dirname[0] == '\0')
-            dirname = "c:/users/default"; /* poor default */
-#else
+	    dirname = "c:/users/default";	/* poor default */
+#   else
 	  /* Look up specific user's home directory.  */
 	  struct passwd *p = getpwnam (dirname + 1);
 	  if (p != NULL)
 	    dirname = p->pw_dir;
-#endif /* WIN32 */
-#endif
+#   endif /* WIN32 */
+#  endif
 	}
     }
-#endif	/* Not VMS.  */
+# endif	/* Not VMS.  */
 
   if (glob_pattern_p (dirname, !(flags & GLOB_NOESCAPE)))
     {
       /* The directory name contains metacharacters, so we
-	 have to glob for the directory, and then glob for
-	 the pattern in each directory found.  */
+         have to glob for the directory, and then glob for
+         the pattern in each directory found.  */
       glob_t dirs;
       register int i;
 
       status = glob (dirname,
 		     ((flags & (GLOB_ERR | GLOB_NOCHECK | GLOB_NOESCAPE)) |
-		      GLOB_NOSORT),
-		     errfunc, &dirs);
+		      GLOB_NOSORT), errfunc, &dirs);
       if (status != 0)
 	return status;
 
       /* We have successfully globbed the preceding directory name.
-	 For each name we found, call glob_in_dir on it and FILENAME,
-	 appending the results to PGLOB.  */
+         For each name we found, call glob_in_dir on it and FILENAME,
+         appending the results to PGLOB.  */
       for (i = 0; i < dirs.gl_pathc; ++i)
 	{
 	  int oldcount;
 
-#ifdef	SHELL
+# ifdef	SHELL
 	  {
 	    /* Make globbing interruptible in the bash shell. */
 	    extern int interrupt_state;
@@ -531,7 +531,7 @@ glob (pattern, flags, errfunc, pglob)
 		return GLOB_ABEND;
 	      }
 	  }
-#endif /* SHELL.  */
+# endif	/* SHELL.  */
 
 	  oldcount = pglob->gl_pathc;
 	  status = glob_in_dir (filename, dirs.gl_pathv[i],
@@ -576,8 +576,7 @@ glob (pattern, flags, errfunc, pglob)
 				   (pglob->gl_pathc +
 				    ((flags & GLOB_DOOFFS) ?
 				     pglob->gl_offs : 0) +
-				    1 + 1) *
-				   sizeof (char *));
+				    1 + 1) * sizeof (char *));
 	    if (pglob->gl_pathv == NULL)
 	      {
 		free (patcopy);
@@ -622,12 +621,11 @@ glob (pattern, flags, errfunc, pglob)
       for (i = oldcount; i < pglob->gl_pathc; ++i)
 	if (((flags & GLOB_ALTDIRFUNC) ?
 	     (*pglob->gl_stat) (pglob->gl_pathv[i], &st) :
-	     __stat (pglob->gl_pathv[i], &st)) == 0 &&
-	    S_ISDIR (st.st_mode))
+	     __stat (pglob->gl_pathv[i], &st)) == 0 && S_ISDIR (st.st_mode))
 	  {
- 	    size_t len = strlen (pglob->gl_pathv[i]) + 2;
+	    size_t len = strlen (pglob->gl_pathv[i]) + 2;
 	    char *new = realloc (pglob->gl_pathv[i], len);
- 	    if (new == NULL)
+	    if (new == NULL)
 	      {
 		globfree (pglob);
 		return GLOB_NOSPACE;
@@ -639,9 +637,8 @@ glob (pattern, flags, errfunc, pglob)
 
   if (!(flags & GLOB_NOSORT))
     /* Sort the vector.  */
-    qsort ((__ptr_t) &pglob->gl_pathv[oldcount],
-	   pglob->gl_pathc - oldcount,
-	   sizeof (char *), collated_compare);
+    qsort ((__ptr_t) & pglob->gl_pathv[oldcount],
+	   pglob->gl_pathc - oldcount, sizeof (char *), collated_compare);
 
   return 0;
 }
@@ -669,8 +666,8 @@ collated_compare (a, b)
      const __ptr_t a;
      const __ptr_t b;
 {
-  const char *const s1 = *(const char *const * const) a;
-  const char *const s2 = *(const char *const * const) b;
+  const char *const s1 = *(const char *const *const) a;
+  const char *const s2 = *(const char *const *const) b;
 
   if (s1 == s2)
     return 0;
@@ -773,10 +770,10 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
   __ptr_t stream;
 
   struct globlink
-    {
-      struct globlink *next;
-      char *name;
-    };
+  {
+    struct globlink *next;
+    char *name;
+  };
   struct globlink *names = NULL;
   size_t nfound = 0;
 
@@ -808,7 +805,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 				readdir ((DIR *) stream));
 	    if (d == NULL)
 	      break;
-	    if (! REAL_DIR_ENTRY (d))
+	    if (!REAL_DIR_ENTRY (d))
 	      continue;
 
 	    name = d->d_name;
@@ -816,16 +813,15 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
 	    if (fnmatch (pattern, name,
 			 (!(flags & GLOB_PERIOD) ? FNM_PERIOD : 0) |
 			 ((flags & GLOB_NOESCAPE) ? FNM_NOESCAPE : 0)
-#ifdef _AMIGA
+# ifdef _AMIGA
 			 | FNM_CASEFOLD
-#endif
-			 ) == 0)
+# endif
+		) == 0)
 	      {
 		struct globlink *new
 		  = (struct globlink *) __alloca (sizeof (struct globlink));
 		len = NAMLEN (d);
-		new->name
-		  = (char *) malloc (len + 1);
+		new->name = (char *) malloc (len + 1);
 		if (new->name == NULL)
 		  goto memory_error;
 		memcpy ((__ptr_t) new->name, name, len);
@@ -838,7 +834,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
     }
 
   if (nfound == 0 && (flags & GLOB_NOMAGIC) &&
-      ! glob_pattern_p (pattern, !(flags & GLOB_NOESCAPE)))
+      !glob_pattern_p (pattern, !(flags & GLOB_NOESCAPE)))
     flags |= GLOB_NOCHECK;
 
   if (nfound == 0 && (flags & GLOB_NOCHECK))
@@ -858,8 +854,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
     = (char **) realloc (pglob->gl_pathv,
 			 (pglob->gl_pathc +
 			  ((flags & GLOB_DOOFFS) ? pglob->gl_offs : 0) +
-			  nfound + 1) *
-			 sizeof (char *));
+			  nfound + 1) * sizeof (char *));
   if (pglob->gl_pathv == NULL)
     goto memory_error;
 
@@ -884,7 +879,7 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
     }
   return nfound == 0 ? GLOB_NOMATCH : 0;
 
- memory_error:
+memory_error:
   {
     int save = errno;
     if (flags & GLOB_ALTDIRFUNC)
@@ -902,5 +897,4 @@ glob_in_dir (pattern, directory, flags, errfunc, pglob)
   return GLOB_NOSPACE;
 }
 
-#endif	/* Not ELIDE_CODE.  */
-
+#endif /* Not ELIDE_CODE.  */

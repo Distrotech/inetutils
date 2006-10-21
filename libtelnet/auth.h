@@ -49,31 +49,32 @@
  * or implied warranty.
  */
 
-#ifndef	__AUTH__
-#define	__AUTH__
+#ifndef __AUTH__
+# define __AUTH__
 
-#define	AUTH_REJECT	0	/* Rejected */
-#define	AUTH_UNKNOWN	1	/* We don't know who he is, but he's okay */
-#define	AUTH_OTHER	2	/* We know him, but not his name */
-#define	AUTH_USER	3	/* We know he name */
-#define	AUTH_VALID	4	/* We know him, and he needs no password */
+# define AUTH_REJECT	0	/* Rejected */
+# define AUTH_UNKNOWN	1	/* We don't know who he is, but he's okay */
+# define AUTH_OTHER	2	/* We know him, but not his name */
+# define AUTH_USER	3	/* We know he name */
+# define AUTH_VALID	4	/* We know him, and he needs no password */
 
-typedef struct XauthP {
-	int	type;
-	int	way;
-	int	(*init) (struct XauthP *, int);
-	int	(*send) (struct XauthP *);
-	void	(*is) (struct XauthP *, unsigned char *, int);
-	void	(*reply) (struct XauthP *, unsigned char *, int);
-	int	(*status) (struct XauthP *, char *, int);
-	void	(*printsub) (unsigned char *, int, unsigned char *, int);
-	void	(*cleanup) (struct XauthP *);
+typedef struct XauthP
+{
+  int type;
+  int way;
+  int (*init) (struct XauthP *, int);
+  int (*send) (struct XauthP *);
+  void (*is) (struct XauthP *, unsigned char *, int);
+  void (*reply) (struct XauthP *, unsigned char *, int);
+  int (*status) (struct XauthP *, char *, int);
+  void (*printsub) (unsigned char *, int, unsigned char *, int);
+  void (*cleanup) (struct XauthP *);
 } TN_Authenticator;
 
-#include "auth-proto.h"
+# include "auth-proto.h"
 
-#define OPTS_FORWARD_CREDS           0x00000002
-#define OPTS_FORWARDABLE_CREDS       0x00000001
+# define OPTS_FORWARD_CREDS           0x00000002
+# define OPTS_FORWARDABLE_CREDS       0x00000001
 
 extern auth_debug_mode;
 #endif

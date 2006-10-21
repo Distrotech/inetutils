@@ -22,47 +22,47 @@ Boston, MA 02111-1307, USA. */
    kerberos5.c from GNU InetUtils. */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifdef SHISHI
-#include <stdlib.h>
-#include <stdio.h>
-#include <arpa/telnet.h>
-#include <shishi.h>
-#include <assert.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <arpa/telnet.h>
+# include <shishi.h>
+# include <assert.h>
 
-#include <netdb.h>
-#include <ctype.h>
-#include <syslog.h>
-#ifdef  HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+# include <netdb.h>
+# include <ctype.h>
+# include <syslog.h>
+# ifdef  HAVE_STRING_H
+#  include <string.h>
+# else
+#  include <strings.h>
+# endif
 
-#include "auth.h"
-#include "misc.h"
+# include "auth.h"
+# include "misc.h"
 
-#ifdef  ENCRYPTION
-#include "encrypt.h"
-#endif
+# ifdef  ENCRYPTION
+#  include "encrypt.h"
+# endif
 
-Shishi_key  *enckey = NULL;
+Shishi_key *enckey = NULL;
 
 static unsigned char str_data[2048] = { IAC, SB, TELOPT_AUTHENTICATION, 0,
   AUTHTYPE_KERBEROS_V5,
 };
 
-#define KRB_AUTH             0	/* Authentication data follows */
-#define KRB_REJECT           1	/* Rejected (reason might follow) */
-#define KRB_ACCEPT           2	/* Accepted */
-#define KRB_RESPONSE         3	/* Response for mutual auth. */
+# define KRB_AUTH             0	/* Authentication data follows */
+# define KRB_REJECT           1	/* Rejected (reason might follow) */
+# define KRB_ACCEPT           2	/* Accepted */
+# define KRB_RESPONSE         3	/* Response for mutual auth. */
 
 Shishi *shishi_handle = 0;
 Shishi_ap *auth_handle;
 
-#define DEBUG(c) if (auth_debug_mode) printf c
+# define DEBUG(c) if (auth_debug_mode) printf c
 
 static int
 Data (TN_Authenticator * ap, int type, unsigned char *d, int c)
@@ -98,7 +98,7 @@ Data (TN_Authenticator * ap, int type, unsigned char *d, int c)
   return (net_write (str_data, p - str_data));
 }
 
-Shishi * shishi_telnet = NULL;
+Shishi *shishi_telnet = NULL;
 
 /* FIXME: Reverse return code! */
 int
@@ -169,14 +169,14 @@ krb5shishi_send (TN_Authenticator * ap)
   else
     ap_opts = 0;
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   ap_opts |= SHISHI_APOPTIONS_USE_SESSION_KEY;
-#endif	/* ENCRYPTION */
+# endif	/* ENCRYPTION */
 
   type_check[0] = ap->type;
   type_check[1] = ap->way;
 
-#ifndef DONT_ALWAYS_USE_DES
+# ifndef DONT_ALWAYS_USE_DES
   /* Even if we are not using a DES key, we can still try a DES
      session-key.  Then we can support DES_?FB64 encryption with 3DES
      or AES keys against non-RFC 2952 implementations.  Of course, it
@@ -190,7 +190,7 @@ krb5shishi_send (TN_Authenticator * ap)
 					 tkt, ap_opts,
 					 (char *) &type_check, 2);
   else
-#endif
+# endif
     rc = shishi_ap_tktoptionsdata (shishi_handle, &auth_handle,
 				   tkt, ap_opts, (char *) &type_check, 2);
   if (rc != SHISHI_OK)
@@ -200,7 +200,7 @@ krb5shishi_send (TN_Authenticator * ap)
       return 0;
     }
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   if (enckey)
     {
       shishi_key_done (enckey);
@@ -215,7 +215,7 @@ krb5shishi_send (TN_Authenticator * ap)
 	      shishi_strerror (rc)));
       return 0;
     }
-#endif
+# endif
 
   rc = shishi_ap_req_der (auth_handle, &apreq, &apreq_len);
   if (rc != SHISHI_OK)
@@ -229,8 +229,7 @@ krb5shishi_send (TN_Authenticator * ap)
     {
       shishi_authenticator_print (shishi_handle, stdout,
 				  shishi_ap_authenticator (auth_handle));
-      shishi_apreq_print (shishi_handle, stdout,
-			  shishi_ap_req (auth_handle));
+      shishi_apreq_print (shishi_handle, stdout, shishi_ap_req (auth_handle));
     }
 
   if (!auth_sendname (UserNameRequested, strlen (UserNameRequested)))
@@ -250,15 +249,14 @@ krb5shishi_send (TN_Authenticator * ap)
   return 1;
 }
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
 void
 shishi_init_key (Session_Key * skey, int type)
 {
   int32_t etype = shishi_key_type (enckey);
 
   if (etype == SHISHI_DES_CBC_CRC ||
-      etype == SHISHI_DES_CBC_MD4 ||
-      etype == SHISHI_DES_CBC_MD5)
+      etype == SHISHI_DES_CBC_MD4 || etype == SHISHI_DES_CBC_MD5)
     skey->type = SK_DES;
   else
     skey->type = SK_OTHER;
@@ -267,15 +265,15 @@ shishi_init_key (Session_Key * skey, int type)
 
   encrypt_session_key (skey, type);
 }
-#endif
+# endif
 
 void
 krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 {
   static int mutual_complete = 0;
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   Session_Key skey;
-#endif
+# endif
 
   if (cnt-- < 1)
     return;
@@ -301,9 +299,9 @@ krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 	      auth_send_retry ();
 	      break;
 	    }
-#ifdef ENCRYPTION	  
+# ifdef ENCRYPTION
 	  shishi_init_key (&skey, 0);
-#endif
+# endif
 	}
 
       if (cnt)
@@ -334,16 +332,16 @@ krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 					 (auth_handle));
 	    }
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
 	  shishi_init_key (&skey, 0);
-#endif
+# endif
 	  mutual_complete = 1;
 	}
       break;
 
     default:
       DEBUG (("Unknown Kerberos option %d\r\n", data[-1]));
-    }  
+    }
 }
 
 int
@@ -353,14 +351,14 @@ krb5shishi_status (TN_Authenticator * ap, char *name, int level)
   int cnamelen;
   int rc;
   int status;
-  
+
   if (level < AUTH_USER)
     return level;
 
   rc = shishi_encticketpart_client
-                   (shishi_handle,
-		    shishi_tkt_encticketpart (shishi_ap_tkt (auth_handle)),
-		    &cname, &cnamelen);
+    (shishi_handle,
+     shishi_tkt_encticketpart (shishi_ap_tkt (auth_handle)),
+     &cname, &cnamelen);
 
   if (UserNameRequested
       && rc == SHISHI_OK
@@ -385,9 +383,9 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
   int rc;
   char *cnamerealm;
   int cnamerealmlen;
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   Session_Key skey;
-#endif
+# endif
 
   rc = shishi_ap (shishi_handle, &auth_handle);
   if (rc != SHISHI_OK)
@@ -442,8 +440,9 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
     }
 
   rc = shishi_encticketpart_crealm (shishi_handle,
-		    shishi_tkt_encticketpart (shishi_ap_tkt (auth_handle)),
-					    &cnamerealm, &cnamerealmlen);
+				    shishi_tkt_encticketpart (shishi_ap_tkt
+							      (auth_handle)),
+				    &cnamerealm, &cnamerealmlen);
   if (rc != SHISHI_OK)
     {
       snprintf (errbuf, errbuflen, "Error getting authenticator name: %s\n",
@@ -456,7 +455,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
   free (cnamerealm);
   auth_finished (a, AUTH_USER);
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   if (enckey)
     {
       shishi_key_done (enckey);
@@ -468,7 +467,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 					&enckey);
   if (rc != SHISHI_OK)
     {
-      Shishi_tkt * tkt;
+      Shishi_tkt *tkt;
 
       tkt = shishi_ap_tkt (auth_handle);
       if (tkt)
@@ -492,7 +491,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
     }
 
   shishi_init_key (&skey, 1);
-#endif
+# endif
 
   return 0;
 }
@@ -551,7 +550,7 @@ req_type_str (int type)
   return NULL;
 }
 
-#define ADDC(p,l,c) if ((l) > 0) {*(p)++ = (c); --(l);}
+# define ADDC(p,l,c) if ((l) > 0) {*(p)++ = (c); --(l);}
 
 void
 krb5shishi_printsub (unsigned char *data, int cnt,

@@ -70,12 +70,12 @@ void encrypt_send_support (void);
 void encrypt_send_keyid (int, unsigned char *, int, int);
 int net_write (unsigned char *, int);
 
-#ifdef	TELENTD
+# ifdef	TELENTD
 void encrypt_wait (void);
-#else
+# else
 int encrypt_cmd (int, char **);
 void encrypt_display (void);
-#endif
+# endif
 
 void krbdes_encrypt (unsigned char *, int);
 int krbdes_decrypt (int);
@@ -106,9 +106,9 @@ void ofb64_session (Session_Key *, int);
 int ofb64_keyid (int, unsigned char *, int *);
 void ofb64_printsub (unsigned char *, int, unsigned char *, int);
 
-int  des_new_random_key (Block);
+int des_new_random_key (Block);
 void des_set_random_generator_seed (Block);
 void des_key_sched (Block, Schedule);
 void des_ecb_encrypt (Block, Block, Schedule, int);
-int  des_string_to_key (char *, Block);
-#endif	/* ENCRYPTION */
+int des_string_to_key (char *, Block);
+#endif /* ENCRYPTION */

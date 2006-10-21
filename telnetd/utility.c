@@ -34,13 +34,13 @@
 # define NET_ENCRYPT()
 #endif
 
-static char netobuf[BUFSIZ+NETSLOP], *nfrontp, *nbackp;
-static char *neturg;    /* one past last byte of urgent data */
+static char netobuf[BUFSIZ + NETSLOP], *nfrontp, *nbackp;
+static char *neturg;		/* one past last byte of urgent data */
 #ifdef  ENCRYPTION
 static char *nclearto;
 #endif
 
-static char ptyobuf[BUFSIZ+NETSLOP], *pfrontp, *pbackp;
+static char ptyobuf[BUFSIZ + NETSLOP], *pfrontp, *pbackp;
 
 static char netibuf[BUFSIZ], *netip;
 static int ncc;
@@ -64,32 +64,32 @@ readstream (int p, char *ibuf, int bufsize)
   char vstop, vstart;
   int ixon;
   int newflow;
-  struct  strbuf strbufc, strbufd;
+  struct strbuf strbufc, strbufd;
   unsigned char ctlbuf[BUFSIZ];
-  static int flowstate = -1; 
+  static int flowstate = -1;
 
   strbufc.maxlen = BUFSIZ;
-  strbufc.buf = (char *)ctlbuf;
-  strbufd.maxlen = bufsize-1;
+  strbufc.buf = (char *) ctlbuf;
+  strbufd.maxlen = bufsize - 1;
   strbufd.len = 0;
-  strbufd.buf = ibuf+1;
+  strbufd.buf = ibuf + 1;
   ibuf[0] = 0;
 
-  ret = getmsg(p, &strbufc, &strbufd, &flags);
-  if (ret < 0)  /* error of some sort -- probably EAGAIN */
+  ret = getmsg (p, &strbufc, &strbufd, &flags);
+  if (ret < 0)			/* error of some sort -- probably EAGAIN */
     return -1;
 
   if (strbufc.len <= 0 || ctlbuf[0] == M_DATA)
     {
       /* data message */
-      if (strbufd.len > 0) /* real data */
-        return strbufd.len + 1;        /* count header char */
+      if (strbufd.len > 0)	/* real data */
+	return strbufd.len + 1;	/* count header char */
       else
-        {
-          /* nothing there */
-          errno = EAGAIN;
-          return -1;
-        }
+	{
+	  /* nothing there */
+	  errno = EAGAIN;
+	  return -1;
+	}
     }
 
   /*
@@ -100,44 +100,44 @@ readstream (int p, char *ibuf, int bufsize)
     {
     case M_FLUSH:
       if (ibuf[1] & FLUSHW)
-        ibuf[0] = TIOCPKT_FLUSHWRITE;
+	ibuf[0] = TIOCPKT_FLUSHWRITE;
       return 1;
 
     case M_IOCTL:
-      ip = (struct iocblk *) (ibuf+1);
+      ip = (struct iocblk *) (ibuf + 1);
 
       switch (ip->ioc_cmd)
-        {
-        case TCSETS:
-        case TCSETSW:
-        case TCSETSF:
-          tsp = (struct termios *) (ibuf + 1 + sizeof(struct iocblk));
-          vstop = tsp->c_cc[VSTOP];
-          vstart = tsp->c_cc[VSTART];
-          ixon = tsp->c_iflag & IXON;
-          break;
+	{
+	case TCSETS:
+	case TCSETSW:
+	case TCSETSF:
+	  tsp = (struct termios *) (ibuf + 1 + sizeof (struct iocblk));
+	  vstop = tsp->c_cc[VSTOP];
+	  vstart = tsp->c_cc[VSTART];
+	  ixon = tsp->c_iflag & IXON;
+	  break;
 
-        case TCSETA:
-        case TCSETAW:
-        case TCSETAF:
-          tp = (struct termio *) (ibuf + 1 + sizeof(struct iocblk));
-          vstop = tp->c_cc[VSTOP];
-          vstart = tp->c_cc[VSTART];
-          ixon = tp->c_iflag & IXON;
-          break;
+	case TCSETA:
+	case TCSETAW:
+	case TCSETAF:
+	  tp = (struct termio *) (ibuf + 1 + sizeof (struct iocblk));
+	  vstop = tp->c_cc[VSTOP];
+	  vstart = tp->c_cc[VSTART];
+	  ixon = tp->c_iflag & IXON;
+	  break;
 
-        default:
-          errno = EAGAIN;
-          return -1;
-        }
+	default:
+	  errno = EAGAIN;
+	  return -1;
+	}
 
-      newflow =  (ixon && (vstart == 021) && (vstop == 023)) ? 1 : 0;
-      if (newflow != flowstate)  /* it's a change */
-        {
-          flowstate = newflow;
-          ibuf[0] = newflow ? TIOCPKT_DOSTOP : TIOCPKT_NOSTOP;
-          return 1;
-        }
+      newflow = (ixon && (vstart == 021) && (vstop == 023)) ? 1 : 0;
+      if (newflow != flowstate)	/* it's a change */
+	{
+	  flowstate = newflow;
+	  ibuf[0] = newflow ? TIOCPKT_DOSTOP : TIOCPKT_NOSTOP;
+	  return 1;
+	}
     }
 
   /* nothing worth doing anything about */
@@ -156,7 +156,7 @@ io_setup ()
   nfrontp = nbackp = netobuf;
 #ifdef  ENCRYPTION
   nclearto = 0;
-#endif 
+#endif
   netip = netibuf;
   ptyip = ptyibuf;
 }
@@ -176,7 +176,7 @@ net_output_byte (int c)
 }
 
 int
-net_output_data (const char *format,...)
+net_output_data (const char *format, ...)
 {
   va_list args;
   size_t remaining, ret;
@@ -252,15 +252,14 @@ net_read ()
   else if (ncc == 0)
     {
       syslog (LOG_INFO, "telnetd:  peer died");
-      cleanup(0);
+      cleanup (0);
     }
   else if (ncc > 0)
     {
       netip = netibuf;
-      DEBUG(debug_report,1,
-	    debug_output_data ("td: netread %d chars\r\n", ncc));
-      DEBUG(debug_net_data,1,	  
-	    printdata("nd", netip, ncc));
+      DEBUG (debug_report, 1,
+	     debug_output_data ("td: netread %d chars\r\n", ncc));
+      DEBUG (debug_net_data, 1, printdata ("nd", netip, ncc));
     }
   return ncc;
 }
@@ -278,7 +277,7 @@ pty_output_byte (int c)
 {
   *pfrontp++ = c;
 }
-	     
+
 void
 pty_output_datalen (const void *data, size_t len)
 {
@@ -301,24 +300,23 @@ pty_output_level ()
 }
 
 void
-ptyflush()
+ptyflush ()
 {
   int n;
-  
+
   if ((n = pfrontp - pbackp) > 0)
     {
-      DEBUG(debug_report, 1,
-	    debug_output_data ("td: ptyflush %d chars\r\n", n));
-      DEBUG(debug_pty_data, 1,
-	    printdata("pd", pbackp, n));
-      n = write(pty, pbackp, n);
+      DEBUG (debug_report, 1,
+	     debug_output_data ("td: ptyflush %d chars\r\n", n));
+      DEBUG (debug_pty_data, 1, printdata ("pd", pbackp, n));
+      n = write (pty, pbackp, n);
     }
 
   if (n < 0)
     {
       if (errno == EWOULDBLOCK || errno == EINTR)
 	return;
-      cleanup(0);
+      cleanup (0);
     }
 
   pbackp += n;
@@ -351,19 +349,16 @@ int
 pty_read ()
 {
   pcc = readstream (pty, ptyibuf, BUFSIZ);
-  if (pcc < 0
-      && (errno == EWOULDBLOCK 
+  if (pcc < 0 && (errno == EWOULDBLOCK
 #ifdef	EAGAIN
-	  || errno == EAGAIN 
+		  || errno == EAGAIN
 #endif
-	  || errno == EIO)) 
+		  || errno == EIO))
     pcc = 0;
   ptyip = ptyibuf;
 
-  DEBUG(debug_report,1,
-	debug_output_data ("ptyread %d chars\r\n", pcc));
-  DEBUG(debug_pty_data,1,	  
-	printdata("pty", ptyip, pcc));
+  DEBUG (debug_report, 1, debug_output_data ("ptyread %d chars\r\n", pcc));
+  DEBUG (debug_pty_data, 1, printdata ("pty", ptyip, pcc));
   return pcc;
 }
 
@@ -382,11 +377,11 @@ pty_read ()
 void
 io_drain ()
 {
-  DEBUG(debug_report, 1, debug_output_data("td: ttloop\r\n"));
-  if (nfrontp - nbackp > 0) 
+  DEBUG (debug_report, 1, debug_output_data ("td: ttloop\r\n"));
+  if (nfrontp - nbackp > 0)
     netflush ();
 
- again:
+again:
   ncc = read (net, netibuf, sizeof netibuf);
   if (ncc < 0)
     {
@@ -403,8 +398,8 @@ io_drain ()
       syslog (LOG_INFO, "ttloop:  peer died: %m\n");
       exit (1);
     }
-  DEBUG(debug_report, 1,
-	debug_output_data ("td: ttloop read %d chars\r\n", ncc));
+  DEBUG (debug_report, 1,
+	 debug_output_data ("td: ttloop read %d chars\r\n", ncc));
   netip = netibuf;
   telrcv ();			/* state machine */
   if (ncc > 0)
@@ -412,7 +407,7 @@ io_drain ()
       pfrontp = pbackp = ptyobuf;
       telrcv ();
     }
-}  /* end of ttloop */
+}				/* end of ttloop */
 
 /*
  * Check a descriptor to see if out of band data exists on it.
@@ -429,7 +424,7 @@ stilloob (int s)
     {
       FD_ZERO (&excepts);
       FD_SET (s, &excepts);
-      value = select (s+1, (fd_set *)0, (fd_set *)0, &excepts, &timeout);
+      value = select (s + 1, (fd_set *) 0, (fd_set *) 0, &excepts, &timeout);
     }
   while (value == -1 && errno == EINTR);
 
@@ -452,31 +447,30 @@ stilloob (int s)
 char *
 nextitem (char *current)
 {
-  if ((*current&0xff) != IAC) 
-    return current+1;
+  if ((*current & 0xff) != IAC)
+    return current + 1;
 
-  switch (*(current+1)&0xff)
+  switch (*(current + 1) & 0xff)
     {
     case DO:
     case DONT:
     case WILL:
     case WONT:
-	return current+3;
-	
-    case SB:		/* loop forever looking for the SE */
-      {
-	register char *look = current+2;
+      return current + 3;
 
-	for (;;) 
-	  if ((*look++&0xff) == IAC
-	      && (*look++&0xff) == SE) 
+    case SB:			/* loop forever looking for the SE */
+      {
+	register char *look = current + 2;
+
+	for (;;)
+	  if ((*look++ & 0xff) == IAC && (*look++ & 0xff) == SE)
 	    return look;
-	
-      default:
-	return current+2;
+
+    default:
+	return current + 2;
       }
     }
-}  /* end of nextitem */
+}				/* end of nextitem */
 
 
 /*
@@ -495,7 +489,7 @@ nextitem (char *current)
  * caller should be setting the urgent data pointer AFTER calling
  * us in any case.
  */
-#define	wewant(p) \
+#define wewant(p) \
   ((nfrontp > p) && ((*p&0xff) == IAC) && \
    ((*(p+1)&0xff) != EC) && ((*(p+1)&0xff) != EL))
 
@@ -505,12 +499,12 @@ netclear ()
 {
   register char *thisitem, *next;
   char *good;
-  
+
 #ifdef	ENCRYPTION
   thisitem = nclearto > netobuf ? nclearto : netobuf;
-#else	/* ENCRYPTION */
+#else /* ENCRYPTION */
   thisitem = netobuf;
-#endif	/* ENCRYPTION */
+#endif /* ENCRYPTION */
 
   while ((next = nextitem (thisitem)) <= nbackp)
     thisitem = next;
@@ -519,9 +513,9 @@ netclear ()
 
 #ifdef	ENCRYPTION
   good = nclearto > netobuf ? nclearto : netobuf;
-#else	/* ENCRYPTION */
-  good = netobuf;	/* where the good bytes go */
-#endif	/* ENCRYPTION */
+#else /* ENCRYPTION */
+  good = netobuf;		/* where the good bytes go */
+#endif /* ENCRYPTION */
 
   while (nfrontp > thisitem)
     {
@@ -530,7 +524,7 @@ netclear ()
 	  int length;
 
 	  for (next = thisitem; wewant (next) && nfrontp > next;
-	       next = nextitem(next))
+	       next = nextitem (next))
 	    ;
 
 	  length = next - thisitem;
@@ -547,7 +541,7 @@ netclear ()
   nbackp = netobuf;
   nfrontp = good;		/* next byte to be sent */
   neturg = 0;
-}  /* end of netclear */
+}				/* end of netclear */
 
 /*
  *  netflush
@@ -558,7 +552,7 @@ void
 netflush ()
 {
   int n;
-  
+
   if ((n = nfrontp - nbackp) > 0)
     {
       NET_ENCRYPT ();
@@ -568,7 +562,7 @@ netflush ()
        * old 4.2 client (and thus unable to survive TCP urgent data),
        * write the entire buffer in non-OOB mode.
        */
-      if (!neturg || !not42) 
+      if (!neturg || !not42)
 	n = write (net, nbackp, n);	/* normal write */
       else
 	{
@@ -581,9 +575,9 @@ netflush ()
 	   * we really have more the TCP philosophy of urgent data
 	   * rather than the Unix philosophy of OOB data).
 	   */
-	  if (n > 1) 
-	    n = send (net, nbackp, n-1, 0);	/* send URGENT all by itself */
-	  else 
+	  if (n > 1)
+	    n = send (net, nbackp, n - 1, 0);	/* send URGENT all by itself */
+	  else
 	    n = send (net, nbackp, n, MSG_OOB);	/* URGENT data */
 	}
     }
@@ -593,12 +587,12 @@ netflush ()
 	return;
       cleanup (0);
     }
-  
+
   nbackp += n;
 #ifdef	ENCRYPTION
   if (nbackp > nclearto)
     nclearto = 0;
-#endif	/* ENCRYPTION */
+#endif /* ENCRYPTION */
   if (nbackp >= neturg)
     neturg = 0;
 
@@ -607,12 +601,11 @@ netflush ()
       nbackp = nfrontp = netobuf;
 #ifdef	ENCRYPTION
       nclearto = 0;
-#endif	/* ENCRYPTION */
+#endif /* ENCRYPTION */
     }
-  DEBUG(debug_report, 1,
-	debug_output_data ("td: netflush %d chars\r\n", n));
-  
-}  /* end of netflush */
+  DEBUG (debug_report, 1, debug_output_data ("td: netflush %d chars\r\n", n));
+
+}				/* end of netflush */
 
 /*
  * miscellaneous functions doing a variety of little jobs follow ...
@@ -634,10 +627,10 @@ fatal (int f, char *msg)
       encrypt_send_end ();
       netflush ();
     }
-#endif	/* ENCRYPTION */
-  write (f, buf, (int)strlen (buf));
-  sleep (1);	/*FIXME*/
-  exit (1);
+#endif /* ENCRYPTION */
+  write (f, buf, (int) strlen (buf));
+  sleep (1);
+   /*FIXME*/ exit (1);
 }
 
 void
@@ -652,8 +645,7 @@ fatalperror (int f, char *msg)
 /* ************************************************************************* */
 /* Terminal determination */
 
-static unsigned char ttytype_sbbuf[] =
-{
+static unsigned char ttytype_sbbuf[] = {
   IAC, SB, TELOPT_TTYPE, TELQUAL_SEND, IAC, SE
 };
 
@@ -682,7 +674,7 @@ getterminaltype (char *user_name)
    */
   send_do (TELOPT_AUTHENTICATION, 1);
   ttloop (his_will_wont_is_changing (TELOPT_AUTHENTICATION));
-  
+
   if (his_state_is_will (TELOPT_AUTHENTICATION))
     retval = auth_wait (user_name);
 #endif
@@ -698,49 +690,49 @@ getterminaltype (char *user_name)
 
 #ifdef ENCRYPTION
   ttloop (his_do_dont_is_changing (TELOPT_ENCRYPT)
-	  || his_will_wont_is_changing (TELOPT_TTYPE) 
-	  || his_will_wont_is_changing (TELOPT_TSPEED) 
-	  || his_will_wont_is_changing (TELOPT_XDISPLOC) 
-	  || his_will_wont_is_changing (TELOPT_NEW_ENVIRON) 
+	  || his_will_wont_is_changing (TELOPT_TTYPE)
+	  || his_will_wont_is_changing (TELOPT_TSPEED)
+	  || his_will_wont_is_changing (TELOPT_XDISPLOC)
+	  || his_will_wont_is_changing (TELOPT_NEW_ENVIRON)
 	  || his_will_wont_is_changing (TELOPT_OLD_ENVIRON));
 #else
-  ttloop (his_will_wont_is_changing (TELOPT_TTYPE) 
-	  || his_will_wont_is_changing (TELOPT_TSPEED) 
-	  || his_will_wont_is_changing (TELOPT_XDISPLOC) 
-	  || his_will_wont_is_changing (TELOPT_NEW_ENVIRON) 
+  ttloop (his_will_wont_is_changing (TELOPT_TTYPE)
+	  || his_will_wont_is_changing (TELOPT_TSPEED)
+	  || his_will_wont_is_changing (TELOPT_XDISPLOC)
+	  || his_will_wont_is_changing (TELOPT_NEW_ENVIRON)
 	  || his_will_wont_is_changing (TELOPT_OLD_ENVIRON));
 #endif
-  
+
 #ifdef  ENCRYPTION
-    if (his_state_is_will (TELOPT_ENCRYPT))
-      encrypt_wait ();
+  if (his_state_is_will (TELOPT_ENCRYPT))
+    encrypt_wait ();
 #endif
 
   if (his_state_is_will (TELOPT_TSPEED))
     {
       static unsigned char sb[] =
-      {IAC, SB, TELOPT_TSPEED, TELQUAL_SEND, IAC, SE};
+	{ IAC, SB, TELOPT_TSPEED, TELQUAL_SEND, IAC, SE };
 
       net_output_datalen (sb, sizeof sb);
     }
   if (his_state_is_will (TELOPT_XDISPLOC))
     {
       static unsigned char sb[] =
-      {IAC, SB, TELOPT_XDISPLOC, TELQUAL_SEND, IAC, SE};
+	{ IAC, SB, TELOPT_XDISPLOC, TELQUAL_SEND, IAC, SE };
 
       net_output_datalen (sb, sizeof sb);
     }
   if (his_state_is_will (TELOPT_NEW_ENVIRON))
     {
       static unsigned char sb[] =
-      {IAC, SB, TELOPT_NEW_ENVIRON, TELQUAL_SEND, IAC, SE};
+	{ IAC, SB, TELOPT_NEW_ENVIRON, TELQUAL_SEND, IAC, SE };
 
       net_output_datalen (sb, sizeof sb);
     }
   else if (his_state_is_will (TELOPT_OLD_ENVIRON))
     {
       static unsigned char sb[] =
-      {IAC, SB, TELOPT_OLD_ENVIRON, TELQUAL_SEND, IAC, SE};
+	{ IAC, SB, TELOPT_OLD_ENVIRON, TELQUAL_SEND, IAC, SE };
 
       net_output_datalen (sb, sizeof sb);
     }
@@ -809,7 +801,7 @@ getterminaltype (char *user_name)
 	free (last);
     }
   return retval;
-}		
+}
 
 int
 terminaltypeok (char *s)
@@ -836,10 +828,10 @@ static FILE *debug_fp = NULL;
 static int
 debug_open ()
 {
-  int um = umask(077);
+  int um = umask (077);
   if (!debug_fp)
     debug_fp = fopen ("/tmp/telnet.debug", "a");
-  umask(um);
+  umask (um);
   return debug_fp == NULL;
 }
 
@@ -856,7 +848,7 @@ debug_output_datalen (const char *data, size_t len)
 {
   if (debug_open ())
     return;
-  
+
   fwrite (data, 1, len, debug_fp);
   debug_close ();
 }
@@ -877,12 +869,12 @@ debug_output_data (const char *fmt, ...)
  * Print telnet options and commands in plain text, if possible.
  */
 void
-printoption(register char *fmt, register int option)
+printoption (register char *fmt, register int option)
 {
-  if (TELOPT_OK(option))
-    debug_output_data ("%s %s\r\n", fmt, TELOPT(option));
-  else if (TELCMD_OK(option))
-    debug_output_data ("%s %s\r\n", fmt, TELCMD(option));
+  if (TELOPT_OK (option))
+    debug_output_data ("%s %s\r\n", fmt, TELOPT (option));
+  else if (TELCMD_OK (option))
+    debug_output_data ("%s %s\r\n", fmt, TELCMD (option));
   else
     debug_output_data ("%s %d\r\n", fmt, option);
 }
@@ -891,7 +883,7 @@ printoption(register char *fmt, register int option)
 /* unsigned char *pointer;  where suboption data sits */
 /* int	length;	 length of suboption data */
 void
-printsub(int direction, unsigned char *pointer, int length)
+printsub (int direction, unsigned char *pointer, int length)
 {
   register int i;
   char buf[512];
@@ -899,27 +891,27 @@ printsub(int direction, unsigned char *pointer, int length)
   if (direction)
     {
       debug_output_data ("td: %s suboption ",
-		   direction == '<' ? "recv" : "send");
+			 direction == '<' ? "recv" : "send");
       if (length >= 3)
 	{
 	  register int j;
 
-	  i = pointer[length-2];
-	  j = pointer[length-1];
+	  i = pointer[length - 2];
+	  j = pointer[length - 1];
 
 	  if (i != IAC || j != SE)
 	    {
 	      debug_output_data ("(terminated by ");
-	      if (TELOPT_OK(i))
-		debug_output_data ("%s ", TELOPT(i));
-	      else if (TELCMD_OK(i))
-		debug_output_data ("%s ", TELCMD(i));
+	      if (TELOPT_OK (i))
+		debug_output_data ("%s ", TELOPT (i));
+	      else if (TELCMD_OK (i))
+		debug_output_data ("%s ", TELCMD (i));
 	      else
 		debug_output_data ("%d ", i);
-	      if (TELOPT_OK(j))
-		debug_output_data ("%s", TELOPT(j));
-	      else if (TELCMD_OK(j))
-		debug_output_data ("%s", TELCMD(j));
+	      if (TELOPT_OK (j))
+		debug_output_data ("%s", TELOPT (j));
+	      else if (TELCMD_OK (j))
+		debug_output_data ("%s", TELCMD (j));
 	      else
 		debug_output_data ("%d", j);
 	      debug_output_data (", not IAC SE!) ");
@@ -940,16 +932,16 @@ printsub(int direction, unsigned char *pointer, int length)
       switch (pointer[1])
 	{
 	case TELQUAL_IS:
-	  debug_output_data ("IS \"%.*s\"", length-2, (char *)pointer+2);
+	  debug_output_data ("IS \"%.*s\"", length - 2, (char *) pointer + 2);
 	  break;
-	  
+
 	case TELQUAL_SEND:
 	  debug_output_data ("SEND");
 	  break;
-	  
+
 	default:
 	  debug_output_data ("- unknown qualifier %d (0x%x).",
-		       pointer[1], pointer[1]);
+			     pointer[1], pointer[1]);
 	}
       break;
 
@@ -964,7 +956,7 @@ printsub(int direction, unsigned char *pointer, int length)
       switch (pointer[1])
 	{
 	case TELQUAL_IS:
-	  debug_output_data (" IS %.*s", length-2, (char *)pointer+2);
+	  debug_output_data (" IS %.*s", length - 2, (char *) pointer + 2);
 	  break;
 
 	default:
@@ -972,9 +964,10 @@ printsub(int direction, unsigned char *pointer, int length)
 	    debug_output_data (" SEND");
 	  else
 	    debug_output_data (" %d (unknown)", pointer[1]);
-	  for (i = 2; i < length; i++) {
-	    debug_output_data (" ?%d?", pointer[i]);
-	  }
+	  for (i = 2; i < length; i++)
+	    {
+	      debug_output_data (" ?%d?", pointer[i]);
+	    }
 	  break;
 	}
       break;
@@ -990,26 +983,26 @@ printsub(int direction, unsigned char *pointer, int length)
       switch (pointer[1])
 	{
 	case LFLOW_OFF:
-	  debug_output_data (" OFF"); 
+	  debug_output_data (" OFF");
 	  break;
-	  
+
 	case LFLOW_ON:
-	  debug_output_data (" ON"); 
+	  debug_output_data (" ON");
 	  break;
-	  
+
 	case LFLOW_RESTART_ANY:
-	  debug_output_data (" RESTART-ANY"); 
+	  debug_output_data (" RESTART-ANY");
 	  break;
-	  
+
 	case LFLOW_RESTART_XON:
-	  debug_output_data (" RESTART-XON"); 
+	  debug_output_data (" RESTART-XON");
 	  break;
-	  
+
 	default:
 	  debug_output_data (" %d (unknown)", pointer[1]);
 	}
 
-      for (i = 2; i < length; i++) 
+      for (i = 2; i < length; i++)
 	debug_output_data (" ?%d?", pointer[i]);
       break;
 
@@ -1027,8 +1020,9 @@ printsub(int direction, unsigned char *pointer, int length)
 	}
 
       debug_output_data (" %d %d (%d)",
-		   pointer[1], pointer[2],
-		   (int)((((unsigned int)pointer[1])<<8)|((unsigned int)pointer[2])));
+			 pointer[1], pointer[2],
+			 (int) ((((unsigned int) pointer[1]) << 8) |
+				((unsigned int) pointer[2])));
       if (length == 4)
 	{
 	  debug_output_data (" ?%d?", pointer[3]);
@@ -1036,10 +1030,11 @@ printsub(int direction, unsigned char *pointer, int length)
 	}
 
       debug_output_data (" %d %d (%d)",
-		   pointer[3], pointer[4],
-		   (int)((((unsigned int)pointer[3])<<8)|((unsigned int)pointer[4])));
-      for (i = 5; i < length; i++) 
-		debug_output_data (" ?%d?", pointer[i]);
+			 pointer[3], pointer[4],
+			 (int) ((((unsigned int) pointer[3]) << 8) |
+				((unsigned int) pointer[4])));
+      for (i = 5; i < length; i++)
+	debug_output_data (" ?%d?", pointer[i]);
       break;
 
     case TELOPT_LINEMODE:
@@ -1077,13 +1072,13 @@ printsub(int direction, unsigned char *pointer, int length)
 	    {
 	    case LM_FORWARDMASK:
 	      debug_output_data ("Forward Mask");
-	      for (i = 3; i < length; i++) 
+	      for (i = 3; i < length; i++)
 		debug_output_data (" %x", pointer[i]);
 	      break;
-	      
+
 	    default:
 	      debug_output_data ("%d (unknown)", pointer[2]);
-	      for (i = 3; i < length; i++) 
+	      for (i = 3; i < length; i++)
 		debug_output_data (" %d", pointer[i]);
 	      break;
 	    }
@@ -1093,44 +1088,49 @@ printsub(int direction, unsigned char *pointer, int length)
 	  debug_output_data ("SLC");
 	  for (i = 2; i < length - 2; i += 3)
 	    {
-	      if (SLC_NAME_OK(pointer[i+SLC_FUNC]))
-		debug_output_data (" %s", SLC_NAME(pointer[i+SLC_FUNC]));
+	      if (SLC_NAME_OK (pointer[i + SLC_FUNC]))
+		debug_output_data (" %s", SLC_NAME (pointer[i + SLC_FUNC]));
 	      else
-		debug_output_data (" %d", pointer[i+SLC_FUNC]);
-	      switch (pointer[i+SLC_FLAGS]&SLC_LEVELBITS)
+		debug_output_data (" %d", pointer[i + SLC_FUNC]);
+	      switch (pointer[i + SLC_FLAGS] & SLC_LEVELBITS)
 		{
 		case SLC_NOSUPPORT:
-		  debug_output_data (" NOSUPPORT"); 
+		  debug_output_data (" NOSUPPORT");
 		  break;
-		  
+
 		case SLC_CANTCHANGE:
-		  debug_output_data (" CANTCHANGE"); 
+		  debug_output_data (" CANTCHANGE");
 		  break;
-		  
+
 		case SLC_VARIABLE:
-		  debug_output_data (" VARIABLE"); 
+		  debug_output_data (" VARIABLE");
 		  break;
-		  
+
 		case SLC_DEFAULT:
 		  debug_output_data (" DEFAULT");
 		  break;
 		}
 
 	      debug_output_data ("%s%s%s",
-			   pointer[i+SLC_FLAGS]&SLC_ACK ? "|ACK" : "",
-			   pointer[i+SLC_FLAGS]&SLC_FLUSHIN ? "|FLUSHIN" : "",
-			   pointer[i+SLC_FLAGS]&SLC_FLUSHOUT ? "|FLUSHOUT" : "");
-	      if (pointer[i+SLC_FLAGS]& ~(SLC_ACK|SLC_FLUSHIN|
-					  SLC_FLUSHOUT| SLC_LEVELBITS)) 
-		debug_output_data ("(0x%x)", pointer[i+SLC_FLAGS]);
-	      debug_output_data (" %d;", pointer[i+SLC_VALUE]);
+				 pointer[i +
+					 SLC_FLAGS] & SLC_ACK ? "|ACK" : "",
+				 pointer[i +
+					 SLC_FLAGS] & SLC_FLUSHIN ? "|FLUSHIN"
+				 : "",
+				 pointer[i +
+					 SLC_FLAGS] & SLC_FLUSHOUT ?
+				 "|FLUSHOUT" : "");
+	      if (pointer[i + SLC_FLAGS] &
+		  ~(SLC_ACK | SLC_FLUSHIN | SLC_FLUSHOUT | SLC_LEVELBITS))
+		debug_output_data ("(0x%x)", pointer[i + SLC_FLAGS]);
+	      debug_output_data (" %d;", pointer[i + SLC_VALUE]);
 
-	      if ((pointer[i+SLC_VALUE] == IAC) &&
-		  (pointer[i+SLC_VALUE+1] == IAC))
+	      if ((pointer[i + SLC_VALUE] == IAC) &&
+		  (pointer[i + SLC_VALUE + 1] == IAC))
 		i++;
 	    }
 
-	  for (; i < length; i++) 
+	  for (; i < length; i++)
 	    debug_output_data (" ?%d?", pointer[i]);
 	  break;
 
@@ -1143,25 +1143,25 @@ printsub(int direction, unsigned char *pointer, int length)
 	    }
 	  {
 	    char tbuf[32];
-	    snprintf(tbuf, sizeof(tbuf), "%s%s%s%s%s",
-		     pointer[2]&MODE_EDIT ? "|EDIT" : "",
-		     pointer[2]&MODE_TRAPSIG ? "|TRAPSIG" : "",
-		     pointer[2]&MODE_SOFT_TAB ? "|SOFT_TAB" : "",
-		     pointer[2]&MODE_LIT_ECHO ? "|LIT_ECHO" : "",
-		     pointer[2]&MODE_ACK ? "|ACK" : "");
+	    snprintf (tbuf, sizeof (tbuf), "%s%s%s%s%s",
+		      pointer[2] & MODE_EDIT ? "|EDIT" : "",
+		      pointer[2] & MODE_TRAPSIG ? "|TRAPSIG" : "",
+		      pointer[2] & MODE_SOFT_TAB ? "|SOFT_TAB" : "",
+		      pointer[2] & MODE_LIT_ECHO ? "|LIT_ECHO" : "",
+		      pointer[2] & MODE_ACK ? "|ACK" : "");
 	    debug_output_data ("%s", tbuf[1] ? &tbuf[1] : "0");
 	  }
 
-	  if (pointer[2]&~(MODE_EDIT|MODE_TRAPSIG|MODE_ACK)) 
+	  if (pointer[2] & ~(MODE_EDIT | MODE_TRAPSIG | MODE_ACK))
 	    debug_output_data (" (0x%x)", pointer[2]);
 
-	  for (i = 3; i < length; i++) 
+	  for (i = 3; i < length; i++)
 	    debug_output_data (" ?0x%x?", pointer[i]);
 	  break;
-	  
+
 	default:
 	  debug_output_data ("%d (unknown)", pointer[1]);
-	  for (i = 2; i < length; i++) 
+	  for (i = 2; i < length; i++)
 	    debug_output_data (" %d", pointer[i]);
 	}
       break;
@@ -1173,82 +1173,85 @@ printsub(int direction, unsigned char *pointer, int length)
 
 	debug_output_data ("STATUS");
 
-	switch (pointer[1]) {
-	default:
-	  if (pointer[1] == TELQUAL_SEND)
-	    debug_output_data (" SEND");
-	  else
-	    debug_output_data (" %d (unknown)", pointer[1]);
-	  for (i = 2; i < length; i++) 
-	    debug_output_data (" ?%d?", pointer[i]);
-	  break;
-	  
-	case TELQUAL_IS:
-	  debug_output_data (" IS\r\n");
+	switch (pointer[1])
+	  {
+	  default:
+	    if (pointer[1] == TELQUAL_SEND)
+	      debug_output_data (" SEND");
+	    else
+	      debug_output_data (" %d (unknown)", pointer[1]);
+	    for (i = 2; i < length; i++)
+	      debug_output_data (" ?%d?", pointer[i]);
+	    break;
 
-	  for (i = 2; i < length; i++)
-	    {
-	      switch(pointer[i])
-		{
-		case DO:
-		  cp = "DO";
-		  goto common2;
+	  case TELQUAL_IS:
+	    debug_output_data (" IS\r\n");
 
-		case DONT:
-		  cp = "DONT";
-		  goto common2;
+	    for (i = 2; i < length; i++)
+	      {
+		switch (pointer[i])
+		  {
+		  case DO:
+		    cp = "DO";
+		    goto common2;
 
-		case WILL:
-		  cp = "WILL";
-		  goto common2;
+		  case DONT:
+		    cp = "DONT";
+		    goto common2;
 
-		case WONT:
-		  cp = "WONT";
-		  goto common2;
+		  case WILL:
+		    cp = "WILL";
+		    goto common2;
 
-		common2:
-		  i++;
-		  if (TELOPT_OK(pointer[i]))
-		    debug_output_data (" %s %s\r\n", cp, TELOPT(pointer[i]));
-		  else
-		    debug_output_data (" %s %d\r\n", cp, pointer[i]);
-		  break;
+		  case WONT:
+		    cp = "WONT";
+		    goto common2;
 
-		case SB:
-		  debug_output_data (" SB ");
-		  i++;
-		  j = k = i;
-		  while (j < length)
-		    {
-		      if (pointer[j] == SE)
-			{
-			  if (j+1 == length)
-			    break;
-			  if (pointer[j+1] == SE)
-			    j++;
-			  else
-			    break;
-			}
-		      pointer[k++] = pointer[j++];
-		    }
-		  printsub(0, &pointer[i], k - i);
-		  if (i < length)
-		    {
-		      debug_output_data (" SE");
-		      i = j;
-		    } else
+		  common2:
+		    i++;
+		    if (TELOPT_OK (pointer[i]))
+		      debug_output_data (" %s %s\r\n", cp,
+					 TELOPT (pointer[i]));
+		    else
+		      debug_output_data (" %s %d\r\n", cp, pointer[i]);
+		    break;
+
+		  case SB:
+		    debug_output_data (" SB ");
+		    i++;
+		    j = k = i;
+		    while (j < length)
+		      {
+			if (pointer[j] == SE)
+			  {
+			    if (j + 1 == length)
+			      break;
+			    if (pointer[j + 1] == SE)
+			      j++;
+			    else
+			      break;
+			  }
+			pointer[k++] = pointer[j++];
+		      }
+		    printsub (0, &pointer[i], k - i);
+		    if (i < length)
+		      {
+			debug_output_data (" SE");
+			i = j;
+		      }
+		    else
 		      i = j - 1;
 
-		  debug_output_data ("\r\n");
-		  break;
+		    debug_output_data ("\r\n");
+		    break;
 
-		default:
-		  debug_output_data (" %d", pointer[i]);
-		  break;
-		}
-	    }
-	  break;
-	}
+		  default:
+		    debug_output_data (" %d", pointer[i]);
+		    break;
+		  }
+	      }
+	    break;
+	  }
 	break;
       }
 
@@ -1257,21 +1260,21 @@ printsub(int direction, unsigned char *pointer, int length)
       switch (pointer[1])
 	{
 	case TELQUAL_IS:
-	  debug_output_data ("IS \"%.*s\"", length-2, (char *)pointer+2);
+	  debug_output_data ("IS \"%.*s\"", length - 2, (char *) pointer + 2);
 	  break;
 	case TELQUAL_SEND:
 	  debug_output_data ("SEND");
 	  break;
 	default:
 	  debug_output_data ("- unknown qualifier %d (0x%x).",
-		       pointer[1], pointer[1]);
+			     pointer[1], pointer[1]);
 	}
       break;
 
     case TELOPT_NEW_ENVIRON:
       debug_output_data ("NEW-ENVIRON ");
       goto env_common1;
-      
+
     case TELOPT_OLD_ENVIRON:
       debug_output_data ("OLD-ENVIRON");
     env_common1:
@@ -1291,7 +1294,7 @@ printsub(int direction, unsigned char *pointer, int length)
 	env_common:
 	  {
 	    register int noquote = 2;
-	    for (i = 2; i < length; i++ )
+	    for (i = 2; i < length; i++)
 	      {
 		switch (pointer[i])
 		  {
@@ -1299,7 +1302,7 @@ printsub(int direction, unsigned char *pointer, int length)
 		    debug_output_data ("\" VAR " + noquote);
 		    noquote = 2;
 		    break;
-		    
+
 		  case NEW_ENV_VALUE:
 		    debug_output_data ("\" VALUE " + noquote);
 		    noquote = 2;
@@ -1309,15 +1312,15 @@ printsub(int direction, unsigned char *pointer, int length)
 		    debug_output_data ("\" ESC " + noquote);
 		    noquote = 2;
 		    break;
-		    
+
 		  case ENV_USERVAR:
 		    debug_output_data ("\" USERVAR " + noquote);
 		    noquote = 2;
 		    break;
-		    
+
 		  default:
 		  def_case:
-		    if (isprint(pointer[i]) && pointer[i] != '"')
+		    if (isprint (pointer[i]) && pointer[i] != '"')
 		      {
 			if (noquote)
 			  {
@@ -1328,8 +1331,7 @@ printsub(int direction, unsigned char *pointer, int length)
 		      }
 		    else
 		      {
-			debug_output_data ("\" %03o " + noquote,
-				     pointer[i]);
+			debug_output_data ("\" %03o " + noquote, pointer[i]);
 			noquote = 2;
 		      }
 		    break;
@@ -1342,7 +1344,7 @@ printsub(int direction, unsigned char *pointer, int length)
 	}
       break;
 
-#if	defined(AUTHENTICATION)
+#if defined(AUTHENTICATION)
     case TELOPT_AUTHENTICATION:
       debug_output_data ("AUTHENTICATION");
 
@@ -1356,9 +1358,9 @@ printsub(int direction, unsigned char *pointer, int length)
 	case TELQUAL_REPLY:
 	case TELQUAL_IS:
 	  debug_output_data (" %s ", (pointer[1] == TELQUAL_IS) ?
-		       "IS" : "REPLY");
-	  if (AUTHTYPE_NAME_OK(pointer[2]))
-	    debug_output_data ("%s ", AUTHTYPE_NAME(pointer[2]));
+			     "IS" : "REPLY");
+	  if (AUTHTYPE_NAME_OK (pointer[2]))
+	    debug_output_data ("%s ", AUTHTYPE_NAME (pointer[2]));
 	  else
 	    debug_output_data ("%d ", pointer[2]);
 	  if (length < 3)
@@ -1367,12 +1369,12 @@ printsub(int direction, unsigned char *pointer, int length)
 	      break;
 	    }
 	  debug_output_data ("%s|%s",
-		       ((pointer[3] & AUTH_WHO_MASK) == AUTH_WHO_CLIENT) ?
-		       "CLIENT" : "SERVER",
-		       ((pointer[3] & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL) ?
-		       "MUTUAL" : "ONE-WAY");
+			     ((pointer[3] & AUTH_WHO_MASK) ==
+			      AUTH_WHO_CLIENT) ? "CLIENT" : "SERVER",
+			     ((pointer[3] & AUTH_HOW_MASK) ==
+			      AUTH_HOW_MUTUAL) ? "MUTUAL" : "ONE-WAY");
 
-	  auth_printsub(&pointer[1], length - 1, buf, sizeof(buf));
+	  auth_printsub (&pointer[1], length - 1, buf, sizeof (buf));
 	  debug_output_data ("%s", buf);
 	  break;
 
@@ -1381,8 +1383,8 @@ printsub(int direction, unsigned char *pointer, int length)
 	  debug_output_data (" SEND ");
 	  while (i < length)
 	    {
-	      if (AUTHTYPE_NAME_OK(pointer[i]))
-		debug_output_data ("%s ", AUTHTYPE_NAME(pointer[i]));
+	      if (AUTHTYPE_NAME_OK (pointer[i]))
+		debug_output_data ("%s ", AUTHTYPE_NAME (pointer[i]));
 	      else
 		debug_output_data ("%d ", pointer[i]);
 	      if (++i >= length)
@@ -1391,14 +1393,14 @@ printsub(int direction, unsigned char *pointer, int length)
 		  break;
 		}
 	      debug_output_data ("%s|%s ",
-			   ((pointer[i] & AUTH_WHO_MASK) == AUTH_WHO_CLIENT) ?
-			   "CLIENT" : "SERVER",
-			   ((pointer[i] & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL) ?
-			   "MUTUAL" : "ONE-WAY");
+				 ((pointer[i] & AUTH_WHO_MASK) ==
+				  AUTH_WHO_CLIENT) ? "CLIENT" : "SERVER",
+				 ((pointer[i] & AUTH_HOW_MASK) ==
+				  AUTH_HOW_MUTUAL) ? "MUTUAL" : "ONE-WAY");
 	      ++i;
 	    }
 	  break;
-	  
+
 	case TELQUAL_NAME:
 	  i = 2;
 	  debug_output_data (" NAME \"");
@@ -1432,11 +1434,11 @@ printsub(int direction, unsigned char *pointer, int length)
 	case ENCRYPT_END:
 	  debug_output_data (" END");
 	  break;
-	  
+
 	case ENCRYPT_REQSTART:
 	  debug_output_data (" REQUEST-START");
 	  break;
-	  
+
 	case ENCRYPT_REQEND:
 	  debug_output_data (" REQUEST-END");
 	  break;
@@ -1444,18 +1446,18 @@ printsub(int direction, unsigned char *pointer, int length)
 	case ENCRYPT_IS:
 	case ENCRYPT_REPLY:
 	  debug_output_data (" %s ", (pointer[1] == ENCRYPT_IS) ?
-		       "IS" : "REPLY");
+			     "IS" : "REPLY");
 	  if (length < 3)
 	    {
 	      debug_output_data (" (partial suboption??\?)");
 	      break;
 	    }
-	  if (ENCTYPE_NAME_OK(pointer[2]))
-	    debug_output_data ("%s ", ENCTYPE_NAME(pointer[2]));
+	  if (ENCTYPE_NAME_OK (pointer[2]))
+	    debug_output_data ("%s ", ENCTYPE_NAME (pointer[2]));
 	  else
 	    debug_output_data (" %d (unknown)", pointer[2]);
-	  
-	  encrypt_printsub(&pointer[1], length - 1, buf, sizeof(buf));
+
+	  encrypt_printsub (&pointer[1], length - 1, buf, sizeof (buf));
 	  debug_output_data ("%s", buf);
 	  break;
 
@@ -1464,18 +1466,18 @@ printsub(int direction, unsigned char *pointer, int length)
 	  debug_output_data (" SUPPORT ");
 	  while (i < length)
 	    {
-	      if (ENCTYPE_NAME_OK(pointer[i]))
-		debug_output_data ("%s ", ENCTYPE_NAME(pointer[i]));
+	      if (ENCTYPE_NAME_OK (pointer[i]))
+		debug_output_data ("%s ", ENCTYPE_NAME (pointer[i]));
 	      else
 		debug_output_data ("%d ", pointer[i]);
 	      i++;
 	    }
 	  break;
-	  
+
 	case ENCRYPT_ENC_KEYID:
 	  debug_output_data (" ENC_KEYID", pointer[1]);
 	  goto encommon;
-	  
+
 	case ENCRYPT_DEC_KEYID:
 	  debug_output_data (" DEC_KEYID", pointer[1]);
 	  goto encommon;
@@ -1483,19 +1485,19 @@ printsub(int direction, unsigned char *pointer, int length)
 	default:
 	  debug_output_data (" %d (unknown)", pointer[1]);
 	encommon:
-	  for (i = 2; i < length; i++) 
+	  for (i = 2; i < length; i++)
 	    debug_output_data (" %d", pointer[i]);
 	  break;
 	}
       break;
-#endif	/* ENCRYPTION */
+#endif /* ENCRYPTION */
 
     default:
-      if (TELOPT_OK(pointer[0]))
-	debug_output_data ("%s (unknown)", TELOPT(pointer[0]));
+      if (TELOPT_OK (pointer[0]))
+	debug_output_data ("%s (unknown)", TELOPT (pointer[0]));
       else
 	debug_output_data ("%d (unknown)", pointer[i]);
-      for (i = 1; i < length; i++) 
+      for (i = 1; i < length; i++)
 	debug_output_data (" %d", pointer[i]);
       break;
     }
@@ -1506,11 +1508,11 @@ printsub(int direction, unsigned char *pointer, int length)
  * Dump a data buffer in hex and ascii to the output data stream.
  */
 void
-printdata(register char *tag, register char *ptr, register int cnt)
+printdata (register char *tag, register char *ptr, register int cnt)
 {
   register int i;
   char xbuf[30];
-  
+
   while (cnt)
     {
       /* add a line of output */
@@ -1518,16 +1520,16 @@ printdata(register char *tag, register char *ptr, register int cnt)
       for (i = 0; i < 20 && cnt; i++)
 	{
 	  debug_output_data ("%02x", *ptr);
-	  xbuf[i] = isprint(*ptr) ? *ptr : '.';
+	  xbuf[i] = isprint (*ptr) ? *ptr : '.';
 
-	  if (i % 2) 
+	  if (i % 2)
 	    debug_output_data (" ");
 	  cnt--;
 	  ptr++;
 	}
 
       xbuf[i] = '\0';
-      debug_output_data (" %s\r\n", xbuf );
+      debug_output_data (" %s\r\n", xbuf);
     }
 }
 
@@ -1542,16 +1544,16 @@ net_write (unsigned char *str, int len)
 void
 net_encrypt ()
 {
-#ifdef	ENCRYPTION
+# ifdef	ENCRYPTION
   char *s = (nclearto > nbackp) ? nclearto : nbackp;
-  if (s < nfrontp && encrypt_output) 
-    (*encrypt_output)((unsigned char *)s, nfrontp - s);
+  if (s < nfrontp && encrypt_output)
+    (*encrypt_output) ((unsigned char *) s, nfrontp - s);
   nclearto = nfrontp;
-#endif /* ENCRYPTION */
+# endif	/* ENCRYPTION */
 }
 
 int
-telnet_spin()
+telnet_spin ()
 {
   io_drain ();
   return 0;
@@ -1569,21 +1571,21 @@ telnet_spin()
 
 struct line_expander
 {
-  int state;           /* Current state */
-  int level;           /* The nesting level */
-  char *source;        /* The source string */
-  char *cp;            /* Current position in the source */
-  struct obstack stk;  /* Obstack for expanded version */
+  int state;			/* Current state */
+  int level;			/* The nesting level */
+  char *source;			/* The source string */
+  char *cp;			/* Current position in the source */
+  struct obstack stk;		/* Obstack for expanded version */
 };
 
 static char *_var_short_name (struct line_expander *exp);
 static char *_var_long_name (struct line_expander *exp,
-			       char *start, int length);
+			     char *start, int length);
 static char *_expand_var (struct line_expander *exp);
 static void _expand_cond (struct line_expander *exp);
 static void _skip_block (struct line_expander *exp);
 static void _expand_block (struct line_expander *exp);
-     
+
 /* Expand a variable referenced by its short one-symbol name.
    Input: exp->cp points to the variable name.
    FIXME: not implemented */
@@ -1593,7 +1595,7 @@ _var_short_name (struct line_expander *exp)
   char *q;
   char timebuf[64];
   time_t t;
-  
+
   switch (*exp->cp++)
     {
     case 'a':
@@ -1602,19 +1604,19 @@ _var_short_name (struct line_expander *exp)
 	return xstrdup ("ok");
 #endif
       return NULL;
-      
+
     case 'd':
       time (&t);
-      strftime(timebuf, sizeof (timebuf),
-	       "%l:%M%P on %A, %d %B %Y", localtime(&t));
+      strftime (timebuf, sizeof (timebuf),
+		"%l:%M%P on %A, %d %B %Y", localtime (&t));
       return xstrdup (timebuf);
 
     case 'h':
       return xstrdup (remote_hostname);
-      
+
     case 'l':
       return xstrdup (local_hostname);
-	
+
     case 't':
       q = strchr (line + 1, '/');
       if (q)
@@ -1622,10 +1624,10 @@ _var_short_name (struct line_expander *exp)
       else
 	q = line;
       return xstrdup (q);
-      
+
     case 'T':
       return terminaltype ? xstrdup (terminaltype) : NULL;
-	
+
     case 'u':
       return user_name ? xstrdup (user_name) : NULL;
 
@@ -1725,7 +1727,7 @@ _skip_block (struct line_expander *exp)
 	case '{':
 	  exp->level++;
 	  break;
-	  
+
 	case '}':
 	  exp->level--;
 	  if (exp->level == level)
@@ -1746,7 +1748,7 @@ _expand_block (struct line_expander *exp)
   if (*exp->cp == '{')
     {
       exp->level++;
-      exp->cp++;/*FIXME?*/
+      exp->cp++;		/*FIXME? */
     }
   while (exp->state == EXP_STATE_CONTINUE)
     {
@@ -1757,7 +1759,7 @@ _expand_block (struct line_expander *exp)
 	    case '{':
 	      exp->level++;
 	      break;
-	      
+
 	    case '}':
 	      exp->level--;
 	      if (exp->level == level)
@@ -1766,14 +1768,14 @@ _expand_block (struct line_expander *exp)
 		  return;
 		}
 	      break;
-	      
+
 	    case '\\':
 	      exp->cp++;
 	      break;
 	    }
 	  obstack_1grow (&exp->stk, *exp->cp);
 	}
-      
+
       if (*exp->cp == 0)
 	{
 	  obstack_1grow (&exp->stk, 0);
@@ -1800,8 +1802,8 @@ expand_line (const char *line)
 
   exp.state = EXP_STATE_CONTINUE;
   exp.level = 0;
-  exp.source = (char *)line;
-  exp.cp = (char *)line;
+  exp.source = (char *) line;
+  exp.cp = (char *) line;
   obstack_init (&exp.stk);
   _expand_block (&exp);
   if (exp.state == EXP_STATE_SUCCESS)
@@ -1814,4 +1816,3 @@ expand_line (const char *line)
   obstack_free (&exp.stk, NULL);
   return p;
 }
-      

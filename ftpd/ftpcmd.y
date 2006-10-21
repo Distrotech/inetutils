@@ -1058,7 +1058,6 @@ yylex()
 				state = CMD;
 				return (CRLF);
 			}
-			/* FALLTHROUGH */
 
 		case STR1:
 		case ZSTR1:
@@ -1075,7 +1074,6 @@ yylex()
 				state = CMD;
 				return (CRLF);
 			}
-			/* FALLTHROUGH */
 
 		case STR2:
 			cp = &cbuf[cpos];
@@ -1326,7 +1324,6 @@ sizecmd(char *filename)
 	}
 }
 
-/* ARGSUSED */
 static void
 yyerror(const char *s)
 {

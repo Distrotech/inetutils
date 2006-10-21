@@ -16,7 +16,7 @@
    MA 02110-1301 USA. */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <errno.h>
@@ -81,7 +81,8 @@ void
 if_freenameindex (struct if_nameindex *ifn)
 {
   struct if_nameindex *ptr = ifn;
-  if (!ifn) return;
+  if (!ifn)
+    return;
   while (ptr->if_name || ptr->if_index)
     {
       if (ptr->if_name)
@@ -125,23 +126,23 @@ if_nameindex (void)
   while (ifc.ifc_len != last_len);
 
   i = 0;
-  ifr = (struct ifreq *)ifc.ifc_req;
-  end = (struct ifreq *)((caddr_t)ifr + ifc.ifc_len);
+  ifr = (struct ifreq *) ifc.ifc_req;
+  end = (struct ifreq *) ((caddr_t) ifr + ifc.ifc_len);
   while (ifr < end)
     {
       int len;
-#ifdef HAVE_SOCKADDR_SA_LEN
-#undef MAX
-#define MAX(a,b)  (((a) > (b)) ? (a) : (b))
-      len = MAX(sizeof (struct sockaddr), ifr->ifr_addr.sa_len);
-#else
+# ifdef HAVE_SOCKADDR_SA_LEN
+#  undef MAX
+#  define MAX(a,b)  (((a) > (b)) ? (a) : (b))
+      len = MAX (sizeof (struct sockaddr), ifr->ifr_addr.sa_len);
+# else
       len = sizeof (struct sockaddr);
-#endif
+# endif
 
       cur = ifr;
 
       /* Step along the array by the size of the current structure */
-      ifr = (struct ifreq *)((caddr_t)ifr + len + IFNAMSIZ);
+      ifr = (struct ifreq *) ((caddr_t) ifr + len + IFNAMSIZ);
 
       /* We ignore the other families .. OK ?  */
       if (cur->ifr_addr.sa_family != AF_INET)
@@ -150,7 +151,7 @@ if_nameindex (void)
       /* Make Room safely.  */
       {
 	struct if_nameindex *tidx = NULL;
-	tidx = realloc (idx, (i + 1) * sizeof(*idx));
+	tidx = realloc (idx, (i + 1) * sizeof (*idx));
 	if (tidx == NULL)
 	  {
 	    if_freenameindex (idx);
@@ -177,14 +178,14 @@ if_nameindex (void)
 	idx[i].if_index = cur->ifr_index;
       else
 # endif
-	idx[i].if_index =  i + 1;
-      i++;	
+	idx[i].if_index = i + 1;
+      i++;
     }
 
   /* Terminate the array with an empty solt.  */
   {
     struct if_nameindex *tidx = NULL;
-    tidx = realloc (idx, (i + 1) * sizeof(*idx));
+    tidx = realloc (idx, (i + 1) * sizeof (*idx));
     if (tidx == NULL)
       {
 	if_freenameindex (idx);

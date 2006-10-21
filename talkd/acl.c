@@ -78,7 +78,7 @@ netdef_parse (char *str)
 {
   unsigned int ipaddr, netmask;
   netdef_t *netdef;
-  char ipbuf[DOTTED_QUAD_LEN+1];
+  char ipbuf[DOTTED_QUAD_LEN + 1];
 
   if (strcmp (str, "any") == 0)
     {
@@ -104,9 +104,9 @@ netdef_parse (char *str)
 	      unsigned int len = strtoul (ipbuf, NULL, 0);
 	      if (len > 32)
 		return NULL;
-	      netmask = 0xfffffffful >> (32-len);
-	      netmask <<= (32-len);
-	      /*FIXME: hostorder?*/
+	      netmask = 0xfffffffful >> (32 - len);
+	      netmask <<= (32 - len);
+	      /*FIXME: hostorder? */
 	    }
 	  else
 	    netmask = inet_network (ipbuf);
@@ -152,14 +152,14 @@ read_acl (char *config_file)
       int len, i;
       int argc;
       char **argv;
-      int  action;
+      int action;
       regex_t re;
       netdef_t *head, *tail;
       acl_t *acl;
 
       line++;
       len = strlen (ptr);
-      if (len > 0 && ptr[len-1] == '\n')
+      if (len > 0 && ptr[len - 1] == '\n')
 	ptr[--len] = 0;
 
       while (*ptr && isspace (*ptr))
@@ -244,7 +244,9 @@ open_users_acl (char *name)
   if (!pw)
     return NULL;
 
-  filename = malloc (strlen (pw->pw_dir) + sizeof (USER_ACL_NAME) + 2 /* Null and separator.  */);
+  filename =
+    malloc (strlen (pw->pw_dir) + sizeof (USER_ACL_NAME) +
+	    2 /* Null and separator.  */ );
   if (!filename)
     {
       syslog (LOG_ERR, "out of memory");
@@ -260,7 +262,7 @@ open_users_acl (char *name)
 }
 
 static void
-netdef_free (netdef_t *netdef)
+netdef_free (netdef_t * netdef)
 {
   netdef_t *next;
 
@@ -273,7 +275,7 @@ netdef_free (netdef_t *netdef)
 }
 
 static void
-acl_free (acl_t *acl)
+acl_free (acl_t * acl)
 {
   acl_t *next;
 
@@ -288,7 +290,7 @@ acl_free (acl_t *acl)
 }
 
 static void
-discard_acl (acl_t *mark)
+discard_acl (acl_t * mark)
 {
   if (mark)
     {
@@ -301,7 +303,7 @@ discard_acl (acl_t *mark)
 }
 
 int
-acl_match (CTL_MSG *msg, struct sockaddr_in *sa_in)
+acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in)
 {
   acl_t *acl, *mark;
   unsigned int ip;

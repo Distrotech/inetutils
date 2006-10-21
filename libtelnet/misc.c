@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)misc.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 #include <stdlib.h>
 #include <stdio.h>
@@ -44,46 +44,49 @@ char *LocalHostName;
 char *UserNameRequested = 0;
 
 void
-auth_encrypt_init(char *local, char *remote, char *name, int server)
+auth_encrypt_init (char *local, char *remote, char *name, int server)
 {
-	RemoteHostName = remote;
-	LocalHostName = local;
-	(void)name; (void)server; /* shutup gcc */
-#if	defined(AUTHENTICATION)
-	auth_init(name, server);
+  RemoteHostName = remote;
+  LocalHostName = local;
+  (void) name;
+  (void) server;		/* shutup gcc */
+#if defined(AUTHENTICATION)
+  auth_init (name, server);
 #endif
 #ifdef	ENCRYPTION
-	encrypt_init(name, server);
-#endif	/* ENCRYPTION */
-	if (UserNameRequested) {
-		free(UserNameRequested);
-		UserNameRequested = 0;
-	}
+  encrypt_init (name, server);
+#endif /* ENCRYPTION */
+  if (UserNameRequested)
+    {
+      free (UserNameRequested);
+      UserNameRequested = 0;
+    }
 }
 
 void
-auth_encrypt_user(char *name)
+auth_encrypt_user (char *name)
 {
-	extern char *strdup (const char *);
+  extern char *strdup (const char *);
 
-	if (UserNameRequested)
-		free(UserNameRequested);
-	UserNameRequested = name ? strdup(name) : 0;
+  if (UserNameRequested)
+    free (UserNameRequested);
+  UserNameRequested = name ? strdup (name) : 0;
 }
 
 void
-auth_encrypt_connect(int cnt)
+auth_encrypt_connect (int cnt)
 {
-	(void)cnt; /*shutup gcc */
+  (void) cnt;			/*shutup gcc */
 }
 
 void
-printd(unsigned char *data, int cnt)
+printd (unsigned char *data, int cnt)
 {
-	if (cnt > 16)
-		cnt = 16;
-	while (cnt-- > 0) {
-		printf(" %02x", *data);
-		++data;
-	}
+  if (cnt > 16)
+    cnt = 16;
+  while (cnt-- > 0)
+    {
+      printf (" %02x", *data);
+      ++data;
+    }
 }

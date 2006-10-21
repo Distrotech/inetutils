@@ -20,13 +20,13 @@
    MA 02110-1301 USA. */
 
 #ifndef IFCONFIG_IFCONFIG_H
-#define IFCONFIG_IFCONFIG_H
+# define IFCONFIG_IFCONFIG_H
 
-#include "flags.h"
-#include "if_index.h"
-#include "options.h"
-#include "printif.h"
-#include "system.h"
+# include "flags.h"
+# include "if_index.h"
+# include "options.h"
+# include "printif.h"
+# include "system.h"
 /* XXX */
 extern int configure_if (int sfd, struct ifconfig *ifp);
 

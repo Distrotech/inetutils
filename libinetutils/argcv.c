@@ -45,22 +45,20 @@ argcv_scan (int len, const char *command, const char *delim,
     case '\'':
       while (++i < len && command[i] != command[*start])
 	;
-      if (i < len)  /* found matching quote */
+      if (i < len)		/* found matching quote */
 	break;
-      /*FALLTHRU*/
     default:
-      if (isdelim (command [i], delim))
+      if (isdelim (command[i], delim))
 	break;
       /* Skip until next whitespace character or end of line */
-      while (++i < len &&
-	     !(isws (command [i]) || isdelim (command [i], delim)))
+      while (++i < len && !(isws (command[i]) || isdelim (command[i], delim)))
 	;
       i--;
       break;
     }
 
   *end = i;
-  *save = i+1;
+  *save = i + 1;
   return *save;
 }
 
@@ -74,7 +72,7 @@ argcv_get (const char *command, const char *delim, int *argc, char ***argv)
   *argc = 0;
   *argv = NULL;
 
-  while (len > 0 && isspace (command[len-1]))
+  while (len > 0 && isspace (command[len - 1]))
     len--;
   if (len < 1)
     return 1;
@@ -83,7 +81,7 @@ argcv_get (const char *command, const char *delim, int *argc, char ***argv)
   *argc = 1;
   save = 0;
   while (argcv_scan (len, command, delim, &start, &end, &save) < len)
-      (*argc)++;
+    (*argc)++;
 
   *argv = calloc ((*argc + 1), sizeof (char *));
 
@@ -105,7 +103,7 @@ argcv_get (const char *command, const char *delim, int *argc, char ***argv)
 	  end--;
 	}
       n = end - start + 1;
-      (*argv)[i] = calloc (n+1,  sizeof (char));
+      (*argv)[i] = calloc (n + 1, sizeof (char));
       if ((*argv)[i] == NULL)
 	return 1;
       memcpy ((*argv)[i], &command[start], n);
@@ -175,7 +173,7 @@ argcv_string (int argc, char **argv, char **pstring)
 #if 0
 char *command = "set prompt=\"& \"";
 
-main()
+main ()
 {
   int i, argc;
   char **argv;

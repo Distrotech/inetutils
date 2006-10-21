@@ -21,19 +21,19 @@
  */
 
 #ifndef IFCONFIG_FLAGS_H
-#define IFCONFIG_FLAGS_H
+# define IFCONFIG_FLAGS_H
 
 /* Using these avoid strings with if_flagtoname, the caller can set a
    preference on returned flag names.  If one of the names in the list
    is found for the flag, the search continues to attempt a better
    match.  */
 /* FreeBSD */
-#define EXPECT_LINK2 ":LINK2/ALTPHYS:ALTPHYS:"
-#define EXPECT_ALTPHYS ":LINK2/ALTPHYS:LINK2:"
+# define EXPECT_LINK2 ":LINK2/ALTPHYS:ALTPHYS:"
+# define EXPECT_ALTPHYS ":LINK2/ALTPHYS:LINK2:"
 
 /* OSF 4.0g */
-#define EXPECT_D2 ":D2/SNAP:SNAP:"
-#define EXPECT_SNAP ":D2/SNAP:D2:"
+# define EXPECT_D2 ":D2/SNAP:SNAP:"
+# define EXPECT_SNAP ":D2/SNAP:D2:"
 
 /* Return the name corresponding to the interface flag FLAG.
    If FLAG is unknown, return NULL.

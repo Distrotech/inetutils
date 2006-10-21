@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -45,9 +45,9 @@ static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #include <string.h>
 #include <unistd.h>
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-#include <stdarg.h>
+# include <stdarg.h>
 #else
-#include <varargs.h>
+# include <varargs.h>
 #endif
 #include <err.h>
 
@@ -55,54 +55,64 @@ static char sccsid[] = "@(#)ruserpass.c	8.4 (Berkeley) 4/27/95";
 #include <libinetutils.h>
 #include <xalloc.h>
 
-static	int token (void);
-static	FILE *cfile;
+static int token (void);
+static FILE *cfile;
 
 /* protect agains os headers */
 #undef	DEFAULT
-#define	DEFAULT	1
+#define DEFAULT	1
 #undef	LOGIN
-#define	LOGIN	2
+#define LOGIN	2
 #undef	PASSWD
-#define	PASSWD	3
+#define PASSWD	3
 #undef	ACCOUNT
-#define	ACCOUNT 4
+#define ACCOUNT 4
 #undef  MACDEF
 #define MACDEF  5
 #undef	ID
-#define	ID	10
+#define ID	10
 #undef	MACHINE
-#define	MACHINE	11
+#define MACHINE	11
 
 static char tokval[100];
 
-static struct toktab {
+static struct toktab
+{
   char *tokstr;
   int tval;
-} toktab[]= {
-  { "default",	DEFAULT },
-  { "login",	LOGIN },
-  { "password",	PASSWD },
-  { "passwd",	PASSWD },
-  { "account",	ACCOUNT },
-  { "machine",	MACHINE },
-  { "macdef",	MACDEF },
-  { NULL,		0 }
+} toktab[] =
+{
+  {
+  "default", DEFAULT},
+  {
+  "login", LOGIN},
+  {
+  "password", PASSWD},
+  {
+  "passwd", PASSWD},
+  {
+  "account", ACCOUNT},
+  {
+  "machine", MACHINE},
+  {
+  "macdef", MACDEF},
+  {
+  NULL, 0}
 };
 
 int
-ruserpass(char *host, char **aname, char **apass, char **aacct)
+ruserpass (char *host, char **aname, char **apass, char **aacct)
 {
   char *hdir, buf[BUFSIZ], *tmp;
   char *myname = 0, *mydomain;
   int t, i, c, usedefault = 0;
   struct stat stb;
 
-  hdir = getenv("HOME");
+  hdir = getenv ("HOME");
   if (hdir == NULL)
     hdir = ".";
   snprintf (buf, sizeof buf, "%s/.netrc", hdir);
-  cfile = fopen(buf, "r");
+  cfile = fopen (buf, "r");
   if (cfile == NULL)
     {
       if (errno != ENOENT)
@@ -111,15 +121,15 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
     }
 
   myname = localhost ();
-  if (! myname)
+  if (!myname)
     myname = xstrdup ("");
 
-  mydomain = strchr(myname, '.');
+  mydomain = strchr (myname, '.');
   if (mydomain == NULL)
     mydomain = xstrdup ("");
- next:
-  while ((t = token()))
-    switch(t)
+next:
+  while ((t = token ()))
+    switch (t)
       {
       case DEFAULT:
 	usedefault = 1;
@@ -128,109 +138,112 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
       case MACHINE:
 	if (!usedefault)
 	  {
-	    if (token() != ID)
+	    if (token () != ID)
 	      continue;
 	    /*
 	     * Allow match either for user's input host name
 	     * or official hostname.  Also allow match of
 	     * incompletely-specified host in local domain.  */
-	    if (strcasecmp(host, tokval) == 0)
+	    if (strcasecmp (host, tokval) == 0)
 	      goto match;
-	    if (strcasecmp(hostname, tokval) == 0)
+	    if (strcasecmp (hostname, tokval) == 0)
 	      goto match;
-	    if ((tmp = strchr(hostname, '.')) != NULL
-		&& strcasecmp(tmp, mydomain) == 0
-		&& strncasecmp(hostname, tokval, tmp-hostname) == 0
+	    if ((tmp = strchr (hostname, '.')) != NULL
+		&& strcasecmp (tmp, mydomain) == 0
+		&& strncasecmp (hostname, tokval, tmp - hostname) == 0
 		&& tokval[tmp - hostname] == '\0')
 	      goto match;
-	    if ((tmp = strchr(host, '.')) != NULL
-		&& strcasecmp(tmp, mydomain) == 0
-		&& strncasecmp(host, tokval, tmp - host) == 0
+	    if ((tmp = strchr (host, '.')) != NULL
+		&& strcasecmp (tmp, mydomain) == 0
+		&& strncasecmp (host, tokval, tmp - host) == 0
 		&& tokval[tmp - host] == '\0')
 	      goto match;
 	    continue;
 	  }
       match:
-	while ((t = token()) && t != MACHINE && t != DEFAULT)
-	  switch(t)
+	while ((t = token ()) && t != MACHINE && t != DEFAULT)
+	  switch (t)
 	    {
 	    case LOGIN:
-	      if (token())
+	      if (token ())
 		if (*aname == 0)
 		  {
-		    *aname = xmalloc((unsigned) strlen(tokval) + 1);
-		    strcpy(*aname, tokval);
+		    *aname = xmalloc ((unsigned) strlen (tokval) + 1);
+		    strcpy (*aname, tokval);
 		  }
 		else
 		  {
-		    if (strcmp(*aname, tokval))
+		    if (strcmp (*aname, tokval))
 		      goto next;
 		  }
 	      break;
 	    case PASSWD:
-	      if ((*aname == NULL || strcmp(*aname, "anonymous"))
-		  && fstat(fileno(cfile), &stb) >= 0
+	      if ((*aname == NULL || strcmp (*aname, "anonymous"))
+		  && fstat (fileno (cfile), &stb) >= 0
 		  && (stb.st_mode & 077) != 0)
 		{
 		  error (0, 0, "Error: .netrc file is readable by others.");
-		  error (0, 0, "Remove password or make file unreadable by others.");
+		  error (0, 0,
+			 "Remove password or make file unreadable by others.");
 		  goto bad;
 		}
-	      if (token() && *apass == 0)
+	      if (token () && *apass == 0)
 		{
-		  *apass = xmalloc((unsigned) strlen(tokval) + 1);
-		  strcpy(*apass, tokval);
+		  *apass = xmalloc ((unsigned) strlen (tokval) + 1);
+		  strcpy (*apass, tokval);
 		}
 	      break;
 	    case ACCOUNT:
-	      if (fstat(fileno(cfile), &stb) >= 0
+	      if (fstat (fileno (cfile), &stb) >= 0
 		  && (stb.st_mode & 077) != 0)
 		{
 		  error (0, 0, "Error: .netrc file is readable by others.");
-		  error (0, 0, "Remove account or make file unreadable by others.");
+		  error (0, 0,
+			 "Remove account or make file unreadable by others.");
 		  goto bad;
 		}
-	      if (token() && *aacct == 0)
+	      if (token () && *aacct == 0)
 		{
-		  *aacct = xmalloc((unsigned) strlen(tokval) + 1);
-		  strcpy(*aacct, tokval);
+		  *aacct = xmalloc ((unsigned) strlen (tokval) + 1);
+		  strcpy (*aacct, tokval);
 		}
 	      break;
 	    case MACDEF:
 	      if (proxy)
 		goto done;
 
-	      while ((c=getc(cfile)) != EOF && c == ' ' || c == '\t')
+	      while ((c = getc (cfile)) != EOF && c == ' ' || c == '\t')
 		;
 	      if (c == EOF || c == '\n')
 		{
-		  printf("Missing macdef name argument.\n");
+		  printf ("Missing macdef name argument.\n");
 		  goto bad;
 		}
 	      if (macnum == 16)
 		{
-		  printf("Limit of 16 macros have already been defined\n");
+		  printf ("Limit of 16 macros have already been defined\n");
 		  goto bad;
 		}
 	      tmp = macros[macnum].mac_name;
 	      *tmp++ = c;
-	      for (i=0; i < 8 && (c=getc(cfile)) != EOF && !isspace(c); ++i)
+	      for (i = 0; i < 8 && (c = getc (cfile)) != EOF && !isspace (c);
+		   ++i)
 		{
 		  *tmp++ = c;
 		}
 	      if (c == EOF)
 		{
-		  printf("Macro definition missing null line terminator.\n");
+		  printf ("Macro definition missing null line terminator.\n");
 		  goto bad;
 		}
 	      *tmp = '\0';
 	      if (c != '\n')
 		{
-		  while ((c = getc(cfile)) != EOF && c != '\n');
+		  while ((c = getc (cfile)) != EOF && c != '\n');
 		}
 	      if (c == EOF)
 		{
-		  printf("Macro definition missing null line terminator.\n");
+		  printf ("Macro definition missing null line terminator.\n");
 		  goto bad;
 		}
 	      if (macnum == 0)
@@ -239,20 +252,21 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
 		}
 	      else
 		{
-		  macros[macnum].mac_start = macros[macnum-1].mac_end + 1;
+		  macros[macnum].mac_start = macros[macnum - 1].mac_end + 1;
 		}
 	      tmp = macros[macnum].mac_start;
 	      while (tmp != macbuf + 4096)
 		{
 		  if ((c = getc (cfile)) == EOF)
 		    {
-		      printf("Macro definition missing null line terminator.\n");
+		      printf
+			("Macro definition missing null line terminator.\n");
 		      goto bad;
 		    }
 		  *tmp = c;
 		  if (*tmp == '\n')
 		    {
-		      if (*(tmp-1) == '\0')
+		      if (*(tmp - 1) == '\0')
 			{
 			  macros[macnum++].mac_end = tmp - 1;
 			  break;
@@ -263,7 +277,7 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
 		}
 	      if (tmp == macbuf + 4096)
 		{
-		  printf("4K macro buffer exceeded\n");
+		  printf ("4K macro buffer exceeded\n");
 		  goto bad;
 		}
 	      break;
@@ -273,28 +287,28 @@ ruserpass(char *host, char **aname, char **apass, char **aacct)
 	    }
 	goto done;
       }
- done:
-  fclose(cfile);
+done:
+  fclose (cfile);
   if (myname)
     free (myname);
   return (0);
- bad:
-  fclose(cfile);
+bad:
+  fclose (cfile);
   if (myname)
     free (myname);
   return (-1);
 }
 
 static int
-token(void)
+token (void)
 {
   char *cp;
   int c;
   struct toktab *t;
 
-  if (feof(cfile) || ferror(cfile))
+  if (feof (cfile) || ferror (cfile))
     return (0);
-  while ((c = getc(cfile)) != EOF &&
+  while ((c = getc (cfile)) != EOF &&
 	 (c == '\n' || c == '\t' || c == ' ' || c == ','))
     continue;
   if (c == EOF)
@@ -302,21 +316,21 @@ token(void)
   cp = tokval;
   if (c == '"')
     {
-      while ((c = getc(cfile)) != EOF && c != '"')
+      while ((c = getc (cfile)) != EOF && c != '"')
 	{
 	  if (c == '\\')
-	    c = getc(cfile);
+	    c = getc (cfile);
 	  *cp++ = c;
 	}
     }
   else
     {
       *cp++ = c;
-      while ((c = getc(cfile)) != EOF
+      while ((c = getc (cfile)) != EOF
 	     && c != '\n' && c != '\t' && c != ' ' && c != ',')
 	{
 	  if (c == '\\')
-	    c = getc(cfile);
+	    c = getc (cfile);
 	  *cp++ = c;
 	}
     }
@@ -324,7 +338,7 @@ token(void)
   if (tokval[0] == 0)
     return (0);
   for (t = toktab; t->tokstr; t++)
-    if (!strcmp(t->tokstr, tokval))
+    if (!strcmp (t->tokstr, tokval))
       return (t->tval);
   return (ID);
 }

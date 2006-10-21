@@ -21,23 +21,23 @@
  */
 
 #ifndef IFCONFIG_SYSTEM_HPUX_H
-#define IFCONFIG_SYSTEM_HPUX_H
+# define IFCONFIG_SYSTEM_HPUX_H
 
-#include "../printif.h"
-#include "../options.h"
-
+# include "../printif.h"
+# include "../options.h"
 
+
 /* Option support.  */
 
 struct system_ifconfig
 {
   int valid;
 };
-
 
+
 /* Output format support.  */
 
-#define SYSTEM_FORMAT_HANDLER \
+# define SYSTEM_FORMAT_HANDLER \
   {"osf", fh_nothing},
 
 #endif

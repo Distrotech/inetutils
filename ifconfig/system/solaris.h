@@ -21,30 +21,30 @@
  */
 
 #ifndef IFCONFIG_SYSTEM_SOLARIS_H
-#define IFCONFIG_SYSTEM_SOLARIS_H
+# define IFCONFIG_SYSTEM_SOLARIS_H
 
-#include "../printif.h"
-#include "../options.h"
-#include <sys/sockio.h>
-
+# include "../printif.h"
+# include "../options.h"
+# include <sys/sockio.h>
 
+
 /* XXX: Gross. Have autoconf check and put in system.h or so.
    The correctness is documented in Solaris 2.7, if_tcp(7p).  */
 
-#define ifr_mtu ifr_metric
-
+# define ifr_mtu ifr_metric
 
+
 /* Option support.  */
 
 struct system_ifconfig
 {
   int valid;
 };
-
 
+
 /* Output format support.  */
 
-#define SYSTEM_FORMAT_HANDLER \
+# define SYSTEM_FORMAT_HANDLER \
   {"solaris", fh_nothing},
 
 #endif

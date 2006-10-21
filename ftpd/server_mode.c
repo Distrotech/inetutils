@@ -1,5 +1,5 @@
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <signal.h>
@@ -17,7 +17,7 @@
 #include <errno.h>
 
 #ifdef HAVE_TCPD_H
-#include <tcpd.h>
+# include <tcpd.h>
 #endif
 
 static void reapchild (int);
@@ -39,8 +39,8 @@ check_host (struct sockaddr *sa)
   if (sa->sa_family != AF_INET)
     return 1;
 
-  sin = (struct sockaddr_in *)sa;
-  hp = gethostbyaddr ((char *)&sin->sin_addr,
+  sin = (struct sockaddr_in *) sa;
+  hp = gethostbyaddr ((char *) &sin->sin_addr,
 		      sizeof (struct in_addr), AF_INET);
   addr = inet_ntoa (sin->sin_addr);
   if (hp)
@@ -80,10 +80,10 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
   int ctl_sock, fd;
   struct servent *sv;
   int port;
-  static struct  sockaddr_in server_addr;  /* Our address.  */
+  static struct sockaddr_in server_addr;	/* Our address.  */
 
   /* Become a daemon.  */
-  if (daemon(1,1) < 0)
+  if (daemon (1, 1) < 0)
     {
       syslog (LOG_ERR, "failed to become a daemon");
       return -1;
@@ -92,7 +92,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
 
   /* Get port for ftp/tcp.  */
   sv = getservbyname ("ftp", "tcp");
-  port = (sv == NULL) ? DEFPORT : ntohs(sv->s_port);
+  port = (sv == NULL) ? DEFPORT : ntohs (sv->s_port);
 
   /* Open socket, bind and start listen.  */
   ctl_sock = socket (AF_INET, SOCK_STREAM, 0);
@@ -106,7 +106,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
   {
     int on = 1;
     if (setsockopt (ctl_sock, SOL_SOCKET, SO_REUSEADDR,
-		    (char *)&on, sizeof(on)) < 0)
+		    (char *) &on, sizeof (on)) < 0)
       syslog (LOG_ERR, "control setsockopt: %m");
   }
 
@@ -114,7 +114,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons (port);
 
-  if (bind (ctl_sock, (struct sockaddr *)&server_addr, sizeof server_addr))
+  if (bind (ctl_sock, (struct sockaddr *) &server_addr, sizeof server_addr))
     {
       syslog (LOG_ERR, "control bind: %m");
       return -1;
@@ -132,8 +132,8 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
       syslog (LOG_ERR, "can't open %s: %m", PATH_FTPDPID);
     else
       {
-	fprintf (pid_fp, "%d\n", getpid());
-	fchmod (fileno(pid_fp), S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+	fprintf (pid_fp, "%d\n", getpid ());
+	fchmod (fileno (pid_fp), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	fclose (pid_fp);
       }
   }
@@ -143,8 +143,8 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
   while (1)
     {
       int addrlen = sizeof (*phis_addr);
-      fd = accept (ctl_sock, (struct sockaddr *)phis_addr, &addrlen);
-      if (fork () == 0) /* child */
+      fd = accept (ctl_sock, (struct sockaddr *) phis_addr, &addrlen);
+      if (fork () == 0)		/* child */
 	{
 	  dup2 (fd, 0);
 	  dup2 (fd, 1);
@@ -156,7 +156,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
 
 #ifdef WITH_WRAP
   /* In the child.  */
-  if (!check_host ((struct sockaddr *)phis_addr))
+  if (!check_host ((struct sockaddr *) phis_addr))
     return -1;
 #endif
   return fd;

@@ -38,13 +38,13 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_FILIO_H
-#include <sys/filio.h>
+# include <sys/filio.h>
 #endif
 #ifdef TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -60,7 +60,7 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
 #include <errno.h>
 #include <string.h>
 #ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
+# include <sys/select.h>
 #endif
 #include "talk.h"
 
@@ -70,93 +70,98 @@ static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
  * The routine to do the actual talking
  */
 int
-talk()
+talk ()
 {
-	fd_set read_template, read_set;
-	int stdin_fd = fileno (stdin);
-	int i, nb, num_fds;
-	char buf[BUFSIZ];
-	struct timeval wait;
+  fd_set read_template, read_set;
+  int stdin_fd = fileno (stdin);
+  int i, nb, num_fds;
+  char buf[BUFSIZ];
+  struct timeval wait;
 
-	message("Connection established");
-	beep();
-	current_line = 0;
+  message ("Connection established");
+  beep ();
+  current_line = 0;
 
-	/*
-	 * Wait on both the other process (SOCKET) and stdin.
-	 */
-	FD_ZERO (&read_template);
-	FD_SET (sockt, &read_template);
-	FD_SET (stdin_fd, &read_template);
-	num_fds = (stdin_fd > sockt ? stdin_fd : sockt) + 1;
+  /*
+   * Wait on both the other process (SOCKET) and stdin.
+   */
+  FD_ZERO (&read_template);
+  FD_SET (sockt, &read_template);
+  FD_SET (stdin_fd, &read_template);
+  num_fds = (stdin_fd > sockt ? stdin_fd : sockt) + 1;
 
-	for (;;) {
-		read_set = read_template;
-		wait.tv_sec = A_LONG_TIME;
-		wait.tv_usec = 0;
-		nb = select (num_fds, &read_set, 0, 0, &wait);
-		if (nb <= 0) {
-			if (errno == EINTR) {
-				read_set = read_template;
-				continue;
-			}
-			/* panic, we don't know what happened */
-			p_error("Unexpected error from select");
-			quit();
-		}
-		if (FD_ISSET (sockt, &read_set)) {
-			/* There is data on sockt */
-			nb = read(sockt, buf, sizeof buf);
-			if (nb <= 0) {
-				message("Connection closed. Exiting");
-				quit();
-			}
-			display(&his_win, buf, nb);
-		}
-		if (FD_ISSET (stdin_fd, &read_set)) {
-			/*
-			 * We can't make the tty non_blocking, because
-			 * curses's output routines would screw up
-			 */
-			ioctl(0, FIONREAD, (struct sgttyb *) &nb);
-			for (i = 0; i < nb; i++)
-				buf[i] = getch();
-			display(&my_win, buf, nb);
-			/* might lose data here because sockt is non-blocking */
-			write(sockt, buf, nb);
-		}
+  for (;;)
+    {
+      read_set = read_template;
+      wait.tv_sec = A_LONG_TIME;
+      wait.tv_usec = 0;
+      nb = select (num_fds, &read_set, 0, 0, &wait);
+      if (nb <= 0)
+	{
+	  if (errno == EINTR)
+	    {
+	      read_set = read_template;
+	      continue;
+	    }
+	  /* panic, we don't know what happened */
+	  p_error ("Unexpected error from select");
+	  quit ();
 	}
+      if (FD_ISSET (sockt, &read_set))
+	{
+	  /* There is data on sockt */
+	  nb = read (sockt, buf, sizeof buf);
+	  if (nb <= 0)
+	    {
+	      message ("Connection closed. Exiting");
+	      quit ();
+	    }
+	  display (&his_win, buf, nb);
+	}
+      if (FD_ISSET (stdin_fd, &read_set))
+	{
+	  /*
+	   * We can't make the tty non_blocking, because
+	   * curses's output routines would screw up
+	   */
+	  ioctl (0, FIONREAD, (struct sgttyb *) &nb);
+	  for (i = 0; i < nb; i++)
+	    buf[i] = getch ();
+	  display (&my_win, buf, nb);
+	  /* might lose data here because sockt is non-blocking */
+	  write (sockt, buf, nb);
+	}
+    }
 }
 
-extern	int errno;
-extern	int sys_nerr;
+extern int errno;
+extern int sys_nerr;
 
 /*
  * p_error prints the system error message on the standard location
  * on the screen and then exits. (i.e. a curses version of perror)
  */
 int
-p_error(char *string)
+p_error (char *string)
 {
-	wmove(my_win.x_win, current_line%my_win.x_nlines, 0);
-	wprintw(my_win.x_win, "[%s : %s (%d)]\n",
-	    string, strerror(errno), errno);
-	wrefresh(my_win.x_win);
-	move(LINES-1, 0);
-	refresh();
-	quit();
+  wmove (my_win.x_win, current_line % my_win.x_nlines, 0);
+  wprintw (my_win.x_win, "[%s : %s (%d)]\n", string, strerror (errno), errno);
+  wrefresh (my_win.x_win);
+  move (LINES - 1, 0);
+  refresh ();
+  quit ();
 }
 
 /*
  * Display string in the standard location
  */
 int
-message(char *string)
+message (char *string)
 {
-	wmove(my_win.x_win, current_line % my_win.x_nlines, 0);
-	wprintw(my_win.x_win, "[%s]", string);
-	wclrtoeol(my_win.x_win);
-	current_line++;
-	wmove(my_win.x_win, current_line % my_win.x_nlines, 0);
-	wrefresh(my_win.x_win);
+  wmove (my_win.x_win, current_line % my_win.x_nlines, 0);
+  wprintw (my_win.x_win, "[%s]", string);
+  wclrtoeol (my_win.x_win);
+  current_line++;
+  wmove (my_win.x_win, current_line % my_win.x_nlines, 0);
+  wrefresh (my_win.x_win);
 }

@@ -19,11 +19,11 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifdef HAVE_STDLIB_H
-#include <stdlib.h>
+# include <stdlib.h>
 #endif
 
 #include <signal.h>
@@ -36,21 +36,21 @@ setsig (int sig, sig_t handler)
 #ifdef HAVE_SIGACTION
   struct sigaction sa;
   sigemptyset (&sa.sa_mask);
-#ifdef SA_RESTART
+# ifdef SA_RESTART
   sa.sa_flags = SA_RESTART;
-#endif
+# endif
   sa.sa_handler = handler;
   sigaction (sig, &sa, &sa);
   return sa.sa_handler;
 #else /* !HAVE_SIGACTION */
-#ifdef HAVE_SIGVEC
+# ifdef HAVE_SIGVEC
   struct sigvec sv;
   sigemptyset (&sv.sv_mask);
   sv.sv_handler = handler;
   sigvec (sig, &sv, &sv);
   return sv.sv_handler;
-#else /* !HAVE_SIGVEC */
+# else /* !HAVE_SIGVEC */
   return signal (sig, handler);
-#endif /* HAVE_SIGVEC */
+# endif	/* HAVE_SIGVEC */
 #endif /* HAVE_SIGACTION */
 }

@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)get_names.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <stdlib.h>
@@ -42,89 +42,100 @@ static char sccsid[] = "@(#)get_names.c	8.1 (Berkeley) 6/6/93";
 #include <sys/param.h>
 #include <sys/socket.h>
 #ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
+# include <osockaddr.h>
 #endif
 #include <protocols/talkd.h>
 #include <pwd.h>
 #include <libinetutils.h>
 #include "talk.h"
 
-char	*getlogin();
-char	*ttyname();
-extern	CTL_MSG msg;
+char *getlogin ();
+char *ttyname ();
+extern CTL_MSG msg;
 
 /*
  * Determine the local and remote user, tty, and machines
  */
 int
-get_names(int argc, char *argv[])
+get_names (int argc, char *argv[])
 {
-	char *his_name, *my_name;
-	char *my_machine_name, *his_machine_name;
-	char *my_tty, *his_tty;
-	register char *cp;
+  char *his_name, *my_name;
+  char *my_machine_name, *his_machine_name;
+  char *my_tty, *his_tty;
+  register char *cp;
 
-	if (argc < 2 ) {
-		printf("Usage: talk user [ttyname]\n");
-		exit(-1);
-	}
-	if (!isatty(0)) {
-		printf("Standard input must be a tty, not a pipe or a file\n");
-		exit(-1);
-	}
-	if ((my_name = getlogin()) == NULL) {
-		struct passwd *pw;
+  if (argc < 2)
+    {
+      printf ("Usage: talk user [ttyname]\n");
+      exit (-1);
+    }
+  if (!isatty (0))
+    {
+      printf ("Standard input must be a tty, not a pipe or a file\n");
+      exit (-1);
+    }
+  if ((my_name = getlogin ()) == NULL)
+    {
+      struct passwd *pw;
 
-		if ((pw = getpwuid(getuid())) == NULL) {
-			printf("You don't exist. Go away.\n");
-			exit(-1);
-		}
-		my_name = pw->pw_name;
+      if ((pw = getpwuid (getuid ())) == NULL)
+	{
+	  printf ("You don't exist. Go away.\n");
+	  exit (-1);
 	}
+      my_name = pw->pw_name;
+    }
 
-	my_machine_name = localhost ();
-	if (! my_machine_name) {
-		perror ("Cannot get local hostname");
-		exit (-1);
+  my_machine_name = localhost ();
+  if (!my_machine_name)
+    {
+      perror ("Cannot get local hostname");
+      exit (-1);
+    }
+
+  /* check for, and strip out, the machine name of the target */
+  for (cp = argv[1]; *cp && !strchr ("@:!.", *cp); cp++)
+    ;
+  if (*cp == '\0')
+    {
+      /* this is a local to local talk */
+      his_name = argv[1];
+      his_machine_name = my_machine_name;
+    }
+  else
+    {
+      if (*cp++ == '@')
+	{
+	  /* user@host */
+	  his_name = argv[1];
+	  his_machine_name = cp;
 	}
-
-	/* check for, and strip out, the machine name of the target */
-	for (cp = argv[1]; *cp && !strchr ("@:!.", *cp); cp++)
-		;
-	if (*cp == '\0') {
-		/* this is a local to local talk */
-		his_name = argv[1];
-		his_machine_name = my_machine_name;
-	} else {
-		if (*cp++ == '@') {
-			/* user@host */
-			his_name = argv[1];
-			his_machine_name = cp;
-		} else {
-			/* host.user or host!user or host:user */
-			his_name = cp;
-			his_machine_name = argv[1];
-		}
-		*--cp = '\0';
+      else
+	{
+	  /* host.user or host!user or host:user */
+	  his_name = cp;
+	  his_machine_name = argv[1];
 	}
-	if (argc > 2)
-		his_tty = argv[2];	/* tty name is arg 2 */
-	else
-		his_tty = "";
-	get_addrs(my_machine_name, his_machine_name);
-	/*
-	 * Initialize the message template.
-	 */
-	msg.vers = TALK_VERSION;
-	msg.addr.sa_family = htons(AF_INET);
-	msg.ctl_addr.sa_family = htons(AF_INET);
-	msg.id_num = htonl(0);
-	strncpy(msg.l_name, my_name, NAME_SIZE);
-	msg.l_name[NAME_SIZE - 1] = '\0';
-	strncpy(msg.r_name, his_name, NAME_SIZE);
-	msg.r_name[NAME_SIZE - 1] = '\0';
-	strncpy(msg.r_tty, his_tty, TTY_SIZE);
-	msg.r_tty[TTY_SIZE - 1] = '\0';
+      *--cp = '\0';
+    }
+  if (argc > 2)
+    his_tty = argv[2];		/* tty name is arg 2 */
+  else
+    his_tty = "";
+  get_addrs (my_machine_name, his_machine_name);
+  /*
+   * Initialize the message template.
+   */
+  msg.vers = TALK_VERSION;
+  msg.addr.sa_family = htons (AF_INET);
+  msg.ctl_addr.sa_family = htons (AF_INET);
+  msg.id_num = htonl (0);
+  strncpy (msg.l_name, my_name, NAME_SIZE);
+  msg.l_name[NAME_SIZE - 1] = '\0';
+  strncpy (msg.r_name, his_name, NAME_SIZE);
+  msg.r_name[NAME_SIZE - 1] = '\0';
+  strncpy (msg.r_tty, his_tty, TTY_SIZE);
+  msg.r_tty[TTY_SIZE - 1] = '\0';
 
-	free (my_machine_name);
+  free (my_machine_name);
 }

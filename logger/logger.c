@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 #endif
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <errno.h>
@@ -43,7 +43,7 @@ static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
 #include <string.h>
 #include <getopt.h>
 
-#define	SYSLOG_NAMES
+#define SYSLOG_NAMES
 #include <syslog.h>
 #ifndef HAVE_SYSLOG_INTERNAL
 # include <syslog-int.h>
@@ -56,14 +56,13 @@ static void usage (int);
 char *program_name;
 
 static const char *short_options = "isf:p:t:";
-static struct option long_options[] =
-{
-  { "file", required_argument, 0, 'f' },
-  { "priority", required_argument, 0, 'p' },
-  { "tag", required_argument, 0, 't' },
-  { "help", no_argument, 0, '&' },
-  { "version", no_argument, 0, 'V' },
-  { 0, 0, 0, 0 }
+static struct option long_options[] = {
+  {"file", required_argument, 0, 'f'},
+  {"priority", required_argument, 0, 'p'},
+  {"tag", required_argument, 0, 't'},
+  {"help", no_argument, 0, '&'},
+  {"version", no_argument, 0, 'V'},
+  {0, 0, 0, 0}
 };
 
 static void
@@ -72,7 +71,8 @@ usage (int err)
   if (err != 0)
     {
       fprintf (stderr, "Usage: %s [OPTION] ...\n", program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n",
+	       program_name);
     }
   else
     {
@@ -112,26 +112,26 @@ main (int argc, char *argv[])
   while ((option = getopt_long (argc, argv, short_options,
 				long_options, 0)) != EOF)
     {
-      switch(option)
+      switch (option)
 	{
-	case 'f': /* Log from file.  */
+	case 'f':		/* Log from file.  */
 	  if (freopen (optarg, "r", stdin) == NULL)
 	    {
 	      fprintf (stderr, "%s: %s: %s\n", program_name, optarg,
 		       strerror (errno));
-	      exit(1);
+	      exit (1);
 	    }
 	  break;
 
-	case 'i': /* Log process id also.  */
+	case 'i':		/* Log process id also.  */
 	  logflags |= LOG_PID;
 	  break;
 
-	case 'p': /* Set priority to log.  */
+	case 'p':		/* Set priority to log.  */
 	  pri = pencode (optarg);
 	  break;
 
-	case 's': /* Log to standard error as well.  */
+	case 's':		/* Log to standard error as well.  */
 #ifdef LOG_PERROR
 	  logflags |= LOG_PERROR;
 #else
@@ -140,37 +140,37 @@ main (int argc, char *argv[])
 #endif
 	  break;
 
-	case 't': /* Tag message.  */
+	case 't':		/* Tag message.  */
 	  tag = optarg;
 	  break;
 
-	case '&': /* Usage.  */
+	case '&':		/* Usage.  */
 	  usage (0);
 	  /* Not reached.  */
 
-	case 'V': /* Version.  */
+	case 'V':		/* Version.  */
 	  printf ("syslog (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-          exit (0);
+	  exit (0);
 
 	case '?':
 	default:
 	  usage (1);
 	}
     }
-  
+
   argc -= optind;
   argv += optind;
-  
+
   /* Setup for logging.  */
-  openlog (tag ? tag : getlogin(), logflags, 0);
+  openlog (tag ? tag : getlogin (), logflags, 0);
   fclose (stdout);
-  
+
   /* Log input line if appropriate.  */
   if (argc > 0)
     {
       char *p, *endp;
       int len;
-      
+
       for (p = buf, endp = buf + sizeof (buf) - 2; *argv;)
 	{
 	  len = strlen (*argv);
@@ -204,7 +204,7 @@ pencode (char *s)
 {
   char *save;
   int fac, lev;
-  
+
   for (save = s; *s && *s != '.'; ++s);
   if (*s)
     {
@@ -227,13 +227,13 @@ pencode (char *s)
   if (lev < 0)
     {
       fprintf (stderr, "%s: unknown priority name: %s\n", program_name, save);
-      exit(1);
+      exit (1);
     }
   return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));
 }
 
 int
-decode (char *name, CODE *codetab)
+decode (char *name, CODE * codetab)
 {
   CODE *c;
 

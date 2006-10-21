@@ -21,7 +21,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/stat.h>
@@ -29,7 +29,7 @@
 #include <errno.h>
 
 #if HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #if HAVE_STRING_H
@@ -53,15 +53,11 @@
 #include <linux/if_ether.h>
 
 #include "../ifconfig.h"
-
 
+
 /* Output format stuff.  */
 
-const char *system_default_format "osf"
-
-
-/* Argument parsing stuff.  */
-
+const char *system_default_format "osf"/* Argument parsing stuff.  */
 const char *system_help = "\
   NAME [AF]
 or
@@ -71,7 +67,7 @@ or
 const char *system_help_options;
 
 int
-system_parse_opt(struct ifconfig **ifp, char option, char *optarg)
+system_parse_opt (struct ifconfig **ifp, char option, char *optarg)
 {
   return 0;
 }
@@ -120,23 +116,23 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 
       if (expect != EXPECT_NOTHING)
 	expect = EXPECT_NOTHING;
-      else if (! strcmp (argv[i], "broadcast"))
+      else if (!strcmp (argv[i], "broadcast"))
 	expect = EXPECT_BROADCAST;
-      else if (! strcmp (argv[i], "netmask"))
+      else if (!strcmp (argv[i], "netmask"))
 	expect = EXPECT_NETMASK;
-      else if (! strcmp (argv[i], "metric"))
+      else if (!strcmp (argv[i], "metric"))
 	expect = EXPECT_METRIC;
       else
 	{
 	  /* Recognize up/down.  */
 	  /* Also debug, -debug, trailers, -trailers,
 	     ipdst.  */
-	  if (! (*ifp->valid & IF_VALID_ADDR))
+	  if (!(*ifp->valid & IF_VALID_ADDR))
 	    {
 	      parse_opt_set_address (*ifp, argv[i]);
 	      expect = EXPECT_AF;
 	    }
-	  else if (! (*ifp->valid & IF_VALID_DSTADDR))
+	  else if (!(*ifp->valid & IF_VALID_DSTADDR))
 	    parse_opt_set_dstaddr (*ifp, argv[i]);
 	}
     }
@@ -162,7 +158,7 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
     case EXPECT_AF:
     case EXPECT_NOTHING:
       expect = EXPECT_NOTHING;
-     break;
+      break;
     }
   if (expect != EXPECT_NOTHING)
     usage (EXIT_FAILURE);

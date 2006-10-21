@@ -28,7 +28,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -71,92 +71,91 @@
 #endif
 
 #ifdef SHISHI
-#define REALM_SZ 1040
+# define REALM_SZ 1040
 #endif
 
 #if defined(KERBEROS) || defined(SHISHI)
 int use_kerberos = 1, doencrypt;
-#ifdef KERBEROS
-#include <kerberosIV/des.h>
-#include <kerberosIV/krb.h>
+# ifdef KERBEROS
+#  include <kerberosIV/des.h>
+#  include <kerberosIV/krb.h>
 char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
 CREDENTIALS cred;
 Key_schedule schedule;
-extern char *krb_realmofhost();
+extern char *krb_realmofhost ();
 
 # elif defined(SHISHI)
-# include <shishi.h>
-# include "shishi_def.h"
+#  include <shishi.h>
+#  include "shishi_def.h"
 char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
 
-Shishi * h;
-Shishi_key * enckey;
+Shishi *h;
+Shishi_key *enckey;
 shishi_ivector iv1, iv2, iv3, iv4;
-shishi_ivector * ivtab[4];
+shishi_ivector *ivtab[4];
 
 int keytype;
 int keylen;
 int rc;
 int wlen;
-#endif
+# endif
 #endif /* KERBEROS */
 
 /*
  * rsh - remote shell
  */
-int	rfd2;
+int rfd2;
 
 char *copyargs (char **);
-RETSIGTYPE sendsig   (int);
-void talk      (int, sigset_t *, pid_t, int);
-void usage     (void);
-void warning   (const char *, ...);
+RETSIGTYPE sendsig (int);
+void talk (int, sigset_t *, pid_t, int);
+void usage (void);
+void warning (const char *, ...);
 
 char *program_name;
 
 #ifdef KERBEROS
-#ifdef ENCRYPTION
-#define	OPTIONS	"8Kdek:l:nxVh"
+# ifdef ENCRYPTION
+#  define OPTIONS	"8Kdek:l:nxVh"
+# else
+#  define OPTIONS	"8Kdek:l:nVh"
+# endif
 #else
-#define	OPTIONS	"8Kdek:l:nVh"
-#endif
-#else
-#define	OPTIONS	"8KLdel:nVh"
+# define OPTIONS	"8KLdel:nVh"
 #endif
 static const char *short_options = "+" OPTIONS;
-static struct option long_options[] =
-{
-  { "debug", no_argument, 0, 'd' },
-  { "user", required_argument, 0, 'l' },
-  { "escape", required_argument, 0, 'e' },
-  { "8-bit", no_argument, 0, '8' },
-  { "kerberos", no_argument, 0, 'K' },
-  { "no-input", no_argument, 0, 'n' },
+static struct option long_options[] = {
+  {"debug", no_argument, 0, 'd'},
+  {"user", required_argument, 0, 'l'},
+  {"escape", required_argument, 0, 'e'},
+  {"8-bit", no_argument, 0, '8'},
+  {"kerberos", no_argument, 0, 'K'},
+  {"no-input", no_argument, 0, 'n'},
 #if defined(KERBEROS) || defined(SHISHI)
-  { "realm", required_argument, 0, 'k' },
-  { "encrypt", no_argument, 0, 'x' },
+  {"realm", required_argument, 0, 'k'},
+  {"encrypt", no_argument, 0, 'x'},
 #endif
-  { "help", no_argument, 0, 'h' },
-  { "version", no_argument, 0, 'V' },
-  { 0, 0, 0, 0 }
+  {"help", no_argument, 0, 'h'},
+  {"version", no_argument, 0, 'V'},
+  {0, 0, 0, 0}
 };
 
 static void
-pusage (FILE *stream)
+pusage (FILE * stream)
 {
   fprintf (stream,
-	  "Usage: %s [-nd%s]%s[-l USER] [USER@]HOST [COMMAND [ARG...]]\n",
+	   "Usage: %s [-nd%s]%s[-l USER] [USER@]HOST [COMMAND [ARG...]]\n",
 	   program_name,
 #if defined(KERBEROS) || defined(SHISHI)
-#ifdef ENCRYPTION
-	    "x", " [-k REALM] "
+# ifdef ENCRYPTION
+	   "x", " [-k REALM] "
+# else
+	   "", " [-k REALM] "
+# endif
 #else
-	    "", " [-k REALM] "
+	   "", " "
 #endif
-#else
-	    "", " "
-#endif
-	   );
+    );
 }
 
 /* Print a help message describing all options to STDOUT and exit with a
@@ -210,13 +209,13 @@ try_help (void)
 }
 
 void
-usage()
+usage ()
 {
   pusage (stderr);
   try_help ();
 }
-
 
+
 int
 main (int argc, char **argv)
 {
@@ -235,7 +234,7 @@ main (int argc, char **argv)
 
   /* If called as something other than "rsh", use it as the host name */
   {
-    char *p = strrchr(argv[0], '/');
+    char *p = strrchr (argv[0], '/');
     if (p)
       ++p;
     else
@@ -251,7 +250,7 @@ main (int argc, char **argv)
     {
       switch (ch)
 	{
-	case 'L':	/* -8Lew are ignored to allow rlogin aliases */
+	case 'L':		/* -8Lew are ignored to allow rlogin aliases */
 	case 'e':
 	case 'w':
 	case '8':
@@ -274,16 +273,16 @@ main (int argc, char **argv)
 #if defined(KERBEROS) || defined(SHISHI)
 	case 'k':
 	  strncpy (dest_realm_buf, optarg, sizeof dest_realm_buf);
-	  dest_realm_buf [REALM_SZ - 1] = '\0';
+	  dest_realm_buf[REALM_SZ - 1] = '\0';
 	  dest_realm = dest_realm_buf;
 	  break;
 
 # ifdef ENCRYPTION
 	case 'x':
 	  doencrypt = 1;
-#ifdef KERBEROS
+#  ifdef KERBEROS
 	  des_set_key (cred.session, schedule);
-#endif
+#  endif
 	  break;
 # endif
 #endif
@@ -303,7 +302,7 @@ main (int argc, char **argv)
 	  try_help ();
 
 	default:
-	  usage();
+	  usage ();
 	}
     }
 
@@ -318,7 +317,7 @@ main (int argc, char **argv)
   if (!argv[optind])
     {
       if (asrsh)
-	*argv = (char *)"rlogin";
+	*argv = (char *) "rlogin";
       seteuid (getuid ());
       setuid (getuid ());
       execv (PATH_RLOGIN, argv);
@@ -350,11 +349,11 @@ main (int argc, char **argv)
   }
 
 #if defined(KERBEROS) || defined(SHISHI)
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   /* -x turns off -n */
   if (doencrypt)
     nflag = 0;
-#endif
+# endif
 #endif
 
   args = copyargs (argv);
@@ -378,65 +377,64 @@ main (int argc, char **argv)
       if (sp == NULL)
 	{
 	  use_kerberos = 0;
-	  warning ("can't get entry for %s/tcp service",
-		   "kshell");
+	  warning ("can't get entry for %s/tcp service", "kshell");
 	}
     }
 #endif
   if (sp == NULL)
-    sp = getservbyname("shell", "tcp");
+    sp = getservbyname ("shell", "tcp");
   if (sp == NULL)
     error (1, 0, "shell/tcp: unknown service");
 
 
 #if defined (KERBEROS) || defined(SHISHI)
- try_connect:
+try_connect:
   if (use_kerberos)
     {
       struct hostent *hp;
 
       /* fully qualify hostname (needed for krb_realmofhost) */
-      hp = gethostbyname(host);
+      hp = gethostbyname (host);
       if (hp != NULL && !(host = strdup (hp->h_name)))
 	error (1, errno, "strdup");
 
-#if defined (KERBEROS) 
+# if defined (KERBEROS)
       rem = KSUCCESS;
       errno = 0;
       if (dest_realm == NULL)
 	dest_realm = krb_realmofhost (host);
-#elif defined (SHISHI)
+# elif defined (SHISHI)
       rem = SHISHI_OK;
       errno = 0;
-#endif
+# endif
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
       if (doencrypt)
-#if defined(SHISHI)
+#  if defined(SHISHI)
 	{
 	  int i;
-	  char * term;
-	  
-	  term = (char *)xmalloc (strlen(args)+4);
+	  char *term;
+
+	  term = (char *) xmalloc (strlen (args) + 4);
 	  strcpy (term, "-x ");
 	  strcat (term, args);
-	  
+
 	  rem = krcmd_mutual (&h, &host, sp->s_port, &user, term, &rfd2,
 			      dest_realm, &enckey);
 	  if (rem > 0)
 	    {
 	      keytype = shishi_key_type (enckey);
-	      keylen = shishi_cipher_blocksize (keytype);		
-      
+	      keylen = shishi_cipher_blocksize (keytype);
+
 	      ivtab[0] = &iv1;
 	      ivtab[1] = &iv2;
 	      ivtab[2] = &iv3;
 	      ivtab[3] = &iv4;
 
-	      for (i=0; i<4; i++)
+	      for (i = 0; i < 4; i++)
 		{
 		  ivtab[i]->ivlen = keylen;
-	     
+
 		  switch (keytype)
 		    {
 		    case SHISHI_DES_CBC_CRC:
@@ -446,40 +444,49 @@ main (int argc, char **argv)
 		    case SHISHI_DES3_CBC_HMAC_SHA1_KD:
 		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
 		      ivtab[i]->iv = malloc (ivtab[i]->ivlen);
-		      memset (ivtab[i]->iv, 2*i + 1*(i<2) - 4*(i>=2), ivtab[i]->ivlen);
-		      ivtab[i]->ctx = shishi_crypto (h, enckey, ivtab[i]->keyusage, shishi_key_type (enckey),
-						     ivtab[i]->iv, ivtab[i]->ivlen);
+		      memset (ivtab[i]->iv,
+			      2 * i + 1 * (i < 2) - 4 * (i >= 2),
+			      ivtab[i]->ivlen);
+		      ivtab[i]->ctx =
+			shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				       shishi_key_type (enckey), ivtab[i]->iv,
+				       ivtab[i]->ivlen);
 		      break;
 		    case SHISHI_ARCFOUR_HMAC:
 		    case SHISHI_ARCFOUR_HMAC_EXP:
-		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES + 2 + 4*i;
-		      ivtab[i]->ctx = shishi_crypto (h, enckey, ivtab[i]->keyusage, shishi_key_type (enckey),
-						     NULL, 0);
+		      ivtab[i]->keyusage =
+			SHISHI_KEYUSAGE_KCMD_DES + 2 + 4 * i;
+		      ivtab[i]->ctx =
+			shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				       shishi_key_type (enckey), NULL, 0);
 		      break;
-		    default :  
-		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES + 2 + 4*i;
+		    default:
+		      ivtab[i]->keyusage =
+			SHISHI_KEYUSAGE_KCMD_DES + 2 + 4 * i;
 		      ivtab[i]->iv = malloc (ivtab[i]->ivlen);
 		      memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
-		      ivtab[i]->ctx = shishi_crypto (h, enckey, ivtab[i]->keyusage, shishi_key_type (enckey),
-						     ivtab[i]->iv, ivtab[i]->ivlen);
+		      ivtab[i]->ctx =
+			shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				       shishi_key_type (enckey), ivtab[i]->iv,
+				       ivtab[i]->ivlen);
 		    }
 		}
 	    }
 	  free (term);
 	}
       else
-#else
+#  else
 	rem = krcmd_mutual (&host, sp->s_port, user, args, &rfd2,
 			    dest_realm, &cred, schedule);
       else
-#endif
-#endif
+#  endif
+# endif
 	rem = krcmd (
-#if defined (SHISHI)
-		     &h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
-#else
-	             &host, sp->s_port, user, args, &rfd2, dest_realm);
-#endif
+# if defined (SHISHI)
+		      &h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
+# else
+		      &host, sp->s_port, user, args, &rfd2, dest_realm);
+# endif
       if (rem < 0)
 	{
 	  use_kerberos = 0;
@@ -496,14 +503,14 @@ main (int argc, char **argv)
   else
     {
       if (!user)
-	  user = pw->pw_name;
+	user = pw->pw_name;
       if (doencrypt)
 	error (1, 0, "the -x flag requires Kerberos authentication");
       rem = rcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
     }
 #else
   if (!user)
-     user = pw->pw_name;
+    user = pw->pw_name;
   rem = rcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
 #endif
 
@@ -551,9 +558,9 @@ main (int argc, char **argv)
     }
 
 #if defined(KERBEROS) || defined(SHISHI)
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   if (!doencrypt)
-#endif
+# endif
 #endif
     {
       int one = 1;
@@ -568,9 +575,9 @@ main (int argc, char **argv)
   if (use_kerberos)
     {
       int i;
-      
+
       shishi_done (h);
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
       if (doencrypt)
 	{
 	  shishi_key_done (enckey);
@@ -578,9 +585,9 @@ main (int argc, char **argv)
 	    {
 	      shishi_crypto_close (ivtab[i]->ctx);
 	      free (ivtab[i]->iv);
-	    }	  
+	    }
 	}
-#endif
+# endif
     }
 #endif
 
@@ -590,7 +597,7 @@ main (int argc, char **argv)
 }
 
 void
-talk (int nflag, sigset_t *osigs, pid_t pid, int rem)
+talk (int nflag, sigset_t * osigs, pid_t pid, int rem)
 {
   int cc, wc;
   fd_set readfrom, ready, rembits;
@@ -618,15 +625,15 @@ talk (int nflag, sigset_t *osigs, pid_t pid, int rem)
       if (!FD_ISSET (rem, &rembits))
 	goto rewrite;
 #ifdef ENCRYPTION
-#ifdef KERBEROS
+# ifdef KERBEROS
       if (doencrypt)
 	wc = des_write (rem, bp, cc);
       else
-#elif defined(SHISHI)
-	if (doencrypt)
-     writeenc (h, rem, bp, cc, &wc, &iv3, enckey, 2);
-     else
-#endif
+# elif defined(SHISHI)
+      if (doencrypt)
+	writeenc (h, rem, bp, cc, &wc, &iv3, enckey, 2);
+      else
+# endif
 #endif
 	wc = write (rem, bp, cc);
       if (wc < 0)
@@ -669,14 +676,14 @@ talk (int nflag, sigset_t *osigs, pid_t pid, int rem)
 	{
 	  errno = 0;
 #ifdef KERBEROS
-#ifdef CRYPT
+# ifdef CRYPT
 	  if (doenencryption)
 	    cc = des_read (rfd2, buf, sizeof buf);
 	  else
-#endif
+# endif
 #elif defined(SHISHI) && defined(ENCRYPTION)
-	    if (doencrypt)
-	      readenc (h, rfd2, buf, &cc, &iv2, enckey, 2);
+	  if (doencrypt)
+	    readenc (h, rfd2, buf, &cc, &iv2, enckey, 2);
 	  else
 #endif
 	    cc = read (rfd2, buf, sizeof buf);
@@ -692,14 +699,14 @@ talk (int nflag, sigset_t *osigs, pid_t pid, int rem)
 	{
 	  errno = 0;
 #ifdef KERBEROS
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
 	  if (doencrypt)
 	    cc = des_read (rem, buf, sizeof buf);
 	  else
-#endif
+# endif
 #elif defined(SHISHI) && defined(ENCRYPTION)
-	    if (doencrypt)
-	      readenc (h, rem, buf, &cc, &iv1, enckey, 2);
+	  if (doencrypt)
+	    readenc (h, rem, buf, &cc, &iv1, enckey, 2);
 	  else
 #endif
 	    cc = read (rem, buf, sizeof buf);
@@ -711,7 +718,8 @@ talk (int nflag, sigset_t *osigs, pid_t pid, int rem)
 	  else
 	    write (1, buf, cc);
 	}
-    } while (FD_ISSET (rfd2, &readfrom) || FD_ISSET (rem, &readfrom));
+    }
+  while (FD_ISSET (rfd2, &readfrom) || FD_ISSET (rem, &readfrom));
 }
 
 void
@@ -722,24 +730,23 @@ sendsig (int sig)
 
   signo = sig;
 #ifdef KERBEROS
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   if (doencrypt)
     des_write (rfd2, &signo, 1);
   else
-#endif
+# endif
 #elif defined(SHISHI) && defined (ENCRYPTION)
-	if (doencrypt)
-     writeenc (h, rfd2, &signo, 1, &n, &iv4, enckey, 2);
-     else
+  if (doencrypt)
+    writeenc (h, rfd2, &signo, 1, &n, &iv4, enckey, 2);
+  else
 #endif
 
     write (rfd2, &signo, 1);
 }
 
 #if defined(KERBEROS) || defined(SHISHI)
-/* VARARGS */
 void
-warning (const char * fmt, ...)
+warning (const char *fmt, ...)
 {
   va_list ap;
 
@@ -761,7 +768,7 @@ copyargs (char **argv)
   cc = 0;
   for (ap = argv; *ap; ++ap)
     cc += strlen (*ap) + 1;
-  if (!(args = malloc ((u_int)cc)))
+  if (!(args = malloc ((u_int) cc)))
     error (1, errno, "copyargs");
   for (p = args, ap = argv; *ap; ++ap)
     {

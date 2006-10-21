@@ -32,32 +32,32 @@ static char sccsid[] = "@(#)des_rw.c	8.1 (Berkeley) 6/6/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifdef ENCRYPTION
-#ifdef KERBEROS
-#include <sys/param.h>
+# ifdef KERBEROS
+#  include <sys/param.h>
 
-#include <kerberosIV/des.h>
-#include <kerberosIV/krb.h>
+#  include <kerberosIV/des.h>
+#  include <kerberosIV/krb.h>
 
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
+#  include <stdlib.h>
+#  include <string.h>
+#  include <time.h>
+#  include <unistd.h>
 
-static unsigned char	des_inbuf[10240], storage[10240], *store_ptr;
-static bit_64		*key;
-static u_char		*key_schedule;
+static unsigned char des_inbuf[10240], storage[10240], *store_ptr;
+static bit_64 *key;
+static u_char *key_schedule;
 
 /* XXX these should be in a kerberos include file */
-int	krb_net_read (int, char *, int);
-#ifdef notdef
+int krb_net_read (int, char *, int);
+#  ifdef notdef
 /* XXX too hard to make this work */
-int	des_pcbc_encrypt (des_cblock *, des_cblock *, long,
-	    des_key_schedule, des_cblock *, int);
-#endif
+int des_pcbc_encrypt (des_cblock *, des_cblock *, long,
+		      des_key_schedule, des_cblock *, int);
+#  endif
 
 /*
  * NB: These routines will not function properly if NBIO
@@ -65,120 +65,128 @@ int	des_pcbc_encrypt (des_cblock *, des_cblock *, long,
  */
 
 void
-des_clear_key()
+des_clear_key ()
 {
-  bzero((char *) key, sizeof(C_Block));
-  bzero((char *) key_schedule, sizeof(Key_schedule));
+  bzero ((char *) key, sizeof (C_Block));
+  bzero ((char *) key_schedule, sizeof (Key_schedule));
 }
 
 
 int
-des_read(fd, buf, len)
-	int fd;
-	register char *buf;
-	int len;
+des_read (fd, buf, len)
+     int fd;
+     register char *buf;
+     int len;
 {
-	int nreturned = 0;
-	long net_len, rd_len;
-	int nstored = 0;
+  int nreturned = 0;
+  long net_len, rd_len;
+  int nstored = 0;
 
-	if (nstored >= len) {
-		 bcopy(store_ptr, buf, len);
-		store_ptr += len;
-		nstored -= len;
-		return(len);
-	} else if (nstored) {
-		 bcopy(store_ptr, buf, nstored);
-		nreturned += nstored;
-		buf += nstored;
-		len -= nstored;
-		nstored = 0;
-	}
+  if (nstored >= len)
+    {
+      bcopy (store_ptr, buf, len);
+      store_ptr += len;
+      nstored -= len;
+      return (len);
+    }
+  else if (nstored)
+    {
+      bcopy (store_ptr, buf, nstored);
+      nreturned += nstored;
+      buf += nstored;
+      len -= nstored;
+      nstored = 0;
+    }
 
-	if (krb_net_read(fd, (char *)&net_len, sizeof(net_len)) !=
-	    sizeof(net_len)) {
-		/* XXX can't read enough, pipe
-		   must have closed */
-		return(0);
-	}
-	net_len = ntohl(net_len);
-	if (net_len <= 0 || net_len > sizeof(des_inbuf)) {
-		/* preposterous length; assume out-of-sync; only
-		   recourse is to close connection, so return 0 */
-		return(0);
-	}
-	/* the writer tells us how much real data we are getting, but
-	   we need to read the pad bytes (8-byte boundary) */
-	rd_len = roundup(net_len, 8);
-	if (krb_net_read(fd, (char *)des_inbuf, rd_len) != rd_len) {
-		/* pipe must have closed, return 0 */
-		return(0);
-	}
-	 des_pcbc_encrypt(des_inbuf,	/* inbuf */
-			    storage,		/* outbuf */
-			    net_len,		/* length */
-			    key_schedule,	/* DES key */
-			    key,		/* IV */
-			    DECRYPT);		/* direction */
+  if (krb_net_read (fd, (char *) &net_len, sizeof (net_len)) !=
+      sizeof (net_len))
+    {
+      /* XXX can't read enough, pipe
+         must have closed */
+      return (0);
+    }
+  net_len = ntohl (net_len);
+  if (net_len <= 0 || net_len > sizeof (des_inbuf))
+    {
+      /* preposterous length; assume out-of-sync; only
+         recourse is to close connection, so return 0 */
+      return (0);
+    }
+  /* the writer tells us how much real data we are getting, but
+     we need to read the pad bytes (8-byte boundary) */
+  rd_len = roundup (net_len, 8);
+  if (krb_net_read (fd, (char *) des_inbuf, rd_len) != rd_len)
+    {
+      /* pipe must have closed, return 0 */
+      return (0);
+    }
+  des_pcbc_encrypt (des_inbuf,	/* inbuf */
+		    storage,	/* outbuf */
+		    net_len,	/* length */
+		    key_schedule,	/* DES key */
+		    key,	/* IV */
+		    DECRYPT);	/* direction */
 
-	if(net_len < 8)
-		store_ptr = storage + 8 - net_len;
-	else
-		store_ptr = storage;
+  if (net_len < 8)
+    store_ptr = storage + 8 - net_len;
+  else
+    store_ptr = storage;
 
-	nstored = net_len;
-	if (nstored > len) {
-		 bcopy(store_ptr, buf, len);
-		nreturned += len;
-		store_ptr += len;
-		nstored -= len;
-	} else {
-		 bcopy(store_ptr, buf, nstored);
-		nreturned += nstored;
-		nstored = 0;
-	}
+  nstored = net_len;
+  if (nstored > len)
+    {
+      bcopy (store_ptr, buf, len);
+      nreturned += len;
+      store_ptr += len;
+      nstored -= len;
+    }
+  else
+    {
+      bcopy (store_ptr, buf, nstored);
+      nreturned += nstored;
+      nstored = 0;
+    }
 
-	return(nreturned);
+  return (nreturned);
 }
 
-static	unsigned char des_outbuf[10240];	/* > longest write */
+static unsigned char des_outbuf[10240];	/* > longest write */
 
 int
-des_write(fd, buf, len)
-	int fd;
-	char *buf;
-	int len;
+des_write (fd, buf, len)
+     int fd;
+     char *buf;
+     int len;
 {
-	static	int	seeded = 0;
-	static	char	garbage_buf[8];
-	long net_len, garbage;
+  static int seeded = 0;
+  static char garbage_buf[8];
+  long net_len, garbage;
 
-	if(len < 8) {
-		if(!seeded) {
-			seeded = 1;
-			srandom((int) time((long *)0));
-		}
-		garbage = random();
-		/* insert random garbage */
-		 bcopy(&garbage, garbage_buf, MIN(sizeof(long),8));
-		/* this "right-justifies" the data in the buffer */
-		 bcopy(buf, garbage_buf + 8 - len, len);
+  if (len < 8)
+    {
+      if (!seeded)
+	{
+	  seeded = 1;
+	  srandom ((int) time ((long *) 0));
 	}
-	/* pcbc_encrypt outputs in 8-byte (64 bit) increments */
+      garbage = random ();
+      /* insert random garbage */
+      bcopy (&garbage, garbage_buf, MIN (sizeof (long), 8));
+      /* this "right-justifies" the data in the buffer */
+      bcopy (buf, garbage_buf + 8 - len, len);
+    }
+  /* pcbc_encrypt outputs in 8-byte (64 bit) increments */
 
-	 des_pcbc_encrypt((len < 8) ? garbage_buf : buf,
-			    des_outbuf,
-			    (len < 8) ? 8 : len,
-			    key_schedule,	/* DES key */
-			    key,		/* IV */
-			    ENCRYPT);
+  des_pcbc_encrypt ((len < 8) ? garbage_buf : buf, des_outbuf, (len < 8) ? 8 : len, key_schedule,	/* DES key */
+		    key,	/* IV */
+		    ENCRYPT);
 
-	/* tell the other end the real amount, but send an 8-byte padded
-	   packet */
-	net_len = htonl(len);
-	 write(fd, &net_len, sizeof(net_len));
-	 write(fd, des_outbuf, roundup(len,8));
-	return(len);
+  /* tell the other end the real amount, but send an 8-byte padded
+     packet */
+  net_len = htonl (len);
+  write (fd, &net_len, sizeof (net_len));
+  write (fd, des_outbuf, roundup (len, 8));
+  return (len);
 }
-#endif /* KERBEROS */
+# endif	/* KERBEROS */
 #endif /* CRYPT */

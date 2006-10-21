@@ -47,16 +47,16 @@ static char sccsid[] = "@(#)read_passwd.c	8.3 (Berkeley) 5/30/95";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
-#if	defined(RSA_ENCPWD) || defined(KRB4_ENCPWD)
+#if defined(RSA_ENCPWD) || defined(KRB4_ENCPWD)
 
-#include <stdio.h>
-#include <strings.h>
-#include <sys/ioctl.h>
-#include <signal.h>
-#include <setjmp.h>
+# include <stdio.h>
+# include <strings.h>
+# include <sys/ioctl.h>
+# include <signal.h>
+# include <setjmp.h>
 
 static jmp_buf env;
 
@@ -68,78 +68,83 @@ static jmp_buf env;
  */
 
 int
-local_des_read_pw_string(s,max,prompt,verify)
-    char *s;
-    int	max;
-    char *prompt;
-    int	verify;
+local_des_read_pw_string (s, max, prompt, verify)
+     char *s;
+     int max;
+     char *prompt;
+     int verify;
 {
-    int ok = 0;
-    char *ptr;
+  int ok = 0;
+  char *ptr;
 
-    jmp_buf old_env;
-    struct sgttyb tty_state;
-    char key_string[BUFSIZ];
+  jmp_buf old_env;
+  struct sgttyb tty_state;
+  char key_string[BUFSIZ];
 
-    if (max > BUFSIZ) {
-	return -1;
+  if (max > BUFSIZ)
+    {
+      return -1;
     }
 
-    /* XXX assume jmp_buf is typedef'ed to an array */
-    memmove((char *)env, (char *)old_env, sizeof(env));
-    if (setjmp(env))
-	goto lose;
+  /* XXX assume jmp_buf is typedef'ed to an array */
+  memmove ((char *) env, (char *) old_env, sizeof (env));
+  if (setjmp (env))
+    goto lose;
 
-    /* save terminal state*/
-    if (ioctl(0,TIOCGETP,(char *)&tty_state) == -1)
-	return -1;
+  /* save terminal state */
+  if (ioctl (0, TIOCGETP, (char *) &tty_state) == -1)
+    return -1;
 /*
     push_signals();
 */
-    /* Turn off echo */
-    tty_state.sg_flags &= ~ECHO;
-    if (ioctl(0,TIOCSETP,(char *)&tty_state) == -1)
-	return -1;
-    while (!ok) {
-	 printf("%s",prompt);
-	 fflush(stdout);
-	while (!fgets(s, max, stdin));
+  /* Turn off echo */
+  tty_state.sg_flags &= ~ECHO;
+  if (ioctl (0, TIOCSETP, (char *) &tty_state) == -1)
+    return -1;
+  while (!ok)
+    {
+      printf ("%s", prompt);
+      fflush (stdout);
+      while (!fgets (s, max, stdin));
 
-	if ((ptr = strchr(s, '\n')))
-	    *ptr = '\0';
-	if (verify) {
-	    printf("\nVerifying, please re-enter %s",prompt);
-	     fflush(stdout);
-	    if (!fgets(key_string, sizeof(key_string), stdin)) {
-		clearerr(stdin);
-		continue;
+      if ((ptr = strchr (s, '\n')))
+	*ptr = '\0';
+      if (verify)
+	{
+	  printf ("\nVerifying, please re-enter %s", prompt);
+	  fflush (stdout);
+	  if (!fgets (key_string, sizeof (key_string), stdin))
+	    {
+	      clearerr (stdin);
+	      continue;
 	    }
-	    if ((ptr = strchr(key_string, '\n')))
+	  if ((ptr = strchr (key_string, '\n')))
 	    *ptr = '\0';
-	    if (strcmp(s,key_string)) {
-		printf("\n\07\07Mismatch - try again\n");
-		 fflush(stdout);
-		continue;
+	  if (strcmp (s, key_string))
+	    {
+	      printf ("\n\07\07Mismatch - try again\n");
+	      fflush (stdout);
+	      continue;
 	    }
 	}
-	ok = 1;
+      ok = 1;
     }
 
 lose:
-    if (!ok)
-	memset(s, 0, max);
-    printf("\n");
-    /* turn echo back on */
-    tty_state.sg_flags |= ECHO;
-    if (ioctl(0,TIOCSETP,(char *)&tty_state))
-	ok = 0;
+  if (!ok)
+    memset (s, 0, max);
+  printf ("\n");
+  /* turn echo back on */
+  tty_state.sg_flags |= ECHO;
+  if (ioctl (0, TIOCSETP, (char *) &tty_state))
+    ok = 0;
 /*
     pop_signals();
 */
-    memmove((char *)old_env, (char *)env, sizeof(env));
-    if (verify)
-	memset(key_string, 0, sizeof (key_string));
-    s[max-1] = 0;		/* force termination */
-    return !ok;			/* return nonzero if not okay */
+  memmove ((char *) old_env, (char *) env, sizeof (env));
+  if (verify)
+    memset (key_string, 0, sizeof (key_string));
+  s[max - 1] = 0;		/* force termination */
+  return !ok;			/* return nonzero if not okay */
 }
-#endif	/* defined(RSA_ENCPWD) || defined(KRB4_ENCPWD) */
+#endif /* defined(RSA_ENCPWD) || defined(KRB4_ENCPWD) */

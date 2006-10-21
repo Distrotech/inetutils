@@ -21,17 +21,17 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include "../ifconfig.h"
-
 
+
 /* Output format stuff.  */
 
 const char *system_default_format;
-
 
+
 /* Argument parsing stuff.  */
 
 const char *system_help;
@@ -39,7 +39,7 @@ const char *system_help;
 const char *system_help_options;
 
 int
-system_parse_opt(struct ifconfig **ifp, char option, char *optarg)
+system_parse_opt (struct ifconfig **ifp, char option, char *optarg)
 {
   return 0;
 }

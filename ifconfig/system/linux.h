@@ -21,28 +21,28 @@
  */
 
 #ifndef IFCONFIG_SYSTEM_LINUX_H
-#define IFCONFIG_SYSTEM_LINUX_H
+# define IFCONFIG_SYSTEM_LINUX_H
 
-#include "../printif.h"
-#include "../options.h"
-
+# include "../printif.h"
+# include "../options.h"
 
+
 /* Option support.  */
 
 struct system_ifconfig
 {
   int valid;
-#define IF_VALID_TXQLEN 0x1
+# define IF_VALID_TXQLEN 0x1
   int txqlen;
 };
 
-#define SYSTEM_LONG_OPTIONS \
+# define SYSTEM_LONG_OPTIONS \
   {"txqlen",         required_argument,      0,      'T'},
-
 
+
 /* Output format support.  */
 
-#define SYSTEM_FORMAT_HANDLER \
+# define SYSTEM_FORMAT_HANDLER \
   {"linux", fh_nothing}, \
   {"hwaddr?", system_fh_hwaddr_query}, \
   {"hwaddr", system_fh_hwaddr}, \

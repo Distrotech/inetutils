@@ -21,7 +21,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/stat.h>
@@ -29,7 +29,7 @@
 #include <errno.h>
 
 #if HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #if HAVE_STRING_H
@@ -53,15 +53,15 @@
 #include <linux/if_ether.h>
 
 #include "../ifconfig.h"
-
 
+
 /* ARPHRD stuff.  */
 
 static void
 print_hwaddr_ether (format_data_t form, unsigned char *data)
 {
   *column += printf ("%02X:%02X:%02X:%02X:%02X:%02X",
-		    data[0], data[1], data[2], data[3], data[4], data[5]);
+		     data[0], data[1], data[2], data[3], data[4], data[5]);
 }
 
 static void
@@ -95,14 +95,14 @@ static void
 print_hwaddr_irda (format_data_t form, unsigned char *data)
 {
   *column += printf ("%02X:%02X:%02X:%02X",
-		    data[3], data[2], data[1], data[0]);
+		     data[3], data[2], data[1], data[0]);
 }
 
 static void
 print_hwaddr_rose (format_data_t form, unsigned char *data)
 {
   *column += printf ("%02X%02X%02X%02X%02X",
-		    data[0], data[1], data[2], data[3], data[4]);
+		     data[0], data[1], data[2], data[3], data[4]);
 }
 
 struct arphrd_symbol
@@ -115,151 +115,195 @@ struct arphrd_symbol
 {
   /* ARP protocol HARDWARE identifiers. */
 
-#ifdef ARPHRD_NETROM	/* From KA9Q: NET/ROM pseudo.  */
-  { "NETROM", "AMPR NET/ROM", ARPHRD_NETROM, print_hwaddr_ax25 },
+#ifdef ARPHRD_NETROM		/* From KA9Q: NET/ROM pseudo.  */
+  {
+  "NETROM", "AMPR NET/ROM", ARPHRD_NETROM, print_hwaddr_ax25},
 #endif
-#ifdef ARPHRD_ETHER	/* Ethernet 10/100Mbps.  */
-  { "ETHER", "Ethernet", ARPHRD_ETHER, print_hwaddr_ether },
+#ifdef ARPHRD_ETHER		/* Ethernet 10/100Mbps.  */
+  {
+  "ETHER", "Ethernet", ARPHRD_ETHER, print_hwaddr_ether},
 #endif
-#ifdef ARPHRD_EETHER	/* Experimental Ethernet.  */
-  { "EETHER", "Experimental Etherner", ARPHRD_EETHER, NULL },
+#ifdef ARPHRD_EETHER		/* Experimental Ethernet.  */
+  {
+  "EETHER", "Experimental Etherner", ARPHRD_EETHER, NULL},
 #endif
-#ifdef ARPHRD_AX25	/* AX.25 Level 2.  */
-  { "AX25", "AMPR AX.25", ARPHRD_AX25, print_hwaddr_ax25 },
+#ifdef ARPHRD_AX25		/* AX.25 Level 2.  */
+  {
+  "AX25", "AMPR AX.25", ARPHRD_AX25, print_hwaddr_ax25},
 #endif
-#ifdef ARPHRD_PRONET	/* PROnet token ring.  */
-  { "PRONET", "PROnet token ring", ARPHRD_PRONET, NULL },
+#ifdef ARPHRD_PRONET		/* PROnet token ring.  */
+  {
+  "PRONET", "PROnet token ring", ARPHRD_PRONET, NULL},
 #endif
-#ifdef ARPHRD_CHAOS	/* Chaosnet.  */
-  { "CHAOS", "Chaosnet", ARPHRD_CHAOS, NULL },
+#ifdef ARPHRD_CHAOS		/* Chaosnet.  */
+  {
+  "CHAOS", "Chaosnet", ARPHRD_CHAOS, NULL},
 #endif
-#ifdef ARPHRD_IEEE802	/* IEEE 802.2 Ethernet/TR/TB.  */
-  { "IEEE802", "16/4 Mbps Token Ring", ARPHRD_IEEE802, print_hwaddr_ether },
+#ifdef ARPHRD_IEEE802		/* IEEE 802.2 Ethernet/TR/TB.  */
+  {
+  "IEEE802", "16/4 Mbps Token Ring", ARPHRD_IEEE802, print_hwaddr_ether},
 #endif
-#ifdef ARPHRD_ARCNET	/* ARCnet.  */
-  { "ARCNET", "ARCnet", ARPHRD_ARCNET, print_hwaddr_arcnet },
+#ifdef ARPHRD_ARCNET		/* ARCnet.  */
+  {
+  "ARCNET", "ARCnet", ARPHRD_ARCNET, print_hwaddr_arcnet},
 #endif
-#ifdef ARPHRD_APPLETLK	/* APPLEtalk.  */
-  { "APPLETLK", "Appletalk", ARPHRD_APPLETLK, NULL },
+#ifdef ARPHRD_APPLETLK		/* APPLEtalk.  */
+  {
+  "APPLETLK", "Appletalk", ARPHRD_APPLETLK, NULL},
 #endif
-#ifdef ARPHRD_DLCI	/* Frame Relay DLCI.  */
-  { "DLCI", "Frame Relay DLCI", ARPHRD_DLCI, print_hwaddr_dlci },
+#ifdef ARPHRD_DLCI		/* Frame Relay DLCI.  */
+  {
+  "DLCI", "Frame Relay DLCI", ARPHRD_DLCI, print_hwaddr_dlci},
 #endif
-#ifdef ARPHRD_ATM	/* ATM.  */
-  { "ATM", "ATM", ARPHRD_ATM, NULL },
+#ifdef ARPHRD_ATM		/* ATM.  */
+  {
+  "ATM", "ATM", ARPHRD_ATM, NULL},
 #endif
-#ifdef ARPHRD_METRICOM	/* Metricom STRIP (new IANA id).  */
-  { "METRICOM", "Metricom STRIP", ARPHRD_METRICOM, NULL },
+#ifdef ARPHRD_METRICOM		/* Metricom STRIP (new IANA id).  */
+  {
+  "METRICOM", "Metricom STRIP", ARPHRD_METRICOM, NULL},
 #endif
-
-  /* Dummy types for non ARP hardware.  */
-
+    /* Dummy types for non ARP hardware.  */
 #ifdef ARPHRD_SLIP
-  { "SLIP", "Serial Line IP", ARPHRD_SLIP, NULL },
+  {
+  "SLIP", "Serial Line IP", ARPHRD_SLIP, NULL},
 #endif
 #ifdef ARPHRD_CSLIP
-  { "CSLIP", "VJ Serial Line IP", ARPHRD_CSLIP, NULL },
+  {
+  "CSLIP", "VJ Serial Line IP", ARPHRD_CSLIP, NULL},
 #endif
 #ifdef ARPHRD_SLIP6
-  { "SLIP6", "6-bit Serial Line IP", ARPHRD_SLIP6, NULL },
+  {
+  "SLIP6", "6-bit Serial Line IP", ARPHRD_SLIP6, NULL},
 #endif
 #ifdef ARPHRD_CSLIP6
-  { "CSLIP6", "VJ 6-bit Serial Line IP", ARPHRD_CSLIP6, NULL },
+  {
+  "CSLIP6", "VJ 6-bit Serial Line IP", ARPHRD_CSLIP6, NULL},
 #endif
-#ifdef ARPHRD_RSRVD	/* Notional KISS type.  */
-  { "SLIP", "Notional KISS type", ARPHRD_SLIP, NULL },
+#ifdef ARPHRD_RSRVD		/* Notional KISS type.  */
+  {
+  "SLIP", "Notional KISS type", ARPHRD_SLIP, NULL},
 #endif
 #ifdef ARPHRD_ADAPT
-  { "ADAPT", "Adaptive Serial Line IP", ARPHRD_ADAPT, NULL },
+  {
+  "ADAPT", "Adaptive Serial Line IP", ARPHRD_ADAPT, NULL},
 #endif
 #ifdef ARPHRD_ROSE
-  { "ROSE", "AMPR ROSE", ARPHRD_ROSE, print_hwaddr_rose },
+  {
+  "ROSE", "AMPR ROSE", ARPHRD_ROSE, print_hwaddr_rose},
 #endif
-#ifdef ARPHRD_X25	/* CCITT X.25.  */
-  { "X25", "CCITT X.25", ARPHRD_X25, NULL },
+#ifdef ARPHRD_X25		/* CCITT X.25.  */
+  {
+  "X25", "CCITT X.25", ARPHRD_X25, NULL},
 #endif
-#ifdef ARPHRD_HWX25	/* Boards with X.25 in firmware.  */
-  { "HWX25", "CCITT X.25 in firmware", ARPHRD_HWX25, NULL },
+#ifdef ARPHRD_HWX25		/* Boards with X.25 in firmware.  */
+  {
+  "HWX25", "CCITT X.25 in firmware", ARPHRD_HWX25, NULL},
 #endif
 #ifdef ARPHRD_PPP
-  { "PPP", "Point-to-Point Protocol", ARPHRD_PPP, NULL },
+  {
+  "PPP", "Point-to-Point Protocol", ARPHRD_PPP, NULL},
 #endif
-#ifdef ARPHRD_HDLC	/* (Cisco) HDLC.  */
-  { "HDLC", "(Cisco)-HDLC", ARPHRD_HDLC, NULL},
+#ifdef ARPHRD_HDLC		/* (Cisco) HDLC.  */
+  {
+  "HDLC", "(Cisco)-HDLC", ARPHRD_HDLC, NULL},
 #endif
-#ifdef ARPHRD_LAPB	/* LAPB.  */
-  { "LAPB", "LAPB", ARPHRD_LAPB, NULL },
+#ifdef ARPHRD_LAPB		/* LAPB.  */
+  {
+  "LAPB", "LAPB", ARPHRD_LAPB, NULL},
 #endif
-#ifdef ARPHRD_DDCMP	/* Digital's DDCMP.  */
-  { "DDCMP", "DDCMP", ARPHRD_DDCMP, NULL },
+#ifdef ARPHRD_DDCMP		/* Digital's DDCMP.  */
+  {
+  "DDCMP", "DDCMP", ARPHRD_DDCMP, NULL},
 #endif
-
-#ifdef ARPHRD_TUNNEL	/* IPIP tunnel.  */
-  { "TUNNEL", "IPIP Tunnel", ARPHRD_TUNNEL, NULL },
+#ifdef ARPHRD_TUNNEL		/* IPIP tunnel.  */
+  {
+  "TUNNEL", "IPIP Tunnel", ARPHRD_TUNNEL, NULL},
 #endif
-#ifdef ARPHRD_TUNNEL6	/* IPIP6 tunnel.  */
-  { "TUNNEL", "IPIP6 Tunnel", ARPHRD_TUNNEL6, NULL },
+#ifdef ARPHRD_TUNNEL6		/* IPIP6 tunnel.  */
+  {
+  "TUNNEL", "IPIP6 Tunnel", ARPHRD_TUNNEL6, NULL},
 #endif
-#ifdef ARPHRD_FRAD	/* Frame Relay Access Device.  */
-  { "FRAD", "Frame Relay Access Device", ARPHRD_FRAD, NULL },
+#ifdef ARPHRD_FRAD		/* Frame Relay Access Device.  */
+  {
+  "FRAD", "Frame Relay Access Device", ARPHRD_FRAD, NULL},
 #endif
-#ifdef ARPHRD_SKIP	/* SKIP vif.  */
-  { "SKIP", "SKIP vif", ARPHRD_SKIP, NULL },
+#ifdef ARPHRD_SKIP		/* SKIP vif.  */
+  {
+  "SKIP", "SKIP vif", ARPHRD_SKIP, NULL},
 #endif
-#ifdef ARPHRD_LOOPBACK	/* Loopback device.  */
-  { "LOOPBACK", "Local Loopback", ARPHRD_LOOPBACK, NULL },
+#ifdef ARPHRD_LOOPBACK		/* Loopback device.  */
+  {
+  "LOOPBACK", "Local Loopback", ARPHRD_LOOPBACK, NULL},
 #endif
-#ifdef ARPHRD_LOCALTALK	/* Localtalk device.  */
-  { "LOCALTALK", "Localtalk", ARPHRD_LOCALTALK, NULL },
+#ifdef ARPHRD_LOCALTALK		/* Localtalk device.  */
+  {
+  "LOCALTALK", "Localtalk", ARPHRD_LOCALTALK, NULL},
 #endif
-#ifdef ARPHRD_FDDI	/* Fiber Distributed Data Interface. */
-  { "FDDI", "Fiber Distributed Data Interface", ARPHRD_FDDI, NULL },
+#ifdef ARPHRD_FDDI		/* Fiber Distributed Data Interface. */
+  {
+  "FDDI", "Fiber Distributed Data Interface", ARPHRD_FDDI, NULL},
 #endif
-#ifdef ARPHRD_BIF	/* AP1000 BIF.  */
-  { "BIF", "AP1000 BIF", ARPHRD_BIF, NULL },
+#ifdef ARPHRD_BIF		/* AP1000 BIF.  */
+  {
+  "BIF", "AP1000 BIF", ARPHRD_BIF, NULL},
 #endif
-#ifdef ARPHRD_SIT	/* sit0 device - IPv6-in-IPv4.  */
-  { "SIT", "IPv6-in-IPv4", ARPHRD_SIT, NULL },
+#ifdef ARPHRD_SIT		/* sit0 device - IPv6-in-IPv4.  */
+  {
+  "SIT", "IPv6-in-IPv4", ARPHRD_SIT, NULL},
 #endif
-#ifdef ARPHRD_IPDDP	/* IP-in-DDP tunnel.  */
-  { "IPDDP", "IP-in-DDP", ARPHRD_IPDDP, NULL },
+#ifdef ARPHRD_IPDDP		/* IP-in-DDP tunnel.  */
+  {
+  "IPDDP", "IP-in-DDP", ARPHRD_IPDDP, NULL},
 #endif
-#ifdef ARPHRD_IPGRE	/* GRE over IP.  */
-  { "IPGRE", "GRE over IP", ARPHRD_IPGRE, NULL },
+#ifdef ARPHRD_IPGRE		/* GRE over IP.  */
+  {
+  "IPGRE", "GRE over IP", ARPHRD_IPGRE, NULL},
 #endif
-#ifdef ARPHRD_PIMREG	/* PIMSM register interface.  */
-  { "PIMREG", "PIMSM register", ARPHRD_PIMREG, NULL },
+#ifdef ARPHRD_PIMREG		/* PIMSM register interface.  */
+  {
+  "PIMREG", "PIMSM register", ARPHRD_PIMREG, NULL},
 #endif
-#ifdef ARPHRD_HIPPI	/* High Performance Parallel I'face. */
-  { "HIPPI", "HIPPI", ARPHRD_HIPPI, print_hwaddr_ether },
+#ifdef ARPHRD_HIPPI		/* High Performance Parallel I'face. */
+  {
+  "HIPPI", "HIPPI", ARPHRD_HIPPI, print_hwaddr_ether},
 #endif
-#ifdef ARPHRD_ASH	/* (Nexus Electronics) Ash.  */
-  { "ASH", "Ash", ARPHRD_ASH, NULL },
+#ifdef ARPHRD_ASH		/* (Nexus Electronics) Ash.  */
+  {
+  "ASH", "Ash", ARPHRD_ASH, NULL},
 #endif
-#ifdef ARPHRD_ECONET	/* Acorn Econet.  */
-  { "ECONET", "Econet", ARPHRD_ECONET, NULL },
+#ifdef ARPHRD_ECONET		/* Acorn Econet.  */
+  {
+  "ECONET", "Econet", ARPHRD_ECONET, NULL},
 #endif
-#ifdef ARPHRD_IRDA	/* Linux-IrDA.  */
-  { "IRDA", "IrLap", ARPHRD_IRDA, print_hwaddr_irda },
+#ifdef ARPHRD_IRDA		/* Linux-IrDA.  */
+  {
+  "IRDA", "IrLap", ARPHRD_IRDA, print_hwaddr_irda},
 #endif
-#ifdef ARPHRD_FCPP	/* Point to point fibrechanel.  */
-  { "FCPP", "FCPP", ARPHRD_FCPP, NULL },
+#ifdef ARPHRD_FCPP		/* Point to point fibrechanel.  */
+  {
+  "FCPP", "FCPP", ARPHRD_FCPP, NULL},
 #endif
-#ifdef ARPHRD_FCAL	/* Fibrechanel arbitrated loop.  */
-  { "FCAL", "FCAL", ARPHRD_FCAL, NULL },
+#ifdef ARPHRD_FCAL		/* Fibrechanel arbitrated loop.  */
+  {
+  "FCAL", "FCAL", ARPHRD_FCAL, NULL},
 #endif
-#ifdef ARPHRD_FCPL	/* Fibrechanel public loop.  */
-  { "FCPL", "FCPL", ARPHRD_FCPL, NULL },
+#ifdef ARPHRD_FCPL		/* Fibrechanel public loop.  */
+  {
+  "FCPL", "FCPL", ARPHRD_FCPL, NULL},
 #endif
-#ifdef ARPHRD_FCPFABRIC	/* Fibrechanel fabric.  */
-  { "FCFABRIC", "FCFABRIC", ARPHRD_FCPFABRIC, NULL },
+#ifdef ARPHRD_FCPFABRIC		/* Fibrechanel fabric.  */
+  {
+  "FCFABRIC", "FCFABRIC", ARPHRD_FCPFABRIC, NULL},
 #endif
-#ifdef ARPHRD_IEEE802_TR /* Magic type ident for TR.  */
-  { "IEEE802_TR", "16/4 Mbps Token Ring (New)", ARPHRD_IEEE802_TR,
-    print_hwaddr_ether },
+#ifdef ARPHRD_IEEE802_TR	/* Magic type ident for TR.  */
+  {
+  "IEEE802_TR", "16/4 Mbps Token Ring (New)", ARPHRD_IEEE802_TR,
+      print_hwaddr_ether},
 #endif
 #ifdef ARPHRD_VOID
-  { "VOID", "Void (nothing is known)", ARPHRD_VOID, NULL },
+  {
+  "VOID", "Void (nothing is known)", ARPHRD_VOID, NULL},
 #endif
 };
 
@@ -278,13 +322,14 @@ arphrd_findvalue (int value)
   else
     return NULL;
 }
-
 
+
 /* Output format stuff.  */
 
 const char *system_default_format = "net-tools";
 
-void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])
+void
+system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFHWADDR
   struct arphrd_symbol *arp;
@@ -390,8 +435,8 @@ system_fh_txqlen (format_data_t form, int argc, char *argv[])
   had_output = 1;
 #endif
 }
-
 
+
 /* Argument parsing stuff.  */
 
 const char *system_help = "\
@@ -400,10 +445,10 @@ const char *system_help = "\
   [metric N] [mtu N] [txqueuelen N]";
 
 const char *system_help_options =
-"      --txqlen N        Set transmit queue length to N";
+  "      --txqlen N        Set transmit queue length to N";
 
 void
-system_parse_opt_set_txqlen(struct ifconfig *ifp, char *arg)
+system_parse_opt_set_txqlen (struct ifconfig *ifp, char *arg)
 {
   char *end;
 
@@ -414,10 +459,10 @@ system_parse_opt_set_txqlen(struct ifconfig *ifp, char *arg)
       usage (EXIT_FAILURE);
     }
 
-  if (! (ifp->valid & IF_VALID_SYSTEM))
+  if (!(ifp->valid & IF_VALID_SYSTEM))
     {
       ifp->system = malloc (sizeof (struct system_ifconfig));
-      if (! ifp->system)
+      if (!ifp->system)
 	{
 	  fprintf (stderr, "%s: can't get memory for system interface "
 		   "configuration: %s\n", program_name, strerror (errno));
@@ -436,21 +481,20 @@ system_parse_opt_set_txqlen(struct ifconfig *ifp, char *arg)
   if (*arg == '\0' || *end != '\0')
     {
       fprintf (stderr, "%s: txqlen value `%s' for interface `%s' "
-	       "is not a number.\n",
-	       program_name, arg, ifp->name);
+	       "is not a number.\n", program_name, arg, ifp->name);
       exit (EXIT_FAILURE);
     }
   ifp->system->valid |= IF_VALID_TXQLEN;
 }
 
 int
-system_parse_opt(struct ifconfig **ifpp, char option, char *arg)
+system_parse_opt (struct ifconfig **ifpp, char option, char *arg)
 {
   struct ifconfig *ifp = *ifpp;
 
   switch (option)
     {
-    case 'T':  /* txqlen */
+    case 'T':			/* txqlen */
       system_parse_opt_set_txqlen (ifp, optarg);
       break;
 
@@ -511,17 +555,18 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 
       if (expect != EXPECT_NOTHING)
 	expect = EXPECT_NOTHING;
-      else if (! strcmp (argv[i], "broadcast"))
+      else if (!strcmp (argv[i], "broadcast"))
 	expect = EXPECT_BROADCAST;
-      else if (! strcmp (argv[i], "dstaddr") || ! strcmp (argv[i], "pointopoint"))
+      else if (!strcmp (argv[i], "dstaddr")
+	       || !strcmp (argv[i], "pointopoint"))
 	expect = EXPECT_DSTADDR;
-      else if (! strcmp (argv[i], "netmask"))
+      else if (!strcmp (argv[i], "netmask"))
 	expect = EXPECT_NETMASK;
-      else if (! strcmp (argv[i], "metric"))
+      else if (!strcmp (argv[i], "metric"))
 	expect = EXPECT_METRIC;
-      else if (! strcmp (argv[i], "mtu"))
+      else if (!strcmp (argv[i], "mtu"))
 	expect = EXPECT_MTU;
-      else if (! strcmp (argv[i], "txqueuelen"))
+      else if (!strcmp (argv[i], "txqueuelen"))
 	expect = EXPECT_TXQLEN;
       else
 	parse_opt_set_address (*ifp, argv[i]);
@@ -535,7 +580,8 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
       break;
 
     case EXPECT_DSTADDR:
-      fprintf (stderr, "%s: option `pointopoint' (`dstaddr') requires an argument\n",
+      fprintf (stderr,
+	       "%s: option `pointopoint' (`dstaddr') requires an argument\n",
 	       program_name);
       break;
 
@@ -567,8 +613,8 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 
   return 1;
 }
-
 
+
 int
 system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
 {

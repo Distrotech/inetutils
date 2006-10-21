@@ -16,24 +16,25 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #ifndef _ARGCV_H
-#define _ARGCV_H 1
+# define _ARGCV_H 1
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+# ifdef __cplusplus
+extern "C"
+{
+# endif
 
-extern int argcv_get    (const char *command, const char *delim,
-			 int *argc, char ***argv);
-extern int argcv_string (int argc, char **argv, char **string);
-extern int argcv_free   (int argc, char **argv);
+  extern int argcv_get (const char *command, const char *delim,
+			int *argc, char ***argv);
+  extern int argcv_string (int argc, char **argv, char **string);
+  extern int argcv_free (int argc, char **argv);
 
-#ifdef __cplusplus
+# ifdef __cplusplus
 }
-#endif
+# endif
 
-#endif /* _ARGCV_H */
+#endif				/* _ARGCV_H */

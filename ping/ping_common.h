@@ -21,7 +21,7 @@
 void tvsub (struct timeval *out, struct timeval *in);
 double nabs (double a);
 double nsqrt (double a, double prec);
-  
+
 void show_license (void);
 
 size_t ping_cvt_number (const char *optarg, size_t maxval, int allow_zero);

@@ -21,13 +21,13 @@
  */
 
 #ifndef IFCONFIG_SYSTEM_SOLARIS_H
-#define IFCONFIG_SYSTEM_SOLARIS_H
+# define IFCONFIG_SYSTEM_SOLARIS_H
 
-#include "../printif.h"
-#include "../options.h"
-#include <sys/sockio.h>
-
+# include "../printif.h"
+# include "../options.h"
+# include <sys/sockio.h>
 
+
 
 /* Option support.  */
 
@@ -35,11 +35,11 @@ struct system_ifconfig
 {
   int valid;
 };
-
 
+
 /* Output format support.  */
 
-#define SYSTEM_FORMAT_HANDLER \
+# define SYSTEM_FORMAT_HANDLER \
   {"qnx", fh_nothing},
 
 #endif

@@ -20,7 +20,7 @@
    MA 02110-1301 USA. */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/stat.h>
@@ -28,7 +28,7 @@
 #include <errno.h>
 
 #if HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #if HAVE_STRING_H
@@ -54,7 +54,7 @@
 #include "ifconfig.h"
 
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   int err = 0;
   int sfd;
@@ -66,7 +66,7 @@ main(int argc, char *argv[])
   if (sfd < 0)
     {
       fprintf (stderr, "%s: socket error: %s\n",
-		   program_name, strerror (errno));
+	       program_name, strerror (errno));
       exit (1);
     }
 

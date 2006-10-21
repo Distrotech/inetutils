@@ -42,51 +42,53 @@
 /* utmp_logout - update utmp and wtmp after logout */
 
 void
-utmp_logout(char   *line)
+utmp_logout (char *line)
 {
 #ifdef UTMPX
-	struct utmpx utx;
-	struct utmpx *ut;
+  struct utmpx utx;
+  struct utmpx *ut;
 
-	strncpy(utx.ut_line, line, sizeof(utx.ut_line));
+  strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 
-	if ((ut = getutxline(&utx))) {
-		ut->ut_type = DEAD_PROCESS;
-		ut->ut_exit.e_termination = 0;
-		ut->ut_exit.e_exit = 0;
-		gettimeofday(&(ut->ut_tv), 0);
-		pututxline(ut);
-		updwtmpx(PATH_WTMPX, ut);
-	}
-	endutxent();
+  if ((ut = getutxline (&utx)))
+    {
+      ut->ut_type = DEAD_PROCESS;
+      ut->ut_exit.e_termination = 0;
+      ut->ut_exit.e_exit = 0;
+      gettimeofday (&(ut->ut_tv), 0);
+      pututxline (ut);
+      updwtmpx (PATH_WTMPX, ut);
+    }
+  endutxent ();
 #else
-	struct utmp utx;
-	struct utmp *ut;
+  struct utmp utx;
+  struct utmp *ut;
 
-	strncpy(utx.ut_line, line, sizeof(utx.ut_line));
+  strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 
-	if (ut = getutline(&utx)) {
-#ifdef HAVE_STRUCT_UTMP_UT_TYPE
-		ut->ut_type = DEAD_PROCESS;
-#endif
-#ifdef HAVE_STRUCT_UTMP_UT_EXIT
-		ut->ut_exit.e_termination = 0;
-		ut->ut_exit.e_exit = 0;
-#endif
-#ifdef HAVE_STRUCT_UTMP_UT_TV
-		gettimeofday (&(ut->ut_tv), 0);
-#else
-		time(&(ut->ut_time));
-#endif
-		pututline(ut);
-#ifdef HAVE_UPDWTMP
-		ut->ut_name[0] = 0;
-		ut->ut_host[0] = 0;
-		updwtmp(WTMP_FILE, ut);
-#else
-		logwtmp(ut->ut_line, "", "");
-#endif 
-	}
-	endutent();
+  if (ut = getutline (&utx))
+    {
+# ifdef HAVE_STRUCT_UTMP_UT_TYPE
+      ut->ut_type = DEAD_PROCESS;
+# endif
+# ifdef HAVE_STRUCT_UTMP_UT_EXIT
+      ut->ut_exit.e_termination = 0;
+      ut->ut_exit.e_exit = 0;
+# endif
+# ifdef HAVE_STRUCT_UTMP_UT_TV
+      gettimeofday (&(ut->ut_tv), 0);
+# else
+      time (&(ut->ut_time));
+# endif
+      pututline (ut);
+# ifdef HAVE_UPDWTMP
+      ut->ut_name[0] = 0;
+      ut->ut_host[0] = 0;
+      updwtmp (WTMP_FILE, ut);
+# else
+      logwtmp (ut->ut_line, "", "");
+# endif
+    }
+  endutent ();
 #endif
 }

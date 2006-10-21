@@ -34,15 +34,16 @@
  */
 
 #ifndef lint
-#if 0
+# if 0
 static char sccsid[] = "@(#)cmp.c	8.1 (Berkeley) 5/31/93";
-#else
-static char rcsid[] = "$OpenBSD: cmp.c,v 1.3 1997/01/03 22:36:07 millert Exp $";
-#endif
+# else
+static char rcsid[] =
+  "$OpenBSD: cmp.c,v 1.3 1997/01/03 22:36:07 millert Exp $";
+# endif
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -54,147 +55,147 @@ static char rcsid[] = "$OpenBSD: cmp.c,v 1.3 1997/01/03 22:36:07 millert Exp $";
 #include "extern.h"
 
 int
-namecmp(a, b)
-	const FTSENT *a, *b;
+namecmp (a, b)
+     const FTSENT *a, *b;
 {
-	return (strcmp(a->fts_name, b->fts_name));
+  return (strcmp (a->fts_name, b->fts_name));
 }
 
 int
-revnamecmp(a, b)
-	const FTSENT *a, *b;
+revnamecmp (a, b)
+     const FTSENT *a, *b;
 {
-	return (strcmp(b->fts_name, a->fts_name));
+  return (strcmp (b->fts_name, a->fts_name));
 }
 
 int
-modcmp(a, b)
-	const FTSENT *a, *b;
+modcmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_mtime > a->fts_statp->st_mtime)
-		return (1);
-	else if (b->fts_statp->st_mtime < a->fts_statp->st_mtime)
-		return (-1);
+  if (b->fts_statp->st_mtime > a->fts_statp->st_mtime)
+    return (1);
+  else if (b->fts_statp->st_mtime < a->fts_statp->st_mtime)
+    return (-1);
 #ifdef ORIGINAL_SOURCE
-	else if (b->fts_statp->st_mtimensec > a->fts_statp->st_mtimensec)
-		return (1);
-	else if (b->fts_statp->st_mtimensec < a->fts_statp->st_mtimensec)
-		return (-1);
+  else if (b->fts_statp->st_mtimensec > a->fts_statp->st_mtimensec)
+    return (1);
+  else if (b->fts_statp->st_mtimensec < a->fts_statp->st_mtimensec)
+    return (-1);
 #endif /* ORIGINAL_SOURCE */
-	else
-		return (namecmp(a, b));
+  else
+    return (namecmp (a, b));
 }
 
 int
-revmodcmp(a, b)
-	const FTSENT *a, *b;
+revmodcmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_mtime > a->fts_statp->st_mtime)
-		return (-1);
-	else if (b->fts_statp->st_mtime < a->fts_statp->st_mtime)
-		return (1);
+  if (b->fts_statp->st_mtime > a->fts_statp->st_mtime)
+    return (-1);
+  else if (b->fts_statp->st_mtime < a->fts_statp->st_mtime)
+    return (1);
 #ifdef ORIGINAL_SOURCE
-	else if (b->fts_statp->st_mtimensec > a->fts_statp->st_mtimensec)
-		return (-1);
-	else if (b->fts_statp->st_mtimensec < a->fts_statp->st_mtimensec)
-		return (1);
+  else if (b->fts_statp->st_mtimensec > a->fts_statp->st_mtimensec)
+    return (-1);
+  else if (b->fts_statp->st_mtimensec < a->fts_statp->st_mtimensec)
+    return (1);
 #endif /* ORIGINAL_SOURCE */
-	else
-		return (revnamecmp(a, b));
+  else
+    return (revnamecmp (a, b));
 }
 
 int
-acccmp(a, b)
-	const FTSENT *a, *b;
+acccmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_atime > a->fts_statp->st_atime)
-		return (1);
-	else if (b->fts_statp->st_atime < a->fts_statp->st_atime)
-		return (-1);
+  if (b->fts_statp->st_atime > a->fts_statp->st_atime)
+    return (1);
+  else if (b->fts_statp->st_atime < a->fts_statp->st_atime)
+    return (-1);
 #ifdef ORIGINAL_SOURCE
-	else if (b->fts_statp->st_atimensec > a->fts_statp->st_atimensec)
-		return (1);
-	else if (b->fts_statp->st_atimensec < a->fts_statp->st_atimensec)
-		return (-1);
+  else if (b->fts_statp->st_atimensec > a->fts_statp->st_atimensec)
+    return (1);
+  else if (b->fts_statp->st_atimensec < a->fts_statp->st_atimensec)
+    return (-1);
 #endif /* ORIGINAL_SOURCE */
-	else
-		return (namecmp(a, b));
+  else
+    return (namecmp (a, b));
 }
 
 int
-revacccmp(a, b)
-	const FTSENT *a, *b;
+revacccmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_atime > a->fts_statp->st_atime)
-		return (-1);
-	else if (b->fts_statp->st_atime < a->fts_statp->st_atime)
-		return (1);
+  if (b->fts_statp->st_atime > a->fts_statp->st_atime)
+    return (-1);
+  else if (b->fts_statp->st_atime < a->fts_statp->st_atime)
+    return (1);
 #ifdef ORIGINAL_SOURCE
-	else if (b->fts_statp->st_atimensec > a->fts_statp->st_atimensec)
-		return (-1);
-	else if (b->fts_statp->st_atimensec < a->fts_statp->st_atimensec)
-		return (1);
+  else if (b->fts_statp->st_atimensec > a->fts_statp->st_atimensec)
+    return (-1);
+  else if (b->fts_statp->st_atimensec < a->fts_statp->st_atimensec)
+    return (1);
 #endif /* ORIGINAL_SOURCE */
-	else
-		return (revnamecmp(a, b));
+  else
+    return (revnamecmp (a, b));
 }
 
 int
-statcmp(a, b)
-	const FTSENT *a, *b;
+statcmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_ctime > a->fts_statp->st_ctime)
-		return (1);
-	else if (b->fts_statp->st_ctime < a->fts_statp->st_ctime)
-		return (-1);
+  if (b->fts_statp->st_ctime > a->fts_statp->st_ctime)
+    return (1);
+  else if (b->fts_statp->st_ctime < a->fts_statp->st_ctime)
+    return (-1);
 #ifdef ORIGINAL_SOURCE
-	else if (b->fts_statp->st_ctimensec > a->fts_statp->st_ctimensec)
-		return (1);
-	else if (b->fts_statp->st_ctimensec < a->fts_statp->st_ctimensec)
-		return (-1);
+  else if (b->fts_statp->st_ctimensec > a->fts_statp->st_ctimensec)
+    return (1);
+  else if (b->fts_statp->st_ctimensec < a->fts_statp->st_ctimensec)
+    return (-1);
 #endif /* ORIGINAL_SOURCE */
-	else
-		return (namecmp(a, b));
+  else
+    return (namecmp (a, b));
 }
 
 int
-revstatcmp(a, b)
-	const FTSENT *a, *b;
+revstatcmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_ctime > a->fts_statp->st_ctime)
-		return (-1);
-	else if (b->fts_statp->st_ctime < a->fts_statp->st_ctime)
-		return (1);
+  if (b->fts_statp->st_ctime > a->fts_statp->st_ctime)
+    return (-1);
+  else if (b->fts_statp->st_ctime < a->fts_statp->st_ctime)
+    return (1);
 #ifdef ORIGINAL_SOURCE
-	else if (b->fts_statp->st_ctimensec > a->fts_statp->st_ctimensec)
-		return (-1);
-	else if (b->fts_statp->st_ctimensec < a->fts_statp->st_ctimensec)
-		return (1);
+  else if (b->fts_statp->st_ctimensec > a->fts_statp->st_ctimensec)
+    return (-1);
+  else if (b->fts_statp->st_ctimensec < a->fts_statp->st_ctimensec)
+    return (1);
 #endif /* ORIGINAL_SOURCE */
-	else
-		return (revnamecmp(a, b));
+  else
+    return (revnamecmp (a, b));
 }
 
 int
-sizecmp(a, b)
-	const FTSENT *a, *b;
+sizecmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_size > a->fts_statp->st_size)
-		return (1);
-	if (b->fts_statp->st_size < a->fts_statp->st_size)
-		return (-1);
-	else
-		return (namecmp(a, b));
+  if (b->fts_statp->st_size > a->fts_statp->st_size)
+    return (1);
+  if (b->fts_statp->st_size < a->fts_statp->st_size)
+    return (-1);
+  else
+    return (namecmp (a, b));
 }
 
 int
-revsizecmp(a, b)
-	const FTSENT *a, *b;
+revsizecmp (a, b)
+     const FTSENT *a, *b;
 {
-	if (b->fts_statp->st_size > a->fts_statp->st_size)
-		return (-1);
-	if (b->fts_statp->st_size < a->fts_statp->st_size)
-		return (1);
-	else
-		return (revnamecmp(a, b));
+  if (b->fts_statp->st_size > a->fts_statp->st_size)
+    return (-1);
+  if (b->fts_statp->st_size < a->fts_statp->st_size)
+    return (1);
+  else
+    return (revnamecmp (a, b));
 }

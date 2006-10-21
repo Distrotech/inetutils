@@ -34,21 +34,21 @@
  */
 
 #ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1989, 1993, 1994\n\
+static char copyright[] = "@(#) Copyright (c) 1989, 1993, 1994\n\
 	The Regents of the University of California.  All rights reserved.\n";
 #endif /* not lint */
 
 #ifndef lint
-#if 0
+# if 0
 static char sccsid[] = "@(#)ls.c	8.7 (Berkeley) 8/5/94";
-#else
-static char rcsid[] = "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
-#endif
+# else
+static char rcsid[] =
+  "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
+# endif
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -63,25 +63,25 @@ static char rcsid[] = "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
 #include <string.h>
 #include <unistd.h>
 #ifdef HAVE_TERMIOS_H
-#include <termios.h>
+# include <termios.h>
 #endif
 
 #include "ls.h"
 #include "extern.h"
 
-char	*group_from_gid (u_int, int);
-char	*user_from_uid (u_int, int);
+char *group_from_gid (u_int, int);
+char *user_from_uid (u_int, int);
 
-static void	 display (FTSENT *, FTSENT *);
-static int	 mastercmp (const FTSENT **, const FTSENT **);
-static void	 traverse (int, char **, int);
+static void display (FTSENT *, FTSENT *);
+static int mastercmp (const FTSENT **, const FTSENT **);
+static void traverse (int, char **, int);
 
 static void (*printfcn) (DISPLAY *);
 static int (*sortfcn) (const FTSENT *, const FTSENT *);
 
-#define	BY_NAME 0
-#define	BY_SIZE 1
-#define	BY_TIME	2
+#define BY_NAME 0
+#define BY_SIZE 1
+#define BY_TIME	2
 
 long blocksize;			/* block size units */
 int termwidth = 80;		/* default terminal width */
@@ -115,232 +115,240 @@ int f_whiteout;			/* show whiteout entries */
 int rval;
 
 int
-ls_main(argc, argv)
-	int argc;
-	char *argv[];
+ls_main (argc, argv)
+     int argc;
+     char *argv[];
 {
-	static char dot[] = ".", *dotav[] = { dot, NULL };
-	struct winsize win;
-	int ch, fts_options, notused;
-	int kflag = 0;
-	char *p;
+  static char dot[] = ".", *dotav[] = { dot, NULL };
+  struct winsize win;
+  int ch, fts_options, notused;
+  int kflag = 0;
+  char *p;
 
-	/* Terminal defaults to -Cq, non-terminal defaults to -1. */
-	if (isatty(STDOUT_FILENO)) {
-		if ((p = getenv("COLUMNS")) != NULL)
-			termwidth = atoi(p);
-		else if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &win) == 0 &&
-		    win.ws_col > 0)
-			termwidth = win.ws_col;
-		f_column = f_nonprint = 1;
-	} else
-		f_singlecol = 1;
+  /* Terminal defaults to -Cq, non-terminal defaults to -1. */
+  if (isatty (STDOUT_FILENO))
+    {
+      if ((p = getenv ("COLUMNS")) != NULL)
+	termwidth = atoi (p);
+      else if (ioctl (STDOUT_FILENO, TIOCGWINSZ, &win) == 0 && win.ws_col > 0)
+	termwidth = win.ws_col;
+      f_column = f_nonprint = 1;
+    }
+  else
+    f_singlecol = 1;
 
-	/* Root is -A automatically. */
-	if (!getuid())
-		f_listdot = 1;
+  /* Root is -A automatically. */
+  if (!getuid ())
+    f_listdot = 1;
 
-	fts_options = FTS_PHYSICAL;
-	while ((ch = getopt(argc, argv, "1ACFLRSTWacdfgiklmnopqrstux")) != -1) {
-		switch (ch) {
-		/*
-		 * The -1, -C and -l, -m and -x options all override each
-		 * other so shell aliasing works right.
-		 */
-		case '1':
-			f_singlecol = 1;
-			f_column = f_columnacross = f_longform = f_stream = 0;
-			break;
-		case 'C':
-			f_column = 1;
-			f_longform = f_columnacross = f_singlecol = f_stream = 0;
-			break;
-		case 'l':
-			f_longform = 1;
-			f_numericonly = 0;
-			f_column = f_columnacross = f_singlecol = f_stream = 0;
-			break;
-		case 'm':
-			f_stream = 1;
-			f_column = f_columnacross = f_singlecol = 0;
-			f_singlecol = 0;
-			break;
-		case 'x':
-			f_columnacross = 1;
-			f_column = f_longform = f_singlecol = f_stream = 0;
-			break;
-		case 'n':
-			f_longform = 1;
-			f_numericonly = 1;
-			f_column = f_singlecol = 0;
-			break;
-		/* The -c and -u options override each other. */
-		case 'c':
-			f_statustime = 1;
-			f_accesstime = 0;
-			break;
-		case 'u':
-			f_accesstime = 1;
-			f_statustime = 0;
-			break;
-		case 'F':
-			f_type = 1;
-			break;
-		case 'L':
-			fts_options &= ~FTS_PHYSICAL;
-			fts_options |= FTS_LOGICAL;
-			break;
-		case 'R':
-			f_recursive = 1;
-			break;
-		case 'a':
-			fts_options |= FTS_SEEDOT;
-			/* FALLTHROUGH */
-		case 'A':
-			f_listdot = 1;
-			break;
-		/* The -d option turns off the -R option. */
-		case 'd':
-			f_listdir = 1;
-			f_recursive = 0;
-			break;
-		case 'f':
-			f_nosort = 1;
-			break;
-		case 'g':		/* Compatibility with 4.3BSD. */
-			break;
-		case 'i':
-			f_inode = 1;
-			break;
-		case 'k':
-			blocksize = 1024;
-			kflag = 1;
-			break;
-		case 'o':
-			f_flags = 1;
-			break;
-		case 'p':
-			f_typedir = 1;
-			break;
-		case 'q':
-			f_nonprint = 1;
-			break;
-		case 'r':
-			f_reversesort = 1;
-			break;
-		case 'S':
-			sortkey = BY_SIZE;
-			break;
-		case 's':
-			f_size = 1;
-			break;
-		case 'T':
-			f_sectime = 1;
-			break;
-		case 't':
-			sortkey = BY_TIME;
-			break;
-		case 'W':
-			f_whiteout = 1;
-			break;
-		default:
-			usage();
-		}
+  fts_options = FTS_PHYSICAL;
+  while ((ch = getopt (argc, argv, "1ACFLRSTWacdfgiklmnopqrstux")) != -1)
+    {
+      switch (ch)
+	{
+	  /*
+	   * The -1, -C and -l, -m and -x options all override each
+	   * other so shell aliasing works right.
+	   */
+	case '1':
+	  f_singlecol = 1;
+	  f_column = f_columnacross = f_longform = f_stream = 0;
+	  break;
+	case 'C':
+	  f_column = 1;
+	  f_longform = f_columnacross = f_singlecol = f_stream = 0;
+	  break;
+	case 'l':
+	  f_longform = 1;
+	  f_numericonly = 0;
+	  f_column = f_columnacross = f_singlecol = f_stream = 0;
+	  break;
+	case 'm':
+	  f_stream = 1;
+	  f_column = f_columnacross = f_singlecol = 0;
+	  f_singlecol = 0;
+	  break;
+	case 'x':
+	  f_columnacross = 1;
+	  f_column = f_longform = f_singlecol = f_stream = 0;
+	  break;
+	case 'n':
+	  f_longform = 1;
+	  f_numericonly = 1;
+	  f_column = f_singlecol = 0;
+	  break;
+	  /* The -c and -u options override each other. */
+	case 'c':
+	  f_statustime = 1;
+	  f_accesstime = 0;
+	  break;
+	case 'u':
+	  f_accesstime = 1;
+	  f_statustime = 0;
+	  break;
+	case 'F':
+	  f_type = 1;
+	  break;
+	case 'L':
+	  fts_options &= ~FTS_PHYSICAL;
+	  fts_options |= FTS_LOGICAL;
+	  break;
+	case 'R':
+	  f_recursive = 1;
+	  break;
+	case 'a':
+	  fts_options |= FTS_SEEDOT;
+	case 'A':
+	  f_listdot = 1;
+	  break;
+	  /* The -d option turns off the -R option. */
+	case 'd':
+	  f_listdir = 1;
+	  f_recursive = 0;
+	  break;
+	case 'f':
+	  f_nosort = 1;
+	  break;
+	case 'g':		/* Compatibility with 4.3BSD. */
+	  break;
+	case 'i':
+	  f_inode = 1;
+	  break;
+	case 'k':
+	  blocksize = 1024;
+	  kflag = 1;
+	  break;
+	case 'o':
+	  f_flags = 1;
+	  break;
+	case 'p':
+	  f_typedir = 1;
+	  break;
+	case 'q':
+	  f_nonprint = 1;
+	  break;
+	case 'r':
+	  f_reversesort = 1;
+	  break;
+	case 'S':
+	  sortkey = BY_SIZE;
+	  break;
+	case 's':
+	  f_size = 1;
+	  break;
+	case 'T':
+	  f_sectime = 1;
+	  break;
+	case 't':
+	  sortkey = BY_TIME;
+	  break;
+	case 'W':
+	  f_whiteout = 1;
+	  break;
+	default:
+	  usage ();
 	}
-	argc -= optind;
-	argv += optind;
+    }
+  argc -= optind;
+  argv += optind;
 
-	/*
-	 * If not -F, -i, -l, -p, -S, -s or -t options, don't require stat
-	 * information.
-	 */
-	if (!f_longform && !f_inode && !f_size && !f_type && !f_typedir &&
-	    sortkey == BY_NAME)
-		fts_options |= FTS_NOSTAT;
+  /*
+   * If not -F, -i, -l, -p, -S, -s or -t options, don't require stat
+   * information.
+   */
+  if (!f_longform && !f_inode && !f_size && !f_type && !f_typedir &&
+      sortkey == BY_NAME)
+    fts_options |= FTS_NOSTAT;
 
-	/*
-	 * If not -F, -d or -l options, follow any symbolic links listed on
-	 * the command line.
-	 */
-	if (!f_longform && !f_listdir && !f_type)
-		fts_options |= FTS_COMFOLLOW;
+  /*
+   * If not -F, -d or -l options, follow any symbolic links listed on
+   * the command line.
+   */
+  if (!f_longform && !f_listdir && !f_type)
+    fts_options |= FTS_COMFOLLOW;
 
-	/*
-	 * If -W, show whiteout entries
-	 */
+  /*
+   * If -W, show whiteout entries
+   */
 #ifdef FTS_WHITEOUT
-	if (f_whiteout)
-		fts_options |= FTS_WHITEOUT;
+  if (f_whiteout)
+    fts_options |= FTS_WHITEOUT;
 #endif
 
-	/* If -l or -s, figure out block size. */
-	if (f_longform || f_size) {
+  /* If -l or -s, figure out block size. */
+  if (f_longform || f_size)
+    {
 #ifdef ORIGINAL_SOURCE
-		if (!kflag)
-			getbsize(&notused, &blocksize);
+      if (!kflag)
+	getbsize (&notused, &blocksize);
 #else
-		blocksize = 1024;  /* Fuck this hair-splitting */
+      blocksize = 1024;		/* Fuck this hair-splitting */
 #endif /* ORIGINAL_SOURCE */
-		blocksize /= 512;
+      blocksize /= 512;
+    }
+
+  /* Select a sort function. */
+  if (f_reversesort)
+    {
+      switch (sortkey)
+	{
+	case BY_NAME:
+	  sortfcn = revnamecmp;
+	  break;
+	case BY_SIZE:
+	  sortfcn = revsizecmp;
+	  break;
+	case BY_TIME:
+	  if (f_accesstime)
+	    sortfcn = revacccmp;
+	  else if (f_statustime)
+	    sortfcn = revstatcmp;
+	  else			/* Use modification time. */
+	    sortfcn = revmodcmp;
+	  break;
 	}
-
-	/* Select a sort function. */
-	if (f_reversesort) {
-		switch (sortkey) {
-		case BY_NAME:
-			sortfcn = revnamecmp;
-			break;
-		case BY_SIZE:
-			sortfcn = revsizecmp;
-			break;
-		case BY_TIME:
-			if (f_accesstime)
-				sortfcn = revacccmp;
-			else if (f_statustime)
-				sortfcn = revstatcmp;
-			else /* Use modification time. */
-				sortfcn = revmodcmp;
-			break;
-		}
-	} else {
-		switch (sortkey) {
-		case BY_NAME:
-			sortfcn = namecmp;
-			break;
-		case BY_SIZE:
-			sortfcn = sizecmp;
-			break;
-		case BY_TIME:
-			if (f_accesstime)
-				sortfcn = acccmp;
-			else if (f_statustime)
-				sortfcn = statcmp;
-			else /* Use modification time. */
-				sortfcn = modcmp;
-			break;
-		}
+    }
+  else
+    {
+      switch (sortkey)
+	{
+	case BY_NAME:
+	  sortfcn = namecmp;
+	  break;
+	case BY_SIZE:
+	  sortfcn = sizecmp;
+	  break;
+	case BY_TIME:
+	  if (f_accesstime)
+	    sortfcn = acccmp;
+	  else if (f_statustime)
+	    sortfcn = statcmp;
+	  else			/* Use modification time. */
+	    sortfcn = modcmp;
+	  break;
 	}
+    }
 
-	/* Select a print function. */
-	if (f_singlecol)
-		printfcn = printscol;
-	else if (f_columnacross)
-		printfcn = printacol;
-	else if (f_longform)
-		printfcn = printlong;
-	else if (f_stream)
-		printfcn = printstream;
-	else
-		printfcn = printcol;
+  /* Select a print function. */
+  if (f_singlecol)
+    printfcn = printscol;
+  else if (f_columnacross)
+    printfcn = printacol;
+  else if (f_longform)
+    printfcn = printlong;
+  else if (f_stream)
+    printfcn = printstream;
+  else
+    printfcn = printcol;
 
-	if (argc)
-		traverse(argc, argv, fts_options);
-	else
-		traverse(1, dotav, fts_options);
-	exit(rval);
+  if (argc)
+    traverse (argc, argv, fts_options);
+  else
+    traverse (1, dotav, fts_options);
+  exit (rval);
 }
 
-static int output;			/* If anything output. */
+static int output;		/* If anything output. */
 
 /*
  * Traverse() walks the logical directory structure specified by the argv list
@@ -349,68 +357,71 @@ static int output;			/* If anything output. */
  * a superset (may be exact set) of the files to be displayed.
  */
 static void
-traverse(argc, argv, options)
-	int argc, options;
-	char *argv[];
+traverse (argc, argv, options)
+     int argc, options;
+     char *argv[];
 {
-	FTS *ftsp;
-	FTSENT *p, *chp;
-	int ch_options;
+  FTS *ftsp;
+  FTSENT *p, *chp;
+  int ch_options;
 
-	if ((ftsp =
-	    fts_open(argv, options, f_nosort ? NULL : mastercmp)) == NULL) {
-		fprintf(stderr, "%s: fts_open: %s",argv[0], strerror(errno));
-	        exit(1);
-	}
+  if ((ftsp = fts_open (argv, options, f_nosort ? NULL : mastercmp)) == NULL)
+    {
+      fprintf (stderr, "%s: fts_open: %s", argv[0], strerror (errno));
+      exit (1);
+    }
 
-	display(NULL, fts_children(ftsp, 0));
-	if (f_listdir)
-		return;
+  display (NULL, fts_children (ftsp, 0));
+  if (f_listdir)
+    return;
+
+  /*
+   * If not recursing down this tree and don't need stat info, just get
+   * the names.
+   */
+  ch_options = !f_recursive && options & FTS_NOSTAT ? FTS_NAMEONLY : 0;
+
+  while ((p = fts_read (ftsp)) != NULL)
+    switch (p->fts_info)
+      {
+      case FTS_D:
+	if (p->fts_name[0] == '.' &&
+	    p->fts_level != FTS_ROOTLEVEL && !f_listdot)
+	  break;
 
 	/*
-	 * If not recursing down this tree and don't need stat info, just get
-	 * the names.
+	 * If already output something, put out a newline as
+	 * a separator.  If multiple arguments, precede each
+	 * directory with its name.
 	 */
-	ch_options = !f_recursive && options & FTS_NOSTAT ? FTS_NAMEONLY : 0;
+	if (output)
+	  printf ("\n%s:\n", p->fts_path);
+	else if (argc > 1)
+	  {
+	    printf ("%s:\n", p->fts_path);
+	    output = 1;
+	  }
 
-	while ((p = fts_read(ftsp)) != NULL)
-		switch (p->fts_info) {
-		case FTS_D:
-			if (p->fts_name[0] == '.' &&
-			    p->fts_level != FTS_ROOTLEVEL && !f_listdot)
-				break;
+	chp = fts_children (ftsp, ch_options);
+	display (p, chp);
 
-			/*
-			 * If already output something, put out a newline as
-			 * a separator.  If multiple arguments, precede each
-			 * directory with its name.
-			 */
-			if (output)
-				printf("\n%s:\n", p->fts_path);
-			else if (argc > 1) {
-				printf("%s:\n", p->fts_path);
-				output = 1;
-			}
-
-			chp = fts_children(ftsp, ch_options);
-			display(p, chp);
-
-			if (!f_recursive && chp != NULL)
-				fts_set(ftsp, p, FTS_SKIP);
-			break;
-		case FTS_DC:
-			fprintf(stderr,"%s: directory causes a cycle", p->fts_name);
-			break;
-		case FTS_DNR:
-		case FTS_ERR:
-			fprintf(stderr,"%s: %s\n", p->fts_name, strerror(p->fts_errno));
-			rval = 1;
-			break;
-		}
-	if (errno) {
-		fprintf(stderr, "fts_read: %s", strerror(errno));
-		exit(1);
-	}
+	if (!f_recursive && chp != NULL)
+	  fts_set (ftsp, p, FTS_SKIP);
+	break;
+      case FTS_DC:
+	fprintf (stderr, "%s: directory causes a cycle", p->fts_name);
+	break;
+      case FTS_DNR:
+      case FTS_ERR:
+	fprintf (stderr, "%s: %s\n", p->fts_name, strerror (p->fts_errno));
+	rval = 1;
+	break;
+      }
+  if (errno)
+    {
+      fprintf (stderr, "fts_read: %s", strerror (errno));
+      exit (1);
+    }
 }
 
 /*
@@ -419,156 +430,171 @@ traverse(argc, argv, options)
  * points to the parent directory of the display list.
  */
 static void
-display(p, list)
-	FTSENT *p, *list;
+display (p, list)
+     FTSENT *p, *list;
 {
-	struct stat *sp;
-	DISPLAY d;
-	FTSENT *cur;
-	NAMES *np;
-	unsigned long long maxsize;
-	u_long btotal, maxblock, maxinode, maxlen, maxnlink;
-	int bcfile, flen, glen, ulen, maxflags, maxgroup, maxuser;
-	int entries, needstats;
-	char *user, *group, buf[20];	/* 32 bits == 10 digits */
-	char nuser[12], ngroup[12];
-	char *flags = NULL;
+  struct stat *sp;
+  DISPLAY d;
+  FTSENT *cur;
+  NAMES *np;
+  unsigned long long maxsize;
+  u_long btotal, maxblock, maxinode, maxlen, maxnlink;
+  int bcfile, flen, glen, ulen, maxflags, maxgroup, maxuser;
+  int entries, needstats;
+  char *user, *group, buf[20];	/* 32 bits == 10 digits */
+  char nuser[12], ngroup[12];
+  char *flags = NULL;
 
-	/*
-	 * If list is NULL there are two possibilities: that the parent
-	 * directory p has no children, or that fts_children() returned an
-	 * error.  We ignore the error case since it will be replicated
-	 * on the next call to fts_read() on the post-order visit to the
-	 * directory p, and will be signalled in traverse().
-	 */
-	if (list == NULL)
-		return;
+  /*
+   * If list is NULL there are two possibilities: that the parent
+   * directory p has no children, or that fts_children() returned an
+   * error.  We ignore the error case since it will be replicated
+   * on the next call to fts_read() on the post-order visit to the
+   * directory p, and will be signalled in traverse().
+   */
+  if (list == NULL)
+    return;
 
-	needstats = f_inode || f_longform || f_size;
-	flen = 0;
-	btotal = maxblock = maxinode = maxlen = maxnlink = 0;
-	bcfile = 0;
-	maxuser = maxgroup = maxflags = 0;
-	maxsize = 0;
-	for (cur = list, entries = 0; cur; cur = cur->fts_link) {
-		if (cur->fts_info == FTS_ERR || cur->fts_info == FTS_NS) {
-			fprintf(stderr,"%s: %s\n",
-			    cur->fts_name, strerror(cur->fts_errno));
-			cur->fts_number = NO_PRINT;
-			rval = 1;
-			continue;
+  needstats = f_inode || f_longform || f_size;
+  flen = 0;
+  btotal = maxblock = maxinode = maxlen = maxnlink = 0;
+  bcfile = 0;
+  maxuser = maxgroup = maxflags = 0;
+  maxsize = 0;
+  for (cur = list, entries = 0; cur; cur = cur->fts_link)
+    {
+      if (cur->fts_info == FTS_ERR || cur->fts_info == FTS_NS)
+	{
+	  fprintf (stderr, "%s: %s\n",
+		   cur->fts_name, strerror (cur->fts_errno));
+	  cur->fts_number = NO_PRINT;
+	  rval = 1;
+	  continue;
+	}
+
+      /*
+       * P is NULL if list is the argv list, to which different rules
+       * apply.
+       */
+      if (p == NULL)
+	{
+	  /* Directories will be displayed later. */
+	  if (cur->fts_info == FTS_D && !f_listdir)
+	    {
+	      cur->fts_number = NO_PRINT;
+	      continue;
+	    }
+	}
+      else
+	{
+	  /* Only display dot file if -a/-A set. */
+	  if (cur->fts_name[0] == '.' && !f_listdot)
+	    {
+	      cur->fts_number = NO_PRINT;
+	      continue;
+	    }
+	}
+      if (cur->fts_namelen > maxlen)
+	maxlen = cur->fts_namelen;
+      if (needstats)
+	{
+	  sp = cur->fts_statp;
+	  if (sp->st_blocks > maxblock)
+	    maxblock = sp->st_blocks;
+	  if (sp->st_ino > maxinode)
+	    maxinode = sp->st_ino;
+	  if (sp->st_nlink > maxnlink)
+	    maxnlink = sp->st_nlink;
+	  if (sp->st_size > maxsize)
+	    maxsize = sp->st_size;
+
+	  btotal += sp->st_blocks;
+	  if (f_longform)
+	    {
+	      if (f_numericonly)
+		{
+		  snprintf (nuser, 12, "%u", sp->st_uid);
+		  snprintf (ngroup, 12, "%u", sp->st_gid);
+		  user = nuser;
+		  group = ngroup;
 		}
-
-		/*
-		 * P is NULL if list is the argv list, to which different rules
-		 * apply.
-		 */
-		if (p == NULL) {
-			/* Directories will be displayed later. */
-			if (cur->fts_info == FTS_D && !f_listdir) {
-				cur->fts_number = NO_PRINT;
-				continue;
-			}
-		} else {
-			/* Only display dot file if -a/-A set. */
-			if (cur->fts_name[0] == '.' && !f_listdot) {
-				cur->fts_number = NO_PRINT;
-				continue;
-			}
+	      else
+		{
+		  user = user_from_uid (sp->st_uid, 0);
+		  group = group_from_gid (sp->st_gid, 0);
 		}
-		if (cur->fts_namelen > maxlen)
-			maxlen = cur->fts_namelen;
-		if (needstats) {
-			sp = cur->fts_statp;
-			if (sp->st_blocks > maxblock)
-				maxblock = sp->st_blocks;
-			if (sp->st_ino > maxinode)
-				maxinode = sp->st_ino;
-			if (sp->st_nlink > maxnlink)
-				maxnlink = sp->st_nlink;
-			if (sp->st_size > maxsize)
-				maxsize = sp->st_size;
-
-			btotal += sp->st_blocks;
-			if (f_longform) {
-				if (f_numericonly) {
-					snprintf(nuser, 12, "%u", sp->st_uid);
-					snprintf(ngroup, 12, "%u", sp->st_gid);
-					user = nuser;
-					group = ngroup;
-				} else {
-					user = user_from_uid(sp->st_uid, 0);
-					group = group_from_gid(sp->st_gid, 0);
-				}
-				if ((ulen = strlen(user)) > maxuser)
-					maxuser = ulen;
-				if ((glen = strlen(group)) > maxgroup)
-					maxgroup = glen;
-				if (f_flags) {
+	      if ((ulen = strlen (user)) > maxuser)
+		maxuser = ulen;
+	      if ((glen = strlen (group)) > maxgroup)
+		maxgroup = glen;
+	      if (f_flags)
+		{
 #if ORIGINAL_SOURCE
-					flags =
-					    flags_to_string(sp->st_flags, "-");
+		  flags = flags_to_string (sp->st_flags, "-");
 #else
-					flags = "-";
+		  flags = "-";
 #endif /* ORIGINAL_SOURCE */
-					if ((flen = strlen(flags)) > maxflags)
-						maxflags = flen;
-				} else
-					flen = 0;
-
-				if ((np = malloc(sizeof(NAMES) +
-				    ulen + glen + flen + 3)) == NULL) {
-					fprintf(stderr, "malloc: %s",strerror(errno));
-			                exit(1);
-				}
-
-				np->user = &np->data[0];
-				strcpy(np->user, user);
-				np->group = &np->data[ulen + 1];
-				strcpy(np->group, group);
-
-				if (S_ISCHR(sp->st_mode) ||
-				    S_ISBLK(sp->st_mode))
-					bcfile = 1;
-
-				if (f_flags) {
-					np->flags = &np->data[ulen + glen + 2];
-				  	strcpy(np->flags, flags);
-				}
-				cur->fts_pointer = np;
-			}
+		  if ((flen = strlen (flags)) > maxflags)
+		    maxflags = flen;
 		}
-		++entries;
+	      else
+		flen = 0;
+
+	      if ((np = malloc (sizeof (NAMES) +
+				ulen + glen + flen + 3)) == NULL)
+		{
+		  fprintf (stderr, "malloc: %s", strerror (errno));
+		  exit (1);
+		}
+
+	      np->user = &np->data[0];
+	      strcpy (np->user, user);
+	      np->group = &np->data[ulen + 1];
+	      strcpy (np->group, group);
+
+	      if (S_ISCHR (sp->st_mode) || S_ISBLK (sp->st_mode))
+		bcfile = 1;
+
+	      if (f_flags)
+		{
+		  np->flags = &np->data[ulen + glen + 2];
+		  strcpy (np->flags, flags);
+		}
+	      cur->fts_pointer = np;
+	    }
 	}
+      ++entries;
+    }
 
-	if (!entries)
-		return;
+  if (!entries)
+    return;
 
-	d.list = list;
-	d.entries = entries;
-	d.maxlen = maxlen;
-	if (needstats) {
-		d.bcfile = bcfile;
-		d.btotal = btotal;
-		snprintf(buf, sizeof(buf), "%lu", maxblock);
-		d.s_block = strlen(buf);
-		d.s_flags = maxflags;
-		d.s_group = maxgroup;
-		snprintf(buf, sizeof(buf), "%lu", maxinode);
-		d.s_inode = strlen(buf);
-		snprintf(buf, sizeof(buf), "%lu", maxnlink);
-		d.s_nlink = strlen(buf);
-		snprintf(buf, sizeof(buf), "%qu", maxsize);
-		d.s_size = strlen(buf);
-		d.s_user = maxuser;
-	}
+  d.list = list;
+  d.entries = entries;
+  d.maxlen = maxlen;
+  if (needstats)
+    {
+      d.bcfile = bcfile;
+      d.btotal = btotal;
+      snprintf (buf, sizeof (buf), "%lu", maxblock);
+      d.s_block = strlen (buf);
+      d.s_flags = maxflags;
+      d.s_group = maxgroup;
+      snprintf (buf, sizeof (buf), "%lu", maxinode);
+      d.s_inode = strlen (buf);
+      snprintf (buf, sizeof (buf), "%lu", maxnlink);
+      d.s_nlink = strlen (buf);
+      snprintf (buf, sizeof (buf), "%qu", maxsize);
+      d.s_size = strlen (buf);
+      d.s_user = maxuser;
+    }
 
-	printfcn(&d);
-	output = 1;
+  printfcn (&d);
+  output = 1;
 
-	if (f_longform)
-		for (cur = list; cur; cur = cur->fts_link)
-			free(cur->fts_pointer);
+  if (f_longform)
+    for (cur = list; cur; cur = cur->fts_link)
+      free (cur->fts_pointer);
 }
 
 /*
@@ -578,32 +604,32 @@ display(p, list)
  * All other levels use the sort function.  Error entries remain unsorted.
  */
 static int
-mastercmp(a, b)
-	const FTSENT **a, **b;
+mastercmp (a, b)
+     const FTSENT **a, **b;
 {
-	int a_info, b_info;
+  int a_info, b_info;
 
-	a_info = (*a)->fts_info;
-	if (a_info == FTS_ERR)
-		return (0);
-	b_info = (*b)->fts_info;
-	if (b_info == FTS_ERR)
-		return (0);
+  a_info = (*a)->fts_info;
+  if (a_info == FTS_ERR)
+    return (0);
+  b_info = (*b)->fts_info;
+  if (b_info == FTS_ERR)
+    return (0);
 
-	if (a_info == FTS_NS || b_info == FTS_NS)
-		if (b_info != FTS_NS)
-			return (1);
-		else if (a_info != FTS_NS)
-			return (-1);
-		else
-			return (namecmp(*a, *b));
+  if (a_info == FTS_NS || b_info == FTS_NS)
+    if (b_info != FTS_NS)
+      return (1);
+    else if (a_info != FTS_NS)
+      return (-1);
+    else
+      return (namecmp (*a, *b));
 
-	if (a_info != b_info &&
-	    (*a)->fts_level == FTS_ROOTLEVEL && !f_listdir) {
-		if (a_info == FTS_D)
-			return (1);
-		if (b_info == FTS_D)
-			return (-1);
-	}
-	return (sortfcn(*a, *b));
+  if (a_info != b_info && (*a)->fts_level == FTS_ROOTLEVEL && !f_listdir)
+    {
+      if (a_info == FTS_D)
+	return (1);
+      if (b_info == FTS_D)
+	return (-1);
+    }
+  return (sortfcn (*a, *b));
 }

@@ -54,16 +54,17 @@ extern char *hostname;
 
 #define os2sin_addr(cp) (((struct sockaddr_in *)&(cp))->sin_addr)
 
-extern CTL_MSG *find_request (CTL_MSG *request);
-extern CTL_MSG *find_match (CTL_MSG *request);
-extern int process_request(CTL_MSG *mp, struct sockaddr_in *sa_in, CTL_RESPONSE *rp);
+extern CTL_MSG *find_request (CTL_MSG * request);
+extern CTL_MSG *find_match (CTL_MSG * request);
+extern int process_request (CTL_MSG * mp, struct sockaddr_in *sa_in,
+			    CTL_RESPONSE * rp);
 
-extern int print_request (const char *cp, CTL_MSG *mp);
-extern int print_response (const char *cp, CTL_RESPONSE *rp);
+extern int print_request (const char *cp, CTL_MSG * mp);
+extern int print_response (const char *cp, CTL_RESPONSE * rp);
 
-extern int insert_table (CTL_MSG *request, CTL_RESPONSE *response);
+extern int insert_table (CTL_MSG * request, CTL_RESPONSE * response);
 extern int delete_invite (unsigned long id_num);
 extern int new_id (void);
 extern void read_acl (char *config_file);
-extern int acl_match (CTL_MSG *msg, struct sockaddr_in *sa_in);
-extern int announce (CTL_MSG *request, char *remote_machine);
+extern int acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in);
+extern int announce (CTL_MSG * request, char *remote_machine);

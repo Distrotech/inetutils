@@ -89,68 +89,68 @@
 #endif
 /* `defaults' for tty settings.  */
 #ifndef TTYDEF_IFLAG
-#define	TTYDEF_IFLAG	(BRKINT | ISTRIP | ICRNL | IMAXBEL | IXON | IXANY)
+# define TTYDEF_IFLAG	(BRKINT | ISTRIP | ICRNL | IMAXBEL | IXON | IXANY)
 #endif
 #ifndef TTYDEF_OFLAG
-#ifndef OXTABS
-#define OXTABS 0
-#endif
-#define TTYDEF_OFLAG	(OPOST | ONLCR | OXTABS)
+# ifndef OXTABS
+#  define OXTABS 0
+# endif
+# define TTYDEF_OFLAG	(OPOST | ONLCR | OXTABS)
 #endif
 #ifndef TTYDEF_LFLAG
-#define TTYDEF_LFLAG	(ECHO | ICANON | ISIG | IEXTEN | ECHOE|ECHOKE|ECHOCTL)
+# define TTYDEF_LFLAG	(ECHO | ICANON | ISIG | IEXTEN | ECHOE|ECHOKE|ECHOCTL)
 #endif
 #define AUTH_KERBEROS_SHISHI 1
 #define AUTH_KERBEROS_4 4
 #define AUTH_KERBEROS_5 5
 #if defined(KERBEROS) || defined(SHISHI)
 # ifdef	KRB4
-# define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
+#  define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
 #  include <kerberosIV/des.h>
 #  include <kerberosIV/krb.h>
 #  define kerberos_error_string(c) krb_err_txt[c]
 #  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_4
 # elif defined(KRB5)
-# define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
+#  define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
 #  include <krb5.h>
 #  include <kerberosIV/krb.h>
 #  define kerberos_error_string(c) error_message (c)
 #  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_5
 # elif defined(SHISHI)
-# define SECURE_MESSAGE "This rlogin session is using encryption for all transmissions.\r\n"
+#  define SECURE_MESSAGE "This rlogin session is using encryption for all transmissions.\r\n"
 #  include <shishi.h>
 #  include "shishi_def.h"
 #  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_SHISHI
 #  define kerberos_error_string(c) shishi_strerror(c)
 # endif
 #endif /* KERBEROS */
-#define	ENVSIZE	(sizeof("TERM=")-1)	/* skip null for concatenation */
+#define ENVSIZE	(sizeof("TERM=")-1)	/* skip null for concatenation */
 #ifndef DEFMAXCHILDREN
 # define DEFMAXCHILDREN 10	/* Default maximum number of children */
 #endif
 #ifndef DEFPORT
 # define DEFPORT 513
 #endif
-extern int      __check_rhosts_file;
+extern int __check_rhosts_file;
 
 #ifndef SHISHI
 struct auth_data
 {
   struct sockaddr_in from;
-  char           *hostname;
-  char           *lusername;
-  char           *rusername;
-  char           *term;
-  char           *env[2];
-#ifdef KERBEROS
-#ifdef KRB5
-  int             kerberos_version;
-  krb5_principal  client;
-  krb5_context    context;
-  krb5_ccache     ccache;
-  krb5_keytab     keytab;
-#endif
-#endif
+  char *hostname;
+  char *lusername;
+  char *rusername;
+  char *term;
+  char *env[2];
+# ifdef KERBEROS
+#  ifdef KRB5
+  int kerberos_version;
+  krb5_principal client;
+  krb5_context context;
+  krb5_ccache ccache;
+  krb5_keytab keytab;
+#  endif
+# endif
 };
 #endif
 
@@ -172,51 +172,51 @@ static struct option long_options[] = {
   {0, 0, 0, 0}
 };
 
-int             allow_root = 0;
-int             verify_hostname = 0;
-int             keepalive = 1;
+int allow_root = 0;
+int verify_hostname = 0;
+int keepalive = 1;
 
 #if defined(KERBEROS) || defined(SHISHI)
-int             kerberos = 0;
+int kerberos = 0;
 
-#ifdef ENCRYPTION
-int             encrypt_io = 0;
-#endif /* ENCRYPTION */
+# ifdef ENCRYPTION
+int encrypt_io = 0;
+# endif	/* ENCRYPTION */
 #endif /* KERBEROS */
-int             reverse_required = 0;
-int             debug_level = 0;
+int reverse_required = 0;
+int debug_level = 0;
 
-int             numchildren;
-int             netf;
-char            line[1024];	/* FIXME */
-int             confirmed;
-const char     *path_login = PATH_LOGIN;
-char           *local_domain_name;
-int             local_dot_count;
+int numchildren;
+int netf;
+char line[1024];		/* FIXME */
+int confirmed;
+const char *path_login = PATH_LOGIN;
+char *local_domain_name;
+int local_dot_count;
 
-struct winsize  win = { 0, 0, 0, 0 };
+struct winsize win = { 0, 0, 0, 0 };
 
-void usage       (void);
-void rlogin_daemon  (int maxchildren, int port);
-int rlogind_auth  (int fd, struct auth_data * ap);
-void setup_tty   (int fd, struct auth_data * ap);
-void exec_login  (int authenticated, struct auth_data * ap);
-int rlogind_mainloop  (int infd, int outfd);
-int do_rlogin    (int infd, struct auth_data * ap);
-int do_krb_login  (int infd, struct auth_data * ap, const char **msg);
-void getstr      (int infd, char **ptr, const char *prefix);
-void protocol    (int f, int p, struct auth_data * ap);
-int control      (int pty, char *cp, size_t n);
-RETSIGTYPE cleanup  (int signo);
-void fatal       (int f, const char *msg, int syserr);
-int in_local_domain  (char *hostname);
-char           *topdomain  (char *name, int max_dots);
+void usage (void);
+void rlogin_daemon (int maxchildren, int port);
+int rlogind_auth (int fd, struct auth_data *ap);
+void setup_tty (int fd, struct auth_data *ap);
+void exec_login (int authenticated, struct auth_data *ap);
+int rlogind_mainloop (int infd, int outfd);
+int do_rlogin (int infd, struct auth_data *ap);
+int do_krb_login (int infd, struct auth_data *ap, const char **msg);
+void getstr (int infd, char **ptr, const char *prefix);
+void protocol (int f, int p, struct auth_data *ap);
+int control (int pty, char *cp, size_t n);
+RETSIGTYPE cleanup (int signo);
+void fatal (int f, const char *msg, int syserr);
+int in_local_domain (char *hostname);
+char *topdomain (char *name, int max_dots);
 
 RETSIGTYPE
 rlogind_sigchld (int sig)
 {
-  pid_t           pid;
-  int             status;
+  pid_t pid;
+  int status;
 
   while ((pid = waitpid (-1, &status, WNOHANG)) > 0)
     --numchildren;
@@ -267,10 +267,10 @@ char *program_name;
 int
 main (int argc, char *argv[])
 {
-  int             port = 0;
-  int             maxchildren = DEFMAXCHILDREN;
-  int             mode = MODE_INETD;
-  int             c;
+  int port = 0;
+  int maxchildren = DEFMAXCHILDREN;
+  int mode = MODE_INETD;
+  int c;
 
   program_name = argv[0];
   while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
@@ -374,7 +374,7 @@ main (int argc, char *argv[])
     }
   else
     {
-      char           *p;
+      char *p;
 
       local_dot_count = 0;
       for (p = local_domain_name; *p; p++)
@@ -396,10 +396,10 @@ main (int argc, char *argv[])
 void
 rlogin_daemon (int maxchildren, int port)
 {
-  pid_t           pid;
-  size_t          size;
+  pid_t pid;
+  size_t size;
   struct sockaddr_in saddr;
-  int             listenfd, fd;
+  int listenfd, fd;
 
   if (port == 0)
     {
@@ -432,7 +432,7 @@ rlogin_daemon (int maxchildren, int port)
     }
 
   {
-    int             on = 1;
+    int on = 1;
 
     setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof on);
   }
@@ -494,11 +494,11 @@ int
 rlogind_auth (int fd, struct auth_data *ap)
 {
   struct hostent *hp;
-  char           *hostname;
-  int             authenticated = 0;
+  char *hostname;
+  int authenticated = 0;
 
 #ifdef SHISHI
-  int             len, c;
+  int len, c;
 #endif
 
   confirmed = 0;
@@ -520,7 +520,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 
   if (verify_hostname || in_local_domain (ap->hostname))
     {
-      int             match = 0;
+      int match = 0;
 
       for (hp = gethostbyname (ap->hostname); hp && !match; hp->h_addr_list++)
 	{
@@ -540,8 +540,8 @@ rlogind_auth (int fd, struct auth_data *ap)
 #if defined(KERBEROS) || defined(SHISHI)
   if (kerberos)
     {
-      const char     *err_msg;
-      int             c = 0;
+      const char *err_msg;
+      int c = 0;
 
       if (do_krb_login (fd, ap, &err_msg) == 0)
 	authenticated++;
@@ -553,7 +553,7 @@ rlogind_auth (int fd, struct auth_data *ap)
   else
 #endif
     {
-      int             port = ntohs (ap->from.sin_port);
+      int port = ntohs (ap->from.sin_port);
 
       if (ap->from.sin_family != AF_INET ||
 	  port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
@@ -564,9 +564,9 @@ rlogind_auth (int fd, struct auth_data *ap)
 	}
 #ifdef IP_OPTIONS
       {
-	u_char          optbuf[BUFSIZ / 3], *cp;
-	char            lbuf[BUFSIZ], *lp;
-	int             optsize = sizeof (optbuf), ipproto;
+	u_char optbuf[BUFSIZ / 3], *cp;
+	char lbuf[BUFSIZ], *lp;
+	int optsize = sizeof (optbuf), ipproto;
 	struct protoent *ip;
 
 	if ((ip = getprotobyname ("ip")) != NULL)
@@ -611,9 +611,9 @@ rlogind_auth (int fd, struct auth_data *ap)
 void
 setup_tty (int fd, struct auth_data *ap)
 {
-  register char  *cp = strchr (ap->term + ENVSIZE, '/');
-  char           *speed;
-  struct termios  tt;
+  register char *cp = strchr (ap->term + ENVSIZE, '/');
+  char *speed;
+  struct termios tt;
 
   tcgetattr (fd, &tt);
   if (cp)
@@ -639,13 +639,13 @@ setup_tty (int fd, struct auth_data *ap)
 }
 
 #ifdef UTMPX
-char           *utmp_ptsid ();
-/*FIXME*/ void  utmp_init ();
+char *utmp_ptsid ();
+ /*FIXME*/ void utmp_init ();
 
 void
 setup_utmp (char *line)
 {
-  char           *ut_id = utmp_ptsid (line, "rl");
+  char *ut_id = utmp_ptsid (line, "rl");
 
   utmp_init (line + sizeof ("/dev/") - 1, ".rlogin", ut_id);
 }
@@ -684,13 +684,13 @@ exec_login (int authenticated, struct auth_data *ap)
 int
 rlogind_mainloop (int infd, int outfd)
 {
-  size_t          size;
+  size_t size;
   struct auth_data auth_data;
-  int             true;
-  char            c;
-  int             authenticated;
-  pid_t           pid;
-  int             master;
+  int true;
+  char c;
+  int authenticated;
+  pid_t pid;
+  int master;
 
   memset (&auth_data, 0, sizeof auth_data);
   size = sizeof auth_data.from;
@@ -771,10 +771,10 @@ rlogind_mainloop (int infd, int outfd)
 #ifdef SHISHI
   if (kerberos)
     {
-      int             i;
+      int i;
 
       shishi_done (auth_data.h);
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
       if (encrypt_io)
 	{
 	  shishi_key_done (auth_data.enckey);
@@ -784,7 +784,7 @@ rlogind_mainloop (int infd, int outfd)
 	      free (auth_data.ivtab[i]->iv);
 	    }
 	}
-#endif
+# endif
     }
 #endif
 
@@ -795,8 +795,8 @@ rlogind_mainloop (int infd, int outfd)
 int
 do_rlogin (int infd, struct auth_data *ap)
 {
-  struct passwd  *pwd;
-  int             rc;
+  struct passwd *pwd;
+  int rc;
 
   getstr (infd, &ap->rusername, NULL);
   getstr (infd, &ap->lusername, NULL);
@@ -825,20 +825,20 @@ do_rlogin (int infd, struct auth_data *ap)
 int
 do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
 {
-  int             rc;
+  int rc;
 
   err_msg = NULL;
-#if defined(KRB5)
+# if defined(KRB5)
   if (kerberos == AUTH_KERBEROS_5)
     rc = do_krb5_login (infd, ap, err_msg);
   else
-#elif defined(SHISHI)
+# elif defined(SHISHI)
   if (kerberos == AUTH_KERBEROS_SHISHI)
     rc = do_shishi_login (infd, ap, err_msg);
   else
-#else
+# else
   rc = do_krb4_login (infd, ap, err_msg);
-#endif
+# endif
 
   if (rc && !err_msg)
     *err_msg = kerberos_error_string (rc);
@@ -846,20 +846,20 @@ do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
   return rc;
 }
 
-#ifdef KRB4
+# ifdef KRB4
 int
 do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
 {
-  int             rc;
-  char            instance[INST_SZ], version[VERSION_SZ];
-  long            authopts = 0L;	/* !mutual */
+  int rc;
+  char instance[INST_SZ], version[VERSION_SZ];
+  long authopts = 0L;		/* !mutual */
   struct sockaddr_in faddr;
-  u_char          auth_buf[sizeof (AUTH_DAT)];
-  u_char          tick_buf[sizeof (KTEXT_ST)];
-  Key_schedule    schedule;
-  AUTH_DAT       *kdata;
-  KTEXT           ticket;
-  struct passwd  *pwd;
+  u_char auth_buf[sizeof (AUTH_DAT)];
+  u_char tick_buf[sizeof (KTEXT_ST)];
+  Key_schedule schedule;
+  AUTH_DAT *kdata;
+  KTEXT ticket;
+  struct passwd *pwd;
 
   kdata = (AUTH_DAT *) auth_buf;
   ticket = (KTEXT) tick_buf;
@@ -867,7 +867,7 @@ do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
   instance[0] = '*';
   instance[1] = '\0';
 
-#ifdef ENCRYPTION
+#  ifdef ENCRYPTION
   if (encrypt_io)
     {
       rc = sizeof faddr;
@@ -886,7 +886,7 @@ do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
 
     }
   else
-#endif
+#  endif
     rc = krb_recvauth (authopts, 0,
 		       ticket, "rcmd",
 		       instance, &ap->from, NULL, kdata, "", NULL, version);
@@ -921,24 +921,24 @@ do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
 
   return 0;
 }
-#endif
+# endif
 
-#ifdef KRB5
+# ifdef KRB5
 int
 do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
 {
   krb5_auth_context auth_ctx = NULL;
   krb5_error_code status;
-  krb5_data       inbuf;
-  krb5_data       version;
+  krb5_data inbuf;
+  krb5_data version;
   krb5_authenticator *authenticator;
-  krb5_rcache     rcache;
-  krb5_keyblock  *key;
-  krb5_ticket    *ticket;
+  krb5_rcache rcache;
+  krb5_keyblock *key;
+  krb5_ticket *ticket;
   struct sockaddr_in laddr;
-  int             len;
-  struct passwd  *pwd;
-  char           *name;
+  int len;
+  struct passwd *pwd;
+  char *name;
 
   if (status = krb5_init_context (&ap->context))
     {
@@ -954,7 +954,7 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
 
   if (!rcache)
     {
-      krb5_principal  server;
+      krb5_principal server;
 
       status = krb5_sname_to_principal (ap->context, 0, 0, KRB5_NT_SRV_HST,
 					&server);
@@ -1019,40 +1019,40 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   return 0;
 }
 
-#endif
+# endif
 
-#ifdef SHISHI
+# ifdef SHISHI
 int
 do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 {
-  int             rc;
-  int             error = 0;
-  int             keylen, keytype;
-  struct passwd  *pwd = NULL;
-  int             cksumtype, cksumlen = 30;
-  char           *cksum;
-  char           *compcksum;
-  size_t          compcksumlen;
-  char            cksumdata[100];
+  int rc;
+  int error = 0;
+  int keylen, keytype;
+  struct passwd *pwd = NULL;
+  int cksumtype, cksumlen = 30;
+  char *cksum;
+  char *compcksum;
+  size_t compcksumlen;
+  char cksumdata[100];
   struct sockaddr_in sock;
-  size_t          socklen = sizeof (struct sockaddr_in);
+  size_t socklen = sizeof (struct sockaddr_in);
 
-#ifdef ENCRYPTION
+#  ifdef ENCRYPTION
   rc = get_auth (infd, &ad->h, &ad->ap, &ad->enckey, err_msg, &ad->protocol,
 		 &cksumtype, &cksum, &cksumlen);
-#else
+#  else
   rc = get_auth (infd, &ad->h, &ad->ap, NULL, err_msg, &ad->protocol,
 		 &cksumtype, &cksum, &cksumlen);
-#endif
+#  endif
   if (rc != SHISHI_OK)
     return rc;
 
-#ifdef ENCRYPTION
+#  ifdef ENCRYPTION
   /* init IV */
   if (encrypt_io)
     {
-      int             i;
-      char           *iv;
+      int i;
+      char *iv;
 
       ad->ivtab[0] = &ad->iv1;
       ad->ivtab[1] = &ad->iv2;
@@ -1098,7 +1098,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 	    }
 	}
     }
-#endif
+#  endif
 
   getstr (infd, &ad->lusername, NULL);
   getstr (infd, &ad->term, "TERM=");
@@ -1149,8 +1149,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 			strlen (cksumdata), &compcksum, &compcksumlen);
   free (cksum);
   if (rc != SHISHI_OK
-      || compcksumlen != cksumlen
-      || memcmp (compcksum, cksum, cksumlen) != 0)
+      || compcksumlen != cksumlen || memcmp (compcksum, cksum, cksumlen) != 0)
     {
       /* err_msg crash ? */
       /* *err_msg = "checksum verify failed"; */
@@ -1174,7 +1173,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 
   return SHISHI_OK;
 }
-#endif
+# endif
 #endif
 
 #define BUFFER_SIZE 128
@@ -1182,14 +1181,14 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 void
 getstr (int infd, char **ptr, const char *prefix)
 {
-  char            c;
-  char           *buf;
-  int             pos;
-  int             size = BUFFER_SIZE;
+  char c;
+  char *buf;
+  int pos;
+  int size = BUFFER_SIZE;
 
   if (prefix)
     {
-      int             len = strlen (prefix);
+      int len = strlen (prefix);
 
       if (size < len + 1)
 	size = len + 1;
@@ -1232,25 +1231,25 @@ getstr (int infd, char **ptr, const char *prefix)
   *ptr = buf;
 }
 
-#define	pkcontrol(c) ((c)&(TIOCPKT_FLUSHWRITE|TIOCPKT_NOSTOP|TIOCPKT_DOSTOP))
+#define pkcontrol(c) ((c)&(TIOCPKT_FLUSHWRITE|TIOCPKT_NOSTOP|TIOCPKT_DOSTOP))
 
-char            magic[2] = { 0377, 0377 };
-char            oobdata[] = { TIOCPKT_WINDOW };	/* May be modified by protocol/control */
+char magic[2] = { 0377, 0377 };
+char oobdata[] = { TIOCPKT_WINDOW };	/* May be modified by protocol/control */
 
 #ifdef SHISHI
-char            oobdata_new[] = { 0377, 0377, 'o', 'o', TIOCPKT_WINDOW };
+char oobdata_new[] = { 0377, 0377, 'o', 'o', TIOCPKT_WINDOW };
 #endif
 
 void
 protocol (int f, int p, struct auth_data *ap)
 {
-  char            fibuf[1024], *pbp = NULL, *fbp = NULL;
-  int             pcc = 0, fcc = 0;
-  int             cc, nfd, n;
-  char            cntl;
+  char fibuf[1024], *pbp = NULL, *fbp = NULL;
+  int pcc = 0, fcc = 0;
+  int cc, nfd, n;
+  char cntl;
 
 #ifdef TIOCPKT
-  int             tiocpkt_on = 0;
+  int tiocpkt_on = 0;
 #endif
 
   /*
@@ -1279,7 +1278,7 @@ protocol (int f, int p, struct auth_data *ap)
 
   while (1)
     {
-      fd_set          ibits, obits, ebits, *omask;
+      fd_set ibits, obits, ebits, *omask;
 
       FD_ZERO (&ebits);
       FD_ZERO (&ibits);
@@ -1343,8 +1342,8 @@ protocol (int f, int p, struct auth_data *ap)
 	    fcc = 0;
 	  else
 	    {
-	      register char  *cp;
-	      int             left;
+	      register char *cp;
+	      int left;
 
 	      if (fcc <= 0)
 		break;
@@ -1353,7 +1352,7 @@ protocol (int f, int p, struct auth_data *ap)
 	      for (cp = fibuf; cp < fibuf + fcc - 1; cp++)
 		if (cp[0] == magic[0] && cp[1] == magic[1])
 		  {
-		    int             len;
+		    int len;
 
 		    left = fcc - (cp - fibuf);
 		    len = control (p, cp, left);
@@ -1382,7 +1381,7 @@ protocol (int f, int p, struct auth_data *ap)
 
       if (FD_ISSET (p, &ibits))
 	{
-	  char            dbuf[1024 + 1];
+	  char dbuf[1024 + 1];
 
 	  pcc = read (p, dbuf, sizeof dbuf);
 
@@ -1445,7 +1444,7 @@ protocol (int f, int p, struct auth_data *ap)
 int
 control (int pty, char *cp, size_t n)
 {
-  struct winsize  w;
+  struct winsize w;
 
   if (n < 4 + sizeof (w) || cp[2] != 's' || cp[3] != 's')
     return (0);
@@ -1462,7 +1461,7 @@ control (int pty, char *cp, size_t n)
 RETSIGTYPE
 cleanup (int signo)
 {
-  char           *p;
+  char *p;
 
   signo;
 
@@ -1487,16 +1486,16 @@ cleanup (int signo)
 int
 in_local_domain (char *hostname)
 {
-  char           *p = topdomain (hostname, local_dot_count);
+  char *p = topdomain (hostname, local_dot_count);
 
   return p && strcasecmp (p, local_domain_name) == 0;
 }
 
-char           *
+char *
 topdomain (char *name, int max_dots)
 {
-  char           *p;
-  int             dot_count = 0;
+  char *p;
+  int dot_count = 0;
 
   for (p = name + strlen (name) - 1; p >= name; p--)
     {
@@ -1509,8 +1508,8 @@ topdomain (char *name, int max_dots)
 void
 fatal (int f, const char *msg, int syserr)
 {
-  int             len;
-  char            buf[BUFSIZ], *bp = buf;
+  int len;
+  char buf[BUFSIZ], *bp = buf;
 
   /*
    * Prepend binary one to message if we haven't sent
@@ -1539,9 +1538,9 @@ static const char usage_str[] =
   "   -n, --no-keepalive      Do not set SO_KEEPALIVE\n"
 #if defined(KERBEROS) || defined(SHISHI)
   "   -k, --kerberos          Use kerberos IV/V authentication\n"
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   "   -x, --encrypt           Use DES encryption\n"
-#endif /* ENCRYPTION */
+# endif	/* ENCRYPTION */
 #endif /* KERBEROS */
   "   -D, --debug[=LEVEL]     Set debug level\n"
   "   -h, --help              Display usage instructions\n"
@@ -1555,4 +1554,3 @@ usage ()
 {
   printf ("%s\n" "Send bug reports to %s\n", usage_str, PACKAGE_BUGREPORT);
 }
- 

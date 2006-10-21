@@ -48,88 +48,97 @@ static char rcsid[] = "$Id$";
 #include <ctype.h>
 
 void
-netwhois(char *name, char *host)
+netwhois (char *name, char *host)
 {
-	register FILE *fp;
-	register int c, lastc;
-	struct in_addr defaddr;
-	struct hostent *hp, def;
-	struct servent *sp;
-	struct sockaddr_in sin;
-	int s;
-	char *alist[1];
-	u_long inet_addr();
+  register FILE *fp;
+  register int c, lastc;
+  struct in_addr defaddr;
+  struct hostent *hp, def;
+  struct servent *sp;
+  struct sockaddr_in sin;
+  int s;
+  char *alist[1];
+  u_long inet_addr ();
 
-	if (!(hp = gethostbyname(host))) {
-		defaddr.s_addr = inet_addr(host);
-		if (defaddr.s_addr == -1) {
-			fprintf(stderr,
-			    "whois: unknown host: %s\n", host);
-			return;
-		}
-		def.h_name = host;
-		def.h_addr_list = alist;
-		def.h_addr = (char *)&defaddr;
-		def.h_length = sizeof(struct in_addr);
-		def.h_addrtype = AF_INET;
-		def.h_aliases = 0;
-		hp = &def;
+  if (!(hp = gethostbyname (host)))
+    {
+      defaddr.s_addr = inet_addr (host);
+      if (defaddr.s_addr == -1)
+	{
+	  fprintf (stderr, "whois: unknown host: %s\n", host);
+	  return;
 	}
-	if (!(sp = getservbyname("whois", "tcp"))) {
-		fprintf(stderr, "whois: tcp/finger: unknown service\n");
-		return;
-	}
-	sin.sin_family = hp->h_addrtype;
-	bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
-	sin.sin_port = sp->s_port;
-	if ((s = socket(hp->h_addrtype, SOCK_STREAM, 0)) < 0) {
-		perror("whois: socket");
-		return;
-	}
+      def.h_name = host;
+      def.h_addr_list = alist;
+      def.h_addr = (char *) &defaddr;
+      def.h_length = sizeof (struct in_addr);
+      def.h_addrtype = AF_INET;
+      def.h_aliases = 0;
+      hp = &def;
+    }
+  if (!(sp = getservbyname ("whois", "tcp")))
+    {
+      fprintf (stderr, "whois: tcp/finger: unknown service\n");
+      return;
+    }
+  sin.sin_family = hp->h_addrtype;
+  bcopy (hp->h_addr, (char *) &sin.sin_addr, hp->h_length);
+  sin.sin_port = sp->s_port;
+  if ((s = socket (hp->h_addrtype, SOCK_STREAM, 0)) < 0)
+    {
+      perror ("whois: socket");
+      return;
+    }
 
-	/* have network connection; identify the host connected with */
-	printf("[%s]\n", hp->h_name);
-	if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-		perror("whois: connect");
-		close(s);
-		return;
-	}
+  /* have network connection; identify the host connected with */
+  printf ("[%s]\n", hp->h_name);
+  if (connect (s, (struct sockaddr *) &sin, sizeof (sin)) < 0)
+    {
+      perror ("whois: connect");
+      close (s);
+      return;
+    }
 
-	/* send the name followed by <CR><LF> */
-	write(s, name, strlen(name));
-	write(s, "\r\n", 2);
+  /* send the name followed by <CR><LF> */
+  write (s, name, strlen (name));
+  write (s, "\r\n", 2);
 
-	/*
-	 * Read from the remote system; once we're connected, we assume some
-	 * data.  If none arrives, we hang until the user interrupts.
-	 *
-	 * If we see a <CR> or a <CR> with the high bit set, treat it as
-	 * a newline; if followed by a newline character, only output one
-	 * newline.
-	 *
-	 * Otherwise, all high bits are stripped; if it isn't printable and
-	 * it isn't a space, we can simply set the 7th bit.  Every ASCII
-	 * character with bit 7 set is printable.
-	 */
-	if (fp = fdopen(s, "r"))
-		while ((c = getc(fp)) != EOF) {
-			c &= 0x7f;
-			if (c == 0x0d) {
-				c = '\n';
-				lastc = '\r';
-			} else {
-				if (!isprint(c) && !isspace(c))
-					c |= 0x40;
-				if (lastc != '\r' || c != '\n')
-					lastc = c;
-				else {
-					lastc = '\n';
-					continue;
-				}
-			}
-			putchar(c);
-		}
-	if (lastc != '\n')
-		putchar('\n');
-	fclose(fp);
+  /*
+   * Read from the remote system; once we're connected, we assume some
+   * data.  If none arrives, we hang until the user interrupts.
+   *
+   * If we see a <CR> or a <CR> with the high bit set, treat it as
+   * a newline; if followed by a newline character, only output one
+   * newline.
+   *
+   * Otherwise, all high bits are stripped; if it isn't printable and
+   * it isn't a space, we can simply set the 7th bit.  Every ASCII
+   * character with bit 7 set is printable.
+   */
+  if (fp = fdopen (s, "r"))
+    while ((c = getc (fp)) != EOF)
+      {
+	c &= 0x7f;
+	if (c == 0x0d)
+	  {
+	    c = '\n';
+	    lastc = '\r';
+	  }
+	else
+	  {
+	    if (!isprint (c) && !isspace (c))
+	      c |= 0x40;
+	    if (lastc != '\r' || c != '\n')
+	      lastc = c;
+	    else
+	      {
+		lastc = '\n';
+		continue;
+	      }
+	  }
+	putchar (c);
+      }
+  if (lastc != '\n')
+    putchar ('\n');
+  fclose (fp);
 }

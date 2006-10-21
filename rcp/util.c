@@ -32,16 +32,16 @@ static char sccsid[] = "@(#)util.c	8.2 (Berkeley) 4/2/94";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/param.h>
 #ifdef HAVE_SYS_SYSMACROS_H
-#include <sys/sysmacros.h>
+# include <sys/sysmacros.h>
 #endif
 #include <sys/stat.h>
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+# include <sys/wait.h>
 #endif
 
 #include <ctype.h>
@@ -56,112 +56,119 @@ static char sccsid[] = "@(#)util.c	8.2 (Berkeley) 4/2/94";
 #include "extern.h"
 
 char *
-colon(char *cp)
+colon (char *cp)
 {
-	if (*cp == ':')		/* Leading colon is part of file name. */
-		return (0);
+  if (*cp == ':')		/* Leading colon is part of file name. */
+    return (0);
 
-	for (; *cp; ++cp) {
-		if (*cp == ':')
-			return (cp);
-		if (*cp == '/')
-			return (0);
-	}
+  for (; *cp; ++cp)
+    {
+      if (*cp == ':')
+	return (cp);
+      if (*cp == '/')
 	return (0);
+    }
+  return (0);
 }
 
 void
-verifydir(char *cp)
+verifydir (char *cp)
 {
-	struct stat stb;
+  struct stat stb;
 
-	if (!stat(cp, &stb)) {
-		if (S_ISDIR(stb.st_mode))
-			return;
-		errno = ENOTDIR;
-	}
-	run_err("%s: %s", cp, strerror(errno));
-	exit(1);
+  if (!stat (cp, &stb))
+    {
+      if (S_ISDIR (stb.st_mode))
+	return;
+      errno = ENOTDIR;
+    }
+  run_err ("%s: %s", cp, strerror (errno));
+  exit (1);
 }
 
 int
-okname(char *cp0)
+okname (char *cp0)
 {
-	int c;
-	char *cp;
+  int c;
+  char *cp;
 
-	cp = cp0;
-	do {
-		c = *cp;
-		if (c & 0200)
-			goto bad;
-		if (!isalpha(c) && !isdigit(c) && c != '_' && c != '-')
-			goto bad;
-	} while (*++cp);
-	return (1);
+  cp = cp0;
+  do
+    {
+      c = *cp;
+      if (c & 0200)
+	goto bad;
+      if (!isalpha (c) && !isdigit (c) && c != '_' && c != '-')
+	goto bad;
+    }
+  while (*++cp);
+  return (1);
 
-bad:	
-	error (0, 0, "%s: invalid user name", cp0);
-	return (0);
+bad:
+  error (0, 0, "%s: invalid user name", cp0);
+  return (0);
 }
 
 int
-susystem(char *s, int userid)
+susystem (char *s, int userid)
 {
-	sig_t istat, qstat;
-	int status, w;
-	pid_t pid;
+  sig_t istat, qstat;
+  int status, w;
+  pid_t pid;
 
-	pid = vfork();
-	switch (pid) {
-	case -1:
-		return (127);
+  pid = vfork ();
+  switch (pid)
+    {
+    case -1:
+      return (127);
 
-	case 0:
-		setuid(userid);
-		execl(PATH_BSHELL, "sh", "-c", s, NULL);
-		_exit(127);
-	}
-	istat = signal(SIGINT, SIG_IGN);
-	qstat = signal(SIGQUIT, SIG_IGN);
-	if (waitpid(pid, &status, 0) < 0)
-		status = -1;
-	signal(SIGINT, istat);
-	signal(SIGQUIT, qstat);
-	return (status);
+    case 0:
+      setuid (userid);
+      execl (PATH_BSHELL, "sh", "-c", s, NULL);
+      _exit (127);
+    }
+  istat = signal (SIGINT, SIG_IGN);
+  qstat = signal (SIGQUIT, SIG_IGN);
+  if (waitpid (pid, &status, 0) < 0)
+    status = -1;
+  signal (SIGINT, istat);
+  signal (SIGQUIT, qstat);
+  return (status);
 }
 
 BUF *
-allocbuf(BUF *bp, int fd, int blksize)
+allocbuf (BUF * bp, int fd, int blksize)
 {
-	struct stat stb;
-	size_t size;
+  struct stat stb;
+  size_t size;
 
-	if (fstat(fd, &stb) < 0) {
-		run_err("fstat: %s", strerror(errno));
-		return (0);
-	}
+  if (fstat (fd, &stb) < 0)
+    {
+      run_err ("fstat: %s", strerror (errno));
+      return (0);
+    }
 #ifndef roundup
-#  define roundup(x, y)   ((((x)+((y)-1))/(y))*(y))
+# define roundup(x, y)   ((((x)+((y)-1))/(y))*(y))
 #endif
-	size = roundup(BUFSIZ, blksize);
-	if (size == 0)
-		size = blksize;
-	if (bp->cnt >= size)
-		return (bp);
-	if ((bp->buf = realloc(bp->buf, size)) == NULL) {
-		bp->cnt = 0;
-		run_err("%s", strerror(errno));
-		return (0);
-	}
-	bp->cnt = size;
-	return (bp);
+  size = roundup (BUFSIZ, blksize);
+  if (size == 0)
+    size = blksize;
+  if (bp->cnt >= size)
+    return (bp);
+  if ((bp->buf = realloc (bp->buf, size)) == NULL)
+    {
+      bp->cnt = 0;
+      run_err ("%s", strerror (errno));
+      return (0);
+    }
+  bp->cnt = size;
+  return (bp);
 }
 
 RETSIGTYPE
-lostconn(int signo)
+lostconn (int signo)
 {
-	if (!iamremote)
-		error (0, 0, "lost connection");
-	exit(1);
+  if (!iamremote)
+    error (0, 0, "lost connection");
+  exit (1);
 }

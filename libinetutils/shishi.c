@@ -20,17 +20,17 @@
 #endif
 
 #ifdef SHISHI
-#include <stdlib.h>
-#include <errno.h>
-#include <shishi.h>
-#include <syslog.h>
-#include <shishi_def.h>
+# include <stdlib.h>
+# include <errno.h>
+# include <shishi.h>
+# include <syslog.h>
+# include <shishi_def.h>
 
 /* shishi authentication */
 int
 shishi_auth (Shishi ** handle, int verbose, char **cname,
 	     const char *sname, int sock,
-	     char *cmd, int port, Shishi_key ** enckey, char * realm)
+	     char *cmd, int port, Shishi_key ** enckey, char *realm)
 {
   Shishi_ap *ap;
   Shishi_tkt *tkt;
@@ -41,7 +41,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   char *out;
   int outlen;
   int krb5len, msglen;
-  char * tmpserver;
+  char *tmpserver;
   char auth;
   /* KERBEROS 5 SENDAUTH MESSAGE */
   char krb5sendauth[] = "KRB5_SENDAUTH_V1.0";
@@ -54,7 +54,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   if (!shishi_check_version (SHISHI_VERSION))
     {
       fprintf (stderr, "shishi_check_version() failed:\n"
-	      "Header file incompatible with shared library.\n");
+	       "Header file incompatible with shared library.\n");
       return 1;
     }
 
@@ -68,12 +68,12 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 	       "error initializing shishi: %s\n", shishi_strerror (rc));
       return 1;
     }
-  
+
   h = *handle;
-  
+
   if (!*cname)
     *cname = (char *) shishi_principal_default (h);
-  
+
   /* size of KRB5 auth message */
   krb5len = strlen (krb5sendauth) + 1;
   msglen = htonl (krb5len);
@@ -103,12 +103,12 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
       printf ("Client: %s\n", *cname);
       printf ("Server: %s\n", sname);
     }
-  
+
   /* Get a ticket for the server. */
 
   memset (&hint, 0, sizeof (hint));
 
-  tmpserver = malloc (strlen(SERVICE) + strlen(sname) + 2);
+  tmpserver = malloc (strlen (SERVICE) + strlen (sname) + 2);
   if (!tmpserver)
     {
       perror ("shishi_auth()");
@@ -117,10 +117,10 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   strcpy (tmpserver, SERVICE);
   strcat (tmpserver, "/");
   strcat (tmpserver, sname);
-  
+
   hint.client = (char *) *cname;
   hint.server = (char *) tmpserver;
-  
+
   tkt = shishi_tkts_get (shishi_tkts_default (h), &hint);
   if (!tkt)
     {
@@ -128,9 +128,9 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
       fprintf (stderr, "cannot find ticket for \"%s\"\n", sname);
       return 1;
     }
-  
+
   free (tmpserver);
-  
+
   if (verbose)
     shishi_tkt_pretty_print (tkt, stderr);
 
@@ -146,8 +146,8 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 
   /* checksum = port: terminal name */
 
-  snprintf (cksumdata, 100, "%u:%s%s", ntohs(port), cmd, *cname);  
-  
+  snprintf (cksumdata, 100, "%u:%s%s", ntohs (port), cmd, *cname);
+
   /* add checksum to authenticator */
 
   shishi_ap_authenticator_cksumdata_set (ap, cksumdata, strlen (cksumdata));
@@ -174,7 +174,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
     shishi_authenticator_get_subkey (h, shishi_ap_authenticator (ap), enckey);
 
   /* send size of AP-REQ to the server */
-  
+
   msglen = htonl (outlen);
   write (sock, (char *) &msglen, sizeof (int));
 
@@ -231,7 +231,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 }
 
 static void
-senderror (int s, char type, char * buf)
+senderror (int s, char type, char *buf)
 {
   write (s, &type, sizeof (char));
   write (s, buf, strlen (buf));
@@ -239,13 +239,13 @@ senderror (int s, char type, char * buf)
 
 int
 get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
-	  Shishi_key ** enckey, const char ** err_msg, int * protoversion,
-	  int * cksumtype, char **cksum, int * cksumlen)
+	  Shishi_key ** enckey, const char **err_msg, int *protoversion,
+	  int *cksumtype, char **cksum, int *cksumlen)
 {
   Shishi_key *key;
-  char * out;
+  char *out;
   int outlen;
-  char * buf;
+  char *buf;
   int buflen;
   int len;
   int rc;
@@ -257,20 +257,21 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   char krb5kcmd1[] = "KCMDV0.1";
   char krb5kcmd2[] = "KCMDV0.2";
   int auth_correct = 0;
-  char * servername;
+  char *servername;
 
   *err_msg = NULL;
   /* Get key for the server. */
 
   if (!shishi_check_version (SHISHI_VERSION))
     {
-      *err_msg = "shishi_check_version() failed: header file incompatible with shared library.";
+      *err_msg =
+	"shishi_check_version() failed: header file incompatible with shared library.";
       return 1;
     }
 
   rc = shishi_init_server (handle);
   if (rc != SHISHI_OK)
-      return rc;
+    return rc;
 
   servername = shishi_server_for_local_service (*handle, SERVICE);
 
@@ -296,7 +297,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       *err_msg = "Not enough memory";
       return 1;
     }
-  
+
   rc = read (infd, buf, buflen);
   if (rc != buflen)
     {
@@ -328,7 +329,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       *err_msg = "Not enough memory";
       return 1;
     }
-  
+
   rc = read (infd, buf, buflen);
   if (rc != buflen)
     {
@@ -353,7 +354,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
     *protoversion = 1;
 
   free (buf);
-  
+
   /* Authentication type is ok */
 
   write (infd, "\0", 1);
@@ -366,7 +367,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       *err_msg = "Error reading authentication request size";
       return 1;
     }
- 
+
   buflen = ntohl (len);
   buf = malloc (buflen);
   if (!buf)
@@ -374,35 +375,35 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       *err_msg = "Not enough memory";
       return 1;
     }
-  
+
   rc = read (infd, buf, buflen);
   if (rc != buflen)
     {
       *err_msg = "Error reading authentication request";
       return 1;
     }
-  
+
   /* Create Authentication context */
 
   rc = shishi_ap_nosubkey (*handle, ap);
   if (rc != SHISHI_OK)
-     return rc;
-     
+    return rc;
+
   /* Store request in context */
 
   shishi_ap_req_der_set (*ap, buf, buflen);
   if (rc != SHISHI_OK)
-     return rc;
-     
+    return rc;
+
   free (buf);
 
   /* Process authentication request */
 
   rc = shishi_ap_req_process (*ap, key);
   if (rc != SHISHI_OK)
-     return rc;
-     
-#ifdef ENCRYPTION
+    return rc;
+
+# ifdef ENCRYPTION
 
   /* extract subkey if present from ap exchange for secure connection */
   if (*protoversion == 2)
@@ -411,15 +412,15 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       shishi_authenticator_get_subkey (*handle,
 				       shishi_ap_authenticator (*ap), enckey);
     }
-  
-#endif
+
+# endif
 
   /* Get authenticator checksum */
   rc = shishi_authenticator_cksum (*handle,
 				   shishi_ap_authenticator (*ap),
 				   cksumtype, cksum, cksumlen);
   if (rc != SHISHI_OK)
-     return rc;
+    return rc;
 
   /* User is authenticated. */
   error = 0;
@@ -436,30 +437,30 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       outlen = htonl (outlen);
       rc = write (infd, &outlen, sizeof (int));
       if (rc != sizeof (int))
-        {
+	{
 	  *err_msg = "Error sending AP-REP";
 	  free (out);
 	  return 1;
 	}
-      
+
       rc = write (infd, out, ntohl (outlen));
       if (rc != ntohl (outlen))
-        {
+	{
 	  *err_msg = "Error sending AP-REP";
 	  free (out);
 	  return 1;
 	}
-      
+
       free (out);
-      
-     /* We are authenticated to client */
+
+      /* We are authenticated to client */
     }
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   if (*protoversion == 1)
     {
-      Shishi_tkt * tkt;
-      
+      Shishi_tkt *tkt;
+
       tkt = shishi_ap_tkt (*ap);
       if (tkt == NULL)
 	{
@@ -467,32 +468,32 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	  return 1;
 	}
 
-      rc = shishi_encticketpart_get_key (*handle, 
+      rc = shishi_encticketpart_get_key (*handle,
 					 shishi_tkt_encticketpart (tkt),
 					 enckey);
       if (rc != SHISHI_OK)
 	return rc;
     }
-#endif
+# endif
 
   return SHISHI_OK;
 }
 
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
 
 /* read encrypted data on socket */
 int
-readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
+readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector * iv,
 	 Shishi_key * enckey, int proto)
 {
-  char * out;
-  char * outbis;
+  char *out;
+  char *outbis;
 
   int rc;
   int val;
   int outlen;
   int dlen = 0, blocksize, enctype, hashsize;
-  
+
   /* read size of message */
   read (sock, &dlen, sizeof (int));
 
@@ -513,7 +514,7 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
   blocksize = shishi_cipher_blocksize (enctype);
   hashsize =
     shishi_checksum_cksumlen (shishi_cipher_defaultcksumtype (enctype));
-  
+
   switch (enctype)
     {
     case SHISHI_AES128_CTS_HMAC_SHA1_96:
@@ -522,25 +523,25 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
       break;
     case SHISHI_ARCFOUR_HMAC:
     case SHISHI_ARCFOUR_HMAC_EXP:
-      dlen += 4 + 8 + blocksize -1;
+      dlen += 4 + 8 + blocksize - 1;
       dlen /= blocksize;
       dlen *= blocksize;
       dlen += hashsize;
       break;
     case SHISHI_DES3_CBC_HMAC_SHA1_KD:
-      dlen += 4 + 2*blocksize - 1;
+      dlen += 4 + 2 * blocksize - 1;
       dlen /= blocksize;
       dlen *= blocksize;
       dlen += hashsize;
       break;
     case SHISHI_DES_CBC_CRC:
-      dlen += 2*blocksize -1;
+      dlen += 2 * blocksize - 1;
       if (proto == 2)
 	dlen += 4;
       dlen += hashsize;
       dlen /= blocksize;
       dlen *= blocksize;
-      break; 
+      break;
     default:
       dlen += blocksize - 1;
       if (proto == 2)
@@ -555,10 +556,10 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
   outbis = malloc (dlen);
   if (outbis == NULL)
     {
-      perror("readenc()");
+      perror ("readenc()");
       return 1;
     }
-  
+
   rc = read (sock, outbis, dlen);
   if (rc != dlen)
     {
@@ -566,9 +567,9 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
       free (outbis);
       return 1;
     }
-  
+
   if (proto == 1)
-    { 
+    {
       rc =
 	shishi_decrypt (h, enckey, iv->keyusage, outbis, dlen, &out, &outlen);
       if (rc != SHISHI_OK)
@@ -581,16 +582,15 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
       val = 0;
     }
   else
-    {  
-      rc =
-	shishi_crypto_decrypt (iv->ctx, outbis, dlen, &out, &outlen);
+    {
+      rc = shishi_crypto_decrypt (iv->ctx, outbis, dlen, &out, &outlen);
       if (rc != SHISHI_OK)
 	{
 	  fprintf (stderr, "decryption error\n");
 	  free (outbis);
 	  return 1;
 	}
-	  
+
       /* in KCMDV0.2 first 4 bytes of decrypted data = len of data */
       *len = ntohl (*((int *) out));
       val = sizeof (int);
@@ -599,7 +599,7 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
   memset (buf, 0, BUFLEN);
 
   /* copy decrypted data to output */
-  memcpy (buf, out + val, outlen-val);
+  memcpy (buf, out + val, outlen - val);
 
   free (out);
   free (outbis);
@@ -610,11 +610,11 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector *iv,
 /* write encrypted data to socket */
 int
 writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
-	  shishi_ivector *iv, Shishi_key * enckey, int proto)
+	  shishi_ivector * iv, Shishi_key * enckey, int proto)
 {
   char *out;
   char *bufbis;
-  
+
   int rc;
   int dlen, outlen;
 
@@ -635,7 +635,8 @@ writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
 
       /* encrypt it */
       rc =
-	shishi_crypto_encrypt (iv->ctx, bufbis, wlen + sizeof (int), &out, &outlen);
+	shishi_crypto_encrypt (iv->ctx, bufbis, wlen + sizeof (int), &out,
+			       &outlen);
     }
   else
     {
@@ -646,7 +647,7 @@ writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
 	  return 1;
 	}
       memcpy (bufbis, buf, wlen);
-    
+
       /* data to encrypt = size + data */
       rc =
 	shishi_encrypt (h, enckey, iv->keyusage, bufbis, wlen, &out, &outlen);
@@ -674,5 +675,5 @@ writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
 
 
 }
-#endif /* ENCRYPTION */
+# endif	/* ENCRYPTION */
 #endif

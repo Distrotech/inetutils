@@ -39,16 +39,16 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifdef HAVE_TERMIOS_H
-#include <termios.h>
+# include <termios.h>
 #else
-#include <sys/ioctl.h>
-#ifdef HAVE_SYS_IOCTL_COMPAT_H
-#include <sys/ioctl_compat.h>
-#endif
+# include <sys/ioctl.h>
+# ifdef HAVE_SYS_IOCTL_COMPAT_H
+#  include <sys/ioctl_compat.h>
+# endif
 #endif
 
 #include <signal.h>
@@ -56,11 +56,11 @@ static char sccsid[] = "@(#)init_disp.c	8.2 (Berkeley) 2/16/94";
 #include "talk.h"
 
 RETSIGTYPE
-sig_sent(int sig ARG_UNUSED)
+sig_sent (int sig ARG_UNUSED)
 {
 
-	message("Connection closing. Exiting");
-	quit();
+  message ("Connection closing. Exiting");
+  quit ();
 }
 
 /*
@@ -68,60 +68,59 @@ sig_sent(int sig ARG_UNUSED)
  * and build the various windows.
  */
 int
-init_display()
+init_display ()
 {
 #ifdef HAVE_SIGACTION
-	struct sigaction siga;
+  struct sigaction siga;
 #else
-#ifdef HAVE_SIGVEC
-	struct sigvec sigv;
-#endif
+# ifdef HAVE_SIGVEC
+  struct sigvec sigv;
+# endif
 #endif
 
-	if (initscr() == NULL)
-		error (1, 0, 
-                       "Terminal type unset or lacking necessary features.");
+  if (initscr () == NULL)
+    error (1, 0, "Terminal type unset or lacking necessary features.");
 
 #ifdef HAVE_SIGACTION
-	sigaction (SIGTSTP, (struct sigaction *)0, &siga);
-	sigaddset(&siga.sa_mask, SIGALRM);
-	sigaction (SIGTSTP, &siga, (struct sigaction *)0);
+  sigaction (SIGTSTP, (struct sigaction *) 0, &siga);
+  sigaddset (&siga.sa_mask, SIGALRM);
+  sigaction (SIGTSTP, &siga, (struct sigaction *) 0);
 #else /* !HAVE_SIGACTION */
-#ifdef HAVE_SIGVEC
-	sigvec (SIGTSTP, (struct sigvec *)0, &sigv);
-	sigv.sv_mask |= sigmask (SIGALRM);
-	sigvec (SIGTSTP, &sigv, (struct sigvec *)0);
-#endif /* HAVE_SIGVEC */
+# ifdef HAVE_SIGVEC
+  sigvec (SIGTSTP, (struct sigvec *) 0, &sigv);
+  sigv.sv_mask |= sigmask (SIGALRM);
+  sigvec (SIGTSTP, &sigv, (struct sigvec *) 0);
+# endif	/* HAVE_SIGVEC */
 #endif /* HAVE_SIGACTION */
 
-	curses_initialized = 1;
-	clear();
-	refresh();
-	noecho();
-	crmode();
+  curses_initialized = 1;
+  clear ();
+  refresh ();
+  noecho ();
+  crmode ();
 
-	signal(SIGINT, sig_sent);
-	signal(SIGPIPE, sig_sent);
+  signal (SIGINT, sig_sent);
+  signal (SIGPIPE, sig_sent);
 
-	/* curses takes care of ^Z */
-	my_win.x_nlines = LINES / 2;
-	my_win.x_ncols = COLS;
-	my_win.x_win = newwin(my_win.x_nlines, my_win.x_ncols, 0, 0);
-	scrollok(my_win.x_win, FALSE);
-	wclear(my_win.x_win);
+  /* curses takes care of ^Z */
+  my_win.x_nlines = LINES / 2;
+  my_win.x_ncols = COLS;
+  my_win.x_win = newwin (my_win.x_nlines, my_win.x_ncols, 0, 0);
+  scrollok (my_win.x_win, FALSE);
+  wclear (my_win.x_win);
 
-	his_win.x_nlines = LINES / 2 - 1;
-	his_win.x_ncols = COLS;
-	his_win.x_win = newwin(his_win.x_nlines, his_win.x_ncols,
-	    my_win.x_nlines+1, 0);
-	scrollok(his_win.x_win, FALSE);
-	wclear(his_win.x_win);
+  his_win.x_nlines = LINES / 2 - 1;
+  his_win.x_ncols = COLS;
+  his_win.x_win = newwin (his_win.x_nlines, his_win.x_ncols,
+			  my_win.x_nlines + 1, 0);
+  scrollok (his_win.x_win, FALSE);
+  wclear (his_win.x_win);
 
-	line_win = newwin(1, COLS, my_win.x_nlines, 0);
-	box(line_win, '-', '-');
-	wrefresh(line_win);
-	/* let them know we are working on it */
-	current_state = "No connection yet";
+  line_win = newwin (1, COLS, my_win.x_nlines, 0);
+  box (line_win, '-', '-');
+  wrefresh (line_win);
+  /* let them know we are working on it */
+  current_state = "No connection yet";
 }
 
 /*
@@ -130,81 +129,83 @@ init_display()
  * connection are the three edit characters.
  */
 int
-set_edit_chars()
+set_edit_chars ()
 {
-	int cc;
-	char buf[3];
+  int cc;
+  char buf[3];
 
 #ifdef HAVE_TCGETATTR
-  	struct termios tty;
-	cc_t disable = (cc_t)-1, erase, werase, kill;
+  struct termios tty;
+  cc_t disable = (cc_t) - 1, erase, werase, kill;
 
-#if !defined (_POSIX_VDISABLE) && defined (HAVE_FPATHCONF) && defined (_PC_VDISABLE)
-	disable = fpathconf (0, _PC_VDISABLE);
-#endif
+# if !defined (_POSIX_VDISABLE) && defined (HAVE_FPATHCONF) && defined (_PC_VDISABLE)
+  disable = fpathconf (0, _PC_VDISABLE);
+# endif
 
-	erase = werase = kill = disable;
+  erase = werase = kill = disable;
 
-	if (tcgetattr (0, &tty) >= 0) {
-		erase = tty.c_cc[VERASE];
-#ifdef VWERASE
-		werase = tty.c_cc[VWERASE];
-#endif
-		kill = tty.c_cc[VKILL];
-	}
+  if (tcgetattr (0, &tty) >= 0)
+    {
+      erase = tty.c_cc[VERASE];
+# ifdef VWERASE
+      werase = tty.c_cc[VWERASE];
+# endif
+      kill = tty.c_cc[VKILL];
+    }
 
-	if (erase == disable)
-		erase = '\177';	/* rubout */
-	if (werase == disable)
-		werase = '\027'; /* ^W */
-	if (kill == disable)
-		kill = '\025';	/* ^U */
+  if (erase == disable)
+    erase = '\177';		/* rubout */
+  if (werase == disable)
+    werase = '\027';		/* ^W */
+  if (kill == disable)
+    kill = '\025';		/* ^U */
 
-	my_win.cerase = erase;
-	my_win.werase = werase;
-	my_win.kill = kill;
+  my_win.cerase = erase;
+  my_win.werase = werase;
+  my_win.kill = kill;
 #else /* !HAVE_TCGETATTR */
-	struct sgttyb tty;
-	struct ltchars ltc;
+  struct sgttyb tty;
+  struct ltchars ltc;
 
-	ioctl(0, TIOCGETP, &tty);
-	ioctl(0, TIOCGLTC, (struct sgttyb *)&ltc);
-	my_win.cerase = tty.sg_erase;
-	my_win.kill = tty.sg_kill;
-	if (ltc.t_werasc == (char) -1)
-		my_win.werase = '\027';	 /* control W */
-	else
-		my_win.werase = ltc.t_werasc;
+  ioctl (0, TIOCGETP, &tty);
+  ioctl (0, TIOCGLTC, (struct sgttyb *) &ltc);
+  my_win.cerase = tty.sg_erase;
+  my_win.kill = tty.sg_kill;
+  if (ltc.t_werasc == (char) -1)
+    my_win.werase = '\027';	/* control W */
+  else
+    my_win.werase = ltc.t_werasc;
 #endif /* HAVE_TCGETATTR */
 
-	buf[0] = my_win.cerase;
-	buf[1] = my_win.kill;
-	buf[2] = my_win.werase;
-	cc = write(sockt, buf, sizeof(buf));
-	if (cc != sizeof(buf) )
-		p_error("Lost the connection");
-	cc = read(sockt, buf, sizeof(buf));
-	if (cc != sizeof(buf) )
-		p_error("Lost the connection");
-	his_win.cerase = buf[0];
-	his_win.kill = buf[1];
-	his_win.werase = buf[2];
+  buf[0] = my_win.cerase;
+  buf[1] = my_win.kill;
+  buf[2] = my_win.werase;
+  cc = write (sockt, buf, sizeof (buf));
+  if (cc != sizeof (buf))
+    p_error ("Lost the connection");
+  cc = read (sockt, buf, sizeof (buf));
+  if (cc != sizeof (buf))
+    p_error ("Lost the connection");
+  his_win.cerase = buf[0];
+  his_win.kill = buf[1];
+  his_win.werase = buf[2];
 }
 
 /*
  * All done talking...hang up the phone and reset terminal thingy's
  */
 int
-quit()
+quit ()
 {
 
-	if (curses_initialized) {
-		wmove(his_win.x_win, his_win.x_nlines-1, 0);
-		wclrtoeol(his_win.x_win);
-		wrefresh(his_win.x_win);
-		endwin();
-	}
-	if (invitation_waiting)
-		send_delete();
-	exit(0);
+  if (curses_initialized)
+    {
+      wmove (his_win.x_win, his_win.x_nlines - 1, 0);
+      wclrtoeol (his_win.x_win);
+      wrefresh (his_win.x_win);
+      endwin ();
+    }
+  if (invitation_waiting)
+    send_delete ();
+  exit (0);
 }

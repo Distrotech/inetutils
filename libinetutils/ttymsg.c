@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -48,7 +48,7 @@ static char sccsid[] = "@(#)ttymsg.c	8.2 (Berkeley) 11/16/93";
 #include <sys/wait.h>
 
 #if !defined (O_NONBLOCK) && defined (O_NDELAY)
-#define O_NONBLOCK O_NDELAY	/* O_NDELAY is an old BSD name for this.  */
+# define O_NONBLOCK O_NDELAY	/* O_NDELAY is an old BSD name for this.  */
 #endif
 
 #define MAX_ERRBUF 1024
@@ -72,11 +72,11 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
   struct iovec localiov[6];
   int forked = 0;
 
-  if (iovcnt > (int)(sizeof (localiov) / sizeof (localiov[0])))
-    return (char *)("too many iov's (change code in wall/ttymsg.c)");
+  if (iovcnt > (int) (sizeof (localiov) / sizeof (localiov[0])))
+    return (char *) ("too many iov's (change code in wall/ttymsg.c)");
 
   device = malloc (sizeof PATH_TTY_PFX - 1 + strlen (line) + 1);
-  if (! device)
+  if (!device)
     {
       snprintf (errbuf, sizeof errbuf,
 		"Not enough memory for tty device name");
@@ -86,10 +86,10 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
   strcpy (device, PATH_TTY_PFX);
   strcat (device, line);
   normalize_path (device, "/");
-  if (strncmp (device, PATH_TTY_PFX, strlen(PATH_TTY_PFX)))
+  if (strncmp (device, PATH_TTY_PFX, strlen (PATH_TTY_PFX)))
     {
       /* An attempt to break security... */
-      snprintf (errbuf, sizeof(errbuf), "bad line name: %s", line);
+      snprintf (errbuf, sizeof (errbuf), "bad line name: %s", line);
       return (errbuf);
     }
 
@@ -97,13 +97,12 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
    * open will fail on slip lines or exclusive-use lines
    * if not running as root; not an error.
    */
-  fd = open (device, O_WRONLY|O_NONBLOCK, 0);
+  fd = open (device, O_WRONLY | O_NONBLOCK, 0);
   if (fd < 0)
     {
       if (errno == EBUSY || errno == EACCES)
 	return (NULL);
-      snprintf (errbuf, sizeof (errbuf),
-		      "%s: %s", device, strerror (errno));
+      snprintf (errbuf, sizeof (errbuf), "%s: %s", device, strerror (errno));
       free (device);
       return errbuf;
     }
@@ -113,7 +112,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 
   for (;;)
     {
-      wret = writev(fd, iov, iovcnt);
+      wret = writev (fd, iov, iovcnt);
       if (wret >= left)
 	break;
       if (wret >= 0)
@@ -121,10 +120,10 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 	  left -= wret;
 	  if (iov != localiov)
 	    {
-	      memcpy (localiov, iov, iovcnt * sizeof(struct iovec));
+	      memcpy (localiov, iov, iovcnt * sizeof (struct iovec));
 	      iov = localiov;
 	    }
-	  for (cnt = 0; wret >= (int)iov->iov_len; ++cnt)
+	  for (cnt = 0; wret >= (int) iov->iov_len; ++cnt)
 	    {
 	      wret -= iov->iov_len;
 	      ++iov;
@@ -132,7 +131,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 	    }
 	  if (wret)
 	    {
-	      iov->iov_base = (char *)iov->iov_base + wret;
+	      iov->iov_base = (char *) iov->iov_base + wret;
 	      iov->iov_len -= wret;
 	    }
 	  continue;
@@ -144,18 +143,18 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 	  if (forked)
 	    {
 	      close (fd);
-	      _exit(1);
+	      _exit (1);
 	    }
 	  cpid = fork2 ();
 	  if (cpid < 0)
 	    {
 	      snprintf (errbuf, sizeof (errbuf),
-			      "fork: %s", strerror (errno));
+			"fork: %s", strerror (errno));
 	      close (fd);
 	      free (device);
 	      return (errbuf);
 	    }
-	  if (cpid)  /* Parent.  */
+	  if (cpid)		/* Parent.  */
 	    {
 	      close (fd);
 	      free (device);
@@ -164,7 +163,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 	  forked++;
 	  /* wait at most tmout seconds */
 	  signal (SIGALRM, SIG_DFL);
-	  signal (SIGTERM, SIG_DFL); /* XXX */
+	  signal (SIGTERM, SIG_DFL);	/* XXX */
 #ifdef HAVE_SIGACTION
 	  {
 	    sigset_t empty;
@@ -174,7 +173,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 #else
 	  sigsetmask (0);
 #endif
-	  alarm ((u_int)tmout);
+	  alarm ((u_int) tmout);
 	  fcntl (fd, O_NONBLOCK, &off);
 	  continue;
 	}
@@ -187,8 +186,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
       close (fd);
       if (forked)
 	_exit (1);
-      snprintf(errbuf, sizeof (errbuf),
-		      "%s: %s", device, strerror (errno));
+      snprintf (errbuf, sizeof (errbuf), "%s: %s", device, strerror (errno));
       free (device);
       return (errbuf);
     }
@@ -196,7 +194,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
   free (device);
   close (fd);
   if (forked)
-    _exit(0);
+    _exit (0);
   return (NULL);
 }
 
@@ -219,14 +217,14 @@ fork2 (void)
   if (!(pid = fork ()))
     {
       switch (fork ())
-        {
-	case 0:  /* Child.  */
+	{
+	case 0:		/* Child.  */
 	  return 0;
 	case -1:
-	  _exit(errno);    /* Assumes all errnos are <256 */
-	default: /* Parent.  */
-	  _exit(0);
-        }
+	  _exit (errno);	/* Assumes all errnos are <256 */
+	default:		/* Parent.  */
+	  _exit (0);
+	}
     }
 
   if (pid < 0 || waitpid (pid, &status, 0) < 0)
@@ -238,7 +236,7 @@ fork2 (void)
     else
       errno = WEXITSTATUS (status);
   else
-    errno = EINTR;  /* well, sort of :-) */
+    errno = EINTR;		/* well, sort of :-) */
 
   return -1;
 }
@@ -259,8 +257,8 @@ normalize_path (char *path, const char *delim)
     return path;
 
   /* delete trailing delimiter if any */
-  if (len && path[len-1] == delim[0])
-    path[len-1] = 0;
+  if (len && path[len - 1] == delim[0])
+    path[len - 1] = 0;
 
   /* Eliminate any /../ */
   for (p = strchr (path, '.'); p; p = strchr (p, '.'))
@@ -273,7 +271,7 @@ normalize_path (char *path, const char *delim)
 	      char *q, *s;
 
 	      /* Find previous delimiter */
-	      for (q = p-2; *q != delim[0] && q >= path; q--)
+	      for (q = p - 2; *q != delim[0] && q >= path; q--)
 		;
 
 	      if (q < path)
@@ -298,4 +296,3 @@ normalize_path (char *path, const char *delim)
 
   return path;
 }
-

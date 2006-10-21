@@ -32,43 +32,43 @@ static char sccsid[] = "@(#)getent.c	8.2 (Berkeley) 12/15/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifdef HAVE_CGETENT
 static char *area;
 #endif
 
-/*ARGSUSED*/
 int
-getent(char *cp, char *name)
+getent (char *cp, char *name)
 {
 #ifdef	HAVE_CGETENT
-	char *dba[2];
+  char *dba[2];
 #endif
-	(void)cp; (void)name; /* shutup gcc */
+  (void) cp;
+  (void) name;			/* shutup gcc */
 #ifdef	HAVE_CGETENT
-	dba[0] = "/etc/gettytab";
-	dba[1] = 0;
-	return((cgetent(&area, dba, name) == 0) ? 1 : 0);
+  dba[0] = "/etc/gettytab";
+  dba[1] = 0;
+  return ((cgetent (&area, dba, name) == 0) ? 1 : 0);
 #else
-	return(0);
+  return (0);
 #endif
 }
 
-#ifndef	SOLARIS
-/*ARGSUSED*/
+#ifndef SOLARIS
 char *
-getstr(char *id, char **cpp)
+getstr (char *id, char **cpp)
 {
 # ifdef	HAVE_CGETENT
-	char *answer;
+  char *answer;
 # endif
-	(void)id; (void)cpp;	/* shutup gcc */
+  (void) id;
+  (void) cpp;			/* shutup gcc */
 # ifdef	HAVE_CGETENT
-	return((cgetstr(area, id, &answer) > 0) ? answer : 0);
+  return ((cgetstr (area, id, &answer) > 0) ? answer : 0);
 # else
-	return(0);
+  return (0);
 # endif
 }
 #endif

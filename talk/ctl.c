@@ -38,13 +38,13 @@ static char sccsid[] = "@(#)ctl.c	8.1 (Berkeley) 6/6/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #ifdef HAVE_OSOCKADDR_H
-#include <osockaddr.h>
+# include <osockaddr.h>
 #endif
 #include <protocols/talkd.h>
 #include <netinet/in.h>
@@ -52,74 +52,72 @@ static char sccsid[] = "@(#)ctl.c	8.1 (Berkeley) 6/6/93";
 #include "talk_ctl.h"
 
 #ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-struct	sockaddr_in daemon_addr = { sizeof(daemon_addr), AF_INET };
-struct	sockaddr_in ctl_addr = { sizeof(ctl_addr), AF_INET };
-struct	sockaddr_in my_addr = { sizeof(my_addr), AF_INET };
+struct sockaddr_in daemon_addr = { sizeof (daemon_addr), AF_INET };
+struct sockaddr_in ctl_addr = { sizeof (ctl_addr), AF_INET };
+struct sockaddr_in my_addr = { sizeof (my_addr), AF_INET };
 #else /* !HAVE_STRUCT_SOCKADDR_IN_SIN_LEN */
-struct	sockaddr_in daemon_addr = { AF_INET };
-struct	sockaddr_in ctl_addr = { AF_INET };
-struct	sockaddr_in my_addr = { AF_INET };
+struct sockaddr_in daemon_addr = { AF_INET };
+struct sockaddr_in ctl_addr = { AF_INET };
+struct sockaddr_in my_addr = { AF_INET };
 #endif /* HAVE_STRUCT_SOCKADDR_IN_SIN_LEN */
 
 	/* inet addresses of the two machines */
-struct	in_addr my_machine_addr;
-struct	in_addr his_machine_addr;
+struct in_addr my_machine_addr;
+struct in_addr his_machine_addr;
 
-u_short daemon_port;	/* port number of the talk daemon */
+u_short daemon_port;		/* port number of the talk daemon */
 
-int	ctl_sockt;
-int	sockt;
-int	invitation_waiting = 0;
+int ctl_sockt;
+int sockt;
+int invitation_waiting = 0;
 
 CTL_MSG msg;
 
 int
-open_sockt()
+open_sockt ()
 {
-	int length;
+  int length;
 
-	my_addr.sin_addr = my_machine_addr;
-	my_addr.sin_port = 0;
-	sockt = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockt <= 0)
-		p_error("Bad socket");
-	if (bind(sockt, (struct sockaddr *)&my_addr, sizeof(my_addr)) != 0)
-		p_error("Binding local socket");
-	length = sizeof(my_addr);
-	if (getsockname(sockt, (struct sockaddr *)&my_addr, &length) == -1)
-		p_error("Bad address for socket");
+  my_addr.sin_addr = my_machine_addr;
+  my_addr.sin_port = 0;
+  sockt = socket (AF_INET, SOCK_STREAM, 0);
+  if (sockt <= 0)
+    p_error ("Bad socket");
+  if (bind (sockt, (struct sockaddr *) &my_addr, sizeof (my_addr)) != 0)
+    p_error ("Binding local socket");
+  length = sizeof (my_addr);
+  if (getsockname (sockt, (struct sockaddr *) &my_addr, &length) == -1)
+    p_error ("Bad address for socket");
 }
 
 /* open the ctl socket */
 int
-open_ctl()
+open_ctl ()
 {
-	int length;
+  int length;
 
-	ctl_addr.sin_port = 0;
-	ctl_addr.sin_addr = my_machine_addr;
-	ctl_sockt = socket(AF_INET, SOCK_DGRAM, 0);
-	if (ctl_sockt <= 0)
-		p_error("Bad socket");
-	if (bind(ctl_sockt,
-	    (struct sockaddr *)&ctl_addr, sizeof(ctl_addr)) != 0)
-		p_error("Couldn't bind to control socket");
-	length = sizeof(ctl_addr);
-	if (getsockname(ctl_sockt,
-	    (struct sockaddr *)&ctl_addr, &length) == -1)
-		p_error("Bad address for ctl socket");
+  ctl_addr.sin_port = 0;
+  ctl_addr.sin_addr = my_machine_addr;
+  ctl_sockt = socket (AF_INET, SOCK_DGRAM, 0);
+  if (ctl_sockt <= 0)
+    p_error ("Bad socket");
+  if (bind (ctl_sockt, (struct sockaddr *) &ctl_addr, sizeof (ctl_addr)) != 0)
+    p_error ("Couldn't bind to control socket");
+  length = sizeof (ctl_addr);
+  if (getsockname (ctl_sockt, (struct sockaddr *) &ctl_addr, &length) == -1)
+    p_error ("Bad address for ctl socket");
 }
 
 /* print_addr is a debug print routine */
 int
-print_addr(addr)
-	struct sockaddr_in addr;
+print_addr (addr)
+     struct sockaddr_in addr;
 {
-	int i;
+  int i;
 
-	printf("addr = %x, port = %o, family = %o zero = ",
-		addr.sin_addr, addr.sin_port, addr.sin_family);
-	for (i = 0; i<8;i++)
-	printf("%o ", (int)addr.sin_zero[i]);
-	putchar('\n');
+  printf ("addr = %x, port = %o, family = %o zero = ",
+	  addr.sin_addr, addr.sin_port, addr.sin_family);
+  for (i = 0; i < 8; i++)
+    printf ("%o ", (int) addr.sin_zero[i]);
+  putchar ('\n');
 }

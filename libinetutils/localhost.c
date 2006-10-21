@@ -19,15 +19,15 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <unistd.h>
 #ifdef HAVE_MALLOC_H
-#include <malloc.h>
+# include <malloc.h>
 #endif
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-#include <stdlib.h>
+# include <stdlib.h>
 #endif
 #include <stdint.h>
 #include <string.h>
@@ -55,21 +55,23 @@ localhost (void)
       char *tmp;
       errno = 0;
 
-      buf_len += 256;	/* Initial guess */
+      buf_len += 256;		/* Initial guess */
       tmp = realloc (buf, buf_len);
       if (tmp == NULL)
 	{
 	  errno = ENOMEM;
-          free (buf);
+	  free (buf);
 	  return 0;
 	}
       else
-         buf = tmp;
-    } while (((status = gethostname(buf, buf_len)) == 0 && !memchr (buf, '\0', buf_len))
+	buf = tmp;
+    }
+  while (((status = gethostname (buf, buf_len)) == 0
+	  && !memchr (buf, '\0', buf_len))
 #ifdef ENAMETOOLONG
-	     || errno == ENAMETOOLONG
+	 || errno == ENAMETOOLONG
 #endif
-	     );
+    );
 
   if (status != 0 && errno != 0)
     /* gethostname failed, abort.  */
@@ -80,17 +82,17 @@ localhost (void)
 
   /* Determine FQDN */
   {
-    struct hostent *hp = gethostbyname(buf);
+    struct hostent *hp = gethostbyname (buf);
 
     if (hp)
       {
 	struct in_addr addr;
-	addr.s_addr = *(unsigned int*) hp->h_addr;
-	hp = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET);
+	addr.s_addr = *(unsigned int *) hp->h_addr;
+	hp = gethostbyaddr ((char *) &addr, sizeof (addr), AF_INET);
 	if (hp)
 	  {
-	    free(buf);
-	    buf = strdup(hp->h_name);
+	    free (buf);
+	    buf = strdup (hp->h_name);
 	  }
       }
   }

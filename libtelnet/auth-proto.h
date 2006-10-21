@@ -49,7 +49,7 @@
  * or implied warranty.
  */
 
-#if	defined(AUTHENTICATION)
+#if defined(AUTHENTICATION)
 TN_Authenticator *findauthenticator (int, int);
 
 void auth_init (char *, int);
@@ -64,25 +64,25 @@ int auth_wait (char *);
 void auth_disable_name (char *);
 void auth_gen_printsub (unsigned char *, int, unsigned char *, int);
 
-#ifdef	KRB4
+# ifdef	KRB4
 int kerberos4_init (TN_Authenticator *, int);
 int kerberos4_send (TN_Authenticator *);
 void kerberos4_is (TN_Authenticator *, unsigned char *, int);
 void kerberos4_reply (TN_Authenticator *, unsigned char *, int);
 int kerberos4_status (TN_Authenticator *, char *, int);
 void kerberos4_printsub (unsigned char *, int, unsigned char *, int);
-#endif
+# endif
 
-#ifdef	KRB5
+# ifdef	KRB5
 int kerberos5_init (TN_Authenticator *, int);
 int kerberos5_send (TN_Authenticator *);
 void kerberos5_is (TN_Authenticator *, unsigned char *, int);
 void kerberos5_reply (TN_Authenticator *, unsigned char *, int);
 int kerberos5_status (TN_Authenticator *, char *, int);
 void kerberos5_printsub (unsigned char *, int, unsigned char *, int);
-#endif
+# endif
 
-#ifdef	SHISHI
+# ifdef	SHISHI
 int krb5shishi_init (TN_Authenticator *, int);
 int krb5shishi_send (TN_Authenticator *);
 void krb5shishi_is (TN_Authenticator *, unsigned char *, int);
@@ -90,5 +90,5 @@ void krb5shishi_reply (TN_Authenticator *, unsigned char *, int);
 int krb5shishi_status (TN_Authenticator *, char *, int);
 void krb5shishi_printsub (unsigned char *, int, unsigned char *, int);
 void krb5shishi_cleanup (TN_Authenticator *);
-#endif
+# endif
 #endif

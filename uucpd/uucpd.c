@@ -45,12 +45,12 @@ static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+# include <sys/wait.h>
 #endif
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -170,7 +170,7 @@ main (int argc, char **argv)
   bzero ((char *) &myctladdr, sizeof (myctladdr));
   myctladdr.sin_family = AF_INET;
   myctladdr.sin_port = sp->s_port;
-#ifdef BSD4_2
+# ifdef BSD4_2
   tcp_socket = socket (AF_INET, SOCK_STREAM, 0);
   if (tcp_socket < 0)
     {
@@ -210,7 +210,7 @@ main (int argc, char **argv)
 	}
       close (s);
     }
-#endif /* BSD4_2 */
+# endif	/* BSD4_2 */
 
 #endif /* !BSDINETD */
 }
@@ -295,7 +295,7 @@ readline (register char *p, register int n)
 }
 
 #ifdef BSD4_2
-#include <fcntl.h>
+# include <fcntl.h>
 #endif /* BSD4_2 */
 
 void
@@ -310,7 +310,7 @@ dologout ()
   while ((pid = wait3 (0, WNOHANG, 0)) > 0)
 # else
   while ((pid = wait (0)) > 0)
-#endif /* HAVE_WAIT3 */
+# endif	/* HAVE_WAIT3 */
 #endif /* HAVE_WAITPID */
     {
       char line[100];
@@ -344,7 +344,7 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
   logwtmp (line, pw->pw_name, remotehost);
 
 #if defined (PATH_LASTLOG) && defined (HAVE_STRUCT_LASTLOG)
-#define	SCPYN(a, b)	strncpy(a, b, sizeof (a))
+# define SCPYN(a, b)	strncpy(a, b, sizeof (a))
   if ((f = open (PATH_LASTLOG, O_RDWR)) >= 0)
     {
       struct lastlog ll;

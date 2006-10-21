@@ -32,22 +32,22 @@
  *	@(#)extern.h	8.1 (Berkeley) 5/31/93
  */
 
-int	 acccmp (const FTSENT *, const FTSENT *);
-int	 revacccmp (const FTSENT *, const FTSENT *);
-int	 modcmp (const FTSENT *, const FTSENT *);
-int	 revmodcmp (const FTSENT *, const FTSENT *);
-int	 namecmp (const FTSENT *, const FTSENT *);
-int	 revnamecmp (const FTSENT *, const FTSENT *);
-int	 statcmp (const FTSENT *, const FTSENT *);
-int	 revstatcmp (const FTSENT *, const FTSENT *);
-int	 sizecmp (const FTSENT *, const FTSENT *);
-int	 revsizecmp (const FTSENT *, const FTSENT *);
+int acccmp (const FTSENT *, const FTSENT *);
+int revacccmp (const FTSENT *, const FTSENT *);
+int modcmp (const FTSENT *, const FTSENT *);
+int revmodcmp (const FTSENT *, const FTSENT *);
+int namecmp (const FTSENT *, const FTSENT *);
+int revnamecmp (const FTSENT *, const FTSENT *);
+int statcmp (const FTSENT *, const FTSENT *);
+int revstatcmp (const FTSENT *, const FTSENT *);
+int sizecmp (const FTSENT *, const FTSENT *);
+int revsizecmp (const FTSENT *, const FTSENT *);
 
-char	*flags_to_string (u_int, char *);
-int	 putname (char *);
-void	 printcol (DISPLAY *);
-void	 printacol (DISPLAY *);
-void	 printlong (DISPLAY *);
-void	 printscol (DISPLAY *);
-void	 printstream (DISPLAY *);
-void	 usage (void);
+char *flags_to_string (u_int, char *);
+int putname (char *);
+void printcol (DISPLAY *);
+void printacol (DISPLAY *);
+void printlong (DISPLAY *);
+void printscol (DISPLAY *);
+void printstream (DISPLAY *);
+void usage (void);

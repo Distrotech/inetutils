@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)tn3270.c	8.2 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
@@ -45,57 +45,57 @@ static char sccsid[] = "@(#)tn3270.c	8.2 (Berkeley) 5/30/95";
 #include "externs.h"
 #include "fdset.h"
 
-#if	defined(TN3270)
+#if defined(TN3270)
 
-#include "../ctlr/screen.h"
-#include "../general/globals.h"
+# include "../ctlr/screen.h"
+# include "../general/globals.h"
 
-#include "../sys_curses/telextrn.h"
-#include "../ctlr/externs.h"
+# include "../sys_curses/telextrn.h"
+# include "../ctlr/externs.h"
 
-#if	defined(unix)
-int
-	HaveInput,		/* There is input available to scan */
-	cursesdata,		/* Do we dump curses data? */
-	sigiocount;		/* Number of times we got a SIGIO */
+# if defined(unix)
+int HaveInput,			/* There is input available to scan */
+  cursesdata,			/* Do we dump curses data? */
+  sigiocount;			/* Number of times we got a SIGIO */
 
-char	tline[200];
-char	*transcom = 0;	/* transparent mode command (default: none) */
-#endif	/* defined(unix) */
+char tline[200];
+char *transcom = 0;		/* transparent mode command (default: none) */
+# endif	/* defined(unix) */
 
-char	Ibuf[8*BUFSIZ], *Ifrontp, *Ibackp;
+char Ibuf[8 * BUFSIZ], *Ifrontp, *Ibackp;
 
-static char	sb_terminal[] = { IAC, SB,
-			TELOPT_TTYPE, TELQUAL_IS,
-			'I', 'B', 'M', '-', '3', '2', '7', '8', '-', '2',
-			IAC, SE };
-#define	SBTERMMODEL	13
+static char sb_terminal[] = { IAC, SB,
+  TELOPT_TTYPE, TELQUAL_IS,
+  'I', 'B', 'M', '-', '3', '2', '7', '8', '-', '2',
+  IAC, SE
+};
 
-static int
-	Sent3270TerminalType;	/* Have we said we are a 3270? */
+# define SBTERMMODEL	13
 
-#endif	/* defined(TN3270) */
+static int Sent3270TerminalType;	/* Have we said we are a 3270? */
+
+#endif /* defined(TN3270) */
 
 
 void
-init_3270()
+init_3270 ()
 {
-#if	defined(TN3270)
-#if	defined(unix)
-    HaveInput = 0;
-    sigiocount = 0;
-#endif	/* defined(unix) */
-    Sent3270TerminalType = 0;
-    Ifrontp = Ibackp = Ibuf;
-    init_ctlr();		/* Initialize some things */
-    init_keyboard();
-    init_screen();
-    init_system();
-#endif	/* defined(TN3270) */
+#if defined(TN3270)
+# if defined(unix)
+  HaveInput = 0;
+  sigiocount = 0;
+# endif	/* defined(unix) */
+  Sent3270TerminalType = 0;
+  Ifrontp = Ibackp = Ibuf;
+  init_ctlr ();			/* Initialize some things */
+  init_keyboard ();
+  init_screen ();
+  init_system ();
+#endif /* defined(TN3270) */
 }
-
 
-#if	defined(TN3270)
+
+#if defined(TN3270)
 
 /*
  * DataToNetwork - queue up some data to go to network.  If "done" is set,
@@ -110,71 +110,80 @@ init_3270()
 /* register int  count;	 how much to send */
 /* int		  done;	 is this the last of a logical block */
 int
-DataToNetwork(register char *buffer, register int  count, int  done)
+DataToNetwork (register char *buffer, register int count, int done)
 {
-    register int loop, c;
-    int origCount;
+  register int loop, c;
+  int origCount;
 
-    origCount = count;
+  origCount = count;
 
-    while (count) {
-	/* If not enough room for EORs, IACs, etc., wait */
-	if (NETROOM() < 6) {
-	    fd_set o;
+  while (count)
+    {
+      /* If not enough room for EORs, IACs, etc., wait */
+      if (NETROOM () < 6)
+	{
+	  fd_set o;
 
-	    FD_ZERO(&o);
-	    netflush();
-	    while (NETROOM() < 6) {
-		FD_SET(net, &o);
-		select(net+1, (fd_set *) 0, &o, (fd_set *) 0,
-						(struct timeval *) 0);
-		netflush();
+	  FD_ZERO (&o);
+	  netflush ();
+	  while (NETROOM () < 6)
+	    {
+	      FD_SET (net, &o);
+	      select (net + 1, (fd_set *) 0, &o, (fd_set *) 0,
+		      (struct timeval *) 0);
+	      netflush ();
 	    }
 	}
-	c = ring_empty_count(&netoring);
-	if (c > count) {
-	    c = count;
+      c = ring_empty_count (&netoring);
+      if (c > count)
+	{
+	  c = count;
 	}
-	loop = c;
-	while (loop) {
-	    if (((unsigned char)*buffer) == IAC) {
-		break;
+      loop = c;
+      while (loop)
+	{
+	  if (((unsigned char) *buffer) == IAC)
+	    {
+	      break;
 	    }
-	    buffer++;
-	    loop--;
+	  buffer++;
+	  loop--;
 	}
-	if ((c = c-loop)) {
-	    ring_supply_data(&netoring, buffer-c, c);
-	    count -= c;
+      if ((c = c - loop))
+	{
+	  ring_supply_data (&netoring, buffer - c, c);
+	  count -= c;
 	}
-	if (loop) {
-	    NET2ADD(IAC, IAC);
-	    count--;
-	    buffer++;
+      if (loop)
+	{
+	  NET2ADD (IAC, IAC);
+	  count--;
+	  buffer++;
 	}
     }
 
-    if (done) {
-	NET2ADD(IAC, EOR);
-	netflush();		/* try to move along as quickly as ... */
+  if (done)
+    {
+      NET2ADD (IAC, EOR);
+      netflush ();		/* try to move along as quickly as ... */
     }
-    return(origCount - count);
+  return (origCount - count);
 }
 
 
-#if	defined(unix)
+# if defined(unix)
 void
-inputAvailable(int signo)
+inputAvailable (int signo)
 {
-    HaveInput = 1;
-    sigiocount++;
+  HaveInput = 1;
+  sigiocount++;
 }
-#endif	/* defined(unix) */
+# endif	/* defined(unix) */
 
 void
-outputPurge()
+outputPurge ()
 {
-    ttyflush(1);
+  ttyflush (1);
 }
 
 
@@ -193,39 +202,43 @@ outputPurge()
 /* register char *buffer;where the data is */
 /* register int	count;	 how much to send */
 int
-DataToTerminal(register char *buffer, register int count)
+DataToTerminal (register char *buffer, register int count)
 {
-    register int c;
-    int origCount;
+  register int c;
+  int origCount;
 
-    origCount = count;
+  origCount = count;
 
-    while (count) {
-	if (TTYROOM() == 0) {
-#if	defined(unix)
-	    fd_set o;
+  while (count)
+    {
+      if (TTYROOM () == 0)
+	{
+# if defined(unix)
+	  fd_set o;
 
-	    FD_ZERO(&o);
-#endif	/* defined(unix) */
-	    ttyflush(0);
-	    while (TTYROOM() == 0) {
-#if	defined(unix)
-		FD_SET(tout, &o);
-		select(tout+1, (fd_set *) 0, &o, (fd_set *) 0,
-						(struct timeval *) 0);
-#endif	/* defined(unix) */
-		ttyflush(0);
+	  FD_ZERO (&o);
+# endif	/* defined(unix) */
+	  ttyflush (0);
+	  while (TTYROOM () == 0)
+	    {
+# if defined(unix)
+	      FD_SET (tout, &o);
+	      select (tout + 1, (fd_set *) 0, &o, (fd_set *) 0,
+		      (struct timeval *) 0);
+# endif	/* defined(unix) */
+	      ttyflush (0);
 	    }
 	}
-	c = TTYROOM();
-	if (c > count) {
-	    c = count;
+      c = TTYROOM ();
+      if (c > count)
+	{
+	  c = count;
 	}
-	ring_supply_data(&ttyoring, buffer, c);
-	count -= c;
-	buffer += c;
+      ring_supply_data (&ttyoring, buffer, c);
+      count -= c;
+      buffer += c;
     }
-    return(origCount);
+  return (origCount);
 }
 
 
@@ -234,23 +247,27 @@ DataToTerminal(register char *buffer, register int count)
  */
 
 int
-Push3270()
+Push3270 ()
 {
-    int save = ring_full_count(&netiring);
+  int save = ring_full_count (&netiring);
 
-    if (save) {
-	if (Ifrontp+save > Ibuf+sizeof Ibuf) {
-	    if (Ibackp != Ibuf) {
-		memmove(Ibuf, Ibackp, Ifrontp-Ibackp);
-		Ifrontp -= (Ibackp-Ibuf);
-		Ibackp = Ibuf;
+  if (save)
+    {
+      if (Ifrontp + save > Ibuf + sizeof Ibuf)
+	{
+	  if (Ibackp != Ibuf)
+	    {
+	      memmove (Ibuf, Ibackp, Ifrontp - Ibackp);
+	      Ifrontp -= (Ibackp - Ibuf);
+	      Ibackp = Ibuf;
 	    }
 	}
-	if (Ifrontp+save < Ibuf+sizeof Ibuf) {
-	    telrcv();
+      if (Ifrontp + save < Ibuf + sizeof Ibuf)
+	{
+	  telrcv ();
 	}
     }
-    return save != ring_full_count(&netiring);
+  return save != ring_full_count (&netiring);
 }
 
 
@@ -260,13 +277,14 @@ Push3270()
  */
 
 void
-Finish3270()
+Finish3270 ()
 {
-    while (Push3270() || !DoTerminalOutput()) {
-#if	defined(unix)
-	HaveInput = 0;
-#endif	/* defined(unix) */
-	;
+  while (Push3270 () || !DoTerminalOutput ())
+    {
+# if defined(unix)
+      HaveInput = 0;
+# endif	/* defined(unix) */
+      ;
     }
 }
 
@@ -274,57 +292,67 @@ Finish3270()
 /* StringToTerminal - output a null terminated string to the terminal */
 
 void
-StringToTerminal(char *s)
+StringToTerminal (char *s)
 {
-    int count;
+  int count;
 
-    count = strlen(s);
-    if (count) {
-	DataToTerminal(s, count);	/* we know it always goes... */
+  count = strlen (s);
+  if (count)
+    {
+      DataToTerminal (s, count);	/* we know it always goes... */
     }
 }
 
 
-#if	((!defined(NOT43)) || defined(PUTCHAR))
+# if ((!defined(NOT43)) || defined(PUTCHAR))
 /* _putchar - output a single character to the terminal.  This name is so that
  *	curses(3x) can call us to send out data.
  */
 
 void
-_putchar(char c)
+_putchar (char c)
 {
-#if	defined(sun)		/* SunOS 4.0 bug */
-    c &= 0x7f;
-#endif	/* defined(sun) */
-    if (cursesdata) {
-	Dump('>', &c, 1);
+#  if defined(sun)		/* SunOS 4.0 bug */
+  c &= 0x7f;
+#  endif /* defined(sun) */
+  if (cursesdata)
+    {
+      Dump ('>', &c, 1);
     }
-    if (!TTYROOM()) {
-	DataToTerminal(&c, 1);
-    } else {
-	TTYADD(c);
+  if (!TTYROOM ())
+    {
+      DataToTerminal (&c, 1);
+    }
+  else
+    {
+      TTYADD (c);
     }
 }
-#endif	/* ((!defined(NOT43)) || defined(PUTCHAR)) */
+# endif	/* ((!defined(NOT43)) || defined(PUTCHAR)) */
 
 void
-SetIn3270()
+SetIn3270 ()
 {
-    if (Sent3270TerminalType && my_want_state_is_will(TELOPT_BINARY)
-		&& my_want_state_is_do(TELOPT_BINARY) && !donebinarytoggle) {
-	if (!In3270) {
-	    In3270 = 1;
-	    Init3270();		/* Initialize 3270 functions */
-	    /* initialize terminal key mapping */
-	    InitTerminal();	/* Start terminal going */
-	    setconnmode(0);
+  if (Sent3270TerminalType && my_want_state_is_will (TELOPT_BINARY)
+      && my_want_state_is_do (TELOPT_BINARY) && !donebinarytoggle)
+    {
+      if (!In3270)
+	{
+	  In3270 = 1;
+	  Init3270 ();		/* Initialize 3270 functions */
+	  /* initialize terminal key mapping */
+	  InitTerminal ();	/* Start terminal going */
+	  setconnmode (0);
 	}
-    } else {
-	if (In3270) {
-	    StopScreen(1);
-	    In3270 = 0;
-	    Stop3270();		/* Tell 3270 we aren't here anymore */
-	    setconnmode(0);
+    }
+  else
+    {
+      if (In3270)
+	{
+	  StopScreen (1);
+	  In3270 = 0;
+	  Stop3270 ();		/* Tell 3270 we aren't here anymore */
+	  setconnmode (0);
 	}
     }
 }
@@ -338,69 +366,81 @@ SetIn3270()
  */
 
 int
-tn3270_ttype()
+tn3270_ttype ()
 {
-    /*
-     * Try to send a 3270 type terminal name.  Decide which one based
-     * on the format of our screen, and (in the future) color
-     * capaiblities.
-     */
-    InitTerminal();		/* Sets MaxNumberColumns, MaxNumberLines */
-    if ((MaxNumberLines >= 24) && (MaxNumberColumns >= 80)) {
-	Sent3270TerminalType = 1;
-	if ((MaxNumberLines >= 27) && (MaxNumberColumns >= 132)) {
-	    MaxNumberLines = 27;
-	    MaxNumberColumns = 132;
-	    sb_terminal[SBTERMMODEL] = '5';
-	} else if (MaxNumberLines >= 43) {
-	    MaxNumberLines = 43;
-	    MaxNumberColumns = 80;
-	    sb_terminal[SBTERMMODEL] = '4';
-	} else if (MaxNumberLines >= 32) {
-	    MaxNumberLines = 32;
-	    MaxNumberColumns = 80;
-	    sb_terminal[SBTERMMODEL] = '3';
-	} else {
-	    MaxNumberLines = 24;
-	    MaxNumberColumns = 80;
-	    sb_terminal[SBTERMMODEL] = '2';
+  /*
+   * Try to send a 3270 type terminal name.  Decide which one based
+   * on the format of our screen, and (in the future) color
+   * capaiblities.
+   */
+  InitTerminal ();		/* Sets MaxNumberColumns, MaxNumberLines */
+  if ((MaxNumberLines >= 24) && (MaxNumberColumns >= 80))
+    {
+      Sent3270TerminalType = 1;
+      if ((MaxNumberLines >= 27) && (MaxNumberColumns >= 132))
+	{
+	  MaxNumberLines = 27;
+	  MaxNumberColumns = 132;
+	  sb_terminal[SBTERMMODEL] = '5';
 	}
-	NumberLines = 24;		/* before we start out... */
-	NumberColumns = 80;
-	ScreenSize = NumberLines*NumberColumns;
-	if ((MaxNumberLines*MaxNumberColumns) > MAXSCREENSIZE) {
-	    ExitString("Programming error:  MAXSCREENSIZE too small.\n",
-								1);
-	    /*NOTREACHED*/
+      else if (MaxNumberLines >= 43)
+	{
+	  MaxNumberLines = 43;
+	  MaxNumberColumns = 80;
+	  sb_terminal[SBTERMMODEL] = '4';
 	}
-	printsub('>', sb_terminal+2, sizeof sb_terminal-2);
-	ring_supply_data(&netoring, sb_terminal, sizeof sb_terminal);
-	return 1;
-    } else {
-	return 0;
+      else if (MaxNumberLines >= 32)
+	{
+	  MaxNumberLines = 32;
+	  MaxNumberColumns = 80;
+	  sb_terminal[SBTERMMODEL] = '3';
+	}
+      else
+	{
+	  MaxNumberLines = 24;
+	  MaxNumberColumns = 80;
+	  sb_terminal[SBTERMMODEL] = '2';
+	}
+      NumberLines = 24;		/* before we start out... */
+      NumberColumns = 80;
+      ScreenSize = NumberLines * NumberColumns;
+      if ((MaxNumberLines * MaxNumberColumns) > MAXSCREENSIZE)
+	{
+	  ExitString ("Programming error:  MAXSCREENSIZE too small.\n", 1);
+	 /*NOTREACHED*/}
+      printsub ('>', sb_terminal + 2, sizeof sb_terminal - 2);
+      ring_supply_data (&netoring, sb_terminal, sizeof sb_terminal);
+      return 1;
+    }
+  else
+    {
+      return 0;
     }
 }
 
-#if	defined(unix)
+# if defined(unix)
 int
-settranscom(int argc, char *argv[])
+settranscom (int argc, char *argv[])
 {
-	int i;
+  int i;
 
-	if (argc == 1 && transcom) {
-	   transcom = 0;
-	}
-	if (argc == 1) {
-	   return 1;
-	}
-	transcom = tline;
-	strcpy(transcom, argv[1]);
-	for (i = 2; i < argc; ++i) {
-	    strcat(transcom, " ");
-	    strcat(transcom, argv[i]);
-	}
-	return 1;
+  if (argc == 1 && transcom)
+    {
+      transcom = 0;
+    }
+  if (argc == 1)
+    {
+      return 1;
+    }
+  transcom = tline;
+  strcpy (transcom, argv[1]);
+  for (i = 2; i < argc; ++i)
+    {
+      strcat (transcom, " ");
+      strcat (transcom, argv[i]);
+    }
+  return 1;
 }
-#endif	/* defined(unix) */
+# endif	/* defined(unix) */
 
-#endif	/* defined(TN3270) */
+#endif /* defined(TN3270) */

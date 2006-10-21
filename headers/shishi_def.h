@@ -16,18 +16,18 @@ not, write to the Free Software Foundation, Inc., 675 Mass Ave,
 Cambridge, MA 02139, USA.  */
 
 #ifdef SHISHI
-#include <sys/socket.h>
-#include <netinet/in.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
 
-#define SERVICE "host"
-#define BUFLEN 1040
+# define SERVICE "host"
+# define BUFLEN 1040
 
 struct shishi_iv
 {
   char *iv;
   int ivlen;
   int keyusage;
-  Shishi_crypto * ctx;
+  Shishi_crypto *ctx;
   int first;
 };
 typedef struct shishi_iv shishi_ivector;
@@ -43,27 +43,27 @@ struct auth_data
   int kerberos_version;
   int verbose;
   Shishi *h;
-  Shishi_ap * ap;
+  Shishi_ap *ap;
   int protocol;
-  Shishi_key * enckey;
+  Shishi_key *enckey;
   shishi_ivector iv1, iv2;
   shishi_ivector *ivtab[2];
 };
 
 extern int shishi_auth (Shishi ** handle, int verbose, char **cname,
-			const char *sname, int sock, 
+			const char *sname, int sock,
 			char *cmd, int port, Shishi_key ** enckey,
-			char * realm);
+			char *realm);
 
 extern int get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
-		     Shishi_key ** enckey, const char ** err_msg,
-		     int * protoversion, int * cksumtype, char **cksum,
-		     int * cksumlen);
+		     Shishi_key ** enckey, const char **err_msg,
+		     int *protoversion, int *cksumtype, char **cksum,
+		     int *cksumlen);
 
 extern int readenc (Shishi * h, int sock, char *buf, int *len,
-		    shishi_ivector *iv, Shishi_key * enckey, int proto);
+		    shishi_ivector * iv, Shishi_key * enckey, int proto);
 
 extern int writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
-		     shishi_ivector *iv, Shishi_key * enckey, int proto);
-    
+		     shishi_ivector * iv, Shishi_key * enckey, int proto);
+
 #endif

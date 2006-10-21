@@ -36,7 +36,7 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 /*#include <sys/ioctl.h>*/
@@ -62,8 +62,8 @@ static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
 #if HAVE_READLINE_READLINE_H
 # include <readline/readline.h>
 #endif
-
 
+
 char *program_name;
 
 #define DEFAULT_PROMPT "ftp> "
@@ -75,7 +75,8 @@ usage (int err)
   if (err != 0)
     {
       fprintf (stderr, "Usage: %s [OPTION...] [HOST [PORT]]\n", program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
+      fprintf (stderr, "Try `%s --help' for more information.\n",
+	       program_name);
     }
   else
     {
@@ -98,18 +99,17 @@ usage (int err)
 }
 
 static const char *short_options = "dginp::tv";
-static struct option long_options[] =
-{
-  { "trace", no_argument, 0, 't' },
-  { "verbose", no_argument, 0, 'v' },
-  { "no-login", no_argument, 0, 'n' },
-  { "no-prompt", no_argument, 0, 'i' },
-  { "debug", no_argument, 0, 'd' },
-  { "no-glob", no_argument, 0, 'g' },
-  { "help", no_argument, 0, '&' },
-  { "prompt", optional_argument, 0, 'p' },
-  { "version", no_argument, 0, 'V' },
-  { 0 }
+static struct option long_options[] = {
+  {"trace", no_argument, 0, 't'},
+  {"verbose", no_argument, 0, 'v'},
+  {"no-login", no_argument, 0, 'n'},
+  {"no-prompt", no_argument, 0, 'i'},
+  {"debug", no_argument, 0, 'd'},
+  {"no-glob", no_argument, 0, 'g'},
+  {"help", no_argument, 0, '&'},
+  {"prompt", optional_argument, 0, 'p'},
+  {"version", no_argument, 0, 'V'},
+  {0}
 };
 
 int
@@ -131,49 +131,50 @@ main (int argc, char *argv[])
   while ((ch = getopt_long (argc, argv, short_options, long_options, 0))
 	 != EOF)
     {
-      switch (ch) {
-      case 'd': /* Enable ebug mode.  */
-	options |= SO_DEBUG;
-	debug++;
-	break;
+      switch (ch)
+	{
+	case 'd':		/* Enable ebug mode.  */
+	  options |= SO_DEBUG;
+	  debug++;
+	  break;
 
-      case 'g': /* No glob.  */
-	doglob = 0;
-	break;
+	case 'g':		/* No glob.  */
+	  doglob = 0;
+	  break;
 
-      case 'i': /* No prompt.  */
-	interactive = 0;
-	break;
+	case 'i':		/* No prompt.  */
+	  interactive = 0;
+	  break;
 
-      case 'n': /* No automatic login.  */
-	autologin = 0;
-	break;
+	case 'n':		/* No automatic login.  */
+	  autologin = 0;
+	  break;
 
-      case 't': /* Enable packet tracing.  */
-	trace++;
-	break;
+	case 't':		/* Enable packet tracing.  */
+	  trace++;
+	  break;
 
-      case 'v': /* Verbose.  */
-	verbose++;
-	break;
+	case 'v':		/* Verbose.  */
+	  verbose++;
+	  break;
 
-      case 'p': /* Print command line prompt.  */
-	prompt = optarg ? optarg : DEFAULT_PROMPT;
-	break;
+	case 'p':		/* Print command line prompt.  */
+	  prompt = optarg ? optarg : DEFAULT_PROMPT;
+	  break;
 
-      case '&': /* Usage.  */
-	usage (0);
-	/* Not reached.  */
+	case '&':		/* Usage.  */
+	  usage (0);
+	  /* Not reached.  */
 
-      case 'V': /* Version.  */
-	printf ("ftp (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	exit (0);
+	case 'V':		/* Version.  */
+	  printf ("ftp (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
+	  exit (0);
 
-      case '?':
-      default:
-	usage (1);
-	/* Not reached.  */
-      }
+	case '?':
+	default:
+	  usage (1);
+	  /* Not reached.  */
+	}
     }
 
   argc -= optind;
@@ -183,15 +184,15 @@ main (int argc, char *argv[])
   if (fromatty)
     {
       verbose++;
-      if (! prompt)
+      if (!prompt)
 	prompt = DEFAULT_PROMPT;
     }
 
-  cpend = 0;	/* no pending replies */
-  proxy = 0;	/* proxy not active */
-  passivemode = 0; /* passive mode not active */
-  crflag = 1;	/* strip c.r. on ascii gets */
-  sendport = -1;	/* not using ports */
+  cpend = 0;			/* no pending replies */
+  proxy = 0;			/* proxy not active */
+  passivemode = 0;		/* passive mode not active */
+  crflag = 1;			/* strip c.r. on ascii gets */
+  sendport = -1;		/* not using ports */
   /*
    * Set up the home directory in case we're globbing.
    */
@@ -199,7 +200,7 @@ main (int argc, char *argv[])
   if (cp != NULL)
     pw = getpwnam (cp);
   if (pw == NULL)
-    pw = getpwuid(getuid());
+    pw = getpwuid (getuid ());
   if (pw != NULL)
     {
       char *buf = malloc (strlen (pw->pw_dir) + 1);
@@ -215,14 +216,14 @@ main (int argc, char *argv[])
 
       if (setjmp (toplevel))
 	exit (0);
-      signal(SIGINT, intr);
-      signal(SIGPIPE, lostpeer);
+      signal (SIGINT, intr);
+      signal (SIGPIPE, lostpeer);
       xargv[0] = program_name;
       xargv[1] = argv[0];
       xargv[2] = argv[1];
       xargv[3] = argv[2];
       xargv[4] = NULL;
-      setpeer (argc+1, xargv);
+      setpeer (argc + 1, xargv);
     }
   top = setjmp (toplevel) == 0;
   if (top)
@@ -232,7 +233,7 @@ main (int argc, char *argv[])
     }
   for (;;)
     {
-      cmdscanner(top);
+      cmdscanner (top);
       top = 1;
     }
 }
@@ -250,13 +251,13 @@ lostpeer (int sig ARG_UNUSED)
     {
       if (cout != NULL)
 	{
-	  shutdown (fileno (cout), 1+1);
+	  shutdown (fileno (cout), 1 + 1);
 	  fclose (cout);
 	  cout = NULL;
 	}
       if (data >= 0)
 	{
-	  shutdown (data, 1+1);
+	  shutdown (data, 1 + 1);
 	  close (data);
 	  data = -1;
 	}
@@ -267,7 +268,7 @@ lostpeer (int sig ARG_UNUSED)
     {
       if (cout != NULL)
 	{
-	  shutdown (fileno(cout), 1+1);
+	  shutdown (fileno (cout), 1 + 1);
 	  fclose (cout);
 	  cout = NULL;
 	}
@@ -321,10 +322,10 @@ cmdscanner (int top)
 	quit (0, 0);
       l = strlen (line);
       if (l >= MAXLINE)
-        {
-          printf("Line too long.\n");
-          break;
-        }
+	{
+	  printf ("Line too long.\n");
+	  break;
+	}
       if (line && *line)
 	add_history (line);
       if (l == 0)
@@ -332,12 +333,12 @@ cmdscanner (int top)
 #else
       if (prompt)
 	{
-	  printf ("%s",prompt);
-	  fflush(stdout);
+	  printf ("%s", prompt);
+	  fflush (stdout);
 	}
 
       if (fgets (line, sizeof line, stdin) == NULL)
-	quit(0, 0);
+	quit (0, 0);
       l = strlen (line);
       if (l == 0)
 	break;
@@ -351,9 +352,9 @@ cmdscanner (int top)
 	{
 	  printf ("sorry, input line too long\n");
 	  while ((l = getchar ()) != '\n' && l != EOF)
-				/* void */;
+	    /* void */ ;
 	  break;
-	} /* else it was a line without a newline */
+	}			/* else it was a line without a newline */
 #endif
       makeargv ();
       if (margc == 0)
@@ -377,7 +378,7 @@ cmdscanner (int top)
 	}
       (*c->c_handler) (margc, margv);
       if (bell && c->c_bell)
-	putchar('\007');
+	putchar ('\007');
       if (c->c_handler != help)
 	break;
     }
@@ -418,26 +419,27 @@ slurpstring ()
   char *ap = argbase;
   char *tmp = argbase;		/* will return this if token found */
 
-  if (*sb == '!' || *sb == '$') {	/* recognize ! as a token for shell */
-    switch (slrflag)	/* and $ as token for macro invoke */
-      {
-      case 0:
-	slrflag++;
-	stringbase++;
-	return ((*sb == '!') ? "!" : "$");
-	/* NOTREACHED */
+  if (*sb == '!' || *sb == '$')
+    {				/* recognize ! as a token for shell */
+      switch (slrflag)		/* and $ as token for macro invoke */
+	{
+	case 0:
+	  slrflag++;
+	  stringbase++;
+	  return ((*sb == '!') ? "!" : "$");
+	  /* NOTREACHED */
 
-      case 1:
-	slrflag++;
-	altarg = stringbase;
-	break;
-      
-      default:
-	break;
-      }
-  }
+	case 1:
+	  slrflag++;
+	  altarg = stringbase;
+	  break;
 
- S0:
+	default:
+	  break;
+	}
+    }
+
+S0:
   switch (*sb)
     {
     case '\0':
@@ -445,7 +447,8 @@ slurpstring ()
 
     case ' ':
     case '\t':
-      sb++; goto S0;
+      sb++;
+      goto S0;
 
     default:
       switch (slrflag)
@@ -465,54 +468,57 @@ slurpstring ()
       goto S1;
     }
 
- S1:
+S1:
   switch (*sb)
     {
     case ' ':
     case '\t':
     case '\0':
-      goto OUT;	/* end of token */
+      goto OUT;			/* end of token */
 
     case '\\':
-      sb++; goto S2;	/* slurp next character */
+      sb++;
+      goto S2;			/* slurp next character */
 
     case '"':
-      sb++; goto S3;	/* slurp quoted string */
+      sb++;
+      goto S3;			/* slurp quoted string */
 
     default:
-      *ap++ = *sb++;	/* add character to token */
+      *ap++ = *sb++;		/* add character to token */
       got_one = 1;
       goto S1;
     }
 
- S2:
+S2:
   switch (*sb)
     {
     case '\0':
       goto OUT;
-      
+
     default:
       *ap++ = *sb++;
       got_one = 1;
       goto S1;
     }
 
- S3:
+S3:
   switch (*sb)
     {
     case '\0':
       goto OUT;
-      
+
     case '"':
-      sb++; goto S1;
-      
+      sb++;
+      goto S1;
+
     default:
       *ap++ = *sb++;
       got_one = 1;
       goto S3;
     }
 
- OUT:
+OUT:
   if (got_one)
     *ap++ = '\0';
   argbase = ap;			/* update storage pointer */
@@ -535,4 +541,3 @@ slurpstring ()
     }
   return ((char *) 0);
 }
-

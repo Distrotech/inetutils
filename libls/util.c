@@ -34,15 +34,16 @@
  */
 
 #ifndef lint
-#if 0
+# if 0
 static char sccsid[] = "@(#)util.c	8.5 (Berkeley) 4/28/95";
-#else
-static char rcsid[] = "$OpenBSD: util.c,v 1.6 1999/05/05 07:06:01 deraadt Exp $";
-#endif
+# else
+static char rcsid[] =
+  "$OpenBSD: util.c,v 1.6 1999/05/05 07:06:01 deraadt Exp $";
+# endif
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -57,20 +58,19 @@ static char rcsid[] = "$OpenBSD: util.c,v 1.6 1999/05/05 07:06:01 deraadt Exp $"
 #include "extern.h"
 
 int
-putname(name)
-	char *name;
+putname (name)
+     char *name;
 {
-	int len;
+  int len;
 
-	for (len = 0; *name; len++, name++)
-		putchar((!isprint(*name) && f_nonprint) ? '?' : *name);
-	return len;
+  for (len = 0; *name; len++, name++)
+    putchar ((!isprint (*name) && f_nonprint) ? '?' : *name);
+  return len;
 }
 
 void
-usage()
+usage ()
 {
-	fprintf(stderr,
-	    "usage: ls [-1ACFLRSTWacdfiklmnopqrstux] [file ...]\n");
-	exit(1);
+  fprintf (stderr, "usage: ls [-1ACFLRSTWacdfiklmnopqrstux] [file ...]\n");
+  exit (1);
 }

@@ -53,33 +53,32 @@
 #include "ping_impl.h"
 
 static char short_options[] = "VLhc:dfi:l:np:qRrs:t:v";
-static struct option long_options[] = 
-{
+static struct option long_options[] = {
   /* Help options */
   {"version", no_argument, NULL, 'V'},
   {"license", no_argument, NULL, 'L'},
-  {"help",    no_argument, NULL, 'h'},
+  {"help", no_argument, NULL, 'h'},
   /* Common options */
-  {"count",   required_argument, NULL, 'c'},
-  {"debug",   no_argument, NULL, 'd'},
+  {"count", required_argument, NULL, 'c'},
+  {"debug", no_argument, NULL, 'd'},
   {"ignore-routing", no_argument, NULL, 'r'},
-  {"size",    required_argument, NULL, 's'},
-  {"interval",required_argument, NULL, 'i'},
+  {"size", required_argument, NULL, 's'},
+  {"interval", required_argument, NULL, 'i'},
   {"numeric", no_argument, NULL, 'n'},
   {"verbose", no_argument, NULL, 'v'},
   /* Packet types */
-  {"type",    required_argument, NULL, 't'},
-  {"echo",    no_argument, NULL, ICMP_ECHO},
-  {"timestamp",no_argument, NULL, ICMP_TIMESTAMP},
+  {"type", required_argument, NULL, 't'},
+  {"echo", no_argument, NULL, ICMP_ECHO},
+  {"timestamp", no_argument, NULL, ICMP_TIMESTAMP},
   {"address", no_argument, NULL, ICMP_ADDRESS},
-  {"router",  no_argument, NULL, ICMP_ROUTERDISCOVERY},
+  {"router", no_argument, NULL, ICMP_ROUTERDISCOVERY},
   /* echo-specific options */
-  {"flood",   no_argument, NULL, 'f'},
+  {"flood", no_argument, NULL, 'f'},
   {"preload", required_argument, NULL, 'l'},
   {"pattern", required_argument, NULL, 'p'},
-  {"quiet",   no_argument, NULL, 'q'},
-  {"route",   no_argument, NULL, 'R'},
-  {NULL,      no_argument, NULL, 0}
+  {"quiet", no_argument, NULL, 'q'},
+  {"route", no_argument, NULL, 'R'},
+  {NULL, no_argument, NULL, 0}
 };
 
 extern int ping_echo (int argc, char **argv);
@@ -97,7 +96,7 @@ int (*ping_type) (int argc, char **argv) = ping_echo;
 
 static void show_usage (void);
 static void decode_type (const char *optarg);
-static int send_echo (PING *ping);
+static int send_echo (PING * ping);
 
 #define MIN_USER_INTERVAL (200000/PING_PRECISION)
 
@@ -119,7 +118,7 @@ main (int argc, char **argv)
   size_t interval = 0;
 
   program_name = argv[0];
-  
+
   if (getuid () == 0)
     is_root = true;
 
@@ -139,28 +138,28 @@ main (int argc, char **argv)
 	  printf ("see the files named COPYING.\n");
 	  exit (0);
 	  break;
-	  
+
 	case 'L':
 	  show_license ();
 	  exit (0);
-	  
+
 	case 'h':
 	  show_usage ();
 	  exit (0);
 	  break;
-	  
+
 	case 'c':
 	  count = ping_cvt_number (optarg, 0, 0);
 	  break;
-	  
+
 	case 'd':
 	  socket_type = SO_DEBUG;
 	  break;
-	  
+
 	case 'r':
 	  socket_type = SO_DONTROUTE;
 	  break;
-	  
+
 	case 'i':
 	  {
 	    double v;
@@ -172,7 +171,7 @@ main (int argc, char **argv)
 			 optarg, p);
 		exit (1);
 	      }
-	    
+
 	    options |= OPT_INTERVAL;
 	    interval = v * PING_PRECISION;
 	    if (!is_root && interval < MIN_USER_INTERVAL)
@@ -182,32 +181,32 @@ main (int argc, char **argv)
 	      }
 	  }
 	  break;
-	  
+
 	case 'p':
 	  decode_pattern (optarg, &pattern_len, pattern);
 	  patptr = pattern;
 	  break;
-	  
- 	case 's':
+
+	case 's':
 	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN, 1);
- 	  break;
-	  
+	  break;
+
 	case 'n':
 	  options |= OPT_NUMERIC;
 	  break;
-	  
+
 	case 'q':
 	  options |= OPT_QUIET;
 	  break;
-	  
+
 	case 'R':
 	  options |= OPT_RROUTE;
 	  break;
-	  
-        case 'v':
+
+	case 'v':
 	  options |= OPT_VERBOSE;
 	  break;
-	  
+
 	case 'l':
 	  if (!is_root)
 	    {
@@ -229,7 +228,7 @@ main (int argc, char **argv)
 	      exit (1);
 	    }
 	  options |= OPT_FLOOD;
-	  setbuf (stdout, (char *)NULL);
+	  setbuf (stdout, (char *) NULL);
 	  break;
 
 	case 't':
@@ -239,11 +238,11 @@ main (int argc, char **argv)
 	case ICMP_ECHO:
 	  decode_type ("echo");
 	  break;
-	  
+
 	case ICMP_TIMESTAMP:
 	  decode_type ("timestamp");
 	  break;
-	  
+
 	case ICMP_ADDRESS:
 	  if (!is_root)
 	    {
@@ -252,7 +251,7 @@ main (int argc, char **argv)
 	    }
 	  decode_type ("address");
 	  break;
-	  
+
 	case ICMP_ROUTERDISCOVERY:
 	  if (!is_root)
 	    {
@@ -261,7 +260,7 @@ main (int argc, char **argv)
 	    }
 	  decode_type ("router");
 	  break;
-	  
+
 	default:
 	  fprintf (stderr, "%c: not implemented\n", c);
 	  exit (1);
@@ -270,7 +269,7 @@ main (int argc, char **argv)
 
   argc -= optind;
   argv += optind;
-  if (argc == 0) 
+  if (argc == 0)
     {
       show_usage ();
       exit (0);
@@ -282,14 +281,14 @@ main (int argc, char **argv)
       fprintf (stderr, "can't init ping: %s\n", strerror (errno));
       exit (1);
     }
-  ping_set_sockopt (ping, SO_BROADCAST, (char *)&one, sizeof (one));
-  
+  ping_set_sockopt (ping, SO_BROADCAST, (char *) &one, sizeof (one));
+
   /* Reset root privileges */
   setuid (getuid ());
 
   if (count != 0)
     ping_set_count (ping, count);
-  
+
   if (socket_type != 0)
     ping_set_sockopt (ping, socket_type, &one, sizeof (one));
 
@@ -298,7 +297,7 @@ main (int argc, char **argv)
 
   init_data_buffer (patptr, pattern_len);
 
-  return (*ping_type)(argc, argv);
+  return (*ping_type) (argc, argv);
 }
 
 
@@ -312,10 +311,10 @@ decode_type (const char *optarg)
     ping_type = ping_timestamp;
   else if (strcasecmp (optarg, "address") == 0)
     ping_type = ping_address;
-#if 0  
+#if 0
   else if (strcasecmp (optarg, "router") == 0)
     ping_type = ping_router;
-#endif  
+#endif
   else
     {
       fprintf (stderr, "unsupported packet type: %s\n", optarg);
@@ -332,7 +331,7 @@ sig_int (int signal)
 }
 
 int
-ping_run (PING *ping, int (*finish)())
+ping_run (PING * ping, int (*finish) ())
 {
   fd_set fdset;
   int fdmax;
@@ -343,10 +342,10 @@ ping_run (PING *ping, int (*finish)())
   int nresp = 0;
 
   signal (SIGINT, sig_int);
-  
-  fdmax = ping->ping_fd+1;
 
-  while (preload--)      
+  fdmax = ping->ping_fd + 1;
+
+  while (preload--)
     send_echo (ping);
 
   if (options & OPT_FLOOD)
@@ -355,15 +354,15 @@ ping_run (PING *ping, int (*finish)())
       intvl.tv_usec = 10000;
     }
   else
-    PING_SET_INTERVAL(intvl, ping->ping_interval);
-  
+    PING_SET_INTERVAL (intvl, ping->ping_interval);
+
   gettimeofday (&last, NULL);
   send_echo (ping);
 
   while (!stop)
     {
       int n;
-      
+
       FD_ZERO (&fdset);
       FD_SET (ping->ping_fd, &fdset);
       gettimeofday (&now, NULL);
@@ -383,7 +382,7 @@ ping_run (PING *ping, int (*finish)())
 
       if (timeout.tv_sec < 0)
 	timeout.tv_sec = timeout.tv_usec = 0;
-      
+
       n = select (fdmax, &fdset, NULL, NULL, &timeout);
       if (n < 0)
 	{
@@ -414,7 +413,7 @@ ping_run (PING *ping, int (*finish)())
 	  else if (finishing)
 	    break;
 	  else
- 	    {
+	    {
 	      finishing = 1;
 
 	      intvl.tv_sec = MAXWAIT;
@@ -423,15 +422,15 @@ ping_run (PING *ping, int (*finish)())
 	}
     }
   if (finish)
-    return (*finish)();
+    return (*finish) ();
   return 0;
 }
 
 int
-send_echo (PING *ping)
+send_echo (PING * ping)
 {
   int off = 0;
-  
+
   if (PING_TIMING (data_length))
     {
       struct timeval tv;
@@ -454,7 +453,7 @@ ping_finish ()
   printf ("%ld packets transmitted, ", ping->ping_num_xmit);
   printf ("%ld packets received, ", ping->ping_num_recv);
   if (ping->ping_num_rept)
-    printf ("+%ld duplicates, ", ping->ping_num_rept);  
+    printf ("+%ld duplicates, ", ping->ping_num_rept);
   if (ping->ping_num_xmit)
     {
       if (ping->ping_num_recv > ping->ping_num_xmit)

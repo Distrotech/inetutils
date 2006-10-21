@@ -37,7 +37,7 @@ static char sccsid[] = "@(#)msgs.c	8.1 (Berkeley) 6/6/93";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifdef TIME_WITH_SYS_TIME
@@ -56,34 +56,34 @@ static char sccsid[] = "@(#)msgs.c	8.1 (Berkeley) 6/6/93";
 
 #define MSG_INTERVAL 4
 
-char	*current_state;
-int	current_line = 0;
+char *current_state;
+int current_line = 0;
 
 void
-disp_msg(int sig)
+disp_msg (int sig)
 {
-	message(current_state);
+  message (current_state);
 }
 
 int
-start_msgs()
+start_msgs ()
 {
-	struct itimerval itimer;
+  struct itimerval itimer;
 
-	message(current_state);
-	signal(SIGALRM, disp_msg);
-	itimer.it_value.tv_sec = itimer.it_interval.tv_sec = MSG_INTERVAL;
-	itimer.it_value.tv_usec = itimer.it_interval.tv_usec = 0;
-	setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
+  message (current_state);
+  signal (SIGALRM, disp_msg);
+  itimer.it_value.tv_sec = itimer.it_interval.tv_sec = MSG_INTERVAL;
+  itimer.it_value.tv_usec = itimer.it_interval.tv_usec = 0;
+  setitimer (ITIMER_REAL, &itimer, (struct itimerval *) 0);
 }
 
 int
-end_msgs()
+end_msgs ()
 {
-	struct itimerval itimer;
+  struct itimerval itimer;
 
-	timerclear(&itimer.it_value);
-	timerclear(&itimer.it_interval);
-	setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
-	signal(SIGALRM, SIG_DFL);
+  timerclear (&itimer.it_value);
+  timerclear (&itimer.it_interval);
+  setitimer (ITIMER_REAL, &itimer, (struct itimerval *) 0);
+  signal (SIGALRM, SIG_DFL);
 }

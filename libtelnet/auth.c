@@ -28,7 +28,7 @@
  */
 
 #ifndef lint
-static char     sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
+static char sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 /*
@@ -52,65 +52,65 @@ static char     sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
-#if	defined(AUTHENTICATION)
-#include <stdio.h>
-#include <sys/types.h>
-#include <signal.h>
-#define	AUTH_NAMES
-#include <arpa/telnet.h>
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef	NO_STRING_H
-#include <strings.h>
-#else
-#include <string.h>
-#endif
+#if defined(AUTHENTICATION)
+# include <stdio.h>
+# include <sys/types.h>
+# include <signal.h>
+# define AUTH_NAMES
+# include <arpa/telnet.h>
+# ifdef HAVE_STDLIB_H
+#  include <stdlib.h>
+# endif
+# ifdef	NO_STRING_H
+#  include <strings.h>
+# else
+#  include <string.h>
+# endif
 
-#include "encrypt.h"
-#include "auth.h"
-#include "misc-proto.h"
-#include "auth-proto.h"
+# include "encrypt.h"
+# include "auth.h"
+# include "misc-proto.h"
+# include "auth-proto.h"
 
-#define	typemask(x)		(1<<((x)-1))
+# define typemask(x)		(1<<((x)-1))
 
-#ifdef	KRB4_ENCPWD
-extern          krb4encpwd_init ();
-extern          krb4encpwd_send ();
-extern          krb4encpwd_is ();
-extern          krb4encpwd_reply ();
-extern          krb4encpwd_status ();
-extern          krb4encpwd_printsub ();
-#endif
+# ifdef	KRB4_ENCPWD
+extern krb4encpwd_init ();
+extern krb4encpwd_send ();
+extern krb4encpwd_is ();
+extern krb4encpwd_reply ();
+extern krb4encpwd_status ();
+extern krb4encpwd_printsub ();
+# endif
 
-#ifdef	RSA_ENCPWD
-extern          rsaencpwd_init ();
-extern          rsaencpwd_send ();
-extern          rsaencpwd_is ();
-extern          rsaencpwd_reply ();
-extern          rsaencpwd_status ();
-extern          rsaencpwd_printsub ();
-#endif
+# ifdef	RSA_ENCPWD
+extern rsaencpwd_init ();
+extern rsaencpwd_send ();
+extern rsaencpwd_is ();
+extern rsaencpwd_reply ();
+extern rsaencpwd_status ();
+extern rsaencpwd_printsub ();
+# endif
 
-int             auth_debug_mode = 0;
-static char    *Name = "Noname";
-static int      Server = 0;
+int auth_debug_mode = 0;
+static char *Name = "Noname";
+static int Server = 0;
 static TN_Authenticator *authenticated = 0;
-static int      authenticating = 0;
-static int      validuser = 0;
+static int authenticating = 0;
+static int validuser = 0;
 static unsigned char _auth_send_data[256];
 static unsigned char *auth_send_data;
-static int      auth_send_cnt = 0;
+static int auth_send_cnt = 0;
 
 /*
  * Authentication types supported.  Plese note that these are stored
  * in priority order, i.e. try the first one first.
  */
 TN_Authenticator authenticators[] = {
-#ifdef	SPX
+# ifdef	SPX
   {AUTHTYPE_SPX, AUTH_WHO_CLIENT | AUTH_HOW_MUTUAL,
    spx_init,
    spx_send,
@@ -125,8 +125,8 @@ TN_Authenticator authenticators[] = {
    spx_reply,
    spx_status,
    spx_printsub},
-#endif
-#ifdef	SHISHI
+# endif
+# ifdef	SHISHI
   {AUTHTYPE_KERBEROS_V5, AUTH_WHO_CLIENT | AUTH_HOW_MUTUAL,
    krb5shishi_init,
    krb5shishi_send,
@@ -143,9 +143,9 @@ TN_Authenticator authenticators[] = {
    krb5shishi_status,
    krb5shishi_printsub,
    krb5shishi_cleanup},
-#endif
-#ifdef	KRB5
-# ifdef	ENCRYPTION
+# endif
+# ifdef	KRB5
+#  ifdef	ENCRYPTION
   {AUTHTYPE_KERBEROS_V5, AUTH_WHO_CLIENT | AUTH_HOW_MUTUAL,
    kerberos5_init,
    kerberos5_send,
@@ -153,7 +153,7 @@ TN_Authenticator authenticators[] = {
    kerberos5_reply,
    kerberos5_status,
    kerberos5_printsub},
-# endif	/* ENCRYPTION */
+#  endif /* ENCRYPTION */
   {AUTHTYPE_KERBEROS_V5, AUTH_WHO_CLIENT | AUTH_HOW_ONE_WAY,
    kerberos5_init,
    kerberos5_send,
@@ -161,9 +161,9 @@ TN_Authenticator authenticators[] = {
    kerberos5_reply,
    kerberos5_status,
    kerberos5_printsub},
-#endif
-#ifdef	KRB4
-# ifdef ENCRYPTION
+# endif
+# ifdef	KRB4
+#  ifdef ENCRYPTION
   {AUTHTYPE_KERBEROS_V4, AUTH_WHO_CLIENT | AUTH_HOW_MUTUAL,
    kerberos4_init,
    kerberos4_send,
@@ -171,7 +171,7 @@ TN_Authenticator authenticators[] = {
    kerberos4_reply,
    kerberos4_status,
    kerberos4_printsub},
-# endif	/* ENCRYPTION */
+#  endif /* ENCRYPTION */
   {AUTHTYPE_KERBEROS_V4, AUTH_WHO_CLIENT | AUTH_HOW_ONE_WAY,
    kerberos4_init,
    kerberos4_send,
@@ -179,8 +179,8 @@ TN_Authenticator authenticators[] = {
    kerberos4_reply,
    kerberos4_status,
    kerberos4_printsub},
-#endif
-#ifdef	KRB4_ENCPWD
+# endif
+# ifdef	KRB4_ENCPWD
   {AUTHTYPE_KRB4_ENCPWD, AUTH_WHO_CLIENT | AUTH_HOW_MUTUAL,
    krb4encpwd_init,
    krb4encpwd_send,
@@ -188,8 +188,8 @@ TN_Authenticator authenticators[] = {
    krb4encpwd_reply,
    krb4encpwd_status,
    krb4encpwd_printsub},
-#endif
-#ifdef	RSA_ENCPWD
+# endif
+# ifdef	RSA_ENCPWD
   {AUTHTYPE_RSA_ENCPWD, AUTH_WHO_CLIENT | AUTH_HOW_ONE_WAY,
    rsaencpwd_init,
    rsaencpwd_send,
@@ -197,14 +197,14 @@ TN_Authenticator authenticators[] = {
    rsaencpwd_reply,
    rsaencpwd_status,
    rsaencpwd_printsub},
-#endif
+# endif
   {0,},
 };
 
 static TN_Authenticator NoAuth = { 0 };
 
-static int      i_support = 0;
-static int      i_wont_support = 0;
+static int i_support = 0;
+static int i_wont_support = 0;
 
 TN_Authenticator *
 findauthenticator (int type, int way)
@@ -253,7 +253,7 @@ auth_init (char *name, int server)
 void
 auth_disable_name (char *name)
 {
-  int             x;
+  int x;
 
   for (x = 0; x < AUTHTYPE_CNT; ++x)
     {
@@ -268,7 +268,7 @@ auth_disable_name (char *name)
 int
 getauthmask (char *type, int *maskp)
 {
-  register int    x;
+  register int x;
 
   if (!strcasecmp (type, AUTHTYPE_NAME (0)))
     {
@@ -302,7 +302,7 @@ auth_disable (char *type)
 int
 auth_onoff (char *type, int on)
 {
-  int             i, mask = -1;
+  int i, mask = -1;
   TN_Authenticator *ap;
 
   if (!strcasecmp (type, "?") || !strcasecmp (type, "help"))
@@ -348,7 +348,7 @@ int
 auth_status ()
 {
   TN_Authenticator *ap;
-  int             i, mask;
+  int i, mask;
 
   if (i_wont_support == -1)
     printf ("Authentication disabled\n");
@@ -380,7 +380,7 @@ auth_request ()
     TELQUAL_SEND,
   };
   TN_Authenticator *ap = authenticators;
-  unsigned char  *e = str_request + 4;
+  unsigned char *e = str_request + 4;
 
   if (!authenticating)
     {
@@ -517,14 +517,14 @@ auth_send (unsigned char *data, int cnt)
   if (auth_debug_mode)
     printf (">>>%s: Sent failure message\r\n", Name);
   auth_finished (0, AUTH_REJECT);
-#ifdef KANNAN
+# ifdef KANNAN
   /*
    *  We requested strong authentication, however no mechanisms worked.
    *  Therefore, exit on client end.
    */
   printf ("Unable to securely authenticate user ... exit\n");
   exit (0);
-#endif /* KANNAN */
+# endif	/* KANNAN */
 }
 
 void
@@ -581,7 +581,7 @@ void
 auth_name (unsigned char *data, int cnt)
 {
   TN_Authenticator *ap;
-  unsigned char   savename[256];
+  unsigned char savename[256];
 
   if (cnt < 1)
     {
@@ -635,8 +635,7 @@ auth_finished (TN_Authenticator * ap, int result)
   validuser = result;
 }
 
-/* ARGSUSED */
-static          RETSIGTYPE
+static RETSIGTYPE
 auth_intr (int sig ARG_UNUSED)
 {
   auth_finished (0, AUTH_REJECT);
@@ -695,7 +694,7 @@ auth_gen_printsub (unsigned char *data, int cnt, unsigned char *buf,
 		   int buflen)
 {
   register unsigned char *cp;
-  unsigned char   tbuf[16];
+  unsigned char tbuf[16];
 
   cnt -= 3;
   data += 3;

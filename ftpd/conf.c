@@ -17,7 +17,7 @@ display_file (const char *name, int code)
   FILE *fp = fopen (name, "r");
   if (fp != NULL)
     {
-      while (fgets (line, sizeof(line), fp) != NULL)
+      while (fgets (line, sizeof (line), fp) != NULL)
 	{
 	  cp = strchr (line, '\n');
 	  if (cp != NULL)
@@ -43,7 +43,7 @@ checkuser (const char *filename, const char *name)
   fp = fopen (filename, "r");
   if (fp != NULL)
     {
-      while (fgets (line, sizeof(line), fp) != NULL)
+      while (fgets (line, sizeof (line), fp) != NULL)
 	{
 	  if (line[0] == '#')
 	    continue;

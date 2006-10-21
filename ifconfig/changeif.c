@@ -21,7 +21,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <stdio.h>
@@ -70,34 +70,33 @@ int
 set_address (int sfd, struct ifreq *ifr, char *address)
 {
 #ifndef SIOCSIFADDR
-  fprintf (stderr, "%s: Don't know how to set an interface address on this system.\n",
-	  program_name);
+  fprintf (stderr,
+	   "%s: Don't know how to set an interface address on this system.\n",
+	   program_name);
   return -1;
 #else
   char *addr;
   struct hostent *host = gethostbyname (address);
 
-  if (! host)
+  if (!host)
     {
-      fprintf (stderr, "%s: can not resolve `%s': ", program_name,
-               address);
+      fprintf (stderr, "%s: can not resolve `%s': ", program_name, address);
       herror (NULL);
       return -1;
     }
   if (host->h_addrtype != AF_INET)
     {
-      fprintf (stderr, "%s: `%s' refers to an unknown address type", program_name,
-	       address);
+      fprintf (stderr, "%s: `%s' refers to an unknown address type",
+	       program_name, address);
       return -1;
     }
 
-  addr = inet_ntoa (* ((struct in_addr *) host->h_addr));
+  addr = inet_ntoa (*((struct in_addr *) host->h_addr));
 
   {
-    SIOCSIF(ADDR, addr)
-      if (verbose)
-	printf ("Set interface address of `%s' to %s.\n",
-		ifr->ifr_name, inet_ntoa (sin->sin_addr));
+    SIOCSIF (ADDR, addr) if (verbose)
+      printf ("Set interface address of `%s' to %s.\n",
+	      ifr->ifr_name, inet_ntoa (sin->sin_addr));
   }
   return 0;
 #endif
@@ -112,8 +111,7 @@ set_netmask (int sfd, struct ifreq *ifr, char *netmask)
   return -1;
 #else
 
-  SIOCSIF(NETMASK, netmask)
-  if (verbose)
+  SIOCSIF (NETMASK, netmask) if (verbose)
     printf ("Set interface netmask of `%s' to %s.\n",
 	    ifr->ifr_name, inet_ntoa (sin->sin_addr));
   return 0;
@@ -124,12 +122,12 @@ int
 set_dstaddr (int sfd, struct ifreq *ifr, char *dstaddr)
 {
 #ifndef SIOCSIFDSTADDR
-  printf ("%s: Don't know how to set an interface peer address on this system.\n",
-	  program_name);
+  printf
+    ("%s: Don't know how to set an interface peer address on this system.\n",
+     program_name);
   return -1;
 #else
-  SIOCSIF(DSTADDR, dstaddr)
-  if (verbose)
+  SIOCSIF (DSTADDR, dstaddr) if (verbose)
     printf ("Set interface peer address of `%s' to %s.\n",
 	    ifr->ifr_name, inet_ntoa (sin->sin_addr));
   return 0;
@@ -140,12 +138,12 @@ int
 set_brdaddr (int sfd, struct ifreq *ifr, char *brdaddr)
 {
 #ifndef SIOCSIFBRDADDR
-  printf ("%s: Don't know how to set an interface broadcast address on this system.\n",
-	  program_name);
+  printf
+    ("%s: Don't know how to set an interface broadcast address on this system.\n",
+     program_name);
   return -1;
 #else
-  SIOCSIF(BRDADDR, brdaddr)
-  if (verbose)
+  SIOCSIF (BRDADDR, brdaddr) if (verbose)
     printf ("Set interface broadcast address of `%s' to %s.\n",
 	    ifr->ifr_name, inet_ntoa (sin->sin_addr));
   return 0;
@@ -171,8 +169,7 @@ set_mtu (int sfd, struct ifreq *ifr, int mtu)
       return -1;
     }
   if (verbose)
-    printf ("Set mtu value of `%s' to `%i'.\n",
-	    ifr->ifr_name, ifr->ifr_mtu);
+    printf ("Set mtu value of `%s' to `%i'.\n", ifr->ifr_name, ifr->ifr_mtu);
   return 0;
 #endif
 }

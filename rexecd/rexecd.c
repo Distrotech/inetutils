@@ -37,14 +37,14 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #endif /* not lint */
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_FILIO_H
-#include <sys/filio.h>
+# include <sys/filio.h>
 #endif
 #include <sys/socket.h>
 #ifdef TIME_WITH_SYS_TIME
@@ -73,12 +73,12 @@ static char sccsid[] = "@(#)rexecd.c	8.1 (Berkeley) 6/4/93";
 #endif
 #include <getopt.h>
 #ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
+# include <sys/select.h>
 #endif
 #ifdef HAVE_STDARG_H
-#include <stdarg.h>
+# include <stdarg.h>
 #else
-#include <varargs.h>
+# include <varargs.h>
 #endif
 #ifdef HAVE_SHADOW_H
 # include <shadow.h>
@@ -101,7 +101,6 @@ static struct option long_options[] = {
  *	command\0
  *	data
  */
-/*ARGSUSED*/
 int
 main (int argc, char **argv)
 {
@@ -332,7 +331,6 @@ doit (int f, struct sockaddr_in *fromp)
   exit (1);
 }
 
-/*VARARGS1*/
 void
 error (const char *fmt, ...)
 {

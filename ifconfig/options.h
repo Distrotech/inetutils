@@ -20,10 +20,10 @@
    MA 02110-1301 USA. */
 
 #ifndef IFCONFIG_OPTIONS_H
-#define IFCONFIG_OPTIONS_H
+# define IFCONFIG_OPTIONS_H
 
-#include <sys/types.h>
-#include <sys/socket.h>
+# include <sys/types.h>
+# include <sys/socket.h>
 
 struct ifconfig *parse_opt_new_ifs (char *name);
 
@@ -32,23 +32,23 @@ struct ifconfig
 {
   char *name;
   int valid;
-#define IF_VALID_SYSTEM		0x001
+# define IF_VALID_SYSTEM		0x001
   struct system_ifconfig *system;
-#define IF_VALID_FORMAT		0x002
+# define IF_VALID_FORMAT		0x002
   const char *format;
-#define IF_VALID_AF		0x004
+# define IF_VALID_AF		0x004
   sa_family_t af;
-#define IF_VALID_ADDR		0x008
+# define IF_VALID_ADDR		0x008
   char *address;
-#define IF_VALID_NETMASK	0x010
+# define IF_VALID_NETMASK	0x010
   char *netmask;
-#define IF_VALID_DSTADDR	0x020
+# define IF_VALID_DSTADDR	0x020
   char *dstaddr;
-#define IF_VALID_BRDADDR	0x040
+# define IF_VALID_BRDADDR	0x040
   char *brdaddr;
-#define IF_VALID_MTU		0x080
+# define IF_VALID_MTU		0x080
   int mtu;
-#define IF_VALID_METRIC		0x100
+# define IF_VALID_METRIC		0x100
   int metric;
 };
 

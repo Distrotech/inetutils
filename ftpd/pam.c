@@ -1,5 +1,5 @@
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #include "extern.h"
 
 #ifdef HAVE_SECURITY_PAM_APPL_H
-#include <security/pam_appl.h>
+# include <security/pam_appl.h>
 #endif
 
 #ifndef PAM_CONV_AGAIN
@@ -21,7 +21,7 @@
 #ifdef WITH_PAM
 
 static int PAM_conv (int num_msg, const struct pam_message **msg,
-	 	     struct pam_response **resp, void *appdata_ptr);
+		     struct pam_response **resp, void *appdata_ptr);
 
 /* FIXME: We still have a side effect since we use the global variable
    cred.  A better approach would be to use the pcred parameter
@@ -37,10 +37,10 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 {
   struct pam_response *repl = NULL;
   int retval, count = 0, replies = 0;
-  int size = sizeof(struct pam_response);
+  int size = sizeof (struct pam_response);
   struct credentials *pcred = (struct credentials *) appdata_ptr;
 
-#define GET_MEM \
+# define GET_MEM \
         if (!(repl = realloc (repl, size))) \
                 return PAM_CONV_ERR; \
         size += sizeof (struct pam_response)
@@ -91,7 +91,7 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	     in the ftpd.c:user() or ftpd.c:pass() check for it and send
 	     a lreply().  But I'm not sure the RFCs allow mutilines replies
 	     for a passwd challenge.  Many clients will simply break.  */
-	  if (pcred->message) /* XXX: make sure we split newlines correctly */
+	  if (pcred->message)	/* XXX: make sure we split newlines correctly */
 	    {
 	      size_t len = strlen (pcred->message);
 	      char *s = realloc (pcred->message, len
@@ -150,7 +150,7 @@ pam_doit (struct credentials *pcred)
   if (error == PAM_CONV_AGAIN || error == PAM_INCOMPLETE)
     {
       /* Avoid overly terse passwd messages and let the people
-	 upstairs do something sane.  */
+         upstairs do something sane.  */
       if (pcred->message && !strcasecmp (pcred->message, "password"))
 	{
 	  free (pcred->message);
@@ -159,7 +159,7 @@ pam_doit (struct credentials *pcred)
       return 0;
     }
 
-  if (error == PAM_SUCCESS) /* Alright, we got it */
+  if (error == PAM_SUCCESS)	/* Alright, we got it */
     {
       error = pam_acct_mgmt (pamh, 0);
       if (error == PAM_SUCCESS)
@@ -177,7 +177,7 @@ pam_doit (struct credentials *pcred)
 	    }
 	}
     }
-  pam_end(pamh, error);
+  pam_end (pamh, error);
   pamh = 0;
 
   return (error != PAM_SUCCESS);
@@ -228,7 +228,7 @@ pam_pass (const char *passwd, struct credentials *pcred)
       error = pam_doit (pcred);
       pcred->pass = NULL;
     }
-  return  error != PAM_SUCCESS;
+  return error != PAM_SUCCESS;
 }
 
 #endif /* WITH_PAM */
