@@ -1,5 +1,5 @@
 /* - Ftp Server
- * Copyright (c) 1985, 1988, 1990, 1992, 1993, 1994, 2002
+ * Copyright (c) 1985, 1988, 1990, 1992, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

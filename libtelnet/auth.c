@@ -32,7 +32,7 @@ static char     sccsid[] = "@(#)auth.c	8.3 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 /*
- * Copyright (C) 1990, 2000 by the Massachusetts Institute of Technology
+ * Copyright (C) 1990 by the Massachusetts Institute of Technology
  *
  * Export of this software from the United States of America is assumed
  * to require a specific license from the United States Government.

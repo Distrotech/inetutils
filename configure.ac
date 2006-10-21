@@ -54,24 +54,24 @@ AC_ARG_WITH([shishi],
 
 AC_ARG_ENABLE([servers],
               AC_HELP_STRING([--disable-servers],
-                             [don't compile servers]),
+                             [Don't compile servers]),
 	      , [enable_servers=yes])
 AC_ARG_ENABLE([clients],
               AC_HELP_STRING([--disable-clients],
-                             [don't compile clients]),
+                             [Don't compile clients]),
 	      , [enable_clients=yes])
 AC_ARG_ENABLE([libls],
               AC_HELP_STRING([--disable-libls],
-                             [disable support for libls ]),
+                             [Disable support for libls ]),
               , [enable_libls=yes])
 AC_ARG_ENABLE([encryption],
               AC_HELP_STRING([--enable-encryption],
-                             [enable encryption]),
+                             [Enable encryption]),
               [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-encryption is given but no Kerberos version is required])],
               [test -z "$KERBEROS_VERSION" && enable_encryption=no])
 AC_ARG_ENABLE([authentication],
               AC_HELP_STRING([--enable-authentication],
-                             [enable connection authentication]),
+                             [Enable connection authentication]),
               [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-authentication is given but no Kerberos version is required])],
 	      [test -z "$KERBEROS_VERSION" && enable_authentication=no])
 
@@ -84,10 +84,10 @@ fi
 
 AC_ARG_WITH([wrap],
             AC_HELP_STRING([--with-wrap],
-                           [add tcp wrapper support]))
+                           [Add tcp wrapper support]))
 AC_ARG_WITH([pam],
             AC_HELP_STRING([--with-pam],
-                           [add support for PAM]))
+                           [Add support for PAM]))
 
 IU_ENABLE_SERVER(ftpd)
 IU_ENABLE_SERVER(inetd)
