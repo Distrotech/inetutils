@@ -1,6 +1,6 @@
 /* syslogd - log system messages
  *
- * Copyright (c) 1983, 1988, 1993, 1994, 2002
+ * Copyright (c) 1983, 1988, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1653,6 +1653,7 @@ init (int signo)
     {
       /* There is no graceful recovery here.  */
       dbg_printf ("cannot allocate space for configuration\n");
+      fclose (cf);
       return;
     }
   cline = cbuf;
@@ -1692,6 +1693,7 @@ init (int signo)
 	    {
 	      /* Sigh ...  */
 	      dbg_printf ("cannot allocate space configuration\n");
+	      fclose (cf);
 	      free (cbuf);
 	      return;
 	    }

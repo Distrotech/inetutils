@@ -1,5 +1,9 @@
 2006-10-21  Guillem Jover  <guillem@hadrons.org>
 
+	* syslogd/syslogd.c (init): Close CF properly before returning.
+
+2006-10-21  Guillem Jover  <guillem@hadrons.org>
+
 	* ftpd/ftpd.c (store): Do not overwrite `name' with gunique's return
 	value, to avoid passing NULL to LOGCMD.
 
