@@ -37,7 +37,6 @@
 int
 auth_user (const char *name, struct credentials *pcred)
 {
-
   pcred->guest = 0;
 
   switch (pcred->auth_type)
@@ -116,13 +115,17 @@ auth_user (const char *name, struct credentials *pcred)
 	      }
 	  }
 	else
-	  return 1;
+	  {
+	    free (pcred->message);
+	    pcred->message = NULL;
+	    return 1;
+	  }
 	pcred->dochroot = checkuser(PATH_FTPCHROOT, pcred->name);
 	snprintf (pcred->message, len,
 		  "Password required for %s.", pcred->name);
 	return 0;
       }
-    } /* swithch (auth_type) */
+    } 
   return -1;
 }
 

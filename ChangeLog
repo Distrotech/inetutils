@@ -1,5 +1,8 @@
 2006-10-21  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ftpd/auth.c (auth_user) <default>: Free PCRED->message before
+	returning if sgetcred() returned non-zero.
+
 	* inetd/inetd.8: Fix typos.  Based on patch from Stephen Liebbe
 	<sliebbe@gmail.com>.
 
