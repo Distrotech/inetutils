@@ -1,14 +1,25 @@
 GNU inetutils NEWS -- history of user-visible changes.
-Copyright (C) 2002, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2004, 2006 Free Software Foundation, Inc.
 See the end for copying conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
-Version 1.4.3:
+October 21, 2006
+Version 1.5:
 
 * Various bugs fixes and clean ups.
 
-* inetd now creates a PID file
+* inetd
+
+** New option --environment enables passing client/server data via
+environment variables.
+
+** New option --resolve enables resolving IP addresses before passing
+them via environment.
+
+** Allows numeric port names as service names
+
+** inetd now creates a PID file
 
 * rcp now supports the -V option
 
