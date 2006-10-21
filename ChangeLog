@@ -1,3 +1,11 @@
+2006-10-21  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* configure.ac: Version 1.5
+	* NEWS: Version 1.5
+	* lib/readutmp.c, lib/readutmp.h: Update from gnulib
+	* syslogd/syslogd.c (wallmsg): Use new read_utmp interface.
+	* talkd/process.c (find_user): Use new read_utmp interface.
+
 2006-10-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftpd/auth.c (auth_user) <default>: Free PCRED->message before
