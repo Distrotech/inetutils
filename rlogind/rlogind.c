@@ -387,8 +387,6 @@ main (int argc, char *argv[])
   else
     exit (rlogind_mainloop (fileno (stdin), fileno (stdout)));
 
-
-  /* To pacify lint */
   return 0;
 }
 

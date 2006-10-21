@@ -570,7 +570,7 @@ try_connect:
 
   doit (&smask);
 
-   /*NOTREACHED*/ return 0;
+  return 0;
 }
 
 /* Some systems, like QNX/Neutrino , The constant B0, B50,.. maps straigth to
@@ -859,7 +859,6 @@ catch_child (int signo ARG_UNUSED)
       if (pid < 0 || (pid == child && !WIFSTOPPED (status)))
 	done (WEXITSTATUS (status) | WTERMSIG (status));
     }
-  /* NOTREACHED */
 }
 
 /*
@@ -1419,6 +1418,5 @@ getescape (register char *p)
     }
   msg ("illegal option value -- e");
   usage (1);
-  /* NOTREACHED */
   return 0;
 }

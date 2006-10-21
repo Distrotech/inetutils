@@ -271,7 +271,6 @@ main (int argc, char *argv[])
 		  sizeof linger) < 0)
     syslog (LOG_WARNING, "setsockopt (SO_LINGER): %m");
   doit (sockfd, &from);
-  /* NOTREACHED */
   return 0;
 }
 
