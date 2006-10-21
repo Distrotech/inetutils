@@ -1394,7 +1394,8 @@ wallmsg (struct filed *f, struct iovec *iov)
   if (reenter++)
     return;
 
-  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf, READ_UTMP_CHECK_PIDS);
+  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf, 
+             READ_UTMP_USER_PROCESS|READ_UTMP_CHECK_PIDS);
 
   for (utp = utmpbuf; utp < utmpbuf + utmp_count; utp++)
     {
