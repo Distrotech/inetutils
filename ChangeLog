@@ -1,3 +1,8 @@
+2006-10-21  Guillem Jover  <guillem@hadrons.org>
+
+	* libinetutils/localhost.c (localhost): Determine the FQDN only
+	if gethostname did not fail.
+
 2006-10-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* telnetd/utility.c: Include <time.h>.

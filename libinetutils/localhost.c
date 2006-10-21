@@ -1,6 +1,6 @@
 /* A slightly more convenient wrapper for gethostname
 
-   Copyright (C) 1996, 1997, 2000, 2005 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 2000, 2005, 2006 Free Software Foundation, Inc.
 
    Written by Miles Bader <miles@gnu.ai.mit.edu>
 
@@ -79,22 +79,22 @@ localhost (void)
       free (buf);
       buf = 0;
     }
-
-  /* Determine FQDN */
-  {
-    struct hostent *hp = gethostbyname (buf);
-
-    if (hp)
-      {
-	struct in_addr addr;
-	addr.s_addr = *(unsigned int *) hp->h_addr;
-	hp = gethostbyaddr ((char *) &addr, sizeof (addr), AF_INET);
-	if (hp)
-	  {
-	    free (buf);
-	    buf = strdup (hp->h_name);
-	  }
-      }
-  }
+  else
+    /* Determine FQDN */
+    {
+      struct hostent *hp = gethostbyname (buf);
+      
+      if (hp)
+	{
+	  struct in_addr addr;
+	  addr.s_addr = *(unsigned int *) hp->h_addr;
+	  hp = gethostbyaddr ((char *) &addr, sizeof (addr), AF_INET);
+	  if (hp)
+	    {
+	      free (buf);
+	      buf = strdup (hp->h_name);
+	    }
+	}
+    }
   return buf;
 }
