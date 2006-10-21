@@ -1,3 +1,7 @@
+2006-10-21  Guillem Jover  <guillem@hadrons.org>
+
+	* configure.ac (AC_CHECK_LIB): Remove check for unused libz.
+
 2006-10-12  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* doc/ChangeLog, ftp/ChangeLog, ftpd/ChangeLog, glob/ChangeLog,

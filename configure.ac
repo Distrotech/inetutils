@@ -1,6 +1,6 @@
 # Configuration for inetutils
 #
-# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006 Free Software Foundation, Inc.
 #
 # Written by Miles Bader <miles@gnu.ai.mit.edu>
 #
@@ -136,7 +136,6 @@ AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(socket, getpeername)
 AC_CHECK_LIB(opie, opiegenerator)
-AC_CHECK_LIB(z, gzdopen)
 
 # See if a termcap library is available (under one of several names)
 IU_LIB_TERMCAP
