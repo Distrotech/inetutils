@@ -933,10 +933,17 @@ store (const char *name, const char *mode, int unique)
   struct stat st;
   int (*closefunc) (FILE *);
 
-  if (unique && stat (name, &st) == 0 && (name = gunique (name)) == NULL)
+  if (unique && stat (name, &st) == 0)
     {
-      LOGCMD (*mode == 'w' ? "put" : "append", name);
-      return;
+      const char *name_unique = gunique (name);
+      
+      if (name_unique)
+        name = name_unique;
+      else
+        {
+          LOGCMD (*mode == 'w' ? "put" : "append", name);
+          return;
+        }
     }
 
   if (restart_point)

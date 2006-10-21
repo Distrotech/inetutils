@@ -1,5 +1,10 @@
 2006-10-21  Guillem Jover  <guillem@hadrons.org>
 
+	* ftpd/ftpd.c (store): Do not overwrite `name' with gunique's return
+	value, to avoid passing NULL to LOGCMD.
+
+2006-10-21  Guillem Jover  <guillem@hadrons.org>
+
 	* libinetutils/localhost.c (localhost): Determine the FQDN only
 	if gethostname did not fail.
 
