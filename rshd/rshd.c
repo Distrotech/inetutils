@@ -468,8 +468,8 @@ doit (int sockfd, struct sockaddr_in *fromp)
       dup2 (sockfd, STDERR_FILENO);
     }
 
-  /* Get the "name" of the clent form its Internet address.
-   * This is used for the autentication below
+  /* Get the "name" of the client from its Internet address.  This is
+   * used for the authentication below.
    */
   errorstr = NULL;
   hp = gethostbyaddr((char *)&fromp->sin_addr, sizeof (struct in_addr),
