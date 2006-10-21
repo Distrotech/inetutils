@@ -35,6 +35,8 @@ static char sccsid[] = "@(#)look_up.c	8.1 (Berkeley) 6/6/93";
 #include <config.h>
 #endif
 
+#include <string.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

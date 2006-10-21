@@ -35,6 +35,8 @@ static char sccsid[] = "@(#)invite.c	8.1 (Berkeley) 6/6/93";
 #include <config.h>
 #endif
 
+#include <string.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #ifdef TIME_WITH_SYS_TIME
@@ -103,7 +105,7 @@ invite_remote()
 	setitimer(ITIMER_REAL, &itimer, (struct itimerval *)0);
 	message("Waiting for your party to respond");
 	signal(SIGALRM, re_invite);
-	(void) setjmp(invitebuf);
+	 setjmp(invitebuf);
 	while ((new_sockt = accept(sockt, 0, 0)) < 0) {
 		if (errno == EINTR)
 			continue;

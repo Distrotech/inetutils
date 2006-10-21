@@ -176,7 +176,7 @@ cmd
 		{
 			usedefault = 0;
 			if (pdata >= 0) {
-				(void) close(pdata);
+				 close(pdata);
 				pdata = -1;
 			}
 			if ($2) {
@@ -423,7 +423,7 @@ cmd
 
 			if ($4) {
 				oldmask = umask(0);
-				(void) umask(oldmask);
+				 umask(oldmask);
 				reply(200, "Current UMASK is %03o", oldmask);
 			}
 		}
@@ -471,7 +471,7 @@ cmd
 					maxtimeout);
 			    } else {
 				timeout = $6;
-				(void) alarm((unsigned) timeout);
+				 alarm((unsigned) timeout);
 				reply(200,
 					"Maximum IDLE time set to %d seconds",
 					timeout);
@@ -922,13 +922,13 @@ telnet_fgets(char *s, int n, FILE *iop)
 			case WONT:
 				c = getc(iop);
 				printf("%c%c%c", IAC, DONT, 0377&c);
-				(void) fflush(stdout);
+				 fflush(stdout);
 				continue;
 			case DO:
 			case DONT:
 				c = getc(iop);
 				printf("%c%c%c", IAC, WONT, 0377&c);
-				(void) fflush(stdout);
+				 fflush(stdout);
 				continue;
 			case IAC:
 				break;
@@ -968,7 +968,7 @@ telnet_fgets(char *s, int n, FILE *iop)
 void
 toolong(int signo)
 {
-  (void)signo;
+	(void)signo;
 	reply(421,
 	    "Timeout (%d seconds): closing control connection.", timeout);
 	if (logging)
@@ -990,13 +990,13 @@ yylex()
 		switch (state) {
 
 		case CMD:
-			(void) signal(SIGALRM, toolong);
-			(void) alarm((unsigned) timeout);
+			 signal(SIGALRM, toolong);
+			 alarm((unsigned) timeout);
 			if (telnet_fgets(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
 				reply(221, "You could at least say goodbye.");
 				dologout(0);
 			}
-			(void) alarm(0);
+			 alarm(0);
 #ifdef HAVE_SETPROCTITLE
 			if (strncasecmp(cbuf, "PASS", 4) != NULL)
 				setproctitle("%s: %s", proctitle, cbuf);
@@ -1213,7 +1213,7 @@ copy(char *s)
 	p = malloc((unsigned) strlen(s) + 1);
 	if (p == NULL)
 		fatal("Ran out of memory.");
-	(void) strcpy(p, s);
+	 strcpy(p, s);
 	return (p);
 }
 
@@ -1263,7 +1263,7 @@ help(struct tab *ctab, char *s)
 			}
 			printf("\r\n");
 		}
-		(void) fflush(stdout);
+		 fflush(stdout);
 		reply(214, "Direct comments to ftp-bugs@%s.", hostname);
 		return;
 	}
@@ -1306,7 +1306,7 @@ sizecmd(char *filename)
 		}
 		if (fstat(fileno(fin), &stbuf) < 0 || !S_ISREG(stbuf.st_mode)) {
 			reply(550, "%s: not a plain file.", filename);
-			(void) fclose(fin);
+			 fclose(fin);
 			return;
 		}
 
@@ -1316,7 +1316,7 @@ sizecmd(char *filename)
 				count++;
 			count++;
 		}
-		(void) fclose(fin);
+		 fclose(fin);
 
 		reply(213, sizeof(count) > sizeof(long) ? "%qd" : "%ld",
 		      count);

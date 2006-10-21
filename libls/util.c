@@ -70,7 +70,7 @@ putname(name)
 void
 usage()
 {
-	(void)fprintf(stderr,
+	fprintf(stderr,
 	    "usage: ls [-1ACFLRSTWacdfiklmnopqrstux] [file ...]\n");
 	exit(1);
 }

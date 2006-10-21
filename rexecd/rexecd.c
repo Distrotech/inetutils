@@ -144,9 +144,9 @@ char *envinit[] = { homedir, shell, path, username, logname, 0 };
 extern char **environ;
 
 #ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-struct sockaddr_in asin = { sizeof (asin), AF_INET };
+struct sockaddr_in a_sin = { sizeof (a_sin), AF_INET };
 #else
-struct sockaddr_in asin = { AF_INET };
+struct sockaddr_in a_sin = { AF_INET };
 #endif
 
 char *getstr (const char *);
@@ -213,7 +213,7 @@ doit (int f, struct sockaddr_in *fromp)
       s = socket (AF_INET, SOCK_STREAM, 0);
       if (s < 0)
 	exit (1);
-      if (bind (s, (struct sockaddr *) &asin, sizeof (asin)) < 0)
+      if (bind (s, (struct sockaddr *) &a_sin, sizeof (a_sin)) < 0)
 	exit (1);
       alarm (60);
       fromp->sin_port = htons (port);

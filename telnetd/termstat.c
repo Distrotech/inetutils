@@ -302,7 +302,7 @@ localstat()
 		 */
 		start_slc(0);
 		check_slc();
-		(void) end_slc(0);
+		end_slc(0);
 	}
 
 done:
@@ -505,7 +505,7 @@ clientstat(register int code, register int parm1, register int parm2)
 
 		ws.ws_col = parm1;
 		ws.ws_row = parm2;
-		(void) ioctl(pty, TIOCSWINSZ, (char *)&ws);
+		ioctl(pty, TIOCSWINSZ, (char *)&ws);
 	    }
 #endif	/* TIOCSWINSZ */
 
@@ -594,7 +594,7 @@ defer_terminit()
 		memset((char *)&ws, 0, sizeof(ws));
 		ws.ws_col = def_col;
 		ws.ws_row = def_row;
-		(void) ioctl(pty, TIOCSWINSZ, (char *)&ws);
+		ioctl(pty, TIOCSWINSZ, (char *)&ws);
 	}
 #endif
 

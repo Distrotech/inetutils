@@ -118,7 +118,7 @@ susystem(char *s, int userid)
 		return (127);
 
 	case 0:
-		(void)setuid(userid);
+		setuid(userid);
 		execl(PATH_BSHELL, "sh", "-c", s, NULL);
 		_exit(127);
 	}
@@ -126,8 +126,8 @@ susystem(char *s, int userid)
 	qstat = signal(SIGQUIT, SIG_IGN);
 	if (waitpid(pid, &status, 0) < 0)
 		status = -1;
-	(void)signal(SIGINT, istat);
-	(void)signal(SIGQUIT, qstat);
+	signal(SIGINT, istat);
+	signal(SIGQUIT, qstat);
 	return (status);
 }
 

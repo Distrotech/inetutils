@@ -40,6 +40,7 @@ static char sccsid[] = "@(#)talk.c	8.1 (Berkeley) 6/6/93";
 #include <config.h>
 #endif
 #include <getopt.h>
+#include <stdlib.h>
 
 #include "talk.h"
 

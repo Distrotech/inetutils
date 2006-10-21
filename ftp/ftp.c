@@ -696,7 +696,7 @@ sendrequest(cmd, local, remote, printnames)
 			putc(c, dout);
 			bytes++;
 	/*		if (c == '\r') {			  	*/
-	/*		(void)	putc('\0', dout);  // this violates rfc */
+	/*			putc('\0', dout);  // this violates rfc */
 	/*			bytes++;				*/
 	/*		}                          			*/
 		}

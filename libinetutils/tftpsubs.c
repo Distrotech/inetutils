@@ -179,7 +179,7 @@ writeit(FILE *file, struct tftphdr **dpp, int ct, int convert)
 	bfs[current].counter = ct;      /* set size of data to write */
 	current = !current;             /* switch to other buffer */
 	if (bfs[current].counter != BF_FREE)     /* if not free */
-		(void)write_behind(file, convert); /* flush it */
+		write_behind(file, convert); /* flush it */
 	bfs[current].counter = BF_ALLOC;        /* mark as alloc'd */
 	*dpp =  (struct tftphdr *)bfs[current].buf;
 	return ct;                      /* this is a lie of course */
@@ -258,11 +258,11 @@ synchnet(int f)
 	int fromlen;
 
 	while (1) {
-		(void) ioctl(f, FIONREAD, &i);
+		 ioctl(f, FIONREAD, &i);
 		if (i) {
 			j++;
 			fromlen = sizeof from;
-			(void) recvfrom(f, rbuf, sizeof (rbuf), 0,
+			 recvfrom(f, rbuf, sizeof (rbuf), 0,
 				(struct sockaddr *)&from, &fromlen);
 		} else {
 			return(j);

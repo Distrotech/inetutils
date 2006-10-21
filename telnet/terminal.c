@@ -35,6 +35,8 @@ static char sccsid[] = "@(#)terminal.c	8.2 (Berkeley) 2/16/95";
 #include <config.h>
 #endif
 
+#include <stdlib.h>
+
 #include <arpa/telnet.h>
 #include <sys/types.h>
 

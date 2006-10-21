@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 /*
- * Copyright (C) 1990, 2000 by the Massachusetts Institute of Technology
+ * Copyright (C) 1990 by the Massachusetts Institute of Technology
  *
  * Export of this software from the United States of America is assumed
  * to require a specific license from the United States Government.
@@ -76,8 +76,8 @@ static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
  * These functions pointers point to the current routines
  * for encrypting and decrypting data.
  */
-void	(*encrypt_output) P((unsigned char *, int));
-int	(*decrypt_input) P((int));
+void	(*encrypt_output) (unsigned char *, int);
+int	(*decrypt_input) (int);
 
 int encrypt_debug_mode = 0;
 static int decrypt_mode = 0;
@@ -761,7 +761,7 @@ encrypt_keyid(kp, keyid, len)
 			return;
 		kp->keylen = 0;
 		if (ep->keyid)
-			(void)(*ep->keyid)(dir, kp->keyid, &kp->keylen);
+			(*ep->keyid)(dir, kp->keyid, &kp->keylen);
 
 	} else if ((len != kp->keylen) ||
 		   (memcmp(keyid, kp->keyid, len) != 0)) {
@@ -771,7 +771,7 @@ encrypt_keyid(kp, keyid, len)
 		kp->keylen = len;
 		memmove(kp->keyid, keyid, len);
 		if (ep->keyid)
-			(void)(*ep->keyid)(dir, kp->keyid, &kp->keylen);
+			(*ep->keyid)(dir, kp->keyid, &kp->keylen);
 	} else {
 		if (ep->keyid)
 			ret = (*ep->keyid)(dir, kp->keyid, &kp->keylen);

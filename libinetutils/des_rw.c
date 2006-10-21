@@ -83,12 +83,12 @@ des_read(fd, buf, len)
 	int nstored = 0;
 
 	if (nstored >= len) {
-		(void) bcopy(store_ptr, buf, len);
+		 bcopy(store_ptr, buf, len);
 		store_ptr += len;
 		nstored -= len;
 		return(len);
 	} else if (nstored) {
-		(void) bcopy(store_ptr, buf, nstored);
+		 bcopy(store_ptr, buf, nstored);
 		nreturned += nstored;
 		buf += nstored;
 		len -= nstored;
@@ -114,7 +114,7 @@ des_read(fd, buf, len)
 		/* pipe must have closed, return 0 */
 		return(0);
 	}
-	(void) des_pcbc_encrypt(des_inbuf,	/* inbuf */
+	 des_pcbc_encrypt(des_inbuf,	/* inbuf */
 			    storage,		/* outbuf */
 			    net_len,		/* length */
 			    key_schedule,	/* DES key */
@@ -128,12 +128,12 @@ des_read(fd, buf, len)
 
 	nstored = net_len;
 	if (nstored > len) {
-		(void) bcopy(store_ptr, buf, len);
+		 bcopy(store_ptr, buf, len);
 		nreturned += len;
 		store_ptr += len;
 		nstored -= len;
 	} else {
-		(void) bcopy(store_ptr, buf, nstored);
+		 bcopy(store_ptr, buf, nstored);
 		nreturned += nstored;
 		nstored = 0;
 	}
@@ -160,13 +160,13 @@ des_write(fd, buf, len)
 		}
 		garbage = random();
 		/* insert random garbage */
-		(void) bcopy(&garbage, garbage_buf, MIN(sizeof(long),8));
+		 bcopy(&garbage, garbage_buf, MIN(sizeof(long),8));
 		/* this "right-justifies" the data in the buffer */
-		(void) bcopy(buf, garbage_buf + 8 - len, len);
+		 bcopy(buf, garbage_buf + 8 - len, len);
 	}
 	/* pcbc_encrypt outputs in 8-byte (64 bit) increments */
 
-	(void) des_pcbc_encrypt((len < 8) ? garbage_buf : buf,
+	 des_pcbc_encrypt((len < 8) ? garbage_buf : buf,
 			    des_outbuf,
 			    (len < 8) ? 8 : len,
 			    key_schedule,	/* DES key */
@@ -176,8 +176,8 @@ des_write(fd, buf, len)
 	/* tell the other end the real amount, but send an 8-byte padded
 	   packet */
 	net_len = htonl(len);
-	(void) write(fd, &net_len, sizeof(net_len));
-	(void) write(fd, des_outbuf, roundup(len,8));
+	 write(fd, &net_len, sizeof(net_len));
+	 write(fd, des_outbuf, roundup(len,8));
 	return(len);
 }
 #endif /* KERBEROS */

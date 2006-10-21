@@ -35,6 +35,8 @@ static char sccsid[] = "@(#)utilities.c	8.3 (Berkeley) 5/30/95";
 #include <config.h>
 #endif
 
+#include <stdlib.h>
+
 #define	TELOPTS
 #define	TELCMDS
 #define	SLC_NAMES
@@ -879,15 +881,15 @@ EmptyTerminal()
     if (TTYBYTES() == 0) {
 #if	defined(unix)
 	FD_SET(tout, &o);
-	(void) select(tout+1, (fd_set *) 0, &o, (fd_set *) 0,
+	 select(tout+1, (fd_set *) 0, &o, (fd_set *) 0,
 			(struct timeval *) 0);	/* wait for TTLOWAT */
 #endif	/* defined(unix) */
     } else {
 	while (TTYBYTES()) {
-	    (void) ttyflush(0);
+	     ttyflush(0);
 #if	defined(unix)
 	    FD_SET(tout, &o);
-	    (void) select(tout+1, (fd_set *) 0, &o, (fd_set *) 0,
+	     select(tout+1, (fd_set *) 0, &o, (fd_set *) 0,
 				(struct timeval *) 0);	/* wait for TTLOWAT */
 #endif	/* defined(unix) */
 	}
@@ -904,7 +906,7 @@ SetForExit()
     }
 #else	/* defined(TN3270) */
     do {
-	(void)telrcv();			/* Process any incoming data */
+	telrcv();			/* Process any incoming data */
 	EmptyTerminal();
     } while (ring_full_count(&netiring));	/* While there is any */
 #endif	/* defined(TN3270) */

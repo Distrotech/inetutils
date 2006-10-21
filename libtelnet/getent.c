@@ -64,7 +64,7 @@ getstr(char *id, char **cpp)
 # ifdef	HAVE_CGETENT
 	char *answer;
 # endif
-	(void)id; (void)cpp;
+	(void)id; (void)cpp;	/* shutup gcc */
 # ifdef	HAVE_CGETENT
 	return((cgetstr(area, id, &answer) > 0) ? answer : 0);
 # else

@@ -4,6 +4,7 @@
 
 #include <sys/types.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <pwd.h>
@@ -63,7 +64,7 @@ auth_user (const char *name, struct credentials *pcred)
 	size_t len;
 	if (pcred->message)
 	  free (pcred->message);
-	len = 64 + strlen (name);
+	len = (size_t) (64 + strlen (name));
 	pcred->message = malloc (len);
 	if (pcred->message == NULL)
 	  return -1;

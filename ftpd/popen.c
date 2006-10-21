@@ -133,24 +133,24 @@ ftpd_popen(char *program, const char *type)
 #endif
 	{
 	case -1:			/* error */
-		(void)close(pdes[0]);
-		(void)close(pdes[1]);
+		close(pdes[0]);
+		close(pdes[1]);
 		goto pfree;
 		/* NOTREACHED */
 	case 0:				/* child */
 		if (*type == 'r') {
 			if (pdes[1] != STDOUT_FILENO) {
 				dup2(pdes[1], STDOUT_FILENO);
-				(void)close(pdes[1]);
+				close(pdes[1]);
 			}
 			dup2(STDOUT_FILENO, STDERR_FILENO); /* stderr too! */
-			(void)close(pdes[0]);
+			close(pdes[0]);
 		} else {
 			if (pdes[0] != STDIN_FILENO) {
 				dup2(pdes[0], STDIN_FILENO);
-				(void)close(pdes[0]);
+				close(pdes[0]);
 			}
-			(void)close(pdes[1]);
+			close(pdes[1]);
 		}
 
 #ifdef WITH_LIBLS
@@ -167,10 +167,10 @@ ftpd_popen(char *program, const char *type)
 	/* parent; assume fdopen can't fail...  */
 	if (*type == 'r') {
 		iop = fdopen(pdes[0], type);
-		(void)close(pdes[1]);
+		close(pdes[1]);
 	} else {
 		iop = fdopen(pdes[1], type);
-		(void)close(pdes[0]);
+		close(pdes[0]);
 	}
 
 	fpid = (struct file_pid *) malloc (sizeof (struct file_pid));
@@ -215,7 +215,7 @@ ftpd_pclose(FILE *iop)
 	else
 		file_pids = fpid->next;
 
-	(void)fclose(iop);
+	fclose(iop);
 #ifdef HAVE_SIGACTION
 	sigemptyset(&sigs);
 	sigaddset(&sigs, SIGINT);
@@ -233,7 +233,7 @@ ftpd_pclose(FILE *iop)
 #ifdef HAVE_SIGACTION
 	sigprocmask(SIG_SETMASK, &osigs, 0);
 #else
-	(void)sigsetmask(omask);
+	sigsetmask(omask);
 #endif
 	if (pid < 0)
 		return (pid);

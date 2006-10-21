@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001,2005 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001,2005,2006 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -25,6 +25,7 @@
 #ifdef HAVE_TERMIO_H
 # include <termio.h>
 #endif
+#include <time.h>
 
 #if defined(AUTHENTICATION) || defined(ENCRYPTION)
 # include <libtelnet/misc.h>
@@ -1575,13 +1576,13 @@ struct line_expander
   struct obstack stk;  /* Obstack for expanded version */
 };
 
-static char *_var_short_name P((struct line_expander *exp));
-static char *_var_long_name P((struct line_expander *exp,
-			       char *start, int length));
-static char *_expand_var P((struct line_expander *exp));
-static void _expand_cond P((struct line_expander *exp));
-static void _skip_block P((struct line_expander *exp));
-static void _expand_block P((struct line_expander *exp));
+static char *_var_short_name (struct line_expander *exp);
+static char *_var_long_name (struct line_expander *exp,
+			       char *start, int length);
+static char *_expand_var (struct line_expander *exp);
+static void _expand_cond (struct line_expander *exp);
+static void _skip_block (struct line_expander *exp);
+static void _expand_block (struct line_expander *exp);
      
 /* Expand a variable referenced by its short one-symbol name.
    Input: exp->cp points to the variable name.
@@ -1799,8 +1800,8 @@ expand_line (const char *line)
 
   exp.state = EXP_STATE_CONTINUE;
   exp.level = 0;
-  exp.source = line;
-  exp.cp = line;
+  exp.source = (char *)line;
+  exp.cp = (char *)line;
   obstack_init (&exp.stk);
   _expand_block (&exp);
   if (exp.state == EXP_STATE_SUCCESS)

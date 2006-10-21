@@ -32,7 +32,7 @@ static char sccsid[] = "@(#)kerberos.c	8.3 (Berkeley) 5/30/95";
 #endif /* not lint */
 
 /*
- * Copyright (C) 1990, 2000 by the Massachusetts Institute of Technology
+ * Copyright (C) 1990 by the Massachusetts Institute of Technology
  *
  * Export of this software from the United States of America is assumed
  * to require a specific license from the United States Government.
@@ -74,13 +74,13 @@ static char sccsid[] = "@(#)kerberos.c	8.3 (Berkeley) 5/30/95";
 #include "auth.h"
 #include "misc.h"
 
-int kerberos4_cksum P((unsigned char *, int));
-int krb_mk_req P((KTEXT, char *, char *, char *, u_long));
-int krb_rd_req P((KTEXT, char *, char *, u_long, AUTH_DAT *, char *));
-int krb_kntoln P((AUTH_DAT *, char *));
-int krb_get_cred P((char *, char *, char *, CREDENTIALS *));
-int krb_get_lrealm P((char *, int));
-int kuserok P((AUTH_DAT *, char *));
+int kerberos4_cksum (unsigned char *, int);
+int krb_mk_req (KTEXT, char *, char *, char *, u_long);
+int krb_rd_req (KTEXT, char *, char *, u_long, AUTH_DAT *, char *);
+int krb_kntoln (AUTH_DAT *, char *);
+int krb_get_cred (char *, char *, char *, CREDENTIALS *);
+int krb_get_lrealm (char *, int);
+int kuserok (AUTH_DAT *, char *);
 
 extern auth_debug_mode;
 

@@ -50,8 +50,8 @@ static char rcsid[] = "$OpenBSD: stat_flags.c,v 1.4 1999/09/08 07:21:29 millert 
 
 #define	SAPPEND(s) {							\
 	if (prefix != NULL)						\
-		(void)strcat(string, prefix);				\
-	(void)strcat(string, s);					\
+		strcat(string, prefix);				\
+	strcat(string, s);					\
 	prefix = ",";							\
 }
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2001, 2002, 2004x Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2004, 2006 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -18,7 +18,9 @@
    Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #include "telnetd.h"
+
 #include <getopt.h>
+
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
@@ -44,15 +46,15 @@ static struct option long_options[] =
   {NULL, 0, NULL, 0}
 };
 
-static void telnetd_version P((void));
-static void telnetd_license P((void));
-static void telnetd_help P((void));
-static void parse_authmode P((char *str));
-static void parse_linemode P((char *str));
-static void parse_debug_level P((char *str));
-static void telnetd_setup P((int fd));
-static int telnetd_run P((void));
-static void print_hostinfo P((void));
+static void telnetd_version (void);
+static void telnetd_license (void);
+static void telnetd_help (void);
+static void parse_authmode (char *str);
+static void parse_linemode (char *str);
+static void parse_debug_level (char *str);
+static void telnetd_setup (int fd);
+static int telnetd_run (void);
+static void print_hostinfo (void);
 
 /* Template command line for invoking login program */
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001,2005 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001,2005,2006 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -52,14 +52,6 @@
 
 #include <arpa/telnet.h>
 #include <libtelnet/auth.h>
-
-#ifndef	P
-# if defined PROTOTYPES || (defined __STDC__ && __STDC__)
-#  define P(x)	x
-# else
-#  define P(x)	()
-# endif
-#endif
 
 #if defined(HAVE_TERMIOS_H)
 # include <termios.h>
@@ -268,118 +260,117 @@ extern int	SYNCHing;		/* we are in TELNET SYNCH mode */
 extern struct telnetd_clocks clocks;
 extern char line[];
 
-extern char *xstrdup P((const char *));
-extern int argcv_get P((const char *command, const char *delim,
-			int *argc, char ***argv));
+extern char *xstrdup (const char *);
+extern int argcv_get (const char *command, const char *delim,
+			int *argc, char ***argv);
 
-void io_setup P((void));
-int net_has_data P((void));
-int net_get_char P((int peek));
-void set_neturg P((void));
-int net_output_data P((const char *format,...));
-int net_output_datalen P((const void *buf, size_t l));
-int net_buffer_level P((void));
-void io_drain P((void));
+void io_setup (void);
+int net_has_data (void);
+int net_get_char (int peek);
+void set_neturg (void);
+int net_output_data (const char *format,...);
+int net_output_datalen (const void *buf, size_t l);
+int net_buffer_level (void);
+void io_drain (void);
 
-int stilloob P((int s));
-void ptyflush P((void));
-char * nextitem P((char *current));
-void netclear P(());
-void netflush P(());
+int stilloob (int s);
+void ptyflush (void);
+char * nextitem (char *current);
+void netclear ();
+void netflush ();
 
-int pty_buffer_is_full P((void));
-void pty_output_byte P((int c));
-void pty_output_datalen P((const void *data, size_t len));
-int pty_buffer_level P(());
+int pty_buffer_is_full (void);
+void pty_output_byte (int c);
+void pty_output_datalen (const void *data, size_t len);
+int pty_buffer_level ();
 
 /* Debugging functions */
-extern void printoption P((char *, int));
-extern void printdata P((char *, char *, int));
-extern void printsub P((int, unsigned char *, int));
-extern void debug_output_datalen P((const char *data, size_t len));
-extern void debug_output_data P((const char *fmt, ...));
+extern void printoption (char *, int);
+extern void printdata (char *, char *, int);
+extern void printsub (int, unsigned char *, int);
+extern void debug_output_datalen (const char *data, size_t len);
+extern void debug_output_data (const char *fmt, ...);
 
 /* TTY functions */
-extern void init_termbuf P((void));
-extern void set_termbuf P((void));
-extern int spcset P((int func, cc_t *valp, cc_t **valpp));
-extern void term_send_eof P((void));
-extern int term_change_eof P((void));
+extern void init_termbuf (void);
+extern void set_termbuf (void);
+extern int spcset (int func, cc_t *valp, cc_t **valpp);
+extern void term_send_eof (void);
+extern int term_change_eof (void);
 
-extern void tty_binaryin P((int));
-extern void tty_binaryout P((int));
-extern int tty_flowmode P((void));
-extern int tty_restartany P((void));
-extern int tty_isbinaryin P((void));
-extern int tty_isbinaryout P((void));
-extern int tty_iscrnl P((void));
-extern int tty_isecho P((void));
-extern int tty_isediting P((void));
-extern int tty_islitecho P((void));
-extern int tty_isnewmap P((void));
-extern int tty_israw P((void));
-extern int tty_issofttab P((void));
-extern int tty_istrapsig P((void));
-extern int tty_linemode P((void));
-extern void tty_rspeed P((int));
-extern void tty_setecho P((int));
-extern void tty_setedit P((int));
-extern void tty_setlinemode P((int));
-extern void tty_setlitecho P((int));
-extern void tty_setsig P((int));
-extern void tty_setsofttab P((int));
-extern void tty_tspeed P((int));
+extern void tty_binaryin (int);
+extern void tty_binaryout (int);
+extern int tty_flowmode (void);
+extern int tty_restartany (void);
+extern int tty_isbinaryin (void);
+extern int tty_isbinaryout (void);
+extern int tty_iscrnl (void);
+extern int tty_isecho (void);
+extern int tty_isediting (void);
+extern int tty_islitecho (void);
+extern int tty_isnewmap (void);
+extern int tty_israw (void);
+extern int tty_issofttab (void);
+extern int tty_istrapsig (void);
+extern int tty_linemode (void);
+extern void tty_rspeed (int);
+extern void tty_setecho (int);
+extern void tty_setedit (int);
+extern void tty_setlinemode (int);
+extern void tty_setlitecho (int);
+extern void tty_setsig (int);
+extern void tty_setsofttab (int);
+extern void tty_tspeed (int);
 
-extern char * expand_line P((const char *fmt));
+extern char * expand_line (const char *fmt);
 
 /*  FIXME */
-extern void _termstat P((void));
-extern void add_slc P((char func, char flag, cc_t val));
-extern void check_slc P((void));
-extern void change_slc P((char func, char flag, cc_t val));
+extern void _termstat (void);
+extern void add_slc (char func, char flag, cc_t val);
+extern void check_slc (void);
+extern void change_slc (char func, char flag, cc_t val);
 
-extern void cleanup P((int));
-extern void clientstat P((int, int, int));
-extern void copy_termbuf P(());
-extern void deferslc P((void));
-extern void defer_terminit P((void));
-extern void do_opt_slc P((unsigned char *, int));
-extern void dooption P((int));
-extern void dontoption P((int));
-extern void edithost P((char *, char *));
-extern void fatal P((int, char *));
-extern void fatalperror P((int, char *));
-extern void get_slc_defaults P((void));
-extern void localstat P((void));
-extern void flowstat P((void));
-extern void netclear P((void));
+extern void cleanup (int);
+extern void clientstat (int, int, int);
+extern void copy_termbuf ();
+extern void deferslc (void);
+extern void defer_terminit (void);
+extern void do_opt_slc (unsigned char *, int);
+extern void dooption (int);
+extern void dontoption (int);
+extern void edithost (char *, char *);
+extern void fatal (int, char *);
+extern void fatalperror (int, char *);
+extern void get_slc_defaults (void);
+extern void localstat (void);
+extern void flowstat (void);
+extern void netclear (void);
 
-extern void send_do P((int, int));
-extern void send_dont P((int, int));
-extern void send_slc P((void));
-extern void send_status P((void));
-extern void send_will P((int, int));
-extern void send_wont P((int, int));
-extern void set_termbuf P((void));
-extern void start_login P((char *, int, char *));
-extern void start_slc P((int));
-extern void start_slave P((char *, int, char *));
+extern void send_do (int, int);
+extern void send_dont (int, int);
+extern void send_slc (void);
+extern void send_status (void);
+extern void send_will (int, int);
+extern void send_wont (int, int);
+extern void set_termbuf (void);
+extern void start_login (char *, int, char *);
+extern void start_slc (int);
+extern void start_slave (char *, int, char *);
 
-extern void suboption P((void));
-extern void telrcv P((void));
-extern void ttloop P((void));
+extern void suboption (void);
+extern void telrcv (void);
   
-extern int end_slc P((unsigned char **));
-extern int spcset P((int, cc_t *, cc_t **));
-extern int stilloob P((int));
-extern int terminit P((void));
-extern int termstat P((void));
-extern void willoption P((int));
-extern void wontoption P((int));
+extern int end_slc (unsigned char **);
+extern int spcset (int, cc_t *, cc_t **);
+extern int stilloob (int);
+extern int terminit (void);
+extern int termstat (void);
+extern void willoption (int);
+extern void wontoption (int);
 
 #ifdef	ENCRYPTION
-extern void	(*encrypt_output) P((unsigned char *, int));
-extern int	(*decrypt_input) P((int));
+extern void	(*encrypt_output) (unsigned char *, int);
+extern int	(*decrypt_input) (int);
 #endif	/* ENCRYPTION */
 
 

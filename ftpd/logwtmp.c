@@ -141,7 +141,7 @@ logwtmp(const char *line, const char *name, const char *host)
 	if (fstat(fd, &buf) == 0) {
 		if (write(fd, (char *)&ut, sizeof(struct utmp)) !=
 		    sizeof(struct utmp))
-			(void)ftruncate(fd, buf.st_size);
+			ftruncate(fd, buf.st_size);
 	}
   }
 #endif

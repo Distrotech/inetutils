@@ -1,3 +1,42 @@
+2006-10-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* telnetd/utility.c: Include <time.h>.
+	(expand_line): Cast LINE to (char *).
+
+	* ftpd/auth.c: Include <string.h>
+	(auth_user) <default>: Cast LEN to (size_t).
+
+	* ftp/cmdtab.c: Include <string.h>
+	* libinetutils/xalloc_die.c: Include <stdlib.h>
+	* talk/get_addrs.c: Include <stdlib.h>, and <string.h>.
+	* talk/get_names.c: Include <stdlib.h>, and <string.h>.
+	* talk/init_disp.c: Include <stdlib.h>.
+	* talk/invite.c: Include <string.h>
+	* talk/look_up.c: Include <string.h>
+	* talk/talk.c: Include <stdlib.h>
+	* telnet/network.c: Include <stdlib.h>
+	* telnet/ring.c: Include <string.h>.
+	* telnet/terminal.c: Include <stdlib.h>.
+	* telnet/utilities.c: Include <stdlib.h>.
+
+	* rexecd/rexecd.c: Renamed all occurences of ASIN to A_SIN.
+
+	* libtelnet/encrypt.c, ftp/cmds.c, libls/util.c,
+	libls/stat_flags.c, libls/print.c, libls/ls.c, libls/fts.c,
+	libinetutils/tftpsubs.c, libinetutils/des_rw.c, ftpd/popen.c,
+	ftpd/logwtmp.c, ftpd/ftpcmd.y, whois/net.c, telnetd/termstat.c,
+	telnetd/state.c, telnetd/slc.c, telnet/utilities.c, telnet/main.c,
+	libtelnet/misc-proto.h, libtelnet/key-proto.h,
+	libtelnet/forward.c, rcp/util.c, talk/invite.c, telnet/externs.h:
+	Remove useless casts to (void).
+
+	* libtelnet/encrypt.c, libtelnet/enc_des.c, libtelnet/enc-proto.h,
+	libtelnet/auth.h, telnetd/utility.c, telnetd/telnetd.h,
+	telnetd/telnetd.c, telnet/ring.h, telnet/krb4-proto.h,
+	telnet/commands.c, rlogind/rlogind.c, libtelnet/encrypt.h,
+	libtelnet/kerberos.c, libtelnet/read_passwd.c: Remove all
+	references to P().
+
 2006-10-21  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* configure.ac: Version 1.5

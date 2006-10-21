@@ -289,7 +289,7 @@ main(int argc, char *argv[])
 		    {
 			extern char *dest_realm, dst_realm_buf[], dst_realm_sz;
 			dest_realm = dst_realm_buf;
-			(void)strncpy(dest_realm, optarg, dst_realm_sz);
+			strncpy(dest_realm, optarg, dst_realm_sz);
 		    }
 #else
 			fprintf(stderr,
@@ -323,7 +323,7 @@ main(int argc, char *argv[])
 		case 't':
 #if defined(TN3270) && defined(unix)
 			transcom = tline;
-			(void)strcpy(transcom, optarg);
+			strcpy(transcom, optarg);
 #else
 			fprintf(stderr,
 			   "%s: Warning: -t ignored, no TN3270 support.\n",
@@ -389,7 +389,7 @@ main(int argc, char *argv[])
 		else
 			return (1);
 	}
-	(void)setjmp(toplevel);
+	setjmp(toplevel);
 	for (;;) {
 #ifdef TN3270
 		if (shell_active)

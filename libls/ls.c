@@ -277,7 +277,7 @@ ls_main(argc, argv)
 	if (f_longform || f_size) {
 #ifdef ORIGINAL_SOURCE
 		if (!kflag)
-			(void)getbsize(&notused, &blocksize);
+			getbsize(&notused, &blocksize);
 #else
 		blocksize = 1024;  /* Fuck this hair-splitting */
 #endif /* ORIGINAL_SOURCE */
@@ -386,9 +386,9 @@ traverse(argc, argv, options)
 			 * directory with its name.
 			 */
 			if (output)
-				(void)printf("\n%s:\n", p->fts_path);
+				printf("\n%s:\n", p->fts_path);
 			else if (argc > 1) {
-				(void)printf("%s:\n", p->fts_path);
+				printf("%s:\n", p->fts_path);
 				output = 1;
 			}
 
@@ -396,7 +396,7 @@ traverse(argc, argv, options)
 			display(p, chp);
 
 			if (!f_recursive && chp != NULL)
-				(void)fts_set(ftsp, p, FTS_SKIP);
+				fts_set(ftsp, p, FTS_SKIP);
 			break;
 		case FTS_DC:
 			fprintf(stderr,"%s: directory causes a cycle", p->fts_name);
@@ -523,9 +523,9 @@ display(p, list)
 				}
 
 				np->user = &np->data[0];
-				(void)strcpy(np->user, user);
+				strcpy(np->user, user);
 				np->group = &np->data[ulen + 1];
-				(void)strcpy(np->group, group);
+				strcpy(np->group, group);
 
 				if (S_ISCHR(sp->st_mode) ||
 				    S_ISBLK(sp->st_mode))
@@ -533,7 +533,7 @@ display(p, list)
 
 				if (f_flags) {
 					np->flags = &np->data[ulen + glen + 2];
-				  	(void)strcpy(np->flags, flags);
+				  	strcpy(np->flags, flags);
 				}
 				cur->fts_pointer = np;
 			}
@@ -550,15 +550,15 @@ display(p, list)
 	if (needstats) {
 		d.bcfile = bcfile;
 		d.btotal = btotal;
-		(void)snprintf(buf, sizeof(buf), "%lu", maxblock);
+		snprintf(buf, sizeof(buf), "%lu", maxblock);
 		d.s_block = strlen(buf);
 		d.s_flags = maxflags;
 		d.s_group = maxgroup;
-		(void)snprintf(buf, sizeof(buf), "%lu", maxinode);
+		snprintf(buf, sizeof(buf), "%lu", maxinode);
 		d.s_inode = strlen(buf);
-		(void)snprintf(buf, sizeof(buf), "%lu", maxnlink);
+		snprintf(buf, sizeof(buf), "%lu", maxnlink);
 		d.s_nlink = strlen(buf);
-		(void)snprintf(buf, sizeof(buf), "%qu", maxsize);
+		snprintf(buf, sizeof(buf), "%qu", maxsize);
 		d.s_size = strlen(buf);
 		d.s_user = maxuser;
 	}

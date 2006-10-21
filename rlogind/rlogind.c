@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002,2006 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -196,21 +196,21 @@ int             local_dot_count;
 
 struct winsize  win = { 0, 0, 0, 0 };
 
-void usage      __P ((void));
-void rlogin_daemon __P ((int maxchildren, int port));
-int rlogind_auth __P ((int fd, struct auth_data * ap));
-void setup_tty  __P ((int fd, struct auth_data * ap));
-void exec_login __P ((int authenticated, struct auth_data * ap));
-int rlogind_mainloop __P ((int infd, int outfd));
-int do_rlogin   __P ((int infd, struct auth_data * ap));
-int do_krb_login __P ((int infd, struct auth_data * ap, const char **msg));
-void getstr     __P ((int infd, char **ptr, const char *prefix));
-void protocol   __P ((int f, int p, struct auth_data * ap));
-int control     __P ((int pty, char *cp, size_t n));
-RETSIGTYPE cleanup __P ((int signo));
-void fatal      __P ((int f, const char *msg, int syserr));
-int in_local_domain __P ((char *hostname));
-char           *topdomain __P ((char *name, int max_dots));
+void usage       (void);
+void rlogin_daemon  (int maxchildren, int port);
+int rlogind_auth  (int fd, struct auth_data * ap);
+void setup_tty   (int fd, struct auth_data * ap);
+void exec_login  (int authenticated, struct auth_data * ap);
+int rlogind_mainloop  (int infd, int outfd);
+int do_rlogin    (int infd, struct auth_data * ap);
+int do_krb_login  (int infd, struct auth_data * ap, const char **msg);
+void getstr      (int infd, char **ptr, const char *prefix);
+void protocol    (int f, int p, struct auth_data * ap);
+int control      (int pty, char *cp, size_t n);
+RETSIGTYPE cleanup  (int signo);
+void fatal       (int f, const char *msg, int syserr);
+int in_local_domain  (char *hostname);
+char           *topdomain  (char *name, int max_dots);
 
 RETSIGTYPE
 rlogind_sigchld (int sig)

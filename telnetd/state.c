@@ -1479,7 +1479,7 @@ suboption ()
 	      case ENV_USERVAR:
 		*cp = '\0';
 		if (valp)
-		  (void) setenv (varp, valp, 1);
+		  setenv (varp, valp, 1);
 		else
 		  unsetenv (varp);
 		cp = varp = (char *) subpointer;
@@ -1498,7 +1498,7 @@ suboption ()
 	  }
 	*cp = '\0';
 	if (valp)
-	  (void) setenv (varp, valp, 1);
+	  setenv (varp, valp, 1);
 	else
 	  unsetenv (varp);
 	break;

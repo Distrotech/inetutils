@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1989, 2000 The Regents of the University of California.
+ * Copyright (c) 1989 The Regents of the University of California.
  * All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
@@ -63,7 +63,7 @@ netwhois(char *name, char *host)
 	if (!(hp = gethostbyname(host))) {
 		defaddr.s_addr = inet_addr(host);
 		if (defaddr.s_addr == -1) {
-			(void)fprintf(stderr,
+			fprintf(stderr,
 			    "whois: unknown host: %s\n", host);
 			return;
 		}
@@ -76,7 +76,7 @@ netwhois(char *name, char *host)
 		hp = &def;
 	}
 	if (!(sp = getservbyname("whois", "tcp"))) {
-		(void)fprintf(stderr, "whois: tcp/finger: unknown service\n");
+		fprintf(stderr, "whois: tcp/finger: unknown service\n");
 		return;
 	}
 	sin.sin_family = hp->h_addrtype;
@@ -88,16 +88,16 @@ netwhois(char *name, char *host)
 	}
 
 	/* have network connection; identify the host connected with */
-	(void)printf("[%s]\n", hp->h_name);
+	printf("[%s]\n", hp->h_name);
 	if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
 		perror("whois: connect");
-		(void)close(s);
+		close(s);
 		return;
 	}
 
 	/* send the name followed by <CR><LF> */
-	(void)write(s, name, strlen(name));
-	(void)write(s, "\r\n", 2);
+	write(s, name, strlen(name));
+	write(s, "\r\n", 2);
 
 	/*
 	 * Read from the remote system; once we're connected, we assume some
@@ -131,5 +131,5 @@ netwhois(char *name, char *host)
 		}
 	if (lastc != '\n')
 		putchar('\n');
-	(void)fclose(fp);
+	fclose(fp);
 }

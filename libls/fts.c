@@ -260,7 +260,7 @@ fts_close(sp)
 	/* Return to original directory, save errno if necessary. */
 	if (!ISSET(FTS_NOCHDIR)) {
 		saved_errno = fchdir(sp->fts_rfd) ? errno : 0;
-		(void)close(sp->fts_rfd);
+		close(sp->fts_rfd);
 	}
 
 	/* Set errno and return. */
@@ -335,7 +335,7 @@ fts_read(sp)
 		if (instr == FTS_SKIP ||
 		    (ISSET(FTS_XDEV) && p->fts_dev != sp->fts_dev)) {
 			if (p->fts_flags & FTS_SYMFOLLOW)
-				(void)close(p->fts_symfd);
+				close(p->fts_symfd);
 			if (sp->fts_child) {
 				fts_lfree(sp->fts_child);
 				sp->fts_child = NULL;
@@ -455,12 +455,12 @@ name:		t = sp->fts_path + NAPPEND(p->fts_parent);
 	} else if (p->fts_flags & FTS_SYMFOLLOW) {
 		if (FCHDIR(sp, p->fts_symfd)) {
 			saved_errno = errno;
-			(void)close(p->fts_symfd);
+			close(p->fts_symfd);
 			errno = saved_errno;
 			SET(FTS_STOP);
 			return (NULL);
 		}
-		(void)close(p->fts_symfd);
+		close(p->fts_symfd);
 	} else if (!(p->fts_flags & FTS_DONTCHDIR)) {
 		if (CHDIR(sp, "..")) {
 			SET(FTS_STOP);
@@ -557,7 +557,7 @@ fts_children(sp, instr)
 	sp->fts_child = fts_build(sp, instr);
 	if (fchdir(fd))
 		return (NULL);
-	(void)close(fd);
+	close(fd);
 	return (sp->fts_child);
 }
 
@@ -628,8 +628,8 @@ fts_build(sp, type)
 		nlinks = -1;
 
 #ifdef notdef
-	(void)printf("nlinks == %d (cur: %d)\n", nlinks, cur->fts_nlink);
-	(void)printf("NOSTAT %d PHYSICAL %d SEEDOT %d\n",
+	printf("nlinks == %d (cur: %d)\n", nlinks, cur->fts_nlink);
+	printf("NOSTAT %d PHYSICAL %d SEEDOT %d\n",
 	    ISSET(FTS_NOSTAT), ISSET(FTS_PHYSICAL), ISSET(FTS_SEEDOT));
 #endif
 	/*
@@ -703,7 +703,7 @@ mem1:				saved_errno = errno;
 				if (p)
 					free(p);
 				fts_lfree(head);
-				(void)closedir(dirp);
+				closedir(dirp);
 				errno = saved_errno;
 				cur->fts_info = FTS_ERR;
 				SET(FTS_STOP);
@@ -759,7 +759,7 @@ mem1:				saved_errno = errno;
 		}
 		++nitems;
 	}
-	(void)closedir(dirp);
+	closedir(dirp);
 
 	/*
 	 * If had to realloc the path, adjust the addresses for the rest
