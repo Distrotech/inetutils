@@ -1,3 +1,25 @@
+2006-10-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ftp/cmds.c, ftp/cmdtab.c, ftp/domacro.c, ftp/ftp.c, ftp/main.c,
+	ftp/ruserpass.c, ftpd/ftpcmd.y, ftpd/ftpd.c, ftpd/logwtmp.c,
+	ftpd/popen.c, inetd/inetd.c, lib/regex_internal.c,
+	libinetutils/des_rw.c, libinetutils/kcmd.c, libinetutils/krcmd.c,
+	libinetutils/tftpsubs.c, libinetutils/ttymsg.c, libls/cmp.c,
+	libls/fts.c, libls/ls.c, libls/print.c, libls/stat_flags.c,
+	libls/util.c, libtelnet/auth.c, libtelnet/enc_des.c,
+	libtelnet/encrypt.c, libtelnet/forward.c, libtelnet/genget.c,
+	libtelnet/getent.c, libtelnet/kerberos.c, libtelnet/misc.c,
+	libtelnet/read_passwd.c, logger/logger.c, rcp/rcp.c, rcp/util.c,
+	rexecd/rexecd.c, syslogd/syslogd.c, talk/ctl.c,
+	talk/ctl_transact.c, talk/display.c, talk/get_addrs.c,
+	talk/get_names.c, talk/init_disp.c, talk/invite.c, talk/io.c,
+	talk/look_up.c, talk/msgs.c, talk/talk.c, telnet/authenc.c,
+	telnet/commands.c, telnet/main.c, telnet/network.c, telnet/ring.c,
+	telnet/sys_bsd.c, telnet/telnet.c, telnet/terminal.c,
+	telnet/tn3270.c, telnet/utilities.c, telnetd/slc.c,
+	telnetd/state.c, telnetd/termstat.c, tftp/main.c, tftp/tftp.c,
+	tftpd/tftpd.c, uucpd/uucpd.c, whois/net.c: Removed lint cruft.
+ 
 2006-10-21  Guillem Jover  <guillem@hadrons.org>
 
 	* syslogd/syslogd.c (init): Close CF properly before returning.

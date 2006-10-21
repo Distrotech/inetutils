@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)look_up.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -95,7 +91,7 @@ check_local ()
       return (0);
     }
   p_error ("Unable to connect with initiator");
- /*NOTREACHED*/}
+}
 
 /*
  * Look for an invitation on 'machine'

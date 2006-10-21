@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)ctl.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /*
  * This file handles haggling with the various talk daemons to
  * get a socket to talk to. sockt is opened and connected in

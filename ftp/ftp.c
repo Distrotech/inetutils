@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)ftp.c	8.6 (Berkeley) 10/27/94";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

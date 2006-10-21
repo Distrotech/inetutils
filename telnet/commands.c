@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)commands.c	8.4 (Berkeley) 5/30/95";
-#endif
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -399,7 +395,7 @@ sendcmd (int argc, char **argv)
 	{
 	  fprintf (stderr, "Telnet 'send' error - argument disappeared!\n");
 	  quit ();
-	 /*NOTREACHED*/}
+	}
       if (s->handler)
 	{
 	  count++;
@@ -1620,9 +1616,8 @@ bye (int argc, char *argv[])
   if ((argc != 2) || (strcmp (argv[1], "fromquit") != 0))
     {
       longjmp (toplevel, 1);
-      /* NOTREACHED */
     }
-  return 1;			/* Keep lint, etc., happy */
+  return 1;
 }
 
 int
@@ -1630,7 +1625,7 @@ quit ()
 {
   call (bye, "bye", "fromquit", 0);
   Exit (0);
- /*NOTREACHED*/}
+}
 
 int
 logout ()
@@ -2750,7 +2745,7 @@ tn (int argc, char *argv[])
 
   close (net);
   ExitString ("Connection closed by foreign host.\n", 1);
-   /*NOTREACHED*/ return 0;
+  return 0;
 }
 
 #define HELPINDENT (sizeof ("connect"))
@@ -2923,7 +2918,7 @@ command (int top, char *tbuf, int cnt)
 	      if (feof (stdin) || ferror (stdin))
 		{
 		  quit ();
-		 /*NOTREACHED*/}
+		}
 	      break;
 	    }
 	}
@@ -2960,7 +2955,7 @@ command (int top, char *tbuf, int cnt)
       if (!connected)
 	{
 	  longjmp (toplevel, 1);
-	 /*NOTREACHED*/}
+	}
 #if defined(TN3270)
       if (shell_active == 0)
 	{

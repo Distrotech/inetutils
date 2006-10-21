@@ -36,10 +36,6 @@
 
 %{
 
-#ifndef lint
-static char sccsid[] = "@(#)ftpcmd.y	8.3 (Berkeley) 4/6/94";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

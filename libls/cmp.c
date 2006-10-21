@@ -33,15 +33,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-# if 0
-static char sccsid[] = "@(#)cmp.c	8.1 (Berkeley) 5/31/93";
-# else
-static char rcsid[] =
-  "$OpenBSD: cmp.c,v 1.3 1997/01/03 22:36:07 millert Exp $";
-# endif
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

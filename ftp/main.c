@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)main.c	8.6 (Berkeley) 10/9/94";
-#endif
-
 /*
  * FTP User Program -- Command Interface.
  */
@@ -427,7 +423,6 @@ slurpstring ()
 	  slrflag++;
 	  stringbase++;
 	  return ((*sb == '!') ? "!" : "$");
-	  /* NOTREACHED */
 
 	case 1:
 	  slrflag++;

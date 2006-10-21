@@ -33,20 +33,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] = "@(#) Copyright (c) 1989, 1993, 1994\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
-# if 0
-static char sccsid[] = "@(#)ls.c	8.7 (Berkeley) 8/5/94";
-# else
-static char rcsid[] =
-  "$OpenBSD: ls.c,v 1.13 1999/05/01 23:54:47 deraadt Exp $";
-# endif
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

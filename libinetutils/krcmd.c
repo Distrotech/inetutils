@@ -27,19 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)krcmd.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
-/*
- *	$Source$
- *	$Header: /mit/kerberos/ucb/mit/kcmd/RCS/krcmd.c,v 5.1
- *		89/07/25 15:38:44 kfall Exp Locker: kfall $
- * static char *rcsid_kcmd_c =
- * "$Header: /mit/kerberos/ucb/mit/kcmd/RCS/krcmd.c,v 5.1 89/07/25 15:38:44
- *	kfall Exp Locker: kfall $";
- */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

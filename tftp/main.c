@@ -27,15 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] = "@(#) Copyright (c) 1983, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
-static char sccsid[] = "@(#)main.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /* Many bug fixes are from Jim Guyton <guyton@rand-unix> */
 
 /*

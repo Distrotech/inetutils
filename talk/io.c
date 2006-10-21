@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)io.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /*
  * This file contains the I/O handling and the exchange of
  * edit characters. This connection itself is established in

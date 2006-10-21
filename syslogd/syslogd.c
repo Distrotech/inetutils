@@ -28,9 +28,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)syslogd.c	8.3 (Berkeley) 4/4/94";
-#endif
 
 /*
  *  syslogd -- log system messages

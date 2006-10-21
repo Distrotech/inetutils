@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)display.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /*
  * The window 'manager', initializes curses and handles the actual
  * displaying of text

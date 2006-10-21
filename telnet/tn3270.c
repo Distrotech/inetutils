@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)tn3270.c	8.2 (Berkeley) 5/30/95";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -407,7 +403,7 @@ tn3270_ttype ()
       if ((MaxNumberLines * MaxNumberColumns) > MAXSCREENSIZE)
 	{
 	  ExitString ("Programming error:  MAXSCREENSIZE too small.\n", 1);
-	 /*NOTREACHED*/}
+	}
       printsub ('>', sb_terminal + 2, sizeof sb_terminal - 2);
       ring_supply_data (&netoring, sb_terminal, sizeof sb_terminal);
       return 1;

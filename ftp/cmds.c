@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)cmds.c	8.6 (Berkeley) 10/9/94";
-#endif /* not lint */
-
 /*
  * FTP User Program -- Command Routines.
  */

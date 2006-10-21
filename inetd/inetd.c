@@ -47,10 +47,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)inetd.c	8.4 (Berkeley) 4/13/94";
-#endif
-
 /*
  * Inetd - Internet super-server
  *  

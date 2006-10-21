@@ -30,15 +30,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char copyright[] = "@(#) Copyright (c) 1985, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
-
-#ifndef lint
-static char sccsid[] = "@(#)uucpd.c	8.1 (Berkeley) 6/4/93";
-#endif /* not lint */
-
 /*
  * 4.2BSD TCP/IP server for uucico
  * uucico's TCP channel causes this server to be run at the remote end.

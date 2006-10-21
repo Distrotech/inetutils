@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)logger.c	8.1 (Berkeley) 6/6/93";
-#endif
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

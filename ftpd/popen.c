@@ -31,10 +31,6 @@
  *
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)popen.c	8.3 (Berkeley) 4/6/94";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -138,7 +134,6 @@ ftpd_popen (char *program, const char *type)
       close (pdes[0]);
       close (pdes[1]);
       goto pfree;
-      /* NOTREACHED */
     case 0:			/* child */
       if (*type == 'r')
 	{

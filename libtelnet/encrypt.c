@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)encrypt.c	8.2 (Berkeley) 5/30/95";
-#endif /* not lint */
-
 /*
  * Copyright (C) 1990 by the Massachusetts Institute of Technology
  *

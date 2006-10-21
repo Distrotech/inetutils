@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)network.c	8.2 (Berkeley) 12/15/93";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -110,7 +106,6 @@ stilloob ()
     {
       perror ("select");
       (void) quit ();
-      /* NOTREACHED */
     }
   if (FD_ISSET (net, &excepts))
     {
@@ -183,7 +178,7 @@ netflush ()
 	  (void) NetClose (net);
 	  ring_clear_mark (&netoring);
 	  longjmp (peerdied, -1);
-	 /*NOTREACHED*/}
+	}
       n = 0;
     }
   if (netdata && n)

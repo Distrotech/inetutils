@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)ftpd.c	8.5 (Berkeley) 4/28/95";
-#endif
-
 /*
  * FTP server.
  */
@@ -544,7 +540,6 @@ main (int argc, char *argv[], char **envp)
   /* Roll.  */
   for (;;)
     yyparse ();
-  /* NOTREACHED */
 }
 
 static char *
@@ -605,7 +600,6 @@ sgetsave (const char *s)
     {
       perror_reply (421, "Local resource failure: malloc");
       dologout (1);
-      /* NOTREACHED */
     }
   /*  (void) strcpy (string, s); */
   memcpy (string, s, len);
@@ -1399,7 +1393,6 @@ statfilecmd (const char *filename)
 	      perror_reply (421, "control connection");
 	      ftpd_pclose (fin);
 	      dologout (1);
-	      /* NOTREACHED */
 	    }
 	  if (ferror (fin))
 	    {
@@ -1485,7 +1478,6 @@ fatal (const char *s)
   reply (451, "Error in server: %s\n", s);
   reply (221, "Closing connection due to server error.");
   dologout (0);
-  /* NOTREACHED */
 }
 
 void

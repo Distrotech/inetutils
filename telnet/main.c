@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)main.c	8.3 (Berkeley) 5/30/95";
-#endif
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -353,7 +349,6 @@ main (int argc, char *argv[])
 
 	default:
 	  usage ();
-	  /* NOTREACHED */
 	}
     }
   if (autologin == -1)

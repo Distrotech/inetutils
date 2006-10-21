@@ -55,10 +55,6 @@ Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *  
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)logwtmp.c	8.1 (Berkeley) 6/4/93";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

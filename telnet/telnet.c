@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)telnet.c	8.4 (Berkeley) 5/30/95";
-#endif /* not lint */
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -233,9 +229,9 @@ printring (va_alist)
 	      break;
 	    case 0:
 	      ExitString ("printring: trailing %%.\n", 1);
-	     /*NOTREACHED*/ default:
+	    default:
 	      ExitString ("printring: unknown format character.\n", 1);
-	     /*NOTREACHED*/}
+	    }
 	}
       else
 	{
@@ -882,7 +878,7 @@ suboption ()
 	  else
 	    {
 	      ExitString ("No room in buffer for terminal type.\n", 1);
-	     /*NOTREACHED*/}
+	    }
 	}
       break;
     case TELOPT_TSPEED:

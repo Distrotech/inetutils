@@ -3,12 +3,6 @@
  *    $Id$
  */
 
-#ifndef lint
-static char *rcsid_forward_c =
-  "$Id$";
-#endif /* lint */
-#define LIBC_SCCS
-
 /*-
  * Copyright (c) 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -37,11 +31,6 @@ static char *rcsid_forward_c =
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
-#ifndef lint
-static char sccsid[] = "@(#)forward.c	8.2 (Berkeley) 5/30/95";
-#endif /* not lint */
-
 
 /* General-purpose forwarding routines. These routines may be put into */
 /* libkrb5.a to allow widespread use */

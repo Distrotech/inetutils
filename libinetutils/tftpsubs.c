@@ -27,10 +27,6 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#)tftpsubs.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
-
 /* Simple minded read-ahead/write-behind subroutines for tftp user and
    server.  Written originally with multiple buffers in mind, but current
    implementation has two buffer logic wired in.
