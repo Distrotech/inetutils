@@ -1,5 +1,7 @@
 2006-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* rsh/rsh.c: Include "xalloc.h".
+
 	* telnet/authenc.c [AUTHENTICATION || ENCRYPTION]: Include
 	<unistd.h>.
 

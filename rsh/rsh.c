@@ -70,6 +70,8 @@
 # include <sys/select.h>
 #endif
 
+#include "xalloc.h"
+
 #ifdef SHISHI
 # define REALM_SZ 1040
 #endif
