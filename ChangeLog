@@ -1,5 +1,9 @@
 2006-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libinetutils/utmp_init.c: Include <utmpx.h> if and only if
+	HAVE_UTMPX_H is defined.
+	(utmp_init): Changed all references of UTMPX to HAVE_UTMPX_H.
+
 	* talk/io.c (errno, sys_nerr): Removed extern declarations.
 
 2006-10-21  Alfred M. Szmidt  <ams@gnu.org>
