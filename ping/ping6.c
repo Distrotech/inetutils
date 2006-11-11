@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2001, 2002, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2006 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -680,7 +680,7 @@ Informational options:\n\
   -L, --license      display license and exit\n\
   -V, --version      output version information and exit\n\
 Options valid for all request types:\n\
-  -c, --count N      stop after sending N packets\n\
+  -c, --count N      stop after sending N packets (default: %d)\n\
   -d, --debug        set the SO_DEBUG option\n\
   -i, --interval N   wait N seconds between sending each packet\n\
   -n, --numeric      do not resolve host addresses\n\
@@ -696,7 +696,7 @@ Options valid for --echo requests:\n\
 Options marked with an * are available only to super-user\n\
 \n\
 report bugs to " PACKAGE_BUGREPORT ".\n\
-");
+", DEFAULT_PING_COUNT);
 }
 
 static PING *
@@ -752,7 +752,7 @@ ping_init (int type, int ident)
   memset (p, 0, sizeof (*p));
 
   p->ping_fd = fd;
-  p->ping_count = 0;
+  p->ping_count = DEFAULT_PING_COUNT;
   p->ping_interval = PING_INTERVAL;
   p->ping_datalen = sizeof (struct icmp6_hdr);
   /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */

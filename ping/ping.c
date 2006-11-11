@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002, 2005, 2006 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -113,7 +113,7 @@ main (int argc, char **argv)
   u_char *patptr = NULL;
   bool is_root = false;
 
-  size_t count = 0;
+  size_t count = DEFAULT_PING_COUNT;
   int socket_type = 0;
   size_t interval = 0;
 
@@ -484,7 +484,7 @@ Options controlling ICMP request types:\n\
   --timestamp        Send ICMP_TIMESTAMP packets\n\
 * --router           Send ICMP_ROUTERDISCOVERY packets\n\
 Options valid for all request types:\n\
-  -c, --count N      stop after sending N packets\n\
+  -c, --count N      stop after sending N packets (default: %d)\n\
   -d, --debug        set the SO_DEBUG option\n\
   -i, --interval N   wait N seconds between sending each packet\n\
   -n, --numeric      do not resolve host addresses\n\
@@ -502,5 +502,5 @@ Options valid for --echo requests:\n\
 Options marked with an * are available only to super-user\n\
 \n\
 Report bugs to <" PACKAGE_BUGREPORT ">.\n\
-");
+", DEFAULT_PING_COUNT);
 }

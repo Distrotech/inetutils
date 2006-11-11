@@ -1,4 +1,4 @@
-/* Copyright (C) 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2004, 2006 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -17,6 +17,7 @@
    to the Free Software Foundation, Inc., 51 Franklin Street,
    Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#define DEFAULT_PING_COUNT 4
 
 void tvsub (struct timeval *out, struct timeval *in);
 double nabs (double a);

@@ -1,3 +1,13 @@
+2006-11-11  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ping/ping_common.h (DEFAULT_PING_COUNT): New macro.
+	* ping/ping6.c (ping_init): Set default ping count to
+	DEFAULT_PING_COUNT.
+	(show_usage): Mention the default.
+	* ping/ping.c (main): Set default ping count to DEFAULT_PING_COUNT.
+	(show_usage): Mention the default.
+	* NEWS: Mention new behaviour.
+
 2006-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* rsh/rsh.c: Include "xalloc.h".

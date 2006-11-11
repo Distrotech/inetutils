@@ -4,6 +4,15 @@ See the end for copying conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+Unreleased
+Version 1.6:
+
+* ping and ping6 now exit after four packet instead of pinging forever.
+
+The previous behaviour can be enabled by passing `--count 0' to ping
+(or ping6).
+
+
 October 21, 2006
 Version 1.5:
 
