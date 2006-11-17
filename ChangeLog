@@ -1,3 +1,7 @@
+2006-11-17  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* ping/ping.c (main): Allow zero argument for -c
+
 2006-11-11  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ping/ping_common.h (DEFAULT_PING_COUNT): New macro.
