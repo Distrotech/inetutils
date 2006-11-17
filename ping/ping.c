@@ -149,7 +149,7 @@ main (int argc, char **argv)
 	  break;
 
 	case 'c':
-	  count = ping_cvt_number (optarg, 0, 0);
+	  count = ping_cvt_number (optarg, 0, 1);
 	  break;
 
 	case 'd':
