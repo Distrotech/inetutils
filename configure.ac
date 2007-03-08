@@ -1,6 +1,6 @@
 # Configuration for inetutils
 #
-# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006, 2007 Free Software Foundation, Inc.
 #
 # Written by Miles Bader <miles@gnu.ai.mit.edu>
 #
@@ -531,7 +531,7 @@ if test "$ac_cv_header_utmpx_h" = yes; then
   IU_CHECK_MEMBERS([struct utmpx.ut_tv], , , [#include <utmpx.h>])
 fi
 
-IU_CHECK_MEMBERS([stuct ifreq.ifr_index,
+IU_CHECK_MEMBERS([struct ifreq.ifr_index,
                   struct ifreq.ifr_netmask,
                   struct ifreq.ifr_broadaddr], , ,
                  [#include <sys/types.h>
