@@ -1,3 +1,7 @@
+2007-03-08  Simon Josefsson  <jas@extundo.com>
+
+	* telnet/ring.h (ring_encrypt): Fix typo in prototype.
+
 2006-11-17  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* ping/ping.c (main): Allow zero argument for -c
