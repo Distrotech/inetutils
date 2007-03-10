@@ -1,3 +1,7 @@
+2007-03-10  Alfred M. Szmidt  <ams@gnu.org>
+
+	* README-alpha, ROADMAP, THANKS, TODO: Updated.
+
 2007-03-08  Petr Salinger  <Petr.Salinger@seznam.cz>
 
 	* configure.ac (IU_CHECK_MEMBERS): Fix typo 'stuct' -> 'struct'.

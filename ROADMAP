@@ -1,6 +1,4 @@
-1.4.x releases are now bug fix releases.
-
-1.5.0 will be a release that tries to put as much as possible into
-libraries (startup code, etc).  I also would like to try and write (or
-convince someone else to write) a gopher and gopherd pair.
+2.0 will be a release that tries to put as much as possible into
+libraries (startup code, etc).  We would also like to try and write
+(or convince someone else to write) a gopher and gopherd pair.
 
