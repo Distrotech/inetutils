@@ -1,3 +1,14 @@
+2007-03-10  Elian Gidoni  <arkaino@gmail.com>
+	    Alfred M. Szmidt <ams@gnu.org>
+	
+	* NEWS: Mention the addition of `traceroute'.
+	* configure.ac: Add new client `traceroute'.
+	(AC_CONFIG_FILES): Add `traceroute/Makefile'.
+	* Makefile.am (SUBDIRS): Add `traceroute' to list.
+	* traceroute/Makefile.am: New file.
+	* traceroute/traceroute.h: Likewise.
+	* traceroute/traceroute.c: Likewise.
+
 2007-03-10  Alfred M. Szmidt  <ams@gnu.org>
 
 	* README-alpha, ROADMAP, THANKS, TODO: Updated.

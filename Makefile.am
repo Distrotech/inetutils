@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2006 Free Software Foundation, Inc. 
+# Copyright (C) 2005, 2006, 2007 Free Software Foundation, Inc. 
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@ EXTRA_DIST = README-alpha paths ChangeLog.0
 SUBDIRS = lib headers libinetutils libtelnet glob \
 	inetd telnetd libls ftpd rshd rlogind uucpd rexecd syslogd tftpd \
 	talkd telnet ftp rsh rcp rlogin tftp logger gwhois talk \
-	libicmp ping doc ifconfig
+	libicmp ping doc ifconfig traceroute
 
 DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
 	include/stamp-h

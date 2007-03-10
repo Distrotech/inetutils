@@ -112,6 +112,7 @@ IU_ENABLE_CLIENT(telnet)
 IU_ENABLE_CLIENT(tftp)
 IU_ENABLE_CLIENT(whois)
 IU_ENABLE_CLIENT(ifconfig)
+IU_ENABLE_CLIENT(traceroute)
 
 AM_INIT_AUTOMAKE
 
@@ -792,6 +793,7 @@ talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
 tftpd/Makefile uucpd/Makefile gwhois/Makefile libls/Makefile
 ifconfig/Makefile
 ifconfig/system/Makefile
+traceroute/Makefile
 confpaths.h:confpaths.h.in
 headers/Makefile
 doc/Makefile doc/rfc/Makefile])
