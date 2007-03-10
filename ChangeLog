@@ -1,5 +1,5 @@
 2007-03-10  Elian Gidoni  <arkaino@gmail.com>
-	    Alfred M. Szmidt <ams@gnu.org>
+	    Alfred M. Szmidt  <ams@gnu.org>
 	
 	* NEWS: Mention the addition of `traceroute'.
 	* configure.ac: Add new client `traceroute'.
@@ -236,88 +236,6 @@
 	instead of __progname.
 	* talkd/process.c: Likewise
 	
-2006-10-12  Sergey Poznyakoff  <gray@gnu.org.ua>
-
-	* configure.ac (AC_CHECK_HEADERS): Add dependecy headers
-	* doc/Makefile.am (inetutils_TEXINFOS): Add fdl.texi
-	* ftp/Makefile.am, ftpd/Makefile.am, gwhois/Makefile.am,
-	ifconfig/Makefile.am, inetd/Makefile.am, libinetutils/Makefile.am,
-	logger/Makefile.am, ping/Makefile.am, rcp/Makefile.am,
-	rexecd/Makefile.am, rlogin/Makefile.am, rlogind/Makefile.am,
-	rsh/Makefile.am, rshd/Makefile.am, syslogd/Makefile.am,
-	talk/Makefile.am, talkd/Makefile.am, telnet/Makefile.am,
-	telnetd/Makefile.am, tftp/Makefile.am, tftpd/Makefile.am,
-	uucpd/Makefile.am, whois/Makefile.am: Move pathdefs to AM_CPPFLAGS.
-	Load libgnu after libinetutils.
-
-	* lib/Makefile.am: Fresh import from the CVS gnulib
-	* lib/alloca.c, lib/alloca_.h, lib/allocsa.c, lib/allocsa.h,
-	lib/asnprintf.c, lib/dup-safer.c, lib/error.c, lib/error.h,
-	lib/exit.h, lib/exitfail.c, lib/fd-safer.c, lib/fopen-safer.c,
-	lib/free.c, lib/getcwd.c, lib/getopt.c, lib/getopt1.c,
-	lib/getpass.c, lib/gettext.h, lib/getusershell.c, lib/malloc.c,
-	lib/mbchar.c, lib/mbchar.h, lib/memchr.c, lib/memcmp.c,
-	lib/memcpy.c, lib/memmove.c, lib/obstack.c, lib/pipe-safer.c,
-	lib/printf-args.c, lib/printf-parse.c, lib/readutmp.c,
-	lib/readutmp.h, lib/realloc.c, lib/regcomp.c, lib/regex.c,
-	lib/regex.h, lib/regex_internal.c, lib/regex_internal.h,
-	lib/regexec.c, lib/setenv.c, lib/size_max.h, lib/snprintf.c,
-	lib/stdbool_.h, lib/stdint_.h, lib/stdio--.h, lib/stdio-safer.h,
-	lib/strcasecmp.c, lib/strdup.c, lib/strerror.c, lib/strncasecmp.c,
-	lib/strndup.c, lib/strnlen.c, lib/strnlen1.c, lib/strnlen1.h,
-	lib/sysexit_.h, lib/unsetenv.c, lib/vasnprintf.c, lib/vsnprintf.c,
-	lib/xalloc-die.c, lib/xgetcwd.c, lib/xmalloc.c, m4/codeset.m4,
-	m4/d-ino.m4, m4/exitfail.m4, m4/extensions.m4,
-	m4/getcwd-path-max.m4, m4/getcwd.m4, m4/getdelim.m4,
-	m4/getline.m4, m4/getopt.m4, m4/getpass.m4, m4/gettext.m4,
-	m4/getusershell.m4, m4/gnulib-cache.m4, m4/gnulib-comp.m4,
-	m4/intmax_t.m4, m4/inttypes-pri.m4, m4/inttypes_h.m4,
-	m4/lib-link.m4, m4/longdouble.m4, m4/longlong.m4, m4/mbchar.m4,
-	m4/mempcpy.m4, m4/nls.m4, m4/onceonly_2_57.m4, m4/po.m4,
-	m4/poll.m4, m4/readutmp.m4, m4/regex.m4, m4/setenv.m4,
-	m4/signed.m4, m4/size_max.m4, m4/stdbool.m4, m4/stdint.m4,
-	m4/stdint_h.m4, m4/stdio-safer.m4, m4/strdup.m4, m4/strndup.m4,
-	m4/strnlen.m4, m4/ulonglong.m4, m4/unistd-safer.m4,
-	m4/unlocked-io.m4, m4/xalloc.m4, m4/xgetcwd.m4:	Update from gnulib    
-
-	* lib/wcwidth.h, m4/absolute-header.m4, m4/getcwd-abort-bug.m4,
-	m4/getndelim2.m4, m4/inttypes-h.m4, m4/lock.m4, m4/ssize_t.m4,
-	m4/unistd_h.m4, m4/visibility.m4, m4/wcwidth.m4: New files from gnulib
-	
-	* ftp/extern.h, ftp/ftp.c, ftp/ftp_var.h, ftp/main.c,
-	ftp/ruserpass.c, ftpd/auth.c, ftpd/extern.h, ftpd/ftpcmd.y,
-	ftpd/ftpd.c, ftpd/pam.c, ftpd/server_mode.c, glob/fnmatch.h,
-	glob/glob.c, glob/glob.h, headers/tftpsubs.h, inetd/inetd.c,
-	libicmp/ping.h, libinetutils/argcv.h, libinetutils/des_rw.c,
-	libinetutils/kcmd.c, libinetutils/krcmd.c,
-	libinetutils/tftpsubs.c, libinetutils/ttymsg.c, libls/extern.h,
-	libls/fts.c, libls/fts.h, libls/ls.c, libls/print.c,
-	libtelnet/auth-proto.h, libtelnet/misc.c,  logger/logger.c, 
-	ping/ping.c, ping/ping6.c, ping/ping_common.c, rcp/extern.h,
-	rcp/rcp.c, rexecd/rexecd.c, rlogin/rlogin.c, rlogind/rlogind.c, 
-	rsh/rsh.c, rshd/rshd.c, talk/talk.c, talkd/talkd.c,
-	telnet/commands.c, telnet/externs.h, telnetd/telnetd.c,
-	tftp/extern.h, tftp/main.c, tftp/tftp.c, tftpd/tftpd.c, 
-	uucpd/uucpd.c: Remove __P wrappers, use program_name instead of
-	__progname, define it in main (required by error.c)
-	
-	* ifconfig/changeif.c, ifconfig/flags.c, ifconfig/ifconfig.c,
-	ifconfig/options.c, ifconfig/options.h, ifconfig/printif.c,
-	ifconfig/system/hpux.c, ifconfig/system/linux.c,
-	ifconfig/system/osf.c, ifconfig/system/solaris.c: Include
-	sys/types.h before sys/socket.h and netinet/in.h before
-	arpa/inet.h
-	Use program_name instead of __progname.
-
-	* libicmp/icmp_address.c,
-	libicmp/icmp_echo.c, libicmp/icmp_timestamp.c: Include
-	sys/types.h before sys/socket.h 
-
-	* syslogd/syslogd.c: Use read_utmp instead of manually fiddling
-	with utmp(x) subtleties. Remove __P wrappers, use program_name
-	instead of __progname.
-	* talkd/process.c: Likewise
-	
 2006-07-28  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Implement passing client/server data via environment variables,
@@ -334,10 +252,6 @@
 
 	* THANKS: Add Dirk Jagdmann
 
-2006-07-28  Sergey Poznyakoff  <gray@gnu.org.ua>
-
-	* THANKS: Add Dirk Jagdmann
-
 2006-07-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* doc/inetutils.texi: Updated the license to the GNU Free
@@ -348,16 +262,6 @@
 2006-05-12  Alfred M. Szmidt  <ams@gnu.org>
 
 	* Makefile.am (SUBDIRS): Added `ifconfig'.
-
-2006-05-12  Alfred M. Szmidt  <ams@gnu.org>
-
-	* Makefile.am (SUBDIRS): Added `ifconfig'.
-
-2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
-
-	* telnetd/Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
-	* telnetd/pty.c: Include libinetutils.h
-	* telnetd/telnetd.c: Likewise
 
 2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
 
@@ -430,22 +334,10 @@
 	(AC_CHECK_HEADERS): Add readline/readline.h
 	* config.rpath: Remove autogenerated file
 
-2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
-
-	* THANKS: Add Guillem Jover
-	* configure.ac: Use build-aux as an auxiliary tools directory
-	(AC_CHECK_HEADERS): Add readline/readline.h
-	* config.rpath: Remove autogenerated file
-
 2006-01-14  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* rcp/rcp.c (write_stat_time): Pass modification times first. Patch by
 	Tim Adye <T.J.Adye@rl.ac.uk>
-
-2005-12-08  Alfred M. Szmidt  <ams@gnu.org>
-
-	* README: Reformated.  Mention that GNU Inetutils doesn't work on
-	Solaris.
 
 2005-12-08  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -465,13 +357,6 @@
 
 2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
 
-	Imported GNUlib module: stdint.
-
-	* lib/Makefile.am, m4/gnulib-cache.m4, m4/gnulib-comp.m4: Updated.
-	* m4/stdint.m4, lib/stdint_.h: New files.
-
-2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
-
 	Update from GNUlib.
 
 	* config.rpath, lib/getdelim.c, lib/getdelim.h, lib/mbchar.c,
@@ -498,39 +383,6 @@
 	m4/unistd-safer.m4, m4/xgetcwd.m4: Updated from gnulib.
 	* lib/getndelim2.c, lib/getndelim2.h, m4/argp.m4,
 	m4/getndelim2.m4, m4/gnulib.m4, m4/ssize_t.m4: Removed files.
-
-2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
-
-	Update from GNUlib.
-
-	* config.rpath, lib/getdelim.c, lib/getdelim.h, lib/mbchar.c,
-	lib/mbchar.h, lib/mbuiter.h, lib/memchr.c, lib/pipe-safer.c,
-	lib/stdio--.h, lib/strnlen.h, lib/strnlen1.c, lib/strnlen1.h,
-	lib/unistd--.h, m4/getdelim.m4, m4/gnulib-cache.m4,
-	m4/gnulib-comp.m4, m4/gnulib-tool.m4, m4/mbchar.m4, m4/mbiter.m4,
-	m4/mbrtowc.m4, m4/memchr.m4: New files.
-	* lib/Makefile.am, lib/dup-safer.c, lib/exitfail.c,
-	lib/fd-safer.c, lib/fopen-safer.c, lib/free.c, lib/getcwd.c,
-	lib/getcwd.h, lib/getline.c, lib/getline.h, lib/getopt1.c,
-	lib/getopt_.h, lib/getpass.c, lib/getusershell.c, lib/malloc.c,
-	lib/memcmp.c, lib/memcpy.c, lib/memmove.c, lib/obstack.c,
-	lib/obstack.h, lib/poll.c, lib/readutmp.c, lib/realloc.c,
-	lib/regcomp.c, lib/regex.c, lib/regex.h, lib/regex_internal.c,
-	lib/regex_internal.h, lib/regexec.c, lib/strcase.h,
-	lib/strcasecmp.c, lib/strerror.c, lib/strncasecmp.c,
-	lib/strndup.c, lib/strnlen.c, lib/unistd-safer.h,
-	lib/xalloc-die.c, lib/xgetcwd.c, lib/xmalloc.c, m4/free.m4,
-	m4/getcwd.m4, m4/getline.m4, m4/getopt.m4, m4/getpass.m4,
-	m4/lib-link.m4, m4/lib-prefix.m4, m4/minmax.m4,
-	m4/onceonly_2_57.m4, m4/regex.m4, m4/stdbool.m4,
-	m4/stdio-safer.m4, m4/strcase.m4, m4/strndup.m4, m4/strnlen.m4,
-	m4/unistd-safer.m4, m4/xgetcwd.m4: Updated from gnulib.
-	* lib/getndelim2.c, lib/getndelim2.h, m4/argp.m4,
-	m4/getndelim2.m4, m4/gnulib.m4, m4/ssize_t.m4: Removed files.
-
-2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
-
-	* configure.ac (gl_MODULES): Removed call to function.
 
 2005-12-02  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -763,18 +615,6 @@
 	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
 	
-2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
-
-	* acinclude.m4: Properly quote arguments to AC_ARG_ENABLE and
-	AC_ARG_WITH. Use AC_HELP_STRING where appropriate.
-	* configure.ac: Likewise.
-	Add --with-shishi options. Patch by Simon Josefsson
-	* THANKS: Add Simon Joseffson
-	* lib/getpass.c: Remove leftover BSD-isms: err,errx,warn,warnx, cast
-	to (void) before function calls. Use GNU error() uniformly
-	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
-	INCLUDES.
-	
 2005-09-22  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* whois/main.c: Changed FSF postal mail address.
@@ -833,10 +673,6 @@
 
 	* autogen.sh: Don't pass `-s' to autoreconf.
 
-2005-09-22  Alfred M. Szmidt  <ams@gnu.org>
-
-	* autogen.sh: Don't pass `-s' to autoreconf.
-
 2005-09-08  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* ftp/main.c (getcmd,help): Moved to cmdtab.c
@@ -889,23 +725,6 @@
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* ftpd/logwtmp.c: Updated FSF postal mail address.
-
-2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
-
-	* COPYING: Updated FSF postal mail address.
-	* lib/Makefile.am: Removed unused argp
-	* lib/getcwd.c,lib/getcwd.h,lib/regex.c,lib/regex.h
-	m4/getcwd-path-max.m4,m4/getcwd.m4,m4/getopt.m4,m4/gnulib.m4
-	m4/poll.m4,m4/regex.m4,m4/size_max.m4: Updated from gnulib
-	* lib/dup-safer.c,lib/fd-safer.c,lib/fopen-safer.c,
-	lib/regcomp.c,lib/regex_internal.c,lib/regex_internal.h,
-	lib/regexec.c,lib/size_max.h,lib/stdio-safer.h,
-	lib/unistd-safer.h,m4/glibc2.m4,m4/minmax.m4,
-	m4/stdio-safer.m4,m4/unistd-safer.m4: Likewise
-	* lib/argp-ba.c,lib/argp-eexst.c,lib/argp-fmtstream.c,
-	lib/argp-fmtstream.h,lib/argp-fs-xinl.c,lib/argp-help.c,
-	lib/argp-namefrob.h,lib/argp-parse.c,lib/argp-pv.c,
-	lib/argp-pvh.c,lib/argp-xinl.c,lib/argp.h: Removed unused files.
 
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
@@ -1010,46 +829,6 @@
 	m4/strnlen.m4,m4/sysexits.m4,m4/unlocked-io.m4,m4/vsnprintf.m4,
 	m4/xalloc.m4,m4/xgetcwd.m4: Updated from the recent gnulib
 
-2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
-
-	* configure.ac: Remove AC_AIX, AC_MINIX, these are called by
-	gl_USE_SYSTEM_EXTENSIONS, invoked by gl_EARLY
-	* lib/Makefile.am: Updated
-	* lib/alloca_.h,lib/allocsa.c,lib/allocsa.h,lib/argp-ba.c,
-	lib/argp-eexst.c,lib/argp-fmtstream.c,lib/argp-fmtstream.h,
-	lib/argp-fs-xinl.c,lib/argp-help.c,lib/argp-namefrob.h,
-	lib/argp-parse.c,lib/argp-pv.c,lib/argp-pvh.c,lib/argp-xinl.c,
-	lib/argp.h,lib/asnprintf.c,lib/error.c,lib/error.h,lib/exit.h,
-	lib/exitfail.c,lib/exitfail.h,lib/getcwd.c,lib/getcwd.h,lib/getline.c,
-	lib/getline.h,lib/getndelim2.c,lib/getndelim2.h,lib/getopt.c,
-	lib/getopt1.c,lib/getopt_.h,lib/getopt_int.h,lib/getpass.c,
-	lib/getpass.h,lib/gettext.h,lib/getusershell.c,lib/malloc.c,
-	lib/memcmp.c,lib/memcpy.c,lib/mempcpy.c,lib/mempcpy.h,lib/memset.c,
-	lib/minmax.h,lib/obstack.c,lib/obstack.h,lib/poll.c,lib/poll_.h,
-	lib/printf-args.c,lib/printf-args.h,lib/printf-parse.c,
-	lib/printf-parse.h,lib/readutmp.c,lib/readutmp.h,lib/realloc.c,
-	lib/regex.c,lib/regex.h,lib/setenv.c,lib/setenv.h,lib/snprintf.c,
-	lib/snprintf.h,lib/stdbool_.h,lib/strcase.h,lib/strcasecmp.c,
-	lib/strchrnul.c,lib/strchrnul.h,lib/strdup.c,lib/strdup.h,
-	lib/strerror.c,lib/strndup.clib/strndup.h,lib/strnlen.c,
-	lib/sysexit_.h,lib/unlocked-io.h,lib/unsetenv.c,lib/vasnprintf.c,
-	lib/vasnprintf.h,lib/vsnprintf.c,lib/vsnprintf.h,lib/xalloc.h,
-	lib/xgetcwd.c,lib/xgetcwd.h,lib/xmalloc.c,lib/xsize.h: Updated
-	from the recent gnulib
-
-	* m4/alloca.m4,m4/argp.m4,m4/d-ino.m4,m4/error.m4,m4/exitfail.m4,
-	m4/extensions.m4,m4/getcwd-path-max.m4,m4/getcwd.m4,m4/getline.m4,
-	m4/getndelim2.m4,m4/getopt.m4,m4/getpass.m4,m4/gettext.m4,
-	m4/getusershell.m4,m4/gnulib.m4,m4/intdiv0.m4,m4/intmax.m4,
-	m4/inttypes-pri.m4,m4/inttypes.m4,m4/isc-posix.m4,m4/lcmessage.m4,
-	m4/lib-link.m4,m4/lib-prefix.m4,m4/memcmp.m4,m4/memcpy.m4,
-	m4/memmove.m4,m4/memset.m4,m4/nls.m4,m4/obstack.m4,m4/po.m4,
-	m4/poll.m4,m4/printf-posix.m4,m4/progtest.m4,m4/readutmp.m4,
-	m4/regex.m4,m4/restrict.m4,m4/snprintf.m4,m4/strchrnul.m4,
-	m4/strdup.m4,m4/strerror.m4,m4/strerror_r.m4,m4/strndup.m4,
-	m4/strnlen.m4,m4/sysexits.m4,m4/unlocked-io.m4,m4/vsnprintf.m4,
-	m4/xalloc.m4,m4/xgetcwd.m4: Updated from the recent gnulib
-
 2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
 
 	* telnetd/telnetd.c (telnetd_setup): Add support for IPv6.
@@ -1110,20 +889,10 @@
 	
 	* configure.ac: Add checks for IPv6.
 
-2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
-
-	* acinclude.m4 (IU_ENABLE_FOO): Use AS_HELP_STRING.
-	
-	* configure.ac: Add checks for IPv6.
-
 2005-05-01  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftp/cmdtab.c (cmdtab): Changed type to pointer.
 	* ftp/extern.h (cmdtab): Updated extern declaration.
-
-2005-01-31  Alfred M. Szmidt  <ams@gnu.org>
-
-	* Makefile.am (AUTOMAKE_OPTIONS): Require automake 1.9.
 
 2005-01-31  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -1223,18 +992,6 @@
 	* configure.ac: Bump version to 1.4.3.
 
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
-	
-	* configure.ac: Bump version to 1.4.3.
-
-2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
-
-	* lib/.cvsignore: New file.
-
-	* configure.ac: Don't check for __P.  Removed almost all
-	references to AH_BOTTOM, the only one that is left is so that we
-	don't have to include <confpaths.h> everywhere.
-	
-2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
 
 	* lib/.cvsignore: New file.
 
@@ -1266,8 +1023,8 @@
 
 	* telnetd/telnetd.h: Include "xalloc.h"
 
-	* telnetd/Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include', and
-	`-I$(top_srcdir)'.
+	* telnetd/Makefile.am (INCLUDES): Removed
+	`-I$(top_builddir)/include', and `-I$(top_srcdir)'.
 	(LDADD): Added `-L../lib -lgnu'.
 
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
@@ -1323,7 +1080,8 @@
 
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
-	* libtelnet/Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
+	* libtelnet/Makefile.am (INCLUDES): Removed
+	`-I$(top_builddir)/include'.
 
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -1364,8 +1122,8 @@
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Added
 	`xalloc_die.c'. 
 
-	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed xmalloc.c,
-	xstrdup.c, and xgetcwd.c.
+	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed
+	xmalloc.c, xstrdup.c, and xgetcwd.c.
 	(libinetutils_a_LIBADD): Removed `@LIBOBJS@'.  Added
 	`$(top_builddir)/lib/libgnu.a'.
 	(noinst_HEADERS, EXTRA_DIST): Variable removed.
@@ -1463,79 +1221,6 @@
 
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
-	Imported files from gnulib.
-
-	* lib/Makefile.am, lib/alloca.c, lib/alloca_.h, lib/allocsa.c,
-	lib/allocsa.h, lib/allocsa.valgrind, lib/argp-ba.c,
-	lib/argp-eexst.c, lib/argp-fmtstream.c, lib/argp-fmtstream.h,
-	lib/argp-fs-xinl.c, lib/argp-help.c, lib/argp-namefrob.h,
-	lib/argp-parse.c, lib/argp-pv.c, lib/argp-pvh.c, lib/argp-xinl.c,
-	lib/argp.h, lib/asnprintf.c, lib/error.c, lib/error.h, lib/exit.h,
-	lib/exitfail.c, lib/exitfail.h, lib/getcwd.c, lib/getcwd.h,
-	lib/getline.c, lib/getline.h, lib/getndelim2.c, lib/getndelim2.h,
-	lib/getopt.c, lib/getopt1.c, lib/getopt_.h, lib/getopt_int.h,
-	lib/getpass.c, lib/getpass.h, lib/gettext.h, lib/getusershell.c,
-	lib/malloc.c, lib/memcmp.c, lib/memcpy.c, lib/memmove.c,
-	lib/mempcpy.c, lib/mempcpy.h, lib/memset.c, lib/minmax.h,
-	lib/obstack.c, lib/obstack.h, lib/poll.c, lib/poll_.h,
-	lib/printf-args.c, lib/printf-args.h, lib/printf-parse.c,
-	lib/printf-parse.h, lib/readutmp.c, lib/readutmp.h, lib/realloc.c,
-	lib/regex.c, lib/regex.h, lib/setenv.c, lib/setenv.h,
-	lib/snprintf.c, lib/snprintf.h, lib/stdbool_.h, lib/strcase.h,
-	lib/strcasecmp.c, lib/strchrnul.c, lib/strchrnul.h, lib/strdup.c,
-	lib/strdup.h, lib/strerror.c, lib/strncasecmp.c, lib/strndup.c,
-	lib/strndup.h, lib/strnlen.c, lib/sysexit_.h, lib/unlocked-io.h,
-	lib/unsetenv.c, lib/vasnprintf.c, lib/vasnprintf.h,
-	lib/vsnprintf.c, lib/vsnprintf.h, lib/xalloc.h, lib/xgetcwd.c,
-	lib/xgetcwd.h, lib/xmalloc.c, lib/xsize.h, m4/alloca.m4,
-	m4/allocsa.m4, m4/argp.m4, m4/codeset.m4, m4/d-ino.m4,
-	m4/eealloc.m4, m4/eoverflow.m4, m4/error.m4, m4/exitfail.m4,
-	m4/extensions.m4, m4/getcwd-path-max.m4, m4/getcwd.m4,
-	m4/getline.m4, m4/getndelim2.m4, m4/getopt.m4, m4/getpass.m4,
-	m4/gettext.m4, m4/getusershell.m4, m4/glibc21.m4, m4/gnulib.m4,
-	m4/iconv.m4, m4/intdiv0.m4, m4/intmax.m4, m4/intmax_t.m4,
-	m4/inttypes-pri.m4, m4/inttypes.m4, m4/inttypes_h.m4,
-	m4/isc-posix.m4, m4/lcmessage.m4, m4/lib-ld.m4, m4/lib-link.m4,
-	m4/lib-prefix.m4, m4/longdouble.m4, m4/longlong.m4, m4/memcmp.m4,
-	m4/memcpy.m4, m4/memmove.m4, m4/mempcpy.m4, m4/memset.m4,
-	m4/nls.m4, m4/obstack.m4, m4/onceonly_2_57.m4, m4/po.m4,
-	m4/poll.m4, m4/printf-posix.m4, m4/progtest.m4, m4/readutmp.m4,
-	m4/regex.m4, m4/restrict.m4, m4/setenv.m4, m4/signed.m4,
-	m4/size_max.m4, m4/snprintf.m4, m4/ssize_t.m4, m4/stdbool.m4,
-	m4/stdint_h.m4, m4/strcase.m4, m4/strchrnul.m4, m4/strdup.m4,
-	m4/strerror.m4, m4/strerror_r.m4, m4/strndup.m4, m4/strnlen.m4,
-	m4/sysexits.m4, m4/uintmax_t.m4, m4/ulonglong.m4,
-	m4/unlocked-io.m4, m4/vasnprintf.m4, m4/vsnprintf.m4,
-	m4/wchar_t.m4, m4/wint_t.m4, m4/xalloc.m4, m4/xgetcwd.m4,
-	m4/xsize.m4: New files.
-
-2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
-
-	* confpaths.h.in: New file.
-
-	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
-	(SUBDIRS): Added lib.
-
-	* configure.ac: Moved AC_PROG_CC check up a bit eariler and added
-	gl_EARLY directly after it.  Call gl_MODULES and gl_INIT after
-	inital program checks.  Removed all usage of AC_LIBOBJ.  Don't
-	check for herror, strcasecmp, strsignal, waitpid, and revoke.
-	Removed all references to LINK_POLL_H and LINK_SYSLOG_INIT_H.
-	Removed checks for verrx, __progname, login, logout, logwtmp,
-	openpty, forkpty, ruserok, iruserok, and login_tty.  Removed check
-	for libutil.
-
-	* configure.ac: Use <confpaths.h> instead of
-	<include/confpaths.h>.
-	(AC_CONFIG_FILES): Added lib/Makefile.  Changed
-	`include/confpaths.h:headers/confpaths.h.in' to
-	`confpaths.h:confpaths.h.in'.
-	
-	* acinclude.m4 (IU_CONFIG_LINKS): Function removed.
-	* configure.ac: Removed all references to IU_CONFIG_LINKS.
-
-2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
-
 	* confpaths.h.in: New file.
 
 	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
@@ -1600,11 +1285,6 @@
 
 	* ftpd/ftpd.c (off_to_str): Don't write out of bounds.  From
 	<uchiyama@s-lab.com>.
-
-2004-12-28  Alfred M. Szmidt  <ams@gnu.org>
-
-	* NEWS: Added news entries for 1.4.3.  Based on suggestions from
-	Jeff Bailey and Simon Josefsson.
 
 2004-12-28  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -1853,15 +1533,6 @@
 	and HAVE_REALLOC: configure takes care that malloc and
 	realloc be always POSIX-compliant.
 
-
-2003-04-05  Sergey Poznyakoff  <gray@gnu.org>
-
-	* acinclude.m4 (IU_CHECK_KRB5): Check for libresolv.
-	Minor bugfix: LIBS and LDFLAGS were not properly
-	restored.
-	* configure.ac: Removed KERBEROS_IV and KERBEROS_V defines.
-        Added check for socklen_t.
-	  
 2003-04-05  Sergey Poznyakoff  <gray@gnu.org>
 
 	* acinclude.m4 (IU_CHECK_KRB5): Check for libresolv.
@@ -1887,12 +1558,6 @@
 2002-12-22  Jeff Bailey  <jbailey@gnu.org>
 
 	* libinetutils/Makefile.am: Include new files in dist rules.
-
-2002-12-22  Jeff Bailey  <jbailey@gnu.org>
-
-	* configure.ac: Bump version to 1.4.2
-
-	* NEWS: Update for inetutils 1.4.2
 
 2002-12-22  Jeff Bailey  <jbailey@gnu.org>
 
@@ -1932,10 +1597,6 @@
 
 	* configure.ac: Add AC_FUNC_MALLOC and AC_FUNC_REALLOC calls.
 
-2002-12-11  Jeff Bailey  <jbailey@gnu.org>
-
-	* configure.ac: Add AC_FUNC_MALLOC and AC_FUNC_REALLOC calls.
-
 2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* telnetd/state.c: Fixed indentation.
@@ -1963,12 +1624,6 @@
 
 	* libinetutils/iruserok.c (iruserok): Removed unneded
 	  typecasts to (void).
-
-2002-10-30  Jeff Bailey  <jbailey@gnu.org>
-
-	* autogen.sh: Just use autoreconf - it's the right tool now.
-	* configure.ac: Require autoconf 2.54
-	* Makefile.am: Require automake 1.7
 
 2002-11-15  Alfred M. Szmidt  <ams@kemisten.nu>
 
@@ -2004,13 +1659,6 @@
 2002-09-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* headers/arpa/telnet.h: Added AUTH_ENCRYPT_ defines
-
-2002-09-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
-
-	* acinclude.m4 (IU_CHECK_KRB5): Fixed.
-	* configure.ac: Define KRB5 as well as KERBEROS_V. When
-	  kerberos support is finally rewritten one of these will
-	  disappear.
 
 2002-09-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
@@ -2067,27 +1715,10 @@
 
 	* configure.ac: Bump version to 1.4.1
 
-2002-09-02  Jeff Bailey  <jbailey@outpost.dnsalias.org>
-
-	* configure.ac: Bump version to 1.4.1
-
 2002-09-02  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* THANKS: Added Michael Deutschmann.
 	* NEWS: Updated.
-
-2002-09-02  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
-
-	* THANKS: Added Michael Deutschmann.
-	* NEWS: Updated.
-
-2002-09-02  Jeff Bailey  <jbailey@outpost.dnsalias.org>
-
-	* ROADMAP: Update
-
-	* NEWS: Update
-
-	* THANKS: Add Chris Ulherr 
 
 2002-09-02  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
@@ -2122,23 +1753,6 @@
 	* configure.ac: Use IU_CHECK_MEMBER(S) instead of AC_CHECK_MEMBERS
 	  throughout the file.
 
-2002-08-04  Sergey Poznyakoff  <Mirddin.farlep.net>
-
-	* acinclude.m4 (IU_CHECK_MEMBER,IU_CHECK_MEMBERS): added new
-	  macros to override the autoconf bug noted on 2002-05-14.
-	  The old workaround didn't work for some cases (namely,
-	  utmp.ut_exit, whose members are named differently on
-	  different systems). When the autoconf is updated, the
-	  need for these macros will disappear.
-	* configure.ac: Use IU_CHECK_MEMBER(S) instead of AC_CHECK_MEMBERS
-	  throughout the file.
-
-2002-07-31  Jeff Bailey  <jbailey@outpost.dnsalias.org>
-
-	* configure.ac: Update version to 1.4
-
-	* ROADMAP: New file
-
 2002-07-31  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
 	* configure.ac: Update version to 1.4
@@ -2150,20 +1764,6 @@
 	* NEWS: Update to reflect the recent changes, and change its
 	format to match current GNU practice.  Add a copyright statement,
 	and some emacs local variables to support editing it.
-
-2002-07-27  Marcus Brinkmann  <marcus@gnu.org>
-
-	* NEWS: Update to reflect the recent changes, and change its
-	format to match current GNU practice.  Add a copyright statement,
-	and some emacs local variables to support editing it.
-
-2002-06-26  Alfred M. Szmidt  <ams@kemisten.nu>
-
-	* .cvsignore (config.h.in): Removed.
-	(config.hin, autom4te.cache): Added.
-
-	* configure.ac: Removed erroneous #ifdef's in the checks for __P
-	and syslog internal macros.
 
 2002-06-26  Alfred M. Szmidt  <ams@kemisten.nu>
 
@@ -2246,25 +1846,6 @@
 	  declares HAVE_DECL, either to 0 or to 1. 	  
 	* ftpd/extern.h: Likewise.
 	* ftpd/ftpd.c: Likewise.
-
-2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
-
-	* configure.ac: AC_CHECK_MEMBERS (as of version 2.53 ) fails to
-	  recognize the presense of a structure member which is itself
-	  of an aggregate type. Thus, tests for struct ifreq.ifr_netmask
-	  and struct ifreq.ifr_broadaddr always fail. To work around the
-	  bug, first check for a non-aggregate sub-member of the member
-	  in question and then create an appropriate HAVE_ define.
-
-	  Use AC_CHECK_DECLS on crypt and errno, as AC_CHECK_DECL does
-	  not generate HAVE_DECL_ define.
-
-	  (AH_BOTTOMs): Checks for HAVE_DECL variables must read
-	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
-	  declares HAVE_DECL, either to 0 or to 1. The only
-	  exception is HAVE_DECL_HSTRERROR, whose AC_CHECK_DECLS
-	  is under a conditional expression, so we have to
-	  check for !defined(HAVE_DECL_HSTRERROR) first.
 
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
@@ -2409,16 +1990,6 @@
 	* configure.ac (VERSION): Variable removed.
 	(AC_OUTPUT): Removed headers/version.h and headers/version.h.in
 	from the list.
-
-2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
-
-	* configure.ac (VERSION): Variable removed.
-	(AC_OUTPUT): Removed headers/version.h and headers/version.h.in
-	from the list.
-
-2002-04-28  Alfred M. Szmidt  <ams@kemisten.nu>
-
-	* configure.ac: Removed form feeds.
 
 2002-04-28  Alfred M. Szmidt  <ams@kemisten.nu>
 
@@ -2576,20 +2147,6 @@
 	* acconfig.h: Removed.
 	* configure.ac: Rewrite.
 
-2002-04-21  Alfred M. Szmidt  <ams@kemisten.nu>
-
-	* Makefile.am (AUTOMAKE_OPTIONS): Require GNU Automake 1.6.
-
-	* acinclude.m4 (IU_UCASE, iu_lcase): Variables removed.
-	(IU_RESULT_ACTIONS, IU_CHECK_WEAK_REFS): Use the new AC_DEFINE syntax.
-	(IU_CHECK_DECL, IU_CHECK_TYPE, IU_CHECK_STRUCT_FIELD):
-	Functions removed.
-	(IU_ENABLE_FOO): Use name_BUILD instead of BUILD_NAME.
-	(IU_INCLUDED_REGEX): Replaced with..
-	(jm_INCLUDED_REGEX): this.
-	* acconfig.h: Removed.
-	* configure.ac: Rewrite.
-
 2002-04-08  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* telnetd/Makefile.am: Added @INCAUTH@ and @LIBAUTH@.
@@ -2603,14 +2160,6 @@
 
 	* libtelnet/Makefile.am: Added @INCAUTH@ to INCLUDES list
 
-2002-04-08  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
-
-	* acconfig.h: #undef's for KERBEROS_IV and KERBEROS_V
-	* acinclude.m4 (IU_CHECK_KRB5): New macro: check for the
-	  presense of kerberos v.5
-	* configure.ac: New options: --with-krb4[=PATH],
-	  --with-krb5[=PATH]
-	
 2002-04-08  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* acconfig.h: #undef's for KERBEROS_IV and KERBEROS_V
@@ -2697,16 +2246,6 @@
 	  type.
 	  Raised patchlevel.
 	
-2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
-
-	* acconfig.h: Removed extra HAVE_UTMPX_H. Added HAVE_CC_T
-	  and HAVE_LIBREADLINE.
-	* configure.ac: Check for obstack functions. Modified
-	  readline check: assign -lreadline to the separate AC_SUBST
-	  variable, instead of appending it to LIBS. Check for cc_t
-	  type.
-	  Raised patchlevel.
-	
 2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	Started fixing horrible mess in telnetd. To begin with,
@@ -2725,13 +2264,6 @@
 
 	* configure.ac: Added AC_CANONICAL_SYSTEM to set $host
 	  properly. Additional AC_DEFINEs for Solaris.
-	
-
-2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
-
-	* configure.ac: Added AC_CANONICAL_SYSTEM to set $host
-	  properly. Additional AC_DEFINEs for Solaris.
-	
 
 2002-03-05  Marcus Brinkmann  <marcus@gnu.org>
 
@@ -2746,18 +2278,6 @@
 
 	* glob/Makefile.am (INCLUDES): Added -I$(top_builddir)/include (needed
 	  for fnmatch.h and confpaths.h)
-
-2002-02-12  Jeff Bailey  <jbailey@outpost.dnsalias.org>
-
-	* TODO: Remove ping
-
-	* THANKS: Update
-
-	* README-alpha: *Wow* this file was really inaccurate.
-
-	* NEWS: Mention talkd, and ping
-
-	* AUTHORS: Update
 
 2002-02-12  Jeff Bailey  <jbailey@outpost.dnsalias.org>
 
@@ -2905,30 +2425,6 @@
 	* .cvsignore: Add files relating moving config.h to
 	$(top_builddir)
 
-2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
-
-	* configure.in: Reworked for autoconf 2.52 and renamed to
-	* configure.ac: this.
-
-	* autogen.sh: Don't point autoheader to headers/
-
-        * headers/acconfig.h: Move to ...
-	* acconfig.h: Here
-
-	* Makefile.am: Require Automake 1.5.  Add doc and doc/rfc to 
-	build tree.  Don't tell autoheader to look in headers/
-
-        I moved config.h to the top_builddir to overcome a bug in
-	autoconf that requires the config.h to be in the same 
-	directory as aclocal.m4
-
-	This meant that I also had to add
-	INCLUDES=-I$(top_builddir)/include.  The upshot is that make
-	distcheck now passes, even for $(srcdir)!=$(builddir)
-  
-	* .cvsignore: Add files relating moving config.h to
-	$(top_builddir)
-
 2001-12-25  Alain Magloire
 
 	* libinetutils/poll.c: Added <time.h>
@@ -2939,12 +2435,6 @@
 
 	* ftp/cmds.c: Guard HAVE_MKSTEMP and use mktemp() has a fallback
 	Note from Bert De Knuydt <Bert.Deknuydt@esat.kuleuven.ac.be>
-
-2001-12-25  Alain Magloire
-
-	* configure.in:  Add check for mkstemp ().
-	Check for getpass().
-	Note from Bert De Knuydt <Bert.Deknuydt@esat.kuleuven.ac.be>.
 
 2001-12-25  Alain Magloire
 
@@ -2971,12 +2461,6 @@
 
 	* ping/Makefile.am: Added $(man_MANS) to EXTRA_DIST.
 	* ping/ping.8: Fixed permissions
-
-2001-11-21  Sergey Poznyakoff
-
-	* configure.in: Removed poll.h, sys/poll.h from AC_CHECK_HEADERS.
-	Added individual check for poll.h, since syslogd uses it
-	unconditionally.
 
 2001-11-21  Sergey Poznyakoff
 
@@ -3108,10 +2592,6 @@
 
 	* configure.in: Added doc/rfc/Makefile.
 
-2001-11-03  Alain Magloire
-
-	* configure.in: Added doc/rfc/Makefile.
-
 2001-11-02  Marcus Brinkmann  <marcus@212.23.136.22>
 
 	* tftpd/tftpd.c: Prototype send_file, not sendfile.
@@ -3170,17 +2650,6 @@
 	include sys/types.h [HAVE_SYS_TYPES_H] before utmp.h (for time_t)
 	to get it working on FreeBSD.  Add checks for fields pid, id and
 	user.
-
-2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
-
-	* configure.in: When checking for utmp structure fields, always
-	include sys/types.h [HAVE_SYS_TYPES_H] before utmp.h (for time_t)
-	to get it working on FreeBSD.  Add checks for fields pid, id and
-	user.
-
-2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
-
-	* configure.in: Add doc/Makefile as output file.
 
 2001-11-02  Marcus Brinkmann  <marcus@gnu.org>
 
@@ -3252,19 +2721,6 @@
 	constant. It should not affect the functionnality, but the server
 	will not be able to process CTRL-Q CTRL-S.
 
-	* rlogind/rlogind.c: Check if TIOCPKT is defined, if not provide
-	macros for TIOCPKT, TIOCPKT_FLUSHWRITE, TIOCPKT_NOSTOP,TIOCPKT_DOSTOP,
-	to be able to compile.
-	New option:" -o, --allow-root", for many remote servers rlogin is the
-	only way to access the machine, let the flexibility to pass root.
-
-2001-10-28  Alain Magloire
-
-	Unfortunately some platforms, like QNX/Neutrino does not implement flow
-	control packet mode TIOCPKT.  If it is not defined, provide the
-	constant. It should not affect the functionnality, but the server
-	will not be able to process CTRL-Q CTRL-S.
-
 	* rlogin/rlogin/rlogin.c: Define the  macros TIOCPKT_XXX.
 	(speed_translate): This did not work on QNX/Neutrino, since we were
 	assuming things that does not hold true.  We were assuming that B0,
@@ -3272,18 +2728,6 @@
 	This is not portable POSIX only says that cfgetispeed() return
 	symbolic functions. To correct use approximatively the same code in
 	telnet/sys_bsd.c.
-
-2001-10-28  Alain Magloire
-
-	Certain programs __MUST__ be install root to work properly. There is
-	a hook in the installation to warn the user.  But maybe in the future
-	we should try to install as root and failed the installation if it
-	does not work?
-
-	* ping/Makefile.am: Rules to try install setuid root.
-	* rcp/Makefile.am: Rules to try install setuid root.
-	* rlogin/Makefile.am: Rules to try install setuid root.
-	* rsh/Makefile.am: Rules to try install setuid root.
 
 2001-10-28  Alain Magloire
 
@@ -3372,26 +2816,11 @@
 
 	* configure.in: Version to 1.3.2g.
 
-2001-10-25  Alain Magloire
-
-	* configure.in: Version to 1.3.2g.
-
 2001-10-25  Sergey Poznyakoff
 
 	* acinclude.m4: IU_INCLUDED_REGEX: Check for working regex,
 	provide replacement, if necessary.
 	* configure.in: Check for regex.
-
-2001-10-25  Sergey Poznyakoff
-
-	* acinclude.m4: IU_INCLUDED_REGEX: Check for working regex,
-	provide replacement, if necessary.
-	* configure.in: Check for regex.
-
-2001-09-06  Alain Magloire
-
-	* configure.in: Check for strsignal().
-	* libinetutils/strsignal.c: New file.
 
 2001-09-06  Alain Magloire
 
@@ -3415,11 +2844,6 @@
 	* talkd/process.c: Guard <utmp.h> utmpx.h> properly.
 	(find_user): Guard calls to setutent() or setutxent().
 	Use sizeof(PATH_DEV) instead of hardcoded numbers.
-
-2001-08-29  Marcus Brinkmann  <marcus@gnu.org>
-
-	* Makefile.am (SUBDIRS): Remove `ifconfig' for now
-	(see ifconfig/TODO for a list of items that need to be resolved).
 
 2001-08-29  Marcus Brinkmann  <marcus@gnu.org>
 
@@ -3498,14 +2922,6 @@
 	* configure.in: use gwhois instead whois
 	* Makefile.am: SUBDIRS have gwhois instead of whois.
 
-2001-08-26  Alain Magloire
-
-	Marco D'Itri whois is much more complete then the original
-	one provided by Joel N. Weber II (devnull).  So it is enable.
-
-	* configure.in: use gwhois instead whois
-	* Makefile.am: SUBDIRS have gwhois instead of whois.
-
 2001-08-25  Alain Magloire
 
 	* libls/Makefile.am: use BUILD_LS.
@@ -3514,13 +2930,6 @@
 
 	* ftpd/Makefile.am: Check for LIBLS and add it to the link.
 	* ftpd/popen.c:  WITH_LIBLS check.
-
-2001-08-25  Alain Magloire
-
-	* configure.in: AC_ARG_ENABLE(libls ..) libls will not work
-	on all platforms, make it possible to disable it.
-	LIBLS, BUILD_LIBLS, WITH_LIBLS, new variable.s
-	* header/acconfig.h: WITH_LIBLS new.
 
 2001-08-25  Alain Magloire
 
@@ -3644,36 +3053,34 @@
 	(fatal): second argument now is const char *.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+
 	* rlogind/rlogind.c: use regular read() instead of getmsg() on the
 	master side of pty.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+
 	* rlogind/rlogind.c: Rewritten from scratch. Implemented -a
 	(verify hostname) option. Added --reverse-required and
 	--daemon options. Kerberos code is not tested, though.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	
 	* ping/ping.c: Use inetutils_package instead of PACKAGE. Same for
 	VERSION.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	
 	* libinetutils/openpty.c: Set RMSGN|RPROTDAT on master side of pty pair, so it
 	can be read using read() call.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	
 	* libinetutils/localhost.c: Return fully qualified domain name.
 	* libinetutils/login_tty.c: Rewritten from scratch. This version
 	works on systems lacking TIOCSCTTY ioctl (eg. Solaris).
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
-	* configure.in: Check for setpgid(), vhangup().
-	* ping/ChangeLog: (new)
-	* libicmp/ChangeLog: (new)
-	* libinetutils: See libinetutils/ChangeLog.
-	* rlogind: See rlogind/ChangeLog.
-	* ping: See ping/ChangeLog.
-
-2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	
 	* configure.in: Check for setpgid(), vhangup().
 	* ping/ChangeLog: (new)
 	* libicmp/ChangeLog: (new)
@@ -3682,12 +3089,14 @@
 	* ping: See ping/ChangeLog.
 
 2001-07-10  Sergey Poznyakoff
+	
 	* ifconfig/if_index.c: Include ifconfig.h instead of if_index.h.
 	Reason: ifconfig.h includes system.h which contains
 	definition of ifr_index member for systems lacking it.
 	It also includes if_index.h. Thanks to Alain.
 
 2001-06-30  Sergey Poznyakoff
+	
 	* ifconfig/if_index.c: if_nameindex(): Actually fall back :^). Besides,
 	the return value was unspecified if socked() failed.
 	Removed # define ifr_ifindex ifr_index.
@@ -3805,19 +3214,6 @@
 	inconsistencies (thanks to Alain). Changes to make gcc -Wall less
 	verbose. 
 
-2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
-	
-	* configure.in, Makefile.am: added libicmp and ping to build.
-	* ping/Makefile.am: use @BUILD_PING@ instead of directly
-	  assigning bin_PROGRAMS.
-	* libicmp/icmp_timestamp.c: forgotten to commit yesterday :^)
-	* libicmp/ping.h: changed counters in struct PING from int to longs.
-	* libicmp/icmp.h, libicmp/libping.c, ping/ping.c,
-	ping/ping_address.c, ping/ping_echo.c, ping/ping_impl.h,
-	ping/ping_router.c,ping/ping_timestamp.c: Fixed a bunch of
-	inconsistencies (thanks to Alain). Changes to make gcc -Wall less
-	verbose. 
-
 2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
 	
 	* ping/Makefile.am: added OMIT_DEPENDENCIES
@@ -3825,32 +3221,6 @@
 	ping/ping_impl.h, ping/ping_timestamp.c: Implemented
 	ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests.  None of existing
 	routers answers the latter, though. 
-
-2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
-	
-	* libicmp/Makefile.am: added icmp_address.c
-	* libicmp/icmp_address.c: added.
-	* libicmp/icmp.h: added new protos
-	* libicmp/icmp_echo.c: eliminated unused variable
-	* libicmp/icmp_timestamp.c: implemented
-	* libicmp/libping.c: changes too numerous to mention.
-	* libicmp/ping.h: reflect changes to libping.c
-
-2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
-	
-	* libicmp/Makefile.am: added icmp_address.c
-	* libicmp/icmp_address.c: added.
-	* libicmp/icmp.h: added new protos
-	* libicmp/icmp_echo.c: eliminated unused variable
-	* libicmp/icmp_timestamp.c: implemented
-	* libicmp/libping.c: changes too numerous to mention.
-	* libicmp/ping.h: reflect changes to libping.c
-	* ping/Makefile.am: added OMIT_DEPENDENCIES
-	* ping/ping.c, ping/ping_address.c, ping/ping_echo.c,
-	ping/ping_impl.h, ping/ping_timestamp.c: Implemented
-	ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests. None of existing
-	routers answers the latter, though. 
-
 
 2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
 	
@@ -3883,22 +3253,6 @@
 	* ping/ping_address.c, ping/ping_echo.c, ping/ping_impl.h,
 	ping/ping_router.c, ping/ping_timestamp.c: added to repository.
 	* paths: PATH_HEQUIV needs search in <netdb.h> (for Solaris)
-
-2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
-	
-	* libicmp/Makefile.am, libicmp/icmp.h, libicmp/icmp_cksum.c,
-	libicmp/icmp_echo.c, libicmp/icmp_timestamp.c, libicmp/libping.c,
-	libicmp/ping.h: added to repository. Currently it is more libping
-	than libicmp, I will be adding required functionality latter.
-	* ping/ping.c: implemented
-	* ping/ping_address.c, ping/ping_echo.c, ping/ping_impl.h,
-	ping/ping_router.c, ping/ping_timestamp.c: added to repository.
-	* paths: PATH_HEQUIV needs search in <netdb.h> (for Solaris)
-
-2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
-
-	* libinetutils/ttymsg.c (normalize_path): Define static and provide
-	a prototype and it was call with the wrong number of arguments.
 
 2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
 
@@ -4003,12 +3357,6 @@
 
 	* configure.in: Integrate ifconfig into build
 
-2001-05-07  Jeff Bailey  <jbailey@oasis.zugzug.com>
-
-	* Makefile.am: Integrate ifconfig into build
-
-	* configure.in: Integrate ifconfig into build
-
 2001-03-14  Joachim Gabler <joga@sun.com>
 
 	* rlogind/rlogind.c: exec to /bin/login requires additional
@@ -4059,10 +3407,6 @@
 
 	* Makefile.am: Use 4 digit year for `make release'
 
-2001-02-09  Jeff Bailey  <jbailey@oasis.zugzug.com>
-
-	* Makefile.am: Use 4 digit year for `make release'
-
 2001-01-31  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd/syslogd.c (usage): Add missing parentheses in help text.
@@ -4071,11 +3415,6 @@
 
 	* whois/main.c: Terminate array longopts with an element containing all
 	zeros.
-
-2001-01-16  Alain Magloire
-
-	* gwhois/whois.c, gwhois/TODO, gwhois/Makefile: Update from the
-	patch send by Marco d'Itri.
 
 2001-01-16  Alain Magloire
 
@@ -4096,15 +3435,6 @@
 	* syslogd/syslogd.c (main): Give reason for failure of waitdaemon.
 	(add_funix): Print program name and reason for failure in error
 	message.
-
-2000-11-25  Marcus Brinkmann  <marcus@gnu.org>
-
-	* README: Uppercase the Hurd, fix comment about long option
-	support missing (most -> many).
-
-	* TODO: Update the entry about long options support (we can now
-	list those which are missing, instead those which have it).
-	Add internationalization/gettext to the list. Uppercase the Hurd.
 
 2000-11-25  Marcus Brinkmann  <marcus@gnu.org>
 
@@ -4264,12 +3594,6 @@
 	so far they are only usefull for ftpd.
 	* Makefile.am: Syslog change for logger.
 
-2000-08-22  Alain Magloire
-
-	* configure.in:  Options --with-pam and --with-wrap
-	so far they are only usefull for ftpd.
-	* Makefile.am: Syslog change for logger.
-
 2000-08-21  Alain Magloire
 
 	The idea is to reduce the number of side effects i.e. reducing the
@@ -4325,23 +3649,12 @@
 	* logger: New directory, .i.e syslog rename to logger.
 	* configure.in: Change name syslog for logger.
 
-2000-08-16  Alain Magloire
-
-	* syslog: Deleted.
-	* logger: New directory, .i.e syslog rename to logger.
-	* configure.in: Change name syslog for logger.
-
 2000-08-15  Alain Magloire
 
 	* libinetutils/iruserok.c: use <signal> not <sys/signal.h>
 	Remove ruserok().
 
 	* libinetutils/ruserok.c: new funtion.
-
-2000-08-15  Alain Magloire
-
-	* configure.in: Check for fchdir().
-	Check for ruserok().
 
 2000-08-15  Alain Magloire
 
@@ -4377,8 +3690,6 @@
 
 	* libinetutils/poll.c: Update from James Antill.
 
-2000-08-11  Alain Magloire
-
 2000-08-10  Alain Magloire
 
 	* syslogd/syslogd.c (wallmsg):  Only check for the type USER_PROCESS
@@ -4405,11 +3716,6 @@
 2000-08-09 Alain Magloire
 
 	* rlogind/rlogind.c: Typo utmpx_logout should be utmp_logout.
-
-2000-08-09  Alain Magloire
-
-	* configure.in: Check for poll() and link headers/poll.h
-	to include/poll.h if the OS does not have poll.
 
 2000-08-09  Alain Magloire
 
@@ -4518,13 +3824,6 @@
 	setvbuf (stream, 0, _IOLBF, 0);
 	* header/config.h.in: remove HAVE_SETLINEBUF
 
-2000-08-05  Alain Magloire
-
-	* configure.in: Remove the check for setlinebuf(), it
-	was for syslogd.  We use the more portable:
-	setvbuf (stream, 0, _IOLBF, 0);
-	* header/config.h.in: remove HAVE_SETLINEBUF
-
 2000-08-04  Alain Magloire
 
 	* libinetutils/iruserok.c (iruserok):  Typo in prototype.
@@ -4547,10 +3846,6 @@
 
 	* .cvsignore: Add INCLUDE file.  Delete it from repository.
 
-2000-08-03 Jeff Bailey
-
-	* .cvsignore: Add INCLUDE file.  Delete it from repository.
-
 2000-08-02 Jeff Bailey
 
 	* whois/.cvsignore: Add generated file config.c
@@ -4559,16 +3854,6 @@
 
 	* */.cvsignore: Mass add of .cvsignore files to beat CVS into
 	submission.
-
-2000-08-02 Jeff Bailey
-
-	* */.cvsignore: Mass add of .cvsignore files to beat CVS into
-	submission.
-
-2000-08-02 Jeff Bailey
-
-	* README-alpha: Advertise the new commit-inetutils@gnu.org mailing
-	list.
 
 2000-08-02 Jeff Bailey
 
@@ -4613,12 +3898,6 @@
 	* headers/config.h.in: added defines for HABE_SYS_MKDEV
 	HAVE_FEATURES_H, HAVE_DIRFD.
 
-2000-08-01 Michael Vogt
-
-	* configure.in: added checks for mkdev.h, features.h, dirfd()
-	* headers/config.h.in: added defines for HABE_SYS_MKDEV
-	HAVE_FEATURES_H, HAVE_DIRFD.
-
 2000-07-31 Michael Vogt
 
 	* libls/fts.c, libls/ls.c, libls/print.c: portability changes
@@ -4637,15 +3916,6 @@
 
 	* headers/config.h.in: new macro HAVE_LIBWRAP.
 
-2000-07-30 Alain Magloire
-
-	* headers/config.h.in: new macro HAVE_LIBWRAP.
-
-2000-07-30 Michael Vogt <mvo@debian.org>
-
-	* configure.in: check for libwrap and <tcpd.h>
-	* headers/config.h.in: new macros HAVE_TCPD_H
-
 2000-07-30 Michael Vogt <mvo@debian.org>
 
 	* configure.in: check for libwrap and <tcpd.h>
@@ -4654,11 +3924,6 @@
 2000-07-27 Michel Vogt
 
 	* libls/fts.c fts.h: new files to support BSD fts_*() functions.
-
-2000-07-26 Alain Magloire
-
-	* configure.in: check for libpam and <security/pam_appl.h>.
-	* headers/config.h.in: new marcros HAVE_LIBPAM, HAVE_SECURITY_APPL_H.
 
 2000-07-26 Alain Magloire
 
@@ -4716,10 +3981,6 @@
 
 	* configure.in: check for <shadow.h>
 
-2000-07-07  Alain Magloire
-
-	* configure.in: check for <shadow.h>
-
 2000-07-06 Alain Magloire
 
 	* whois/Makefile.am : change the rule to generate config.c
@@ -4730,12 +3991,6 @@
 	This is a Linux port of the BSD ls program.  You probably aren't
 	interested in this, since GNU ls is much better (IMHO).  But this port
 	is needed for internal ls on inetutils-ftpd.
-
-2000-07-06  Jeff Bailey  <jbailey@nisa.net>
-
-	* autogen.sh: New file for generating build environment for
-	the first time from a CVS checkout.  Not added to Makefile.am
-	for distribution.
 
 2000-07-06  Jeff Bailey  <jbailey@nisa.net>
 
@@ -4921,6 +4176,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
+
 2000-07-05 Alain Magloire
 
 	* rexecd/*: Clause 3 removed.
@@ -4950,6 +4206,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
+
 2000-07-05 Alain Magloire
 
 	* logger/*: Clause 3 removed.
@@ -5024,6 +4281,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
+	
 2000-07-05 Alain Magloire
 
 	* ftp/*: Clause 3 removed.
@@ -5052,28 +4310,11 @@
 
 	* paths: add PATH_INETDDIR
 
-2000-06-23  Jakob 'sparky' Kaivo  <jkaivo@timothy.nodomainname.net>
-
-	* paths: add PATH_INETDDIR
-
 2000-06-15 David O'Shea
 
-	* rlogin/rlogin.c(speed): the fd may not be associated with
+	* rlogin/rlogin.c (speed): the fd may not be associated with
 	a terminal, when checking for speed(), take appropriate actions
 	to handle the error case.
-
-2000-06-15 David O'Shea
-
-	* rlogin/rlogin.c(speed): the fd may not be associated with
-	a terminal, when checking for speed(), take appropriate actions
-	to handle the error case.
-
-2000-06-14 Joachim Gabler
-
-	* configure.in: add check for element ut_exit in struct utmp
-	* lininetutils/utmp_logout: check for HAVE_UTMP_UT_EXIT
-	* libinetutils/openpty.c: smaller fixes (missing ';',
-	structure element gr_pid of struct group replaced by gr_gid
 
 2000-06-14 Joachim Gabler
 
@@ -5107,11 +4348,6 @@ pause until syslogd facility is up and operating."
 
 	* syslogd/syslogd.c (init): Remove call to creation of sockets
 	and move it to the main() before going in the loop.
-
-2000-08-06  Alain Magloire
-
-	* syslogd/syslogd.c (main): Use of poll() instead of select()
-	for better modularity.
 
 2000-08-06  Marcus Brinkmann  <marcus@gnu.org>
 
@@ -5519,7 +4755,7 @@ AC_REPLACE_FUNC (setproctitle).
 
 2000-08-10  Michael Vogt <mvo@debian.org>
 
-	* ftpd/ftpd/ftpd.c: cleaned up PAM code.
+	* ftpd/ftpd.c: cleaned up PAM code.
 
 2000-07-30  Alain Magloire
 
@@ -5527,25 +4763,25 @@ AC_REPLACE_FUNC (setproctitle).
 
 2000-07-30  Michael Vogt <mvo@debian.org>
 
-	* ftpd/ftpd.c(main): added TCP_WRAPPER support for daemon mode.
+	* ftpd/ftpd.c (main): added TCP_WRAPPER support for daemon mode.
 
 2000-07-26  Michael Vogt  <mvo@debian.org>
 
-	* ftpd/ftpd.c(pass): added pam support.
+	* ftpd/ftpd.c (pass): added pam support.
 
 2000-07-08  Michael Vogt  <mvo@debian.org>
 
-	* ftpd/ftpd.c(main): added new option "-A" anonymous login only
+	* ftpd/ftpd.c (main): added new option "-A" anonymous login only
 	added new option "-q" quiet to  do not print ftpd version.
 
 2000-07-08  Michael Vogt  <mvo@debian.org>
 
-	* ftpd/ftpd.c(main): added new option "-D" for daemon-mode,
+	* ftpd/ftpd.c (main): added new option "-D" for daemon-mode,
 	ftpd can now run without inetd.
 
 2000-07-07 Alain Magloire
 
-	* ftpd/ftpd.c(sgetpwnam()): if HAVE_GETSPNAM && HAVE_SHADOW_H, call
+	* ftpd/ftpd.c (sgetpwnam): if HAVE_GETSPNAM && HAVE_SHADOW_H, call
 	getspnam() to get the encrypted passwd.
 
 2000-07-06 Michel Vogt
@@ -5594,22 +4830,12 @@ AC_REPLACE_FUNC (setproctitle).
 	* rexecd/Initialize pid to 0;
 
 	* rexecd/Use FD_ISSET/FD_CLR/FD_SET macros instead.
-1999-10-03  Jeff Bailey
-
-	* README-alpha: Update with CVS info and mailing list info.
-
-	* THANKS: Add Marcus Brinkman
 
 1999-10-03  Jeff Bailey
 
 	* README-alpha: Update with CVS info and mailing list info.
 
 	* THANKS: Add Marcus Brinkman
-
-1999-09-13  Jeff Bailey
-
-	* COPYING, INSTALL, aclocal.m4, install-sh, missing, mkinstalldirs:
-	Remove from CVS repository - They are automatically generated.
 
 1999-09-13  Jeff Bailey
 
@@ -5660,23 +4886,6 @@ AC_REPLACE_FUNC (setproctitle).
 	* paths : add check for PATH_UTMPX and PATH_WTMPX
 	* configure.in : add check for getcwd, since we use xgetcwd.
 
-1999-05-19 Alain Magloire
-	
-	* configure.in : check for ptsname(), this will give
-	a hint to use SYSVR4 pseudo ptys handling.  particularly
-	for telnetd and rlogind.
-	* libinetutls/utmp_{init,logout} : new files.
-	* libinetutils/openpty.c : a new version that should be
-	compatible with SYSV STREAM.
-	* paths : add check for PATH_UTMPX and PATH_WTMPX
-	* configure.in : add check for getcwd, since we use xgetcwd.
-
-1999-05-18 Dan Stromberg
-	
-	* headers/arpa/tftp.h : changing tu_clock to be unsigned to handle
-	larger files (twice as big), without sacrificing anything.
-	We need this to allow sgis to roboinst from a sun tftp server.
-
 1999-05-18 Dan Stromberg
 	
 	* headers/arpa/tftp.h : changing tu_clock to be unsigned to handle
@@ -5685,26 +4894,11 @@ AC_REPLACE_FUNC (setproctitle).
 
 1999-05-16 Alain Magloire
 	
-	* config.{guess,sub} : files removed from the repository.
+	* config.guess, config.sub: files removed from the repository.
 	We let automake -a create a newer version when releasing
 	From Jeff Bailey.
 	* Makefile.am : added ChangeLog.0 in EXTRA_DIST
 	Noted by Jeff Bailey.
-
-1999-05-16 Alain Magloire
-	
-	* config.{guess,sub} : files removed from the repository.
-	We let automake -a create a newer version when releasing
-	From Jeff Bailey.
-	* Makefile.am : added ChangeLog.0 in EXTRA_DIST
-	Noted by Jeff Bailey.
-
-1999-05-14 Alain Magloire
-	
-	* libinetutils/opentty.c : writing on a constant string
-	"/dev/ptyXX" would cause the server to sigsegv.  Change
-	to be an array.
-	Problem first noted by Frederic Goudal.
 
 1999-05-14 Alain Magloire
 	
@@ -5717,13 +4911,6 @@ AC_REPLACE_FUNC (setproctitle).
 	
 	* whois/main.c : protect FN_* defines.
 	
-1999-04-18 Alain Magloire
-	
-	* configure.in: ping disable.
-	* configure.in: make links for fnmatch
-	* libinetutils/snprintf.[ch] : support for "%ul".
-	patch from  Gerald Combs <gerald@unicom.net>
-
 1999-04-18 Alain Magloire
 	
 	* configure.in: ping disable.
@@ -5799,17 +4986,6 @@ AC_REPLACE_FUNC (setproctitle).
 	* libinetutils/xgetcwd.c: New file.
 	* libinetutils/pathmax.h: New file.
 
-1999-02-17 Alain Magloire
-
-	* configure.in: Force the check of HAVE_SOCKADDR_IN_SIN_LEN
-	all the time not just for talk.
-	* configure.in: Check for mmap(), HAVE_MMAP.
-	* configure.in: Check for tzset(), HAVE_TZSET.
-	* configure.in: Check for strcasecmp().
-	* libinetutils/strcasecmp.c: New file.
-	* libinetutils/xgetcwd.c: New file.
-	* libinetutils/pathmax.h: New file.
-
 1999-02-13 Alain Magloire
 
 	* ftpd/ftpcmd.y : PORT command disallow PORT if :
@@ -5832,15 +5008,6 @@ AC_REPLACE_FUNC (setproctitle).
 	more manageable for each utility to have their own ChangLog.
 
 	* */ChangeLog : New files.
-
-1999-02-13 Alain Magloire
-
-	* ChangeLog.0 : New file, mv ChangeLog ChangeLog.0.
-	Since inetutils is such an heteroclite package, it is
-	more manageable for each utility to have their own ChangLog.
-
-	* */ChangeLog : New files.
-
 
 Sat Jul 20 21:55:31 1996  Roland McGrath  <roland@delasyd.gnu.ai.mit.edu>
 
@@ -5866,8 +5033,8 @@ Fri Jun 21 00:27:51 1996  Roland McGrath  <roland@delasyd.gnu.ai.mit.edu>
 	* glob/posix/fnmatch.c (fnmatch): Fix \*[*?]+ case to increment
 	name ptr only for ?s, not for *s.  Fix from Chet Ramey.
 
+Wed Nov 22 22:32:55 1995  Martin Schulze
 
-Wed Nov 22 22:32:55 1995:  Martin Schulze
 Added the fabulous strip-domain feature that allows us to
 strip off (several) domain names from the fqdn and only log
 the simple hostname. This is useful if you're in a LAN that
@@ -5884,17 +5051,6 @@ local. These will get logged with their simple hostname, too.
 	(cvthname): Use StripDomains and LocalHosts to frob
 	the hostname before returning.
 	* syslogd/syslogd.8: Document new options "-s" and "-l".
-
-2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
-
-	Merged from the Linux source (sysklogd 1.3):
-	* syslogd/syslogd.c (debugging_on): New global variable to toggle
-	debug output. 
-	(debug_switch, dprintf): New prototypes, new functions. Redefine
-	dprintf to mydprintf when __GLIBC__ is defined.
-	Remove macro for dprintf.
-	(main): Set debugging_on to true early, and to false again before
-	entering main loop. Install debug_switch as SIGUSR1 handler.
 
 2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
 
