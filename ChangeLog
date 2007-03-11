@@ -1441,21 +1441,12 @@
 	* acinclude.m4 (IU_CONFIG_PATHS): New variables `IU_UCASE' and
 	`iu_lcase'.
 
-2003-08-29  Jeff Bailey <jbailey@raspberryginger.com>
-
-	* paths: Support PATH_INETDPID.
-	(Patch from Robert Millan)
-
 2003-05-24  Alain Magloire
 
 	* libinetutils/snprintf.c: Change to be under LGPL not GPL.
 	(vsnprintf): implement "%lld", "%qd", "%Lg"
 	* libinetutils/snprintf.h: New macro LONG_LONG, LONG_DOUBLE
 	default to long long, long double.
-
-2003-05-24  Alain Magloire
-
-	* configure.ac: New check AC_CHECK_TYPES(long long, long dougle).
 
 2003-05-24  Alain Magloire
 
@@ -3362,11 +3353,6 @@
 	* rlogind/rlogind.c: exec to /bin/login requires additional
 	parameters on SOLARIS
 
-2001-03-14  Joachim Gabler <joga@sun.com>
-
-	* rlogind/rlogind.c: exec to /bin/login requires additional
-	parameters on SOLARIS
-
 2001-02-27  Marcus Brinkmann  <marcus@gnu.org>
 
 	* ifconfig/system/linux.c (system_configure): Move return
@@ -3410,11 +3396,6 @@
 2001-01-31  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd/syslogd.c (usage): Add missing parentheses in help text.
-
-2001-01-16  Marcus Brinkmann  <marcus@gnu.org>
-
-	* whois/main.c: Terminate array longopts with an element containing all
-	zeros.
 
 2001-01-16  Alain Magloire
 
