@@ -1,3 +1,9 @@
+2007-03-16  Simon Josefsson  <simon@josefsson.org>
+
+	* libtelnet/shishi.c (krb5shishi_send): Don't set a
+	use-session-key ap-options, that is for user2user authentication
+	which is not appropriate here.
+
 2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
 
 	* .cvsignore: Added `build-aux'.

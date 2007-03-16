@@ -1,5 +1,4 @@
-/* Copyright (C) 2002, 2003 Simon Josefsson
-   Copyright (C) 2003 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2007 Free Software Foundation, Inc.
 
 This file is part of Shishi / GNU Inetutils.
 
@@ -168,10 +167,6 @@ krb5shishi_send (TN_Authenticator * ap)
     ap_opts = SHISHI_APOPTIONS_MUTUAL_REQUIRED;
   else
     ap_opts = 0;
-
-# ifdef ENCRYPTION
-  ap_opts |= SHISHI_APOPTIONS_USE_SESSION_KEY;
-# endif	/* ENCRYPTION */
 
   type_check[0] = ap->type;
   type_check[1] = ap->way;
