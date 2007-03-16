@@ -1,5 +1,11 @@
 2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ping/.cvsignore: Added `ping6'.
+
+	* traceroute/.cvsignore: New file.
+
+2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
+
 	* configure.ac: Removed libglob checks.
 	(AC_CONFIG_FILES): Don't list glob/Makefile.
 
