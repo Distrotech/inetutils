@@ -1,5 +1,7 @@
 2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
 
+	* .cvsignore: Added `build-aux'.
+
 	* ping/.cvsignore: Added `ping6'.
 
 	* traceroute/.cvsignore: New file.
