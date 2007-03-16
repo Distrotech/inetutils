@@ -1,3 +1,12 @@
+2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
+
+	* README-alpha: Updated instructions for generating auto* and
+	gnulib files.
+	
+	* autogen.sh: File removed.
+
+	* bootstrap.conf, lib/Makefile.am: New files.
+
 2007-03-16  Simon Josefsson  <simon@josefsson.org>
 
 	* libtelnet/shishi.c (krb5shishi_send): Don't set a
