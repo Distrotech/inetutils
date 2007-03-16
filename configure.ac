@@ -203,31 +203,6 @@ else
   talk_BUILD=''
 fi
 
-# Look for a system `glob' function, and use our own if we can't find one (or
-# if the system one is missing features we need).
-sys_glob=no
-if test "$ac_cv_header_glob_h" = yes; then
-  AC_CHECK_LIB(glob, glob, LIBGLOB=-lglob)
-  _SAVE_LIBS="$LIBS"
-  LIBS="$LIBGLOB $LIBS"
-  AC_CHECK_FUNC(glob,
-    IU_CHECK_MACRO(ok system glob,
-      [#include <glob.h>], GLOB_BRACE GLOB_TILDE,
-      sys_glob=yes))
-  LIBS="$_SAVE_LIBS"
-fi
-if test "$sys_glob" != yes; then
-  libglob_BUILD=libglob.a
-  dnl FIXME
-  dnl IU_CONFIG_LINKS(glob.h)
-  dnl IU_CONFIG_LINKS(fnmatch.h)
-  LIBGLOB="-L../glob -lglob"
-else
-  libglob_BUILD=''
-fi
-AC_SUBST(LIBGLOB)
-AC_SUBST(libglob_BUILD)
-
 dnl FIXME: Make this test case a bit more robust. Remove KRB4
 LIBAUTH=
 INCAUTH=
@@ -783,18 +758,39 @@ case "$host" in
   ;;
 esac
 
-AC_CONFIG_FILES([Makefile lib/Makefile
-libinetutils/Makefile libtelnet/Makefile glob/Makefile
-libicmp/Makefile ping/Makefile ftp/Makefile ftpd/Makefile inetd/Makefile
+AC_CONFIG_FILES([
+Makefile
+libinetutils/Makefile 
+libtelnet/Makefile
+libicmp/Makefile
+ping/Makefile
+ftp/Makefile
+ftpd/Makefile
+inetd/Makefile
 rcp/Makefile
-rexecd/Makefile rlogin/Makefile rlogind/Makefile rsh/Makefile
-rshd/Makefile logger/Makefile syslogd/Makefile talk/Makefile
-talkd/Makefile telnet/Makefile telnetd/Makefile tftp/Makefile
-tftpd/Makefile uucpd/Makefile gwhois/Makefile libls/Makefile
+rexecd/Makefile
+rlogin/Makefile
+rlogind/Makefile
+rsh/Makefile
+rshd/Makefile
+logger/Makefile
+syslogd/Makefile
+talk/Makefile
+talkd/Makefile
+telnet/Makefile
+telnetd/Makefile
+tftp/Makefile
+tftpd/Makefile
+uucpd/Makefile
+gwhois/Makefile
+lib/Makefile
+libls/Makefile
 ifconfig/Makefile
 ifconfig/system/Makefile
 traceroute/Makefile
 confpaths.h:confpaths.h.in
 headers/Makefile
-doc/Makefile doc/rfc/Makefile])
+doc/Makefile
+doc/rfc/Makefile
+])
 AC_OUTPUT

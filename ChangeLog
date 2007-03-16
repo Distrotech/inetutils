@@ -1,5 +1,17 @@
 2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
 
+	* configure.ac: Removed libglob checks.
+	(AC_CONFIG_FILES): Don't list glob/Makefile.
+
+	* Makefile.am (SUBDIRS): Removed `glob'.
+	
+	* glob/.cvsignore, glob/COPYING.LIB, glob/Makefile.am,
+	glob/SMakefile, glob/configure.bat, glob/configure.in,
+	glob/fnmatch.c, glob/fnmatch.h, glob/glob.c, glob/glob.h: Files
+	removed.
+	
+2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
+
 	* lib/.cvsignore, lib/Makefile.am, lib/alloca.c, lib/alloca_.h,
 	lib/allocsa.c, lib/allocsa.h, lib/allocsa.valgrind,
 	lib/asnprintf.c, lib/dup-safer.c, lib/error.c, lib/error.h,
