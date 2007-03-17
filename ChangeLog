@@ -1,7 +1,5 @@
 2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
 
-	* m4/.phony: New file.
-
 	* README-alpha: Updated instructions for generating auto* and
 	gnulib files.
 	
