@@ -81,7 +81,7 @@ usage (int err)
   -d, --debug                Turn on debugging mode\n\
   -g, --no-glob              Turn off file name globbing\n\
   -i, --no-prompt            Don't prompt during multiple-file transfers\n\
-  -n, --no-login             Don't automatically login to the remove system\n\
+  -n, --no-login             Don't automatically login to the remote system\n\
   -t, --trace                Enable packet tracing\n\
   -p, --prompt[=PROMPT]      Print a command-line prompt (optionally PROMPT),\n\
                              even if not on a tty\n\

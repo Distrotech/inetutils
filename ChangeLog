@@ -1,3 +1,7 @@
+2007-03-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ftp/main.c (usage): Fix typo.
+
 2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
 
 	* README-alpha: Updated instructions for generating auto* and
