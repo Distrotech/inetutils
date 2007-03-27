@@ -25,7 +25,7 @@ There is a script in gunlib/build-aux called `bootstrap', that you
 will need to run.  You need recent versions of automake and autoconf
 for this to work.  To run it issue the following command:
 
-  DIRECTORY-WITH-GNULIB/build-aux/bootstrap --force --gnulib-src=DIRECTORY-WITH-GNULIB
+  DIRECTORY-WITH-GNULIB/build-aux/bootstrap --gnulib-src=DIRECTORY-WITH-GNULIB
 
 You can track the CVS process through the <commit-inetutils@gnu.org>
 mailing list.
