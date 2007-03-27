@@ -25,10 +25,11 @@ There is a script in gunlib/build-aux called `bootstrap', that you
 will need to run.  You need recent versions of automake and autoconf
 for this to work.  To run it issue the following command:
 
-  DIRECTORY-WITH-GNULIB/build-aux/bootstrap --gnulib-src=DIRECTORY-WITH-GNULIB
+  mkdir m4   # to workaround bug in bootstrap
+  GNULIB-DIRECTORY/build-aux/bootstrap --gnulib-srcdir=GNULIB-DIRECTORY
+
+Note that you cannot use ~ in the second GNULIB-DIRECTORY, you'll have
+to replace it with $HOME or use the full path.
 
 You can track the CVS process through the <commit-inetutils@gnu.org>
-mailing list.
-
-This is a medium volume moderated list.
-
+mailing list.  This is a medium volume moderated list.
