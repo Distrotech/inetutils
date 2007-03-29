@@ -1,4 +1,4 @@
-# Copyright (C) 2005 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -33,6 +33,8 @@ ping_SOURCES = ping.c ping_common.c ping_echo.c ping_address.c \
 ping6_SOURCES = ping6.c ping_common.c ping_common.h ping6.h
 
 SUIDMODE = -o root -m 4775
+
+MAINTAINERCLEANFILES = Makefile.in
 
 install-ping-hook:
 	-@for program in $(bin_PROGRAMS); do \
