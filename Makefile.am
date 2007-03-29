@@ -30,5 +30,7 @@ SUBDIRS = lib headers libinetutils libtelnet \
 DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
 	include/stamp-h
 
+MAINTAINERCLEANFILES = aclocal.m4 config.hin configure INSTALL Makefile.in
+
 release:
 	$(MAKE) dist distdir=$(PACKAGE)-`date +"%Y%m%d"`
