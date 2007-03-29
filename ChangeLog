@@ -1,12 +1,12 @@
-2007-03-29  Debarshi Ray  <debarshi.ray@gmail.com>  (tiny change)
+2007-03-29  Debarshi Ray  <rishi@gnu.org>  (tiny change)
 
 	* Makefile.am (MAINTAINERCLEANFILES): New variable.
 
-2007-03-29  Debarshi Ray  <debarshi.ray@gmail.com>  (tiny change)
+2007-03-29  Debarshi Ray  <rishi@gnu.org>  (tiny change)
 
 	* ping/Makefile.am (MAINTAINERCLEANFILES): New variable.
 
-2007-03-27  Debarshi Ray  <debarshi.ray@gmail.com>  (tiny change)
+2007-03-27  Debarshi Ray  <rishi@gnu.org>  (tiny change)
 
 	* bootstrap.conf (checkout_only_file): New variable.
 	* README-alpha: Updated.
