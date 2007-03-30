@@ -21,7 +21,7 @@ CVS.  To fetch the tree issue the following command:
 
   cvs -d:pserver:anoncvs@cvs.gnu.org:/cvsroot/gnulib co gnulib
 
-There is a script in gunlib/build-aux called `bootstrap', that you
+There is a script in gnulib/build-aux called `bootstrap', that you
 will need to run.  You need recent versions of automake and autoconf
 for this to work.  To run it issue the following command:
 
