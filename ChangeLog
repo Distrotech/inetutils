@@ -1,3 +1,10 @@
+2007-03-30  Alfred M. Szmidt  <ams@gnu.org>
+
+	Revert change from 2007-03-29.
+
+	* Makefile.am (MAINTAINERCLEANFILES): Removed variable.
+	* ping/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+
 2007-03-30  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* README-alpha: Fixed typo.

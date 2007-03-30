@@ -34,8 +34,6 @@ ping6_SOURCES = ping6.c ping_common.c ping_common.h ping6.h
 
 SUIDMODE = -o root -m 4775
 
-MAINTAINERCLEANFILES = Makefile.in
-
 install-ping-hook:
 	-@for program in $(bin_PROGRAMS); do \
 	$(INSTALL_PROGRAM) $$program $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo $$program|sed '$(transform)'` ; \
