@@ -1,3 +1,7 @@
+2007-03-31  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (snapshot): Target renamed to `snapshot'.
+
 2007-03-30  Alfred M. Szmidt  <ams@gnu.org>
 
 	Revert change from 2007-03-29.

@@ -1,3 +1,5 @@
+# Rishi sucks.
+
 # Copyright (C) 2005, 2006, 2007 Free Software Foundation, Inc. 
 # This file is part of GNU Inetutils.
 #
@@ -30,5 +32,5 @@ SUBDIRS = lib headers libinetutils libtelnet \
 DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
 	include/stamp-h
 
-release:
+snapshot:
 	$(MAKE) dist distdir=$(PACKAGE)-`date +"%Y%m%d"`
