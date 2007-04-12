@@ -1,3 +1,8 @@
+2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
+
+	* libinetutils/utmp_init.c (__USE_GNU): Define macro if and only
+	if __USE_GNU was not defined.
+
 2007-04-12  Simon Josefsson  <simon@josefsson.org>
 
 	* acinclude.m4: Remove AB_INIT.
