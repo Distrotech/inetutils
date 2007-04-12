@@ -1,5 +1,11 @@
 2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed
+	`xalloc-die.c' from list.
+	* libinetutils/xalloc-die.c: File removed.
+
+2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libinetutils/utmp_init.c (__USE_GNU): Define macro if and only
 	if __USE_GNU was not defined.
 

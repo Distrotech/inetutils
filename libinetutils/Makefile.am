@@ -1,4 +1,4 @@
-# Copyright (C) 2005 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@ EXTRA_DIST = logwtmp.c
 
 libinetutils_a_SOURCES = argcv.c cleansess.c daemon.c des_rw.c kcmd.c	\
 	krcmd.c localhost.c logwtmpko.c setsig.c shishi.c tftpsubs.c \
-        ttymsg.c utmp_init.c utmp_logout.c xalloc_die.c 
+        ttymsg.c utmp_init.c utmp_logout.c
 
 libinetutils_a_LIBADD = daemon.o $(top_builddir)/lib/libgnu.a
 
