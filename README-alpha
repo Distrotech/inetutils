@@ -33,3 +33,12 @@ to replace it with $HOME or use the full path.
 
 You can track the CVS process through the <commit-inetutils@gnu.org>
 mailing list.  This is a medium volume moderated list.
+
+Daily snapshots built from CVS are available from:
+
+  http://daily.josefsson.org/inetutils/
+
+Log outputs from building the daily snapshot on some systems are
+available from:
+
+  http://autobuild.josefsson.org/inetutils/

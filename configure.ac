@@ -28,6 +28,8 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_CONFIG_HEADER([config.h:config.hin])
 AC_CANONICAL_SYSTEM # FIXME: Why not just _HOST?
 
+AB_INIT
+
 # config.h turns this on, so make sure it's on for our tests too
 #CPPFLAGS=-D_BSD_SOURCE
 
