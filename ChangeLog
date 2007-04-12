@@ -1,3 +1,7 @@
+2007-04-12  Simon Josefsson  <simon@josefsson.org>
+
+	* tests/localhost.c: Need to #include <stdio.h> for printf.
+
 2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
 
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed

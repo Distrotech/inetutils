@@ -19,6 +19,8 @@
 
 #include "libinetutils.h"
 
+#include <stdio.h>
+
 int
 main (void)
 {
