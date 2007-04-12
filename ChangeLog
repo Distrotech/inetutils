@@ -1,5 +1,10 @@
 2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
 
+	* bootstrap.conf (gnulib_modules): Removed `restrict' and
+	`stdio-safer'.
+
+2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
+
 	* acinclude.m4 (jm_INCLUDED_REGEX): Function removed.
 	* configure.ac: Don't call `jm_INCLUDED_REGEX'.
 	
