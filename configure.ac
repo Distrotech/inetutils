@@ -564,8 +564,6 @@ LIBS="$LIBCRYPT $LIBS"
 AC_CHECK_FUNCS(crypt)
 LIBS="$_SAVE_LIBS"
 
-jm_INCLUDED_REGEX(libinetutils/regex.c)
-
 AC_CHECK_FUNC(_obstack_free)
 
 dnl Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
