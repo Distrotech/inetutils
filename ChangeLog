@@ -1,6 +1,14 @@
 2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
 
+	* acinclude.m4 (jm_INCLUDED_REGEX): Function removed.
+	* configure.ac: Don't call `jm_INCLUDED_REGEX'.
+	
+	* bootstrap.conf (gnulib_modules): Add `regex' to list.
+	
+2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
+
 	* bootstrap.conf: Create m4/ if it does not exist.
+
 	* README-alpha: Updated.
 	
 2007-04-12  Simon Josefsson  <simon@josefsson.org>
