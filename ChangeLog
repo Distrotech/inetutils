@@ -1,5 +1,9 @@
 2007-04-12  Simon Josefsson  <simon@josefsson.org>
 
+	* tests/.cvsignore: New file.
+
+2007-04-12  Simon Josefsson  <simon@josefsson.org>
+
 	* tests/localhost.c: Need to #include <stdio.h> for printf.
 
 2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
