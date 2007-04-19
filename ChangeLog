@@ -1,5 +1,9 @@
 2007-04-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	* NEWS: Minor clean up.
+
+2007-04-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	* whois/Makefile.am, whois/main.c, whois/net.c,
 	whois/whois-servers: Files removed.
 
@@ -47,15 +51,15 @@
 
 	* acinclude.m4 (jm_INCLUDED_REGEX): Function removed.
 	* configure.ac: Don't call `jm_INCLUDED_REGEX'.
-	
+
 	* bootstrap.conf (gnulib_modules): Add `regex' to list.
-	
+
 2007-04-12  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf: Create m4/ if it does not exist.
 
 	* README-alpha: Updated.
-	
+
 2007-04-12  Simon Josefsson  <simon@josefsson.org>
 
 	* README-alpha: Mention new daily builds and autobuild logs.
@@ -92,7 +96,7 @@
 
 	* bootstrap.conf (checkout_only_file): New variable.
 	* README-alpha: Updated.
-	
+
 2007-03-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftp/main.c (usage): Fix typo.
@@ -101,7 +105,7 @@
 
 	* README-alpha: Updated instructions for generating auto* and
 	gnulib files.
-	
+
 	* autogen.sh: File removed.
 
 	* bootstrap.conf, lib/Makefile.am: New files.
@@ -126,12 +130,12 @@
 	(AC_CONFIG_FILES): Don't list glob/Makefile.
 
 	* Makefile.am (SUBDIRS): Removed `glob'.
-	
+
 	* glob/.cvsignore, glob/COPYING.LIB, glob/Makefile.am,
 	glob/SMakefile, glob/configure.bat, glob/configure.in,
 	glob/fnmatch.c, glob/fnmatch.h, glob/glob.c, glob/glob.h: Files
 	removed.
-	
+
 2007-03-16  Alfred M. Szmidt  <ams@gnu.org>
 
 	* lib/.cvsignore, lib/Makefile.am, lib/alloca.c, lib/alloca_.h,
@@ -189,7 +193,7 @@
 
 2007-03-10  Elian Gidoni  <arkaino@gmail.com>
 	    Alfred M. Szmidt  <ams@gnu.org>
-	
+
 	* NEWS: Mention the addition of `traceroute'.
 	* configure.ac: Add new client `traceroute'.
 	(AC_CONFIG_FILES): Add `traceroute/Makefile'.
@@ -258,7 +262,7 @@
 	telnet/tn3270.c, telnet/utilities.c, telnetd/slc.c,
 	telnetd/state.c, telnetd/termstat.c, tftp/main.c, tftp/tftp.c,
 	tftpd/tftpd.c, uucpd/uucpd.c, whois/net.c: Removed lint cruft.
- 
+
 2006-10-21  Guillem Jover  <guillem@hadrons.org>
 
 	* syslogd/syslogd.c (init): Close CF properly before returning.
@@ -385,12 +389,12 @@
 	m4/signed.m4, m4/size_max.m4, m4/stdbool.m4, m4/stdint.m4,
 	m4/stdint_h.m4, m4/stdio-safer.m4, m4/strdup.m4, m4/strndup.m4,
 	m4/strnlen.m4, m4/ulonglong.m4, m4/unistd-safer.m4,
-	m4/unlocked-io.m4, m4/xalloc.m4, m4/xgetcwd.m4:	Update from gnulib    
+	m4/unlocked-io.m4, m4/xalloc.m4, m4/xgetcwd.m4:	Update from gnulib
 
 	* lib/wcwidth.h, m4/absolute-header.m4, m4/getcwd-abort-bug.m4,
 	m4/getndelim2.m4, m4/inttypes-h.m4, m4/lock.m4, m4/ssize_t.m4,
 	m4/unistd_h.m4, m4/visibility.m4, m4/wcwidth.m4: New files from gnulib
-	
+
 	* ftp/extern.h, ftp/ftp.c, ftp/ftp_var.h, ftp/main.c,
 	ftp/ruserpass.c, ftpd/auth.c, ftpd/extern.h, ftpd/ftpcmd.y,
 	ftpd/ftpd.c, ftpd/pam.c, ftpd/server_mode.c, glob/fnmatch.h,
@@ -399,15 +403,15 @@
 	libinetutils/kcmd.c, libinetutils/krcmd.c,
 	libinetutils/tftpsubs.c, libinetutils/ttymsg.c, libls/extern.h,
 	libls/fts.c, libls/fts.h, libls/ls.c, libls/print.c,
-	libtelnet/auth-proto.h, libtelnet/misc.c,  logger/logger.c, 
+	libtelnet/auth-proto.h, libtelnet/misc.c,  logger/logger.c,
 	ping/ping.c, ping/ping6.c, ping/ping_common.c, rcp/extern.h,
-	rcp/rcp.c, rexecd/rexecd.c, rlogin/rlogin.c, rlogind/rlogind.c, 
+	rcp/rcp.c, rexecd/rexecd.c, rlogin/rlogin.c, rlogind/rlogind.c,
 	rsh/rsh.c, rshd/rshd.c, talk/talk.c, talkd/talkd.c,
 	telnet/commands.c, telnet/externs.h, telnetd/telnetd.c,
-	tftp/extern.h, tftp/main.c, tftp/tftp.c, tftpd/tftpd.c, 
+	tftp/extern.h, tftp/main.c, tftp/tftp.c, tftpd/tftpd.c,
 	uucpd/uucpd.c: Remove __P wrappers, use program_name instead of
 	__progname, define it in main (required by error.c)
-	
+
 	* ifconfig/changeif.c, ifconfig/flags.c, ifconfig/ifconfig.c,
 	ifconfig/options.c, ifconfig/options.h, ifconfig/printif.c,
 	ifconfig/system/hpux.c, ifconfig/system/linux.c,
@@ -418,18 +422,18 @@
 
 	* libicmp/icmp_address.c,
 	libicmp/icmp_echo.c, libicmp/icmp_timestamp.c: Include
-	sys/types.h before sys/socket.h 
+	sys/types.h before sys/socket.h
 
 	* syslogd/syslogd.c: Use read_utmp instead of manually fiddling
 	with utmp(x) subtleties. Remove __P wrappers, use program_name
 	instead of __progname.
 	* talkd/process.c: Likewise
-	
+
 2006-07-28  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Implement passing client/server data via environment variables,
 	based on the patch by Dirk Jagdmann <doj@cubic.org>
-	
+
 	* inetd/inetd.c: New options: --environment, to enable passing
 	client/server data via environment variables, and --resolve,
 	to resolve IP addresses when doing so.
@@ -515,7 +519,7 @@
 
 	* ftp/Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
 	* ftp/ruserpass.c: Include libinetutils.h and xalloc.h
-	
+
 2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* THANKS: Add Guillem Jover
@@ -584,7 +588,7 @@
 	error() uniformly.
 	* uucpd/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* tftpd/tftpd.c: Remove leftover BSD-isms:
@@ -600,7 +604,7 @@
 	error() uniformly.
 	* tftp/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* telnetd/Makefile.am: Remove ansi2knr. Add copyleft header. Update
@@ -642,7 +646,7 @@
 	Signal handlers return RETSIGTYPE.
 	* syslogd/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* rshd/rshd.c: Remove leftover BSD-isms:
@@ -662,7 +666,7 @@
 	Add Shishi support. Patch by Simon Josefsson
 	* rsh/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* rlogind/rlogind.c: Signal handlers return RETSIGTYPE.
@@ -679,7 +683,7 @@
 	Add Shishi support based on patch by Simon Josefsson
 	* rlogin/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-		
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* rexecd/Makefile.am: Remove ansi2knr. Add copyleft header. Update
@@ -706,7 +710,7 @@
 	error() uniformly
 	* logger/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* libtelnet/auth.c: Signal handlers return RETSIGTYPE
@@ -719,10 +723,10 @@
 	* libtelnet/encrypt.h: Define SK_OTHER
 	* libtelnet/shishi.c: New file
 	* libtelnet/Makefile.am (libtelnet_a_SOURCES): Add shishi.c
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
-	* libls/Makefile.am: Remove ansi2knr. Add copyleft header. 
+	* libls/Makefile.am: Remove ansi2knr. Add copyleft header.
 
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
@@ -735,7 +739,7 @@
 	error() uniformly
 	* libinetutils/shishi.c: New file
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Add shishi.c
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* inetd/inetd.c: Remove leftover BSD-isms: err,errx,warn,warnx, cast
@@ -749,10 +753,10 @@
 	INCLUDES.
 	* ifconfig/system/Makefile.am: Remove ansi2knr. Add copyleft header.
 	Update INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
-	* headers/shishi_def.h: New file. 
+	* headers/shishi_def.h: New file.
 	* headers/Makefile.am (noinst_HEADERS): Add shishi_def.h
 
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
@@ -761,12 +765,12 @@
 	* gwhois/whois.h: Signal handlers return RETSIGTYPE
 	* gwhois/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* glob/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* ftpd/conf.c: Remove leftover BSD-isms: err,errx,warn,warnx, cast
@@ -786,12 +790,12 @@
 	* ftp/domacro.c: Likewise. Use do while loop instead of goto.
 	* ftp/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* doc/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-10-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* acinclude.m4: Properly quote arguments to AC_ARG_ENABLE and
@@ -803,7 +807,7 @@
 	to (void) before function calls. Use GNU error() uniformly
 	* Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
-	
+
 2005-09-22  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* whois/main.c: Changed FSF postal mail address.
@@ -834,7 +838,7 @@
 	(usage): New function.
 	(long_options, short_options, usage_str): New variables.
 	(main): Added new options `--help' and `--version'.
-	
+
 2005-09-22  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* inetd/inetd.c: Updated FSF postal mail address.
@@ -851,7 +855,7 @@
 	ifconfig/system/osf.c, ifconfig/system/osf.h,
 	ifconfig/system/qnx.c, ifconfig/system/qnx.h,
 	ifconfig/system/solaris.c, ifconfig/system/solaris.h: Updated FSF
-	postal mail address. 
+	postal mail address.
 
 2005-09-22  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -875,14 +879,14 @@
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* telnetd/pty.c, telnetd/telnetd.c, telnetd/telnetd.h,
-	telnetd/term.c, telnetd/utility.c: Updated FSF postal 
-	mail address. 
+	telnetd/term.c, telnetd/utility.c: Updated FSF postal
+	mail address.
 
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* talkd/acl.c, talkd/announce.c, talkd/intalkd.h, talkd/print.c,
 	talkd/process.c, talkd/table.c, talkd/talkd.c: Updated FSF postal
-	mail address. 
+	mail address.
 
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
 
@@ -892,7 +896,7 @@
 
 	* ping/ping.c, ping/ping6.c, ping/ping6.h, ping/ping_address.c,
 	ping/ping_common.c, ping/ping_common.h, ping/ping_echo.c,
-	ping/ping_router.c, ping/ping_timestamp.c: Updated 
+	ping/ping_router.c, ping/ping_timestamp.c: Updated
 	FSF postal mail address.
 
 2005-07-31  Sergey Poznyakoff  <gray@gnu.org.ua>
@@ -907,7 +911,7 @@
 
 	* libicmp/icmp.h, libicmp/icmp_address.c, libicmp/icmp_cksum.c,
 	libicmp/icmp_echo.c,  libicmp/icmp_timestamp.c, libicmp/libping.c,
-	libicmp/ping.h: Updated FSF postal mail address. 
+	libicmp/ping.h: Updated FSF postal mail address.
 	* libicmp/Makefile.am: Remove ansi2knr. Add copyleft header. Update
 	INCLUDES.
 
@@ -935,7 +939,7 @@
 2005-07-30  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* ping/ping.c (main,ping_run): Handle ping intervals with millisecond
-	precision. 
+	precision.
 
 2005-07-30  Sergey Poznyakoff  <gray@gnu.org.ua>
 
@@ -962,7 +966,7 @@
 	is subsumed by strtol() but is retained because it is used
 	extensively in existing code. If the number is not known to be in
 	range, strtol() should be used because atoi() is not required to
-	perform any error checking. 
+	perform any error checking.
 	* ping/ping_common.h (ping_cvt_number): Remove prototype
 
 2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
@@ -977,7 +981,7 @@
 	scalar type (struct cmd *cmdtab) with a vector is an error, which leads
 	to coredump when trying to access cmdtab.
 	* ftp/cmdtab.c: Likewise
-	
+
 2005-07-29  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* configure.ac: Remove AC_AIX, AC_MINIX, these are called by
@@ -1075,7 +1079,7 @@
 2005-06-19  Jeroen Dekkers  <jeroen@dekkers.cx>
 
 	* acinclude.m4 (IU_ENABLE_FOO): Use AS_HELP_STRING.
-	
+
 	* configure.ac: Add checks for IPv6.
 
 2005-05-01  Alfred M. Szmidt  <ams@gnu.org>
@@ -1177,7 +1181,7 @@
 	unconditionally.
 
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
-	
+
 	* configure.ac: Bump version to 1.4.3.
 
 2005-01-22  Alfred M. Szmidt  <ams@gnu.org>
@@ -1187,7 +1191,7 @@
 	* configure.ac: Don't check for __P.  Removed almost all
 	references to AH_BOTTOM, the only one that is left is so that we
 	don't have to include <confpaths.h> everywhere.
-	
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* uucpd/uucpd.c (doit): Use `crypt' instead of `CRYPT'.
@@ -1207,7 +1211,7 @@
 	(LDADD): Added `-L../lib -lgnu'.
 
 	* tftp/main.c: Use "xalloc.h" instead of <xalloc.h> when including it.
-	
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* telnetd/telnetd.h: Include "xalloc.h"
@@ -1301,15 +1305,15 @@
 	libinetutils/syslog.c, libinetutils/waitpid.c,
 	libinetutils/xalloc.h, libinetutils/xgetcwd.c,
 	libinetutils/getcwd.h, libinetutils/xmalloc.c,
-	libinetutils/xstrdup.c: Files removed. 
+	libinetutils/xstrdup.c: Files removed.
 
 	* libinetutils/localhost.c (localhost): Removed extern declaration
-	of `xrealloc'. 
+	of `xrealloc'.
 	Use `realloc' instead of `xrealloc'.
 
 	* libinetutils/xalloc_die.c: New file.
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Added
-	`xalloc_die.c'. 
+	`xalloc_die.c'.
 
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Removed
 	xmalloc.c, xstrdup.c, and xgetcwd.c.
@@ -1337,7 +1341,7 @@
 	headers/getopt.h, headers/obstack.h, headers/osockaddr.h,
 	headers/paths.h, headers/poll.h, headers/syslog-int.h,
 	headers/arpa/DISTFILES, headers/arpa/ftp.h, headers/arpa/telnet.h,
-	headers/arpa/tftp.h, headers/protocols/DISTFILES, 
+	headers/arpa/tftp.h, headers/protocols/DISTFILES,
 	headers/protocols/talkd.h: Files removed.
 
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
@@ -1359,7 +1363,7 @@
 
 	* ftp/Makefile.am (INCLUDES): Removed `-I$(top_builddir)/include'.
 	(LDADD): Added `-L../lib -lgnu'.
-	
+
 2005-01-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	Imported files from gnulib.
@@ -1429,7 +1433,7 @@
 	(AC_CONFIG_FILES): Added lib/Makefile.  Changed
 	`include/confpaths.h:headers/confpaths.h.in' to
 	`confpaths.h:confpaths.h.in'.
-	
+
 	* acinclude.m4 (IU_CONFIG_LINKS): Function removed.
 	* configure.ac: Removed all references to IU_CONFIG_LINKS.
 
@@ -1458,7 +1462,7 @@
 
 2005-01-20  Alfred M. Szmidt  <ams@gnu.org>
 
-	* libicmp/libping.c: Comply with GCS.	
+	* libicmp/libping.c: Comply with GCS.
 	(_ping_packetsize): Rewritten.
 
 2005-01-13  Alfred M. Szmidt  <ams@gnu.org>
@@ -1494,7 +1498,7 @@
 	(setpeer): Fixed coredump on hitting return after '(to)' prompt.
 	Fixed indentation.
 	* tftp/tftp.c: Fixed indentation.
-	
+
 2004-08-13  Jeff Bailey  <jbailey@raspberryginger.com>
 
 	* syslogd/syslogd.c: Fix disable forwarding option.
@@ -1587,7 +1591,7 @@
 2003-11-11  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* inetd/inetd.c: Signal handling rewritten.
-	
+
 2003-11-11  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* inetd/inetd.c: Use argcv_get to parse configuration files.
@@ -1624,7 +1628,7 @@
 	* headers/Makefile.am: Fixed disthook
 	* headers/arpa/DISTFILES: Added to the repository
 	* headers/protocols/DISTFILES: Likewise
-	
+
 2003-09-28  Alfred M. Szmidt  <ams@kemisten.nu>
 
 	* acinclude.m4 (IU_CONFIG_PATHS): New variables `IU_UCASE' and
@@ -1720,7 +1724,7 @@
 	restored.
 	* configure.ac: Removed KERBEROS_IV and KERBEROS_V defines.
         Added check for socklen_t.
-	  
+
 2003-02-08  Simon Josefsson  <jas@extundo.com>
 
         * telnet/commands.c (tn): Don't set hostname to DNS canonicalized
@@ -1786,7 +1790,7 @@
 	* ping/ping.c (main): Added spaces between cases in a switch
 	to conform to the GCS.
 
-2002-12-06  Sergey Poznyakoff  
+2002-12-06  Sergey Poznyakoff
 
 	* libtelnet/auth-proto.h: Renamed Authenticator to
 	TN_Authenticator to avoid name collisions when compiling
@@ -1816,7 +1820,7 @@
 	* configure.ac: Require autoconf 2.54
 	* Makefile.am: Require automake 1.7
 
-2002-09-30  Sergey Poznyakoff 
+2002-09-30  Sergey Poznyakoff
 
 	* syslogd/syslogd.c: Fix processing accumulated messages from
 	  /proc/kmsg (patch provided by Michael Deutschmann).
@@ -1863,13 +1867,13 @@
 	  switching to the user privileges. Thanks to
           Alex Muntada <alexm@ac.upc.es> for the idea.
 	  Removed unneded casts to (void).
-	  
+
 2002-09-06  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
 
 	* ping/ping.c (main): Removed duplicate startup introduced
 	  2002-06-24. Should have been more careful!
 
-2002-09-02  Sergey Poznyakoff 
+2002-09-02  Sergey Poznyakoff
 
 	* syslogd/syslogd.c: '**' extension (Michael Deutschmann
 	  <michael@talamasca.ocis.net> allows to catch all facilities
@@ -1906,7 +1910,7 @@
 
 	* NEWS: Update
 
-	* THANKS: Add Chris Ulherr 
+	* THANKS: Add Chris Ulherr
 
 2002-08-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
@@ -1963,14 +1967,14 @@
 
 	* tftp/tftp.c: Checks for HAVE_DECL variables must read
 	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
-	  declares HAVE_DECL, either to 0 or to 1. 	  
+	  declares HAVE_DECL, either to 0 or to 1.
 	* tftpd/tftpd.c: Likewise.
 
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* telnet/authenc.c: Checks for HAVE_DECL variables must read
 	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
-	  declares HAVE_DECL, either to 0 or to 1. 	  
+	  declares HAVE_DECL, either to 0 or to 1.
 	* telnet/commands.c: Likewise.
 
 2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
@@ -2023,7 +2027,7 @@
 
 	* ftpd/ftp.c: Checks for HAVE_DECL variables must read
 	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
-	  declares HAVE_DECL, either to 0 or to 1. 	  
+	  declares HAVE_DECL, either to 0 or to 1.
 	* ftpd/extern.h: Likewise.
 	* ftpd/ftpd.c: Likewise.
 
@@ -2178,7 +2182,7 @@
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* whois/Makefile.am (bin_PROGRAMS): Use whois_BUILD instead of
-	BUILD_WHOIS. 
+	BUILD_WHOIS.
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
@@ -2200,7 +2204,7 @@
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* telnet/Makefile.am (bin_PROGRAMS): Use telnet_BUILD instead of
-	BUILD_TELNET. 
+	BUILD_TELNET.
 	* telnet/authenc.c [HAVE_GETPASS_DECL]: Renamed to HAVE_DECL_GETPASS.
 	* telnet/commands.c [HAVE_HTONS_DECL]: Renamed to HAVE_DECL_HTONS.
 
@@ -2213,11 +2217,11 @@
 
 	* talk/Makefile.am (bin_PROGRAMS): Use talk_BUILD instead
 	of BUILD_TALK.
-			
+
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* syslogd/Makefile.am (inetdaemon_PROGRAMS): Use syslogd_BUILD
-	instead of 
+	instead of
 	BUILD_SYSLOGD.
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
@@ -2232,7 +2236,7 @@
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* rlogind/Makefile.am (inetdaemon_PROGRAMS): Use rlogind_BUILD
-	instead of 
+	instead of
 	BUILD_RLOGIND.
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
@@ -2249,11 +2253,11 @@
 
 	* rcp/Makefile.am (bin_PROGRAMS): Use rcp_BUILD instead of BUILD_RCP.
 	* rcp/rcp.c [HAVE_STRERROR_DECL]: Renamed to HAVE_DECL_STRERROR.
-		
+
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* ping/Makefile.am (bin_PROGRAMS): Use ping_BUILD instead of
-	BUILD_PING. 
+	BUILD_PING.
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
@@ -2268,11 +2272,11 @@
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* libinetutils/herror.c [HAVE_H_ERRNO_DECL]: Renamed to
-	HAVE_DECL_H_ERRNO. 
+	HAVE_DECL_H_ERRNO.
 	* libinetutils/hstrerror.c [HAVE_H_ERRLIST_DECL]: Renamed to
-	HAVE_DECL_H_ERRLIST. 
+	HAVE_DECL_H_ERRLIST.
 	* libinetutils/logwtmp.c [HAVE_ERRNO_DECL]: Renamed to
-	HAVE_DECL_ERRNO. 
+	HAVE_DECL_ERRNO.
 	* libinetutils/revoke: Likewise.
 	* libinetutils/setenv.c: Likewise.
 	[HAVE_ENVIRON_DECL]: Renamed to HAVE_DECL_ENVIRON.
@@ -2294,7 +2298,7 @@
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* gwhois/Makefile.am (bin_PROGRAMS): Use whois_BUILD instead of BUILD_WHOIS.
-	
+
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
 	* glob/Makefile.am (noinst_LIBRARIES) Use libglob_BUILD instead of
@@ -2332,7 +2336,7 @@
 	* telnetd/Makefile.am: Added @INCAUTH@ and @LIBAUTH@.
 
 	* telnetd/telnetd.c: Fixed to compile with
-	AUTHENTICATION/ENCRYPTION on. 
+	AUTHENTICATION/ENCRYPTION on.
 	* telnetd/telnetd.h: Likewise.
 	* telnetd/utility.c: Likewise.
 
@@ -2347,7 +2351,7 @@
 	  presense of kerberos v.5
 	* configure.ac: New options: --with-krb4[=PATH],
 	  --with-krb5[=PATH]
-	
+
 2002-04-07  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	* telnetd/telnetd.c (print_hostinfo): Print local host name.
@@ -2364,7 +2368,7 @@
 	  (io_setup): Initialize ptyip.
 	  (pty_input_putback): new function.
 
-2002-04-07  Sergey Poznyakoff  
+2002-04-07  Sergey Poznyakoff
 
 	* rlogind/rlogind.c: Updated for use with Kerberos V.
 
@@ -2378,7 +2382,7 @@
 2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	Major rewrite of telnetd.
-	
+
 	* telnetd/defs.h: Removed.
 	* telnetd/ext.h: Removed.
 	* telnetd/global.c: Removed.
@@ -2386,10 +2390,10 @@
         * telnetd/sys_term.c: Removed
 	* telnetd/term.c: (new) Terminal-specific functions.
 	* telnetd/Makefile.am: Modified.
-	* telnetd/telnetd.c: Rewritten.	
+	* telnetd/telnetd.c: Rewritten.
 	* telnetd/telnetd.h: Rewritten.
 	* telnetd/utility.c: Rewritten.
-	  
+
 	* telnetd/pty.c: Use obstack instead of manually allocating memory.
 
 	* telnetd/slc.c: Lots of fixes: Removed conditional dependencies on
@@ -2425,20 +2429,20 @@
 	  variable, instead of appending it to LIBS. Check for cc_t
 	  type.
 	  Raised patchlevel.
-	
+
 2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
 	Started fixing horrible mess in telnetd. To begin with,
 	segregated pty-related functions from tty-related ones.
 	Use forkpty instead of manually fiddling with lots of ifdefs.
 	The stuff has been tested on GNU/Linux and Solaris.
-	
-	* telnetd/pty.c (new): PTY-related functions. 
+
+	* telnetd/pty.c (new): PTY-related functions.
 	* telnetd/Makefile.am: Added pty.c
 	* telnetd/ext.h: Changed definition of line.
 	* telnetd/sys_term.c: Removed unneeded functions. Some of them
           are re-implemented in pty.c
-	* telnetd/telnetd.c (doit, telnet, readstream): Reorganized. 
+	* telnetd/telnetd.c (doit, telnet, readstream): Reorganized.
 
 2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
 
@@ -2591,17 +2595,17 @@
         * headers/acconfig.h: Move to ...
 	* acconfig.h: Here
 
-	* Makefile.am: Require Automake 1.5.  Add doc and doc/rfc to 
+	* Makefile.am: Require Automake 1.5.  Add doc and doc/rfc to
 	build tree.  Don't tell autoheader to look in headers/
 
         I moved config.h to the top_builddir to overcome a bug in
-	autoconf that requires the config.h to be in the same 
+	autoconf that requires the config.h to be in the same
 	directory as aclocal.m4
 
 	This meant that I also had to add
 	INCLUDES=-I$(top_builddir)/include.  The upshot is that make
 	distcheck now passes, even for $(srcdir)!=$(builddir)
-  
+
 	* .cvsignore: Add files relating moving config.h to
 	$(top_builddir)
 
@@ -3013,7 +3017,7 @@
 
 2001-09-05 Sergey Poznyakoff
 
-	* gwhois/Makefile.am: List built headers in BUILT_SOURCES so the 
+	* gwhois/Makefile.am: List built headers in BUILT_SOURCES so the
 	autodependency code works. Removed $(srcdir)/ prefix from
 	targets: the source directory might not be writable, so its
 	better to build headers in the build directory
@@ -3093,7 +3097,7 @@
 	provide a version even for platforms missing it.
 
 	* gwhois/config.h: remove and merge in whois.h
-	
+
 2001-08-26  Alain Magloire
 
 	Marco D'Itri whois is much more complete then the original
@@ -3244,23 +3248,23 @@
 	--daemon options. Kerberos code is not tested, though.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* ping/ping.c: Use inetutils_package instead of PACKAGE. Same for
 	VERSION.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* libinetutils/openpty.c: Set RMSGN|RPROTDAT on master side of pty pair, so it
 	can be read using read() call.
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* libinetutils/localhost.c: Return fully qualified domain name.
 	* libinetutils/login_tty.c: Rewritten from scratch. This version
 	works on systems lacking TIOCSCTTY ioctl (eg. Solaris).
 
 2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* configure.in: Check for setpgid(), vhangup().
 	* ping/ChangeLog: (new)
 	* libicmp/ChangeLog: (new)
@@ -3269,18 +3273,18 @@
 	* ping: See ping/ChangeLog.
 
 2001-07-10  Sergey Poznyakoff
-	
+
 	* ifconfig/if_index.c: Include ifconfig.h instead of if_index.h.
 	Reason: ifconfig.h includes system.h which contains
 	definition of ifr_index member for systems lacking it.
 	It also includes if_index.h. Thanks to Alain.
 
 2001-06-30  Sergey Poznyakoff
-	
+
 	* ifconfig/if_index.c: if_nameindex(): Actually fall back :^). Besides,
 	the return value was unspecified if socked() failed.
 	Removed # define ifr_ifindex ifr_index.
-	Use ifr_index instead of ifr_ifindex throughout the module, since 
+	Use ifr_index instead of ifr_ifindex throughout the module, since
 	the check for its presence is already made in configure.in and
 	appropriate define is in system.h.
 	if_nameindex(): reverted condition on ioctl() return.
@@ -3323,27 +3327,27 @@
 	* ifconfig/system/qnx.h: Do not define ifr_netmask.
 
 	* ifconfig/printif.h: Move check for HAVE_* introduced in last
-	change to ... 
+	change to ...
 	system.h: ... here.
 
 	* ifconfig/options.c: Revert change from Alain.
 
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	Patches by Alain:
 	* ping/ping_address.c, ping/ping_echo.c, ping/ping_router.c,
 	ping/ping_timestamp.c: 	<signal.h> -> <sys/signal.h>
 
 
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	Patches by Alain:
 	* libicmp/icmp_cksum.c, libicmp/icmp_echo.c,
 	libicmp/icmp_timestamp.c, libicmp/libping.c: use <signal.h>
 	instead of <sys/signal.h>, truncate pid_t before using as ping_ident.
 
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	Patches by Alain:
 	* libicmp/icmp_cksum.c, libicmp/icmp_echo.c,
 	libicmp/icmp_timestamp.c, libicmp/libping.c: use <signal.h>
@@ -3354,9 +3358,9 @@
 	ping/ping_timestamp.c: <signal.h> -> <sys/signal.h>
 
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	Patches by Alain:
-	
+
 	* libicmp/icmp_cksum.c, libicmp/icmp_echo.c,
 	libicmp/icmp_timestamp.c, libicmp/libping.c: use <signal.h>
 	instead of <sys/signal.h>, truncate pid_t before using as ping_ident.
@@ -3366,23 +3370,23 @@
 	ping/ping_timestamp.c: <signal.h> -> <sys/signal.h>
 
 2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* ping/Makefile.am: use @BUILD_PING@ instead of directly
 	  assigning bin_PROGRAMS.
 	* ping/ping.h: changed counters in struct PING from int to longs.
 	* ping/ping.c, ping/ping_address.c, ping/ping_echo.c,
 	ping/ping_impl.h, ping/ping_router.c, ping/ping_timestamp.c: Fixed
 	a bunch of inconsistencies (thanks to Alain). Changes to make gcc
-	-Wall less verbose. 
+	-Wall less verbose.
 
 2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* libicmp/icmp_timestamp.c: forgotten to commit yesterday :^)
 	* libicmp/ping.h: changed counters in struct PING from int to longs.
 	* libicmp/icmp.h,libping.c,
 
 2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* configure.in, Makefile.am: added libicmp and ping to build.
 	* ping/Makefile.am: use @BUILD_PING@ instead of directly
 	  assigning bin_PROGRAMS.
@@ -3392,18 +3396,18 @@
 	ping/ping_address.c, ping/ping_echo.c, ping/ping_impl.h,
 	ping/ping_router.c,ping/ping_timestamp.c: Fixed a bunch of
 	inconsistencies (thanks to Alain). Changes to make gcc -Wall less
-	verbose. 
+	verbose.
 
 2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* ping/Makefile.am: added OMIT_DEPENDENCIES
 	* ping/ping.c, ping/ping_address.c, ping/ping_echo.c,
 	ping/ping_impl.h, ping/ping_timestamp.c: Implemented
 	ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests.  None of existing
-	routers answers the latter, though. 
+	routers answers the latter, though.
 
 2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* libicmp/Makefile.am: added icmp_address.c
 	* libicmp/icmp_address.c: added.
 	* libicmp/icmp.h: added new protos
@@ -3415,16 +3419,16 @@
 	* ping/ping.c, ping/ping_address.c, ping/ping_echo.c,
 	ping/ping_impl.h, ping/ping_timestamp.c: Implemented
 	ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests. None of existing
-	routers answers the latter, though. 
+	routers answers the latter, though.
 
 2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* ping/ping.c: implemented
 	* ping/ping_address.c,  ping/ping_echo.c,  ping/ping_impl.h,
 	ping/ping_router.c,  ping/ping_timestamp.c: added to repository.
-	  
+
 2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
-	
+
 	* libicmp/Makefile.am, libicmp/icmp.h, libicmp/icmp_cksum.c,
 	libicmp/icmp_echo.c, libicmp/icmp_timestamp.c, libicmp/libping.c,
 	libicmp/ping.h: added to repository. Currently it is more libping
@@ -3442,7 +3446,7 @@
 2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
 
         * ftpd/ftpd.c: MAP_FAILED is not defined on some systems
-	(e.g. Solaris, SunOS)	
+	(e.g. Solaris, SunOS)
         * headers/paths.h: Added missing _PATH_LOGCONF, _PATH_LOGPID,
         _PATH_LOG
         * libls/print.c: Provided defaults for major() and minor() macros
@@ -3477,7 +3481,7 @@
 
 	Lots of small fixes submitted Sergey Poznyakoff
 	<gray@Mirddin.farlep.net>:
-	
+
 	* ifconfig/ifconfig.h: Do not include <config.h>.
 	* ifconfig/printif.h: Likewise.
 	* ifconfig/changeif.c: Include <sys/socket.h>.
@@ -3492,7 +3496,7 @@
 	* ifconfig/system/osf.c (system_configure): Likewise.
 	* ifconfig/system/hpux.c (system_configure): Likewise.
 	* ifconfig/system/solaris.c (system_parse_opt_rest): Fix order of
-	operators. 
+	operators.
 	(system_default_format): Fix syntax.
 	Include <sys/socket.h>, <netinet/in.h>, <netinet/if_ether.h>
 	(rather than <linux/if_ether.h>).
@@ -3527,7 +3531,7 @@
 2001-05-07  Jeff Bailey  <jbailey@oasis.zugzug.com>
 
 	* ifconfig/system/Makefile.am: New File, for 'make dist' derived
-	targets. 
+	targets.
 
 	* ifconfig/Makefile.am: Add printif.h and system.h to noinst_HEADERS.
 
@@ -3568,7 +3572,7 @@
 	* ftp/ftp.c (login) : The variable "line" is used as a target of
 	strcpy. Unfortunately, the readline() changes cause this to be
 	NULL when processing an automatic login via $HOME/.netrc.
-	Bug and patch for ftp.c provided by "B. D. Elliott" <bde@nwlink.com>. 
+	Bug and patch for ftp.c provided by "B. D. Elliott" <bde@nwlink.com>.
 
 2001-02-22  Marcus Brinkmann  <marcus@gnu.org>
 
@@ -3629,7 +3633,7 @@
 	* libinetutils/localhost.c (localhost): Make an initial guess of
 	256 for the name length: SUSv2 says a hostname is up to 255
 	characters long, and doesn't specify any error codes, so stay on
-	the safe side. 
+	the safe side.
 
 2000-10-31  Marcus Brinkmann  <marcus@gnu.org>
 
@@ -3673,7 +3677,7 @@
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
 
 	* rcp/rcp.c (rsource): Don't take the address of a pointer when
-	the pointer 
+	the pointer
 	is what we need, so change &statp to statp.
 
 2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
@@ -3790,11 +3794,11 @@
 2000-08-16  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd/syslogd.c (usage): If err != 0, print Usage: ... line to
-	stdout. 
+	stdout.
 	Uppercase all sentences.
 	(main): Fix indentation in while condition and add a newline after
 	a break statement.
-	
+
 2000-08-16  Alain Magloire
 
 	* logger/logger.c: syslog.c rename logger.c
@@ -3963,7 +3967,7 @@
 
 	* doc/doc/inetutils.texi doc/syslogd.texi
 	First draft.
-	
+
 2000-08-06 Alain Magloire
 
 	* telnet/ring.h: error in the prototype declarion of ring_mark().
@@ -3977,7 +3981,7 @@
 2000-08-05  Alain Magloire
 
 	* libinetutils/localhost.c: No longer use static buffers to cache
-	the result. 
+	the result.
 	This cause subtil bugs and make it impossible in non-threaded
 	environment if we ever move to it.
 
@@ -4009,7 +4013,7 @@
 	* libinetutils/daemon.c (waitdaemon): New function from FreeBSD
 	syslogd rev 1.66.
 	(waitdaemon_timeout): Likewise (but called timedout in FreeBSD
-	syslogd). 
+	syslogd).
 	(daemon): Redefine in terms of the more generic waitdaemon.
 
 2000-08-03 Jeff Bailey
@@ -4271,7 +4275,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
-	
+
 2000-07-05 Alain Magloire
 
 	* talk/*: Clause 3 removed.
@@ -4286,7 +4290,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
-	
+
 2000-07-05 Alain Magloire
 
 	* rshd/*: Clause 3 removed.
@@ -4391,7 +4395,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
-	
+
 2000-07-05 Alain Magloire
 
 	* libtelnet/*: Clause 3 removed.
@@ -4406,7 +4410,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
-	
+
 2000-07-05 Alain Magloire
 
 	* libinetutils/*: Clause 3 removed.
@@ -4451,7 +4455,7 @@
 
 	This means that we can delete that paragraph from all files which give
 	the University of California as the only copyright holder."
-	
+
 2000-07-05 Alain Magloire
 
 	* ftp/*: Clause 3 removed.
@@ -4505,7 +4509,7 @@
 	* libinetutils/Makefile.am : added PATHDEF_WTMPX in INCLUDES.
 	* libinetutils/libinetutils/utmp_logout.c: WTMPX_FILE change for
 	PATH_WTMPX.
-	
+
 Adding poll() bring to light that we do the creation of sockets
 inside init(), this has the unfortunate side effect of close()ing
 and  recreating the sockets at every SIGHUP.  This was done to
@@ -4611,7 +4615,7 @@ Code indenting to conform to GNU style.
 2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
 
 	* syslogd/syslogd.c: If HAVE_SYS_TYPES_H, include <sys/types> for
-	pid_t. 
+	pid_t.
 	New global variable fklog.
 	(main): Fix comment. Remove local variables fklog, sunx, sin.
 	(die): Close fklog if open.
@@ -4985,7 +4989,7 @@ AC_REPLACE_FUNC (setproctitle).
 	as a short. The relevant RFC's do not indicate that this is supposed to
 	be the case.
 	Patch and Email exchange from Nathan Neulinger.
-	
+
 1999-17-02 Alain Magloire
 
 	* rexecd/rexecd.c : check HAVE_SOCKADDR_IN_SIN_LEN before
@@ -5013,7 +5017,7 @@ AC_REPLACE_FUNC (setproctitle).
 	Remove from CVS repository - They are automatically generated.
 
 1999-06-12 Jeff Smith
-	
+
 	* ftp/cmds.c/getit(): Y2K problem with MDTM.
 	* ftp/cmds.c/{setntrans,dotrans}(): use sizeof(ntin)/sizeof(ntout)
 	instead of hardcoded numbers(was 16).
@@ -5021,32 +5025,32 @@ AC_REPLACE_FUNC (setproctitle).
 	* ftp/cmds.c: Typos in comments corrected.
 
 1999-05-19  Jeff Bayley
-	
+
 	* uucpd/Makefile.am : add LIBUTIL, needed for the Hurd.
-	
+
 1999-05-19 Alain Magloire
-	
+
 	* telnetd/telnetd.h: If HAVE_PTSNAME is defined, we assume that the
 	platform can handle SYSVR4 pseudo ttys and define STREAMSPTY.
 
 1999-05-19 Alain Magloire
-	
+
 	* rlogind/rlogind.c : make an utmp entry before exec(login);
 	remove entry in cleanup().
 
 1999-05-19  Jeff Bayley
-	
+
 	* rlogind/Makefile.am : add LIBUTIL, needed for the Hurd.
-	
+
 1999-05-19  Alain Magloire
-	
+
 	* ftp/ruserpass.c: MACH was define on Hurd.  We protect
 	the defines before using them, MACH was change to MACHINE.
 	Noted by the Hurd people(Bayley, Marcus)
     	* cmds.c : use xgetcwd().
-	
+
 1999-05-19 Alain Magloire
-	
+
 	* configure.in : check for ptsname(), this will give
 	a hint to use SYSVR4 pseudo ptys handling.  particularly
 	for telnetd and rlogind.
@@ -5057,13 +5061,13 @@ AC_REPLACE_FUNC (setproctitle).
 	* configure.in : add check for getcwd, since we use xgetcwd.
 
 1999-05-18 Dan Stromberg
-	
+
 	* headers/arpa/tftp.h : changing tu_clock to be unsigned to handle
 	larger files (twice as big), without sacrificing anything.
 	We need this to allow sgis to roboinst from a sun tftp server.
 
 1999-05-16 Alain Magloire
-	
+
 	* config.guess, config.sub: files removed from the repository.
 	We let automake -a create a newer version when releasing
 	From Jeff Bailey.
@@ -5071,18 +5075,18 @@ AC_REPLACE_FUNC (setproctitle).
 	Noted by Jeff Bailey.
 
 1999-05-14 Alain Magloire
-	
+
 	* libinetutils/opentty.c : writing on a constant string
 	"/dev/ptyXX" would cause the server to sigsegv.  Change
 	to be an array.
 	Problem first noted by Frederic Goudal.
 
 1999-04-18 Alain Magloire
-	
+
 	* whois/main.c : protect FN_* defines.
-	
+
 1999-04-18 Alain Magloire
-	
+
 	* configure.in: ping disable.
 	* configure.in: make links for fnmatch
 	* libinetutils/snprintf.[ch] : support for "%ul".
@@ -5109,7 +5113,7 @@ AC_REPLACE_FUNC (setproctitle).
 	* rshd/initialise s(socket descriptor) s = (sockfd).
 
 	* rshd/Add more comments.
-	
+
 1999-03-13 Alain Magloire
 
 	* rsh/ChangeLog : New file.
@@ -5117,7 +5121,7 @@ AC_REPLACE_FUNC (setproctitle).
 	* rsh/Before doing an exec revert euid to real uid.
 
 	* rsh/Use the right maxfd in select().
-	
+
 1999-02-26 Alain Magloire
 
 	The security fixes are gather from different sources:
@@ -5131,7 +5135,7 @@ AC_REPLACE_FUNC (setproctitle).
 
 	* telnetd/rexecd.c : check HAVE_SOCKADDR_IN_SIN_LEN before
 	doing static initialization.
-	
+
 1999-02-17 Alain Magloire
 
 	* ftpd/ftpd.c(send_data): Use mmap() if possible, HAVE_MMAP.
@@ -5170,7 +5174,7 @@ AC_REPLACE_FUNC (setproctitle).
 	* ftpd/ftpcmd.y : MDTM year 2000 compliant use %04d (tm_year + 1900).
 	* ftpd/ftpcmd.y : SITE IDLE not permit to disable timeout and
 		check login.
-		
+
 1999-02-13 Alain Magloire
 
 	* ChangeLog.0 : New file, mv ChangeLog ChangeLog.0.
@@ -5196,7 +5200,7 @@ Fri Jul 19 16:56:41 1996  Roland McGrath  <roland@delasyd.gnu.ai.mit.edu>
 Sat Jun 22 10:44:09 1996  Roland McGrath  <roland@delasyd.gnu.ai.mit.edu>
 
 	* glob/posix/glob.c: Include <alloca.h> only [HAVE_ALLOCA_H], not
-	[sparc]. 
+	[sparc].
 
 Fri Jun 21 00:27:51 1996  Roland McGrath  <roland@delasyd.gnu.ai.mit.edu>
 
@@ -5417,8 +5421,7 @@ russion letters.  Thanks to Vladas Lapinskas <lapinskas@mail.iae.lt>.
 1999-06-08  Marcus Brinkmann  <brinkmd@debian.org>
 
 	* syslogd/syslogd/syslogd.c (fprintlog): Use snprintf instead of
-	sprintf. 
+	sprintf.
 	* syslogd/syslogd/syslogd.c: Fixed typo in comment.
 	* syslogd/syslogd/syslogd.c: Include <version.h>.
 	(main): Add option -V (version).
-
