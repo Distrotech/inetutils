@@ -1,3 +1,8 @@
+2007-04-19  Alfred M. Szmidt  <ams@gnu.org>
+
+	* whois/Makefile.am, whois/main.c, whois/net.c,
+	whois/whois-servers: Files removed.
+
 2007-04-12  Simon Josefsson  <simon@josefsson.org>
 
 	* tests/.cvsignore: New file.
