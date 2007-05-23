@@ -9,7 +9,7 @@
 	(args_doc, doc, argp_options): New variables.
 	(parse_opt): New function.
 	(argp): New variable.
-	(main) Use argp to parse program options.
+	(main): Use argp to parse program options.
 
 2007-05-23  Alfred M. Szmidt  <ams@localhost>
 
