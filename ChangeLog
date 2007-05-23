@@ -4,7 +4,8 @@
 
 2007-05-23  Debarshi Ray  <rishi@gnu.org>
 
-	* traceroute/Makefile.am (INCLUDES): Added -I$(top_srcdir)/libinetutils.
+	* traceroute/Makefile.am (INCLUDES): Added
+	-I$(top_srcdir)/libinetutils.
 
 	* traceroute/traceroute.c: Don't include <getopt.h>.  Include
 	<argp.h> and "libinetutils.h".  Use error() instead of "output
