@@ -49,14 +49,14 @@
 #include <errno.h>
 #include <limits.h>
 #include <assert.h>
-#include <getopt.h>
+#include <argp.h>
 #include <icmp.h>
 
+#include "libinetutils.h"
 #include "traceroute.h"
 
 #define TIME_INTERVAL 3
 
-void show_usage (void);
 void do_try (trace_t * trace, const int hop,
 	     const int max_hops, const int max_tries);
 
@@ -64,105 +64,82 @@ char *get_hostname (struct in_addr *addr);
 
 int stop = 0;
 int pid = 0;
+struct hostent *host;
 struct sockaddr_in dest;
-
-char *program_name;
 
 int opt_port = 33434;
 int opt_max_hops = 64;
 int opt_max_tries = 3;
 int opt_resolve_hostnames = 0;
 
-#define OPT_VERSION 1
-#define OPT_HELP 2
-#define OPT_RESOLVE_HOSTNAMES 3
+ARGP_PROGRAM_DATA ("traceroute", "2007", "Elian Gidoni");
 
-char short_options[] = "p:";
-struct option long_options[] = {
-  {"port", required_argument, NULL, 'p'},
-  {"resolve-hostnames", no_argument, NULL, OPT_RESOLVE_HOSTNAMES},
-  {"version", no_argument, NULL, OPT_VERSION},
-  {"help", no_argument, NULL, OPT_HELP},
+const char args_doc[] = "HOST";
+const char doc[] = "Print the route packets trace to network host.";
+
+/* Define keys for long options that do not have short counterparts. */
+enum {
+  OPT_RESOLVE = 256
 };
 
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {"port", 'p', "PORT", 0, "Use destination PORT port (default: 33434)",
+   GRP+1},
+  {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "Resolve hostnames", GRP+1},
+#undef GRP
+  {NULL}
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  char *p;
+  static bool host_is_given = false;
+
+  switch (key)
+    {
+    case 'p':
+      opt_port = strtoul (arg, &p, 0);
+      if (*p || opt_port == 0 || opt_port > 65536)
+        error (EXIT_FAILURE, 0, "invalid port number `%s'", arg);
+      break;
+
+    case OPT_RESOLVE:
+      opt_resolve_hostnames = 1;
+      break;
+
+    case ARGP_KEY_ARG:
+      host_is_given = true;
+      host = gethostbyname (arg);
+      if (host == NULL)
+        error (EXIT_FAILURE, 0, "unknown host");
+      break;
+
+    case ARGP_KEY_SUCCESS:
+      if (!host_is_given)
+        argp_error (state, "missing host operand");
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 int
 main (int argc, char **argv)
 {
-  int c;
-  struct hostent *host;
   trace_t trace;
 
-  program_name = argv[0];
-
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (c)
-	{
-	case OPT_VERSION:
-	  printf ("traceroute (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  printf ("Copyright (C) 2007 Free Software Foundation, Inc.\n");
-	  printf
-	    ("This is free software.  You may redistribute copies of it under the terms of\n");
-	  printf
-	    ("the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.\n");
-	  printf
-	    ("There is NO WARRANTY, to the extent permitted by law.\n\n");
-	  printf ("Written by Elian Gidoni.\n");
-	  exit (0);
-	  break;
-
-	case OPT_HELP:
-	  show_usage ();
-	  exit (0);
-	  break;
-
-	case OPT_RESOLVE_HOSTNAMES:
-	  opt_resolve_hostnames = 1;
-	  break;
-
-	case 'p':
-	  {
-	    char *p;
-	    opt_port = strtoul (optarg, &p, 0);
-	    if (*p || opt_port == 0 || opt_port > 65536)
-	      error (1, 0, "invalid port number `%s'\n", optarg);
-	  }
-	  break;
-
-	default:
-	  fprintf (stderr,
-		   "Try `%s --help' for more information.\n", program_name);
-	  exit (1);
-	  break;
-	}
-    }
-
-  if (optind < argc)
-    {
-      host = gethostbyname (argv[optind]);
-      if (host == NULL)
-	error (1, 0, "%s: %s", argv[optind], hstrerror (h_errno));
-    }
-
-  argc -= optind;
-  argv += optind;
-  if (argc == 0)
-    {
-      error (0, 0, "insufficient arguments");
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-      exit (1);
-    }
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   if (getuid () != 0)
-    {
-      error (0, 0, "insufficient permissions");
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-      exit (1);
-    }
+    error (EXIT_FAILURE, EPERM, "insufficient permissions");
 
   dest.sin_addr = *(struct in_addr *) host->h_addr;
   dest.sin_family = AF_INET;
@@ -185,20 +162,6 @@ main (int argc, char **argv)
     }
 
   exit (0);
-}
-
-void
-show_usage (void)
-{
-  printf
-    ("Usage: traceroute [OPTION]... HOST\n"
-     "\n"
-     "   -p, --port=PORT           (default: 33434)\n"
-     "       --resolve-hostnames   resolve hostnames\n"
-     "       --help                display this help and exit\n"
-     "       --version             output version information and exit\n"
-     "\n"
-     "Report bugs to <" PACKAGE_BUGREPORT ">.\n");
 }
 
 void
@@ -240,7 +203,7 @@ do_try (trace_t * trace, const int hop,
 	      /* was interrupted */
 	      break;
 	    default:
-	      error (1, 1, "select failed");
+              error (EXIT_FAILURE, EPERM, "select failed");
 	      break;
 	    }
 	}
@@ -317,17 +280,11 @@ trace_init (trace_t * t, const struct sockaddr_in to,
     {
       t->udpfd = socket (PF_INET, SOCK_DGRAM, 0);
       if (t->udpfd < 0)
-	{
-	  perror ("socket");
-	  exit (EXIT_FAILURE);
-	}
+        error (EXIT_FAILURE, errno, "socket");
 
       if (setsockopt (t->udpfd, IPPROTO_IP, IP_TTL, ttlp, 
 		      sizeof (t->ttl)) < 0)
-	{
-	  perror ("setsockopt");
-	  exit (EXIT_FAILURE);
-	}
+        error (EXIT_FAILURE, errno, "setsockopt");
     }
 
   if (t->type == TRACE_ICMP || t->type == TRACE_UDP)
@@ -337,22 +294,16 @@ trace_init (trace_t * t, const struct sockaddr_in to,
 	{
 	  t->icmpfd = socket (PF_INET, SOCK_RAW, protocol->p_proto);
 	  if (t->icmpfd < 0)
-	    {
-	      perror ("socket");
-	      exit (EXIT_FAILURE);
-	    }
+            error (EXIT_FAILURE, errno, "socket");
 
 	  if (setsockopt (t->icmpfd, IPPROTO_IP, IP_TTL,
 			  ttlp, sizeof (t->ttl)) < 0)
-	    {
-	      perror ("setsockopt");
-	      exit (EXIT_FAILURE);
-	    }
+            error (EXIT_FAILURE, errno, "setsockopt");
 	}
       else
 	{
 	  /* FIXME: Should we error out? */
-	  fprintf (stderr, "can't find supplied protocol 'icmp'.\n");
+          error (EXIT_FAILURE, 0, "can't find supplied protocol 'icmp'");
 	}
 
       /* free (protocol); ??? */
@@ -390,10 +341,7 @@ trace_read (trace_t * t)
   len = recvfrom (t->icmpfd, (char *) data, 56, 0,
 		  (struct sockaddr *) &t->from, &siz);
   if (len < 0)
-    {
-      perror ("recvfrom");
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno, "recvfrom");
 
   icmp_generic_decode (data, 56, &ip, &ic);
 
@@ -470,16 +418,12 @@ trace_write (trace_t * t)
 	      case ECONNRESET:
 		break;
 	      default:
-		perror ("sendto");
-		exit (EXIT_FAILURE);
+                error (EXIT_FAILURE, errno, "sendto");
 	      }
 	  }
 	
 	if (gettimeofday (&t->tsent, NULL) < 0)
-	  {
-	    perror ("gettimeofday");
-	    exit (EXIT_FAILURE);
-	  }
+          error (EXIT_FAILURE, errno, "gettimeofday");
       }
       break;
       
@@ -499,16 +443,12 @@ trace_write (trace_t * t)
 	      case ECONNRESET:
 		break;
 	      default:
-		perror ("sendto");
-		exit (EXIT_FAILURE);
+                error (EXIT_FAILURE, errno, "sendto");
 	      }
 	  }
 	
 	if (gettimeofday (&t->tsent, NULL) < 0)
-	  {
-	    perror ("gettimeofday");
-	    exit (EXIT_FAILURE);
-	  }
+          error (EXIT_FAILURE, errno, "gettimeofday");
       }
       break;
       
@@ -545,10 +485,7 @@ trace_inc_ttl (trace_t * t)
   t->ttl++;
   fd = (t->type == TRACE_UDP ? t->udpfd : t->icmpfd);
   if (setsockopt (fd, IPPROTO_IP, IP_TTL, ttlp, sizeof (t->ttl)) < 0)
-    {
-      perror ("setsockopt");
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno, "setsockopt");
 }
 
 void
