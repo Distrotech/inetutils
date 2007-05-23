@@ -41,7 +41,7 @@ char *hostname;
 ARGP_PROGRAM_DATA ("talkd", "2007", "Sergey Poznyakoff");
 
 const char args_doc[] = "";
-const char doc[] = "Log system messages.";
+const char doc[] = "Talk daemon.";
 
 static struct argp_option argp_options[] = {
 #define GRP 0
