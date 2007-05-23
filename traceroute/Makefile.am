@@ -24,7 +24,7 @@ traceroute_SOURCES = traceroute.c
 
 noinst_HEADERS = traceroute.h
 
-INCLUDES = -I$(top_srcdir)/libicmp
+INCLUDES = -I$(top_srcdir)/libicmp -I$(top_srcdir)/libinetutils
 
 LDADD = -L../libicmp -licmp
 
