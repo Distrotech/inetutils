@@ -1,3 +1,7 @@
+2007-05-23  Alfred M. Szmidt  <ams@localhost>
+
+	* talkd/talkd.c (doc): Fix typo.
+
 2007-05-23  Debarshi Ray  <rishi@gnu.org>
 
 	* talkd/talkd.c: Include <argp.h>.  Don't include <getopt.h>.
