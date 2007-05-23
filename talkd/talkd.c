@@ -17,34 +17,17 @@
    to the Free Software Foundation, Inc., 51 Franklin Street,
    Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <argp.h>
 #include <intalkd.h>
 #include <signal.h>
-#include <getopt.h>
 #include <libinetutils.h>
 
 #ifndef LOG_FACILITY
 # define LOG_FACILITY LOG_DAEMON
 #endif
 
-static void show_usage (void);
-static void show_version (void);
-static void show_license (void);
 void talkd_init (void);
 void talkd_run (int fd);
-
-static char short_options[] = "VLha:di:r:t:";
-static struct option long_options[] = {
-  /* Help options */
-  {"version", no_argument, NULL, 'V'},
-  {"license", no_argument, NULL, 'L'},
-  {"help", no_argument, NULL, 'h'},
-  {"acl", required_argument, NULL, 'a'},
-  {"debug", no_argument, NULL, 'd'},
-  {"idle-timeout", required_argument, NULL, 'i'},
-  {"timeout", required_argument, NULL, 't'},
-  {"request-ttl", required_argument, NULL, 'r'},
-  {NULL, no_argument, NULL, 0}
-};
 
 /* Configurable parameters: */
 int debug;
@@ -52,61 +35,66 @@ unsigned int timeout = 30;
 time_t max_idle_time = 120;
 time_t max_request_ttl = MAX_LIFE;
 
+char *acl_file;
 char *hostname;
-char *program_name;
+
+ARGP_PROGRAM_DATA ("talkd", "2007", "Sergey Poznyakoff");
+
+const char args_doc[] = "";
+const char doc[] = "Log system messages.";
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {"acl", 'a', "FILE", 0, "Read site-wide ACLs from FILE", GRP+1},
+  {"debug", 'd', NULL, 0, "Enable debugging", GRP+1},
+  {"idle-timeout", 'i', "SECONDS", 0, "Set idle timeout value to SECONDS",
+   GRP+1},
+  {"request-ttl", 'r', "SECONDS", 0, "Set request time-to-live value to "
+   "SECONDS", GRP+1},
+  {"timeout", 't', "SECONDS", 0, "Set timeout value to SECONDS", GRP+1},
+#undef GRP
+  {NULL}
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *st)
+{
+  switch (key)
+    {
+    case 'a':
+      acl_file = arg;
+      break;
+
+    case 'd':
+      debug++;
+      break;
+
+    case 't':
+      timeout = strtoul (arg, NULL, 0);
+      break;
+
+    case 'i':
+      max_idle_time = strtoul (arg, NULL, 0);
+      break;
+
+    case 'r':
+      max_request_ttl = strtoul (arg, NULL, 0);
+      break;
+
+    default:
+      ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 int
 main (int argc, char *argv[])
 {
-  int c;
-  char *acl_file = NULL;
-
-  program_name = argv[0];
-
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (c)
-	{
-	case 'V':
-	  show_version ();
-	  exit (0);
-	  break;
-
-	case 'L':
-	  show_license ();
-	  exit (0);
-
-	case 'h':
-	  show_usage ();
-	  exit (0);
-	  break;
-
-	case 'a':
-	  acl_file = optarg;
-	  break;
-
-	case 'd':
-	  debug++;
-	  break;
-
-	case 't':
-	  timeout = strtoul (optarg, NULL, 0);
-	  break;
-
-	case 'i':
-	  max_idle_time = strtoul (optarg, NULL, 0);
-	  break;
-
-	case 'r':
-	  max_request_ttl = strtoul (optarg, NULL, 0);
-	  break;
-
-	default:
-	  fprintf (stderr, "talkd: %c: not implemented\n", c);
-	  exit (1);
-	}
-    }
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   read_acl (acl_file);
   talkd_init ();
@@ -170,53 +158,3 @@ talkd_run (int fd)
     }
 }
 
-
-void
-show_version ()
-{
-  printf ("talkd - %s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-  printf ("Copyright (C) 2001 Free Software Foundation, Inc.\n");
-  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", PACKAGE_NAME);
-  printf ("You may redistribute copies of %s\n", PACKAGE_NAME);
-  printf ("under the terms of the GNU General Public License.\n");
-  printf ("For more information about these matters, ");
-  printf ("see the files named COPYING.\n");
-}
-
-void
-show_license (void)
-{
-  static char license_text[] =
-    "   This program is free software; you can redistribute it and/or modify\n"
-    "   it under the terms of the GNU General Public License as published by\n"
-    "   the Free Software Foundation; either version 2, or (at your option)\n"
-    "   any later version.\n"
-    "\n"
-    "   This program is distributed in the hope that it will be useful,\n"
-    "   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-    "   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-    "   GNU General Public License for more details.\n"
-    "\n"
-    "   You should have received a copy of the GNU General Public License\n"
-    "   along with this program; if not, write to the Free Software\n"
-    "   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
-  printf ("%s", license_text);
-}
-
-void
-show_usage (void)
-{
-  printf ("\
-Usage: talkd [OPTION]...\n\
-\n\
-Options are:\n\
-  -a, --acl FILE         read site-wide ACLs from FILE\n\
-  -d, --debug            enable debugging\n\
-  -i, --idle-timeout SECONDS  set idle timeout value\n\
-  -r, --request-ttl SECONDS   set request time-to-live value\n\
-  -t, --timeout SECONDS       set timeout value\n\
-Informational options:\n\
-  -h, --help             display this help and exit\n\
-  -L, --license          display license and exit\n\
-  -V, --version          output version information and exit\n");
-}
