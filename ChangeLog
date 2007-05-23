@@ -1,3 +1,16 @@
+2007-05-23  Debarshi Ray  <rishi@gnu.org>
+
+	* talkd/talkd.c: Include <argp.h>.  Don't include <getopt.h>.
+	(show_usage, show_version, show_license): Functions removed.
+	(short_options, long_options): Variables removed.
+	(acl_file): New variable.
+	(program_name): Variable removed.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc, argp_options): New variables.
+	(parse_opt): New function.
+	(argp): New variable.
+	(main) Use argp to parse program options.
+
 2007-05-23  Alfred M. Szmidt  <ams@localhost>
 
 	* bootstrap.conf (gnulib_modules): Added "argp".
