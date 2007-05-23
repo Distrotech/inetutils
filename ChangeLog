@@ -1,3 +1,31 @@
+2007-05-23  Alfred M. Szmidt  <ams@localhost>
+
+	* bootstrap.conf (gnulib_modules): Added "argp".
+
+2007-05-23  Debarshi Ray  <rishi@gnu.org>
+
+	* traceroute/Makefile.am (INCLUDES): Added -I$(top_srcdir)/libinetutils.
+
+	* traceroute/traceroute.c: Don't include <getopt.h>.  Include
+	<argp.h> and "libinetutils.h".  Use error() instead of "output
+	message; exit;" concoction's.
+	(show_usage): Function removed.
+	(program_name): Variable removed.
+	(host): New variable.
+	(OPT_VERSION, OPT_HELP, OPT_RESOLVE_HOSTNAMES): Macros removed.
+	(shor_options, option long_options): Variable removed.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc): New variables.
+	(OPT_RESOLVE): New enum.
+	(argp_options): New variable.
+	(parse_opt): New function.
+	(main) Use argp to parse program options.
+
+2007-05-23  Debarshi Ray  <rishi@gnu.org>
+
+	* libinetutils/libinetutils.h: Include "config.h".
+	(ARGP_PROGRAM_DATA): New macro.
+
 2007-04-19  Alfred M. Szmidt  <ams@gnu.org>
 
 	* NEWS: Minor clean up.
