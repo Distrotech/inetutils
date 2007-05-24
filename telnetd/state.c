@@ -31,10 +31,10 @@
 #include <stdarg.h>
 
 /* Format lines for corresponing commands */
-unsigned char doopt[] = { IAC, DO, '%', 'c', 0 };
-unsigned char dont[] = { IAC, DONT, '%', 'c', 0 };
-unsigned char will[] = { IAC, WILL, '%', 'c', 0 };
-unsigned char wont[] = { IAC, WONT, '%', 'c', 0 };
+char doopt[] = { IAC, DO, '%', 'c', 0 };
+char dont[] = { IAC, DONT, '%', 'c', 0 };
+char will[] = { IAC, WILL, '%', 'c', 0 };
+char wont[] = { IAC, WONT, '%', 'c', 0 };
 int not42 = 1;
 
 /*

@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
    Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
@@ -1361,7 +1361,7 @@ newstr (const char *cp)
 void
 set_proc_title (char *a, int s)
 {
-  int size;
+  socklen_t size;
   char *cp;
 #ifdef IPV6
   struct sockaddr_storage saddr;
@@ -1420,7 +1420,8 @@ void
 echo_dg (int s, struct servtab *sep)
 {
   char buffer[BUFSIZE];
-  int i, size;
+  int i;
+  socklen_t size;
 #ifdef IPV6
   struct sockaddr_storage sa;
 #else
@@ -1523,7 +1524,8 @@ chargen_dg (int s, struct servtab *sep)
   struct sockaddr sa;
 #endif
   static char *rs;
-  int len, size;
+  int len;
+  socklen_t size;
   char text[LINESIZ + 2];
 
   sep;				/* shutup gcc */
@@ -1594,7 +1596,7 @@ machtime_dg (int s, struct servtab *sep)
 #else
   struct sockaddr sa;
 #endif
-  int size;
+  socklen_t size;
 
   sep;				/* shutup gcc */
   size = sizeof sa;
@@ -1631,7 +1633,7 @@ daytime_dg (int s, struct servtab *sep)
 #else
   struct sockaddr sa;
 #endif
-  int size;
+  socklen_t size;
 
   sep;				/* shutup gcc */
   lclock = time ((time_t *) 0);

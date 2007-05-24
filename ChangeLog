@@ -1,5 +1,16 @@
 2007-05-24  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ftpd/ftpd.c (main): Changed type of ADDRLEN to socklen_t.
+	(dataconn): Changed type of S and FROMLEN to socklen_t.
+	(passive): Changed type of LEN to socklen_t.
+
+	* inetd/inetd.c (set_proc_title, echo_dg, chargen_dg, machtime_dg,
+	daytime_dg): Changed type of SIZE to socklen_t.
+
+	* telnetd/state.c (doopt, dont, will, wont): Changed type to char [].
+
+2007-05-24  Alfred M. Szmidt  <ams@gnu.org>
+
 	* traceroute/traceroute.c (do_try): Removed variable PREV_TRACE.
 	New variable PREV_ADDR.  Only print the IP/hostname if the
 	previous IP was not the same.

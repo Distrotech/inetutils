@@ -445,7 +445,7 @@ main (int argc, char *argv[], char **envp)
     }
   else
     {
-      int addrlen = sizeof (his_addr);
+      socklen_t addrlen = sizeof (his_addr);
       if (getpeername (STDIN_FILENO, (struct sockaddr *) &his_addr,
 		       &addrlen) < 0)
 	{
@@ -465,7 +465,7 @@ main (int argc, char *argv[], char **envp)
 
   /* Get info on the ctrl connection.  */
   {
-    int addrlen = sizeof (ctrl_addr);
+    socklen_t addrlen = sizeof (ctrl_addr);
     if (getsockname (STDIN_FILENO, (struct sockaddr *) &ctrl_addr,
 		     &addrlen) < 0)
       {
@@ -1072,7 +1072,8 @@ dataconn (const char *name, off_t size, const char *mode)
   if (pdata >= 0)
     {
       struct sockaddr_in from;
-      int s, fromlen = sizeof (from);
+      socklen_t s; 
+      socklen_t fromlen = sizeof (from);
 
       signal (SIGALRM, toolong);
       alarm ((unsigned) timeout);
@@ -1729,7 +1730,7 @@ myoob (int signo ARG_UNUSED)
 void
 passive (void)
 {
-  int len;
+  socklen_t len;
   char *p, *a;
 
   pdata = socket (AF_INET, SOCK_STREAM, 0);
