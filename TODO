@@ -1,16 +1,9 @@
-Add proper check for yacc to configure.ac.
-
-Handle missing makeinfo gracefully.
-
 Add long options to programs libls/ls.c, rcp, rlogind, rlogin, rshd,
 telnetd, tftpd, especially the clients.  The conventions used by
 telnet & ftp should be followed.
 
 Merge the functionality of Noah [Friedman]'s ftp client into ftp
 (readline support, &c), and add readline to the distribution.
-
-Merge changes between the bsd-lite-2 release (which is the latest bsd
-source that this code is based on) and some recent version of netbsd.
 
 Move the horrible mess of code from telnetd/sys_term.c into functions
 in libinetutils using the BSD libutil functionality (such that they
@@ -56,7 +49,6 @@ Add more utilities:
   routed?
   ruptime?
   rusers?
-  traceroute?
   ...
 [Already in other distributions: finger/fingerd, ntp]
 
