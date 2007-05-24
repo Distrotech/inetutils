@@ -173,7 +173,7 @@ do_try (trace_t * trace, const int hop,
   struct timeval now, time;
   struct hostent *host;
   double triptime = 0.0;
-  trace_t *prev_trace = NULL;
+  uint32_t prev_addr = 0;
 
   printf (" %d  ", hop);
 
@@ -229,20 +229,14 @@ do_try (trace_t * trace, const int hop,
 		}
 	      else
 		{
-		  /* FIXME: Instead of printing this (only where the
-		     previous IP numbers are the same):
-
-		     22   64.233.167.99 (64.233.167.99) 130.000 ms 64.233.167.99 (64.233.167.99) 130.000 ms  64.233.167.99 (64.233.167.99) 130.000 ms
-
-		     print this:
-
-		     22   64.233.167.99 (64.233.167.99) 130.000 ms 130.000 ms  130.000 ms */
-		  printf (" %s (%s) ",
-			  inet_ntoa (trace->from.sin_addr),
-			  get_hostname (&trace->from.sin_addr));
+ 		  if (tries == 0 || prev_addr != trace->from.sin_addr.s_addr)
+		    printf (" %s (%s) ",
+			    inet_ntoa (trace->from.sin_addr),
+			    get_hostname (&trace->from.sin_addr));
 		  printf ("%.3fms ", triptime);
+
 		}
-	      prev_trace = trace;
+	      prev_addr = trace->from.sin_addr.s_addr;
 	    }
 	}
       readonly = 0;
@@ -329,10 +323,10 @@ int
 trace_read (trace_t * t)
 {
   int len;
-  char data[56];		/* For a TIME_EXCEEDED datagram. */
+  u_char data[56];		/* For a TIME_EXCEEDED datagram. */
   struct ip *ip;
   icmphdr_t *ic;
-  int siz;
+  socklen_t siz;
 
   assert (t);
 
@@ -431,7 +425,7 @@ trace_write (trace_t * t)
       {
 	icmphdr_t hdr;
 	/* FIXME: We could use the pid as the icmp seqno/ident. */
-	if (icmp_echo_encode ((char *) &hdr, sizeof (hdr), pid, pid))
+	if (icmp_echo_encode ((u_char *) &hdr, sizeof (hdr), pid, pid))
 	  return -1;
 	
 	len = sendto (t->icmpfd, (char *) &hdr, sizeof (hdr),
