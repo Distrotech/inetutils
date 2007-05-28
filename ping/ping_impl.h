@@ -24,8 +24,6 @@ struct ping_stat
 
 extern unsigned options;
 extern PING *ping;
-extern int is_root;
-extern unsigned long preload;
 extern u_char *data_buffer;
 extern size_t data_length;
 

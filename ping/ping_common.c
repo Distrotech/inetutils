@@ -1,4 +1,5 @@
-/* Copyright (C) 1998, 2001, 2002, 2004, 2005 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2007
+   Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -27,6 +28,8 @@
 #include <stdio.h>
 #include <xalloc.h>
 
+#include "ping_common.h"
+
 extern unsigned char *data_buffer;
 extern size_t data_length;
 
@@ -38,20 +41,14 @@ ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
 
   n = strtoul (optarg, &p, 0);
   if (*p)
-    {
-      fprintf (stderr, "Invalid value (`%s' near `%s')\n", optarg, p);
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "invalid value (`%s' near `%s')", optarg, p);
+
   if (n == 0 && !allow_zero)
-    {
-      fprintf (stderr, "Option value too small: %s\n", optarg);
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "option value too small: %s", optarg);
+
   if (maxval && n > maxval)
-    {
-      fprintf (stderr, "Option value too big: %s\n", optarg);
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "option value too big: %s", optarg);
+
   return n;
 }
 
@@ -91,10 +88,8 @@ decode_pattern (const char *text, int *pattern_len,
   for (i = 0; *text && i < *pattern_len; i++)
     {
       if (sscanf (text, "%2x%n", &c, &off) != 1)
-	{
-	  fprintf (stderr, "ping: error in pattern near %s\n", text);
-	  exit (1);
-	}
+        error (EXIT_FAILURE, 0, "error in pattern near %s", text);
+
       text += off;
     }
   *pattern_len = i;
@@ -141,24 +136,4 @@ nsqrt (double a, double prec)
   while (nabs (x1 - x0) > prec);
 
   return x1;
-}
-
-void
-show_license (void)
-{
-  static char license_text[] =
-    "   This program is free software; you can redistribute it and/or modify\n"
-    "   it under the terms of the GNU General Public License as published by\n"
-    "   the Free Software Foundation; either version 2, or (at your option)\n"
-    "   any later version.\n"
-    "\n"
-    "   This program is distributed in the hope that it will be useful,\n"
-    "   but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-    "   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-    "   GNU General Public License for more details.\n"
-    "\n"
-    "   You should have received a copy of the GNU General Public License\n"
-    "   along with this program; if not, write to the Free Software\n"
-    "   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
-  printf ("%s", license_text);
 }

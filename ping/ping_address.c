@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -45,10 +45,11 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "getopt.h"
 #include <icmp.h>
 #include <ping.h>
 #include <ping_impl.h>
+
+#include "ping_common.h"
 
 static int recv_address (int code, void *closure,
 			 struct sockaddr_in *dest, struct sockaddr_in *from,
@@ -70,10 +71,7 @@ ping_address (int argc, char **argv)
   ping_set_count (ping, 1);
 
   if (ping_set_dest (ping, *argv))
-    {
-      fprintf (stderr, "ping: unknown host\n");
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "unknown host");
 
   printf ("PING %s (%s): sending address mask request\n",
 	  ping->ping_hostname, inet_ntoa (ping->ping_dest.sin_addr));

@@ -25,11 +25,11 @@ EXTRA_DIST = $(man_MANS)
 
 ping_LDADD = -L../libinetutils -linetutils -L../libicmp -licmp -L../lib -lgnu
 ping6_LDADD = -L../lib -lgnu -L../libinetutils -linetutils
-INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp 
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp \
+  -I$(top_srcdir)/libinetutils
 
 ping_SOURCES = ping.c ping_common.c ping_echo.c ping_address.c \
   ping_router.c ping_timestamp.c ping_common.h  ping_impl.h
-
 ping6_SOURCES = ping6.c ping_common.c ping_common.h ping6.h
 
 SUIDMODE = -o root -m 4775

@@ -1,4 +1,4 @@
-/* Copyright (C) 2001, 2002, 2004 Free Software Foundation, Inc.
+/* Copyright (C) 2001, 2002, 2004, 2007 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -78,10 +78,7 @@ ping_echo (int argc, char **argv)
   struct ping_stat ping_stat;
 
   if (options & OPT_FLOOD && options & OPT_INTERVAL)
-    {
-      fprintf (stderr, "ping: -f and -i incompatible options.\n");
-      return 2;
-    }
+    error (EXIT_FAILURE, 0, "-f and -i incompatible options");
 
   memset (&ping_stat, 0, sizeof (ping_stat));
   ping_stat.tmin = 999999999.0;
@@ -91,10 +88,7 @@ ping_echo (int argc, char **argv)
   ping_set_event_handler (ping, handler, &ping_stat);
 
   if (ping_set_dest (ping, *argv))
-    {
-      fprintf (stderr, "ping: unknown host\n");
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "unknown host");
 
   if (options & OPT_RROUTE)
     {
@@ -105,14 +99,10 @@ ping_echo (int argc, char **argv)
       rspace[IPOPT_OFFSET] = IPOPT_MINOFF;
       if (setsockopt (ping->ping_fd, IPPROTO_IP,
 		      IP_OPTIONS, rspace, sizeof (rspace)) < 0)
-	{
-	  perror ("ping: record route");
-	  exit (2);
-	}
+        error (EXIT_FAILURE, errno, NULL);
 #else
-      fprintf (stderr,
-	       "ping: record route not available in this implementation.\n");
-      exit (2);
+      error (EXIT_FAILURE, 0, "record route not available in this "
+             "implementation.");
 #endif /* IP_OPTIONS */
     }
 

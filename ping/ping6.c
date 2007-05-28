@@ -1,4 +1,5 @@
-/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2006, 2007
+   Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -32,68 +33,148 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <argp.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 
-#include <getopt.h>
 #include <xalloc.h>
 #include "ping_common.h"
 #include "ping6.h"
-
-static char short_options[] = "VLhc:dfi:l:np:qRrs:t:v";
-static struct option long_options[] = {
-  /* Help options */
-  {"version", no_argument, NULL, 'V'},
-  {"license", no_argument, NULL, 'L'},
-  {"help", no_argument, NULL, 'h'},
-  /* Common options */
-  {"count", required_argument, NULL, 'c'},
-  {"debug", no_argument, NULL, 'd'},
-  {"ignore-routing", no_argument, NULL, 'r'},
-  {"size", required_argument, NULL, 's'},
-  {"interval", required_argument, NULL, 'i'},
-  {"numeric", no_argument, NULL, 'n'},
-  /* echo-specific options */
-  {"flood", no_argument, NULL, 'f'},
-  {"preload", required_argument, NULL, 'l'},
-  {"pattern", required_argument, NULL, 'p'},
-  {"quiet", no_argument, NULL, 'q'},
-  {NULL, no_argument, NULL, 0}
-};
+#include "libinetutils.h"
 
 static PING *ping;
+bool is_root;
 unsigned char *data_buffer;
+u_char *patptr;
+int one = 1;
+int pattern_len = 16;
 size_t data_length = PING_DATALEN;
 static unsigned int options;
 static unsigned long preload = 0;
 
 static int ping_echo (int argc, char **argv);
 
-static void show_usage (void);
 static int send_echo (PING * ping);
 
-char *program_name;
+ARGP_PROGRAM_DATA ("ping6", "2007", "Jeroen Dekkers");
+
+const char args_doc[] = "HOST";
+const char doc[] = "Send ICMP ECHO_REQUEST packets to network hosts."
+                   "\vOptions marked with (root only) are available only to "
+                   "superuser.";
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {NULL, 0, NULL, 0, "Options valid for all request types:", GRP},
+  {"count", 'c', "NUMBER", 0, "Stop after sending NUMBER packets", GRP+1},
+  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
+  {"interval", 'i', "NUMBER", 0, "Wait NUMBER seconds between sending each "
+   "packet", GRP+1},
+  {"numeric", 'n', NULL, 0, "Do not resolve host addresses", GRP+1},
+  {"ignore-routing", 'r', NULL, 0, "Send directly to a host on an attached "
+   "network", GRP+1},
+#undef GRP
+#define GRP 10
+  {NULL, 0, NULL, 0, "Options valid for --echo requests:", GRP},
+  {"flood", 'f', NULL, 0, "Flood ping (root only)", GRP+1},
+  {"preload", 'l', "NUMBER", 0, "Send NUMBER packets as fast as possible "
+   "before falling into normal mode of behavior (root only)", GRP+1},
+  {"pattern", 'p', "PATTERN", 0, "Fill ICMP packet with given pattern (hex)",
+   GRP+1},
+  {"quiet", 'q', NULL, 0, "Quiet output", GRP+1},
+  {"size", 's', "NUMBER", 0, "Send NUMBER data octets", GRP+1},
+#undef GRP
+  {NULL}
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  char *endptr;
+  u_char pattern[16];
+
+  switch (key)
+    {
+    case 'c':
+      ping->ping_count = ping_cvt_number (arg, 0, 0);
+      break;
+
+    case 'd':
+      setsockopt (ping->ping_fd, SOL_SOCKET, SO_DEBUG, &one, sizeof (one));
+      break;
+
+    case 'f':
+      if (!is_root)
+        error (EXIT_FAILURE, errno, NULL);
+
+      options |= OPT_FLOOD;
+      setbuf (stdout, (char *) NULL);
+      break;
+
+    case 'i':
+      options |= OPT_INTERVAL;
+      ping->ping_interval = ping_cvt_number (arg, 0, 0);
+      break;
+
+    case 'l':
+      if (!is_root)
+        error (EXIT_FAILURE, errno, NULL);
+
+      preload = strtoul (arg, &endptr, 0);
+      if (*endptr || preload > INT_MAX)
+        error (EXIT_FAILURE, errno, NULL);
+
+      break;
+
+    case 'n':
+      options |= OPT_NUMERIC;
+      break;
+
+    case 'p':
+      decode_pattern (arg, &pattern_len, pattern);
+      patptr = pattern;
+      break;
+
+    case 'q':
+      options |= OPT_QUIET;
+      break;
+
+    case 'r':
+      setsockopt (ping->ping_fd, SOL_SOCKET, SO_DONTROUTE, &one, sizeof (one));
+      break;
+
+    case 's':
+      data_length = ping_cvt_number (arg, PING_MAX_DATALEN, 1);
+      break;
+
+    case ARGP_KEY_NO_ARGS:
+      argp_error (state, "missing host operand");
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 int
 main (int argc, char **argv)
 {
-  int c;
-  char *p;
-  int one = 1;
+  int index;
   u_char pattern[16];
-  int pattern_len = 16;
-  u_char *patptr = NULL;
-  int is_root = getuid () == 0;
 
-  program_name = argv[0];
+  if (getuid () == 0)
+    is_root = true;
+
   if ((ping = ping_init (0, getpid ())) == NULL)
-    {
-      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
-      exit (1);
-    }
+    error (EXIT_FAILURE, errno, NULL);
+
   setsockopt (ping->ping_fd, SOL_SOCKET, SO_BROADCAST, (char *) &one,
 	      sizeof (one));
 
@@ -101,104 +182,10 @@ main (int argc, char **argv)
   setuid (getuid ());
 
   /* Parse command line */
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (c)
-	{
-	case 'V':
-	  printf ("ping - %s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  printf ("Copyright (C) 2005 Free Software Foundation, Inc.\n");
-	  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", PACKAGE_NAME);
-	  printf ("You may redistribute copies of %s\n", PACKAGE_NAME);
-	  printf ("under the terms of the GNU General Public License.\n");
-	  printf ("For more information about these matters, ");
-	  printf ("see the files named COPYING.\n");
-	  exit (0);
-	  break;
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-	case 'L':
-	  show_license ();
-	  exit (0);
-
-	case 'h':
-	  show_usage ();
-	  exit (0);
-	  break;
-
-	case 'c':
-	  ping->ping_count = ping_cvt_number (optarg, 0, 0);
-	  break;
-
-	case 'd':
-	  setsockopt (ping->ping_fd, SOL_SOCKET, SO_DEBUG, &one,
-		      sizeof (one));
-	  break;
-
-	case 'r':
-	  setsockopt (ping->ping_fd, SOL_SOCKET, SO_DONTROUTE, &one,
-		      sizeof (one));
-	  break;
-
-	case 'i':
-	  options |= OPT_INTERVAL;
-	  ping->ping_interval = ping_cvt_number (optarg, 0, 0);
-	  break;
-
-	case 'p':
-	  decode_pattern (optarg, &pattern_len, pattern);
-	  patptr = pattern;
-	  break;
-
-	case 's':
-	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN, 1);
-	  break;
-
-	case 'n':
-	  options |= OPT_NUMERIC;
-	  break;
-
-	case 'q':
-	  options |= OPT_QUIET;
-	  break;
-
-	case 'l':
-	  if (!is_root)
-	    {
-	      fprintf (stderr, "ping: option not allowed: --preload\n");
-	      exit (1);
-	    }
-	  preload = strtoul (optarg, &p, 0);
-	  if (*p || preload > INT_MAX)
-	    {
-	      fprintf (stderr, "ping: invalid preload value (%s)\n", optarg);
-	      exit (1);
-	    }
-	  break;
-
-	case 'f':
-	  if (!is_root)
-	    {
-	      fprintf (stderr, "ping: option not allowed: --flood\n");
-	      exit (1);
-	    }
-	  options |= OPT_FLOOD;
-	  setbuf (stdout, (char *) NULL);
-	  break;
-
-	default:
-	  fprintf (stderr, "%c: not implemented\n", c);
-	  exit (1);
-	}
-    }
-
-  argc -= optind;
-  argv += optind;
-  if (argc == 0)
-    {
-      show_usage ();
-      exit (0);
-    }
+  argc -= index;
+  argv += index;
 
   init_data_buffer (patptr, pattern_len);
 
@@ -410,10 +397,7 @@ ping_echo (int argc, char **argv)
   struct ping_stat ping_stat;
 
   if (options & OPT_FLOOD && options & OPT_INTERVAL)
-    {
-      fprintf (stderr, "ping: -f and -i incompatible options.\n");
-      return 2;
-    }
+    error (EXIT_FAILURE, 0, "-f and -i incompatible options");
 
   memset (&ping_stat, 0, sizeof (ping_stat));
   ping_stat.tmin = 999999999.0;
@@ -422,10 +406,7 @@ ping_echo (int argc, char **argv)
   ping->ping_closure = &ping_stat;
 
   if (ping_set_dest (ping, *argv))
-    {
-      fprintf (stderr, "ping: unknown host\n");
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "unknown host %s", *argv);
 
   err = getnameinfo ((struct sockaddr *) &ping->ping_dest,
 		     sizeof (ping->ping_dest), buffer,
@@ -439,9 +420,7 @@ ping_echo (int argc, char **argv)
       else
 	errmsg = gai_strerror (err);
 
-      fprintf (stderr, "ping: getnameinfo: %s\n", errmsg);
-
-      exit (1);
+      error (EXIT_FAILURE, 0, "getnameinfo: %s", errmsg);
     }
 
   printf ("PING %s (%s): %d data bytes\n",
@@ -669,36 +648,6 @@ echo_finish ()
   exit (ping->ping_num_recv == 0);
 }
 
-static void
-show_usage (void)
-{
-  printf ("\
-Usage: ping6 [OPTION]... [ADDRESS]...\n\
-\n\
-Informational options:\n\
-  -h, --help         display this help and exit\n\
-  -L, --license      display license and exit\n\
-  -V, --version      output version information and exit\n\
-Options valid for all request types:\n\
-  -c, --count N      stop after sending N packets (default: %d)\n\
-  -d, --debug        set the SO_DEBUG option\n\
-  -i, --interval N   wait N seconds between sending each packet\n\
-  -n, --numeric      do not resolve host addresses\n\
-  -r, --ignore-routing  send directly to a host on an attached network\n\
-Options valid for --echo requests:\n\
-* -f, --flood        flood ping \n\
-* -l, --preload N    send N packets as fast as possible before falling into\n\
-                     normal mode of behavior\n\
-  -p, --pattern PAT  fill ICMP packet with given pattern (hex)\n\
-  -q, --quiet        quiet output\n\
-  -s, --size N       set number of data octets to send\n\
-\n\
-Options marked with an * are available only to super-user\n\
-\n\
-report bugs to " PACKAGE_BUGREPORT ".\n\
-", DEFAULT_PING_COUNT);
-}
-
 static PING *
 ping_init (int type, int ident)
 {
@@ -712,9 +661,8 @@ ping_init (int type, int ident)
   if (fd < 0)
     {
       if (errno == EPERM)
-	{
-	  fprintf (stderr, "ping: ping must run as root\n");
-	}
+        error (EXIT_FAILURE, errno, NULL);
+
       return NULL;
     }
 

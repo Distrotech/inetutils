@@ -1,5 +1,64 @@
 2007-05-28  Debarshi Ray  <rishi@gnu.org>
 
+	* ping/ping_timestamp.c: Don't include "getopt.h".  Include
+	"ping_common.h".
+	(ping_timestamp): Use error instead of "output message; exit;"
+	concoction's.
+
+	* ping/ping_impl.h (is_root, preload): Removed extern
+	declarations.
+
+	* ping/ping_echo.c (ping_echo): Use error instead of "output
+	message; exit;" concoction's.
+
+	* ping/ping_common.h (show_license): Removed declaration.
+
+	* ping/ping_common.c: Include "ping_common.h".
+	(ping_cvt_number, decode_pattern): Use error instead of "output
+	message; exit;" concoction's.
+	(show_license): Function removed.
+
+	* ping/ping_address.c: Don't include "getopt.h".  Include
+	"ping_common.h".
+	(ping_address): Use error instead of "output message; exit;"
+	concoction's.
+
+	* ping/ping6.c: Include <stdbool.h>. Don't include <getopt.h>.
+	Include <argp.h> and "libinetutils.h".
+	(short_options, long_options): Variables removed.
+	(is_root, patptr, one, pattern_len): New variables.
+	(show_usage): Function removed.
+	(program_name): Variable removed.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc, argp_options): New variables.
+	(parse_opt): New function.
+	(argp): New variable.
+	(main): Use argp to parse program options.
+	(ping_echo, ping_init): Use error instead of "output message;
+	exit;" concoction's.
+	
+	* ping/ping.c: Don't include <getopt.h>.  Include <argp.h> and
+	"libinetutils.h".
+	(short_options, long_options): Variables removed.
+	(is_root, patptr, pattern_len, socket_type, count, interval): New
+	variables.
+	(show_usage): Function removed.
+	(decode_type): Changed type to `int (*decode_type (const char
+	*arg)) (int argc, char **argv)'.  All callers changed accordingly.
+	(program_name): Variable removed.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc): New variables.
+	(ARG_ECHO, ARG_ADDRESS, ARG_TIMESTAMP, ARG_ROUTERDISCOVERY): New
+	enums.
+	(argp_options): New variable.
+	(parse_opt): New function.
+	(main): Use argp to parse program options.
+
+	* ping/Makefile.am (INCLUDES): Added
+	`-I$(top_srcdir)/libinetutils'.
+
+2007-05-28  Debarshi Ray  <rishi@gnu.org>
+
 	* talkd/talkd.c (parse_opt): Renamed argument ST to STATE.
 
 2007-05-24  Alfred M. Szmidt  <ams@gnu.org>
@@ -50,7 +109,7 @@
 2007-05-23  Debarshi Ray  <rishi@gnu.org>
 
 	* traceroute/Makefile.am (INCLUDES): Added
-	-I$(top_srcdir)/libinetutils.
+	`-I$(top_srcdir)/libinetutils'.
 
 	* traceroute/traceroute.c: Don't include <getopt.h>.  Include
 	<argp.h> and "libinetutils.h".  Use error() instead of "output

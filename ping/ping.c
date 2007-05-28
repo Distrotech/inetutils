@@ -1,4 +1,5 @@
-/* Copyright (C) 1998,2001, 2002, 2005, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002, 2005, 2006, 2007
+   Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -46,40 +47,12 @@
 #include <errno.h>
 #include <limits.h>
 
-#include <getopt.h>
+#include <argp.h>
 #include <icmp.h>
 #include <ping.h>
 #include "ping_common.h"
 #include "ping_impl.h"
-
-static char short_options[] = "VLhc:dfi:l:np:qRrs:t:v";
-static struct option long_options[] = {
-  /* Help options */
-  {"version", no_argument, NULL, 'V'},
-  {"license", no_argument, NULL, 'L'},
-  {"help", no_argument, NULL, 'h'},
-  /* Common options */
-  {"count", required_argument, NULL, 'c'},
-  {"debug", no_argument, NULL, 'd'},
-  {"ignore-routing", no_argument, NULL, 'r'},
-  {"size", required_argument, NULL, 's'},
-  {"interval", required_argument, NULL, 'i'},
-  {"numeric", no_argument, NULL, 'n'},
-  {"verbose", no_argument, NULL, 'v'},
-  /* Packet types */
-  {"type", required_argument, NULL, 't'},
-  {"echo", no_argument, NULL, ICMP_ECHO},
-  {"timestamp", no_argument, NULL, ICMP_TIMESTAMP},
-  {"address", no_argument, NULL, ICMP_ADDRESS},
-  {"router", no_argument, NULL, ICMP_ROUTERDISCOVERY},
-  /* echo-specific options */
-  {"flood", no_argument, NULL, 'f'},
-  {"preload", required_argument, NULL, 'l'},
-  {"pattern", required_argument, NULL, 'p'},
-  {"quiet", no_argument, NULL, 'q'},
-  {"route", no_argument, NULL, 'R'},
-  {NULL, no_argument, NULL, 0}
-};
+#include "libinetutils.h"
 
 extern int ping_echo (int argc, char **argv);
 extern int ping_timestamp (int argc, char **argv);
@@ -87,200 +60,193 @@ extern int ping_address (int argc, char **argv);
 extern int ping_router (int argc, char **argv);
 
 PING *ping;
+bool is_root = false;
 u_char *data_buffer;
+u_char *patptr;
+int pattern_len = 16;
+int socket_type;
+size_t count = DEFAULT_PING_COUNT;
+size_t interval;
 size_t data_length = PING_DATALEN;
 unsigned options;
 unsigned long preload = 0;
 int (*ping_type) (int argc, char **argv) = ping_echo;
 
-
-static void show_usage (void);
-static void decode_type (const char *optarg);
+int (*decode_type (const char *arg)) (int argc, char **argv);
 static int send_echo (PING * ping);
 
 #define MIN_USER_INTERVAL (200000/PING_PRECISION)
 
-char *program_name;
+ARGP_PROGRAM_DATA ("ping", "2007", "Sergey Poznyakoff");
+
+const char args_doc[] = "HOST";
+const char doc[] = "Send ICMP ECHO_REQUEST packets to network hosts."
+                   "\vOptions marked with (root only) are available only to "
+                   "superuser.";
+
+/* Define keys for long options that do not have short counterparts. */
+enum {
+  ARG_ECHO = 256,
+  ARG_ADDRESS,
+  ARG_TIMESTAMP,
+  ARG_ROUTERDISCOVERY
+};
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {NULL, 0, NULL, 0, "Options controlling ICMP request types:", GRP},
+  {"address", ARG_ADDRESS, NULL, 0, "Send ICMP_ADDRESS packets (root only)",
+   GRP+1},
+  {"echo", ARG_ECHO, NULL, 0, "Send ICMP_ECHO packets (default)", GRP+1},
+  {"timestamp", ARG_TIMESTAMP, NULL, 0, "Send ICMP_TIMESTAMP packets", GRP+1},
+  {"type", 't', "TYPE", 0, "Send TYPE packets", GRP+1},
+  /* This option is not yet fully implemented, so mark it as hidden. */
+  {"router", ARG_ROUTERDISCOVERY, NULL, OPTION_HIDDEN, "Send "
+   "ICMP_ROUTERDISCOVERY packets (root only)", GRP+1},
+#undef GRP
+#define GRP 10
+  {NULL, 0, NULL, 0, "Options valid for all request types:", GRP},
+  {"count", 'c', "NUMBER", 0, "Stop after sending NUMBER packets", GRP+1},
+  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
+  {"interval", 'i', "NUMBER", 0, "Wait NUMBER seconds between sending each "
+   "packet", GRP+1},
+  {"numeric", 'n', NULL, 0, "Do not resolve host addresses", GRP+1},
+  {"ignore-routing", 'r', NULL, 0, "Send directly to a host on an attached "
+   "network", GRP+1},
+  {"verbose", 'v', NULL, 0, "Verbose output", GRP+1},
+#undef GRP
+#define GRP 20
+  {NULL, 0, NULL, 0, "Options valid for --echo requests:", GRP},
+  {"flood", 'f', NULL, 0, "Flood ping (root only)", GRP+1},
+  {"preload", 'l', "NUMBER", 0, "Send NUMBER packets as fast as possible "
+   "before falling into normal mode of behavior (root only)", GRP+1},
+  {"pattern", 'p', "PATTERN", 0, "Fill ICMP packet with given pattern (hex)",
+   GRP+1},
+  {"quiet", 'q', NULL, 0, "Quiet output", GRP+1},
+  {"route", 'R', NULL, 0, "Record route", GRP+1},
+  {"size", 's', "NUMBER", 0, "Send NUMBER data octets", GRP+1},
+#undef GRP
+  {NULL}
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  char *endptr;
+  u_char pattern[16];
+  double v;
+
+  switch (key)
+    {
+    case 'c':
+      count = ping_cvt_number (arg, 0, 1);
+      break;
+
+    case 'd':
+      socket_type = SO_DEBUG;
+      break;
+
+    case 'i':
+      v = strtod (arg, &endptr);
+      if (*endptr)
+        argp_error (state, "invalid value (`%s' near `%s')", arg, endptr);
+      options |= OPT_INTERVAL;
+      interval = v * PING_PRECISION;
+      if (!is_root && interval < MIN_USER_INTERVAL)
+        error (EXIT_FAILURE, 0, "option value too small: %s", arg);
+      break;
+
+    case 'r':
+      socket_type = SO_DONTROUTE;
+      break;
+
+    case 's':
+      data_length = ping_cvt_number (arg, PING_MAX_DATALEN, 1);
+      break;
+
+    case 'n':
+      options |= OPT_NUMERIC;
+      break;
+
+    case 'p':
+      decode_pattern (arg, &pattern_len, pattern);
+      patptr = pattern;
+      break;
+
+    case 'q':
+      options |= OPT_QUIET;
+      break;
+
+    case 'R':
+      options |= OPT_RROUTE;
+      break;
+
+    case 'v':
+      options |= OPT_VERBOSE;
+      break;
+
+    case 'l':
+      preload = strtoul (arg, &endptr, 0);
+      if (*endptr || preload > INT_MAX)
+        error (EXIT_FAILURE, 0, "invalid preload value (%s)", arg);
+      break;
+
+    case 'f':
+      options |= OPT_FLOOD;
+      break;
+
+    case 't':
+      ping_type = decode_type (arg);
+      break;
+
+    case ARG_ECHO:
+      ping_type = decode_type ("echo");
+      break;
+
+    case ARG_TIMESTAMP:
+      ping_type = decode_type ("timestamp");
+      break;
+
+    case ARG_ADDRESS:
+      ping_type = decode_type ("address");
+      break;
+
+    case ARG_ROUTERDISCOVERY:
+      ping_type = decode_type ("router");
+      break;
+
+    case ARGP_KEY_NO_ARGS:
+      argp_error (state, "missing host operand");
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 int
 main (int argc, char **argv)
 {
-  int c;
-  char *p;
+  int index;
   int one = 1;
-  u_char pattern[16];
-  int pattern_len = 16;
-  u_char *patptr = NULL;
-  bool is_root = false;
-
-  size_t count = DEFAULT_PING_COUNT;
-  int socket_type = 0;
-  size_t interval = 0;
-
-  program_name = argv[0];
 
   if (getuid () == 0)
     is_root = true;
 
   /* Parse command line */
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (c)
-	{
-	case 'V':
-	  printf ("ping - %s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  printf ("Copyright (C) 2005 Free Software Foundation, Inc.\n");
-	  printf ("%s comes with ABSOLUTELY NO WARRANTY.\n", PACKAGE_NAME);
-	  printf ("You may redistribute copies of %s\n", PACKAGE_NAME);
-	  printf ("under the terms of the GNU General Public License.\n");
-	  printf ("For more information about these matters, ");
-	  printf ("see the files named COPYING.\n");
-	  exit (0);
-	  break;
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-	case 'L':
-	  show_license ();
-	  exit (0);
-
-	case 'h':
-	  show_usage ();
-	  exit (0);
-	  break;
-
-	case 'c':
-	  count = ping_cvt_number (optarg, 0, 1);
-	  break;
-
-	case 'd':
-	  socket_type = SO_DEBUG;
-	  break;
-
-	case 'r':
-	  socket_type = SO_DONTROUTE;
-	  break;
-
-	case 'i':
-	  {
-	    double v;
-
-	    v = strtod (optarg, &p);
-	    if (*p)
-	      {
-		fprintf (stderr, "Invalid value (`%s' near `%s')\n",
-			 optarg, p);
-		exit (1);
-	      }
-
-	    options |= OPT_INTERVAL;
-	    interval = v * PING_PRECISION;
-	    if (!is_root && interval < MIN_USER_INTERVAL)
-	      {
-		fprintf (stderr, "Option value too small: %s\n", optarg);
-		exit (1);
-	      }
-	  }
-	  break;
-
-	case 'p':
-	  decode_pattern (optarg, &pattern_len, pattern);
-	  patptr = pattern;
-	  break;
-
-	case 's':
-	  data_length = ping_cvt_number (optarg, PING_MAX_DATALEN, 1);
-	  break;
-
-	case 'n':
-	  options |= OPT_NUMERIC;
-	  break;
-
-	case 'q':
-	  options |= OPT_QUIET;
-	  break;
-
-	case 'R':
-	  options |= OPT_RROUTE;
-	  break;
-
-	case 'v':
-	  options |= OPT_VERBOSE;
-	  break;
-
-	case 'l':
-	  if (!is_root)
-	    {
-	      fprintf (stderr, "ping: option not allowed: --preload\n");
-	      exit (1);
-	    }
-	  preload = strtoul (optarg, &p, 0);
-	  if (*p || preload > INT_MAX)
-	    {
-	      fprintf (stderr, "ping: invalid preload value (%s)\n", optarg);
-	      exit (1);
-	    }
-	  break;
-
-	case 'f':
-	  if (is_root == false)
-	    {
-	      fprintf (stderr, "ping: option not allowed: --flood\n");
-	      exit (1);
-	    }
-	  options |= OPT_FLOOD;
-	  setbuf (stdout, (char *) NULL);
-	  break;
-
-	case 't':
-	  decode_type (optarg);
-	  break;
-
-	case ICMP_ECHO:
-	  decode_type ("echo");
-	  break;
-
-	case ICMP_TIMESTAMP:
-	  decode_type ("timestamp");
-	  break;
-
-	case ICMP_ADDRESS:
-	  if (!is_root)
-	    {
-	      fprintf (stderr, "ping: option not allowed: --address\n");
-	      exit (1);
-	    }
-	  decode_type ("address");
-	  break;
-
-	case ICMP_ROUTERDISCOVERY:
-	  if (!is_root)
-	    {
-	      fprintf (stderr, "ping: option not allowed: --router\n");
-	      exit (1);
-	    }
-	  decode_type ("router");
-	  break;
-
-	default:
-	  fprintf (stderr, "%c: not implemented\n", c);
-	  exit (1);
-	}
-    }
-
-  argc -= optind;
-  argv += optind;
-  if (argc == 0)
-    {
-      show_usage ();
-      exit (0);
-    }
+  argv += index;
+  argc -= index;
 
   ping = ping_init (ICMP_ECHO, getpid ());
   if (ping == NULL)
-    {
-      fprintf (stderr, "can't init ping: %s\n", strerror (errno));
-      exit (1);
-    }
+    /* ping_init() prints our error message.  */
+    exit (1);
+
   ping_set_sockopt (ping, SO_BROADCAST, (char *) &one, sizeof (one));
 
   /* Reset root privileges */
@@ -297,29 +263,27 @@ main (int argc, char **argv)
 
   init_data_buffer (patptr, pattern_len);
 
-  return (*ping_type) (argc, argv);
+  return (*(ping_type)) (argc, argv);
 }
 
-
-
-void
-decode_type (const char *optarg)
+int (*decode_type (const char *arg)) (int argc, char **argv)
 {
-  if (strcasecmp (optarg, "echo") == 0)
+  int (*ping_type) (int argc, char **argv);
+
+  if (strcasecmp (arg, "echo") == 0)
     ping_type = ping_echo;
-  else if (strcasecmp (optarg, "timestamp") == 0)
+  else if (strcasecmp (arg, "timestamp") == 0)
     ping_type = ping_timestamp;
-  else if (strcasecmp (optarg, "address") == 0)
+  else if (strcasecmp (arg, "address") == 0)
     ping_type = ping_address;
 #if 0
-  else if (strcasecmp (optarg, "router") == 0)
+  else if (strcasecmp (arg, "router") == 0)
     ping_type = ping_router;
 #endif
   else
-    {
-      fprintf (stderr, "unsupported packet type: %s\n", optarg);
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "unsupported packet type: %s", arg);
+
+ return ping_type;
 }
 
 int volatile stop = 0;
@@ -466,41 +430,4 @@ ping_finish ()
     }
   printf ("\n");
   return 0;
-}
-
-void
-show_usage (void)
-{
-  printf ("\
-Usage: ping [OPTION]... [ADDRESS]...\n\
-\n\
-Informational options:\n\
-  -h, --help         display this help and exit\n\
-  -L, --license      display license and exit\n\
-  -V, --version      output version information and exit\n\
-Options controlling ICMP request types:\n\
-  --echo             Send ICMP_ECHO requests (default)\n\
-* --address          Send ICMP_ADDRESS packets\n\
-  --timestamp        Send ICMP_TIMESTAMP packets\n\
-* --router           Send ICMP_ROUTERDISCOVERY packets\n\
-Options valid for all request types:\n\
-  -c, --count N      stop after sending N packets (default: %d)\n\
-  -d, --debug        set the SO_DEBUG option\n\
-  -i, --interval N   wait N seconds between sending each packet\n\
-  -n, --numeric      do not resolve host addresses\n\
-  -r, --ignore-routing  send directly to a host on an attached network\n\
-  -v, --verbose      verbose output\n\
-Options valid for --echo requests:\n\
-* -f, --flood        flood ping \n\
-* -l, --preload N    send N packets as fast as possible before falling into\n\
-                     normal mode of behavior\n\
-  -p, --pattern PAT  fill ICMP packet with given pattern (hex)\n\
-  -q, --quiet        quiet output\n\
-  -R, --route        record route\n\
-  -s, --size N       set number of data octets to send\n\
-\n\
-Options marked with an * are available only to super-user\n\
-\n\
-Report bugs to <" PACKAGE_BUGREPORT ">.\n\
-", DEFAULT_PING_COUNT);
 }
