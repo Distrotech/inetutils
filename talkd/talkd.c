@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001, 2002, 2007 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -57,7 +57,7 @@ static struct argp_option argp_options[] = {
 };
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *st)
+parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {

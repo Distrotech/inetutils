@@ -1,3 +1,7 @@
+2007-05-28  Debarshi Ray  <rishi@gnu.org>
+
+	* talkd/talkd.c (parse_opt): Renamed argument ST to STATE.
+
 2007-05-24  Alfred M. Szmidt  <ams@gnu.org>
 
 	* TODO: Updated.
