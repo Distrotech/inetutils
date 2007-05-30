@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2001, 2002 Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2007 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -44,7 +44,6 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "getopt.h"
 #include <icmp.h>
 #include <ping.h>
 #include <ping_impl.h>
