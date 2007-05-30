@@ -1,5 +1,7 @@
 2007-05-31  Alfred M. Szmidt  <ams@gnu.org>
 
+	* whois/.cvsignore: File removed.
+
 	* ping/ping_router.c: Don't include "getopt.h".
 
 2007-05-28  Debarshi Ray  <rishi@gnu.org>
