@@ -1,6 +1,9 @@
-GNU inetutils
+Here are the names of the programs in this package, each followed by
+the name(s) of its author(s).  Most of the utilities are from
+4.4BSD-Lite2, and might not have an author associated with them.
 
-This is a distribution of common networking utilities and servers.
-They are currently mostly from the 4.4BSD-Lite2 distribution.
-Whois client was written by Joel N. Weber II.
-ping and talkd was written by Sergey Poznyakoff
+ifconfig: Marcus Brinkmann
+ping, talkd: Sergey Poznyakoff
+ping6: Jeroen Dekkers
+talk: Kipp Hickman
+whois: Joel N. Weber II
