@@ -279,20 +279,14 @@ struct types
   int t_type;
   char *t_arg;
 } types[] =
-{
   {
-  "ascii", "A", TYPE_A, 0},
-  {
-  "binary", "I", TYPE_I, 0},
-  {
-  "image", "I", TYPE_I, 0},
-  {
-  "ebcdic", "E", TYPE_E, 0},
-  {
-  "tenex", "L", TYPE_L, bytename},
-  {
-  NULL}
-};
+    {"ascii", "A", TYPE_A, 0},
+    {"binary", "I", TYPE_I, 0},
+    {"image", "I", TYPE_I, 0},
+    {"ebcdic", "E", TYPE_E, 0},
+    {"tenex", "L", TYPE_L, bytename},
+    {NULL}
+  };
 
 /*
  * Set transfer type.
