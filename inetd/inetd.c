@@ -190,7 +190,7 @@ struct servtab
 #define NORM_TYPE	0
 #define MUX_TYPE	1
 #define MUXPLUS_TYPE	2
-#define ISMUX(sep)	(((sep)->se_type == MUX_TYPE) || \
+#define ISMUX(sep)	(((sep)->se_type == MUX_TYPE) ||	\
 			 ((sep)->se_type == MUXPLUS_TYPE))
 #define ISMUXPLUS(sep)	((sep)->se_type == MUXPLUS_TYPE)
 
@@ -234,37 +234,25 @@ struct biltin
   short bi_wait;		/* 1 if should wait for child */
   void (*bi_fn) (int s, struct servtab *);	/*function which performs it */
 } biltins[] =
-{
-  /* Echo received data */
   {
-  "echo", SOCK_STREAM, 1, 0, echo_stream},
-  {
-  "echo", SOCK_DGRAM, 0, 0, echo_dg},
+    /* Echo received data */
+    {"echo", SOCK_STREAM, 1, 0, echo_stream},
+    {"echo", SOCK_DGRAM, 0, 0, echo_dg},
     /* Internet /dev/null */
-  {
-  "discard", SOCK_STREAM, 1, 0, discard_stream},
-  {
-  "discard", SOCK_DGRAM, 0, 0, discard_dg},
+    {"discard", SOCK_STREAM, 1, 0, discard_stream},
+    {"discard", SOCK_DGRAM, 0, 0, discard_dg},
     /* Return 32 bit time since 1900 */
-  {
-  "time", SOCK_STREAM, 0, 0, machtime_stream},
-  {
-  "time", SOCK_DGRAM, 0, 0, machtime_dg},
+    {"time", SOCK_STREAM, 0, 0, machtime_stream},
+    {"time", SOCK_DGRAM, 0, 0, machtime_dg},
     /* Return human-readable time */
-  {
-  "daytime", SOCK_STREAM, 0, 0, daytime_stream},
-  {
-  "daytime", SOCK_DGRAM, 0, 0, daytime_dg},
+    {"daytime", SOCK_STREAM, 0, 0, daytime_stream},
+    {"daytime", SOCK_DGRAM, 0, 0, daytime_dg},
     /* Familiar character generator */
-  {
-  "chargen", SOCK_STREAM, 1, 0, chargen_stream},
-  {
-  "chargen", SOCK_DGRAM, 0, 0, chargen_dg},
-  {
-  "tcpmux", SOCK_STREAM, 1, 0, tcpmux},
-  {
-  NULL, 0, 0, 0, NULL}
-};
+    {"chargen", SOCK_STREAM, 1, 0, chargen_stream},
+    {"chargen", SOCK_DGRAM, 0, 0, chargen_dg},
+    {"tcpmux", SOCK_STREAM, 1, 0, tcpmux},
+    {NULL, 0, 0, 0, NULL}
+  };
 
 #define NUMINT	(sizeof(intab) / sizeof(struct inent))
 char **Argv;
@@ -923,7 +911,7 @@ setup (struct servtab *sep)
   struct addrinfo *result, hints;
   struct protoent *proto;
 
-tryagain:
+ tryagain:
 #endif
   sep->se_fd = socket (sep->se_family, sep->se_socktype, 0);
   if (sep->se_fd < 0)
