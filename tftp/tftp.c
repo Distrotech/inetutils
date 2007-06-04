@@ -341,28 +341,18 @@ struct errmsg
 {
   int e_code;
   const char *e_msg;
-}
-errmsgs[] =
-{
+} errmsgs[] =
   {
-  EUNDEF, "Undefined error code"},
-  {
-  ENOTFOUND, "File not found"},
-  {
-  EACCESS, "Access violation"},
-  {
-  ENOSPACE, "Disk full or allocation exceeded"},
-  {
-  EBADOP, "Illegal TFTP operation"},
-  {
-  EBADID, "Unknown transfer ID"},
-  {
-  EEXISTS, "File already exists"},
-  {
-  ENOUSER, "No such user"},
-  {
-  -1, 0}
-};
+    {EUNDEF, "Undefined error code"},
+    {ENOTFOUND, "File not found"},
+    {EACCESS, "Access violation"},
+    {ENOSPACE, "Disk full or allocation exceeded"},
+    {EBADOP, "Illegal TFTP operation"},
+    {EBADID, "Unknown transfer ID"},
+    {EEXISTS, "File already exists"},
+    {ENOUSER, "No such user"},
+    {-1, 0}
+  };
 
 /*
  * Send a nak packet (error message).

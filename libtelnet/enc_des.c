@@ -94,10 +94,8 @@ struct keyidlist
   int flags;
 } keyidlist[] =
 {
-  {
-  "\0", 1, 0, 0, 0},		/* default key of zero */
-  {
-  0, 0, 0, 0, 0}
+  {"\0", 1, 0, 0, 0},		/* default key of zero */
+  {0, 0, 0, 0, 0}
 };
 
 #   define KEYFLAG_MASK	03

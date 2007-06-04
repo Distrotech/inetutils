@@ -236,53 +236,34 @@ struct icmp_code_descr
   int code;
   char *diag;
 } icmp_code_descr[] =
-{
   {
-  ICMP_NET_UNREACH, "Destination Net Unreachable"},
-  {
-  ICMP_HOST_UNREACH, "Destination Host Unreachable"},
-  {
-  ICMP_PROT_UNREACH, "Destination Protocol Unreachable"},
-  {
-  ICMP_PORT_UNREACH, "Destination Port Unreachable"},
-  {
-  ICMP_FRAG_NEEDED, "Fragmentation needed and DF set"},
-  {
-  ICMP_SR_FAILED, "Source Route Failed"},
-  {
-  ICMP_NET_UNKNOWN, "Network Unknown"},
-  {
-  ICMP_HOST_UNKNOWN, "Host Unknown"},
-  {
-  ICMP_HOST_ISOLATED, "Host Isolated"},
-  {
-  ICMP_NET_UNR_TOS, "Destination Network Unreachable At This TOS"},
-  {
-  ICMP_HOST_UNR_TOS, "Destination Host Unreachable At This TOS"},
+    {ICMP_NET_UNREACH, "Destination Net Unreachable"},
+    {ICMP_HOST_UNREACH, "Destination Host Unreachable"},
+    {ICMP_PROT_UNREACH, "Destination Protocol Unreachable"},
+    {ICMP_PORT_UNREACH, "Destination Port Unreachable"},
+    {ICMP_FRAG_NEEDED, "Fragmentation needed and DF set"},
+    {ICMP_SR_FAILED, "Source Route Failed"},
+    {ICMP_NET_UNKNOWN, "Network Unknown"},
+    {ICMP_HOST_UNKNOWN, "Host Unknown"},
+    {ICMP_HOST_ISOLATED, "Host Isolated"},
+    {ICMP_NET_UNR_TOS, "Destination Network Unreachable At This TOS"},
+    {ICMP_HOST_UNR_TOS, "Destination Host Unreachable At This TOS"},
 #ifdef ICMP_PKT_FILTERED
-  {
-  ICMP_PKT_FILTERED, "Packet Filtered"},
+    {ICMP_PKT_FILTERED, "Packet Filtered"},
 #endif
 #ifdef ICMP_PREC_VIOLATION
-  {
-  ICMP_PREC_VIOLATION, "Precedence Violation"},
+    {ICMP_PREC_VIOLATION, "Precedence Violation"},
 #endif
 #ifdef ICMP_PREC_CUTOFF
-  {
-  ICMP_PREC_CUTOFF, "Precedence Cutoff"},
+    {ICMP_PREC_CUTOFF, "Precedence Cutoff"},
 #endif
-  {
-  ICMP_REDIR_NET, "Redirect Network"},
-  {
-  ICMP_REDIR_HOST, "Redirect Host"},
-  {
-  ICMP_REDIR_NETTOS, "Redirect Type of Service and Network"},
-  {
-  ICMP_REDIR_HOSTTOS, "Redirect Type of Service and Host"},
-  {
-  ICMP_EXC_TTL, "Time to live exceeded"},
-  {
-ICMP_EXC_FRAGTIME, "Frag reassembly time exceeded"},};
+    {ICMP_REDIR_NET, "Redirect Network"},
+    {ICMP_REDIR_HOST, "Redirect Host"},
+    {ICMP_REDIR_NETTOS, "Redirect Type of Service and Network"},
+    {ICMP_REDIR_HOSTTOS, "Redirect Type of Service and Host"},
+    {ICMP_EXC_TTL, "Time to live exceeded"},
+    {ICMP_EXC_FRAGTIME, "Frag reassembly time exceeded"}
+  };
 
 static void
 print_icmp_code (int code, char *prefix)

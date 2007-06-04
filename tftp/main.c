@@ -287,23 +287,15 @@ struct modes
 {
   char *m_name;
   char *m_mode;
-}
-modes[] =
-{
+} modes[] =
   {
-  "ascii", "netascii"},
-  {
-  "netascii", "netascii"},
-  {
-  "binary", "octet"},
-  {
-  "image", "octet"},
-  {
-  "octet", "octet"},
-/*      { "mail",       "mail" },       */
-  {
-  0, 0}
-};
+    {"ascii", "netascii"},
+    {"netascii", "netascii"},
+    {"binary", "octet"},
+    {"image", "octet"},
+    {"octet", "octet"},
+    {0, 0}
+  };
 
 void
 modecmd (int argc, char *argv[])
