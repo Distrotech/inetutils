@@ -239,9 +239,6 @@ main (int argc, char **argv)
   /* Parse command line */
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-  argv += index;
-  argc -= index;
-
   ping = ping_init (ICMP_ECHO, getpid ());
   if (ping == NULL)
     /* ping_init() prints our error message.  */
@@ -251,6 +248,9 @@ main (int argc, char **argv)
 
   /* Reset root privileges */
   setuid (getuid ());
+
+  argv += index;
+  argc -= index;
 
   if (count != 0)
     ping_set_count (ping, count);

@@ -172,17 +172,18 @@ main (int argc, char **argv)
   if (getuid () == 0)
     is_root = true;
 
-  if ((ping = ping_init (0, getpid ())) == NULL)
-    error (EXIT_FAILURE, errno, NULL);
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-  setsockopt (ping->ping_fd, SOL_SOCKET, SO_BROADCAST, (char *) &one,
-	      sizeof (one));
+  ping = ping_init (0, getpid ());
+  if (ping == NULL)
+    /* ping_init() prints our error message.  */
+    exit (1);
+
+  setsockopt (ping->ping_fd, SOL_SOCKET, SO_BROADCAST, (char *) &one, sizeof (one));
 
   /* Reset root privileges */
   setuid (getuid ());
-
-  /* Parse command line */
-  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   argc -= index;
   argv += index;
