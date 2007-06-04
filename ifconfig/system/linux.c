@@ -1,6 +1,6 @@
 /* linux.c -- Linux specific code for ifconfig
 
-   Copyright (C) 2001, 2002, 2005 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2005, 2007 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -112,200 +112,152 @@ struct arphrd_symbol
   int value;
   void (*print_hwaddr) (format_data_t form, unsigned char *data);
 } arphrd_symbols[] =
-{
-  /* ARP protocol HARDWARE identifiers. */
-
-#ifdef ARPHRD_NETROM		/* From KA9Q: NET/ROM pseudo.  */
   {
-  "NETROM", "AMPR NET/ROM", ARPHRD_NETROM, print_hwaddr_ax25},
+    /* ARP protocol HARDWARE identifiers. */
+#ifdef ARPHRD_NETROM		/* From KA9Q: NET/ROM pseudo.  */
+    {"NETROM", "AMPR NET/ROM", ARPHRD_NETROM, print_hwaddr_ax25},
 #endif
 #ifdef ARPHRD_ETHER		/* Ethernet 10/100Mbps.  */
-  {
-  "ETHER", "Ethernet", ARPHRD_ETHER, print_hwaddr_ether},
+    {"ETHER", "Ethernet", ARPHRD_ETHER, print_hwaddr_ether},
 #endif
 #ifdef ARPHRD_EETHER		/* Experimental Ethernet.  */
-  {
-  "EETHER", "Experimental Etherner", ARPHRD_EETHER, NULL},
+    {"EETHER", "Experimental Etherner", ARPHRD_EETHER, NULL},
 #endif
 #ifdef ARPHRD_AX25		/* AX.25 Level 2.  */
-  {
-  "AX25", "AMPR AX.25", ARPHRD_AX25, print_hwaddr_ax25},
+    {"AX25", "AMPR AX.25", ARPHRD_AX25, print_hwaddr_ax25},
 #endif
 #ifdef ARPHRD_PRONET		/* PROnet token ring.  */
-  {
-  "PRONET", "PROnet token ring", ARPHRD_PRONET, NULL},
+    {"PRONET", "PROnet token ring", ARPHRD_PRONET, NULL},
 #endif
 #ifdef ARPHRD_CHAOS		/* Chaosnet.  */
-  {
-  "CHAOS", "Chaosnet", ARPHRD_CHAOS, NULL},
+    {"CHAOS", "Chaosnet", ARPHRD_CHAOS, NULL},
 #endif
 #ifdef ARPHRD_IEEE802		/* IEEE 802.2 Ethernet/TR/TB.  */
-  {
-  "IEEE802", "16/4 Mbps Token Ring", ARPHRD_IEEE802, print_hwaddr_ether},
+    {"IEEE802", "16/4 Mbps Token Ring", ARPHRD_IEEE802, print_hwaddr_ether},
 #endif
 #ifdef ARPHRD_ARCNET		/* ARCnet.  */
-  {
-  "ARCNET", "ARCnet", ARPHRD_ARCNET, print_hwaddr_arcnet},
+    {"ARCNET", "ARCnet", ARPHRD_ARCNET, print_hwaddr_arcnet},
 #endif
 #ifdef ARPHRD_APPLETLK		/* APPLEtalk.  */
-  {
-  "APPLETLK", "Appletalk", ARPHRD_APPLETLK, NULL},
+    {"APPLETLK", "Appletalk", ARPHRD_APPLETLK, NULL},
 #endif
 #ifdef ARPHRD_DLCI		/* Frame Relay DLCI.  */
-  {
-  "DLCI", "Frame Relay DLCI", ARPHRD_DLCI, print_hwaddr_dlci},
+    {"DLCI", "Frame Relay DLCI", ARPHRD_DLCI, print_hwaddr_dlci},
 #endif
 #ifdef ARPHRD_ATM		/* ATM.  */
-  {
-  "ATM", "ATM", ARPHRD_ATM, NULL},
+    {"ATM", "ATM", ARPHRD_ATM, NULL},
 #endif
 #ifdef ARPHRD_METRICOM		/* Metricom STRIP (new IANA id).  */
-  {
-  "METRICOM", "Metricom STRIP", ARPHRD_METRICOM, NULL},
+    {"METRICOM", "Metricom STRIP", ARPHRD_METRICOM, NULL},
 #endif
     /* Dummy types for non ARP hardware.  */
 #ifdef ARPHRD_SLIP
-  {
-  "SLIP", "Serial Line IP", ARPHRD_SLIP, NULL},
+    {"SLIP", "Serial Line IP", ARPHRD_SLIP, NULL},
 #endif
 #ifdef ARPHRD_CSLIP
-  {
-  "CSLIP", "VJ Serial Line IP", ARPHRD_CSLIP, NULL},
+    {"CSLIP", "VJ Serial Line IP", ARPHRD_CSLIP, NULL},
 #endif
 #ifdef ARPHRD_SLIP6
-  {
-  "SLIP6", "6-bit Serial Line IP", ARPHRD_SLIP6, NULL},
+    {"SLIP6", "6-bit Serial Line IP", ARPHRD_SLIP6, NULL},
 #endif
 #ifdef ARPHRD_CSLIP6
-  {
-  "CSLIP6", "VJ 6-bit Serial Line IP", ARPHRD_CSLIP6, NULL},
+    {"CSLIP6", "VJ 6-bit Serial Line IP", ARPHRD_CSLIP6, NULL},
 #endif
 #ifdef ARPHRD_RSRVD		/* Notional KISS type.  */
-  {
-  "SLIP", "Notional KISS type", ARPHRD_SLIP, NULL},
+    {"SLIP", "Notional KISS type", ARPHRD_SLIP, NULL},
 #endif
 #ifdef ARPHRD_ADAPT
-  {
-  "ADAPT", "Adaptive Serial Line IP", ARPHRD_ADAPT, NULL},
+    {"ADAPT", "Adaptive Serial Line IP", ARPHRD_ADAPT, NULL},
 #endif
 #ifdef ARPHRD_ROSE
-  {
-  "ROSE", "AMPR ROSE", ARPHRD_ROSE, print_hwaddr_rose},
+    {"ROSE", "AMPR ROSE", ARPHRD_ROSE, print_hwaddr_rose},
 #endif
 #ifdef ARPHRD_X25		/* CCITT X.25.  */
-  {
-  "X25", "CCITT X.25", ARPHRD_X25, NULL},
+    {"X25", "CCITT X.25", ARPHRD_X25, NULL},
 #endif
 #ifdef ARPHRD_HWX25		/* Boards with X.25 in firmware.  */
-  {
-  "HWX25", "CCITT X.25 in firmware", ARPHRD_HWX25, NULL},
+    {"HWX25", "CCITT X.25 in firmware", ARPHRD_HWX25, NULL},
 #endif
 #ifdef ARPHRD_PPP
-  {
-  "PPP", "Point-to-Point Protocol", ARPHRD_PPP, NULL},
+    {"PPP", "Point-to-Point Protocol", ARPHRD_PPP, NULL},
 #endif
 #ifdef ARPHRD_HDLC		/* (Cisco) HDLC.  */
-  {
-  "HDLC", "(Cisco)-HDLC", ARPHRD_HDLC, NULL},
+    {"HDLC", "(Cisco)-HDLC", ARPHRD_HDLC, NULL},
 #endif
 #ifdef ARPHRD_LAPB		/* LAPB.  */
-  {
-  "LAPB", "LAPB", ARPHRD_LAPB, NULL},
+    {"LAPB", "LAPB", ARPHRD_LAPB, NULL},
 #endif
 #ifdef ARPHRD_DDCMP		/* Digital's DDCMP.  */
-  {
-  "DDCMP", "DDCMP", ARPHRD_DDCMP, NULL},
+    {"DDCMP", "DDCMP", ARPHRD_DDCMP, NULL},
 #endif
 #ifdef ARPHRD_TUNNEL		/* IPIP tunnel.  */
-  {
-  "TUNNEL", "IPIP Tunnel", ARPHRD_TUNNEL, NULL},
+    {"TUNNEL", "IPIP Tunnel", ARPHRD_TUNNEL, NULL},
 #endif
 #ifdef ARPHRD_TUNNEL6		/* IPIP6 tunnel.  */
-  {
-  "TUNNEL", "IPIP6 Tunnel", ARPHRD_TUNNEL6, NULL},
+    {"TUNNEL", "IPIP6 Tunnel", ARPHRD_TUNNEL6, NULL},
 #endif
 #ifdef ARPHRD_FRAD		/* Frame Relay Access Device.  */
-  {
-  "FRAD", "Frame Relay Access Device", ARPHRD_FRAD, NULL},
+    {"FRAD", "Frame Relay Access Device", ARPHRD_FRAD, NULL},
 #endif
 #ifdef ARPHRD_SKIP		/* SKIP vif.  */
-  {
-  "SKIP", "SKIP vif", ARPHRD_SKIP, NULL},
+    {"SKIP", "SKIP vif", ARPHRD_SKIP, NULL},
 #endif
 #ifdef ARPHRD_LOOPBACK		/* Loopback device.  */
-  {
-  "LOOPBACK", "Local Loopback", ARPHRD_LOOPBACK, NULL},
+    {"LOOPBACK", "Local Loopback", ARPHRD_LOOPBACK, NULL},
 #endif
 #ifdef ARPHRD_LOCALTALK		/* Localtalk device.  */
-  {
-  "LOCALTALK", "Localtalk", ARPHRD_LOCALTALK, NULL},
+    {"LOCALTALK", "Localtalk", ARPHRD_LOCALTALK, NULL},
 #endif
 #ifdef ARPHRD_FDDI		/* Fiber Distributed Data Interface. */
-  {
-  "FDDI", "Fiber Distributed Data Interface", ARPHRD_FDDI, NULL},
+    {"FDDI", "Fiber Distributed Data Interface", ARPHRD_FDDI, NULL},
 #endif
 #ifdef ARPHRD_BIF		/* AP1000 BIF.  */
-  {
-  "BIF", "AP1000 BIF", ARPHRD_BIF, NULL},
+    {"BIF", "AP1000 BIF", ARPHRD_BIF, NULL},
 #endif
 #ifdef ARPHRD_SIT		/* sit0 device - IPv6-in-IPv4.  */
-  {
-  "SIT", "IPv6-in-IPv4", ARPHRD_SIT, NULL},
+    {"SIT", "IPv6-in-IPv4", ARPHRD_SIT, NULL},
 #endif
 #ifdef ARPHRD_IPDDP		/* IP-in-DDP tunnel.  */
-  {
-  "IPDDP", "IP-in-DDP", ARPHRD_IPDDP, NULL},
+    {"IPDDP", "IP-in-DDP", ARPHRD_IPDDP, NULL},
 #endif
 #ifdef ARPHRD_IPGRE		/* GRE over IP.  */
-  {
-  "IPGRE", "GRE over IP", ARPHRD_IPGRE, NULL},
+    {"IPGRE", "GRE over IP", ARPHRD_IPGRE, NULL},
 #endif
 #ifdef ARPHRD_PIMREG		/* PIMSM register interface.  */
-  {
-  "PIMREG", "PIMSM register", ARPHRD_PIMREG, NULL},
+    {"PIMREG", "PIMSM register", ARPHRD_PIMREG, NULL},
 #endif
 #ifdef ARPHRD_HIPPI		/* High Performance Parallel I'face. */
-  {
-  "HIPPI", "HIPPI", ARPHRD_HIPPI, print_hwaddr_ether},
+    {"HIPPI", "HIPPI", ARPHRD_HIPPI, print_hwaddr_ether},
 #endif
 #ifdef ARPHRD_ASH		/* (Nexus Electronics) Ash.  */
-  {
-  "ASH", "Ash", ARPHRD_ASH, NULL},
+    {"ASH", "Ash", ARPHRD_ASH, NULL},
 #endif
 #ifdef ARPHRD_ECONET		/* Acorn Econet.  */
-  {
-  "ECONET", "Econet", ARPHRD_ECONET, NULL},
+    {"ECONET", "Econet", ARPHRD_ECONET, NULL},
 #endif
 #ifdef ARPHRD_IRDA		/* Linux-IrDA.  */
-  {
-  "IRDA", "IrLap", ARPHRD_IRDA, print_hwaddr_irda},
+    {"IRDA", "IrLap", ARPHRD_IRDA, print_hwaddr_irda},
 #endif
 #ifdef ARPHRD_FCPP		/* Point to point fibrechanel.  */
-  {
-  "FCPP", "FCPP", ARPHRD_FCPP, NULL},
+    {"FCPP", "FCPP", ARPHRD_FCPP, NULL},
 #endif
 #ifdef ARPHRD_FCAL		/* Fibrechanel arbitrated loop.  */
-  {
-  "FCAL", "FCAL", ARPHRD_FCAL, NULL},
+    {"FCAL", "FCAL", ARPHRD_FCAL, NULL},
 #endif
 #ifdef ARPHRD_FCPL		/* Fibrechanel public loop.  */
-  {
-  "FCPL", "FCPL", ARPHRD_FCPL, NULL},
+    {"FCPL", "FCPL", ARPHRD_FCPL, NULL},
 #endif
 #ifdef ARPHRD_FCPFABRIC		/* Fibrechanel fabric.  */
-  {
-  "FCFABRIC", "FCFABRIC", ARPHRD_FCPFABRIC, NULL},
+    {"FCFABRIC", "FCFABRIC", ARPHRD_FCPFABRIC, NULL},
 #endif
 #ifdef ARPHRD_IEEE802_TR	/* Magic type ident for TR.  */
-  {
-  "IEEE802_TR", "16/4 Mbps Token Ring (New)", ARPHRD_IEEE802_TR,
-      print_hwaddr_ether},
+    {"IEEE802_TR", "16/4 Mbps Token Ring (New)", ARPHRD_IEEE802_TR,
+     print_hwaddr_ether},
 #endif
 #ifdef ARPHRD_VOID
-  {
-  "VOID", "Void (nothing is known)", ARPHRD_VOID, NULL},
+    {"VOID", "Void (nothing is known)", ARPHRD_VOID, NULL},
 #endif
-};
+  };
 
 struct arphrd_symbol *
 arphrd_findvalue (int value)

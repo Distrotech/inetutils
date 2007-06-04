@@ -1,6 +1,6 @@
 /* options.c -- process the command line options
 
-   Copyright (C) 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -63,16 +63,10 @@ static struct ifconfig ifconfig_initializer = {
 struct format formats[] = {
   /* This is the default output format if no system_default_format is
      specified.  */
-  {
-   "default",
-   "${format}{gnu}",
-   },
+  {"default", "${format}{gnu}"},
   /* This is the standard GNU output.  */
-  {
-   "gnu",
-   "${first?}{}{${\\n}}${format}{gnu-one-entry}"},
-  {
-   "gnu-one-entry",
+  {"gnu", "${first?}{}{${\\n}}${format}{gnu-one-entry}"},
+  {"gnu-one-entry",
    "${format}{check-existance}"
    "${name} (${index}):${\\n}"
    "${addr?}{  inet address ${tab}{16}${addr}${\\n}}"
@@ -86,8 +80,7 @@ struct format formats[] = {
    "${exists?}{hwaddr?}{${hwaddr?}{  hardware addr ${tab}{16}${hwaddr}${\\n}}}"
    "${exists?}{txqlen?}{${txqlen?}{  tx queue len ${tab}{16}${txqlen}${\\n}}}"},
   /* Resembles the output of ifconfig 1.39 (1999-03-19) in net-tools 1.52.  */
-  {
-   "net-tools",
+  {"net-tools",
    "${format}{check-existance}"
    "${name}${exists?}{hwtype?}{${hwtype?}{${tab}{10}Link encap:${hwtype}}"
    "${hwaddr?}{  HWaddr ${hwaddr}}}${\\n}"
@@ -103,8 +96,7 @@ struct format formats[] = {
    "${newline}"},
   /* Resembles the output of ifconfig shipped with unix systems like
      Solaris 2.7 or HPUX 10.20.  */
-  {
-   "unix",
+  {"unix",
    "${format}{check-existance}"
    "${name}: flags=${flags}{number}<${flags}{string}{,}>"
    "${mtu?}{ mtu ${mtu}}${\\n}"
@@ -115,8 +107,7 @@ struct format formats[] = {
    "${exists?}{hwtype?}{${hwtype?}{${\\t}${hwtype}"
    "}${exists?}{hwaddr?}{${hwaddr?}{ ${hwaddr}}}${\\n}}"},
   /* Resembles the output of ifconfig shipped with OSF 4.0g.  */
-  {
-   "osf",
+  {"osf",
    "${format}{check-existance}"
    "${name}: flags=${flags}{number}{%x}<${flags}{string}{,}>${\\n}"
    "${addr?}{${\\t}inet ${addr}"
@@ -124,8 +115,7 @@ struct format formats[] = {
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
    "${brdaddr?}{ broadcast ${brdaddr}}" "${mtu?}{ ipmtu ${mtu}}${\\n}}"},
   /* If interface does not exist, print error message and exit. */
-  {
-   "check-existance",
+  {"check-existance",
    "${index?}{}"
    "{${error}{${progname}: error: interface `${name}' does not exist${\\n}}"
    "${exit}{1}}"},
