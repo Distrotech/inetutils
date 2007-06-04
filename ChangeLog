@@ -1,4 +1,30 @@
+2007-05-28  Debarshi Ray  <rishi@gnu.org>
+
+	* inetd/inetd.8: Fix typo.
+
+	* inetd/Makefile.am (INCLUDES): Added -I$(top_srcdir)/libinetutils.
+
+	* inetd/inetd.c: Include <stdbool.h>,  <argp.h> and "libinetutils.h".
+	Don't include <getopt.h>
+	(program_name): Variable removed.
+	(debug, env_option, resolve_option): Changed type to bool.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc): New variables.
+	(OPT_ENVIRON, OPT_RESOLVE): New enums.
+	(argp_options): New variable.
+	(parse_opt): New function.
+	(argp): New variable.
+	(usage): Function removed.
+	(short_options, long_options): Variables removed.
+	(main): Use argp to parse program options.
+
 2007-06-04  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ping/ping6.c (main): Move argument parsing before calling
+	ping_init.
+
+	* ping/ping.c (main): Reorder assignment of argc and argv to be
+	right after calling argp_parse.
 
 	* tftpd/tftpd.c (struct formats) [notdef]: Removed unused field
 	"mail"..
