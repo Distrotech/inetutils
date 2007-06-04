@@ -62,9 +62,6 @@ extern int ring_init (Ring * ring, unsigned char *buffer, int count);
 
 /* Data movement routines */
 extern void ring_supply_data (Ring * ring, unsigned char *buffer, int count);
-#ifdef notdef
-extern void ring_consume_data (Ring * ring, unsigned char *buffer, int count);
-#endif
 
 /* Buffer state transition routines */
 extern void

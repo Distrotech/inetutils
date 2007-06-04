@@ -73,18 +73,9 @@ int tout,			/* Output file descriptor */
   net;
 
 #ifndef USE_TERMIO
-struct tchars otc = { 0 }, ntc =
-
-{
-0};
-struct ltchars oltc = { 0 }, nltc =
-
-{
-0};
-struct sgttyb ottyb = { 0 }, nttyb =
-
-{
-0};
+struct tchars otc = { 0 }, ntc = { 0 };
+struct ltchars oltc = { 0 }, nltc = { 0 };
+struct sgttyb ottyb = { 0 }, nttyb = { 0 };
 int olmode = 0;
 # define cfgetispeed(ptr)	(ptr)->sg_ispeed
 # define cfgetospeed(ptr)	(ptr)->sg_ospeed
@@ -388,13 +379,6 @@ TerminalDefaultChars ()
 #endif /* USE_TERMIO */
 }
 
-#ifdef notdef
-void
-TerminalRestoreState ()
-{
-}
-#endif
-
 /*
  * TerminalNewMode - set up terminal to a specific mode.
  *	MODE_ECHO: do local terminal echo
@@ -500,10 +484,6 @@ TerminalNewMode (register int f)
 #else
       tmp_tc.c_lflag &= ~ECHO;
       tmp_tc.c_oflag &= ~ONLCR;
-# ifdef notdef
-      if (crlf)
-	tmp_tc.c_iflag &= ~ICRNL;
-# endif
 #endif
     }
 
@@ -846,54 +826,31 @@ struct termspeeds
   long speed;
   long value;
 } termspeeds[] =
-{
   {
-  0, B0},
-  {
-  50, B50},
-  {
-  75, B75},
-  {
-  110, B110},
-  {
-  134, B134},
-  {
-  150, B150},
-  {
-  200, B200},
-  {
-  300, B300},
-  {
-  600, B600},
-  {
-  1200, B1200},
-  {
-  1800, B1800},
-  {
-  2400, B2400},
-  {
-  4800, B4800},
-  {
-  7200, B7200},
-  {
-  9600, B9600},
-  {
-  14400, B14400},
-  {
-  19200, B19200},
-  {
-  28800, B28800},
-  {
-  38400, B38400},
-  {
-  57600, B57600},
-  {
-  115200, B115200},
-  {
-  230400, B230400},
-  {
-  -1, B230400}
-};
+    {0, B0},
+    {50, B50},
+    {75, B75},
+    {110, B110},
+    {134, B134},
+    {150, B150},
+    {200, B200},
+    {300, B300},
+    {600, B600},
+    {1200, B1200},
+    {1800, B1800},
+    {2400, B2400},
+    {4800, B4800},
+    {7200, B7200},
+    {9600, B9600},
+    {14400, B14400},
+    {19200, B19200},
+    {28800, B28800},
+    {38400, B38400},
+    {57600, B57600},
+    {115200, B115200},
+    {230400, B230400},
+    {-1, B230400}
+  };
 #endif /* DECODE_BAUD */
 
 void

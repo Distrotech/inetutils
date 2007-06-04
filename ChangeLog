@@ -1,5 +1,34 @@
 2007-06-04  Alfred M. Szmidt  <ams@gnu.org>
 
+	* tftpd/tftpd.c (struct formats) [notdef]: Removed unused field
+	"mail"..
+
+	* telnet/telnet.c (modelist) [notdef]: Removed variable.
+	(printring) [notdef]: Removed function.
+
+	* telnet/sys_bsd.c (TerminalRestoreState) [notdef]: Remvoved
+	function.
+	(TerminalNewMode) [notdef]: Removed unused code.
+
+	* telnet/ring.h (ring_consume_data) [notdef]: Removed extern
+	declaration.
+
+	* telnet/ring.c (ring_consume_data) [notdef]: Removed function.
+
+	* telnet/commands.c (filestuff) [notdef]: Removed unused code.
+
+	* rshd/rshd.c (doit) [notdef]: Removed unused code.
+
+	* libtelnet/kerberos.c (prkey) [notdef]: Function removed.
+
+	* libtelnet/encrypt.c (encrypt_init,
+	encrypt_session_key) [notdef]: Removed unused code.
+
+	* libls/fts.c (fts_build) [notdef]: Removed unused code.
+
+	* libinetutils/des_rw.c (des_pcbc_encrypt) [notdef]: Removed
+	forward declaration.
+
 	* AUTHORS: Rewritten.
 
 2007-05-31  Alfred M. Szmidt  <ams@gnu.org>

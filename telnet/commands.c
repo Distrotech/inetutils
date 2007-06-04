@@ -2320,9 +2320,6 @@ filestuff (int fd)
       perror ("fcntl");
       return;
     }
-# ifdef notdef
-  printf ("\tFlags are 0x%x: %s\n", res, decodeflags (res));
-# endif
 }
 #endif /* defined(unix) && defined(TN3270) */
 

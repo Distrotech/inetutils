@@ -49,11 +49,6 @@ static u_char *key_schedule;
 
 /* XXX these should be in a kerberos include file */
 int krb_net_read (int, char *, int);
-#  ifdef notdef
-/* XXX too hard to make this work */
-int des_pcbc_encrypt (des_cblock *, des_cblock *, long,
-		      des_key_schedule, des_cblock *, int);
-#  endif
 
 /*
  * NB: These routines will not function properly if NBIO

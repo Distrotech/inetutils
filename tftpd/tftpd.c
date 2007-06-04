@@ -271,18 +271,11 @@ struct formats
   void (*f_recv) (struct formats *);
   int f_convert;
 } formats[] =
-{
   {
-  "netascii", validate_access, send_file, recvfile, 1},
-  {
-  "octet", validate_access, send_file, recvfile, 0},
-#ifdef notdef
-  {
-  "mail", validate_user, sendmail, recvmail, 1},
-#endif
-  {
-  0}
-};
+    {"netascii", validate_access, send_file, recvfile, 1},
+    {"octet", validate_access, send_file, recvfile, 0},
+    {0}
+  };
 
 /*
  * Handle initial connection protocol.
@@ -647,26 +640,17 @@ struct errmsg
   int e_code;
   const char *e_msg;
 } errmsgs[] =
-{
   {
-  EUNDEF, "Undefined error code"},
-  {
-  ENOTFOUND, "File not found"},
-  {
-  EACCESS, "Access violation"},
-  {
-  ENOSPACE, "Disk full or allocation exceeded"},
-  {
-  EBADOP, "Illegal TFTP operation"},
-  {
-  EBADID, "Unknown transfer ID"},
-  {
-  EEXISTS, "File already exists"},
-  {
-  ENOUSER, "No such user"},
-  {
-  -1, 0}
-};
+    {EUNDEF, "Undefined error code"},
+    {ENOTFOUND, "File not found"},
+    {EACCESS, "Access violation"},
+    {ENOSPACE, "Disk full or allocation exceeded"},
+    {EBADOP, "Illegal TFTP operation"},
+    {EBADID, "Unknown transfer ID"},
+    {EEXISTS, "File already exists"},
+    {ENOUSER, "No such user"},
+    {-1, 0}
+  };
 
 static const char *
 errtomsg (int error)

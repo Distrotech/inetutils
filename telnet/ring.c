@@ -309,27 +309,6 @@ ring_supply_data (Ring * ring, unsigned char *buffer, int count)
     }
 }
 
-#ifdef notdef
-
-/*
- * Move data from the "consume" portion of the ring buffer
- */
-void
-ring_consume_data (Ring * ring, unsigned char *buffer, int count)
-{
-  int i;
-
-  while (count)
-    {
-      i = MIN (count, ring_full_consecutive (ring));
-      memmove (buffer, ring->consume, i);
-      ring_consumed (ring, i);
-      count -= i;
-      buffer += i;
-    }
-}
-#endif
-
 #ifdef	ENCRYPTION
 void
 ring_encrypt (Ring * ring, void (*encryptor) ())

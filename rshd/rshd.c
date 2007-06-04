@@ -1086,9 +1086,6 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      "%s@%s as %s: no home directory. cmd='%.80s'", remuser,
 	      hostname, locuser, cmdbuf);
       rshd_error ("No remote directory.\n");
-#ifdef notdef
-      exit (1);
-#endif
     }
 
   /* Set up an initial environment for the shell that we exec() */

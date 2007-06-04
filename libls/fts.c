@@ -666,11 +666,6 @@ fts_build (sp, type)
   else
     nlinks = -1;
 
-#ifdef notdef
-  printf ("nlinks == %d (cur: %d)\n", nlinks, cur->fts_nlink);
-  printf ("NOSTAT %d PHYSICAL %d SEEDOT %d\n",
-	  ISSET (FTS_NOSTAT), ISSET (FTS_PHYSICAL), ISSET (FTS_SEEDOT));
-#endif
   /*
    * If we're going to need to stat anything or we want to descend
    * and stay in the directory, chdir.  If this fails we keep going,

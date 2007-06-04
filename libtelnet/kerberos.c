@@ -571,17 +571,3 @@ kerberos4_cksum (d, n)
   return (ck);
 }
 #endif
-
-#ifdef notdef
-
-prkey (msg, key)
-     char *msg;
-     unsigned char *key;
-{
-  register int i;
-  printf ("%s:", msg);
-  for (i = 0; i < 8; i++)
-    printf (" %3d", key[i]);
-  printf ("\r\n");
-}
-#endif

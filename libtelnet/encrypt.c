@@ -198,10 +198,6 @@ encrypt_init (name, server)
   decrypt_mode = 0;
   encrypt_output = 0;
   decrypt_input = 0;
-# ifdef notdef
-  encrypt_verbose = !server;
-# endif
-
   str_suplen = 4;
 
   while (ep->type)
@@ -725,12 +721,6 @@ encrypt_session_key (key, server)
     {
       if (ep->session)
 	(*ep->session) (key, server);
-# ifdef notdef
-      if (!encrypt_output && autoencrypt && !server)
-	encrypt_start_output (ep->type);
-      if (!decrypt_input && autodecrypt && !server)
-	encrypt_send_request_start ();
-# endif
       ++ep;
     }
 }

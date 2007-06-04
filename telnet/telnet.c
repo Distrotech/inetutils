@@ -144,17 +144,6 @@ int kludgelinemode = 1;
 
 Clocks clocks;
 
-#ifdef	notdef
-Modelist modelist[] = {
-  {"telnet command mode", COMMAND_LINE},
-  {"character-at-a-time mode", 0},
-  {"character-at-a-time mode (local echo)", LOCAL_ECHO | LOCAL_CHARS},
-  {"line-by-line mode (remote echo)", LINE | LOCAL_CHARS},
-  {"line-by-line mode", LINE | LOCAL_ECHO | LOCAL_CHARS},
-  {"line-by-line mode (local echoing suppressed)", LINE | LOCAL_CHARS},
-  {"3270 mode", 0},
-};
-#endif
 
 
 /*
@@ -189,59 +178,6 @@ init_telnet ()
   telrcv_state = TS_DATA;
 }
 
-
-#ifdef	notdef
-# include <varargs.h>
-
-static void
-printring (va_alist)
-     va_dcl
-{
-  va_list ap;
-  char buffer[100];		/* where things go */
-  char *ptr;
-  char *format;
-  char *string;
-  Ring *ring;
-  int i;
-
-  va_start (ap);
-
-  ring = va_arg (ap, Ring *);
-  format = va_arg (ap, char *);
-  ptr = buffer;
-
-  while ((i = *format++) != 0)
-    {
-      if (i == '%')
-	{
-	  i = *format++;
-	  switch (i)
-	    {
-	    case 'c':
-	      *ptr++ = va_arg (ap, int);
-	      break;
-	    case 's':
-	      string = va_arg (ap, char *);
-	      ring_supply_data (ring, buffer, ptr - buffer);
-	      ring_supply_data (ring, string, strlen (string));
-	      ptr = buffer;
-	      break;
-	    case 0:
-	      ExitString ("printring: trailing %%.\n", 1);
-	    default:
-	      ExitString ("printring: unknown format character.\n", 1);
-	    }
-	}
-      else
-	{
-	  *ptr++ = i;
-	}
-    }
-  ring_supply_data (ring, buffer, ptr - buffer);
-}
-#endif
-
 /*
  * These routines are in charge of sending option negotiations
  * to the other side.
