@@ -92,12 +92,10 @@ file on the command line, by default,
 .Pa /etc/inetd.conf and /etc/inetd.d .
 If the configuration pathname is a directory, all the files in the
 directory are read like a configuration file. All of the configuration
-files are read and merged.
-There must be an entry for each field in the configuration
-file, with entries for each field separated by a tab or
-a space.  Comments are denoted by a ``#'' at the beginning
-of a line.  There must be an entry for each field.  The
-fields of the configuration file are as follows:
+files are read and merged.  There must be an entry for each field in
+the configuration file, with entries for each field separated by a tab
+or a space.  Comments are denoted by a ``#'' at the beginning of a
+line.  The fields of the configuration file are as follows:
 .Pp
 .Bd -unfilled -offset indent -compact
 service name

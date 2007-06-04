@@ -132,16 +132,19 @@
 #include <netdb.h>
 #include <pwd.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
-#include <getopt.h>
+#include <argp.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
 #include <grp.h>
+
+#include "libinetutils.h"
 
 #define TOOMANY		40	/* don't start more than TOOMANY */
 #define CNT_INTVL	60	/* servers in CNT_INTVL sec. */
@@ -152,14 +155,76 @@
 #endif
 #define SIGBLOCK	(sigmask(SIGCHLD)|sigmask(SIGHUP)|sigmask(SIGALRM))
 
-char *program_name;
-
-int debug = 0;
+bool debug = false;
 int nsock, maxsock;
 fd_set allsock;
 int options;
 int timingout;
 int toomany = TOOMANY;
+
+static bool env_option = false;	       /* Set environment variables */
+static bool resolve_option = false;    /* Resolve IP addresses */
+
+ARGP_PROGRAM_DATA ("inetd", "2007", "FIXME unknown")
+
+const char args_doc[] = "[CONF-FILE [CONF-DIR]]...";
+const char doc[] = "Internet super-server.";
+
+/* Define keys for long options that do not have short counterparts. */
+enum {
+  OPT_ENVIRON = 256,
+  OPT_RESOLVE
+};
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
+  {"environment", OPT_ENVIRON, NULL, 0, "Pass local and remote socket "
+   "information in environment variables", GRP+1},
+  {"rate", 'R', "NUMBER", 0, "Maximum invocation rate (per second)", GRP+1},
+  {"resolve", OPT_RESOLVE, NULL, 0, "Resolve IP addresses when setting "
+   "environment variables (see --environment)", GRP+1},
+#undef GRP
+  {NULL}
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  char *p;
+  int number;
+
+  switch (key)
+    {
+    case 'd':
+      debug = true;
+      options |= SO_DEBUG;
+      break;
+
+    case OPT_ENVIRON:
+      env_option = true;
+      break;
+
+    case 'R':
+      number = strtol (arg, &p, 0);
+      if (number < 1 || *p)
+        syslog (LOG_ERR, "-R %s: bad value for service invocation rate", arg);
+      else
+        toomany = number;
+      break;
+
+    case OPT_RESOLVE:
+      resolve_option = true;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 struct servtab
 {
@@ -333,58 +398,13 @@ signal_unblock (SIGSTATUS * status)
 }
 
 
-static void
-usage (int err)
-{
-  if (err != 0)
-    {
-      fprintf (stderr, "Usage: %s [OPTION...] [CONF-FILE [CONF-DIR]] ...\n",
-	       program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-    }
-  else
-    {
-      fprintf (stdout, "Usage: %s [OPTION...] [CONF-FILE [CONF-DIR]] ...\n",
-	       program_name);
-      puts ("Internet super-server.\n\n\
-  -d, --debug               Debug mode\n\
-      --environment         Pass local and remote socket information in\n\
-                            environment variables\n\
-  -R, --rate NUMBER         Maximum invocation rate (per second)\n\
-      --resolve             Resolve IP addresses when setting environment\n\
-                            variables (see --environment)\n\
-      --help                Display this help and exit\n\
-  -V, --version             Output version information and exit");
-
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
-    }
-  exit (err);
-}
-
-static int env_option;		/* Set environment variables */
-static int resolve_option;	/* Resolve IP addresses */
-
-static const char *short_options = "dR:V";
-static struct option long_options[] = {
-  {"debug", no_argument, 0, 'd'},
-  {"rate", required_argument, 0, 'R'},
-  {"help", no_argument, 0, '&'},
-  {"version", no_argument, 0, 'V'},
-  {"resolve", no_argument, &resolve_option, 1},
-  {"environment", no_argument, &env_option, 1},
-  {0, 0, 0, 0}
-};
-
 int
 main (int argc, char *argv[], char *envp[])
 {
-  int option;
+  int index;
   struct servtab *sep;
   int dofork;
   pid_t pid;
-
-  program_name = argv[0];
 
   Argv = argv;
   if (envp == 0 || *envp == 0)
@@ -393,58 +413,19 @@ main (int argc, char *argv[], char *envp[])
     envp++;
   LastArg = envp[-1] + strlen (envp[-1]);
 
-  while ((option = getopt_long (argc, argv, short_options,
-				long_options, 0)) != EOF)
-    {
-      switch (option)
-	{
-	case 'd':		/* Debug.  */
-	  debug = 1;
-	  options |= SO_DEBUG;
-	  break;
-
-	case 'R':		/* Invocation rate.  */
-	  {
-	    char *p;
-	    int number;
-	    number = strtol (optarg, &p, 0);
-	    if (number < 1 || *p)
-	      syslog (LOG_ERR,
-		      "-R %s: bad value for service invocation rate", optarg);
-	    else
-	      toomany = number;
-	    break;
-	  }
-
-	case '&':		/* Usage.  */
-	  usage (0);
-	  /* Not reached.  */
-
-	case 'V':		/* Version.  */
-	  printf ("inetd (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-	  /* Not reached.  */
-
-	case 0:
-	  break;
-
-	case '?':
-	default:
-	  usage (1);
-	  /* Not reached.  */
-	}
-    }
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (resolve_option)
-    env_option = 1;
+    env_option = true;
 
-  if (optind < argc)
+  if (index < argc)
     {
       int i;
-      config_files = calloc (argc - optind + 1, sizeof (*config_files));
-      for (i = 0; optind < argc; optind++, i++)
+      config_files = calloc (argc - index + 1, sizeof (*config_files));
+      for (i = 0; index < argc; index++, i++)
 	{
-	  config_files[i] = strdup (argv[optind]);
+	  config_files[i] = strdup (argv[index]);
 	}
     }
   else
@@ -454,7 +435,7 @@ main (int argc, char *argv[], char *envp[])
       config_files[1] = newstr (PATH_INETDDIR);
     }
 
-  if (debug == 0)
+  if (!debug)
     {
       daemon (0, 0);
     }
