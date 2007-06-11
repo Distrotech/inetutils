@@ -1580,7 +1580,7 @@ makedir (const char *name)
   if (mkdir (name, 0777) < 0)
     perror_reply (550, name);
   else if (name[0] == '/')
-    reply (257, "\"%s\" new directory created.");
+    reply (257, "\"%s\" new directory created.", name);
   else
     {
       /* We have to figure out what our current directory is so that we can
