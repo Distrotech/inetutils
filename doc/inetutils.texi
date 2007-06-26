@@ -20,9 +20,13 @@
 
 @set Francois Fran@,{c}ois
 
-@ifinfo
-@format
-START-INFO-DIR-ENTRY
+@dircategory Network applications
+@direntry
+* Inetutils: (inetutils).       GNU networking utilities.
+@end direntry
+
+@dircategory Individual utilities
+@direntry
 * networking(inet) utilities: (inetutils).      GNU networking utilities.
 * ftp: (inetutils)ftp invocation.               File Transfer Protocol.
 * ftpd: (inetutils)ftpd invocation.             FTP Daemon.
@@ -44,29 +48,22 @@ START-INFO-DIR-ENTRY
 @c * tftpd: (inetutils)tftpd invocation.           TFTP server.
 @c * uucpd: (inetutils)uucpd invocation.           Unix to Unix Copy.
 @c * whois: (inetutils)whois invocation.           Whois user interface.
-END-INFO-DIR-ENTRY
-@end format
-@end ifinfo
+@end direntry
 
-@ifinfo
+@copying
 This file documents the GNU networking utilities.
 
-Copyright (C) 1994, 95, 96, 2000, 2001 Free Software Foundation, Inc.
+Copyright (C) 1994, 95, 96, 2000, 2001, 2007 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
+under the terms of the GNU Free Documentation License, Version 1.2 or
 any later version published by the Free Software Foundation; with no
-Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
-and with the Back-Cover Texts as in (a) below.  A copy of the
-license is included in the section entitled ``GNU Free Documentation
-License.''
-
-(a) The FSF's Back-Cover Text is: ``You have freedom to copy and modify
-this GNU Manual, like GNU software.  Copies published by the Free
-Software Foundation raise funds for GNU development.''
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
 @end quotation
-@end ifinfo
+@end copying
 
 @titlepage
 @title GNU @code{inetutils}
@@ -76,27 +73,16 @@ Software Foundation raise funds for GNU development.''
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1994, 95, 96, 2001 Free Software Foundation, Inc.
-
-@quotation
-Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
-any later version published by the Free Software Foundation; with no
-Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
-and with the Back-Cover Texts as in (a) below.  A copy of the
-license is included in the section entitled ``GNU Free Documentation
-License.''
-
-(a) The FSF's Back-Cover Text is: ``You have freedom to copy and modify
-this GNU Manual, like GNU software.  Copies published by the Free
-Software Foundation raise funds for GNU development.''
-@end quotation
+@insertcopying
 @end titlepage
 
 
 @ifnottex
 @node Top
 @top GNU networking utilities
+
+@insertcopying
+@end ifnottex
 
 @cindex networking utilities
 
@@ -129,7 +115,6 @@ This manual documents version @value{VERSION} of the GNU network utilities.
 * Concept Index::               Index of concepts.
 * Index::                       Index of commands, options and variables.
 @end menu
-@end ifnottex
 
 
 @node Introduction

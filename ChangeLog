@@ -1,3 +1,8 @@
+2007-06-26  Karl Berry  <karl@freefriends.org>  (tiny change)
+	
+	* doc/inetutils.texi: Updated Info directory entries.  Use
+	@copying for permission notice.
+	
 2007-06-26  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Removed `allocsa'.
