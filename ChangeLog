@@ -1,3 +1,7 @@
+2007-06-26  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap.conf (gnulib_modules): Removed `allocsa'.
+
 2007-06-11  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftpd/ftpd.c (makedir): Pass NAME when calling reply().
