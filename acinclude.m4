@@ -9,7 +9,7 @@ dnl IU_ENABLE_CLIENT, IU_ENABLE_SERVER and IU_ENABLE_FOO.
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
-dnl the Free Software Foundation; either version 2, or (at your option)
+dnl the Free Software Foundation; either version 3, or (at your option)
 dnl any later version.
 dnl
 dnl This program is distributed in the hope that it will be useful,

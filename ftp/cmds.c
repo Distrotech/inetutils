@@ -170,11 +170,7 @@ setpeer (argc, argv)
   int port;
 
   if (connected)
-    {
-      printf ("Already connected to %s, use close first.\n", hostname);
-      code = -1;
-      return;
-    }
+    disconnect (0, 0);
   if (argc < 2)
     another (&argc, &argv, "to");
   if (argc < 2 || argc > 3)

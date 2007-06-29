@@ -1,8 +1,53 @@
+2007-06-26  Alfred M. Szmidt  <ams@gnu.org>
+
+	* COPYING: Updated to GPLv3.
+
+	* Makefile.am, acinclude.m4, bootstrap.conf, configure.ac, paths,
+	doc/Makefile.am, doc/rfc/Makefile.am, ftp/Makefile.am, ftp/cmds.c,
+	ftpd/Makefile.am, ftpd/logwtmp.c, gwhois/Makefile.am,
+	gwhois/whois.c, headers/Makefile.am, headers/shishi_def.h,
+	ifconfig/Makefile.am, ifconfig/changeif.c, ifconfig/flags.c,
+	ifconfig/flags.h, ifconfig/if_index.c, ifconfig/if_index.h,
+	ifconfig/ifconfig.c, ifconfig/ifconfig.h, ifconfig/options.c,
+	ifconfig/options.h, ifconfig/printif.c, ifconfig/printif.h,
+	ifconfig/system.h, ifconfig/system/Makefile.am,
+	ifconfig/system/generic.c, ifconfig/system/generic.h,
+	ifconfig/system/hpux.c, ifconfig/system/hpux.h,
+	ifconfig/system/linux.c, ifconfig/system/linux.h,
+	ifconfig/system/osf.c, ifconfig/system/osf.h,
+	ifconfig/system/qnx.c, ifconfig/system/qnx.h,
+	ifconfig/system/solaris.c, ifconfig/system/solaris.h,
+	inetd/Makefile.am, inetd/inetd.c, lib/Makefile.am,
+	libicmp/Makefile.am, libicmp/icmp.h, libicmp/icmp_address.c,
+	libicmp/icmp_cksum.c, libicmp/icmp_echo.c,
+	libicmp/icmp_timestamp.c, libicmp/libping.c, libicmp/ping.h,
+	libinetutils/Makefile.am, libinetutils/argcv.c,
+	libinetutils/argcv.h, libinetutils/cleansess.c,
+	libinetutils/libinetutils.h, libinetutils/localhost.c,
+	libinetutils/logwtmp.c, libinetutils/setsig.c,
+	libinetutils/shishi.c, libls/Makefile.am, libtelnet/Makefile.am,
+	libtelnet/kerberos5.c, libtelnet/shishi.c, logger/Makefile.am,
+	ping/Makefile.am, ping/ping.c, ping/ping6.c, ping/ping6.h,
+	ping/ping_address.c, ping/ping_common.c, ping/ping_common.h,
+	ping/ping_echo.c, ping/ping_router.c, ping/ping_timestamp.c,
+	rcp/Makefile.am, rexecd/Makefile.am, rlogin/Makefile.am,
+	rlogind/Makefile.am, rlogind/rlogind.c, rsh/Makefile.am,
+	rshd/Makefile.am, syslogd/Makefile.am, talk/Makefile.am,
+	talkd/Makefile.am, talkd/acl.c, talkd/announce.c, talkd/intalkd.h,
+	talkd/print.c, talkd/process.c, talkd/table.c, talkd/talkd.c,
+	telnet/Makefile.am, telnetd/Makefile.am, telnetd/pty.c,
+	telnetd/telnetd.c, telnetd/telnetd.h, telnetd/term.c,
+	telnetd/utility.c, tests/Makefile.am, tests/localhost.c,
+	tftp/Makefile.am, tftpd/Makefile.am, traceroute/Makefile.am,
+	traceroute/traceroute.c, traceroute/traceroute.h,
+	uucpd/Makefile.am: Updated license blurbs to the GNU General
+	Public License version 3.
+
 2007-06-26  Karl Berry  <karl@freefriends.org>  (tiny change)
-	
+
 	* doc/inetutils.texi: Updated Info directory entries.  Use
 	@copying for permission notice.
-	
+
 2007-06-26  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Removed `allocsa'.
