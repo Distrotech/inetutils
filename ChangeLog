@@ -1,3 +1,7 @@
+2007-07-15  Karl Berry <karl@freefriends.org> (tiny change)
+
+	* doc/inetutils.texi: Fix typo.
+
 2007-06-26  Alfred M. Szmidt  <ams@gnu.org>
 
 	* COPYING: Updated to GPLv3.
