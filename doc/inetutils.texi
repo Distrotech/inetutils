@@ -30,7 +30,7 @@
 * networking(inet) utilities: (inetutils).      GNU networking utilities.
 * ftp: (inetutils)ftp invocation.               File Transfer Protocol.
 * ftpd: (inetutils)ftpd invocation.             FTP Daemon.
-* inetd: (inetutils)inetd invocation.           Interner super-server.
+* inetd: (inetutils)inetd invocation.           Internet super-server.
 * ping: (inetutils)ping invocation.             Packets to network hosts.
 * rcp: (inetutils)rcp invocation.               Strip non-directory suffix.
 * rexecd: (inetutils)rexecd invocation.         Remote execution server.
