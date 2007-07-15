@@ -1,3 +1,10 @@
+2007-07-15  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ftp/ftp.c (command): Ignore SIGPIPE when flushing COUT.
+
+	* ftp/cmds.c (setpeer): Check that the connection is still open by
+	sending a NOOP command to the server.
+
 2007-07-15  Karl Berry <karl@freefriends.org> (tiny change)
 
 	* doc/inetutils.texi: Fix typo.

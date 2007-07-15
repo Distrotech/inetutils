@@ -375,6 +375,8 @@ command (va_alist)
       return (0);
     }
   oldintr = signal (SIGINT, cmdabort);
+  /* Under weird circumstances, we get a SIGPIPE from fflush().  */
+  signal (SIGPIPE, SIG_IGN);
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, fmt);
 #else
@@ -390,6 +392,7 @@ command (va_alist)
   if (abrtflag && oldintr != SIG_IGN)
     (*oldintr) (SIGINT);
   signal (SIGINT, oldintr);
+  signal (SIGPIPE, SIG_DFL);
   return (r);
 }
 

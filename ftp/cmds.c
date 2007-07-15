@@ -168,9 +168,15 @@ setpeer (argc, argv)
 {
   char *host;
   int port;
-
-  if (connected)
+  
+  if (connected && command ("NOOP") != COMPLETE) 
     disconnect (0, 0);
+  else if (connected) 
+    {
+      printf ("Already connected to %s, use close first.\n", hostname);
+      code = -1;
+      return;
+    }
   if (argc < 2)
     another (&argc, &argv, "to");
   if (argc < 2 || argc > 3)
