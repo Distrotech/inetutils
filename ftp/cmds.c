@@ -1563,7 +1563,7 @@ shell (argc, argv)
 	}
       error (0, errno, "shell");
       code = -1;
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   if (pid > 0)
     while (wait (0) != pid)
@@ -1842,7 +1842,7 @@ quit (argc, argv)
     {
       disconnect (0, 0);
     }
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 /*

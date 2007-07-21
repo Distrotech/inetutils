@@ -41,6 +41,7 @@
 
 #include <arpa/ftp.h>
 
+#include <argp.h>
 #include <ctype.h>
 #include <error.h>
 #include <netdb.h>
@@ -48,133 +49,108 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 
 /* Define macro to nothing so declarations in ftp_var.h become definitions. */
 #define FTP_EXTERN
 #include "ftp_var.h"
+
+#include "libinetutils.h"
 
 #if HAVE_READLINE_READLINE_H
 # include <readline/readline.h>
 #endif
 
 
-char *program_name;
-
 #define DEFAULT_PROMPT "ftp> "
 static char *prompt = 0;
 
-static void
-usage (int err)
-{
-  if (err != 0)
-    {
-      fprintf (stderr, "Usage: %s [OPTION...] [HOST [PORT]]\n", program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-    }
-  else
-    {
-      fprintf (stdout, "Usage: %s [OPTION...] [HOST [PORT]]\n", program_name);
-      puts ("Remote file transfer.\n\n\
-  -d, --debug                Turn on debugging mode\n\
-  -g, --no-glob              Turn off file name globbing\n\
-  -i, --no-prompt            Don't prompt during multiple-file transfers\n\
-  -n, --no-login             Don't automatically login to the remote system\n\
-  -t, --trace                Enable packet tracing\n\
-  -p, --prompt[=PROMPT]      Print a command-line prompt (optionally PROMPT),\n\
-                             even if not on a tty\n\
-  -v, --verbose              Be verbose\n\
-      --help                 Give this help list\n\
-  -V, --version              Print program version");
+ARGP_PROGRAM_DATA ("ftp", "2007", "FIXME unknown");
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
+const char args_doc[] = "[HOST [PORT]]";
+const char doc[] = "Remote file transfer.";
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
+  {"no-glob", 'g', NULL, 0, "Turn off file name globbing", GRP+1},
+  {"no-prompt", 'i', NULL, 0, "Don't prompt during multiple file transfers",
+   GRP+1},
+  {"no-login", 'n', NULL, 0, "Don't automatically login to the remote system",
+   GRP+1},
+  {"trace", 't', NULL, 0, "Enable packet tracing", GRP+1},
+  {"prompt", 'p', "PROMPT", OPTION_ARG_OPTIONAL, "Print a command line PROMPT "
+   "(optionally), even if not on a tty", GRP+1},
+  {"verbose", 'v', NULL, 0, "Verbose output", GRP+1},
+#undef GRP
+  {NULL}
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    case 'd':		/* Enable debug mode.  */
+      options |= SO_DEBUG;
+      debug++;
+      break;
+
+    case 'g':		/* No glob.  */
+      doglob = 0;
+      break;
+
+    case 'i':		/* No prompt.  */
+      interactive = 0;
+      break;
+
+    case 'n':		/* No automatic login.  */
+      autologin = 0;
+      break;
+
+    case 't':		/* Enable packet tracing.  */
+      trace++;
+      break;
+
+    case 'v':		/* Verbose.  */
+      verbose++;
+      break;
+
+    case 'p':		/* Print command line prompt.  */
+      prompt = arg ? arg : DEFAULT_PROMPT;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
     }
-  exit (err);
+
+  return 0;
 }
 
-static const char *short_options = "dginp::tv";
-static struct option long_options[] = {
-  {"trace", no_argument, 0, 't'},
-  {"verbose", no_argument, 0, 'v'},
-  {"no-login", no_argument, 0, 'n'},
-  {"no-prompt", no_argument, 0, 'i'},
-  {"debug", no_argument, 0, 'd'},
-  {"no-glob", no_argument, 0, 'g'},
-  {"help", no_argument, 0, '&'},
-  {"prompt", optional_argument, 0, 'p'},
-  {"version", no_argument, 0, 'V'},
-  {0}
-};
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
+
 int
 main (int argc, char *argv[])
 {
   int ch, top;
+  int index;
   struct passwd *pw = NULL;
   char *cp;
 
-  program_name = argv[0];
-
   sp = getservbyname ("ftp", "tcp");
   if (sp == 0)
-    error (1, 0, "ftp/tcp: unknown service");
+    error (EXIT_FAILURE, 0, "ftp/tcp: unknown service");
   doglob = 1;
   interactive = 1;
   autologin = 1;
 
-  while ((ch = getopt_long (argc, argv, short_options, long_options, 0))
-	 != EOF)
-    {
-      switch (ch)
-	{
-	case 'd':		/* Enable ebug mode.  */
-	  options |= SO_DEBUG;
-	  debug++;
-	  break;
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-	case 'g':		/* No glob.  */
-	  doglob = 0;
-	  break;
-
-	case 'i':		/* No prompt.  */
-	  interactive = 0;
-	  break;
-
-	case 'n':		/* No automatic login.  */
-	  autologin = 0;
-	  break;
-
-	case 't':		/* Enable packet tracing.  */
-	  trace++;
-	  break;
-
-	case 'v':		/* Verbose.  */
-	  verbose++;
-	  break;
-
-	case 'p':		/* Print command line prompt.  */
-	  prompt = optarg ? optarg : DEFAULT_PROMPT;
-	  break;
-
-	case '&':		/* Usage.  */
-	  usage (0);
-	  /* Not reached.  */
-
-	case 'V':		/* Version.  */
-	  printf ("ftp (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case '?':
-	default:
-	  usage (1);
-	  /* Not reached.  */
-	}
-    }
-
-  argc -= optind;
-  argv += optind;
+  argc -= index;
+  argv += index;
 
   fromatty = isatty (fileno (stdin));
   if (fromatty)
@@ -211,10 +187,10 @@ main (int argc, char *argv[])
       char *xargv[5];
 
       if (setjmp (toplevel))
-	exit (0);
+	exit (EXIT_SUCCESS);
       signal (SIGINT, intr);
       signal (SIGPIPE, lostpeer);
-      xargv[0] = program_name;
+      xargv[0] = program_invocation_name;
       xargv[1] = argv[0];
       xargv[2] = argv[1];
       xargv[3] = argv[2];

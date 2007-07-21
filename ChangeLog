@@ -1,3 +1,21 @@
+2007-07-21  Debarshi Ray <debarshi.ray@gmail.com>
+
+	* ftp/main.c: Include <argp.h>, and <string.h>.  Remove include
+	for <getopt.h>.  Include "libinetutils.h".
+	(program_name): Variable removed.
+	(usage): Function removed.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc, argp_options): New variables.
+	(parse_opt): New function.
+	(short_options, long_options): Variables removed.
+	(argp): New variable.
+	(main): Added new variable INDEX.  Use EXIT_FAILURE and
+	EXIT_SUCCESS.  Use argp to parse program options.  Use
+	program_invocation_name instead of program_name.
+
+	* ftp/cmds.c (quit): Use EXIT_SUCCESS.
+	(shell): Use EXIT_FAILURE.
+
 2007-07-15  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftp/ftp.c (command): Ignore SIGPIPE when flushing COUT.
