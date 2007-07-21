@@ -1,4 +1,4 @@
-2007-07-21  Debarshi Ray <debarshi.ray@gmail.com>
+2007-07-21  Debarshi Ray <rishi@gnu.org>
 
 	* ftp/main.c: Include <argp.h>, and <string.h>.  Remove include
 	for <getopt.h>.  Include "libinetutils.h".
