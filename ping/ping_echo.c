@@ -76,6 +76,7 @@ ping_echo (int argc, char **argv)
   char rspace[3 + 4 * NROUTES + 1];	/* record route space */
 #endif
   struct ping_stat ping_stat;
+  int status;
 
   if (options & OPT_FLOOD && options & OPT_INTERVAL)
     error (EXIT_FAILURE, 0, "-f and -i incompatible options");
@@ -110,7 +111,9 @@ ping_echo (int argc, char **argv)
 	  ping->ping_hostname,
 	  inet_ntoa (ping->ping_dest.sin_addr), data_length);
 
-  return ping_run (ping, echo_finish);
+  status = ping_run (ping, echo_finish);
+  free (ping->ping_hostname);
+  return status;
 }
 
 int
@@ -528,5 +531,5 @@ echo_finish ()
       printf ("round-trip min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms\n",
 	      ping_stat->tmin, avg, ping_stat->tmax, nsqrt (vari, 0.0005));
     }
-  exit (ping->ping_num_recv == 0);
+  return (ping->ping_num_recv == 0);
 }

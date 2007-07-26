@@ -232,6 +232,7 @@ main (int argc, char **argv)
 {
   int index;
   int one = 1;
+  int status;
 
   if (getuid () == 0)
     is_root = true;
@@ -263,7 +264,10 @@ main (int argc, char **argv)
 
   init_data_buffer (patptr, pattern_len);
 
-  return (*(ping_type)) (argc, argv);
+  status = (*(ping_type)) (argc, argv);
+  free (ping);
+  free (data_buffer);
+  return status;
 }
 
 int (*decode_type (const char *arg)) (int argc, char **argv)
@@ -385,6 +389,10 @@ ping_run (PING * ping, int (*finish) ())
 	  gettimeofday (&last, NULL);
 	}
     }
+
+  free (ping->ping_buffer);
+  free (ping->ping_cktab);
+
   if (finish)
     return (*finish) ();
   return 0;
