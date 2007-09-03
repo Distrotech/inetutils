@@ -1,3 +1,7 @@
+2007-09-02  Pedro Alves  <pedro_alves@portugalmail.pt>  (tiny change)
+
+	* rcp/rcp.c (rsource): Free BUF after call to source().
+
 2007-07-26  Debarshi Ray <rishi@gnu.org>
 
 	* ping/ping_echo.c (ping_echo): Free PING->ping_hostname.
