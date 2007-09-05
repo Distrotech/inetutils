@@ -308,13 +308,12 @@ login (host)
     {
       if (!strcmp ("init", macros[n].mac_name))
 	{
-#if HAVE_LIBREADLINE
 	  if (line)
 	    free (line);
 	  line = calloc (200, sizeof (*line));
 	  if (!line)
 	    quit (0, 0);
-#endif
+
 	  strcpy (line, "$init");
 	  makeargv ();
 	  domacro (margc, margv);

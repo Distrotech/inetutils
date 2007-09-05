@@ -134,22 +134,45 @@ int
 another (pargc, pargv, prompt)
      int *pargc;
      char ***pargv;
-     char *prompt;
+     const char *prompt;
 {
+  char *arg;
+  char *buffer;
   int len = strlen (line), ret;
 
-  if (len >= sizeof (line) - 3)
+  buffer = (char *) malloc (sizeof (char) * (strlen (prompt) + 4));
+  if (!buffer)
+    intr ();
+
+  sprintf (buffer, "(%s) ", prompt);
+
+  arg = readline (buffer);
+  free (buffer);
+
+#if HAVE_LIBHISTORY
+  if (arg && *arg)
+    add_history (arg);
+#endif
+
+  if (!arg)
+    intr ();
+  else if (!*arg)
     {
-      printf ("sorry, arguments too long\n");
+      free (arg);
+      return 0;
+    }
+
+  line = realloc (line, sizeof (char) * (len + strlen (arg) + 2));
+  if (!line)
+    {
+      free (arg);
       intr ();
     }
-  printf ("(%s) ", prompt);
+
   line[len++] = ' ';
-  if (fgets (&line[len], sizeof (line) - len, stdin) == NULL)
-    intr ();
-  len += strlen (&line[len]);
-  if (len > 0 && line[len - 1] == '\n')
-    line[len - 1] = '\0';
+  strcpy (&line[len], arg);
+  free (arg);
+
   makeargv ();
   ret = margc > *pargc;
   *pargc = margc;

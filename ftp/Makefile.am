@@ -31,7 +31,7 @@ man_MANS = ftp.1
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils 
 AM_CPPFLAGS = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
-READLINE=@LIBREADLINE@ @LIBTERMCAP@
+READLINE=@LIBREADLINE@ @LIBTERMCAP@ @LIBHISTORY@
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBGLOB) $(READLINE)
 
 EXTRA_DIST = $(man_MANS)

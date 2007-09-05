@@ -58,8 +58,10 @@
 
 #include "libinetutils.h"
 
-#if HAVE_READLINE_READLINE_H
-# include <readline/readline.h>
+#if HAVE_LIBREADLINE
+#  include <readline/readline.h>
+#else
+#  include "readline.h"
 #endif
 
 
@@ -282,12 +284,10 @@ cmdscanner (int top)
     putchar ('\n');
   for (;;)
     {
-
-#if HAVE_LIBREADLINE
       if (line)
 	{
 	  free (line);
-	  line = 0;
+	  line = NULL;
 	}
       line = readline (prompt);
       if (!line)
@@ -298,36 +298,15 @@ cmdscanner (int top)
 	  printf ("Line too long.\n");
 	  break;
 	}
+
+#if HAVE_LIBHISTORY
       if (line && *line)
 	add_history (line);
-      if (l == 0)
-	break;
-#else
-      if (prompt)
-	{
-	  printf ("%s", prompt);
-	  fflush (stdout);
-	}
-
-      if (fgets (line, sizeof line, stdin) == NULL)
-	quit (0, 0);
-      l = strlen (line);
-      if (l == 0)
-	break;
-      if (line[--l] == '\n')
-	{
-	  if (l == 0)
-	    break;
-	  line[l] = '\0';
-	}
-      else if (l == sizeof (line) - 2)
-	{
-	  printf ("sorry, input line too long\n");
-	  while ((l = getchar ()) != '\n' && l != EOF)
-	    /* void */ ;
-	  break;
-	}			/* else it was a line without a newline */
 #endif
+
+      if (l == 0)
+	break;
+
       makeargv ();
       if (margc == 0)
 	continue;

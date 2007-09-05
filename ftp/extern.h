@@ -37,7 +37,7 @@ void abortpt ();
 void abortrecv ();
 void abortsend ();
 void account (int, char **);
-int another (int *, char ***, char *);
+int another (int *, char ***, const char *);
 void blkfree (char **);
 void cd (int, char **);
 void cdup (int, char **);
