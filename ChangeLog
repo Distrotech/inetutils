@@ -1,3 +1,7 @@
+2007-09-06  Debarshi Ray <rishi@gnu.org>
+
+	* ftp/cmds.c (setpeer): If HOSTNAME is set, try to reconnect to it.
+
 2007-09-02  Debarshi Ray <rishi@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Added `readline'.
@@ -19,7 +23,7 @@
 	* ftp/main.c [!HAVE_LIBREADLINE]: #include "readline.h".
 	(cmdscanner): Use readline uniformly.  Use NULL instead of 0.
 	(cmdscanner) [HAVE_LIBHISTORY]: Use add_history.
-	
+
 2007-09-02  Pedro Alves  <pedro_alves@portugalmail.pt>  (tiny change)
 
 	* rcp/rcp.c (rsource): Free BUF after call to source().

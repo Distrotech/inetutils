@@ -189,7 +189,7 @@ setpeer (argc, argv)
      int argc;
      char *argv[];
 {
-  char *host;
+  char *host = NULL;
   int port;
   
   if (connected && command ("NOOP") != COMPLETE) 
@@ -200,16 +200,29 @@ setpeer (argc, argv)
       code = -1;
       return;
     }
+
   if (argc < 2)
-    another (&argc, &argv, "to");
+    {
+      if (hostname)
+	{
+          host = hostname;
+          argc = 2;
+        }
+      else
+        another (&argc, &argv, "to");
+    }
+
   if (argc < 2 || argc > 3)
     {
       printf ("usage: %s host-name [port]\n", argv[0]);
       code = -1;
       return;
     }
-  port = sp->s_port;
-  if (argc > 2)
+
+  if (!host)
+    host = argv[1];
+
+  if (argc == 3)
     {
       port = atoi (argv[2]);
       if (port <= 0 || port > 65535)
@@ -221,7 +234,10 @@ setpeer (argc, argv)
 	}
       port = htons (port);
     }
-  host = hookup (argv[1], port);
+  else
+    port = sp->s_port;
+
+  host = hookup (host, port);
   if (host)
     {
       int overbose;
@@ -237,7 +253,7 @@ setpeer (argc, argv)
       strcpy (structname, "file"), stru = STRU_F;
       strcpy (bytename, "8"), bytesize = 8;
       if (autologin)
-	login (argv[1]);
+	login (host);
 
 #if defined(unix) && NBBY == 8
 /*
