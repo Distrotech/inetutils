@@ -1,5 +1,3 @@
-# Rishi sucks.
-
 # Copyright (C) 2005, 2006, 2007 Free Software Foundation, Inc. 
 # This file is part of GNU Inetutils.
 #
