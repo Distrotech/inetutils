@@ -1,6 +1,6 @@
 GNU inetutils NEWS -- history of user-visible changes.
 
-Copyright (C) 2002, 2004, 2006, 2007 
+Copyright (C) 2002, 2004, 2006, 2007, 2008 
 	  Free Software Foundation, Inc.
 See the end of this file for for license conditions.
 
@@ -17,6 +17,8 @@ New program.
 
 The previous behaviour can be enabled by passing `--count 0' to ping
 (or ping6).
+
+* telnet now delays initialization of Shishi until Kerberos is needed
 
 
 October 21, 2006

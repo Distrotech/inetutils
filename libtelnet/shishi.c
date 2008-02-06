@@ -1,4 +1,4 @@
-/* Copyright (C) 2003, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2003, 2007, 2008 Free Software Foundation, Inc.
 
 This file is part of Shishi / GNU Inetutils.
 
@@ -58,7 +58,7 @@ static unsigned char str_data[2048] = { IAC, SB, TELOPT_AUTHENTICATION, 0,
 # define KRB_ACCEPT           2	/* Accepted */
 # define KRB_RESPONSE         3	/* Response for mutual auth. */
 
-Shishi *shishi_handle = 0;
+Shishi *shishi_handle = NULL;
 Shishi_ap *auth_handle;
 
 # define DEBUG(c) if (auth_debug_mode) printf c
@@ -104,14 +104,29 @@ int
 krb5shishi_init (TN_Authenticator * ap, int server)
 {
   if (server)
+    str_data[3] = TELQUAL_REPLY;
+  else
+    str_data[3] = TELQUAL_IS;
+
+  if (!shishi_check_version (SHISHI_VERSION))
+    return 0;
+
+  return 1;
+}
+
+static int
+delayed_shishi_init (void)
+{
+  if (shishi_handle)
+    return 1;
+
+  if (str_data[3] == TELQUAL_REPLY)
     {
-      str_data[3] = TELQUAL_REPLY;
       if (!shishi_handle && shishi_init_server (&shishi_handle) != SHISHI_OK)
 	return 0;
     }
   else
     {
-      str_data[3] = TELQUAL_IS;
       if (!shishi_handle && shishi_init (&shishi_handle) != SHISHI_OK)
 	return 0;
     }
@@ -122,11 +137,11 @@ krb5shishi_init (TN_Authenticator * ap, int server)
 void
 krb5shishi_cleanup (TN_Authenticator * ap)
 {
-  if (shishi_handle == 0)
+  if (shishi_handle == NULL)
     return;
 
   shishi_done (shishi_handle);
-  shishi_handle = 0;
+  shishi_handle = NULL;
 }
 
 int
@@ -141,6 +156,12 @@ krb5shishi_send (TN_Authenticator * ap)
   char *tmp;
   char *apreq;
   size_t apreq_len;
+
+  if (!delayed_shishi_init ())
+    {
+      DEBUG (("telnet: Kerberos V5: shishi initialization failed\r\n"));
+      return 0;
+    }
 
   tmp = malloc (strlen ("host/") + strlen (RemoteHostName) + 1);
   sprintf (tmp, "host/%s", RemoteHostName);
@@ -381,6 +402,12 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 # ifdef ENCRYPTION
   Session_Key skey;
 # endif
+
+  if (!delayed_shishi_init ())
+    {
+      DEBUG (("telnet: Kerberos V5: shishi initialization failed\r\n"));
+      return 0;
+    }
 
   rc = shishi_ap (shishi_handle, &auth_handle);
   if (rc != SHISHI_OK)

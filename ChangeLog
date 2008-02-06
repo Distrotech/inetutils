@@ -1,3 +1,8 @@
+2008-02-06  Simon Josefsson  <simon@josefsson.org>
+
+	* libtelnet/shishi.c: Delay initialization of Shishi until it is
+	really needed.
+
 2007-09-06  Debarshi Ray <rishi@gnu.org>
 
 	* ftp/cmds.c (setpeer): If HOSTNAME is set, try to reconnect to it.
