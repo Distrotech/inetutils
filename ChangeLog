@@ -1,3 +1,7 @@
+2008-04-15  Ludovic Courtès <ludo@gnu.org> (tiny change)
+
+	* acinclude.m4 (IU_CONFIG_PATHS): Honor `$TMPDIR'.
+
 2008-04-14  Edward Attfield <attfield@nortel.com> (tiny change)
 
 	* telnet/sys_bsd.c (process_rings): New variable NFDS. Detect the

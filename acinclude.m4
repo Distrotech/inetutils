@@ -277,8 +277,10 @@ AC_DEFUN([IU_CONFIG_PATHS], [
   IU_UCASE=ABCDEFGHIJKLMNOPQRSTUVWXYZ
   iu_lcase=abcdefghijklmnopqrstuvwxyz
 
-  iu_cache_file="/tmp/,iu-path-cache.$$"
-  iu_tmp_file="/tmp/,iu-tmp.$$"
+  tmpdir="$TMPDIR"
+  test x"$tmpdir" = x && tmpdir="/tmp"
+  iu_cache_file="$tmpdir/,iu-path-cache.$$"
+  iu_tmp_file="$tmpdir/,iu-tmp.$$"
   ac_clean_files="$ac_clean_files $iu_cache_file $iu_tmp_file"
   while read iu_path iu_search; do
     test "$iu_path" = "#" -o -z "$iu_path" && continue
