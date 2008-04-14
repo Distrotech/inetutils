@@ -1062,42 +1062,57 @@ process_rings (int netin, int netout, int netex, int ttyin, int ttyout,
    */
   int returnValue = 0;
   static struct timeval TimeValue = { 0 };
+  int nfds = 0;
 
   if (netout)
     {
       FD_SET (net, &obits);
+      if (net > nfds)
+        nfds = net;
     }
   if (ttyout)
     {
       FD_SET (tout, &obits);
+      if (tout > nfds)
+        nfds = tout;
     }
 #if defined(TN3270)
   if (ttyin)
     {
       FD_SET (tin, &ibits);
+      if (tin > nfds)
+        nfds = tin;
     }
 #else /* defined(TN3270) */
   if (ttyin)
     {
       FD_SET (tin, &ibits);
+      if (tin > nfds)
+        nfds = tin;
     }
 #endif /* defined(TN3270) */
 #if defined(TN3270)
   if (netin)
     {
       FD_SET (net, &ibits);
+      if (net > nfds)
+        nfds = net;
     }
 #else /* !defined(TN3270) */
   if (netin)
     {
       FD_SET (net, &ibits);
+      if (net > nfds)
+        nfds = net;
     }
 #endif /* !defined(TN3270) */
   if (netex)
     {
       FD_SET (net, &xbits);
+      if (net > nfds)
+        nfds = net;
     }
-  if ((c = select (16, &ibits, &obits, &xbits,
+  if ((c = select (nfds+1, &ibits, &obits, &xbits,
 		   (poll == 0) ? (struct timeval *) 0 : &TimeValue)) < 0)
     {
       if (c == -1)

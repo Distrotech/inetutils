@@ -1,3 +1,8 @@
+2008-04-14  Edward Attfield <attfield@nortel.com> (tiny change)
+
+	* telnet/sys_bsd.c (process_rings): New variable NFDS. Detect the
+	number of open file descriptors during FD_SET.
+
 2008-02-06  Simon Josefsson  <simon@josefsson.org>
 
 	* libtelnet/shishi.c: Delay initialization of Shishi until it is
