@@ -31,13 +31,14 @@
 # include <config.h>
 #endif
 
+#include <argp.h>
 #include <errno.h>
+#include <error.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include <getopt.h>
 
 #define SYSLOG_NAMES
 #include <syslog.h>
@@ -45,117 +46,81 @@
 # include <syslog-int.h>
 #endif
 
+#include "libinetutils.h"
+
 int decode (char *, CODE *);
 int pencode (char *);
-static void usage (int);
 
-char *program_name;
+static char *tag = NULL;
+static int logflags = 0;
+static int pri = LOG_NOTICE;
 
-static const char *short_options = "isf:p:t:";
-static struct option long_options[] = {
-  {"file", required_argument, 0, 'f'},
-  {"priority", required_argument, 0, 'p'},
-  {"tag", required_argument, 0, 't'},
-  {"help", no_argument, 0, '&'},
-  {"version", no_argument, 0, 'V'},
-  {0, 0, 0, 0}
+ARGP_PROGRAM_DATA ("logger", "2008", "FIXME unknown")
+
+const char args_doc[] = "[MESSAGE]";
+const char doc[] = "Make entries in the system log.";
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {NULL, 'i', NULL, 0, "Log the process id with every line", GRP+1},
+#ifdef LOG_PERROR
+  {NULL, 's', NULL, 0, "Copy the message to stderr", GRP+1},
+#endif
+  {"file", 'f', "FILE", 0, "Log the content of FILE", GRP+1},
+  {"priority", 'p', "PRI", 0, "Log with priority PRI", GRP+1},
+  {"tag", 't', "TAG", 0, "Prepend every line with TAG", GRP+1},
+#undef GRP
+  {NULL}
 };
 
-static void
-usage (int err)
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
 {
-  if (err != 0)
+  switch (key)
     {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-    }
-  else
-    {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", program_name);
-      fprintf (stdout, "       %s [OPTION] ... MESSAGE\n", program_name);
-      puts ("Make entries in the system log.\n\n\
-  -i                  Log the process id with every line");
-#ifdef LOG_PERROR
-      puts ("\
-  -s                  Copy the message to stderr");
-#endif
-      puts ("\
-  -f, --file=FILE     Log the content of FILE\n\
-  -p, --priority=PRI  Log with priority PRI\n\
-  -t, --tag=TAG       Prepend every line with TAG\n\
-      --help          Display this help and exit\n\
-      --version       Output version information and exit");
+    case 'i':
+      logflags |= LOG_PID;
+      break;
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
+    case 's':
+      logflags |= LOG_PERROR;
+      break;
+
+    case 'f':
+      if (freopen (arg, "r", stdin) == NULL)
+        error (EXIT_FAILURE, errno, "%s", arg);
+      break;
+
+    case 'p':
+      pri = pencode (arg);
+      break;
+
+    case 't':
+      tag = arg;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
     }
-  exit (err);
+
+  return 0;
 }
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 /* syslog reads from an input and arranges to write the result on the
    system log.  */
 int
 main (int argc, char *argv[])
 {
-  int option, logflags, pri;
-  char *tag, buf[1024];
+  char buf[1024];
+  int index;
 
-  program_name = argv[0];
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-  tag = NULL;
-  pri = LOG_NOTICE;
-  logflags = 0;
-  while ((option = getopt_long (argc, argv, short_options,
-				long_options, 0)) != EOF)
-    {
-      switch (option)
-	{
-	case 'f':		/* Log from file.  */
-	  if (freopen (optarg, "r", stdin) == NULL)
-	    {
-	      fprintf (stderr, "%s: %s: %s\n", program_name, optarg,
-		       strerror (errno));
-	      exit (1);
-	    }
-	  break;
-
-	case 'i':		/* Log process id also.  */
-	  logflags |= LOG_PID;
-	  break;
-
-	case 'p':		/* Set priority to log.  */
-	  pri = pencode (optarg);
-	  break;
-
-	case 's':		/* Log to standard error as well.  */
-#ifdef LOG_PERROR
-	  logflags |= LOG_PERROR;
-#else
-	  fprintf (stderr, "%s: -s: option not implemented\n", program_name);
-	  exit (1);
-#endif
-	  break;
-
-	case 't':		/* Tag message.  */
-	  tag = optarg;
-	  break;
-
-	case '&':		/* Usage.  */
-	  usage (0);
-	  /* Not reached.  */
-
-	case 'V':		/* Version.  */
-	  printf ("syslog (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case '?':
-	default:
-	  usage (1);
-	}
-    }
-
-  argc -= optind;
-  argv += optind;
+  argc -= index;
+  argv += index;
 
   /* Setup for logging.  */
   openlog (tag ? tag : getlogin (), logflags, 0);
@@ -207,11 +172,8 @@ pencode (char *s)
       *s = '\0';
       fac = decode (save, facilitynames);
       if (fac < 0)
-	{
-	  fprintf (stderr, "%s: unknown facility name: %s\n", program_name,
-		   save);
-	  exit (1);
-	}
+        error (EXIT_FAILURE, 0, "unknown facility name: %s", save);
+
       *s++ = '.';
     }
   else
@@ -221,10 +183,8 @@ pencode (char *s)
     }
   lev = decode (s, prioritynames);
   if (lev < 0)
-    {
-      fprintf (stderr, "%s: unknown priority name: %s\n", program_name, save);
-      exit (1);
-    }
+    error (EXIT_FAILURE, 0, "unknown priority name: %s", save);
+
   return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));
 }
 

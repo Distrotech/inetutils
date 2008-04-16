@@ -1,3 +1,21 @@
+2008-04-16  Debarshi Ray <rishi@gnu.org>
+
+	* logger/Makefile.am (INCLUDES): Added `-I$(top_srcdir)/libinetutils'.
+
+	* logger/logger.c: Include <argp.h>, and <error.h>.  Remove
+	include for <getopt.h>.  Include "libinetutils.h".
+	(program_name, short_options, long_options): Variables removed.
+	(tag, logflags, pri): New variables.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc, argp_options): New variables.
+	(usage): Function removed.
+	(parse_opt): New function.
+	(argp): New variable.
+	(main): Added new variable INDEX.  Removed variables OPTION,
+	LOGFLAGS, PRI and TAG.  Use argp to parse program options.
+	(pencode): Use error instead of "output message; exit;"
+	concoction's.  Use EXIT_FAILURE.
+
 2008-04-15  Ludovic Courtès <ludo@gnu.org> (tiny change)
 
 	* acinclude.m4 (IU_CONFIG_PATHS): Honor `$TMPDIR'.
