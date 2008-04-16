@@ -90,8 +90,10 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
+#include <argp.h>
 #include <ctype.h>
 #include <errno.h>
+#include <error.h>
 #include <fcntl.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -99,7 +101,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
@@ -233,6 +234,30 @@ int repeatinterval[] = { 30, 60 };	/* Number of seconds before flush.  */
 /* Delimiter in arguments to command line options `-s' and `-l'.  */
 #define LIST_DELIMITER	':'
 
+extern int waitdaemon (int nochdir, int noclose, int maxwait);
+
+void cfline (const char *, struct filed *);
+const char *cvthname (struct sockaddr_in *);
+int decode (const char *, CODE *);
+void die (int);
+void domark (int);
+void fprintlog (struct filed *, const char *, int, const char *);
+void init (int);
+void logerror (const char *);
+void logmsg (int, const char *, const char *, int);
+void printline (const char *, const char *);
+void printsys (const char *);
+char *ttymsg (struct iovec *, int, char *, int);
+void wallmsg (struct filed *, struct iovec *);
+char **crunch_list (char **oldlist, char *list);
+char *textpri (int pri);
+void dbg_toggle (int);
+static void dbg_printf (const char *, ...);
+void trigger_restart (int);
+static void add_funix (const char *path);
+static int create_unix_socket (const char *path);
+static int create_inet_socket (void);
+
 char *LocalHostName;		/* Our hostname.  */
 char *LocalDomain;		/* Our local domain name.  */
 int finet = -1;			/* Internet datagram socket fd.  */
@@ -256,101 +281,139 @@ time_t now;			/* Time use for mark and forward supending.  */
 int force_sync;			/* GNU/Linux behaviour to sync on every line.
 				   This off by default. Set to 1 to enable.  */
 
-char *program_name;
-extern int waitdaemon (int nochdir, int noclose, int maxwait);
+ARGP_PROGRAM_DATA ("syslogd", "2008", "FIXME unknown")
 
-void cfline (const char *, struct filed *);
-const char *cvthname (struct sockaddr_in *);
-int decode (const char *, CODE *);
-void die (int);
-void domark (int);
-void fprintlog (struct filed *, const char *, int, const char *);
-void init (int);
-void logerror (const char *);
-void logmsg (int, const char *, const char *, int);
-void printline (const char *, const char *);
-void printsys (const char *);
-char *ttymsg (struct iovec *, int, char *, int);
-static void usage (int);
-void wallmsg (struct filed *, struct iovec *);
-char **crunch_list (char **oldlist, char *list);
-char *textpri (int pri);
-void dbg_toggle (int);
-static void dbg_printf (const char *, ...);
-void trigger_restart (int);
-static void add_funix (const char *path);
-static int create_unix_socket (const char *path);
-static int create_inet_socket (void);
+const char args_doc[] = "";
+const char doc[] = "Log system messages.";
 
-static void
-usage (int err)
-{
-  if (err != 0)
-    {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-    }
-  else
-    {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", program_name);
-      puts ("Log system messages.\n\n\
-  -f, --rcfile=FILE  Override configuration file (default: " PATH_LOGCONF ")\n\
-      --pidfile=FILE Override pidfile (default: " PATH_LOGPID ")\n\
-  -n, --no-detach    Don't enter daemon mode\n\
-  -d, --debug        Print debug information (implies -n)\n\
-  -p, --socket FILE  Override default unix domain socket " PATH_LOG "\n\
-  -a SOCKET          Add unix socket to listen to (up to 19)\n\
-  -r, --inet         Receive remote messages via internet domain socket\n\
-      --no-unixaf    Do not listen on unix domain sockets (overrides -a and -p)\n\
-  -S, --sync         Force a file sync on every line");
+/* Define keys for long options that do not have short counterparts. */
+enum {
+  OPT_NO_FORWARD = 256,
+  OPT_NO_KLOG,
+  OPT_NO_UNIXAF,
+  OPT_PIDFILE
+};
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  /* Not sure about the long name. Maybe move into conffile even. */
+  {NULL, 'a', "SOCKET", 0, "Add unix socket to listen to (up to 19)", GRP+1},
+  {NULL, 'l', "HOSTLIST", 0, "Log hosts in HOSTLIST by their hostname", GRP+1},
+  {NULL, 's', "DOMAINLIST", 0, "List of domains which should be stripped "
+   "from the FQDN of hosts before logging their name", GRP+1},
+  {"debug", 'd', NULL, 0, "Print debug information (implies --no-detach)",
+   GRP+1},
+  {"hop", 'h', NULL, 0, "Forward messages from remote hosts", GRP+1},
+  {"inet", 'r', NULL, 0, "Receive remote messages via internet domain socket",
+   GRP+1},
+  {"mark", 'm', "INTVL", 0, "Specify timestamp interval in logs (0 for no "
+   "timestamps)", GRP+1},
+  {"no-detach", 'n', NULL, 0, "Don't enter daemon mode", GRP+1},
+  {"no-forward", OPT_NO_FORWARD, NULL, 0, "Do not forward any messages "
+   "(overrides --hop)", GRP+1},
 #ifdef PATH_KLOG
-      puts ("\
-      --no-klog      Do not listen to kernel log device " PATH_KLOG);
+  {"no-klog", OPT_NO_KLOG, NULL, 0, "Do not listen to kernel log device "
+   PATH_KLOG, GRP+1},
 #endif
-      puts ("\
-      --no-forward   Do not forward any messages (overrides -h)\n\
-  -h, --hop          Forward messages from remote hosts\n\
-  -m, --mark=INTVL   Specify timestamp interval in logs (0 for no timestamps)\n\
-  -l HOSTLIST        Log hosts in HOSTLIST by their hostname\n\
-  -s DOMAINLIST      List of domains which should be stripped from the FQDN\n\
-                     of hosts before logging their name.\n\
-      --help         Display this help and exit\n\
-  -V, --version      Output version information and exit");
+  {"no-unixaf", OPT_NO_UNIXAF, NULL, 0, "Do not listen on unix domain "
+   "sockets (overrides -a and -p)", GRP+1},
+  {"pidfile", OPT_PIDFILE, "FILE", 0, "Override pidfile (default: "
+   PATH_LOGPID ")", GRP+1},
+  {"rcfile", 'f', "FILE", 0, "Override configuration file (default: "
+   PATH_LOGCONF ")",
+   GRP+1},
+  {"socket", 'p', "FILE", 0, "Override default unix domain socket " PATH_LOG,
+   GRP+1},
+  {"sync", 'S', NULL, 0, "Force a file sync on every line", GRP+1},
+#undef GRP
+  {NULL}
+};
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  char *endptr;
+  int v;
+
+  switch (key)
+    {
+    case 'a':
+      add_funix (arg);
+      break;
+
+    case 'l':
+      LocalHosts = crunch_list (LocalHosts, arg);
+      break;
+
+    case 's':
+      StripDomains = crunch_list (StripDomains, arg);
+      break;
+
+    case 'd':
+      Debug = 1;
+      NoDetach = 1;
+      break;
+
+    case 'h':
+      NoHops = 0;
+      break;
+
+    case 'r':
+      AcceptRemote = 1;
+      break;
+
+    case 'm':
+      v = strtol (arg, &endptr, 10);
+      if (*endptr)
+        argp_error (state, "invalid value (`%s' near `%s')", arg, endptr);
+      MarkInterval = v * 60;
+      break;
+
+    case 'n':
+      NoDetach = 1;
+      break;
+
+    case OPT_NO_FORWARD:
+      NoForward = 1;
+      break;
+
+    case OPT_NO_KLOG:
+      NoKLog = 1;
+      break;
+
+    case OPT_NO_UNIXAF:
+      NoUnixAF = 1;
+      break;
+
+    case OPT_PIDFILE:
+      PidFile = arg;
+      break;
+
+    case 'f':
+      ConfFile = arg;
+      break;
+
+    case 'p':
+      funix[0].name = arg;
+      funix[0].fd = -1;
+      break;
+
+    case 'S':
+      force_sync = 1;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
     }
-  exit (err);
+
+  return 0;
 }
 
-static const char *short_options = "a:dhf:Kl:m:np:rs:VS";
-static struct option long_options[] = {
-  {"debug", no_argument, 0, 'd'},
-  {"rcfile", required_argument, 0, 'f'},
-  {"pidfile", required_argument, 0, 'P'},
-  {"hop", no_argument, 0, 'h'},
-  {"mark", required_argument, 0, 'm'},
-  {"no-detach", no_argument, 0, 'n'},
-  {"socket", required_argument, 0, 'p'},
-  {"inet", no_argument, 0, 'r'},
-  {"no-klog", no_argument, 0, 'K'},
-  {"no-forward", no_argument, 0, 'F'},
-  {"no-unixaf", no_argument, 0, 'U'},
-  {"sync", no_argument, 0, 'S'},
-  {"help", no_argument, 0, '&'},
-  {"version", no_argument, 0, 'V'},
-#if 0				/* Not sure about the long name. Maybe move into conffile even.  */
-  {"", required_argument, 0, 'a'},
-  {"", required_argument, 0, 's'},
-  {"", required_argument, 0, 'l'},
-#endif
-  {0, 0, 0, 0}
-};
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 int
 main (int argc, char *argv[])
 {
-  int option;
   size_t i;
   FILE *fp;
   char *p;
@@ -361,97 +424,11 @@ main (int argc, char *argv[])
   struct pollfd *fdarray;
   unsigned long nfds = 0;
 
-  program_name = argv[0];
-
   /* Initiliaze PATH_LOG as the first element of the unix sockets array.  */
   add_funix (PATH_LOG);
 
-  while ((option = getopt_long (argc, argv, short_options,
-				long_options, 0)) != EOF)
-    {
-      switch (option)
-	{
-	case 'a':		/* Add to unix socket array.  */
-	  add_funix (optarg);
-	  break;
-
-	case 'd':		/* Debug mode.  */
-	  Debug = 1;
-	  NoDetach = 1;
-	  break;
-
-	case 'f':		/* Override the default config file.  */
-	  ConfFile = optarg;
-	  break;
-
-	case 'h':		/* Disable forwarding.  */
-	  NoHops = 0;
-	  break;
-
-	case 'l':		/* Add host to be log whithout the FQDN.  */
-	  LocalHosts = crunch_list (LocalHosts, optarg);
-	  break;
-
-	case 'm':		/* Set the timestamp interval mark.  */
-	  MarkInterval = atoi (optarg) * 60;
-	  break;
-
-	case 'n':		/* Don't run in background.  */
-	  NoDetach = 1;
-	  break;
-
-	case 'p':		/* Overide PATH_LOG name.  */
-	  funix[0].name = optarg;
-	  funix[0].fd = -1;
-	  break;
-
-	case 'r':		/* Enable remote message via inet socket.  */
-	  AcceptRemote = 1;
-	  break;
-
-	case 's':		/* List of domain names to strip.  */
-	  StripDomains = crunch_list (StripDomains, optarg);
-	  break;
-
-	case 'P':		/* Override pidfile.  */
-	  PidFile = optarg;
-	  break;
-
-	case 'K':		/* Disable kernel logging.  */
-	  NoKLog = 1;
-	  break;
-
-	case 'F':		/* Disable forwarding.  */
-	  NoForward = 1;
-	  break;
-
-	case 'U':		/* Disable  unix sockets.  */
-	  NoUnixAF = 1;
-	  break;
-
-	case 'S':		/* Sync on every line.  */
-	  force_sync = 1;
-	  break;
-
-	case '&':		/* Usage.  */
-	  usage (0);
-	  /* Not reached.  */
-
-	case 'V':		/* Version.  */
-	  printf ("syslogd (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case '?':
-	default:
-	  usage (1);
-	  /* Not reached.  */
-	}
-    }
-
-  /* Bail out, wrong usage */
-  argc -= optind;
-  if (argc != 0)
-    usage (1);
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   /* Daemonise, if not, set the buffering for line buffer.  */
   if (!NoDetach)
@@ -466,11 +443,7 @@ main (int argc, char *argv[])
          sequence. But we still keep the approach.  */
       ppid = waitdaemon (0, 0, 30);
       if (ppid < 0)
-	{
-	  fprintf (stderr, "%s: could not become daemon: %s\n",
-		   program_name, strerror (errno));
-	  exit (1);
-	}
+        error (1, errno, "could not become daemon");
     }
   else
     {
@@ -481,11 +454,8 @@ main (int argc, char *argv[])
   /* Get our hostname.  */
   LocalHostName = localhost ();
   if (LocalHostName == NULL)
-    {
-      fprintf (stderr, "%s: can't get local host name: %s\n",
-	       program_name, strerror (errno));
-      exit (2);
-    }
+    error (2, errno, "can't get local host name");
+
   /* Get the domainname.  */
   p = strchr (LocalHostName, '.');
   if (p != NULL)
@@ -529,11 +499,7 @@ main (int argc, char *argv[])
   /* We add  2 = 1(klog) + 1(inet), even if they may be not use.  */
   fdarray = (struct pollfd *) malloc ((nfunix + 2) * sizeof (*fdarray));
   if (fdarray == NULL)
-    {
-      fprintf (stderr, "%s: can't allocate fd table: %s\n",
-	       program_name, strerror (errno));
-      exit (2);
-    }
+    error (2, errno, "can't allocate fd table");
 
   /* read configuration file */
   init (0);
@@ -775,11 +741,8 @@ add_funix (const char *name)
 {
   funix = realloc (funix, (nfunix + 1) * sizeof (*funix));
   if (funix == NULL)
-    {
-      fprintf (stderr, "%s: cannot allocate space for unix sockets: %s\n",
-	       program_name, strerror (errno));
-      exit (1);
-    }
+    error (1, errno, "cannot allocate space for unix sockets");
+
   funix[nfunix].name = name;
   funix[nfunix].fd = -1;
   nfunix++;
@@ -872,11 +835,7 @@ crunch_list (char **oldlist, char *list)
   /* allocate enough space */
   oldlist = (char **) realloc (oldlist, (i + count + 1) * sizeof (*oldlist));
   if (oldlist == NULL)
-    {
-      fprintf (stderr, "%s: can't allocate memory: %s",
-	       program_name, strerror (errno));
-      exit (1);
-    }
+    error (1, errno, "can't allocate memory");
 
   /*
      We now can assume that the first and last
@@ -889,11 +848,8 @@ crunch_list (char **oldlist, char *list)
     {
       oldlist[count] = (char *) malloc ((q - p + 1) * sizeof (char));
       if (oldlist[count] == NULL)
-	{
-	  fprintf (stderr, "%s: can't allocate memory: %s",
-		   program_name, strerror (errno));
-	  exit (1);
-	}
+        error (1, errno, "can't allocate memory");
+
       strncpy (oldlist[count], p, q - p);
       oldlist[count][q - p] = '\0';
     }
@@ -901,11 +857,8 @@ crunch_list (char **oldlist, char *list)
   /* take the last one */
   oldlist[count] = (char *) malloc ((strlen (p) + 1) * sizeof (char));
   if (oldlist[count] == NULL)
-    {
-      fprintf (stderr, "%s: can't allocate memory: %s",
-	       program_name, strerror (errno));
-      exit (1);
-    }
+    error (1, errno, "can't allocate memory");
+
   strcpy (oldlist[count], p);
 
   oldlist[++count] = NULL;	/* terminate the array with a NULL */
@@ -1552,7 +1505,8 @@ die (int signo)
   Initialized = was_initialized;
   if (signo)
     {
-      dbg_printf ("%s: exiting on signal %d\n", program_name, signo);
+      dbg_printf ("%s: exiting on signal %d\n",
+                  program_invocation_name, signo);
       snprintf (buf, sizeof (buf), "exiting on signal %d", signo);
       errno = 0;
       logerror (buf);
