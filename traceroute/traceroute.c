@@ -171,7 +171,6 @@ do_try (trace_t * trace, const int hop,
   fd_set readset;
   int ret, tries, readonly = 0;
   struct timeval now, time;
-  struct hostent *host;
   double triptime = 0.0;
   uint32_t prev_addr = 0;
 
