@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
+#include <error.h>
 #include <limits.h>
 #include <assert.h>
 #include <argp.h>
@@ -69,7 +70,7 @@ struct sockaddr_in dest;
 
 int opt_port = 33434;
 int opt_max_hops = 64;
-int opt_max_tries = 3;
+static int opt_max_tries = 3;
 int opt_resolve_hostnames = 0;
 
 ARGP_PROGRAM_DATA ("traceroute", "2007", "Elian Gidoni");
@@ -87,6 +88,8 @@ static struct argp_option argp_options[] = {
   {"port", 'p', "PORT", 0, "Use destination PORT port (default: 33434)",
    GRP+1},
   {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "Resolve hostnames", GRP+1},
+  {"tries", 'q', "NUM", 0, "Send NUM probe packets per hop (default: 3)",
+   GRP+1},
 #undef GRP
   {NULL}
 };
@@ -107,6 +110,14 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case OPT_RESOLVE:
       opt_resolve_hostnames = 1;
+      break;
+
+    case 'q':
+      opt_max_tries = (int) strtol (arg, &p, 10);
+      if (*p)
+        argp_error (state, "invalid value (`%s' near `%s')", arg, p);
+      if (opt_max_tries < 1 || opt_max_tries > 10)
+        error (EXIT_FAILURE, 0, "number of tries should be between 1 and 10");
       break;
 
     case ARGP_KEY_ARG:
