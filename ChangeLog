@@ -1,10 +1,14 @@
-2008-04-17  Debarshi Ray <rishi@gnu.org> (tiny change)
+2008-04-18  Debarshi Ray <rishi@gnu.org>
+
+	* ChangeLog: Remove unnecessary "(tiny change)"s.
+
+2008-04-17  Debarshi Ray <rishi@gnu.org>
 
 	* traceroute/traceroute.c: Include <error.h>. Added new
 	switch --tries.
 	(opt_max_tries): Declared static.
 
-2008-04-17  Alfred M. Szmidt <ams@gnu.org> (tiny change)
+2008-04-17  Alfred M. Szmidt <ams@gnu.org>
 
 	* traceroute/traceroute.c (do_try): Removed unused variable HOST.
 
