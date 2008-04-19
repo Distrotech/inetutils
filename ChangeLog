@@ -1,3 +1,10 @@
+2008-04-19  Debarshi Ray <rishi@gnu.org>
+
+	* traceroute/traceroute.c: Added new switch --type.
+	(opt_type): New variable.
+	(main): Replace getuid with geteuid. Use OPT_TYPE instead of
+	hard-coding TRACE_ICMP.
+
 2008-04-18  Debarshi Ray <rishi@gnu.org>
 
 	* ChangeLog: Remove unnecessary "(tiny change)"s.

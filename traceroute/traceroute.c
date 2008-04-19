@@ -68,6 +68,7 @@ int pid = 0;
 struct hostent *host;
 struct sockaddr_in dest;
 
+static enum trace_type opt_type = TRACE_ICMP;
 int opt_port = 33434;
 int opt_max_hops = 64;
 static int opt_max_tries = 3;
@@ -90,6 +91,8 @@ static struct argp_option argp_options[] = {
   {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "Resolve hostnames", GRP+1},
   {"tries", 'q', "NUM", 0, "Send NUM probe packets per hop (default: 3)",
    GRP+1},
+  {"type", 'M', "METHOD", 0, "Use METHOD (`icmp' or `udp') for traceroute "
+   "operations", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -118,6 +121,15 @@ parse_opt (int key, char *arg, struct argp_state *state)
         argp_error (state, "invalid value (`%s' near `%s')", arg, p);
       if (opt_max_tries < 1 || opt_max_tries > 10)
         error (EXIT_FAILURE, 0, "number of tries should be between 1 and 10");
+      break;
+
+    case 'M':
+      if (strcmp (arg, "icmp") == 0)
+        opt_type = TRACE_ICMP;
+      else if (strcmp (arg, "udp") == 0)
+        opt_type = TRACE_UDP;
+      else
+        argp_error (state, "invalid method");
       break;
 
     case ARGP_KEY_ARG:
@@ -149,7 +161,7 @@ main (int argc, char **argv)
   /* Parse command line */
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
-  if (getuid () != 0)
+  if (geteuid () != 0)
     error (EXIT_FAILURE, EPERM, "insufficient permissions");
 
   dest.sin_addr = *(struct in_addr *) host->h_addr;
@@ -159,7 +171,7 @@ main (int argc, char **argv)
   printf ("traceroute to %s (%s), %d hops max\n",
 	  host->h_name, inet_ntoa (dest.sin_addr), opt_max_hops);
 
-  trace_init (&trace, dest, TRACE_ICMP);
+  trace_init (&trace, dest, opt_type);
 
   int hop = 1;
   while (!stop)
