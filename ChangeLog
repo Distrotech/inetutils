@@ -1,3 +1,8 @@
+2008-04-20  Michal Svoboda <pht@spatium.org> (tiny change)
+
+	* ping/ping6.c (print_echo): Cast ICMP6+1 and not ICMP6 to
+	`struct timeval *'.
+
 2008-04-19  Debarshi Ray <rishi@gnu.org>
 
 	* traceroute/traceroute.c: Added new switch --type.

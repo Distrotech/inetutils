@@ -449,7 +449,7 @@ print_echo (int dupflag, int hops, struct ping_stat *ping_stat,
       struct timeval tv1, *tp;
 
       timing++;
-      tp = (struct timeval *) icmp6 + 1;
+      tp = (struct timeval *) (icmp6 + 1);
 
       /* Avoid unaligned data: */
       memcpy (&tv1, tp, sizeof (tv1));
