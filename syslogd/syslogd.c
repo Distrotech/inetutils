@@ -1442,11 +1442,10 @@ cvthname (struct sockaddr_in *f)
 }
 
 void
-domark (int signo)
+domark (int signo ARG_UNUSED)
 {
   struct filed *f;
 
-  signo;			/* Ignored.  */
   now = time ((time_t *) NULL);
   if (MarkInterval > 0)
     {
@@ -1531,7 +1530,7 @@ die (int signo)
 
 /* INIT -- Initialize syslogd from configuration table.  */
 RETSIGTYPE
-init (int signo)
+init (int signo ARG_UNUSED)
 {
   FILE *cf;
   struct filed *f, *next, **nextp;

@@ -1,3 +1,9 @@
+2008-04-21  Guillem Jover <guillem@hadrons.org>
+
+	* syslogd/syslogd.c (init): Add ARG_UNUSED attribute to SIGNO
+	argument.
+	(domark): Likewise. Remove now unneeded no-op SIGNO statement.
+
 2008-04-20  Michal Svoboda <pht@spatium.org> (tiny change)
 
 	* ping/ping6.c (print_echo): Cast ICMP6+1 and not ICMP6 to
