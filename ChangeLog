@@ -1,3 +1,8 @@
+2008-05-13  Debarshi Ray <rishi@gnu.org>
+
+	* libls/bsdport, libls/cmp.c, libls/ls.c, libls/print.c,
+	libls/stat_flags.c [ORIGINAL_SOURCE]: Removed dead code.
+
 2008-04-21  Guillem Jover <guillem@hadrons.org>
 
 	* syslogd/syslogd.c (init): Add ARG_UNUSED attribute to SIGNO

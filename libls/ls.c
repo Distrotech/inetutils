@@ -264,12 +264,7 @@ ls_main (argc, argv)
   /* If -l or -s, figure out block size. */
   if (f_longform || f_size)
     {
-#ifdef ORIGINAL_SOURCE
-      if (!kflag)
-	getbsize (&notused, &blocksize);
-#else
       blocksize = 1024;		/* Fuck this hair-splitting */
-#endif /* ORIGINAL_SOURCE */
       blocksize /= 512;
     }
 
@@ -515,11 +510,7 @@ display (p, list)
 		maxgroup = glen;
 	      if (f_flags)
 		{
-#if ORIGINAL_SOURCE
-		  flags = flags_to_string (sp->st_flags, "-");
-#else
 		  flags = "-";
-#endif /* ORIGINAL_SOURCE */
 		  if ((flen = strlen (flags)) > maxflags)
 		    maxflags = flen;
 		}

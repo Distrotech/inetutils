@@ -111,18 +111,11 @@ printlong (dp)
       if (IS_NOPRINT (p))
 	continue;
       sp = p->fts_statp;
-#ifdef ORIGINAL_SOURCE
-      if (f_inode)
-	printf ("%*u ", dp->s_inode, sp->st_ino);
-      if (f_size)
-	printf ("%*qd ", dp->s_block, howmany (sp->st_blocks, blocksize));
-#else
       if (f_inode)
 	printf ("%*lu ", dp->s_inode, (unsigned long) sp->st_ino);
       if (f_size)
 	printf ("%*llu ",
 		dp->s_block, (long long) howmany (sp->st_blocks, blocksize));
-#endif /* ORIGINAL_SOURCE */
       strmode (sp->st_mode, buf);
       np = p->fts_pointer;
       printf ("%s %*u %-*s  %-*s  ", buf, dp->s_nlink,
@@ -250,20 +243,12 @@ printaname (p, inodefield, sizefield)
 
   sp = p->fts_statp;
   chcnt = 0;
-#ifdef ORIGINAL_SOURCE
-  if (f_inode)
-    chcnt += printf ("%*u ", (int) inodefield, sp->st_ino);
-  if (f_size)
-    chcnt += printf ("%*qd ",
-		     (int) sizefield, howmany (sp->st_blocks, blocksize));
-#else
   if (f_inode)
     chcnt += printf ("%*lu ", (int) inodefield, (unsigned long) sp->st_ino);
   if (f_size)
     chcnt += printf ("%*llu ",
 		     (int) sizefield, (long long) howmany (sp->st_blocks,
 							   blocksize));
-#endif /* ORIGINAL_SOURCE */
   chcnt += putname (p->fts_name);
   if (f_type || (f_typedir && S_ISDIR (sp->st_mode)))
     chcnt += printtype (sp->st_mode);
@@ -381,11 +366,6 @@ printtype (mode)
     case S_IFSOCK:
       putchar ('=');
       return (1);
-#ifdef ORIGINAL_SOURCE
-    case S_IFWHT:
-      putchar ('%');
-      return (1);
-#endif /* ORIGINAL_SOURCE */
     }
   if (mode & (S_IXUSR | S_IXGRP | S_IXOTH))
     {

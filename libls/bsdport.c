@@ -1,5 +1,3 @@
-#ifndef ORIGINAL_SOURCE
-
 # ifdef HAVE_CONFIG_H
 #  include <config.h>
 # endif
@@ -142,5 +140,3 @@ group_from_gid (gid_t gid, int ignored)
       return buf;
     }
 }
-
-#endif /* not ORIGINAL_SOURCE */

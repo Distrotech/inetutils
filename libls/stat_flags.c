@@ -62,22 +62,6 @@ flags_to_string (flags, def)
 
   string[0] = '\0';
   prefix = NULL;
-#ifdef ORIGINAL_SOURCE
-  if (flags & UF_APPEND)
-    SAPPEND ("uappnd");
-  if (flags & UF_IMMUTABLE)
-    SAPPEND ("uchg");
-  if (flags & UF_NODUMP)
-    SAPPEND ("nodump");
-  if (flags & UF_OPAQUE)
-    SAPPEND ("opaque");
-  if (flags & SF_APPEND)
-    SAPPEND ("sappnd");
-  if (flags & SF_ARCHIVED)
-    SAPPEND ("arch");
-  if (flags & SF_IMMUTABLE)
-    SAPPEND ("schg");
-#endif /* ORIGINAL_SOURCE */
   return (prefix == NULL && def != NULL ? def : string);
 }
 
@@ -103,56 +87,9 @@ string_to_flags (stringp, setp, clrp)
      char **stringp;
      u_int *setp, *clrp;
 {
-  int clear;
-  char *string, *p;
-
   if (setp)
     *setp = 0;
   if (clrp)
     *clrp = 0;
-  string = *stringp;
-#ifdef ORIGINAL_SOURCE
-  while ((p = strsep (&string, "\t ,")) != NULL)
-    {
-      clear = 0;
-      *stringp = p;
-      if (*p == '\0')
-	continue;
-      if (p[0] == 'n' && p[1] == 'o')
-	{
-	  clear = 1;
-	  p += 2;
-	}
-      switch (p[0])
-	{
-	case 'a':
-	  TEST (p, "arch", SF_ARCHIVED);
-	  TEST (p, "archived", SF_ARCHIVED);
-	  return (1);
-	case 'd':
-	  clear = !clear;
-	  TEST (p, "dump", UF_NODUMP);
-	  return (1);
-	case 'o':
-	  TEST (p, "opaque", UF_OPAQUE);
-	  return (1);
-	case 's':
-	  TEST (p, "sappnd", SF_APPEND);
-	  TEST (p, "sappend", SF_APPEND);
-	  TEST (p, "schg", SF_IMMUTABLE);
-	  TEST (p, "schange", SF_IMMUTABLE);
-	  TEST (p, "simmutable", SF_IMMUTABLE);
-	  return (1);
-	case 'u':
-	  TEST (p, "uappnd", UF_APPEND);
-	  TEST (p, "uappend", UF_APPEND);
-	  TEST (p, "uchg", UF_IMMUTABLE);
-	  TEST (p, "uchange", UF_IMMUTABLE);
-	  TEST (p, "uimmutable", UF_IMMUTABLE);
-	default:
-	  return (1);
-	}
-    }
-#endif /* ORIGINAL_SOURCE */
   return (0);
 }
