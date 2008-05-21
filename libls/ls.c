@@ -107,7 +107,7 @@ ls_main (argc, argv)
 {
   static char dot[] = ".", *dotav[] = { dot, NULL };
   struct winsize win;
-  int ch, fts_options, notused;
+  int ch, fts_options;
   int kflag = 0;
   char *p;
 

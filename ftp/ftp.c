@@ -1634,7 +1634,7 @@ gunique (local)
 {
   static char *new = 0;
   char *cp;
-  int d, count = 0;
+  int count = 0;
   char ext = '1';
 
   if (new)

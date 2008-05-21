@@ -1246,10 +1246,6 @@ protocol (int f, int p, struct auth_data *ap)
   int cc, nfd, n;
   char cntl;
 
-#ifdef TIOCPKT
-  int tiocpkt_on = 0;
-#endif
-
   /*
    * Must ignore SIGTTOU, otherwise we'll stop
    * when we try and set slave pty's window shape
@@ -1457,11 +1453,9 @@ control (int pty, char *cp, size_t n)
 }
 
 RETSIGTYPE
-cleanup (int signo)
+cleanup (int signo ARG_UNUSED)
 {
   char *p;
-
-  signo;
 
   p = line + sizeof (PATH_DEV) - 1;
 #ifdef UTMPX

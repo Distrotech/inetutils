@@ -66,7 +66,7 @@ int
 argcv_get (const char *command, const char *delim, int *argc, char ***argv)
 {
   int len = strlen (command);
-  int i = 0, j = 0;
+  int i = 0;
   int start, end, save;
 
   *argc = 0;

@@ -640,7 +640,7 @@ mput (argc, argv)
     }
   for (i = 1; i < argc; i++)
     {
-      char **cpp, **gargs;
+      char **cpp;
       glob_t gl;
       int flags;
 
@@ -898,8 +898,8 @@ mget (argc, argv)
      char **argv;
 {
   sig_t oldintr;
-  int ch, ointer;
-  char *cp, *tp, *tp2;
+  int ointer;
+  char *cp, *tp;
 
   if (argc < 2 && !another (&argc, &argv, "remote-files"))
     {
@@ -969,7 +969,7 @@ remglob (argv, doswitch)
   int sofar = 0;
   int oldverbose, oldhash;
   int fd;
-  char *cp, *mode, *end;
+  char *cp, *mode;
 
   if (!mflag)
     {

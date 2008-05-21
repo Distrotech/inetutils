@@ -109,7 +109,7 @@ int
 susystem (char *s, int userid)
 {
   sig_t istat, qstat;
-  int status, w;
+  int status;
   pid_t pid;
 
   pid = vfork ();

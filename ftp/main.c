@@ -136,7 +136,7 @@ static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 int
 main (int argc, char *argv[])
 {
-  int ch, top;
+  int top;
   int index;
   struct passwd *pw = NULL;
   char *cp;

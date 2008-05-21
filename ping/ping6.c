@@ -167,7 +167,6 @@ int
 main (int argc, char **argv)
 {
   int index;
-  u_char pattern[16];
 
   if (getuid () == 0)
     is_root = true;

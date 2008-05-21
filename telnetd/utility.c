@@ -886,7 +886,10 @@ void
 printsub (int direction, unsigned char *pointer, int length)
 {
   register int i;
+
+#if defined(AUTHENTICATION) && defined(ENCRYPTION)
   char buf[512];
+#endif
 
   if (direction)
     {
@@ -1319,7 +1322,6 @@ printsub (int direction, unsigned char *pointer, int length)
 		    break;
 
 		  default:
-		  def_case:
 		    if (isprint (pointer[i]) && pointer[i] != '"')
 		      {
 			if (noquote)

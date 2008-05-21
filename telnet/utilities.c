@@ -139,7 +139,6 @@ Dump (char direction, unsigned char *buffer, int length)
 #define min(x,y)	((x<y)? x:y)
   unsigned char *pThis;
   int offset;
-  extern pettydump;
 
   offset = 0;
 
@@ -330,8 +329,11 @@ void
 printsub (char direction, unsigned char *pointer, int length)
 {
   register int i;
-  char buf[512];
   extern int want_status_response;
+
+#if defined(AUTHENTICATION) && defined(ENCRYPTION)
+  char buf[512];
+#endif
 
   if (showoptions || direction == 0 ||
       (want_status_response && (pointer[0] == TELOPT_STATUS)))
@@ -924,7 +926,6 @@ printsub (char direction, unsigned char *pointer, int length)
 			break;
 
 		      default:
-		      def_case:
 			if (isprint (pointer[i]) && pointer[i] != '"')
 			  {
 			    if (noquote)

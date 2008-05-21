@@ -322,7 +322,6 @@ sendcmd (int argc, char **argv)
 {
   int count;			/* how many bytes we are going to need to send */
   int i;
-  int question = 0;		/* was at least one argument a question */
   struct sendlist *s;		/* pointer to current command */
   int success = 0;
   int needconnect = 0;

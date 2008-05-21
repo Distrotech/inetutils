@@ -728,7 +728,10 @@ void
 sendsig (int sig)
 {
   char signo;
+
+#if defined(SHISHI) && defined (ENCRYPTION)
   int n;
+#endif
 
   signo = sig;
 #ifdef KERBEROS

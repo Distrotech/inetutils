@@ -578,7 +578,6 @@ sigquit (int signo)
 static RETSIGTYPE
 lostconn (int signo ARG_UNUSED)
 {
-  signo;
   if (debug)
     syslog (LOG_DEBUG, "lost connection");
   dologout (-1);

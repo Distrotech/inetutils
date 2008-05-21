@@ -326,7 +326,6 @@ void
 error (const char *fmt, ...)
 {
   va_list ap;
-  int len;
   char buf[BUFSIZ];
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, fmt);

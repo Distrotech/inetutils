@@ -648,13 +648,12 @@ run_service (int ctrl, struct servtab *sep)
 }
 
 void
-reapchild (int signo)
+reapchild (int signo ARG_UNUSED)
 {
   int status;
   pid_t pid;
   struct servtab *sep;
 
-  signo;			/* shutup gcc */
   for (;;)
     {
 #ifdef HAVE_WAIT3
@@ -688,8 +687,6 @@ config (int signo)
   int i;
   struct stat stats;
   struct servtab *sep;
-
-  signo;			/* Shutup gcc.  */
 
   for (sep = servtab; sep; sep = sep->se_next)
     sep->se_checked = 0;
@@ -871,11 +868,10 @@ nextconfig (const char *file)
 }
 
 void
-retry (int signo)
+retry (int signo ARG_UNUSED)
 {
   struct servtab *sep;
 
-  signo;			/* shutup gcc */
   timingout = 0;
   for (sep = servtab; sep; sep = sep->se_next)
     if (sep->se_fd == -1 && !ISMUX (sep))
@@ -1397,7 +1393,6 @@ echo_dg (int s, struct servtab *sep)
   struct sockaddr sa;
 #endif
 
-  sep;
   size = sizeof sa;
   i = recvfrom (s, buffer, sizeof buffer, 0, (struct sockaddr *) &sa, &size);
   if (i < 0)
@@ -1428,7 +1423,7 @@ void
 discard_dg (int s, struct servtab *sep)
 {
   char buffer[BUFSIZE];
-  sep;				/* shutup gcc */
+
   read (s, buffer, sizeof buffer);
 }
 
@@ -1497,7 +1492,6 @@ chargen_dg (int s, struct servtab *sep)
   socklen_t size;
   char text[LINESIZ + 2];
 
-  sep;				/* shutup gcc */
   if (endring == 0)
     {
       initring ();
@@ -1551,7 +1545,6 @@ machtime_stream (int s, struct servtab *sep)
 {
   long result;
 
-  sep;				/* shutup gcc */
   result = machtime ();
   write (s, (char *) &result, sizeof result);
 }
@@ -1567,7 +1560,6 @@ machtime_dg (int s, struct servtab *sep)
 #endif
   socklen_t size;
 
-  sep;				/* shutup gcc */
   size = sizeof sa;
   if (recvfrom (s, (char *) &result, sizeof result, 0,
 		(struct sockaddr *) &sa, &size) < 0)
@@ -1584,7 +1576,6 @@ daytime_stream (int s, struct servtab *sep)
   char buffer[256];
   time_t lclock;
 
-  sep;				/*shutup gcc */
   lclock = time ((time_t *) 0);
 
   sprintf (buffer, "%.24s\r\n", ctime (&lclock));
@@ -1604,7 +1595,6 @@ daytime_dg (int s, struct servtab *sep)
 #endif
   socklen_t size;
 
-  sep;				/* shutup gcc */
   lclock = time ((time_t *) 0);
 
   size = sizeof sa;

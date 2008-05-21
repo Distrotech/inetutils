@@ -103,7 +103,10 @@ int
 main (int argc, char **argv)
 {
 #ifndef BSDINETD
-  register int s, tcp_socket;
+  register int s;
+# ifdef BSD4_2
+  register int tcp_socket;
+# endif
   struct servent *sp;
 #endif /* !BSDINETD */
   extern int errno;
@@ -318,7 +321,7 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
 {
   char line[32];
   char remotehost[32];
-  int wtmp, f;
+  int f;
   struct hostent *hp = gethostbyaddr ((char *) &sin->sin_addr,
 				      sizeof (struct in_addr), AF_INET);
 

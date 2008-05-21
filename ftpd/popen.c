@@ -198,7 +198,7 @@ int
 ftpd_pclose (FILE * iop)
 {
   struct file_pid *fpid = file_pids, *prev_fpid = 0;
-  int fdes, status;
+  int status;
 #ifdef HAVE_SIGACTION
   sigset_t sigs, osigs;
 #else

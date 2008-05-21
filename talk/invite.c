@@ -75,7 +75,7 @@ jmp_buf invitebuf;
 int
 invite_remote ()
 {
-  int nfd, read_mask, template, new_sockt;
+  int new_sockt;
   struct itimerval itimer;
   CTL_RESPONSE response;
 

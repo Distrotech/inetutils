@@ -1,3 +1,13 @@
+2008-05-20  Debarshi Ray <rishi@gnu.org>
+
+	* ftp/cmds.c, ftp/ftp.c, ftp/main.c, ftpd/ftpd.c, ftpd/popen.c,
+	inetd/inetd.c, libinetutils/argcv.c, libls/ls.c, ping/ping6.c,
+	rcp/util.c, rexecd/rexecd.c, rlogind/rlogind.c, rsh/rsh.c,
+	talk/get_names.c, talk/invite.c, talk/look_up.c, talkd/talkd.c,
+	telnet/commands.c, telnet/utilities.c, telnetd/utility.c,
+	uucpd/uucpd.c: Remove unused variables and add ARG_UNUSED
+	attribute to unused function arguments.
+	
 2008-05-13  Debarshi Ray <rishi@gnu.org>
 
 	* libls/bsdport, libls/cmp.c, libls/ls.c, libls/print.c,

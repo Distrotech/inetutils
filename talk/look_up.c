@@ -100,8 +100,6 @@ int
 look_for_invite (rp)
      CTL_RESPONSE *rp;
 {
-  struct in_addr machine_addr;
-
   current_state = "Checking for invitation on caller's machine";
   ctl_transact (his_machine_addr, msg, LOOK_UP, rp);
   /* the switch is for later options, such as multiple invitations */

@@ -57,7 +57,7 @@ get_names (int argc, char *argv[])
 {
   char *his_name, *my_name;
   char *my_machine_name, *his_machine_name;
-  char *my_tty, *his_tty;
+  char *his_tty;
   register char *cp;
 
   if (argc < 2)
