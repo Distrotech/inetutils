@@ -72,6 +72,7 @@ struct ping_data
 #define _PING_TST(p,bit) (_C_BIT (p,bit) & _C_MASK (bit))
 
 PING *ping_init (int type, int ident);
+void ping_reset (PING * p);
 void ping_set_type (PING * p, int type);
 void ping_set_count (PING * ping, size_t count);
 void ping_set_sockopt (PING * ping, int opt, void *val, int valsize);
@@ -82,5 +83,6 @@ int ping_set_pattern (PING * p, int len, u_char * pat);
 void ping_set_event_handler (PING * ping, ping_efp fp, void *closure);
 int ping_set_data (PING * p, void *data, size_t off, size_t len);
 void ping_set_datalen (PING * p, size_t len);
+void ping_unset_data (PING * p);
 int ping_recv (PING * p);
 int ping_xmit (PING * p);

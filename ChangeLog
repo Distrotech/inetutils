@@ -1,3 +1,39 @@
+2008-06-05  Debarshi Ray <rishi@gnu.org>
+
+	* libicmp/libping.c (ping_reset): New function.
+	(_ping_freebuf): Free PING->ping_cktab.
+	(ping_unset_data): New function.
+
+	* libicmp/ping.h (ping_reset): New function.
+	(ping_unset_data): New function.
+
+	* ping/ping.c (ping_type): Changed type to `int (*ping_type) (char
+	*hostname)'. All users changed accordingly.
+	(decode_type): Likewise.
+	(main): Multiple host support implemented.
+	(ping_run): Added new variable I. Replaced `while' with `for' to
+	avoid decrementing PRELOAD. Replaced free with ping_unset_data.
+
+	* ping/ping6.c (main): Added new variable STATUS. Multiple host
+	support implemented.
+	(ping_run): Added new variable I. Replaced `while' with `for' to
+	avoid decrementing PRELOAD.
+	(ping_echo): Changed type to `static int ping_echo (char *hostname)`.
+	All callers and declarations changed accordingly. Added new variable
+	STATUS. Free PING->ping_hostname.
+	(ping_reset): New function.
+	(echo_finish): Call return instead of exit.
+
+	* ping/ping_address.c (ping_address): Changed type to
+	`int ping_address (char *hostname)'. All callers and extern
+	declarations changed accordingly.
+
+	* ping/ping_echo.c (ping_echo): Likewise.
+
+	* ping/ping_router.c (ping_router): Likewise.
+
+	* ping/ping_timestamp.c (ping_timestamp): Likewise.
+
 2008-05-20  Debarshi Ray <rishi@gnu.org>
 
 	* ftp/cmds.c, ftp/ftp.c, ftp/main.c, ftpd/ftpd.c, ftpd/popen.c,
@@ -7,7 +43,7 @@
 	telnet/commands.c, telnet/utilities.c, telnetd/utility.c,
 	uucpd/uucpd.c: Remove unused variables and add ARG_UNUSED
 	attribute to unused function arguments.
-	
+
 2008-05-13  Debarshi Ray <rishi@gnu.org>
 
 	* libls/bsdport, libls/cmp.c, libls/ls.c, libls/print.c,
@@ -326,7 +362,7 @@
 	(main): Use argp to parse program options.
 	(ping_echo, ping_init): Use error instead of "output message;
 	exit;" concoction's.
-	
+
 	* ping/ping.c: Don't include <getopt.h>.  Include <argp.h> and
 	"libinetutils.h".
 	(short_options, long_options): Variables removed.

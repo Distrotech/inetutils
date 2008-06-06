@@ -60,13 +60,13 @@ static void print_timestamp (int dupflag, void *closure,
 static int timestamp_finish ();
 
 int
-ping_timestamp (int argc, char **argv)
+ping_timestamp (char *hostname)
 {
   ping_set_type (ping, ICMP_TIMESTAMP);
   ping_set_event_handler (ping, recv_timestamp, NULL);
   ping_set_packetsize (ping, 20);
 
-  if (ping_set_dest (ping, *argv))
+  if (ping_set_dest (ping, hostname))
     error (EXIT_FAILURE, 0, "unknown host");
 
   printf ("PING %s (%s): sending timestamp requests\n",

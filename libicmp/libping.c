@@ -99,6 +99,14 @@ ping_init (int type, int ident)
 }
 
 void
+ping_reset (PING * p)
+{
+  p->ping_num_xmit = 0;
+  p->ping_num_recv = 0;
+  p->ping_num_rept = 0;
+}
+
+void
 ping_set_type (PING * p, int type)
 {
   p->ping_type = type;
@@ -118,6 +126,11 @@ _ping_freebuf (PING * p)
     {
       free (p->ping_buffer);
       p->ping_buffer = NULL;
+    }
+  if (p->ping_cktab)
+    {
+      free (p->ping_cktab);
+      p->ping_cktab = NULL;
     }
 }
 
@@ -152,6 +165,12 @@ ping_set_data (PING * p, void *data, size_t off, size_t len)
   icmp = (icmphdr_t *) p->ping_buffer;
   memcpy (icmp->icmp_data + off, data, len);
   return 0;
+}
+
+void
+ping_unset_data (PING * p)
+{
+  _ping_freebuf (p);
 }
 
 int

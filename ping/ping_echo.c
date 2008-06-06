@@ -70,7 +70,7 @@ void print_icmp_header (struct sockaddr_in *from,
 static void print_ip_opt (struct ip *ip, int hlen);
 
 int
-ping_echo (int argc, char **argv)
+ping_echo (char *hostname)
 {
 #ifdef IP_OPTIONS
   char rspace[3 + 4 * NROUTES + 1];	/* record route space */
@@ -88,7 +88,7 @@ ping_echo (int argc, char **argv)
   ping_set_packetsize (ping, data_length);
   ping_set_event_handler (ping, handler, &ping_stat);
 
-  if (ping_set_dest (ping, *argv))
+  if (ping_set_dest (ping, hostname))
     error (EXIT_FAILURE, 0, "unknown host");
 
   if (options & OPT_RROUTE)

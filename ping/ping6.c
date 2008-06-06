@@ -56,13 +56,13 @@ size_t data_length = PING_DATALEN;
 static unsigned int options;
 static unsigned long preload = 0;
 
-static int ping_echo (int argc, char **argv);
-
+static int ping_echo (char *hostname);
+static void ping_reset (PING * p);
 static int send_echo (PING * ping);
 
 ARGP_PROGRAM_DATA ("ping6", "2007", "Jeroen Dekkers");
 
-const char args_doc[] = "HOST";
+const char args_doc[] = "HOST ...";
 const char doc[] = "Send ICMP ECHO_REQUEST packets to network hosts."
                    "\vOptions marked with (root only) are available only to "
                    "superuser.";
@@ -167,6 +167,7 @@ int
 main (int argc, char **argv)
 {
   int index;
+  int status = 0;
 
   if (getuid () == 0)
     is_root = true;
@@ -189,7 +190,13 @@ main (int argc, char **argv)
 
   init_data_buffer (patptr, pattern_len);
 
-  return ping_echo (argc, argv);
+  while (argc--)
+    {
+      status |= ping_echo (*argv++);
+      ping_reset (ping);
+    }
+
+  return status;
 }
 
 static char *
@@ -248,12 +255,13 @@ ping_run (PING * ping, int (*finish) ())
   struct timeval *t = NULL;
   int finishing = 0;
   int nresp = 0;
+  int i;
 
   signal (SIGINT, sig_int);
 
   fdmax = ping->ping_fd + 1;
 
-  while (preload--)
+  for (i = 0; i < preload; i++)
     send_echo (ping);
 
   if (options & OPT_FLOOD)
@@ -390,11 +398,12 @@ static void print_icmp_error (struct sockaddr_in6 *from,
 static int echo_finish (void);
 
 static int
-ping_echo (int argc, char **argv)
+ping_echo (char *hostname)
 {
   int err;
   char buffer[256];
   struct ping_stat ping_stat;
+  int status;
 
   if (options & OPT_FLOOD && options & OPT_INTERVAL)
     error (EXIT_FAILURE, 0, "-f and -i incompatible options");
@@ -405,8 +414,8 @@ ping_echo (int argc, char **argv)
   ping->ping_datalen = data_length;
   ping->ping_closure = &ping_stat;
 
-  if (ping_set_dest (ping, *argv))
-    error (EXIT_FAILURE, 0, "unknown host %s", *argv);
+  if (ping_set_dest (ping, hostname))
+    error (EXIT_FAILURE, 0, "unknown host %s", hostname);
 
   err = getnameinfo ((struct sockaddr *) &ping->ping_dest,
 		     sizeof (ping->ping_dest), buffer,
@@ -426,7 +435,17 @@ ping_echo (int argc, char **argv)
   printf ("PING %s (%s): %d data bytes\n",
 	  ping->ping_hostname, buffer, data_length);
 
-  return ping_run (ping, echo_finish);
+  status = ping_run (ping, echo_finish);
+  free (ping->ping_hostname);
+  return status;
+}
+
+static void
+ping_reset (PING * p)
+{
+  p->ping_num_xmit = 0;
+  p->ping_num_recv = 0;
+  p->ping_num_rept = 0;
 }
 
 static int
@@ -645,7 +664,7 @@ echo_finish ()
       printf ("round-trip min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms\n",
 	      ping_stat->tmin, avg, ping_stat->tmax, nsqrt (vari, 0.0005));
     }
-  exit (ping->ping_num_recv == 0);
+  return (ping->ping_num_recv == 0);
 }
 
 static PING *

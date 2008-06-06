@@ -54,10 +54,10 @@
 #include "ping_impl.h"
 #include "libinetutils.h"
 
-extern int ping_echo (int argc, char **argv);
-extern int ping_timestamp (int argc, char **argv);
-extern int ping_address (int argc, char **argv);
-extern int ping_router (int argc, char **argv);
+extern int ping_echo (char *hostname);
+extern int ping_timestamp (char *hostname);
+extern int ping_address (char *hostname);
+extern int ping_router (char *hostname);
 
 PING *ping;
 bool is_root = false;
@@ -70,16 +70,16 @@ size_t interval;
 size_t data_length = PING_DATALEN;
 unsigned options;
 unsigned long preload = 0;
-int (*ping_type) (int argc, char **argv) = ping_echo;
+int (*ping_type) (char *hostname) = ping_echo;
 
-int (*decode_type (const char *arg)) (int argc, char **argv);
+int (*decode_type (const char *arg)) (char *hostname);
 static int send_echo (PING * ping);
 
 #define MIN_USER_INTERVAL (200000/PING_PRECISION)
 
 ARGP_PROGRAM_DATA ("ping", "2007", "Sergey Poznyakoff");
 
-const char args_doc[] = "HOST";
+const char args_doc[] = "HOST ...";
 const char doc[] = "Send ICMP ECHO_REQUEST packets to network hosts."
                    "\vOptions marked with (root only) are available only to "
                    "superuser.";
@@ -232,7 +232,7 @@ main (int argc, char **argv)
 {
   int index;
   int one = 1;
-  int status;
+  int status = 0;
 
   if (getuid () == 0)
     is_root = true;
@@ -264,15 +264,20 @@ main (int argc, char **argv)
 
   init_data_buffer (patptr, pattern_len);
 
-  status = (*(ping_type)) (argc, argv);
+  while (argc--)
+    {
+      status |= (*(ping_type)) (*argv++);
+      ping_reset (ping);
+    }
+
   free (ping);
   free (data_buffer);
   return status;
 }
 
-int (*decode_type (const char *arg)) (int argc, char **argv)
+int (*decode_type (const char *arg)) (char *hostname)
 {
-  int (*ping_type) (int argc, char **argv);
+  int (*ping_type) (char *hostname);
 
   if (strcasecmp (arg, "echo") == 0)
     ping_type = ping_echo;
@@ -308,12 +313,13 @@ ping_run (PING * ping, int (*finish) ())
   struct timeval *t = NULL;
   int finishing = 0;
   int nresp = 0;
+  int i;
 
   signal (SIGINT, sig_int);
 
   fdmax = ping->ping_fd + 1;
 
-  while (preload--)
+  for (i = 0; i < preload; i++)
     send_echo (ping);
 
   if (options & OPT_FLOOD)
@@ -390,8 +396,7 @@ ping_run (PING * ping, int (*finish) ())
 	}
     }
 
-  free (ping->ping_buffer);
-  free (ping->ping_cktab);
+  ping_unset_data (ping);
 
   if (finish)
     return (*finish) ();

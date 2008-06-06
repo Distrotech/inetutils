@@ -49,7 +49,7 @@
 #include <ping_impl.h>
 
 int
-ping_router (int argc, char **argv)
+ping_router (char *hostname)
 {
   return 0;
 }
