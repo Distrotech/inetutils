@@ -8,24 +8,23 @@
 	(ping_unset_data): New function.
 
 	* ping/ping.c (ping_type): Changed type to `int (*ping_type) (char
-	*hostname)'. All users changed accordingly.
+	*hostname)'.  All users changed accordingly.
 	(decode_type): Likewise.
-	(main): Multiple host support implemented.
-	(ping_run): Added new variable I. Replaced `while' with `for' to
-	avoid decrementing PRELOAD. Replaced free with ping_unset_data.
+	(main): Allow multiple hosts on the command line.
+	(ping_run): Avoid decrementing PRELOAD.  Replaced free with
+	ping_unset_data.
 
 	* ping/ping6.c (main): Added new variable STATUS. Multiple host
 	support implemented.
-	(ping_run): Added new variable I. Replaced `while' with `for' to
-	avoid decrementing PRELOAD.
+	(ping_run): Avoid decrementing PRELOAD.
 	(ping_echo): Changed type to `static int ping_echo (char *hostname)`.
-	All callers and declarations changed accordingly. Added new variable
-	STATUS. Free PING->ping_hostname.
+	All callers and declarations changed accordingly.  Added new variable
+	STATUS.  Free PING->ping_hostname.
 	(ping_reset): New function.
 	(echo_finish): Call return instead of exit.
 
 	* ping/ping_address.c (ping_address): Changed type to
-	`int ping_address (char *hostname)'. All callers and extern
+	`int ping_address (char *hostname)'.  All callers and extern
 	declarations changed accordingly.
 
 	* ping/ping_echo.c (ping_echo): Likewise.
@@ -53,7 +52,7 @@
 
 	* syslogd/syslogd.c (init): Add ARG_UNUSED attribute to SIGNO
 	argument.
-	(domark): Likewise. Remove now unneeded no-op SIGNO statement.
+	(domark): Likewise.  Remove now unneeded no-op SIGNO statement.
 
 2008-04-20  Michal Svoboda <pht@spatium.org> (tiny change)
 
@@ -64,7 +63,7 @@
 
 	* traceroute/traceroute.c: Added new switch --type.
 	(opt_type): New variable.
-	(main): Replace getuid with geteuid. Use OPT_TYPE instead of
+	(main): Replace getuid with geteuid.  Use OPT_TYPE instead of
 	hard-coding TRACE_ICMP.
 
 2008-04-18  Debarshi Ray <rishi@gnu.org>
@@ -73,7 +72,7 @@
 
 2008-04-17  Debarshi Ray <rishi@gnu.org>
 
-	* traceroute/traceroute.c: Include <error.h>. Added new
+	* traceroute/traceroute.c: Include <error.h>.  Added new
 	switch --tries.
 	(opt_max_tries): Declared static.
 
@@ -94,7 +93,7 @@
 	(short_options, long_options): Variables removed.
 	(parse_opt): New function.
 	(argp): New variable.
-	(main): Removed variable OPTION. Use argp to parse program options.
+	(main): Removed variable OPTION.  Use argp to parse program options.
 	Use error instead of "output message; exit;" concoction's.
 	(add_funix): Use error instead of "output message; exit;"
 	concoction's.
@@ -126,7 +125,7 @@
 
 2008-04-14  Edward Attfield <attfield@nortel.com> (tiny change)
 
-	* telnet/sys_bsd.c (process_rings): New variable NFDS. Detect the
+	* telnet/sys_bsd.c (process_rings): New variable NFDS.  Detect the
 	number of open file descriptors during FD_SET.
 
 2008-02-06  Simon Josefsson  <simon@josefsson.org>
@@ -150,7 +149,7 @@
 	* ftp/extern.h (another): Changed type of PROMPT to `const char *'.
 
 	* ftp/cmds.c (another): Added new variables BUFFER and ARG.
-	Use readline for input. Use better error handling.
+	Use readline for input.  Use better error handling.
 	(another) [HAVE_LIBHISTORY]: Use add_history.
 
 	* ftp/ftp.c (login): Removed all references to HAVE_LIBREADLINE.
@@ -349,7 +348,7 @@
 	(ping_address): Use error instead of "output message; exit;"
 	concoction's.
 
-	* ping/ping6.c: Include <stdbool.h>. Don't include <getopt.h>.
+	* ping/ping6.c: Include <stdbool.h>.  Don't include <getopt.h>.
 	Include <argp.h> and "libinetutils.h".
 	(short_options, long_options): Variables removed.
 	(is_root, patptr, one, pattern_len): New variables.
