@@ -76,10 +76,10 @@
 # include <netinet/ip.h>
 #endif
 
+#include <argp.h>
 #include <error.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <getopt.h>
 #include <netdb.h>
 #include <pwd.h>
 #include <setjmp.h>
@@ -95,6 +95,8 @@
 #else
 # include <varargs.h>
 #endif
+
+#include "libinetutils.h"
 
 #ifdef SHISHI
 # define REALM_SZ 1040
@@ -157,7 +159,10 @@ int wlen;
 #define SPEED_NOTATTY	(-1)
 int eight = 0, rem;
 
+int dflag = 0;
 int noescape;
+char * host = NULL;
+char * user = NULL;
 u_char escapechar = '~';
 
 #ifdef OLDSUN
@@ -184,7 +189,6 @@ void echo (char);
 u_int getescape (char *);
 RETSIGTYPE lostpeer (int);
 void mode (int);
-void msg (const char *);
 RETSIGTYPE oob (int);
 int reader (sigset_t *);
 void sendwindow (void);
@@ -193,7 +197,6 @@ int speed (int);
 unsigned int speed_translate (unsigned int);
 RETSIGTYPE sigwinch (int);
 void stop (char);
-void usage (int);
 void writer (void);
 RETSIGTYPE writeroob (int);
 
@@ -208,24 +211,100 @@ extern sig_t setsig (int, sig_t);
 #else
 # define OPTIONS	"8EKde:l:hV"
 #endif
-static const char *short_options = OPTIONS;
-static struct option long_options[] = {
-  {"debug", no_argument, 0, 'd'},
-  {"user", required_argument, 0, 'l'},
-  {"escape", required_argument, 0, 'e'},
-  {"no-escape", no_argument, 0, 'E'},
-  {"8-bit", no_argument, 0, '8'},
-  {"kerberos", no_argument, 0, 'K'},
+
+ARGP_PROGRAM_DATA ("rlogin", "2008", "FIXME unknown");
+
+const char args_doc[] = "HOST";
+const char doc[] = "Starts a terminal session on a remote host.";
+
+static struct argp_option argp_options[] = {
+#define GRP 0
+  {"8-bit", '8', NULL, 0, "Allows an eight-bit input data path at all times",
+   GRP+1},
+  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
+  {"escape", 'e', "CHAR", 0, "Allows user specification of the escape "
+   "character, which is ``~'' by default", GRP+1},
+  {"no-escape", 'E', NULL, 0, "Stops any character from being recognized as "
+   "an escape character", GRP+1},
+  {"user", 'l', "USER", 0, "Run as USER on the remote system", GRP+1},
 #if defined(KERBEROS) || defined(SHISHI)
-  {"realm", required_argument, 0, 'k'},
-  {"encrypt", no_argument, 0, 'x'},
+#ifdef ENCRYPTION
+  {"encrypt", 'x', NULL, 0, "Turns on DES encryption for all data passed via "
+   "the rlogin session", GRP+1},
 #endif
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {NULL, 0, 0, 0}
+  {"kerberos", 'K', NULL, 0, "Turns off all Kerberos authentication", GRP+1},
+  {"realm", 'k', "REALM", 0, "Obtain tickets for the remote host in REALM "
+   "realm instead of the remote's realm", GRP+1},
+#endif
+#undef GRP
+  {NULL}
 };
 
-char *program_name;
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    /* 8-bit input Specifying this forces us to use RAW mode input from
+       the user's terminal.  Also, in this mode we won't perform any
+       local flow control.  */
+    case '8':
+      eight = 1;
+      break;
+
+    case 'd':
+      dflag = 1;
+      break;
+
+    case 'e':
+      noescape = 0;
+      escapechar = getescape (arg);
+      if (escapechar == 0)
+	error (EXIT_FAILURE, 0, "illegal option value -- e");
+      break;
+
+    case 'E':
+      noescape = 1;
+      break;
+
+    case 'l':
+      user = arg;
+      break;
+
+#if defined (KERBEROS) || defined(SHISHI)
+#ifdef ENCRYPTION
+    case 'x':
+      doencrypt = 1;
+#ifdef KERBEROS
+      des_set_key (cred.session, schedule);
+#endif
+      break;
+#endif
+
+    case 'K':
+      use_kerberos = 0;
+      break;
+
+    case 'k':
+      strncpy (dest_realm_buf, optarg, sizeof (dest_realm_buf));
+      /* Make sure it's null termintated.  */
+      dest_realm_buf[sizeof (dest_realm_buf) - 1] = '\0';
+      dest_realm = dest_realm_buf;
+      break;
+#endif
+
+    case ARGP_KEY_NO_ARGS:
+      if (host == NULL)
+        argp_error (state, "missing host operand");
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 int
 main (int argc, char *argv[])
@@ -234,14 +313,9 @@ main (int argc, char *argv[])
   struct servent *sp;
   sigset_t smask;
   uid_t uid;
-  int ch, dflag;
+  int index;
   int term_speed;
-  char *host, *user, term[1024];
-
-  program_name = argv[0];
-
-  dflag = 0;
-  host = user = NULL;
+  char term[1024];
 
   /* Traditionnaly, if a symbolic link was made to the rlogin binary
      rlogin --> hostname
@@ -257,87 +331,13 @@ main (int argc, char *argv[])
       host = p;
   }
 
-  while ((ch = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (ch)
-	{
-	  /* 8-bit input Specifying this forces us to use RAW mode input from
-	     the user's terminal.  Also, in this mode we won't perform any
-	     local flow control.  */
-	case '8':
-	  eight = 1;
-	  break;
+  /* Parse command line */
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-	case 'E':
-	  noescape = 1;
-	  break;
+  if (index < argc)
+    host = argv[index++];
 
-	case 'K':
-#if defined (KERBEROS) || defined(SHISHI)
-	  use_kerberos = 0;
-#endif
-	  break;
-
-	  /* Turn on the debug option for the socket.  */
-	case 'd':
-	  dflag = 1;
-	  break;
-
-	  /* Specify an escape character, instead of the default tilde.  */
-	case 'e':
-	  noescape = 0;
-	  escapechar = getescape (optarg);
-	  break;
-
-#if defined(KERBEROS) || defined(SHISHI)
-	case 'k':
-	  strncpy (dest_realm_buf, optarg, sizeof dest_realm_buf);
-	  /* Make sure it's null termintated.  */
-	  dest_realm_buf[sizeof (dest_realm_buf) - 1] = '\0';
-	  dest_realm = dest_realm_buf;
-	  break;
-#endif
-
-	  /* Specify the server-user-name, instead of using the name of the
-	     person invoking us.  */
-	case 'l':
-	  user = optarg;
-	  break;
-
-#ifdef ENCRYPTION
-# if defined(KERBEROS) || defined (SHISHI)
-	case 'x':
-	  doencrypt = 1;
-#  if defined(KERBEROS)
-	  des_set_key (cred.session, schedule);
-#  endif
-	  break;
-# endif
-#endif
-
-	case 'V':
-	  printf ("rlogin (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case '?':
-	  usage (1);
-	  break;
-
-	case 'h':
-	default:
-	  usage (0);
-	}
-    }
-
-  if (optind < argc)
-    host = argv[optind++];
-
-  argc -= optind;
-
-  /* To many command line arguments or too few.  */
-  if (argc > 0 || !host)
-    usage (1);
+  argc -= index;
 
   /* We must be uid root to access rcmd().  */
   if (geteuid ())
@@ -357,7 +357,7 @@ main (int argc, char *argv[])
 	  user = host;
 	host = p + 1;
 	if (*host == '\0')
-	  usage (1);
+          error (EXIT_FAILURE, 0, "invalid host operand");
       }
   }
 
@@ -707,14 +707,14 @@ doit (sigset_t * smask)
 	  /* If the reader () return 0, the socket to the server returned an
 	     EOF, meaning the client logged out of the remote system.
 	     This is the normal termination.  */
-	  msg ("connection closed.");
-	  exit (0);
+          error (0, 0, "connection closed");
+          /* EXIT_SUCCESS is usually zero. So error might not exit.  */
+          exit (EXIT_SUCCESS);
 	}
       /* If the reader () returns nonzero, the socket to the server
          returned an error.  Somethingg went wrong.  */
       sleep (1);
-      msg ("\007connection closed.");	/* 007 == ASCII bell.  */
-      exit (1);
+      error (EXIT_FAILURE, 0, "\007connection closed");
     }
 
   /*
@@ -737,7 +737,7 @@ doit (sigset_t * smask)
      In this case we terminate and the server will eventually get an EOF
      on its end of the network connection.  This should cause the server to
      log you out on the remote system.  */
-  msg ("closed connection.");
+  error (0, 0, "closed connection");
 
 #ifdef SHISHI
   if (use_kerberos)
@@ -918,7 +918,7 @@ writer ()
 	{
 	  if (des_write (rem, &c, 1) == 0)
 	    {
-	      msg ("line gone");
+              error (0, 0, "line gone");
 	      break;
 	    }
 	}
@@ -929,7 +929,7 @@ writer ()
 	  writeenc (handle, rem, &c, 1, &wlen, &iv2, key, 2);
 	  if (wlen == 0)
 	    {
-	      msg ("line gone");
+              error (0, 0, "line gone");
 	      break;
 	    }
 	}
@@ -938,7 +938,7 @@ writer ()
 #endif
       if (write (rem, &c, 1) == 0)
 	{
-	  msg ("line gone");
+          error (0, 0, "line gone");
 	  break;
 	}
       bol = c == deftt.c_cc[VKILL] || c == deftt.c_cc[VEOF] ||
@@ -1255,7 +1255,7 @@ RETSIGTYPE
 lostpeer (int signo ARG_UNUSED)
 {
   setsig (SIGPIPE, SIG_IGN);
-  msg ("\007connection closed.");
+  error (0, 0, "\007connection closed.");
   done (1);
 }
 
@@ -1264,12 +1264,6 @@ RETSIGTYPE
 copytochild (int signo ARG_UNUSED)
 {
   kill (child, SIGURG);
-}
-
-void
-msg (const char *str)
-{
-  fprintf (stderr, "rlogin: %s\r\n", str);
 }
 
 #if defined(KERBEROS) || defined(SHISHI)
@@ -1295,62 +1289,6 @@ warning (fmt, va_alist)
   fprintf (stderr, ".\n");
 }
 #endif
-
-void
-usage (int status)
-{
-  if (status)
-    {
-      fprintf (stderr,
-	       "Usage: rlogin [ -%s]%s[-e char] [ -l username ] [username@]host\n",
-#if defined(KERBEROS) || defined(SHISHI)
-# ifdef ENCRYPTION
-	       "8EKx", " [-k realm] "
-# else
-	       "8EK", " [-k realm] "
-# endif
-#else
-	       "8EL", " "
-#endif
-	);
-      fprintf (stderr, "Try rlogin --help for more information.\n");
-    }
-  else
-    {
-      puts ("Usage: rlogin [OPTION] ... hostname");
-      puts ("Rlogin starts a terminal session on a remote host host.");
-      puts ("\
-  -8, --8-bit       allows an eight-bit input data path at all times");
-      puts ("\
-  -E, --no-escape   stops any character from being recognized as an escape\n\
-                    character");
-      puts ("\
-  -d, --debug       turns on socket debugging (see setsockopt(2))");
-      puts ("\
-  -e, --escape=CHAR allows user specification of the escape character,\n\
-                    which is ``~'' by default");
-      puts ("\
-  -l, --user USER   run as USER on the remote system");
-#if defined(KERBEROS) || defined(SHISHI)
-      puts ("\
-  -K, --kerberos    turns off all Kerberos authentication");
-      puts ("\
-  -k, --realm=REALM requests rlogin to obtain tickets for the remote host in\n\
-                    REALM realm instead of the remote host's realm");
-# ifdef ENCRYPTION
-      puts ("\
-  -x, --encrypt     turns on DES encryption for all data passed via the\n\
-                    rlogin session");
-# endif
-#endif
-      puts ("\
-  -V, --version     display program version");
-      puts ("\
-  -h, --help        display usage instructions");
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
-    }
-  exit (status);
-}
 
 /*
  * The following routine provides compatibility (such as it is) between older
@@ -1393,7 +1331,5 @@ getescape (register char *p)
 	    break;
 	}
     }
-  msg ("illegal option value -- e");
-  usage (1);
   return 0;
 }

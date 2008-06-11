@@ -1,3 +1,21 @@
+2008-06-11  Debarshi Ray <rishi@gnu.org>
+
+	* rlogin/Makefile.am (INCLUDES): Added `-I$(top_srcdir)/libinetutils'.
+
+	* rlogin/rlogin.c: Include <argp.h>.  Remove include for <getopt.h>.
+	Include "libinetutils.h".
+	(dflag, host, user): New variables.
+	(msg, usage): Functions removed. Use argp_error or error in all
+	callers accordingly.
+	(short_options, long_options): Variables removed.
+	(ARGP_PROGRAM_DATA): Call macro.
+	(args_doc, doc, argp_options): New variables.
+	(program_name): Variable removed.
+	(parse_opt): New function.
+	(argp): New variable.
+	(main): Added new variable INDEX.  Removed variables CH, DFLAG, HOST
+	and USER.  Use argp to parse program options.
+
 2008-06-05  Debarshi Ray <rishi@gnu.org>
 
 	* libicmp/libping.c (ping_reset): New function.
