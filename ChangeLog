@@ -1,3 +1,11 @@
+2008-07-19  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* inetd.c (TOOMANY): Raise to 1000, as specified in the docs.
+	(struct servtab): New member se_max.
+	(main): Take into account se_max settings.
+	(getconfigent): Initialize se_max.
+	* inetd/inetd.8: Document [.max] suffix.
+
 2008-06-11  Debarshi Ray <rishi@gnu.org>
 
 	* rlogin/Makefile.am (INCLUDES): Added `-I$(top_srcdir)/libinetutils'.
