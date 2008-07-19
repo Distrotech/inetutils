@@ -101,7 +101,7 @@ line.  The fields of the configuration file are as follows:
 service name
 socket type
 protocol
-wait/nowait
+wait/nowait[.max]
 user
 server program
 server program arguments
@@ -177,7 +177,7 @@ TCPMUX services must use
 .Dq tcp .
 .Pp
 The
-.Em wait/nowait
+.Em wait/nowait[.max]
 entry specifies whether the server that is invoked by inetd will take over
 the socket associated with the service access point, and thus whether
 .Nm inetd
@@ -231,6 +231,18 @@ Such a server would normally accept and process incoming connection
 requests until a timeout.
 TCPMUX services must use
 .Dq nowait .
+.Pp
+The optional
+.Dq max
+suffix (separated from
+.Dq wait
+or
+.Dq nowait
+by a dot) is a decimal number that specifies the maximum number of server
+instances that may be spawned from
+.Nm inetd
+within an interval of 60 seconds.  It overrides the settings of the
+\fB-R\fP command line option. 
 .Pp
 The
 .Em user
