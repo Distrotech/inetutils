@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
@@ -74,7 +74,8 @@
  *					name a tcpmux service
  *	socket type			stream/dgram/raw/rdm/seqpacket
  *	protocol			must be in /etc/protocols
- *	wait/nowait			single-threaded/multi-threaded
+ *	wait/nowait[.max]		single-threaded/multi-threaded
+ *                                      [with an optional fork limit]
  *	user				user to run daemon as
  *	server program			full path name
  *	server program arguments	arguments starting with argv[0]
@@ -146,7 +147,7 @@
 
 #include "libinetutils.h"
 
-#define TOOMANY		40	/* don't start more than TOOMANY */
+#define TOOMANY		1000	/* don't start more than TOOMANY */
 #define CNT_INTVL	60	/* servers in CNT_INTVL sec. */
 #define RETRYTIME	(60*10)	/* retry after bind or server fail */
 
@@ -178,12 +179,15 @@ enum {
 
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
-  {"environment", OPT_ENVIRON, NULL, 0, "Pass local and remote socket "
-   "information in environment variables", GRP+1},
-  {"rate", 'R', "NUMBER", 0, "Maximum invocation rate (per second)", GRP+1},
-  {"resolve", OPT_RESOLVE, NULL, 0, "Resolve IP addresses when setting "
-   "environment variables (see --environment)", GRP+1},
+  {"debug", 'd', NULL, 0,
+   "Turn on debugging, run in foreground mode", GRP+1},
+  {"environment", OPT_ENVIRON, NULL, 0,
+   "Pass local and remote socket information in environment variables", GRP+1},
+  {"rate", 'R', "NUMBER", 0,
+   "Maximum invocation rate (per minute)", GRP+1},
+  {"resolve", OPT_RESOLVE, NULL, 0,
+   "Resolve IP addresses when setting environment variables "
+   "(see --environment)", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -232,6 +236,7 @@ struct servtab
   int se_socktype;		/* type of socket to use */
   char *se_proto;		/* protocol used */
   pid_t se_wait;		/* single threaded server */
+  unsigned se_max;              /* Maximum number of instances per CNT_INTVL */
   short se_checked;		/* looked at during merge */
   char *se_user;		/* user name to run as */
   struct biltin *se_bi;		/* if built-in, description */
@@ -528,7 +533,8 @@ main (int argc, char *argv[], char *envp[])
 	      {
 		if (sep->se_count++ == 0)
 		  gettimeofday (&sep->se_time, NULL);
-		else if (sep->se_count >= toomany)
+		else if ((sep->se_max && sep->se_count > sep->se_max)
+			 || sep->se_count >= toomany)
 		  {
 		    struct timeval now;
 
@@ -1202,24 +1208,37 @@ getconfigent (FILE * fconfig, const char *file, size_t * line)
       if ((strncmp (sep->se_proto, "tcp6", 4) == 0)
 	  || (strncmp (sep->se_proto, "udp6", 4) == 0))
 	{
-	  syslog (LOG_ERR, "%s:%lu: %s: IPv6 support isn't eneabled",
+	  syslog (LOG_ERR, "%s:%lu: %s: IPv6 support isn't enabled",
 		  file, (unsigned long) *line, sep->se_proto);
 	  continue;
 	}
 
       sep->se_family = AF_INET;
 #endif
-
-      if (strcmp (argv[INETD_WAIT], "wait") == 0)
-	sep->se_wait = 1;
-      else if (strcmp (argv[INETD_WAIT], "nowait") == 0)
-	sep->se_wait = 0;
-      else
-	{
-	  syslog (LOG_WARNING, "%s:%lu: bad wait type",
-		  file, (unsigned long) *line);
-	}
-
+      {
+	char *p, *q;
+	
+	p = strchr(argv[INETD_WAIT], '.');
+	if (p)
+	  *p++ = 0;
+	if (strcmp (argv[INETD_WAIT], "wait") == 0)
+	  sep->se_wait = 1;
+	else if (strcmp (argv[INETD_WAIT], "nowait") == 0)
+	  sep->se_wait = 0;
+	else
+	  {
+	    syslog (LOG_WARNING, "%s:%lu: bad wait type",
+		    file, (unsigned long) *line);
+	  }
+	if (p)
+	  {
+	    sep->se_max = strtoul(p, &q, 10);
+	    if (*q)
+	      syslog (LOG_WARNING, "%s:%lu: invalid number (%s)",
+		      file, (unsigned long) *line, p);
+	  }
+      }
+      
       if (ISMUX (sep))
 	{
 	  /*
