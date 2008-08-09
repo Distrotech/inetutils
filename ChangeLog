@@ -1,3 +1,7 @@
+2008-08-09  Debarshi Ray <rishi@gnu.org>
+
+	* libicmp/icmp_timestamp.c: Include <stddef.h>.
+
 2008-07-19  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* inetd.c (TOOMANY): Raise to 1000, as specified in the docs.

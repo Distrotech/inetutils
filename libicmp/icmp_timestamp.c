@@ -25,6 +25,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <signal.h>
+#include <stddef.h>
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
