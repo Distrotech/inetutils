@@ -1,4 +1,4 @@
-2008-08-09  Debarshi Ray <rishi@gnu.org>
+2008-08-09  Debarshi Ray  <rishi@gnu.org>
 
 	* libicmp/icmp_timestamp.c: Include <stddef.h>.
 
@@ -10,7 +10,7 @@
 	(getconfigent): Initialize se_max.
 	* inetd/inetd.8: Document [.max] suffix.
 
-2008-06-11  Debarshi Ray <rishi@gnu.org>
+2008-06-11  Debarshi Ray  <rishi@gnu.org>
 
 	* rlogin/Makefile.am (INCLUDES): Added `-I$(top_srcdir)/libinetutils'.
 
@@ -28,7 +28,7 @@
 	(main): Added new variable INDEX.  Removed variables CH, DFLAG, HOST
 	and USER.  Use argp to parse program options.
 
-2008-06-05  Debarshi Ray <rishi@gnu.org>
+2008-06-05  Debarshi Ray  <rishi@gnu.org>
 
 	* libicmp/libping.c (ping_reset): New function.
 	(_ping_freebuf): Free PING->ping_cktab.
@@ -63,7 +63,7 @@
 
 	* ping/ping_timestamp.c (ping_timestamp): Likewise.
 
-2008-05-20  Debarshi Ray <rishi@gnu.org>
+2008-05-20  Debarshi Ray  <rishi@gnu.org>
 
 	* ftp/cmds.c, ftp/ftp.c, ftp/main.c, ftpd/ftpd.c, ftpd/popen.c,
 	inetd/inetd.c, libinetutils/argcv.c, libls/ls.c, ping/ping6.c,
@@ -73,7 +73,7 @@
 	uucpd/uucpd.c: Remove unused variables and add ARG_UNUSED
 	attribute to unused function arguments.
 
-2008-05-13  Debarshi Ray <rishi@gnu.org>
+2008-05-13  Debarshi Ray  <rishi@gnu.org>
 
 	* libls/bsdport, libls/cmp.c, libls/ls.c, libls/print.c,
 	libls/stat_flags.c [ORIGINAL_SOURCE]: Removed dead code.
@@ -89,28 +89,28 @@
 	* ping/ping6.c (print_echo): Cast ICMP6+1 and not ICMP6 to
 	`struct timeval *'.
 
-2008-04-19  Debarshi Ray <rishi@gnu.org>
+2008-04-19  Debarshi Ray  <rishi@gnu.org>
 
 	* traceroute/traceroute.c: Added new switch --type.
 	(opt_type): New variable.
 	(main): Replace getuid with geteuid.  Use OPT_TYPE instead of
 	hard-coding TRACE_ICMP.
 
-2008-04-18  Debarshi Ray <rishi@gnu.org>
+2008-04-18  Debarshi Ray  <rishi@gnu.org>
 
 	* ChangeLog: Remove unnecessary "(tiny change)"s.
 
-2008-04-17  Debarshi Ray <rishi@gnu.org>
+2008-04-17  Debarshi Ray  <rishi@gnu.org>
 
 	* traceroute/traceroute.c: Include <error.h>.  Added new
 	switch --tries.
 	(opt_max_tries): Declared static.
 
-2008-04-17  Alfred M. Szmidt <ams@gnu.org>
+2008-04-17  Alfred M. Szmidt  <ams@gnu.org>
 
 	* traceroute/traceroute.c (do_try): Removed unused variable HOST.
 
-2008-04-16  Debarshi Ray <rishi@gnu.org>
+2008-04-16  Debarshi Ray  <rishi@gnu.org>
 
 	* syslogd/syslogd.c: Include <argp.h>, and <error.h>.  Remove
 	include for <getopt.h>.
@@ -131,7 +131,7 @@
 	concoction's.
 	(die): Use program_invocation_name instead of program_name.
 
-2008-04-16  Debarshi Ray <rishi@gnu.org>
+2008-04-16  Debarshi Ray  <rishi@gnu.org>
 
 	* logger/Makefile.am (INCLUDES): Added `-I$(top_srcdir)/libinetutils'.
 
@@ -163,11 +163,11 @@
 	* libtelnet/shishi.c: Delay initialization of Shishi until it is
 	really needed.
 
-2007-09-06  Debarshi Ray <rishi@gnu.org>
+2007-09-06  Debarshi Ray  <rishi@gnu.org>
 
 	* ftp/cmds.c (setpeer): If HOSTNAME is set, try to reconnect to it.
 
-2007-09-02  Debarshi Ray <rishi@gnu.org>
+2007-09-02  Debarshi Ray  <rishi@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Added `readline'.
 
@@ -193,7 +193,7 @@
 
 	* rcp/rcp.c (rsource): Free BUF after call to source().
 
-2007-07-26  Debarshi Ray <rishi@gnu.org>
+2007-07-26  Debarshi Ray  <rishi@gnu.org>
 
 	* ping/ping_echo.c (ping_echo): Free PING->ping_hostname.
 	(echo_finish): Call return instead of exit.
@@ -201,7 +201,7 @@
 	* ping/ping.c (main): Free PING and DATA_BUFFER.
 	(ping_run): Free PING->ping_buffer and PING->ping_cktab.
 
-2007-07-21  Debarshi Ray <rishi@gnu.org>
+2007-07-21  Debarshi Ray  <rishi@gnu.org>
 
 	* ftp/main.c: Include <argp.h>, and <string.h>.  Remove include
 	for <getopt.h>.  Include "libinetutils.h".
