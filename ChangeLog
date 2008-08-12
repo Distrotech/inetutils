@@ -1,5 +1,11 @@
 2008-08-12  Debarshi Ray  <rishi@gnu.org>
 
+	* hostname/hostname.c (parse_opt) <ARGP_KEY_NO_ARGS>: Removed.
+	(main): Removed unused variable INDEX.  Specify default value of
+	GET_NAME_ACTION.
+
+2008-08-12  Debarshi Ray  <rishi@gnu.org>
+
 	* NEWS: Mention the addition of `hostname'.
 	* configure.ac: Add new client `hostname'.
 	(AC_CONFIG_FILES): Add `hostname/Makefile'.

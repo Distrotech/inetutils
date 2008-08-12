@@ -94,10 +94,6 @@ parse_opt (int key, char *arg, struct argp_state *state)
       hostname_new = arg;
       break;
 
-    case ARGP_KEY_NO_ARGS:
-      get_name_action = gethostname;
-      break;
-
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -116,13 +112,12 @@ static char * get_short_hostname (const char *const host_name);
 int
 main (int argc, char *argv[])
 {
-  int index;
-
   /* Parse command line */
-  argp_parse (&argp, argc, argv, 0, &index, NULL);
+  argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
-  argv += index;
-  argc -= index;
+  /* Set default action */
+  if (get_name_action == NULL && set_name_action ==  NULL)
+    get_name_action = gethostname;
 
   if (get_name_action == getdomainname || get_name_action == gethostname)
     get_name ();
