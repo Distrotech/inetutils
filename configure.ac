@@ -103,6 +103,7 @@ IU_ENABLE_SERVER(tftpd)
 IU_ENABLE_SERVER(uucpd)
 
 IU_ENABLE_CLIENT(ftp)
+IU_ENABLE_CLIENT(hostname)
 IU_ENABLE_CLIENT(ping)
 IU_ENABLE_CLIENT(ping6)
 IU_ENABLE_CLIENT(rcp)
@@ -783,6 +784,7 @@ libicmp/Makefile
 ping/Makefile
 ftp/Makefile
 ftpd/Makefile
+hostname/Makefile
 inetd/Makefile
 rcp/Makefile
 rexecd/Makefile

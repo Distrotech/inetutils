@@ -9,6 +9,10 @@ Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 Unreleased
 Version 1.6:
 
+* hostname
+
+New program.
+
 * traceroute
 
 New program.

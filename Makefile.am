@@ -23,8 +23,8 @@ ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README-alpha paths ChangeLog.0
 
 SUBDIRS = lib headers libinetutils libtelnet \
-	inetd telnetd libls ftpd rshd rlogind uucpd rexecd syslogd tftpd \
-	talkd telnet ftp rsh rcp rlogin tftp logger gwhois talk \
+	hostname inetd telnetd libls ftpd rshd rlogind uucpd rexecd syslogd \
+	tftpd talkd telnet ftp rsh rcp rlogin tftp logger gwhois talk \
 	libicmp ping doc ifconfig traceroute tests
 
 DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
