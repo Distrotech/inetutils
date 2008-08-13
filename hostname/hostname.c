@@ -27,6 +27,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
 #include "libinetutils.h"
 #include "xalloc.h"
 
@@ -35,7 +38,9 @@ static int (*set_name_action) (const char *name, size_t size) = NULL;
 
 static const char *hostname_file = NULL;
 static const char *hostname_new = NULL;
+static short int hostname_alias = 0;
 static short int hostname_fqdn = 0;
+static short int hostname_ip_address = 0;
 static short int hostname_dns_domain = 0;
 static short int hostname_short = 0;
 
@@ -46,11 +51,13 @@ const char doc[] = "Show or set the system's host name.";
 
 static struct argp_option argp_options[] = {
 #define GRP 0
+  {"alias", 'a', NULL, 0, "Alias names", GRP+1},
   {"domain", 'd', NULL, 0, "DNS domain name", GRP+1},
-  {"file", 'F', "FILE", OPTION_HIDDEN, "Read host name or NIS domain name "
+  {"file", 'F', "FILE", 0, "Read host name or NIS domain name "
    "from FILE", GRP+1},
   {"fqdn", 'f', NULL, 0, "DNS host name or FQDN", GRP+1},
   {"long", 'f', NULL, OPTION_ALIAS, "DNS host name or FQDN", GRP+1},
+  {"ip-address", 'i', NULL, 0, "Addresses for the host name", GRP+1},
   {"short", 's', NULL, 0, "Short host name", GRP+1},
   {"yp", 'y', NULL, 0, "NIS/YP domain name", GRP+1},
   {"nis", 'y', NULL, OPTION_ALIAS, "NIS/YP domain name", GRP+1},
@@ -63,6 +70,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+    case 'a':
+      get_name_action = gethostname;
+      hostname_alias = 1;
+      break;
+
     case 'd':
       get_name_action = gethostname;
       hostname_fqdn = 1;
@@ -79,6 +91,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
       hostname_fqdn = 1;
       break;
 
+    case 'i':
+      get_name_action = gethostname;
+      hostname_ip_address = 1;
+      break;
+
     case 's':
       get_name_action = gethostname;
       hostname_fqdn = 1;
@@ -91,7 +108,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case ARGP_KEY_ARG:
       set_name_action = sethostname;
-      hostname_new = arg;
+      hostname_new = strdup (arg);
+      if (hostname_new == NULL)
+        error (EXIT_FAILURE, errno, "strdup");
       break;
 
     default:
@@ -105,9 +124,12 @@ static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 static void get_name (void);
 static void set_name (void);
+static char * get_aliases (const char *const host_name);
 static char * get_fqdn (const char *const host_name);
+static char * get_ip_addresses (const char *const host_name);
 static char * get_dns_domain_name (const char *const host_name);
 static char * get_short_hostname (const char *const host_name);
+static char * parse_file (const char *const file_name);
 
 int
 main (int argc, char *argv[])
@@ -146,7 +168,9 @@ get_name (void)
       status = (*get_name_action) (buffer, size);
     }
 
-  if (hostname_fqdn == 1)
+  if (hostname_alias == 1)
+      name = get_aliases (buffer);
+  else if (hostname_fqdn == 1)
     {
       name = get_fqdn (buffer);
 
@@ -162,6 +186,8 @@ get_name (void)
       else if (hostname_short == 1)
         name = get_short_hostname (buffer);
     }
+  else if (hostname_ip_address == 1)
+      name = get_ip_addresses (buffer);
   else
     {
       name = strdup (buffer);
@@ -169,7 +195,7 @@ get_name (void)
         error (EXIT_FAILURE, errno, "strdup");
     }
 
-  printf ("%s\n", name);
+  puts (name);
 
   free (name);
   free (buffer);
@@ -180,13 +206,55 @@ static void
 set_name (void)
 {
   int status;
-  const size_t size = strlen (hostname_new);
+  size_t size;
 
+  if (hostname_file != NULL)
+    hostname_new = parse_file (hostname_file);
+
+  size = strlen (hostname_new);
   status = (*set_name_action) (hostname_new, size);
   if (status == -1)
     error (EXIT_FAILURE, errno, "sethostname");
 
+  free ((void *) hostname_new);
   return;
+}
+
+static char *
+get_aliases (const char *const host_name)
+{
+  char *aliases;
+  unsigned int count = 0;
+  unsigned int i;
+  unsigned int size = 256;
+  struct hostent *ht;
+
+  aliases = (char *) xmalloc (sizeof (char) * size);
+  aliases[0] = '\0';
+
+  ht = gethostbyname (host_name);
+  if (ht == NULL)
+    strcpy (aliases, "(none)");
+  else
+    {
+      for (i = 0; ht->h_aliases[i] != NULL; i++)
+        {
+          /* Aliases should be blankspace separated. */
+          if (ht->h_aliases[i+1] != NULL)
+            count++;
+          count += strlen (ht->h_aliases[i]);
+          if (count >= size)
+            {
+              size *= 2;
+              aliases = xrealloc (aliases, size);
+            }
+
+          strcat (aliases, ht->h_aliases[i]);
+          strcat (aliases, " ");
+        }
+    }
+
+  return aliases;
 }
 
 static char *
@@ -208,6 +276,47 @@ get_fqdn (const char *const host_name)
 }
 
 static char *
+get_ip_addresses (const char *const host_name)
+{
+  char address[16];
+  char *addresses;
+  unsigned int count = 0;
+  unsigned int i;
+  unsigned int size = 256;
+  struct hostent *ht;
+
+  addresses = (char *) xmalloc (sizeof (char) * size);
+  addresses[0] = '\0';
+
+  ht = gethostbyname (host_name);
+  if (ht == NULL)
+    strcpy (addresses, "(none)");
+  else
+    {
+      for (i = 0; ht->h_addr_list[i] != NULL; i++)
+        {
+          inet_ntop (ht->h_addrtype, (void *) ht->h_addr_list[i],
+                     address, sizeof (address));
+
+          /* IP addresses should be blankspace separated. */
+          if (ht->h_addr_list[i+1] != NULL)
+            count++;
+          count += strlen (address);
+          if (count >= size)
+            {
+              size *= 2;
+              addresses = xrealloc (addresses, size);
+            }
+
+          strcat (addresses, address);
+          strcat (addresses, " ");
+        }
+    }
+
+  return addresses;
+}
+
+static char *
 get_dns_domain_name (const char *const host_name)
 {
   char *domain_name;
@@ -226,7 +335,7 @@ get_dns_domain_name (const char *const host_name)
 }
 
 static char *
-get_short_hostname (const char * const host_name)
+get_short_hostname (const char *const host_name)
 {
   size_t size;
   char *short_hostname;
@@ -245,4 +354,40 @@ get_short_hostname (const char * const host_name)
     error (EXIT_FAILURE, errno, "strdup");
 
   return short_hostname;
+}
+
+static char *
+parse_file (const char *const file_name)
+{
+  char *buffer = NULL;
+  char *name;
+  FILE *file;
+  size_t nread;
+  size_t size = 0;
+
+  file = fopen (file_name, "r");
+  if (file == NULL)
+    error (EXIT_FAILURE, errno, "fopen");
+
+  nread = getline (&buffer, &size, file);
+  if (nread == -1)
+    error (EXIT_FAILURE, errno, "getline");
+
+  while (feof (file) == 0)
+    {
+      if (buffer[0] != '#')
+        {
+          name = xmalloc (sizeof (char) * nread);
+          sscanf (buffer, "%s", name);
+          break;
+        }
+
+      nread = getline (&buffer, &size, file);
+      if (nread == -1)
+        error (EXIT_FAILURE, errno, "getline");
+    }
+
+  free (buffer);
+  fclose (file);
+  return name;
 }
