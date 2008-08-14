@@ -1,3 +1,8 @@
+2008-08-13  Debarshi Ray  <rishi@gnu.org>
+
+	* hostname/hostname.c: Options --alias and --ip-adress aliased to
+	--aliases and --ip-addresses respectively.
+
 2008-08-12  Debarshi Ray  <rishi@gnu.org>
 
 	* hostname/hostname.c: Include arpa/inet.h and netinet/in.h.
