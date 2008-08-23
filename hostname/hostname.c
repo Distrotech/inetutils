@@ -145,6 +145,8 @@ main (int argc, char *argv[])
 {
   hostname_options options;
 
+  memset ((void *) &options, 0, sizeof (options));
+
   /* Parse command line */
   argp_parse (&argp, argc, argv, 0, NULL, (void *) &options);
 

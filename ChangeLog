@@ -1,5 +1,9 @@
 2008-08-23  Debarshi Ray  <rishi@gnu.org>
 
+	* hostname/hostname.c (main): Initialize OPTIONS to zero.
+
+2008-08-23  Debarshi Ray  <rishi@gnu.org>
+
 	* hostname/hostname.c (hostname_options): New structure to
 	encapsulate command line options.
 	(hostname_file, hostname_new, hostname_alias, hostname_fqdn,
