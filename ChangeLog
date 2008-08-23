@@ -1,3 +1,15 @@
+2008-08-23  Debarshi Ray  <rishi@gnu.org>
+
+	* hostname/hostname.c (hostname_options): New structure to
+	encapsulate command line options.
+	(hostname_file, hostname_new, hostname_alias, hostname_fqdn,
+	hostname_ip_address, hostname_dns_domain, hostname_short):
+	Variables removed.
+	(get_name): Changed type to `void get_name (const hostname_options
+	*const options)'.  All users changed accordingly.
+	(set_name): Likewise.
+	(main): Added new variable OPTIONS.
+
 2008-08-13  Debarshi Ray  <rishi@gnu.org>
 
 	* hostname/hostname.c: Options --alias and --ip-adress aliased to
