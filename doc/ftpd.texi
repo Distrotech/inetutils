@@ -24,7 +24,7 @@ Only anonymous login is allowed.
 @opindex --auth
 Specify what authentication mechanism to use for incomming
 connections.  Possible values are: kerberos, kerberos5, opie and
-passwd (default).
+default.
 
 Anonymous logins will continue to work when this option is used.
 
