@@ -9,13 +9,11 @@ Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 Unreleased
 Version 1.6:
 
-* hostname
+* Various bugs fixes and clean ups.
 
-New program.
+* hostname, traceroute
 
-* traceroute
-
-New program.
+New programs.
 
 * ping and ping6 now exit after four packet instead of pinging forever.
 
