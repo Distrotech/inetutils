@@ -5,8 +5,8 @@ this package.
 If you see a problem that you've already reported, feel free to
 re-report it -- it won't bother us to get a reminder.  Besides, the
 more messages we get regarding a particular problem the sooner it'll
-be fixed -- usually.  If you sent a complete patch and nobody applie
-it or get back to you, please let us know!
+be fixed -- usually.  If you sent a complete patch and nobody applied
+it or got back to you, please let us know!
 
 Please send comments and problem reports to <bug-inetutils@gnu.org>.
 
@@ -17,9 +17,15 @@ issue the following command:
 
 
 You will also need to get a recent version of `gnulib', preferbly from
-CVS.  To fetch the tree issue the following command:
+CVS.  You can retrieve its source code via anonymous Git, using the
+following shell command:
 
-  cvs -d:pserver:anoncvs@cvs.gnu.org:/cvsroot/gnulib co gnulib
+  git clone git://git.savannah.gnu.org/gnulib.git
+
+You can also use CVS in a read-only way, to retrieve the latest
+version from the Git repository, using a command like this:
+
+  cvs -d :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git co -d gnulib HEAD
 
 There is a script in gnulib/build-aux called `bootstrap', that you
 will need to run.  You need recent versions of automake and autoconf
