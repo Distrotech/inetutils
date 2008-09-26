@@ -1,5 +1,8 @@
-2008-09-26  Alfred M. Szmidt  <ams@gnu.org>
+2008-09-26  Arash Yadegarnia <arash@bluehome.net> (tiny change)
 
+	* doc/ftpd.texi (ftpd): Updated documentation for `--auth'.
+
+2008-09-26  Alfred M. Szmidt  <ams@gnu.org>
 
 	* .cvsignore (config.h, confpaths.h, stamp-h1): Added files.
 

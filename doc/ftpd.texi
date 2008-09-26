@@ -22,7 +22,11 @@ Only anonymous login is allowed.
 @item --auth=@var{AUTH}
 @opindex -a
 @opindex --auth
-Give anonymous an other login-name (anonymous and ftpd will still work).
+Specify what authentication mechanism to use for incomming
+connections.  Possible values are: kerberos, kerberos5, opie and
+passwd (default).
+
+Anonymous logins will continue to work when this option is used.
 
 @item  -D
 @itemx --daemon
