@@ -41,7 +41,7 @@
 
 	* hostname/hostname.c: Include arpa/inet.h and netinet/in.h.
 	Added new switches --alias, --ip-address and removed
-	OPTION_HIDDEN from --file. 
+	OPTION_HIDDEN from --file.
 	(hostname_alias, hostname_ip_address): New variables.
 	(get_aliases, get_ip_addresses, parse_file): New functions.
 	(main): Replace printf with puts.
