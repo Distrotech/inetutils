@@ -1,8 +1,8 @@
-@node talk
-@chapter talk
+@node talk invocation
+@chapter @command{talk}: a communication program
 @cindex talk
 
-@command{Talk} is a visual communication program which copies lines from
+@command{talk} is a visual communication program which copies lines from
 your terminal to that of another user.
 
 @section Invoking

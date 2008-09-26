@@ -1,33 +1,22 @@
-@node talkd
-@chapter talkd
+@node talkd invocation
+@chapter @command{talkd}: a server for communication between users
 @cindex talkd
 
-@command{Talkd} is the server that notifies a user that someone else wants to
-initiate a conversation.  It acts as a repository of invitations, responding
-to requests by clients wishing to rendezvous to hold a conversation.  In
-normal operation, a client, the caller, initiates a rendezvous by sending
-a CTL_MSG to the server of type LOOK_UP (see <protocols/talkd.h>). This
-causes the server to search its invitation tables to check if an invitation
-currently exists for the caller (to speak to the callee specified in
-the message).  If the lookup fails, the caller then sends an ANNOUNCE
-message causing the server to broadcast an announcement on the callee's
-login ports requesting contact.  When the callee responds, the local
-server uses the recorded invitation to respond with the appropriate
-rendezvous address and the caller and callee client programs establish a
-stream connection through which the conversation takes place.
+@command{talkd} is the server that notifies a user that someone else
+wants to initiate a conversation.  It acts as a repository of
+invitations, responding to requests by clients wishing to rendezvous
+to hold a conversation.
 
-
-@section Invoking
-
-The options are as follows:
+@example
+talkd [@var{option}]@dots{}
+@end example
 
 @table @samp
-
-@item -a @var{FILE}
-@itemx --acl=@var{FILE}
+@item -a @var{file}
+@itemx --acl=@var{file}
 @opindex -a
 @opindex --acl
-Read site-wide ACLs from FILE.
+Read site-wide ACLs from @var{file}.
 
 @item -d
 @item --debug
@@ -35,23 +24,36 @@ Read site-wide ACLs from FILE.
 @opindex --d
 Enable debugging.
 
-@item -i @var{SECONDS}
-@itemx --idle-timeout=@var{SECONDS}
+@item -i @var{seconds}
+@itemx --idle-timeout=@var{seconds}
 @opindex -i
 @opindex --idle-timeout
 Set idle timeout value.
 
-@item -r @var{SECONDS}
-@itemx --request-ttl=@var{SECONDS}
+@item -r @var{seconds}
+@itemx --request-ttl=@var{seconds}
 @opindex -r
 @opindex --request-ttl
 Set request time-to-live value.
 
 
-@item -t @var{SECONDS}
-@item --timeout=@var{SECONDS}
+@item -t @var{seconds}
+@item --timeout=@var{seconds}
 @opindex -t
 @opindex --timeout
 Set timeout value.
 
 @end table
+
+
+In normal operation, a client, the caller, initiates a rendezvous by
+sending a CTL_MSG to the server of type LOOK_UP (see
+<protocols/talkd.h>). This causes the server to search its invitation
+tables to check if an invitation currently exists for the caller (to
+speak to the callee specified in the message).  If the lookup fails,
+the caller then sends an ANNOUNCE message causing the server to
+broadcast an announcement on the callee's login ports requesting
+contact.  When the callee responds, the local server uses the recorded
+invitation to respond with the appropriate rendezvous address and the
+caller and callee client programs establish a stream connection
+through which the conversation takes place.

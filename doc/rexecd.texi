@@ -1,12 +1,17 @@
-@node rexecd
-@chapter rexecd
+@node rexecd invocation
+@chapter @command{rexecd}: server for @code{rexec}
 @cindex rexecd
 
-@command{Rexecd} is the server for the rexec(3) routine.  The server provides
-remote execution facilities with authentication based on user names and
-passwords.
+@command{rexecd} is the server for the @code{rexec} routine.  The
+server provides remote execution facilities with authentication based
+on user names and passwords.
 
-@command{Rexecd} listens for service requests at the port indicated in the
+@example
+rexecd [@var{option}]@dots{}
+@end example
+
+
+@command{rexecd} listens for service requests at the port indicated in the
 ``exec'' service specification; see services(5).  When a service request is
 received the following protocol is initiated:
 
@@ -36,7 +41,7 @@ initial socket.  The length of the command is limited by the upper
 bound on the size of the system's argument list.
 
 @item
-@command{Rexecd} then validates the user as is done at login time and, if the
+@command{rexecd} then validates the user as is done at login time and, if the
 authentication was successful, changes to the user's home directory,
 and establishes the user and group protections of the user.  If any
 of these steps fail the connection is aborted with a diagnostic message

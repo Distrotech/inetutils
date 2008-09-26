@@ -1,5 +1,5 @@
-@node syslogd
-@chapter syslogd
+@node syslogd invocation
+@chapter @command{syslogd}: system service logging faclity
 @cindex syslogd
 
 @command{syslogd} is a system service that provides error logging
@@ -18,18 +18,18 @@ decimal number in angle braces, for example, @code{<5>}.  This
 priority code should map into the priorities defined in the include
 file @code{sys/syslog.h}.
 
-@section Invoking
-
-The options are as follows:
+@example
+syslog [@var{options}]@dots{}
+@end example
 
 @table @samp
-@item -f @var{FILE}
-@itemx --rcfile=@var{FILE}
+@item -f @var{file}
+@itemx --rcfile=@var{file}
 @opindex -f
 @opindex --rcfile
 Override configuration (the default file is @file{/etc/syslog.conf}).
 
-@item --pidfile=@var{FILE}
+@item --pidfile=@var{file}
 @opindex --pidfile
 Override pidfile (the default file is @file{/var/run/syslogd.pid}).
 
@@ -45,12 +45,13 @@ Do not enter daemon mode.
 @opindex --debug
 Print debug information (implies @option{-n}).
 
-@item -p @var{FILE}
+@item -p @var{file}
 @item --socket=@var{FILE}
 @opindex -p
 @opindex --socket
 Override default @acronym{UNIX} domain socket @file{/dev/log}.
-@item -a @var{SOCKET}
+
+@item -a @var{socket}
 Add @acronym{UNIX} socket to listen.  An unlimited number of sockets
 is allowed.
 
@@ -67,7 +68,7 @@ and @option{-p}).
 
 @item --no-klog
 @opindex --no-klog
-Do not listen to kernel log device @file{/dev/klog}.
+Do not listen to the kernel log device @file{/dev/klog}.
 
 @item --no-forward
 @opindex --no-forward
@@ -79,17 +80,17 @@ Do not forward any messages (overrides @option{-h}).
 @opindex --hop
 Forward messages from remote hosts.
 
-@item -m INTERVAL
-@item --mark=@var{INTERVAL}
+@item -m interval
+@item --mark=@var{interval}
 @opindex -m
 @opindex --mark
 Specify timestamp interval in logs (0 for no timestamps).
 
-@item -l @var{HOSTLIST}
+@item -l @var{hostlist}
 @opindex -l
-Log hosts in @var{HOSTLIST} by their hostname. Multiple lists are allowed.
+Log hosts in @var{hostlist} by their hostname. Multiple lists are allowed.
 
-@item -s @var{DOMAINLIST}
+@item -s @var{domainlist}
 @opindex -s
 List of domains which should be stripped from the FQDN of hosts before
 logging their name.  Multiple lists are allowed.
