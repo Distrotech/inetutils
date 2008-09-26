@@ -13,3 +13,6 @@ include
 pathdefs.make
 paths.defs
 stamp-h.in
+config.h
+confpaths.h
+stamp-h1

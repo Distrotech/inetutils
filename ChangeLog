@@ -1,5 +1,12 @@
 2008-09-26  Alfred M. Szmidt  <ams@gnu.org>
 
+
+	* .cvsignore (config.h, confpaths.h, stamp-h1): Added files.
+
+	* hostname/.cvsignore: New file.
+
+2008-09-26  Alfred M. Szmidt  <ams@gnu.org>
+
         * doc/inetutils.texi: Refer to `COMMAND invocation' nodes for
 	logger, rcp, rexecd and syslogd.  Formating fixes. Mention
 	traceroute in the TOC.
