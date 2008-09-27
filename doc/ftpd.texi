@@ -8,6 +8,7 @@ the ``ftp'' service specification; see services(5).
 
 @example
 ftpd [@var{option}]@dots{}
+@end example
 
 @table @samp
 
