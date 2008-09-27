@@ -1,5 +1,10 @@
 2008-09-27  Alfred M. Szmidt  <ams@gnu.org>
 
+	* doc/inetutils.texi: Renamed ftp and ftpd nodes to `FOO
+	invocation'.  Formatting fixes.
+
+2008-09-27  Alfred M. Szmidt  <ams@gnu.org>
+
 	* Makefile.am (DISTCLEANFILES): Removed `include/*.h,
 	`include/*/*.h', and `include/stamp-'h from list.
 
@@ -23,7 +28,7 @@
 2008-09-26  Alfred M. Szmidt  <ams@gnu.org>
 
         * doc/inetutils.texi: Refer to `COMMAND invocation' nodes for
-	logger, rcp, rexecd and syslogd.  Formating fixes. Mention
+	logger, rcp, rexecd and syslogd.  Formating fixes.  Mention
 	traceroute in the TOC.
 
 	* doc/logger.texi, doc/rcp.texi, doc/rexecd.texi, doc/syslogd.texi

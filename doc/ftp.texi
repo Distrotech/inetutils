@@ -1,14 +1,14 @@
-@node ftp
-@chapter ftp
+@node ftp invocation
+@chapter @command{ftp}: FTP client
 @cindex ftp
 
 @command{Ftp} is the user interface to the ARPANET standard File Transfer
 Protocol.  The program allows a user to transfer files to and from a remote
 network site.
 
-@section Invoking
-
-The options are as follows:
+@example
+ftp [@var{option}@dots{}] [@var{host} [@var{port}]]
+@end example
 
 @table @samp
 @item -d
@@ -46,8 +46,8 @@ and, if necessary, prompt for a password and an account with which to login.
 @opindex --trace
 Enable packet tracing.
 
-@item -p @var{PROMPT}
-@itemx --prompt=@var{PROMPT}
+@item -p @var{prompt}
+@itemx --prompt=@var{prompt}
 @opindex -p
 @opindex --prompt
 Print a command-line prompt (optionally PROMPT), even if not on a tty.
@@ -71,22 +71,22 @@ The following commands are recognized by ftp:
 
 @table @samp
 
-@item ! [command [args]]
+@item ! [@var{command} [@var{args}]]
 Invoke an interactive shell on the local machine.  If there
 are arguments, the first is taken to be a command to execute
 directly, with the rest of the arguments as its arguments.
 
-@item $ macro-name [args]
+@item $ @var{macro-name} [@var{args}]
 Execute the macro macro-name that was defined with the macdef
 command.  Arguments are passed to the macro unglobbed.
 
-@item account [passwd]
+@item account [@var{passwd}]
 Supply a supplemental password required by a remote system
 for access to resources once a login has been successfully
 completed.  If no argument is included, the user will be
 prompted for an account password in a non-echoing input mode.
 
-@item append local-file [remote-file]
+@item append @var{local-file} [@var{remote-file}]
 Append a local file to a file on the remote machine.  If
 remote-file is left unspecified, the local file name is used
 in naming the remote file after being altered by any ntrans
@@ -103,6 +103,7 @@ Arrange that a bell be sounded after each file transfer command is completed.
 Set the file transfer type to support binary image transfer.
 
 @item bye
+@itemx quit
 Terminate the FTP session with the remote server and exit
 ftp. An end of file will also terminate the session and exit.
 
@@ -112,18 +113,19 @@ commands.  When case is on (default is off), remote computer
 file names with all letters in upper case are written in the
 local directory with the letters mapped to lower case.
 
-@item cd remote-directory
+@item cd @var{remote-directory}
 Change the working directory on the remote machine to remote-directory.
 
 @item cdup
 Change the remote machine working directory to the parent of
 the current remote machine working directory.
 
-@item chmod mode file-name
+@item chmod @var{mode} @var{file-name}
 Change the permission modes of the file file-name on the re-
 mote sytem to mode.
 
 @item close
+@itemx disconnect
 Terminate the FTP session with the remote server, and return
 to the command interpreter.  Any defined macros are erased.
 
@@ -137,16 +139,16 @@ Records on non-UNIX remote systems may contain single linefeeds;
 when an ascii type transfer is made, these linefeeds
 may be distinguished from a record delimiter only when cr is off.
 
-@item delete remote-file
+@item delete @var{remote-file}
 Delete the file remote-file on the remote machine.
 
-@item debug [debug-value]
+@item debug [@var{debug-value}]
 Toggle debugging mode.  If an optional debug-value is specified
 it is used to set the debugging level.  When debugging
 is on, ftp prints each command sent to the remote machine,
 preceded by the string `-->'
 
-@item dir [remote-directory] [local-file]
+@item dir [@var{remote-directory}] [@var{local-file}]
 Print a listing of the directory contents in the directory,
 remote-directory, and, optionally, placing the output in
 local-file. If interactive prompting is on, ftp will prompt
@@ -156,13 +158,11 @@ specified, the current working directory on the remote ma-
 chine is used.  If no local file is specified, or local-file
 is -, output comes to the terminal.
 
-@item disconnect
-A synonym for close.
+@item form @var{format}
+Set the file transfer form to @var{format}. The default format is ``file''.
 
-@item form format
-Set the file transfer form to format. The default format is ``file''.
-
-@item get remote-file [local-file]
+@item get @var{remote-file} [@var{local-file}]
+@itemx recv @var{remote-file} [@var{local-file}]
 Retrieve the remote-file and store it on the local machine.
 If the local file name is not specified, it is given the same
 name it has on the remote machine, subject to alteration by
@@ -184,24 +184,25 @@ Note: mget and mput are not meant to transfer entire directo-
 ry subtrees of files.  That can be done by transferring a
 tar(1) archive of the subtree (in binary mode).
 
-@item hash [size]
+@item hash [@var{size}]
 Toggle hash-sign (``#'') printing for each data block transferred.
 The size of a data block can optionally be specified.  If not given,
 it defaults to 1024 bytes.
 
-@item help [command]
+@item help [@var{command}]
+@itemx ? [@var{command}]
 Print an informative message about the meaning of command. If
 no argument is given, ftp prints a list of the known commands.
 
-@item idle [seconds]
+@item idle [@var{seconds}]
 Set the inactivity timer on the remote server to seconds seconds.
 If seconds is omitted, the current inactivity timer is printed.
 
-@item lcd [directory]
+@item lcd [@var{directory}]
 Change the working directory on the local machine.  If no
 directory is specified, the user's home directory is used.
 
-@item ls [remote-directory] [local-file]
+@item ls [@var{remote-directory}] [@var{local-file}]
 Print a listing of the contents of a directory on the remote
 machine.  The listing includes any system-dependent information that
 the server chooses to include; for example, most
@@ -213,7 +214,7 @@ last argument is indeed the target local file for receiving
 ls output.  If no local file is specified, or if local-file
 is `-', the output is sent to the terminal.
 
-@item macdef macro-name
+@item macdef @var{macro-name}
 Define a macro.  Subsequent lines are stored as the macro
 macro-name; a null line (consecutive newline characters in a
 file or carriage returns from the terminal) terminates macro
@@ -230,15 +231,15 @@ second pass it is replaced by the second argument, and so on.
 A `\' followed by any character is replaced by that character.
 Use the `\' to prevent special treatment of the `$'.
 
-@item mdelete [remote-files]
+@item mdelete [@var{remote-files}]
 Delete the remote-files on the remote machine.
 
-@item mdir remote-files local-file
+@item mdir @var{remote-files} @var{local-file}
 Like dir, except multiple remote files may be specified.  If
 interactive prompting is on, ftp will prompt the user to verify that
 the last argument is indeed the target local file for receiving mdir output.
 
-@item mget remote-files
+@item mget @var{remote-files}
 Expand the remote-files on the remote machine and do a get
 for each file name thus produced.  See glob for details on
 the filename expansion.  Resulting file names will then be
@@ -247,35 +248,35 @@ Files are transferred into the local working directory, which
 can be changed with `lcd directory'; new local directories
 can be created with `! mkdir directory'.
 
-@item mkdir directory-name
+@item mkdir @var{directory-name}
 Make a directory on the remote machine.
 
-@item mls remote-files local-file
+@item mls @var{remote-files} @var{local-file}
 Like nlist, except multiple remote files may be specified,
 and the local-file must be specified.  If interactive prompting is on,
 ftp will prompt the user to verify that the last
 argument is indeed the target local file for receiving mls output.
 
-@item mode [mode-name]
+@item mode [@var{mode-name}]
 Set the file transfer mode to mode-name. The default mode is
 ``stream'' mode.
 
-@item modtime file-name
+@item modtime @var{file-name}
 Show the last modification time of the file on the remote machine.
 
-@item mput local-files
+@item mput @var{local-files}
 Expand wild cards in the list of local files given as arguments and do
 a put for each file in the resulting list.  See glob for details of
 filename expansion.  Resulting file names will then be processed
 according to ntrans and nmap settings.
 
-@item newer file-name
+@item newer @var{file-name}
 Get the file only if the modification time of the remote file
 is more recent that the file on the current system.  If the
 file does not exist on the current system, the remote file is
 considered newer. Otherwise, this command is identical to get.
 
-@item nlist [remote-directory] [local-file]
+@item nlist [@var{remote-directory}] [@var{local-file}]
 Print a  list of the files in a directory on the remote machine.
 If remote-directory is left unspecified, the current
 working directory is used.  If interactive prompting is on,
@@ -284,7 +285,7 @@ indeed the target local file for receiving nlist output.  If
 no local file is specified, or if local-file is -, the output
 is sent to the terminal.
 
-@item nmap [inpattern outpattern]
+@item nmap [@var{inpattern} @var{outpattern}]
 Set or unset the filename mapping mechanism.  If no arguments
 are specified, the filename mapping mechanism is unset.  If
 arguments are specified, remote filenames are mapped during
@@ -324,7 +325,7 @@ outpattern, as in the example: `nmap $1 sed "s/  *$//" > $1'.
 Use the `\' character to prevent special treatment of the
 `$','[','[', and `,' characters.
 
-@item ntrans [inchars [outchars]]
+@item ntrans [@var{inchars} [@var{outchars}]]
 Set or unset the filename character translation mechanism.
 If no arguments are specified, the filename character translation
 mechanism is unset.  If arguments are specified, characters in remote
@@ -339,7 +340,7 @@ replaced with the corresponding character in outchars. If the
 character's position in inchars is longer than the length of
 outchars, the character is deleted from the file name.
 
-@item open host [port]
+@item open @var{host} [@var{port}]
 Establish a connection to the specified host FTP server.  An
 optional port number may be supplied, in which case, ftp will
 attempt to contact an FTP server at that port.  If the autologin
@@ -367,7 +368,7 @@ or store files.  If prompting is turned off
 (default is on), any mget or mput will transfer all files,
 and any mdelete will delete all files.
 
-@item proxy ftp-command
+@item proxy @var{ftp-command}
 Execute an ftp command on a secondary control connection.
 This command allows simultaneous connection to two remote ftp
 servers for transferring files between the two servers.  The
@@ -384,25 +385,20 @@ primary control connection.  Third party file transfers depend upon support
 of the ftp protocol PASV command by the
 server on the secondary control connection.
 
-@item put local-file [remote-file]
-Store a local file on the remote machine.  If remote-file is
-left unspecified, the local file name is used after processing according
-to any ntrans or nmap settings in naming the remote file.
-File transfer uses the current settings for type, format, mode, and structure.
+@item put @var{local-file} [@var{remote-file}]
+@itemx send @var{local-file} [@var{remote-file}]
+Store a local file on the remote machine.  If remote-file is left
+unspecified, the local file name is used after processing according to
+any ntrans or nmap settings in naming the remote file.  File transfer
+uses the current settings for type, format, mode, and structure.
 
 @item pwd
 Print the name of the current working directory on the remote machine.
 
-@item quit
-A synonym for bye.
-
-@item quote arg1 arg2 ...
+@item quote @var{arg}@dots{}
 The arguments specified are sent, verbatim, to the remote FTP server.
 
-@item recv remote-file [local-file]
-A synonym for get.
-
-@item reget remote-file [local-file]
+@item reget @var{remote-file} [@var{local-file}]
 Reget acts like get, except that if local-file exists and is
 smaller than remote-file, local-file is presumed to be a partially
 transferred copy of remote-file and the transfer is
@@ -410,15 +406,15 @@ continued from the apparent point of failure.  This command
 is useful when transferring very large files over networks
 that are prone to dropping connections.
 
-@item remotehelp [command-name]
+@item remotehelp [@var{command-name}]
 Request help from the remote FTP server.  If a command-name
 is specified it is supplied to the server as well.
 
-@item remotestatus [file-name]
+@item remotestatus [@var{file-name}]
 With no arguments, show status of remote machine.  If filename is
 specified, show status of file-name on remote machine.
 
-@item rename [from] [to]
+@item rename [@var{from}] [@var{to}]
 Rename the file from on the remote machine, to the file to.
 
 @item reset
@@ -427,11 +423,11 @@ sequencing with the remote ftp server.  Resynchronization
 may be necessary following a violation of the ftp protocol by
 the remote server.
 
-@item restart marker
+@item restart @var{marker}
 Restart the immediately following get or put at the indicated
 marker. On UNIX systems, marker is usually a byte offset into the file.
 
-@item rmdir directory-name
+@item rmdir @var{directory-name}
 Delete a directory on the remote machine.
 
 @item runique
@@ -446,9 +442,6 @@ unique filename will be reported.  Note that runique will not
 affect local files generated from a shell command (see below).
 The default value is off.
 
-@item send local-file [remote-file]
-A synonym for put.
-
 @item sendport
 Toggle the use of PORT commands.  By default, ftp will attempt to use
 a PORT command when establishing a connection
@@ -460,17 +453,17 @@ use PORT commands for each data transfer.  This is useful for
 certain FTP implementations which do ignore PORT commands
 but, incorrectly, indicate they've been accepted.
 
-@item site arg1 arg2 ...
+@item site @var{arg}@dots{}
 The arguments specified are sent, verbatim, to the remote FTP
 server as a SITE command.
 
-@item size file-name
+@item size @var{file-name}
 Return size of file-name on remote machine.
 
 @item status
 Show the current status of ftp.
 
-@item struct [struct-name]
+@item struct [@var{struct-name}]
 Set the file transfer structure to struct-name. By default
 ``stream'' structure is used.
 
@@ -489,15 +482,15 @@ Set the file transfer type to that needed to talk to TENEX machines.
 @item trace
 Toggle packet tracing.
 
-@item type [type-name]
+@item type [@var{type-name}]
 Set the file transfer type to type-name. If no type is specified,
 the current type is printed.  The default type is net- work ASCII.
 
-@item umask [newmask]
+@item umask [@var{newmask}]
 Set the default umask on the remote server to newmask. If
 newmask is omitted, the current umask is printed.
 
-@item user user-name [password] [account]
+@item user @var{user-name} [@var{password}] [@var{account}]
 Identify yourself to the remote FTP server.  If the password
 is not specified and the server requires it, ftp will prompt
 the user for it (after disabling local echo).  If an account
@@ -515,13 +508,10 @@ FTP server are displayed to the user.  In addition, if verbose
 is on, when a file transfer completes, statistics regarding the
 efficiency of the transfer are reported.  By default, verbose is on.
 
-@item ? [command]
-A synonym for help.
-
 @end table
 
-Command arguments which have embedded spaces may be quoted with quote `"'
-marks.
+Command arguments which have embedded spaces may be quoted with quote
+`"' marks.
 
 @section Aborting A File Transfer
 

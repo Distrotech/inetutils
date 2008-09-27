@@ -92,8 +92,8 @@ Texts.  A copy of the license is included in the section entitled
 * Introduction::                       Caveats, overview, and authors.
 * Common options::                     Common options.
 * traceroute invocation::  Trace the route to a host.
-* ftp::                         File Transfer Protocol.
-* ftpd::                        FTP Daemon.
+* ftp invocation::                         FTP client.
+* ftpd invocation::                        FTP Daemon.
 * inetd::                       Interner super-server.
 * ping::                        Packets to network hosts.
 * rcp invocation::                 Remote copy
