@@ -27,8 +27,7 @@ SUBDIRS = lib headers libinetutils libtelnet \
 	tftpd talkd telnet ftp rsh rcp rlogin tftp logger gwhois talk \
 	libicmp ping doc ifconfig traceroute tests
 
-DISTCLEANFILES = pathdefs.make paths.defs include/*.h include/*/*.h \
-	include/stamp-h
+DISTCLEANFILES = pathdefs.make paths.defs
 
 snapshot:
 	$(MAKE) dist distdir=$(PACKAGE)-`date +"%Y%m%d"`

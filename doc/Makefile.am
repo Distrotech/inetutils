@@ -16,8 +16,6 @@
 # to the Free Software Foundation, Inc., 51 Franklin Street,
 # Fifth Floor, Boston, MA 02110-1301 USA.
 
-SUBDIRS=rfc
-
 info_TEXINFOS = inetutils.texi
 
 inetutils_TEXINFOS = fdl.texi ftp.texi ftpd.texi inetd.texi logger.texi ping.texi \

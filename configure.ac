@@ -810,7 +810,6 @@ traceroute/Makefile
 confpaths.h:confpaths.h.in
 headers/Makefile
 doc/Makefile
-doc/rfc/Makefile
 tests/Makefile
 ])
 AC_OUTPUT

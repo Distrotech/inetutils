@@ -1,3 +1,15 @@
+2008-09-27  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (DISTCLEANFILES): Removed `include/*.h,
+	`include/*/*.h', and `include/stamp-'h from list.
+
+	* configure.ac (AC_CONFIG_FILES): Removed `doc/rfc/Makefile.am'
+	from list
+
+	* doc/Makefile.am (SUBDIRS): Remove variable.
+        * doc/rfc/.cvsignore, doc/rfc/Makefile.am, doc/rfc/rfc1282.txt:
+	Files removed.
+
 2008-09-26  Arash Yadegarnia <arash@bluehome.net> (tiny change)
 
 	* doc/ftpd.texi (ftpd): Updated documentation for `--auth'.
