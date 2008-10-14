@@ -47,12 +47,15 @@
 #include "libinetutils.h"
 
 static PING *ping;
-bool is_root;
+bool is_root = false;
 unsigned char *data_buffer;
 u_char *patptr;
 int one = 1;
 int pattern_len = 16;
 size_t data_length = PING_DATALEN;
+size_t count = DEFAULT_PING_COUNT;
+size_t interval;
+int socket_type;
 static unsigned int options;
 static unsigned long preload = 0;
 
@@ -96,15 +99,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   char *endptr;
   u_char pattern[16];
+  double v;
 
   switch (key)
     {
     case 'c':
-      ping->ping_count = ping_cvt_number (arg, 0, 0);
+      count = ping_cvt_number (arg, 0, 0);
       break;
 
     case 'd':
-      setsockopt (ping->ping_fd, SOL_SOCKET, SO_DEBUG, &one, sizeof (one));
+      socket_type = SO_DEBUG;
       break;
 
     case 'f':
@@ -117,7 +121,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'i':
       options |= OPT_INTERVAL;
-      ping->ping_interval = ping_cvt_number (arg, 0, 0);
+      interval = ping_cvt_number (arg, 0, 0);
       break;
 
     case 'l':
@@ -144,7 +148,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case 'r':
-      setsockopt (ping->ping_fd, SOL_SOCKET, SO_DONTROUTE, &one, sizeof (one));
+      socket_type = SO_DEBUG;
       break;
 
     case 's':
@@ -187,6 +191,15 @@ main (int argc, char **argv)
 
   argc -= index;
   argv += index;
+
+  if (count != 0)
+    ping->ping_count = count;
+
+  if (socket_type != 0)
+    setsockopt (ping->ping_fd, SOL_SOCKET, socket_type, &one, sizeof (one));
+
+  if (options & OPT_INTERVAL)
+    ping->ping_interval = interval;
 
   init_data_buffer (patptr, pattern_len);
 

@@ -1,3 +1,15 @@
+2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
+
+	* ping/ping6.c (is_root, count, interval, socket_type):
+	New global variables count, interval & socket_type, similar to ping.c
+	Initialize to is_root and count to false and DEFAULT_PING_COUNT
+	respectively.
+
+	* ping/ping6.c (parse_opt): Replaced ping structure usage with global
+	variables.
+
+	* ping/ping6.c (main): Assigned parsed values to ping structure.
+
 2008-09-27  Alfred M. Szmidt  <ams@gnu.org>
 
 	* doc/inetutils.texi: Renamed ftp and ftpd nodes to `FOO
