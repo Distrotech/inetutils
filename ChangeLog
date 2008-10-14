@@ -1,5 +1,15 @@
 2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
 
+	* ping/libping.c, ping/ping_common.c, ping/ping_common.h
+	(ping_set_count, ping_set_sockopt, ping_set_interval):
+	Moved functions from libping.c to ping_common.c and made
+	corresponding entries in ping_common.h
+
+	* ping/ping6.c (main): Used ping_set_interval, ping_set_sockopt,
+	ping_set_count in place of directly modifying struct p.
+
+2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
+
 	* ping/ping_common.h, ping/ping.c, ping/ping_address.c,
 	ping/ping_echo.c, ping/ping_router.c, ping/ping_timestamp.c,
 	ping/libping.c: Added common headers from ping related

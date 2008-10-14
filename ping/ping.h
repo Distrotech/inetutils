@@ -42,9 +42,6 @@
 PING *ping_init (int type, int ident);
 void ping_reset (PING * p);
 void ping_set_type (PING * p, int type);
-void ping_set_count (PING * ping, size_t count);
-void ping_set_sockopt (PING * ping, int opt, void *val, int valsize);
-void ping_set_interval (PING * ping, size_t interval);
 void ping_set_packetsize (PING * ping, size_t size);
 int ping_set_dest (PING * ping, char *host);
 int ping_set_pattern (PING * p, int len, u_char * pat);

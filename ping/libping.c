@@ -280,24 +280,6 @@ ping_set_event_handler (PING * ping, ping_efp pf, void *closure)
 }
 
 void
-ping_set_count (PING * ping, size_t count)
-{
-  ping->ping_count = count;
-}
-
-void
-ping_set_sockopt (PING * ping, int opt, void *val, int valsize)
-{
-  setsockopt (ping->ping_fd, SOL_SOCKET, opt, (char *) &val, valsize);
-}
-
-void
-ping_set_interval (PING * ping, size_t interval)
-{
-  ping->ping_interval = interval;
-}
-
-void
 ping_set_packetsize (PING * ping, size_t size)
 {
   ping->ping_datalen = size;

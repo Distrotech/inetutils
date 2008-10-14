@@ -191,13 +191,13 @@ main (int argc, char **argv)
   argv += index;
 
   if (count != 0)
-    ping->ping_count = count;
+    ping_set_count (ping, count);
 
   if (socket_type != 0)
-    setsockopt (ping->ping_fd, SOL_SOCKET, socket_type, &one, sizeof (one));
+    ping_set_sockopt (ping, socket_type, &one, sizeof (one));
 
   if (options & OPT_INTERVAL)
-    ping->ping_interval = interval;
+    ping_set_interval (ping, interval);
 
   init_data_buffer (patptr, pattern_len);
 

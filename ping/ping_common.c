@@ -175,4 +175,21 @@ ping_set_data (PING * p, void *data, size_t off, size_t len, bool use_ipv6)
   return 0;
 }
 
+void
+ping_set_count (PING * ping, size_t count)
+{
+  ping->ping_count = count;
+}
+
+void
+ping_set_sockopt (PING * ping, int opt, void *val, int valsize)
+{
+  setsockopt (ping->ping_fd, SOL_SOCKET, opt, (char *) &val, valsize);
+}
+
+void
+ping_set_interval (PING * ping, size_t interval)
+{
+  ping->ping_interval = interval;
+}
 
