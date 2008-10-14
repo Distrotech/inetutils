@@ -19,18 +19,7 @@
 
 #include "ping_common.h"
 
-#define PEV_RESPONSE 0
-#define PEV_DUPLICATE 1
-#define PEV_NOECHO  2
 #define USE_IPV6 0
-
-#define PING_DEFAULT_INTERVAL 1000	/* Milliseconds */
-#define PING_PRECISION 1000	/* Millisecond precision */
-#define PING_CKTABSIZE 128
-#define PING_SET_INTERVAL(t,i) do {\
- (t).tv_sec = (i)/PING_PRECISION;\
- (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
-} while (0)
 
 #define _C_BIT(p,bit)    (p)->ping_cktab[(bit)>>3]	/* byte in ck array */
 #define _C_MASK(bit)     (1 << ((bit) & 0x07))
@@ -46,7 +35,5 @@ void ping_set_packetsize (PING * ping, size_t size);
 int ping_set_dest (PING * ping, char *host);
 int ping_set_pattern (PING * p, int len, u_char * pat);
 void ping_set_event_handler (PING * ping, ping_efp fp, void *closure);
-void ping_set_datalen (PING * p, size_t len);
-void ping_unset_data (PING * p);
 int ping_recv (PING * p);
 int ping_xmit (PING * p);

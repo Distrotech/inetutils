@@ -281,10 +281,7 @@ ping_run (PING * ping, int (*finish) ())
       intvl.tv_usec = 10000;
     }
   else
-    {
-      intvl.tv_sec = ping->ping_interval;
-      intvl.tv_usec = 0;
-    }
+    PING_SET_INTERVAL (intvl, ping->ping_interval);
 
   gettimeofday (&last, NULL);
   send_echo (ping);
@@ -353,6 +350,9 @@ ping_run (PING * ping, int (*finish) ())
 	  gettimeofday (&last, NULL);
 	}
     }
+
+  ping_unset_data (ping);
+
   if (finish)
     return (*finish) ();
   return 0;
@@ -731,7 +731,7 @@ ping_init (int type, int ident)
 
   p->ping_fd = fd;
   p->ping_count = DEFAULT_PING_COUNT;
-  p->ping_interval = PING_INTERVAL;
+  p->ping_interval = PING_DEFAULT_INTERVAL;
   p->ping_datalen = sizeof (struct icmp6_hdr);
   /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
   p->ping_ident = ident & 0xFFFF;

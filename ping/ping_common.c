@@ -33,6 +33,8 @@
 extern unsigned char *data_buffer;
 extern size_t data_length;
 
+static void _ping_freebuf (PING * p);
+
 size_t
 ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
 {
@@ -191,5 +193,26 @@ void
 ping_set_interval (PING * ping, size_t interval)
 {
   ping->ping_interval = interval;
+}
+
+void
+_ping_freebuf (PING * p)
+{
+  if (p->ping_buffer)
+    {
+      free (p->ping_buffer);
+      p->ping_buffer = NULL;
+    }
+  if (p->ping_cktab)
+    {
+      free (p->ping_cktab);
+      p->ping_cktab = NULL;
+    }
+}
+
+void
+ping_unset_data (PING * p)
+{
+  _ping_freebuf (p);
 }
 

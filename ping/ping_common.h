@@ -25,7 +25,42 @@
 
 #include <stdbool.h>
 
+#define MAXWAIT         10      /* max seconds to wait for response */
+
+#define OPT_FLOOD       0x001
+#define OPT_INTERVAL    0x002
+#define OPT_NUMERIC     0x004
+#define OPT_QUIET       0x008
+#define OPT_RROUTE      0x010
+#define OPT_VERBOSE     0x020
+
+struct ping_stat
+{
+  double tmin;                  /* minimum round trip time */
+  double tmax;                  /* maximum round trip time */
+  double tsum;                  /* sum of all times, for doing average */
+  double tsumsq;                /* sum of all times squared, for std. dev. */
+};
+
+#define PEV_RESPONSE 0
+#define PEV_DUPLICATE 1
+#define PEV_NOECHO  2
+
+#define PING_CKTABSIZE 128
+
 #define DEFAULT_PING_COUNT 4
+
+#define PING_TIMING(s) (s >= PING_HEADER_LEN)
+#define PING_HEADER_LEN sizeof (struct timeval)
+#define PING_DATALEN    (64 - PING_HEADER_LEN)  /* default data length */
+
+#define PING_DEFAULT_INTERVAL 1000      /* Milliseconds */
+#define PING_PRECISION 1000     /* Millisecond precision */
+
+#define PING_SET_INTERVAL(t,i) do {\
+  (t).tv_sec = (i)/PING_PRECISION;\
+  (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
+} while (0)
 
 /* Not sure about this step*/
 #define _PING_BUFLEN(p, USE_IPV6) ((USE_IPV6)? ((p)->ping_datalen + sizeof (struct icmp6_hdr)) : \
@@ -92,4 +127,5 @@ int ping_set_data (PING *p, void *data, size_t off, size_t len, bool USE_IPV6);
 void ping_set_count (PING * ping, size_t count);
 void ping_set_sockopt (PING * ping, int opt, void *val, int valsize);
 void ping_set_interval (PING * ping, size_t interval);
+void ping_unset_data (PING * p);
 

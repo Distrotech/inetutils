@@ -38,7 +38,6 @@
 
 #include "ping.h"
 
-static void _ping_freebuf (PING * p);
 static size_t _ping_packetsize (PING * p);
 
 size_t
@@ -105,34 +104,6 @@ void
 ping_set_type (PING * p, int type)
 {
   p->ping_type = type;
-}
-
-void
-ping_set_datalen (PING * p, size_t len)
-{
-  _ping_freebuf (p);
-  p->ping_datalen = len;
-}
-
-void
-_ping_freebuf (PING * p)
-{
-  if (p->ping_buffer)
-    {
-      free (p->ping_buffer);
-      p->ping_buffer = NULL;
-    }
-  if (p->ping_cktab)
-    {
-      free (p->ping_cktab);
-      p->ping_cktab = NULL;
-    }
-}
-
-void
-ping_unset_data (PING * p)
-{
-  _ping_freebuf (p);
 }
 
 int

@@ -1,5 +1,23 @@
 2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
 
+        * ping/ping_impl.h, ping/ping.h, ping/ping_common.h,
+	ping/ping6.h (ping_stat, PEV_RESPONSE, PEV_DUPLICATE, PEV_NOECHO,
+	PING_INTERVAL, PING_CKTABSIZE, MAXWAIT, OPT_FLOOD, OPT_INTERVAL,
+	OPT_NUMERIC, OPT_QUIET, OPT_RROUTE, OPT_VERBOSE, PING_TIMING,
+	PING_HEADER_LEN, PING_DATALEN): Moved all these common macros and
+	structures from ping_impl.h , ping6.h and ping_ping.h to ping_common.h.
+	Removed PING_INTERVAL.
+	* ping/ping6.c (ping_run): Used PING_SET_INTERVAL similar to
+	libping.c and used PING_DEFAULT_INTERVAL in place of PING_INTERVAL.
+	
+	* ping/libping.c (ping_set_datalen): Removed.
+	
+	* ping/libping.c, ping/ping_common.c (_ping_freebuf, ping_unset_data):
+	Moved _ping_freebuf, ping_unset_data from libping.c to ping_common.c.
+	* ping/ping6.c (ping_run): Free memory with call to ping_unset_data.
+
+2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
+
 	* ping/libping.c, ping/ping_common.c, ping/ping_common.h
 	(ping_set_count, ping_set_sockopt, ping_set_interval):
 	Moved functions from libping.c to ping_common.c and made
