@@ -27,9 +27,6 @@
 #include <sys/time.h>
 #include <signal.h>
 
-#include <netinet/in_systm.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
 /*#include <netinet/ip_icmp.h>  -- deliberately not including this */
 #ifdef HAVE_NETINET_IP_VAR_H
 # include <netinet/ip_var.h>
@@ -45,9 +42,7 @@
 #include <errno.h>
 #include <limits.h>
 
-#include <icmp.h>
 #include <ping.h>
-#include "ping_common.h"
 #include "ping_impl.h"
 
 #define NROUTES		9	/* number of record route slots */
@@ -109,7 +104,7 @@ ping_echo (char *hostname)
 
   printf ("PING %s (%s): %d data bytes\n",
 	  ping->ping_hostname,
-	  inet_ntoa (ping->ping_dest.sin_addr), data_length);
+	  inet_ntoa (ping->ping_dest.ping_sockaddr.sin_addr), data_length);
 
   status = ping_run (ping, echo_finish);
   free (ping->ping_hostname);
@@ -375,7 +370,7 @@ print_icmp_header (struct sockaddr_in *from,
   orig_ip = &icmp->icmp_ip;
 
   if (!(options & OPT_VERBOSE
-	|| orig_ip->ip_dst.s_addr == ping->ping_dest.sin_addr.s_addr))
+	|| orig_ip->ip_dst.s_addr == ping->ping_dest.ping_sockaddr.sin_addr.s_addr))
     return;
 
   printf ("%d bytes from %s: ", len - hlen, s = ipaddr2str (from->sin_addr));

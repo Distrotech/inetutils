@@ -137,3 +137,42 @@ nsqrt (double a, double prec)
 
   return x1;
 }
+
+int
+_ping_setbuf (PING * p, bool use_ipv6)
+{
+  if (!p->ping_buffer) {
+    p->ping_buffer = malloc (_PING_BUFLEN (p, use_ipv6));
+    if (!p->ping_buffer)
+      return -1;
+  }
+  if (!p->ping_cktab) {
+    p->ping_cktab = malloc (p->ping_cktab_size);
+    if (!p->ping_cktab)
+      return -1;
+    memset (p->ping_cktab, 0, p->ping_cktab_size);
+  }
+  return 0;
+}
+
+int
+ping_set_data (PING * p, void *data, size_t off, size_t len, bool use_ipv6)
+{
+  icmphdr_t *icmp;
+
+  if (_ping_setbuf (p, use_ipv6))
+    return -1;
+  if (p->ping_datalen < off + len)
+    return -1;
+
+  if(use_ipv6) {
+    icmp = (struct icmp6_hdr *) p->ping_buffer;
+  } else {
+    icmp = (icmphdr_t *) p->ping_buffer;
+  }
+  memcpy (icmp->icmp_data + off, data, len);
+
+  return 0;
+}
+
+

@@ -17,42 +17,12 @@
    to the Free Software Foundation, Inc., 51 Franklin Street,
    Fifth Floor, Boston, MA 02110-1301 USA. */
 
-typedef struct ping_data PING;
-typedef int (*ping_efp) (int code,
-			 void *closure,
-			 struct sockaddr_in * dest,
-			 struct sockaddr_in * from,
-			 struct ip * ip, icmphdr_t * icmp, int datalen);
-
-
-struct ping_data
-{
-  int ping_fd;			/* Raw socket descriptor */
-  int ping_type;		/* Type of packets to send */
-  size_t ping_count;		/* Number of packets to send */
-  size_t ping_interval;		/* Number of seconds to wait between sending pkts */
-  struct sockaddr_in ping_dest;	/* whom to ping */
-  char *ping_hostname;		/* Printable hostname */
-  size_t ping_datalen;		/* Length of data */
-  int ping_ident;		/* Our identifier */
-
-  ping_efp ping_event;		/* User-defined handler */
-  void *ping_closure;		/* User-defined data */
-
-  /* Runtime info */
-  int ping_cktab_size;
-  char *ping_cktab;
-
-  u_char *ping_buffer;		/* I/O buffer */
-  struct sockaddr_in ping_from;
-  long ping_num_xmit;		/* Number of packets transmitted */
-  long ping_num_recv;		/* Number of packets received */
-  long ping_num_rept;		/* Number of duplicates received */
-};
+#include "ping_common.h"
 
 #define PEV_RESPONSE 0
 #define PEV_DUPLICATE 1
 #define PEV_NOECHO  2
+#define USE_IPV6 0
 
 #define PING_DEFAULT_INTERVAL 1000	/* Milliseconds */
 #define PING_PRECISION 1000	/* Millisecond precision */
@@ -61,8 +31,6 @@ struct ping_data
  (t).tv_sec = (i)/PING_PRECISION;\
  (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
 } while (0)
-
-#define _PING_BUFLEN(p) ((p)->ping_datalen + sizeof (icmphdr_t))
 
 #define _C_BIT(p,bit)    (p)->ping_cktab[(bit)>>3]	/* byte in ck array */
 #define _C_MASK(bit)     (1 << ((bit) & 0x07))
@@ -81,7 +49,6 @@ void ping_set_packetsize (PING * ping, size_t size);
 int ping_set_dest (PING * ping, char *host);
 int ping_set_pattern (PING * p, int len, u_char * pat);
 void ping_set_event_handler (PING * ping, ping_efp fp, void *closure);
-int ping_set_data (PING * p, void *data, size_t off, size_t len);
 void ping_set_datalen (PING * p, size_t len);
 void ping_unset_data (PING * p);
 int ping_recv (PING * p);

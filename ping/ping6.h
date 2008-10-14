@@ -17,39 +17,7 @@
    to the Free Software Foundation, Inc., 51 Franklin Street,
    Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <netinet/in.h>
-#include <netinet/icmp6.h>
-
-typedef struct ping_data PING;
-typedef int (*ping_efp) (int code, void *closure, struct sockaddr_in6 * dest,
-			 struct sockaddr_in6 * from, struct icmp6_hdr * icmp,
-			 int datalen);
-
-
-struct ping_data
-{
-  int ping_fd;			/* Raw socket descriptor */
-  int ping_type;		/* Type of packets to send */
-  int ping_count;		/* Number of packets to send */
-  int ping_interval;		/* Number of seconds to wait between sending pkts */
-  struct sockaddr_in6 ping_dest;	/* whom to ping */
-  char *ping_hostname;		/* Printable hostname */
-  size_t ping_datalen;		/* Length of data */
-  int ping_ident;		/* Our identifier */
-
-  ping_efp ping_event;		/* User-defined handler */
-  void *ping_closure;		/* User-defined data */
-
-  /* Runtime info */
-  int ping_cktab_size;
-  char *ping_cktab;
-
-  u_char *ping_buffer;		/* I/O buffer */
-  struct sockaddr_in6 ping_from;
-  long ping_num_xmit;		/* Number of packets transmitted */
-  long ping_num_recv;		/* Number of packets received */
-  long ping_num_rept;		/* Number of duplicates received */
-};
+#include "ping_common.h"
 
 struct ping_stat
 {
@@ -80,8 +48,7 @@ struct ping_stat
 #define PING_DATALEN	(64 - PING_HEADER_LEN)	/* default data length */
 #define PING_MAX_DATALEN (65535 - sizeof (struct icmp6_hdr))
 
-#define _PING_BUFLEN(p) ((p)->ping_datalen + sizeof (struct icmp6_hdr))
-
+#define USE_IPV6 1
 #define _C_BIT(p,bit)    (p)->ping_cktab[(bit)>>3]	/* byte in ck array */
 #define _C_MASK(bit)     (1 << ((bit) & 0x07))
 
@@ -91,7 +58,6 @@ struct ping_stat
 
 static PING *ping_init (int type, int ident);
 static int ping_set_dest (PING * ping, char *host);
-static int ping_set_data (PING * p, void *data, size_t off, size_t len);
 static int ping_recv (PING * p);
 static int ping_xmit (PING * p);
 

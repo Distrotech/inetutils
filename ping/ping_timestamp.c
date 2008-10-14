@@ -27,9 +27,6 @@
 #include <sys/time.h>
 #include <signal.h>
 
-#include <netinet/in_systm.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
 /*#include <netinet/ip_icmp.h>  -- deliberately not including this */
 #ifdef HAVE_NETINET_IP_VAR_H
 # include <netinet/ip_var.h>
@@ -44,11 +41,8 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include <icmp.h>
 #include <ping.h>
 #include <ping_impl.h>
-
-#include "ping_common.h"
 
 static int recv_timestamp (int code, void *closure,
 			   struct sockaddr_in *dest, struct sockaddr_in *from,
@@ -70,7 +64,7 @@ ping_timestamp (char *hostname)
     error (EXIT_FAILURE, 0, "unknown host");
 
   printf ("PING %s (%s): sending timestamp requests\n",
-	  ping->ping_hostname, inet_ntoa (ping->ping_dest.sin_addr));
+	  ping->ping_hostname, inet_ntoa (ping->ping_dest.ping_sockaddr.sin_addr));
 
   return ping_run (ping, timestamp_finish);
 }

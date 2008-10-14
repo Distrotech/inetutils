@@ -1,4 +1,28 @@
-2008-10-14  Rakesh Pandit  <rpandit@rocky>
+2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
+
+	* ping/ping_common.h, ping/ping.c, ping/ping_address.c,
+	ping/ping_echo.c, ping/ping_router.c, ping/ping_timestamp.c,
+	ping/libping.c: Added common headers from ping related
+	files (ping.c, ping_address.c, ping_echo.c, ping_router.c,
+	ping_timestamp.c, libping.c) and ping6.c to ping/ping_common.h.
+
+	* ping/ping.h, ping/ping6.h, ping/ping_common.h (ping_data,
+	ping_efp): Moved ping_data, ping_efp from ping.h & ping6.h
+	to ping_common.h
+
+	* ping/libping.c, ping/ping6.c, ping/ping_common.c (_ping_setbuf,
+	ping_set_data): Moved _ping_setbuf and ping_set_data from libping.c
+	& ping6.c to ping_common.c
+
+	* ping/ping_common.h (ping_address, event, ping_data): Introduced new
+	unions ping_address and event in ping_common.h. Replaced ping efp
+	handler(ping_efp/ping_efp6) with event union and socket
+	address(sockaddr_in sockaddr_in6) with ping_address union.
+
+	* ping/ping_common.h (_PING_BUFLEN, _ping_setbuf, ping_set_data): New
+	argument use_ipv6 and all callers changed.
+
+2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
 
 	* libicmp/Makefile.am (libicmp_a_SOURCES): Removed libping.c
 	and ping.h

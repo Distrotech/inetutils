@@ -28,9 +28,6 @@
 #include <sys/time.h>
 #include <signal.h>
 
-#include <netinet/in_systm.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
 /*#include <netinet/ip_icmp.h>  -- deliberately not including this */
 #ifdef HAVE_NETINET_IP_VAR_H
 # include <netinet/ip_var.h>
@@ -48,9 +45,7 @@
 #include <limits.h>
 
 #include <argp.h>
-#include <icmp.h>
 #include <ping.h>
-#include "ping_common.h"
 #include "ping_impl.h"
 #include "libinetutils.h"
 
@@ -412,13 +407,13 @@ send_echo (PING * ping)
     {
       struct timeval tv;
       gettimeofday (&tv, NULL);
-      ping_set_data (ping, &tv, 0, sizeof (tv));
+      ping_set_data (ping, &tv, 0, sizeof (tv), USE_IPV6);
       off += sizeof (tv);
     }
   if (data_buffer)
     ping_set_data (ping, data_buffer, off,
 		   data_length > PING_HEADER_LEN ?
-		   data_length - PING_HEADER_LEN : data_length);
+		   data_length - PING_HEADER_LEN : data_length, USE_IPV6);
   return ping_xmit (ping);
 }
 

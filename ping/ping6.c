@@ -33,7 +33,6 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <argp.h>
@@ -42,7 +41,6 @@
 #include <limits.h>
 
 #include <xalloc.h>
-#include "ping_common.h"
 #include "ping6.h"
 #include "libinetutils.h"
 
@@ -369,13 +367,13 @@ send_echo (PING * ping)
     {
       struct timeval tv;
       gettimeofday (&tv, NULL);
-      ping_set_data (ping, &tv, 0, sizeof (tv));
+      ping_set_data (ping, &tv, 0, sizeof (tv), USE_IPV6);
       off += sizeof (tv);
     }
   if (data_buffer)
     ping_set_data (ping, data_buffer, off,
 		   data_length > PING_HEADER_LEN ?
-		   data_length - PING_HEADER_LEN : data_length);
+		   data_length - PING_HEADER_LEN : data_length, USE_IPV6);
   return ping_xmit (ping);
 }
 
@@ -430,8 +428,8 @@ ping_echo (char *hostname)
   if (ping_set_dest (ping, hostname))
     error (EXIT_FAILURE, 0, "unknown host %s", hostname);
 
-  err = getnameinfo ((struct sockaddr *) &ping->ping_dest,
-		     sizeof (ping->ping_dest), buffer,
+  err = getnameinfo ((struct sockaddr *) &ping->ping_dest.ping_sockaddr6,
+		     sizeof (ping->ping_dest.ping_sockaddr6), buffer,
 		     sizeof (buffer), NULL, 0, NI_NUMERICHOST);
   if (err)
     {
@@ -742,43 +740,12 @@ ping_init (int type, int ident)
 }
 
 static int
-_ping_setbuf (PING * p)
-{
-  if (!p->ping_buffer)
-    {
-      p->ping_buffer = malloc (_PING_BUFLEN (p));
-      if (!p->ping_buffer)
-	return -1;
-    }
-  if (!p->ping_cktab)
-    {
-      p->ping_cktab = malloc (p->ping_cktab_size);
-      if (!p->ping_cktab)
-	return -1;
-      memset (p->ping_cktab, 0, p->ping_cktab_size);
-    }
-  return 0;
-}
-
-static int
-ping_set_data (PING * p, void *data, size_t off, size_t len)
-{
-  if (_ping_setbuf (p))
-    return -1;
-  if (p->ping_datalen < off + len)
-    return -1;
-  memcpy (p->ping_buffer + sizeof (struct icmp6_hdr) + off, data, len);
-
-  return 0;
-}
-
-static int
 ping_xmit (PING * p)
 {
   int i, buflen;
   struct icmp6_hdr *icmp6;
 
-  if (_ping_setbuf (p))
+  if (_ping_setbuf (p, USE_IPV6))
     return -1;
 
   buflen = p->ping_datalen + sizeof (struct icmp6_hdr);
@@ -795,7 +762,7 @@ ping_xmit (PING * p)
   icmp6->icmp6_seq = htons (p->ping_num_xmit);
 
   i = sendto (p->ping_fd, (char *) p->ping_buffer, buflen, 0,
-	      (struct sockaddr *) &p->ping_dest, sizeof (p->ping_dest));
+	      (struct sockaddr *) &p->ping_dest.ping_sockaddr6, sizeof (p->ping_dest.ping_sockaddr6));
   if (i < 0)
     perror ("ping: sendto");
   else
@@ -815,7 +782,7 @@ my_echo_reply (PING * p, struct icmp6_hdr *icmp6)
   struct ip6_hdr *orig_ip = (struct ip6_hdr *) (icmp6 + 1);
   struct icmp6_hdr *orig_icmp = (struct icmp6_hdr *) (orig_ip + 1);
 
-  return IN6_ARE_ADDR_EQUAL (&orig_ip->ip6_dst, &ping->ping_dest.sin6_addr)
+  return IN6_ARE_ADDR_EQUAL (&orig_ip->ip6_dst, &ping->ping_dest.ping_sockaddr6.sin6_addr)
     && orig_ip->ip6_nxt == IPPROTO_ICMPV6
     && orig_icmp->icmp6_type == ICMP6_ECHO_REQUEST
     && orig_icmp->icmp6_id == htons (p->ping_ident);
@@ -833,9 +800,9 @@ ping_recv (PING * p)
   char cmsg_data[1024];
 
   iov.iov_base = p->ping_buffer;
-  iov.iov_len = _PING_BUFLEN (p);
-  msg.msg_name = &p->ping_from;
-  msg.msg_namelen = sizeof (p->ping_from);
+  iov.iov_len = _PING_BUFLEN (p, USE_IPV6);
+  msg.msg_name = &p->ping_from.ping_sockaddr6;
+  msg.msg_namelen = sizeof (p->ping_from.ping_sockaddr6);
   msg.msg_iov = &iov;
   msg.msg_iovlen = 1;
   msg.msg_control = cmsg_data;
@@ -876,8 +843,8 @@ ping_recv (PING * p)
 	  dupflag = 0;
 	}
 
-      print_echo (dupflag, hops, p->ping_closure, &p->ping_dest,
-		  &p->ping_from, icmp6, n);
+      print_echo (dupflag, hops, p->ping_closure, &p->ping_dest.ping_sockaddr6,
+		  &p->ping_from.ping_sockaddr6, icmp6, n);
 
     }
   else
@@ -886,7 +853,7 @@ ping_recv (PING * p)
       if (!my_echo_reply (p, icmp6))
 	return -1;		/* It's not for us.  */
 
-      print_icmp_error (&p->ping_from, icmp6, n);
+      print_icmp_error (&p->ping_from.ping_sockaddr6, icmp6, n);
     }
 
   return 0;
@@ -906,7 +873,7 @@ ping_set_dest (PING * ping, char *host)
   if (err)
     return 1;
 
-  memcpy (&ping->ping_dest, result->ai_addr, result->ai_addrlen);
+  memcpy (&ping->ping_dest.ping_sockaddr6, result->ai_addr, result->ai_addrlen);
 
   freeaddrinfo (result);
 
