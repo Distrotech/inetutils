@@ -1,5 +1,11 @@
 2008-12-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	* README-alpha: Rewrite. Add information on how to get sources
+	from CVS and Git.
+	* README-hacking: New file.
+	* bootstrap.conf: Update copyright year. Remove checkout_only_file
+	override.
+
 	* bootstrap: New file.
 	* bootstrap.conf: Read in the options from .bootstrap, if it is
 	present.
