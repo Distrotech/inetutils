@@ -146,6 +146,7 @@
 #include <grp.h>
 
 #include "libinetutils.h"
+#include "argcv.h"
 
 #define TOOMANY		1000	/* don't start more than TOOMANY */
 #define CNT_INTVL	60	/* servers in CNT_INTVL sec. */
@@ -232,6 +233,7 @@ static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 struct servtab
 {
+  char *se_node;                /* node name */
   char *se_service;		/* name of service */
   int se_socktype;		/* type of socket to use */
   char *se_proto;		/* protocol used */
@@ -247,7 +249,7 @@ struct servtab
   int se_type;			/* type */
   sa_family_t se_family;	/* address family of the socket */
   char se_v4mapped;		/* 1 = accept v4mapped connection, 0 = don't */
-#ifdef IPV6
+#if HAVE_GETADDRINFO
   struct sockaddr_storage se_ctrladdr;	/* bound address */
 #else
   struct sockaddr_in se_ctrladdr;	/* bound address */
@@ -746,6 +748,16 @@ config (int signo)
     }
 }
 
+int
+node_cmp (const char *a, const char *b)
+{
+  if (a == NULL)
+    return b != NULL;
+  if (b == NULL)
+    return a != NULL;
+  return strcasecmp (a, b);
+}
+
 void
 nextconfig (const char *file)
 {
@@ -775,7 +787,8 @@ nextconfig (const char *file)
 	}
       /* Checking/Removing duplicates */
       for (sep = servtab; sep; sep = sep->se_next)
-	if (strcmp (sep->se_service, cp->se_service) == 0
+	if (node_cmp (sep->se_node, cp->se_node) == 0
+	    && strcmp (sep->se_service, cp->se_service) == 0
 	    && strcmp (sep->se_proto, cp->se_proto) == 0
 	    && ISMUX (sep) == ISMUX (cp))
 	  break;
@@ -819,32 +832,6 @@ nextconfig (const char *file)
 	}
 #ifndef IPV6			/* FIXME: This code is moved to setup() for IPV6, which is
 				   wrong */
-      sp = getservbyname (sep->se_service, sep->se_proto);
-      if (sp == 0)
-	{
-	  static struct servent servent;
-	  char *p;
-	  unsigned long val;
-	  unsigned short port;
-
-	  val = strtoul (sep->se_service, &p, 0);
-	  if (*p || (port = val) != val)
-	    {
-	      syslog (LOG_ERR, "%s/%s: unknown service",
-		      sep->se_service, sep->se_proto);
-	      sep->se_checked = 0;
-	      continue;
-	    }
-	  servent.s_port = htons (port);
-	  sp = &servent;
-	}
-      if (sp->s_port != sep->se_ctrladdr.sin_port)
-	{
-	  sep->se_ctrladdr.sin_family = AF_INET;
-	  sep->se_ctrladdr.sin_port = sp->s_port;
-	  if (sep->se_fd >= 0)
-	    close_sep (sep);
-	}
 #endif
       if (sep->se_fd == -1)
 	setup (sep);
@@ -884,41 +871,33 @@ retry (int signo ARG_UNUSED)
       setup (sep);
 }
 
+#if HAVE_GETADDRINFO
+int
+inetd_getaddrinfo (struct servtab *sep, int proto, struct addrinfo **result)
+{
+  struct addrinfo hints;
+
+  memset (&hints, 0, sizeof (hints));
+
+  hints.ai_flags = AI_PASSIVE;
+  if (sep->se_v4mapped)
+    hints.ai_flags |= AI_V4MAPPED;
+  hints.ai_family = sep->se_family;
+  hints.ai_socktype = sep->se_socktype;
+  hints.ai_protocol = proto;
+
+  return getaddrinfo (sep->se_node, sep->se_service, &hints, result);
+}
+
 void
 setup (struct servtab *sep)
 {
   int err;
   const int on = 1;
-#ifdef IPV6
   const int off = 0;
-  struct addrinfo *result, hints;
+  struct addrinfo *result, *rp;
   struct protoent *proto;
 
- tryagain:
-#endif
-  sep->se_fd = socket (sep->se_family, sep->se_socktype, 0);
-  if (sep->se_fd < 0)
-    {
-#ifdef IPV6
-      /* If we don't support creating AF_INET6 sockets, create AF_INET
-         sockets.  */
-      if (errno == EAFNOSUPPORT && sep->se_family == AF_INET6
-	  && sep->se_v4mapped)
-	{
-	  /* Fall back to IPv6 silently.  */
-	  sep->se_family = AF_INET;
-	  goto tryagain;
-	}
-#endif
-
-      if (debug)
-	fprintf (stderr, "socket failed on %s/%s: %s\n",
-		 sep->se_service, sep->se_proto, strerror (errno));
-      syslog (LOG_ERR, "%s/%s: socket: %m", sep->se_service, sep->se_proto);
-      return;
-    }
-
-#ifdef IPV6
   /* Make sure that tcp6 etc also work.  */
   if (strncmp (sep->se_proto, "tcp", 3) == 0)
     proto = getprotobyname ("tcp");
@@ -930,61 +909,143 @@ setup (struct servtab *sep)
   if (!proto)
     {
       syslog (LOG_ERR, "%s: Unknown protocol", sep->se_proto);
-      close (sep->se_fd);
-      sep->se_fd = -1;
       return;
     }
 
-  memset (&hints, 0, sizeof (hints));
-
-  hints.ai_flags = AI_PASSIVE;
-  hints.ai_family = sep->se_family;
-  hints.ai_socktype = sep->se_socktype;
-  hints.ai_protocol = proto->p_proto;
-
-  err = getaddrinfo (NULL, sep->se_service, &hints, &result);
+  err = inetd_getaddrinfo (sep, proto->p_proto, &result);
+#if IPV6
+  if (err == EAI_ADDRFAMILY
+      && sep->se_family == AF_INET6 && sep->se_v4mapped)
+    {
+      /* Fall back to IPv6 silently.  */
+      sep->se_family = AF_INET;
+      err = inetd_getaddrinfo (sep, proto->p_proto, &result);
+    }
+#endif
   if (err)
     {
       const char *errmsg;
-
-      if (err == EAI_FAMILY && sep->se_family == AF_INET6 && sep->se_v4mapped)
-	{
-	  /* Fall back to IPv6 silently.  */
-	  sep->se_family = AF_INET;
-	  close (sep->se_fd);
-	  goto tryagain;
-	}
 
       if (err == EAI_SYSTEM)
 	errmsg = strerror (errno);
       else
 	errmsg = gai_strerror (err);
-
+      
       syslog (LOG_ERR, "%s/%s: getaddrinfo: %s",
 	      sep->se_service, sep->se_proto, errmsg);
-
-      close (sep->se_fd);
-      sep->se_fd = -1;
       return;
     }
-
-  memcpy (&sep->se_ctrladdr, result->ai_addr, result->ai_addrlen);
-
-  freeaddrinfo (result);
-
-  if (sep->se_family == AF_INET6)
+  
+  for (rp = result; rp != NULL; rp = rp->ai_next)
     {
-      if (sep->se_v4mapped)
-	err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
-			  (char *) &off, sizeof (off));
-      else
-	err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
-			  (char *) &on, sizeof (on));
-
+      memcpy (&sep->se_ctrladdr, rp->ai_addr, rp->ai_addrlen);
+    tryagain:
+      sep->se_fd = socket (sep->se_family, sep->se_socktype, 0);
+      if (sep->se_fd < 0)
+	{
+	  /* If we don't support creating AF_INET6 sockets, create AF_INET
+	     sockets.  */
+	  if (errno == EAFNOSUPPORT && sep->se_family == AF_INET6
+	      && sep->se_v4mapped)
+	    {
+	      /* Fall back to IPv6 silently.  */
+	      sep->se_family = AF_INET;
+	      goto tryagain;
+	    }
+	  
+	  if (debug)
+	    fprintf (stderr, "socket failed on %s/%s: %s\n",
+		     sep->se_service, sep->se_proto, strerror (errno));
+	  syslog (LOG_ERR, "%s/%s: socket: %m",
+		  sep->se_service, sep->se_proto);
+	  return;
+	}
+#ifdef IPV6
+      if (sep->se_family == AF_INET6)
+	{
+	  if (sep->se_v4mapped)
+	    err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
+			      (char *) &off, sizeof (off));
+	  else
+	    err = setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
+			      (char *) &on, sizeof (on));
+	  
+	  if (err < 0)
+	    syslog (LOG_ERR, "setsockopt (IPV6_V6ONLY): %m");
+	}
+#endif      
+      if (strncmp (sep->se_proto, "tcp", 3) == 0 && (options & SO_DEBUG))
+	{
+	  err = setsockopt (sep->se_fd, SOL_SOCKET, SO_DEBUG,
+			    (char *) &on, sizeof (on));
+	  if (err < 0)
+	    syslog (LOG_ERR, "setsockopt (SO_DEBUG): %m");
+	}
+      
+      err = setsockopt (sep->se_fd, SOL_SOCKET, SO_REUSEADDR,
+			(char *) &on, sizeof (on));
       if (err < 0)
-	syslog (LOG_ERR, "setsockopt (IPV6_V6ONLY): %m");
+	syslog (LOG_ERR, "setsockopt (SO_REUSEADDR): %m");
+      
+      err = bind (sep->se_fd, (struct sockaddr *) &sep->se_ctrladdr,
+		  sizeof (sep->se_ctrladdr));
+      if (err < 0)
+	{
+	  /* If we can't bind with AF_INET6 try again with AF_INET.  */
+	  if ((errno == EADDRNOTAVAIL || errno == EAFNOSUPPORT)
+	      && sep->se_family == AF_INET6 && sep->se_v4mapped)
+	    {
+	      /* Fall back to IPv6 silently.  */
+	      sep->se_family = AF_INET;
+	      close (sep->se_fd);
+	      goto tryagain;
+	    }
+	  if (debug)
+	    fprintf (stderr, "bind failed on %s/%s: %s\n",
+		     sep->se_service, sep->se_proto, strerror (errno));
+	  syslog (LOG_ERR, "%s/%s: bind: %m", sep->se_service, sep->se_proto);
+	  close (sep->se_fd);
+	  sep->se_fd = -1;
+	  if (!timingout)
+	    {
+	      timingout = 1;
+	      alarm (RETRYTIME);
+	    }
+	  return;
+	}
+  
+      if (sep->se_socktype == SOCK_STREAM)
+	listen (sep->se_fd, 10);
+      FD_SET (sep->se_fd, &allsock);
+      nsock++;
+      if (sep->se_fd > maxsock)
+	maxsock = sep->se_fd;
+      if (debug)
+	fprintf (stderr, "registered %s on %d\n", sep->se_server, sep->se_fd);
+      if (result->ai_next)
+	{
+	  sep = enter (sep);
+	  sep->se_fd = -1;
+	}
     }
-#endif
+  freeaddrinfo (result);
+}
+#else
+void
+setup0 (struct servtab *sep)
+{
+  int err;
+  const int on = 1;
+  
+  sep->se_fd = socket (sep->se_family, sep->se_socktype, 0);
+  if (sep->se_fd < 0)
+    {
+      if (debug)
+	fprintf (stderr, "socket failed on %s/%s: %s\n",
+		 sep->se_service, sep->se_proto, strerror (errno));
+      syslog (LOG_ERR, "%s/%s: socket: %m", sep->se_service, sep->se_proto);
+      return;
+    }
 
   if (strncmp (sep->se_proto, "tcp", 3) == 0 && (options & SO_DEBUG))
     {
@@ -1003,17 +1064,6 @@ setup (struct servtab *sep)
 	      sizeof (sep->se_ctrladdr));
   if (err < 0)
     {
-#ifdef IPV6
-      /* If we can't bind with AF_INET6 try again with AF_INET.  */
-      if ((errno == EADDRNOTAVAIL || errno == EAFNOSUPPORT)
-	  && sep->se_family == AF_INET6 && sep->se_v4mapped)
-	{
-	  /* Fall back to IPv6 silently.  */
-	  sep->se_family = AF_INET;
-	  close (sep->se_fd);
-	  goto tryagain;
-	}
-#endif
       if (debug)
 	fprintf (stderr, "bind failed on %s/%s: %s\n",
 		 sep->se_service, sep->se_proto, strerror (errno));
@@ -1037,7 +1087,68 @@ setup (struct servtab *sep)
     {
       fprintf (stderr, "registered %s on %d\n", sep->se_server, sep->se_fd);
     }
+}  
+
+void
+setup (struct servtab *sep)
+{
+  struct servent *sp;
+  
+  sp = getservbyname (sep->se_service, sep->se_proto);
+  if (sp == 0)
+    {
+      static struct servent servent;
+      char *p;
+      unsigned long val;
+      unsigned short port;
+      
+      val = strtoul (sep->se_service, &p, 0);
+      if (*p || (port = val) != val)
+	{
+	  syslog (LOG_ERR, "%s/%s: unknown service",
+		  sep->se_service, sep->se_proto);
+	  sep->se_checked = 0;
+	  return;
+	}
+      servent.s_port = htons (port);
+      sp = &servent;
+    }
+  if (sp->s_port != sep->se_ctrladdr.sin_port)
+    {
+      sep->se_ctrladdr.sin_family = AF_INET;
+      sep->se_ctrladdr.sin_port = sp->s_port;
+      if (sep->se_fd >= 0)
+	close_sep (sep); /* FIXME: why?*/
+    }
+
+  if (sep->se_node == NULL)
+    setup0 (sep);
+  else
+    {
+      char    **p;
+      struct hostent *host = gethostbyname (sep->se_node);
+      if (!host)
+	{
+	  syslog (LOG_ERR, "%s/%s: unknown host %s",
+		  sep->se_service, sep->se_proto, sep->se_node);
+	  return;
+	}
+      if (host->h_addrtype != AF_INET)
+	{
+	  syslog (LOG_ERR, "%s/%s: unsupported address family %d",
+		  sep->se_service, sep->se_proto, host->h_addrtype);
+	  return;
+	}
+      for (p = host->h_addr_list; *p; p++)
+	{
+	  memcpy (&sep->se_ctrladdr.sin_addr.s_addr, *p, host->h_length);
+	  setup0 (sep);
+	  if (*p)
+	    sep = enter (sep);
+	}  
+    }
 }
+#endif
 
 /*
  * Finish with a service and its socket.
@@ -1082,7 +1193,9 @@ enter (struct servtab *cp)
   return sep;
 }
 
-struct servtab serv;
+char *global_serv_node;
+char *serv_node;
+size_t serv_node_offset;
 #ifdef LINE_MAX
 char line[LINE_MAX];
 #else
@@ -1115,17 +1228,48 @@ endconfig (FILE * fconfig)
 #define INETD_FIELDS_MIN   6	/* Minimum number of fields in entry */
 
 struct servtab *
-getconfigent (FILE * fconfig, const char *file, size_t * line)
+next_node_sep (struct servtab *sep)
 {
+  if (serv_node)
+    {
+      size_t i = strcspn (serv_node + serv_node_offset, ",");
+      sep->se_node = malloc (i + 1);
+      if (!sep->se_node)
+	{
+	  syslog (LOG_ERR, "malloc: %m");
+	  exit (-1);
+	}
+      memcpy (sep->se_node, serv_node + serv_node_offset, i);
+      sep->se_node[i] = 0;
+      serv_node_offset += i;
+      if (serv_node[serv_node_offset])
+	serv_node_offset++;
+      else
+	{
+	  free (serv_node);
+	  serv_node = NULL;
+	}
+    }
+  return sep;
+}
+
+struct servtab *
+getconfigent (FILE *fconfig, const char *file, size_t *line)
+{
+  static struct servtab serv;
   struct servtab *sep = &serv;
   size_t argc = 0, i;
   char **argv = NULL;
   char *cp;
+  char *node, *service;
   static char TCPMUX_TOKEN[] = "tcpmux/";
 #define MUX_LEN		(sizeof(TCPMUX_TOKEN)-1)
 
-  memset ((caddr_t) sep, 0, sizeof *sep);
+  if (serv_node)
+    return next_node_sep (sep);
 
+  memset ((caddr_t) sep, 0, sizeof *sep);
+  
   while (1)
     {
       argcv_free (argc, argv);
@@ -1143,14 +1287,50 @@ getconfigent (FILE * fconfig, const char *file, size_t * line)
 
       if (argc < INETD_FIELDS_MIN)
 	{
-	  syslog (LOG_ERR, "%s:%lu: not enough fields",
-		  file, (unsigned long) *line);
+	  if (argc == 1 && argv[0][strlen (argv[0]) - 1] == ':')
+	    {
+	      argv[0][strlen (argv[0]) - 1] = 0;
+	      if (global_serv_node)
+		free (global_serv_node);
+	      if (strcmp (argv[0], "*"))
+		global_serv_node = newstr (argv[0]);
+	    }
+	  else
+	    syslog (LOG_ERR, "%s:%lu: not enough fields",
+		    file, (unsigned long) *line);
 	  continue;
 	}
 
-      if (strncmp (argv[INETD_SERVICE], TCPMUX_TOKEN, MUX_LEN) == 0)
+      node = argv[INETD_SERVICE];
+      service = strchr (node, ':');
+      if (!service)
+        {
+	  if (global_serv_node)
+	    {
+	      node = global_serv_node;
+	      serv_node = newstr (node);
+	      serv_node_offset = 0;
+	    }
+	  else
+	      node = NULL;
+	  
+	  service = argv[INETD_SERVICE];
+        }
+      else
+        {
+          *service++ = 0;
+          if (strcmp (node, "*") == 0)
+            node = NULL;
+	  else
+	    {
+	      serv_node = newstr (node);
+	      serv_node_offset = 0;
+	    }
+        }
+
+      if (strncmp (service, TCPMUX_TOKEN, MUX_LEN) == 0)
 	{
-	  char *c = argv[INETD_SERVICE] + MUX_LEN;
+	  char *c = service + MUX_LEN;
 	  if (*c == '+')
 	    {
 	      sep->se_type = MUXPLUS_TYPE;
@@ -1162,7 +1342,7 @@ getconfigent (FILE * fconfig, const char *file, size_t * line)
 	}
       else
 	{
-	  sep->se_service = newstr (argv[INETD_SERVICE]);
+	  sep->se_service = newstr (service);
 	  sep->se_type = NORM_TYPE;
 	}
 
@@ -1302,7 +1482,7 @@ getconfigent (FILE * fconfig, const char *file, size_t * line)
       break;
     }
   argcv_free (argc, argv);
-  return sep;
+  return next_node_sep (sep);
 }
 
 void
@@ -1632,9 +1812,11 @@ void
 print_service (const char *file, const char *action, struct servtab *sep)
 {
   fprintf (stderr,
-	   "%s:%s: %s proto=%s, wait=%d, user=%s builtin=%lx server=%s\n",
-	   file, action, sep->se_service, sep->se_proto,
-	   sep->se_wait, sep->se_user, (long) sep->se_bi, sep->se_server);
+	   "%s:%s: %s:%s proto=%s, wait=%d, max=%u, user=%s builtin=%lx server=%s\n",
+	   file, action,
+	   sep->se_node ? sep->se_node : "*", sep->se_service, sep->se_proto,
+	   sep->se_wait, sep->se_max, sep->se_user,
+	   (long) sep->se_bi, sep->se_server);
 }
 
 /*
@@ -1708,9 +1890,7 @@ tcpmux (int s, struct servtab *sep)
   /* Try matching a service in inetd.conf with the request */
   for (sep = servtab; sep; sep = sep->se_next)
     {
-      if (!ISMUX (sep))
-	continue;
-      if (!strcasecmp (service, sep->se_service))
+      if (ISMUX (sep) && !strcasecmp (service, sep->se_service))
 	{
 	  if (ISMUXPLUS (sep))
 	    {

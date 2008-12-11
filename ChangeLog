@@ -1,3 +1,19 @@
+2008-12-11  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* bootstrap: New file.
+	* bootstrap.conf: Read in the options from .bootstrap, if it is
+	present.
+	* configure.ac: Always check for getaddrinfo.
+
+	* inetd/inetd.c: Support optional address specifications.
+	Use getaddrinfo wherever it is available, otherwise fall back
+	to gethostbyname/getservbyname approach.
+	Improve debugging diagnostics.
+	
+	* doc/inetd.texi: Rewrite in a manual fashion. Document new
+	features. 
+	* inetd/inetd.8: Provide a reference to texinfo docs.
+
 2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
 
         * ping/ping_impl.h, ping/ping.h, ping/ping_common.h,
