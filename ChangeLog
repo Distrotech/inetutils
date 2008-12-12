@@ -1,3 +1,11 @@
+2008-12-12  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* bootstrap.conf: Add version-etc-fsf.
+	* inetd/inetd.c: Restore (approximate) list of authors from
+	the ChangeLog.
+	Fix memory allocation. Use getline for reading config files.
+	Reorder stuff in a logical manner.
+
 2008-12-11  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* README-alpha: Rewrite. Add information on how to get sources
