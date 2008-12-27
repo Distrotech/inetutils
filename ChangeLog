@@ -1,5 +1,7 @@
 2008-12-27  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	* NEWS, configure.ac: Version 1.6
+
 	* doc/ftp.texi: Use proper Texinfo markup
 	* doc/ftpd.texi: Likewise.
 	* doc/inetutils.texi: Likewise.

@@ -1,4 +1,4 @@
-GNU inetutils NEWS -- history of user-visible changes.
+GNU inetutils NEWS -- history of user-visible changes. 2008-12-27
 
 Copyright (C) 2002, 2004, 2006, 2007, 2008 
 	  Free Software Foundation, Inc.
@@ -6,7 +6,7 @@ See the end of this file for for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
-Unreleased
+December 27, 2008
 Version 1.6:
 
 * Various bugs fixes and clean ups.
@@ -15,12 +15,22 @@ Version 1.6:
 
 New programs.
 
-* ping and ping6 now exit after four packet instead of pinging forever.
+* ping and ping6 now exit after four packets instead of pinging forever.
 
 The previous behaviour can be enabled by passing `--count 0' to ping
 (or ping6).
 
 * telnet now delays initialization of Shishi until Kerberos is needed
+
+* inetd
+
+The configuration file syntax has been extended to allow for supplying
+local addresses `inetd' should use when listening for a given service.
+The addresses may be specified on a per-server basis as well as
+globally (affecting several services). 
+
+It is possible to limit the number of service instances for `nowait'
+services. 
 
 
 October 21, 2006
@@ -179,4 +189,8 @@ also that they carry prominent notices stating who last changed them.
 Local variables:
 mode: outline
 paragraph-separate: "[ 	]*$"
+eval: (add-hook 'write-file-hooks 'time-stamp)
+time-stamp-start: "changes. "
+time-stamp-format: "%:y-%02m-%02d"
+time-stamp-end: "\n"
 end:

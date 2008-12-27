@@ -1,6 +1,7 @@
 # Configuration for inetutils
 #
-# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006, 2007 Free Software Foundation, Inc.
+# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006, 
+# 2007, 2008 Free Software Foundation, Inc.
 #
 # Written by Miles Bader <miles@gnu.ai.mit.edu>
 #
@@ -21,7 +22,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([GNU inetutils], [1.5], [bug-inetutils@gnu.org])
+AC_INIT([GNU inetutils], [1.6], [bug-inetutils@gnu.org])
 
 AC_CONFIG_SRCDIR([inetd/inetd.c])
 AC_CONFIG_AUX_DIR([build-aux])
