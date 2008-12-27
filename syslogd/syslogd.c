@@ -302,7 +302,7 @@ time_t now;			/* Time use for mark and forward supending.  */
 int force_sync;			/* GNU/Linux behaviour to sync on every line.
 				   This off by default. Set to 1 to enable.  */
 
-ARGP_PROGRAM_DATA ("syslogd", "2008", "FIXME unknown")
+ARGP_PROGRAM_DATA_SIMPLE ("syslogd", "2008");
 
 const char args_doc[] = "";
 const char doc[] = "Log system messages.";

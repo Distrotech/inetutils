@@ -27,14 +27,15 @@ void cleanup_session (char *tty, int pty_fd);
 void logwtmp_keep_open (char *line, char *name, char *host);
 
 /* Convenience macro for argp.  */
-#define ARGP_PROGRAM_DATA(name, year, authors)				\
+#define ARGP_PROGRAM_DATA_SIMPLE(name, year)				\
   const char *argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";	\
   const char *argp_program_version =					\
     name " (" PACKAGE_NAME ") " PACKAGE_VERSION "\n"			\
-    "Copyright (C) " year " Free Software Foundation, Inc.\n"		\
-    "This is free software.  You may redistribute copies of it under the terms of\n" \
-    "the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.\n" \
-    "There is NO WARRANTY, to the extent permitted by law.\n"		\
     "\n"								\
-    "Written by " authors ".";
+    "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n" \
+    "This is free software: you are free to change and redistribute it.\n" \
+    "There is NO WARRANTY, to the extent permitted by law.\n\n"
 
+#define ARGP_PROGRAM_DATA(name, year, authors)				\
+	ARGP_PROGRAM_DATA_SIMPLE(name, year)                            \
+        "Written by " authors "."

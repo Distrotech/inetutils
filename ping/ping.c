@@ -28,6 +28,8 @@
 #include <sys/time.h>
 #include <signal.h>
 
+#include <netinet/in.h>
+
 /*#include <netinet/ip_icmp.h>  -- deliberately not including this */
 #ifdef HAVE_NETINET_IP_VAR_H
 # include <netinet/ip_var.h>

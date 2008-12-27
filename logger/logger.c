@@ -76,7 +76,7 @@ static char *tag = NULL;
 static int logflags = 0;
 static int pri = LOG_NOTICE;
 
-ARGP_PROGRAM_DATA ("logger", "2008", "FIXME unknown")
+ARGP_PROGRAM_DATA_SIMPLE ("logger", "2008");
 
 const char args_doc[] = "[MESSAGE]";
 const char doc[] = "Make entries in the system log.";

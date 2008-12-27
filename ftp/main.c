@@ -88,7 +88,7 @@
 #define DEFAULT_PROMPT "ftp> "
 static char *prompt = 0;
 
-ARGP_PROGRAM_DATA ("ftp", "2007", "FIXME unknown");
+ARGP_PROGRAM_DATA_SIMPLE ("ftp", "2007");
 
 const char args_doc[] = "[HOST [PORT]]";
 const char doc[] = "Remote file transfer.";

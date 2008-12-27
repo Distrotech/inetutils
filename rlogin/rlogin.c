@@ -232,7 +232,7 @@ extern sig_t setsig (int, sig_t);
 # define OPTIONS	"8EKde:l:hV"
 #endif
 
-ARGP_PROGRAM_DATA ("rlogin", "2008", "FIXME unknown");
+ARGP_PROGRAM_DATA_SIMPLE ("rlogin", "2008");
 
 const char args_doc[] = "HOST";
 const char doc[] = "Starts a terminal session on a remote host.";

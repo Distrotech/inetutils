@@ -32,6 +32,9 @@
 #include <progname.h>
 #include "libinetutils.h"
 #include "xalloc.h"
+#include "xgethostname.h"
+#include "xgetdomainname.h"
+
 
 struct _hostname_options
 {
@@ -45,7 +48,7 @@ struct _hostname_options
 };
 typedef struct _hostname_options hostname_options;
 
-static int (*get_name_action) (char *name, size_t size) = NULL;
+static char *(*get_name_action) (void) = NULL;
 static int (*set_name_action) (const char *name, size_t size) = NULL;
 
 ARGP_PROGRAM_DATA ("hostname", "2008", "Debarshi Ray");
@@ -80,12 +83,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
   switch (key)
     {
     case 'a':
-      get_name_action = gethostname;
+      get_name_action = xgethostname;
       options->hostname_alias = 1;
       break;
 
     case 'd':
-      get_name_action = gethostname;
+      get_name_action = xgethostname;
       options->hostname_fqdn = 1;
       options->hostname_dns_domain = 1;
       break;
@@ -96,23 +99,23 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case 'f':
-      get_name_action = gethostname;
+      get_name_action = xgethostname;
       options->hostname_fqdn = 1;
       break;
 
     case 'i':
-      get_name_action = gethostname;
+      get_name_action = xgethostname;
       options->hostname_ip_address = 1;
       break;
 
     case 's':
-      get_name_action = gethostname;
+      get_name_action = xgethostname;
       options->hostname_fqdn = 1;
       options->hostname_short = 1;
       break;
 
     case 'y':
-      get_name_action = getdomainname;
+      get_name_action = xgetdomainname;
       break;
 
     case ARGP_KEY_ARG:
@@ -154,9 +157,9 @@ main (int argc, char *argv[])
 
   /* Set default action */
   if (get_name_action == NULL && set_name_action ==  NULL)
-    get_name_action = gethostname;
+    get_name_action = xgethostname;
 
-  if (get_name_action == getdomainname || get_name_action == gethostname)
+  if (get_name_action == xgetdomainname || get_name_action == xgethostname)
     get_name (&options);
   else if (set_name_action == sethostname)
     set_name (&options);
@@ -167,45 +170,36 @@ main (int argc, char *argv[])
 static void
 get_name (const hostname_options *const options)
 {
-  char *buffer;
-  char *name;
+  char *sname, *name;
   int status;
-  size_t size;
 
-  size = sysconf (_SC_HOST_NAME_MAX);
-  buffer = (char *) xmalloc (sizeof (char) * (size + 1));
+  sname = (*get_name_action) ();
 
-  status = (*get_name_action) (buffer, size);
-  while (status == -1)
-    {
-      size += 32;
-      buffer = (char *) xrealloc (buffer, size);
-      status = (*get_name_action) (buffer, size);
-    }
-
+  if (!sname)
+    error (EXIT_FAILURE, errno, "cannot determine name");
   if (options->hostname_alias == 1)
-      name = get_aliases (buffer);
+    name = get_aliases (sname);
   else if (options->hostname_fqdn == 1)
     {
-      name = get_fqdn (buffer);
+      name = get_fqdn (sname);
 
       if (options->hostname_dns_domain == 1 || options->hostname_short == 1)
         {
-          free (buffer);
-          buffer = name;
+          free (sname);
+          sname = name;
           name = NULL;
         }
 
       if (options->hostname_dns_domain == 1)
-        name = get_dns_domain_name (buffer);
+        name = get_dns_domain_name (sname);
       else if (options->hostname_short == 1)
-        name = get_short_hostname (buffer);
+        name = get_short_hostname (sname);
     }
   else if (options->hostname_ip_address == 1)
-      name = get_ip_addresses (buffer);
+      name = get_ip_addresses (sname);
   else
     {
-      name = strdup (buffer);
+      name = strdup (sname);
       if (name == NULL)
         error (EXIT_FAILURE, errno, "strdup");
     }
@@ -213,7 +207,7 @@ get_name (const hostname_options *const options)
   puts (name);
 
   free (name);
-  free (buffer);
+  free (sname);
   return;
 }
 

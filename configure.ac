@@ -603,7 +603,7 @@ AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
                utime uname \
-               updwtmp updwtmpx vhangup wait3 wait4)
+               updwtmp updwtmpx vhangup wait3 wait4 opendir2)
 
 dnl Functions that we will define if necessary.
 AC_REPLACE_FUNCS(getpass getusershell memcmp memcpy memmove memset \

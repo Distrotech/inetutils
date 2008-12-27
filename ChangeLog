@@ -1,5 +1,18 @@
 2008-12-27  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	* bootstrap.conf: Add xgethostname and xgetdomainname.
+	* configure.ac: Check for opendir2
+
+	* hostname/hostname.c: Use xgethostname and xgetdomainname.
+	* libinetutils/libinetutils.h (ARGP_PROGRAM_DATA_SIMPLE): New
+	macro.
+	(ARGP_PROGRAM_DATA): Rewrite using ARGP_PROGRAM_DATA_SIMPLE.
+	* ftp/main.c, logger/logger.c, rlogin/rlogin.c,
+	syslogd/syslogd.c: Use ARGP_PROGRAM_DATA_SIMPLE.
+	* libls/fts.c: Fix bsdisms.
+	* ping/ping.c: Include netinet/in.h
+	* ping/ping_common.c: Include sys/socket.h and string.h.
+		
 	* bootstrap.conf: Add dirfd, filemode, inttostr and progname.
 	* configure.ac: Fix checks for IPv6 header files.
 	* doc/Makefile.am (inetutils_TEXINFOS): Add traceroute.texi.
