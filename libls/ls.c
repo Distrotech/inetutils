@@ -33,6 +33,26 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -48,15 +68,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
 #ifdef HAVE_TERMIOS_H
 # include <termios.h>
 #endif
 
+#include <intprops.h>
+#include <inttostr.h>
 #include "ls.h"
 #include "extern.h"
-
-char *group_from_gid (u_int, int);
-char *user_from_uid (u_int, int);
 
 static void display (FTSENT *, FTSENT *);
 static int mastercmp (const FTSENT **, const FTSENT **);
@@ -422,8 +443,9 @@ display (p, list)
   u_long btotal, maxblock, maxinode, maxlen, maxnlink;
   int bcfile, flen, glen, ulen, maxflags, maxgroup, maxuser;
   int entries, needstats;
-  char *user, *group, buf[20];	/* 32 bits == 10 digits */
-  char nuser[12], ngroup[12];
+  char *user = NULL, *group = NULL, buf[INT_BUFSIZE_BOUND (uintmax_t)];
+  char nuser[INT_BUFSIZE_BOUND (uintmax_t)],
+       ngroup[INT_BUFSIZE_BOUND (uintmax_t)];
   char *flags = NULL;
 
   /*
@@ -492,18 +514,21 @@ display (p, list)
 	  btotal += sp->st_blocks;
 	  if (f_longform)
 	    {
-	      if (f_numericonly)
+	      struct passwd *pwd;
+	      struct group *grp;
+	      if (!f_numericonly)
 		{
-		  snprintf (nuser, 12, "%u", sp->st_uid);
-		  snprintf (ngroup, 12, "%u", sp->st_gid);
-		  user = nuser;
-		  group = ngroup;
+		  pwd = getpwuid (sp->st_uid);
+		  if (pwd)
+		    user = pwd->pw_name;
+		  grp = getgrgid (sp->st_gid);
+		  if (grp)
+		    group = grp->gr_name;
 		}
-	      else
-		{
-		  user = user_from_uid (sp->st_uid, 0);
-		  group = group_from_gid (sp->st_gid, 0);
-		}
+	      if (!user)
+		user = umaxtostr (sp->st_uid, nuser);
+	      if (!group)
+		group = umaxtostr (sp->st_gid, ngroup);
 	      if ((ulen = strlen (user)) > maxuser)
 		maxuser = ulen;
 	      if ((glen = strlen (group)) > maxgroup)
@@ -553,16 +578,12 @@ display (p, list)
     {
       d.bcfile = bcfile;
       d.btotal = btotal;
-      snprintf (buf, sizeof (buf), "%lu", maxblock);
-      d.s_block = strlen (buf);
+      d.s_block = strlen (umaxtostr (maxblock, buf));
       d.s_flags = maxflags;
       d.s_group = maxgroup;
-      snprintf (buf, sizeof (buf), "%lu", maxinode);
-      d.s_inode = strlen (buf);
-      snprintf (buf, sizeof (buf), "%lu", maxnlink);
-      d.s_nlink = strlen (buf);
-      snprintf (buf, sizeof (buf), "%qu", maxsize);
-      d.s_size = strlen (buf);
+      d.s_inode = strlen (umaxtostr (maxinode, buf));
+      d.s_nlink = strlen (umaxtostr (maxnlink, buf));
+      d.s_size = strlen (umaxtostr (maxsize, buf));
       d.s_user = maxuser;
     }
 

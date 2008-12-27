@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2001, 2005, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2005, 2007, 2008 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -222,8 +222,9 @@ ping_recv (PING * p)
 
       if (p->ping_event.handler)
 	(*p->ping_event.handler) (dupflag ? PEV_DUPLICATE : PEV_RESPONSE,
-			  p->ping_closure,
-			  &p->ping_dest, &p->ping_from.ping_sockaddr, ip, icmp, n);
+				  p->ping_closure,
+				  &p->ping_dest.ping_sockaddr,
+				  &p->ping_from.ping_sockaddr, ip, icmp, n);
       break;
 
     case ICMP_ECHO:
@@ -237,8 +238,9 @@ ping_recv (PING * p)
 
       if (p->ping_event.handler)
 	(*p->ping_event.handler) (PEV_NOECHO,
-			  p->ping_closure,
-			  &p->ping_dest, &p->ping_from.ping_sockaddr, ip, icmp, n);
+				  p->ping_closure,
+				  &p->ping_dest.ping_sockaddr,
+				  &p->ping_from.ping_sockaddr, ip, icmp, n);
     }
   return 0;
 }

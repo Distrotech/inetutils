@@ -455,7 +455,7 @@ existing file, a @samp{.2} is appended to the original name.  If
 this process continues up to @samp{.99}, an error message is
 printed, and the transfer does not take place.  The generated
 unique filename will be reported.  Note that @code{runique} will not
-affect local files generated from a shell command (@pxref{ftp-shell).
+affect local files generated from a shell command (@pxref{ftp-shell}).
 The default value is off.
 
 @item sendport
@@ -592,8 +592,8 @@ be altered by the remote server if @code{sunique} is on.
 @section File Transfer Parameters
 The @acronym{FTP} specification specifies many parameters which may
 affect a file transfer.  The type may be one of @samp{ascii},
-@acronym{image} (binary), @acronym{ebcdic}, and
-@acronym{local} byte size} (for PDP-10's and PDP-20's mostly).
+@samp{image} (binary), @samp{ebcdic}, and
+@samp{local} byte size (for PDP-10's and PDP-20's mostly).
 @command{Ftp} supports the @samp{ascii} and @samp{image} types of file
 transfer, plus local byte size 8 for tenex mode transfers.
 

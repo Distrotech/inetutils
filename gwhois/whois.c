@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1999, 2007 Free Software Foundation, Inc.
+  Copyright (C) 1999, 2007, 2008 Free Software Foundation, Inc.
   
   Written by Marco d'Itri <md@linux.it>.
   
@@ -35,6 +35,7 @@
 #include <netdb.h>
 #include <errno.h>
 #include <signal.h>
+#include <progname.h>
 
 /* Application-specific */
 #include <data.h>
@@ -67,6 +68,8 @@ main (int argc, char *argv[])
   extern char *optarg;
   extern int optind;
 
+  set_program_name (argv[0]);
+  
 #ifdef ENABLE_NLS
   setlocale (LC_MESSAGES, "");
   bindtextdomain (NLS_CAT_NAME, LOCALEDIR);

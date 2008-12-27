@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002, 2005, 2006, 2007
+/* Copyright (C) 1998,2001, 2002, 2005, 2006, 2007, 2008
    Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
@@ -229,6 +229,8 @@ main (int argc, char **argv)
   int one = 1;
   int status = 0;
 
+  set_program_name (argv[0]);
+  
   if (getuid () == 0)
     is_root = true;
 

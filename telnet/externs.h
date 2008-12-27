@@ -29,6 +29,26 @@
  *	@(#)externs.h	8.3 (Berkeley) 5/30/95
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 #ifndef BSD
 # define BSD 43
 #endif
@@ -241,15 +261,54 @@ setneturg (void),
 sys_telnet_init (void),
 telnet (char *),
 tel_enter_binary (int),
+tel_leave_binary (int),
 TerminalFlushOutput (void),
 TerminalNewMode (int),
 TerminalRestoreState (void),
 TerminalSaveState (void),
 tninit (void), upcase (char *), willoption (int), wontoption (int);
 
+extern int TerminalWindowSize (long *rows, long *cols);
+extern void TerminalSpeeds (long *ispeed, long *ospeed);
+extern void TerminalDefaultChars (void);
+extern int TerminalSpecialChars (int c);
+extern int TerminalAutoFlush (void);
+extern int TerminalWrite (char *buf, int n);
+
+extern int telrcv (void);
+extern int getconnmode (void);
+extern void optionstatus (void);
+extern int NetClose (int);
+extern void Exit (int);
+extern void ExitString (char *, int);
+extern int netflush (void);
+extern int opt_welldefined (char *);
+extern int stilloob (void);
+extern int process_rings (int, int, int, int, int, int);
+
+extern void init_terminal (void);
+extern void init_network (void);
+extern void init_telnet (void);
+extern void init_sys (void);
+
+extern void set_escape_char (char*);
+extern int tn (int argc, char **argv);
+
 extern void
 send_do (int, int),
 send_dont (int, int), send_will (int, int), send_wont (int, int);
+
+extern void sendabort (void);
+extern void sendeof (void);
+extern void sendsusp (void);
+extern int ttyflush (int);
+extern int rlogin_susp (void);
+extern void env_init (void);
+
+/* FIXME: Not needed */
+int SetSockOpt (int fd, int level, int option, int yesno);
+
+extern int quit (void);
 
 extern void
 lm_will (unsigned char *, int),

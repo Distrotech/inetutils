@@ -1,5 +1,5 @@
 /* This file is part of GNU inetutils
-   Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public
@@ -20,9 +20,11 @@
 
 void utmp_init (char *line, char *user, char *id);
 char *utmp_ptsid (char *line, char *tag);
+void utmp_logout (char *line);
 char *localhost (void);
 void logwtmp (const char *, const char *, const char *);
 void cleanup_session (char *tty, int pty_fd);
+void logwtmp_keep_open (char *line, char *name, char *host);
 
 /* Convenience macro for argp.  */
 #define ARGP_PROGRAM_DATA(name, year, authors)				\

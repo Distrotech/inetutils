@@ -1,4 +1,4 @@
-/* Copyright (C) 2004, 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -22,6 +22,8 @@
 #include <netinet/ip.h>
 #include <netinet/icmp6.h>
 #include <icmp.h>
+#include <error.h>
+#include <progname.h>
 
 #include <stdbool.h>
 

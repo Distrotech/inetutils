@@ -1,6 +1,6 @@
 /* Traceroute
    
-   Copyright (C) 2007 Free Software Foundation, Inc.
+   Copyright (C) 2007, 2008 Free Software Foundation, Inc.
    
    This file is part of GNU Inetutils.
    
@@ -48,6 +48,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <error.h>
+#include <progname.h>
 #include <limits.h>
 #include <assert.h>
 #include <argp.h>
@@ -158,6 +159,8 @@ main (int argc, char **argv)
 {
   trace_t trace;
 
+  set_program_name (argv[0]);
+  
   /* Parse command line */
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 

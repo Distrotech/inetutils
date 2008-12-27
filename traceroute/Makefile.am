@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -24,9 +24,9 @@ traceroute_SOURCES = traceroute.c
 
 noinst_HEADERS = traceroute.h
 
-INCLUDES = -I$(top_srcdir)/libicmp -I$(top_srcdir)/libinetutils
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp -I$(top_srcdir)/libinetutils
 
-LDADD = -L../libicmp -licmp
+LDADD = -L../libicmp -licmp -L../lib -lgnu
 
 SUIDMODE = -o root -m 4775
 

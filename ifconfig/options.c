@@ -1,6 +1,6 @@
 /* options.c -- process the command line options
 
-   Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -325,15 +325,13 @@ parse_opt_finalize (struct ifconfig *ifp)
     }
 }
 
-char *program_name;
-
 void
 parse_opt (int argc, char *argv[])
 {
   int option;
   struct ifconfig *ifp = ifs;
 
-  program_name = argv[0];
+  set_program_name (argv[0]);
 
   parse_opt_set_default_format (NULL);
 

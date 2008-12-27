@@ -140,6 +140,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <argp.h>
+#include <progname.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
@@ -148,6 +149,10 @@
 #include "libinetutils.h"
 #include "argcv.h"
 #include "version-etc.h"
+
+#ifndef EAI_ADDRFAMILY
+# define EAI_ADDRFAMILY 1
+#endif
 
 #define TOOMANY		1000	/* don't start more than TOOMANY */
 #define CNT_INTVL	60	/* servers in CNT_INTVL sec. */
@@ -1879,6 +1884,8 @@ main (int argc, char *argv[], char *envp[])
   int dofork;
   pid_t pid;
 
+  set_program_name (argv[0]);
+  
   Argv = argv;
   if (envp == 0 || *envp == 0)
     envp = argv;

@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001,2005,2006,2007 Free Software Foundation, Inc.
+/* Copyright (C) 1998,2001,2005,2006,2007,2008 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -22,6 +22,7 @@
 #endif
 #include <sys/types.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -33,6 +34,7 @@
 #include <errno.h>
 #include <syslog.h>
 #include <string.h>
+#include <ctype.h>
 #ifdef HAVE_STRINGS_H
 # include <strings.h>
 #endif
@@ -372,3 +374,18 @@ extern void wontoption (int);
 extern void (*encrypt_output) (unsigned char *, int);
 extern int (*decrypt_input) (int);
 #endif /* ENCRYPTION */
+
+extern int startslave (char *host, int autologin, char *autoname);
+extern int getterminaltype (char *user_name);
+extern int net_input_level (void);
+extern int net_output_level (void);
+extern int net_read (void);
+extern int net_buffer_is_full (void);
+extern void net_output_byte (int c);
+extern int pty_input_level (void);
+extern int pty_read (void);
+extern int pty_output_level (void);
+extern int pty_get_char (int peek);
+extern int pty_input_putback (const char *str, size_t len);
+
+extern int terminaltypeok (char *s);

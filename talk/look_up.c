@@ -27,6 +27,26 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -40,9 +60,32 @@
 # include <osockaddr.h>
 #endif
 #include <protocols/talkd.h>
+#include <unistd.h>
 #include <errno.h>
 #include "talk_ctl.h"
 #include "talk.h"
+
+/*
+ * Look for an invitation on 'machine'
+ */
+static int
+look_for_invite (CTL_RESPONSE *rp)
+{
+  current_state = "Checking for invitation on caller's machine";
+  ctl_transact (his_machine_addr, msg, LOOK_UP, rp);
+  /* the switch is for later options, such as multiple invitations */
+  switch (rp->answer)
+    {
+
+    case SUCCESS:
+      msg.id_num = htonl (rp->id_num);
+      return (1);
+
+    default:
+      /* there wasn't an invitation waiting for us */
+      return (0);
+    }
+}
 
 /*
  * See if the local daemon has an invitation for us.
@@ -93,25 +136,3 @@ check_local ()
   p_error ("Unable to connect with initiator");
 }
 
-/*
- * Look for an invitation on 'machine'
- */
-int
-look_for_invite (rp)
-     CTL_RESPONSE *rp;
-{
-  current_state = "Checking for invitation on caller's machine";
-  ctl_transact (his_machine_addr, msg, LOOK_UP, rp);
-  /* the switch is for later options, such as multiple invitations */
-  switch (rp->answer)
-    {
-
-    case SUCCESS:
-      msg.id_num = htonl (rp->id_num);
-      return (1);
-
-    default:
-      /* there wasn't an invitation waiting for us */
-      return (0);
-    }
-}

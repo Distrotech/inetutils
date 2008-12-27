@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -18,6 +18,21 @@
 
 info_TEXINFOS = inetutils.texi
 
-inetutils_TEXINFOS = fdl.texi ftp.texi ftpd.texi inetd.texi logger.texi ping.texi \
-                     rlogin.texi rlogind.texi rcp.texi rexecd.texi rsh.texi \
-                     rshd.texi syslogd.texi talk.texi talkd.texi tftp.texi
+inetutils_TEXINFOS = \
+ fdl.texi\
+ ftp.texi\
+ ftpd.texi\
+ inetd.texi\
+ logger.texi\
+ ping.texi\
+ rlogin.texi\
+ rlogind.texi\
+ rcp.texi\
+ rexecd.texi\
+ rsh.texi\
+ rshd.texi\
+ syslogd.texi\
+ talk.texi\
+ talkd.texi\
+ tftp.texi\
+ traceroute.texi

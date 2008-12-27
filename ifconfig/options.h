@@ -1,6 +1,6 @@
 /* options.h
 
-   Copyright (C) 2001, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2007, 2008 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -59,9 +59,6 @@ struct format
 };
 
 extern struct format formats[];
-
-/* The name of the program, as invoked on the command line.  */
-extern char *program_name;
 
 /* Array of interfaces mentioned on the command line.  */
 extern struct ifconfig *ifs;

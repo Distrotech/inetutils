@@ -27,6 +27,26 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 /*
  * remote shell server:
  *	[port]\0
@@ -75,6 +95,7 @@ char *alloca ();
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
 #ifdef HAVE_SYS_FILIO_H
@@ -97,7 +118,8 @@ char *alloca ();
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
-
+#include <error.h>
+#include <progname.h>
 #include <libinetutils.h>
 
 int keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
@@ -151,8 +173,6 @@ static struct option long_options[] = {
   {0, 0, 0, 0}
 };
 
-char *program_name;
-
 /* Remote shell server. We're invoked by the rcmd(3) function. */
 int
 main (int argc, char *argv[])
@@ -163,7 +183,8 @@ main (int argc, char *argv[])
   struct sockaddr_in from;
   int sockfd;
 
-  program_name = argv[0];
+  set_program_name (argv[0]);
+  
   opterr = 0;
   while ((ch = getopt_long (argc, argv, short_options, long_options, NULL))
 	 != EOF)

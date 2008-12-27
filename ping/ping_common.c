@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2007
+/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2007, 2008
    Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
@@ -167,11 +167,7 @@ ping_set_data (PING * p, void *data, size_t off, size_t len, bool use_ipv6)
   if (p->ping_datalen < off + len)
     return -1;
 
-  if(use_ipv6) {
-    icmp = (struct icmp6_hdr *) p->ping_buffer;
-  } else {
-    icmp = (icmphdr_t *) p->ping_buffer;
-  }
+  icmp = (icmphdr_t *) p->ping_buffer;
   memcpy (icmp->icmp_data + off, data, len);
 
   return 0;

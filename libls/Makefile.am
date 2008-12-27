@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -20,8 +20,10 @@ noinst_LIBRARIES = @libls_BUILD@
 
 EXTRA_LIBRARIES = libls.a
 
-libls_a_SOURCES = cmp.c stat_flags.c ls.c print.c util.c bsdport.c fts.c
+libls_a_SOURCES = cmp.c stat_flags.c ls.c print.c util.c fts.c
 
-noinst_HEADERS = extern.h ls.h bsdport.h fts.h
+noinst_HEADERS = extern.h ls.h fts.h
+
+INCLUDES=-I$(top_srcdir)/lib -I../lib
 
 EXTRA_DIST = ls.1

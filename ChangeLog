@@ -1,5 +1,72 @@
 2008-12-27  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	* bootstrap.conf: Add dirfd, filemode, inttostr and progname.
+	* configure.ac: Fix checks for IPv6 header files.
+	* doc/Makefile.am (inetutils_TEXINFOS): Add traceroute.texi.
+	* doc/ftp.texi: Fixes.
+	* ftp/cmds.c: Add missing includes.
+	* ftp/ftp.c: Remove extern program_name.
+	* ftp/ftp_var.h: Include progname.h
+	* ftp/main.c (main): Call set_program_name
+	* ftp/ruserpass.c: Include error.h
+	* ftpd/Makefile.am (LDADD): Link LIBLS before libgnu.
+	* ftpd/extern.h: Include getopt.h
+	* ftpd/ftpd.c, gwhois/whois.c, hostname/hostname.c,
+	logger/logger.c, rcp/rcp.c, rexecd/rexecd.c, rlogin/rlogin.c,
+	rsh/rsh.c, rshd/rshd.c, syslogd/syslogd.c, talk/talk.c,
+	traceroute/traceroute.c: Include progname.h
+	(main): Call set_program_name.
+	
+	* ftpd/popen.c: Remove useless extern.
+	* ifconfig/ifconfig.h: Include progname.h.
+	* ifconfig/options.c (parse_opt): Call set_program_name.
+	* ifconfig/options.h (program_name): Remove extern.
+	* inetd/inetd.c: Include progname.h
+	(main): Call set_program_name.
+	(EAI_ADDRFAMILY): Provide a fallback definition for FreeBSD.
+	* libinetutils/argcv.c: Include ctype.h
+	* libinetutils/libinetutils.h (utmp_logout, logwtmp_keep_open):
+	New protos.
+	* libls/bsdport.h: Remove
+	* libls/bsdport.c: Remove
+	* libls/Makefile.am (libls_a_SOURCES): Remove bsdport.c
+	(noinst_HEADERS): Remove bsdport.h
+	(INCLUDES): New var.
+	* libls/fts.c: Remove bsdport.h
+	* libls/ls.c: Remove bsdisms.
+	* libls/print.c: Likewise.
+	* libtelnet/auth.h (auth_debug_mode): Fix extern.
+	* ping/libping.c (ping_recv): Fix call to ping_event.handler.
+	* ping/ping.c, ping/ping6.c (main): Call set_program_name.
+	* ping/ping_common.c (ping_set_data): Remove useless if.
+	* ping/ping_common.h: Include error.h and progname.h
+	* rcp/util.c: Include error.h
+	* rlogind/rlogind.c: Include utmp.h
+
+	* talk/ctl.c (print_addr): Remove unused function.
+	* talk/ctl_transact.c: Include talk.h
+	* talk/display.c: Fix order of function definitions.
+	* talk/get_addrs.c: Include unistd.h
+	* talk/get_names.c: Include unistd.h and netinet/in.h
+	* talk/init_disp.c: Include unistd.h
+	* talk/invite.c: Fix order of function definitions.
+	* talk/io.c: Include unistd.h
+	* talk/look_up.c: Include unistd.h. Fix order of function
+	definitions.
+	* talk/talk.h: Include progname.h.
+	Add missing prototypes.
+	* talk/talk_ctl.h (ctl_transact): New proto.
+	* telnet/commands.c: Include sys/wait.h. Reorder function
+	definitions.
+	* telnet/externs.h, telnet/ring.h: Add missing prototypes.
+	* telnet/telnet.c: Reorder function definitions.
+	* telnet/utilities.c: Include sys/socket.h
+	* telnetd/telnetd.h: Include sys/stat.h and ctype.h.
+	Add missing prototypes.
+	* traceroute/Makefile.am (INCLUDES): Add ../lib.
+	(LDADD): Add ../libgnu.a
+	* uucpd/uucpd.c: Reorder function definitions.
+	
 	* NEWS, configure.ac: Version 1.6
 
 	* doc/ftp.texi: Use proper Texinfo markup

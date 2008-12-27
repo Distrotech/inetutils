@@ -355,18 +355,41 @@ if test "X$ipv6" = "Xno" -o "X$working_ipv6" = "Xno";then
 else
   working_icmp6=yes
 
-  AC_CHECK_HEADER(netinet/icmp6.h, , working_icmp6=no)
+  AC_CHECK_HEADER(netinet/icmp6.h, , working_icmp6=no,
+                  [#ifdef HAVE_SYS_TYPES_H
+		   # include <sys/types.h>
+		   #endif
+		   #include <sys/socket.h>
+		   #include <netinet/in.h>])
 
   if test "X$working_icmp6" = "Xyes"; then
-    AC_CHECK_HEADER(netinet/ip6.h, , working_icmp6=no)
+    AC_CHECK_HEADER(netinet/ip6.h, , working_icmp6=no,
+                    [#ifdef HAVE_SYS_TYPES_H
+		     # include <sys/types.h>
+		     #endif
+		     #include <sys/socket.h>
+  		     #include <netinet/in.h>])
+
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
-    AC_CHECK_TYPE(struct icmp6_filter, , working_icmp6=no, [#include <netinet/icmp6.h>])
+    AC_CHECK_TYPE(struct icmp6_filter, , working_icmp6=no,
+                  [#ifdef HAVE_SYS_TYPES_H
+		   # include <sys/types.h>
+		   #endif
+		   #include <sys/socket.h>
+  		   #include <netinet/in.h>
+		   #include <netinet/icmp6.h>])
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
-    AC_CHECK_TYPE(struct icmp6_hdr, , working_icmp6=no, [#include <netinet/icmp6.h>])
+    AC_CHECK_TYPE(struct icmp6_hdr, , working_icmp6=no,
+                  [#ifdef HAVE_SYS_TYPES_H
+		   # include <sys/types.h>
+		   #endif
+		   #include <sys/socket.h>
+  		   #include <netinet/in.h>
+		   #include <netinet/icmp6.h>])
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
@@ -381,7 +404,13 @@ else
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
-    IU_CHECK_MACRO(ICMP6_DST_UNREACH_BEYONDSCOPE, [#include <netinet/icmp6.h>], ,
+    IU_CHECK_MACRO(ICMP6_DST_UNREACH_BEYONDSCOPE,
+                   [#ifdef HAVE_SYS_TYPES_H
+		    # include <sys/types.h>
+		    #endif
+		    #include <sys/socket.h>
+  		    #include <netinet/in.h>
+		    #include <netinet/icmp6.h>], ,
     		   [have_beyondscope=yes], [have_beyondscope=no])
     if test "X$have_beyondscope" = "Xno"; then
       IU_CHECK_MACRO(ICMP6_DST_UNREACH_NOTNEIGHBOR, [#include <netinet/icmp6.h>], , [
@@ -459,9 +488,10 @@ dnl Checks return type of signal handlers
 AC_TYPE_SIGNAL
 
 AC_CHECK_TYPE(socklen_t, ,
-              AC_DEFINE(socklen_t, int,
-                        [Define to int if <sys/types.h> does not define],
-              [#include <sys/types.h>]))
+              [AC_DEFINE(socklen_t, int,
+                         [Define to int if <sys/types.h> does not define])],
+              [#include <sys/types.h>
+	       #include <sys/socket.h>])
 
 dnl We may need our own definition for struct osockaddr (equivalent to the
 dnl old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)

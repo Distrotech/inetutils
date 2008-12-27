@@ -27,6 +27,26 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -40,7 +60,7 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
-
+#include <sys/wait.h>
 #include <sys/file.h>
 
 #include <sys/socket.h>
@@ -418,30 +438,6 @@ send_esc ()
   return 1;
 }
 
-static int
-send_docmd (char *name)
-{
-  return (send_tncmd (send_do, "do", name));
-}
-
-static int
-send_dontcmd (char *name)
-{
-  return (send_tncmd (send_dont, "dont", name));
-}
-
-static int
-send_willcmd (char *name)
-{
-  return (send_tncmd (send_will, "will", name));
-}
-
-static int
-send_wontcmd (char *name)
-{
-  return (send_tncmd (send_wont, "wont", name));
-}
-
 int
 send_tncmd (void (*func) (), char *cmd, char *name)
 {
@@ -513,6 +509,30 @@ send_tncmd (void (*func) (), char *cmd, char *name)
     }
   (*func) (val, 1);
   return 1;
+}
+
+static int
+send_docmd (char *name)
+{
+  return (send_tncmd (send_do, "do", name));
+}
+
+static int
+send_dontcmd (char *name)
+{
+  return (send_tncmd (send_dont, "dont", name));
+}
+
+static int
+send_willcmd (char *name)
+{
+  return (send_tncmd (send_will, "will", name));
+}
+
+static int
+send_wontcmd (char *name)
+{
+  return (send_tncmd (send_wont, "wont", name));
 }
 
 static int
@@ -1591,7 +1611,7 @@ extern int shell ();
 
 /* int  argc;	 Number of arguments */
 /* char *argv[]; arguments */
-static
+static int
 bye (int argc, char *argv[])
 {
   extern int resettermname;
@@ -1686,7 +1706,7 @@ getslc (name)
     genget (name, (char **) SlcList, sizeof (struct slclist));
 }
 
-static
+static int
 slccmd (argc, argv)
      int argc;
      char *argv[];
@@ -2009,7 +2029,7 @@ env_default (int init, int welldefined)
   if (init)
     {
       nep = &envlisthead;
-      return;
+      return NULL;
     }
   if (nep)
     {
@@ -2418,6 +2438,8 @@ ayt_status ()
   call (status, "status", "notmuch", 0);
 }
 #endif
+
+static void cmdrc (char *m1, char *m2);
 
 int
 tn (int argc, char *argv[])
@@ -2830,7 +2852,7 @@ static Command cmdtab2[] = {
  * Call routine with argc, argv set from args (terminated by 0).
  */
 
-static
+static int
 #if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 call (intrtn_t routine, ...)
 #else
@@ -2999,7 +3021,7 @@ help (int argc, char *argv[])
 static char *rcname = 0;
 static char rcbuf[128];
 
-int
+static void
 cmdrc (char *m1, char *m2)
 {
   register Command *c;

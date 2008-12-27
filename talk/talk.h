@@ -29,7 +29,28 @@
  *	@(#)talk.h	8.1 (Berkeley) 6/6/93
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 #include <curses.h>
+#include <progname.h>
 
 extern int sockt;
 extern int curses_initialized;
@@ -53,3 +74,38 @@ typedef struct xwin
 extern xwin_t my_win;
 extern xwin_t his_win;
 extern WINDOW *line_win;
+
+/* io.c */
+int talk (void);
+int p_error (char *string);
+int message (char *string);
+
+/* init_disp.c */
+int init_display (void);
+int set_edit_chars (void);
+int quit (void);
+
+/* invite.c */
+int invite_remote (void);
+int send_delete (void);
+
+/* msgs.c */
+int start_msgs (void);
+int end_msgs (void);
+
+/* get_addrs.c */
+int get_addrs (char *my_machine_name, char *his_machine_name);
+
+/* get_names.c */
+int get_names (int argc, char *argv[]);
+
+/* display.c */
+int display (xwin_t * win, unsigned char *text, int size);
+
+int open_sockt (void);
+int open_ctl (void);
+
+/* look_up.c */
+int check_local (void);
+
+

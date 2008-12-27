@@ -1,4 +1,5 @@
-/* Copyright (C) 1998,2001, 2002,2006,2007 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2006,
+   2007, 2008 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -57,6 +58,9 @@
 #endif
 #include <arpa/inet.h>
 #include <netdb.h>
+#ifdef HAVE_UTMP_H
+# include <utmp.h>
+#endif
 
 #include <pwd.h>
 #include <syslog.h>

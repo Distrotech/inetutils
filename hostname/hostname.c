@@ -29,7 +29,7 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
-
+#include <progname.h>
 #include "libinetutils.h"
 #include "xalloc.h"
 
@@ -145,6 +145,8 @@ main (int argc, char *argv[])
 {
   hostname_options options;
 
+  set_program_name (argv[0]);
+  
   memset ((void *) &options, 0, sizeof (options));
 
   /* Parse command line */

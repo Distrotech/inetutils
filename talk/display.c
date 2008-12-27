@@ -27,6 +27,26 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 /*
  * The window 'manager', initializes curses and handles the actual
  * displaying of text
@@ -53,6 +73,45 @@ int
 max (int a, int b)
 {
   return a > b ? a : b;
+}
+
+/*
+ * Read the character at the indicated position in win
+ */
+static int
+readwin (WINDOW * win, int line, int col)
+{
+  int oldline, oldcol;
+  register int c;
+
+  getyx (win, oldline, oldcol);
+  wmove (win, line, col);
+  c = winch (win);
+  wmove (win, oldline, oldcol);
+  return (c);
+}
+
+/*
+ * Scroll a window, blanking out the line following the current line
+ * so that the current position is obvious
+ */
+static void
+xscroll (register xwin_t * win, int flag)
+{
+  if (flag == -1)
+    {
+      wmove (win->x_win, 0, 0);
+      win->x_line = 0;
+      win->x_col = 0;
+      return;
+    }
+  win->x_line = (win->x_line + 1) % win->x_nlines;
+  win->x_col = 0;
+  wmove (win->x_win, win->x_line, win->x_col);
+  wclrtoeol (win->x_win);
+  wmove (win->x_win, (win->x_line + 1) % win->x_nlines, win->x_col);
+  wclrtoeol (win->x_win);
+  wmove (win->x_win, win->x_line, win->x_col);
 }
 
 /*
@@ -162,41 +221,3 @@ display (register xwin_t * win, register unsigned char *text, int size)
   wrefresh (win->x_win);
 }
 
-/*
- * Read the character at the indicated position in win
- */
-int
-readwin (WINDOW * win, int line, int col)
-{
-  int oldline, oldcol;
-  register int c;
-
-  getyx (win, oldline, oldcol);
-  wmove (win, line, col);
-  c = winch (win);
-  wmove (win, oldline, oldcol);
-  return (c);
-}
-
-/*
- * Scroll a window, blanking out the line following the current line
- * so that the current position is obvious
- */
-int
-xscroll (register xwin_t * win, int flag)
-{
-  if (flag == -1)
-    {
-      wmove (win->x_win, 0, 0);
-      win->x_line = 0;
-      win->x_col = 0;
-      return;
-    }
-  win->x_line = (win->x_line + 1) % win->x_nlines;
-  win->x_col = 0;
-  wmove (win->x_win, win->x_line, win->x_col);
-  wclrtoeol (win->x_win);
-  wmove (win->x_win, (win->x_line + 1) % win->x_nlines, win->x_col);
-  wclrtoeol (win->x_win);
-  wmove (win->x_win, win->x_line, win->x_col);
-}

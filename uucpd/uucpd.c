@@ -30,6 +30,26 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+   Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 /*
  * 4.2BSD TCP/IP server for uucico
  * uucico's TCP channel causes this server to be run at the remote end.
@@ -209,6 +229,26 @@ main (int argc, char **argv)
 #endif /* !BSDINETD */
 }
 
+static int
+readline (register char *p, register int n)
+{
+  char c;
+
+  while (n-- > 0)
+    {
+      if (read (0, &c, 1) <= 0)
+	return (-1);
+      c &= 0177;
+      if (c == '\n' || c == '\r')
+	{
+	  *p = '\0';
+	  return (0);
+	}
+      *p++ = c;
+    }
+  return (-1);
+}
+
 void
 doit (struct sockaddr_in *sinp)
 {
@@ -266,26 +306,6 @@ doit (struct sockaddr_in *sinp)
   execl (UUCICO, "uucico", (char *) 0);
 #endif /* BSD4_2 */
   perror ("uucico server: execl");
-}
-
-int
-readline (register char *p, register int n)
-{
-  char c;
-
-  while (n-- > 0)
-    {
-      if (read (0, &c, 1) <= 0)
-	return (-1);
-      c &= 0177;
-      if (c == '\n' || c == '\r')
-	{
-	  *p = '\0';
-	  return (0);
-	}
-      *p++ = c;
-    }
-  return (-1);
 }
 
 #ifdef BSD4_2

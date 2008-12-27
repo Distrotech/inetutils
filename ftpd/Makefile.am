@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@ LIBWRAP = @LIBWRAP@
 LIBPAM = @LIBPAM@
 LIBLS = @LIBLS@
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu \
-          $(LIBLS) $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
+LDADD = -L../libinetutils -linetutils $(LIBLS) -L../lib -lgnu \
+          $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
 
 EXTRA_DIST = $(man_MANS) ftpcmd.c
