@@ -2,25 +2,25 @@
 @chapter @command{traceroute}: Trace the route to a host.
 @pindex traceroute
 
-@command{traceroute} traces the route packets take to a host.
+@command{Traceroute} traces the route packets take to a host.
 
 @example
 traceroute [@var{option}]@dots{} [@var{host}]
 @end example
 
-@table @samp
+@table @option
 
 @item -M @var{method}
 @itemx --type=@var{method}
 @opindex -M
 @opindex --type
-Use @var{method} (`icmp' or `udp') for traceroute operations.
+Use @var{method} (@samp{icmp} or @samp{udp}) for traceroute operations.
 
 @item -p @var{port}
-@itemx --type=@var{method}
+@itemx --port=@var{port}
 @opindex -p
 @opindex --port
-Use destination @var{port} port (default: 33434).
+Use destination @var{port} (default: 33434).
 
 @item -q @var{num}
 @itemx --tries=@var{num}

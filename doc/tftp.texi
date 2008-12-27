@@ -1,8 +1,8 @@
 @node tftp invocation
-@chapter @command{tftp}: TFTP  client
+@chapter @command{tftp}: TFTP client
 @cindex tftp
 
-@command{tftp} is the user interface to the Internet TFTP (Trivial
+@command{Tftp} is the user interface to the Internet @acronym{TFTP} (Trivial
 File Transfer Protocol), which allows users to transfer files to and
 from a remote machine.  The remote host may be specified on the
 command line, in which case tftp uses host as the default host for
@@ -18,21 +18,21 @@ tftp [@var{option}]@dots{} @var{host}
 Once tftp is running, it issues the prompt and recognizes the following
 commands:
 
-@table @samp
+@table @code
 
 @item ? @var{command-name}
 Print help information.
 
 @item ascii
-Shorthand for "mode ascii"
+Shorthand for @code{mode ascii}
 
 @item binary
-Shorthand for "mode binary"
+Shorthand for @code{mode binary}
 
 @item connect @var{host-name} [@var{port}]
 Set the host (and optionally port) for transfers.  Note that the
-TFTP protocol, unlike the FTP protocol, does not maintain connections
-between transfers; thus, the connect command does not
+@acronym{TFTP} protocol, unlike the @acronym{FTP} protocol, does not
+maintain connections between transfers; thus, the connect command does not
 actually create a connection, but merely remembers what host is
 to be used for transfers.  You do not have to use the connect
 command; the remote host can be specified as part of the get or
@@ -43,14 +43,14 @@ put commands.
 @itemx get @var{file}@dots{}
 Get a file or set of files from the specified sources. Source can be
 in one of two forms: a filename on the remote host, if the host has
-already been specified, or a string of the form hosts:filename to
+already been specified, or a string of the form @samp{hosts:filename} to
 specify both a host and filename at the same time.  If the latter form
 is used, the last hostname specified becomes the default for future
 transfers.
 
 @item mode @var{transfer-mode}
-Set the mode for transfers; transfer-mode may be one of ascii or
-binary. The default is ascii.
+Set the mode for transfers; @var{transfer-mode} may be one of @samp{ascii} or
+@samp{binary}. The default is @samp{ascii}.
 
 @item put @var{file}
 @itemx put @var{localfile} @var{remotefile}
@@ -58,13 +58,13 @@ binary. The default is ascii.
 Put a file or set of files to the specified remote file or directory.
 The destination can be in one of two forms: a filename on the remote
 host, if the host has already been specified, or a string of the form
-hosts:filename to specify both a host and filename at the same time.
+@samp{hosts:filename} to specify both a host and filename at the same time.
 If the latter form is used, the hostname specified becomes the default
-for future transfers.  If the remote-directory form is used, the
-remote host is assumed to be a UNIX machine.
+for future transfers.  If the @file{remote-directory} form is used, the
+remote host is assumed to be a @acronym{UNIX} machine.
 
 @item quit
-Exit tftp. An end of file also exits.
+Exit @command{tftp}. An end of file also exits.
 
 @item rexmt @var{retransmission-timeout}
 Set the per-packet retransmission timeout, in seconds.
@@ -83,7 +83,7 @@ Toggle verbose mode.
 
 @end table
 
-Because there is no user-login or validation within the TFTP protocol,
-the remote site will probably have some sort of file-access
+Because there is no user-login or validation within the @command{TFTP}
+protocol, the remote site will probably have some sort of file-access
 restrictions in place.  The exact methods are specific to each site
 and therefore difficult to document here.

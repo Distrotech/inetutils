@@ -2,7 +2,7 @@
 @chapter @command{talkd}: a server for communication between users
 @cindex talkd
 
-@command{talkd} is the server that notifies a user that someone else
+@command{Talkd} is the server that notifies a user that someone else
 wants to initiate a conversation.  It acts as a repository of
 invitations, responding to requests by clients wishing to rendezvous
 to hold a conversation.
@@ -11,12 +11,12 @@ to hold a conversation.
 talkd [@var{option}]@dots{}
 @end example
 
-@table @samp
+@table @option
 @item -a @var{file}
 @itemx --acl=@var{file}
 @opindex -a
 @opindex --acl
-Read site-wide ACLs from @var{file}.
+Read site-wide @acronym{ACL}s from @var{file}.
 
 @item -d
 @item --debug
@@ -45,13 +45,12 @@ Set timeout value.
 
 @end table
 
-
 In normal operation, a client, the caller, initiates a rendezvous by
-sending a CTL_MSG to the server of type LOOK_UP (see
-<protocols/talkd.h>). This causes the server to search its invitation
+sending a @code{CTL_MSG} to the server of type @samp{LOOK_UP} (see
+@file{protocols/talkd.h}). This causes the server to search its invitation
 tables to check if an invitation currently exists for the caller (to
 speak to the callee specified in the message).  If the lookup fails,
-the caller then sends an ANNOUNCE message causing the server to
+the caller then sends an @samp{ANNOUNCE} message causing the server to
 broadcast an announcement on the callee's login ports requesting
 contact.  When the callee responds, the local server uses the recorded
 invitation to respond with the appropriate rendezvous address and the

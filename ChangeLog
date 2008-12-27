@@ -1,3 +1,22 @@
+2008-12-27  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* doc/ftp.texi: Use proper Texinfo markup
+	* doc/ftpd.texi: Likewise.
+	* doc/inetutils.texi: Likewise.
+	* doc/logger.texi: Likewise.
+	* doc/ping.texi: Likewise.
+	* doc/rcp.texi: Likewise.
+	* doc/rexecd.texi: Likewise.
+	* doc/rlogin.texi: Likewise.
+	* doc/rlogind.texi: Likewise.
+	* doc/rsh.texi: Likewise.
+	* doc/rshd.texi: Likewise.
+	* doc/syslogd.texi: Likewise.
+	* doc/talk.texi: Likewise.
+	* doc/talkd.texi: Likewise.
+	* doc/tftp.texi: Likewise.
+	* doc/traceroute.texi: Likewise.
+
 2008-12-12  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* bootstrap.conf: Add version-etc-fsf.

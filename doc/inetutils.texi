@@ -143,7 +143,7 @@ GNU/Linux, the merges were done by a group of dedicated hackers (in no
 particular order): Jeff Bailey, Marcus Brinkmann, Michael Vogt,
 Bernhard Rosenkraenzer, Kaveh R. Ghazi, NIIBE Yutaka, Nathan
 Neulinger, Jeff Smith, Dan Stromberg, David O'Shea, Frederic Goudal,
-Gerald Combs, Joachim Gabler, Marco D'Itri.
+Gerald Combs, Joachim Gabler, Marco D'Itri, Sergey Poznyakoff.
 
 @node Common options
 @chapter Common options
@@ -154,10 +154,10 @@ described here.  (In fact, every GNU program accepts (or should
 accept) these options.)
 
 Many of these programs take arbitrary strings as arguments.  In those
-cases, @samp{--help} and @samp{--version} are taken as these options
+cases, @option{--help} and @option{--version} are taken as these options
 only if there is one and exactly one command line argument.
 
-@table @samp
+@table @option
 
 @item --help
 @opindex --help

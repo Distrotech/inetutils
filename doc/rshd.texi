@@ -3,38 +3,41 @@
 @cindex rshd
 
 The @command{rshd} server is the server for the rcmd(3) routine and,
-consequently, for the rsh(1) program.  The server provides remote execution
-facilities with authentication based on privileged port numbers from trusted
-hosts.  The @command{rshd} server listens for service requests at the port
-indicated in the ``cmd'' service specification; see services(5).  When a
-service request is received the following protocol is initiated:
+consequently, for the @command{rsh} (@pxref{rsh}) program.  The server
+provides remote execution facilities with authentication based on
+privileged port numbers from trusted hosts.  The @command{rshd} server
+listens for service requests at the port indicated in the @samp{cmd}
+service specification; see @ref{Internet network services list,,,
+services(5), services(5) man page}..  When a service request is
+received the following protocol is initiated: 
 
 @enumerate
 
 @item
 The server checks the client's source port.  If the port is not in
-the range 512-1023, the server aborts the connection.
+the range 512--1023, the server aborts the connection.
 
 @item
-The server reads characters from the socket up to a null (`\0')
-byte.  The resultant string is interpreted as an ASCII number, base 10.
+The server reads characters from the socket up to a NUL (@samp{\0})
+byte.  The resultant string is interpreted as an @acronym{ASCII}
+number, base 10. 
 
 @item
 If the number received in step 2 is non-zero, it is interpreted as
 the port number of a secondary stream to be used for the stderr. A
 second connection is then created to the specified port on the
 client's machine.  The source port of this second connection is also
-in the range 512-1023.
+in the range 512--1023.
 
 @item
 The server checks the client's source address and requests the corresponding
 host name (see gethostbyaddr(3),  hosts(5) and named(8)).  If the hostname
 cannot be determined, the dot-notation representation of the host address is
 used.  If the hostname is in the same domain as the server (according to the
-last two components of the domain name), or if the -a option is given, the
-addresses for the hostname are requested, verifying that the name and address
-correspond.  If address verification fails, the connection is aborted
-with the message, ``Host address mismatch.''
+last two components of the domain name), or if the @option{-a} option
+is given, the addresses for the hostname are requested, verifying that
+the name and address correspond.  If address verification fails, the
+connection is aborted with the message, @samp{Host address mismatch.}
 
 @item
 A null terminated user name of at most 16 characters is retrieved on
@@ -53,12 +56,13 @@ bound on the size of the system's argument list.
 
 @item
 Rshd then validates the user using ruserok(3),  which uses the file
-/etc/hosts.equiv and the .rhosts file found in the user's home directory.
-The -l option prevents ruserok(3) from doing any validation based on the
-user's ``.rhosts'' file, unless the user is the superuser.
+@file{/etc/hosts.equiv} and the @file{.rhosts} file found in the
+user's home directory. The @option{-l} option prevents ruserok(3) from
+doing any validation based on the user's @file{.rhosts} file, unless
+the user is the superuser. 
 
 @item
-If the file /etc/nologin exists and the user is not the superuser,
+If the file @file{/etc/nologin} exists and the user is not the superuser,
 the connection is closed.
 
 @item
@@ -67,23 +71,24 @@ is passed to the normal login shell of the user.  The shell inherits
 the network connections established by @command{rshd}.
 
 @item
-Transport-level keepalive messages are enabled unless the -n option is
+Transport-level keepalive messages are enabled unless the @option{-n} option is
 present.  The use of keepalive messages allows sessions to be timed out
 if the client crashes or becomes unreachable.
 
 @item
-The -L option causes all successful accesses to be logged to syslogd(8)
-as auth.info messages.
+The @option{-L} option causes all successful accesses to be logged to
+@command{syslogd} (@pxref{syslogd invocation}) as @samp{auth.info} messages.
 
 @end enumerate
 
-@xref{ruserok, , ruserok, libc, The GNU C Library Reference Manual}, for details.
+@xref{ruserok, , ruserok, libc, The GNU C Library Reference Manual},
+for details. 
 
 @section Invoking
 
-The options are as follows :
+The options are as follows:
 
-@table @samp
+@table @option
 @item -a
 @itemx --verify-hostname
 @opindex -a
@@ -100,10 +105,10 @@ Ask hostname for verification.
 @itemx --no-rhosts
 @opindex -l
 @opindex --no-rhosts
-Ignore .rhosts file.
+Ignore @file{.rhosts} file.
 
-@item -L
-@itemx --local-domain=NAME
+@item -L @var{name}
+@itemx --local-domain=@var{name}
 @opindex -L
 @opindex --local-domain
 Set local domain name.
@@ -124,12 +129,12 @@ Use kerberos IV authentication.
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on DES encryption for all data passed via the @command{rshd} session.
-This may impact response time and CPU utilization, but provides increased
-security.
+Turns on @acronym{DES} encryption for all data passed via the
+@command{rshd} session.  This may impact response time and
+@acronym{CPU} utilization, but provides increased security.
 
-@item -D
-@itemx --debug[=LEVEL]
+@item -D[@var{level}]
+@itemx --debug[=@var{level}]
 @opindex -D
 @opindex -debug
 Set debug level, not implemented.
@@ -150,10 +155,10 @@ Display program version.
 @c @itemx --allow-root
 @c @opindex -o
 @c @opindex --allow-root
-@c Allow uid == 0 to login, disable by default\n"
+@c Allow uid == 0 to login, disabled by default
 
-@c @item -p
-@c @itemx --port=PORT
+@c @item -p @var{port}
+@c @itemx --port=@var{port}
 @c @opindex -p
 @c @opindex --port
 @c Listen on given port (valid only in daemon mode).
@@ -162,7 +167,7 @@ Display program version.
 @c @itemx --reverse-required
 @c @opindex -r
 @c @opindex --reverse-required
-@c Required  Require reverse resolving of a remote host IP.
+@c Required  Require reverse resolving of a remote host @acronym{IP}.
 
 @end table
 
@@ -203,11 +208,10 @@ The pipe needed for the stderr, wasn't created.
 A fork by the server failed.
 
 @item <shellname>: ...
-The user's login shell could not be started.  This message is re-
-turned on the connection associated with the stderr, and is not
-preceded by a flag byte.
+The user's login shell could not be started.  This message is returned
+on the connection associated with the stderr, and is not preceded by a
+flag byte. 
 @end table
-
 
 The authentication procedure used here assumes the integrity of each
 client machine and the connecting medium.  This is insecure, but is useful

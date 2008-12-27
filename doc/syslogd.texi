@@ -2,7 +2,7 @@
 @chapter @command{syslogd}: system service logging faclity
 @cindex syslogd
 
-@command{syslogd} is a system service that provides error logging
+@command{Syslogd} is a system service that provides error logging
 facility.  Messages are read from the @acronym{UNIX} domain socket
 @file{/dev/log}, from an Internet domain socket specified in
 @file{/etc/services}, and from the special device @file{/dev/klog} (to
@@ -22,7 +22,7 @@ file @code{sys/syslog.h}.
 syslog [@var{options}]@dots{}
 @end example
 
-@table @samp
+@table @option
 @item -f @var{file}
 @itemx --rcfile=@var{file}
 @opindex -f
@@ -46,7 +46,7 @@ Do not enter daemon mode.
 Print debug information (implies @option{-n}).
 
 @item -p @var{file}
-@item --socket=@var{FILE}
+@item --socket=@var{file}
 @opindex -p
 @opindex --socket
 Override default @acronym{UNIX} domain socket @file{/dev/log}.
@@ -80,7 +80,7 @@ Do not forward any messages (overrides @option{-h}).
 @opindex --hop
 Forward messages from remote hosts.
 
-@item -m interval
+@item -m @var{interval}
 @item --mark=@var{interval}
 @opindex -m
 @opindex --mark
@@ -92,20 +92,20 @@ Log hosts in @var{hostlist} by their hostname. Multiple lists are allowed.
 
 @item -s @var{domainlist}
 @opindex -s
-List of domains which should be stripped from the FQDN of hosts before
-logging their name.  Multiple lists are allowed.
+List of domains which should be stripped from the @acronym{FQDN} of
+hosts before logging their name.  Multiple lists are allowed.
 @end table
 
 @section Configuration file
 
-@command{syslogd} reads its configuration file when it starts up and
+@command{Syslogd} reads its configuration file when it starts up and
 whenever it receives a hangup signal.  The @file{syslog.conf} file is
 the configuration file for the @command{syslogd} program.  It consists
-of lines with two fields: the @emph{selector} field which specifies
+of lines with two fields: the @dfn{selector} field which specifies
 the types of messages and priorities to which the line applies, and an
-@emph{action} field which specifies the action to be taken if a
+@dfn{action} field which specifies the action to be taken if a
 message @command{syslogd} receives matches the selection criteria.
-The @emph{selector} field is separated from the action field by one or
+The selector field is separated from the action field by one or
 more tab or space characters. A rule can be splitted in several lines
 if all lines except the last are terminated with a backslash @samp{\}.
 
@@ -158,7 +158,7 @@ means that this line of the configuration file does not apply to the
 specified level (and higher ones). In conjunction with the equal sign,
 you can exclude single levels as well.
 
-The special facility @emph{mark} receives a message at priority
+The special facility @samp{mark} receives a message at priority
 @samp{info} every 20 minutes.  This is not enabled by a facility field
 containing an asterisk.
 
@@ -179,7 +179,7 @@ extensively.
 
 @item
 A named pipe (fifo), beginning with a vertical bar (@samp{|}) followed
-by a pathname. The pipe must be created with @command{mkfifo}(8)
+by a pathname. The pipe must be created with @command{mkfifo}
 before @command{syslogd} reads its configuration file.  This feature
 is especially useful fo debugging.
 

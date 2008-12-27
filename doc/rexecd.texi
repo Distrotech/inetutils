@@ -2,7 +2,7 @@
 @chapter @command{rexecd}: server for @code{rexec}
 @cindex rexecd
 
-@command{rexecd} is the server for the @code{rexec} routine.  The
+@command{Rexecd} is the server for the @code{Rexec} routine.  The
 server provides remote execution facilities with authentication based
 on user names and passwords.
 
@@ -11,15 +11,15 @@ rexecd [@var{option}]@dots{}
 @end example
 
 
-@command{rexecd} listens for service requests at the port indicated in the
-``exec'' service specification; see services(5).  When a service request is
-received the following protocol is initiated:
+@command{Rexecd} listens for service requests at the port indicated in the
+@samp{exec} service specification; see services(5).  When a service
+request is received the following protocol is initiated:
 
 @enumerate
 
 @item
-The server reads characters from the socket up to a NUL (`\0') byte.
-The resultant string is interpreted as an ASCII number, base 10.
+The server reads characters from the socket up to a NUL (@samp{\0}) byte.
+The resultant string is interpreted as an @acronym{ASCII} number, base 10.
 
 @item
 If the number received in step 1 is non-zero, it is interpreted as
@@ -41,7 +41,7 @@ initial socket.  The length of the command is limited by the upper
 bound on the size of the system's argument list.
 
 @item
-@command{rexecd} then validates the user as is done at login time and, if the
+@command{Rexecd} then validates the user as is done at login time and, if the
 authentication was successful, changes to the user's home directory,
 and establishes the user and group protections of the user.  If any
 of these steps fail the connection is aborted with a diagnostic message
@@ -91,8 +91,9 @@ The user's login shell could not be started.  This message is returned on
 the connection associated with the stderr, and is not
 
 @end table
-Indicating ``Login incorrect'' as opposed to ``Password incorrect'' is a
-security breach which allows people to probe a system for users with null
-passwords.
+
+@emph{Note}, that indicating @samp{Login incorrect} as opposed to
+@samp{Password incorrect} is a security breach which allows people to
+probe a system for users with null passwords.
 
 
