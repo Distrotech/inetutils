@@ -37,8 +37,8 @@
 #include <stdlib.h>
 
 #include "ring.h"
-#include "externs.h"
 #include "defines.h"
+#include "externs.h"
 
 /* These values need to be the same as defined in libtelnet/kerberos5.c */
 /* Either define them in both places, or put in some common header file. */

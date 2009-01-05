@@ -50,7 +50,7 @@ struct ping_stat
 
 #define PING_CKTABSIZE 128
 
-#define DEFAULT_PING_COUNT 4
+#define DEFAULT_PING_COUNT 0
 
 #define PING_TIMING(s) (s >= PING_HEADER_LEN)
 #define PING_HEADER_LEN sizeof (struct timeval)
