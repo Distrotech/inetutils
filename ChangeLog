@@ -1,3 +1,7 @@
+2009-01-23  Rakesh Pandit <rakesh.pandit@gmail.com>
+
+	* ftpd/ftpcmd.y: Fix typo.
+
 2008-12-27  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* bootstrap.conf: Add xgethostname and xgetdomainname.

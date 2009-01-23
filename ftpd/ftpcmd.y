@@ -181,7 +181,7 @@ cmd
 					sizeof (data_dest.sin_addr)) == 0 &&
 					ntohs (data_dest.sin_port) >
 					IPPORT_RESERVED) {
-					reply (200, "PORT command sucessful.");
+					reply (200, "PORT command successful.");
 				}
 				else {
 					memset (&data_dest, 0,
