@@ -1,17 +1,18 @@
 This is the GNU Inetutils package.
-This document describes the actions needed to build the pre-release
-or CVS version of the package. See end of file for copying conditions.
+
+This document describes the actions needed to build the pre-release or
+CVS version of the package.  See end of file for copying conditions.
 
 * Introduction
 
-This is a *pre-release* version, and not ready for production use
-yet. If you are taking source from CVS, you will need to have several
-special tools to help contribute. See the file README-hacking for more
-information, See chapter `Building' for the detailed instructions on
-how to build the package.
+This is a *pre-release* version, and not ready for production use yet.
+If you are taking source from CVS, you will need to have several
+special tools to help contribute.  See the file README-hacking for
+more information, see chapter `Building' for the detailed instructions
+on how to build the package.
 
-Please, note that the accompanying documentation may be inaccurate
-or incomplete. See ChangeLog for the list of recent changes.
+Please, note that the accompanying documentation may be inaccurate or
+incomplete.  See ChangeLog for the list of recent changes.
 
 Report bugs to <bug-inetutils@gnu.org>
 
@@ -28,21 +29,55 @@ the CVS repository:
 
   cvs -d:pserver:anoncvs@cvs.gnu.org:/cvsroot/inetutils co inetutils
 
-There is also a Git mirror of the CVS repository.  To obtain sources from
-Git use:
+There is also a Git mirror of the CVS repository.  To obtain sources
+from Git use:
 
   git clone git://git.sv.gnu.org/inetutils.git
   
 Both ways will give you read-only access.  If you think you need write
 access, contact the mailing list.
 
+* Prerequisites
+
+You need the following packages to build the development version of
+GNU Inetutils.  We don't make any extra effort to accommodate older
+versions of these packages, so please make sure that you have the
+latest stable version.
+
+- Autoconf <http://www.gnu.org/software/autoconf/>
+- Automake <http://www.gnu.org/software/automake/>
+- Bison <http://www.gnu.org/software/bison/>
+- Gettext <http://www.gnu.org/software/gettext/>
+- Gnulib <http://www.gnu.org/software/gnulib/>
+- Libtool <http://www.gnu.org/software/libtool/>
+- M4 <http://www.gnu.org/software/m4/>
+- Texinfo <http://www.gnu.org/software/texinfo>
+
 * Building
 
-Usual procedures apply:
+1. Change to the source tree directory
 
- ./configure
- make
- make install
+   cd inetutils
+
+2. Run
+
+   ./bootstrap
+
+Once done, proceed as described in the file INSTALL.
+
+Normally you will have to run bootstrap only once.  However, if you
+intend to hack on Inetutils, you might need to run it again later.  In
+this case, you will probably want to save some time and bandwidth by
+avoiding downloading the same files again.  If so, create in Inetutils
+root directory the file named `.bootstrap' with the following
+contents:
+
+   --gnulib-srcdir=$HOME/gnulib --skip-po
+
+Replace `$HOME/gnulib' with the actual directory where the Gnulib
+sources reside.
+
+For more information about `bootstrap', run `bootstrap --help'.
 
 See INSTALL and README for the detailed instructions.
 
@@ -51,14 +86,11 @@ See INSTALL and README for the detailed instructions.
 You can track the CVS process through the <commit-inetutils@gnu.org>
 mailing list.  This is a medium volume moderated list.
 
-Daily snapshots built from CVS are available from:
-
-  http://daily.josefsson.org/inetutils/
+Daily snapshots built from CVS are available from
+<http://daily.josefsson.org/inetutils/>
 
 Log outputs from building the daily snapshot on some systems are
-available from:
-
-  http://autobuild.josefsson.org/inetutils/
+available from <http://autobuild.josefsson.org/inetutils/>
 
 * Copyright information:
 

@@ -1,3 +1,9 @@
+2009-04-11  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap.conf (checkout_only_file): New variable.
+	* README-hacking: File removed.
+	* README-alpha: Updated.
+
 2009-01-23  Rakesh Pandit <rakesh.pandit@gmail.com>
 
 	* ftpd/ftpcmd.y: Fix typo.
@@ -16,7 +22,7 @@
 	* libls/fts.c: Fix bsdisms.
 	* ping/ping.c: Include netinet/in.h
 	* ping/ping_common.c: Include sys/socket.h and string.h.
-		
+
 	* bootstrap.conf: Add dirfd, filemode, inttostr and progname.
 	* configure.ac: Fix checks for IPv6 header files.
 	* doc/Makefile.am (inetutils_TEXINFOS): Add traceroute.texi.
@@ -33,7 +39,7 @@
 	rsh/rsh.c, rshd/rshd.c, syslogd/syslogd.c, talk/talk.c,
 	traceroute/traceroute.c: Include progname.h
 	(main): Call set_program_name.
-	
+
 	* ftpd/popen.c: Remove useless extern.
 	* ifconfig/ifconfig.h: Include progname.h.
 	* ifconfig/options.c (parse_opt): Call set_program_name.
@@ -83,7 +89,7 @@
 	* traceroute/Makefile.am (INCLUDES): Add ../lib.
 	(LDADD): Add ../libgnu.a
 	* uucpd/uucpd.c: Reorder function definitions.
-	
+
 	* NEWS, configure.ac: Version 1.6
 
 	* doc/ftp.texi: Use proper Texinfo markup
@@ -128,9 +134,9 @@
 	Use getaddrinfo wherever it is available, otherwise fall back
 	to gethostbyname/getservbyname approach.
 	Improve debugging diagnostics.
-	
+
 	* doc/inetd.texi: Rewrite in a manual fashion. Document new
-	features. 
+	features.
 	* inetd/inetd.8: Provide a reference to texinfo docs.
 
 2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
@@ -144,9 +150,9 @@
 	Removed PING_INTERVAL.
 	* ping/ping6.c (ping_run): Used PING_SET_INTERVAL similar to
 	libping.c and used PING_DEFAULT_INTERVAL in place of PING_INTERVAL.
-	
+
 	* ping/libping.c (ping_set_datalen): Removed.
-	
+
 	* ping/libping.c, ping/ping_common.c (_ping_freebuf, ping_unset_data):
 	Moved _ping_freebuf, ping_unset_data from libping.c to ping_common.c.
 	* ping/ping6.c (ping_run): Free memory with call to ping_unset_data.
