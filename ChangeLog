@@ -1,5 +1,10 @@
 2009-04-11  Alfred M. Szmidt  <ams@gnu.org>
 
+	* bootstrap.conf (checkout_only_file): Removed variable.
+	* README-hacking: New file.
+
+2009-04-11  Alfred M. Szmidt  <ams@gnu.org>
+
 	* bootstrap.conf (checkout_only_file): New variable.
 	* README-hacking: File removed.
 	* README-alpha: Updated.
