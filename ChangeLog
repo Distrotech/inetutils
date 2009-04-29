@@ -1,3 +1,16 @@
+2009-04-29  Alfred M. Szmidt  <ams@gnu.org>
+
+	* doc/Makefile.am (inetutils_TEXINFOS): Removed ftp.texi,
+	ftpd.texi, inetd.texi, logger.texi ping.texi, rcp.texi
+	rexecd.texi, rlogin.texi, rlogind.texi, rsh.texi rshd.texi,
+	syslogd.texi, talk.texi, talkd.texi tftp.texi and traceroute.texi
+	from list.
+	* ftp.texi, ftpd.texi, inetd.texi, logger.texi, ping.texi,
+	rcp.texi, rexecd.texi, rlogin.texi, rlogind.texi, rsh.texi,
+	rshd.texi, syslogd.texi talk.texi, talkd.texi tftp.texi,
+	traceroute.texi: Files removed.
+	* doc/inetutils.texi: Rewritten.
+
 2009-04-11  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (checkout_only_file): Removed variable.
