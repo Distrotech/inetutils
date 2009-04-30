@@ -50,6 +50,8 @@ struct ping_stat
 
 #define PING_CKTABSIZE 128
 
+/* The rationale for not exiting after a sending N packets is that we
+   want to follow the traditional behaviour of ping.  */
 #define DEFAULT_PING_COUNT 0
 
 #define PING_TIMING(s) (s >= PING_HEADER_LEN)
