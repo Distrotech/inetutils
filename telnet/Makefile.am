@@ -25,8 +25,6 @@ telnet_SOURCES = authenc.c commands.c main.c network.c ring.c sys_bsd.c \
 
 noinst_HEADERS = defines.h externs.h fdset.h general.h ring.h types.h
 
-man_MANS = telnet.1
-
 INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 AM_CPPFLAGS=-DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
@@ -35,5 +33,3 @@ LIBCRYPT = @LIBCRYPT@
 
 LDADD = -L../libinetutils -L../libtelnet -linetutils	\
 	-ltelnet -L../lib -lgnu $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
-
-EXTRA_DIST = $(man_MANS)

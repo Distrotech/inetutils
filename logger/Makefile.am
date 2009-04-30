@@ -24,7 +24,3 @@ LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
 EXTRA_PROGRAMS = logger
 
 logger_SOURCES = logger.c
-
-man_MANS = logger.1
-
-EXTRA_DIST = $(man_MANS)

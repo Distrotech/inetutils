@@ -24,10 +24,6 @@ talk_SOURCES = ctl.c ctl_transact.c display.c get_addrs.c get_names.c init_disp.
 
 noinst_HEADERS = talk.h talk_ctl.h
 
-man_MANS = talk.1
-
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils $(NCURSES_INCLUDE)
 
 LDADD = $(LIBCURSES) -L../libinetutils -linetutils -L../lib -lgnu
-
-EXTRA_DIST = $(man_MANS)

@@ -24,8 +24,6 @@ EXTRA_PROGRAMS = rlogind
 
 rlogind_SOURCES = rlogind.c
 
-man_MANS = rlogind.8
-
 @PATHDEFS_MAKE@
 
 INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
@@ -35,5 +33,3 @@ AM_CPPFLAGS = $(PATHDEF_DEV) $(PATHDEF_LOGIN)
 LIBUTIL = @LIBUTIL@
 
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
-
-EXTRA_DIST = $(man_MANS)

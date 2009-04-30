@@ -1,3 +1,33 @@
+2009-04-30  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ftp/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* ftpd/Makefile.am (EXTRA_DIST): Removed man_MANS from list
+	* ftpd/Makefile.am (man_MANS): Variable removed.
+	* inetd/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* libls/Makefile.am (EXTRA_DIST): Variable removed.
+	* logger/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* ping/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* rcp/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* rexecd/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* rlogin/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* rlogind/Makefile.am (EXTRA_DIST, man_MANS): Variable removed.
+	* rsh/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* rshd/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* syslogd/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* talk/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* talkd/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* telnet/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* telnetd/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* tftp/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+	* tftpd/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.
+
+	* ftp/ftp.1, ftpd/ftpd.8, gwhois/whois.1, inetd/inetd.8,
+	libls/ls.1, logger/logger.1, ping/ping.8, rcp/rcp.1,
+	rexecd/rexecd.8, rlogin/rlogin.1, rlogind/rlogind.8, rsh/rsh.1,
+	rshd/rshd.8, syslogd/syslog.conf.5, syslogd/syslogd.8,
+	talk/talk.1, talkd/talkd.8, telnet/telnet.1, telnetd/telnetd.8,
+	tftp/tftp.1, tftpd/tftpd.8: Files removed.
+
 2009-04-29  Simon Josefsson  <simon@josefsson.org>
 
 	* NEWS: Mention that manual is now GFDLv1.3+.

@@ -24,8 +24,6 @@ rcp_SOURCES = rcp.c util.c
 
 noinst_HEADERS = extern.h
 
-man_MANS = rcp.1
-
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_RSH) $(PATHDEF_CP) $(PATHDEF_BSHELL)
@@ -33,8 +31,6 @@ INCLUDES = -I$(top_srcdir)/lib -I../lib
 
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu \
          $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
-
-EXTRA_DIST = $(man_MANS)
 
 SUIDMODE = -o root -m 4775
 

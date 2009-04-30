@@ -24,8 +24,6 @@ EXTRA_PROGRAMS = rexecd
 
 rexecd_SOURCES = rexecd.c
 
-man_MANS = rexecd.8
-
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
@@ -34,5 +32,3 @@ INCLUDES=-I$(top_srcdir)/lib -I../lib
 LIBCRYPT = @LIBCRYPT@
 
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBCRYPT)
-
-EXTRA_DIST = $(man_MANS)

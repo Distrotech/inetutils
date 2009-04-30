@@ -24,8 +24,6 @@ ftp_SOURCES = cmds.c cmdtab.c domacro.c ftp.c main.c ruserpass.c
 
 noinst_HEADERS = extern.h ftp_var.h
 
-man_MANS = ftp.1
-
 @PATHDEFS_MAKE@
 
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils 
@@ -33,5 +31,3 @@ AM_CPPFLAGS = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
 READLINE=@LIBREADLINE@ @LIBTERMCAP@ @LIBHISTORY@
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBGLOB) $(READLINE)
-
-EXTRA_DIST = $(man_MANS)

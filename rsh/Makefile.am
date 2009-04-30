@@ -22,8 +22,6 @@ EXTRA_PROGRAMS = rsh
 
 rsh_SOURCES = rsh.c
 
-man_MANS = rsh.1
-
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_RLOGIN)
@@ -31,8 +29,6 @@ INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib
 
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu \
          $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
-
-EXTRA_DIST = $(man_MANS)
 
 SUIDMODE = -o root -m 4775
 

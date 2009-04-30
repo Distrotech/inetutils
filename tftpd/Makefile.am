@@ -26,8 +26,4 @@ EXTRA_PROGRAMS = tftpd
 
 tftpd_SOURCES = tftpd.c
 
-man_MANS = tftpd.8
-
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu
-
-EXTRA_DIST = $(man_MANS)

@@ -24,8 +24,6 @@ EXTRA_PROGRAMS = inetd
 
 inetd_SOURCES = inetd.c
 
-man_MANS = inetd.8
-
 @PATHDEFS_MAKE@
 
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
@@ -33,5 +31,3 @@ AM_CPPFLAGS = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) \
            $(PATHDEF_INETDPID)
 
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu
-
-EXTRA_DIST = $(man_MANS)

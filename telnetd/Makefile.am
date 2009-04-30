@@ -25,8 +25,6 @@ EXTRA_PROGRAMS = telnetd
 telnetd_SOURCES = telnetd.c pty.c term.c utility.c state.c termstat.c slc.c
 noinst_HEADERS = telnetd.h
 
-man_MANS = telnetd.8
-
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS =  $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN) 
@@ -41,5 +39,3 @@ LDADD = -L../libinetutils -linetutils \
         -L../libtelnet -ltelnet \
         -L../lib -lgnu \
 	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT) @LIBAUTH@ 
-
-EXTRA_DIST = $(man_MANS)

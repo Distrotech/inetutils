@@ -24,8 +24,6 @@ EXTRA_PROGRAMS = syslogd
 
 syslogd_SOURCES = syslogd.c
 
-man_MANS = syslog.conf.5 syslogd.8
-
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_LOG) $(PATHDEF_KLOG) $(PATHDEF_LOGCONF) \
@@ -34,5 +32,3 @@ AM_CPPFLAGS = $(PATHDEF_LOG) $(PATHDEF_KLOG) $(PATHDEF_LOGCONF) \
 INCLUDES = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
 
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu
-
-EXTRA_DIST = $(man_MANS)

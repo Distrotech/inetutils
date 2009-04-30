@@ -20,9 +20,6 @@ bin_PROGRAMS = @ping_BUILD@ @ping6_BUILD@
 
 EXTRA_PROGRAMS = ping ping6
 
-man_MANS = ping.8
-EXTRA_DIST = $(man_MANS)
-
 ping_LDADD = -L../libinetutils -linetutils -L../libicmp -licmp -L../lib -lgnu
 ping6_LDADD = -L../lib -lgnu -L../libinetutils -linetutils
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp \
@@ -46,5 +43,3 @@ install-ping-hook:
 	done
 
 install-exec-hook: @ping_INSTALL_HOOK@
-
-# EOF

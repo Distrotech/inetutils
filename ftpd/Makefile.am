@@ -27,8 +27,6 @@ ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c pam.c auth.c \
 
 noinst_HEADERS = extern.h
 
-man_MANS = ftpd.8
-
 @PATHDEFS_MAKE@
 
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils 
@@ -44,4 +42,4 @@ LIBLS = @LIBLS@
 LDADD = -L../libinetutils -linetutils $(LIBLS) -L../lib -lgnu \
           $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
 
-EXTRA_DIST = $(man_MANS) ftpcmd.c
+EXTRA_DIST = ftpcmd.c

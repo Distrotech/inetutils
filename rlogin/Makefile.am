@@ -22,12 +22,8 @@ EXTRA_PROGRAMS = rlogin
 
 rlogin_SOURCES = rlogin.c
 
-man_MANS = rlogin.1
-
 INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
-
-EXTRA_DIST = $(man_MANS)
 
 SUIDMODE = -o root -m 4775
 
