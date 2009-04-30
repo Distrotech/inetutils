@@ -1,3 +1,9 @@
+2009-04-29  Simon Josefsson  <simon@josefsson.org>
+
+	* NEWS: Mention that manual is now GFDLv1.3+.
+	* bootstrap.conf: Import fdl-1.3 module.
+	* doc/fdl.texi: Remove.
+
 2009-04-29  Alfred M. Szmidt  <ams@gnu.org>
 
 	* doc/Makefile.am (inetutils_TEXINFOS): Removed ftp.texi,
