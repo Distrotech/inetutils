@@ -1,3 +1,7 @@
+2009-04-30  Simon Josefsson  <simon@josefsson.org>
+
+	* acinclude.m4: Avoid comment to fix script.
+
 2009-04-30  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftp/Makefile.am (EXTRA_DIST, man_MANS): Variables removed.

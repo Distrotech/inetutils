@@ -1,6 +1,6 @@
 dnl Autoconf macros used by inetutils
 dnl
-dnl Copyright (C) 1996, 1997, 1998, 2002, 2004, 2005, 2007 Free Software Foundation, Inc.
+dnl Copyright (C) 1996, 1997, 1998, 2002, 2004, 2005, 2007, 2009 Free Software Foundation, Inc.
 dnl
 dnl Mostly written by Miles Bader <miles@gnu.ai.mit.edu>
 dnl
@@ -577,7 +577,7 @@ if (sizeof(ac_aggr.m4_bpatsubst([$1], [^[^.]*\.])))
 return 0;])],
                 [AS_VAR_SET(ac_Member, yes)],
                 [AS_VAR_SET(ac_Member, no)])])
-AS_IF([test AS_VAR_GET(ac_Member) = yes], [$2], [$3])dnl
+AS_IF([test AS_VAR_GET(ac_Member) = yes], [$2], [$3])
 AS_VAR_POPDEF([ac_Member])dnl
 ])dnl IU_CHECK_MEMBER
 
