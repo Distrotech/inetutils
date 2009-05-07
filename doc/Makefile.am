@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -18,4 +18,4 @@
 
 info_TEXINFOS = inetutils.texi
 
-inetutils_TEXINFOS = fdl.texi
+inetutils_TEXINFOS = fdl-1.3.texi
