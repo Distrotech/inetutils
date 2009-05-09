@@ -68,13 +68,13 @@ Once done, proceed as described in the file INSTALL.
 Normally you will have to run bootstrap only once.  However, if you
 intend to hack on Inetutils, you might need to run it again later.  In
 this case, you will probably want to save some time and bandwidth by
-avoiding downloading the same files again.  If so, create in Inetutils
-root directory the file named `.bootstrap' with the following
-contents:
+avoiding downloading the same files again.  If so, create in the
+inetutils root directory the file named `.bootstrap' with the
+following contents:
 
    --gnulib-srcdir=$HOME/gnulib --skip-po
 
-Replace `$HOME/gnulib' with the actual directory where the Gnulib
+Replace `$HOME/gnulib' with the actual directory where the gnulib
 sources reside.
 
 For more information about `bootstrap', run `bootstrap --help'.
@@ -82,6 +82,9 @@ For more information about `bootstrap', run `bootstrap --help'.
 See INSTALL and README for the detailed instructions.
 
 * Development
+
+If you are looking for something to hack on, please take a look at the
+TODO file in the CVS repository.
 
 You can track the CVS process through the <commit-inetutils@gnu.org>
 mailing list.  This is a medium volume moderated list.
