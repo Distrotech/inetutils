@@ -95,6 +95,9 @@ Daily snapshots built from CVS are available from
 Log outputs from building the daily snapshot on some systems are
 available from <http://autobuild.josefsson.org/inetutils/>
 
+Statistics based on CVS commit logs are available from
+<http://statcvs.josefsson.org/inetutils/>.
+
 * Copyright information:
 
 Copyright (C) 2008 Free Software Foundation, Inc.
