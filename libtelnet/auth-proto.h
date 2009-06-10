@@ -84,6 +84,7 @@ void auth_finished (TN_Authenticator *, int);
 int auth_wait (char *);
 void auth_disable_name (char *);
 void auth_gen_printsub (unsigned char *, int, unsigned char *, int);
+int auth_sendname (unsigned char *, int);
 
 # ifdef	KRB4
 int kerberos4_init (TN_Authenticator *, int);

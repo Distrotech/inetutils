@@ -54,6 +54,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "auth.h"
+#include "encrypt.h"
 #include "misc.h"
 
 char *RemoteHostName;

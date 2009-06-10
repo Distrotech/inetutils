@@ -69,7 +69,7 @@ extern Shishi *shishi_handle;
 #   include "key-proto.h"
 #   include "misc-proto.h"
 
-extern encrypt_debug_mode;
+extern int encrypt_debug_mode;
 
 #   define CFB	0
 #   define OFB	1
@@ -81,6 +81,8 @@ extern encrypt_debug_mode;
 #   define SUCCESS		0
 #   define FAILED		-1
 
+
+#include <string.h>
 
 struct fb
 {

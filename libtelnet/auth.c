@@ -87,6 +87,8 @@
 #  include <string.h>
 # endif
 
+# include <unistd.h>
+
 # include "encrypt.h"
 # include "auth.h"
 # include "misc-proto.h"

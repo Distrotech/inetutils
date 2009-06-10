@@ -1,3 +1,17 @@
+2009-06-10  Simon Josefsson  <simon@josefsson.org>
+
+	* libinetutils/shishi.c: Add includes for strlen, memcpy, etc.
+	* libtelnet/Makefile.am (noinst_HEADERS): Add genget.h.
+	* libtelnet/auth-proto.h: Add prototype for auth_sendname, used by
+	kerberos5.c and shishi.c.
+	* libtelnet/auth.c: Add include for alarm.
+	* libtelnet/enc_des.c: Add include for memcpy, etc.  Make type of
+	encrypt_debug_mode explicit.
+	* libtelnet/encrypt.c: Add includes for printf, isprefix, etc.
+	(encrypt_send_keyid, encrypt_dec_keyid): Make return type explicit.
+	(encrypt_keyid): Make return type explicit and mark as static.
+	* libtelnet/misc.c: Add includes for auth_init and encrypt_init.
+
 2009-06-02  Simon Josefsson  <simon@josefsson.org>
 
 	* README-alpha: Mention statcvs URL.

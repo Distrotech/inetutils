@@ -89,6 +89,9 @@
 #  include <string.h>
 # endif
 
+#include <stdio.h>
+#include "genget.h"
+
 /*
  * These functions pointers point to the current routines
  * for encrypting and decrypting data.
@@ -791,20 +794,7 @@ encrypt_request_start (data, cnt)
 static unsigned char str_keyid[(MAXKEYLEN * 2) + 5] =
   { IAC, SB, TELOPT_ENCRYPT };
 
-encrypt_enc_keyid (keyid, len)
-     unsigned char *keyid;
-     int len;
-{
-  encrypt_keyid (&ki[1], keyid, len);
-}
-
-encrypt_dec_keyid (keyid, len)
-     unsigned char *keyid;
-     int len;
-{
-  encrypt_keyid (&ki[0], keyid, len);
-}
-
+static void
 encrypt_keyid (kp, keyid, len)
      struct key_info *kp;
      unsigned char *keyid;
@@ -853,6 +843,22 @@ encrypt_keyid (kp, keyid, len)
     }
 
   encrypt_send_keyid (dir, kp->keyid, kp->keylen, 0);
+}
+
+void
+encrypt_enc_keyid (keyid, len)
+     unsigned char *keyid;
+     int len;
+{
+  encrypt_keyid (&ki[1], keyid, len);
+}
+
+void
+encrypt_dec_keyid (keyid, len)
+     unsigned char *keyid;
+     int len;
+{
+  encrypt_keyid (&ki[0], keyid, len);
 }
 
 void

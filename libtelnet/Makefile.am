@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2009 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -22,5 +22,4 @@ noinst_LIBRARIES = libtelnet.a
 
 libtelnet_a_SOURCES = auth.c enc_des.c encrypt.c forward.c genget.c getent.c kerberos.c kerberos5.c misc.c read_passwd.c shishi.c
 
-noinst_HEADERS = auth-proto.h auth.h enc-proto.h encrypt.h key-proto.h misc-proto.h misc.h
-
+noinst_HEADERS = auth-proto.h auth.h enc-proto.h encrypt.h genget.h key-proto.h misc-proto.h misc.h
