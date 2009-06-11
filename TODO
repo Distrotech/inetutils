@@ -1,3 +1,5 @@
+Add autoconf check for bison.
+
 Go through code and check what is clean, needs cleaning, etc.
 
 Document libraries, and their exported fucntions.
