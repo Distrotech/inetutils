@@ -1,3 +1,8 @@
+2009-06-15  Simon Josefsson  <simon@josefsson.org>
+
+	* libtelnet/*: Change use of 'InetUtils' to 'Inetutils' as per
+	mailing list discussions.
+
 2009-06-10  Simon Josefsson  <simon@josefsson.org>
 
 	* libinetutils/shishi.c: Add includes for strlen, memcpy, etc.
