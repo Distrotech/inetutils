@@ -1,6 +1,7 @@
 2009-06-25  Alfred M. Szmidt  <ams@gnu.org>
 
-	* libinetutils/utmp_init.c (utmp_init): 
+	* tests/Makefile.am (AM_CPPFLAGS): Added `-I$(top_srcdir)/lib' to
+	list.
 
 2009-06-25  Alfred M. Szmidt  <ams@gnu.org>
 

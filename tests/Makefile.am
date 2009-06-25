@@ -16,7 +16,8 @@
 # to the Free Software Foundation, Inc., 51 Franklin Street,
 # Fifth Floor, Boston, MA 02110-1301 USA.
 
-AM_CPPFLAGS = -I$(top_srcdir)/libinetutils
+AM_CPPFLAGS = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib
+
 LDADD = -L../libinetutils -linetutils
 
 TESTS = localhost
