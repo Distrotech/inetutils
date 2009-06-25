@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2007, 2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -38,11 +38,12 @@ time_t max_request_ttl = MAX_LIFE;
 char *acl_file;
 char *hostname;
 
-ARGP_PROGRAM_DATA ("talkd", "2007", "Sergey Poznyakoff");
-
 const char args_doc[] = "";
 const char doc[] = "Talk daemon.";
-
+const char *program_authors[] = {
+	"Sergey Poznyakoff",
+	NULL
+};
 static struct argp_option argp_options[] = {
 #define GRP 0
   {"acl", 'a', "FILE", 0, "Read site-wide ACLs from FILE", GRP+1},
@@ -94,6 +95,7 @@ int
 main (int argc, char *argv[])
 {
   /* Parse command line */
+  argp_version_setup ("talkd", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   read_acl (acl_file);

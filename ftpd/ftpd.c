@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -55,23 +55,7 @@
 # include <config.h>
 #endif
 
-#if !defined (__GNUC__) && defined (_AIX)
-# pragma alloca
-#endif
-#ifndef alloca			/* Make alloca work the best possible way.  */
-# ifdef __GNUC__
-#  define alloca __builtin_alloca
-# else /* not __GNUC__ */
-#  if HAVE_ALLOCA_H
-#   include <alloca.h>
-#  else	/* not __GNUC__ or HAVE_ALLOCA_H */
-#   ifndef _AIX			/* Already did AIX, up at the top.  */
-char *alloca ();
-#   endif /* not _AIX */
-#  endif /* not HAVE_ALLOCA_H */
-# endif	/* not __GNUC__ */
-#endif /* not alloca */
-
+#include <alloca.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -103,11 +87,7 @@ char *alloca ();
 #include <setjmp.h>
 #include <signal.h>
 #include <grp.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -129,6 +109,8 @@ char *alloca ();
 /* Include glob.h last, because it may define "const" which breaks
    system headers on some platforms. */
 #include <glob.h>
+#include <argp.h>
+#include <error.h>
 
 #include <progname.h>
 #include <libinetutils.h>
@@ -273,77 +255,170 @@ static void myoob (int);
 static int receive_data (FILE *, FILE *);
 static void send_data (FILE *, FILE *, off_t);
 static void sigquit (int);
-static void usage (int);
 
-static const char *short_options = "Aa:Ddlp:qt:T:u:";
-static struct option long_options[] = {
-  {"anonymous-only", no_argument, 0, 'A'},
-  {"auth", required_argument, 0, 'a'},
-  {"daemon", no_argument, 0, 'D'},
-  {"debug", no_argument, 0, 'd'},
-  {"help", no_argument, 0, '&'},
-  {"logging", no_argument, 0, 'l'},
-  {"pidfile", required_argument, 0, 'p'},
-  {"no-version", no_argument, 0, 'q'},
-  {"timeout", required_argument, 0, 't'},
-  {"max-timeout", required_argument, 0, 'T'},
-  {"umask", required_argument, 0, 'u'},
-  {"version", no_argument, 0, 'V'},
-  {0, 0, 0, 0}
-};
+const char doc[] = "File Transfer Protocol Daemon";
 
-static void
-usage (int err)
-{
-  if (err != 0)
-    {
-      fprintf (stderr, "Usage: %s [OPTION] ...\n", program_name);
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-    }
-  else
-    {
-      fprintf (stdout, "Usage: %s [OPTION] ...\n", program_name);
-      puts ("Internet File Transfer Protocol server.\n\n\
-  -A, --anonymous-only      Server configure for anonymous service only\n\
-  -D, --daemon              Start the ftpd standalone\n\
-  -d, --debug               Debug mode\n\
-  -l, --logging             Increase verbosity of syslog messages\n\
-  -p, --pidfile=[PIDFILE]   Change default location of pidfile\n\
-  -q, --no-version          Do not display version in banner\n\
-  -t, --timeout=[TIMEOUT]   Set default idle timeout\n\
-  -T, --max-timeout         Reset maximum value of timeout allowed\n\
-  -u, --umask               Set default umask(base 8)\n\
-      --help                Print this message\n\
-  -V, --version             Print version\n\
-  -a, --auth=[AUTH]         Use AUTH for authentication, it can be:\n\
-                               default     passwd authentication.");
+static struct argp_option options[] = {
+#define GRID 0
+  { "anonymous-only", 'A', NULL, 0,
+    "Server configured for anonymous service only",
+    GRID+1 },
+  { "daemon", 'D', NULL, 0,
+    "Start the ftpd standalone",
+    GRID+1 },
+  { "debug", 'd', NULL, 0,
+    "Debug mode",
+    GRID+1 },
+  { "logging", 'l', NULL, 0,
+    "Increase verbosity of syslog messages",
+    GRID+1 },
+  { "pidfile", 'p', "PIDFILE", OPTION_ARG_OPTIONAL,
+    "Change default location of pidfile",
+    GRID+1 },
+  { "no-version", 'q', NULL, 0,
+    "Do not display version in banner",
+    GRID+1 },
+  { "timeout", 't', "TIMEOUT", 0,
+    "Set default idle timeout",
+    GRID+1 },
+  { "max-timeout", 'T', NULL, 0,
+    "Reset maximum value of timeout allowed",
+    GRID+1 },
+  { "umask", 'u', "VAL", 0,
+    "Set default umask",
+    GRID+1 },
+  { "auth", 'a', "AUTH", OPTION_ARG_OPTIONAL,
+    "Use AUTH for authentication",
+    GRID+1 },
+  { NULL, 0, NULL, 0, "AUTH can be one of the following:", GRID+2 },
+  { "  default", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
+    "passwd authentication",
+    GRID+3 },
 #ifdef WITH_PAM
-      puts ("\
-                               pam         using pam 'ftp' module.");
+  { "  pam", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
+    "using pam 'ftp' module",
+    GRID+3 },
 #endif
 #ifdef WITH_KERBEROS
-      puts ("\
-                               kerberos");
+  { "  kerberos", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
+    "",
+    GRID+3 },
 #endif
 #ifdef WITH_KERBEROS5
-      puts ("\
-                               kderberos5");
+  { "  kderberos5", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
+    "",
+    GRID+3 },
 #endif
 #ifdef WITH_OPIE
-      puts ("\
-                               opie");
+  { "  opie", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
+    "",
+    GRID+3 },
 #endif
+  { NULL }
+};
 
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    case 'A':
+      /* Anonymous ftp only.  */
+      anon_only = 1;
+      break;
+
+    case 'a':
+      if (strcasecmp (arg, "default") == 0)
+	cred.auth_type = AUTH_TYPE_PASSWD;
+#ifdef WITH_PAM
+      else if (strcasecmp (arg, "pam") == 0)
+	cred.auth_type = AUTH_TYPE_PAM;
+#endif
+#ifdef WITH_KERBEROS
+      else if (strcasecmp (arg, "kerberos") == 0)
+	cred.auth_type = AUTH_TYPE_KERBEROS;
+#endif
+#ifdef WITH_KERBEROS5
+      else if (strcasecmp (arg, "kerberos5") == 0)
+	cred.auth_type = AUTH_TYPE_KERBEROS5;
+#endif
+#ifdef WITH_OPIE
+      else if (strcasecmp (arg, "opie") == 0)
+	cred.auth_type = AUTH_TYPE_OPIE;
+#endif
+      break;
+
+    case 'D':
+      /* Run ftpd as daemon.  */
+      daemon_mode = 1;
+      break;
+
+    case 'd':
+      /* Enable debug mode.  */
+      debug = 1;
+      break;
+
+    case 'l':
+      /* Increase logging level.  */
+      logging++;		/* > 1 == Extra logging.  */
+      break;
+
+    case 'p':
+      /* Override pid file */
+      pid_file = arg;
+      break;
+
+    case 'q':
+      /* Don't include version number in banner.  */
+      no_version = 1;
+      break;
+
+    case 't':
+      /* Set default timeout value.  */
+      timeout = atoi (arg);
+      if (maxtimeout < timeout)
+	maxtimeout = timeout;
+      break;
+
+    case 'T':		/* Maximum timeout allowed.  */
+      maxtimeout = atoi (arg);
+      if (timeout > maxtimeout)
+	timeout = maxtimeout;
+      break;
+      
+    case 'u':		/* Set umask.  */
+      {
+	long val = 0;
+
+	val = strtol (arg, &arg, 8);
+	if (*arg != '\0' || val < 0)
+	  argp_error (state, "bad value for -u");
+	else
+	  defumask = val;
+	break;
+      }
+      
+    default:
+      return ARGP_ERR_UNKNOWN;
     }
-  exit (err);
+
+  return 0;
 }
+
+static struct argp argp = {
+  options,
+  parse_opt,
+  NULL,
+  doc,
+  NULL,
+  NULL,
+  NULL
+};
 
 int
 main (int argc, char *argv[], char **envp)
 {
-  int option;
+  int index;
 
   set_program_name (argv[0]);
 
@@ -356,99 +431,15 @@ main (int argc, char *argv[], char **envp)
   initsetproctitle (argc, argv, envp);
 #endif /* HAVE_INITSETPROCTITLE */
 
-  while ((option = getopt_long (argc, argv, short_options,
-				long_options, NULL)) != EOF)
-    {
-      switch (option)
-	{
-	case 'A':		/* Anonymous ftp only.  */
-	  anon_only = 1;
-	  break;
-
-	case 'a':		/* Authentification method.  */
-	  if (strcasecmp (optarg, "default") == 0)
-	    cred.auth_type = AUTH_TYPE_PASSWD;
-#ifdef WITH_PAM
-	  else if (strcasecmp (optarg, "pam") == 0)
-	    cred.auth_type = AUTH_TYPE_PAM;
-#endif
-#ifdef WITH_KERBEROS
-	  else if (stracasecmp (optarg, "kerberos") == 0)
-	    cred.auth_type = AUTH_TYPE_KERBEROS;
-#endif
-#ifdef WITH_KERBEROS5
-	  else if (stracasecmp (optarg, "kerberos5") == 0)
-	    cred.auth_type = AUTH_TYPE_KERBEROS5;
-#endif
-#ifdef WITH_OPIE
-	  else if (stracasecmp (optarg, "opie") == 0)
-	    cred.auth_type = AUTH_TYPE_OPIE;
-#endif
-	  break;
-
-	case 'D':		/* Run ftpd as daemon.  */
-	  daemon_mode = 1;
-	  break;
-
-	case 'd':		/* Enable debug mode.  */
-	  debug = 1;
-	  break;
-
-	case 'l':		/* Increase logging level.  */
-	  logging++;		/* > 1 == Extra logging.  */
-	  break;
-
-	case 'p':		/* Override pid file */
-	  pid_file = optarg;
-	  break;
-
-	case 'q':		/* Don't include version number in banner.  */
-	  no_version = 1;
-	  break;
-
-	case 't':		/* Set default timeout value.  */
-	  timeout = atoi (optarg);
-	  if (maxtimeout < timeout)
-	    maxtimeout = timeout;
-	  break;
-
-	case 'T':		/* Maximum timeout allowed.  */
-	  maxtimeout = atoi (optarg);
-	  if (timeout > maxtimeout)
-	    timeout = maxtimeout;
-	  break;
-
-	case 'u':		/* Set umask.  */
-	  {
-	    long val = 0;
-
-	    val = strtol (optarg, &optarg, 8);
-	    if (*optarg != '\0' || val < 0)
-	      fprintf (stderr, "%s: bad value for -u", argv[0]);
-	    else
-	      defumask = val;
-	    break;
-	  }
-
-	case '&':		/* Usage.  */
-	  usage (0);
-	  /* Not reached.  */
-
-	case 'V':		/* Version.  */
-	  printf ("ftpd (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case '?':
-	default:
-	  usage (1);
-	  /* Not reached.  */
-	}
-    }
-
+  /* Parse the command line */
+  argp_version_setup ("ftpd", default_program_authors);
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
+  
   /* Bail out, wrong usage */
-  argc -= optind;
+  argc -= index;
   if (argc != 0)
-    usage (1);
+    error (1, 0, "surplus arguments; try `%s --help' for more info",
+	   program_name);
 
   /* LOG_NDELAY sets up the logging connection immediately,
      necessary for anonymous ftp's that chroot and can't do it later.  */

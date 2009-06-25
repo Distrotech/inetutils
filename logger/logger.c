@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -75,8 +75,6 @@ int pencode (char *);
 static char *tag = NULL;
 static int logflags = 0;
 static int pri = LOG_NOTICE;
-
-ARGP_PROGRAM_DATA_SIMPLE ("logger", "2008");
 
 const char args_doc[] = "[MESSAGE]";
 const char doc[] = "Make entries in the system log.";
@@ -140,6 +138,7 @@ main (int argc, char *argv[])
   set_program_name (argv[0]);
   
   /* Parse command line */
+  argp_version_setup ("logger", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   argc -= index;

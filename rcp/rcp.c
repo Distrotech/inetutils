@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -82,6 +82,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <string.h>
 #include <unistd.h>
@@ -90,13 +91,16 @@
 # include <utime.h>		/* If we don't have utimes(), use utime(). */
 #endif
 #include <progname.h>
+#include <libinetutils.h>
+#include <argp.h>
+#include <error.h>
+#include <xalloc.h>
 #include "extern.h"
 
 #ifdef KERBEROS
 # include <kerberosIV/des.h>
 # include <kerberosIV/krb.h>
 
-char dest_realm_buf[REALM_SZ];
 char *dest_realm = NULL;
 int use_kerberos = 1;
 CREDENTIALS cred;
@@ -105,47 +109,128 @@ extern char *krb_realmofhost ();
 
 # ifdef CRYPT
 int doencrypt = 0;
-#  define OPTIONS	"dfKk:prtxV"
-# else
-#  define OPTIONS	"dfKk:prtV"
 # endif
-#else
-# define OPTIONS "dfprtV"
 #endif /* KERBEROS  */
 
 #if !defined (S_ISTXT) && defined (S_ISVTX)
 # define S_ISTXT S_ISVTX
 #endif
 
-static const char *short_options = OPTIONS;
-static struct option long_options[] = {
-  {"recursive", required_argument, 0, 'r'},
-  {"preserve", no_argument, 0, 'p'},
+const char doc[] = "Remote copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.";
+const char arg_doc[] = "SOURCE DEST\n"
+                       "SOURCE... DIRECTORY\n"
+                       "--target-directory=DIRECTORY SOURCE...";
+
+int preserve_option;
+int from_option, to_option;
+int iamremote, iamrecursive, targetshouldbedirectory;
+
+static struct argp_option options[] = {
+#define GRID 0
+  { "recursive", 'r', NULL, 0,
+    "if any of the source files are directories, copies"
+    " each subtree rooted at that name; in this case the"
+    " destination must be a directory",
+    GRID+1 },
+  { "preserve", 'p', NULL, 0,
+    "attempt to preserve (duplicate) in its copies the"
+    " modification times and modes of the source files",
+    GRID+1 },
 #ifdef KERBEROS
-  {"kerberos", no_argument, 0, 'K'},
-  {"realm", required_argument, 0, 'k'},
-# ifdef CRYPT
-  {"encrypt", no_argument, 0, 'x'},
-# endif
+  { "kerberos", 'K', NULL, 0,
+    "turns off all Kerberos authentication",
+    GRID+1 },
+  { "realm", 'k', "REALM", 0,
+    "obtain tickets for the remote host in REALM instead of the remote host's realm",
+    GRID+1 },
 #endif
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  /* Server option.  */
-  {"directory", required_argument, 0, 'd'},
-  {"from", required_argument, 0, 'f'},
-  {"to", required_argument, 0, 't'},
-  {0, 0, 0, 0}
+#ifdef CRYPT
+  { "encrypt", 'x', NULL, 0,
+    "encrypt all data using DES",
+    GRID+1 },
+#endif
+  { "target-directory", 'd', "DIRECTORY", 0,
+    "copy all SOURCE arguments into DIRECTORY",
+    GRID+1 },
+  { "from", 'f', NULL, 0,
+    "copying from remote host",
+    GRID+1 },
+  { "to", 't', NULL, 0,
+    "copying to remote host",
+    GRID+1 },
+  { NULL }
 };
 
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+#ifdef KERBEROS
+    case 'K':
+      use_kerberos = 0;
+      break;
+#endif
+	
+#ifdef KERBEROS
+    case 'k':
+      dest_realm = arg;
+      break;
+#endif
+
+#ifdef CRYPT
+    case 'x':
+      doencrypt = 1;
+      /* des_set_key(cred.session, schedule); */
+      break;
+#endif
+
+    case 'p':
+      preserve_option = 1;
+      break;
+
+    case 'r':
+      iamrecursive = 1;
+      break;
+
+      /* Server options. */
+    case 'd':
+      targetshouldbedirectory = 1;
+      break;
+
+    case 'f':		/* "from" */
+      iamremote = 1;
+      from_option = 1;
+      break;
+
+    case 't':		/* "to" */
+      iamremote = 1;
+      to_option = 1;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {
+  options,
+  parse_opt,
+  arg_doc,
+  doc,
+  NULL,
+  NULL,
+  NULL
+};
 
 struct passwd *pwd;
 u_short port;
 uid_t userid;
 int errs, rem;
-int pflag, iamremote, iamrecursive, targetshouldbedirectory;
 
-#define CMDNEEDS	64
-char cmd[CMDNEEDS];		/* must hold "rcp -r -p -d\0" */
+char *command;
 
 #ifdef KERBEROS
 int kerberos (char **, char *, char *, char *);
@@ -157,82 +242,22 @@ void sink (int, char *[]);
 void source (int, char *[]);
 void tolocal (int, char *[]);
 void toremote (char *, int, char *[]);
-void usage (void);
-void help (void);
 
 int
 main (int argc, char *argv[])
 {
   struct servent *sp;
-  int ch, fflag, tflag;
   char *targ;
   const char *shell;
-
+  int index, rc;
+  
   set_program_name (argv[0]);
 
-  fflag = tflag = 0;
-  while ((ch = getopt_long (argc, argv, short_options, long_options, 0))
-	 != EOF)
-    switch (ch)
-      {				/* User-visible flags. */
-      case 'K':
-#ifdef KERBEROS
-	use_kerberos = 0;
-#endif
-	break;
-
-#ifdef	KERBEROS
-      case 'k':
-	dest_realm = dest_realm_buf;
-	strncpy (dest_realm_buf, optarg, REALM_SZ);
-	break;
-
-# ifdef CRYPT
-      case 'x':
-	doencrypt = 1;
-	/* des_set_key(cred.session, schedule); */
-	break;
-# endif
-#endif
-
-      case 'p':
-	pflag = 1;
-	break;
-
-      case 'r':
-	iamrecursive = 1;
-	break;
-
-	/* Server options. */
-      case 'd':
-	targetshouldbedirectory = 1;
-	break;
-
-      case 'f':		/* "from" */
-	iamremote = 1;
-	fflag = 1;
-	break;
-
-      case 't':		/* "to" */
-	iamremote = 1;
-	tflag = 1;
-	break;
-
-      case 'V':
-	printf ("rcp (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	exit (0);
-	break;
-
-      case 'h':
-	help ();
-	break;
-
-      case '?':
-      default:
-	usage ();
-      }
-  argc -= optind;
-  argv += optind;
+  from_option = to_option = 0;
+  argp_version_setup ("rcp", default_program_authors);
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
+  argc -= index;
+  argv += index;
 
 #ifdef KERBEROS
   if (use_kerberos)
@@ -263,7 +288,7 @@ main (int argc, char *argv[])
 
   rem = STDIN_FILENO;		/* XXX */
 
-  if (fflag)
+  if (from_option)
     {				/* Follow "protocol", send data. */
       response ();
       setuid (userid);
@@ -271,7 +296,7 @@ main (int argc, char *argv[])
       exit (errs);
     }
 
-  if (tflag)
+  if (to_option)
     {				/* Receive data. */
       setuid (userid);
       sink (argc, argv);
@@ -279,26 +304,30 @@ main (int argc, char *argv[])
     }
 
   if (argc < 2)
-    usage ();
+    error (1, 0, "not enough arguments");
+  
   if (argc > 2)
     targetshouldbedirectory = 1;
 
-  rem = -1;
   /* Command to be executed on remote system using "rsh". */
 #ifdef	KERBEROS
-  snprintf (cmd, sizeof cmd, "rcp%s%s%s%s", iamrecursive ? " -r" : "",
+  rc = asprintf (&command, "rcp%s%s%s%s", iamrecursive ? " -r" : "",
 # ifdef CRYPT
-	    (doencrypt && use_kerberos ? " -x" : ""),
+		 (doencrypt && use_kerberos ? " -x" : ""),
 # else
-	    "",
+		 "",
 # endif
-	    pflag ? " -p" : "", targetshouldbedirectory ? " -d" : "");
+		 preserve_option ? " -p" : "",
+		 targetshouldbedirectory ? " -d" : "");
 #else
-  snprintf (cmd, sizeof cmd, "rcp%s%s%s",
-	    iamrecursive ? " -r" : "", pflag ? " -p" : "",
-	    targetshouldbedirectory ? " -d" : "");
+  rc = asprintf (&command, "rcp%s%s%s",
+		 iamrecursive ? " -r" : "", preserve_option ? " -p" : "",
+		 targetshouldbedirectory ? " -d" : "");
 #endif
+  if (rc)
+    xalloc_die ();
 
+  rem = -1;
   signal (SIGPIPE, lostconn);
 
   targ = colon (argv[argc - 1]);	/* Dest is remote host. */
@@ -349,11 +378,7 @@ toremote (char *targ, int argc, char *argv[])
 	  if (*src == 0)
 	    src = ".";
 	  host = strchr (argv[i], '@');
-	  len = strlen (PATH_RSH) + strlen (argv[i]) +
-	    strlen (src) + (tuser ? strlen (tuser) : 0) +
-	    strlen (thost) + strlen (targ) + CMDNEEDS + 20;
-	  if (!(bp = malloc (len)))
-	    err (1, NULL);
+
 	  if (host)
 	    {
 	      *host++ = 0;
@@ -362,16 +387,22 @@ toremote (char *targ, int argc, char *argv[])
 		suser = pwd->pw_name;
 	      else if (!okname (suser))
 		continue;
-	      snprintf (bp, len,
-			"%s %s -l %s -n %s %s '%s%s%s:%s'",
-			PATH_RSH, host, suser, cmd, src,
-			tuser ? tuser : "", tuser ? "@" : "", thost, targ);
+	      if (asprintf (&bp,
+			    "%s %s -l %s -n %s %s '%s%s%s:%s'",
+			    PATH_RSH, host, suser, command, src,
+			    tuser ? tuser : "", tuser ? "@" : "",
+			    thost, targ) < 0)
+		xalloc_die ();
 	    }
 	  else
-	    snprintf (bp, len,
-		      "exec %s %s -n %s %s '%s%s%s:%s'",
-		      PATH_RSH, argv[i], cmd, src,
-		      tuser ? tuser : "", tuser ? "@" : "", thost, targ);
+	    {
+	      if (asprintf (&bp,
+			    "exec %s %s -n %s %s '%s%s%s:%s'",
+			    PATH_RSH, argv[i], command, src,
+			    tuser ? tuser : "", tuser ? "@" : "",
+			    thost, targ) < 0)
+		xalloc_die ();
+	    }
 	  susystem (bp, userid);
 	  free (bp);
 	}
@@ -379,10 +410,8 @@ toremote (char *targ, int argc, char *argv[])
 	{			/* local to remote */
 	  if (rem == -1)
 	    {
-	      len = strlen (targ) + CMDNEEDS + 20;
-	      if (!(bp = malloc (len)))
-		err (1, NULL);
-	      snprintf (bp, len, "%s -t %s", cmd, targ);
+	      if (asprintf (&bp, "%s -t %s", command, targ) < 0)
+		xalloc_die ();
 	      host = thost;
 #ifdef KERBEROS
 	      if (use_kerberos)
@@ -422,11 +451,11 @@ tolocal (int argc, char *argv[])
 	{			/* Local to local. */
 	  len = strlen (PATH_CP) + strlen (argv[i]) +
 	    strlen (argv[argc - 1]) + 20;
-	  if (!(bp = malloc (len)))
-	    err (1, NULL);
-	  snprintf (bp, len, "exec %s%s%s %s %s", PATH_CP,
-		    iamrecursive ? " -r" : "", pflag ? " -p" : "",
-		    argv[i], argv[argc - 1]);
+	  if (asprintf (&bp, "exec %s%s%s %s %s",
+			PATH_CP,
+			iamrecursive ? " -r" : "", preserve_option ? " -p" : "",
+			argv[i], argv[argc - 1]) < 0)
+	    xalloc_die ();
 	  if (susystem (bp, userid))
 	    ++errs;
 	  free (bp);
@@ -449,10 +478,8 @@ tolocal (int argc, char *argv[])
 	  else if (!okname (suser))
 	    continue;
 	}
-      len = strlen (src) + CMDNEEDS + 20;
-      if ((bp = malloc (len)) == NULL)
-	err (1, NULL);
-      snprintf (bp, len, "%s -f %s", cmd, src);
+      if (asprintf (&bp, "%s -f %s", command, src) < 0)
+	xalloc_die ();
       rem =
 #ifdef KERBEROS
 	use_kerberos ? kerberos (&host, bp, pwd->pw_name, suser) :
@@ -544,7 +571,7 @@ source (int argc, char *argv[])
 	last = name;
       else
 	++last;
-      if (pflag)
+      if (preserve_option)
 	{
 	  write_stat_time (rem, &stb);
 	  if (response () < 0)
@@ -617,7 +644,7 @@ rsource (char *name, struct stat *statp)
   else
     last++;
 
-  if (pflag)
+  if (preserve_option)
     {
       write_stat_time (rem, statp);
       if (response () < 0)
@@ -694,7 +721,7 @@ sink (int argc, char *argv[])
 
   setimes = targisdir = 0;
   mask = umask (0);
-  if (!pflag)
+  if (!preserve_option)
     umask (mask);
   if (argc != 1)
     {
@@ -812,7 +839,7 @@ sink (int argc, char *argv[])
       exists = stat (np, &stb) == 0;
       if (buf[0] == 'D')
 	{
-	  int mod_flag = pflag;
+	  int mod_flag = preserve_option;
 	  if (exists)
 	    {
 	      if (!S_ISDIR (stb.st_mode))
@@ -820,7 +847,7 @@ sink (int argc, char *argv[])
 		  errno = ENOTDIR;
 		  goto bad;
 		}
-	      if (pflag)
+	      if (preserve_option)
 		chmod (np, mode);
 	    }
 	  else
@@ -912,7 +939,7 @@ sink (int argc, char *argv[])
 	  run_err ("%s: truncate: %s", np, strerror (errno));
 	  wrerr = DISPLAYED;
 	}
-      if (pflag)
+      if (preserve_option)
 	{
 	  if (exists || omode != mode)
 	    if (fchmod (ofd, omode))
@@ -1044,80 +1071,13 @@ response ()
     }
 }
 
-void
-usage ()
-{
-#ifdef KERBEROS
-# ifdef CRYPT
-  fprintf (stderr, "%s\n\t%s\n",
-	   "usage: rcp [-Kpx] [-k realm] f1 f2",
-	   "or: rcp [-Kprx] [-k realm] f1 ... fn directory");
-# else
-  fprintf (stderr, "%s\n\t%s\n",
-	   "usage: rcp [-Kp] [-k realm] f1 f2",
-	   "or: rcp [-Kpr] [-k realm] f1 ... fn directory");
-# endif
-#else
-  fprintf (stderr,
-	   "usage: rcp [-p] f1 f2; or: rcp [-pr] f1 ... fn directory\n");
-#endif
-  exit (1);
-}
-
-void
-help ()
-{
-  puts ("rcp - remote file copy.");
-  puts ("usage: rcp [-p] f1 f2; or: rcp [-pr] f1 ... fn directory\n");
-  puts ("\
-  -p, --preserve    attempt to preserve (duplicate) in its copies the\n\
-                    modification times and modes of the source files");
-  puts ("\
-  -r, --recursive   If any of the source files are directories, copies\n\
-                    each subtree rooted at that name; in this case the\n\
-                    destination must be a directory");
-
-#ifdef KERBEROS
-  puts ("\
-  -K, --kerberos    turns off all Kerberos authentication");
-  puts ("\
-  -k, --realm REALM Obtain tickets for the remote host in REALM\n\
-                    instead of the remote host's realm");
-# ifdef CRYPT
-  puts ("\
-  -x, --encrypt     encrypt all data using DES");
-# endif
-#endif
-  puts ("\
-      --help        give this help list");
-  puts ("\
-  -V, --version     print program version");
-  fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
-  exit (0);
-}
-
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
-
 #ifdef KERBEROS
 void
-# if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 oldw (const char *fmt, ...)
-# else
-oldw (fmt, va_alist)
-     char *fmt;
-     va_dcl
-# endif
 {
   va_list ap;
-# if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+
   va_start (ap, fmt);
-# else
-  va_start (ap);
-# endif
   fprintf (stderr, "rcp: ");
   vfprintf (stderr, fmt, ap);
   fprintf (stderr, ", using standard rcp\n");
@@ -1126,21 +1086,13 @@ oldw (fmt, va_alist)
 #endif
 
 void
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 run_err (const char *fmt, ...)
-#else
-run_err (fmt, va_alist)
-     char *fmt;
-     va_dcl
-#endif
 {
   static FILE *fp;
   va_list ap;
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+
   va_start (ap, fmt);
-#else
-  va_start (ap);
-#endif
+
   ++errs;
   if (fp == NULL && !(fp = fdopen (rem, "w")))
     return;
@@ -1151,7 +1103,11 @@ run_err (fmt, va_alist)
   fflush (fp);
 
   if (!iamremote)
-    vwarnx (fmt, ap);
+    {
+      fprintf (stderr, "%s: ", program_invocation_name);
+      vfprintf (stderr, fmt, ap);
+      fprintf (stderr, "\n");
+    }
 
   va_end (ap);
 }

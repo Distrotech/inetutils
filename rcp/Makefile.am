@@ -27,7 +27,7 @@ noinst_HEADERS = extern.h
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_RSH) $(PATHDEF_CP) $(PATHDEF_BSHELL)
-INCLUDES = -I$(top_srcdir)/lib -I../lib 
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu \
          $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@

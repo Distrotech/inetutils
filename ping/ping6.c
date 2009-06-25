@@ -1,4 +1,4 @@
-/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2006, 2007, 2008
+/* Copyright (C) 1998, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009
    Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
@@ -61,12 +61,14 @@ static int ping_echo (char *hostname);
 static void ping_reset (PING * p);
 static int send_echo (PING * ping);
 
-ARGP_PROGRAM_DATA ("ping6", "2007", "Jeroen Dekkers");
-
 const char args_doc[] = "HOST ...";
 const char doc[] = "Send ICMP ECHO_REQUEST packets to network hosts."
                    "\vOptions marked with (root only) are available only to "
                    "superuser.";
+const char *program_authors[] = {
+	"Jeroen Dekkers",
+	NULL
+};
 
 static struct argp_option argp_options[] = {
 #define GRP 0
@@ -177,6 +179,7 @@ main (int argc, char **argv)
     is_root = true;
 
   /* Parse command line */
+  argp_version_setup ("ping6", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   ping = ping_init (0, getpid ());

@@ -1,4 +1,4 @@
-/* Copyright (C) 1998,2001, 2002, 2005, 2006, 2007, 2008
+/* Copyright (C) 1998,2001, 2002, 2005, 2006, 2007, 2008, 2009
    Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
@@ -74,12 +74,14 @@ static int send_echo (PING * ping);
 
 #define MIN_USER_INTERVAL (200000/PING_PRECISION)
 
-ARGP_PROGRAM_DATA ("ping", "2007", "Sergey Poznyakoff");
-
 const char args_doc[] = "HOST ...";
 const char doc[] = "Send ICMP ECHO_REQUEST packets to network hosts."
                    "\vOptions marked with (root only) are available only to "
                    "superuser.";
+const char *program_authors[] = {
+	"Sergey Poznyakoff",
+	NULL
+};
 
 /* Define keys for long options that do not have short counterparts. */
 enum {
@@ -237,6 +239,7 @@ main (int argc, char **argv)
     is_root = true;
 
   /* Parse command line */
+  argp_version_setup ("ping", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   ping = ping_init (ICMP_ECHO, getpid ());

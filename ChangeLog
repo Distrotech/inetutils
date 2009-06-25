@@ -1,3 +1,35 @@
+2009-06-25  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Use argp-version-etc module from gnulib
+	
+	* bootstrap.conf: Add argp-version-etc;
+	Remove deprecated modules.
+	* ftp/main.c, ftpd/ftpd.c, hostname/hostname.c,
+	inetd/inetd.c, logger/logger.c, ping/ping.c,
+	ping/ping6.c, rlogin/rlogin.c, syslogd/syslogd.c,
+	talkd/talkd.c, traceroute/traceroute.c: Use argp-version-etc
+	instead of ARGP_PROGRAM_DATA.
+
+	* libinetutils/defauthors.c: New file.
+	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Add
+	defauthors.c.
+	* libinetutils/libinetutils.h: Include argp-version-etc.h.
+	(default_program_authors): New extern.
+	(ARGP_PROGRAM_DATA_SIMPLE, ARGP_PROGRAM_DATA): Removed.
+
+	* rcp/Makefile.am (INCLUDES): Add libinetutils.
+	* rcp/rcp.c: Use argp and asprintf. Remove obsolete varargs
+	stuff. Use error to display error messages on tty.
+
+	* rexecd/Makefile.am (INCLUDES): Add libinetutils.
+	* rexecd/rexecd.c: Use argp. Remove obsolete varargs stuff.
+	Use error to display error messages on tty.
+	
+2009-06-15  Simon Josefsson  <simon@josefsson.org>
+
+	* libtelnet/*: Change use of 'InetUtils' to 'Inetutils' as per
+	mailing list discussions.
+
 2009-06-10  Simon Josefsson  <simon@josefsson.org>
 
 	* libinetutils/shishi.c: Add includes for strlen, memcpy, etc.

@@ -1,6 +1,6 @@
 /* Traceroute
    
-   Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
    
    This file is part of GNU Inetutils.
    
@@ -75,10 +75,12 @@ int opt_max_hops = 64;
 static int opt_max_tries = 3;
 int opt_resolve_hostnames = 0;
 
-ARGP_PROGRAM_DATA ("traceroute", "2007", "Elian Gidoni");
-
 const char args_doc[] = "HOST";
 const char doc[] = "Print the route packets trace to network host.";
+const char *program_authors[] = {
+	"Elian Gidoni",
+	NULL
+};
 
 /* Define keys for long options that do not have short counterparts. */
 enum {
@@ -162,6 +164,7 @@ main (int argc, char **argv)
   set_program_name (argv[0]);
   
   /* Parse command line */
+  argp_version_setup ("traceroute", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   if (geteuid () != 0)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2008 Free Software Foundation, Inc.
+/* Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -51,11 +51,12 @@ typedef struct _hostname_options hostname_options;
 static char *(*get_name_action) (void) = NULL;
 static int (*set_name_action) (const char *name, size_t size) = NULL;
 
-ARGP_PROGRAM_DATA ("hostname", "2008", "Debarshi Ray");
-
 const char args_doc[] = "[NAME]";
 const char doc[] = "Show or set the system's host name.";
-
+const char *program_authors[] = {
+	"Debarshi Ray",
+	NULL
+};
 static struct argp_option argp_options[] = {
 #define GRP 0
   {"aliases", 'a', NULL, 0, "Alias names", GRP+1},
@@ -153,6 +154,7 @@ main (int argc, char *argv[])
   memset ((void *) &options, 0, sizeof (options));
 
   /* Parse command line */
+  argp_version_setup ("hostname", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, (void *) &options);
 
   /* Set default action */

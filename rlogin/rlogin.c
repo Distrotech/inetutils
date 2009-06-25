@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -232,8 +232,6 @@ extern sig_t setsig (int, sig_t);
 # define OPTIONS	"8EKde:l:hV"
 #endif
 
-ARGP_PROGRAM_DATA_SIMPLE ("rlogin", "2008");
-
 const char args_doc[] = "HOST";
 const char doc[] = "Starts a terminal session on a remote host.";
 
@@ -354,6 +352,7 @@ main (int argc, char *argv[])
   }
 
   /* Parse command line */
+  argp_version_setup ("rlogin", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (index < argc)

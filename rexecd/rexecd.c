@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -87,24 +87,27 @@
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
-#ifdef HAVE_STDARG_H
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
+#include <stdarg.h>
 #ifdef HAVE_SHADOW_H
 # include <shadow.h>
 #endif
 #include <progname.h>
+#include <argp.h>
+#include <error.h>
+#include <libinetutils.h>
 
-void error (const char *fmt, ...);
-void usage (void);
+void die (int code, const char *fmt, ...);
 
-static const char *short_options = "hV";
-static struct option long_options[] = {
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {0}
+const char doc[] = "remote execution daemon";
+
+static struct argp argp = {
+  NULL,
+  NULL,
+  NULL,
+  doc,
+  NULL,
+  NULL,
+  NULL
 };
 
 /*
@@ -119,32 +122,18 @@ main (int argc, char **argv)
 {
   struct sockaddr_in from;
   int fromlen, sockfd = STDIN_FILENO;
-  int c;
+  int index;
 
   set_program_name (argv[0]);
-  
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (c)
-	{
-	case 'V':
-	  printf ("rexecd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
 
-	case 'h':
-	default:
-	  usage ();
-	  exit (0);
-	}
-    }
+  argp_version_setup ("rexecd", default_program_authors);
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
+  if (argc > index)
+    error (1, 0, "surplus arguments");
 
   fromlen = sizeof (from);
   if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
-    {
-      fprintf (stderr, "rexecd: getpeername: %s\n", strerror (errno));
-      exit (1);
-    }
+    error (1, errno, "getpeername");
   doit (sockfd, &from);
   exit (0);
 }
@@ -243,20 +232,15 @@ doit (int f, struct sockaddr_in *fromp)
   setpwent ();
   pwd = getpwnam (user);
   if (pwd == NULL)
-    {
-      error ("Login incorrect.\n");
-      exit (1);
-    }
+    die (1, "Login incorrect.");
+
   endpwent ();
   pw_password = get_user_password (pwd);
   if (*pw_password != '\0')
     {
       namep = crypt (pass, pw_password);
       if (strcmp (namep, pw_password))
-	{
-	  error ("Password incorrect.\n");
-	  exit (1);
-	}
+	die (1, "Password incorrect.");
     }
   write (STDERR_FILENO, "\0", 1);
   if (port)
@@ -264,10 +248,8 @@ doit (int f, struct sockaddr_in *fromp)
       pipe (pv);
       pid = fork ();
       if (pid == -1)
-	{
-	  error ("Try again.\n");
-	  exit (1);
-	}
+	die (1, "Try again.");
+      
       if (pid)
 	{
 	  close (STDIN_FILENO);
@@ -327,10 +309,8 @@ doit (int f, struct sockaddr_in *fromp)
 #endif
   setuid ((uid_t) pwd->pw_uid);
   if (chdir (pwd->pw_dir) < 0)
-    {
-      error ("No remote directory.\n");
-      exit (1);
-    }
+    die (1, "No remote directory.");
+
   strcat (path, PATH_DEFPATH);
   environ = envinit;
   strncat (homedir, pwd->pw_dir, sizeof (homedir) - 6);
@@ -342,23 +322,24 @@ doit (int f, struct sockaddr_in *fromp)
   else
     cp = pwd->pw_shell;
   execl (pwd->pw_shell, cp, "-c", cmdbuf, 0);
-  perror (pwd->pw_shell);
-  exit (1);
+  error (1, errno, "executing %s", pwd->pw_shell);
 }
 
 void
-error (const char *fmt, ...)
+die (int code, const char *fmt, ...)
 {
   va_list ap;
   char buf[BUFSIZ];
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
+  int n;
+  
   va_start (ap, fmt);
-#else
-  va_start (ap);
-#endif
   buf[0] = 1;
-  snprintf (buf + 1, sizeof buf - 1, fmt, ap);
-  write (STDERR_FILENO, buf, strlen (buf));
+  n = snprintf (buf + 1, sizeof buf - 1, fmt, ap);
+  va_end (ap);
+  if (n > sizeof buf - 1)
+    n = sizeof buf - 1;
+  buf[n] = '\n';
+  write (STDERR_FILENO, buf, n);
 }
 
 char *
@@ -368,10 +349,7 @@ getstr (const char *err)
   char *buf = malloc (buf_len), *end = buf;
 
   if (!buf)
-    {
-      error ("Out of space reading %s\n", err);
-      exit (1);
-    }
+    die (1, "Out of space reading %s", err);
 
   do
     {
@@ -380,10 +358,9 @@ getstr (const char *err)
       if (rd <= 0)
 	{
 	  if (rd == 0)
-	    error ("EOF reading %s\n", err);
+	    die (1, "EOF reading %s", err);
 	  else
-	    perror (err);
-	  exit (1);
+	    error (1, 0, "%s", err);
 	}
 
       end += rd;
@@ -394,10 +371,7 @@ getstr (const char *err)
 	  buf_len += buf_len;
 	  buf = realloc (buf, buf_len);
 	  if (!buf)
-	    {
-	      error ("Out of space reading %s\n", err);
-	      exit (1);
-	    }
+	    die (1, "Out of space reading %s", err);
 	  end = buf + end_offs;
 	}
     }
@@ -406,16 +380,3 @@ getstr (const char *err)
   return buf;
 }
 
-
-static const char usage_str[] =
-  "Usage: rexecd [OPTIONS...]\n"
-  "\n"
-  "Options are:\n"
-  "       --help              Display usage instructions\n"
-  "       --version           Display program version\n";
-
-void
-usage (void)
-{
-  printf ("%s\n" "Send bug reports to <%s>\n", usage_str, PACKAGE_BUGREPORT);
-}

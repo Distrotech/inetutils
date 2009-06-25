@@ -28,8 +28,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -302,8 +302,6 @@ time_t now;			/* Time use for mark and forward supending.  */
 int force_sync;			/* GNU/Linux behaviour to sync on every line.
 				   This off by default. Set to 1 to enable.  */
 
-ARGP_PROGRAM_DATA_SIMPLE ("syslogd", "2008");
-
 const char args_doc[] = "";
 const char doc[] = "Log system messages.";
 
@@ -451,6 +449,7 @@ main (int argc, char *argv[])
   add_funix (PATH_LOG);
 
   /* Parse command line */
+  argp_version_setup ("syslogd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   /* Daemonise, if not, set the buffering for line buffer.  */

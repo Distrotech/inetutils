@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -87,8 +87,6 @@
 
 #define DEFAULT_PROMPT "ftp> "
 static char *prompt = 0;
-
-ARGP_PROGRAM_DATA_SIMPLE ("ftp", "2007");
 
 const char args_doc[] = "[HOST [PORT]]";
 const char doc[] = "Remote file transfer.";
@@ -171,6 +169,7 @@ main (int argc, char *argv[])
   autologin = 1;
 
   /* Parse command line */
+  argp_version_setup ("ftp", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   argc -= index;

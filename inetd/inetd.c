@@ -140,6 +140,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <argp.h>
+#include <argp-version-etc.h>
 #include <progname.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
@@ -186,6 +187,12 @@ enum {
   OPT_RESOLVE
 };
 
+const char *program_authors[] = {
+  "Alain Magloire", "Alfred M. Szmidt", "Debarshi Ray",
+  "Jakob 'sparky' Kaivo", "Jeff Bailey",
+  "Jeroen Dekkers", "Marcus Brinkmann", "Sergey Poznyakoff",
+  "others", NULL };
+
 static struct argp_option argp_options[] = {
 #define GRP 0
   {"debug", 'd', NULL, 0,
@@ -200,16 +207,6 @@ static struct argp_option argp_options[] = {
 #undef GRP
   {NULL}
 };
-
-static void
-inetd_version (FILE *stream, struct argp_state *state)
-{
-  version_etc (stream, "inetd", PACKAGE_NAME, VERSION,
-	       "Alain Magloire", "Alfred M. Szmidt", "Debarshi Ray",
-	       "Jakob 'sparky' Kaivo", "Jeff Bailey",
-	       "Jeroen Dekkers", "Marcus Brinkmann", "Sergey Poznyakoff",
-	       "others", NULL);
-}
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
@@ -1876,6 +1873,9 @@ prepenv (int ctrl, struct sockaddr_in sa_client)
 }
 
 
+extern void
+version_argp (FILE *stream, struct argp_state *state);
+  
 int
 main (int argc, char *argv[], char *envp[])
 {
@@ -1894,7 +1894,7 @@ main (int argc, char *argv[], char *envp[])
   LastArg = envp[-1] + strlen (envp[-1]);
 
   /* Parse command line */
-  argp_program_version_hook = inetd_version;
+  argp_version_setup ("inetd", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (resolve_option)
