@@ -58,7 +58,7 @@ utmp_init (char *line, char *user, char *id)
 #if defined(HAVE_STRUCT_UTMP_UT_ID)
   strncpy (utx.ut_id, id, sizeof (utx.ut_id));
 #endif
-#if defined(HAVE_STRUCT_UTMP_UT_USER)
+#if defined(HAVE_STRUCT_UTMP_UT_USER) || defined(HAVE_STRUCT_UTMPX_UT_USER)
   strncpy (utx.ut_user, user, sizeof (utx.ut_user));
 #else
   strncpy (utx.ut_name, user, sizeof (utx.ut_name));

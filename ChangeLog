@@ -1,5 +1,9 @@
 2009-06-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libinetutils/utmp_init.c (utmp_init): 
+
+2009-06-25  Alfred M. Szmidt  <ams@gnu.org>
+
 	* rexecd/Makefile.am (INCLUDES): Use
 	`-I$(top_srcdir)/libinetutils' instead of `-I../libinetutils'
 
