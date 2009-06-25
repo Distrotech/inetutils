@@ -94,7 +94,7 @@
 #include <progname.h>
 #include <argp.h>
 #include <error.h>
-#include <libinetutils.h>
+#include "libinetutils.h"
 
 void die (int code, const char *fmt, ...);
 

@@ -27,7 +27,7 @@ rexecd_SOURCES = rexecd.c
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
-INCLUDES=-I$(top_srcdir)/lib -I../lib -I../libinetutils
+INCLUDES=-I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 
 LIBCRYPT = @LIBCRYPT@
 

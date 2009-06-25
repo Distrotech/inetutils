@@ -1,3 +1,11 @@
+2009-06-25  Alfred M. Szmidt  <ams@gnu.org>
+
+	* rexecd/Makefile.am (INCLUDES): Use
+	`-I$(top_srcdir)/libinetutils' instead of `-I../libinetutils'
+
+	* rexecd/rexecd.c: Include "libinetutils.h" instead of
+	<libinetutils.h>.
+
 2009-06-25  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Use argp-version-etc module from gnulib
