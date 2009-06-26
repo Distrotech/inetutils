@@ -1873,8 +1873,6 @@ prepenv (int ctrl, struct sockaddr_in sa_client)
 }
 
 
-extern void
-version_argp (FILE *stream, struct argp_state *state);
   
 int
 main (int argc, char *argv[], char *envp[])

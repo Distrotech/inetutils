@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -103,11 +103,7 @@ char *alloca ();
 #endif
 #include <pwd.h>
 #include <signal.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -120,6 +116,7 @@ char *alloca ();
 #endif
 #include <error.h>
 #include <progname.h>
+#include <argp.h>
 #include <libinetutils.h>
 
 int keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
@@ -132,8 +129,6 @@ void rshd_error (const char *, ...);
 char *getstr (const char *);
 int local_domain (const char *);
 const char *topdomain (const char *);
-void usage (void);
-void help (void);
 
 #if defined(KERBEROS) || defined(SHISHI)
 # ifdef KERBEROS
@@ -154,93 +149,98 @@ int protocol;
 # endif
 # define VERSION_SIZE	9
 # define SECURE_MESSAGE  "This rsh session is using DES encryption for all transmissions.\r\n"
-# define OPTIONS		"alnkvxLVh"
 int doencrypt, use_kerberos, vacuous;
 #else
-# define OPTIONS	"alnLVh"
 #endif
 
-static const char *short_options = OPTIONS;
-static struct option long_options[] = {
-  {"verify-hostname", no_argument, 0, 'a'},
-  {"no-rhosts", no_argument, 0, 'l'},
-  {"no-keepalive", no_argument, 0, 'n'},
-  {"log-sessions", required_argument, 0, 'L'},
-  {"kerberos", no_argument, 0, 'k'},
-  {"vacuous", no_argument, 0, 'v'},
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {0, 0, 0, 0}
+static struct argp_option options[] = {
+  { "verify-hostname", 'a', NULL, 0,
+    "Ask hostname for verification" },
+  { "no-rhosts", 'l', NULL, 0,
+    "Ignore .rhosts file" },
+  { "no-keepalive", 'n', NULL, 0,
+    "Do not set SO_KEEPALIVE" },
+  { "log-sessions", 'L', NULL, 0,
+    "Log successfull logins" },
+#ifdef	KERBEROS
+  /* FIXME: The option semantics does not match that of others r* utilities */
+  { "kerberos", 'k', NULL, 0,
+    "Use kerberos IV authentication" },
+  /* FIXME: Option name is misleading */
+  { "vacuous", 'v', NULL, 0,
+    "Require Kerberos authentication" },
+#endif
+  { NULL }
 };
+
+extern int __check_rhosts_file;	/* hook in rcmd(3) */
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    case 'a':
+      check_all = 1;
+      break;
+
+    case 'l':
+      __check_rhosts_file = 0;	/* don't check .rhosts file */
+      break;
+
+    case 'n':
+      keepalive = 0;	/* don't enable SO_KEEPALIVE */
+      break;
+
+#if defined(KERBEROS) || defined(SHISHI)
+    case 'k':
+      use_kerberos = 1;
+      break;
+
+    case 'v':
+      vacuous = 1;
+      break;
+
+# ifdef ENCRYPTION
+    case 'x':
+      doencrypt = 1;
+      break;
+# endif
+#endif
+
+    case 'L':
+      log_success = 1;
+      break;
+      
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+
+const char doc[] = "Remote shell server";
+static struct argp argp = { options, parse_opt, NULL, doc};
+
 
 /* Remote shell server. We're invoked by the rcmd(3) function. */
 int
 main (int argc, char *argv[])
 {
-  extern int __check_rhosts_file;	/* hook in rcmd(3) */
+  int index;
   struct linger linger;
   int ch, on = 1, fromlen;
   struct sockaddr_in from;
   int sockfd;
 
   set_program_name (argv[0]);
+  argp_version_setup ("rshd", default_program_authors);
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
   
-  opterr = 0;
-  while ((ch = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (ch)
-	{
-	case 'a':
-	  check_all = 1;
-	  break;
-
-	case 'l':
-	  __check_rhosts_file = 0;	/* don't check .rhosts file */
-	  break;
-
-	case 'n':
-	  keepalive = 0;	/* don't enable SO_KEEPALIVE */
-	  break;
-
-#if defined(KERBEROS) || defined(SHISHI)
-	case 'k':
-	  use_kerberos = 1;
-	  break;
-
-	case 'v':
-	  vacuous = 1;
-	  break;
-
-# ifdef ENCRYPTION
-	case 'x':
-	  doencrypt = 1;
-	  break;
-# endif
-#endif
-
-	case 'L':
-	  log_success = 1;
-	  break;
-
-	case 'V':
-	  printf ("rshd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case 'h':
-	  help ();
-	  exit (0);
-
-	case '?':
-	default:
-	  usage ();
-	  break;
-	}
-    }
-
   openlog ("rshd", LOG_PID | LOG_ODELAY, LOG_DAEMON);
 
-  argc -= optind;
+  argc -= index;
   if (argc > 0)
     {
       syslog (LOG_ERR, "%d extra arguments", argc);
@@ -1262,36 +1262,3 @@ topdomain (const char *h)
   return maybe;
 }
 
-void
-usage ()
-{
-  syslog (LOG_ERR, "usage: rshd [-%s]", OPTIONS);
-  exit (2);
-}
-
-void
-help (void)
-{
-  puts ("usage: rshd [options]");
-  puts ("\
-   -a, --verify-hostname   Ask hostname for verification");
-  puts ("\
-   -l, --no-rhosts         Ignore .rhosts file");
-  puts ("\
-   -L, --log-session       Set local domain name");
-  puts ("\
-   -n, --no-keepalive      Do not set SO_KEEPALIVE");
-#if defined(KERBEROS) || defined(SHISHI)
-  puts ("\
-   -k, --kerberos          Use kerberos IV authentication");
-# ifdef ENCRYPTION
-  puts ("\
-   -x, --encrypt           Use DES encryption");
-# endif	/* ENCRYPTION */
-#endif /* KERBEROS */
-  puts ("\
-   -h, --help              Display usage instructions");
-  puts ("\
-   -V, --version           Display program version");
-  printf ("\nSend bug reports to %s\n", PACKAGE_BUGREPORT);
-}

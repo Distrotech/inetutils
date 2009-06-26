@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -82,16 +82,6 @@ get_names (int argc, char *argv[])
   char *his_tty;
   register char *cp;
 
-  if (argc < 2)
-    {
-      printf ("Usage: talk user [ttyname]\n");
-      exit (-1);
-    }
-  if (!isatty (0))
-    {
-      printf ("Standard input must be a tty, not a pipe or a file\n");
-      exit (-1);
-    }
   if ((my_name = getlogin ()) == NULL)
     {
       struct passwd *pw;
@@ -112,12 +102,12 @@ get_names (int argc, char *argv[])
     }
 
   /* check for, and strip out, the machine name of the target */
-  for (cp = argv[1]; *cp && !strchr ("@:!.", *cp); cp++)
+  for (cp = argv[0]; *cp && !strchr ("@:!.", *cp); cp++)
     ;
   if (*cp == '\0')
     {
       /* this is a local to local talk */
-      his_name = argv[1];
+      his_name = argv[0];
       his_machine_name = my_machine_name;
     }
   else
@@ -125,19 +115,19 @@ get_names (int argc, char *argv[])
       if (*cp++ == '@')
 	{
 	  /* user@host */
-	  his_name = argv[1];
+	  his_name = argv[0];
 	  his_machine_name = cp;
 	}
       else
 	{
 	  /* host.user or host!user or host:user */
 	  his_name = cp;
-	  his_machine_name = argv[1];
+	  his_machine_name = argv[0];
 	}
       *--cp = '\0';
     }
-  if (argc > 2)
-    his_tty = argv[2];		/* tty name is arg 2 */
+  if (argc > 1)
+    his_tty = argv[1];		/* tty name is arg 2 */
   else
     his_tty = "";
   get_addrs (my_machine_name, his_machine_name);

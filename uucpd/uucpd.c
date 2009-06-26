@@ -30,8 +30,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -97,6 +97,10 @@
 # include <utmp.h>
 #endif
 
+#include <argp.h>
+#include <progname.h>
+#include <libinetutils.h>
+
 void dologin ();
 void usage (void);
 
@@ -112,12 +116,13 @@ char *nenv[] = {
 };
 extern char **environ;
 
-static const char *short_options = "hV";
-static struct option long_options[] = {
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {0}
-};
+static struct argp argp =
+  {
+    NULL,
+    NULL,
+    NULL,
+    "TCP/IP server for uucico"
+  };
 
 int
 main (int argc, char **argv)
@@ -129,25 +134,11 @@ main (int argc, char **argv)
 # endif
   struct servent *sp;
 #endif /* !BSDINETD */
-  extern int errno;
   void dologout ();
-  int c;
 
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (c)
-	{
-	case 'V':
-	  printf ("uucpd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case 'h':
-	default:
-	  usage ();
-	  exit (0);
-	}
-    }
+  set_program_name (argv[0]);
+  argp_version_setup ("uucpd", default_program_authors);
+  argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   environ = nenv;
 #ifdef BSDINETD

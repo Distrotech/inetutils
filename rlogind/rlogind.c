@@ -1,5 +1,5 @@
 /* Copyright (C) 1998, 2001, 2002, 2006,
-   2007, 2008 Free Software Foundation, Inc.
+   2007, 2008, 2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -77,6 +77,8 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>		/* Needed for chmod() */
 
+#include <progname.h>
+#include <argp.h>
 #include <libinetutils.h>
 
 /*
@@ -158,24 +160,12 @@ struct auth_data
 };
 #endif
 
-static const char *short_options = "aD::d::hk::L:lnp:orxV";
-static struct option long_options[] = {
-  {"allow-root", no_argument, 0, 'o'},
-  {"verify-hostname", no_argument, 0, 'a'},
-  {"daemon", optional_argument, 0, 'd'},
-  {"no-rhosts", no_argument, 0, 'l'},
-  {"no-keepalive", no_argument, 0, 'n'},
-  {"local-domain", required_argument, 0, 'L'},
-  {"kerberos", optional_argument, 0, 'k'},
-  {"encrypt", no_argument, 0, 'x'},
-  {"debug", optional_argument, 0, 'D'},
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {"port", required_argument, 0, 'p'},
-  {"reverse-required", no_argument, 0, 'r'},
-  {0, 0, 0, 0}
-};
+#define MODE_INETD 0
+#define MODE_DAEMON 1
+int mode = MODE_INETD;
 
+int port = 0;
+int maxchildren = DEFMAXCHILDREN;
 int allow_root = 0;
 int verify_hostname = 0;
 int keepalive = 1;
@@ -200,7 +190,6 @@ int local_dot_count;
 
 struct winsize win = { 0, 0, 0, 0 };
 
-void usage (void);
 void rlogin_daemon (int maxchildren, int port);
 int rlogind_auth (int fd, struct auth_data *ap);
 void setup_tty (int fd, struct auth_data *ap);
@@ -226,9 +215,6 @@ rlogind_sigchld (int sig)
     --numchildren;
   signal (sig, rlogind_sigchld);
 }
-
-#define MODE_INETD 0
-#define MODE_DAEMON 1
 
 #if defined(KERBEROS) && defined (ENCRYPTION)
 # define ENCRYPT_IO encrypt_io
@@ -266,96 +252,134 @@ rlogind_sigchld (int sig)
 # define ENC_WRITE(c, fd, buf, size, ap) c = write (fd, buf, size)
 #endif
 
-char *program_name;
+
+const char doc[] = "Remote login server";
+const char *program_authors[] = {
+  "Alain Magloire",
+  "Sergey Poznyakoff",
+  NULL
+};
+
+static struct argp_option options[] = {
+  { "allow-root", 'o', NULL, 0,
+    "Allow uid == 0 to login, disabled by default" },
+  { "verify-hostname", 'a', NULL, 0,
+    "Ask hostname for verification" },
+  { "daemon", 'd', NULL, 0,
+    "Daemon mode" },
+  { "no-rhosts", 'l', NULL, 0,
+    "Ignore .rhosts file" },
+  { "no-keepalive", 'n', NULL, 0,
+    "Do not set SO_KEEPALIVE" },
+  { "local-domain", 'L', "NAME", 0,
+    "Set local domain name" },
+#if defined(KERBEROS) || defined(SHISHI)
+  { "kerberos", 'k', NULL, 0,
+    "Use kerberos IV/V authentication" },
+#endif
+#if defined(ENCRYPTION)
+  { "encrypt", 'x', NULL, 0,
+    "Use DES encryption" },
+#endif
+  { "debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
+    "Set debug level" },
+  { "port", 'p', "PORT", 0,
+    "Listen on given port (valid only in daemon mode)" },
+  { "reverse-required", 'r', NULL, 0,
+    "Require reverse resolving of a remote host IP" },
+  { NULL }
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    case 'a':
+      verify_hostname = 1;
+      break;
+
+    case 'D':
+      if (arg)
+	debug_level = strtoul (arg, NULL, 10);
+      break;
+
+    case 'd':
+      mode = MODE_DAEMON;
+      if (arg)
+	maxchildren = strtoul (arg, NULL, 10);
+      if (maxchildren == 0)
+	maxchildren = DEFMAXCHILDREN;
+      break;
+
+    case 'l':
+      __check_rhosts_file = 0;	/* FIXME: extern var? */
+      break;
+
+    case 'L':
+      local_domain_name = arg;
+      break;
+
+    case 'n':
+      keepalive = 0;
+      break;
+
+#if defined(KERBEROS) || defined(SHISHI)
+    case 'k':
+      if (arg)
+	{
+	  if (*arg == '4')
+	    kerberos = AUTH_KERBEROS_4;
+	  else if (*arg == '5')
+	    kerberos = AUTH_KERBEROS_5;
+	}
+      else
+	kerberos = AUTH_KERBEROS_DEFAULT;
+      break;
+
+# ifdef ENCRYPTION
+    case 'x':
+      encrypt_io = 1;
+      break;
+# endif	/* ENCRYPTION */
+#endif /* KERBEROS */
+
+    case 'o':
+      allow_root = 1;
+      break;
+
+    case 'p':
+      port = strtoul (arg, NULL, 10);
+      break;
+      
+    case 'r':
+      reverse_required = 1;
+      break;
+      
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = { options, parse_opt, NULL, doc};
+
+
 
 int
 main (int argc, char *argv[])
 {
-  int port = 0;
-  int maxchildren = DEFMAXCHILDREN;
-  int mode = MODE_INETD;
-  int c;
+  int index;
 
-  program_name = argv[0];
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (c)
-	{
-	case 'a':
-	  verify_hostname = 1;
-	  break;
-
-	case 'D':
-	  if (optarg)
-	    debug_level = strtoul (optarg, NULL, 10);
-	  break;
-
-	case 'd':
-	  mode = MODE_DAEMON;
-	  if (optarg)
-	    maxchildren = strtoul (optarg, NULL, 10);
-	  if (maxchildren == 0)
-	    maxchildren = DEFMAXCHILDREN;
-	  break;
-
-	case 'l':
-	  __check_rhosts_file = 0;	/* FIXME: extern var? */
-	  break;
-
-	case 'L':
-	  local_domain_name = optarg;
-	  break;
-
-	case 'n':
-	  keepalive = 0;
-	  break;
-
-#if defined(KERBEROS) || defined(SHISHI)
-	case 'k':
-	  if (optarg)
-	    {
-	      if (*optarg == '4')
-		kerberos = AUTH_KERBEROS_4;
-	      else if (*optarg == '5')
-		kerberos = AUTH_KERBEROS_5;
-	    }
-	  else
-	    kerberos = AUTH_KERBEROS_DEFAULT;
-	  break;
-
-# ifdef ENCRYPTION
-	case 'x':
-	  encrypt_io = 1;
-	  break;
-# endif	/* ENCRYPTION */
-#endif /* KERBEROS */
-
-	case 'o':
-	  allow_root = 1;
-	  break;
-
-	case 'p':
-	  port = strtoul (optarg, NULL, 10);
-	  break;
-
-	case 'r':
-	  reverse_required = 1;
-	  break;
-
-	case 'V':
-	  printf ("rlogind (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case 'h':
-	default:
-	  usage ();
-	  exit (0);
-	}
-    }
-
+  set_program_name (argv[0]);
+  
+  /* Parse command line */
+  argp_version_setup ("rlogind", program_authors);
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
+  
   openlog ("rlogind", LOG_PID | LOG_CONS, LOG_AUTH);
-  argc -= optind;
+  argc -= index;
   if (argc > 0)
     {
       syslog (LOG_ERR, "%d extra arguments", argc);
@@ -1521,32 +1545,4 @@ fatal (int f, const char *msg, int syserr)
   len = strlen (bp);
   write (f, buf, bp + len - buf);
   exit (1);
-}
-
-static const char usage_str[] =
-  "usage: rlogind [options]\n"
-  "\n"
-  "Options are:\n"
-  "   -a, --verify-hostname   Ask hostname for verification\n"
-  "   -d, --daemon            Daemon mode\n"
-  "   -l, --no-rhosts         Ignore .rhosts file\n"
-  "   -L, --local-domain=NAME Set local domain name\n"
-  "   -n, --no-keepalive      Do not set SO_KEEPALIVE\n"
-#if defined(KERBEROS) || defined(SHISHI)
-  "   -k, --kerberos          Use kerberos IV/V authentication\n"
-# ifdef ENCRYPTION
-  "   -x, --encrypt           Use DES encryption\n"
-# endif	/* ENCRYPTION */
-#endif /* KERBEROS */
-  "   -D, --debug[=LEVEL]     Set debug level\n"
-  "   -h, --help              Display usage instructions\n"
-  "   -V, --version           Display program version\n"
-  "   -o, --allow-root        Allow uid == 0 to login, disable by default\n"
-  "   -p, --port PORT         Listen on given port (valid only in daemon mode)\n"
-  "   -r, --reverse-required  Require reverse resolving of a remote host IP\n";
-
-void
-usage ()
-{
-  printf ("%s\n" "Send bug reports to %s\n", usage_str, PACKAGE_BUGREPORT);
 }

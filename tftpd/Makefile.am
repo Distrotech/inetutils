@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2009 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@ inetdaemondir = @inetdaemondir@
 
 inetdaemon_PROGRAMS = @tftpd_BUILD@
 
-INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib 
+INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 
 EXTRA_PROGRAMS = tftpd
 

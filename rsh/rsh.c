@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -79,30 +79,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
-#include <getopt.h>
+#include <stdarg.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
 
 #include <error.h>
 #include <progname.h>
-#include "xalloc.h"
+#include <xalloc.h>
+#include <argp.h>
+#include <libinetutils.h>
 
-#ifdef SHISHI
-# define REALM_SZ 1040
-#endif
+int debug_option = 0;
+int null_input_option = 0;
+char *user = NULL;
 
 #if defined(KERBEROS) || defined(SHISHI)
 int use_kerberos = 1, doencrypt;
 # ifdef KERBEROS
 #  include <kerberosIV/des.h>
 #  include <kerberosIV/krb.h>
-char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
+char *dest_realm = NULL;
 CREDENTIALS cred;
 Key_schedule schedule;
 extern char *krb_realmofhost ();
@@ -110,7 +107,7 @@ extern char *krb_realmofhost ();
 # elif defined(SHISHI)
 #  include <shishi.h>
 #  include "shishi_def.h"
-char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
+char *dest_realm = NULL;
 
 Shishi *h;
 Shishi_key *enckey;
@@ -136,122 +133,108 @@ void usage (void);
 void warning (const char *, ...);
 
 
-#ifdef KERBEROS
-# ifdef ENCRYPTION
-#  define OPTIONS	"8Kdek:l:nxVh"
-# else
-#  define OPTIONS	"8Kdek:l:nVh"
-# endif
-#else
-# define OPTIONS	"8KLdel:nVh"
-#endif
-static const char *short_options = "+" OPTIONS;
-static struct option long_options[] = {
-  {"debug", no_argument, 0, 'd'},
-  {"user", required_argument, 0, 'l'},
-  {"escape", required_argument, 0, 'e'},
-  {"8-bit", no_argument, 0, '8'},
-  {"kerberos", no_argument, 0, 'K'},
-  {"no-input", no_argument, 0, 'n'},
+const char args_doc[] = "[USER@]HOST [COMMAND [ARG...]]";
+const char doc[] = "remote shell";
+
+static struct argp_option options[] = {
+  { "debug", 'd', NULL, 0,
+    "turns on socket debugging (see setsockopt(2))" },
+  { "user", 'l', "USER", 0,
+    "run as USER on the remote system" },
+  { "escape", 'e', "CHAR", 0,
+    "allows user specification of the escape character (``~'' by default)" },
+  { "8-bit", '8', NULL, 0,
+    "allows an eight-bit input data path at all times" },
+  { "no-input", 'n', NULL, 0,
+    "use /dev/null as input" },
 #if defined(KERBEROS) || defined(SHISHI)
-  {"realm", required_argument, 0, 'k'},
-  {"encrypt", no_argument, 0, 'x'},
+  { "kerberos", 'K', NULL, 0,
+    "turns off all Kerberos authentication" },
+  { "realm", 'k', NULL, 0,
+    "obtain tickets for the remote host in REALM "
+    "instead of the remote host's realm" },
+  { "encrypt", 'x', NULL, 0,
+    "encrypt all data using DES" },
 #endif
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {0, 0, 0, 0}
+  { NULL }
 };
 
-static void
-pusage (FILE * stream)
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
 {
-  fprintf (stream,
-	   "Usage: %s [-nd%s]%s[-l USER] [USER@]HOST [COMMAND [ARG...]]\n",
-	   program_name,
-#if defined(KERBEROS) || defined(SHISHI)
-# ifdef ENCRYPTION
-	   "x", " [-k REALM] "
-# else
-	   "", " [-k REALM] "
-# endif
-#else
-	   "", " "
-#endif
-    );
-}
+  switch (key)
+    {
+    case 'L':		/* -8Lew are ignored to allow rlogin aliases */
+    case 'e':
+    case 'w':
+    case '8':
+      break;
 
-/* Print a help message describing all options to STDOUT and exit with a
-   status of 0.  */
-static void
-help (void)
-{
-  pusage (stdout);
-  puts ("Execute COMMAND on remote system HOST");
-  puts ("When use as rlogin:");
-  puts ("\
-  -8, --8-bit       allows an eight-bit input data path at all times");
-  puts ("\
-  -E, --no-escape   stops any character from being recognized as an escape\n\
-                    character");
-  puts ("\
-  -d, --debug       turns on socket debugging (see setsockopt(2))");
-  puts ("\
-  -e, --escape=CHAR allows user specification of the escape character,\n\
-                    which is ``~'' by default");
-  puts ("\
-  -l, --user USER   run as USER on the remote system");
+    case 'd':
+      debug_option = 1;
+      break;
+
+    case 'l':
+      user = arg;
+      break;
+      
 #if defined(KERBEROS) || defined(SHISHI)
-  puts ("\
-  -K, --kerberos    turns off all Kerberos authentication");
-  puts ("\
-  -k, --realm REALM Obtain tickets for the remote host in REALM\n\
-                    instead of the remote host's realm");
+    case 'K':
+      use_kerberos = 0;
+      break;
+#endif
+
+#if defined(KERBEROS) || defined(SHISHI)
+    case 'k':
+      dest_realm = arg;
+      break;
+
 # ifdef ENCRYPTION
-  puts ("\
-  -x, --encrypt     encrypt all data using DES");
+    case 'x':
+      doencrypt = 1;
+#  ifdef KERBEROS
+      des_set_key (cred.session, schedule);
+#  endif
+      break;
 # endif
 #endif
-  puts ("\
-  -n, --no-input    use /dev/null as input");
-  puts ("\
-      --help        give this help list");
-  puts ("\
-  -V, --version     print program version");
-  fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
-  exit (0);
+
+    case 'n':
+      null_input_option = 1;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
 }
 
-/* Print a message saying to use --help to STDERR, and exit with a status of
-   1.  */
-static void
-try_help (void)
-{
-  fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
-  exit (1);
-}
+static struct argp argp =
+  {
+    options,
+    parse_opt,
+    args_doc,
+    doc
+  };
 
-void
-usage ()
-{
-  pusage (stderr);
-  try_help ();
-}
 
 
 int
 main (int argc, char **argv)
 {
+  int index;
   struct passwd *pw;
   struct servent *sp;
   sigset_t sigs, osigs;
-  int asrsh, ch, dflag, nflag, rem;
+  int asrsh, ch, rem;
   pid_t pid = 0;
   uid_t uid;
-  char *args, *host, *user;
+  char *args, *host;
 
   set_program_name (argv[0]);
 
-  asrsh = dflag = nflag = 0;
+  asrsh = 0;
   host = user = NULL;
 
   /* If called as something other than "rsh", use it as the host name */
@@ -267,87 +250,30 @@ main (int argc, char **argv)
       asrsh = 1;
   }
 
-  while ((ch = getopt_long (argc, argv, short_options, long_options, 0))
-	 != EOF)
-    {
-      switch (ch)
-	{
-	case 'L':		/* -8Lew are ignored to allow rlogin aliases */
-	case 'e':
-	case 'w':
-	case '8':
-	  break;
+  /* Parse command line */
+  argp_version_setup ("rsh", default_program_authors);
+  argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &index, NULL);
 
-	case 'd':
-	  dflag = 1;
-	  break;
-
-	case 'l':
-	  user = optarg;
-	  break;
-
-	case 'K':
-#if defined(KERBEROS) || defined(SHISHI)
-	  use_kerberos = 0;
-#endif
-	  break;
-
-#if defined(KERBEROS) || defined(SHISHI)
-	case 'k':
-	  strncpy (dest_realm_buf, optarg, sizeof dest_realm_buf);
-	  dest_realm_buf[REALM_SZ - 1] = '\0';
-	  dest_realm = dest_realm_buf;
-	  break;
-
-# ifdef ENCRYPTION
-	case 'x':
-	  doencrypt = 1;
-#  ifdef KERBEROS
-	  des_set_key (cred.session, schedule);
-#  endif
-	  break;
-# endif
-#endif
-
-	case 'n':
-	  nflag = 1;
-	  break;
-
-	case 'h':
-	  help ();
-
-	case 'V':
-	  printf ("rsh (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case '?':
-	  try_help ();
-
-	default:
-	  usage ();
-	}
-    }
-
-  if (optind < argc)
-    host = argv[optind++];
+  if (index < argc)
+    host = argv[index++];
 
   /* To few args.  */
   if (!host)
-    usage ();
+    error (1, 0, "host not specified");
 
   /* If no further arguments, must have been called as rlogin. */
-  if (!argv[optind])
+  if (!argv[index])
     {
       if (asrsh)
 	*argv = (char *) "rlogin";
       seteuid (getuid ());
       setuid (getuid ());
       execv (PATH_RLOGIN, argv);
-      error (1, errno, "can't exec %s", PATH_RLOGIN);
+      error (1, errno, "cannot execute %s", PATH_RLOGIN);
     }
 
-  argc -= optind;
-  argv += optind;
+  argc -= index;
+  argv += index;
 
   /* We must be setuid root.  */
   if (geteuid ())
@@ -366,7 +292,7 @@ main (int argc, char **argv)
 	  user = host;
 	host = p + 1;
 	if (*host == '\0')
-	  usage ();
+	  error (1, 0, "empty host name");
       }
   }
 
@@ -374,7 +300,7 @@ main (int argc, char **argv)
 # ifdef ENCRYPTION
   /* -x turns off -n */
   if (doencrypt)
-    nflag = 0;
+    null_input_option = 0;
 # endif
 #endif
 
@@ -542,7 +468,7 @@ try_connect:
   if (rfd2 < 0)
     error (1, 0, "can't establish stderr");
 
-  if (dflag)
+  if (debug_option)
     {
       int one = 1;
       if (setsockopt (rem, SOL_SOCKET, SO_DEBUG, (char *) &one,
@@ -572,7 +498,7 @@ try_connect:
   if (signal (SIGTERM, SIG_IGN) != SIG_IGN)
     signal (SIGTERM, sendsig);
 
-  if (!nflag)
+  if (!null_input_option)
     {
       pid = fork ();
       if (pid < 0)
@@ -590,8 +516,7 @@ try_connect:
       ioctl (rem, FIONBIO, &one);
     }
 
-  talk (nflag, &osigs, pid, rem);
-
+  talk (null_input_option, &osigs, pid, rem);
 
 #ifdef SHISHI
   if (use_kerberos)
@@ -613,19 +538,19 @@ try_connect:
     }
 #endif
 
-  if (!nflag)
+  if (!null_input_option)
     kill (pid, SIGKILL);
   return 0;
 }
 
 void
-talk (int nflag, sigset_t * osigs, pid_t pid, int rem)
+talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 {
   int cc, wc;
   fd_set readfrom, ready, rembits;
   char *bp, buf[BUFSIZ];
 
-  if (!nflag && pid == 0)
+  if (!null_input_option && pid == 0)
     {
       close (rfd2);
 

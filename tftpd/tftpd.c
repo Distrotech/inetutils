@@ -65,6 +65,10 @@
 
 #include "tftpsubs.h"
 
+#include <argp.h>
+#include <progname.h>
+#include <libinetutils.h>
+
 void usage (void);
 
 #define TIMEOUT		5
@@ -105,53 +109,70 @@ static const char *errtomsg (int);
 static void nak (int);
 static const char *verifyhost (struct sockaddr_in *);
 
-static const char *short_options = "hVln";
-static struct option long_options[] = {
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {0}
-};
+
 
+static struct argp_option options[] = {
+  { "logging", 'l', NULL, 0,
+    "Enable logging" },
+  { "nonexistent", 'n', NULL, 0,
+    "Supress negative acknowledgement of requests for "
+    "nonexistent relative filenames" },
+  { NULL }
+};
+  
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    case 'l':
+      logging = 1;
+      break;
+
+    case 'n':
+      suppress_naks = 1;
+      break;
+      
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp =
+  {
+    options,
+    parse_opt,
+    "directory...",
+    "Trivial File Transfer Protocol server"
+  };
+
+
 int
 main (int argc, char *argv[])
 {
+  int index;
   register struct tftphdr *tp;
-  register int n;
-  int ch, on;
+  int on, n;
   struct sockaddr_in sin;
 
+  set_program_name (argv[0]);
+  argp_version_setup ("tftpd", default_program_authors);
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
+  
   openlog ("tftpd", LOG_PID, LOG_FTP);
-  while ((ch = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
-    {
-      switch (ch)
-	{
-	case 'l':
-	  logging = 1;
-	  break;
-	case 'n':
-	  suppress_naks = 1;
-	  break;
-	case 'V':
-	  printf ("tftpd (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-	case 'h':
-	  usage ();
-	  exit (0);
-	default:
-	  syslog (LOG_WARNING, "ignoring unknown option -%c", ch);
-	}
-    }
-  if (optind < argc)
+
+  if (index < argc)
     {
       struct dirlist *dirp;
 
       /* Get list of directory prefixes. Skip relative pathnames. */
-      for (dirp = dirs; optind < argc && dirp < &dirs[MAXDIRS]; optind++)
+      for (dirp = dirs; index < argc && dirp < &dirs[MAXDIRS]; index++)
 	{
-	  if (argv[optind][0] == '/')
+	  if (argv[index][0] == '/')
 	    {
-	      dirp->name = argv[optind];
+	      dirp->name = argv[index];
 	      dirp->len = strlen (dirp->name);
 	      dirp++;
 	    }

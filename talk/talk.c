@@ -27,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -54,6 +54,8 @@
 #include <stdlib.h>
 
 #include "talk.h"
+#include <argp.h>
+#include <libinetutils.h>
 
 void usage (void);
 
@@ -71,36 +73,41 @@ void usage (void);
  *		Modified to run under 4.1c by Peter Moore 3/17/83
  */
 
-static const char *short_options = "hV";
-static struct option long_options[] = {
-  {"help", no_argument, 0, 'h'},
-  {"version", no_argument, 0, 'V'},
-  {0}
-};
+const char *program_authors[] =
+  {
+    "Kipp Hickman",
+    "Clem Cole",
+    "Peter Moore",
+    NULL
+  };
+
+const char doc[] = "talk to another user";
+const char args_doc[] = "person [ttyname]";
+static struct argp argp = { NULL, NULL, args_doc, doc };
 
 int
 main (int argc, char *argv[])
 {
-  int c;
+  int index;
 
   set_program_name (argv[0]);
+  argp_version_setup ("talk", program_authors);
+  argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-  while ((c = getopt_long (argc, argv, short_options, long_options, NULL))
-	 != EOF)
+  argc -= index;
+  argv += index;
+
+  if (argc == 0)
     {
-      switch (c)
-	{
-	case 'V':
-	  printf ("talk (%s %s)\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (0);
-
-	case 'h':
-	default:
-	  usage ();
-	  exit (0);
-	}
+      printf ("Usage: talk user [ttyname]\n");
+      exit (-1);
     }
-
+  if (!isatty (0))
+    {
+      printf ("Standard input must be a tty, not a pipe or a file\n");
+      exit (-1);
+    }
+  
   get_names (argc, argv);
   init_display ();
   open_ctl ();

@@ -1,3 +1,20 @@
+2009-06-26  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Use argp in r* utils, telnet, talk and uucpd.
+	
+	* inetd/inetd.c: Remove unused forward decl.
+	* rlogind/rlogind.c, rsh/rsh.c, rshd/rshd.c,
+	telnet/main.c, telnetd/telnetd.c, tftpd/tftpd.c,
+	uucpd/uucpd.c: Use argp to parse command line.
+	
+	* talk/talk.c: Use argp to parse command line.
+	* talk/get_names.c (get_names): Argv no longer include program
+	name.
+	
+	* rsh/Makefile.am (INCLUDES): Add libinetutils.
+	* tftpd/Makefile.am: Likewise.
+	* uucpd/Makefile.am: Likewise.
+	
 2009-06-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* tests/Makefile.am (AM_CPPFLAGS): Added `-I$(top_srcdir)/lib' to

@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2005, 2007, 2009 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -30,5 +30,5 @@ LIBCRYPT = @LIBCRYPT@
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_UUCICO) $(PATHDEF_TTY)
-INCLUDES = -I$(top_srcdir)/lib -I../lib 
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) $(LIBCRYPT)
