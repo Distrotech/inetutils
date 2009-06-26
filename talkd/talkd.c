@@ -46,13 +46,13 @@ const char *program_authors[] = {
 };
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {"acl", 'a', "FILE", 0, "Read site-wide ACLs from FILE", GRP+1},
-  {"debug", 'd', NULL, 0, "Enable debugging", GRP+1},
-  {"idle-timeout", 'i', "SECONDS", 0, "Set idle timeout value to SECONDS",
+  {"acl", 'a', "FILE", 0, "read site-wide ACLs from FILE", GRP+1},
+  {"debug", 'd', NULL, 0, "enable debugging", GRP+1},
+  {"idle-timeout", 'i', "SECONDS", 0, "set idle timeout value to SECONDS",
    GRP+1},
-  {"request-ttl", 'r', "SECONDS", 0, "Set request time-to-live value to "
+  {"request-ttl", 'r', "SECONDS", 0, "set request time-to-live value to "
    "SECONDS", GRP+1},
-  {"timeout", 't', "SECONDS", 0, "Set timeout value to SECONDS", GRP+1},
+  {"timeout", 't', "SECONDS", 0, "set timeout value to SECONDS", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -95,7 +95,7 @@ int
 main (int argc, char *argv[])
 {
   /* Parse command line */
-  argp_version_setup ("talkd", program_authors);
+  iu_argp_init ("talkd", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   read_acl (acl_file);

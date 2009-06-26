@@ -1,6 +1,6 @@
 /* changeif.c -- change the configuration of a network interface
 
-   Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -49,15 +49,13 @@
   err = inet_aton (addr, &sin->sin_addr);				\
   if (!err)								\
     {									\
-      fprintf (stderr, "%s: `%s' is not a valid address\n",		\
-	       program_name, addr);					\
+      error (0, 0, "`%s' is not a valid address", addr);		\
       return -1;							\
     }									\
   err = ioctl (sfd, SIOCSIF##type, ifr);				\
   if (err < 0)								\
     {									\
-      fprintf (stderr, "%s: %s failed: %s\n", program_name,		\
-               "SIOCSIF" #type, strerror (errno));			\
+      error (0, errno, "%s failed", "SIOCSIF" #type); 		        \
       return -1;							\
     }
 
@@ -70,9 +68,8 @@ int
 set_address (int sfd, struct ifreq *ifr, char *address)
 {
 #ifndef SIOCSIFADDR
-  fprintf (stderr,
-	   "%s: Don't know how to set an interface address on this system.\n",
-	   program_name);
+  error (0, 0,
+	   "don't know how to set an interface address on this system");
   return -1;
 #else
   char *addr;
@@ -80,14 +77,12 @@ set_address (int sfd, struct ifreq *ifr, char *address)
 
   if (!host)
     {
-      fprintf (stderr, "%s: can not resolve `%s': ", program_name, address);
-      herror (NULL);
+      error (0, 0, "can not resolve `%s': %s", address, hstrerror (h_errno));
       return -1;
     }
   if (host->h_addrtype != AF_INET)
     {
-      fprintf (stderr, "%s: `%s' refers to an unknown address type",
-	       program_name, address);
+      error (0, 0, "`%s' refers to an unknown address type", address);
       return -1;
     }
 
@@ -106,8 +101,7 @@ int
 set_netmask (int sfd, struct ifreq *ifr, char *netmask)
 {
 #ifndef SIOCSIFNETMASK
-  printf ("%s: Don't know how to set an interface netmask on this system.\n",
-	  program_name);
+  error (0, 0, "don't know how to set an interface netmask on this system");
   return -1;
 #else
 
@@ -122,9 +116,8 @@ int
 set_dstaddr (int sfd, struct ifreq *ifr, char *dstaddr)
 {
 #ifndef SIOCSIFDSTADDR
-  printf
-    ("%s: Don't know how to set an interface peer address on this system.\n",
-     program_name);
+  error (0, 0,
+         "don't know how to set an interface peer address on this system");
   return -1;
 #else
   SIOCSIF (DSTADDR, dstaddr) if (verbose)
@@ -138,9 +131,8 @@ int
 set_brdaddr (int sfd, struct ifreq *ifr, char *brdaddr)
 {
 #ifndef SIOCSIFBRDADDR
-  printf
-    ("%s: Don't know how to set an interface broadcast address on this system.\n",
-     program_name);
+  error (0, 0,
+         "don't know how to set an interface broadcast address on this system");
   return -1;
 #else
   SIOCSIF (BRDADDR, brdaddr) if (verbose)
@@ -154,8 +146,8 @@ int
 set_mtu (int sfd, struct ifreq *ifr, int mtu)
 {
 #ifndef SIOCSIFMTU
-  printf ("%s: Don't know how to set the interface mtu on this system.\n",
-	  program_name);
+  error (0, 0, 
+         "don't know how to set the interface mtu on this system");
   return -1;
 #else
   int err = 0;
@@ -164,8 +156,7 @@ set_mtu (int sfd, struct ifreq *ifr, int mtu)
   err = ioctl (sfd, SIOCSIFMTU, ifr);
   if (err < 0)
     {
-      fprintf (stderr, "%s: SIOCSIFMTU failed: %s\n",
-	       program_name, strerror (errno));
+      error (0, errno, "SIOCSIFMTU failed");
       return -1;
     }
   if (verbose)
@@ -178,8 +169,8 @@ int
 set_metric (int sfd, struct ifreq *ifr, int metric)
 {
 #ifndef SIOCSIFMETRIC
-  printf ("%s: Don't know how to set the interface metric on this system.\n",
-	  program_name);
+  error (0, 0,
+         "don't know how to set the interface metric on this system");
   return -1;
 #else
   int err = 0;
@@ -188,8 +179,7 @@ set_metric (int sfd, struct ifreq *ifr, int metric)
   err = ioctl (sfd, SIOCSIFMETRIC, ifr);
   if (err < 0)
     {
-      fprintf (stderr, "%s: SIOCSIFMETRIC failed: %s\n",
-	       program_name, strerror (errno));
+      error (0, errno, "SIOCSIFMETRIC failed");
       return -1;
     }
   if (verbose)

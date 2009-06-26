@@ -29,7 +29,7 @@ EXTRA_DIST = as_del_list ip_del_list tld_serv_list \
 noinst_HEADERS = data.h as_del.h ip_del.h tld_serv.h whois.h
 BUILT_SOURCES=as_del.h ip_del.h tld_serv.h
 
-INCLUDES = -I$(top_srcdir)/lib -I../lib 
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 LDADD = -L../libinetutils -linetutils -L../lib -lgnu
 
 

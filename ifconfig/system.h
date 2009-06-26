@@ -1,6 +1,6 @@
 /* system.h
 
-   Copyright (C) 2001, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -25,18 +25,12 @@
 
 /* Option parsing.  */
 
+extern struct argp_child system_argp_child;
+
 /* Define this if ifconfig supports parsing the remaining non-option
    arguments on the command line (see system_parse_opt_rest) to a string
    usable in the help info.  Like "  <addr> [ netmask <mask> ]" */
 extern const char *system_help;
-
-extern const char *system_help_options;
-
-/* Additional short options.  */
-# undef SYSTEM_SHORT_OPTIONS
-
-/* Addition long options.  */
-# undef SYSTEM_LONG_OPTIONS
 
 /* Hooked into a struct ifconfig (setting the flag IF_VALID_SYSTEM),
    to store system specific configurations from the command line

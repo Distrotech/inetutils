@@ -1,6 +1,6 @@
 /* linux.c -- Linux specific code for ifconfig
 
-   Copyright (C) 2001, 2002, 2005, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2005, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -301,11 +301,9 @@ system_fh_hwaddr (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFHWADDR
   if (ioctl (form->sfd, SIOCGIFHWADDR, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFHWADDR failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFHWADDR failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     {
       struct arphrd_symbol *arp;
@@ -338,11 +336,9 @@ system_fh_hwtype (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFHWADDR
   if (ioctl (form->sfd, SIOCGIFHWADDR, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFHWADDR failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFHWADDR failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     {
       struct arphrd_symbol *arp;
@@ -375,11 +371,9 @@ system_fh_txqlen (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFTXQLEN
   if (ioctl (form->sfd, SIOCGIFTXQLEN, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFTXQLEN failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFTXQLEN failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     put_int (form, argc, argv, form->ifr->ifr_qlen);
 #else
@@ -392,12 +386,9 @@ system_fh_txqlen (format_data_t form, int argc, char *argv[])
 /* Argument parsing stuff.  */
 
 const char *system_help = "\
-  NAME [ADDR] [broadcast BRDADDR]\n\
-  [pointopoint|dstaddr DSTADDR] [netmask MASK]\n\
-  [metric N] [mtu N] [txqueuelen N]";
-
-const char *system_help_options =
-  "      --txqlen N        Set transmit queue length to N";
+ NAME [ADDR] [broadcast BRDADDR]\
+ [pointopoint|dstaddr DSTADDR] [netmask MASK]\
+ [metric N] [mtu N] [txqueuelen N]";
 
 void
 system_parse_opt_set_txqlen (struct ifconfig *ifp, char *arg)
@@ -405,39 +396,61 @@ system_parse_opt_set_txqlen (struct ifconfig *ifp, char *arg)
   char *end;
 
   if (!ifp)
-    {
-      fprintf (stderr, "%s: no interface specified for txqlen"
-	       " `%s'\n", program_name, arg);
-      usage (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, 0,
+           "no interface specified for txqlen `%s'", arg);
 
   if (!(ifp->valid & IF_VALID_SYSTEM))
     {
       ifp->system = malloc (sizeof (struct system_ifconfig));
       if (!ifp->system)
-	{
-	  fprintf (stderr, "%s: can't get memory for system interface "
-		   "configuration: %s\n", program_name, strerror (errno));
-	  exit (EXIT_FAILURE);
-	}
+	error (EXIT_FAILURE, errno,
+	       "can't get memory for system interface configuration");
       ifp->system->valid = 0;
       ifp->valid |= IF_VALID_SYSTEM;
     }
   if (ifp->system->valid & IF_VALID_TXQLEN)
-    {
-      fprintf (stderr, "%s: only one txqlen allowed for interface `%s'\n",
-	       program_name, ifp->name);
-      usage (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, 0,
+           "only one txqlen allowed for interface `%s'",
+	   ifp->name);
   ifp->system->txqlen = strtol (arg, &end, 0);
   if (*arg == '\0' || *end != '\0')
-    {
-      fprintf (stderr, "%s: txqlen value `%s' for interface `%s' "
-	       "is not a number.\n", program_name, arg, ifp->name);
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, 0,
+           "txqlen value `%s' for interface `%s' is not a number", 
+           arg, ifp->name);
   ifp->system->valid |= IF_VALID_TXQLEN;
 }
+
+static struct argp_option linux_argp_options[] = {
+  { "txqlen", 'T', "N", 0,
+    "set transmit queue length to N" },
+  { NULL }
+};
+
+static error_t
+linux_argp_parser (int key, char *arg, struct argp_state *state)
+{
+  struct ifconfig *ifp = *(struct ifconfig **)state->input;
+  switch (key)
+    {
+    case 'T':			/* txqlen */
+      system_parse_opt_set_txqlen (ifp, arg);
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+  return 0;
+}
+
+static struct argp linux_argp = { linux_argp_options, linux_argp_parser };
+
+struct argp_child system_argp_child = {
+  &linux_argp,
+  0,
+  "Linux-specific options",
+  0
+};
+
 
 int
 system_parse_opt (struct ifconfig **ifpp, char option, char *arg)
@@ -447,7 +460,7 @@ system_parse_opt (struct ifconfig **ifpp, char option, char *arg)
   switch (option)
     {
     case 'T':			/* txqlen */
-      system_parse_opt_set_txqlen (ifp, optarg);
+      system_parse_opt_set_txqlen (ifp, arg);
       break;
 
     default:
@@ -462,6 +475,7 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
   int i = 0;
   enum
   {
+    EXPECT_INET,
     EXPECT_NOTHING,
     EXPECT_BROADCAST,
     EXPECT_DSTADDR,
@@ -469,7 +483,7 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
     EXPECT_MTU,
     EXPECT_METRIC,
     EXPECT_TXQLEN
-  } expect = EXPECT_NOTHING;
+  } expect = EXPECT_INET;
 
   *ifp = parse_opt_new_ifs (argv[0]);
 
@@ -501,6 +515,12 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	  system_parse_opt_set_txqlen (*ifp, argv[i]);
 	  break;
 
+	case EXPECT_INET:
+	  expect = EXPECT_NOTHING;
+	  if (!strcmp (argv[i], "inet"))
+	    continue;
+	  break;
+	  
 	case EXPECT_NOTHING:
 	  break;
 	}
@@ -527,43 +547,34 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
   switch (expect)
     {
     case EXPECT_BROADCAST:
-      fprintf (stderr, "%s: option `broadcast' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `broadcast' requires an argument");
       break;
 
     case EXPECT_DSTADDR:
-      fprintf (stderr,
-	       "%s: option `pointopoint' (`dstaddr') requires an argument\n",
-	       program_name);
+      error (0, 0, "option `pointopoint' (`dstaddr') requires an argument");
       break;
 
     case EXPECT_NETMASK:
-      fprintf (stderr, "%s: option `netmask' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `netmask' requires an argument");
       break;
 
     case EXPECT_METRIC:
-      fprintf (stderr, "%s: option `metric' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `metric' requires an argument");
       break;
 
     case EXPECT_MTU:
-      fprintf (stderr, "%s: option `mtu' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `mtu' requires an argument");
       break;
 
     case EXPECT_TXQLEN:
-      fprintf (stderr, "%s: option `txqueuelen' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `txqueuelen' requires an argument");
       break;
 
+    case EXPECT_INET:
     case EXPECT_NOTHING:
-      break;
+      return 1;
     }
-  if (expect != EXPECT_NOTHING)
-    usage (EXIT_FAILURE);
-
-  return 1;
+  return 0;
 }
 
 
@@ -573,8 +584,7 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
   if (ifs->valid & IF_VALID_TXQLEN)
     {
 #ifndef SIOCSIFTXQLEN
-      printf ("%s: Don't know how to set the txqlen on this system.\n",
-	      program_name);
+      error (0, 0, "don't know how to set the txqlen on this system");
       return -1;
 #else
       int err = 0;
@@ -582,11 +592,7 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
       ifr->ifr_qlen = ifs->txqlen;
       err = ioctl (sfd, SIOCSIFTXQLEN, ifr);
       if (err < 0)
-	{
-	  fprintf (stderr, "%s: SIOCSIFTXQLEN failed: %s\n",
-		   program_name, strerror (errno));
-	  return -1;
-	}
+	error (0, errno, "SIOCSIFTXQLEN failed");
       if (verbose)
 	printf ("Set txqlen value of `%s' to `%i'.\n",
 		ifr->ifr_name, ifr->ifr_qlen);

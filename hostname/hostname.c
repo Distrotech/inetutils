@@ -59,19 +59,16 @@ const char *program_authors[] = {
 };
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {"aliases", 'a', NULL, 0, "Alias names", GRP+1},
-  {"alias", 'a', NULL, OPTION_ALIAS, "Alias names", GRP+1},
+  {"aliases", 'a', NULL, 0, "alias names", GRP+1},
   {"domain", 'd', NULL, 0, "DNS domain name", GRP+1},
-  {"file", 'F', "FILE", 0, "Read host name or NIS domain name "
+  {"file", 'F', "FILE", 0, "read host name or NIS domain name "
    "from FILE", GRP+1},
   {"fqdn", 'f', NULL, 0, "DNS host name or FQDN", GRP+1},
   {"long", 'f', NULL, OPTION_ALIAS, "DNS host name or FQDN", GRP+1},
-  {"ip-addresses", 'i', NULL, 0, "Addresses for the host name", GRP+1},
-  {"ip-address", 'i', NULL, OPTION_ALIAS, "Addresses for the host name",
-   GRP+1},
-  {"short", 's', NULL, 0, "Short host name", GRP+1},
+  {"ip-addresses", 'i', NULL, 0, "addresses for the host name", GRP+1},
+  {"short", 's', NULL, 0, "short host name", GRP+1},
   {"yp", 'y', NULL, 0, "NIS/YP domain name", GRP+1},
-  {"nis", 'y', NULL, OPTION_ALIAS, "NIS/YP domain name", GRP+1},
+  {"nis", 0, NULL, OPTION_ALIAS, NULL, GRP+1},
 #undef GRP
   {NULL}
 };
@@ -154,7 +151,7 @@ main (int argc, char *argv[])
   memset ((void *) &options, 0, sizeof (options));
 
   /* Parse command line */
-  argp_version_setup ("hostname", program_authors);
+  iu_argp_init ("hostname", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, (void *) &options);
 
   /* Set default action */

@@ -262,31 +262,31 @@ const char *program_authors[] = {
 
 static struct argp_option options[] = {
   { "allow-root", 'o', NULL, 0,
-    "Allow uid == 0 to login, disabled by default" },
+    "allow uid == 0 to login, disabled by default" },
   { "verify-hostname", 'a', NULL, 0,
-    "Ask hostname for verification" },
+    "ask hostname for verification" },
   { "daemon", 'd', NULL, 0,
-    "Daemon mode" },
+    "daemon mode" },
   { "no-rhosts", 'l', NULL, 0,
-    "Ignore .rhosts file" },
+    "ignore .rhosts file" },
   { "no-keepalive", 'n', NULL, 0,
-    "Do not set SO_KEEPALIVE" },
+    "do not set SO_KEEPALIVE" },
   { "local-domain", 'L', "NAME", 0,
-    "Set local domain name" },
+    "set local domain name" },
 #if defined(KERBEROS) || defined(SHISHI)
   { "kerberos", 'k', NULL, 0,
-    "Use kerberos IV/V authentication" },
+    "use kerberos IV/V authentication" },
 #endif
 #if defined(ENCRYPTION)
   { "encrypt", 'x', NULL, 0,
-    "Use DES encryption" },
+    "use DES encryption" },
 #endif
   { "debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
-    "Set debug level" },
+    "set debug level" },
   { "port", 'p', "PORT", 0,
-    "Listen on given port (valid only in daemon mode)" },
+    "listen on given port (valid only in daemon mode)" },
   { "reverse-required", 'r', NULL, 0,
-    "Require reverse resolving of a remote host IP" },
+    "require reverse resolving of a remote host IP" },
   { NULL }
 };
 
@@ -375,7 +375,7 @@ main (int argc, char *argv[])
   set_program_name (argv[0]);
   
   /* Parse command line */
-  argp_version_setup ("rlogind", program_authors);
+  iu_argp_init ("rlogind", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
   
   openlog ("rlogind", LOG_PID | LOG_CONS, LOG_AUTH);

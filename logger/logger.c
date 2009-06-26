@@ -81,13 +81,13 @@ const char doc[] = "Make entries in the system log.";
 
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {NULL, 'i', NULL, 0, "Log the process id with every line", GRP+1},
+  {NULL, 'i', NULL, 0, "log the process id with every line", GRP+1},
 #ifdef LOG_PERROR
-  {NULL, 's', NULL, 0, "Copy the message to stderr", GRP+1},
+  {NULL, 's', NULL, 0, "copy the message to stderr", GRP+1},
 #endif
-  {"file", 'f', "FILE", 0, "Log the content of FILE", GRP+1},
-  {"priority", 'p', "PRI", 0, "Log with priority PRI", GRP+1},
-  {"tag", 't', "TAG", 0, "Prepend every line with TAG", GRP+1},
+  {"file", 'f', "FILE", 0, "log the content of FILE", GRP+1},
+  {"priority", 'p', "PRI", 0, "log with priority PRI", GRP+1},
+  {"tag", 't', "TAG", 0, "prepend every line with TAG", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -138,7 +138,7 @@ main (int argc, char *argv[])
   set_program_name (argv[0]);
   
   /* Parse command line */
-  argp_version_setup ("logger", default_program_authors);
+  iu_argp_init ("logger", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   argc -= index;

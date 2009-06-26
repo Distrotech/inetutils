@@ -1,6 +1,6 @@
 /* system/osf.c -- OSF specific code for ifconfig
 
-   Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -59,12 +59,10 @@
 
 const char *system_default_format "osf"/* Argument parsing stuff.  */
 const char *system_help = "\
-  NAME [AF]
-or
-  NAME AF [ADDR [DSTADDR]] [broadcast BRDADDR]\n\
-  [netmask MASK] [metric N]";
+NAME [AF]\n\
+NAME AF [ADDR [DSTADDR]] [broadcast BRDADDR] [netmask MASK] [metric N]";
 
-const char *system_help_options;
+struct argp_child system_argp_child;
 
 int
 system_parse_opt (struct ifconfig **ifp, char option, char *optarg)
@@ -140,18 +138,15 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
   switch (expect)
     {
     case EXPECT_BROADCAST:
-      fprintf (stderr, "%s: option `broadcast' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `broadcast' requires an argument");
       break;
 
     case EXPECT_NETMASK:
-      fprintf (stderr, "%s: option `netmask' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `netmask' requires an argument");
       break;
 
     case EXPECT_METRIC:
-      fprintf (stderr, "%s: option `metric' requires an argument\n",
-	       program_name);
+      error (0, 0, "option `metric' requires an argument");
       break;
 
     case EXPECT_NAME:
@@ -160,10 +155,7 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
       expect = EXPECT_NOTHING;
       break;
     }
-  if (expect != EXPECT_NOTHING)
-    usage (EXIT_FAILURE);
-
-  return 1;
+  return expect == EXPECT_NOTHING;
 }
 
 int

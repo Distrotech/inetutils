@@ -60,13 +60,12 @@ main (int argc, char *argv[])
   int sfd;
   struct ifconfig *ifp;
 
-  parse_opt (argc, argv);
+  parse_cmdline (argc, argv);
 
   sfd = socket (AF_INET, SOCK_STREAM, 0);
   if (sfd < 0)
     {
-      fprintf (stderr, "%s: socket error: %s\n",
-	       program_name, strerror (errno));
+      error (0, errno, "socket error");
       exit (1);
     }
 

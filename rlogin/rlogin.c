@@ -237,21 +237,21 @@ const char doc[] = "Starts a terminal session on a remote host.";
 
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {"8-bit", '8', NULL, 0, "Allows an eight-bit input data path at all times",
+  {"8-bit", '8', NULL, 0, "allows an eight-bit input data path at all times",
    GRP+1},
-  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
-  {"escape", 'e', "CHAR", 0, "Allows user specification of the escape "
+  {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
+  {"escape", 'e', "CHAR", 0, "allows user specification of the escape "
    "character, which is ``~'' by default", GRP+1},
-  {"no-escape", 'E', NULL, 0, "Stops any character from being recognized as "
+  {"no-escape", 'E', NULL, 0, "stops any character from being recognized as "
    "an escape character", GRP+1},
-  {"user", 'l', "USER", 0, "Run as USER on the remote system", GRP+1},
+  {"user", 'l', "USER", 0, "run as USER on the remote system", GRP+1},
 #if defined(KERBEROS) || defined(SHISHI)
 #ifdef ENCRYPTION
-  {"encrypt", 'x', NULL, 0, "Turns on DES encryption for all data passed via "
+  {"encrypt", 'x', NULL, 0, "turns on DES encryption for all data passed via "
    "the rlogin session", GRP+1},
 #endif
-  {"kerberos", 'K', NULL, 0, "Turns off all Kerberos authentication", GRP+1},
-  {"realm", 'k', "REALM", 0, "Obtain tickets for the remote host in REALM "
+  {"kerberos", 'K', NULL, 0, "turns off all Kerberos authentication", GRP+1},
+  {"realm", 'k', "REALM", 0, "obtain tickets for the remote host in REALM "
    "realm instead of the remote's realm", GRP+1},
 #endif
 #undef GRP
@@ -352,7 +352,7 @@ main (int argc, char *argv[])
   }
 
   /* Parse command line */
-  argp_version_setup ("rlogin", default_program_authors);
+  iu_argp_init ("rlogin", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (index < argc)

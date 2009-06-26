@@ -1,5 +1,5 @@
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -196,13 +196,13 @@ const char *program_authors[] = {
 static struct argp_option argp_options[] = {
 #define GRP 0
   {"debug", 'd', NULL, 0,
-   "Turn on debugging, run in foreground mode", GRP+1},
+   "turn on debugging, run in foreground mode", GRP+1},
   {"environment", OPT_ENVIRON, NULL, 0,
-   "Pass local and remote socket information in environment variables", GRP+1},
+   "pass local and remote socket information in environment variables", GRP+1},
   {"rate", 'R', "NUMBER", 0,
-   "Maximum invocation rate (per minute)", GRP+1},
+   "maximum invocation rate (per minute)", GRP+1},
   {"resolve", OPT_RESOLVE, NULL, 0,
-   "Resolve IP addresses when setting environment variables "
+   "resolve IP addresses when setting environment variables "
    "(see --environment)", GRP+1},
 #undef GRP
   {NULL}
@@ -807,8 +807,10 @@ inetd_getaddrinfo (struct servtab *sep, int proto, struct addrinfo **result)
   memset (&hints, 0, sizeof (hints));
 
   hints.ai_flags = AI_PASSIVE;
+#ifdef AI_V4MAPPED
   if (sep->se_v4mapped)
     hints.ai_flags |= AI_V4MAPPED;
+#endif
   hints.ai_family = sep->se_family;
   hints.ai_socktype = sep->se_socktype;
   hints.ai_protocol = proto;
@@ -1892,7 +1894,7 @@ main (int argc, char *argv[], char *envp[])
   LastArg = envp[-1] + strlen (envp[-1]);
 
   /* Parse command line */
-  argp_version_setup ("inetd", program_authors);
+  iu_argp_init ("inetd", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (resolve_option)

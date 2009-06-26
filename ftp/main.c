@@ -93,16 +93,16 @@ const char doc[] = "Remote file transfer.";
 
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
-  {"no-glob", 'g', NULL, 0, "Turn off file name globbing", GRP+1},
-  {"no-prompt", 'i', NULL, 0, "Don't prompt during multiple file transfers",
+  {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
+  {"no-glob", 'g', NULL, 0, "turn off file name globbing", GRP+1},
+  {"no-prompt", 'i', NULL, 0, "do not prompt during multiple file transfers",
    GRP+1},
-  {"no-login", 'n', NULL, 0, "Don't automatically login to the remote system",
+  {"no-login", 'n', NULL, 0, "do not automatically login to the remote system",
    GRP+1},
-  {"trace", 't', NULL, 0, "Enable packet tracing", GRP+1},
-  {"prompt", 'p', "PROMPT", OPTION_ARG_OPTIONAL, "Print a command line PROMPT "
+  {"trace", 't', NULL, 0, "enable packet tracing", GRP+1},
+  {"prompt", 'p', "PROMPT", OPTION_ARG_OPTIONAL, "print a command line PROMPT "
    "(optionally), even if not on a tty", GRP+1},
-  {"verbose", 'v', NULL, 0, "Verbose output", GRP+1},
+  {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -169,7 +169,7 @@ main (int argc, char *argv[])
   autologin = 1;
 
   /* Parse command line */
-  argp_version_setup ("ftp", default_program_authors);
+  iu_argp_init ("ftp", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   argc -= index;

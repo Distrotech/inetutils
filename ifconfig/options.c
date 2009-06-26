@@ -1,6 +1,6 @@
 /* options.c -- process the command line options
 
-   Copyright (C) 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2007, 2008, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -67,7 +67,7 @@ struct format formats[] = {
   /* This is the standard GNU output.  */
   {"gnu", "${first?}{}{${\\n}}${format}{gnu-one-entry}"},
   {"gnu-one-entry",
-   "${format}{check-existance}"
+   "${format}{check-existence}"
    "${name} (${index}):${\\n}"
    "${addr?}{  inet address ${tab}{16}${addr}${\\n}}"
    "${netmask?}{  netmask ${tab}{16}${netmask}${\\n}}"
@@ -81,7 +81,7 @@ struct format formats[] = {
    "${exists?}{txqlen?}{${txqlen?}{  tx queue len ${tab}{16}${txqlen}${\\n}}}"},
   /* Resembles the output of ifconfig 1.39 (1999-03-19) in net-tools 1.52.  */
   {"net-tools",
-   "${format}{check-existance}"
+   "${format}{check-existence}"
    "${name}${exists?}{hwtype?}{${hwtype?}{${tab}{10}Link encap:${hwtype}}"
    "${hwaddr?}{  HWaddr ${hwaddr}}}${\\n}"
    "${addr?}{${tab}{10}inet addr:${addr}"
@@ -97,7 +97,7 @@ struct format formats[] = {
   /* Resembles the output of ifconfig shipped with unix systems like
      Solaris 2.7 or HPUX 10.20.  */
   {"unix",
-   "${format}{check-existance}"
+   "${format}{check-existence}"
    "${name}: flags=${flags}{number}<${flags}{string}{,}>"
    "${mtu?}{ mtu ${mtu}}${\\n}"
    "${addr?}{${\\t}inet ${addr}"
@@ -108,14 +108,14 @@ struct format formats[] = {
    "}${exists?}{hwaddr?}{${hwaddr?}{ ${hwaddr}}}${\\n}}"},
   /* Resembles the output of ifconfig shipped with OSF 4.0g.  */
   {"osf",
-   "${format}{check-existance}"
+   "${format}{check-existence}"
    "${name}: flags=${flags}{number}{%x}<${flags}{string}{,}>${\\n}"
    "${addr?}{${\\t}inet ${addr}"
    " netmask ${netmask}{0}{%02x}${netmask}{1}{%02x}"
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
    "${brdaddr?}{ broadcast ${brdaddr}}" "${mtu?}{ ipmtu ${mtu}}${\\n}}"},
   /* If interface does not exist, print error message and exit. */
-  {"check-existance",
+  {"check-existence",
    "${index?}{}"
    "{${error}{${progname}: error: interface `${name}' does not exist${\\n}}"
    "${exit}{1}}"},
@@ -125,77 +125,42 @@ struct format formats[] = {
 /* Default format.  */
 const char *default_format;
 
-/* The "+" is necessary to avoid parsing of system specific pseudo options
-   like `-promisc'.  */
-static const char *short_options = "+i:a:m:d:p:b:M:vV";
-
-static struct option long_options[] = {
-#ifdef SYSTEM_LONG_OPTIONS
-  SYSTEM_LONG_OPTIONS
-#endif
-  {"verbose", no_argument, 0, 'v'},
-  {"version", no_argument, 0, 'V'},
-  {"help", no_argument, 0, '&'},
-  {"interface", required_argument, 0, 'i'},
-  {"address", required_argument, 0, 'a'},
-  {"netmask", required_argument, 0, 'm'},
-  {"dstaddr", required_argument, 0, 'd'},
-  {"peer", required_argument, 0, 'p'},
-  {"brdaddr", required_argument, 0, 'b'},
-  {"broadcast", required_argument, 0, 'B'},
-  {"mtu", required_argument, 0, 'M'},
-  {"metric", required_argument, 0, '3'},
-  {"format", optional_argument, 0, '4'},
-  {0, 0, 0, 0}
+enum {
+  METRIC_OPTION = 256,
+  FORMAT_OPTION
 };
 
-void
-usage (int err)
-{
-  if (err != EXIT_SUCCESS)
-    {
-      fprintf (stderr, "Usage: %s [OPTION]...%s\n", program_name,
-	       system_help ? " [SYSTEM OPTION]..." : "");
-      fprintf (stderr, "Try `%s --help' for more information.\n",
-	       program_name);
-    }
-  else
-    {
-      fprintf (stdout, "Usage: %s [OPTION]...%s\n", program_name,
-	       system_help ? " [SYSTEM OPTION]..." : "");
-      puts ("Configure network interfaces.\n\n\
-Options are:\n\
-  -i, --interface NAME  Configure network interface NAME\n\
-  -a, --address ADDR    Set interface address to ADDR\n\
-  -m, --netmask MASK    Set netmask to MASK\n\
-  -d, --dstaddr DSTADDR,\n\
-  -p, --peer DSTADDR    Set destination (peer) address to DSTADDR\n\
-  -b, --broadcast BRDADDR,\n\
-      --brdaddr BRDADDR Set broadcast address to BRDADDR\n\
-  -M, --mtu N           Set mtu of interface to N\n\
-      --metric N        Set metric of interface to N\n\
-      --format=FORMAT   Select output format (or set back to default)");
+static struct argp_option argp_options[] = {
+  { "verbose", 'v', NULL, 0,
+    "output information when configuring interface" },
+  { "interface", 'i', "NAME", 0,
+    "configure network interface NAME" },
+  { "address", 'a', "ADDR", 0,
+    "set interface address to ADDR" },
+  { "netmask", 'm', "MASK", 0,
+    "set netmask to MASK" },
+  { "dstaddr", 'd', "ADDR", 0,
+    "set destination (peer) address to ADDR" },
+  { "peer", 'p', NULL, OPTION_ALIAS },
+  { "broadcast", 'B', "ADDR", 0,
+    "set broadcast address to ADDR" },
+  { "brdaddr", 'b', NULL, OPTION_ALIAS, }, /* FIXME: Do we really need it? */
+  { "mtu", 'M', "N", 0,
+    "et mtu of interface to N" },
+  { "metric", METRIC_OPTION, "N", 0,
+    "set metric of interface to N" },
+  { "format", FORMAT_OPTION, "FORMAT", 0,
+    "select output format (or set back to default)" },
+  { NULL }
+};
 
-      if (system_help_options)
-	puts (system_help_options);
-      puts ("\
-  -v, --verbose         Output information when configuring interface.\n\
-      --help            Display this help and exit\n\
-  -V, --version         Output version information and exit");
-
-      if (system_help)
-	{
-	  puts ("\nSystem options are:");
-	  puts (system_help);
-	  puts ("\
-The system options provide an alternative, backward compatible command line\n\
-interface. It is discouraged and should not be used.");
-	}
-      fprintf (stdout, "\nSubmit bug reports to %s.\n", PACKAGE_BUGREPORT);
-    }
-  exit (err);
-}
-
+const char doc[] = "Configure network interfaces.";
+const char *program_authors[] =
+  {
+    "Marcus Brinkmann",
+    NULL
+  };
+    
 struct ifconfig *
 parse_opt_new_ifs (char *name)
 {
@@ -203,11 +168,7 @@ parse_opt_new_ifs (char *name)
 
   ifs = realloc (ifs, ++nifs * sizeof (struct ifconfig));
   if (!ifs)
-    {
-      fprintf (stderr, "%s: can't get memory for interface "
-	       "configuration: %s\n", program_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno, "can't get memory for interface configuration");
   ifp = &ifs[nifs - 1];
   *ifp = ifconfig_initializer;
   ifp->name = name;
@@ -219,18 +180,12 @@ void								\
 parse_opt_set_##field (struct ifconfig *ifp, char *addr)	\
 {								\
   if (!ifp)							\
-    {								\
-      fprintf (stderr, "%s: no interface specified for " #fname	\
-	       " `%s'\n", program_name, addr);			\
-      usage (EXIT_FAILURE);					\
-    }								\
+    error (EXIT_FAILURE, 0,                                     \
+           "no interface specified for %s `%s'", #fname, addr); \
   if (ifp->valid & IF_VALID_##fvalid)				\
-    {								\
-      fprintf (stderr, "%s: only one " #fname			\
-	       " allowed for interface `%s'\n",			\
-	       program_name, ifp->name);				\
-      usage (EXIT_FAILURE);					\
-    }								\
+    error (EXIT_FAILURE, 0,                                     \
+           "only one %s allowed for interface `%s'",		\
+	   #fname, ifp->name);				        \
   ifp->field = addr;						\
   ifp->valid |= IF_VALID_##fvalid;				\
 }
@@ -245,47 +200,34 @@ parse_opt_set_##field (struct ifconfig *ifp, char *arg)		\
 {								\
   char *end;							\
   if (!ifp)							\
-    {								\
-      fprintf (stderr, "%s: no interface specified for " #fname	\
-	       " `%s'\n", program_name, arg);			\
-      usage (EXIT_FAILURE);					\
-    }								\
+    error (EXIT_FAILURE, 0,                                     \
+           "no interface specified for %s `%s'\n",              \
+           #fname, arg);                                        \
   if (ifp->valid & IF_VALID_##fvalid)				\
-    {								\
-      fprintf (stderr, "%s: only one " #fname			\
-	       " allowed for interface `%s'\n",			\
-	       program_name, ifp->name);				\
-      usage (EXIT_FAILURE);					\
-    }								\
+    error (EXIT_FAILURE, 0,                                     \
+           "only one %s allowed for interface `%s'",		\
+           #fname, ifp->name);	 			        \
   ifp->field =  strtol (arg, &end, 0);				\
   if (*arg == '\0' || *end != '\0')				\
-    {								\
-      fprintf (stderr, "%s: mtu value `%s' for interface `%s' "	\
-              "is not a number.\n",				\
-	      program_name, optarg, ifp->name);			\
-      exit (EXIT_FAILURE);					\
-    }								\
+    error (EXIT_FAILURE, 0,                                     \
+           "mtu value `%s' for interface `%s' is not a number",	\
+           arg, ifp->name);			                \
   ifp->valid |= IF_VALID_##fvalid;				\
 }
-  PARSE_OPT_SET_INT (mtu, mtu value, MTU)
+PARSE_OPT_SET_INT (mtu, mtu value, MTU)
 PARSE_OPT_SET_INT (metric, metric value, METRIC)
-     void parse_opt_set_af (struct ifconfig *ifp, char *af)
+void parse_opt_set_af (struct ifconfig *ifp, char *af)
 {
   if (!ifp)
-    {
-      fprintf (stderr, "%s: no interface specified for address"
-	       " family `%s'\n", program_name, af);
-      usage (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, 0,
+           "no interface specified for address family `%s'", af);
 
   if (!strcasecmp (af, "inet"))
     ifp->af = AF_INET;
   else
-    {
-      fprintf (stderr, "%s: unknown address family `%s' for interface `%s'"
-	       " is not a number.\n", program_name, optarg, ifp->name);
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, 0,
+           "unknown address family `%s' for interface `%s': is not a number", 
+           af, ifp->name);
   ifp->valid |= IF_VALID_AF;
 }
 
@@ -325,86 +267,90 @@ parse_opt_finalize (struct ifconfig *ifp)
     }
 }
 
-void
-parse_opt (int argc, char *argv[])
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
 {
-  int option;
-  struct ifconfig *ifp = ifs;
+  struct ifconfig *ifp = *(struct ifconfig **)state->input;
+  
+  switch (key)
+    {
+    case ARGP_KEY_INIT:
+      state->child_inputs[0] = state->input;
+      break;
+      
+    case 'i':		/* Interface name.  */
+      parse_opt_finalize (ifp);
+      ifp = parse_opt_new_ifs (arg);
+      *(struct ifconfig **) state->input = ifp;
+      break;
 
+    case 'a':		/* Interface address.  */
+      parse_opt_set_address (ifp, arg);
+      break;
+
+    case 'm':		/* Interface netmask.  */
+      parse_opt_set_netmask (ifp, arg);
+      break;
+
+    case 'd':		/* Interface dstaddr.  */
+    case 'p':
+      parse_opt_set_dstaddr (ifp, arg);
+      break;
+
+    case 'b':		/* Interface broadcast address.  */
+    case 'B':
+      parse_opt_set_brdaddr (ifp, arg);
+      break;
+
+    case 'M':		/* Interface MTU.  */
+      parse_opt_set_mtu (ifp, arg);
+      break;
+
+    case METRIC_OPTION:		/* Interface metric.  */
+      parse_opt_set_metric (ifp, arg);
+      break;
+
+    case FORMAT_OPTION:		/* Output format.  */
+      parse_opt_set_default_format (arg);
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp_child argp_children[2];
+static struct argp argp =
+  {
+    argp_options,
+    parse_opt,
+    NULL,
+    doc,
+  };
+
+
+void
+parse_cmdline (int argc, char *argv[])
+{
+  int index;
+  struct ifconfig *ifp = ifs;
   set_program_name (argv[0]);
 
   parse_opt_set_default_format (NULL);
+  iu_argp_init ("ifconfig", program_authors);
+  argp_children[0] = system_argp_child;
+  argp.children = argp_children;
+  argp.args_doc = system_help;
+  argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &index, &ifp);
 
-  while ((option = getopt_long (argc, argv, short_options,
-				long_options, 0)) != EOF)
-    {
-      /* XXX: Allow new ifs be created by system_parse_opt. Provide
-         helper function for that (esp necessary for system specific
-         parsing of remaining args.  */
-      if (system_parse_opt (&ifp, option, optarg))
-	continue;
-
-      switch (option)
-	{
-	case 'i':		/* Interface name.  */
-	  parse_opt_finalize (ifp);
-	  ifp = parse_opt_new_ifs (optarg);
-	  break;
-
-	case 'a':		/* Interface address.  */
-	  parse_opt_set_address (ifp, optarg);
-	  break;
-
-	case 'm':		/* Interface netmask.  */
-	  parse_opt_set_netmask (ifp, optarg);
-	  break;
-
-	case 'd':		/* Interface dstaddr.  */
-	case 'p':
-	  parse_opt_set_dstaddr (ifp, optarg);
-	  break;
-
-	case 'b':		/* Interface broadcast address.  */
-	case 'B':
-	  parse_opt_set_brdaddr (ifp, optarg);
-	  break;
-
-	case 'M':		/* Interface MTU.  */
-	  parse_opt_set_mtu (ifp, optarg);
-	  break;
-
-	case '3':		/* Interface metric.  */
-	  parse_opt_set_metric (ifp, optarg);
-	  break;
-
-	case '4':		/* Output format.  */
-	  parse_opt_set_default_format (optarg);
-	  break;
-
-	case 'v':		/* Verbose.  */
-	  verbose = 1;
-	  break;
-
-	case '&':		/* Help.  */
-	  usage (EXIT_SUCCESS);
-	  /* Not reached.  */
-
-	case 'V':		/* Version.  */
-	  printf ("ifconfig (%s) %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-	  exit (EXIT_SUCCESS);
-
-	case '?':
-	default:
-	  usage (EXIT_FAILURE);
-	  /* Not reached.  */
-	}
-    }
   parse_opt_finalize (ifp);
 
-  if (optind < argc)
+  if (index < argc)
     {
-      if (!system_parse_opt_rest (&ifp, argc - optind, &argv[optind]))
-	usage (EXIT_FAILURE);
+      if (!system_parse_opt_rest (&ifp, argc - index, &argv[index]))
+	error (EXIT_FAILURE, 0, "invalid arguments");
       parse_opt_finalize (ifp);
     }
   if (!ifs)
@@ -419,11 +365,8 @@ parse_opt (int argc, char *argv[])
 
 	  ifs = realloc (ifs, ++nifs * sizeof (struct ifconfig));
 	  if (!ifs)
-	    {
-	      fprintf (stderr, "%s: can't get memory for interface "
-		       "configuration: %s\n", program_name, strerror (errno));
-	      exit (EXIT_FAILURE);
-	    }
+	    error (EXIT_FAILURE, errno,
+	           "can't get memory for interface configuration");
 	  ifp = &ifs[nifs - 1];
 	  *ifp = ifconfig_initializer;
 	  ifp->name = ifnxp->if_name;

@@ -1,6 +1,6 @@
 /* generic.c -- generic system code for ifconfig
 
-   Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -36,7 +36,7 @@ const char *system_default_format;
 
 const char *system_help;
 
-const char *system_help_options;
+struct argp_child system_argp_child;
 
 int
 system_parse_opt (struct ifconfig **ifp, char option, char *optarg)

@@ -316,34 +316,34 @@ enum {
 static struct argp_option argp_options[] = {
 #define GRP 0
   /* Not sure about the long name. Maybe move into conffile even. */
-  {NULL, 'a', "SOCKET", 0, "Add unix socket to listen to (up to 19)", GRP+1},
-  {NULL, 'l', "HOSTLIST", 0, "Log hosts in HOSTLIST by their hostname", GRP+1},
-  {NULL, 's', "DOMAINLIST", 0, "List of domains which should be stripped "
+  {NULL, 'a', "SOCKET", 0, "add unix socket to listen to (up to 19)", GRP+1},
+  {NULL, 'l', "HOSTLIST", 0, "log hosts in HOSTLIST by their hostname", GRP+1},
+  {NULL, 's', "DOMAINLIST", 0, "list of domains which should be stripped "
    "from the FQDN of hosts before logging their name", GRP+1},
-  {"debug", 'd', NULL, 0, "Print debug information (implies --no-detach)",
+  {"debug", 'd', NULL, 0, "print debug information (implies --no-detach)",
    GRP+1},
-  {"hop", 'h', NULL, 0, "Forward messages from remote hosts", GRP+1},
-  {"inet", 'r', NULL, 0, "Receive remote messages via internet domain socket",
+  {"hop", 'h', NULL, 0, "forward messages from remote hosts", GRP+1},
+  {"inet", 'r', NULL, 0, "receive remote messages via internet domain socket",
    GRP+1},
-  {"mark", 'm', "INTVL", 0, "Specify timestamp interval in logs (0 for no "
+  {"mark", 'm', "INTVL", 0, "specify timestamp interval in logs (0 for no "
    "timestamps)", GRP+1},
-  {"no-detach", 'n', NULL, 0, "Don't enter daemon mode", GRP+1},
-  {"no-forward", OPT_NO_FORWARD, NULL, 0, "Do not forward any messages "
+  {"no-detach", 'n', NULL, 0, "do not enter daemon mode", GRP+1},
+  {"no-forward", OPT_NO_FORWARD, NULL, 0, "do not forward any messages "
    "(overrides --hop)", GRP+1},
 #ifdef PATH_KLOG
-  {"no-klog", OPT_NO_KLOG, NULL, 0, "Do not listen to kernel log device "
+  {"no-klog", OPT_NO_KLOG, NULL, 0, "do not listen to kernel log device "
    PATH_KLOG, GRP+1},
 #endif
-  {"no-unixaf", OPT_NO_UNIXAF, NULL, 0, "Do not listen on unix domain "
+  {"no-unixaf", OPT_NO_UNIXAF, NULL, 0, "do not listen on unix domain "
    "sockets (overrides -a and -p)", GRP+1},
-  {"pidfile", OPT_PIDFILE, "FILE", 0, "Override pidfile (default: "
+  {"pidfile", OPT_PIDFILE, "FILE", 0, "override pidfile (default: "
    PATH_LOGPID ")", GRP+1},
-  {"rcfile", 'f', "FILE", 0, "Override configuration file (default: "
+  {"rcfile", 'f', "FILE", 0, "override configuration file (default: "
    PATH_LOGCONF ")",
    GRP+1},
-  {"socket", 'p', "FILE", 0, "Override default unix domain socket " PATH_LOG,
+  {"socket", 'p', "FILE", 0, "override default unix domain socket " PATH_LOG,
    GRP+1},
-  {"sync", 'S', NULL, 0, "Force a file sync on every line", GRP+1},
+  {"sync", 'S', NULL, 0, "force a file sync on every line", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -449,7 +449,7 @@ main (int argc, char *argv[])
   add_funix (PATH_LOG);
 
   /* Parse command line */
-  argp_version_setup ("syslogd", default_program_authors);
+  iu_argp_init ("syslogd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   /* Daemonise, if not, set the buffering for line buffer.  */

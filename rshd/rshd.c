@@ -155,20 +155,20 @@ int doencrypt, use_kerberos, vacuous;
 
 static struct argp_option options[] = {
   { "verify-hostname", 'a', NULL, 0,
-    "Ask hostname for verification" },
+    "ask hostname for verification" },
   { "no-rhosts", 'l', NULL, 0,
-    "Ignore .rhosts file" },
+    "ignore .rhosts file" },
   { "no-keepalive", 'n', NULL, 0,
-    "Do not set SO_KEEPALIVE" },
+    "do not set SO_KEEPALIVE" },
   { "log-sessions", 'L', NULL, 0,
-    "Log successfull logins" },
+    "log successfull logins" },
 #ifdef	KERBEROS
   /* FIXME: The option semantics does not match that of others r* utilities */
   { "kerberos", 'k', NULL, 0,
-    "Use kerberos IV authentication" },
+    "use kerberos IV authentication" },
   /* FIXME: Option name is misleading */
   { "vacuous", 'v', NULL, 0,
-    "Require Kerberos authentication" },
+    "require Kerberos authentication" },
 #endif
   { NULL }
 };
@@ -235,7 +235,7 @@ main (int argc, char *argv[])
   int sockfd;
 
   set_program_name (argv[0]);
-  argp_version_setup ("rshd", default_program_authors);
+  iu_argp_init ("rshd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
   
   openlog ("rshd", LOG_PID | LOG_ODELAY, LOG_DAEMON);

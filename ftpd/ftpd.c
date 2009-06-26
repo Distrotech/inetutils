@@ -261,34 +261,34 @@ const char doc[] = "File Transfer Protocol Daemon";
 static struct argp_option options[] = {
 #define GRID 0
   { "anonymous-only", 'A', NULL, 0,
-    "Server configured for anonymous service only",
+    "server configured for anonymous service only",
     GRID+1 },
   { "daemon", 'D', NULL, 0,
-    "Start the ftpd standalone",
+    "start the ftpd standalone",
     GRID+1 },
   { "debug", 'd', NULL, 0,
-    "Debug mode",
+    "debug mode",
     GRID+1 },
   { "logging", 'l', NULL, 0,
-    "Increase verbosity of syslog messages",
+    "increase verbosity of syslog messages",
     GRID+1 },
   { "pidfile", 'p', "PIDFILE", OPTION_ARG_OPTIONAL,
-    "Change default location of pidfile",
+    "change default location of pidfile",
     GRID+1 },
   { "no-version", 'q', NULL, 0,
-    "Do not display version in banner",
+    "do not display version in banner",
     GRID+1 },
   { "timeout", 't', "TIMEOUT", 0,
-    "Set default idle timeout",
+    "set default idle timeout",
     GRID+1 },
   { "max-timeout", 'T', NULL, 0,
-    "Reset maximum value of timeout allowed",
+    "reset maximum value of timeout allowed",
     GRID+1 },
   { "umask", 'u', "VAL", 0,
-    "Set default umask",
+    "set default umask",
     GRID+1 },
   { "auth", 'a', "AUTH", OPTION_ARG_OPTIONAL,
-    "Use AUTH for authentication",
+    "use AUTH for authentication",
     GRID+1 },
   { NULL, 0, NULL, 0, "AUTH can be one of the following:", GRID+2 },
   { "  default", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
@@ -432,7 +432,7 @@ main (int argc, char *argv[], char **envp)
 #endif /* HAVE_INITSETPROCTITLE */
 
   /* Parse the command line */
-  argp_version_setup ("ftpd", default_program_authors);
+  iu_argp_init ("ftpd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
   
   /* Bail out, wrong usage */

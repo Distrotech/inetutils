@@ -27,6 +27,23 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; If not, see <http://www.gnu.org/licenses/>. */
+
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
@@ -80,7 +97,7 @@ extern int forward_flags;
 #endif /* FORWARD */
 
 enum {
-  OPTION_NOASYNCH,
+  OPTION_NOASYNCH = 256,
   OPTION_NOASYNCTTY,
   OPTION_NOASYNCNET
 };
@@ -91,32 +108,32 @@ static struct argp_option argp_options[] = {
     "General options:", GRID },
     
   { "ipv4", '4', NULL, 0,
-    "Use only IPv4", GRID+1 },
+    "use only IPv4", GRID+1 },
   { "ipv6", '6', NULL, 0,
-    "Use only IPv6", GRID+1 },
+    "use only IPv6", GRID+1 },
   /* FIXME: Called "8bit" in r* utils */
   { "binary", '8', NULL, 0,
-    "Use an 8-bit data transmission", GRID+1 },
+    "use an 8-bit data transmission", GRID+1 },
   { "login", 'a', NULL, 0,
-    "Attempt automatic login", GRID+1 },
+    "attempt automatic login", GRID+1 },
   { "no-rc", 'c', NULL, 0,
-    "Don't read the user's .telnetrc file", GRID+1 },
+    "do not read the user's .telnetrc file", GRID+1 },
   { "debug", 'd', NULL, 0,
-    "Turn on debugging", GRID+1 },
+    "turn on debugging", GRID+1 },
   { "escape", 'e', "CHAR", 0,
-    "Use CHAR as an escape character", GRID+1 },
+    "use CHAR as an escape character", GRID+1 },
   { "no-escape", 'E', NULL, 0,
-    "Use no escape character", GRID+1 },
+    "use no escape character", GRID+1 },
   { "no-login", 'K', NULL, 0,
-    "Don't automatically login to the remote system", GRID+1 },
+    "do not automatically login to the remote system", GRID+1 },
   { "user", 'l', "USER", 0,
-    "Attempt automatic login as USER", GRID+1 },
+    "attempt automatic login as USER", GRID+1 },
   { "binary-output", 'L', NULL, 0, /* FIXME: Why L?? */
-    "Use an 8-bit data transmission for output only", GRID+1 },
+    "use an 8-bit data transmission for output only", GRID+1 },
   { "trace", 'n', "FILE", 0,
-    "Record trace information into FILE", GRID+1 },
+    "record trace information into FILE", GRID+1 },
   { "rlogin", 'r', NULL, 0,
-    "Use a user-interface similar to rlogin", GRID+1 },
+    "use a user-interface similar to rlogin", GRID+1 },
 #undef GRID
 
 #ifdef ENCRYPTION
@@ -124,7 +141,7 @@ static struct argp_option argp_options[] = {
   { NULL, 0, NULL, 0,
     "Encryption control:", GRID }
   { "encrypt", 'x', NULL, 0,
-    "Encrypt the data stream, if possible", GRID+1 },
+    "encrypt the data stream, if possible", GRID+1 },
 # undef GRID
 #endif
 
@@ -133,17 +150,17 @@ static struct argp_option argp_options[] = {
   { NULL, 0, NULL, 0,
     "Authentication and Kerberos options:", GRID },
   { "disable-auth", 'X', "ATYPE", 0,
-    "Disable type ATYPE authentication", GRID+1 },
+    "disable type ATYPE authentication", GRID+1 },
 # if defined(KRB4)  
   { "realm", 'k', "REALM", 0,
-    "Obtain tickets for the remote host in REALM "
+    "obtain tickets for the remote host in REALM "
     "instead of the remote host's realm", GRID+1 },
 # endif
 # if defined(KRB5) && defined(FORWARD)  
   { "fwd-credentials", 'f', NULL, 0,
-    "Allow the local credentials to be forwarded", GRID+1 },
+    "allow the local credentials to be forwarded", GRID+1 },
   { NULL, 'F', NULL, 0,
-    "Forward a forwardable copy of the local credentials "
+    "forward a forwardable copy of the local credentials "
     "to the remote system", GRID+1 },
 # endif
 # undef GRID  
@@ -320,7 +337,7 @@ main (int argc, char *argv[])
   autologin = -1;
 
   /* Parse command line */
-  argp_version_setup ("telnet", default_program_authors);
+  iu_argp_init ("telnet", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (autologin == -1)

@@ -137,7 +137,7 @@ main (int argc, char **argv)
   void dologout ();
 
   set_program_name (argv[0]);
-  argp_version_setup ("uucpd", default_program_authors);
+  iu_argp_init ("uucpd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   environ = nenv;

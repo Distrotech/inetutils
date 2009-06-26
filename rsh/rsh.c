@@ -251,7 +251,7 @@ main (int argc, char **argv)
   }
 
   /* Parse command line */
-  argp_version_setup ("rsh", default_program_authors);
+  iu_argp_init ("rsh", default_program_authors);
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, &index, NULL);
 
   if (index < argc)

@@ -89,12 +89,12 @@ enum {
 
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {"port", 'p', "PORT", 0, "Use destination PORT port (default: 33434)",
+  {"port", 'p', "PORT", 0, "use destination PORT port (default: 33434)",
    GRP+1},
-  {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "Resolve hostnames", GRP+1},
-  {"tries", 'q', "NUM", 0, "Send NUM probe packets per hop (default: 3)",
+  {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "resolve hostnames", GRP+1},
+  {"tries", 'q', "NUM", 0, "send NUM probe packets per hop (default: 3)",
    GRP+1},
-  {"type", 'M', "METHOD", 0, "Use METHOD (`icmp' or `udp') for traceroute "
+  {"type", 'M', "METHOD", 0, "use METHOD (`icmp' or `udp') for traceroute "
    "operations", GRP+1},
 #undef GRP
   {NULL}
@@ -164,7 +164,7 @@ main (int argc, char **argv)
   set_program_name (argv[0]);
   
   /* Parse command line */
-  argp_version_setup ("traceroute", program_authors);
+  iu_argp_init ("traceroute", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   if (geteuid () != 0)

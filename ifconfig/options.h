@@ -1,6 +1,6 @@
 /* options.h
 
-   Copyright (C) 2001, 2007, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2007, 2008, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -77,6 +77,6 @@ void parse_opt_set_metric (struct ifconfig *ifp, char *addr);
 void parse_opt_set_default_format (const char *format);
 void parse_opt_finalize (struct ifconfig *ifp);
 
-void parse_opt (int argc, char *argv[]);
+void parse_cmdline (int argc, char *argv[]);
 
 #endif

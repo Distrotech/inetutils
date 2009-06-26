@@ -91,7 +91,7 @@ main (int argc, char *argv[])
   int index;
 
   set_program_name (argv[0]);
-  argp_version_setup ("talk", program_authors);
+  iu_argp_init ("talk", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   argc -= index;

@@ -449,11 +449,9 @@ fh_index (format_data_t form, int argc, char *argv[])
   int indx = if_nametoindex (form->name);
 
   if (indx == 0)
-    {
-      fprintf (stderr, "%s: No index number found for interface `%s': %s\n",
-	       program_name, form->name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "No index number found for interface `%s'",
+	   form->name);
   *column += printf ("%i", indx);
   had_output = 1;
 }
@@ -474,11 +472,9 @@ fh_addr (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFADDR
   if (ioctl (form->sfd, SIOCGIFADDR, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFADDR failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFADDR failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_addr);
 #else
@@ -503,11 +499,9 @@ fh_netmask (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFNETMASK
   if (ioctl (form->sfd, SIOCGIFNETMASK, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFNETMASK failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFNETMASK failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_netmask);
 #else
@@ -543,11 +537,9 @@ fh_brdaddr (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFBRDADDR
   if (ioctl (form->sfd, SIOCGIFBRDADDR, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFBRDADDR failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFBRDADDR failed for interface `%s'",
+           form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_broadaddr);
 #else
@@ -583,11 +575,9 @@ fh_dstaddr (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFDSTADDR
   if (ioctl (form->sfd, SIOCGIFDSTADDR, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFDSTADDR failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFDSTADDR failed for interface `%s'",
+	   form->ifr->ifr_name, strerror (errno));
   else
     put_addr (form, argc, argv, &form->ifr->ifr_dstaddr);
 #else
@@ -612,11 +602,9 @@ fh_mtu (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFMTU
   if (ioctl (form->sfd, SIOCGIFMTU, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFMTU failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFMTU failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     put_int (form, argc, argv, form->ifr->ifr_mtu);
 #else
@@ -641,11 +629,9 @@ fh_metric (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFMETRIC
   if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFMETRIC failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFMETRIC failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     put_int (form, argc, argv, form->ifr->ifr_metric);
 #else
@@ -670,11 +656,9 @@ fh_flags (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFFLAGS
   if (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
-    {
-      fprintf (stderr, "%s: SIOCGIFFLAGS failed for interface `%s': %s\n",
-	       program_name, form->ifr->ifr_name, strerror (errno));
-      exit (EXIT_FAILURE);
-    }
+    error (EXIT_FAILURE, errno,
+           "SIOCGIFFLAGS failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     {
       if (argc >= 1)

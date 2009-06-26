@@ -1,5 +1,50 @@
 2009-06-26  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	Finish argp-fying the utilities.
+	
+	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Order source
+	names.
+	* libinetutils/libinetutils.h (iu_argp_init): New macro.
+	
+	* ftp/main.c, ftpd/ftpd.c, hostname/hostname.c, inetd/inetd.c,
+	logger/logger.c, ping/ping.c, ping/ping6.c, rcp/rcp.c,
+	rexecd/rexecd.c, rlogin/rlogin.c, rlogind/rlogind.c,
+	rsh/rsh.c, rshd/rshd.c, syslogd/syslogd.c, talk/talk.c,
+	talkd/talkd.c, telnet/main.c, telnetd/telnetd.c, tftpd/tftpd.c,
+	traceroute/traceroute.c, uucpd/uucpd.c:  Use iu_argp_init. Rewrite
+	option descriptions to conform to standards.texi.
+
+	* ifconfig/Makefile.am (INCLUDES): Add libinetutils
+	* ifconfig/changeif.c: Use error() for diagnostics.
+	* ifconfig/printif.c: Likewise.
+	* ifconfig/ifconfig.c: Likewise.
+	(main): Call parse_cmdline.
+	* ifconfig/ifconfig.h: Include error.h, argp.h and libinetutils.h.
+	* ifconfig/options.c: Use argp.
+	"check-existence": fix typo (was *check-existance).
+	(usage): Remove.
+	Use error() for diagnostics.
+	* ifconfig/options.h (parse_opt): Rename to parse_cmdline.
+	* ifconfig/system.h (system_argp_child): New extern.
+	(system_help_options, SYSTEM_SHORT_OPTIONS)
+	(SYSTEM_LONG_OPTIONS): Remove. 
+
+	* ifconfig/system/generic.c: Use new command line parsing method.
+	* ifconfig/system/hpux.c: Likewise.
+	* ifconfig/system/linux.c: Likewise.
+	* ifconfig/system/linux.h: Likewise.
+	* ifconfig/system/osf.c: Likewise.
+	* ifconfig/system/qnx.c: Likewise.
+	* ifconfig/system/solaris.c: Likewise.
+	
+	* gwhois/Makefile.am (INCLUDES): Add libinetutils.
+	* gwhois/whois.c: Use argp to parse the command line.
+	(is_ripe_server): New function.
+	(queryformat): Use is_ripe_server to determine if the server
+	supports RIPE syntax.
+
+2009-06-26  Sergey Poznyakoff  <gray@gnu.org.ua>
+
 	Use argp in r* utils, telnet, talk and uucpd.
 	
 	* inetd/inetd.c: Remove unused forward decl.

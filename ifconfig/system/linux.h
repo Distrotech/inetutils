@@ -1,6 +1,6 @@
 /* linux.h
 
-   Copyright (C) 2001, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -36,8 +36,6 @@ struct system_ifconfig
   int txqlen;
 };
 
-# define SYSTEM_LONG_OPTIONS \
-  {"txqlen",         required_argument,      0,      'T'},
 
 
 /* Output format support.  */

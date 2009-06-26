@@ -73,23 +73,23 @@ const char *program_authors[] = {
 static struct argp_option argp_options[] = {
 #define GRP 0
   {NULL, 0, NULL, 0, "Options valid for all request types:", GRP},
-  {"count", 'c', "NUMBER", 0, "Stop after sending NUMBER packets", GRP+1},
-  {"debug", 'd', NULL, 0, "Set the SO_DEBUG option", GRP+1},
-  {"interval", 'i', "NUMBER", 0, "Wait NUMBER seconds between sending each "
+  {"count", 'c', "NUMBER", 0, "stop after sending NUMBER packets", GRP+1},
+  {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
+  {"interval", 'i', "NUMBER", 0, "wait NUMBER seconds between sending each "
    "packet", GRP+1},
-  {"numeric", 'n', NULL, 0, "Do not resolve host addresses", GRP+1},
-  {"ignore-routing", 'r', NULL, 0, "Send directly to a host on an attached "
+  {"numeric", 'n', NULL, 0, "so not resolve host addresses", GRP+1},
+  {"ignore-routing", 'r', NULL, 0, "send directly to a host on an attached "
    "network", GRP+1},
 #undef GRP
 #define GRP 10
   {NULL, 0, NULL, 0, "Options valid for --echo requests:", GRP},
-  {"flood", 'f', NULL, 0, "Flood ping (root only)", GRP+1},
-  {"preload", 'l', "NUMBER", 0, "Send NUMBER packets as fast as possible "
+  {"flood", 'f', NULL, 0, "flood ping (root only)", GRP+1},
+  {"preload", 'l', "NUMBER", 0, "send NUMBER packets as fast as possible "
    "before falling into normal mode of behavior (root only)", GRP+1},
-  {"pattern", 'p', "PATTERN", 0, "Fill ICMP packet with given pattern (hex)",
+  {"pattern", 'p', "PATTERN", 0, "fill ICMP packet with given pattern (hex)",
    GRP+1},
-  {"quiet", 'q', NULL, 0, "Quiet output", GRP+1},
-  {"size", 's', "NUMBER", 0, "Send NUMBER data octets", GRP+1},
+  {"quiet", 'q', NULL, 0, "quiet output", GRP+1},
+  {"size", 's', "NUMBER", 0, "send NUMBER data octets", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -179,7 +179,7 @@ main (int argc, char **argv)
     is_root = true;
 
   /* Parse command line */
-  argp_version_setup ("ping6", program_authors);
+  iu_argp_init ("ping6", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   ping = ping_init (0, getpid ());

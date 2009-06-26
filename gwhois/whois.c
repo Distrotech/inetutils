@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 1999, 2007, 2008 Free Software Foundation, Inc.
+  Copyright (C) 1999, 2007, 2008, 2009 Free Software Foundation, Inc.
   
   Written by Marco d'Itri <md@linux.it>.
   
@@ -32,10 +32,17 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
 #include <signal.h>
 #include <progname.h>
+#include <argp.h>
+#define obstack_chunk_alloc malloc
+#define obstack_chunk_free free
+#include <obstack.h>
+#include <error.h>
+#include <libinetutils.h>
 
 /* Application-specific */
 #include <data.h>
@@ -43,31 +50,152 @@
 
 /* Global variables */
 int sockfd, verb = 0;
+struct obstack query_stk;
 
 #ifdef ALWAYS_HIDE_DISCL
 int hide_discl = 0;
 #else
 int hide_discl = 2;
 #endif
+const char *server = NULL;
+const char *port = NULL;
+int nopar = 0;
 
-static struct option longopts[] = {
-  {"help", no_argument, NULL, 0},
-  {"version", no_argument, NULL, 1},
-  {"verbose", no_argument, NULL, 'V'},
-  {"server", required_argument, NULL, 'h'},
-  {"host", required_argument, NULL, 'h'},
-  {0, 0, 0, 0}
+static struct argp_option ripe_argp_options[] = {
+  { NULL, 'a', NULL, 0,
+    "search all databases" },
+  { NULL, 'F', NULL, 0,
+    "fast raw output (implies -r)" },
+  { NULL, 'g', "SOURCE:FIRST-LAST", 0,
+    "find updates from SOURCE from serial FIRST to LAST" },
+  { NULL, 'i', "ATTR[,ATTR]...", 0,
+    "do an inverse lookup for specified ATTRibutes" },
+  { NULL, 'l', NULL, 0,
+    "one level less specific lookup (RPSL only)" },
+  { NULL, 'L', NULL, 0,
+    "find all Less specific matches" },
+  { NULL, 'M', NULL, 0,
+    "find all More specific matches" },
+  { NULL, 'm', NULL, 0,
+    "find first level more specific matches" },
+  { NULL, 'r', NULL, 0,
+    "turn off recursive lookups" },
+  { NULL, 'R', NULL, 0,
+    "force to show local copy of the domain object even "
+    "if it contains referral" },
+  { NULL, 'S', NULL, 0,
+    "tell server to leave out syntactic sugar" },
+  { NULL, 's', "SOURCE[,SOURCE]...", 0,
+    "search the database from SOURCE" },
+  { NULL, 'T', "TYPE[,TYPE]...", 0,
+    "only look for objects of TYPE" },
+  { NULL, 'q', "version|sources", 0,
+    "query specified server info (RPSL only)" },
+  { NULL, 't', "TYPE", 0,
+    "requests template for object of TYPE ('all' for a list)" },
+  { NULL, 'x', NULL, 0,
+    "exact match only (RPSL only)" },
+  { NULL }
 };
+
+static error_t
+ripe_argp_parser (int key, char *arg, struct argp_state *state)
+{
+  if (key > 0 && (unsigned) key < 128)
+    {
+      if (key == 't' || key == 'v' || key == 'q')
+	nopar = 1;
+
+      obstack_1grow (&query_stk, '-');
+      obstack_1grow (&query_stk, key);
+      if (arg)
+	{
+	  obstack_1grow (&query_stk, ' ');
+	  obstack_grow (&query_stk, arg, strlen (arg));
+	}
+      return 0;
+    }
+  return ARGP_ERR_UNKNOWN;
+}
+
+static struct argp ripe_argp = { ripe_argp_options, ripe_argp_parser };
+
+static struct argp_option gwhois_argp_options[] = {
+  { "verbose", 'V', NULL, 0,
+    "explain what is being done" },
+  { "server", 'h', "HOST", 0,
+    "connect to server HOST"},
+  { "port", 'p', "PORT", 0,
+    "connect to PORT" },
+  { NULL, 'H', NULL, 0,
+    "hide legal disclaimers" },
+  { NULL }
+};
+
+static error_t
+gwhois_argp_parser (int key, char *arg, struct argp_state *state)
+{
+  char *p, *q;
+  
+  switch (key)
+    {
+    case 'h':
+      server = q = malloc (strlen (arg) + 1);
+      for (p = arg; *p != '\0' && *p != ':'; *q++ = tolower (*p++));
+      if (*p == ':')
+	port = p + 1;
+      *q = '\0';
+      break;
+
+    case 'H':
+      hide_discl = 0;	/* enable disclaimers hiding */
+      break;
+      
+    case 'p':
+      port = arg;
+      break;
+
+    case 'V':
+      verb = 1;
+      break;
+      
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+  return 0;
+}
+      
+struct argp_child gwhois_argp_children[] = {
+  { &ripe_argp,
+    0,
+    "RIPE-specific options",
+    0
+    },
+  { NULL }
+};
+
+static struct argp gwhois_argp = {
+  gwhois_argp_options,
+  gwhois_argp_parser,
+  "OBJECT...",
+  "client for the whois directory service",
+  gwhois_argp_children
+};
+
+const char *program_authors[] =
+  {
+    "Marco d'Itri",
+    NULL
+  };
 
 int
 main (int argc, char *argv[])
 {
-  int ch, nopar = 0;
-  const char *server = NULL, *port = NULL;
-  char *p, *q, *qstring, fstring[64] = "\0";
-  extern char *optarg;
-  extern int optind;
-
+  int index;
+  char *fstring;
+  char *qstring;
+  char *p;
+  
   set_program_name (argv[0]);
   
 #ifdef ENABLE_NLS
@@ -76,82 +204,31 @@ main (int argc, char *argv[])
   textdomain (NLS_CAT_NAME);
 #endif
 
-  while ((ch = getopt_long (argc, argv, "acFg:h:Hi:lLmMp:q:rRs:St:T:v:Vx",
-			    longopts, 0)) > 0)
-    {
-      /* RIPE flags */
-      if (strchr (ripeflags, ch))
-	{
-	  for (p = fstring; *p != '\0'; p++);
-	  sprintf (p--, "-%c ", ch);
-	  continue;
-	}
-      if (strchr (ripeflagsp, ch))
-	{
-	  for (p = fstring; *p != '\0'; p++);
-	  sprintf (p--, "-%c %s ", ch, optarg);
-	  if (ch == 't' || ch == 'v' || ch == 'q')
-	    nopar = 1;
-	  continue;
-	}
-      /* program flags */
-      switch (ch)
-	{
-	case 'h':
-	  server = q = malloc (strlen (optarg) + 1);
-	  for (p = optarg; *p != '\0' && *p != ':'; *q++ = tolower (*p++));
-	  if (*p == ':')
-	    port = p + 1;
-	  *q = '\0';
-	  break;
-	case 'H':
-	  hide_discl = 0;	/* enable disclaimers hiding */
-	  break;
-	case 'p':
-	  port = optarg;
-	  break;
-	case 'V':
-	  verb = 1;
-	  break;
-	case 1:
-#ifdef VERSION
-	  fprintf (stderr, _("Version %s.\n\nReport bugs to %s.\n"),
-		   VERSION, "<md+whois@linux.it>");
-#else
-	  fprintf (stderr, "%s %s\n", PACKAGE_NAME, PACKAGE_VERSION);
-#endif
-	  exit (0);
-	default:
-	  usage ();
-	}
-    }
-  argc -= optind;
-  argv += optind;
+  obstack_init (&query_stk);
+  iu_argp_init ("whois", program_authors);
+  argp_parse (&gwhois_argp, argc, argv, ARGP_IN_ORDER, &index, NULL);
+  obstack_1grow (&query_stk, 0);
+  fstring = obstack_finish (&query_stk);
+  argc -= index;
+  argv += index;
 
   if (argc == 0 && !nopar)	/* there is no parameter */
-    usage ();
-
-  /* On some systems realloc only works on non-NULL buffers */
-  qstring = malloc (1);
-  *qstring = '\0';
+    error (1, 0, "not enough arguments");
 
   /* parse other parameters, if any */
   if (!nopar)
     {
-      int qslen = 0;
-
-      while (1)
+      while (argc--)
 	{
-	  qslen += strlen (*argv) + 1;
-	  qstring = realloc (qstring, qslen);
-	  strcat (qstring, *argv++);
-	  if (argc == 1)
-	    break;
-	  strcat (qstring, " ");
-	  argc--;
+	  const char *arg = *argv++;
+	  obstack_grow (&query_stk, arg, strlen (arg));
+	  if (argc)
+	    obstack_1grow (&query_stk, ' ');
 	}
     }
-
+  obstack_1grow (&query_stk, 0);
+  qstring = obstack_finish (&query_stk);
+  
   if (!server && domfind (qstring, gtlds))
     {
       if (verb)
@@ -302,6 +379,32 @@ whereas (int asn, struct as_del aslist[])
   return "whois.arin.net";
 }
 
+int
+is_ripe_server (const char * const *srvtab, const char *name)
+{
+  struct in_addr addr;
+  int isip = 0;
+
+  isip = inet_aton (name, &addr);
+  
+  for (; *srvtab; ++srvtab)
+    {
+      const char *server = *srvtab;
+      struct hostent *hp;
+      
+      if (strcmp (server, name) == 0)
+	return 1;
+      if (isip && (hp = gethostbyname (server)) != NULL)
+	{
+	  char **pa;
+	  for (pa = hp->h_addr_list; *pa; pa++)
+	    if (*(unsigned long*)*pa == addr.s_addr)
+	      return 1;
+	}
+    }
+  return 0;
+}
+
 char *
 queryformat (const char *server, const char *flags, const char *query)
 {
@@ -311,21 +414,12 @@ queryformat (const char *server, const char *flags, const char *query)
   /* +10 for CORE; +2 for \r\n; +1 for NULL */
   buf = malloc (strlen (flags) + strlen (query) + 10 + 2 + 1);
   *buf = '\0';
-  for (i = 0; ripe_servers[i]; i++)
-    if (strcmp (server, ripe_servers[i]) == 0)
-      {
-	strcat (buf, "-V " IDSTRING " ");
-	isripe = 1;
-	break;
-      }
-  if (!isripe)
-    for (i = 0; ripe_servers_old[i]; i++)
-      if (strcmp (server, ripe_servers_old[i]) == 0)
-	{
-	  strcat (buf, "-V" IDSTRING " ");
-	  isripe = 1;
-	  break;
-	}
+
+  isripe = is_ripe_server (ripe_servers, server)
+            || is_ripe_server (ripe_servers_old, server);
+  if (isripe)
+    strcat (buf, "-V" IDSTRING " ");
+
   if (*flags != '\0')
     {
       if (!isripe && strcmp (server, "whois.corenic.net") != 0)
@@ -573,37 +667,6 @@ myinet_aton (const char *s)
   if (sscanf (s, "%d.%d.%d.%d", &a, &b, &c, &d) != 4)
     return 0;
   return (a << 24) + (b << 16) + (c << 8) + d;
-}
-
-void
-usage (void)
-{
-  fprintf (stderr, _("Usage: whois [OPTION]... OBJECT...\n\n"
-		     "-a                     search all databases\n"
-		     "-F                     fast raw output (implies -r)\n"
-		     "-g SOURCE:FIRST-LAST   find updates from SOURCE from serial FIRST to LAST\n"
-		     "-h HOST                connect to server HOST\n"
-		     "-H                     hide legal disclaimers\n"
-		     "-i ATTR[,ATTR]...      do an inverse lookup for specified ATTRibutes\n"
-		     "-l                     one level less specific lookup (RPSL only)\n"
-		     "-L                     find all Less specific matches\n"
-		     "-M                     find all More specific matches\n"
-		     "-m                     find first level more specific matches\n"
-		     "-r                     turn off recursive lookups\n"
-		     "-p PORT                connect to PORT\n"
-		     "-R                     force to show local copy of the domain object even\n"
-		     "                       if it contains referral\n"
-		     "-S                     tell server to leave out syntactic sugar\n"
-		     "-s SOURCE[,SOURCE]...  search the database from SOURCE\n"
-		     "-T TYPE[,TYPE]...      only look for objects of TYPE\n"
-		     "-q [version|sources]   query specified server info (RPSL only)\n"
-		     "-t TYPE                requests template for object of TYPE ('all' for a list)\n"
-		     "-v TYPE                requests verbose template for object of TYPE\n"
-		     "-x                     exact match only (RPSL only)\n"
-		     "-V    --verbose        explain what is being done\n"
-		     "      --help           display this help and exit\n"
-		     "      --version        output version information and exit\n"));
-  exit (0);
 }
 
 

@@ -1,4 +1,5 @@
-/* Copyright (C) 1998, 2001, 2002, 2004, 2006, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1998, 2001, 2002, 2004, 2006, 2007,
+   2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -176,7 +177,7 @@ main (int argc, char **argv)
   int index;
 
   set_program_name (argv[0]);
-  argp_version_setup ("telnetd", default_program_authors);
+  iu_argp_init ("telnetd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
   
   if (argc != index)

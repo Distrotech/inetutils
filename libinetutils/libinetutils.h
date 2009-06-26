@@ -28,3 +28,7 @@ void cleanup_session (char *tty, int pty_fd);
 void logwtmp_keep_open (char *line, char *name, char *host);
 
 extern const char *default_program_authors[];
+
+#define iu_argp_init(name, authors) 				\
+  argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";		\
+  argp_version_setup (name, authors);

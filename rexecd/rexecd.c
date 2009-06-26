@@ -126,7 +126,7 @@ main (int argc, char **argv)
 
   set_program_name (argv[0]);
 
-  argp_version_setup ("rexecd", default_program_authors);
+  iu_argp_init ("rexecd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
   if (argc > index)
     error (1, 0, "surplus arguments");

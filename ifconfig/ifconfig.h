@@ -1,6 +1,6 @@
 /* ifconfig.h
 
-   Copyright (C) 2001, 2007, 2008 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2007, 2008, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -28,6 +28,9 @@
 # include "printif.h"
 # include "system.h"
 # include <progname.h>
+# include <error.h>
+# include <argp.h>
+# include <libinetutils.h>
 
 /* XXX */
 extern int configure_if (int sfd, struct ifconfig *ifp);

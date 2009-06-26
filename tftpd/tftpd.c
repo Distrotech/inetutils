@@ -27,6 +27,23 @@
  * SUCH DAMAGE.
  */
 
+/* Copyright (C) 2009 Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; If not, see <http://www.gnu.org/licenses/>. */
+
 /*
  * Trivial file transfer protocol server.
  *
@@ -113,9 +130,9 @@ static const char *verifyhost (struct sockaddr_in *);
 
 static struct argp_option options[] = {
   { "logging", 'l', NULL, 0,
-    "Enable logging" },
+    "enable logging" },
   { "nonexistent", 'n', NULL, 0,
-    "Supress negative acknowledgement of requests for "
+    "supress negative acknowledgement of requests for "
     "nonexistent relative filenames" },
   { NULL }
 };
@@ -158,7 +175,7 @@ main (int argc, char *argv[])
   struct sockaddr_in sin;
 
   set_program_name (argv[0]);
-  argp_version_setup ("tftpd", default_program_authors);
+  iu_argp_init ("tftpd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
   
   openlog ("tftpd", LOG_PID, LOG_FTP);

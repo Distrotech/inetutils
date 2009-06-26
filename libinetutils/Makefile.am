@@ -22,10 +22,22 @@ noinst_HEADERS = argcv.h libinetutils.h
 
 EXTRA_DIST = logwtmp.c
 
-libinetutils_a_SOURCES = argcv.c cleansess.c daemon.c defauthors.c \
-        des_rw.c kcmd.c	\
-	krcmd.c localhost.c logwtmpko.c setsig.c shishi.c tftpsubs.c \
-        ttymsg.c utmp_init.c utmp_logout.c
+libinetutils_a_SOURCES = \
+ argcv.c\
+ cleansess.c\
+ daemon.c\
+ defauthors.c\
+ des_rw.c\
+ kcmd.c\
+ krcmd.c\
+ localhost.c\
+ logwtmpko.c\
+ setsig.c\
+ shishi.c\
+ tftpsubs.c\
+ ttymsg.c\
+ utmp_init.c\
+ utmp_logout.c
 
 libinetutils_a_LIBADD = daemon.o $(top_builddir)/lib/libgnu.a
 
