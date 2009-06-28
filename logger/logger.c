@@ -1,34 +1,4 @@
-/*
- * Copyright (c) 1983, 1993
- *	The Regents of the University of California.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
-
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-   2009 Free Software Foundation, Inc.
+/* Copyright (C) 2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -51,15 +21,27 @@
 # include <config.h>
 #endif
 
-#include <argp.h>
-#include <errno.h>
-#include <error.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <sys/un.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <string.h>
+#include <time.h>
+#include <pwd.h>
+
+#include <argp.h>
+#include <libinetutils.h>
 #include <progname.h>
+#include <ctype.h>
+#include <error.h>
+#include <xalloc.h>
+#include <inttostr.h>
 
 #define SYSLOG_NAMES
 #include <syslog.h>
@@ -67,28 +49,215 @@
 # include <syslog-int.h>
 #endif
 
-#include "libinetutils.h"
-
-int decode (char *, CODE *);
-int pencode (char *);
+#define MAKE_PRI(fac,pri) (((fac) & LOG_FACMASK) | ((pri) & LOG_PRIMASK))
 
 static char *tag = NULL;
 static int logflags = 0;
-static int pri = LOG_NOTICE;
+static int pri = MAKE_PRI (LOG_USER, LOG_NOTICE);
+static char *host = PATH_LOG;
+static char *source;
+static char *pidstr;
 
+
+
+int
+decode (char *name, CODE *codetab, const char *what)
+{
+  CODE *cp;
+  
+  if (isdigit (*name))
+    {
+      char *p;
+      int c;
+      unsigned long n = strtoul (name, &p, 0);
+
+      if (*p || (c = n) != n)
+	error (EXIT_FAILURE, 0, "%s: invalid %s number", what, name);
+      return c;
+    }
+    
+  for (cp = codetab; cp->c_name; cp++)
+    {
+      if (strcasecmp (name, cp->c_name) == 0)
+	return cp->c_val;
+    }
+  error (EXIT_FAILURE, 0, "unknown %s name: %s", what, name);
+  return -1; /* to pacify gcc */
+}
+
+int
+parse_level (char *str)
+{
+  char *p;
+  int fac, pri = 0;
+  
+  p = strchr (str, '.');
+  if (p)
+    *p++ = 0;
+
+  fac = decode (str, facilitynames, "facility");
+  if (p)
+    pri = decode (p, prioritynames, "priority");
+  return MAKE_PRI (fac, pri);
+}
+
+
+union logger_sockaddr
+  {
+    struct sockaddr sa;
+    struct sockaddr_in sinet;
+    struct sockaddr_un sunix;
+};
+
+int fd;
+
+static void
+open_socket ()
+{
+  union logger_sockaddr sockaddr;
+  socklen_t socklen;
+  int family;
+  
+  if (host[0] == '/')
+    {
+      size_t len = strlen (host);
+      if (len >= sizeof sockaddr.sunix.sun_path)
+	error (EXIT_FAILURE, 0, "UNIX socket name too long");
+      strcpy (sockaddr.sunix.sun_path, host);
+      sockaddr.sunix.sun_family = AF_UNIX;
+      family = PF_UNIX;
+      socklen = sizeof (sockaddr.sunix);
+    }
+  else
+    {
+      struct hostent *hp;
+      struct servent *sp;
+      unsigned short port;
+      char *p;
+
+      p = strchr (host, ':');
+      if (p)
+	*p++ = 0;
+
+      hp = gethostbyname (host);
+      if (hp)
+	sockaddr.sinet.sin_addr.s_addr = *(unsigned long*) hp->h_addr_list[0];
+      else if (inet_aton (host, (struct in_addr *) &sockaddr.sinet.sin_addr)
+	       != 1)
+	error (EXIT_FAILURE, 0, "unknown host name");
+
+      sockaddr.sinet.sin_family = AF_INET;
+      family = PF_INET;
+      if (!p)
+	p = "syslog";
+
+      if (isdigit (*p))
+	{
+	  char *end;
+	  unsigned long n = strtoul (p, &end, 10);
+	  if (*end || (port = n) != n)
+	    error (EXIT_FAILURE, 0, "%s: invalid port number", p);
+	  port = htons (port);
+	}
+      else if ((sp = getservbyname (p, "udp")) != NULL)
+	port = sp->s_port;
+      else
+	error (EXIT_FAILURE, 0, "%s: unknown service name", p);
+
+      sockaddr.sinet.sin_port = port;
+      socklen = sizeof (sockaddr.sinet);
+    }
+
+  fd = socket (family, SOCK_DGRAM, 0);
+  if (fd < 0)
+    error (EXIT_FAILURE, errno, "cannot create socket");
+  
+  if (family == PF_INET)
+    {
+      struct sockaddr_in s;
+      s.sin_family = AF_INET;
+
+      if (source)
+	{
+	  if (inet_aton (source, (struct in_addr *) &s.sin_addr) != 1)
+	    error (EXIT_FAILURE, 0, "invalid source address");
+	}
+      else
+	s.sin_addr.s_addr = INADDR_ANY;
+      s.sin_port = 0;
+
+      if (bind(fd, (struct sockaddr*) &s, sizeof(s)) < 0)
+	error (EXIT_FAILURE, errno, "cannot bind to source address");
+    }
+  
+  if (connect (fd, &sockaddr.sa, socklen))
+    error (EXIT_FAILURE, errno, "cannot connect");
+}
+
+
+static void
+send_to_syslog (const char *msg)
+{
+  char *pbuf;
+  time_t now = time (NULL);
+  size_t len;
+  ssize_t rc;
+  
+  if (logflags & LOG_PID)
+    rc = asprintf (&pbuf, "<%d>%.15s %s[%s]: %s",
+		   pri, ctime (&now) + 4, tag, pidstr, msg);
+  else
+    rc = asprintf (&pbuf, "<%d>%.15s %s: %s",
+		   pri, ctime (&now) + 4, tag, msg);
+  if (rc == -1)
+    error (EXIT_FAILURE, errno, "cannot format message");
+  len = strlen (pbuf);
+
+  if (logflags & LOG_PERROR)
+    {
+      struct iovec iov[2], *ioptr;
+      size_t msglen = strlen (msg);
+      
+      ioptr = iov;
+      ioptr->iov_base = (char*) msg;
+      ioptr->iov_len = msglen;
+
+      if (msg[msglen - 1] != '\n')
+	{
+	  /* provide a newline */
+	  ioptr++;
+	  ioptr->iov_base = (char *) "\n";
+	  ioptr->iov_len = 1;
+	}
+      writev (fileno (stderr), iov, ioptr - iov + 1);
+    }
+
+  rc = send (fd, pbuf, len, 0);
+  free (pbuf);
+  if (rc == -1)
+    error (0, errno, "send failed");
+  else if (rc != len)
+    error (0, errno, "sent less bytes than expected (%lu vs. %lu)",
+	   (unsigned long) rc, (unsigned long) len);
+}
+
+
 const char args_doc[] = "[MESSAGE]";
-const char doc[] = "Make entries in the system log.";
+const char doc[] = "Send messages to syslog";
 
 static struct argp_option argp_options[] = {
-#define GRP 0
-  {NULL, 'i', NULL, 0, "log the process id with every line", GRP+1},
+  { "host", 'h', "HOST", 0,
+    "log to host instead of the default " PATH_LOG },
+  { "source", 'S', "IP", 0,
+    "set source IP address" },
+  { "id", 'i', "PID", OPTION_ARG_OPTIONAL,
+    "log the process id with every line" },
 #ifdef LOG_PERROR
-  {NULL, 's', NULL, 0, "copy the message to stderr", GRP+1},
+  { "stderr", 's', NULL, 0, "copy the message to stderr" },
 #endif
-  {"file", 'f', "FILE", 0, "log the content of FILE", GRP+1},
-  {"priority", 'p', "PRI", 0, "log with priority PRI", GRP+1},
-  {"tag", 't', "TAG", 0, "prepend every line with TAG", GRP+1},
-#undef GRP
+  { "file", 'f', "FILE", 0, "log the content of FILE" },
+  { "priority", 'p', "PRI", 0, "log with priority PRI" },
+  { "tag", 't', "TAG", 0, "prepend every line with TAG" },
   {NULL}
 };
 
@@ -97,8 +266,24 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+    case 'h':
+      host = arg;
+      break;
+
+    case 'S':
+      source = arg;
+      break;
+      
     case 'i':
       logflags |= LOG_PID;
+      if (arg)
+	pidstr = arg;
+      else
+	{
+	  char buf[INT_BUFSIZE_BOUND (uintmax_t)];
+	  arg = umaxtostr (getpid (), buf);
+	  pidstr = xstrdup (arg);
+	}
       break;
 
     case 's':
@@ -106,12 +291,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case 'f':
-      if (freopen (arg, "r", stdin) == NULL)
+      if (strcmp (arg, "-") && freopen (arg, "r", stdin) == NULL)
         error (EXIT_FAILURE, errno, "%s", arg);
       break;
 
     case 'p':
-      pri = pencode (arg);
+      pri = parse_level (arg);
       break;
 
     case 't':
@@ -127,100 +312,67 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
 static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
-/* syslog reads from an input and arranges to write the result on the
-   system log.  */
+const char *program_authors[] = {
+  "Sergey Poznyakoff",
+  NULL
+};
+
 int
 main (int argc, char *argv[])
 {
-  char buf[1024];
   int index;
-
-  set_program_name (argv[0]);
+  char *buf = NULL;
   
-  /* Parse command line */
-  iu_argp_init ("logger", default_program_authors);
+  set_program_name (argv[0]);
+  iu_argp_init ("logger", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   argc -= index;
   argv += index;
 
-  /* Setup for logging.  */
-  openlog (tag ? tag : getlogin (), logflags, 0);
-  fclose (stdout);
+  if (!tag)
+    {
+      tag = getenv ("USER");
+      if (!tag)
+	{
+	  struct passwd *pw = getpwuid (getuid ());
+	  if (pw)
+	    tag = xstrdup (pw->pw_name);
+	  else
+	    tag = xstrdup ("none");
+	}
+    }
 
-  /* Log input line if appropriate.  */
+  open_socket ();
+  
   if (argc > 0)
     {
-      char *p, *endp;
-      int len;
+      int i;
+      size_t len = 0;
+      char *p;
+      
+      for (i = 0; i < argc; i++)
+	len += strlen (argv[i]) + 1;
 
-      for (p = buf, endp = buf + sizeof (buf) - 2; *argv;)
+      buf = xmalloc (len);
+      for (i = 0, p = buf; i < argc; i++)
 	{
-	  len = strlen (*argv);
-	  if (p + len > endp && p > buf)
-	    {
-	      syslog (pri, "%s", buf);
-	      p = buf;
-	    }
-	  if (len > sizeof (buf) - 1)
-	    syslog (pri, "%s", *argv++);
-	  else
-	    {
-	      if (p != buf)
-		*p++ = ' ';
-	      memcpy (p, *argv++, len);
-	      *(p += len) = '\0';
-	    }
+	  len = strlen (argv[i]);
+	  memcpy (p, argv[i], len);
+	  p += len;
+	  *p++ = ' ';
 	}
-      if (p != buf)
-	syslog (pri, "%s", buf);
+      p[-1] = 0;
+
+      send_to_syslog (buf);
     }
   else
-    while (fgets (buf, sizeof (buf), stdin) != NULL)
-      syslog (pri, "%s", buf);
+    {
+      size_t size = 0;
+      
+      while (getline (&buf, &size, stdin) > 0)
+	send_to_syslog (buf);
+    }
+  free (buf);
   exit (0);
-}
-
-/* Decode a symbolic name to a numeric value.  */
-int
-pencode (char *s)
-{
-  char *save;
-  int fac, lev;
-
-  for (save = s; *s && *s != '.'; ++s);
-  if (*s)
-    {
-      *s = '\0';
-      fac = decode (save, facilitynames);
-      if (fac < 0)
-        error (EXIT_FAILURE, 0, "unknown facility name: %s", save);
-
-      *s++ = '.';
-    }
-  else
-    {
-      fac = 0;
-      s = save;
-    }
-  lev = decode (s, prioritynames);
-  if (lev < 0)
-    error (EXIT_FAILURE, 0, "unknown priority name: %s", save);
-
-  return ((lev & LOG_PRIMASK) | (fac & LOG_FACMASK));
-}
-
-int
-decode (char *name, CODE * codetab)
-{
-  CODE *c;
-
-  if (isdigit (*name))
-    return (atoi (name));
-
-  for (c = codetab; c->c_name; c++)
-    if (!strcasecmp (name, c->c_name))
-      return (c->c_val);
-
-  return (-1);
 }

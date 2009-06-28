@@ -31,7 +31,7 @@
 * ftp: (inetutils)ftp invocation.                 FTP client.
 * ftpd: (inetutils)ftpd invocation.               FTP Daemon.
 * inetd: (inetutils)inetd invocation.             Interner super-server.
-* logger: (inetutils)logger invocation.           Make entries in the system log.
+* logger: (inetutils)logger invocation.           Send messages to the system log.
 * ping: (inetutils)ping invocation.               Packets to network hosts.
 * rcp: (inetutils)rcp invocation.                 Remote copy
 * rexecd: (inetutils)rexecd invocation.           Remote execution server.
@@ -96,7 +96,7 @@ Documentation License''.
 
 Diagnostic programs
 
-* logger invocation::                  Make entries in the system log.
+* logger invocation::                  Send messages to system log.
 * ping invocation::                    Packets to network hosts.
 * traceroute invocation::              Trace the route to a host.
 * whois invocation::                   Whois user interface.
@@ -211,38 +211,68 @@ it may differ on unusual platforms as @acronym{POSIX} requires only
 that it be nonzero.
 
 @node logger invocation
-@chapter @command{logger}: Make entries in the system log
+@chapter @command{logger}: Send messages to system log.
 @cindex logger
 
-@command{logger} is a program to make entries in the system log files.
-It provides a shell command interface to the system log module.
+@command{logger} is a program to send entries to system log.
+It provides a shell command interface similar to the system log module.
 @xref{Syslog, , Syslog, libc, The GNU C Library Reference Manual}, for
 details.
 
-The message can contain a priority code, which should be a preceding
-decimal number in angle braces, for example, @code{<5>}.  This
-priority code should map into the priorities defined in the include
-file @code{<sys/syslog.h>}.
-
 @example
-logger [@var{option}]@dots{} [@var{message}]
+logger [@var{option}@dots{}] [@var{message}]
 @end example
 
 @table @option
-@item -i
+@item -i[@var{pid}]
+@itemx --id=[@var{pid}]
 @opindex -i
-Log the process ID of the logger process with each line.
+@opindex --id
+Add process ID to each message.  If @var{pid} is not supplied, use
+the process ID of the logger process with each line.  Notice, that
+@var{pid} is an optional argument.  When supplied to the @option{-i}
+option, it must follow the @samp{i} letter immediately, without any
+separating whitespace.  When supplied to the @option{--id} form, it
+must be separated from it by exactly one equals sign.
+
+@item -h @var{host}
+@itemx --host=@var{host}
+@opindex -h
+@opindex --host
+Send messages to the given host or socket.  The @var{host} argument
+can be either a local @acronym{UNIX} socket name (always
+starting with a @samp{/} or:
+
+@smallexample
+@var{host}[:@var{port}]
+@end smallexample
+
+@noindent
+where @var{host} is the remote host name or IP address (only IPv4 is
+supported so far), and optional @var{port} is a decimal port number or
+symbolic service name from @file{/etc/services}.  If @var{port} is not
+specified, the port number corresponding to the @samp{syslog} service
+is used.
+
+@item -S @var{addr}
+@itemx --source=@var{addr}
+@opindex -S
+@opindex --source
+Supply the source IP address for @acronym{INET} connections.  This
+option is useful in conjunction with @option{--host} (see above).
 
 @item -s
+@itemx --stderr
 @opindex -s
-Log the message to standard error, as well as the system log.  This
-option might not be supported on all systems.
+@opindex --stderr
+Log the message to standard error, as well as the system log.
 
 @item -f @var{file}
 @itemx --file=@var{file}
 @opindex -f
 @opindex --file
-Log the content of the specified file.
+Log the content of the specified file.  If @var{file} is @samp{-} the
+standard input is assumed.
 
 @item -p @var{priority}
 @itemx --priority=@var{priority}
@@ -272,12 +302,29 @@ The logger utility exits 0 on success, and >0 if an error occurs.
 The following examples illustrate the usage of the @command{logger}
 command:
 
-@c FIXME: What does the last one do!?
+@enumerate 1
+@item Log the @samp{System rebooted} message to the local syslog. Use
+the default facility and priority:
+
 @example
 logger System rebooted
-
-logger -p local0.notice -t HOSTIDM -f /dev/idmc
 @end example
+
+@item Run command and send its error output to the channel
+@samp{local0.err} channel.  Mark each message with tag @samp{cmd}:
+
+@example
+command 2>&1 | logger -p local0.notice -t cmd
+@end example
+
+@item Log each line from file @file{warnings} to @samp{daemon.warn}
+channel on host @samp{logger.runasimi.org}, using the source IP
+@samp{10.10.10.1}:
+
+@example
+logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1 --file warnings
+@end example
+@end enumerate
 
 @node ping invocation
 @chapter @command{ping}: FIXME

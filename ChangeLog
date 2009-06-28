@@ -1,3 +1,10 @@
+2009-06-28  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* logger/logger.c: Rewritten from scratch, not using the
+	libc syslog function.
+	* doc/inetutils.texi: Update logger description.
+	* NEWS: Update.
+
 2009-06-26  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Finish argp-fying the utilities.
