@@ -1,5 +1,10 @@
 2009-06-28  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	* acinclude.m4 (IU_FLUSHLEFT): Fix the definition.
+	* configure.ac: Use IU_FLUSHLEFT where needed.
+	
+2009-06-28  Sergey Poznyakoff  <gray@gnu.org.ua>
+
 	* logger/logger.c: Rewritten from scratch, not using the
 	libc syslog function.
 	* doc/inetutils.texi: Update logger description.

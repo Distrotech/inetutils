@@ -25,10 +25,10 @@ dnl
 dnl IU_FLUSHLEFT -- remove all whitespace at the beginning of lines
 dnl This is useful for c-code which may include cpp statements
 dnl
-define([IU_FLUSHLEFT],
- [changequote(`,')dnl
-patsubst(`$1', `^[ 	]+')
-changequote([,])])dnl
+AC_DEFUN([IU_FLUSHLEFT],
+ [m4_changequote(`,')dnl
+m4_bpatsubst(`$1', `^[ 	]+')
+m4_changequote([,])])dnl
 
 dnl IU_RESULT_ACTIONS -- generate shell code for the result of a test
 dnl   $1 -- CVAR  -- cache variable to check
@@ -569,7 +569,7 @@ m4_bmatch([$1], [\.], ,
 AS_VAR_PUSHDEF([ac_Member], [ac_cv_member_$1])dnl
 dnl Extract the aggregate name, and the member name
 AC_CACHE_CHECK([for $1], ac_Member,
-[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT([$4])],
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT(IU_FLUSHLEFT([$4]))],
 [dnl AGGREGATE ac_aggr;
 static m4_bpatsubst([$1], [\..*]) ac_aggr;
 dnl ac_aggr.MEMBER;

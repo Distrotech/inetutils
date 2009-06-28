@@ -354,42 +354,41 @@ if test "X$ipv6" = "Xno" -o "X$working_ipv6" = "Xno";then
   ping6_BUILD=''
 else
   working_icmp6=yes
-
   AC_CHECK_HEADER(netinet/icmp6.h, , working_icmp6=no,
-                  [#ifdef HAVE_SYS_TYPES_H
+    [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
 		   # include <sys/types.h>
 		   #endif
 		   #include <sys/socket.h>
-		   #include <netinet/in.h>])
+		   #include <netinet/in.h>])])
 
   if test "X$working_icmp6" = "Xyes"; then
     AC_CHECK_HEADER(netinet/ip6.h, , working_icmp6=no,
-                    [#ifdef HAVE_SYS_TYPES_H
+      [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
 		     # include <sys/types.h>
 		     #endif
 		     #include <sys/socket.h>
-  		     #include <netinet/in.h>])
+  		     #include <netinet/in.h>])])
 
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
     AC_CHECK_TYPE(struct icmp6_filter, , working_icmp6=no,
-                  [#ifdef HAVE_SYS_TYPES_H
-		   # include <sys/types.h>
-		   #endif
-		   #include <sys/socket.h>
-  		   #include <netinet/in.h>
-		   #include <netinet/icmp6.h>])
+      [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
+		     # include <sys/types.h>
+		     #endif
+		     #include <sys/socket.h>
+  		     #include <netinet/in.h>
+		     #include <netinet/icmp6.h>])])
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
     AC_CHECK_TYPE(struct icmp6_hdr, , working_icmp6=no,
-                  [#ifdef HAVE_SYS_TYPES_H
-		   # include <sys/types.h>
-		   #endif
-		   #include <sys/socket.h>
-  		   #include <netinet/in.h>
-		   #include <netinet/icmp6.h>])
+      [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
+		     # include <sys/types.h>
+		     #endif
+		     #include <sys/socket.h>
+  		     #include <netinet/in.h>
+		     #include <netinet/icmp6.h>])])
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
@@ -490,53 +489,53 @@ AC_TYPE_SIGNAL
 AC_CHECK_TYPE(socklen_t, ,
               [AC_DEFINE(socklen_t, int,
                          [Define to int if <sys/types.h> does not define])],
-              [#include <sys/types.h>
-	       #include <sys/socket.h>])
+              [IU_FLUSHLEFT([#include <sys/types.h>
+	                     #include <sys/socket.h>])])
 
 dnl We may need our own definition for struct osockaddr (equivalent to the
 dnl old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
 AC_CHECK_TYPE(struct osockaddr, ,
               [AC_DEFINE(HAVE_OSOCKADDR_H, 1,
                          [Define to one if you have <osockaddr.h>.])],
-	      [#include <sys/types.h>
-               #include <sys/socket.h> ])
+	      [IU_FLUSHLEFT([#include <sys/types.h>
+                             #include <sys/socket.h> ])])
 
 AC_CHECK_TYPES(struct if_nameindex, , ,
-  [#include <sys/types.h>
-   #include <sys/socket.h>
-   #include <net/if.h>])
+  [IU_FLUSHLEFT([#include <sys/types.h>
+                 #include <sys/socket.h>
+                 #include <net/if.h>])])
 
 dnl sig_t is the type of a signal handler (4.4BSD)
 AC_CHECK_TYPES(sig_t, , ,
-  [#include <sys/types.h>
-   #include <signal.h> ])
+  [IU_FLUSHLEFT([#include <sys/types.h>
+                 #include <signal.h> ])])
 
 dnl sigset_t is a set of signals (4.4BSD)
 AC_CHECK_TYPE(sigset_t, , AC_DEFINE(sigset_t, unsigned long, [FIXME]),
-  [#include <sys/types.h>
-   #include <signal.h> ])
+  [IU_FLUSHLEFT([#include <sys/types.h>
+                 #include <signal.h> ])])
 
 dnl I'm not sure what this is, but netbsd has it; just use int if necessary.
 AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE(sig_atomic_t, int, [FIXME]),
-  [#include <sys/types.h>
-   #include <signal.h> ])
+  [IU_FLUSHLEFT([#include <sys/types.h>
+                 #include <signal.h> ])])
 
 AC_CHECK_TYPE(sa_family_t, , AC_DEFINE(sa_family_t, unsigned int, [FIXME]),
-    [#include <sys/types.h>
-     #ifdef HAVE_SOCKET_H
-     #include <socket.h>
-     #endif
-     #include <sys/socket.h> ])
+  [IU_FLUSHLEFT([#include <sys/types.h>
+                 #ifdef HAVE_SOCKET_H
+                 #include <socket.h>
+                 #endif
+                 #include <sys/socket.h> ])])
 
 dnl Check for termio-related types and defines
 AC_CHECK_TYPES(cc_t, , ,
- [#if defined(HAVE_TERMIOS_H)
-  # include <termios.h>
-  #elif defined(HAVE_TERMIO_H)
-  # include <termio.h>
-  #else
-  # include <sgtty.h>
-  #endif ])
+ [IU_FLUSHLEFT([#if defined(HAVE_TERMIOS_H)
+                # include <termios.h>
+                #elif defined(HAVE_TERMIO_H)
+                # include <termio.h>
+                #else
+                # include <sgtty.h>
+                #endif ])])
 
 dnl Check for compile support for ceratin type
 AC_CHECK_TYPE(long long, , AC_DEFINE(LONG_LONG, long, [Define to long if compiler does not support]))
@@ -648,10 +647,10 @@ if test "$ac_cv_func_strerror" = no; then
                               [Define to one if you have sys_errlist.]))
   if test "$ac_cv_func_sys_errlist" = yes; then
     AC_CHECK_DECL(sys_errlist, , ,
-     [#include <stdio.h>
-      #ifdef HAVE_ERRNO_H
-      #include <errno.h>
-      #endif])
+      [IU_FLUSHLEFT([#include <stdio.h>
+                    #ifdef HAVE_ERRNO_H
+                    #include <errno.h>
+                    #endif])])
   fi
 fi
 
@@ -710,22 +709,22 @@ AC_CHECK_DECLS([getcwd, getlogin, getpass, getusershell, ttyname], , ,
 AC_CHECK_DECLS([getgrnam, initgroups], , , [#include <grp.h>])
 
 AC_CHECK_DECLS(htons, , ,
-  [ #ifdef HAVE_SYS_TYPES_H
-    # include <sys/types.h>
-    #endif
-    #ifdef HAVE_SYS_PARAM_H
-    # include <sys/param.h>
-    #endif
-    #include <netinet/in.h> ])
+  [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
+                 # include <sys/types.h>
+                 #endif
+                 #ifdef HAVE_SYS_PARAM_H
+                 # include <sys/param.h>
+                 #endif
+                 #include <netinet/in.h> ])])
 
 dnl Our home-grown version of setenv needs to use ENVIRON
 AC_CHECK_DECLS(environ, , ,
-  [ #ifdef HAVE_UNISTD_H
-    # include <unistd.h>
-    #endif
-    #ifdef HAVE_STDLIB_H
-    # include <stdlib.h>
-    #endif ])
+  [IU_FLUSHLEFT([#ifdef HAVE_UNISTD_H
+                 # include <unistd.h>
+                 #endif
+                 #ifdef HAVE_STDLIB_H
+                 # include <stdlib.h>
+                 #endif ])])
 
 dnl See if we have h_errno (the test is here so we can use -lresolv
 dnl if necessary).
