@@ -1,0 +1,97 @@
+dnl Copyright (C) 1996, 1997, 1998, 2002, 2004, 2005, 2007,
+dnl 2009 Free Software Foundation, Inc.
+dnl
+dnl Mostly written by Miles Bader <miles@gnu.ai.mit.edu>
+dnl
+dnl This program is free software; you can redistribute it and/or modify
+dnl it under the terms of the GNU General Public License as published by
+dnl the Free Software Foundation; either version 3, or (at your option)
+dnl any later version.
+dnl
+dnl This program is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl GNU General Public License for more details.
+dnl
+dnl You should have received a copy of the GNU General Public License
+dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
+dnl
+
+dnl IU_CHECK_KRB5(VERSION,PREFIX)
+dnl Search for a Kerberos implementation in the standard locations plus PREFIX,
+dnl if it is set and not "yes".
+dnl VERSION should be either 4 or 5
+dnl Defines KRB5_CFLAGS and KRB5_LIBS if found.
+dnl Defines KRB_IMPL to "Heimdal", "MIT", or "OldMIT", or "none" if not found
+AC_DEFUN([IU_CHECK_KRB5],
+[
+ if test "x$iu_cv_lib_krb5_libs" = x; then
+  cache=""
+  ## Make sure we have res_query
+  AC_CHECK_LIB(resolv, res_query)
+  KRB5_PREFIX=[$2]
+  KRB5_IMPL="none"
+  # First try krb5-config
+  if test "$KRB5_PREFIX" != "yes"; then
+    krb5_path="$KRB5_PREFIX/bin"
+  else
+    krb5_path="$PATH"
+  fi
+  AC_PATH_PROG(KRB5CFGPATH, krb5-config, none, $krb5_path)
+  if test "$KRB5CFGPATH" != "none"; then
+    KRB5_CFLAGS="$CPPFLAGS `$KRB5CFGPATH --cflags krb$1`"
+    KRB5_LIBS="$LDFLAGS `$KRB5CFGPATH --libs krb$1`"
+    KRB5_IMPL="Heimdal"
+  else
+    ## OK, try the old code
+    saved_CPPFLAGS="$CPPFLAGS"
+    saved_LDFLAGS="$LDFLAGS"
+    saved_LIBS="$LIBS"
+    if test "$KRB5_PREFIX" != "yes"; then
+      KRB5_CFLAGS="-I$KRB5_PREFIX/include"
+      KRB5_LDFLAGS="-L$KRB5_PREFIX/lib"
+      CPPFLAGS="$CPPFLAGS $KRB5_CFLAGS"
+      LDFLAGS="$LDFLAGS $KRB5_LDFLAGS"
+    fi
+    KRB4_LIBS="-lkrb4 -ldes425"
+
+    ## Check for new MIT kerberos V support
+    AC_CHECK_LIB(krb5, krb5_init_context,
+      [KRB5_IMPL="MIT"
+       KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lk5crypto -lcom_err"]
+       ,, -lk5crypto -lcom_err)
+
+    ## Heimdal kerberos V support
+    if test "$KRB5_IMPL" = "none"; then
+      AC_CHECK_LIB(krb5, krb5_init_context,
+        [KRB5_IMPL="Heimdal"
+         KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"]
+         ,, -ldes -lasn1 -lroken -lcrypt -lcom_err)
+    fi
+
+    ## Old MIT Kerberos V
+    ## Note: older krb5 distributions use -lcrypto instead of
+    ## -lk5crypto. This may conflict with OpenSSL.
+    if test "$KRB5_IMPL" = "none"; then
+      AC_CHECK_LIB(krb5, krb5_init_context,
+        [KRB5_IMPL="OldMIT",
+         KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lkrb5 -lcrypto -lcom_err"]
+        ,, -lcrypto -lcom_err)
+    fi
+
+    LDFLAGS="$saved_LDFLAGS"
+    LIBS="$saved_LIBS"
+  fi
+
+  iu_cv_lib_krb5_cflags="$KRB5_CFLAGS"
+  iu_cv_lib_krb5_libs="$KRB5_LIBS"
+  iu_cv_lib_krb5_impl="$KRB5_IMPL"
+ else
+  cached=" (cached) "
+  KRB5_CFLAGS="$iu_cv_lib_krb5_cflags"
+  KRB5_LIBS="$iu_cv_lib_krb5_libs"
+  KRB5_IMPL="$iu_cv_lib_krb5_impl"
+ fi
+ AC_MSG_CHECKING(krb5 implementation)
+ AC_MSG_RESULT(${cached}$KRB5_IMPL)
+])

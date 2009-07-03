@@ -590,9 +590,10 @@ find "$m4_base" "$source_base" \
 
 # Reconfigure, getting other files.
 
+aclocal_flags=`sed -n 's/ACLOCAL_AMFLAGS *=//p' Makefile.am`
 for command in \
   libtool \
-  'aclocal --force -I m4' \
+  "aclocal --force $aclocal_flags" \
   'autoconf --force' \
   'autoheader --force' \
   'automake --add-missing --copy --force-missing';

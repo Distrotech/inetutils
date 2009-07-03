@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2006, 2007 Free Software Foundation, Inc. 
+# Copyright (C) 2005, 2006, 2007, 2009 Free Software Foundation, Inc. 
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 
 AUTOMAKE_OPTIONS = 1.9
 
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -I m4 -I am
 
 EXTRA_DIST = README-alpha paths ChangeLog.0
 
