@@ -1,3 +1,23 @@
+/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+   2009 Free Software Foundation, Inc.
+
+   This file is part of GNU Inetutils.
+
+   GNU Inetutils is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
+   any later version.
+
+   GNU Inetutils is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with GNU Inetutils; see the file COPYING.  If not, write
+   to the Free Software Foundation, Inc., 51 Franklin Street,
+   Fifth Floor, Boston, MA 02110-1301 USA. */
+
 /*
  * Copyright (c) 1983, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -26,26 +46,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-   2009 Free Software Foundation, Inc.
-
-   This file is part of GNU Inetutils.
-
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
-
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -129,11 +129,11 @@ main (int argc, char **argv)
   iu_argp_init ("rexecd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
   if (argc > index)
-    error (1, 0, "surplus arguments");
+    error (EXIT_FAILURE, 0, "surplus arguments");
 
   fromlen = sizeof (from);
   if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
-    error (1, errno, "getpeername");
+    error (EXIT_FAILURE, errno, "getpeername");
   doit (sockfd, &from);
   exit (0);
 }
@@ -249,7 +249,7 @@ doit (int f, struct sockaddr_in *fromp)
       pid = fork ();
       if (pid == -1)
 	die (1, "Try again.");
-      
+
       if (pid)
 	{
 	  close (STDIN_FILENO);
@@ -302,15 +302,19 @@ doit (int f, struct sockaddr_in *fromp)
     pwd->pw_shell = PATH_BSHELL;
   if (f > 2)
     close (f);
-  setegid ((gid_t) pwd->pw_gid);
-  setgid ((gid_t) pwd->pw_gid);
+  if (setegid ((gid_t) pwd->pw_gid) < 0)
+    error (EXIT_FAILURE, errno, "failed to set additional groups");
+  if (setgid ((gid_t) pwd->pw_gid) < 0)
+    error (EXIT_FAILURE, errno, "failed to set group-ID");
 #ifdef HAVE_INITGROUPS
-  initgroups (pwd->pw_name, pwd->pw_gid);
+  if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
+    error (EXIT_FAILURE, errno,
+	   "failed to initialize the supplementary group access list");
 #endif
-  setuid ((uid_t) pwd->pw_uid);
+  if (setuid ((uid_t) pwd->pw_uid) < 0)
+    error (EXIT_FAILURE, errno, "failed to set user-ID");
   if (chdir (pwd->pw_dir) < 0)
     die (1, "No remote directory.");
-
   strcat (path, PATH_DEFPATH);
   environ = envinit;
   strncat (homedir, pwd->pw_dir, sizeof (homedir) - 6);
@@ -322,7 +326,7 @@ doit (int f, struct sockaddr_in *fromp)
   else
     cp = pwd->pw_shell;
   execl (pwd->pw_shell, cp, "-c", cmdbuf, 0);
-  error (1, errno, "executing %s", pwd->pw_shell);
+  error (EXIT_FAILURE, errno, "executing %s", pwd->pw_shell);
 }
 
 void
@@ -331,7 +335,7 @@ die (int code, const char *fmt, ...)
   va_list ap;
   char buf[BUFSIZ];
   int n;
-  
+
   va_start (ap, fmt);
   buf[0] = 1;
   n = snprintf (buf + 1, sizeof buf - 1, fmt, ap);
@@ -360,7 +364,7 @@ getstr (const char *err)
 	  if (rd == 0)
 	    die (1, "EOF reading %s", err);
 	  else
-	    error (1, 0, "%s", err);
+	    error (EXIT_FAILURE, 0, "%s", err);
 	}
 
       end += rd;

@@ -1,8 +1,16 @@
+2009-07-10  Giuseppe Scrivano <gscrivano@gnu.org>
+            Alfred M. Szmidt <ams@gnu.org>
+
+	* rexecd/rexecd.c: Use EXIT_FAILURE consistently for calls to
+	error.
+	(doit): Add return value check after use
+	setegid/setuid/setgid/initgroups and define its prototype.
+
 2009-07-03  Sergey Poznyakoff  <gray@mirddin.farlep.net>
 
 	Use separate sources for autoconf macros, as recommended
 	by Autoconf.
-		
+
 	* acinclude.m4: Remove
 	* am: New directory.
 	* am/check_macro.m4: New file
@@ -21,7 +29,7 @@
 
 	* acinclude.m4 (IU_FLUSHLEFT): Fix the definition.
 	* configure.ac: Use IU_FLUSHLEFT where needed.
-	
+
 2009-06-28  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* logger/logger.c: Rewritten from scratch, not using the
@@ -32,11 +40,11 @@
 2009-06-26  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Finish argp-fying the utilities.
-	
+
 	* libinetutils/Makefile.am (libinetutils_a_SOURCES): Order source
 	names.
 	* libinetutils/libinetutils.h (iu_argp_init): New macro.
-	
+
 	* ftp/main.c, ftpd/ftpd.c, hostname/hostname.c, inetd/inetd.c,
 	logger/logger.c, ping/ping.c, ping/ping6.c, rcp/rcp.c,
 	rexecd/rexecd.c, rlogin/rlogin.c, rlogind/rlogind.c,
@@ -58,7 +66,7 @@
 	* ifconfig/options.h (parse_opt): Rename to parse_cmdline.
 	* ifconfig/system.h (system_argp_child): New extern.
 	(system_help_options, SYSTEM_SHORT_OPTIONS)
-	(SYSTEM_LONG_OPTIONS): Remove. 
+	(SYSTEM_LONG_OPTIONS): Remove.
 
 	* ifconfig/system/generic.c: Use new command line parsing method.
 	* ifconfig/system/hpux.c: Likewise.
@@ -67,7 +75,7 @@
 	* ifconfig/system/osf.c: Likewise.
 	* ifconfig/system/qnx.c: Likewise.
 	* ifconfig/system/solaris.c: Likewise.
-	
+
 	* gwhois/Makefile.am (INCLUDES): Add libinetutils.
 	* gwhois/whois.c: Use argp to parse the command line.
 	(is_ripe_server): New function.
@@ -77,20 +85,20 @@
 2009-06-26  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Use argp in r* utils, telnet, talk and uucpd.
-	
+
 	* inetd/inetd.c: Remove unused forward decl.
 	* rlogind/rlogind.c, rsh/rsh.c, rshd/rshd.c,
 	telnet/main.c, telnetd/telnetd.c, tftpd/tftpd.c,
 	uucpd/uucpd.c: Use argp to parse command line.
-	
+
 	* talk/talk.c: Use argp to parse command line.
 	* talk/get_names.c (get_names): Argv no longer include program
 	name.
-	
+
 	* rsh/Makefile.am (INCLUDES): Add libinetutils.
 	* tftpd/Makefile.am: Likewise.
 	* uucpd/Makefile.am: Likewise.
-	
+
 2009-06-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* tests/Makefile.am (AM_CPPFLAGS): Added `-I$(top_srcdir)/lib' to
@@ -107,7 +115,7 @@
 2009-06-25  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Use argp-version-etc module from gnulib
-	
+
 	* bootstrap.conf: Add argp-version-etc;
 	Remove deprecated modules.
 	* ftp/main.c, ftpd/ftpd.c, hostname/hostname.c,
@@ -130,7 +138,7 @@
 	* rexecd/Makefile.am (INCLUDES): Add libinetutils.
 	* rexecd/rexecd.c: Use argp. Remove obsolete varargs stuff.
 	Use error to display error messages on tty.
-	
+
 2009-06-15  Simon Josefsson  <simon@josefsson.org>
 
 	* libtelnet/*: Change use of 'InetUtils' to 'Inetutils' as per
