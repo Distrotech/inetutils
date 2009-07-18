@@ -1,3 +1,29 @@
+2009-07-19  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Fix net-tool output format in ifconfig.
+	
+	* configure.ac: Check for struct ifreq.ifr_map
+	* paths: Add PATH_PROCNET_DEV
+	* ifconfig/Makefile.am (AM_CPPFLAGS): Add $(PATHDEF_PROCNET_DEV)
+	* ifconfig/if_index.c (if_nameindex): Fix typo.
+	* ifconfig/options.c (net-tool format): Display interface
+	statistics, if available.
+	* ifconfig/printif.c: New macros: map?, irq?, irq, baseaddr?,
+	baseaddr, memstart?, memstart, memend?, memend, dma?, dma.
+	* ifconfig/printif.h (put_ulong): New prototype.
+	(fh_map_query,fh_irq_query,fh_irq,fh_baseaddr_query)
+	(fh_baseaddr,fh_memstart_query,fh_memstart,fh_memend_query)
+	(fh_memend,fh_dma_query,fh_dma): New prototypes.
+	* ifconfig/system/linux.c: Implement reading /proc/net/dev.
+	* ifconfig/system/linux.h: Declare /proc/net/dev-related
+	functions.
+
+	* ping/ping_address.c: Rearrange includes to fix compilation
+	on FreeBSD
+	* ping/ping_echo.c: Likewise.
+	* ping/ping_router.c: Likewise.
+	* ping/ping_timestamp.c: Likewise.
+	
 2009-07-10  Giuseppe Scrivano <gscrivano@gnu.org>
             Alfred M. Szmidt <ams@gnu.org>
 
