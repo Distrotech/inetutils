@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <errno.h>
+#include <xalloc.h>
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
@@ -274,11 +275,255 @@ arphrd_findvalue (int value)
   else
     return NULL;
 }
+
+
+struct pnd_stats
+{
+  struct pnd_stats *next;
+  char *name;
+  unsigned long long rx_packets;   /* total packets received */
+  unsigned long long tx_packets;   /* total packets transmitted */
+  unsigned long long rx_bytes;     /* total bytes received */
+  unsigned long long tx_bytes;     /* total bytes transmitted */
+  unsigned long rx_errors;         /* packets receive errors */
+  unsigned long tx_errors;         /* packet transmit errors */
+  unsigned long rx_dropped;        /* input packets dropped */
+  unsigned long tx_dropped;        /* transmit packets dropped */
+  unsigned long rx_multicast;      /* multicast packets received */
+  unsigned long rx_compressed;     /* compressed packets received */ 
+  unsigned long tx_compressed;     /* compressed packets transmitted */
+  unsigned long collisions;
+
+  /* detailed rx_errors: */
+  unsigned long rx_length_errors;
+   unsigned long rx_over_errors;    /* receiver ring buffer overflow */
+  unsigned long rx_crc_errors;     /* received packets with crc error */
+  unsigned long rx_frame_errors;   /* received frame alignment errors */
+  unsigned long rx_fifo_errors;    /* recveiver fifo overruns */
+  unsigned long rx_missed_errors;  /* receiver missed packets */
+  /* detailed tx_errors */
+  unsigned long tx_aborted_errors;
+  unsigned long tx_carrier_errors;
+  unsigned long tx_fifo_errors;
+  unsigned long tx_heartbeat_errors;
+  unsigned long tx_window_errors;
+};
+
+struct pnd_stats *stats_head, *stats_tail;
+static int pnd_stats_init = 0;
+
+static int
+procnet_parse_fields_v1 (char *buf, struct pnd_stats *stats)
+{
+  int n = sscanf (buf,
+		  "%llu %lu %lu %lu %lu %llu %lu %lu %lu %lu %lu",
+		  &stats->rx_packets,
+		  &stats->rx_errors,
+		  &stats->rx_dropped,
+		  &stats->rx_fifo_errors,
+		  &stats->rx_frame_errors,
+		  &stats->tx_packets,
+		  &stats->tx_errors,
+		  &stats->tx_dropped,
+		  &stats->tx_fifo_errors,
+		  &stats->collisions,
+		  &stats->tx_carrier_errors);
+  stats->rx_bytes = 0;
+  stats->tx_bytes = 0;
+  stats->rx_multicast = 0;
+  return n == 11;
+}
+
+static int
+procnet_parse_fields_v2 (char *buf, struct pnd_stats *stats)
+{
+  int n = sscanf (buf,
+		  "%llu %llu %lu %lu %lu %lu %llu %llu %lu %lu %lu %lu %lu",
+		  &stats->rx_bytes,
+		  &stats->rx_packets,
+		  &stats->rx_errors,
+		  &stats->rx_dropped,
+		  &stats->rx_fifo_errors,
+		  &stats->rx_frame_errors,
+		  &stats->tx_bytes,
+		  &stats->tx_packets,
+		  &stats->tx_errors,
+		  &stats->tx_dropped,
+		  &stats->tx_fifo_errors,
+		  &stats->collisions,
+		  &stats->tx_carrier_errors);
+  stats->rx_multicast = 0;
+  return n == 13;
+}
+
+static int
+procnet_parse_fields_v3 (char *buf, struct pnd_stats *stats)
+{
+  int n = sscanf (buf,
+		  "%llu %llu %lu %lu %lu %lu %lu %lu %llu %llu %lu %lu %lu %lu %lu %lu",
+		  &stats->rx_bytes,
+		  &stats->rx_packets,
+		  &stats->rx_errors,
+		  &stats->rx_dropped,
+		  &stats->rx_fifo_errors,
+		  &stats->rx_frame_errors,
+		  &stats->rx_compressed,
+		  &stats->rx_multicast,
+		  &stats->tx_bytes,
+		  &stats->tx_packets,
+		  &stats->tx_errors,
+		  &stats->tx_dropped,
+		  &stats->tx_fifo_errors,
+		  &stats->collisions,
+		  &stats->tx_carrier_errors,
+		  &stats->tx_compressed);
+  return n == 16;
+}
+
+static int (*pnd_parser[]) (char *, struct pnd_stats *) =
+{
+  procnet_parse_fields_v1,
+  procnet_parse_fields_v2,
+  procnet_parse_fields_v3
+};
+
+static int
+pnd_version (char *buf)
+{
+  if (strstr (buf, "compressed"))
+    return 2;
+  if (strstr(buf, "bytes"))
+    return 1;
+  return 0;
+}
+
+static void
+pnd_read ()
+{
+  FILE *fp;
+  char *buf = NULL;
+  size_t bufsize = 0;
+  int v;
+
+  fp = fopen (PATH_PROCNET_DEV, "r");
+  if (!fp)
+    {
+      error (0, errno, "cannot open %s", PATH_PROCNET_DEV);
+      return;
+    }
+
+  /* Skip header lines */
+  if (getline (&buf, &bufsize, fp) < 0
+      || getline (&buf, &bufsize, fp) < 0)
+    {
+      error (0, errno, "malformed %s", PATH_PROCNET_DEV);
+      fclose (fp);
+      free (buf);
+      return;
+    }
+
+  v = pnd_version (buf);
+
+  while (getline (&buf, &bufsize, fp) > 0)
+    {
+      struct pnd_stats *stats = xzalloc (sizeof (*stats));;
+      char *p = buf, *q;
+      size_t len;
+      
+      while (*p
+	     && isascii (*(unsigned char*) p) && isspace (*(unsigned char*) p))
+	p++;
+      q = strchr (p, ':');
+      if (!q)
+	{
+	  error (0, errno, "malformed %s", PATH_PROCNET_DEV);
+	  free (stats);
+	  break;
+	}
+      len = q - p;
+      stats->name = xmalloc (len + 1);
+      memcpy (stats->name, p, len);
+      stats->name[len] = 0;
+      if (pnd_parser[v] (q + 1, stats) == 0)
+	{
+	  error (0, errno, "malformed %s", PATH_PROCNET_DEV);
+	  free (stats);
+	  break;
+	}
+      stats->next = NULL;
+      if (stats_tail)
+	stats_tail->next = stats;
+      else
+	stats_head = stats;
+      stats_tail = stats;
+    }
+
+  fclose (fp);
+  free (buf);
+}
+
+struct pnd_stats *
+pnd_stats_locate (const char *name)
+{
+  struct pnd_stats *stats;
+  if (!pnd_stats_init)
+    {
+      pnd_read ();
+      pnd_stats_init = 1;
+    }
+  for (stats = stats_head; stats; stats = stats->next)
+    if (strcmp (stats->name, name) == 0)
+      break;
+  return stats;
+}
+
 
 
 /* Output format stuff.  */
 
 const char *system_default_format = "net-tools";
+
+void
+system_fh_ifstat_query (format_data_t form, int argc, char *argv[])
+{
+  select_arg (form, argc, argv,
+	      pnd_stats_locate (form->ifr->ifr_name) ? 0 : 1);
+}  
+
+#define _IU_DECLARE(fld)						     \
+void                                                                         \
+_IU_CAT2 (system_fh_,fld) (format_data_t form, int argc, char *argv[])       \
+{                                                                            \
+  struct pnd_stats *stats = pnd_stats_locate (form->ifr->ifr_name);          \
+  if (!stats)                                                                \
+    put_string (form, "(" #fld " unknown)");                                 \
+  else 								             \
+    put_ulong (form, argc, argv, stats->fld);                                \
+}
+
+_IU_DECLARE (rx_packets)
+_IU_DECLARE (tx_packets)
+_IU_DECLARE (rx_bytes)
+_IU_DECLARE (tx_bytes)
+_IU_DECLARE (rx_errors)
+_IU_DECLARE (tx_errors)
+_IU_DECLARE (rx_dropped)
+_IU_DECLARE (tx_dropped)
+_IU_DECLARE (rx_multicast)
+_IU_DECLARE (rx_compressed)
+_IU_DECLARE (tx_compressed)
+_IU_DECLARE (collisions)
+_IU_DECLARE (rx_length_errors)
+_IU_DECLARE (rx_over_errors)
+_IU_DECLARE (rx_crc_errors)
+_IU_DECLARE (rx_frame_errors)
+_IU_DECLARE (rx_fifo_errors)
+_IU_DECLARE (rx_missed_errors)
+_IU_DECLARE (tx_aborted_errors)
+_IU_DECLARE (tx_carrier_errors)
+_IU_DECLARE (tx_fifo_errors)
+_IU_DECLARE (tx_heartbeat_errors)
+_IU_DECLARE (tx_window_errors)
 
 void
 system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])

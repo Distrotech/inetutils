@@ -1,6 +1,6 @@
 /* printif.c -- print an interface configuration
 
-   Copyright (C) 2001, 2002, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -94,6 +94,19 @@ struct format_handle format_handles[] = {
   {"mtu", fh_mtu},
   {"metric?", fh_metric_query},
   {"metric", fh_metric},
+#ifdef HAVE_STRUCT_IFREQ_IFR_MAP
+  {"map?", fh_map_query},
+  {"irq?", fh_irq_query},
+  {"irq", fh_irq},
+  {"baseaddr?", fh_baseaddr_query},
+  {"baseaddr", fh_baseaddr},
+  {"memstart?", fh_memstart_query},
+  {"memstart", fh_memstart},
+  {"memend?", fh_memend_query},
+  {"memend", fh_memend},
+  {"dma?", fh_dma_query},
+  {"dma", fh_dma},
+#endif
   {NULL, NULL}
 };
 
@@ -177,6 +190,62 @@ put_int (format_data_t form, int argc, char *argv[], int nr)
     fmt = "%i";
 
   *column += printf (fmt, nr);
+  had_output = 1;
+}
+
+void
+put_ulong (format_data_t form, int argc, char *argv[], unsigned long value)
+{
+  char *fmt;
+  if (argc > 0)
+    {
+      char *p = argv[0];
+
+      if (*p != '%')
+	fmt = "%lu";
+      else
+	{
+	  p++;
+
+	  while (isdigit (*p))
+	    p++;
+
+	  if (*p == '#')
+	    p++;
+
+	  if (*p == 'l')
+	    p++;
+	  
+	  switch (*p)
+	    {
+	    default:
+	    case 'i':
+	    case 'd':
+	    case 'D':
+	      *p = 'i';
+	      break;
+	    case 'x':
+	    case 'h':
+	      *p = 'x';
+	      break;
+	    case 'X':
+	    case 'H':
+	      *p = 'X';
+	      break;
+	    case 'o':
+	    case 'O':
+	      *p = 'o';
+	      break;
+	    }
+	  p++;
+	  *p = '\0';
+	  fmt = argv[0];
+	}
+    }
+  else
+    fmt = "%lu";
+
+  *column += printf (fmt, value);
   had_output = 1;
 }
 
@@ -577,7 +646,7 @@ fh_dstaddr (format_data_t form, int argc, char *argv[])
   if (ioctl (form->sfd, SIOCGIFDSTADDR, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
            "SIOCGIFDSTADDR failed for interface `%s'",
-	   form->ifr->ifr_name, strerror (errno));
+	   form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_dstaddr);
 #else
@@ -676,6 +745,107 @@ fh_flags (format_data_t form, int argc, char *argv[])
   had_output = 1;
 #endif
 }
+
+#ifdef HAVE_STRUCT_IFREQ_IFR_MAP
+
+void
+fh_map_query (format_data_t form, int argc, char *argv[])
+{
+#ifdef SIOCGIFMAP
+  if (ioctl (form->sfd, SIOCGIFMAP, form->ifr) >= 0)
+    select_arg (form, argc, argv, 0);
+  else
+#endif
+    select_arg (form, argc, argv, 1);
+}
+
+void
+fh_irq_query (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.irq)
+    select_arg (form, argc, argv, 0);
+  else
+    select_arg (form, argc, argv, 1);
+}
+
+void
+fh_irq (format_data_t form, int argc, char *argv[])
+{
+  put_int (form, argc, argv, form->ifr->ifr_map.irq);
+}
+
+void
+fh_baseaddr_query (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.base_addr >= 0x100)
+    select_arg (form, argc, argv, 0);
+  else
+    select_arg (form, argc, argv, 1);
+}
+
+void
+fh_baseaddr (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.base_addr >= 0x100)  
+    put_int (form, argc, argv, form->ifr->ifr_map.base_addr);
+  else
+    put_string (form, "(not available)");
+}
+
+void
+fh_memstart_query (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.mem_start)
+    select_arg (form, argc, argv, 0);
+  else
+    select_arg (form, argc, argv, 1);
+}
+
+void
+fh_memstart (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.mem_start)  
+    put_ulong (form, argc, argv, form->ifr->ifr_map.mem_start);
+  else
+    put_string (form, "(not available)");
+}
+
+void
+fh_memend_query (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.mem_end)
+    select_arg (form, argc, argv, 0);
+  else
+    select_arg (form, argc, argv, 1);
+}
+
+void
+fh_memend (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.mem_end)  
+    put_ulong (form, argc, argv, form->ifr->ifr_map.mem_end);
+  else
+    put_string (form, "(not available)");
+}
+
+void
+fh_dma_query (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.dma)
+    select_arg (form, argc, argv, 0);
+  else
+    select_arg (form, argc, argv, 1);
+}
+
+void
+fh_dma (format_data_t form, int argc, char *argv[])
+{
+  if (form->ifr->ifr_map.dma)  
+    put_int (form, argc, argv, form->ifr->ifr_map.dma);
+  else
+    put_string (form, "(not available)");
+}
+#endif
 
 void
 print_interfaceX (format_data_t form, int quiet)

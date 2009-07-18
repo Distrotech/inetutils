@@ -1,4 +1,4 @@
-/* Copyright (C) 2000, 2001, 2002, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 2000, 2001, 2002, 2007, 2009 Free Software Foundation, Inc.
 
    This file is part of GNU Inetutils.
 
@@ -27,12 +27,14 @@
 #include <sys/time.h>
 #include <signal.h>
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 /*#include <netinet/ip_icmp.h>  -- deliberately not including this */
 #ifdef HAVE_NETINET_IP_VAR_H
 # include <netinet/ip_var.h>
 #endif
 
-#include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
 /* printif.h
 
-   Copyright (C) 2001, 2007 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2007, 2009 Free Software Foundation, Inc.
 
    Written by Marcus Brinkmann.
 
@@ -34,7 +34,8 @@ extern int had_output;
 
 struct format_data
 {
-  const char *name;		/* Name of interface as specified on the command line.  */
+  const char *name;		/* Name of interface as specified on the
+				   command line.  */
   struct ifreq *ifr;
   int sfd;			/* Socket file descriptor to use.  */
   int first;			/* This is the first interface.  */
@@ -61,6 +62,7 @@ extern struct format_handle format_handles[];
 void put_char (format_data_t form, char c);
 void put_string (format_data_t form, const char *s);
 void put_int (format_data_t form, int argc, char *argv[], int nr);
+void put_ulong (format_data_t form, int argc, char *argv[], unsigned long val);
 void select_arg (format_data_t form, int argc, char *argv[], int nr);
 void put_addr (format_data_t form, int argc, char *argv[],
 	       struct sockaddr *sa);
@@ -99,6 +101,17 @@ void fh_mtu_query (format_data_t form, int argc, char *argv[]);
 void fh_mtu (format_data_t form, int argc, char *argv[]);
 void fh_metric_query (format_data_t form, int argc, char *argv[]);
 void fh_metric (format_data_t form, int argc, char *argv[]);
+void fh_map_query (format_data_t form, int argc, char *argv[]);
+void fh_irq_query (format_data_t form, int argc, char *argv[]);
+void fh_irq (format_data_t form, int argc, char *argv[]);
+void fh_baseaddr_query (format_data_t form, int argc, char *argv[]);
+void fh_baseaddr (format_data_t form, int argc, char *argv[]);
+void fh_memstart_query (format_data_t form, int argc, char *argv[]);
+void fh_memstart (format_data_t form, int argc, char *argv[]);
+void fh_memend_query (format_data_t form, int argc, char *argv[]);
+void fh_memend (format_data_t form, int argc, char *argv[]);
+void fh_dma_query (format_data_t form, int argc, char *argv[]);
+void fh_dma (format_data_t form, int argc, char *argv[]);
 
 /* Used for recursion by format handlers.  */
 void print_interfaceX (format_data_t form, int quiet);

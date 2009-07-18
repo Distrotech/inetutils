@@ -561,7 +561,8 @@ fi
 
 IU_CHECK_MEMBERS([struct ifreq.ifr_index,
                   struct ifreq.ifr_netmask,
-                  struct ifreq.ifr_broadaddr], , ,
+                  struct ifreq.ifr_broadaddr,
+		  struct ifreq.ifr_map], , ,
                  [#include <sys/types.h>
                   #include <sys/socket.h>
                   #include <net/if.h>])

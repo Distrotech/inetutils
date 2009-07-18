@@ -27,6 +27,6 @@ ifconfig_SOURCES = ifconfig.c flags.c changeif.c options.c printif.c system.c if
 noinst_HEADERS = ifconfig.h if_index.h flags.h options.h printif.h system.h
 
 @PATHDEFS_MAKE@
-
+AM_CPPFLAGS=$(PATHDEF_PROCNET_DEV)
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils 
 LDADD = -L../libinetutils -linetutils ../lib/libgnu.a

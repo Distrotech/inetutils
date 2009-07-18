@@ -1,4 +1,5 @@
-/* Copyright (C) 1997, 1998, 1999, 2000, 2001, 2007 Free Software Foundation, Inc.
+/* Copyright (C) 1997, 1998, 1999, 2000, 2001, 2007,
+   2009 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License
@@ -131,7 +132,7 @@ if_nameindex (void)
   while (ifr < end)
     {
       int len;
-# ifdef HAVE_SOCKADDR_SA_LEN
+# ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
 #  undef MAX
 #  define MAX(a,b)  (((a) > (b)) ? (a) : (b))
       len = MAX (sizeof (struct sockaddr), ifr->ifr_addr.sa_len);

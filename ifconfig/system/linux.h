@@ -40,6 +40,12 @@ struct system_ifconfig
 
 /* Output format support.  */
 
+#define _IU_CAT2(a,b) a ## b
+#define _IU_DCL(name,fld)				\
+  {#name, _IU_CAT2(system_fh_,fld) }
+#define _IU_EXTRN(fld)				\
+  extern void _IU_CAT2(system_fh_,fld) (format_data_t, int, char *[]);	\
+
 # define SYSTEM_FORMAT_HANDLER \
   {"linux", fh_nothing}, \
   {"hwaddr?", system_fh_hwaddr_query}, \
@@ -47,16 +53,31 @@ struct system_ifconfig
   {"hwtype?", system_fh_hwtype_query}, \
   {"hwtype", system_fh_hwtype}, \
   {"txqlen?", system_fh_txqlen_query}, \
-  {"txqlen", system_fh_txqlen},
-
-/* The RX/TX statistics would have to be parsed from /proc/net/dev,
-   which is in an insanely broken format, even for Linux standards.
-   Parsing correctly from it in all cases is impossible because device
-   names are truncated to six characters (linux-2.4/net/core/dev.c).
-   Nevertheless it can be attempted in the future (check for unique
-   abbreviations of interfaces with long names).  Aliases are not listed
-   there, instead, the aliases statistics are collected in the real
-   inetrface. See ipchains(1) for how to get them. */
+  {"txqlen", system_fh_txqlen}, \
+  {"ifstat?", system_fh_ifstat_query}, \
+  _IU_DCL(rxpackets,rx_packets),\
+  _IU_DCL(txpackets,tx_packets),\
+  _IU_DCL(rxbytes,rx_bytes),\
+  _IU_DCL(txbytes,tx_bytes),\
+  _IU_DCL(rxerrors,rx_errors),\
+  _IU_DCL(txerrors,tx_errors),\
+  _IU_DCL(rxdropped,rx_dropped),\
+  _IU_DCL(txdropped,tx_dropped),\
+  _IU_DCL(rxmulticast,rx_multicast),\
+  _IU_DCL(rxcompressed,rx_compressed),\
+  _IU_DCL(txcompressed,tx_compressed),\
+  _IU_DCL(collisions,collisions),\
+  _IU_DCL(rxlenerr,rx_length_errors),\
+  _IU_DCL(rxovererr,rx_over_errors),\
+  _IU_DCL(rxcrcerr,rx_crc_errors),\
+  _IU_DCL(rxframeerr,rx_frame_errors),\
+  _IU_DCL(rxfifoerr,rx_fifo_errors),\
+  _IU_DCL(rxmisserr,rx_missed_errors),\
+  _IU_DCL(txabrterr,tx_aborted_errors),\
+  _IU_DCL(txcarrier,tx_carrier_errors),\
+  _IU_DCL(txfifoerr,tx_fifo_errors),\
+  _IU_DCL(txhberr,tx_heartbeat_errors),\
+  _IU_DCL(txwinerr,tx_window_errors),
 
 void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwaddr (format_data_t form, int argc, char *argv[]);
@@ -64,5 +85,32 @@ void system_fh_hwtype_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype (format_data_t form, int argc, char *argv[]);
 void system_fh_txqlen_query (format_data_t form, int argc, char *argv[]);
 void system_fh_txqlen (format_data_t form, int argc, char *argv[]);
+
+void system_fh_ifstat_query (format_data_t form, int argc, char *argv[]);
+				    
+_IU_EXTRN (rx_packets)
+_IU_EXTRN (tx_packets)
+_IU_EXTRN (rx_bytes)
+_IU_EXTRN (tx_bytes)
+_IU_EXTRN (rx_errors)
+_IU_EXTRN (tx_errors)
+_IU_EXTRN (rx_dropped)
+_IU_EXTRN (tx_dropped)
+_IU_EXTRN (rx_multicast)
+_IU_EXTRN (tx_multicast)
+_IU_EXTRN (rx_compressed)
+_IU_EXTRN (tx_compressed)
+_IU_EXTRN (collisions)
+_IU_EXTRN (rx_length_errors)
+_IU_EXTRN (rx_over_errors)
+_IU_EXTRN (rx_crc_errors)
+_IU_EXTRN (rx_frame_errors)
+_IU_EXTRN (rx_fifo_errors)
+_IU_EXTRN (rx_missed_errors)
+_IU_EXTRN (tx_aborted_errors)
+_IU_EXTRN (tx_carrier_errors)
+_IU_EXTRN (tx_fifo_errors)
+_IU_EXTRN (tx_heartbeat_errors)
+_IU_EXTRN (tx_window_errors)
 
 #endif
