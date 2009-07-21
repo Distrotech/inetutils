@@ -464,7 +464,7 @@ routes.  Many hosts ignore or discard this option.
 @opindex -s
 @opindex --size
 Specifies the number of data bytes to be sent.  The default is 56,
-vwhich translates into 64 @acronym{ICMP} data bytes when combined with
+which translates into 64 @acronym{ICMP} data bytes when combined with
 the 8 bytes of ICMP header data.
 @end table
 
@@ -2398,7 +2398,7 @@ extensively.
 A named pipe, beginning with a vertical bar (@samp{|}) followed by a
 pathname.  The pipe must be created with @command{mkfifo} before
 @command{syslogd} reads its configuration file.  This feature is
-especially useful fo debugging.
+especially useful for debugging.
 
 @item
 A hostname (preceded by an at (@samp{@@}) sign).  Selected messages
@@ -2475,9 +2475,9 @@ Only anonymous login is allowed.
 @item --auth=@var{auth}
 @opindex -a
 @opindex --auth
-Specify what authentication mechanism to use for incomming
-connections.   Possible values are: @samp{kerberos}, @samp{kerberos5},
-@samp{opie} and @samp{default}.
+Specify what authentication mechanism to use for incoming connections.
+Possible values are: @samp{kerberos}, @samp{kerberos5}, @samp{opie}
+and @samp{default}.
 
 Anonymous logins will continue to work when this option is used.
 
@@ -3036,7 +3036,7 @@ Listen on given port (valid only in daemon mode).
 @itemx --reverse-required
 @opindex -r
 @opindex --reverse-required
-Required Require reverse resolving of a remote host @acronym{IP}.
+Require reverse resolving of a remote host @acronym{IP}.
 
 @end table
 
@@ -3143,7 +3143,8 @@ A fork by the server failed.
 
 @item <shellname>: @dots{}
 The user's login shell could not be started.  This message is returned
-on the connection associated with the stderr, and is not
+on the connection associated with the stderr, and is not ...
+@c FIXME: Fill this out.
 @end table
 
 @emph{Note}, that indicating @samp{Login incorrect} as opposed to
