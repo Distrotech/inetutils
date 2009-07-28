@@ -34,6 +34,7 @@
 * logger: (inetutils)logger invocation.           Send messages to the system log.
 * ping: (inetutils)ping invocation.               Packets to network hosts.
 * rcp: (inetutils)rcp invocation.                 Remote copy
+* rexec: (inetutils)rexec invocation.             Remote execution client.
 * rexecd: (inetutils)rexecd invocation.           Remote execution server.
 * rlogin: (inetutils)rlogin invocation.           Remote login.
 * rlogind: (inetutils)rlogind invocation.         Remote login server.
@@ -107,6 +108,7 @@ Clients
 * tftp invocation::                    TFTP client.
 * rsh invocation::                     Remote shell.
 * rlogin invocation::                  Remote login.
+* rexec invocation::                   Remote execution client.
 * rcp invocation::                     Remote copy
 * talk invocation::                    Talk client.
 * telnet invocation::                  User interface to TELNET.
@@ -1750,6 +1752,42 @@ host.
 The destination user and hostname may have to be specified as
 @samp{rhost.rname} when the destination machine is running the 4.2BSD
 version of @command{rcp}.
+
+@node rexec invocation
+@chapter @command{rexec}: a remote execution program
+@cindex rexec
+
+@command{rexec} is a program that executes a program on another host.
+
+@example
+rexec --user=@var{login} --password=@var{pass} --host=@var{host}  \
+      [OPTION] @var{command}
+@end example
+
+The command line arguments are as follows:
+
+@table @var
+@item --error
+Specify the TCP port to use for stderr redirection, in case it is not
+specified a random port will be used.
+
+@item --host
+Specify the host where connect to.
+
+@item --noerr
+If specified, an error stream will not be created.
+
+@item --password
+Specify the password for logging-in.
+
+@item --port
+Specify to which port connect to, if it is not specified by default
+use 512.
+
+@item --user
+Specify the user to log into the server.
+@end table
+
 
 @node talk invocation
 @chapter @command{talk}: a communication program

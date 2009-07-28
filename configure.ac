@@ -108,6 +108,7 @@ IU_ENABLE_CLIENT(hostname)
 IU_ENABLE_CLIENT(ping)
 IU_ENABLE_CLIENT(ping6)
 IU_ENABLE_CLIENT(rcp)
+IU_ENABLE_CLIENT(rexec)
 IU_ENABLE_CLIENT(rlogin)
 IU_ENABLE_CLIENT(rsh)
 IU_ENABLE_CLIENT(logger)
@@ -820,6 +821,7 @@ ftpd/Makefile
 hostname/Makefile
 inetd/Makefile
 rcp/Makefile
+rexec/Makefile
 rexecd/Makefile
 rlogin/Makefile
 rlogind/Makefile

@@ -1,4 +1,4 @@
-# Copyright (C) 2005, 2006, 2007, 2009 Free Software Foundation, Inc. 
+# Copyright (C) 2005, 2007, 2009 Free Software Foundation, Inc.
 # This file is part of GNU Inetutils.
 #
 # GNU Inetutils is free software; you can redistribute it and/or modify
@@ -14,20 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with GNU Inetutils; see the file COPYING.  If not, write
 # to the Free Software Foundation, Inc., 51 Franklin Street,
-# Fifth Floor, Boston, MA 02110-1301 USA. 
+# Fifth Floor, Boston, MA 02110-1301 USA.
 
-AUTOMAKE_OPTIONS = 1.9
+bin_PROGRAMS = @rexec_BUILD@
 
-ACLOCAL_AMFLAGS = -I m4 -I am
+EXTRA_PROGRAMS = rexec
 
-EXTRA_DIST = README-alpha paths ChangeLog.0
+rexec_SOURCES = rexec.c
 
-SUBDIRS = lib headers libinetutils libtelnet \
-	hostname inetd telnetd libls ftpd rshd rlogind uucpd rexecd syslogd \
-	tftpd talkd telnet ftp rsh rcp rlogin tftp logger gwhois talk \
-	libicmp ping doc ifconfig traceroute rexec tests
+noinst_HEADERS = 
 
-DISTCLEANFILES = pathdefs.make paths.defs
+@PATHDEFS_MAKE@
 
-snapshot:
-	$(MAKE) dist distdir=$(PACKAGE)-`date +"%Y%m%d"`
+INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
+AM_CPPFLAGS = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
+
+LIBCRYPT = @LIBCRYPT@
+
+LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBCRYPT)

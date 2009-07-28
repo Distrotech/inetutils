@@ -1,3 +1,13 @@
+2009-08-20  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	rexec: new program.
+
+	* configure.ac: Build rexec.
+	* Makefile.am: Ditto.
+	* doc/inetutils.texi: Document the new program.
+	* rexec/Makefile.am: New file.
+	* rexec/rexec.c: New file.
+
 2009-08-18  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Fix possible array overflow in ping.
