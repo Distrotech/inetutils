@@ -97,8 +97,8 @@ struct ping_data
   int ping_fd;                 /* Raw socket descriptor */
   int ping_type;               /* Type of packets to send */
   size_t ping_count;           /* Number of packets to send */
-  size_t ping_interval;                /* Number of seconds to wait between sending pkts */
-  union ping_address ping_dest;        /* whom to ping */
+  size_t ping_interval;        /* Number of seconds to wait between sending pkts */
+  union ping_address ping_dest;/* whom to ping */
   char *ping_hostname;         /* Printable hostname */
   size_t ping_datalen;         /* Length of data */
   int ping_ident;              /* Our identifier */
@@ -115,6 +115,28 @@ struct ping_data
   long ping_num_recv;          /* Number of packets received */
   long ping_num_rept;          /* Number of duplicates received */
 };
+
+#define _C_BIT(p,bit)   (p)->ping_cktab[(bit)>>3]	/* byte in ck array */
+#define _C_MASK(bit)    (1 << ((bit) & 0x07))
+#define _C_IND(p,bit)   ((bit) % (p)->ping_cktab_size)
+
+#define _PING_SET(p,bit)						\
+  do									\
+    { int n = _C_IND(p,bit);						\
+      _C_BIT (p,n) |= _C_MASK (n);					\
+    }									\
+  while (0)
+
+#define _PING_CLR(p,bit)						\
+  do									\
+    { int n = _C_IND(p,bit);						\
+      _C_BIT (p,n) &= ~_C_MASK (n);					\
+    }									\
+  while (0)
+
+#define _PING_TST(p,bit)					\
+  (_C_BIT (p, _C_IND (p,bit)) & _C_MASK  (_C_IND (p,bit)))
+
 
 void tvsub (struct timeval *out, struct timeval *in);
 double nabs (double a);

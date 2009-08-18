@@ -756,7 +756,7 @@ ping_xmit (PING * p)
   buflen = p->ping_datalen + sizeof (struct icmp6_hdr);
 
   /* Mark sequence number as sent */
-  _PING_CLR (p, p->ping_num_xmit % p->ping_cktab_size);
+  _PING_CLR (p, p->ping_num_xmit);
 
   icmp6 = (struct icmp6_hdr *) p->ping_buffer;
   icmp6->icmp6_type = ICMP6_ECHO_REQUEST;
@@ -835,7 +835,7 @@ ping_recv (PING * p)
       if (ntohs (icmp6->icmp6_id) != p->ping_ident)
 	return -1;		/* It's not a response to us.  */
 
-      if (_PING_TST (p, ntohs (icmp6->icmp6_seq) % p->ping_cktab_size))
+      if (_PING_TST (p, ntohs (icmp6->icmp6_seq)))
 	{
 	  /* We already got the reply for this echo request.  */
 	  p->ping_num_rept++;
@@ -843,7 +843,7 @@ ping_recv (PING * p)
 	}
       else
 	{
-	  _PING_SET (p, ntohs (icmp6->icmp6_seq) % p->ping_cktab_size);
+	  _PING_SET (p, ntohs (icmp6->icmp6_seq));
 	  p->ping_num_recv++;
 	  dupflag = 0;
 	}

@@ -21,13 +21,6 @@
 
 #define USE_IPV6 0
 
-#define _C_BIT(p,bit)    (p)->ping_cktab[(bit)>>3]	/* byte in ck array */
-#define _C_MASK(bit)     (1 << ((bit) & 0x07))
-
-#define _PING_SET(p,bit) (_C_BIT (p,bit) |= _C_MASK (bit))
-#define _PING_CLR(p,bit) (_C_BIT (p,bit) &= (~_C_MASK (bit)))
-#define _PING_TST(p,bit) (_C_BIT (p,bit) & _C_MASK (bit))
-
 PING *ping_init (int type, int ident);
 void ping_reset (PING * p);
 void ping_set_type (PING * p, int type);

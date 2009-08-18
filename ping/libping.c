@@ -117,7 +117,7 @@ ping_xmit (PING * p)
   buflen = _ping_packetsize (p);
 
   /* Mark sequence number as sent */
-  _PING_CLR (p, p->ping_num_xmit % p->ping_cktab_size);
+  _PING_CLR (p, p->ping_num_xmit);
 
   /* Encode ICMP header */
   switch (p->ping_type)
@@ -208,7 +208,7 @@ ping_recv (PING * p)
 		 inet_ntoa (p->ping_from.ping_sockaddr.sin_addr));
 
       p->ping_num_recv++;
-      if (_PING_TST (p, icmp->icmp_seq % p->ping_cktab_size))
+      if (_PING_TST (p, icmp->icmp_seq))
 	{
 	  p->ping_num_rept++;
 	  p->ping_num_recv--;
@@ -216,7 +216,7 @@ ping_recv (PING * p)
 	}
       else
 	{
-	  _PING_SET (p, icmp->icmp_seq % p->ping_cktab_size);
+	  _PING_SET (p, icmp->icmp_seq);
 	  dupflag = 0;
 	}
 

@@ -22,12 +22,6 @@
 #define PING_MAX_DATALEN (65535 - sizeof (struct icmp6_hdr))
 
 #define USE_IPV6 1
-#define _C_BIT(p,bit)    (p)->ping_cktab[(bit)>>3]	/* byte in ck array */
-#define _C_MASK(bit)     (1 << ((bit) & 0x07))
-
-#define _PING_SET(p,bit) (_C_BIT (p,bit) |= _C_MASK (bit))
-#define _PING_CLR(p,bit) (_C_BIT (p,bit) &= (~_C_MASK (bit)))
-#define _PING_TST(p,bit) (_C_BIT (p,bit) & _C_MASK (bit))
 
 static PING *ping_init (int type, int ident);
 static int ping_set_dest (PING * ping, char *host);
