@@ -145,17 +145,19 @@ nsqrt (double a, double prec)
 int
 _ping_setbuf (PING * p, bool use_ipv6)
 {
-  if (!p->ping_buffer) {
-    p->ping_buffer = malloc (_PING_BUFLEN (p, use_ipv6));
-    if (!p->ping_buffer)
-      return -1;
-  }
-  if (!p->ping_cktab) {
-    p->ping_cktab = malloc (p->ping_cktab_size);
-    if (!p->ping_cktab)
-      return -1;
-    memset (p->ping_cktab, 0, p->ping_cktab_size);
-  }
+  if (!p->ping_buffer)
+    {
+      p->ping_buffer = malloc (_PING_BUFLEN (p, use_ipv6));
+      if (!p->ping_buffer)
+	return -1;
+    }
+  if (!p->ping_cktab)
+    {
+      p->ping_cktab = malloc (p->ping_cktab_size);
+      if (!p->ping_cktab)
+	return -1;
+      memset (p->ping_cktab, 0, p->ping_cktab_size);
+    }
   return 0;
 }
 

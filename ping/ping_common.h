@@ -118,18 +118,20 @@ struct ping_data
 
 #define _C_BIT(p,bit)   (p)->ping_cktab[(bit)>>3]	/* byte in ck array */
 #define _C_MASK(bit)    (1 << ((bit) & 0x07))
-#define _C_IND(p,bit)   ((bit) % (p)->ping_cktab_size)
+#define _C_IND(p,bit)   ((bit) % (8 * (p)->ping_cktab_size))
 
 #define _PING_SET(p,bit)						\
   do									\
-    { int n = _C_IND(p,bit);						\
+    {									\
+      int n = _C_IND (p,bit);						\
       _C_BIT (p,n) |= _C_MASK (n);					\
     }									\
   while (0)
 
 #define _PING_CLR(p,bit)						\
   do									\
-    { int n = _C_IND(p,bit);						\
+    {									\
+      int n = _C_IND (p,bit);						\
       _C_BIT (p,n) &= ~_C_MASK (n);					\
     }									\
   while (0)

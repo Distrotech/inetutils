@@ -1,3 +1,17 @@
+2009-08-18  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Fix possible array overflow in ping.
+	
+	* ping/ping.h (_C_BIT,_C_MASK)
+	(_PING_SET,_PING_CLR,_PING_TST): Remove in favor of
+	ping_common.h
+	* ping/ping6.h: Likewise.
+	* ping/ping_common.h (_C_BIT,_C_MASK): Moved from ping.h
+	(_C_IND): New macro.
+	(_PING_SET,_PING_CLR,_PING_TST): Modified versions of
+	macros from ping.h.
+	* ping/libping.c, ping/ping6.c: Update calls to _PING macros.
+
 2009-07-19  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Fix net-tool output format in ifconfig.
