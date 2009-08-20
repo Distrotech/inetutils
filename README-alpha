@@ -85,14 +85,14 @@ TODO file in the Git repository.
 You can track the development process through the <commit-inetutils@gnu.org>
 mailing list.  This is a medium volume moderated list.
 
-Daily snapshots built from CVS are available from
+Daily snapshots built from Git are available from
 <http://daily.josefsson.org/inetutils/>
 
 Log outputs from building the daily snapshot on some systems are
 available from <http://autobuild.josefsson.org/inetutils/>
 
-Statistics based on CVS commit logs are available from
-<http://statcvs.josefsson.org/inetutils/>.
+Statistics based on Git commit logs are available from
+<http://gitstats.josefsson.org/inetutils/>.
 
 * Copyright information:
 
