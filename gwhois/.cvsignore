@@ -1,7 +1,0 @@
-Makefile.in
-Makefile
-.deps
-whois
-as_del.h
-ip_del.h
-tld_serv.h
