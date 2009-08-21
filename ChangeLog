@@ -1,3 +1,10 @@
+2009-08-21  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	rexec: show all missing arguments before exit.
+
+	* rexec/rexec.c (main): Show all missing arguments before exit from the
+	process.
+
 2009-08-20  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	rexec: new program.

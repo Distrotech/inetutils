@@ -124,7 +124,7 @@ int
 main (int argc, char **argv)
 {
   struct arguments arguments;
-
+  int failed = 0;
   set_program_name (argv[0]);
 
   iu_argp_init ("rexec", program_authors);
@@ -140,16 +140,31 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, ARGP_IN_ORDER, 0, &arguments);
 
   if (arguments.user == NULL)
-    error (EXIT_FAILURE, 0, "user not specified");
+    {
+      error (0, 0, "user not specified");
+      failed++;
+    }
 
   if (arguments.password == NULL)
-    error (EXIT_FAILURE, 0, "password not specified");
+    {
+      error (0, 0, "password not specified");
+      failed++;
+    }
 
   if (arguments.host == NULL)
-    error (EXIT_FAILURE, 0, "host not specified");
+    {
+      error (0, 0, "host not specified");
+      failed++;
+    }
 
   if (arguments.command == NULL)
-    error (EXIT_FAILURE, 0, "command not specified");
+    {
+      error (0, 0, "command not specified");
+      failed++;
+    }
+
+  if (failed > 0)
+    exit (EXIT_FAILURE);
 
   do_rexec (&arguments);
 
