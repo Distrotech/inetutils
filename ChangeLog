@@ -1,3 +1,7 @@
+2009-10-01  Rakesh Pandit <rakesh@fedoraproject.org>
+
+	* talkd/talkd.c [HAVE_CONFIG_H]: Include config.h.
+
 2009-08-21  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	rexec: show all missing arguments before exit.
