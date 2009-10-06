@@ -13,8 +13,8 @@
 
 	rexec: new program.
 
-	* configure.ac: Build rexec.
-	* Makefile.am: Ditto.
+	* configure.ac: Add new client `rexec'.
+	* Makefile.am (SUBDIRS): Add `rexec'.
 	* doc/inetutils.texi: Document the new program.
 	* rexec/Makefile.am: New file.
 	* rexec/rexec.c: New file.
