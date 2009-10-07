@@ -89,6 +89,7 @@ ping_init (int type, int ident)
   /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
   p->ping_ident = ident & 0xFFFF;
   p->ping_cktab_size = PING_CKTABSIZE;
+  gettimeofday (&p->ping_start_time, NULL);
   return p;
 }
 

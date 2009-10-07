@@ -468,6 +468,12 @@ routes.  Many hosts ignore or discard this option.
 Specifies the number of data bytes to be sent.  The default is 56,
 which translates into 64 @acronym{ICMP} data bytes when combined with
 the 8 bytes of ICMP header data.
+
+@item -w @var{n}
+@itemx --timeout=@var{n}
+@opindex -w
+@opindex --timeout
+Stop after @var{n} seconds.
 @end table
 
 @section Using ping for network fault isolation

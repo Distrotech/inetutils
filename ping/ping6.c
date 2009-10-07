@@ -54,6 +54,7 @@ size_t data_length = PING_DATALEN;
 size_t count = DEFAULT_PING_COUNT;
 size_t interval;
 int socket_type;
+int timeout = -1;
 static unsigned int options;
 static unsigned long preload = 0;
 
@@ -80,6 +81,7 @@ static struct argp_option argp_options[] = {
   {"numeric", 'n', NULL, 0, "so not resolve host addresses", GRP+1},
   {"ignore-routing", 'r', NULL, 0, "send directly to a host on an attached "
    "network", GRP+1},
+  {"timeout", 'w', "N", 0, "stop after N seconds", GRP+1},
 #undef GRP
 #define GRP 10
   {NULL, 0, NULL, 0, "Options valid for --echo requests:", GRP},
@@ -149,6 +151,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'r':
       socket_type = SO_DEBUG;
+      break;
+
+    case 'w':
+      timeout = ping_cvt_number (arg, INT_MAX, 0);
       break;
 
     case 's':
@@ -266,7 +272,7 @@ ping_run (PING * ping, int (*finish) ())
 {
   fd_set fdset;
   int fdmax;
-  struct timeval timeout;
+  struct timeval resp_time;
   struct timeval last, intvl, now;
   struct timeval *t = NULL;
   int finishing = 0;
@@ -298,24 +304,24 @@ ping_run (PING * ping, int (*finish) ())
       FD_ZERO (&fdset);
       FD_SET (ping->ping_fd, &fdset);
       gettimeofday (&now, NULL);
-      timeout.tv_sec = last.tv_sec + intvl.tv_sec - now.tv_sec;
-      timeout.tv_usec = last.tv_usec + intvl.tv_usec - now.tv_usec;
+      resp_time.tv_sec = last.tv_sec + intvl.tv_sec - now.tv_sec;
+      resp_time.tv_usec = last.tv_usec + intvl.tv_usec - now.tv_usec;
 
-      while (timeout.tv_usec < 0)
+      while (resp_time.tv_usec < 0)
 	{
-	  timeout.tv_usec += 1000000;
-	  timeout.tv_sec--;
+	  resp_time.tv_usec += 1000000;
+	  resp_time.tv_sec--;
 	}
-      while (timeout.tv_usec >= 1000000)
+      while (resp_time.tv_usec >= 1000000)
 	{
-	  timeout.tv_usec -= 1000000;
-	  timeout.tv_sec++;
+	  resp_time.tv_usec -= 1000000;
+	  resp_time.tv_sec++;
 	}
 
-      if (timeout.tv_sec < 0)
-	timeout.tv_sec = timeout.tv_usec = 0;
+      if (resp_time.tv_sec < 0)
+	resp_time.tv_sec = resp_time.tv_usec = 0;
 
-      n = select (fdmax, &fdset, NULL, NULL, &timeout);
+      n = select (fdmax, &fdset, NULL, NULL, &resp_time);
       if (n < 0)
 	{
 	  if (errno != EINTR)
@@ -331,6 +337,10 @@ ping_run (PING * ping, int (*finish) ())
 	      gettimeofday (&now, NULL);
 	      t = &now;
 	    }
+
+	  if (ping_timeout_p (&ping->ping_start_time, timeout))
+	    break;
+
 	  if (ping->ping_count && nresp >= ping->ping_count)
 	    break;
 	}
@@ -343,6 +353,9 @@ ping_run (PING * ping, int (*finish) ())
 		{
 		  putchar ('.');
 		}
+
+	      if (ping_timeout_p (&ping->ping_start_time, timeout))
+		break;
 	    }
 	  else if (finishing)
 	    break;
@@ -741,6 +754,7 @@ ping_init (int type, int ident)
   /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
   p->ping_ident = ident & 0xFFFF;
   p->ping_cktab_size = PING_CKTABSIZE;
+  gettimeofday (&p->ping_start_time, NULL);
   return p;
 }
 

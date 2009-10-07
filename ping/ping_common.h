@@ -97,6 +97,7 @@ struct ping_data
   int ping_fd;                 /* Raw socket descriptor */
   int ping_type;               /* Type of packets to send */
   size_t ping_count;           /* Number of packets to send */
+  struct timeval ping_start_time; /* Start time */
   size_t ping_interval;        /* Number of seconds to wait between sending pkts */
   union ping_address ping_dest;/* whom to ping */
   char *ping_hostname;         /* Printable hostname */
@@ -156,4 +157,5 @@ void ping_set_count (PING * ping, size_t count);
 void ping_set_sockopt (PING * ping, int opt, void *val, int valsize);
 void ping_set_interval (PING * ping, size_t interval);
 void ping_unset_data (PING * p);
+int ping_timeout_p (struct timeval *start_time, int timeout);
 

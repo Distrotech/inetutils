@@ -216,3 +216,16 @@ ping_unset_data (PING * p)
   _ping_freebuf (p);
 }
 
+int
+ping_timeout_p (struct timeval *start_time, int timeout)
+{
+  struct timeval now;
+  gettimeofday (&now, NULL);
+  if (timeout != -1)
+    {
+      tvsub (&now, start_time);
+      if (now.tv_sec >= timeout)
+        return 1;
+    }
+  return 0;
+}

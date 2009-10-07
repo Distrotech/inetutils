@@ -1,3 +1,24 @@
+2009-10-06  Rakesh Pandit  <rakesh@fedoraproject.org>
+
+	* ping/ping_common.h (ping_data): New member `ping_start_time'.
+	(ping_timeout_p): New prototype.
+	* ping/ping_common.c (ping_timeout_p): New function.
+
+	* ping/ping6.c: Rename `timeout' to `resp_time', and use `timeout'
+	for --timeout.
+	(argp_options, parse_opt): New option --timeout.
+	(ping_run): Check if we should abort due to timeout.
+	(ping_init): Initialise P->ping_start_time.
+
+	* ping/ping.c: Rename `timeout' to `resp_time', and use `timeout'
+	for --timeout.
+	(argp_options, parse_opt): New option --timeout.
+	(ping_run): Check if we should abort due to timeout.
+	* ping/libping.c (ping_init): Initialise P->ping_start_time.
+
+	* doc/inetutils.texi (ping invocation): Updated.
+	* NEWS: Updated.
+
 2009-10-01  Rakesh Pandit <rakesh@fedoraproject.org>
 
 	* talkd/talkd.c [HAVE_CONFIG_H]: Include config.h.
