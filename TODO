@@ -64,7 +64,6 @@ already done for them, &c.
 Testing and debugging the encryption and authentication modes.
 
 Add more utilities:
-  Noah's rexec
   Tcpdump
   routed?
   ruptime?
