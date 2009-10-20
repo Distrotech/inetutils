@@ -8,9 +8,9 @@ Document code; in the end this should be as nice as coreutils!
 
 Allow daemons and clients to take a port number, and daemons started
 standalone so one can test things more easily.  Requires decent
-infrastructure for things.  Ben Asselstine might come inuseful with
-his argp hacks...  Good candidate for this are rsh/rshd
-rlogin/rlogind, rcp (simple protocol, and simple programs).
+infrastructure for things.  Ben Asselstine might have ideas with his
+argp hacks...  Good candidate for this are rsh/rshd rlogin/rlogind,
+rcp (simple protocol, and simple programs).
 
 Add debugging output for client/daemon, example of output:
 FROM-HOST -->: Received message
