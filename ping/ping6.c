@@ -110,7 +110,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case 'd':
-      socket_type = SO_DEBUG;
+      socket_type |= SO_DEBUG;
       break;
 
     case 'f':
@@ -150,7 +150,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case 'r':
-      socket_type = SO_DEBUG;
+      socket_type |= SO_DONTROUTE;
       break;
 
     case 'w':

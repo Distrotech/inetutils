@@ -1,3 +1,10 @@
+2009-10-20  Rakesh Pandit  <rakesh@fedoraproject.org>
+
+	* ping/ping.c (parse_opt): Handle `--debug' and `--ignore-routing'
+	simultaneously.
+	* ping/ping6.c (parse_opt): Likewise.  Set `socket_type' to
+	SO_DONTROUTE.
+
 2009-10-10  Giuseppe Scrivano <gscrivano@gnu.org>
 
 	* TODO: Updated.
