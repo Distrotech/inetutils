@@ -836,7 +836,7 @@ telnetd/Makefile
 tftp/Makefile
 tftpd/Makefile
 uucpd/Makefile
-gwhois/Makefile
+whois/Makefile
 lib/Makefile
 libls/Makefile
 ifconfig/Makefile

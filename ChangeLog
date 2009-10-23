@@ -1,5 +1,51 @@
 2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
 
+	Renamed `gwhois' to `whois'.
+
+	* Makefile.am (SUBDIRS): Renamed `gwhois' to `whois'
+	* configure.ac: Likewise.
+
+	* gwhois/.gitignore: Renamed file to ...
+	* whois/.gitignore: ... this.
+
+	* gwhois/Makefile.am: Renamed file to ...
+	* whois/Makefile.am: ... this.
+
+	* gwhois/README: Renamed file to ...
+	* whois/README: ... this.
+
+	* gwhois/TODO: Renamed file to ...
+	* whois/TODO: ... this.
+
+	* gwhois/as_del_list: Renamed file to ...
+	* whois/as_del_list: ... this.
+
+	* gwhois/data.h: Renamed file to ...
+	* whois/data.h: ... this.
+
+	* gwhois/ip_del_list: Renamed file to ...
+	* whois/ip_del_list: ... this.
+
+	* gwhois/make_as_del.pl: Renamed file to ...
+	* whois/make_as_del.pl: ... this.
+
+	* gwhois/make_ip_del.pl: Renamed file to ...
+	* whois/make_ip_del.pl: ... this.
+
+	* gwhois/make_tld_serv.pl: Renamed file to ...
+	* whois/make_tld_serv.pl: ... this.
+
+	* gwhois/tld_serv_list: Renamed file to ...
+	* whois/tld_serv_list: ... this.
+
+	* gwhois/whois.c: Renamed file to ...
+	* whois/whois.c: ... this.
+
+	* gwhois/whois.h: Renamed file to ...
+	* whois/whois.h: ... this.
+
+2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
+
 	* .gitignore (ChangeLog): Removed from list.
 
 2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
