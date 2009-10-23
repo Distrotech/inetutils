@@ -1,5 +1,13 @@
 2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ftpd/README.sec, ping/README.sec, syslogd/README.sec,
+	talkd/README.sec, telnet/README.sec, telnetd/README.sec: Files
+	removed.
+
+	* whois/README: File removed.
+
+2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
+
 	* whois/TODO, ping/TODO, libicmp/TODO, ifconfig/TODO: Files
 	removed (content merged into top-level TODO).
 	* TODO: Updated.
