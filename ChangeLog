@@ -1,5 +1,11 @@
 2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
 
+	* whois/TODO, ping/TODO, libicmp/TODO, ifconfig/TODO: Files
+	removed (content merged into top-level TODO).
+	* TODO: Updated.
+
+2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
+
 	Renamed `gwhois' to `whois'.
 
 	* Makefile.am (SUBDIRS): Renamed `gwhois' to `whois'
