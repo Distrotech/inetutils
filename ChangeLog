@@ -1,5 +1,9 @@
 2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
 
+	* .gitignore (ChangeLog): Removed from list.
+
+2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
+
 	* rexec/.gitignore: New file.
 
 2009-10-20  Rakesh Pandit  <rakesh@fedoraproject.org>
