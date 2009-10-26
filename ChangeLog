@@ -1,5 +1,17 @@
 2009-10-26  Alfred M. Szmidt  <ams@gnu.org>
 
+	* traceroute/traceroute.c: Don't include "traceroute.h".
+	(TRACE_UDP_PORT, TRACE_TTL): New macros.
+	(TRACE_UDP, TRACE_ICMP, TRACE_1393): New enums.
+	(trace): New struct.
+	(trace_init, trace_inc_ttl, trace_inc_port, trace_port)
+	(trace_read, trace_write, trace_udp_sock, trace_icmp_sock): Added
+	forward declarations.
+	* traceroute/traceroute.h: File removed.
+	* traceroute/Makefile.am (noinst_HEADERS): Variable removed.
+
+2009-10-26  Alfred M. Szmidt  <ams@gnu.org>
+
 	* rcp/rcp.c: Include <sys/wait.h>.  Removed include for
 	"extern.h".
 	(BUF): New structure (from rcp/util.c).

@@ -55,8 +55,36 @@
 #include <icmp.h>
 
 #include "libinetutils.h"
-#include "traceroute.h"
-
+
+#define TRACE_UDP_PORT 33434
+#define TRACE_TTL 1
+
+enum trace_type
+{
+  TRACE_UDP,			/* UDP datagrams.  */
+  TRACE_ICMP,			/* ICMP echo requests.  */
+  TRACE_1393			/* RFC 1393 requests. */
+};
+
+typedef struct trace
+{
+  int icmpfd, udpfd;
+  enum trace_type type;
+  struct sockaddr_in to, from;
+  unsigned char ttl;
+  struct timeval tsent;
+} trace_t;
+
+void trace_init (trace_t * t, const struct sockaddr_in to,
+		 const enum trace_type type);
+void trace_inc_ttl (trace_t * t);
+void trace_inc_port (trace_t * t);
+void trace_port (trace_t * t, const unsigned short port);
+int trace_read (trace_t * t);
+int trace_write (trace_t * t);
+int trace_udp_sock (trace_t * t);
+int trace_icmp_sock (trace_t * t);
+
 #define TIME_INTERVAL 3
 
 void do_try (trace_t * trace, const int hop,

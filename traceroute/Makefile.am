@@ -22,8 +22,6 @@ EXTRA_PROGRAMS = traceroute
 
 traceroute_SOURCES = traceroute.c
 
-noinst_HEADERS = traceroute.h
-
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp -I$(top_srcdir)/libinetutils
 
 LDADD = -L../libicmp -licmp -L../lib -lgnu
