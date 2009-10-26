@@ -1,3 +1,14 @@
+2009-10-26  Alfred M. Szmidt  <ams@gnu.org>
+
+	* rcp/rcp.c: Include <sys/wait.h>.  Removed include for
+	"extern.h".
+	(BUF): New structure (from rcp/util.c).
+	(allocbuf, colon, lostconn, nospace, okname, run_err, susystem)
+	(verifydir): New functions (from rcp/util.c).
+	* rcp/extern.h, rcp/util.c: Files removed.
+	* rcp/Makefile.am (rcp_SOURCES): Removed `util.c'.
+	(noinst_HEADERS): Variable removed.
+
 2009-10-23  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftpd/README.sec, ping/README.sec, syslogd/README.sec,

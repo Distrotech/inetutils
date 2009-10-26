@@ -64,6 +64,7 @@
 # endif
 #endif
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
 # include <netinet/in_systm.h>
@@ -95,7 +96,20 @@
 #include <argp.h>
 #include <error.h>
 #include <xalloc.h>
-#include "extern.h"
+
+typedef struct {
+  int cnt;
+  char *buf;
+} BUF;
+
+BUF *allocbuf (BUF *, int, int);
+char *colon (char *);
+void lostconn (int);
+void nospace (void);
+int okname (char *);
+void run_err (const char *, ...);
+int susystem (char *, int);
+void verifydir (char *);
 
 #ifdef KERBEROS
 # include <kerberosIV/des.h>
@@ -1110,4 +1124,122 @@ run_err (const char *fmt, ...)
     }
 
   va_end (ap);
+}
+
+char *
+colon (char *cp)
+{
+  if (*cp == ':')		/* Leading colon is part of file name. */
+    return (0);
+
+  for (; *cp; ++cp)
+    {
+      if (*cp == ':')
+	return (cp);
+      if (*cp == '/')
+	return (0);
+    }
+  return (0);
+}
+
+void
+verifydir (char *cp)
+{
+  struct stat stb;
+
+  if (!stat (cp, &stb))
+    {
+      if (S_ISDIR (stb.st_mode))
+	return;
+      errno = ENOTDIR;
+    }
+  run_err ("%s: %s", cp, strerror (errno));
+  exit (1);
+}
+
+int
+okname (char *cp0)
+{
+  int c;
+  char *cp;
+
+  cp = cp0;
+  do
+    {
+      c = *cp;
+      if (c & 0200)
+	goto bad;
+      if (!isalpha (c) && !isdigit (c) && c != '_' && c != '-')
+	goto bad;
+    }
+  while (*++cp);
+  return (1);
+
+bad:
+  error (0, 0, "%s: invalid user name", cp0);
+  return (0);
+}
+
+int
+susystem (char *s, int userid)
+{
+  sig_t istat, qstat;
+  int status;
+  pid_t pid;
+
+  pid = vfork ();
+  switch (pid)
+    {
+    case -1:
+      return (127);
+
+    case 0:
+      setuid (userid);
+      execl (PATH_BSHELL, "sh", "-c", s, NULL);
+      _exit (127);
+    }
+  istat = signal (SIGINT, SIG_IGN);
+  qstat = signal (SIGQUIT, SIG_IGN);
+  if (waitpid (pid, &status, 0) < 0)
+    status = -1;
+  signal (SIGINT, istat);
+  signal (SIGQUIT, qstat);
+  return (status);
+}
+
+BUF *
+allocbuf (BUF * bp, int fd, int blksize)
+{
+  struct stat stb;
+  size_t size;
+
+  if (fstat (fd, &stb) < 0)
+    {
+      run_err ("fstat: %s", strerror (errno));
+      return (0);
+    }
+#ifndef roundup
+# define roundup(x, y)   ((((x)+((y)-1))/(y))*(y))
+#endif
+  size = roundup (BUFSIZ, blksize);
+  if (size == 0)
+    size = blksize;
+  if (bp->cnt >= size)
+    return (bp);
+  if ((bp->buf = realloc (bp->buf, size)) == NULL)
+    {
+      bp->cnt = 0;
+      run_err ("%s", strerror (errno));
+      return (0);
+    }
+  bp->cnt = size;
+  return (bp);
+}
+
+RETSIGTYPE
+lostconn (int signo)
+{
+  if (!iamremote)
+    error (0, 0, "lost connection");
+  exit (1);
 }
