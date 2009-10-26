@@ -153,7 +153,7 @@
 2009-08-18  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Fix possible array overflow in ping.
-	
+
 	* ping/ping.h (_C_BIT,_C_MASK)
 	(_PING_SET,_PING_CLR,_PING_TST): Remove in favor of
 	ping_common.h
@@ -167,7 +167,7 @@
 2009-07-19  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Fix net-tool output format in ifconfig.
-	
+
 	* configure.ac: Check for struct ifreq.ifr_map
 	* paths: Add PATH_PROCNET_DEV
 	* ifconfig/Makefile.am (AM_CPPFLAGS): Add $(PATHDEF_PROCNET_DEV)
@@ -189,7 +189,7 @@
 	* ping/ping_echo.c: Likewise.
 	* ping/ping_router.c: Likewise.
 	* ping/ping_timestamp.c: Likewise.
-	
+
 2009-07-10  Giuseppe Scrivano <gscrivano@gnu.org>
             Alfred M. Szmidt <ams@gnu.org>
 
