@@ -1,5 +1,13 @@
 2009-10-26  Alfred M. Szmidt  <ams@gnu.org>
 
+	* uucpd/uucpd.c [BSD4_2]: Removed obsolete code.
+	(main) [BSDINETD]: Likewise.
+	(doit) [BSD4_2]: Likewise.
+	(usage_str): Variable removed.
+	(usage): Function removed.
+
+2009-10-26  Alfred M. Szmidt  <ams@gnu.org>
+
 	* traceroute/traceroute.c: Don't include "traceroute.h".
 	(TRACE_UDP_PORT, TRACE_TTL): New macros.
 	(TRACE_UDP, TRACE_ICMP, TRACE_1393): New enums.

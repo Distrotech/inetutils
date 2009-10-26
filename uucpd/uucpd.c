@@ -102,7 +102,6 @@
 #include <libinetutils.h>
 
 void dologin ();
-void usage (void);
 
 struct sockaddr_in hisctladdr;
 int hisaddrlen = sizeof hisctladdr;
@@ -127,13 +126,8 @@ static struct argp argp =
 int
 main (int argc, char **argv)
 {
-#ifndef BSDINETD
   register int s;
-# ifdef BSD4_2
-  register int tcp_socket;
-# endif
   struct servent *sp;
-#endif /* !BSDINETD */
   void dologout ();
 
   set_program_name (argv[0]);
@@ -141,23 +135,6 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   environ = nenv;
-#ifdef BSDINETD
-  close (1);
-  close (2);
-  dup (0);
-  dup (0);
-  hisaddrlen = sizeof (hisctladdr);
-  if (getpeername (0, &hisctladdr, &hisaddrlen) < 0)
-    {
-      fprintf (stderr, "%s: ", argv[0]);
-      perror ("getpeername");
-      _exit (1);
-    }
-  if (fork () == 0)
-    doit (&hisctladdr);
-  dologout ();
-  exit (1);
-#else /* !BSDINETD */
   sp = getservbyname ("uucp", "tcp");
   if (sp == NULL)
     {
@@ -175,49 +152,6 @@ main (int argc, char **argv)
   bzero ((char *) &myctladdr, sizeof (myctladdr));
   myctladdr.sin_family = AF_INET;
   myctladdr.sin_port = sp->s_port;
-# ifdef BSD4_2
-  tcp_socket = socket (AF_INET, SOCK_STREAM, 0);
-  if (tcp_socket < 0)
-    {
-      perror ("uucpd: socket");
-      exit (1);
-    }
-  if (bind (tcp_socket, (char *) &myctladdr, sizeof (myctladdr)) < 0)
-    {
-      perror ("uucpd: bind");
-      exit (1);
-    }
-  listen (tcp_socket, 3);	/* at most 3 simultaneuos uucp connections */
-  signal (SIGCHLD, dologout);
-
-  for (;;)
-    {
-      s = accept (tcp_socket, &hisctladdr, &hisaddrlen);
-      if (s < 0)
-	{
-	  if (errno == EINTR)
-	    continue;
-	  perror ("uucpd: accept");
-	  exit (1);
-	}
-      if (fork () == 0)
-	{
-	  close (0);
-	  close (1);
-	  close (2);
-	  dup (s);
-	  dup (s);
-	  dup (s);
-	  close (tcp_socket);
-	  close (s);
-	  doit (&hisctladdr);
-	  exit (1);
-	}
-      close (s);
-    }
-# endif	/* BSD4_2 */
-
-#endif /* !BSDINETD */
 }
 
 static int
@@ -288,20 +222,10 @@ doit (struct sockaddr_in *sinp)
   sprintf (Username, "USER=%s", user);
   dologin (pw, sinp);
   setgid (pw->pw_gid);
-#ifdef BSD4_2
-  initgroups (pw->pw_name, pw->pw_gid);
-#endif /* BSD4_2 */
   chdir (pw->pw_dir);
   setuid (pw->pw_uid);
-#ifdef BSD4_2
-  execl (UUCICO, "uucico", (char *) 0);
-#endif /* BSD4_2 */
   perror ("uucico server: execl");
 }
-
-#ifdef BSD4_2
-# include <fcntl.h>
-#endif /* BSD4_2 */
 
 void
 dologout ()
@@ -350,7 +274,8 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
 
 #if defined (PATH_LASTLOG) && defined (HAVE_STRUCT_LASTLOG)
 # define SCPYN(a, b)	strncpy(a, b, sizeof (a))
-  if ((f = open (PATH_LASTLOG, O_RDWR)) >= 0)
+  f = open (PATH_LASTLOG, O_RDWR);
+  if (f >= 0)
     {
       struct lastlog ll;
 
@@ -363,17 +288,4 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
       close (f);
     }
 #endif
-}
-
-static const char usage_str[] =
-  "Usage: uucpd [OPTIONS...]\n"
-  "\n"
-  "Options are:\n"
-  "       --help              Display usage instructions\n"
-  "       --version           Display program version\n";
-
-void
-usage (void)
-{
-  printf ("%s\n" "Send bug reports to <%s>\n", usage_str, PACKAGE_BUGREPORT);
 }
