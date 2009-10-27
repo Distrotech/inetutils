@@ -88,6 +88,8 @@ Handle timestamp, router discovery and address packets.
 * ping/ping6
 
 Ability to send router discovery, address and maybe timestamp packets.
+
+Ability to ping multiple host in one go.
 
 * ifconfig
 
