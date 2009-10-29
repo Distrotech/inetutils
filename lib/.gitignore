@@ -23,9 +23,9 @@ basename.c
 btowc.c
 canonicalize-lgpl.c
 canonicalize.h
+charset.alias
 chdir-long.c
 chdir-long.h
-charset.alias
 chown.c
 close-hook.c
 close-hook.h
@@ -56,6 +56,7 @@ fcntl-safer.h
 fcntl.h
 fcntl.in.h
 fd-safer.c
+fdopendir.c
 filemode.c
 filemode.h
 float+.h
@@ -66,6 +67,7 @@ fnmatch.h
 fnmatch.in.h
 fnmatch_loop.c
 fopen-safer.c
+fopen.c
 fseeko.c
 fstatat.c
 getcwd.c
@@ -111,6 +113,7 @@ memchr.valgrind
 mempcpy.c
 memrchr.c
 minmax.h
+mkdir.c
 mkdirat.c
 obstack.c
 obstack.h
@@ -151,6 +154,7 @@ regex.h
 regex_internal.c
 regex_internal.h
 regexec.c
+rmdir.c
 same-inode.h
 save-cwd.c
 save-cwd.h
@@ -161,6 +165,7 @@ sleep.c
 snprintf.c
 sockets.c
 sockets.h
+stat.c
 stdarg.h
 stdarg.in.h
 stdbool.h
@@ -204,12 +209,16 @@ sys_time.h
 sys_time.in.h
 sysexits.h
 sysexits.in.h
+time.h
+time.in.h
 uinttostr.c
 umaxtostr.c
 unistd--.h
 unistd-safer.h
 unistd.h
 unistd.in.h
+unlink.c
+unlinkat.c
 unlocked-io.h
 vasnprintf.c
 vasnprintf.h
