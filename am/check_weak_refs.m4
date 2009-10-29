@@ -1,21 +1,23 @@
-dnl Copyright (C) 1996, 1997, 1998, 2002, 2004, 2005, 2007,
-dnl 2009 Free Software Foundation, Inc.
 dnl
-dnl Mostly written by Miles Bader <miles@gnu.ai.mit.edu>
+dnl Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+dnl 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 dnl
-dnl This program is free software; you can redistribute it and/or modify
+dnl This file is part of GNU Inetutils.
+dnl
+dnl GNU Inetutils is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
-dnl the Free Software Foundation; either version 3, or (at your option)
-dnl any later version.
-dnl
-dnl This program is distributed in the hope that it will be useful,
-dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
-dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-dnl GNU General Public License for more details.
-dnl
+dnl the Free Software Foundation, either version 3 of the License, or (at
+dnl your option) any later version.
+dnl 
+dnl GNU Inetutils is distributed in the hope that it will be useful, but
+dnl WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl General Public License for more details.
+dnl 
 dnl You should have received a copy of the GNU General Public License
-dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
-dnl
+dnl along with this program.  If not, see `http://www.gnu.org/licenses/'.
+
+dnl Written by Miles Bader.
 
 dnl IU_CHECK_WEAK_REFS -- See if any of a variety of `weak reference'
 dnl mechanisms works.  If so, this defines HAVE_WEAK_REFS, and one of

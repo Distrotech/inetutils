@@ -1,32 +1,25 @@
-/* Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/*
+  Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+  2009 Free Software Foundation, Inc.
 
-   This file is part of GNU Inetutils.
+  This file is part of GNU Inetutils.
 
-   GNU Inetutils is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+  GNU Inetutils is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or (at
+  your option) any later version.
 
-   GNU Inetutils is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+  GNU Inetutils is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with GNU Inetutils; see the file COPYING.  If not, write
-   to the Free Software Foundation, Inc., 51 Franklin Street,
-   Fifth Floor, Boston, MA 02110-1301 USA. */
-
-/*	$OpenBSD: print.c,v 1.15 2000/01/06 21:32:40 espie Exp $	*/
-/*	$NetBSD: print.c,v 1.15 1996/12/11 03:25:39 thorpej Exp $	*/
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
 /*
  * Copyright (c) 1989, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
- *
- * This code is derived from software contributed to Berkeley by
- * Michael Fischbein.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,7 +29,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
+ * 3. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -52,6 +45,9 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+
+/* This code is derived from software contributed to Berkeley by
+   Michael Fischbein.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>

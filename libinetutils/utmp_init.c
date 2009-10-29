@@ -1,21 +1,24 @@
-/************************************************************************
-* Copyright 1995 by Wietse Venema.  All rights reserved. Individual files
-* may be covered by other copyrights (as noted in the file itself.)
-*
-* This material was originally written and compiled by Wietse Venema at
-* Eindhoven University of Technology, The Netherlands, in 1990, 1991,
-* 1992, 1993, 1994 and 1995.
-*
-* Redistribution and use in source and binary forms are permitted
-* provided that this entire copyright notice is duplicated in all such
-* copies.
-*
-* This software is provided "as is" and without any expressed or implied
-* warranties, including, without limitation, the implied warranties of
-* merchantibility and fitness for any particular purpose.
-************************************************************************/
-/* Author: Wietse Venema <wietse@wzv.win.tue.nl> */
-/* light changes where done to accomodate libinetutils: Alain Magloire */
+/* Copyright (c) 1995 Wietse Venema.  All rights reserved. 
+ *
+ * Individual files may be covered by other copyrights (as noted in
+ * the file itself.)
+ *
+ * This material was originally written and compiled by Wietse Venema
+ * at Eindhoven University of Technology, The Netherlands, in 1990,
+ * 1991, 1992, 1993, 1994 and 1995.
+ *
+ * Redistribution and use in source and binary forms are permitted
+ * provided that this entire copyright notice is duplicated in all
+ * such copies.
+ *
+ * This software is provided "as is" and without any expressed or
+ * implied warranties, including, without limitation, the implied
+ * warranties of merchantibility and fitness for any particular
+ * purpose.
+ */
+
+/* Written by Wietse Venema.  With port to GNU Inetutils done by Alain
+   Magloire.  */
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>

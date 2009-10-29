@@ -1,12 +1,6 @@
-/*	$OpenBSD: ls.h,v 1.4 1999/05/01 23:54:47 deraadt Exp $	*/
-/*	$NetBSD: ls.h,v 1.7 1995/03/21 09:06:33 cgd Exp $	*/
-
 /*
  * Copyright (c) 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
- *
- * This code is derived from software contributed to Berkeley by
- * Michael Fischbein.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -16,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
+ * 3. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -31,9 +25,10 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)ls.h	8.1 (Berkeley) 5/31/93
  */
+
+/* This code is derived from software contributed to Berkeley by
+   Michael Fischbein.  */
 
 #define NO_PRINT	1
 
