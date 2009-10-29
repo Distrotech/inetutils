@@ -19,6 +19,7 @@
 
 #include "telnetd.h"
 #include <sys/wait.h>
+#include <pty.h>
 
 #ifdef AUTHENTICATION
 # include <libtelnet/auth.h>

@@ -1,5 +1,9 @@
 2009-10-29  Alfred M. Szmidt  <ams@gnu.org>
 
+	* rlogind/rlogind.c, telnetd/pty.c: Include <pty.h>.
+
+2009-10-29  Alfred M. Szmidt  <ams@gnu.org>
+
 	* rexecd/rexecd.c (doit): Added forward declaration.
 
 2009-10-29  Alfred M. Szmidt  <ams@gnu.org>
