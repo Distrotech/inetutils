@@ -1,5 +1,10 @@
 * General
 
+Files without a copyright notice: ChangeLog, ChangeLog.0, README,
+README-hacking, THANKS, TODO, confpaths.h.in, ifconfig/COMPATIBILITY,
+whois/as_del_list, whois/ip_del_list, whois/make_as_del.pl,
+whois/make_ip_del.pl, whois/make_tld_serv.pl, and whois/tld_serv_list.
+
 Add autoconf check for bison.
 
 Go through code and check what is clean, needs cleaning, etc.
