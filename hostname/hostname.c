@@ -60,8 +60,8 @@ static struct argp_option argp_options[] = {
 #define GRP 0
   {"aliases", 'a', NULL, 0, "alias names", GRP+1},
   {"domain", 'd', NULL, 0, "DNS domain name", GRP+1},
-  {"file", 'F', "FILE", 0, "read host name or NIS domain name "
-   "from FILE", GRP+1},
+  {"file", 'F', "FILE", 0, "set host name or NIS domain name from FILE",
+   GRP+1},
   {"fqdn", 'f', NULL, 0, "DNS host name or FQDN", GRP+1},
   {"long", 'f', NULL, OPTION_ALIAS, "DNS host name or FQDN", GRP+1},
   {"ip-addresses", 'i', NULL, 0, "addresses for the host name", GRP+1},
