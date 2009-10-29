@@ -5,6 +5,7 @@
 *.o
 *.so
 *~
+TAGS
 .bootstrap
 .deps
 .emacs*

@@ -1,5 +1,9 @@
 2009-10-29  Alfred M. Szmidt  <ams@gnu.org>
 
+	* .gitignore (TAGS): Added to list.
+
+2009-10-29  Alfred M. Szmidt  <ams@gnu.org>
+
 	* bootstrap.conf (gnulib_modules): Use `getopt-gnu' instead of
 	`getopt'.
 
