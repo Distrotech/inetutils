@@ -97,6 +97,7 @@
 #include "libinetutils.h"
 
 void die (int code, const char *fmt, ...);
+int doit (int f, struct sockaddr_in *fromp);
 
 const char doc[] = "remote execution daemon";
 
