@@ -17,7 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
-/* 
+/*
  * Copyright (c) 1983, 1988, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
@@ -138,7 +138,7 @@
 /* A mask of all facilities mentioned explicitly in the configuration file
  *
  * This is used to support a virtual facility "**" that covers all the rest,
- * so that messages to unexpected facilities won't be lost when "*" is 
+ * so that messages to unexpected facilities won't be lost when "*" is
  * not logged to a file.
  */
 int facilities_seen;
@@ -441,7 +441,7 @@ main (int argc, char *argv[])
   unsigned long nfds = 0;
 
   set_program_name (argv[0]);
-  
+
   /* Initiliaze PATH_LOG as the first element of the unix sockets array.  */
   add_funix (PATH_LOG);
 
@@ -659,8 +659,8 @@ main (int argc, char *argv[])
 		      }
 
 		    /* This loop makes sure the daemon won't lock up
-		     * on null bytes in the klog stream.  They still hurt 
-		     * efficiency, acting like a message separator that 
+		     * on null bytes in the klog stream.  They still hurt
+		     * efficiency, acting like a message separator that
 		     * forces a shift-and-reiterate when the buffer was
 		     * never full.
 		     */
@@ -675,7 +675,7 @@ main (int argc, char *argv[])
 
 		    if (bol != kline)
 		      {
-			/* shift the partial line to start of buffer, so 
+			/* shift the partial line to start of buffer, so
 			 * we can re-iterate.
 			 */
 			memmove (kline, bol, kline_len);
@@ -691,11 +691,11 @@ main (int argc, char *argv[])
 			 */
 			printsys (kline);
 
-			/* Clone priority signal if present 
+			/* Clone priority signal if present
 			 * We merely shift the kline_len pointer after
 			 * it so the next chunk is written after it.
 			 *
-			 * strchr(kline,'>') is not used as it would allow 
+			 * strchr(kline,'>') is not used as it would allow
 			 * a pathological line ending in '>' to cause an
 			 * endless loop.
 			 */
@@ -1856,7 +1856,7 @@ cfline (const char *line, struct filed *f)
 	  if (*buf == '*')
 	    for (i = 0; i <= LOG_NFACILITIES; i++)
 	      {
-		/* make "**" act as a wildcard only for facilities not 
+		/* make "**" act as a wildcard only for facilities not
 		 * specified elsewhere
 		 */
 		if (buf[1] == '*' && ((1 << i) & facilities_seen))

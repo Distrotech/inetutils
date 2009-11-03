@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2008, 2009 Free Software Foundation, Inc.
-  
+
   This file is part of GNU Inetutils.
 
   GNU Inetutils is free software: you can redistribute it and/or modify
@@ -146,7 +146,7 @@ main (int argc, char *argv[])
   hostname_options options;
 
   set_program_name (argv[0]);
-  
+
   memset ((void *) &options, 0, sizeof (options));
 
   /* Parse command line */

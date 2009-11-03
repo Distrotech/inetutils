@@ -137,7 +137,7 @@ static error_t
 gwhois_argp_parser (int key, char *arg, struct argp_state *state)
 {
   char *p, *q;
-  
+
   switch (key)
     {
     case 'h':
@@ -151,7 +151,7 @@ gwhois_argp_parser (int key, char *arg, struct argp_state *state)
     case 'H':
       hide_discl = 0;	/* enable disclaimers hiding */
       break;
-      
+
     case 'p':
       port = arg;
       break;
@@ -159,13 +159,13 @@ gwhois_argp_parser (int key, char *arg, struct argp_state *state)
     case 'V':
       verb = 1;
       break;
-      
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
   return 0;
 }
-      
+
 struct argp_child gwhois_argp_children[] = {
   { &ripe_argp,
     0,
@@ -196,9 +196,9 @@ main (int argc, char *argv[])
   char *fstring;
   char *qstring;
   char *p;
-  
+
   set_program_name (argv[0]);
-  
+
 #ifdef ENABLE_NLS
   setlocale (LC_MESSAGES, "");
   bindtextdomain (NLS_CAT_NAME, LOCALEDIR);
@@ -229,7 +229,7 @@ main (int argc, char *argv[])
     }
   obstack_1grow (&query_stk, 0);
   qstring = obstack_finish (&query_stk);
-  
+
   if (!server && domfind (qstring, gtlds))
     {
       if (verb)
@@ -387,12 +387,12 @@ is_ripe_server (const char * const *srvtab, const char *name)
   int isip = 0;
 
   isip = inet_aton (name, &addr);
-  
+
   for (; *srvtab; ++srvtab)
     {
       const char *server = *srvtab;
       struct hostent *hp;
-      
+
       if (strcmp (server, name) == 0)
 	return 1;
       if (isip && (hp = gethostbyname (server)) != NULL)

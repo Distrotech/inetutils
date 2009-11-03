@@ -8,12 +8,12 @@ dnl GNU Inetutils is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
 dnl the Free Software Foundation, either version 3 of the License, or (at
 dnl your option) any later version.
-dnl 
+dnl
 dnl GNU Inetutils is distributed in the hope that it will be useful, but
 dnl WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 dnl General Public License for more details.
-dnl 
+dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
@@ -133,7 +133,7 @@ HAVE_$iu_sym
 	  x|d|f|c|b) iu_test_type=$iu_try;;
 
 	  *)
-	    # Just try the given name, with make-var substitution.  Besides 
+	    # Just try the given name, with make-var substitution.  Besides
 	    # yielding a value if found, this also sets the default.
 
 	    case "$iu_try" in "\""*"\"")
@@ -201,7 +201,7 @@ HAVE_$iu_sym
     fi
   done <[$1] >$iu_cache_file
 
-  # Read the cache values constructed by the previous loop, 
+  # Read the cache values constructed by the previous loop,
   . $iu_cache_file
 
   # Construct the pathdefs file -- a file of make variable definitions, of

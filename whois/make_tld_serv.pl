@@ -14,4 +14,3 @@ while (<>) {
 	$b = "\\003" if ($b eq 'NONE');
 	print "    \"$a\",\t\"$b\",\n";
 }
-

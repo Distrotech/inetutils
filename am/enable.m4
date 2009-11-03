@@ -8,12 +8,12 @@ dnl GNU Inetutils is free software: you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
 dnl the Free Software Foundation, either version 3 of the License, or (at
 dnl your option) any later version.
-dnl 
+dnl
 dnl GNU Inetutils is distributed in the hope that it will be useful, but
 dnl WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 dnl General Public License for more details.
-dnl 
+dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
@@ -22,7 +22,7 @@ dnl Written Joel N. Weber II.
 AC_DEFUN([IU_ENABLE_FOO],
  [AC_ARG_ENABLE($1, AS_HELP_STRING([--disable-$1], [don't compile $1]), ,
                 [enable_]$1[=$enable_]$2)
-[if test "$enable_$1" = yes; then 
+[if test "$enable_$1" = yes; then
    $1_BUILD=$1
    $1_INSTALL_HOOK="install-$1-hook"
 else

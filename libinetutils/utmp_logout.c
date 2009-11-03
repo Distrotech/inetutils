@@ -18,7 +18,7 @@
   along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
 /*
- * Copyright (c) 1995 Wietse Venema.  All rights reserved. 
+ * Copyright (c) 1995 Wietse Venema.  All rights reserved.
  *
  * Individual files may be covered by other copyrights (as noted in
  * the file itself.)
