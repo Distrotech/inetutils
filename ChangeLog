@@ -1,3 +1,10 @@
+2009-11-08  Alfred M. Szmidt  <ams@gnu.org>
+
+	* hostname/hostname.c (_hostname_options): Struct renamed to ..
+	(hostname_arguments): ... this.  Updated all references.
+	(parse_opt, main, get_name, set_name): Renamed ARGUMENTS to ARGS.
+	Updated all references.
+
 2009-10-29  Alfred M. Szmidt  <ams@gnu.org>
 
 	* hostname/hostname.c (argp_options): Fixed typo.

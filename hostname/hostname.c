@@ -35,17 +35,16 @@
 #include "xgetdomainname.h"
 
 
-struct _hostname_options
+typedef struct
 {
-    const char *hostname_file;
-    const char *hostname_new;
-    short int hostname_alias;
-    short int hostname_fqdn;
-    short int hostname_ip_address;
-    short int hostname_dns_domain;
-    short int hostname_short;
-};
-typedef struct _hostname_options hostname_options;
+  const char *hostname_file;
+  const char *hostname_new;
+  short int hostname_alias;
+  short int hostname_fqdn;
+  short int hostname_ip_address;
+  short int hostname_dns_domain;
+  short int hostname_short;
+} hostname_arguments;
 
 static char *(*get_name_action) (void) = NULL;
 static int (*set_name_action) (const char *name, size_t size) = NULL;
@@ -75,40 +74,40 @@ static struct argp_option argp_options[] = {
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
-  hostname_options *const options = (hostname_options *const) state->input;
+  hostname_arguments *const args = (hostname_arguments *const) state->input;
 
   switch (key)
     {
     case 'a':
       get_name_action = xgethostname;
-      options->hostname_alias = 1;
+      args->hostname_alias = 1;
       break;
 
     case 'd':
       get_name_action = xgethostname;
-      options->hostname_fqdn = 1;
-      options->hostname_dns_domain = 1;
+      args->hostname_fqdn = 1;
+      args->hostname_dns_domain = 1;
       break;
 
     case 'F':
       set_name_action = sethostname;
-      options->hostname_file = arg;
+      args->hostname_file = arg;
       break;
 
     case 'f':
       get_name_action = xgethostname;
-      options->hostname_fqdn = 1;
+      args->hostname_fqdn = 1;
       break;
 
     case 'i':
       get_name_action = xgethostname;
-      options->hostname_ip_address = 1;
+      args->hostname_ip_address = 1;
       break;
 
     case 's':
       get_name_action = xgethostname;
-      options->hostname_fqdn = 1;
-      options->hostname_short = 1;
+      args->hostname_fqdn = 1;
+      args->hostname_short = 1;
       break;
 
     case 'y':
@@ -117,8 +116,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case ARGP_KEY_ARG:
       set_name_action = sethostname;
-      options->hostname_new = strdup (arg);
-      if (options->hostname_new == NULL)
+      args->hostname_new = strdup (arg);
+      if (args->hostname_new == NULL)
         error (EXIT_FAILURE, errno, "strdup");
       break;
 
@@ -131,8 +130,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
 static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
-static void get_name (const hostname_options *const options);
-static void set_name (const hostname_options *const options);
+static void get_name (const hostname_arguments *const args);
+static void set_name (const hostname_arguments *const args);
 static char * get_aliases (const char *const host_name);
 static char * get_fqdn (const char *const host_name);
 static char * get_ip_addresses (const char *const host_name);
@@ -143,30 +142,30 @@ static char * parse_file (const char *const file_name);
 int
 main (int argc, char *argv[])
 {
-  hostname_options options;
+  hostname_arguments args;
 
   set_program_name (argv[0]);
 
-  memset ((void *) &options, 0, sizeof (options));
+  memset ((void *) &args, 0, sizeof (args));
 
   /* Parse command line */
   iu_argp_init ("hostname", program_authors);
-  argp_parse (&argp, argc, argv, 0, NULL, (void *) &options);
+  argp_parse (&argp, argc, argv, 0, NULL, (void *) &args);
 
   /* Set default action */
   if (get_name_action == NULL && set_name_action ==  NULL)
     get_name_action = xgethostname;
 
   if (get_name_action == xgetdomainname || get_name_action == xgethostname)
-    get_name (&options);
+    get_name (&args);
   else if (set_name_action == sethostname)
-    set_name (&options);
+    set_name (&args);
 
   return 0;
 }
 
 static void
-get_name (const hostname_options *const options)
+get_name (const hostname_arguments *const args)
 {
   char *sname, *name;
   int status;
@@ -175,25 +174,25 @@ get_name (const hostname_options *const options)
 
   if (!sname)
     error (EXIT_FAILURE, errno, "cannot determine name");
-  if (options->hostname_alias == 1)
+  if (args->hostname_alias == 1)
     name = get_aliases (sname);
-  else if (options->hostname_fqdn == 1)
+  else if (args->hostname_fqdn == 1)
     {
       name = get_fqdn (sname);
 
-      if (options->hostname_dns_domain == 1 || options->hostname_short == 1)
+      if (args->hostname_dns_domain == 1 || args->hostname_short == 1)
         {
           free (sname);
           sname = name;
           name = NULL;
         }
 
-      if (options->hostname_dns_domain == 1)
+      if (args->hostname_dns_domain == 1)
         name = get_dns_domain_name (sname);
-      else if (options->hostname_short == 1)
+      else if (args->hostname_short == 1)
         name = get_short_hostname (sname);
     }
-  else if (options->hostname_ip_address == 1)
+  else if (args->hostname_ip_address == 1)
       name = get_ip_addresses (sname);
   else
     {
@@ -210,16 +209,16 @@ get_name (const hostname_options *const options)
 }
 
 static void
-set_name (const hostname_options *const options)
+set_name (const hostname_arguments *const args)
 {
   const char *hostname_new;
   int status;
   size_t size;
 
-  if (options->hostname_file != NULL)
-    hostname_new = parse_file (options->hostname_file);
+  if (args->hostname_file != NULL)
+    hostname_new = parse_file (args->hostname_file);
   else
-    hostname_new = options->hostname_new;
+    hostname_new = args->hostname_new;
 
   size = strlen (hostname_new);
   status = (*set_name_action) (hostname_new, size);
