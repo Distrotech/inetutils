@@ -1,3 +1,9 @@
+2009-11-12  Simon Josefsson  <simon@josefsson.org>
+
+	* bootstrap.conf (gnulib_modules): Add maintainer-makefile, to get
+	coverage generating rules.
+	* cfg.mk: New file, with coverage uploading rules.
+
 2009-11-08  Alfred M. Szmidt  <ams@gnu.org>
 
 	* hostname/hostname.c (_hostname_options): Struct renamed to ..
