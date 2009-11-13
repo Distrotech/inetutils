@@ -238,7 +238,7 @@ get_aliases (const char *const host_name)
   unsigned int size = 256;
   struct hostent *ht;
 
-  aliases = (char *) xmalloc (sizeof (char) * size);
+  aliases = xmalloc (sizeof (char) * size);
   aliases[0] = '\0';
 
   ht = gethostbyname (host_name);
@@ -294,7 +294,7 @@ get_ip_addresses (const char *const host_name)
   unsigned int size = 256;
   struct hostent *ht;
 
-  addresses = (char *) xmalloc (sizeof (char) * size);
+  addresses = xmalloc (sizeof (char) * size);
   addresses[0] = '\0';
 
   ht = gethostbyname (host_name);

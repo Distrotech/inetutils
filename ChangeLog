@@ -1,5 +1,12 @@
 2009-11-13  Simon Josefsson  <simon@josefsson.org>
 
+	* hostname/hostname.c (get_aliases, get_ip_addresses): Fix
+	syntax-check sc_cast_of_x_alloc_return_value.
+	* ping/ping_common.c (init_data_buffer): Likewise.
+	* rsh/rsh.c (main): Likewise.
+
+2009-11-13  Simon Josefsson  <simon@josefsson.org>
+
 	* rshd/rshd.c (doit): Fix syntax-check
 	sc_cast_of_alloca_return_value.
 	* ftpd/ftpd.c (send_file_list): Likewise.

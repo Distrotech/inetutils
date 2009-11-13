@@ -64,7 +64,7 @@ init_data_buffer (u_char * pat, int len)
   if (data_length == 0)
     return;
 
-  data_buffer = (u_char *) xmalloc (data_length);
+  data_buffer = xmalloc (data_length);
 
   if (pat)
     {

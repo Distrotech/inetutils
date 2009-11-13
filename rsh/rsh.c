@@ -362,7 +362,7 @@ try_connect:
 	  int i;
 	  char *term;
 
-	  term = (char *) xmalloc (strlen (args) + 4);
+	  term = xmalloc (strlen (args) + 4);
 	  strcpy (term, "-x ");
 	  strcat (term, args);
 
