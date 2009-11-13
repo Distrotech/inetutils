@@ -225,7 +225,7 @@ set_name (const hostname_arguments *const args)
   if (status == -1)
     error (EXIT_FAILURE, errno, "sethostname");
 
-  free ((void *) hostname_new);
+  free (hostname_new);
   return;
 }
 

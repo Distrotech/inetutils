@@ -1305,7 +1305,7 @@ nextconfig (const char *file)
       if (debug)
 	print_service ("FREE", sep);
       freeconfig (sep);
-      free ((char *) sep);
+      free (sep);
     }
   signal_unblock (&sigstatus);
 }
