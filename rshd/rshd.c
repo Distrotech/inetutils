@@ -507,7 +507,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #endif
 	if (check_all || local_domain (hp->h_name))
 	  {
-	    char *remotehost = (char *) alloca (strlen (hostname) + 1);
+	    char *remotehost = alloca (strlen (hostname) + 1);
 	    if (!remotehost)
 	      errorstr = "Out of memory\n";
 	    else

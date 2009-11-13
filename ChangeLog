@@ -1,5 +1,11 @@
 2009-11-13  Simon Josefsson  <simon@josefsson.org>
 
+	* rshd/rshd.c (doit): Fix syntax-check
+	sc_cast_of_alloca_return_value.
+	* ftpd/ftpd.c (send_file_list): Likewise.
+
+2009-11-13  Simon Josefsson  <simon@josefsson.org>
+
 	* inetd/inetd.c (nextconfig): Fix syntax-check
 	sc_cast_of_argument_to_free.
 	* hostname/hostname.c (set_name): Likewise.

@@ -1942,8 +1942,7 @@ send_file_list (const char *whichf)
 	      dir->d_name[2] == '\0')
 	    continue;
 
-	  nbuf = (char *) alloca (strlen (dirname) + 1 +
-				  strlen (dir->d_name) + 1);
+	  nbuf = alloca (strlen (dirname) + 1 + strlen (dir->d_name) + 1);
 	  sprintf (nbuf, "%s/%s", dirname, dir->d_name);
 
 	  /* We have to do a stat to insure it's
