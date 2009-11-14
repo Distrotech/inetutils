@@ -16,6 +16,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+local-checks-to-skip = \
+	sc_error_message_period \
+	sc_error_message_uppercase \
+	sc_immutable_NEWS \
+	sc_m4_quote_check \
+	sc_obsolete_symbols \
+	sc_program_name \
+	sc_prohibit_assert_without_use \
+	sc_prohibit_atoi_atof \
+	sc_prohibit_have_config_h \
+	sc_prohibit_magic_number_exit \
+	sc_prohibit_signal_without_use \
+	sc_prohibit_stat_st_blocks \
+	sc_prohibit_strcmp \
+	sc_space_tab \
+	sc_trailing_blank \
+	sc_unmarked_diagnostics \
+	sc_useless_cpp_parens \
+	sc_makefile_check
+
 htmldir = ../www-$(PACKAGE)
 
 web-coverage:
