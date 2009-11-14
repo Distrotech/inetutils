@@ -61,7 +61,6 @@ void do_query (const int, const char *);
 const char *query_crsnic (const int, const char *);
 int openconn (const char *, const char *);
 void closeconn (const int);
-void usage (void);
 RETSIGTYPE sighandler (int);
 unsigned long myinet_aton (const char *);
 int domcmp (const char *, const char *);

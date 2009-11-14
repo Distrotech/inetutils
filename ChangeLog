@@ -1,3 +1,7 @@
+2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
+
+	* whois/whois.h, rsh/rsh.c (usage): Removed prototype.
+
 2009-11-13  Simon Josefsson  <simon@josefsson.org>
 
 	* hostname/hostname.c (get_aliases, get_ip_addresses): Fix

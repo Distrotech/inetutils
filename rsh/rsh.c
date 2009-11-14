@@ -128,7 +128,6 @@ int rfd2;
 char *copyargs (char **);
 RETSIGTYPE sendsig (int);
 void talk (int, sigset_t *, pid_t, int);
-void usage (void);
 void warning (const char *, ...);
 
 
@@ -209,16 +208,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp =
-  {
-    options,
-    parse_opt,
-    args_doc,
-    doc
-  };
+static struct argp argp = { options, parse_opt, args_doc, doc };
 
 
-
 int
 main (int argc, char **argv)
 {
