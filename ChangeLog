@@ -1,5 +1,14 @@
 2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* tests/Makefile.am (TESTS): Added ping-localhost.sh and
+	traceroute-localhost.sh.  Use $(check_PROGRAMS) instead of
+	specifying all C test cases manually.
+
+	* tests/traceroute-localhost.sh, tests/ping-localhost.sh: New
+	file.
+
+2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* .gitignore (*.gcno, *.gcda, *.gcov, inetutils-*/)
 	(inetutils-*.tar.gz): Added new ignore rules.
 
