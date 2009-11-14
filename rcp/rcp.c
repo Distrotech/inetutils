@@ -585,7 +585,7 @@ source (int argc, char *argv[])
 	  if (response () < 0)
 	    goto next;
 	}
-#define RCP_MODEMASK	(S_ISUID|S_ISGID|S_ISTXT|S_IRWXU|S_IRWXG|S_IRWXO)
+#define RCP_MODEMASK	(S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO)
       snprintf (buf, sizeof buf,
 		(sizeof (stb.st_size) > sizeof (long)
 		 ? "C%04o %qd %s\n"

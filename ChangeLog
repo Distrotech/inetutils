@@ -1,5 +1,9 @@
 2009-11-14  Simon Josefsson  <simon@josefsson.org>
 
+	* rcp/rcp.c (RCP_MODEMASK): Use S_ISVTX instead of S_ISTXT.
+
+2009-11-14  Simon Josefsson  <simon@josefsson.org>
+
 	* ifconfig/system.c: Include config.h properly.
 	* libinetutils/argcv.c: Likewise.
 	* libinetutils/defauthors.c: Likewise.
