@@ -49,6 +49,8 @@
 /* General-purpose forwarding routines. These routines may be put into */
 /* libkrb5.a to allow widespread use */
 
+#include <config.h>
+
 #if defined(KRB5) && defined(FORWARD)
 # include <stdio.h>
 # include <pwd.h>

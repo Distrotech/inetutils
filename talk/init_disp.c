@@ -46,16 +46,14 @@
  * SUCH DAMAGE.
  */
 
+#include <config.h>
+
 #include <stdlib.h>
 
 /*
  * Initialization code for the display package,
  * as well as the signal handling routines.
  */
-
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
 
 #ifdef HAVE_TERMIOS_H
 # include <termios.h>
