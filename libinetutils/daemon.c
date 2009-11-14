@@ -75,7 +75,7 @@
 
   4.chdir("/") to ensure that our process doesn't keep any directory in use.
   Failure to do this could make it so that an administrator couldn't unmount
-  a filesystem, because it was our current directory.
+  a file system, because it was our current directory.
   [Equivalently, we could change to any directory containing files important
   to the daemon's operation.]
 

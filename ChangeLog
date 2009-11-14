@@ -1,3 +1,7 @@
+2009-11-14  Simon Josefsson  <simon@josefsson.org>
+
+	* libinetutils/daemon.c: Doc fix.
+
 2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
 
 	* configure.ac: Bump version number to 1.6.90.
