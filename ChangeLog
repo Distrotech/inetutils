@@ -1,3 +1,7 @@
+2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
+
+	* doc/inetutils.texi: Don't split copyright year list.
+
 2009-11-14  Simon Josefsson  <simon@josefsson.org>
 
 	* ftpd/ftpd.c: Don't include getopt.h without using it.
