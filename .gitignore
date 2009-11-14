@@ -4,6 +4,9 @@
 *.lo
 *.o
 *.so
+*.gcno
+*.gcda
+*.gcov
 *~
 TAGS
 .bootstrap
@@ -32,3 +35,6 @@ pathdefs.make
 paths.defs
 stamp-h.in
 stamp-h1
+inetutils-*/
+inetutils-*.tar.gz
+
