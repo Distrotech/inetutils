@@ -1,5 +1,9 @@
 2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* configure.ac: Bump version number to 1.6.90.
+
+2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* ftp/cmds.c (ls, setnmap): Fix syntax-check
 	sc_avoid_if_before_free.
 
