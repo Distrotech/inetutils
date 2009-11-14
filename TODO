@@ -1,5 +1,11 @@
 * General
 
+Add framework for tests.
+
+Function for parsing [USER@]HOSTNAME[:PORT], that returns each value
+in a structure.  Handle IP (v4 and v6) numbers as well.  And make
+programs use it.
+
 Files without a copyright notice: ChangeLog, ChangeLog.0, README,
 README-hacking, THANKS, TODO, confpaths.h.in, ifconfig/COMPATIBILITY,
 whois/as_del_list, whois/ip_del_list, whois/make_as_del.pl,
