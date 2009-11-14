@@ -19,6 +19,7 @@ argp-xinl.c
 argp.h
 asnprintf.c
 at-func.c
+basename-lgpl.c
 basename.c
 btowc.c
 canonicalize-lgpl.c
@@ -36,6 +37,7 @@ creat-safer.c
 dirent.h
 dirent.in.h
 dirfd.c
+dirname-lgpl.c
 dirname.c
 dirname.h
 dup-safer.c

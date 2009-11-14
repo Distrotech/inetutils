@@ -1,5 +1,10 @@
 2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* bootstrap.conf (gnulib_modules): Added dirname-lgpl.
+	(lib/.gitignore): Updated by ./bootstrap.
+
+2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* tests/Makefile.am (TESTS): Added ping-localhost.sh and
 	traceroute-localhost.sh.  Use $(check_PROGRAMS) instead of
 	specifying all C test cases manually.
