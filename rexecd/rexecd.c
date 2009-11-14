@@ -83,7 +83,6 @@
 #ifdef HAVE_CRYPT_H
 # include <crypt.h>
 #endif
-#include <getopt.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif

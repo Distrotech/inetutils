@@ -81,7 +81,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <getopt.h>
 #include <limits.h>
 #include <netdb.h>
 #include <setjmp.h>

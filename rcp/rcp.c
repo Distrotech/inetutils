@@ -86,7 +86,6 @@
 #include <string.h>
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 #ifndef HAVE_UTIMES
 # include <utime.h>		/* If we don't have utimes(), use utime(). */
 #endif

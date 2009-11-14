@@ -23,7 +23,6 @@
 # include <config.h>
 #endif
 
-#include <getopt.h>
 #include <stdio.h>
 #include <errno.h>
 

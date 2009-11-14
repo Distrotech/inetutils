@@ -70,7 +70,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif

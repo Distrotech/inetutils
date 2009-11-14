@@ -109,7 +109,6 @@ char *alloca ();
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <grp.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>

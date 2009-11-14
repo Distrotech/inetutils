@@ -1,3 +1,18 @@
+2009-11-14  Simon Josefsson  <simon@josefsson.org>
+
+	* ftpd/ftpd.c: Don't include getopt.h without using it.
+	* whois/whois.c: Likewise.
+	* uucpd/uucpd.c: Likewise.
+	* tftpd/tftpd.c: Likewise.
+	* telnetd/telnetd.c: Likewise.
+	* telnet/main.c: Likewise.
+	* talk/talk.c: Likewise.
+	* rshd/rshd.c: Likewise.
+	* rlogind/rlogind.c: Likewise.
+	* rexecd/rexecd.c: Likewise.
+	* rcp/rcp.c: Likewise.
+	* ifconfig/options.c: Likewise.
+
 2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Added gnupload.

@@ -80,7 +80,6 @@
 #  include <time.h>
 # endif
 #endif
-#include <getopt.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <errno.h>
