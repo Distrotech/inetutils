@@ -326,8 +326,7 @@ login (host)
     {
       if (!strcmp ("init", macros[n].mac_name))
 	{
-	  if (line)
-	    free (line);
+	  free (line);
 	  line = calloc (200, sizeof (*line));
 	  if (!line)
 	    quit (0, 0);
@@ -964,8 +963,7 @@ recvrequest (cmd, local, remote, lmode, printnames)
   blksize = BUFSIZ;
   if (blksize > bufsize)
     {
-      if (buf)
-	free (buf);
+      free (buf);
       buf = malloc ((unsigned) blksize);
       if (buf == NULL)
 	{
@@ -1420,8 +1418,7 @@ pswitch (flag)
   ip->connect = connected;
   connected = op->connect;
 
-  if (ip->name)
-    free (ip->name);
+  free (ip->name);
   ip->name = hostname;
   hostname = op->name;
   op->name = 0;
@@ -1457,14 +1454,12 @@ pswitch (flag)
   ip->mapflg = mapflag;
   mapflag = op->mapflg;
 
-  if (ip->mi)
-    free (ip->mi);
+  free (ip->mi);
   ip->mi = mapin;
   mapin = op->mi;
   op->mi = 0;
 
-  if (ip->mo)
-    free (ip->mo);
+  free (ip->mo);
   ip->mo = mapout;
   mapout = op->mo;
   op->mo = 0;
@@ -1655,8 +1650,7 @@ gunique (local)
   int count = 0;
   char ext = '1';
 
-  if (new)
-    free (new);
+  free (new);
   new = malloc (strlen (local) + 1 + 3 + 1);	/* '.' + 100 + '\0' */
   if (!new)
     {

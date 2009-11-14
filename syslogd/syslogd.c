@@ -491,8 +491,7 @@ main (int argc, char *argv[])
       if (host_ent)
 	{
 	  /* Override what we had */
-	  if (LocalHostName)
-	    free (LocalHostName);
+	  free (LocalHostName);
 	  LocalHostName = strdup (host_ent->h_name);
 	  p = strchr (LocalHostName, '.');
 	  if (p != NULL)
@@ -1103,8 +1102,7 @@ logmsg (int pri, const char *msg, const char *from, int flags)
 	    fprintlog (f, from, 0, (char *) NULL);
 	  f->f_repeatcount = 0;
 	  strncpy (f->f_lasttime, timestamp, sizeof (f->f_lasttime) - 1);
-	  if (f->f_prevhost)
-	    free (f->f_prevhost);
+	  free (f->f_prevhost);
 	  f->f_prevhost = strdup (from);
 	  if (msglen < MAXSVLINE)
 	    {

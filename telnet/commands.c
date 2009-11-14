@@ -1923,10 +1923,8 @@ env_define (unsigned char *var, unsigned char *value)
 
   if (ep = env_find (var))
     {
-      if (ep->var)
-	free (ep->var);
-      if (ep->value)
-	free (ep->value);
+      free (ep->var);
+      free (ep->value);
     }
   else
     {
@@ -1954,10 +1952,8 @@ env_undefine (unsigned char *var)
       ep->prev->next = ep->next;
       if (ep->next)
 	ep->next->prev = ep->prev;
-      if (ep->var)
-	free (ep->var);
-      if (ep->value)
-	free (ep->value);
+      free (ep->var);
+      free (ep->value);
       free (ep);
     }
 }
@@ -2552,8 +2548,7 @@ tn (int argc, char *argv[])
 	telnetport = 0;
     }
 
-  if (hostname)
-    free (hostname);
+  free (hostname);
   hostname = malloc (strlen (hostp) + 1);
   if (hostname)
     strcpy (hostname, hostp);

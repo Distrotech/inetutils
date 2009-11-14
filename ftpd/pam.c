@@ -214,11 +214,9 @@ pam_user (const char *username, struct credentials *pcred)
       pamh = 0;
     }
 
-  if (pcred->name)
-    free (pcred->name);
+  free (pcred->name);
   pcred->name = strdup (username);
-  if (pcred->message)
-    free (pcred->message);
+  free (pcred->message);
   pcred->message = NULL;
 
   error = pam_start ("ftp", pcred->name, &PAM_conversation, &pamh);

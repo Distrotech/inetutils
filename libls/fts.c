@@ -272,8 +272,7 @@ fts_close (sp)
   /* Free up child linked list, sort array, path buffer. */
   if (sp->fts_child)
     fts_lfree (sp->fts_child);
-  if (sp->fts_array)
-    free (sp->fts_array);
+  free (sp->fts_array);
   free (sp->fts_path);
 
   /* Return to original directory, save errno if necessary. */
@@ -756,8 +755,7 @@ fts_build (sp, type)
 	       * structures already allocated.
 	       */
 	    mem1:saved_errno = errno;
-	      if (p)
-		free (p);
+	      free (p);
 	      fts_lfree (head);
 	      closedir (dirp);
 	      errno = saved_errno;

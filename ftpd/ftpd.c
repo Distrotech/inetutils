@@ -556,8 +556,7 @@ curdir (void)
 {
   static char *path = 0;
   extern char *xgetcwd (void);
-  if (path)
-    free (path);
+  free (path);
   path = xgetcwd ();
   if (!path)
     return (char *) "";
@@ -780,26 +779,21 @@ end_login (struct credentials *pcred)
   if (pcred->logged_in)
     logwtmp_keep_open (ttyline, "", "");
 
-  if (pcred->name)
-    free (pcred->name);
+  free (pcred->name);
   if (pcred->passwd)
     {
       memset (pcred->passwd, 0, strlen (pcred->passwd));
       free (pcred->passwd);
     }
-  if (pcred->homedir)
-    free (pcred->homedir);
-  if (pcred->rootdir)
-    free (pcred->rootdir);
-  if (pcred->shell)
-    free (pcred->shell);
+  free (pcred->homedir);
+  free (pcred->rootdir);
+  free (pcred->shell);
   if (pcred->pass)		/* ??? */
     {
       memset (pcred->pass, 0, strlen (pcred->pass));
       free (pcred->pass);
     }
-  if (pcred->message)
-    free (pcred->message);
+  free (pcred->message);
   memset (pcred, 0, sizeof (*pcred));
   pcred->remotehost = remotehost;
   pcred->auth_type = atype;
@@ -1666,8 +1660,7 @@ dolog (struct sockaddr_in *sin, struct credentials *pcred)
   else
     name = inet_ntoa (sin->sin_addr);
 
-  if (pcred->remotehost)
-    free (pcred->remotehost);
+  free (pcred->remotehost);
   pcred->remotehost = sgetsave (name);
 
 #ifdef HAVE_SETPROCTITLE
@@ -1799,9 +1792,7 @@ gunique (const char *local)
   if (cp)
     *cp = '/';
 
-  if (string)
-    free (string);
-
+  free (string);
   string = malloc (strlen (local) + 5);	/* '.' + DIG + DIG + '\0' */
   if (string)
     {
@@ -1979,8 +1970,7 @@ send_file_list (const char *whichf)
   data = -1;
   pdata = -1;
 out:
-  if (p)
-    free (p);
+  free (p);
   if (freeglob)
     {
       freeglob = 0;

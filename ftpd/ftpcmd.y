@@ -146,8 +146,7 @@ cmd_list
 	: /* empty */
 	| cmd_list cmd
 		{
-			if (fromname != NULL)
-				free (fromname);
+			free (fromname);
 			fromname = (char *) 0;
 			restart_point = (off_t) 0;
 		}
@@ -264,22 +263,19 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				retrieve((char *) 0, $4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| STOR check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
 				store($4, "w", 0);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| APPE check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
 				store($4, "a", 0);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| NLST check_login CRLF
 		{
@@ -290,8 +286,7 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				send_file_list($4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| LIST check_login CRLF
 		{
@@ -302,15 +297,13 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				retrieve("/bin/ls -lgA %s", $4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| STAT check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
 				statfilecmd($4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| STAT CRLF
 		{
@@ -320,8 +313,7 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				delete($4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| RNTO check_login SP pathname CRLF
 		{
@@ -349,8 +341,7 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				cwd($4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| HELP CRLF
 		{
@@ -370,8 +361,7 @@ cmd
 					help(sitetab, (char *) 0);
 			} else
 				help(cmdtab, $3);
-			if ($3 != NULL)
-			    free ($3);
+		    free ($3);
 		}
 	| NOOP CRLF
 		{
@@ -381,15 +371,13 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				makedir($4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| RMD check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
 				removedir($4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| PWD check_login CRLF
 		{
@@ -408,8 +396,7 @@ cmd
 	| SITE SP HELP SP STRING CRLF
 		{
 			help(sitetab, $5);
-			if ($5 != NULL)
-			    free ($5);
+			free ($5);
 		}
 	| SITE SP UMASK check_login CRLF
 		{
@@ -447,8 +434,7 @@ cmd
 				else
 					reply(200, "CHMOD command successful.");
 			}
-			if ($8 != NULL)
-				free($8);
+			free($8);
 		}
 	| SITE SP IDLE CRLF
 		{
@@ -476,8 +462,7 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				store($4, "w", 1);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| SYST CRLF
 		{
@@ -513,8 +498,7 @@ cmd
 				reply(215, "%s Type: L%d", sys_type, NBBY);
 
 #ifdef HAVE_UNAME
-			if (version)
-				free (version);
+			free (version);
 #endif
 		}
 
@@ -529,8 +513,7 @@ cmd
 		{
 			if ($2 && $4 != NULL)
 				sizecmd($4);
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 
 		/*
@@ -561,8 +544,7 @@ cmd
 					    t->tm_sec);
 				}
 			}
-			if ($4 != NULL)
-				free($4);
+			free($4);
 		}
 	| QUIT CRLF
 		{
@@ -579,8 +561,7 @@ rcmd
 		{
 			restart_point = (off_t) 0;
 			if ($2 && $4) {
-			    if (fromname != NULL)
-				free (fromname);
+			    free (fromname);
 			    fromname = renamefrom($4);
 			}
 			if (fromname == (char *) 0 && $4)
@@ -588,8 +569,7 @@ rcmd
 		}
 	| REST SP byte_size CRLF
 		{
-		    	if (fromname != NULL)
-				free (fromname);
+		        free (fromname);
 			fromname = (char *) 0;
 			restart_point = $3;	/* XXX $3 is only "int" */
 			reply(350,

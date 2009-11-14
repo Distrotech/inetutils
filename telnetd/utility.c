@@ -760,14 +760,12 @@ getterminaltype (char *user_name)
        */
       if (his_state_is_will (TELOPT_TTYPE) && !terminaltypeok (terminaltype))
 	{
-	  if (first)
-	    free (first);
+	  free (first);
 	  first = xstrdup (terminaltype);
 	  for (;;)
 	    {
 	      /* Save the unknown name, and request the next name. */
-	      if (last)
-		free (last);
+	      free (last);
 	      last = xstrdup (terminaltype);
 	      _gettermname ();
 	      if (terminaltypeok (terminaltype))
@@ -796,10 +794,8 @@ getterminaltype (char *user_name)
 		}
 	    }
 	}
-      if (first)
-	free (first);
-      if (last)
-	free (last);
+      free (first);
+      free (last);
     }
   return retval;
 }

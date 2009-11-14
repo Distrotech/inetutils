@@ -1180,8 +1180,7 @@ suboption ()
 	if (SB_EOF () || SB_GET () != TELQUAL_IS)
 	  return;		/* ??? XXX but, this is the most robust */
 
-	if (terminaltype)
-	  free (terminaltype);
+	free (terminaltype);
 
 	obstack_init (&stk);
 	while (!SB_EOF ())

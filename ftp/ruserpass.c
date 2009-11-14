@@ -142,7 +142,7 @@ ruserpass (char *host, char **aname, char **apass, char **aacct)
   mydomain = strchr (myname, '.');
   if (mydomain == NULL)
     mydomain = xstrdup ("");
-next:
+ next:
   while ((t = token ()))
     switch (t)
       {
@@ -304,13 +304,11 @@ next:
       }
 done:
   fclose (cfile);
-  if (myname)
-    free (myname);
+  free (myname);
   return (0);
 bad:
   fclose (cfile);
-  if (myname)
-    free (myname);
+  free (myname);
   return (-1);
 }
 

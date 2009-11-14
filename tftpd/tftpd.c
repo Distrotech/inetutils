@@ -466,8 +466,7 @@ validate_access (char **filep, int mode)
       err = ENOTFOUND;
       for (dirp = dirs; dirp->name != NULL; dirp++)
 	{
-	  if (pathname)
-	    free (pathname);
+	  free (pathname);
 	  pathname = malloc (strlen (dirp->name) + 1 + strlen (filename) + 1);
 	  if (!pathname)
 	    return ENOMEM;

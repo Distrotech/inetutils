@@ -81,8 +81,7 @@ auth_user (const char *name, struct credentials *pcred)
     default:
       {
 	size_t len;
-	if (pcred->message)
-	  free (pcred->message);
+	free (pcred->message);
 	len = (size_t) (64 + strlen (name));
 	pcred->message = malloc (len);
 	if (pcred->message == NULL)
@@ -194,16 +193,11 @@ sgetcred (const char *name, struct credentials *pcred)
   if (p == NULL)
     return 1;
 
-  if (pcred->name)
-    free (pcred->name);
-  if (pcred->passwd)
-    free (pcred->passwd);
-  if (pcred->homedir)
-    free (pcred->homedir);
-  if (pcred->rootdir)
-    free (pcred->rootdir);
-  if (pcred->shell)
-    free (pcred->shell);
+  free (pcred->name);
+  free (pcred->passwd);
+  free (pcred->homedir);
+  free (pcred->rootdir);
+  free (pcred->shell);
 
 #if defined(HAVE_GETSPNAM) && defined(HAVE_SHADOW_H)
   if (p->pw_passwd == NULL || strlen (p->pw_passwd) == 1)

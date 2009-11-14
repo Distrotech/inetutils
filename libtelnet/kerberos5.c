@@ -588,8 +588,7 @@ kerberos5_is_auth (TN_Authenticator * ap, unsigned char *data, int cnt,
 	  name ? name : ""));
   auth_finished (ap, AUTH_USER);
 
-  if (name)
-    free (name);
+  free (name);
   krb5_auth_con_getremotesubkey (telnet_context, auth_context, &newkey);
 
   if (session_key)
@@ -836,8 +835,7 @@ kerberos5_forward (TN_Authenticator * ap)
     krb5_free_principal (telnet_context, client);
   if (server)
     krb5_free_principal (telnet_context, server);
-  if (forw_creds.data)
-    free (forw_creds.data);
+  free (forw_creds.data);
   krb5_cc_close (telnet_context, ccache);
 }
 # endif

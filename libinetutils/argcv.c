@@ -125,8 +125,7 @@ int
 argcv_free (int argc, char **argv)
 {
   while (--argc >= 0)
-    if (argv[argc])
-      free (argv[argc]);
+    free (argv[argc]);
   free (argv);
   return 1;
 }

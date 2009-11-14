@@ -1510,8 +1510,7 @@ ls (argc, argv)
 
   recvrequest (cmd, dest ? dest : "-", argv[1], "w", 0);
 out:
-  if (dest)
-    free (dest);
+  free (dest);
 }
 
 /*
@@ -2233,14 +2232,12 @@ setnmap (argc, argv)
     }
   *cp = '\0';
 
-  if (mapin)
-    free (mapin);
+  free (mapin);
   mapin = strdup (altarg);
 
   while (*++cp == ' ')
     continue;
-  if (mapout)
-    free (mapout);
+  free (mapout);
   mapout = strdup (cp);
 }
 

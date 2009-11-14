@@ -964,16 +964,11 @@ endconfig (FILE *fconfig)
 void
 freeconfig (struct servtab *cp)
 {
-  if (cp->se_node)
-    free (cp->se_node);
-  if (cp->se_service)
-    free (cp->se_service);
-  if (cp->se_proto)
-    free (cp->se_proto);
-  if (cp->se_user)
-    free (cp->se_user);
-  if (cp->se_server)
-    free (cp->se_server);
+  free (cp->se_node);
+  free (cp->se_service);
+  free (cp->se_proto);
+  free (cp->se_user);
+  free (cp->se_server);
   argcv_free (cp->se_argc, cp->se_argv);
 }
 
@@ -1057,8 +1052,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	  if (argc == 1 && argv[0][strlen (argv[0]) - 1] == ':')
 	    {
 	      argv[0][strlen (argv[0]) - 1] = 0;
-	      if (global_serv_node)
-		free (global_serv_node);
+	      free (global_serv_node);
 	      if (strcmp (argv[0], "*"))
 		global_serv_node = newstr (argv[0]);
 	    }

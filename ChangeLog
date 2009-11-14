@@ -1,5 +1,28 @@
 2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ftp/cmds.c (ls, setnmap): Fix syntax-check
+	sc_avoid_if_before_free.
+
+	* ftp/ftp.c (login, recvrequest, pswitch, gunique): Likewise.
+	* ftp/ruserpass.c (ruserpass): Likewise.
+	* ftpd/auth.c (auth_user, sgetcred): Likewise.
+	* ftpd/ftpcmd.y (cmd_list, cmd, rcmd): Likewise.
+	* ftpd/ftpd.c (curdir, end_login, dolog, send_file_list): Likewise.
+	* ftpd/pam.c (pam_user): Likewise.
+	* ifconfig/if_index.c (if_freenameindex): Likewise.
+	* inetd/inetd.c (freeconfig, getconfigent): Likewise.
+	* libinetutils/argcv.c (int argcv_free): Likewise.
+	* libls/fts.c (fts_close, fts_build): Likewise.
+	* libtelnet/kerberos5.c (kerberos5_is_auth): Likewise.
+	* libtelnet/misc.c (auth_encrypt_init, auth_encrypt_user): Likewise.
+	* syslogd/syslogd.c (main, logmsg): Likewise.
+	* telnet/commands.c (env_define, env_undefine, tn): Likewise.
+	* telnetd/state.c (suboption): Likewise.
+	* telnetd/utility.c (getterminaltype): Likewise.
+	* tftpd/tftpd.c (validate_access): Likewise.
+
+2009-11-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* doc/inetutils.texi: Don't split copyright year list.
 
 2009-11-14  Simon Josefsson  <simon@josefsson.org>
