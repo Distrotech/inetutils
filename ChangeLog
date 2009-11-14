@@ -1,5 +1,9 @@
 2009-11-14  Simon Josefsson  <simon@josefsson.org>
 
+	* rcp/rcp.c: Drop replacement of S_ISTXT, we use gnulib.
+
+2009-11-14  Simon Josefsson  <simon@josefsson.org>
+
 	* libinetutils/daemon.c: Doc fix.
 
 2009-11-14  Alfred M. Szmidt  <ams@gnu.org>

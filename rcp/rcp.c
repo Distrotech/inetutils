@@ -124,10 +124,6 @@ int doencrypt = 0;
 # endif
 #endif /* KERBEROS  */
 
-#if !defined (S_ISTXT) && defined (S_ISVTX)
-# define S_ISTXT S_ISVTX
-#endif
-
 const char doc[] = "Remote copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.";
 const char arg_doc[] = "SOURCE DEST\n"
                        "SOURCE... DIRECTORY\n"
