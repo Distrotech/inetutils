@@ -29,7 +29,6 @@
 # include <stdio.h>
 # include <arpa/telnet.h>
 # include <shishi.h>
-# include <assert.h>
 
 # include <netdb.h>
 # include <ctype.h>

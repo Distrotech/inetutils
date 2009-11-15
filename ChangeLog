@@ -1,5 +1,10 @@
 2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libtelnet/shishi.c: Don't include
+	<assert.h> (fixes prohibit_assert_without_use).
+
+2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* .gitignore (*.sig): Added new ignore rule.
 
 2009-11-14  Simon Josefsson  <simon@josefsson.org>
