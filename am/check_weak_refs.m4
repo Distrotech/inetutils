@@ -37,8 +37,8 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
       [inetutils_cv_attr_weak_refs=yes],
       [inetutils_cv_attr_weak_refs=no]))
   if test "$inetutils_cv_weak_refs" = yes; then
-    AC_DEFINE(HAVE_WEAK_REFS)
-    AC_DEFINE(HAVE_ATTR_WEAK_REFS, 1,
+    AC_DEFINE([HAVE_WEAK_REFS])
+    AC_DEFINE([HAVE_ATTR_WEAK_REFS], 1,
               [Define if you have weak "attribute" references])
   else
     AC_CACHE_CHECK(whether pragma weak references work,
@@ -50,8 +50,8 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
 	[inetutils_cv_pragma_weak_refs=yes],
 	[inetutils_cv_pragma_weak_refs=no]))
     if test "$inetutils_cv_pragma_weak_refs" = yes; then
-      AC_DEFINE(HAVE_WEAK_REFS)
-      AC_DEFINE(HAVE_PRAGMA_WEAK_REFS, 1,
+      AC_DEFINE([HAVE_WEAK_REFS])
+      AC_DEFINE([HAVE_PRAGMA_WEAK_REFS], 1,
                 [Define if you have weak "pragma" references])
     else
       AC_CACHE_CHECK(whether asm weak references work,
@@ -63,8 +63,8 @@ AC_DEFUN([IU_CHECK_WEAK_REFS], [
 	  [inetutils_cv_asm_weak_refs=yes],
 	  [inetutils_cv_asm_weak_refs=no]))
       if test "$inetutils_cv_asm_weak_refs" = yes; then
-	AC_DEFINE(HAVE_WEAK_REFS)
-	AC_DEFINE(HAVE_ASM_WEAK_REFS, 1,
+	AC_DEFINE([HAVE_WEAK_REFS])
+	AC_DEFINE([HAVE_ASM_WEAK_REFS], 1,
 	          [Define if you have weak "assembler" references])
       fi
     fi

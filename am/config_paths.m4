@@ -38,7 +38,7 @@ AC_DEFUN([IU_CONFIG_PATHS], [
   dnl We need to know if we're cross compiling.
   AC_REQUIRE([AC_PROG_CC])
 
-  AC_CHECK_HEADER(paths.h, AC_DEFINE(HAVE_PATHS_H, 1,
+  AC_CHECK_HEADER(paths.h, AC_DEFINE([HAVE_PATHS_H], 1,
         [Define if you have the <paths.h> header file]) iu_paths_h="<paths.h>")
 
   dnl A slightly bogus use of AC_ARG_WITH; we never actually use

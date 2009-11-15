@@ -1,5 +1,12 @@
 2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* configure.ac: Quote first argument in AC_DEFINE macro
+	calls. (fixes sc_m4_quote_check)
+	* am/config_paths.m4: Likewise.
+	* am/check_weak_refs.m4: Likewise.
+
+2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libtelnet/shishi.c: Don't include
 	<assert.h> (fixes prohibit_assert_without_use).
 

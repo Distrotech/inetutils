@@ -151,7 +151,7 @@ IU_LIB_TERMCAP
 #AC_CHECK_LIB(readline, rl_bind_key,,, -ltermcap)
 AC_CHECK_LIB(readline, rl_bind_key,
              [LIBREADLINE=-lreadline
-              AC_DEFINE(HAVE_LIBREADLINE, 1,
+              AC_DEFINE([HAVE_LIBREADLINE], 1,
 	           [Define to one if you have -lreadline])],
              [LIBREADLINE=], "$LIBTERMCAP")
 AC_SUBST(LIBREADLINE)
@@ -159,7 +159,7 @@ AC_SUBST(LIBTERMCAP)
 
 AC_CHECK_LIB(history, add_history,
              [LIBHISTORY=-lhistory
-              AC_DEFINE(HAVE_LIBHISTORY, 1,
+              AC_DEFINE([HAVE_LIBHISTORY], 1,
 	           [Define to one if you have -lhistory])],
              [LIBHISTORY=])
 
@@ -167,7 +167,7 @@ AC_CHECK_LIB(history, add_history,
 if test -z "$LIBHISTORY" && test -n "$LIBREADLINE"; then
   AC_CHECK_LIB(readline, add_history,
                [LIBHISTORY=-lreadline
-                AC_DEFINE(HAVE_LIBHISTORY, 1,
+                AC_DEFINE([HAVE_LIBHISTORY], 1,
                      [Define to one if you have -lhistory])],
                [LIBHISTORY=])
 fi
@@ -191,7 +191,7 @@ if test "$with_pam" = yes ; then
   AC_CHECK_LIB(dl, dlopen)
   AC_CHECK_LIB(pam, pam_authenticate, LIBPAM=-lpam)
   if test "$ac_cv_lib_pam_pam_authenticate" = yes ; then
-     AC_DEFINE(WITH_PAM, 1, [Define to one if you have -lpam.])
+     AC_DEFINE([WITH_PAM], 1, [Define to one if you have -lpam.])
   fi
 fi
 AC_SUBST(LIBPAM)
@@ -200,7 +200,7 @@ AC_SUBST(LIBPAM)
 if test "$enable_libls" = yes  -a "$ac_cv_func_fchdir" = yes ; then
   LIBLS="../libls/libls.a"
   libls_BUILD="libls.a"
-  AC_DEFINE(WITH_LIBLS, 1, [Define to one if you have -lls])
+  AC_DEFINE([WITH_LIBLS], 1, [Define to one if you have -lls])
 else
   LIBLS=''
   libls_BUILD=''
@@ -235,8 +235,8 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
   case $KERBEROS_VERSION in
   4)
     AC_CHECK_LIB(krb, krb_mk_req,
-                 [LIBAUTH=-lkrb
-                  AC_DEFINE(KRB4)],
+                 LIBAUTH=-lkrb
+                  AC_DEFINE([KRB4]),
                  -L$KERBEROS_DIR)
     if test ".$LIBAUTH" != . ; then
       AC_CHECK_LIB(des, des_key_sched,
@@ -244,11 +244,11 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
                    -L$KERBEROS_DIR)
       dnl FIXME: Fix this to one test case.
       test "$enable_authentication" = yes -a "$ac_cv_lib_krb_krb_mk_req" = yes\
-  && AC_DEFINE(KRB4)
+  && AC_DEFINE([KRB4])
       test "$enable_authentication" = yes -a "$ac_cv_lib_krb_krb_mk_req" = yes \
-  && AC_DEFINE(KERBEROS)
+  && AC_DEFINE([KERBEROS])
       test "$enable_encryption" = yes -a "$ac_cv_lib_des_des_key_sched" = yes \
-        && AC_DEFINE(DES_ENCRYPTION)
+        && AC_DEFINE([DES_ENCRYPTION])
     fi
     ;;
   5)
@@ -256,8 +256,8 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
     LIBAUTH="$KRB5_LIBS" # FIXME
     INCAUTH=$KRB5_CFLAGS
     if test ".$LIBAUTH" != . ;then
-      AC_DEFINE(KERBEROS)
-      AC_DEFINE(KRB5)
+      AC_DEFINE([KERBEROS])
+      AC_DEFINE([KRB5])
     fi
     ;;
   *)
@@ -272,7 +272,7 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
     CPPFLAGS="$CPPFLAGS $INCAUTH"
     AC_CHECK_HEADER(shishi.h,
       AC_CHECK_LIB(shishi, shishi_check_version,
-        AC_DEFINE(SHISHI),
+        AC_DEFINE([SHISHI]),
         [INCAUTH= LIBAUTH=]))
     LIBS=$save_LIBS
     CPPFLAGS=$save_CPPFLAGS
@@ -283,9 +283,9 @@ AC_SUBST(INCAUTH)
 
 dnl Define CPP macros that enable auth/encrypt code
 if test ".$LIBAUTH" != .; then
-  test "$enable_authentication" = yes && AC_DEFINE(AUTHENTICATION, 1,
+  test "$enable_authentication" = yes && AC_DEFINE([AUTHENTICATION], 1,
                    [Define to one if you want authentication.])
-  test "$enable_encryption" = yes     && AC_DEFINE(ENCRYPTION, 1,
+  test "$enable_encryption" = yes     && AC_DEFINE([ENCRYPTION], 1,
                    [Define to one if you want encryption.])
 fi
 
@@ -328,16 +328,16 @@ fi
 
 AH_TEMPLATE([HAVE_GETADDRINFO],[Define to 1 if you have getaddrinfo(3)])
 AC_CHECK_FUNC(getaddrinfo,
-              [AC_DEFINE(HAVE_GETADDRINFO,1)],
+              [AC_DEFINE([HAVE_GETADDRINFO],1)],
 	      [working_ipv6=no
-	       AC_DEFINE(HAVE_GETADDRINFO,0)], [#include <netdb.h>])
+	       AC_DEFINE([HAVE_GETADDRINFO],0)], [#include <netdb.h>])
 
 if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
   AC_CHECK_FUNC(getnameinfo, ,working_ipv6=no, [#include <netdb.h>])
 fi
 
 if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
-  AC_DEFINE(IPV6, 1, [Define to one if you want IPv6.])
+  AC_DEFINE([IPV6], 1, [Define to one if you want IPv6.])
 else 
   if test "X$ipv6" = "Xyes"; then
     AC_MSG_FAILURE([IPv6 support not available])
@@ -394,7 +394,7 @@ else
     		   [have_recvhoplimt=yes], [have_recvhoplimt=no])
     if test "X$have_recvhoplimt" = "Xno"; then
       IU_CHECK_MACRO(IPV6_HOPLIMIT, [#include <netinet/in.h>], , [
-        AC_DEFINE(IPV6_RECVHOPLIMIT, IPV6_HOPLIMIT,
+        AC_DEFINE([IPV6_RECVHOPLIMIT], IPV6_HOPLIMIT,
                   [Define to IPV6_HOPLIMIT if not available])
       ], [working_icmp6=no])
     fi
@@ -411,7 +411,7 @@ else
     		   [have_beyondscope=yes], [have_beyondscope=no])
     if test "X$have_beyondscope" = "Xno"; then
       IU_CHECK_MACRO(ICMP6_DST_UNREACH_NOTNEIGHBOR, [#include <netinet/icmp6.h>], , [
-        AC_DEFINE(ICMP6_DST_UNREACH_BEYONDSCOPE, ICMP6_DST_UNREACH_NOTNEIGHBOR,
+        AC_DEFINE([ICMP6_DST_UNREACH_BEYONDSCOPE], ICMP6_DST_UNREACH_NOTNEIGHBOR,
                   [Define to ICMP6_DST_UNREACH_NOTNEIGHBOR if not available])
       ], [working_icmp6=no])
     fi
@@ -440,7 +440,7 @@ dnl you have to define some global variables
               eval "ac_cv_lib_wrap_hosts_ctl=no")
   LIBS=$save_LIBS
   if test "$ac_cv_lib_wrap_hosts_ctl" = yes ; then
-    AC_DEFINE(WITH_WRAP, 1, [Define to one if you have -lwrap.])
+    AC_DEFINE([WITH_WRAP], 1, [Define to one if you have -lwrap.])
     LIBWRAP=-lwrap
   fi
   AC_MSG_RESULT($ac_cv_lib_wrap_hosts_ctl);
@@ -485,7 +485,7 @@ dnl Checks return type of signal handlers
 AC_TYPE_SIGNAL
 
 AC_CHECK_TYPE(socklen_t, ,
-              [AC_DEFINE(socklen_t, int,
+              [AC_DEFINE([socklen_t], int,
                          [Define to int if <sys/types.h> does not define])],
               [IU_FLUSHLEFT([#include <sys/types.h>
 	                     #include <sys/socket.h>])])
@@ -493,7 +493,7 @@ AC_CHECK_TYPE(socklen_t, ,
 dnl We may need our own definition for struct osockaddr (equivalent to the
 dnl old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
 AC_CHECK_TYPE(struct osockaddr, ,
-              [AC_DEFINE(HAVE_OSOCKADDR_H, 1,
+              [AC_DEFINE([HAVE_OSOCKADDR_H], 1,
                          [Define to one if you have <osockaddr.h>.])],
 	      [IU_FLUSHLEFT([#include <sys/types.h>
                              #include <sys/socket.h> ])])
@@ -509,16 +509,16 @@ AC_CHECK_TYPES(sig_t, , ,
                  #include <signal.h> ])])
 
 dnl sigset_t is a set of signals (4.4BSD)
-AC_CHECK_TYPE(sigset_t, , AC_DEFINE(sigset_t, unsigned long, [FIXME]),
+AC_CHECK_TYPE(sigset_t, , AC_DEFINE([sigset_t], unsigned long, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
 dnl I'm not sure what this is, but netbsd has it; just use int if necessary.
-AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE(sig_atomic_t, int, [FIXME]),
+AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
-AC_CHECK_TYPE(sa_family_t, , AC_DEFINE(sa_family_t, unsigned int, [FIXME]),
+AC_CHECK_TYPE(sa_family_t, , AC_DEFINE([sa_family_t], unsigned int, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #ifdef HAVE_SOCKET_H
                  #include <socket.h>
@@ -536,8 +536,8 @@ AC_CHECK_TYPES(cc_t, , ,
                 #endif ])])
 
 dnl Check for compile support for ceratin type
-AC_CHECK_TYPE(long long, , AC_DEFINE(LONG_LONG, long, [Define to long if compiler does not support]))
-AC_CHECK_TYPE(long double, , AC_DEFINE(LONG_DOUBLE, double, [Define to double if compiler does not support]))
+AC_CHECK_TYPE(long long, , AC_DEFINE([LONG_LONG], long, [Define to long if compiler does not support]))
+AC_CHECK_TYPE(long double, , AC_DEFINE([LONG_DOUBLE], double, [Define to double if compiler does not support]))
 
 ### Checks for structures.
 IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
@@ -616,7 +616,7 @@ LIBS="$_SAVE_LIBS"
 AC_CHECK_FUNC(_obstack_free)
 
 dnl Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
-AC_CHECK_FUNC(setpgid, , AC_DEFINE(setpgid, setpgrp,
+AC_CHECK_FUNC(setpgid, , AC_DEFINE([setpgid], setpgrp,
                           [Define to `setpgrp' if you don't have `setpgid'.]))
 
 dnl We use our own version of getopt (including our own header file) if the
@@ -628,21 +628,21 @@ AC_CHECK_HEADER(poll.h)
 dnl Supply a version of poll() if the libray is missing.
 dnl syslogd uses poll() unconditionnaly.
 AC_CHECK_FUNC(poll, ,
-  [AC_DEFINE(HAVE_POLL_H, 1, [Define to one if you have <poll.h>])])
+  [AC_DEFINE([HAVE_POLL_H], 1, [Define to one if you have <poll.h>])])
 
 dnl See if snprintf exists, otherwise just use a bogus version
 AC_CHECK_FUNC(snprintf,
-  [AC_DEFINE(HAVE_SNPRINTF, 1, [Define to one if you have snprintf])])
+  [AC_DEFINE([HAVE_SNPRINTF], 1, [Define to one if you have snprintf])])
 
 dnl See if vsnprintf exists, otherwise use our own.
 AC_CHECK_FUNC(vsnprintf,
-  [AC_DEFINE(HAVE_VSNPRINTF, 1, [Define to one if you have vsnprintf])])
+  [AC_DEFINE([HAVE_VSNPRINTF], 1, [Define to one if you have vsnprintf])])
 
 dnl See if the system has strerror, and replace it if not
 AC_CHECK_FUNC(strerror)
 if test "$ac_cv_func_strerror" = no; then
   # No strerror, so see if the SYS_ERRLIST variable can be used by ours
-  AC_CHECK_FUNC(sys_errlist, AC_DEFINE(HAVE_SYS_ERRLIST, 1,
+  AC_CHECK_FUNC(sys_errlist, AC_DEFINE([HAVE_SYS_ERRLIST], 1,
                               [Define to one if you have sys_errlist.]))
   if test "$ac_cv_func_sys_errlist" = yes; then
     AC_CHECK_DECL(sys_errlist, , ,
@@ -669,7 +669,7 @@ if test "$ac_cv_func_hstrerror" = yes -o "$ac_cv_func_h_errlist" = yes; then
   # We still provide some definition, regardless, but this allows people to use
   # a reasonable alternative if the situation allows, rather than using a
   # degenerate version that only says `Host lookup error N'.
-  AC_DEFINE(HAVE_HSTRERROR, 1, [Define to one if you have hstrerror.])
+  AC_DEFINE([HAVE_HSTRERROR], 1, [Define to one if you have hstrerror.])
 fi
 
 ## Checks for function declarations.
@@ -680,7 +680,7 @@ AC_CHECK_DECLS(crypt, , , [#include <unistd.h>])
 
 dnl EWOULDBLOCK is more or less the BSD version of posix EAGAIN.
 IU_CHECK_MACRO(EWOULDBLOCK, [#include <errno.h>], , ,
-  AC_DEFINE(EWOULDBLOCK, EAGAIN, 1, [FIXME]))
+  AC_DEFINE([EWOULDBLOCK], EAGAIN, 1, [FIXME]))
 AC_CHECK_DECLS(errno, , , [#include <errno.h>])
 
 dnl See whether <syslog.h> will declare special internal stuff if we define
@@ -695,7 +695,7 @@ IU_CHECK_MACRO(syslog internal macros,
   [LOG_MAKEPRI LOG_PRI LOG_FAC],
   AC_CHECK_TYPE(CODE,
     AC_CHECK_DECL(prioritynames,
-      AC_DEFINE(HAVE_SYSLOG_INTERNAL, 1, [FIXME]),,
+      AC_DEFINE([HAVE_SYSLOG_INTERNAL], 1, [FIXME]),,
       iu_syslog_includes), , iu_syslog_includes),)
 undefine([iu_syslog_includes])
 
@@ -734,7 +734,7 @@ AC_CACHE_CHECK([for h_errno], inetutils_cv_var_h_errno,
 if test "$inetutils_cv_var_h_errno" = yes; then
   dnl FIXME: Isn't this wrong? Shouldn't the declaration check define
   dnl        this if we find h_errno?
-  AC_DEFINE(HAVE_H_ERRNO, 1, [Define to one if you have h_errno.])
+  AC_DEFINE([HAVE_H_ERRNO], 1, [Define to one if you have h_errno.])
   AC_CHECK_DECL(h_errno, , , [#include <netdb.h>])
 fi
 
@@ -747,20 +747,20 @@ IU_CHECK_MACRO(SEEK_ macros,
   :,
   IU_CHECK_MACRO(L_ seek macros,
     [#include <unistd.h>], L_SET L_INCR L_XTND,
-    AC_DEFINE(SEEK_SET, L_SET, [FIXME])
-    AC_DEFINE(SEEK_CUR, L_INCR, [FIXME])
-    AC_DEFINE(SEEK_END, L_XTND, [FIXME]),
-    AC_DEFINE(SEEK_SET, 0, [FIXME])
-    AC_DEFINE(SEEK_CUR, 1, [FIXME])
-    AC_DEFINE(SEEK_END, 2, [FIXME])))
+    AC_DEFINE([SEEK_SET], L_SET, [FIXME])
+    AC_DEFINE([SEEK_CUR], L_INCR, [FIXME])
+    AC_DEFINE([SEEK_END], L_XTND, [FIXME]),
+    AC_DEFINE([SEEK_SET], 0, [FIXME])
+    AC_DEFINE([SEEK_CUR], 1, [FIXME])
+    AC_DEFINE([SEEK_END], 2, [FIXME])))
 
 dnl Look for the posix _FILENO macros; if not found, use the classic unix values.
 IU_CHECK_MACRO(_FILENO macros,
   [#include <unistd.h>], STDIN_FILENO STDOUT_FILENO STDERR_FILENO,
   :,
-  AC_DEFINE(STDIN_FILENO, 0, [FIXME])
-  AC_DEFINE(STDOUT_FILENO, 1, [FIXME])
-  AC_DEFINE(STDERR_FILENO, 2, [FIXME]))
+  AC_DEFINE([STDIN_FILENO], 0, [FIXME])
+  AC_DEFINE([STDOUT_FILENO], 1, [FIXME])
+  AC_DEFINE([STDERR_FILENO], 2, [FIXME]))
 
 dnl See where to find fd_set (bit-vectors for select) manipulation macros.
 IU_CHECK_MACRO(fd_set macros, [#include <sys/types.h>],
@@ -797,13 +797,13 @@ dnl don't have an entry in utmpx.
 dnl Also for some OS they are better handle with STREAMS
 case "$host" in
 *olaris*)
-  AC_DEFINE(SOLARIS, 1, [FIXME])
-  AC_DEFINE(UTMPX, 1, [FIXME])
-  AC_DEFINE(HAVE_STREAMSPTY, 1, [FIXME])
+  AC_DEFINE([SOLARIS], 1, [FIXME])
+  AC_DEFINE([UTMPX], 1, [FIXME])
+  AC_DEFINE([HAVE_STREAMSPTY], 1, [FIXME])
   ;;
 *irix* | *hpux*)
-  AC_DEFINE(UTMPX, 1, [FIXME])
-  AC_DEFINE(UTMPX, 1, [FIXME])
+  AC_DEFINE([UTMPX], 1, [FIXME])
+  AC_DEFINE([UTMPX], 1, [FIXME])
   ;;
 esac
 
