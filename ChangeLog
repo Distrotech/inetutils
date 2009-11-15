@@ -1,3 +1,7 @@
+2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
+
+	* .gitignore (*.sig): Added new ignore rule.
+
 2009-11-14  Simon Josefsson  <simon@josefsson.org>
 
 	* cfg.mk: Ignore failing tests, please revisit later.
