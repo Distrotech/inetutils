@@ -1,5 +1,12 @@
 2009-11-16  Simon Josefsson  <simon@josefsson.org>
 
+	* tests/ping-localhost.sh: Call the right executable.  Support
+	EXEEXT.  Fix license header.
+	* tests/traceroute-localhost.sh: Likewise.
+	* tests/Makefile.am: Set EXEEXT, for Windows builds.
+
+2009-11-16  Simon Josefsson  <simon@josefsson.org>
+
 	* configure.ac: Don't call AB_INIT here too, it is already invoked
 	via gnulib.  Reported by Alfred M. Szmidt <ams@gnu.org>.
 

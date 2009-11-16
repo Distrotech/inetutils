@@ -22,3 +22,5 @@ LDADD = -L../libinetutils -linetutils
 
 check_PROGRAMS = localhost
 TESTS = $(check_PROGRAMS) ping-localhost.sh traceroute-localhost.sh
+
+TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
