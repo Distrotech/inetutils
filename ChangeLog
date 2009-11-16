@@ -1,3 +1,8 @@
+2009-11-16  Simon Josefsson  <simon@josefsson.org>
+
+	* configure.ac: Don't call AB_INIT here too, it is already invoked
+	via gnulib.  Reported by Alfred M. Szmidt <ams@gnu.org>.
+
 2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
 
 	* configure.ac: Quote first argument in AC_DEFINE macro
