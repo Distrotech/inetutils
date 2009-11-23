@@ -1,5 +1,11 @@
 * General
 
+ifconfig: when a unknown format option is passed to --format, ifconfig
+  will output the name of the format twice.
+
+  % ifconfig --format=unknown
+  unknownunknown%
+
 Add framework for tests.
 
 Function for parsing [USER@]HOSTNAME[:PORT], that returns each value
