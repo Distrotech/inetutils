@@ -1,3 +1,7 @@
+2009-11-23  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ping/ping6.c (argp_options) <numeric>: Fix typo.
+
 2009-11-16  Simon Josefsson  <simon@josefsson.org>
 
 	* tests/ping-localhost.sh: Call the right executable.  Support

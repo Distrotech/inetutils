@@ -77,7 +77,7 @@ static struct argp_option argp_options[] = {
   {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
   {"interval", 'i', "NUMBER", 0, "wait NUMBER seconds between sending each "
    "packet", GRP+1},
-  {"numeric", 'n', NULL, 0, "so not resolve host addresses", GRP+1},
+  {"numeric", 'n', NULL, 0, "do not resolve host addresses", GRP+1},
   {"ignore-routing", 'r', NULL, 0, "send directly to a host on an attached "
    "network", GRP+1},
   {"timeout", 'w', "N", 0, "stop after N seconds", GRP+1},
