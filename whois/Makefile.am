@@ -31,7 +31,7 @@ noinst_HEADERS = data.h as_del.h ip_del.h tld_serv.h whois.h
 BUILT_SOURCES=as_del.h ip_del.h tld_serv.h
 
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
 
 
 as_del.h: $(srcdir)/as_del_list $(srcdir)/make_as_del.pl

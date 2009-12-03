@@ -27,4 +27,4 @@ tftp_SOURCES = main.c tftp.c
 
 noinst_HEADERS = extern.h
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a

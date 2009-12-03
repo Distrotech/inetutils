@@ -27,4 +27,4 @@ EXTRA_PROGRAMS = tftpd
 
 tftpd_SOURCES = tftpd.c
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a

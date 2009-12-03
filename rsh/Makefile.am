@@ -28,7 +28,7 @@ rsh_SOURCES = rsh.c
 AM_CPPFLAGS = $(PATHDEF_RLOGIN)
 INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib  -I$(top_srcdir)/libinetutils
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu \
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a \
          $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 SUIDMODE = -o root -m 4775

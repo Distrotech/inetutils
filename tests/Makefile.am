@@ -18,7 +18,7 @@
 
 AM_CPPFLAGS = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib
 
-LDADD = -L../libinetutils -linetutils  -L../lib -lgnu
+LDADD = -L../libinetutils -linetutils  ../lib/libgnu.a
 
 check_PROGRAMS = localhost
 TESTS = $(check_PROGRAMS) ping-localhost.sh traceroute-localhost.sh

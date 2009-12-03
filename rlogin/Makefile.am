@@ -24,7 +24,7 @@ EXTRA_PROGRAMS = rlogin
 rlogin_SOURCES = rlogin.c
 
 INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
 
 SUIDMODE = -o root -m 4775
 

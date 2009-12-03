@@ -1,4 +1,32 @@
 2009-12-03  Giuseppe Scrivano  <gscrivano@gnu.org>
+	* ftp/Makefile.am (LDADD): Replace "-L../lib -lgnu" with
+	"../lib/libgnu.a".
+	* ftpd/Makefile.am (LDADD): Likewise.
+	* gwhois/Makefile.in (LDADD): Likewise.
+	* inetd/Makefile.am (LDADD): Likewise.
+	* ping/Makefile.am (ping_LDADD, ping6_LDADD): Likewise.
+	* rcp/Makefile.am (LDADD): Likewise.
+	* rexec/Makefile.am (LDADD): Likewise.
+	* rexecd/Makefile.am (LDADD): Likewise.
+	* rlogin/Makefile.am (LDADD): Likewise.
+	* rlogind/Makefile.am (LDADD): Likewise.
+	* rsh/Makefile.am (LDADD): Likewise.
+	* rshd/Makefile.am (LDADD): Likewise.
+	* syslogd/Makefile.am (LDADD): Likewise.
+	* talk/Makefile.am (LDADD): Likewise.
+	* talkd/Makefile.am (LDADD): Likewise.
+	* telnet/Makefile.am (LDADD): Likewise.
+	* telnetd/Makefile.am (LDADD): Likewise.
+	* tests/Makefile.am (LDADD): Likewise.
+	* tftp/Makefile.am (LDADD): Likewise.
+	* tftpd/Makefile.am (LDADD): Likewise.
+	* traceroute/Makefile.am (LDADD): Likewise.
+	* uucpd/Makefile.am (LDADD): Likewise.
+	* whois/Makefile.am (LDADD): Likewise.
+	* hostname/Makefile.am (LDADD): Replace "-lgnu" with
+	"../lib/libgnu.a".
+
+2009-12-03  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* tests/Makefile.am (LDADD): Add missing dependency to gnulib.
 

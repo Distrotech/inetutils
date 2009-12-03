@@ -31,4 +31,4 @@ INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 AM_CPPFLAGS = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
 READLINE=@LIBREADLINE@ @LIBTERMCAP@ @LIBHISTORY@
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBGLOB) $(READLINE)
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a $(LIBGLOB) $(READLINE)

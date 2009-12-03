@@ -38,5 +38,5 @@ LIBUTIL = @LIBUTIL@
 
 LDADD = -L../libinetutils -linetutils \
         -L../libtelnet -ltelnet \
-        -L../lib -lgnu \
+        ../lib/libgnu.a \
 	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT) @LIBAUTH@ 

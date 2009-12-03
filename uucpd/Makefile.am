@@ -32,4 +32,4 @@ LIBCRYPT = @LIBCRYPT@
 
 AM_CPPFLAGS = $(PATHDEF_UUCICO) $(PATHDEF_TTY)
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) $(LIBCRYPT)
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a $(LIBUTIL) $(LIBCRYPT)

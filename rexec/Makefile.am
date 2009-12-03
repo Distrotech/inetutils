@@ -31,4 +31,4 @@ AM_CPPFLAGS = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
 
 LIBCRYPT = @LIBCRYPT@
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBCRYPT)
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a $(LIBCRYPT)

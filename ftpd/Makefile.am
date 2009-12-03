@@ -40,7 +40,7 @@ LIBWRAP = @LIBWRAP@
 LIBPAM = @LIBPAM@
 LIBLS = @LIBLS@
 
-LDADD = -L../libinetutils -linetutils $(LIBLS) -L../lib -lgnu \
+LDADD = -L../libinetutils -linetutils $(LIBLS) ../lib/libgnu.a \
           $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
 
 EXTRA_DIST = ftpcmd.c

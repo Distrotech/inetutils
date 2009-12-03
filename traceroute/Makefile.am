@@ -24,7 +24,7 @@ traceroute_SOURCES = traceroute.c
 
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp -I$(top_srcdir)/libinetutils
 
-LDADD = -L../libicmp -licmp -L../lib -lgnu
+LDADD = -L../libicmp -licmp ../lib/libgnu.a
 
 SUIDMODE = -o root -m 4775
 

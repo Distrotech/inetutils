@@ -33,4 +33,4 @@ AM_CPPFLAGS = $(PATHDEF_DEV) $(PATHDEF_LOGIN)
 
 LIBUTIL = @LIBUTIL@
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@

@@ -21,8 +21,8 @@ bin_PROGRAMS = @ping_BUILD@ @ping6_BUILD@
 
 EXTRA_PROGRAMS = ping ping6
 
-ping_LDADD = -L../libinetutils -linetutils -L../libicmp -licmp -L../lib -lgnu
-ping6_LDADD = -L../lib -lgnu -L../libinetutils -linetutils
+ping_LDADD = -L../libinetutils -linetutils -L../libicmp -licmp ../lib/libgnu.a
+ping6_LDADD = ../lib/libgnu.a -L../libinetutils -linetutils
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp \
   -I$(top_srcdir)/libinetutils
 

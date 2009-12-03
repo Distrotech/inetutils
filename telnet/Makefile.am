@@ -33,4 +33,4 @@ LIBTERMCAP = @LIBTERMCAP@
 LIBCRYPT = @LIBCRYPT@
 
 LDADD = -L../libinetutils -L../libtelnet -linetutils	\
-	-ltelnet -L../lib -lgnu $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
+	-ltelnet ../lib/libgnu.a $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)

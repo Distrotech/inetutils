@@ -27,4 +27,4 @@ noinst_HEADERS = talk.h talk_ctl.h
 
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils $(NCURSES_INCLUDE)
 
-LDADD = $(LIBCURSES) -L../libinetutils -linetutils -L../lib -lgnu
+LDADD = $(LIBCURSES) -L../libinetutils -linetutils ../lib/libgnu.a

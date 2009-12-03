@@ -32,4 +32,4 @@ AM_CPPFLAGS = $(PATHDEF_LOG) $(PATHDEF_KLOG) $(PATHDEF_LOGCONF) \
 
 INCLUDES = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a

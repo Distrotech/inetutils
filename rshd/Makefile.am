@@ -30,5 +30,5 @@ rshd_SOURCES = rshd.c
 AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
 INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
 
-LDADD = -L../libinetutils -linetutils  -L../lib -lgnu \
+LDADD = -L../libinetutils -linetutils  ../lib/libgnu.a \
         $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@

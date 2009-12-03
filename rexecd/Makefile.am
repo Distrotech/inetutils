@@ -32,4 +32,4 @@ INCLUDES=-I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 
 LIBCRYPT = @LIBCRYPT@
 
-LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBCRYPT)
+LDADD = -L../libinetutils -linetutils ../lib/libgnu.a $(LIBCRYPT)

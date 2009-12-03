@@ -24,4 +24,4 @@ hostname_SOURCES = hostname.c
 
 INCLUDES = -I$(top_srcdir)/lib -I$(top_srcdir)/libinetutils
 
-LDADD = -L$(top_builddir)/lib -lgnu
+LDADD = -L$(top_builddir)/lib ../lib/libgnu.a
