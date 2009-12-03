@@ -1,5 +1,9 @@
 2009-12-03  Giuseppe Scrivano  <gscrivano@gnu.org>
 
+	* tests/Makefile.am (LDADD): Add missing dependency to gnulib.
+
+2009-12-03  Giuseppe Scrivano  <gscrivano@gnu.org>
+
 	* ftp/cmds.c (domap): Add braces around the else branch.
 	(strup): Remove function.
 	* ftp/ftp.c (hookup): Change `len' type to size_t.
