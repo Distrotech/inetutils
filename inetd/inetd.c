@@ -1015,7 +1015,8 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 {
   static struct servtab serv;
   struct servtab *sep = &serv;
-  int argc = 0, i;
+  int argc = 0;
+  size_t i;
   char **argv = NULL;
   char *node, *service;
   static char TCPMUX_TOKEN[] = "tcpmux/";

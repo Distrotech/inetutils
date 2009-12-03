@@ -31,6 +31,7 @@
 	(get_name): Remove unused variable.
 	* ifconfig/system/linux.c (system_fh_hwaddr): Add cast.
 	* inetd/inetd.c (expand_enter): Remove unused variables.
+	(getconfigent): Change type of `argc' to int.
 	* libinetutils/tftpsubs.c (synchnet): Change the `fromlen' type to
 	socklen_t.
 	* libinetutils/ttymsg.c (normalize_path): Use parentheses around
