@@ -97,7 +97,7 @@ int get_addrs (char *my_machine_name, char *his_machine_name);
 int get_names (int argc, char *argv[]);
 
 /* display.c */
-int display (xwin_t * win, unsigned char *text, int size);
+int display (xwin_t * win, char *text, int size);
 
 int open_sockt (void);
 int open_ctl (void);

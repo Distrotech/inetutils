@@ -353,7 +353,7 @@ main (int argc, char *argv[])
 void
 toremote (char *targ, int argc, char *argv[])
 {
-  int i, len, tos;
+  int i, tos;
   char *bp, *host, *src, *suser, *thost, *tuser;
 
   *targ++ = 0;
@@ -682,7 +682,7 @@ rsource (char *name, struct stat *statp)
       return;
     }
 
-  while (dp = readdir (dirp))
+  while ((dp = readdir (dirp)))
     {
       if (!strcmp (dp->d_name, ".") || !strcmp (dp->d_name, ".."))
 	continue;

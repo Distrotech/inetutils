@@ -554,7 +554,8 @@ system_fh_hwaddr (format_data_t form, int argc, char *argv[])
 
       arp = arphrd_findvalue (form->ifr->ifr_hwaddr.sa_family);
       if (arp && arp->print_hwaddr)
-	arp->print_hwaddr (form, form->ifr->ifr_hwaddr.sa_data);
+	arp->print_hwaddr (form,
+                           (unsigned char *) form->ifr->ifr_hwaddr.sa_data);
       else
 	put_string (form, "(hwaddr unknown)");
     }

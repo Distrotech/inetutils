@@ -327,7 +327,7 @@ main (int argc, char *argv[])
 
   TerminalSaveState ();
 
-  if (prompt = strrchr (argv[0], '/'))
+  if ((prompt = strrchr (argv[0], '/')))
     ++prompt;
   else
     prompt = argv[0];

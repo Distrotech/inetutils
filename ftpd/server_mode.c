@@ -161,7 +161,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr)
      children to handle them.  */
   while (1)
     {
-      int addrlen = sizeof (*phis_addr);
+      size_t addrlen = sizeof (*phis_addr);
       fd = accept (ctl_sock, (struct sockaddr *) phis_addr, &addrlen);
       if (fork () == 0)		/* child */
 	{

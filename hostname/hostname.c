@@ -38,7 +38,7 @@
 typedef struct
 {
   const char *hostname_file;
-  const char *hostname_new;
+  char *hostname_new;
   short int hostname_alias;
   short int hostname_fqdn;
   short int hostname_ip_address;
@@ -168,7 +168,6 @@ static void
 get_name (const hostname_arguments *const args)
 {
   char *sname, *name;
-  int status;
 
   sname = (*get_name_action) ();
 
@@ -211,7 +210,7 @@ get_name (const hostname_arguments *const args)
 static void
 set_name (const hostname_arguments *const args)
 {
-  const char *hostname_new;
+  char *hostname_new;
   int status;
   size_t size;
 

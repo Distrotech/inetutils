@@ -119,18 +119,6 @@ all_upper (str)
   return 1;
 }
 
-/* Destructively converts STR to upper case.  */
-static char *
-strup (str)
-     char *str;
-{
-  char *p;
-  for (p = str; *p; p++)
-    if (islower (*p))
-      *p = toupper (*p);
-  return str;
-}
-
 /* Destructively converts STR to lower case.  */
 static char *
 strdown (str)
@@ -2364,13 +2352,13 @@ domap (name)
 		      cp2++;
 		    }
 		  else if (*cp2 == '$' && isdigit (*(cp2 + 1)))
-		    if (cp_subst (&cp2,
-				  &cp1, toks, tp, te, name, &buf, &buf_len))
-		      match = 1;
-		    else if (*cp2)
-		      {
+                    {
+                      if (cp_subst (&cp2,
+                                    &cp1, toks, tp, te, name, &buf, &buf_len))
+                        match = 1;
+                      else if (*cp2)
 			*cp1++ = *cp2++;
-		      }
+                    }
 		}
 	      if (!*cp2)
 		{

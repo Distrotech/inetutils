@@ -90,6 +90,8 @@ struct file_pid
 /* A linked list associating ftpd_popen'd FILEs with pids.  */
 struct file_pid *file_pids = 0;
 
+extern int ls_main (int argc, char *argv[]);
+
 FILE *
 ftpd_popen (char *program, const char *type)
 {
@@ -99,7 +101,7 @@ ftpd_popen (char *program, const char *type)
   int argc, gargc, pdes[2], pid;
   char **pop, *argv[MAX_ARGC], *gargv[MAX_GARGC];
 
-  if (*type != 'r' && *type != 'w' || type[1])
+  if (((*type != 'r') && (*type != 'w')) || type[1])
     return (NULL);
 
   if (pipe (pdes) < 0)

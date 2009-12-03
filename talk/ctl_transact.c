@@ -148,4 +148,6 @@ ctl_transact (struct in_addr target, CTL_MSG msg, int type, CTL_RESPONSE * rp)
   while (rp->vers != TALK_VERSION || rp->type != type);
   rp->id_num = ntohl (rp->id_num);
   rp->addr.sa_family = ntohs (rp->addr.sa_family);
+
+  return 0;
 }

@@ -115,7 +115,7 @@ send_file (int fd, char *name, char *mode)
   volatile int block, size, convert;
   volatile unsigned long amount;
   struct sockaddr_in from;
-  int fromlen;
+  size_t fromlen;
   FILE *file;
 
   startclock ();		/* start stat's clock */
@@ -228,7 +228,7 @@ recvfile (int fd, char *name, char *mode)
   volatile int block, size, firsttrip;
   volatile unsigned long amount;
   struct sockaddr_in from;
-  int fromlen;
+  size_t fromlen;
   FILE *file;
   volatile int convert;		/* true if converting crlf -> lf */
 
@@ -466,7 +466,7 @@ printstats (const char *direction, unsigned long amount)
   delta = ((tstop.tv_sec * 10.) + (tstop.tv_usec / 100000)) -
     ((tstart.tv_sec * 10.) + (tstart.tv_usec / 100000));
   delta = delta / 10.;		/* back to seconds */
-  printf ("%s %d bytes in %.1f seconds", direction, amount, delta);
+  printf ("%s %d bytes in %.1f seconds", direction, (int) amount, delta);
   if (verbose)
     printf (" [%.0f bits/sec]", (amount * 8.) / delta);
   putchar ('\n');

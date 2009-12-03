@@ -491,7 +491,7 @@ clientstat (register int code, register int parm1, register int parm2)
 	ack = (useeditmode & MODE_ACK);
 	useeditmode &= ~MODE_ACK;
 
-	if (changed = (useeditmode ^ editmode))
+	if ((changed = (useeditmode ^ editmode)))
 	  {
 	    /*
 	     * This check is for a timing problem.  If the

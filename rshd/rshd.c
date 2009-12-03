@@ -174,6 +174,9 @@ static struct argp_option options[] = {
 
 extern int __check_rhosts_file;	/* hook in rcmd(3) */
 
+extern int iruserok (uint32_t raddr, int superuser,
+                     const char *ruser, const char *luser);
+
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
@@ -229,7 +232,8 @@ main (int argc, char *argv[])
 {
   int index;
   struct linger linger;
-  int ch, on = 1, fromlen;
+  int on = 1;
+  size_t fromlen;
   struct sockaddr_in from;
   int sockfd;
 
@@ -360,7 +364,8 @@ doit (int sockfd, struct sockaddr_in *fromp)
   {
     u_char optbuf[BUFSIZ / 3], *cp;
     char lbuf[BUFSIZ], *lp;
-    int optsize = sizeof (optbuf), ipproto;
+    size_t optsize = sizeof (optbuf);
+    int ipproto;
     struct protoent *ip;
 
     if ((ip = getprotobyname ("ip")) != NULL)
@@ -773,9 +778,9 @@ doit (int sockfd, struct sockaddr_in *fromp)
     }
   else
 #endif
-  if (errorstr || pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
-	&& (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
-			remuser, locuser)) < 0)
+    if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
+                     && (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
+                                   remuser, locuser)) < 0))
     {
       if (__rcmd_errstr)
 	syslog (LOG_INFO | LOG_AUTH,
@@ -1135,10 +1140,10 @@ doit (int sockfd, struct sockaddr_in *fromp)
     }
 #ifdef SHISHI
   if (doencrypt)
-    execl (pwd->pw_shell, cp, "-c", cmdbuf + 3, 0);
+    execl (pwd->pw_shell, cp, "-c", cmdbuf + 3, NULL);
   else
 #endif
-    execl (pwd->pw_shell, cp, "-c", cmdbuf, 0);
+    execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
   error (1, errno, "cannot execute %s", pwd->pw_shell);
 }
 

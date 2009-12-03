@@ -149,7 +149,7 @@ makeargv (void)
       margc++;
       cp++;
     }
-  while (c = *cp)
+  while ((c = *cp))
     {
       register int inquote = 0;
       while (isspace (c))
@@ -1237,6 +1237,7 @@ dokludgemode ()
   send_wont (TELOPT_LINEMODE, 1);
   send_dont (TELOPT_SGA, 1);
   send_dont (TELOPT_ECHO, 1);
+  return 0;
 }
 #endif
 
@@ -1582,9 +1583,9 @@ shell (int argc, char *argv[])
 	else
 	  shellname++;
 	if (argc > 1)
-	  execl (shellp, shellname, "-c", &saveline[1], 0);
+	  execl (shellp, shellname, "-c", &saveline[1], NULL);
 	else
-	  execl (shellp, shellname, 0);
+	  execl (shellp, shellname, NULL);
 	perror ("Execl");
 	_exit (1);
       }
@@ -1640,6 +1641,7 @@ quit ()
 {
   call (bye, "bye", "fromquit", 0);
   Exit (0);
+  return 0;
 }
 
 int
@@ -1745,13 +1747,13 @@ struct envlist
   int narg;
 };
 
-extern struct env_lst *env_define (unsigned char *, unsigned char *);
+extern struct env_lst *env_define (const char *, unsigned char *);
 extern void
-env_undefine (unsigned char *),
-env_export (unsigned char *),
-env_unexport (unsigned char *), env_send (unsigned char *),
+env_undefine (const char *),
+env_export (const char *),
+env_unexport (const char *), env_send (const char *),
 #if defined(OLD_ENVIRON) && defined(ENV_HACK)
-  env_varval (unsigned char *),
+  env_varval (const char *),
 #endif
   env_list (void);
 static void env_help (void);
@@ -1850,13 +1852,13 @@ struct env_lst
 struct env_lst envlisthead;
 
 struct env_lst *
-env_find (unsigned char *var)
+env_find (const char *var)
 {
   register struct env_lst *ep;
 
   for (ep = envlisthead.next; ep; ep = ep->next)
     {
-      if (strcmp ((char *) ep->var, (char *) var) == 0)
+      if (strcmp ((char *) ep->var, var) == 0)
 	return (ep);
     }
   return (NULL);
@@ -1874,10 +1876,11 @@ env_init ()
 
   for (epp = environ; *epp; epp++)
     {
-      if (cp = strchr (*epp, '='))
+      cp = strchr (*epp, '=');
+      if (cp)
 	{
 	  *cp = '\0';
-	  ep = env_define ((unsigned char *) *epp, (unsigned char *) cp + 1);
+	  ep = env_define (*epp, (unsigned char *) cp + 1);
 	  ep->export = 0;
 	  *cp = '=';
 	}
@@ -1909,19 +1912,18 @@ env_init ()
    */
   if ((env_find ("USER") == NULL) && (ep = env_find ("LOGNAME")))
     {
-      env_define ((unsigned char *) "USER", ep->value);
-      env_unexport ((unsigned char *) "USER");
+      env_define ("USER", ep->value);
+      env_unexport ("USER");
     }
-  env_export ((unsigned char *) "DISPLAY");
-  env_export ((unsigned char *) "PRINTER");
+  env_export ("DISPLAY");
+  env_export ("PRINTER");
 }
 
 struct env_lst *
-env_define (unsigned char *var, unsigned char *value)
+env_define (const char *var, unsigned char *value)
 {
-  register struct env_lst *ep;
-
-  if (ep = env_find (var))
+  register struct env_lst *ep = env_find (var);
+  if (ep)
     {
       free (ep->var);
       free (ep->value);
@@ -1935,7 +1937,7 @@ env_define (unsigned char *var, unsigned char *value)
       if (ep->next)
 	ep->next->prev = ep;
     }
-  ep->welldefined = opt_welldefined (var);
+  ep->welldefined = opt_welldefined ((char *)var);
   ep->export = 1;
   ep->var = (unsigned char *) strdup ((char *) var);
   ep->value = (unsigned char *) strdup ((char *) value);
@@ -1943,11 +1945,10 @@ env_define (unsigned char *var, unsigned char *value)
 }
 
 void
-env_undefine (unsigned char *var)
+env_undefine (const char *var)
 {
-  register struct env_lst *ep;
-
-  if (ep = env_find (var))
+  register struct env_lst *ep = env_find (var);
+  if (ep)
     {
       ep->prev->next = ep->next;
       if (ep->next)
@@ -1959,25 +1960,23 @@ env_undefine (unsigned char *var)
 }
 
 void
-env_export (unsigned char *var)
+env_export (const char *var)
 {
-  register struct env_lst *ep;
-
-  if (ep = env_find (var))
+  register struct env_lst *ep = env_find (var);
+  if (ep)
     ep->export = 1;
 }
 
 void
-env_unexport (unsigned char *var)
+env_unexport (const char *var)
 {
-  register struct env_lst *ep;
-
-  if (ep = env_find (var))
+  register struct env_lst *ep = env_find (var);
+  if (ep)
     ep->export = 0;
 }
 
 void
-env_send (unsigned char *var)
+env_send (const char *var)
 {
   register struct env_lst *ep;
 
@@ -2025,7 +2024,7 @@ env_default (int init, int welldefined)
     }
   if (nep)
     {
-      while (nep = nep->next)
+      while ((nep = nep->next))
 	{
 	  if (nep->export && (nep->welldefined == welldefined))
 	    return (nep->var);
@@ -2035,21 +2034,20 @@ env_default (int init, int welldefined)
 }
 
 unsigned char *
-env_getvalue (unsigned char *var)
+env_getvalue (const char *var)
 {
-  register struct env_lst *ep;
-
-  if (ep = env_find (var))
+  register struct env_lst *ep  = env_find (var);
+  if (ep)
     return (ep->value);
   return (NULL);
 }
 
 #if defined(OLD_ENVIRON) && defined(ENV_HACK)
 void
-env_varval (unsigned char *what)
+env_varval (const char *what)
 {
   extern int old_env_var, old_env_value, env_auto;
-  int len = strlen ((char *) what);
+  int len = strlen (what);
 
   if (len == 0)
     goto unknown;
@@ -2735,9 +2733,9 @@ tn (int argc, char *argv[])
       struct passwd *pw;
 
       user = getenv ("USER");
-      if (user == NULL || (pw = getpwnam (user)) && pw->pw_uid != getuid ())
+      if (user == NULL || ((pw = getpwnam (user)) && pw->pw_uid != getuid ()))
 	{
-	  if (pw = getpwuid (getuid ()))
+	  if ((pw = getpwuid (getuid ())))
 	    user = pw->pw_name;
 	  else
 	    user = NULL;
@@ -2745,8 +2743,8 @@ tn (int argc, char *argv[])
     }
   if (user)
     {
-      env_define ((unsigned char *) "USER", (unsigned char *) user);
-      env_export ((unsigned char *) "USER");
+      env_define ("USER", (unsigned char *) user);
+      env_export ("USER");
     }
   call (status, "status", "notmuch", 0);
   if (setjmp (peerdied) == 0)
@@ -2825,7 +2823,7 @@ static Command cmdtab[] = {
 #endif
   {"environ", envhelp, env_cmd, 0},
   {"?", helphelp, help, 0},
-  0
+  {0}
 };
 
 static char crmodhelp[] = "deprecated command -- use 'toggle crmod' instead";
@@ -2835,7 +2833,7 @@ static Command cmdtab2[] = {
   {"help", 0, help, 0},
   {"escape", escapehelp, setescape, 0},
   {"crmod", crmodhelp, togcrmod, 0},
-  0
+  {0}
 };
 
 
@@ -2878,7 +2876,7 @@ getcmd (char *name)
 {
   Command *cm;
 
-  if (cm = (Command *) genget (name, (char **) cmdtab, sizeof (Command)))
+  if ((cm = (Command *) genget (name, (char **) cmdtab, sizeof (Command))))
     return cm;
   return (Command *) genget (name, (char **) cmdtab2, sizeof (Command));
 }

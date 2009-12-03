@@ -107,4 +107,6 @@ get_addrs (char *my_machine_name, char *his_machine_name)
       exit (-1);
     }
   daemon_port = sp->s_port;
+
+  return 0;
 }

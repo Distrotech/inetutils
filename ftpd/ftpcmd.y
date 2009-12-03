@@ -995,7 +995,7 @@ yylex()
 					/* NOTREACHED */
 				}
 				state = p->state;
-				yylval.s = p->name;
+				yylval.s = (char*) p->name;
 				return (p->token);
 			}
 			break;
@@ -1021,7 +1021,7 @@ yylex()
 					/* NOTREACHED */
 				}
 				state = p->state;
-				yylval.s = p->name;
+				yylval.s = (char*)p->name;
 				return (p->token);
 			}
 			state = CMD;
@@ -1038,7 +1038,10 @@ yylex()
 		dostr1:
 			if (cbuf[cpos] == ' ') {
 				cpos++;
-				state = state == OSTR ? STR2 : ++state;
+                                if (state == OSTR)
+                                  state = STR2;
+                                else
+                                  ++state;
 				return (SP);
 			}
 			break;

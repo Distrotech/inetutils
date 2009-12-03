@@ -306,7 +306,9 @@ tty_iscrnl ()
 #  define termdesc_status c_cc[VSTATUS]
 # endif
 
+# if VEOF == VMIN
 static cc_t oldeofc = '\004';
+# endif
 
 void
 term_send_eof ()
@@ -325,8 +327,9 @@ term_change_eof ()
     return 1;
   if (slctab[SLC_EOF].sptr)
     oldeofc = *slctab[SLC_EOF].sptr;
-  return 0;
 # endif
+
+  return 0;
 }
 
 int

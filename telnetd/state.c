@@ -186,7 +186,7 @@ telrcv ()
   register int c;
   static int state = TS_DATA;
 
-  while (net_input_level () > 0 & !pty_buffer_is_full ())
+  while ((net_input_level () > 0) & !pty_buffer_is_full ())
     {
       c = net_get_char (0);
 #ifdef	ENCRYPTION

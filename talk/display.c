@@ -118,7 +118,7 @@ xscroll (register xwin_t * win, int flag)
  * characters while we are at it.
  */
 int
-display (register xwin_t * win, register unsigned char *text, int size)
+display (register xwin_t * win, register char *text, int size)
 {
   register int i;
   unsigned char cch;
@@ -218,5 +218,7 @@ display (register xwin_t * win, register unsigned char *text, int size)
       text++;
     }
   wrefresh (win->x_win);
+
+  return 0;
 }
 

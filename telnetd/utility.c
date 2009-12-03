@@ -37,6 +37,11 @@
 # define NET_ENCRYPT()
 #endif
 
+#ifdef HAVE_LIBREADLINE
+# include <term.h>
+#endif
+
+
 static char netobuf[BUFSIZ + NETSLOP], *nfrontp, *nbackp;
 static char *neturg;		/* one past last byte of urgent data */
 #ifdef  ENCRYPTION
@@ -244,6 +249,8 @@ net_get_char (int peek)
       ncc--;
       return *netip++ & 0377;
     }
+
+  return 0;
 }
 
 int
@@ -337,6 +344,8 @@ pty_get_char (int peek)
       pcc--;
       return *ptyip++ & 0377;
     }
+
+  return 0;
 }
 
 int
@@ -346,6 +355,8 @@ pty_input_putback (const char *str, size_t len)
     len = &ptyibuf[BUFSIZ] - ptyip;
   strncpy (ptyip, str, len);
   pcc += len;
+
+  return 0;
 }
 
 int
@@ -840,6 +851,8 @@ debug_close ()
   if (debug_fp)
     fclose (debug_fp);
   debug_fp = NULL;
+
+  return 0;
 }
 
 void
@@ -1323,12 +1336,12 @@ printsub (int direction, unsigned char *pointer, int length)
 		  default:
 		    if (isprint (pointer[i]) && pointer[i] != '"')
 		      {
-			if (noquote)
+                        if (noquote)
 			  {
 			    debug_output_data ("\"");
 			    noquote = 0;
 			  }
-			debug_output_datalen (&pointer[i], 1);
+			debug_output_datalen ((char*) &pointer[i], 1);
 		      }
 		    else
 		      {

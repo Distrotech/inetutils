@@ -333,7 +333,7 @@ env_opt (unsigned char *, int),
 env_opt_start (void),
 env_opt_start_info (void), env_opt_add (unsigned char *), env_opt_end (int);
 
-extern unsigned char *env_default (int, int), *env_getvalue (unsigned char *);
+extern unsigned char *env_default (int, int), *env_getvalue (const char *);
 
 extern int get_status (void), dosynch (void);
 

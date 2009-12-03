@@ -130,7 +130,8 @@ hookup (host, port)
      int port;
 {
   struct hostent *hp = 0;
-  int s, len, tos;
+  int s, tos;
+  size_t len;
   static char hostnamebuf[80];
 
   memset ((char *) &hisctladdr, 0, sizeof (hisctladdr));
@@ -475,7 +476,7 @@ getreply (expecteof)
 	  if (c != '\r' && (verbose > 0 ||
 			    (verbose > -1 && n == '5' && dig > 4)))
 	    {
-	      if (proxflag && (dig == 1 || dig == 5 && verbose == 0))
+	      if (proxflag && (dig == 1 || (dig == 5 && verbose == 0)))
 		printf ("%s:", hostname);
 	      putchar (c);
 	    }
@@ -506,7 +507,7 @@ getreply (expecteof)
 	  if (cp < &reply_string[sizeof (reply_string) - 1])
 	    *cp++ = c;
 	}
-      if (verbose > 0 || verbose > -1 && n == '5')
+      if (verbose > 0 || (verbose > -1 && n == '5'))
 	{
 	  putchar (c);
 	  fflush (stdout);
@@ -1153,7 +1154,8 @@ int
 initconn ()
 {
   char *p, *a;
-  int result, len, tmpno = 0;
+  int result, tmpno = 0;
+  size_t len;
   int on = 1;
   int a0, a1, a2, a3, p0, p1;
 
@@ -1290,7 +1292,8 @@ dataconn (lmode)
      char *lmode;
 {
   struct sockaddr_in from;
-  int s, fromlen = sizeof (from), tos;
+  int s, tos;
+  size_t fromlen = sizeof (from);
 
   if (passivemode)
     return (fdopen (data, lmode));
@@ -1678,10 +1681,12 @@ gunique (local)
 	ext++;
 
       if (stat (new, &st) != 0)
-	if (errno == ENOENT)
-	  return new;
-	else
-	  return 0;
+        {
+          if (errno == ENOENT)
+            return new;
+          else
+            return 0;
+        }
 
       if (ext != '0')
 	cp--;

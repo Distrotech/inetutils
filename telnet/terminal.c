@@ -146,7 +146,7 @@ ttyflush (int drop)
 	}
       else
 	{
-	  n = TerminalWrite (ttyoring.consume, n);
+	  n = TerminalWrite ((char *) ttyoring.consume, n);
 	}
     }
   if (n > 0)
@@ -164,7 +164,7 @@ ttyflush (int drop)
 	{
 	  n1 = n0 - n;
 	  if (!drop)
-	    n1 = TerminalWrite (ttyoring.bottom, n1);
+	    n1 = TerminalWrite ((char *) ttyoring.bottom, n1);
 	  if (n1 > 0)
 	    n += n1;
 	}

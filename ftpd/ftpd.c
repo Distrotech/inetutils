@@ -193,11 +193,11 @@ off_to_str (off_t off)
     next_buf = bufs;
 
   if (sizeof (off) > sizeof (long))
-    sprintf (*next_buf, "%qd", off);
+    sprintf (*next_buf, "%qd", (long long int) off);
   else if (sizeof (off) == sizeof (long))
     sprintf (*next_buf, "%ld", off);
   else
-    sprintf (*next_buf, "%d", off);
+    sprintf (*next_buf, "%d", (int) off);
 
   return *next_buf++;
 }
@@ -237,8 +237,9 @@ char proctitle[LINE_MAX];	/* initial part of title */
 			   off_to_str (cnt)); \
 	}
 
+extern int yyparse (void);
+
 static void ack (const char *);
-static void authentication_setup (const char *);
 #ifdef HAVE_LIBWRAP
 static int check_host (struct sockaddr *sa);
 #endif

@@ -218,7 +218,7 @@ main (int argc, char **argv)
   struct passwd *pw;
   struct servent *sp;
   sigset_t sigs, osigs;
-  int asrsh, ch, rem;
+  int asrsh, rem;
   pid_t pid = 0;
   uid_t uid;
   char *args, *host;

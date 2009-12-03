@@ -190,6 +190,9 @@ int local_dot_count;
 
 struct winsize win = { 0, 0, 0, 0 };
 
+extern int iruserok (uint32_t raddr, int superuser,
+                     const char *ruser, const char *luser);
+
 void rlogin_daemon (int maxchildren, int port);
 int rlogind_auth (int fd, struct auth_data *ap);
 void setup_tty (int fd, struct auth_data *ap);
@@ -592,7 +595,8 @@ rlogind_auth (int fd, struct auth_data *ap)
       {
 	u_char optbuf[BUFSIZ / 3], *cp;
 	char lbuf[BUFSIZ], *lp;
-	int optsize = sizeof (optbuf), ipproto;
+	size_t optsize = sizeof (optbuf);
+	int ipproto;
 	struct protoent *ip;
 
 	if ((ip = getprotobyname ("ip")) != NULL)

@@ -826,8 +826,6 @@ int
 expand_enter (struct servtab *sep)
 {
   int err;
-  const int on = 1;
-  const int off = 0;
   struct addrinfo *result, *rp;
   struct protoent *proto;
   struct servtab *cp;
@@ -1017,7 +1015,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 {
   static struct servtab serv;
   struct servtab *sep = &serv;
-  size_t argc = 0, i;
+  int argc = 0, i;
   char **argv = NULL;
   char *node, *service;
   static char TCPMUX_TOKEN[] = "tcpmux/";

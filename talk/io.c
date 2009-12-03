@@ -163,6 +163,8 @@ p_error (char *string)
   move (LINES - 1, 0);
   refresh ();
   quit ();
+
+  return 0;
 }
 
 /*
@@ -177,4 +179,6 @@ message (char *string)
   current_line++;
   wmove (my_win.x_win, current_line % my_win.x_nlines, 0);
   wrefresh (my_win.x_win);
+
+  return 0;
 }

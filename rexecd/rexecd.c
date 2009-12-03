@@ -121,7 +121,8 @@ int
 main (int argc, char **argv)
 {
   struct sockaddr_in from;
-  int fromlen, sockfd = STDIN_FILENO;
+  size_t fromlen;
+  int sockfd = STDIN_FILENO;
   int index;
 
   set_program_name (argv[0]);
@@ -325,8 +326,10 @@ doit (int f, struct sockaddr_in *fromp)
     cp++;
   else
     cp = pwd->pw_shell;
-  execl (pwd->pw_shell, cp, "-c", cmdbuf, 0);
+  execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
   error (EXIT_FAILURE, errno, "executing %s", pwd->pw_shell);
+
+  return -1;
 }
 
 void

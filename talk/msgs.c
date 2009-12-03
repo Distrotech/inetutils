@@ -90,6 +90,8 @@ start_msgs ()
   itimer.it_value.tv_sec = itimer.it_interval.tv_sec = MSG_INTERVAL;
   itimer.it_value.tv_usec = itimer.it_interval.tv_usec = 0;
   setitimer (ITIMER_REAL, &itimer, (struct itimerval *) 0);
+
+  return 0;
 }
 
 int
@@ -101,4 +103,6 @@ end_msgs ()
   timerclear (&itimer.it_interval);
   setitimer (ITIMER_REAL, &itimer, (struct itimerval *) 0);
   signal (SIGALRM, SIG_DFL);
+
+  return 0;
 }

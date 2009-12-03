@@ -119,6 +119,8 @@ announce_invite ()
   /* leave the actual invitation on my talk daemon */
   ctl_transact (my_machine_addr, msg, LEAVE_INVITE, &response);
   local_id = response.id_num;
+
+  return 0;
 }
 
 /*
@@ -187,6 +189,8 @@ invite_remote ()
   msg.id_num = htonl (remote_id);
   ctl_transact (his_machine_addr, msg, DELETE, &response);
   invitation_waiting = 0;
+
+  return 0;
 }
 
 /*
@@ -213,4 +217,6 @@ send_delete ()
 	      (struct sockaddr *) &daemon_addr,
 	      sizeof (daemon_addr)) != sizeof (msg))
     perror ("send_delete (local)");
+
+  return 0;
 }

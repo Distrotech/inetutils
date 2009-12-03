@@ -145,4 +145,6 @@ get_names (int argc, char *argv[])
   msg.r_tty[TTY_SIZE - 1] = '\0';
 
   free (my_machine_name);
+
+  return 0;
 }

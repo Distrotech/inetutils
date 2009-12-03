@@ -294,7 +294,7 @@ normalize_path (char *path, const char *delim)
 	      /* Copy stuff */
 	      s = p + 2;
 	      p = q;
-	      while (*q++ = *s++)
+	      while ((*q++ = *s++))
 		;
 	      continue;
 	    }

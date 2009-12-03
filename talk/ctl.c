@@ -91,7 +91,7 @@ CTL_MSG msg;
 int
 open_sockt ()
 {
-  int length;
+  size_t length;
 
   my_addr.sin_addr = my_machine_addr;
   my_addr.sin_port = 0;
@@ -103,13 +103,15 @@ open_sockt ()
   length = sizeof (my_addr);
   if (getsockname (sockt, (struct sockaddr *) &my_addr, &length) == -1)
     p_error ("Bad address for socket");
+
+  return 0;
 }
 
 /* open the ctl socket */
 int
 open_ctl ()
 {
-  int length;
+  size_t length;
 
   ctl_addr.sin_port = 0;
   ctl_addr.sin_addr = my_machine_addr;
@@ -121,5 +123,7 @@ open_ctl ()
   length = sizeof (ctl_addr);
   if (getsockname (ctl_sockt, (struct sockaddr *) &ctl_addr, &length) == -1)
     p_error ("Bad address for ctl socket");
+
+  return 0;
 }
 

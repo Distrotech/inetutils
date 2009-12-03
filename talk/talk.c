@@ -53,6 +53,7 @@
 
 #include "talk.h"
 #include <argp.h>
+#include <unistd.h>
 #include <libinetutils.h>
 
 void usage (void);

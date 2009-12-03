@@ -75,6 +75,10 @@
 #include "externs.h"
 #include "types.h"
 #include "general.h"
+
+#ifdef HAVE_LIBREADLINE
+# include <term.h>
+#endif
 
 
 #define strip(x) ((my_want_state_is_wont(TELOPT_BINARY)) ? ((x)&0x7f) : (x))
@@ -483,7 +487,7 @@ dooption (int option)
 #endif
 
 	    case TELOPT_XDISPLOC:	/* X Display location */
-	      if (env_getvalue ((unsigned char *) "DISPLAY"))
+	      if (env_getvalue ("DISPLAY"))
 		new_state_ok = 1;
 	      break;
 
@@ -757,7 +761,7 @@ gettermname ()
       resettermname = 0;
       if (tnamep && tnamep != unknown)
 	free (tnamep);
-      if ((tname = (char *) env_getvalue ((unsigned char *) "TERM")) &&
+      if ((tname = (char *) env_getvalue ("TERM")) &&
 	  (init_term (tname, 1, &err) == 0))
 	{
 	  tnamep = mklist (termbuf, tname);
@@ -850,7 +854,7 @@ suboption ()
 	  TerminalSpeeds (&ispeed, &ospeed);
 
 	  sprintf ((char *) temp, "%c%c%c%c%d,%d%c%c", IAC, SB, TELOPT_TSPEED,
-		   TELQUAL_IS, ospeed, ispeed, IAC, SE);
+		   TELQUAL_IS, (int) ospeed, (int) ispeed, IAC, SE);
 	  len = strlen ((char *) temp + 4) + 4;	/* temp[3] is 0 ... */
 
 	  if (len < NETROOM ())
@@ -954,7 +958,7 @@ suboption ()
 	  unsigned char temp[50], *dp;
 	  int len;
 
-	  if ((dp = env_getvalue ((unsigned char *) "DISPLAY")) == NULL)
+	  if ((dp = env_getvalue ("DISPLAY")) == NULL)
 	    {
 	      /*
 	       * Something happened, we no longer have a DISPLAY
@@ -1233,7 +1237,7 @@ slc_init ()
 
 #define initfunc(func, flags) { \
 					spcp = &spc_data[func]; \
-					if (spcp->valp = tcval(func)) { \
+					if ((spcp->valp = tcval(func))) { \
 					    spcp->val = *spcp->valp; \
 					    spcp->mylevel = SLC_VARIABLE|flags; \
 					} else { \
@@ -1664,16 +1668,16 @@ env_opt_add (register unsigned char *ep)
     {
       /* Send user defined variables first. */
       env_default (1, 0);
-      while (ep = env_default (0, 0))
+      while ((ep = env_default (0, 0)))
 	env_opt_add (ep);
 
       /* Now add the list of well know variables.  */
       env_default (1, 1);
-      while (ep = env_default (0, 1))
+      while ((ep = env_default (0, 1)))
 	env_opt_add (ep);
       return;
     }
-  vp = env_getvalue (ep);
+  vp = env_getvalue ((char *)ep);
   if (opt_replyp + (vp ? strlen ((char *) vp) : 0) +
       strlen ((char *) ep) + 6 > opt_replyend)
     {
@@ -1690,7 +1694,7 @@ env_opt_add (register unsigned char *ep)
       opt_replyp = opt_reply + len - (opt_replyend - opt_replyp);
       opt_replyend = opt_reply + len;
     }
-  if (opt_welldefined (ep))
+  if (opt_welldefined ((char *) ep))
 #ifdef	OLD_ENVIRON
     if (telopt_environ == TELOPT_OLD_ENVIRON)
       *opt_replyp++ = old_env_var;
@@ -1701,7 +1705,7 @@ env_opt_add (register unsigned char *ep)
     *opt_replyp++ = ENV_USERVAR;
   for (;;)
     {
-      while (c = *ep++)
+      while ((c = *ep++))
 	{
 	  switch (c & 0xff)
 	    {
@@ -1717,7 +1721,7 @@ env_opt_add (register unsigned char *ep)
 	    }
 	  *opt_replyp++ = c;
 	}
-      if (ep = vp)
+      if ((ep = vp))
 	{
 #ifdef	OLD_ENVIRON
 	  if (telopt_environ == TELOPT_OLD_ENVIRON)
@@ -2422,7 +2426,7 @@ telnet (char *user)
       send_will (TELOPT_LINEMODE, 1);
       send_will (TELOPT_NEW_ENVIRON, 1);
       send_do (TELOPT_STATUS, 1);
-      if (env_getvalue ((unsigned char *) "DISPLAY"))
+      if (env_getvalue ("DISPLAY"))
 	send_will (TELOPT_XDISPLOC, 1);
       if (eight)
 	tel_enter_binary (eight);

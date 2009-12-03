@@ -222,10 +222,11 @@ static struct
   int modnum;
 } debug_mode[debug_max_mode] =
 {
-"options", debug_options,
-    "report", debug_report,
-    "netdata", debug_net_data,
-    "ptydata", debug_pty_data, "auth", debug_auth,};
+  {"options", debug_options},
+  {"report", debug_report},
+  {"netdata", debug_net_data},
+  {"ptydata", debug_pty_data},
+  {"auth", debug_auth},};
 
 void
 parse_debug_level (char *str)
@@ -662,6 +663,8 @@ telnetd_run ()
 	ptyflush ();
     }
   cleanup (0);
+
+  return 0;
 }
 
 void

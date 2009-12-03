@@ -100,7 +100,6 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   char *endptr;
   u_char pattern[16];
-  double v;
 
   switch (key)
     {

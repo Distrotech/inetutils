@@ -95,15 +95,15 @@ void usage (void);
 # define LOG_FTP LOG_DAEMON	/* Use generic facility.  */
 #endif
 
-int peer;
-int rexmtval = TIMEOUT;
-int maxtimeout = 5 * TIMEOUT;
+static int peer;
+static int rexmtval = TIMEOUT;
+static int maxtimeout = 5 * TIMEOUT;
 
 #define PKTSIZE	SEGSIZE+4
-char buf[PKTSIZE];
-char ackbuf[PKTSIZE];
-struct sockaddr_in from;
-int fromlen;
+static char buf[PKTSIZE];
+static char ackbuf[PKTSIZE];
+static struct sockaddr_in from;
+static size_t fromlen;
 
 void tftp (struct tftphdr *, int);
 
@@ -226,7 +226,8 @@ main (int argc, char *argv[])
    */
   {
     int pid;
-    int i, j;
+    int i;
+    size_t j;
 
     for (i = 1; i < 20; i++)
       {

@@ -181,16 +181,18 @@ ruserpass (char *host, char **aname, char **apass, char **aacct)
 	    {
 	    case LOGIN:
 	      if (token ())
-		if (*aname == 0)
-		  {
-		    *aname = xmalloc ((unsigned) strlen (tokval) + 1);
-		    strcpy (*aname, tokval);
-		  }
-		else
-		  {
-		    if (strcmp (*aname, tokval))
-		      goto next;
-		  }
+                {
+                  if (*aname == 0)
+                    {
+                      *aname = xmalloc ((unsigned) strlen (tokval) + 1);
+                      strcpy (*aname, tokval);
+                    }
+                  else
+                    {
+                      if (strcmp (*aname, tokval))
+                        goto next;
+                    }
+                }
 	      break;
 	    case PASSWD:
 	      if ((*aname == NULL || strcmp (*aname, "anonymous"))
@@ -227,7 +229,7 @@ ruserpass (char *host, char **aname, char **apass, char **aacct)
 	      if (proxy)
 		goto done;
 
-	      while ((c = getc (cfile)) != EOF && c == ' ' || c == '\t')
+	      while (((c = getc (cfile)) != EOF && c == ' ') || c == '\t')
 		;
 	      if (c == EOF || c == '\n')
 		{

@@ -135,6 +135,8 @@ init_display ()
   wrefresh (line_win);
   /* let them know we are working on it */
   current_state = "No connection yet";
+
+  return 0;
 }
 
 /*
@@ -203,6 +205,8 @@ set_edit_chars ()
   his_win.cerase = buf[0];
   his_win.kill = buf[1];
   his_win.werase = buf[2];
+
+  return 0;
 }
 
 /*

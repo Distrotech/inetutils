@@ -611,12 +611,14 @@ mastercmp (a, b)
     return (0);
 
   if (a_info == FTS_NS || b_info == FTS_NS)
-    if (b_info != FTS_NS)
-      return (1);
-    else if (a_info != FTS_NS)
-      return (-1);
-    else
-      return (namecmp (*a, *b));
+    {
+      if (b_info != FTS_NS)
+        return (1);
+      else if (a_info != FTS_NS)
+        return (-1);
+      else
+        return (namecmp (*a, *b));
+    }
 
   if (a_info != b_info && (*a)->fts_level == FTS_ROOTLEVEL && !f_listdir)
     {

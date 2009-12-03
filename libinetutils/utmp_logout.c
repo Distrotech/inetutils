@@ -73,7 +73,8 @@ utmp_logout (char *line)
 
   strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 
-  if ((ut = getutxline (&utx)))
+  ut = getutxline (&utx);
+  if (ut)
     {
       ut->ut_type = DEAD_PROCESS;
       ut->ut_exit.e_termination = 0;
@@ -89,7 +90,8 @@ utmp_logout (char *line)
 
   strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 
-  if (ut = getutline (&utx))
+  ut = getutline (&utx);
+  if (ut)
     {
 # ifdef HAVE_STRUCT_UTMP_UT_TYPE
       ut->ut_type = DEAD_PROCESS;

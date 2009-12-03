@@ -133,5 +133,7 @@ check_local ()
       return (0);
     }
   p_error ("Unable to connect with initiator");
+
+  return -1;
 }
 

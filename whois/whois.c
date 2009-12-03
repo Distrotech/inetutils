@@ -409,7 +409,7 @@ char *
 queryformat (const char *server, const char *flags, const char *query)
 {
   char *buf;
-  int i, isripe = 0;
+  int isripe = 0;
 
   /* +10 for CORE; +2 for \r\n; +1 for NULL */
   buf = malloc (strlen (flags) + strlen (query) + 10 + 2 + 1);

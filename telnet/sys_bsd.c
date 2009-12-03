@@ -1319,7 +1319,8 @@ process_rings (int netin, int netout, int netex, int ttyin, int ttyout,
   if (FD_ISSET (tin, &ibits))
     {
       FD_CLR (tin, &ibits);
-      c = TerminalRead (ttyiring.supply, ring_empty_consecutive (&ttyiring));
+      c = TerminalRead ((char *)ttyiring.supply,
+                        ring_empty_consecutive (&ttyiring));
       if (c < 0 && errno == EIO)
 	c = 0;
       if (c < 0 && errno == EWOULDBLOCK)
