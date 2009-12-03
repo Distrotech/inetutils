@@ -140,7 +140,7 @@ static struct argp_option argp_options[] = {
 #ifdef ENCRYPTION
 # define GRID 20
   { NULL, 0, NULL, 0,
-    "Encryption control:", GRID }
+    "Encryption control:", GRID },
   { "encrypt", 'x', NULL, 0,
     "encrypt the data stream, if possible", GRID+1 },
 # undef GRID
