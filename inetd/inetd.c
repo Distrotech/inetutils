@@ -581,7 +581,11 @@ setup (struct servtab *sep)
 #ifdef IPV6
   if (sep->se_family == AF_INET6)
     {
-      int val = sep->se_v4mapped;
+      /* Reverse the value of SEP->se_v4mapped, since otherwise if
+	 using `tcp' as a protocol type all connections will be mapped
+	 to IPv6, and with `tcp6' they get mapped IPv4 mapped to
+	 IPv6.  */
+      int val = sep->se_v4mapped ? 0 : 1;
       if (setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
 		      (char *) &val, sizeof (val)) < 0)
 	syslog (LOG_ERR, "setsockopt (IPV6_V6ONLY): %m");

@@ -1,3 +1,9 @@
+2009-12-03  Alfred M. Szmidt  <ams@gnu.org>
+
+	* inetd/inetd.c (setup) [IPV6]: Reverse the value of
+	SEP->se_v4mapped before setting socket options.  Reported by Ross
+	Alexander <Ross.Alexander@eu.nec.com>.
+
 2009-11-23  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ping/ping6.c (argp_options) <numeric>: Fix typo.
