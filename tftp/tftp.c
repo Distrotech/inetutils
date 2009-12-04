@@ -115,7 +115,7 @@ send_file (int fd, char *name, char *mode)
   volatile int block, size, convert;
   volatile unsigned long amount;
   struct sockaddr_in from;
-  size_t fromlen;
+  socklen_t fromlen;
   FILE *file;
 
   startclock ();		/* start stat's clock */
@@ -228,7 +228,7 @@ recvfile (int fd, char *name, char *mode)
   volatile int block, size, firsttrip;
   volatile unsigned long amount;
   struct sockaddr_in from;
-  size_t fromlen;
+  socklen_t fromlen;
   FILE *file;
   volatile int convert;		/* true if converting crlf -> lf */
 

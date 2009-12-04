@@ -1,8 +1,31 @@
+2009-12-04  Guillem Jover <guillem@hadrons.org>
+
+	* ftp/ftp.c (hookup, initconn): Change `len' type from size_t to socklen_t.
+	(dataconn): Change `fromlen' type from size_t to socklen_t.
+	* ftpd/server_mode.c (server_mode): Change `addrlen' type from size_t to
+	socklen_t.
+	* ping/libping.c (ping_recv): Change `fromlen' type from size_t to socklen_t.
+	* rexecd/rexecd.c (main): Likewise.
+	* rlogind/rlogind.c (rlogin_daemon, rlogind_mainloop): Change `size' type
+	from size_t to socklen_t.
+	(rlogind_auth): Change `optsize' type from size_t to socklen_t.
+	* rshd/rshd.c (main): Change `fromlen' type from size_t to socklen_t.
+	(doit): Change `optsize' type from size_t to socklen_t.
+	* syslogd/syslogd.c (main): Change `len' type from size_t to socklen_t.
+	* talk/ctl.c (open_sockt, open_ctl): Change `length' type from size_t to
+	socklen_t.
+	* talkd/talkd.c (talkd_run): Change `len' type from size_t to socklen_t.
+	* tftp/tftp.c (send_file, recvfile): Change `fromlen' type from size_t to
+	socklen_t.
+	* tftpd/tftpd.c (fromlen): Likewise.
+	(main): Change `j' type from size_t to socklen_t.
+
 2009-12-04  Simon Josefsson  <simon@josefsson.org>
 
 	* doc/inetutils.texi: Improve chapter titles.
 
 2009-12-03  Giuseppe Scrivano  <gscrivano@gnu.org>
+
 	* ftp/Makefile.am (LDADD): Replace "-L../lib -lgnu" with
 	"../lib/libgnu.a".
 	* ftpd/Makefile.am (LDADD): Likewise.

@@ -625,7 +625,7 @@ main (int argc, char *argv[])
 	if (fdarray[i].revents & (POLLIN | POLLPRI))
 	  {
 	    int result;
-	    size_t len;
+	    socklen_t len;
 	    if (fdarray[i].fd == -1)
 	      continue;
 	    else if (fdarray[i].fd == fklog)

@@ -91,7 +91,7 @@ CTL_MSG msg;
 int
 open_sockt ()
 {
-  size_t length;
+  socklen_t length;
 
   my_addr.sin_addr = my_machine_addr;
   my_addr.sin_port = 0;
@@ -111,7 +111,7 @@ open_sockt ()
 int
 open_ctl ()
 {
-  size_t length;
+  socklen_t length;
 
   ctl_addr.sin_port = 0;
   ctl_addr.sin_addr = my_machine_addr;

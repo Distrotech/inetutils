@@ -233,7 +233,7 @@ main (int argc, char *argv[])
   int index;
   struct linger linger;
   int on = 1;
-  size_t fromlen;
+  socklen_t fromlen;
   struct sockaddr_in from;
   int sockfd;
 
@@ -364,7 +364,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   {
     u_char optbuf[BUFSIZ / 3], *cp;
     char lbuf[BUFSIZ], *lp;
-    size_t optsize = sizeof (optbuf);
+    socklen_t optsize = sizeof (optbuf);
     int ipproto;
     struct protoent *ip;
 

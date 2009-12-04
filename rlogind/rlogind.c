@@ -426,7 +426,7 @@ void
 rlogin_daemon (int maxchildren, int port)
 {
   pid_t pid;
-  size_t size;
+  socklen_t size;
   struct sockaddr_in saddr;
   int listenfd, fd;
 
@@ -595,7 +595,7 @@ rlogind_auth (int fd, struct auth_data *ap)
       {
 	u_char optbuf[BUFSIZ / 3], *cp;
 	char lbuf[BUFSIZ], *lp;
-	size_t optsize = sizeof (optbuf);
+	socklen_t optsize = sizeof (optbuf);
 	int ipproto;
 	struct protoent *ip;
 
@@ -714,7 +714,7 @@ exec_login (int authenticated, struct auth_data *ap)
 int
 rlogind_mainloop (int infd, int outfd)
 {
-  size_t size;
+  socklen_t size;
   struct auth_data auth_data;
   int true;
   char c;

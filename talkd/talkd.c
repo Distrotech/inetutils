@@ -140,7 +140,7 @@ talkd_run (int fd)
       struct sockaddr_in sa_in;
       CTL_MSG msg;
       CTL_RESPONSE resp;
-      size_t len;
+      socklen_t len;
 
       len = sizeof sa_in;
       rc =

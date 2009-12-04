@@ -121,7 +121,7 @@ int
 main (int argc, char **argv)
 {
   struct sockaddr_in from;
-  size_t fromlen;
+  socklen_t fromlen;
   int sockfd = STDIN_FILENO;
   int index;
 

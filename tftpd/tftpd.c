@@ -103,7 +103,7 @@ static int maxtimeout = 5 * TIMEOUT;
 static char buf[PKTSIZE];
 static char ackbuf[PKTSIZE];
 static struct sockaddr_in from;
-static size_t fromlen;
+static socklen_t fromlen;
 
 void tftp (struct tftphdr *, int);
 
@@ -227,7 +227,7 @@ main (int argc, char *argv[])
   {
     int pid;
     int i;
-    size_t j;
+    socklen_t j;
 
     for (i = 1; i < 20; i++)
       {

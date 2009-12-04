@@ -131,7 +131,7 @@ hookup (host, port)
 {
   struct hostent *hp = 0;
   int s, tos;
-  size_t len;
+  socklen_t len;
   static char hostnamebuf[80];
 
   memset ((char *) &hisctladdr, 0, sizeof (hisctladdr));
@@ -1155,7 +1155,7 @@ initconn ()
 {
   char *p, *a;
   int result, tmpno = 0;
-  size_t len;
+  socklen_t len;
   int on = 1;
   int a0, a1, a2, a3, p0, p1;
 
@@ -1293,7 +1293,7 @@ dataconn (lmode)
 {
   struct sockaddr_in from;
   int s, tos;
-  size_t fromlen = sizeof (from);
+  socklen_t fromlen = sizeof (from);
 
   if (passivemode)
     return (fdopen (data, lmode));

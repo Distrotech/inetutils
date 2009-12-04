@@ -172,7 +172,7 @@ my_echo_reply (PING * p, icmphdr_t * icmp)
 int
 ping_recv (PING * p)
 {
-  size_t fromlen = sizeof (p->ping_from.ping_sockaddr);
+  socklen_t fromlen = sizeof (p->ping_from.ping_sockaddr);
   int n, rc;
   icmphdr_t *icmp;
   struct ip *ip;
