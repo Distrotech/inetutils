@@ -1,3 +1,7 @@
+2009-12-04  Simon Josefsson  <simon@josefsson.org>
+
+	* doc/inetutils.texi: Improve chapter titles.
+
 2009-12-03  Giuseppe Scrivano  <gscrivano@gnu.org>
 	* ftp/Makefile.am (LDADD): Replace "-L../lib -lgnu" with
 	"../lib/libgnu.a".

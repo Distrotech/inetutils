@@ -212,7 +212,7 @@ it may differ on unusual platforms as @acronym{POSIX} requires only
 that it be nonzero.
 
 @node logger invocation
-@chapter @command{logger}: Send messages to system log.
+@chapter @command{logger}: Send messages to system log
 @cindex logger
 
 @command{logger} is a program to send entries to system log.
@@ -328,7 +328,7 @@ logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1 --file warnings
 @end enumerate
 
 @node ping invocation
-@chapter @command{ping}: FIXME
+@chapter @command{ping}: Packets to network hosts
 @cindex ping
 
 @c FIXME: The text is far to detailed about the actual implementation
@@ -595,7 +595,7 @@ broadcast address should only be done under very controlled
 conditions.
 
 @node traceroute invocation
-@chapter @command{traceroute}: Trace the route to a host.
+@chapter @command{traceroute}: Trace the route to a host
 @pindex traceroute
 
 @command{traceroute} traces the route packets take to a host.
@@ -631,7 +631,7 @@ Resolve hostnames.
 @end table
 
 @node whois invocation
-@chapter @command{whois}: FIXME
+@chapter @command{whois}: Whois user interface
 
 Synopsis:
 
@@ -1484,7 +1484,7 @@ restrictions in place.  The exact methods are specific to each site
 and therefore difficult to document here.
 
 @node rsh invocation
-@chapter @command{rsh}: FIXME
+@chapter @command{rsh}: Remote shell
 @cindex rsh
 
 @command{rsh} executes command on host and copies its standard input
@@ -1572,7 +1572,7 @@ the local file @file{localfile}, while the later command appends
 @file{remotefile} to @file{other_remotefile}.
 
 @node rlogin invocation
-@chapter @command{rlogin}: FIXME
+@chapter @command{rlogin}: Remote login
 @cindex rlogin
 
 @command{rlogin} command logs into a specified remote host and
@@ -1918,7 +1918,7 @@ Disable type ATYPE authentication.
 @end table
 
 @node inetd invocation
-@chapter @command{inetd}: FIXME
+@chapter @command{inetd}: Interner super-server
 @cindex inetd
 
 @command{inetd} program should be run at boot time by /etc/rc.  It
@@ -2729,7 +2729,7 @@ Displayed and access refused.
 @end table
 
 @node tftpd invocation
-@chapter @command{tftpd}: FIXME
+@chapter @command{tftpd}: TFTP server
 @cindex tftpd
 
 Synopsis:
@@ -2748,7 +2748,7 @@ filenames.
 @end table
 
 @node rshd invocation
-@chapter @command{rshd}: FIXME
+@chapter @command{rshd}: Remote shell server
 @cindex rshd
 
 The @command{rshd} server is the server for the @code{rcmd} routine
@@ -2952,7 +2952,7 @@ client machine and the connecting medium.  This is insecure, but is
 useful in an ``open'' environment.
 
 @node rlogind invocation
-@chapter @command{rlogind}: FIXME
+@chapter @command{rlogind}: Remote login server
 @cindex rlogind
 
 @command{rlogind} is the server for the @command{rlogin} program
@@ -3252,7 +3252,7 @@ address and the caller and callee client programs establish a stream
 connection through which the conversation takes place.
 
 @node telnetd invocation
-@chapter @command{telnetd}: FIXME
+@chapter @command{telnetd}: Telnet server
 @cindex telnetd
 
 @example
@@ -3295,7 +3295,7 @@ Disable the use of given authentication option.
 @end table
 
 @node uucpd invocation
-@chapter @command{uucpd}: FIXME
+@chapter @command{uucpd}: Unix to Unix Copy
 
 Synopsis:
 
