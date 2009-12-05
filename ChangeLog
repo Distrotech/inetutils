@@ -1,22 +1,27 @@
 2009-12-04  Guillem Jover <guillem@hadrons.org>
 
-	* ftp/ftp.c (hookup, initconn): Change `len' type from size_t to socklen_t.
+	* ftp/ftp.c (hookup, initconn): Change `len' type from size_t to
+	socklen_t.
 	(dataconn): Change `fromlen' type from size_t to socklen_t.
-	* ftpd/server_mode.c (server_mode): Change `addrlen' type from size_t to
+	* ftpd/server_mode.c (server_mode): Change `addrlen' type from
+	size_t to socklen_t.
+	* ping/libping.c (ping_recv): Change `fromlen' type from size_t to
 	socklen_t.
-	* ping/libping.c (ping_recv): Change `fromlen' type from size_t to socklen_t.
 	* rexecd/rexecd.c (main): Likewise.
-	* rlogind/rlogind.c (rlogin_daemon, rlogind_mainloop): Change `size' type
-	from size_t to socklen_t.
+	* rlogind/rlogind.c (rlogin_daemon, rlogind_mainloop): Change
+	`size' type from size_t to socklen_t.
 	(rlogind_auth): Change `optsize' type from size_t to socklen_t.
-	* rshd/rshd.c (main): Change `fromlen' type from size_t to socklen_t.
+	* rshd/rshd.c (main): Change `fromlen' type from size_t to
+	socklen_t.
 	(doit): Change `optsize' type from size_t to socklen_t.
-	* syslogd/syslogd.c (main): Change `len' type from size_t to socklen_t.
-	* talk/ctl.c (open_sockt, open_ctl): Change `length' type from size_t to
+	* syslogd/syslogd.c (main): Change `len' type from size_t to
 	socklen_t.
-	* talkd/talkd.c (talkd_run): Change `len' type from size_t to socklen_t.
-	* tftp/tftp.c (send_file, recvfile): Change `fromlen' type from size_t to
+	* talk/ctl.c (open_sockt, open_ctl): Change `length' type from
+	size_t to socklen_t.
+	* talkd/talkd.c (talkd_run): Change `len' type from size_t to
 	socklen_t.
+	* tftp/tftp.c (send_file, recvfile): Change `fromlen' type from
+	size_t to socklen_t.
 	* tftpd/tftpd.c (fromlen): Likewise.
 	(main): Change `j' type from size_t to socklen_t.
 
@@ -82,7 +87,7 @@
 	size_t.
 	* hostname/hostname.c (struct hostname_arguments): Change type of
 	`hostname_new' to (char *).
-	(set_name):  Likewise.
+	(set_name): Likewise.
 	(get_name): Remove unused variable.
 	* ifconfig/system/linux.c (system_fh_hwaddr): Add cast.
 	* inetd/inetd.c (expand_enter): Remove unused variables.
@@ -140,16 +145,14 @@
 	* telnetd/termstat.c (clientstat): Add parentheses around
 	assignment.
 	(getconfigent): Change `argc' and `i' type to int.
-	* telnetd/utility.c [HAVE_READLINE_READLINE_H]: Include
-	<term.h>.
+	* telnetd/utility.c [HAVE_READLINE_READLINE_H]: Include <term.h>.
 	(net_get_char): Add default return statement.
 	(pty_get_char): Likewise.
 	(pty_input_putback): Likewise.
 	(debug_close): Likewise.
 	(printsub): Cast &pointer[i] to (char *) when used as argument to
 	debug_output_datalen.
-	* tftpd/tftpd.c (fromlen): Change type to size_t.  Make it
-	static.
+	* tftpd/tftpd.c (fromlen): Change type to size_t.  Make it static.
 	(peer, rexmtval, maxtimeout, buf, ackbuf, from): Make static.
 	(main): Change type of `j' to size_t.
 	* telnet/externs.h (env_getvalue): Change argument type to const
@@ -159,10 +162,10 @@
 	(dokludgemode): Add return statement.
 	(shell): Use NULL as sentinel to execl.
 	(quit): Add return statement.
-	(env_default, env_undefine, getcmd, tn): Add
-	parentheses around assignment used as boolean value.
+	(env_default, env_undefine, getcmd, tn): Add parentheses around
+	assignment used as boolean value.
 	(env_define, env_export, env_getvalue, env_init, env_undefine)
-	(env_unexport):	Move assignment out from the if condition.
+	(env_unexport): Move assignment out from the if condition.
 	(env_export, env_find, env_define, env_send, env_unexport)
 	(env_varval): Change type of `var' to (const char *).
 	(tn): Add parentheses around logic operators.
@@ -171,13 +174,12 @@
 	boolean value.
 	* telnet/sys_bsd.c (process_rings): Cast ttyiring.supply to char *
 	when used as argument to TerminalRead.
-	* telnet/telnet.c [HAVE_READLINE_READLINE_H]: Include
-	<term.h>.
+	* telnet/telnet.c [HAVE_READLINE_READLINE_H]: Include <term.h>.
 	(initfunc, env_opt_add): Add parentheses around assignment used as
 	boolean value.
 	(dooption, gettermname, suboption, telnet): Remove cast.
 	(suboption): Add casts to int.
-	* telnet/terminal.c (ttyflush): When used as argument,  cast
+	* telnet/terminal.c (ttyflush): When used as argument, cast
 	ttyiring.{bottom, consume} (char *) to TerminalRead.
 	* tftp/tftp.c (send_file): Change `fromlen' type to size_t.
 	(recvfile): Likewise.
@@ -215,8 +217,8 @@
 
 2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
 
-	* libtelnet/shishi.c: Don't include
-	<assert.h> (fixes prohibit_assert_without_use).
+	* libtelnet/shishi.c: Don't include <assert.h> (fixes
+	prohibit_assert_without_use).
 
 2009-11-15  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -274,14 +276,16 @@
 	* ftp/ruserpass.c (ruserpass): Likewise.
 	* ftpd/auth.c (auth_user, sgetcred): Likewise.
 	* ftpd/ftpcmd.y (cmd_list, cmd, rcmd): Likewise.
-	* ftpd/ftpd.c (curdir, end_login, dolog, send_file_list): Likewise.
+	* ftpd/ftpd.c (curdir, end_login, dolog, send_file_list):
+	Likewise.
 	* ftpd/pam.c (pam_user): Likewise.
 	* ifconfig/if_index.c (if_freenameindex): Likewise.
 	* inetd/inetd.c (freeconfig, getconfigent): Likewise.
 	* libinetutils/argcv.c (int argcv_free): Likewise.
 	* libls/fts.c (fts_close, fts_build): Likewise.
 	* libtelnet/kerberos5.c (kerberos5_is_auth): Likewise.
-	* libtelnet/misc.c (auth_encrypt_init, auth_encrypt_user): Likewise.
+	* libtelnet/misc.c (auth_encrypt_init, auth_encrypt_user):
+	Likewise.
 	* syslogd/syslogd.c (main, logmsg): Likewise.
 	* telnet/commands.c (env_define, env_undefine, tn): Likewise.
 	* telnetd/state.c (suboption): Likewise.
