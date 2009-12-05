@@ -840,6 +840,10 @@
 	* README-hacking: File removed.
 	* README-alpha: Updated.
 
+2009-02-06  Simon Josefsson <simon@josefsson.org>
+
+	* configure.ac: Bump version number to 1.6.90.
+
 2009-01-23  Rakesh Pandit <rakesh.pandit@gmail.com>
 
 	* ftpd/ftpcmd.y: Fix typo.
