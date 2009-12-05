@@ -76,6 +76,9 @@ utmp_init (char *line, char *user, char *id)
 #else
   struct utmp utx;
 #endif
+#if defined(HAVE_STRUCT_UTMPX_UT_TV)
+  struct timeval tv;
+#endif
 
   memset ((char *) &utx, 0, sizeof (utx));
 #if defined(HAVE_STRUCT_UTMP_UT_ID)
@@ -94,7 +97,9 @@ utmp_init (char *line, char *user, char *id)
   utx.ut_type = LOGIN_PROCESS;
 #endif
 #if defined(HAVE_STRUCT_UTMPX_UT_TV)
-  gettimeofday (&(utx.ut_tv), 0);
+  gettimeofday (&tv, 0);
+  utx.ut_tv.tv_sec = tv.tv_sec;
+  utx.ut_tv.tv_usec = tv.tv_usec;
 #else
   time (&(utx.ut_time));
 #endif

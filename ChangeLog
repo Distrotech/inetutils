@@ -1,5 +1,15 @@
 2009-12-05  Guillem Jover  <guillem@hadrons.org>
 
+	* ftpd/logwtmp.c (logwtmp) [_HAVE_UT_TV]: Use a `struct timeval'
+	variable to get the result from gettimeofday.
+	* libinetutils/logwtmp.c (logwtmp) [HAVE_STRUCT_UTMP_UT_TV]:
+	Likewise.
+	* libinetutils/utmp_init.c (utmp_init) [HAVE_STRUCT_UTMPX_UT_TV]:
+	Likewise.
+	* libinetutils/utmp_logout.c (utmp_logout): Likewise.
+
+2009-12-05  Guillem Jover  <guillem@hadrons.org>
+
 	* uucpd/uucpd.c (dologin): New `time_t' variable to use with
 	time(), copy its contents to `ll.ll_time' afterwards.
 

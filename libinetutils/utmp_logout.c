@@ -76,10 +76,14 @@ utmp_logout (char *line)
   ut = getutxline (&utx);
   if (ut)
     {
+      struct timeval tv;
+
       ut->ut_type = DEAD_PROCESS;
       ut->ut_exit.e_termination = 0;
       ut->ut_exit.e_exit = 0;
-      gettimeofday (&(ut->ut_tv), 0);
+      gettimeofday (&tv, 0);
+      ut->ut_tv.tv_sec = tv_sec;
+      ut->ut_tv.tv_usec = tv_usec;
       pututxline (ut);
       updwtmpx (PATH_WTMPX, ut);
     }
@@ -93,6 +97,10 @@ utmp_logout (char *line)
   ut = getutline (&utx);
   if (ut)
     {
+# ifdef HAVE_STRUCT_UTMP_UT_TV
+      struct timeval tv;
+# endif
+
 # ifdef HAVE_STRUCT_UTMP_UT_TYPE
       ut->ut_type = DEAD_PROCESS;
 # endif
@@ -101,7 +109,9 @@ utmp_logout (char *line)
       ut->ut_exit.e_exit = 0;
 # endif
 # ifdef HAVE_STRUCT_UTMP_UT_TV
-      gettimeofday (&(ut->ut_tv), 0);
+      gettimeofday (&tv, 0);
+      ut->ut_tv.tv_sec = tv.tv_sec;
+      ut->ut_tv.tv_usec = tv.tv_usec;
 # else
       time (&(ut->ut_time));
 # endif

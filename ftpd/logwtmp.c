@@ -74,6 +74,9 @@ void
 logwtmp (const char *line, const char *name, const char *host)
 {
   struct utmp ut;
+#if _HAVE_UT_TV - 0
+  struct timeval tv;
+#endif
 
   /* Set information in new entry.  */
   memset (&ut, 0, sizeof (ut));
@@ -87,7 +90,9 @@ logwtmp (const char *line, const char *name, const char *host)
 #endif
 
 #if _HAVE_UT_TV - 0
-  gettimeofday (&ut.ut_tv, NULL);
+  gettimeofday (&tv, NULL);
+  ut.ut_tv.tv_sec = tv.tv_sec;
+  ut.ut_tv.tv_usec = tv.tv_usec;
 #else
   time (&ut.ut_time);
 #endif

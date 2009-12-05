@@ -111,6 +111,9 @@ logwtmp (char *line, char *name, char *host)
 #endif
 {
   struct utmp ut;
+#ifdef HAVE_STRUCT_UTMP_UT_TV
+  struct timeval tv;
+#endif
 
   /* Set information in new entry.  */
   bzero (&ut, sizeof (ut));
@@ -124,7 +127,9 @@ logwtmp (char *line, char *name, char *host)
 #endif
 
 #ifdef HAVE_STRUCT_UTMP_UT_TV
-  gettimeofday (&ut.ut_tv, NULL);
+  gettimeofday (&tv, NULL);
+  ut.ut_tv.tv_sec = tv.tv_sec;
+  ut.ut_tv.tv_usec = tv.tv_usec;
 #else
   time (&ut.ut_time);
 #endif
