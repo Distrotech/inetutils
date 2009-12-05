@@ -1,3 +1,10 @@
+2009-12-05  Ludovic Courtès <ludo@gnu.org> (tiny change)
+
+	* tests/Makefile.am (check_SCRIPTS): New variable.
+	(TESTS): Added $(check_SCRIPTS), removed `ping-localhost.sh' and
+	`traceroute-localhost.sh' from list.
+	(EXTRA_DIST): New variable.
+
 2009-12-05  Alfred M. Szmidt  <ams@gnu.org>
 
 	* cfg.mk (news-check-regexp): New variable.
