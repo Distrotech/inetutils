@@ -17,11 +17,11 @@
 
 	* configure.ac (AM_SILENT_RULES): Call macro.
 
-2009-12-05  Samuel Thibault <samuel.thibault@ens-lyon.org> (tiny change)
+2009-12-05  Samuel Thibault  <samuel.thibault@ens-lyon.org> (tiny change)
 
 	* am/config_paths.m4 (IU_CONFIG_PATHS): Set iu_test_type to `e'.
 
-2009-12-05  Ludovic Courtès <ludo@gnu.org> (tiny change)
+2009-12-05  Ludovic Courtès  <ludo@gnu.org> (tiny change)
 
 	* tests/Makefile.am (check_SCRIPTS): New variable.
 	(TESTS): Added $(check_SCRIPTS), removed `ping-localhost.sh' and
@@ -32,7 +32,7 @@
 
 	* cfg.mk (news-check-regexp): New variable.
 
-2009-12-04  Guillem Jover <guillem@hadrons.org>
+2009-12-04  Guillem Jover  <guillem@hadrons.org>
 
 	* ftp/ftp.c (hookup, initconn): Change `len' type from size_t to
 	socklen_t.
