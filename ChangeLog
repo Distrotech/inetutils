@@ -1,3 +1,7 @@
+2009-12-05  Samuel Thibault <samuel.thibault@ens-lyon.org> (tiny change)
+
+	* am/config_paths.m4 (IU_CONFIG_PATHS): Set iu_test_type to `e'.
+
 2009-12-05  Ludovic Courtès <ludo@gnu.org> (tiny change)
 
 	* tests/Makefile.am (check_SCRIPTS): New variable.
