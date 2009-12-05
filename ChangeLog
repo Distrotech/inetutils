@@ -1,3 +1,7 @@
+2009-12-05  Alfred M. Szmidt  <ams@gnu.org>
+
+	* cfg.mk (news-check-regexp): New variable.
+
 2009-12-04  Guillem Jover <guillem@hadrons.org>
 
 	* ftp/ftp.c (hookup, initconn): Change `len' type from size_t to

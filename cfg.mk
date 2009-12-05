@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+news-check-regexp = '^Version $(VERSION_REGEXP):'
+
 local-checks-to-skip = \
 	sc_error_message_period \
 	sc_error_message_uppercase \
