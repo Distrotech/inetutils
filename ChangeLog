@@ -1,3 +1,7 @@
+2009-12-05  Guillem Jover  <guillem@hadrons.org>
+
+	* configure.ac (AM_SILENT_RULES): Call macro.
+
 2009-12-05  Samuel Thibault <samuel.thibault@ens-lyon.org> (tiny change)
 
 	* am/config_paths.m4 (IU_CONFIG_PATHS): Set iu_test_type to `e'.

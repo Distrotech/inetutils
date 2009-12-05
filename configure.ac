@@ -116,6 +116,8 @@ IU_ENABLE_CLIENT(traceroute)
 
 AM_INIT_AUTOMAKE
 
+AM_SILENT_RULES([yes]) # make --enable-silent-rules the default.
+
 AC_ISC_POSIX
 
 ### Checks for programs.
