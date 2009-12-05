@@ -277,8 +277,10 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
   if (f >= 0)
     {
       struct lastlog ll;
+      time_t t;
 
-      time (&ll.ll_time);
+      time (&t);
+      ll.ll_time = t;
       lseek (f, (long) pw->pw_uid * sizeof (struct lastlog), 0);
       strcpy (line, remotehost);
       SCPYN (ll.ll_line, line);

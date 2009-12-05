@@ -1,5 +1,10 @@
 2009-12-05  Guillem Jover  <guillem@hadrons.org>
 
+	* uucpd/uucpd.c (dologin): New `time_t' variable to use with
+	time(), copy its contents to `ll.ll_time' afterwards.
+
+2009-12-05  Guillem Jover  <guillem@hadrons.org>
+
 	* configure.ac (AM_SILENT_RULES): Call macro.
 
 2009-12-05  Samuel Thibault <samuel.thibault@ens-lyon.org> (tiny change)
