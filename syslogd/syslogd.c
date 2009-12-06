@@ -258,6 +258,7 @@ void cfline (const char *, struct filed *);
 const char *cvthname (struct sockaddr_in *);
 int decode (const char *, CODE *);
 void die (int);
+void doexit (int);
 void domark (int);
 void fprintlog (struct filed *, const char *, int, const char *);
 void init (int);
@@ -452,14 +453,15 @@ main (int argc, char *argv[])
   /* Daemonise, if not, set the buffering for line buffer.  */
   if (!NoDetach)
     {
-      /* History:  According to the GNU/Linux sysklogd ChangeLogs
-         "Wed Feb 14 12:42:09 CST 1996:  Dr. Wettstein
-         Parent process of syslogd does not exit until child process has
-         finished initialization process.  This allows rc.* startup to
-         pause until syslogd facility is up and operating."
+      /* History: According to the GNU/Linux sysklogd ChangeLogs "Wed
+         Feb 14 12:42:09 CST 1996: Dr. Wettstein Parent process of
+         syslogd does not exit until child process has finished
+         initialization process.  This allows rc.* startup to pause
+         until syslogd facility is up and operating."
 
          IMO, the GNU/Linux distributors should fix there booting
-         sequence. But we still keep the approach.  */
+         sequence.  But we still keep the approach.  */
+      signal (SIGTERM, doexit);
       ppid = waitdaemon (0, 0, 30);
       if (ppid < 0)
         error (1, errno, "could not become daemon");
@@ -594,7 +596,7 @@ main (int argc, char *argv[])
   /* If we're doing waitdaemon(), tell the parent to exit,
      we are ready to roll.  */
   if (ppid)
-    kill (ppid, SIGALRM);
+    kill (ppid, SIGTERM);
 
   for (;;)
     {
@@ -1501,6 +1503,12 @@ logerror (const char *type)
   errno = 0;
   dbg_printf ("%s\n", buf);
   logmsg (LOG_SYSLOG | LOG_ERR, buf, LocalHostName, ADDDATE);
+}
+
+RETSIGTYPE
+doexit (int signo ARG_UNUSED)
+{
+  _exit (0);
 }
 
 RETSIGTYPE

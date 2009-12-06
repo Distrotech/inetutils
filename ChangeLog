@@ -1,3 +1,10 @@
+2009-12-05  Guillem Jover  <guillem@hadrons.org>
+
+	* syslogd/syslogd.c (doexit): New function declaration.
+	(main): Install doexit as SIGTERM handler.  Send SIGTERM instead
+	of SIGALRM to the parent process.
+	(doexit): New function.
+
 2009-12-06  Alfred M. Szmidt  <ams@gnu.org>
 
 	* configure.ac (AM_INIT_AUTOMAKE): Depend on automake 1.11.
