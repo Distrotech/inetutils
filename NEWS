@@ -23,6 +23,10 @@ PID of the `logger' process.
 * Restore the traditional behavior of ping without -c option.
 
 * The manual is now licensed under the GNU FDL version 1.3 or later.
+
+* rexec
+
+New program.
 
 December 27, 2008
 Version 1.6:

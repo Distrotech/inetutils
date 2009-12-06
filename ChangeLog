@@ -1,3 +1,7 @@
+2009-12-06  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* NEWS: Mention the new program rexec.
+
 2009-12-06  Guillem Jover  <guillem@hadrons.org>
 
 	* hostname/hostname.c (parse_file): Use a do ... while loop
