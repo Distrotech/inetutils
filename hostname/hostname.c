@@ -377,23 +377,20 @@ parse_file (const char *const file_name)
   if (file == NULL)
     error (EXIT_FAILURE, errno, "fopen");
 
-  nread = getline (&buffer, &size, file);
-  if (nread == -1)
-    error (EXIT_FAILURE, errno, "getline");
-
-  while (feof (file) == 0)
+  do
     {
+      nread = getline (&buffer, &size, file);
+      if (nread == -1)
+	error (EXIT_FAILURE, errno, "getline");
+
       if (buffer[0] != '#')
         {
           name = xmalloc (sizeof (char) * nread);
           sscanf (buffer, "%s", name);
           break;
         }
-
-      nread = getline (&buffer, &size, file);
-      if (nread == -1)
-        error (EXIT_FAILURE, errno, "getline");
     }
+  while (feof (file) == 0);
 
   free (buffer);
   fclose (file);

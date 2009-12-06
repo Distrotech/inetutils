@@ -1,3 +1,8 @@
+2009-12-06  Guillem Jover  <guillem@hadrons.org>
+
+	* hostname/hostname.c (parse_file): Use a do ... while loop
+	instead of a while loop.
+
 2009-12-05  Guillem Jover  <guillem@hadrons.org>
 
 	* configure.ac: Remove libbsd check.
