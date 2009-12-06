@@ -1,3 +1,7 @@
+2009-12-06  Alfred M. Szmidt  <ams@gnu.org>
+
+	* configure.ac (AM_INIT_AUTOMAKE): Depend on automake 1.11.
+
 2009-12-05  Guillem Jover  <guillem@hadrons.org>
 
 	* ftpd/logwtmp.c (logwtmp) [_HAVE_UT_TV]: Use a `struct timeval'
