@@ -136,7 +136,6 @@ AC_PROG_YACC
 gl_INIT
 
 ### Checks for libraries.
-AC_CHECK_LIB(bsd, revoke)
 AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(socket, getpeername)

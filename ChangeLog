@@ -1,5 +1,9 @@
 2009-12-05  Guillem Jover  <guillem@hadrons.org>
 
+	* configure.ac: Remove libbsd check.
+
+2009-12-05  Guillem Jover  <guillem@hadrons.org>
+
 	* syslogd/syslogd.c (doexit): New function declaration.
 	(main): Install doexit as SIGTERM handler.  Send SIGTERM instead
 	of SIGALRM to the parent process.
