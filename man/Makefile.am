@@ -1,6 +1,5 @@
 #
-# Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-# 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+# Copyright (C) 2009 Free Software Foundation, Inc.
 #
 # This file is part of GNU Inetutils.
 #
@@ -17,18 +16,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-AUTOMAKE_OPTIONS = 1.9
+dist_man1_MANS = telnet.1 telnetd.1 rshd.1
 
-ACLOCAL_AMFLAGS = -I m4 -I am
+man_aux = $(dist_man1_MANS:.1=.x)
+EXTRA_DIST = $(man_aux)
 
-EXTRA_DIST = README-alpha paths ChangeLog.0
+MAINTAINERCLEANFILES = $(dist_man1_MANS)
 
-SUBDIRS = lib headers libinetutils libtelnet \
-	hostname inetd telnetd libls ftpd rshd rlogind uucpd rexecd syslogd \
-	tftpd talkd telnet ftp rsh rcp rlogin tftp logger whois talk \
-	libicmp ping doc ifconfig traceroute rexec tests man
+telnet.1: telnet.x $(top_srcdir)/telnet/main.c $(top_srcdir)/configure.ac
+	$(HELP2MAN) \
+		--include=telnet.x \
+		--output=$@ $(top_builddir)/telnet/telnet$(EXEEXT)
 
-DISTCLEANFILES = pathdefs.make paths.defs
+telnetd.1: telnetd.x $(top_srcdir)/telnetd/telnetd.c $(top_srcdir)/configure.ac
+	$(HELP2MAN) \
+		--include=telnetd.x \
+		--output=$@ $(top_builddir)/telnetd/telnetd$(EXEEXT)
 
-snapshot:
-	$(MAKE) dist distdir=$(PACKAGE)-`date +"%Y%m%d"`
+rshd.1: rshd.x $(top_srcdir)/rshd/rshd.c $(top_srcdir)/configure.ac
+	$(HELP2MAN) \
+		--include=rshd.x \
+		--output=$@ $(top_builddir)/rshd/rshd$(EXEEXT)

@@ -1,3 +1,11 @@
+2009-12-07  Simon Josefsson  <simon@josefsson.org>
+
+	* configure.ac: Check for help2man.
+	* configure.ac (AC_CONFIG_FILES): Add man/Makefile.
+	* Makefile.am (SUBDIRS): Add man directory.
+	* man/Makefile.am: Add file.
+	* man/telnet.x, man/telnetd.x, man/rshd.x: New files.
+
 2009-12-06  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* NEWS: Mention the new program rexec.

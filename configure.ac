@@ -132,6 +132,7 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_YACC
+AM_MISSING_PROG(HELP2MAN, help2man, $missing_dir)
 
 gl_INIT
 
@@ -844,5 +845,6 @@ confpaths.h:confpaths.h.in
 headers/Makefile
 doc/Makefile
 tests/Makefile
+man/Makefile
 ])
 AC_OUTPUT
