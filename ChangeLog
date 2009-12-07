@@ -1,5 +1,9 @@
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
 
+	* rexec/rexec.c (do_rexec): Don't use reserved variable 'stdin'.
+
+2009-12-07  Simon Josefsson  <simon@josefsson.org>
+
 	* NEWS: Mention that man pages are generated using help2man.
 	* configure.ac: Check for LN_S.
 	* man/Makefile.am: Rewrite using skeleton rules.  Add man pages

@@ -186,7 +186,7 @@ do_rexec (struct arguments *arguments)
   char port_str[6];
   struct sockaddr_in addr;
   struct hostent *host;
-  int stdin = STDIN_FILENO;
+  int stdin_fd = STDIN_FILENO;
   int err_sock = -1;
 
   sock = socket (AF_INET, SOCK_STREAM, 0);
@@ -270,18 +270,18 @@ do_rexec (struct arguments *arguments)
       FD_ZERO (&rsocks);
       if (0 <= sock)
         FD_SET (sock, &rsocks);
-      if (0 <= stdin)
-        FD_SET (stdin, &rsocks);
+      if (0 <= stdin_fd)
+	FD_SET (stdin_fd, &rsocks);
       if (0 <= err_sock)
         FD_SET (err_sock, &rsocks);
 
-      ret = select (MAX3 (sock, stdin, err_sock) + 1, &rsocks, NULL, NULL, NULL);
+      ret = select (MAX3 (sock, stdin_fd, err_sock) + 1, &rsocks, NULL, NULL, NULL);
       if (ret == -1)
         error (EXIT_FAILURE, errno, "error select");
 
-     if (0 <= stdin && FD_ISSET (stdin, &rsocks))
+      if (0 <= stdin_fd && FD_ISSET (stdin_fd, &rsocks))
         {
-          err = read (stdin, buffer, 1024);
+	  err = read (stdin_fd, buffer, 1024);
 
           if (err < 0)
             error (EXIT_FAILURE, errno, "error reading stdin");
@@ -289,8 +289,8 @@ do_rexec (struct arguments *arguments)
           if (!err)
             {
               shutdown (sock, SHUT_WR);
-              close (stdin);
-              stdin = -1;
+	      close (stdin_fd);
+	      stdin_fd = -1;
               continue;
             }
 
