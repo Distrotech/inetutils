@@ -221,7 +221,7 @@ that it be nonzero.
 system.
 
 @example
-logger [@var{option}@dots{}] [@var{name}]
+hostname [@var{option}@dots{}] [@var{name}]
 @end example
 
 @table @option

@@ -1,5 +1,10 @@
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
 
+	* doc/inetutils.texi (hostname invocation): Fix typo.  Reported by
+	Alfred M. Szmidt <ams@gnu.org>.
+
+2009-12-07  Simon Josefsson  <simon@josefsson.org>
+
 	* libinetutils/libinetutils.h: Don't include config.h, leads to
 	double inclusion of config.h.
 	* talkd/intalkd.h: Likewise.
