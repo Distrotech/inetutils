@@ -21,7 +21,7 @@ dist_man1_MANS = hostname.1 ifconfig.1 inetd.1 ftp.1 ftpd.1 logger.1	\
 	syslogd.1 talk.1 talkd.1 telnet.1 telnetd.1 traceroute.1	\
 	uucpd.1 whois.1
 
-# FIXME: ping6 ifconfig
+# FIXME: ping6 ifconfig tftpd
 
 man_aux = $(dist_man1_MANS:.1=.x)
 EXTRA_DIST = $(man_aux)
