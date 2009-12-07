@@ -27,6 +27,9 @@ PID of the `logger' process.
 * rexec
 
 New program.
+
+* Man pages for all tools are generated using help2man.
+
 
 December 27, 2008
 Version 1.6:

@@ -1,5 +1,33 @@
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
 
+	* NEWS: Mention that man pages are generated using help2man.
+	* configure.ac: Check for LN_S.
+	* man/Makefile.am: Rewrite using skeleton rules.  Add man pages
+	for many tools.
+	* man/ftpd.x: New file.
+	* man/ftp.x: Likewise.
+	* man/hostname.x: Likewise.
+	* man/ifconfig.x: Likewise.
+	* man/inetd.x: Likewise.
+	* man/logger.x: Likewise.
+	* man/ping.x: Likewise.
+	* man/rcp.x: Likewise.
+	* man/rexecd.x: Likewise.
+	* man/rexec.x: Likewise.
+	* man/rlogind.x: Likewise.
+	* man/rlogin.x: Likewise.
+	* man/rsh.x: Likewise.
+	* man/syslogd.x: Likewise.
+	* man/talkd.x: Likewise.
+	* man/talk.x: Likewise.
+	* man/tftpd.x: Likewise.
+	* man/tftp.x: Likewise.
+	* man/traceroute.x: Likewise.
+	* man/uucpd.x: Likewise.
+	* man/whois.x: Likewise.
+
+2009-12-07  Simon Josefsson  <simon@josefsson.org>
+
 	* doc/inetutils.texi (hostname invocation): Add section.
 
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
