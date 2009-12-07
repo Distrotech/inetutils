@@ -1,5 +1,10 @@
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
 
+	* libinetutils/libinetutils.h: Don't include config.h, leads to
+	double inclusion of config.h.
+
+2009-12-07  Simon Josefsson  <simon@josefsson.org>
+
 	* rexec/rexec.c (do_rexec): Don't use reserved variable 'stdin'.
 
 2009-12-07  Simon Josefsson  <simon@josefsson.org>

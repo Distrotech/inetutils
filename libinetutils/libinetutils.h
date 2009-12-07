@@ -16,7 +16,6 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
-#include "config.h"
 #include "argp-version-etc.h"
 
 void utmp_init (char *line, char *user, char *id);
