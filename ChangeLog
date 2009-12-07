@@ -1,5 +1,9 @@
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
 
+	* doc/inetutils.texi (hostname invocation): Add section.
+
+2009-12-07  Simon Josefsson  <simon@josefsson.org>
+
 	* configure.ac: Check for help2man.
 	* configure.ac (AC_CONFIG_FILES): Add man/Makefile.
 	* Makefile.am (SUBDIRS): Add man directory.

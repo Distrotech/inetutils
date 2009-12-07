@@ -30,6 +30,7 @@
 @direntry
 * ftp: (inetutils)ftp invocation.                 FTP client.
 * ftpd: (inetutils)ftpd invocation.               FTP Daemon.
+* hostname: (inetutils)hostname invocation.       Show or set system host name.
 * inetd: (inetutils)inetd invocation.             Interner super-server.
 * logger: (inetutils)logger invocation.           Send messages to the system log.
 * ping: (inetutils)ping invocation.               Packets to network hosts.
@@ -96,6 +97,7 @@ Documentation License''.
 
 Diagnostic programs
 
+* hostname invocation::                Show or set system host name.
 * logger invocation::                  Send messages to system log.
 * ping invocation::                    Packets to network hosts.
 * traceroute invocation::              Trace the route to a host.
@@ -210,6 +212,65 @@ majority of commands, an exit status of zero indicates success.
 Failure is indicated by a nonzero value---typically @samp{1}, though
 it may differ on unusual platforms as @acronym{POSIX} requires only
 that it be nonzero.
+
+@node hostname invocation
+@chapter @command{hostname}: Show or set system host name.
+@cindex hostname
+
+@command{hostname} is a program to show or set the name of host
+system.
+
+@example
+logger [@var{option}@dots{}] [@var{name}]
+@end example
+
+@table @option
+@item -a
+@itemx --aliases
+@opindex -a
+@opindex --aliases
+Get alias names.
+
+@item -d
+@itemx --domain
+@opindex -d
+@opindex --domain
+Get DNS domain name.
+
+@item -f
+@itemx --fqdn
+@itemx --long
+@opindex -f
+@opindex --fqdn
+@opindex --long
+Get DNS host name or Fully Qualified Domain Name.
+
+@item -F
+@itemx --file
+@opindex -F
+@opindex --file
+Set host name or NIS domain name from FILE.
+
+@item -i
+@itemx --ip-addresses
+@opindex -i
+@opindex --ip-addresses
+Get addresses for the host name.
+
+@item -s
+@itemx --short
+@opindex -s
+@opindex --short
+Get short host name.
+
+@item -y
+@itemx --yp
+@itemx --nis
+@opindex -y
+@opindex --yp
+@opindex --nis
+Get NIS/YP domain name.
+@end table
 
 @node logger invocation
 @chapter @command{logger}: Send messages to system log
