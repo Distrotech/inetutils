@@ -19,9 +19,7 @@
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
-	* man/Makefile.am: Rename *.x files to *.h2m, to use the same
-	extension used in the help2man package itself.  It also a more
-	symbolic name than *.x.
+	* man/Makefile.am: Use .h2m as extension for help2man includes.
 	* man/ftp.x: Renamed to ftp.h2m.
 	* man/ftpd.x: Renamed to ftpd.h2m.
 	* man/hostname.x: Renamed to hostname.h2m.
