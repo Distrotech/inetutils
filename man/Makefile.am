@@ -23,60 +23,60 @@ dist_man1_MANS = hostname.1 ifconfig.1 inetd.1 ftp.1 ftpd.1 logger.1	\
 
 # FIXME: ping6 ifconfig tftp
 
-man_aux = $(dist_man1_MANS:.1=.x)
+man_aux = $(dist_man1_MANS:.1=.h2m)
 EXTRA_DIST = $(man_aux)
 
 MAINTAINERCLEANFILES = $(dist_man1_MANS)
 
-ftp.1: ftp.x $(top_srcdir)/ftp/main.c $(top_srcdir)/configure.ac
+ftp.1: ftp.h2m $(top_srcdir)/ftp/main.c $(top_srcdir)/configure.ac
 
-ftpd.1: ftpd.x $(top_srcdir)/ftpd/ftpd.c $(top_srcdir)/configure.ac
+ftpd.1: ftpd.h2m $(top_srcdir)/ftpd/ftpd.c $(top_srcdir)/configure.ac
 
-hostname.1: hostname.x $(top_srcdir)/hostname/hostname.c $(top_srcdir)/configure.ac
+hostname.1: hostname.h2m $(top_srcdir)/hostname/hostname.c $(top_srcdir)/configure.ac
 
-ifconfig.1: ifconfig.x $(top_srcdir)/ifconfig/options.c $(top_srcdir)/configure.ac
+ifconfig.1: ifconfig.h2m $(top_srcdir)/ifconfig/options.c $(top_srcdir)/configure.ac
 
-inetd.1: inetd.x $(top_srcdir)/inetd/inetd.c $(top_srcdir)/configure.ac
+inetd.1: inetd.h2m $(top_srcdir)/inetd/inetd.c $(top_srcdir)/configure.ac
 
-logger.1: logger.x $(top_srcdir)/logger/logger.c $(top_srcdir)/configure.ac
+logger.1: logger.h2m $(top_srcdir)/logger/logger.c $(top_srcdir)/configure.ac
 
-ping.1: ping.x $(top_srcdir)/ping/ping.c $(top_srcdir)/configure.ac
+ping.1: ping.h2m $(top_srcdir)/ping/ping.c $(top_srcdir)/configure.ac
 
-rcp.1: rcp.x $(top_srcdir)/rcp/rcp.c $(top_srcdir)/configure.ac
+rcp.1: rcp.h2m $(top_srcdir)/rcp/rcp.c $(top_srcdir)/configure.ac
 
-rexec.1: rexec.x $(top_srcdir)/rexec/rexec.c $(top_srcdir)/configure.ac
+rexec.1: rexec.h2m $(top_srcdir)/rexec/rexec.c $(top_srcdir)/configure.ac
 
-rexecd.1: rexecd.x $(top_srcdir)/rexecd/rexecd.c $(top_srcdir)/configure.ac
+rexecd.1: rexecd.h2m $(top_srcdir)/rexecd/rexecd.c $(top_srcdir)/configure.ac
 
-rlogin.1: rlogin.x $(top_srcdir)/rlogin/rlogin.c $(top_srcdir)/configure.ac
+rlogin.1: rlogin.h2m $(top_srcdir)/rlogin/rlogin.c $(top_srcdir)/configure.ac
 
-rlogind.1: rlogind.x $(top_srcdir)/rlogind/rlogind.c $(top_srcdir)/configure.ac
+rlogind.1: rlogind.h2m $(top_srcdir)/rlogind/rlogind.c $(top_srcdir)/configure.ac
 
-rsh.1: rsh.x $(top_srcdir)/rsh/rsh.c $(top_srcdir)/configure.ac
+rsh.1: rsh.h2m $(top_srcdir)/rsh/rsh.c $(top_srcdir)/configure.ac
 
-rshd.1: rshd.x $(top_srcdir)/rshd/rshd.c $(top_srcdir)/configure.ac
+rshd.1: rshd.h2m $(top_srcdir)/rshd/rshd.c $(top_srcdir)/configure.ac
 
-syslogd.1: syslogd.x $(top_srcdir)/syslogd/syslogd.c $(top_srcdir)/configure.ac
+syslogd.1: syslogd.h2m $(top_srcdir)/syslogd/syslogd.c $(top_srcdir)/configure.ac
 
-talk.1: talk.x $(top_srcdir)/talk/talk.c $(top_srcdir)/configure.ac
+talk.1: talk.h2m $(top_srcdir)/talk/talk.c $(top_srcdir)/configure.ac
 
-talkd.1: talkd.x $(top_srcdir)/talkd/talkd.c $(top_srcdir)/configure.ac
+talkd.1: talkd.h2m $(top_srcdir)/talkd/talkd.c $(top_srcdir)/configure.ac
 
-telnet.1: telnet.x $(top_srcdir)/telnet/main.c $(top_srcdir)/configure.ac
+telnet.1: telnet.h2m $(top_srcdir)/telnet/main.c $(top_srcdir)/configure.ac
 
-telnetd.1: telnetd.x $(top_srcdir)/telnetd/telnetd.c $(top_srcdir)/configure.ac
+telnetd.1: telnetd.h2m $(top_srcdir)/telnetd/telnetd.c $(top_srcdir)/configure.ac
 
-tftp.1: tftp.x $(top_srcdir)/tftp/main.c $(top_srcdir)/configure.ac
+tftp.1: tftp.h2m $(top_srcdir)/tftp/main.c $(top_srcdir)/configure.ac
 
-tftpd.1: tftpd.x $(top_srcdir)/tftpd/tftpd.c $(top_srcdir)/configure.ac
+tftpd.1: tftpd.h2m $(top_srcdir)/tftpd/tftpd.c $(top_srcdir)/configure.ac
 
-traceroute.1: traceroute.x $(top_srcdir)/traceroute/traceroute.c $(top_srcdir)/configure.ac
+traceroute.1: traceroute.h2m $(top_srcdir)/traceroute/traceroute.c $(top_srcdir)/configure.ac
 
-uucpd.1: uucpd.x $(top_srcdir)/uucpd/uucpd.c $(top_srcdir)/configure.ac
+uucpd.1: uucpd.h2m $(top_srcdir)/uucpd/uucpd.c $(top_srcdir)/configure.ac
 
-whois.1: whois.x $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
+whois.1: whois.h2m $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
 
-.x.1:
+.h2m.1:
 	rm -f $@ $@-t						\
 	&& {							\
 		rm -rf tmp;					\
@@ -84,7 +84,7 @@ whois.1: whois.x $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
 		(cd tmp && $(LN_S) ../../$*/$* $*);		\
 		    $(HELP2MAN) 				\
 		     --source='$(PACKAGE_STRING)'		\
-		     --include=$(srcdir)/$*.x			\
+		     --include=$(srcdir)/$*.h2m			\
 		     --output=tmp/$@ tmp/$*;			\
 	}							\
 	&& cp tmp/$@ $@-t					\

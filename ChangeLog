@@ -1,3 +1,33 @@
+2009-12-08  Simon Josefsson  <simon@josefsson.org>
+
+	* man/Makefile.am: Rename *.x files to *.h2m, to use the same
+	extension used in the help2man package itself.  It also a more
+	symbolic name than *.x.
+	* man/ftp.x: Rename to *.h2m.
+	* man/ftpd.x: Likewise.
+	* man/hostname.x: Likewise.
+	* man/ifconfig.x: Likewise.
+	* man/inetd.x: Likewise.
+	* man/logger.x: Likewise.
+	* man/ping.x: Likewise.
+	* man/rcp.x: Likewise.
+	* man/rexec.x: Likewise.
+	* man/rexecd.x: Likewise.
+	* man/rlogin.x: Likewise.
+	* man/rlogind.x: Likewise.
+	* man/rsh.x: Likewise.
+	* man/rshd.x: Likewise.
+	* man/syslogd.x: Likewise.
+	* man/talk.x: Likewise.
+	* man/talkd.x: Likewise.
+	* man/telnet.x: Likewise.
+	* man/telnetd.x: Likewise.
+	* man/tftp.x: Likewise.
+	* man/tftpd.x: Likewise.
+	* man/traceroute.x: Likewise.
+	* man/uucpd.x: Likewise.
+	* man/whois.x: Likewise.
+
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
 
 	* doc/inetutils.texi (hostname invocation): Fix typo.  Reported by
