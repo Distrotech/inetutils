@@ -1,7 +1,17 @@
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
-	* tftp/main.c: Use argp to parse command line parameters.
-	* man/Makefile.am: Also build man pages for tftp and tftpd.
+	* tftp/main.c: Include argp.h, libinetutils.h, progname.h.
+	(program_name): Removed variable.
+	(args_doc): New variable.
+	(doc): New variable.
+	(argp_options): New variable.
+	(hostport_argv): New variable.
+	(hostport_argc): New variable.
+	(parse_opt): New function.
+	(argp): New variable.
+	(main): Use progname and argp.
+	* man/Makefile.am (all): Add tftp.1 and tftpd.1.
+	(dist_man1_MANS): Conditionally add tftp.1 and tftpd.1.
 	* NEWS: Updated.
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
