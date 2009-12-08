@@ -6,9 +6,10 @@
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
-	* man/Makefile.am: Make sure that all man pages are included in
-	the 'make dist' target.  Suggested by Alfred M. Szmidt
-	<ams@gnu.org>.
+	* man/Makefile.am (all): New variable with all man pages.
+	(EXTRA_DIST): Use $(all).
+	(MAINTAINERCLEANFILES): Likewise.
+	Suggested by Alfred M. Szmidt <ams@gnu.org>.
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
