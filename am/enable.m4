@@ -31,6 +31,7 @@ else
 fi;]
   AC_SUBST([$1_BUILD])
   AC_SUBST([$1_INSTALL_HOOK])
+  AM_CONDITIONAL([ENABLE_$1], test "$enable_$1" = yes)
 ])
 
 AC_DEFUN([IU_ENABLE_CLIENT], [IU_ENABLE_FOO($1, clients)])

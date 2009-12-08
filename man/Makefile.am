@@ -16,15 +16,99 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-dist_man1_MANS = hostname.1 ifconfig.1 inetd.1 ftp.1 ftpd.1 logger.1	\
-	ping.1 rcp.1 rexec.1 rexecd.1 rlogin.1 rlogind.1 rsh.1 rshd.1	\
-	syslogd.1 talk.1 talkd.1 telnet.1 telnetd.1 traceroute.1	\
-	uucpd.1 whois.1
+dist_man1_MANS =
 
 # FIXME: ping6 ifconfig tftp
 
-man_aux = $(dist_man1_MANS:.1=.h2m)
-EXTRA_DIST = $(man_aux)
+if ENABLE_hostname
+dist_man1_MANS += hostname.1
+endif
+
+if ENABLE_ifconfig
+dist_man1_MANS += ifconfig.1
+endif
+
+if ENABLE_inetd
+dist_man1_MANS += inetd.1
+endif
+
+if ENABLE_ftp
+dist_man1_MANS += ftp.1
+endif
+
+if ENABLE_ftpd
+dist_man1_MANS += ftpd.1
+endif
+
+if ENABLE_logger
+dist_man1_MANS += logger.1
+endif
+
+if ENABLE_ping
+dist_man1_MANS += ping.1
+endif
+
+if ENABLE_rcp
+dist_man1_MANS += rcp.1
+endif
+
+if ENABLE_rexec
+dist_man1_MANS += rexec.1
+endif
+
+if ENABLE_rexecd
+dist_man1_MANS += rexecd.1
+endif
+
+if ENABLE_rlogin
+dist_man1_MANS += rlogin.1
+endif
+
+if ENABLE_rlogind
+dist_man1_MANS += rlogind.1
+endif
+
+if ENABLE_rsh
+dist_man1_MANS += rsh.1
+endif
+
+if ENABLE_rshd
+dist_man1_MANS += rshd.1
+endif
+
+if ENABLE_syslogd
+dist_man1_MANS += syslogd.1
+endif
+
+if ENABLE_talk
+dist_man1_MANS += talk.1
+endif
+
+if ENABLE_talkd
+dist_man1_MANS += talkd.1
+endif
+
+if ENABLE_telnet
+dist_man1_MANS += telnet.1
+endif
+
+if ENABLE_telnetd
+dist_man1_MANS += telnetd.1
+endif
+
+if ENABLE_traceroute
+dist_man1_MANS += traceroute.1
+endif
+
+if ENABLE_uucpd
+dist_man1_MANS += uucpd.1
+endif
+
+if ENABLE_whois
+dist_man1_MANS += whois.1
+endif
+
+EXTRA_DIST = $(dist_man1_MANS:.1=.h2m)
 
 MAINTAINERCLEANFILES = $(dist_man1_MANS)
 

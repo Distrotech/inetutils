@@ -1,5 +1,11 @@
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
+	* man/Makefile.am: Only enable building of man pages for tools
+	that are enabled.  Reported by Ludovic Courtès <ludo@gnu.org>.
+	* am/enable.m4: Specify a conditional for every tool.
+
+2009-12-08  Simon Josefsson  <simon@josefsson.org>
+
 	* man/Makefile.am: Rename *.x files to *.h2m, to use the same
 	extension used in the help2man package itself.  It also a more
 	symbolic name than *.x.
