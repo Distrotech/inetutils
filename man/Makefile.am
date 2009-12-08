@@ -16,9 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-dist_man1_MANS =
-
 # FIXME: ping6 ifconfig tftp
+
+all = hostname.1 ifconfig.1 inetd.1 ftp.1 ftpd.1 logger.1 ping.1 rcp.1	\
+      rexec.1 rexecd.1 rlogin.1 rlogind.1 rsh.1 rshd.1 syslogd.1	\
+      talk.1 talkd.1 telnet.1 telnetd.1 traceroute.1 uucpd.1 whois.1
+
+dist_man1_MANS =
 
 if ENABLE_hostname
 dist_man1_MANS += hostname.1
@@ -108,9 +112,9 @@ if ENABLE_whois
 dist_man1_MANS += whois.1
 endif
 
-EXTRA_DIST = $(dist_man1_MANS:.1=.h2m)
+EXTRA_DIST = $(all) $(all:.1=.h2m)
 
-MAINTAINERCLEANFILES = $(dist_man1_MANS)
+MAINTAINERCLEANFILES = $(all)
 
 ftp.1: ftp.h2m $(top_srcdir)/ftp/main.c $(top_srcdir)/configure.ac
 

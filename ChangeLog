@@ -1,5 +1,11 @@
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
+	* man/Makefile.am: Make sure that all man pages are included in
+	the 'make dist' target.  Suggested by Alfred M. Szmidt
+	<ams@gnu.org>.
+
+2009-12-08  Simon Josefsson  <simon@josefsson.org>
+
 	* man/Makefile.am: Only enable building of man pages for tools
 	that are enabled.  Reported by Ludovic Courtès <ludo@gnu.org>.
 	* am/enable.m4: Specify a conditional for every tool.
