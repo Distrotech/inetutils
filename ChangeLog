@@ -22,30 +22,30 @@
 	* man/Makefile.am: Rename *.x files to *.h2m, to use the same
 	extension used in the help2man package itself.  It also a more
 	symbolic name than *.x.
-	* man/ftp.x: Rename to *.h2m.
-	* man/ftpd.x: Likewise.
-	* man/hostname.x: Likewise.
-	* man/ifconfig.x: Likewise.
-	* man/inetd.x: Likewise.
-	* man/logger.x: Likewise.
-	* man/ping.x: Likewise.
-	* man/rcp.x: Likewise.
-	* man/rexec.x: Likewise.
-	* man/rexecd.x: Likewise.
-	* man/rlogin.x: Likewise.
-	* man/rlogind.x: Likewise.
-	* man/rsh.x: Likewise.
-	* man/rshd.x: Likewise.
-	* man/syslogd.x: Likewise.
-	* man/talk.x: Likewise.
-	* man/talkd.x: Likewise.
-	* man/telnet.x: Likewise.
-	* man/telnetd.x: Likewise.
-	* man/tftp.x: Likewise.
-	* man/tftpd.x: Likewise.
-	* man/traceroute.x: Likewise.
-	* man/uucpd.x: Likewise.
-	* man/whois.x: Likewise.
+	* man/ftp.x: Renamed to ftp.h2m.
+	* man/ftpd.x: Renamed to ftpd.h2m.
+	* man/hostname.x: Renamed to hostname.h2m.
+	* man/ifconfig.x: Renamed to ifconfig.h2m.
+	* man/inetd.x: Renamed to inetd.h2m.
+	* man/logger.x: Renamed to logger.h2m.
+	* man/ping.x: Renamed to ping.h2m.
+	* man/rcp.x: Renamed to rcp.h2m.
+	* man/rexec.x: Renamed to rexec.h2m.
+	* man/rexecd.x: Renamed to rexecd.h2m.
+	* man/rlogin.x: Renamed to rlogin.h2m.
+	* man/rlogind.x: Renamed to rlogind.h2m.
+	* man/rsh.x: Renamed to rsh.h2m.
+	* man/rshd.x: Renamed to rshd.h2m.
+	* man/syslogd.x: Renamed to syslogd.h2m.
+	* man/talk.x: Renamed to talk.h2m.
+	* man/talkd.x: Renamed to talkd.h2m.
+	* man/telnet.x: Renamed to telnet.h2m.
+	* man/telnetd.x: Renamed to telnetd.h2m.
+	* man/tftp.x: Renamed to tftp.h2m.
+	* man/tftpd.x: Renamed to tftpd.h2m.
+	* man/traceroute.x: Renamed to traceroute.h2m.
+	* man/uucpd.x: Renamed to uucpd.h2m.
+	* man/whois.x: Renamed to whois.h2m.
 
 2009-12-07  Simon Josefsson  <simon@josefsson.org>
 
