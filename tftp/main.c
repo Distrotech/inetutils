@@ -74,9 +74,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <argp.h>
+#include <libinetutils.h>
 
 #include "xalloc.h"
 #include "extern.h"
+#include "progname.h"
 
 #define TIMEOUT		5	/* secs between rexmt's */
 
@@ -159,14 +162,51 @@ struct cmd cmdtab[] = {
 struct cmd *getcmd ();
 char *tail ();
 
-char *program_name;
+
+const char args_doc[] = "[HOST [PORT]]";
+const char doc[] = "Trivial file transfer protocol client";
+
+static struct argp_option argp_options[] = {
+  {"verbose", 'v', NULL, 0, "verbose output"},
+  {NULL}
+};
+
+char *hostport_argv[3] = { "connect" };
+int hostport_argc = 1;
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    case 'v':		/* Verbose.  */
+      verbose++;
+      break;
+
+    case ARGP_KEY_ARG:
+      if (state->arg_num >= 2 || hostport_argc >= 3)
+	/* Too many arguments. */
+	argp_usage (state);
+      hostport_argv[hostport_argc++] = arg;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+
+  return 0;
+}
+
+static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 
 int
 main (int argc, char *argv[])
 {
   struct sockaddr_in sin;
 
-  program_name = argv[0];
+  set_program_name (argv[0]);
+  iu_argp_init ("tftp", default_program_authors);
+  argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
   sp = getservbyname ("tftp", "udp");
   if (sp == 0)
@@ -189,11 +229,11 @@ main (int argc, char *argv[])
     }
   strcpy (mode, "netascii");
   signal (SIGINT, intr);
-  if (argc > 1)
+  if (hostport_argc > 1)
     {
       if (setjmp (toplevel) != 0)
 	exit (0);
-      setpeer (argc, argv);
+      setpeer (hostport_argc, hostport_argv);
     }
   if (setjmp (toplevel) != 0)
     putchar ('\n');

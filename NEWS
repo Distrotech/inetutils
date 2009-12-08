@@ -28,6 +28,10 @@ PID of the `logger' process.
 
 New program.
 
+* tftp
+
+Command line parsing now uses argp.
+
 * Man pages for all tools are generated using help2man.
 
 
