@@ -1,5 +1,9 @@
 2009-12-10  Simon Josefsson  <simon@josefsson.org>
 
+	* bootstrap.conf (gnulib_modules): Add pty.
+
+2009-12-10  Simon Josefsson  <simon@josefsson.org>
+
 	* README-alpha: Change daily snapshot URL.
 
 2009-12-09  Simon Josefsson  <simon@josefsson.org>
