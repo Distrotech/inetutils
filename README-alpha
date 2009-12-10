@@ -89,7 +89,7 @@ You can track the development process through the <commit-inetutils@gnu.org>
 mailing list.  This is a medium volume moderated list.
 
 Daily snapshots built from Git are available from
-<http://daily.josefsson.org/inetutils/>
+<http://hydra.nixos.org/view/gnu/inetutils-master/latest>.
 
 Log outputs from building the daily snapshot on some systems are
 available from <http://autobuild.josefsson.org/inetutils/>

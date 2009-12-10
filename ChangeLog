@@ -1,3 +1,7 @@
+2009-12-10  Simon Josefsson  <simon@josefsson.org>
+
+	* README-alpha: Change daily snapshot URL.
+
 2009-12-09  Simon Josefsson  <simon@josefsson.org>
 
 	* Makefile.am (AUTOMAKE_OPTIONS): Increase required automake
