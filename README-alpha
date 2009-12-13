@@ -103,15 +103,56 @@ Statistics based on Git commit logs are available from
 
 To make an release issue the following commands:
 
-make alpha
+make alpha        # or stable
 
-Finally, bump the version number in NEWS,and configure.ac.
+Finally, bump the version number in NEWS, and configure.ac.
 
 When doing a stable release, do not forget to:
 
  - record the release date in NEWS
  - create a tag (inetutils-N_M)
  - post an announcment to info-gnu@gnu.org
+
+** Announcement template
+
+Subject: inetutils-VERSION released
+
+The GNU inetutils team is proud to present version VERSION of the GNU
+network utilities suite, which provides common network programs and
+servers like ping, ifconfig, inetd, traceroute, hostname, and many
+others.
+
+The following things are new in this release:
+
+FIXME: put recent NEWS items here
+
+Please send bug reports to bug-inetutils@gnu.org.
+
+Here are the compressed sources:
+  ftp://ftp.gnu.org/gnu/inetutils/inetutils-VERSION.tar.gz
+
+Here are the GPG detached signatures[*]:
+  ftp://ftp.gnu.org/gnu/inetutils/inetutils-VERSION.tar.gz.sig
+
+To reduce load on the main server, use a mirror listed at:
+  http://www.gnu.org/order/ftp.html
+
+[*] You can use either of the above signature files to verify that
+the corresponding file (without the .sig suffix) is intact.  First,
+be sure to download both the .sig file and the corresponding tarball.
+Then, run a command like this:
+
+  gpg --verify inetutils-VERSION.tar.gz.sig
+
+If that command fails because you don't have the required public key,
+then run this command to import it:
+
+  gpg --keyserver keys.gnupg.net --recv-keys D95A3C35
+
+and rerun the `gpg --verify' command.
+
+Many thanks to all the people who contributed to this release.  Happy
+hacking!
 
 * Copyright information
 
