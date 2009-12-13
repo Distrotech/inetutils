@@ -105,6 +105,14 @@ To make an release issue the following commands:
 
 make alpha
 
+Finally, bump the version number in NEWS,and configure.ac.
+
+When doing a stable release, do not forget to:
+
+ - record the release date in NEWS
+ - create a tag (inetutils-N_M)
+ - post an announcment to info-gnu@gnu.org
+
 * Copyright information
 
 Permission is granted to anyone to make or distribute verbatim copies
