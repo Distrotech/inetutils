@@ -19,32 +19,54 @@
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
-	* tftp/main.c: Include argp.h, libinetutils.h, progname.h.
+	* tftp/main.c: Include <argp.h>, <libinetutils.h>, "progname.h".
 	(program_name): Removed variable.
-	(args_doc): New variable.
-	(doc): New variable.
-	(argp_options): New variable.
-	(hostport_argv): New variable.
-	(hostport_argc): New variable.
+	(argp, args_doc, doc, argp_options, hostport_argv, hostport_argc):
+	New variable.
 	(parse_opt): New function.
-	(argp): New variable.
 	(main): Use progname and argp.
 	* man/Makefile.am (all): Add tftp.1 and tftpd.1.
-	(dist_man1_MANS): Conditionally add tftp.1 and tftpd.1.
+	(dist_man1_MANS) [ENABLE_tftp]: Add tftp.1.
+	(dist_man1_MANS) [ENABLE_tftpd]: Add tftpd.1.
 	* NEWS: Updated.
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
-	* man/Makefile.am (all): New variable with all man pages.
+	* man/Makefile.am (all): New variable.
 	(EXTRA_DIST): Use $(all).
-	(MAINTAINERCLEANFILES): Likewise.
-	Suggested by Alfred M. Szmidt <ams@gnu.org>.
+	(MAINTAINERCLEANFILES): Likewise.  Suggested by Alfred M. Szmidt
+	<ams@gnu.org>.
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
-	* man/Makefile.am: Only enable building of man pages for tools
-	that are enabled.  Reported by Ludovic Courtès <ludo@gnu.org>.
-	* am/enable.m4: Specify a conditional for every tool.
+	* man/Makefile.am (dist_man1_MANS): Variable cleared.
+	(dist_man1_MANS) [ENABLE_hostname]: Add `hostname.1'.
+	(dist_man1_MANS) [ENABLE_ifconfig]: Add `ifconfig.1'.
+	(dist_man1_MANS) [ENABLE_inetd]: Add `inetd.1'.
+	(dist_man1_MANS) [ENABLE_ftp]: Add `ftp.1'.
+	(dist_man1_MANS) [ENABLE_ftpd]: Add `ftpd.1'.
+	(dist_man1_MANS) [ENABLE_logger]: Add `logger.1'.
+	(dist_man1_MANS) [ENABLE_ping]: Add `ping.1'.
+	(dist_man1_MANS) [ENABLE_rcp]: Add `rcp.1'.
+	(dist_man1_MANS) [ENABLE_rexec]: Add `rexec.1'.
+	(dist_man1_MANS) [ENABLE_rexecd]: Add `rexecd.1'.
+	(dist_man1_MANS) [ENABLE_rlogin]: Add `rlogin.1'.
+	(dist_man1_MANS) [ENABLE_rlogind]: Add `rlogind.1'.
+	(dist_man1_MANS) [ENABLE_rsh]: Add `rsh.1'.
+	(dist_man1_MANS) [ENABLE_rshd]: Add `rshd.1'.
+	(dist_man1_MANS) [ENABLE_syslogd]: Add `syslogd.1'.
+	(dist_man1_MANS) [ENABLE_talk]: Add `talk.1'.
+	(dist_man1_MANS) [ENABLE_talkd]: Add `talkd.1'.
+	(dist_man1_MANS) [ENABLE_telnet]: Add `telnet.1'.
+	(dist_man1_MANS) [ENABLE_telnetd]: Add `telnetd.1'.
+	(dist_man1_MANS) [ENABLE_traceroute]: Add `traceroute.1'.
+	(dist_man1_MANS) [ENABLE_uucpd]: Add `uucpd.1'.
+	(dist_man1_MANS) [ENABLE_whois]: Add `whois.1'.
+	(man_aux): Variable removed.
+	(EXTRA_DIST): Set it directly instead of via man_aux.
+	* am/enable.m4 (IU_ENABLE_FOO): Export ENABLE_foo.
+
+	Reported by Ludovic Courtès <ludo@gnu.org>.
 
 2009-12-08  Simon Josefsson  <simon@josefsson.org>
 
