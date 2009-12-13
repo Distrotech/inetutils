@@ -97,6 +97,14 @@ available from <http://autobuild.josefsson.org/inetutils/>
 Statistics based on Git commit logs are available from
 <http://gitstats.josefsson.org/inetutils/>.
 
+* Release procedures
+
+[This is only useful for the maintainers of GNU inetutils.]
+
+To make an release issue the following commands:
+
+make alpha
+
 * Copyright information
 
 Permission is granted to anyone to make or distribute verbatim copies
