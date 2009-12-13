@@ -47,3 +47,5 @@ web-coverage:
 upload-web-coverage:
 	cd $(htmldir) && \
 		cvs commit -m "Update." coverage
+
+release-prep-hook =

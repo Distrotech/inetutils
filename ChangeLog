@@ -1,3 +1,7 @@
+2009-12-13  Alfred M. Szmidt  <ams@gnu.org>
+
+	* cfg.mk (release-prep-hook): New variable.
+
 2009-12-11  Simon Josefsson  <simon@josefsson.org>
 
 	* tests/Makefile.am (EXTRA_DIST): Remove variable.
