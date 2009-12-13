@@ -1,5 +1,9 @@
 2009-12-13  Alfred M. Szmidt  <ams@gnu.org>
 
+	* man/.gitignore: New file.
+
+2009-12-13  Alfred M. Szmidt  <ams@gnu.org>
+
 	* configure.ac: Bump version number to 1.6.92.
 
 2009-12-13  Alfred M. Szmidt  <ams@gnu.org>
