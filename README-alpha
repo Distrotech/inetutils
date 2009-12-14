@@ -118,9 +118,10 @@ When doing a stable release, do not forget to:
 Subject: inetutils-VERSION released
 
 The GNU inetutils team is proud to present version VERSION of the GNU
-network utilities suite, which provides common network programs and
-servers like ping, ifconfig, inetd, traceroute, hostname, and many
-others.
+network utilities suite.  The GNU network utilities suite provides the
+following tools: ftp(d), hostname, ifconfig, inetd, logger, ping, rcp,
+rexec(d), rlogin(d), rsh(d), syslogd, talk(d), telnet(d), tftp(d),
+traceroute, uucpd, and whois.
 
 The following things are new in this release:
 
