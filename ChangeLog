@@ -1,3 +1,8 @@
+2009-12-17  Simon Josefsson  <simon@josefsson.org>
+
+	* tests/Makefile.am (TESTS): Change $(check_SCRIPTS) to
+	$(dist_check_SCRIPTS).
+
 2009-12-13  Alfred M. Szmidt  <ams@gnu.org>
 
 	* configure.ac: Bump version number to 1.7.

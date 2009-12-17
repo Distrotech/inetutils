@@ -22,6 +22,6 @@ LDADD = -L../libinetutils -linetutils  ../lib/libgnu.a
 
 check_PROGRAMS = localhost
 dist_check_SCRIPTS = ping-localhost.sh traceroute-localhost.sh
-TESTS = $(check_PROGRAMS) $(check_SCRIPTS)
+TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
