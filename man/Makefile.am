@@ -174,33 +174,16 @@ uucpd.8: uucpd.h2m $(top_srcdir)/uucpd/uucpd.c $(top_srcdir)/configure.ac
 whois.1: whois.h2m $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
 
 .h2m.1:
-	rm -f $@ $@-t						\
-	&& {							\
-		rm -rf tmp;					\
-		mkdir tmp;					\
-		(cd tmp && $(LN_S) ../../$*/$* $*);		\
-		    $(HELP2MAN) 				\
-		     --source='$(PACKAGE_STRING)'		\
-		     --include=$(srcdir)/$*.h2m			\
-		     --output=tmp/$@ tmp/$*;			\
-	}							\
-	&& cp tmp/$@ $@-t					\
-	&& rm -rf tmp						\
-	&& mv $@-t $@
+	make man TOOL=$* SECTION=1
 
 .h2m.8:
-	rm -f $@ $@-t						\
-	&& {							\
-		rm -rf tmp;					\
-		mkdir tmp;					\
-		(cd tmp && $(LN_S) ../../$*/$* $*);		\
-			$(HELP2MAN) 				\
-			--source='$(PACKAGE_STRING)'		\
-			--include=$(srcdir)/$*.h2m		\
-			--output=tmp/$@				\
-			--section 8				\
-			tmp/$*;					\
-	}							\
-	&& cp tmp/$@ $@-t					\
-	&& rm -rf tmp						\
-	&& mv $@-t $@
+	make man TOOL=$* SECTION=8
+
+.PHONY: man
+man:
+	$(HELP2MAN)					\
+		--source='$(PACKAGE_STRING)'		\
+		--include=$(srcdir)/$(TOOL).h2m		\
+		--output=$(TOOL).$(SECTION)		\
+		--section $(SECTION)			\
+		../$(TOOL)/$(TOOL)
