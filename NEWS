@@ -10,6 +10,8 @@ Version 1.7.90:
 
 * Man pages for the daemons are now in section 8 instead of 1.
 
+* There is now a man page for ping6 too.
+
 
 December 16, 2009
 Version 1.7:

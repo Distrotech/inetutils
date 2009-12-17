@@ -16,12 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-# FIXME: ping6 ifconfig
-
-all = hostname.1 ifconfig.1 inetd.8 ftp.1 ftpd.8 logger.1 ping.1 rcp.1	\
-      rexec.1 rexecd.8 rlogin.1 rlogind.8 rsh.1 rshd.8 syslogd.8	\
-      talk.1 talkd.8 telnet.1 telnetd.8 tftp.1 tftpd.8 traceroute.1	\
-      uucpd.8 whois.1
+all = hostname.1 ifconfig.1 inetd.8 ftp.1 ftpd.8 logger.1 ping.1	\
+      ping6.1 rcp.1 rexec.1 rexecd.8 rlogin.1 rlogind.8 rsh.1 rshd.8	\
+      syslogd.8 talk.1 talkd.8 telnet.1 telnetd.8 tftp.1 tftpd.8	\
+      traceroute.1 uucpd.8 whois.1
 
 dist_man1_MANS =
 
@@ -51,6 +49,10 @@ endif
 
 if ENABLE_ping
 dist_man1_MANS += ping.1
+endif
+
+if ENABLE_ping6
+dist_man1_MANS += ping6.1
 endif
 
 if ENABLE_rcp
@@ -139,6 +141,8 @@ logger.1: logger.h2m $(top_srcdir)/logger/logger.c $(top_srcdir)/configure.ac
 
 ping.1: ping.h2m $(top_srcdir)/ping/ping.c $(top_srcdir)/configure.ac
 
+ping6.1: ping6.h2m $(top_srcdir)/ping/ping6.c $(top_srcdir)/configure.ac
+
 rcp.1: rcp.h2m $(top_srcdir)/rcp/rcp.c $(top_srcdir)/configure.ac
 
 rexec.1: rexec.h2m $(top_srcdir)/rexec/rexec.c $(top_srcdir)/configure.ac
@@ -179,6 +183,8 @@ whois.1: whois.h2m $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
 .h2m.8:
 	make man TOOL=$* SECTION=8
 
+mapped_name = `echo ../$(TOOL)/$(TOOL) | sed s,../ping6/ping6,../ping/ping6,`
+
 .PHONY: man
 man:
 	$(HELP2MAN)					\
@@ -186,4 +192,4 @@ man:
 		--include=$(srcdir)/$(TOOL).h2m		\
 		--output=$(TOOL).$(SECTION)		\
 		--section $(SECTION)			\
-		../$(TOOL)/$(TOOL)
+		$(mapped_name)

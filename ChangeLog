@@ -1,5 +1,14 @@
 2009-12-17  Simon Josefsson  <simon@josefsson.org>
 
+	* man/Makefile.am (all): Add ping6.1.
+	(dist_man1_MANS) [ENABLE_ping6]: Add ping6.1.
+	(ping6.1): Add rule.
+	(mapped_name): New variable, for mapping non-standard tool paths.
+	(man): Use $(mapped_name).
+	* NEWS: Updated.
+
+2009-12-17  Simon Josefsson  <simon@josefsson.org>
+
 	* man/Makefile.am (all): Change daemon man section from 1 to 8.
 	(.h2m.8): Add rule for daemons.
 	(.h2m.1): Invoke new meta-rule 'man'.
