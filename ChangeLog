@@ -2,6 +2,7 @@
 
 	* man/Makefile.am (all): Change daemon man section from 1 to 8.
 	(.h2m.8): Add rule for daemons.
+	* NEWS: Updated.
 	Reported by Juergen Daubert <juergen.daubert@gmx.net>.
 
 2009-12-17  Simon Josefsson  <simon@josefsson.org>

@@ -5,6 +5,12 @@ See the end of this file for for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+Unreleased
+Version 1.7.90:
+
+* Man pages for the daemons are now in section 8 instead of 1.
+
+
 December 16, 2009
 Version 1.7:
 
