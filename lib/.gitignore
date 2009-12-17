@@ -55,6 +55,7 @@ fchownat.c
 fclose.c
 fcntl--.h
 fcntl-safer.h
+fcntl.c
 fcntl.h
 fcntl.in.h
 fd-safer.c
