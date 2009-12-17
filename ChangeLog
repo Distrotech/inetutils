@@ -4,6 +4,7 @@
 	(.h2m.8): Add rule for daemons.
 	(.h2m.1): Invoke new meta-rule 'man'.
 	(man): New meta-rule to invoke help2man, simplified from before.
+	(EXTRA_DIST): Add $(all:.8=.h2m).
 	* NEWS: Updated.
 	Reported by Juergen Daubert <juergen.daubert@gmx.net>.
 
