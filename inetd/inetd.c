@@ -2023,6 +2023,8 @@ main (int argc, char *argv[], char *envp[])
 				"%s/%s server failing (looping), service terminated",
 				sep->se_service, sep->se_proto);
 			close_sep (sep);
+			if (! sep->se_wait && sep->se_socktype == SOCK_STREAM)
+			  close (ctrl);
 			signal_unblock (NULL);
 			if (!timingout)
 			  {
