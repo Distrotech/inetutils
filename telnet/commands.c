@@ -97,6 +97,9 @@
 #include "defines.h"
 #include "types.h"
 
+#include "xalloc.h"
+#include "xvasprintf.h"
+
 #if !defined(CRAY) && !defined(sysV88)
 # ifdef HAVE_NETINET_IN_SYSTM_H
 #  include <netinet/in_systm.h>
@@ -3008,7 +3011,6 @@ help (int argc, char *argv[])
 }
 
 static char *rcname = 0;
-static char rcbuf[128];
 
 static void
 cmdrc (char *m1, char *m2)
@@ -3018,23 +3020,17 @@ cmdrc (char *m1, char *m2)
   int gotmachine = 0;
   int l1 = strlen (m1);
   int l2 = strlen (m2);
-  char m1save[64];
 
   if (skiprc)
     return;
 
-  strcpy (m1save, m1);
-  m1 = m1save;
-
   if (rcname == 0)
     {
-      rcname = getenv ("HOME");
-      if (rcname)
-	strcpy (rcbuf, rcname);
+      const char *home = getenv ("HOME");
+      if (home)
+        rcname = xasprintf ("%s/.telnetrc", home);
       else
-	rcbuf[0] = '\0';
-      strcat (rcbuf, "/.telnetrc");
-      rcname = rcbuf;
+        rcname = xstrdup ("/.telnetrc");
     }
 
   if ((rcfile = fopen (rcname, "r")) == 0)

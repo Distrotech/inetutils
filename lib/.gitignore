@@ -18,6 +18,7 @@ argp-version-etc.h
 argp-xinl.c
 argp.h
 asnprintf.c
+asprintf.c
 at-func.c
 basename-lgpl.c
 basename.c
@@ -225,6 +226,7 @@ unlinkat.c
 unlocked-io.h
 vasnprintf.c
 vasnprintf.h
+vasprintf.c
 verify.h
 version-etc-fsf.c
 version-etc.c
@@ -238,6 +240,7 @@ wctype.h
 wctype.in.h
 xalloc-die.c
 xalloc.h
+xasprintf.c
 xgetcwd.c
 xgetcwd.h
 xgetdomainname.c
@@ -248,3 +251,5 @@ xmalloc.c
 xsize.h
 xstrndup.c
 xstrndup.h
+xvasprintf.c
+xvasprintf.h
