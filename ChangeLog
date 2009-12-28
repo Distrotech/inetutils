@@ -1,3 +1,8 @@
+2009-12-28  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap.conf (gnulib_modules): Added `update-copyright' to
+	list.
+
 2009-12-28  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* man/ping6.h2m: New file.
