@@ -3,12 +3,17 @@
 	* man/ping6.h2m: New file.
 
 2009-12-28  Giuseppe Scrivano  <gscrivano@gnu.org>
-	Reported by: Zhitong Wangzt <zhitong.wangzt@alibaba-inc.com>
 
-	* bootstrap.conf (gnulib_modules): Add `xvasprintf'.
-	* telnet/commands.c (cmdrc): Alloc `rcname' dinamically.
-	(m1save): Remove.
-	(rcbuf): Remove.
+	* bootstrap.conf (gnulib_modules): Add `xvasprintf' to list.
+	* telnet/commands.c: Include "xalloc.h" and "xvasprintf.h".
+	(cmdrc): Use xvasprintf/xstrdup to allocate RCNAME.  Removed
+	variable M1SAVE.
+	(rcbuf): Variable removed.
+
+	* .gitignore: Added asprintf.c, vasprintf.c, xasprintf.c,
+	xvasprintf.c, xvasprintf.h to list.
+
+	Reported by Zhitong Wangzt <zhitong.wangzt@alibaba-inc.com>.
 
 2009-12-19  Alfred M. Szmidt  <ams@gnu.org>
 
