@@ -78,6 +78,10 @@ sources reside.
 
 For more information about `bootstrap', run `bootstrap --help'.
 
+Before running "make dist" in a freshly bootstrapped directory, you
+need to have run "make" at least once to create the binaries which are
+needed by help2man when generating man pages.
+
 See INSTALL and README for the detailed instructions.
 
 * Development
