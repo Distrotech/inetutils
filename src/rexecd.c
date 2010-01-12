@@ -386,4 +386,3 @@ getstr (const char *err)
 
   return buf;
 }
-

@@ -1265,4 +1265,3 @@ topdomain (const char *h)
     }
   return maybe;
 }
-
