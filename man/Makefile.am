@@ -131,33 +131,33 @@ ftp.1: ftp.h2m $(top_srcdir)/ftp/main.c $(top_srcdir)/configure.ac
 
 ftpd.8: ftpd.h2m $(top_srcdir)/ftpd/ftpd.c $(top_srcdir)/configure.ac
 
-hostname.1: hostname.h2m $(top_srcdir)/hostname/hostname.c $(top_srcdir)/configure.ac
+hostname.1: hostname.h2m $(top_srcdir)/src/hostname.c $(top_srcdir)/configure.ac
 
 ifconfig.1: ifconfig.h2m $(top_srcdir)/ifconfig/options.c $(top_srcdir)/configure.ac
 
-inetd.8: inetd.h2m $(top_srcdir)/inetd/inetd.c $(top_srcdir)/configure.ac
+inetd.8: inetd.h2m $(top_srcdir)/src/inetd.c $(top_srcdir)/configure.ac
 
-logger.1: logger.h2m $(top_srcdir)/logger/logger.c $(top_srcdir)/configure.ac
+logger.1: logger.h2m $(top_srcdir)/src/logger.c $(top_srcdir)/configure.ac
 
 ping.1: ping.h2m $(top_srcdir)/ping/ping.c $(top_srcdir)/configure.ac
 
 ping6.1: ping6.h2m $(top_srcdir)/ping/ping6.c $(top_srcdir)/configure.ac
 
-rcp.1: rcp.h2m $(top_srcdir)/rcp/rcp.c $(top_srcdir)/configure.ac
+rcp.1: rcp.h2m $(top_srcdir)/src/rcp.c $(top_srcdir)/configure.ac
 
-rexec.1: rexec.h2m $(top_srcdir)/rexec/rexec.c $(top_srcdir)/configure.ac
+rexec.1: rexec.h2m $(top_srcdir)/src/rexec.c $(top_srcdir)/configure.ac
 
-rexecd.8: rexecd.h2m $(top_srcdir)/rexecd/rexecd.c $(top_srcdir)/configure.ac
+rexecd.8: rexecd.h2m $(top_srcdir)/src/rexecd.c $(top_srcdir)/configure.ac
 
-rlogin.1: rlogin.h2m $(top_srcdir)/rlogin/rlogin.c $(top_srcdir)/configure.ac
+rlogin.1: rlogin.h2m $(top_srcdir)/src/rlogin.c $(top_srcdir)/configure.ac
 
-rlogind.8: rlogind.h2m $(top_srcdir)/rlogind/rlogind.c $(top_srcdir)/configure.ac
+rlogind.8: rlogind.h2m $(top_srcdir)/src/rlogind.c $(top_srcdir)/configure.ac
 
-rsh.1: rsh.h2m $(top_srcdir)/rsh/rsh.c $(top_srcdir)/configure.ac
+rsh.1: rsh.h2m $(top_srcdir)/src/rsh.c $(top_srcdir)/configure.ac
 
-rshd.8: rshd.h2m $(top_srcdir)/rshd/rshd.c $(top_srcdir)/configure.ac
+rshd.8: rshd.h2m $(top_srcdir)/src/rshd.c $(top_srcdir)/configure.ac
 
-syslogd.8: syslogd.h2m $(top_srcdir)/syslogd/syslogd.c $(top_srcdir)/configure.ac
+syslogd.8: syslogd.h2m $(top_srcdir)/src/syslogd.c $(top_srcdir)/configure.ac
 
 talk.1: talk.h2m $(top_srcdir)/talk/talk.c $(top_srcdir)/configure.ac
 
@@ -167,13 +167,13 @@ telnet.1: telnet.h2m $(top_srcdir)/telnet/main.c $(top_srcdir)/configure.ac
 
 telnetd.8: telnetd.h2m $(top_srcdir)/telnetd/telnetd.c $(top_srcdir)/configure.ac
 
-tftp.1: tftp.h2m $(top_srcdir)/tftp/main.c $(top_srcdir)/configure.ac
+tftp.1: tftp.h2m $(top_srcdir)/src/tftp.c $(top_srcdir)/configure.ac
 
-tftpd.8: tftpd.h2m $(top_srcdir)/tftpd/tftpd.c $(top_srcdir)/configure.ac
+tftpd.8: tftpd.h2m $(top_srcdir)/src/tftpd.c $(top_srcdir)/configure.ac
 
-traceroute.1: traceroute.h2m $(top_srcdir)/traceroute/traceroute.c $(top_srcdir)/configure.ac
+traceroute.1: traceroute.h2m $(top_srcdir)/src/traceroute.c $(top_srcdir)/configure.ac
 
-uucpd.8: uucpd.h2m $(top_srcdir)/uucpd/uucpd.c $(top_srcdir)/configure.ac
+uucpd.8: uucpd.h2m $(top_srcdir)/src/uucpd.c $(top_srcdir)/configure.ac
 
 whois.1: whois.h2m $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
 
@@ -183,7 +183,23 @@ whois.1: whois.h2m $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
 .h2m.8:
 	make man TOOL=$* SECTION=8
 
-mapped_name = `echo ../$(TOOL)/$(TOOL) | sed s,../ping6/ping6,../ping/ping6,`
+mapped_name = `echo ../$(TOOL)/$(TOOL) \
+| sed s,../ping6/ping6,../ping/ping6,\
+| sed s,../hostname/hostname,../src/hostname,\
+| sed s,../inetd/inetd,../src/inetd,\
+| sed s,../logger/logger,../src/logger,\
+| sed s,../rcp/rcp,../src/rcp,\
+| sed s,../rexec/rexec,../src/rexec,\
+| sed s,../rexecd/rexecd,../src/rexecd,\
+| sed s,../rlogin/rlogin,../src/rlogin,\
+| sed s,../rlogind/rlogind,../src/rlogind,\
+| sed s,../rsh/rsh,../src/rsh,\
+| sed s,../rshd/rshd,../src/rshd,\
+| sed s,../syslogd/syslogd,../src/syslogd,\
+| sed s,../tftp/tftp,../src/tftp,\
+| sed s,../tftpd/tftpd,../src/tftpd,\
+| sed s,../traceroute/traceroute,../src/traceroute,\
+| sed s,../uucpd/uucpd,../src/uucpd,`
 
 .PHONY: man
 man:

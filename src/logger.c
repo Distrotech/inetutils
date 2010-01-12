@@ -63,7 +63,7 @@ int
 decode (char *name, CODE *codetab, const char *what)
 {
   CODE *cp;
-  
+
   if (isdigit (*name))
     {
       char *p;
@@ -74,7 +74,7 @@ decode (char *name, CODE *codetab, const char *what)
 	error (EXIT_FAILURE, 0, "%s: invalid %s number", what, name);
       return c;
     }
-    
+
   for (cp = codetab; cp->c_name; cp++)
     {
       if (strcasecmp (name, cp->c_name) == 0)
@@ -89,7 +89,7 @@ parse_level (char *str)
 {
   char *p;
   int fac, pri = 0;
-  
+
   p = strchr (str, '.');
   if (p)
     *p++ = 0;
@@ -116,7 +116,7 @@ open_socket ()
   union logger_sockaddr sockaddr;
   socklen_t socklen;
   int family;
-  
+
   if (host[0] == '/')
     {
       size_t len = strlen (host);
@@ -170,7 +170,7 @@ open_socket ()
   fd = socket (family, SOCK_DGRAM, 0);
   if (fd < 0)
     error (EXIT_FAILURE, errno, "cannot create socket");
-  
+
   if (family == PF_INET)
     {
       struct sockaddr_in s;
@@ -188,7 +188,7 @@ open_socket ()
       if (bind(fd, (struct sockaddr*) &s, sizeof(s)) < 0)
 	error (EXIT_FAILURE, errno, "cannot bind to source address");
     }
-  
+
   if (connect (fd, &sockaddr.sa, socklen))
     error (EXIT_FAILURE, errno, "cannot connect");
 }
@@ -201,7 +201,7 @@ send_to_syslog (const char *msg)
   time_t now = time (NULL);
   size_t len;
   ssize_t rc;
-  
+
   if (logflags & LOG_PID)
     rc = asprintf (&pbuf, "<%d>%.15s %s[%s]: %s",
 		   pri, ctime (&now) + 4, tag, pidstr, msg);
@@ -216,7 +216,7 @@ send_to_syslog (const char *msg)
     {
       struct iovec iov[2], *ioptr;
       size_t msglen = strlen (msg);
-      
+
       ioptr = iov;
       ioptr->iov_base = (char*) msg;
       ioptr->iov_len = msglen;
@@ -272,7 +272,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'S':
       source = arg;
       break;
-      
+
     case 'i':
       logflags |= LOG_PID;
       if (arg)
@@ -321,7 +321,7 @@ main (int argc, char *argv[])
 {
   int index;
   char *buf = NULL;
-  
+
   set_program_name (argv[0]);
   iu_argp_init ("logger", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
@@ -343,13 +343,13 @@ main (int argc, char *argv[])
     }
 
   open_socket ();
-  
+
   if (argc > 0)
     {
       int i;
       size_t len = 0;
       char *p;
-      
+
       for (i = 0; i < argc; i++)
 	len += strlen (argv[i]) + 1;
 
@@ -368,7 +368,7 @@ main (int argc, char *argv[])
   else
     {
       size_t size = 0;
-      
+
       while (getline (&buf, &size, stdin) > 0)
 	send_to_syslog (buf);
     }

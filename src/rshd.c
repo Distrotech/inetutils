@@ -213,7 +213,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'L':
       log_success = 1;
       break;
-      
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -240,7 +240,7 @@ main (int argc, char *argv[])
   set_program_name (argv[0]);
   iu_argp_init ("rshd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
-  
+
   openlog ("rshd", LOG_PID | LOG_ODELAY, LOG_DAEMON);
 
   argc -= index;
@@ -694,7 +694,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 
     /* verify checksum */
 
-    /* Doesn't give socket port ? 
+    /* Doesn't give socket port ?
        if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
        {
        syslog (LOG_ERR, "Can't get sock name");

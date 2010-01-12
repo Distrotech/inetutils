@@ -354,11 +354,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'p':
       port = strtoul (arg, NULL, 10);
       break;
-      
+
     case 'r':
       reverse_required = 1;
       break;
-      
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -376,11 +376,11 @@ main (int argc, char *argv[])
   int index;
 
   set_program_name (argv[0]);
-  
+
   /* Parse command line */
   iu_argp_init ("rlogind", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
-  
+
   openlog ("rlogind", LOG_PID | LOG_CONS, LOG_AUTH);
   argc -= index;
   if (argc > 0)

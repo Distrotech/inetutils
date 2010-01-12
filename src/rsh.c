@@ -176,7 +176,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'l':
       user = arg;
       break;
-      
+
 #if defined(KERBEROS) || defined(SHISHI)
     case 'K':
       use_kerberos = 0;

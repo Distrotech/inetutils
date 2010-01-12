@@ -21,7 +21,7 @@ AC_PREREQ(2.59)
 
 AC_INIT([GNU inetutils], [1.7.90], [bug-inetutils@gnu.org])
 
-AC_CONFIG_SRCDIR([inetd/inetd.c])
+AC_CONFIG_SRCDIR([src/inetd.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_CONFIG_HEADER([config.h:config.hin])
 AC_CANONICAL_SYSTEM # FIXME: Why not just _HOST?
@@ -812,40 +812,25 @@ esac
 
 AC_CONFIG_FILES([
 Makefile
+lib/Makefile
 libinetutils/Makefile 
 libtelnet/Makefile
 libicmp/Makefile
-ping/Makefile
-ftp/Makefile
-ftpd/Makefile
-hostname/Makefile
-inetd/Makefile
-rcp/Makefile
-rexec/Makefile
-rexecd/Makefile
-rlogin/Makefile
-rlogind/Makefile
-rsh/Makefile
-rshd/Makefile
-logger/Makefile
-syslogd/Makefile
-talk/Makefile
-talkd/Makefile
+libls/Makefile
+src/Makefile
 telnet/Makefile
 telnetd/Makefile
-tftp/Makefile
-tftpd/Makefile
-uucpd/Makefile
+ftp/Makefile
+ftpd/Makefile
+talk/Makefile
+talkd/Makefile
 whois/Makefile
-lib/Makefile
-libls/Makefile
+ping/Makefile
 ifconfig/Makefile
 ifconfig/system/Makefile
-traceroute/Makefile
-confpaths.h:confpaths.h.in
-headers/Makefile
 doc/Makefile
-tests/Makefile
 man/Makefile
+tests/Makefile
+confpaths.h:confpaths.h.in
 ])
 AC_OUTPUT

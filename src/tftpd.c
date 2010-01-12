@@ -138,7 +138,7 @@ static struct argp_option options[] = {
     "nonexistent relative filenames" },
   { NULL }
 };
-  
+
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
@@ -151,7 +151,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'n':
       suppress_naks = 1;
       break;
-      
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -179,7 +179,7 @@ main (int argc, char *argv[])
   set_program_name (argv[0]);
   iu_argp_init ("tftpd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
-  
+
   openlog ("tftpd", LOG_PID, LOG_FTP);
 
   if (index < argc)

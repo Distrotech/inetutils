@@ -336,7 +336,7 @@ main (int argc, char *argv[])
   char term[1024];
 
   set_program_name (argv[0]);
-  
+
   /* Traditionnaly, if a symbolic link was made to the rlogin binary
      rlogin --> hostname
      hostname will be use as the name of the server to login too.  */

@@ -19,7 +19,7 @@
 
 noinst_LIBRARIES = libinetutils.a
 
-noinst_HEADERS = argcv.h libinetutils.h
+noinst_HEADERS = argcv.h libinetutils.h tftpsubs.h shishi_def.h
 
 EXTRA_DIST = logwtmp.c
 
@@ -46,4 +46,4 @@ libinetutils_a_LIBADD = daemon.o $(top_builddir)/lib/libgnu.a
 
 AM_CPPFLAGS = $(PATHDEF_WTMPX) $(PATHDEF_TTY_PFX) $(PATHDEF_DEVNULL) $(PATHDEF_HEQUIV) 
 
-INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib
+INCLUDES = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib

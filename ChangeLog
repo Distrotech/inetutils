@@ -1,5 +1,103 @@
 2010-01-12  Alfred M. Szmidt  <ams@gnu.org>
 
+	Moved single file programs to src/.
+
+	* libinetutils/Makefile.am (noinst_HEADERS): Added tftpsubs.h
+	shishi_def.h to list.
+	* libinetutils/Makefile.am (INCLUDES): Removed
+	-I$(top_srcdir)/headers from list.  Added
+	-I$(top_srcdir)/libinetutils to list.
+	* Makefile.am: File removed.
+	* headers/shishi_def.h: File renamed to ..
+	* libinetutils/shishi_def.h: ... this.
+	* headers/tftpsubs.h: File renamed to ...
+	* libinetutils/tftpsubs.h: ... this.
+
+	* src/.gitignore: New file.
+	* src/Makefile.am: New file.
+
+	* man/Makefile.am (hostname.1, inetd.8, logger.1, rcp.1, rexec.1)
+	(rexecd.8, rlogin.1, rlogind.8, rsh.1, rshd.8, syslogd.8, tftp.1)
+	(tftpd.8, traceroute.1, uucpd.8): Look for main program file in
+	src/.
+	(mapped_name): Added rewrite rules for hostname, inetd, logger,
+	rcp, rexec, rexecd, rlogin, rlogind, rsh, rshd, syslogd, tftp,
+	tftpd, traceroute, and uucpd.
+	* configure.ac (AC_CONFIG_SRCDIR): Look for src/inetd.c.
+	(AC_CONFIG_FILES): Removed hostname/Makefile, inetd/Makefile,
+	logger/Makefile, rcp/Makefile, rexec/Makefile, rexecd/Makefile,
+	rlogin/Makefile, rlogind/Makefile, rsh/Makefile, rshd/Makefile,
+	syslogd/Makefile, tftp/Makefile, tftpd/Makefile,
+	traceroute/Makefile, and uucpd/Makefile from list.  Added
+	src/Makefile to list.  Sorted list (in the order: libraries,
+	programs, documentation, tests, misc.).
+	* Makefile.am (SUBDIRS): Removed hostname, inetd, logger, rcp,
+	rexec, rexecd, rlogin, rlogind, rsh, rshd, syslogd, tftp, tftpd,
+	traceroute, and uucpd from list.  Added src to list.  Sorted
+	list (in the order: libraries, programs, documentation, tests).
+
+	* hostname/.gitignore, hostname/Makefile.am: Files removed.
+	* hostname/hostname.c: File renamed to ...
+	* src/hostname.c: ... this.
+
+	* inetd/.gitignore, inetd/Makefile.am: Files removed.
+	* inetd/inetd.c: File renamed to ...
+	* src/inetd.c: ... this.
+
+	* logger/.gitignore, logger/Makefile.am: Files removed.
+	* logger/logger.c: File renamed to ...
+	* src/logger.c: ... this.
+
+	* rcp/.gitignore, rcp/Makefile.am: Files removed.
+	* rcp/rcp.c: File renamed to ...
+	* src/rcp.c: ... this.
+
+	* rexec/.gitignore, rexec/Makefile.am: Files removed.
+	* rexec/rexec.c: File renamed to ...
+	* src/rexec.c: ... this.
+
+	* rexecd/.gitignore, rexecd/Makefile.am: Files removed.
+	* rexecd/rexecd.c: File renamed to ...
+	* src/rexecd.c: ... this.
+
+	* rlogin/.gitignore, rlogin/Makefile.am: Files removed.
+	* rlogin/rlogin.c: File renamed to ...
+	* src/rlogin.c: ... this.
+
+	* rlogind/.gitignore, rlogind/Makefile.am: Files removed.
+	* rlogind/rlogind.c: File renamed to ...
+	* src/rlogind.c: ... this.
+
+	* rsh/.gitignore, rsh/Makefile.am: Files removed.
+	* rsh/rsh.c: File renamed to ...
+	* src/rsh.c: ... this.
+
+	* rshd/.gitignore, rshd/Makefile.am: Files removed.
+	* rshd/rshd.c: File renamed to ...
+	* src/rshd.c: ... this.
+
+	* syslogd/.gitignore, syslogd/Makefile.am: Files removed.
+	* syslogd/syslogd.c: File renamed to ...
+	* src/syslogd.c: ... this.
+
+	* tftp/.gitignore, tftp/Makefile.am: Files removed.
+	* tftp/tftp.c: File renamed to ...
+	* src/tftp.c: ... this.
+
+	* tftpd/.gitignore, tftpd/Makefile.am: Files removed.
+	* tftpd/tftpd.c: File renamed to ...
+	* src/tftpd.c: ... this.
+
+	* traceroute/.gitignore, traceroute/Makefile.am: Files removed.
+	* traceroute/traceroute.c: File renamed to ...
+	* src/traceroute.c: ... this.
+
+	* uucpd/.gitignore, uucpd/Makefile.am: Files removed.
+	* uucpd/uucpd.c: File renamed to ...
+	* src/uucpd.c: ... this.
+
+2010-01-12  Alfred M. Szmidt  <ams@gnu.org>
+
 	Merged tftp/extern.h and tftp/main.c into tftp/tftp.c.
 
 	* tftp/Makefile.am (tftp_SOURCES): Removed main.c from list.

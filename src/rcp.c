@@ -180,7 +180,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       use_kerberos = 0;
       break;
 #endif
-	
+
 #ifdef KERBEROS
     case 'k':
       dest_realm = arg;
@@ -259,7 +259,7 @@ main (int argc, char *argv[])
   char *targ;
   const char *shell;
   int index, rc;
-  
+
   set_program_name (argv[0]);
 
   from_option = to_option = 0;
@@ -314,7 +314,7 @@ main (int argc, char *argv[])
 
   if (argc < 2)
     error (1, 0, "not enough arguments");
-  
+
   if (argc > 2)
     targetshouldbedirectory = 1;
 

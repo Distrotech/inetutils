@@ -186,7 +186,7 @@ main (int argc, char **argv)
   trace_t trace;
 
   set_program_name (argv[0]);
-  
+
   /* Parse command line */
   iu_argp_init ("traceroute", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
@@ -281,7 +281,7 @@ do_try (trace_t * trace, const int hop,
 		}
 	      else
 		{
- 		  if (tries == 0 || prev_addr != trace->from.sin_addr.s_addr)
+		  if (tries == 0 || prev_addr != trace->from.sin_addr.s_addr)
 		    printf (" %s (%s) ",
 			    inet_ntoa (trace->from.sin_addr),
 			    get_hostname (&trace->from.sin_addr));
@@ -302,7 +302,7 @@ get_hostname (struct in_addr *addr)
 {
   if (opt_resolve_hostnames)
     {
-      struct hostent *info = 
+      struct hostent *info =
 	gethostbyaddr ((char *) addr, sizeof (*addr), AF_INET);
       if (info != NULL)
 	return info->h_name;
@@ -328,7 +328,7 @@ trace_init (trace_t * t, const struct sockaddr_in to,
       if (t->udpfd < 0)
         error (EXIT_FAILURE, errno, "socket");
 
-      if (setsockopt (t->udpfd, IPPROTO_IP, IP_TTL, ttlp, 
+      if (setsockopt (t->udpfd, IPPROTO_IP, IP_TTL, ttlp,
 		      sizeof (t->ttl)) < 0)
         error (EXIT_FAILURE, errno, "setsockopt");
     }
@@ -401,18 +401,18 @@ trace_read (trace_t * t)
 	    || (ic->icmp_type == ICMP_DEST_UNREACH
 		&& ic->icmp_code != ICMP_PORT_UNREACH))
 	  return -1;
-	
+
 	/* check whether it's for us */
         port = (unsigned short *) &ic->icmp_ip + 11;
 	if (*port != t->to.sin_port)
 	  return -1;
-	
+
 	if (ic->icmp_code == ICMP_PORT_UNREACH)
 	  /* FIXME: Ugly hack. */
 	  stop = 1;
       }
       break;
-      
+
     case TRACE_ICMP:
       if (ic->icmp_type != ICMP_TIME_EXCEEDED
 	  && ic->icmp_type != ICMP_ECHOREPLY)
@@ -449,7 +449,7 @@ trace_write (trace_t * t)
   int len;
 
   assert (t);
-  
+
   switch (t->type)
     {
     case TRACE_UDP:
@@ -467,19 +467,19 @@ trace_write (trace_t * t)
                 error (EXIT_FAILURE, errno, "sendto");
 	      }
 	  }
-	
+
 	if (gettimeofday (&t->tsent, NULL) < 0)
           error (EXIT_FAILURE, errno, "gettimeofday");
       }
       break;
-      
+
     case TRACE_ICMP:
       {
 	icmphdr_t hdr;
 	/* FIXME: We could use the pid as the icmp seqno/ident. */
 	if (icmp_echo_encode ((u_char *) &hdr, sizeof (hdr), pid, pid))
 	  return -1;
-	
+
 	len = sendto (t->icmpfd, (char *) &hdr, sizeof (hdr),
 		      0, (struct sockaddr *) &t->to, sizeof (t->to));
 	if (len < 0)
@@ -492,14 +492,14 @@ trace_write (trace_t * t)
                 error (EXIT_FAILURE, errno, "sendto");
 	      }
 	  }
-	
+
 	if (gettimeofday (&t->tsent, NULL) < 0)
           error (EXIT_FAILURE, errno, "gettimeofday");
       }
       break;
-      
+
       /* FIXME: type according to RFC 1393 */
-      
+
     default:
       break;
     }
