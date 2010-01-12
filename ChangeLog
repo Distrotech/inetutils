@@ -1,3 +1,31 @@
+2010-01-12  Alfred M. Szmidt  <ams@gnu.org>
+
+	Merged tftp/extern.h and tftp/main.c into tftp/tftp.c.
+
+	* tftp/Makefile.am (tftp_SOURCES): Removed main.c from list.
+	(noinst_HEADERS): Variable removed.
+	* tftp/extern.h, tftp/main.c: Files removed.
+	* tftp/tftp.c: Include <sys/file.h>, <arpa/inet.h>, <fcntl.h>,
+	<netdb.h>, <stdlib.h>, <argp.h>, <libinetutils.h>, "xalloc.h", and
+	"progname.h".  Don't include "extern.h".
+	(TIMEOUT, HELPINDENT, RESOLVE_OK, RESOLVE_FAIL)
+	(RESOLVE_NOT_RESOLVED): New macros.
+	(cmd): New structure.
+	(intr, get, help, modecmd, put, quit, setascii, setbinary)
+	(setpeer, setrexmt, settimeout, settrace, setverbose, status)
+	(command, getusage, makeargv, putusage, settftpmode, getcmd, tail)
+	(recvfile, send_file): New forward declarations.
+	(peeraddr, f, port, trace, verbose, connected, mode, line, margc)
+	(margv, prompt, toplevel, sp, vhelp, thelp, chelp, qhelp, hhelp)
+	(shelp, rhelp, mhelp, sthelp, xhelp, ihelp, ashelp, bnhelp)
+	(cmdtab, args_doc, doc, argp_options, host_port_argv)
+	(hostport_argc, toplevel, argp, hostname, modes, rexmtval)
+	(maxtimeout): New variables.
+	(parse_opt, main, resolve_name, get_args, setpeer, modecmd)
+	(setbinary, setascii, setftpmode, put, putusage, get, getusage)
+	(setrexmt, settimeout, status, intr, tail, command, getcmd)
+	(makeargv, quit, help, settrace, setverbose): New functions.
+
 2010-01-08  Simon Josefsson  <simon@josefsson.org>
 
 	* README-alpha: Explain more.

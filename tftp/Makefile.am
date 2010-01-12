@@ -23,8 +23,6 @@ bin_PROGRAMS = @tftp_BUILD@
 
 EXTRA_PROGRAMS = tftp
 
-tftp_SOURCES = main.c tftp.c
-
-noinst_HEADERS = extern.h
+tftp_SOURCES = tftp.c
 
 LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
