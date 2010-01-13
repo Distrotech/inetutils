@@ -558,16 +558,9 @@ int
 openconn (const char *server, const char *port)
 {
   int fd;
-#ifdef HAVE_GETADDRINFO
   int i;
   struct addrinfo hints, *res, *ressave;
-#else
-  struct hostent *hostinfo;
-  struct servent *servinfo;
-  struct sockaddr_in saddr;
-#endif
 
-#ifdef HAVE_GETADDRINFO
   memset (&hints, 0, sizeof (struct addrinfo));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
@@ -588,27 +581,6 @@ openconn (const char *server, const char *port)
   if (!res)
     err_sys ("connect");
   freeaddrinfo (ressave);
-#else
-  if ((hostinfo = gethostbyname (server)) == NULL)
-    err_quit (_("Host %s not found."), server);
-  if ((fd = socket (PF_INET, SOCK_STREAM, IPPROTO_IP)) < 0)
-    err_sys ("socket");
-  memset (&saddr, 0, sizeof (saddr));
-  saddr.sin_addr = *(struct in_addr *) hostinfo->h_addr;
-  saddr.sin_family = AF_INET;
-  if (!port)
-    {
-      saddr.sin_port = htons (43);
-    }
-  else if ((saddr.sin_port = htons (atoi (port))) == 0)
-    {
-      if ((servinfo = getservbyname (port, "tcp")) == NULL)
-	err_quit (_("%s/tcp: unknown service"), port);
-      saddr.sin_port = servinfo->s_port;
-    }
-  if (connect (fd, &saddr, sizeof (saddr)) < 0)
-    err_sys ("connect");
-#endif
   return (fd);
 }
 

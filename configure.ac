@@ -329,12 +329,6 @@ if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
   AC_CHECK_TYPE(struct addrinfo, , working_ipv6=no, [#include <netdb.h>])
 fi
 
-AH_TEMPLATE([HAVE_GETADDRINFO],[Define to 1 if you have getaddrinfo(3)])
-AC_CHECK_FUNC(getaddrinfo,
-              [AC_DEFINE([HAVE_GETADDRINFO],1)],
-	      [working_ipv6=no
-	       AC_DEFINE([HAVE_GETADDRINFO],0)], [#include <netdb.h>])
-
 if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
   AC_CHECK_FUNC(getnameinfo, ,working_ipv6=no, [#include <netdb.h>])
 fi

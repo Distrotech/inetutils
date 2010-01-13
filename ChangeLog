@@ -1,3 +1,14 @@
+2010-01-12  Simon Josefsson  <simon@josefsson.org>
+
+	* whois/whois.c (openconn) [!HAVE_GETADDRINFO]: Remove variables
+	hostinfo, servinfo, and saddr and supporting code.
+	* src/inetd.c (servtab): Remove !HAVE_GETADDRINFO support.
+	(setup) [!HAVE_GETADDRINFO]: Remove function.
+	(expand_enter) [!HAVE_GETADDRINFO]: Remove function.
+	* configure.ac: Remove HAVE_GETADDRINFO variable.  Don't check for
+	getaddrinfo.
+	* bootstrap.conf (gnulib_modules): Add getaddrinfo.
+
 2010-01-13  Simon Josefsson  <simon@josefsson.org>
 
 	* TODO: Update.

@@ -267,11 +267,7 @@ struct servtab
   int se_type;			/* type */
   sa_family_t se_family;	/* address family of the socket */
   char se_v4mapped;		/* 1 = accept v4mapped connection, 0 = don't */
-#if HAVE_GETADDRINFO
   struct sockaddr_storage se_ctrladdr;	/* bound address */
-#else
-  struct sockaddr_in se_ctrladdr;	/* bound address */
-#endif
   unsigned se_refcnt;
   int se_count;			/* number started since se_time */
   struct timeval se_time;	/* start of se_count */
@@ -550,7 +546,6 @@ print_service (const char *action, struct servtab *sep)
 
 
 /* Configuration */
-#if HAVE_GETADDRINFO
 int
 setup (struct servtab *sep)
 {
@@ -631,56 +626,6 @@ setup (struct servtab *sep)
     }
   return 0;
 }
-#else
-void
-setup (struct servtab *sep)
-{
-  int err;
-  const int on = 1;
-
-  sep->se_fd = socket (sep->se_family, sep->se_socktype, 0);
-  if (sep->se_fd < 0)
-    {
-      if (debug)
-	fprintf (stderr, "socket failed on %s/%s: %s\n",
-		 sep->se_service, sep->se_proto, strerror (errno));
-      syslog (LOG_ERR, "%s/%s: socket: %m", sep->se_service, sep->se_proto);
-      return 1;
-    }
-
-  if (strncmp (sep->se_proto, "tcp", 3) == 0 && (options & SO_DEBUG))
-    {
-      err = setsockopt (sep->se_fd, SOL_SOCKET, SO_DEBUG,
-			(char *) &on, sizeof (on));
-      if (err < 0)
-	syslog (LOG_ERR, "setsockopt (SO_DEBUG): %m");
-    }
-
-  err = setsockopt (sep->se_fd, SOL_SOCKET, SO_REUSEADDR,
-		    (char *) &on, sizeof (on));
-  if (err < 0)
-    syslog (LOG_ERR, "setsockopt (SO_REUSEADDR): %m");
-
-  err = bind (sep->se_fd, (struct sockaddr *) &sep->se_ctrladdr,
-	      sizeof (sep->se_ctrladdr));
-  if (err < 0)
-    {
-      if (debug)
-	fprintf (stderr, "bind failed on %s/%s: %s\n",
-		 sep->se_service, sep->se_proto, strerror (errno));
-      syslog (LOG_ERR, "%s/%s: bind: %m", sep->se_service, sep->se_proto);
-      close (sep->se_fd);
-      sep->se_fd = -1;
-      if (!timingout)
-	{
-	  timingout = 1;
-	  alarm (RETRYTIME);
-	}
-      return 1;
-    }
-  return 0;
-}
-#endif
 
 void
 servent_setup (struct servtab *sep)
@@ -802,7 +747,6 @@ enter (struct servtab *cp)
   return sep;
 }
 
-#if HAVE_GETADDRINFO
 int
 inetd_getaddrinfo (struct servtab *sep, int proto, struct addrinfo **result)
 {
@@ -879,67 +823,6 @@ expand_enter (struct servtab *sep)
 
   return 0;
 }
-#else
-int
-expand_enter (struct servtab *sep)
-{
-  struct servent *sp;
-
-  sp = getservbyname (sep->se_service, sep->se_proto);
-  if (sp == 0)
-    {
-      static struct servent servent;
-      char *p;
-      unsigned long val;
-      unsigned short port;
-
-      val = strtoul (sep->se_service, &p, 0);
-      if (*p || (port = val) != val)
-	{
-	  syslog (LOG_ERR, "%s/%s: unknown service",
-		  sep->se_service, sep->se_proto);
-	  sep->se_checked = 0;
-	  return 1;
-	}
-      servent.s_port = htons (port);
-      sp = &servent;
-    }
-  if (sp->s_port != sep->se_ctrladdr.sin_port)
-    {
-      sep->se_ctrladdr.sin_family = AF_INET;
-      sep->se_ctrladdr.sin_port = sp->s_port;
-    }
-  if (sep->se_node == NULL)
-    {
-      cp = enter (sep);
-      servent_setup (cp);
-    }
-  else
-    {
-      char    **p;
-      struct hostent *host = gethostbyname (sep->se_node);
-      if (!host)
-	{
-	  syslog (LOG_ERR, "%s/%s: unknown host %s",
-		  sep->se_service, sep->se_proto, sep->se_node);
-	  return 1;
-	}
-      if (host->h_addrtype != AF_INET)
-	{
-	  syslog (LOG_ERR, "%s/%s: unsupported address family %d",
-		  sep->se_service, sep->se_proto, host->h_addrtype);
-	  return 1;
-	}
-      for (p = host->h_addr_list; *p; p++)
-	{
-	  memcpy (&sep->se_ctrladdr.sin_addr.s_addr, *p, host->h_length);
-	  cp = enter (sep);
-	  servent_setup (cp);
-	}
-    }
-  return 0;
-}
-#endif
 
 
 /* Configuration parser */
