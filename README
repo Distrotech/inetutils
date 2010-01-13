@@ -41,13 +41,8 @@ override the values specified by --disable-clients or
 
 Notes:
 
-1) All the manpages will be installed, regardless of which programs
-   are built.  The whois server list will also be installed.  You can
-   use `make install-exec' instead of `make install' if you do not
-   want to install these files.
-
-2) All of the r* commands clients, rcp, rlogin, rsh, need to be
-   install setuid root to work correctly they use priviledge ports for
+1) All of the r* commands clients, rcp, rlogin, rsh, need to be
+   install setuid root to work correctly they use privileged ports for
    communication.
 
 Some known deficiencies:
@@ -58,3 +53,12 @@ Some known deficiencies:
 See the file INSTALL for installation instructions.
 
 Please send all bug reports to <bug-inetutils@gnu.org>.
+
+========================================================================
+
+Copyright (C) 1997-2010 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
