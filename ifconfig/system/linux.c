@@ -289,7 +289,7 @@ struct pnd_stats
   unsigned long rx_dropped;        /* input packets dropped */
   unsigned long tx_dropped;        /* transmit packets dropped */
   unsigned long rx_multicast;      /* multicast packets received */
-  unsigned long rx_compressed;     /* compressed packets received */ 
+  unsigned long rx_compressed;     /* compressed packets received */
   unsigned long tx_compressed;     /* compressed packets transmitted */
   unsigned long collisions;
 
@@ -428,7 +428,7 @@ pnd_read ()
       struct pnd_stats *stats = xzalloc (sizeof (*stats));;
       char *p = buf, *q;
       size_t len;
-      
+
       while (*p
 	     && isascii (*(unsigned char*) p) && isspace (*(unsigned char*) p))
 	p++;
@@ -487,7 +487,7 @@ system_fh_ifstat_query (format_data_t form, int argc, char *argv[])
 {
   select_arg (form, argc, argv,
 	      pnd_stats_locate (form->ifr->ifr_name) ? 0 : 1);
-}  
+}
 
 #define _IU_DECLARE(fld)						     \
 void                                                                         \
@@ -496,7 +496,7 @@ _IU_CAT2 (system_fh_,fld) (format_data_t form, int argc, char *argv[])       \
   struct pnd_stats *stats = pnd_stats_locate (form->ifr->ifr_name);          \
   if (!stats)                                                                \
     put_string (form, "(" #fld " unknown)");                                 \
-  else 								             \
+  else								             \
     put_ulong (form, argc, argv, stats->fld);                                \
 }
 
@@ -546,7 +546,7 @@ system_fh_hwaddr (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFHWADDR
   if (ioctl (form->sfd, SIOCGIFHWADDR, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFHWADDR failed for interface `%s'",
+	   "SIOCGIFHWADDR failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     {
@@ -555,7 +555,7 @@ system_fh_hwaddr (format_data_t form, int argc, char *argv[])
       arp = arphrd_findvalue (form->ifr->ifr_hwaddr.sa_family);
       if (arp && arp->print_hwaddr)
 	arp->print_hwaddr (form,
-                           (unsigned char *) form->ifr->ifr_hwaddr.sa_data);
+			   (unsigned char *) form->ifr->ifr_hwaddr.sa_data);
       else
 	put_string (form, "(hwaddr unknown)");
     }
@@ -582,7 +582,7 @@ system_fh_hwtype (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFHWADDR
   if (ioctl (form->sfd, SIOCGIFHWADDR, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFHWADDR failed for interface `%s'",
+	   "SIOCGIFHWADDR failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     {
@@ -617,7 +617,7 @@ system_fh_txqlen (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFTXQLEN
   if (ioctl (form->sfd, SIOCGIFTXQLEN, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFTXQLEN failed for interface `%s'",
+	   "SIOCGIFTXQLEN failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     put_int (form, argc, argv, form->ifr->ifr_qlen);
@@ -633,7 +633,7 @@ system_fh_txqlen (format_data_t form, int argc, char *argv[])
 const char *system_help = "\
  NAME [ADDR] [broadcast BRDADDR]\
  [pointopoint|dstaddr DSTADDR] [netmask MASK]\
- [metric N] [mtu N] [txqueuelen N]";
+ [metric N] [mtu N] [txqueuelen N] [up|down] [FLAGS]";
 
 void
 system_parse_opt_set_txqlen (struct ifconfig *ifp, char *arg)
@@ -642,7 +642,7 @@ system_parse_opt_set_txqlen (struct ifconfig *ifp, char *arg)
 
   if (!ifp)
     error (EXIT_FAILURE, 0,
-           "no interface specified for txqlen `%s'", arg);
+	   "no interface specified for txqlen `%s'", arg);
 
   if (!(ifp->valid & IF_VALID_SYSTEM))
     {
@@ -655,13 +655,13 @@ system_parse_opt_set_txqlen (struct ifconfig *ifp, char *arg)
     }
   if (ifp->system->valid & IF_VALID_TXQLEN)
     error (EXIT_FAILURE, 0,
-           "only one txqlen allowed for interface `%s'",
+	   "only one txqlen allowed for interface `%s'",
 	   ifp->name);
   ifp->system->txqlen = strtol (arg, &end, 0);
   if (*arg == '\0' || *end != '\0')
     error (EXIT_FAILURE, 0,
-           "txqlen value `%s' for interface `%s' is not a number", 
-           arg, ifp->name);
+	   "txqlen value `%s' for interface `%s' is not a number",
+	   arg, ifp->name);
   ifp->system->valid |= IF_VALID_TXQLEN;
 }
 
@@ -727,8 +727,9 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
     EXPECT_NETMASK,
     EXPECT_MTU,
     EXPECT_METRIC,
-    EXPECT_TXQLEN
+    EXPECT_TXQLEN,
   } expect = EXPECT_INET;
+  int mask, rev;
 
   *ifp = parse_opt_new_ifs (argv[0]);
 
@@ -741,7 +742,7 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	  break;
 
 	case EXPECT_DSTADDR:
-	  parse_opt_set_dstaddr (*ifp, argv[i]);
+	  parse_opt_set_point_to_point (*ifp, argv[i]);
 	  break;
 
 	case EXPECT_NETMASK:
@@ -765,7 +766,7 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	  if (!strcmp (argv[i], "inet"))
 	    continue;
 	  break;
-	  
+
 	case EXPECT_NOTHING:
 	  break;
 	}
@@ -785,6 +786,12 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	expect = EXPECT_MTU;
       else if (!strcmp (argv[i], "txqueuelen"))
 	expect = EXPECT_TXQLEN;
+      else if (!strcmp (argv[i], "up"))
+	parse_opt_set_flag (*ifp, IFF_UP | IFF_RUNNING, 0);
+      else if (!strcmp (argv[i], "down"))
+	parse_opt_set_flag (*ifp, IFF_UP, 1);
+      else if ((mask = if_nameztoflag (argv[i], &rev)) != 0)
+	parse_opt_set_flag (*ifp, mask, rev);
       else
 	parse_opt_set_address (*ifp, argv[i]);
     }

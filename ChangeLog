@@ -1,3 +1,34 @@
+2010-01-27  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Implement setting interface options: up, down, multicast,
+	allmulti.
+
+	* ifconfig/changeif.c (set_flags): New function.
+	(configure_if): Set flags.
+	* ifconfig/flags.c (struct if_flag): New member `rev'.
+	(if_flagtoname) Avoid extra comparison.
+	(if_nametoflag): Rewrite. Take 2 additional arguments.
+	(if_nameztoflag): New function.
+	(if_format_flags): New function.
+	* ifconfig/flags.h (if_nametoflag): Change signature.
+	(if_nameztoflag): New prototype.
+	* ifconfig/options.c (all_option): New global.
+	(argp_options): Use -A as short option for --address.
+	Add new option -a (--all).
+	New options: --up, --down, --flags.
+	(parse_opt_set_flag, parse_opt_flag_list): New functions.
+	(parse_opt_set_point_to_point): New function.
+	(parse_opt): Handle new options.
+	(argp): Add help filter.
+	* ifconfig/options.h (struct ifconfig): New members: setflags
+	and clrflags.
+	(parse_opt_set_flag, parse_opt_flag_list)
+	(parse_opt_set_point_to_point): New prototypes.
+	* ifconfig/printif.c (fh_brdaddr_query, fh_dstaddr_query): Update
+	calls to if_nametoflag.
+	* ifconfig/system/linux.c (system_help): Update.
+	(system_parse_opt_rest): Allow for flags (up, down, arp, etc.)
+
 2010-01-12  Simon Josefsson  <simon@josefsson.org>
 
 	* whois/whois.c (openconn) [!HAVE_GETADDRINFO]: Remove variables
@@ -1021,7 +1052,7 @@
 	* ping/ping_timestamp.c: Likewise.
 
 2009-07-10  Giuseppe Scrivano <gscrivano@gnu.org>
-            Alfred M. Szmidt <ams@gnu.org>
+	    Alfred M. Szmidt <ams@gnu.org>
 
 	* rexecd/rexecd.c: Use EXIT_FAILURE consistently for calls to
 	error.
@@ -1402,7 +1433,7 @@
 
 2008-10-14  Rakesh Pandit  <rakesh.pandit@gmail.com>
 
-        * ping/ping_impl.h, ping/ping.h, ping/ping_common.h,
+	* ping/ping_impl.h, ping/ping.h, ping/ping_common.h,
 	ping/ping6.h (ping_stat, PEV_RESPONSE, PEV_DUPLICATE, PEV_NOECHO,
 	PING_INTERVAL, PING_CKTABSIZE, MAXWAIT, OPT_FLOOD, OPT_INTERVAL,
 	OPT_NUMERIC, OPT_QUIET, OPT_RROUTE, OPT_VERBOSE, PING_TIMING,
@@ -1485,7 +1516,7 @@
 	from list
 
 	* doc/Makefile.am (SUBDIRS): Remove variable.
-        * doc/rfc/.cvsignore, doc/rfc/Makefile.am, doc/rfc/rfc1282.txt:
+	* doc/rfc/.cvsignore, doc/rfc/Makefile.am, doc/rfc/rfc1282.txt:
 	Files removed.
 
 2008-09-26  Arash Yadegarnia <arash@bluehome.net> (tiny change)
@@ -1500,7 +1531,7 @@
 
 2008-09-26  Alfred M. Szmidt  <ams@gnu.org>
 
-        * doc/inetutils.texi: Refer to `COMMAND invocation' nodes for
+	* doc/inetutils.texi: Refer to `COMMAND invocation' nodes for
 	logger, rcp, rexecd and syslogd.  Formating fixes.  Mention
 	traceroute in the TOC.
 
@@ -2561,7 +2592,7 @@
 
 2006-04-20  Sergey Poznyakoff  <gray@gnu.org.ua>
 
- 	* Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
+	* Makefile.am (INCLUDES): Add -I$(top_srcdir)/libinetutils
 	* ftpd/extern.h (logwtmp): Remove prototype
 	* ftpd/ftpd.c: Include libinetutils.h
 
@@ -3775,11 +3806,11 @@
 	Minor bugfix: LIBS and LDFLAGS were not properly
 	restored.
 	* configure.ac: Removed KERBEROS_IV and KERBEROS_V defines.
-        Added check for socklen_t.
+	Added check for socklen_t.
 
 2003-02-08  Simon Josefsson  <jas@extundo.com>
 
-        * telnet/commands.c (tn): Don't set hostname to DNS canonicalized
+	* telnet/commands.c (tn): Don't set hostname to DNS canonicalized
 	  value. Attackers may control DNS and fool the Kerberos
 	  authentication code to use the wrong realm for the server, and
 	  consequently the wrong KDC for the server, which the attackers
@@ -3909,7 +3940,7 @@
 	  switching to the user privileges. Thanks to
 	  Alex Muntada <alexm@ac.upc.es> for the idea.
 	  Removed unneded casts to (void).
-          Create a local copy of hostname, lest it be spoiled
+	  Create a local copy of hostname, lest it be spoiled
 	  by a call to localhost().
 	  Thanks to Chris Ulherr for reporting.
 
@@ -3917,7 +3948,7 @@
 
 	* rexecd/rexecd.c: Change to the user's directory after
 	  switching to the user privileges. Thanks to
-          Alex Muntada <alexm@ac.upc.es> for the idea.
+	  Alex Muntada <alexm@ac.upc.es> for the idea.
 	  Removed unneded casts to (void).
 
 2002-09-06  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
@@ -4358,16 +4389,16 @@
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
-        * ftpd/Makefile.am (inetdaemon_PROGRAMS): Use ftpd_BUILD instead of
-        BUILD_FTPD.
-        * ftpd/extern.h [HAVE_GETUSERSHELL_DECL]: Renamed to HAVE_DECL_GETUSERSHELL.
-        * ftpd/ftpd.c [HAVE_FCLOSE_DECL]: Renamed to HAVE_DECL_FCLOSE.
+	* ftpd/Makefile.am (inetdaemon_PROGRAMS): Use ftpd_BUILD instead of
+	BUILD_FTPD.
+	* ftpd/extern.h [HAVE_GETUSERSHELL_DECL]: Renamed to HAVE_DECL_GETUSERSHELL.
+	* ftpd/ftpd.c [HAVE_FCLOSE_DECL]: Renamed to HAVE_DECL_FCLOSE.
 
 2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
 
-        * ftp/Makefile.am (bin_PROGRAMS): Use ftp_BUILD instead of BUILD_FTP.
-        * ftp/ftp.c [HAVE_FCLOSE_DECL]: Renamed to HAVE_DECL_FCLOSE.
-        [HAVE_PCLOSE_DECL]: Renamed to HAVE_DECL_PCLOSE.
+	* ftp/Makefile.am (bin_PROGRAMS): Use ftp_BUILD instead of BUILD_FTP.
+	* ftp/ftp.c [HAVE_FCLOSE_DECL]: Renamed to HAVE_DECL_FCLOSE.
+	[HAVE_PCLOSE_DECL]: Renamed to HAVE_DECL_PCLOSE.
 
 2002-04-21  Alfred M. Szmidt  <ams@kemisten.nu>
 
@@ -4439,7 +4470,7 @@
 	* telnetd/ext.h: Removed.
 	* telnetd/global.c: Removed.
 	* telnetd/authenc.c: Removed.
-        * telnetd/sys_term.c: Removed
+	* telnetd/sys_term.c: Removed
 	* telnetd/term.c: (new) Terminal-specific functions.
 	* telnetd/Makefile.am: Modified.
 	* telnetd/telnetd.c: Rewritten.
@@ -4493,7 +4524,7 @@
 	* telnetd/Makefile.am: Added pty.c
 	* telnetd/ext.h: Changed definition of line.
 	* telnetd/sys_term.c: Removed unneeded functions. Some of them
-          are re-implemented in pty.c
+	  are re-implemented in pty.c
 	* telnetd/telnetd.c (doit, telnet, readstream): Reorganized.
 
 2002-03-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
@@ -4644,13 +4675,13 @@
 
 	* autogen.sh: Don't point autoheader to headers/
 
-        * headers/acconfig.h: Move to ...
+	* headers/acconfig.h: Move to ...
 	* acconfig.h: Here
 
 	* Makefile.am: Require Automake 1.5.  Add doc and doc/rfc to
 	build tree.  Don't tell autoheader to look in headers/
 
-        I moved config.h to the top_builddir to overcome a bug in
+	I moved config.h to the top_builddir to overcome a bug in
 	autoconf that requires the config.h to be in the same
 	directory as aclocal.m4
 
@@ -4681,7 +4712,7 @@
 2001-11-22  Sergey Poznyakoff
 
 	* rlogin/rlogin.c: Fixed syntax error: sizeof int. Should be:
-        sizeof(int).
+	sizeof(int).
 
 2001-11-22  Sergey Poznyakoff
 
@@ -5195,7 +5226,7 @@
 
 2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
 
-        * icmp.h: Fixed coding style to comply with GNU.
+	* icmp.h: Fixed coding style to comply with GNU.
 	* libicmp/icmp_address.c: Likewise.
 	* libicmp/icmp_cksum.c: Likewise.
 	* libicmp/icmp_echo.c: Likewise.
@@ -5388,7 +5419,7 @@
 
 	Patches by Alain:
 	* ping/ping_address.c, ping/ping_echo.c, ping/ping_router.c,
-	ping/ping_timestamp.c: 	<signal.h> -> <sys/signal.h>
+	ping/ping_timestamp.c:	<signal.h> -> <sys/signal.h>
 
 
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
@@ -5497,12 +5528,12 @@
 
 2001-06-05  Sergey Poznyakoff  <gray@farlep.net>
 
-        * ftpd/ftpd.c: MAP_FAILED is not defined on some systems
+	* ftpd/ftpd.c: MAP_FAILED is not defined on some systems
 	(e.g. Solaris, SunOS)
-        * headers/paths.h: Added missing _PATH_LOGCONF, _PATH_LOGPID,
-        _PATH_LOG
-        * libls/print.c: Provided defaults for major() and minor() macros
-        for systems lacking them.
+	* headers/paths.h: Added missing _PATH_LOGCONF, _PATH_LOGPID,
+	_PATH_LOG
+	* libls/print.c: Provided defaults for major() and minor() macros
+	for systems lacking them.
 
 2001-06-04  Alain Magloire
 
@@ -7099,7 +7130,7 @@ AC_REPLACE_FUNC (setproctitle).
 	* ftp/ruserpass.c: MACH was define on Hurd.  We protect
 	the defines before using them, MACH was change to MACHINE.
 	Noted by the Hurd people(Bayley, Marcus)
-    	* cmds.c : use xgetcwd().
+	* cmds.c : use xgetcwd().
 
 1999-05-19 Alain Magloire
 
@@ -7402,7 +7433,7 @@ Mon May 20 13:29:32 MET DST 1996:  Miquel van Smoorenburg <miquels@cistron.nl>
 Added continuation line support.
 
 	* syslogd/syslogd.c (init): Add support for continuated lines
-          (implemented by Miquel van Smoorenburg <miquels@cistron.nl>).
+	  (implemented by Miquel van Smoorenburg <miquels@cistron.nl>).
 
 	* syslogd/syslog.conf.5: Mention continuated line feature.
 

@@ -32,9 +32,9 @@ struct ifconfig
 {
   char *name;
   int valid;
-# define IF_VALID_SYSTEM		0x001
+# define IF_VALID_SYSTEM	0x001
   struct system_ifconfig *system;
-# define IF_VALID_FORMAT		0x002
+# define IF_VALID_FORMAT	0x002
   const char *format;
 # define IF_VALID_AF		0x004
   sa_family_t af;
@@ -48,8 +48,10 @@ struct ifconfig
   char *brdaddr;
 # define IF_VALID_MTU		0x080
   int mtu;
-# define IF_VALID_METRIC		0x100
+# define IF_VALID_METRIC	0x100
   int metric;
+  int setflags;
+  int clrflags;
 };
 
 struct format
@@ -75,6 +77,10 @@ void parse_opt_set_netmask (struct ifconfig *ifp, char *addr);
 void parse_opt_set_mtu (struct ifconfig *ifp, char *addr);
 void parse_opt_set_metric (struct ifconfig *ifp, char *addr);
 void parse_opt_set_default_format (const char *format);
+void parse_opt_set_flag (struct ifconfig *ifp, int flag, int rev);
+void parse_opt_flag_list (struct ifconfig *ifp, const char *name);
+void parse_opt_set_point_to_point (struct ifconfig *ifp, char *addr);
+
 void parse_opt_finalize (struct ifconfig *ifp);
 
 void parse_cmdline (int argc, char *argv[]);

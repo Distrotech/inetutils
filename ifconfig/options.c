@@ -146,33 +146,45 @@ struct format formats[] = {
 
 /* Default format.  */
 const char *default_format;
+/* Display all interfaces, even if down */
+int all_option;
 
 enum {
   METRIC_OPTION = 256,
-  FORMAT_OPTION
+  FORMAT_OPTION,
+  UP_OPTION,
+  DOWN_OPTION,
 };
 
 static struct argp_option argp_options[] = {
   { "verbose", 'v', NULL, 0,
     "output information when configuring interface" },
+  { "all", 'a', NULL, 0,
+    "display all available interfaces" },
   { "interface", 'i', "NAME", 0,
     "configure network interface NAME" },
-  { "address", 'a', "ADDR", 0,
+  { "address", 'A', "ADDR", 0,
     "set interface address to ADDR" },
   { "netmask", 'm', "MASK", 0,
     "set netmask to MASK" },
   { "dstaddr", 'd', "ADDR", 0,
     "set destination (peer) address to ADDR" },
-  { "peer", 'p', NULL, OPTION_ALIAS },
+  { "peer", 'p', "ADDR", OPTION_ALIAS },
   { "broadcast", 'B', "ADDR", 0,
     "set broadcast address to ADDR" },
   { "brdaddr", 'b', NULL, OPTION_ALIAS, }, /* FIXME: Do we really need it? */
   { "mtu", 'M', "N", 0,
-    "et mtu of interface to N" },
+    "set mtu of interface to N" },
   { "metric", METRIC_OPTION, "N", 0,
     "set metric of interface to N" },
   { "format", FORMAT_OPTION, "FORMAT", 0,
     "select output format (or set back to default)" },
+  { "up", UP_OPTION, NULL, 0,
+    "activate the interface (default if address is given)" },
+  { "down", DOWN_OPTION, NULL, 0,
+    "shut the interface down" },
+  { "flags", 'F', "FLAG[,FLAG...]", 0,
+    "set interface flags" },
   { NULL }
 };
 
@@ -182,7 +194,7 @@ const char *program_authors[] =
     "Marcus Brinkmann",
     NULL
   };
-    
+
 struct ifconfig *
 parse_opt_new_ifs (char *name)
 {
@@ -203,10 +215,10 @@ parse_opt_set_##field (struct ifconfig *ifp, char *addr)	\
 {								\
   if (!ifp)							\
     error (EXIT_FAILURE, 0,                                     \
-           "no interface specified for %s `%s'", #fname, addr); \
+	   "no interface specified for %s `%s'", #fname, addr); \
   if (ifp->valid & IF_VALID_##fvalid)				\
     error (EXIT_FAILURE, 0,                                     \
-           "only one %s allowed for interface `%s'",		\
+	   "only one %s allowed for interface `%s'",		\
 	   #fname, ifp->name);				        \
   ifp->field = addr;						\
   ifp->valid |= IF_VALID_##fvalid;				\
@@ -216,6 +228,7 @@ PARSE_OPT_SET_ADDR (address, address, ADDR)
 PARSE_OPT_SET_ADDR (netmask, netmask, NETMASK)
 PARSE_OPT_SET_ADDR (dstaddr, destination / peer address, DSTADDR)
 PARSE_OPT_SET_ADDR (brdaddr, broadcast address, BRDADDR)
+
 #define PARSE_OPT_SET_INT(field, fname, fvalid) \
 void								\
 parse_opt_set_##field (struct ifconfig *ifp, char *arg)		\
@@ -223,17 +236,17 @@ parse_opt_set_##field (struct ifconfig *ifp, char *arg)		\
   char *end;							\
   if (!ifp)							\
     error (EXIT_FAILURE, 0,                                     \
-           "no interface specified for %s `%s'\n",              \
-           #fname, arg);                                        \
+	   "no interface specified for %s `%s'\n",              \
+	   #fname, arg);                                        \
   if (ifp->valid & IF_VALID_##fvalid)				\
     error (EXIT_FAILURE, 0,                                     \
-           "only one %s allowed for interface `%s'",		\
-           #fname, ifp->name);	 			        \
+	   "only one %s allowed for interface `%s'",		\
+	   #fname, ifp->name);				        \
   ifp->field =  strtol (arg, &end, 0);				\
   if (*arg == '\0' || *end != '\0')				\
     error (EXIT_FAILURE, 0,                                     \
-           "mtu value `%s' for interface `%s' is not a number",	\
-           arg, ifp->name);			                \
+	   "mtu value `%s' for interface `%s' is not a number",	\
+	   arg, ifp->name);			                \
   ifp->valid |= IF_VALID_##fvalid;				\
 }
 PARSE_OPT_SET_INT (mtu, mtu value, MTU)
@@ -242,15 +255,55 @@ void parse_opt_set_af (struct ifconfig *ifp, char *af)
 {
   if (!ifp)
     error (EXIT_FAILURE, 0,
-           "no interface specified for address family `%s'", af);
+	   "no interface specified for address family `%s'", af);
 
   if (!strcasecmp (af, "inet"))
     ifp->af = AF_INET;
   else
     error (EXIT_FAILURE, 0,
-           "unknown address family `%s' for interface `%s': is not a number", 
-           af, ifp->name);
+	   "unknown address family `%s' for interface `%s': is not a number",
+	   af, ifp->name);
   ifp->valid |= IF_VALID_AF;
+}
+
+void
+parse_opt_set_flag (struct ifconfig *ifp, int flag, int rev)
+{
+  if (rev)
+    ifp->clrflags |= flag;
+  else
+    ifp->setflags |= flag;
+}
+
+void
+parse_opt_flag_list (struct ifconfig *ifp, const char *name)
+{
+  while (*name)
+    {
+      int mask, rev;
+      char *p = strchr (name, ',');
+      size_t len;
+
+      if (p)
+	len = p - name;
+      else
+	len = strlen (name);
+
+      if ((mask = if_nametoflag (name, len, &rev)) == 0)
+	error (EXIT_FAILURE, 0, "unknown flag %*.*s", len, len, name);
+      parse_opt_set_flag (ifp, mask, rev);
+
+      name += len;
+      if (p)
+	name++;
+    }
+}
+
+void
+parse_opt_set_point_to_point (struct ifconfig *ifp, char *addr)
+{
+  parse_opt_set_dstaddr (ifp, addr);
+  parse_opt_set_flag (ifp, IFF_POINTOPOINT, 0);
 }
 
 void
@@ -293,20 +346,24 @@ static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   struct ifconfig *ifp = *(struct ifconfig **)state->input;
-  
+
   switch (key)
     {
     case ARGP_KEY_INIT:
       state->child_inputs[0] = state->input;
       break;
-      
+
     case 'i':		/* Interface name.  */
       parse_opt_finalize (ifp);
       ifp = parse_opt_new_ifs (arg);
       *(struct ifconfig **) state->input = ifp;
       break;
 
-    case 'a':		/* Interface address.  */
+    case 'a':
+      all_option = 1;
+      break;
+
+    case 'A':		/* Interface address.  */
       parse_opt_set_address (ifp, arg);
       break;
 
@@ -316,7 +373,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'd':		/* Interface dstaddr.  */
     case 'p':
-      parse_opt_set_dstaddr (ifp, arg);
+      parse_opt_set_point_to_point (ifp, arg);
       break;
 
     case 'b':		/* Interface broadcast address.  */
@@ -324,8 +381,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
       parse_opt_set_brdaddr (ifp, arg);
       break;
 
+    case 'F':
+      parse_opt_flag_list (ifp, arg);
+      break;
+
     case 'M':		/* Interface MTU.  */
       parse_opt_set_mtu (ifp, arg);
+      break;
+
+    case 'v':
+      verbose++;
       break;
 
     case METRIC_OPTION:		/* Interface metric.  */
@@ -336,11 +401,36 @@ parse_opt (int key, char *arg, struct argp_state *state)
       parse_opt_set_default_format (arg);
       break;
 
+    case UP_OPTION:
+      parse_opt_set_flag (ifp, IFF_UP | IFF_RUNNING, 0);
+      break;
+
+    case DOWN_OPTION:
+      parse_opt_set_flag (ifp, IFF_UP, 1);
+      break;
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
 
   return 0;
+}
+
+static char *
+default_help_filter (int key, const char *text, void *input)
+{
+  char *s;
+
+  switch (key)
+    {
+    default:
+      s = (char*) text;
+      break;
+
+    case ARGP_KEY_HELP_EXTRA:
+      s = if_format_flags ("Known flags are: ");
+    }
+  return s;
 }
 
 static struct argp_child argp_children[2];
@@ -350,6 +440,8 @@ static struct argp argp =
     parse_opt,
     NULL,
     doc,
+    NULL,
+    default_help_filter
   };
 
 
@@ -388,7 +480,7 @@ parse_cmdline (int argc, char *argv[])
 	  ifs = realloc (ifs, ++nifs * sizeof (struct ifconfig));
 	  if (!ifs)
 	    error (EXIT_FAILURE, errno,
-	           "can't get memory for interface configuration");
+		   "can't get memory for interface configuration");
 	  ifp = &ifs[nifs - 1];
 	  *ifp = ifconfig_initializer;
 	  ifp->name = ifnxp->if_name;
@@ -397,7 +489,7 @@ parse_cmdline (int argc, char *argv[])
 	  ifnxp++;
 	}
       /* XXX: We never do if_freenameindex (ifnx), because we are
-         keeping the names for later instead using strdup
-         (if->if_name) here.  */
+	 keeping the names for later instead using strdup
+	 (if->if_name) here.  */
     }
 }

@@ -34,7 +34,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <net/if.h>
+#include <stdlib.h>
 #include "ifconfig.h"
+#include "xalloc.h"
 
 /* Conversion table for interface flag names.
    The mask must be a power of 2.  */
@@ -42,6 +44,7 @@ struct if_flag
 {
   const char *name;
   int mask;
+  int rev;
 } if_flags[] =
   {
     /* Available on all systems which derive the network interface from
@@ -68,6 +71,7 @@ struct if_flag
 #endif
 #ifdef IFF_NOARP		/* No address resolution protocol.  */
     {"NOARP", IFF_NOARP},
+    {"ARP", IFF_NOARP, 1},
 #endif
 #ifdef IFF_PROMISC		/* Receive all packets.  */
     {"PROMISC", IFF_PROMISC},
@@ -83,6 +87,7 @@ struct if_flag
 #ifdef IFF_NOTRAILERS		/* Avoid use of trailers.  */
     /* Obsoleted on FreeBSD systems.  */
     {"NOTRAILERS", IFF_NOTRAILERS},
+    {"TRAILERS", IFF_NOTRAILERS, 1},
 #endif
     /* Available on GNU and Linux systems.  */
 #ifdef IFF_MASTER		/* Master of a load balancer.  */
@@ -148,6 +153,7 @@ struct if_flag
     /* Available on HP-UX 10.20 systems.  */
 #ifdef IFF_NOTRAILERS		/* Avoid use of trailers.  */
     {"NOTRAILERS", IFF_NOTRAILERS},
+    {"TRAILERS", IFF_NOTRAILERS, 1},
 #endif
 #ifdef IFF_LOCALSUBNETS		/* Subnets of this net are local.  */
     {"LOCALSUBNETS", IFF_LOCALSUBNETS},
@@ -157,12 +163,14 @@ struct if_flag
 #endif
 #ifdef IFF_NOACC		/* No data access on outbound.  */
     {"NOACC", IFF_NOACC},
+    {"ACC", IFF_NOACC, 1},
 #endif
 #ifdef IFF_OACTIVE		/* Transmission in progress.  */
     {"OACTIVE", IFF_OACTIVE},
 #endif
 #ifdef IFF_NOSR8025		/* No source route 802.5.  */
     {"NOSR8025", IFF_NOSR8025},
+    {"SR8025", IFF_NOSR8025, 1},
 #endif
 #ifdef IFF_CKO_ETC		/* Interface supports trailer checksum.  */
     {"CKO_ETC", IFF_CKO_ETC},
@@ -191,6 +199,7 @@ struct if_flag
 #endif
 #ifdef IFF_NOCHECKSUM		/* No checksums needed (reliable media).  */
     {"NOCHECKSUM", IFF_NOCHECKSUM},
+    {"CHECKSUM", IFF_NOCHECKSUM, 1},
 #endif
 #ifdef IFF_MULTINET		/* Multiple networks on interface.  */
     {"MULTINET", IFF_MULTINET},
@@ -217,27 +226,100 @@ struct if_flag
 #endif
   };
 
+static int
+cmpname (const void *a, const void *b)
+{
+  return strcmp (*(const char**)a, *(const char**)b);
+}
+
+char *
+if_format_flags (const char *prefix)
+{
+  size_t len = 0;
+  struct if_flag *fp;
+  char **fnames;
+  size_t i, fcount;
+  char *str, *p;
+
+  for (fp = if_flags, len = 0, fcount = 0; fp->name; fp++)
+    if (!fp->rev)
+      {
+	fcount++;
+	len += strlen (fp->name) + 1;
+      }
+
+  fcount = sizeof (if_flags) / sizeof (if_flags[0]) - 1;
+  fnames = xmalloc (fcount * sizeof (fnames[0]) + len);
+  p = (char*)(fnames + fcount);
+
+  for (fp = if_flags, i = 0; fp->name; fp++)
+    if (!fp->rev)
+      {
+	const char *q;
+
+	fnames[i++] = p;
+	q = fp->name;
+	if (strncmp (q, "NO", 2) == 0)
+	  q += 2;
+	for (; *q; q++)
+	  *p++ = tolower (*q);
+	*p++ = 0;
+      }
+  fcount = i;
+  qsort (fnames, fcount, sizeof (fnames[0]), cmpname);
+
+  len += 2 * fcount;
+
+  if (prefix)
+    len += strlen (prefix);
+
+  str = xmalloc (len + 1);
+  p = str;
+  if (prefix)
+    {
+      strcpy (p, prefix);
+      p += strlen (prefix);
+    }
+
+  for (i = 0; i < fcount; i++)
+    {
+      if (i && strcmp (fnames[i - 1], fnames[i]) == 0)
+	continue;
+      strcpy (p, fnames[i]);
+      p += strlen (fnames[i]);
+      if (++i < fcount)
+	{
+	  *p++ = ',';
+	  *p++ = ' ';
+	}
+      else
+	break;
+    }
+  *p = 0;
+  free (fnames);
+  return str;
+}
+
 /* Return the name corresponding to the interface flag FLAG.
    If FLAG is unknown, return NULL.
-   AVOID contains a ':' surrounded and seperated list of flag names
+   AVOID contains a ':' surrounded and separated list of flag names
    that should be avoided if alternative names with the same flag value
    exists.  The first unavoided match is returned, or the first avoided
    match if no better is available.  */
 const char *
 if_flagtoname (int flag, const char *avoid)
 {
-  struct if_flag *fp = if_flags;
+  struct if_flag *fp;
   const char *first_match = NULL;
   char *start;
 
-  while (fp->name)
+  for (fp = if_flags; ; fp++)
     {
-      if (flag == fp->mask)
+      if (!fp->name)
+	return NULL;
+      if (flag == fp->mask && !fp->rev)
 	break;
-      fp++;
     }
-  if (!fp->name)
-    return NULL;
 
   first_match = fp->name;
 
@@ -259,17 +341,40 @@ if_flagtoname (int flag, const char *avoid)
     return first_match;
 }
 
-/* Return the flag mask corresponding to flag name NAME.  If no flag
-   with this name is found, return 0.  */
 int
-if_nametoflag (const char *name)
+if_nametoflag (const char *name, size_t len, int *prev)
 {
-  struct if_flag *fp = if_flags;
+  struct if_flag *fp;
+  int rev = 0;
 
-  while (fp->name && strcasecmp (name, fp->name))
-    fp++;
+  if (len > 1 && name[0] == '-')
+    {
+      name++;
+      len--;
+      rev = 1;
+    }
+  else if (len > 2 && strncasecmp (name, "NO", 2) == 0)
+    {
+      name += 2;
+      len -= 2;
+      rev = 1;
+    }
 
-  return fp->mask;
+  for (fp = if_flags; fp->name; fp++)
+    {
+      if (strncasecmp (fp->name, name, len) == 0)
+	{
+	  *prev = fp->rev ^ rev;
+	  return fp->mask;
+	}
+    }
+  return 0;
+}
+
+int
+if_nameztoflag (const char *name, int *prev)
+{
+  return if_nametoflag (name, strlen (name), prev);
 }
 
 /* Print the flags in FLAGS, using AVOID as in if_flagtoname, and

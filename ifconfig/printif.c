@@ -215,7 +215,7 @@ put_ulong (format_data_t form, int argc, char *argv[], unsigned long value)
 
 	  if (*p == 'l')
 	    p++;
-	  
+
 	  switch (*p)
 	    {
 	    default:
@@ -519,7 +519,7 @@ fh_index (format_data_t form, int argc, char *argv[])
 
   if (indx == 0)
     error (EXIT_FAILURE, errno,
-           "No index number found for interface `%s'",
+	   "No index number found for interface `%s'",
 	   form->name);
   *column += printf ("%i", indx);
   had_output = 1;
@@ -542,7 +542,7 @@ fh_addr (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFADDR
   if (ioctl (form->sfd, SIOCGIFADDR, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFADDR failed for interface `%s'",
+	   "SIOCGIFADDR failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_addr);
@@ -569,7 +569,7 @@ fh_netmask (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFNETMASK
   if (ioctl (form->sfd, SIOCGIFNETMASK, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFNETMASK failed for interface `%s'",
+	   "SIOCGIFNETMASK failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_netmask);
@@ -585,8 +585,9 @@ fh_brdaddr_query (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFBRDADDR
 # ifdef SIOCGIFFLAGS
   int f;
+  int rev;
 
-  if (0 == (f = if_nametoflag ("BROADCAST"))
+  if (0 == (f = if_nameztoflag ("BROADCAST", &rev))
       || (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
       || ((f & form->ifr->ifr_flags) == 0))
     {
@@ -607,8 +608,8 @@ fh_brdaddr (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFBRDADDR
   if (ioctl (form->sfd, SIOCGIFBRDADDR, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFBRDADDR failed for interface `%s'",
-           form->ifr->ifr_name);
+	   "SIOCGIFBRDADDR failed for interface `%s'",
+	   form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_broadaddr);
 #else
@@ -623,8 +624,9 @@ fh_dstaddr_query (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFDSTADDR
 # ifdef SIOCGIFFLAGS
   int f;
+  int rev;
 
-  if (0 == (f = if_nametoflag ("POINTOPOINT"))
+  if (0 == (f = if_nameztoflag ("POINTOPOINT", &rev))
       || (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
       || ((f & form->ifr->ifr_flags) == 0))
     {
@@ -645,7 +647,7 @@ fh_dstaddr (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFDSTADDR
   if (ioctl (form->sfd, SIOCGIFDSTADDR, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFDSTADDR failed for interface `%s'",
+	   "SIOCGIFDSTADDR failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     put_addr (form, argc, argv, &form->ifr->ifr_dstaddr);
@@ -672,7 +674,7 @@ fh_mtu (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFMTU
   if (ioctl (form->sfd, SIOCGIFMTU, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFMTU failed for interface `%s'",
+	   "SIOCGIFMTU failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     put_int (form, argc, argv, form->ifr->ifr_mtu);
@@ -699,7 +701,7 @@ fh_metric (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFMETRIC
   if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFMETRIC failed for interface `%s'",
+	   "SIOCGIFMETRIC failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     put_int (form, argc, argv, form->ifr->ifr_metric);
@@ -726,7 +728,7 @@ fh_flags (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFFLAGS
   if (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
     error (EXIT_FAILURE, errno,
-           "SIOCGIFFLAGS failed for interface `%s'",
+	   "SIOCGIFFLAGS failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
     {
@@ -786,7 +788,7 @@ fh_baseaddr_query (format_data_t form, int argc, char *argv[])
 void
 fh_baseaddr (format_data_t form, int argc, char *argv[])
 {
-  if (form->ifr->ifr_map.base_addr >= 0x100)  
+  if (form->ifr->ifr_map.base_addr >= 0x100)
     put_int (form, argc, argv, form->ifr->ifr_map.base_addr);
   else
     put_string (form, "(not available)");
@@ -804,7 +806,7 @@ fh_memstart_query (format_data_t form, int argc, char *argv[])
 void
 fh_memstart (format_data_t form, int argc, char *argv[])
 {
-  if (form->ifr->ifr_map.mem_start)  
+  if (form->ifr->ifr_map.mem_start)
     put_ulong (form, argc, argv, form->ifr->ifr_map.mem_start);
   else
     put_string (form, "(not available)");
@@ -822,7 +824,7 @@ fh_memend_query (format_data_t form, int argc, char *argv[])
 void
 fh_memend (format_data_t form, int argc, char *argv[])
 {
-  if (form->ifr->ifr_map.mem_end)  
+  if (form->ifr->ifr_map.mem_end)
     put_ulong (form, argc, argv, form->ifr->ifr_map.mem_end);
   else
     put_string (form, "(not available)");
@@ -840,7 +842,7 @@ fh_dma_query (format_data_t form, int argc, char *argv[])
 void
 fh_dma (format_data_t form, int argc, char *argv[])
 {
-  if (form->ifr->ifr_map.dma)  
+  if (form->ifr->ifr_map.dma)
     put_int (form, argc, argv, form->ifr->ifr_map.dma);
   else
     put_string (form, "(not available)");
@@ -868,8 +870,8 @@ print_interfaceX (format_data_t form, int quiet)
 	break;
 
       /* Look at next character.  If it is a '$' or '}', print that
-         and skip the '$'.  If it is something else than '{', print
-         both.  Otherwise enter substitution mode.  */
+	 and skip the '$'.  If it is something else than '{', print
+	 both.  Otherwise enter substitution mode.  */
       switch (*(++p))
 	{
 	default:

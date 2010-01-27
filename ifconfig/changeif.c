@@ -189,6 +189,31 @@ set_metric (int sfd, struct ifreq *ifr, int metric)
 }
 
 int
+set_flags (int sfd, struct ifreq *ifr, int setflags, int clrflags)
+{
+#if !defined (SIOCGIFFLAGS) || !defined (SIOCSIFFLAGS)
+  error (0, 0,
+         "don't know how to set the interface flags on this system");
+  return -1;
+#else
+  struct ifreq tifr = *ifr;
+
+  if (ioctl (sfd, SIOCGIFFLAGS, &tifr) < 0)
+    {
+      error (0, errno, "SIOCGIFFLAGS failed");
+      return -1;
+    }
+  ifr->ifr_flags = (tifr.ifr_flags | setflags) & ~clrflags;
+  if (ioctl (sfd, SIOCSIFFLAGS, ifr) < 0)
+    {
+      error (0, errno, "SIOCSIFFLAGS failed");
+      return -1;
+    }
+  return 0;
+#endif
+}
+
+int
 configure_if (int sfd, struct ifconfig *ifp)
 {
   int err = 0;
@@ -212,6 +237,8 @@ configure_if (int sfd, struct ifconfig *ifp)
     err = set_metric (sfd, &ifr, ifp->metric);
   if (!err && ifp->valid & IF_VALID_SYSTEM)
     err = system_configure (sfd, &ifr, ifp->system);
+  if (!err && (ifp->setflags || ifp->clrflags))
+    err = set_flags (sfd, &ifr, ifp->setflags, ifp->clrflags);
   if (!err && ifp->valid & IF_VALID_FORMAT)
     print_interface (sfd, ifp->name, &ifr, ifp->format);
   return err;
