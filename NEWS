@@ -8,6 +8,16 @@ Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 Unreleased
 Version 1.7.90:
 
+* inetutils
+
+New commands (up and down) to bring up/down an interface using
+ifconfig.
+
+The short option for --address, -a, has been renamed to -A.  And --all
+now uses -a instead.
+
+New commands (multicast, allmulti) to set multicast flags.
+
 * Man pages for the daemons are now in section 8 instead of 1.
 
 * There is now a man page for ping6 too.
