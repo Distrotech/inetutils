@@ -3,31 +3,39 @@
 	Implement setting interface options: up, down, multicast,
 	allmulti.
 
-	* ifconfig/changeif.c (set_flags): New function.
-	(configure_if): Set flags.
-	* ifconfig/flags.c (struct if_flag): New member `rev'.
+	* ifconfig/flags.c: Include <stdlib.h> and "xalloc.h".
+	(if_flag) <rev>: New member.
+	(IFF_NOARGP) [IFF_NOARP]: New flag for "ARP".
+	(IFF_NOTRAILERS) [IFF_NOTRAILERS]: New flag for "TRAILERS".
+	(IFF_NOACC) [IFF_NOACC]: New flag for"ACC".
+	(IFF_NOSR8025) [IFF_NOSR8025]: New flag for "SR8025"
+	(IFF_NOCHECKSUM) [IFF_NOCHECKSUM]: New flag for "CHECKSUM".
+	(cmpname, if_nameztoflag, if_format_flags): New function.
 	(if_flagtoname) Avoid extra comparison.
-	(if_nametoflag): Rewrite. Take 2 additional arguments.
-	(if_nameztoflag): New function.
-	(if_format_flags): New function.
-	* ifconfig/flags.h (if_nametoflag): Change signature.
-	(if_nameztoflag): New prototype.
-	* ifconfig/options.c (all_option): New global.
-	(argp_options): Use -A as short option for --address.
-	Add new option -a (--all).
-	New options: --up, --down, --flags.
-	(parse_opt_set_flag, parse_opt_flag_list): New functions.
-	(parse_opt_set_point_to_point): New function.
-	(parse_opt): Handle new options.
-	(argp): Add help filter.
-	* ifconfig/options.h (struct ifconfig): New members: setflags
-	and clrflags.
+        (if_nametoflag): Rewrite.
+	* ifconfig/flags.h (if_nametoflag): Updated prototype.
+	(if_nameztoflag, if_format_flags): New prototypes.
+	* ifconfig/options.c (all_option): New global variable.
+	(UP_OPTION, DOWN_OPTION): New enumerators.
+	(argp_options) <address>: Use -A as short option.  <up, down,
+	flags>: New options.  <all>: New option, with -a as short option.
+	<peer>: Handle an extra argument.  <mtu>: Fix typo.
+	(parse_opt_set_flag, parse_opt_flag_list)
+	(parse_opt_set_point_to_point): New functions.
+	(parse_opt) <UP_OPTION, DOWN_OPTION, F, a>: Handle new options.
+	<p, d>: Call parse_opt_set_point_to_point instead.  <v>: Handle
+	--verbose flag.
+	(default_help_filter): New function
+	(argp): Use default_help_filter as help filter.
+	* ifconfig/options.h (ifconfig) <setflags, clrflags>: New members.
 	(parse_opt_set_flag, parse_opt_flag_list)
 	(parse_opt_set_point_to_point): New prototypes.
 	* ifconfig/printif.c (fh_brdaddr_query, fh_dstaddr_query): Update
 	calls to if_nametoflag.
-	* ifconfig/system/linux.c (system_help): Update.
-	(system_parse_opt_rest): Allow for flags (up, down, arp, etc.)
+	* ifconfig/system/linux.c (system_help): Update docstring.
+	(system_parse_opt_rest) <EXPECT_DSTADDR>: Call
+	parse_opt_set_point_to_point instead.  <up, down, flags>: Handle
+	new options.
 
 2010-01-12  Simon Josefsson  <simon@josefsson.org>
 
