@@ -61,6 +61,8 @@ struct format
 };
 
 extern struct format formats[];
+extern int all_option;
+extern int ifs_cmdline;
 
 /* Array of interfaces mentioned on the command line.  */
 extern struct ifconfig *ifs;

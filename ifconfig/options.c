@@ -67,6 +67,7 @@ struct format formats[] = {
   {"gnu", "${first?}{}{${\\n}}${format}{gnu-one-entry}"},
   {"gnu-one-entry",
    "${format}{check-existence}"
+   "${ifdisplay?}{"
    "${name} (${index}):${\\n}"
    "${addr?}{  inet address ${tab}{16}${addr}${\\n}}"
    "${netmask?}{  netmask ${tab}{16}${netmask}${\\n}}"
@@ -77,10 +78,13 @@ struct format formats[] = {
    "${metric?}{  metric ${tab}{16}${metric}${\\n}}"
    "${exists?}{hwtype?}{${hwtype?}{  link encap ${tab}{16}${hwtype}${\\n}}}"
    "${exists?}{hwaddr?}{${hwaddr?}{  hardware addr ${tab}{16}${hwaddr}${\\n}}}"
-   "${exists?}{txqlen?}{${txqlen?}{  tx queue len ${tab}{16}${txqlen}${\\n}}}"},
+   "${exists?}{txqlen?}{${txqlen?}{  tx queue len ${tab}{16}${txqlen}${\\n}}}"
+   "}"
+  },
   /* Resembles the output of ifconfig 1.39 (1999-03-19) in net-tools 1.52.  */
   {"net-tools",
    "${format}{check-existence}"
+   "${ifdisplay?}{"
    "${name}${exists?}{hwtype?}{${hwtype?}{${tab}{10}Link encap:${hwtype}}"
    "${hwaddr?}{  HWaddr ${hwaddr}}}${\\n}"
    "${addr?}{${tab}{10}inet addr:${addr}"
@@ -115,11 +119,13 @@ struct format formats[] = {
    "${newline}"
    "}}}"
    "${newline}"
+   "}"
   },
   /* Resembles the output of ifconfig shipped with unix systems like
      Solaris 2.7 or HPUX 10.20.  */
   {"unix",
    "${format}{check-existence}"
+   "${ifdisplay?}{"
    "${name}: flags=${flags}{number}<${flags}{string}{,}>"
    "${mtu?}{ mtu ${mtu}}${\\n}"
    "${addr?}{${\\t}inet ${addr}"
@@ -127,15 +133,20 @@ struct format formats[] = {
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
    "${brdaddr?}{ broadcast ${brdaddr}}${\\n}}"
    "${exists?}{hwtype?}{${hwtype?}{${\\t}${hwtype}"
-   "}${exists?}{hwaddr?}{${hwaddr?}{ ${hwaddr}}}${\\n}}"},
+   "}${exists?}{hwaddr?}{${hwaddr?}{ ${hwaddr}}}${\\n}}"
+   "}"
+  },
   /* Resembles the output of ifconfig shipped with OSF 4.0g.  */
   {"osf",
    "${format}{check-existence}"
+   "${ifdisplay?}{"
    "${name}: flags=${flags}{number}{%x}<${flags}{string}{,}>${\\n}"
    "${addr?}{${\\t}inet ${addr}"
    " netmask ${netmask}{0}{%02x}${netmask}{1}{%02x}"
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
-   "${brdaddr?}{ broadcast ${brdaddr}}" "${mtu?}{ ipmtu ${mtu}}${\\n}}"},
+   "${brdaddr?}{ broadcast ${brdaddr}}" "${mtu?}{ ipmtu ${mtu}}${\\n}}"
+   "}"
+  },
   /* If interface does not exist, print error message and exit. */
   {"check-existence",
    "${index?}{}"
@@ -148,6 +159,8 @@ struct format formats[] = {
 const char *default_format;
 /* Display all interfaces, even if down */
 int all_option;
+/* True if interfaces were given in the command line */
+int ifs_cmdline;
 
 enum {
   METRIC_OPTION = 256,
@@ -200,9 +213,11 @@ parse_opt_new_ifs (char *name)
 {
   struct ifconfig *ifp;
 
+  ifs_cmdline = 1;
   ifs = realloc (ifs, ++nifs * sizeof (struct ifconfig));
   if (!ifs)
-    error (EXIT_FAILURE, errno, "can't get memory for interface configuration");
+    error (EXIT_FAILURE, errno,
+	   "can't get memory for interface configuration");
   ifp = &ifs[nifs - 1];
   *ifp = ifconfig_initializer;
   ifp->name = name;

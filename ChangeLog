@@ -1,3 +1,19 @@
+2010-01-28  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Implement -a option; correctly print interface metric.
+
+	* ifconfig/options.c (formats) <gnu-one-entry>
+	<net-tools,unix,osf>: Use ${ifdisplay?} to select interfaces to
+	be displayed.
+	(ifs_cmdline): New global.
+	(parse_opt_new_ifs): Set ifs_cmdline.
+	* ifconfig/options.h (all_option, ifs_cmdline): New externs.
+	* ifconfig/printif.c (format_handles) <ifdisplay?>: New handler.
+	(fh_ifdisplay_query): New function.
+	(fh_metric_query): Metric of 0 is OK.
+	(fh_metric): Display 1 for zero metric, as other ifconfigs do.
+	* ifconfig/printif.h (fh_ifdisplay_query): New prototype.
+
 2010-01-27  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Implement setting interface options: up, down, multicast,
@@ -12,7 +28,7 @@
 	(IFF_NOCHECKSUM) [IFF_NOCHECKSUM]: New flag for "CHECKSUM".
 	(cmpname, if_nameztoflag, if_format_flags): New function.
 	(if_flagtoname) Avoid extra comparison.
-        (if_nametoflag): Rewrite.
+	(if_nametoflag): Rewrite.
 	* ifconfig/flags.h (if_nametoflag): Updated prototype.
 	(if_nameztoflag, if_format_flags): New prototypes.
 	* ifconfig/options.c (all_option): New global variable.

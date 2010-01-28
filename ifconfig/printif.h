@@ -77,6 +77,7 @@ void fh_nothing (format_data_t form, int argc, char *argv[]);
 void fh_newline (format_data_t form, int argc, char *argv[]);
 void fh_tabulator (format_data_t form, int argc, char *argv[]);
 void fh_first (format_data_t form, int argc, char *argv[]);
+void fh_ifdisplay_query (format_data_t form, int argc, char *argv[]);
 void fh_tab (format_data_t form, int argc, char *argv[]);
 void fh_join (format_data_t form, int argc, char *argv[]);
 void fh_exists_query (format_data_t form, int argc, char *argv[]);

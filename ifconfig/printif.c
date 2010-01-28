@@ -69,6 +69,7 @@ struct format_handle format_handles[] = {
   {"\\n", fh_newline},
   {"\\t", fh_tabulator},
   {"first?", fh_first},
+  {"ifdisplay?", fh_ifdisplay_query},
   {"tab", fh_tab},
   {"join", fh_join},
   {"exists?", fh_exists_query},
@@ -382,6 +383,25 @@ fh_first (format_data_t form, int argc, char *argv[])
   select_arg (form, argc, argv, form->first ? 0 : 1);
 }
 
+void
+fh_ifdisplay_query (format_data_t form, int argc, char *argv[])
+{
+  int n;
+
+#ifdef SIOCGIFFLAGS
+  int f;
+  int rev;
+
+  n = !(all_option || ifs_cmdline
+	|| ((f = if_nameztoflag ("UP", &rev))
+	    && ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) == 0
+	    && (f & form->ifr->ifr_flags)));
+#else
+  n = 0;
+#endif
+  select_arg (form, argc, argv, n);
+}
+
 /* A tab implementation, which fills with spaces up to requested column or next
    tabstop.  */
 void
@@ -689,7 +709,7 @@ fh_metric_query (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFMETRIC
   if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) >= 0)
-    select_arg (form, argc, argv, (form->ifr->ifr_metric > 0) ? 0 : 1);
+    select_arg (form, argc, argv, 0);
   else
 #endif
     select_arg (form, argc, argv, 1);
@@ -704,7 +724,8 @@ fh_metric (format_data_t form, int argc, char *argv[])
 	   "SIOCGIFMETRIC failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
-    put_int (form, argc, argv, form->ifr->ifr_metric);
+    put_int (form, argc, argv,
+	     form->ifr->ifr_metric ? form->ifr->ifr_metric : 1);
 #else
   *column += printf ("(not available)");
   had_output = 1;
