@@ -103,37 +103,29 @@ install-exec-hook: @traceroute_INSTALL_HOOK@ @rsh_INSTALL_HOOK@ @rlogin_INSTALL_
 install-traceroute-hook:
 	-@$(INSTALL_PROGRAM) traceroute $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo traceroute|sed '$(transform)'` ; \
 	if test $$? -ne 0; then \
-		echo 'INSTALL-ERROR:'; \
-		echo 'INSTALL-ERROR: THIS PROGRAM(traceroute) MUST BE INSTALLED SETUID ROOT'; \
-		echo 'INSTALL-ERROR: $(INSTALL_PROGRAM) 'traceroute' $(SUIDMODE) $(DESTDIR)$(bindir)/'traceroute; \
-		echo 'INSTALL-ERROR:'; \
+	  echo "WARNING: insufficient access; not installing traceroute"; \
+	  echo "NOTE: To install traceroute run 'make install' as root"; \
 	fi
 
 install-rsh-hook:
 	-@$(INSTALL_PROGRAM) rsh $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo rsh|sed '$(transform)'` ; \
 	if test $$? -ne 0; then \
-		echo 'INSTALL-ERROR:'; \
-		echo 'INSTALL-ERROR: THIS PROGRAM(rsh) MUST BE INSTdALLED SETUID ROOT'; \
-		echo 'INSTALL-ERROR: $(INSTALL_PROGRAM) rsh $(SUIDMODE) $(DESTDIR)$(bindir)/rsh'; \
-		echo 'INSTALL-ERROR:'; \
+	  echo "WARNING: insufficient access; not installing rsh"; \
+	  echo "NOTE: To install rsh run 'make install' as root"; \
 	fi
 
 install-rlogin-hook:
 	-@$(INSTALL_PROGRAM) rlogin $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo rlogin|sed '$(transform)'` ; \
 	if test $$? -ne 0; then \
-		echo 'INSTALL-ERROR:'; \
-		echo 'INSTALL-ERROR: THIS PROGRAM(rlogin) MUST BE INSTALLED SETUID ROOT'; \
-		echo 'INSTALL-ERROR: $(INSTALL_PROGRAM) rlogin $(SUIDMODE) $(DESTDIR)$(bindir)/rlogin'; \
-		echo 'INSTALL-ERROR:'; \
+	  echo "WARNING: insufficient access; not installing rlogin"; \
+	  echo "NOTE: To install rlogin run 'make install' as root"; \
 	fi
 
 install-rcp-hook:
 	-@$(INSTALL_PROGRAM) rcp $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo rcp|sed '$(transform)'` ; \
 	if test $$? -ne 0; then \
-		echo 'INSTALL-ERROR:'; \
-		echo 'INSTALL-ERROR: THIS PROGRAM(rcp) MUST BE INSTALLED SETUID ROOT'; \
-		echo 'INSTALL-ERROR: $(INSTALL_PROGRAM) rcp $(SUIDMODE) $(DESTDIR)$(bindir)/rcp'; \
-		echo 'INSTALL-ERROR:'; \
+	  echo "WARNING: insufficient access; not installing rcp"; \
+	  echo "NOTE: To install rcp run 'make install' as root"; \
 	fi
 
 @PATHDEFS_MAKE@

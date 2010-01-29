@@ -33,13 +33,11 @@ ping6_SOURCES = ping6.c ping_common.c ping_common.h ping6.h
 SUIDMODE = -o root -m 4775
 
 install-ping-hook:
-	-@for program in $(bin_PROGRAMS); do \
-	$(INSTALL_PROGRAM) $$program $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo $$program|sed '$(transform)'` ; \
+	-@for x in $(bin_PROGRAMS); do \
+	$(INSTALL_PROGRAM) $$x $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo $$x|sed '$(transform)'` ; \
 	if test $$? -ne 0; then \
-		echo 'INSTALL-ERROR:'; \
-		echo 'INSTALL-ERROR: THIS PROGRAM('$$program') MUST BE INSTALLED SETUID ROOT'; \
-		echo 'INSTALL-ERROR: $(INSTALL_PROGRAM) '$$program' $(SUIDMODE) $(DESTDIR)$(bindir)/'$$program; \
-		echo 'INSTALL-ERROR:'; \
+	  echo "WARNING: insufficient access; not installing $$x"; \
+	  echo "NOTE: To install $$x run 'make install' as root"; \
 	fi \
 	done
 

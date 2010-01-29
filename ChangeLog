@@ -1,3 +1,10 @@
+2010-01-29  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ping/Makefile.am (install-ping-hook): Clarify warning message
+	when installing a SUID root program.
+	* src/Makefile.am (install-traceroute-hook, install-rsh-hook)
+	(install-rlogin-hook, install-rcp-hook): Likewise.
+
 2010-01-28  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	Implement -a option; correctly print interface metric.
