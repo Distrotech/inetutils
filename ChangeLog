@@ -1,3 +1,15 @@
+2010-02-04  Alfred M. Szmidt  <ams@gnu.org>
+
+	New options --active and --passive.
+
+	* ftp/main.c (OPT_PROMPT): New enum.
+	(argp_options) <prompt>: Removed short option (-p).  <active>: New
+	option; uses -A as short option.  <passive>: New option; uses -p
+	as short option.
+	(parse_opt): Handle --active and --passive, updated --prompt
+	accordingly.
+	(main) <passivemode>: Set initial value before argument parsing.
+
 2010-01-29  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ping/Makefile.am (install-ping-hook): Clarify warning message

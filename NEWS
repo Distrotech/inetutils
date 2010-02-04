@@ -10,6 +10,14 @@ Version 1.7.90:
 
 * inetutils
 
+** ftp
+
+New options --active and --passive to enable/disable active transfer
+mode. The short option for --prompt has been removed, and is instead
+now used to enable passive transfer mode.
+
+** ifconfig
+
 New commands (up and down) to bring up/down an interface using
 ifconfig.
 

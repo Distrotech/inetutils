@@ -92,6 +92,10 @@ static char *prompt = 0;
 const char args_doc[] = "[HOST [PORT]]";
 const char doc[] = "Remote file transfer.";
 
+enum {
+  OPT_PROMPT = CHAR_MAX + 1,
+};
+
 static struct argp_option argp_options[] = {
 #define GRP 0
   {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
@@ -101,7 +105,9 @@ static struct argp_option argp_options[] = {
   {"no-login", 'n', NULL, 0, "do not automatically login to the remote system",
    GRP+1},
   {"trace", 't', NULL, 0, "enable packet tracing", GRP+1},
-  {"prompt", 'p', "PROMPT", OPTION_ARG_OPTIONAL, "print a command line PROMPT "
+  {"passive", 'p', NULL, 0, "enable passive mode transfer", GRP+1},
+  {"active", 'A', NULL, 0, "enable active mode transfer", GRP+1},
+  {"prompt", OPT_PROMPT, "PROMPT", OPTION_ARG_OPTIONAL, "print a command line PROMPT "
    "(optionally), even if not on a tty", GRP+1},
   {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
 #undef GRP
@@ -138,8 +144,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
       verbose++;
       break;
 
-    case 'p':		/* Print command line prompt.  */
+    case OPT_PROMPT:		/* Print command line prompt.  */
       prompt = arg ? arg : DEFAULT_PROMPT;
+      break;
+
+    case 'p':		/* Enable passive transfer mode.  */
+      passivemode = 1;
+      break;
+
+    case 'A':	/* Enable active transfer mode.  */
+      passivemode = 0;
       break;
 
     default:
@@ -168,6 +182,7 @@ main (int argc, char *argv[])
   doglob = 1;
   interactive = 1;
   autologin = 1;
+  passivemode = 0;		/* passive mode not active */
 
   /* Parse command line */
   iu_argp_init ("ftp", default_program_authors);
@@ -186,7 +201,6 @@ main (int argc, char *argv[])
 
   cpend = 0;			/* no pending replies */
   proxy = 0;			/* proxy not active */
-  passivemode = 0;		/* passive mode not active */
   crflag = 1;			/* strip c.r. on ascii gets */
   sendport = -1;		/* not using ports */
   /*
