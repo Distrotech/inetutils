@@ -1,5 +1,14 @@
 * General
 
+broadcasted terminals: provide a client/daemon that broadcasts a users
+  terminal on a port.  Ideally, there should be a single port, with a
+  command to list all avaiable broadcasts.
+
+supdup: A telnet client/daemon like program for the SUPDUP protocol;
+  there exists one already by it is ugly, and kinda a pain to get
+  running.  And I don't think there is an actual daemon program for
+  GNU systems at all (ITS has one though :-).
+
 ifconfig: when a unknown format option is passed to --format, ifconfig
   will output the name of the format twice.
 
