@@ -49,12 +49,13 @@ if_nametoindex (const char *ifname)
     int fd = socket (AF_INET, SOCK_DGRAM, 0);
     if (fd >= 0)
       {
+	int rc;
 	struct ifreq ifr;
 	strncpy (ifr.ifr_name, ifname, sizeof (ifr.ifr_name));
 	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
-	result = ioctl (fd, SIOCGIFINDEX, &ifr);
+	rc = ioctl (fd, SIOCGIFINDEX, &ifr);
 	close (fd);
-	if (result == 0)
+	if (rc == 0)
 	  return ifr.ifr_index;
       }
   }

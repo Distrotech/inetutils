@@ -65,9 +65,15 @@ struct format_handle format_handles[] = {
   SYSTEM_FORMAT_HANDLER
 #endif
   {"", fh_nothing},
+  {"format?", fh_format_query},
+  {"docstr", fh_docstr},
+  {"defn", fh_defn},
+  {"foreachformat", fh_foreachformat},
+  {"verbose?", fh_verbose_query},
   {"newline", fh_newline},
   {"\\n", fh_newline},
   {"\\t", fh_tabulator},
+  {"rep", fh_rep},
   {"first?", fh_first},
   {"ifdisplay?", fh_ifdisplay_query},
   {"tab", fh_tab},
@@ -304,7 +310,7 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
     {
       if (f & flags)
 	{
-	  name = if_flagtoname (f, "" /* XXX: avoid */ );
+	  name = if_flagtoname (f, NULL);
 	  if (name)
 	    {
 	      if (!first)
@@ -348,29 +354,80 @@ void
 format_handler (const char *name, format_data_t form, int argc, char *argv[])
 {
   struct format_handle *fh;
-  fh = format_handles;
 
-  while (fh->name != NULL)
+  for (fh = format_handles; fh->name; fh++)
     {
       if (!strcmp (fh->name, name))
-	break;
-      fh++;
+	{
+	  if (fh->handler)
+	    (fh->handler) (form, argc, argv);
+	  return;
+	}
     }
 
-  if (fh->handler)
-    (fh->handler) (form, argc, argv);
-  else
-    {
-      *column += printf ("(");
-      put_string (form, name);
-      *column += printf (" unknown)");
-      had_output = 1;
-    }
+  *column += printf ("(");
+  put_string (form, name);
+  *column += printf (" unknown)");
+  had_output = 1;
 }
 
 void
 fh_nothing (format_data_t form, int argc, char *argv[])
 {
+}
+
+void
+fh_format_query (format_data_t form, int argc, char *argv[])
+{
+  if (argc < 1)
+    return;
+  select_arg (form, argc, argv, format_find (argv[0]) ? 1 : 2);
+}
+
+void
+fh_docstr (format_data_t form, int argc, char *argv[])
+{
+  const char *name;
+  struct format *frm;
+
+  name = (argc == 0) ? form->name : argv[0];
+  frm = format_find (name);
+  if (!frm)
+    error (EXIT_FAILURE, errno, "unknown format: `%s'", name);
+  put_string (form, frm->docstr);
+}
+
+void
+fh_defn (format_data_t form, int argc, char *argv[])
+{
+  const char *name;
+  struct format *frm;
+
+  name = (argc == 0) ? form->name : argv[0];
+
+  frm = format_find (name);
+  if (!frm)
+    error (EXIT_FAILURE, errno, "unknown format: `%s'", name);
+  put_string (form, frm->templ);
+}
+
+void
+fh_foreachformat (format_data_t form, int argc, char *argv[])
+{
+  struct format *frm;
+  const char *save_name;
+
+  if (argc == 0)
+    return;
+
+  save_name = form->name;
+  for (frm = formats; frm->name; frm++)
+    {
+      form->name = frm->name;
+      form->format = argv[0];
+      print_interfaceX (form, 0);
+    }
+  form->name = save_name;
 }
 
 void
@@ -383,6 +440,24 @@ void
 fh_tabulator (format_data_t form, int argc, char *argv[])
 {
   put_char (form, '\t');
+}
+
+void
+fh_rep (format_data_t form, int argc, char *argv[])
+{
+  unsigned int count;
+  char *p;
+
+  if (argc < 2)
+    return;
+  count = strtoul (argv[0], &p, 10);
+  if (*p)
+    error (EXIT_FAILURE, 0, "invalid repeat count");
+  while (count--)
+    {
+      form->format = argv[1];
+      print_interfaceX (form, 0);
+    }
 }
 
 void
@@ -408,6 +483,12 @@ fh_ifdisplay_query (format_data_t form, int argc, char *argv[])
   n = 0;
 #endif
   select_arg (form, argc, argv, n);
+}
+
+void
+fh_verbose_query (format_data_t form, int argc, char *argv[])
+{
+  select_arg (form, argc, argv, verbose ? 0 : 1);
 }
 
 /* A tab implementation, which fills with spaces up to requested column or next
@@ -456,34 +537,33 @@ fh_join (format_data_t form, int argc, char *argv[])
 void
 fh_exists_query (format_data_t form, int argc, char *argv[])
 {
-  struct format_handle *fh;
-  fh = format_handles;
-
   if (argc > 0)
     {
-      while (fh->name != NULL)
+      struct format_handle *fh;
+      int sel = 2; /* assume 2nd arg by default */
+
+      for (fh = format_handles; fh->name; fh++)
 	{
 	  if (!strcmp (fh->name, argv[0]))
-	    break;
-	  fh++;
+	    {
+	      sel = 1; /* select 1st argument */
+	      break;
+	    }
 	}
-      select_arg (form, argc, argv, (fh->name != NULL) ? 1 : 2);
+      select_arg (form, argc, argv, sel);
     }
 }
 
 void
 fh_format (format_data_t form, int argc, char *argv[])
 {
-  int i = 0;
+  int i;
 
-  while (i < argc)
+  for (i = 0; i < argc; i++)
     {
-      struct format *frm = formats;
+      struct format *frm = format_find (argv[i]);
 
-      while (frm->name && strcmp (argv[i], frm->name))
-	frm++;
-
-      if (frm->name)
+      if (frm)
 	{
 	  /* XXX: Avoid infinite recursion by appending name to a list
 	     during the next call (but removing it afterwards, and
@@ -491,22 +571,22 @@ fh_format (format_data_t form, int argc, char *argv[])
 	     already.  */
 	  form->format = frm->templ;
 	  print_interfaceX (form, 0);
+	  break;
 	}
-      i++;
     }
 }
 
 void
 fh_error (format_data_t form, int argc, char *argv[])
 {
-  int i = 0;
+  int i;
   FILE *s = ostream;
   int *c = column;
 
   ostream = stderr;
   column = &column_stderr;
-  while (i < argc)
-    select_arg (form, argc, argv, i++);
+  for (i = 0; i < argc; i++)
+    select_arg (form, argc, argv, i);
   ostream = s;
   column = c;
 }

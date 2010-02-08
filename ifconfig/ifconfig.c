@@ -69,15 +69,13 @@ main (int argc, char *argv[])
       exit (1);
     }
 
-  ifp = ifs;
-  while (ifp - ifs < nifs)
+  for (ifp = ifs; ifp < ifs + nifs; ifp++)
     {
       err = configure_if (sfd, ifp);
       if (err)
 	break;
-      ifp++;
     }
 
   close (sfd);
-  return (err);
+  return err;
 }

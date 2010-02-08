@@ -57,6 +57,7 @@ struct ifconfig
 struct format
 {
   const char *name;
+  const char *docstr;
   const char *templ;
 };
 
@@ -72,6 +73,7 @@ extern int nifs;
 extern int verbose;
 
 void usage (int err);
+struct format *format_find (const char *name);
 void parse_opt_set_address (struct ifconfig *ifp, char *addr);
 void parse_opt_set_brdaddr (struct ifconfig *ifp, char *addr);
 void parse_opt_set_dstaddr (struct ifconfig *ifp, char *addr);

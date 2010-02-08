@@ -38,6 +38,13 @@ The contents of this file is read literally, except that the lines
 beginning with a `#' sign are ignored (and can thus be used to introduce
 comments).
 
+To obtain a list of the available built-in output formats, use
+
+         ifconfig --format=help
+
+When used with the --verbose option, --format=help also displays
+format definitions.
+
 * Man pages for the daemons are now in section 8 instead of 1.
 
 * There is now a man page for ping6 too.

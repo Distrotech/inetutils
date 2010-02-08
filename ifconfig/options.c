@@ -62,10 +62,15 @@ static struct ifconfig ifconfig_initializer = {
 struct format formats[] = {
   /* This is the default output format if no system_default_format is
      specified.  */
-  {"default", "${format}{gnu}"},
+  {"default",
+   "Default format.  Equivalent to \"gnu\".",
+   "${format}{gnu}"},
   /* This is the standard GNU output.  */
-  {"gnu", "${first?}{}{${\\n}}${format}{gnu-one-entry}"},
+  {"gnu",
+   "Standard GNU output format.",
+   "${first?}{}{${\\n}}${format}{gnu-one-entry}"},
   {"gnu-one-entry",
+   "Same as GNU, but without additional newlines between the entries.",
    "${format}{check-existence}"
    "${ifdisplay?}{"
    "${name} (${index}):${\\n}"
@@ -83,6 +88,7 @@ struct format formats[] = {
   },
   /* Resembles the output of ifconfig 1.39 (1999-03-19) in net-tools 1.52.  */
   {"net-tools",
+   "Similar to the output of net-tools.  Default for GNU/Linux.",
    "${format}{check-existence}"
    "${ifdisplay?}{"
    "${name}${exists?}{hwtype?}{${hwtype?}{${tab}{10}Link encap:${hwtype}}"
@@ -122,6 +128,7 @@ struct format formats[] = {
    "}"
   },
   {"netstat",
+   "Terse output, similar to that of \"netstat -i\".",
    "${first?}{Iface    MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg${newline}}"
    "${format}{check-existence}"
    "${name}${tab}{6}${mtu}{%6d} ${metric}{%3d}"
@@ -135,6 +142,7 @@ struct format formats[] = {
   /* Resembles the output of ifconfig shipped with unix systems like
      Solaris 2.7 or HPUX 10.20.  */
   {"unix",
+   "Traditional UNIX interface listing.  Default for Solaris and HPUX.",
    "${format}{check-existence}"
    "${ifdisplay?}{"
    "${name}: flags=${flags}{number}<${flags}{string}{,}>"
@@ -149,6 +157,7 @@ struct format formats[] = {
   },
   /* Resembles the output of ifconfig shipped with OSF 4.0g.  */
   {"osf",
+   "OSF-style output.",
    "${format}{check-existence}"
    "${ifdisplay?}{"
    "${name}: flags=${flags}{number}{%x}<${flags}{string}{,}>${\\n}"
@@ -160,9 +169,24 @@ struct format formats[] = {
   },
   /* If interface does not exist, print error message and exit. */
   {"check-existence",
+   "If interface does not exist, print error message and exit.",
    "${index?}{}"
    "{${error}{${progname}: error: interface `${name}' does not exist${\\n}}"
    "${exit}{1}}"},
+  {"help",
+   "Display this help output.",
+   "${foreachformat}{"
+   "${name}:${tab}{17}${docstr}"
+   "${verbose?}{"
+   "${newline}"
+   "${rep}{79}{-}"
+   "${newline}"
+   "${defn}"
+   "${newline}"
+   "}"
+   "${newline}"
+   "}"
+   "${exit}{0}"},
   {0, 0}
 };
 
@@ -220,6 +244,19 @@ const char *program_authors[] =
     "Marcus Brinkmann",
     NULL
   };
+
+struct format *
+format_find (const char *name)
+{
+  struct format *frm;
+
+  for (frm = formats; frm->name; frm++)
+    {
+      if (strcmp (frm->name, name) == 0)
+	return frm;
+    }
+  return NULL;
+}
 
 struct ifconfig *
 parse_opt_new_ifs (char *name)

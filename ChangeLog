@@ -1,5 +1,29 @@
 2010-02-08  Sergey Poznyakoff  <gray@gnu.org.ua>
 
+	Ifconfig: add more format functions; implement --format=help.
+
+	* ifconfig/if_index.c (if_nametoindex): Fix return value.
+	* ifconfig/ifconfig.c (main): Rewrite loop.
+	* ifconfig/options.c (formats): Add docstrings.
+	Add "help" format.
+	(format_find): New function.
+	* ifconfig/options.h (format)<docstr>: New member.
+	(format_find): New prototype.
+	* ifconfig/printif.c (format_handles): New functions:
+	format?, docstr?, defn, foreachformat, verbose?, rep.
+	(put_flags): Minor change.
+	(format_handler, fh_exists_query, fh_error): Rewrite the loop.
+	(fh_format_query, fh_docstr)
+	(fh_defn, fh_foreachformat)
+	(fh_rep, fh_verbose_query): New functions.
+	(fh_format): Rewrite using format_find.
+	* ifconfig/printif.h (fh_format_query, fh_docstr)
+	(fh_defn, fh_foreachformat)
+	(fh_rep, fh_verbose_query): New prototypes.
+	* NEWS: Update.
+
+2010-02-08  Sergey Poznyakoff  <gray@gnu.org.ua>
+
 	Ifconfig: read format from files and implement the -s option.
 
 	* ifconfig/flags.c (if_format_flags): Rename to if_list_flags.

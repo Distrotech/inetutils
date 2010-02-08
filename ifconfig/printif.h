@@ -74,8 +74,14 @@ void format_handler (const char *name, format_data_t form, int argc,
 		     char *argv[]);
 
 void fh_nothing (format_data_t form, int argc, char *argv[]);
+void fh_format_query (format_data_t form, int argc, char *argv[]);
+void fh_docstr (format_data_t form, int argc, char *argv[]);
+void fh_defn (format_data_t form, int argc, char *argv[]);
+void fh_foreachformat (format_data_t form, int argc, char *argv[]);
+void fh_verbose_query (format_data_t form, int argc, char *argv[]);
 void fh_newline (format_data_t form, int argc, char *argv[]);
 void fh_tabulator (format_data_t form, int argc, char *argv[]);
+void fh_rep (format_data_t form, int argc, char *argv[]);
 void fh_first (format_data_t form, int argc, char *argv[]);
 void fh_ifdisplay_query (format_data_t form, int argc, char *argv[]);
 void fh_tab (format_data_t form, int argc, char *argv[]);
