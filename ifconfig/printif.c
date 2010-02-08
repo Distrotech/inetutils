@@ -334,6 +334,14 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
     }
 }
 
+void
+put_flags_short (format_data_t form, int argc, char *argv[], short flags)
+{
+  char buf[IF_FORMAT_FLAGS_BUFSIZE];
+  if_format_flags (flags, buf, sizeof buf);
+  put_string (form, buf);
+}
+
 /* Format handler can mangle form->format, so update it after calling
    here.  */
 void
@@ -757,6 +765,8 @@ fh_flags (format_data_t form, int argc, char *argv[])
 	{
 	  if (!strcmp (argv[0], "number"))
 	    put_int (form, argc - 1, &argv[1], form->ifr->ifr_flags);
+	  else if (!strcmp (argv[0], "short"))
+	    put_flags_short (form, argc - 1, &argv[1], form->ifr->ifr_flags);
 	  else if (!strcmp (argv[0], "string"))
 	    put_flags (form, argc - 1, &argv[1], form->ifr->ifr_flags);
 	}

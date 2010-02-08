@@ -121,6 +121,17 @@ struct format formats[] = {
    "${newline}"
    "}"
   },
+  {"netstat",
+   "${first?}{Iface    MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg${newline}}"
+   "${format}{check-existence}"
+   "${name}${tab}{6}${mtu}{%6d} ${metric}{%3d}"
+   "${ifstat?}{"
+   " ${rxpackets}{%8lu} ${rxerrors}{%6lu} ${rxdropped}{%6lu} ${rxfifoerr}{%6lu}"
+   " ${txpackets}{%8lu} ${txerrors}{%6lu} ${txdropped}{%6lu} ${txfifoerr}{%6lu}"
+   "}{   - no statistics available -}"
+   "${tab}{76} ${flags?}{${flags}{short}}{[NO FLAGS]}"
+   "${newline}"
+  },
   /* Resembles the output of ifconfig shipped with unix systems like
      Solaris 2.7 or HPUX 10.20.  */
   {"unix",
@@ -198,6 +209,8 @@ static struct argp_option argp_options[] = {
     "shut the interface down" },
   { "flags", 'F', "FLAG[,FLAG...]", 0,
     "set interface flags" },
+  { "short", 's', NULL, 0,
+    "short output format" },
   { NULL }
 };
 
@@ -322,28 +335,75 @@ parse_opt_set_point_to_point (struct ifconfig *ifp, char *addr)
 }
 
 void
-parse_opt_set_default_format (const char *new_format)
+parse_opt_set_default_format (const char *format)
 {
-  struct format *frm = formats;
-  const char *format = new_format;
+  struct format *frm;
 
   if (!format)
     format = system_default_format ? system_default_format : "default";
 
-  while (frm->name)
+  for (frm = formats; frm->name; frm++)
     {
-      if (!strcmp (format ? format : "default", frm->name))
-	break;
-      frm++;
+      if (!strcmp (format, frm->name))
+	{
+	  default_format = frm->templ;
+	  return;
+	}
     }
 
-  /* If we didn't find the format, set the user specified one.  */
-  if (frm->name)
-    default_format = frm->templ;
-  else if (format)
-    default_format = format;
-  else
-    default_format = "default";
+  default_format = format;
+}
+
+static int
+is_comment_line (const char *p, size_t len)
+{
+  while (len--)
+    {
+      int c = *p++;
+      switch (c)
+	{
+	case ' ':
+	case '\t':
+	  continue;
+
+	case '#':
+	  return 1;
+
+	default:
+	  return 0;
+	}
+    }
+  return 0;
+}
+
+void
+parse_opt_set_default_format_from_file (const char *file)
+{
+  static struct obstack stk;
+  FILE *fp;
+  char *buf = NULL;
+  size_t size = 0;
+
+  fp = fopen (file, "r");
+  if (!fp)
+    error (EXIT_FAILURE, errno, "cannot open format file %s", file);
+
+  obstack_init (&stk);
+  while (getline (&buf, &size, fp) > 0)
+    {
+      size_t len = strlen (buf);
+
+      if (len >= 1 && buf[len-1] == '\n')
+	len--;
+
+      if (len == 0 || is_comment_line (buf, len))
+	continue;
+      obstack_grow (&stk, buf, len);
+    }
+  free (buf);
+  fclose (fp);
+  obstack_1grow (&stk, 0);
+  default_format = obstack_finish (&stk);
 }
 
 /* Must be reentrant!  */
@@ -404,6 +464,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       parse_opt_set_mtu (ifp, arg);
       break;
 
+    case 's':
+      parse_opt_set_default_format ("netstat");
+      break;
+
     case 'v':
       verbose++;
       break;
@@ -413,7 +477,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case FORMAT_OPTION:		/* Output format.  */
-      parse_opt_set_default_format (arg);
+      if (arg && arg[0] == '@')
+	parse_opt_set_default_format_from_file (arg + 1);
+      else
+	parse_opt_set_default_format (arg);
       break;
 
     case UP_OPTION:
@@ -443,7 +510,7 @@ default_help_filter (int key, const char *text, void *input)
       break;
 
     case ARGP_KEY_HELP_EXTRA:
-      s = if_format_flags ("Known flags are: ");
+      s = if_list_flags ("Known flags are: ");
     }
   return s;
 }
@@ -459,6 +526,14 @@ static struct argp argp =
     default_help_filter
   };
 
+static int
+cmp_if_name (const void *a, const void *b)
+{
+  const struct ifconfig *ifa = a;
+  const struct ifconfig *ifb = b;
+
+  return strcmp (ifa->name, ifb->name);
+}
 
 void
 parse_cmdline (int argc, char *argv[])
@@ -506,5 +581,7 @@ parse_cmdline (int argc, char *argv[])
       /* XXX: We never do if_freenameindex (ifnx), because we are
 	 keeping the names for later instead using strdup
 	 (if->if_name) here.  */
+
+      qsort (ifs, nifs, sizeof (ifs[0]), cmp_if_name);
     }
 }

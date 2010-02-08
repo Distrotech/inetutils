@@ -30,6 +30,9 @@
 # include <progname.h>
 # include <error.h>
 # include <argp.h>
+# define obstack_chunk_alloc malloc
+# define obstack_chunk_free free
+# include <obstack.h>
 # include <libinetutils.h>
 
 /* XXX */

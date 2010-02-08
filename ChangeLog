@@ -1,3 +1,25 @@
+2010-02-08  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	Ifconfig: read format from files and implement the -s option.
+
+	* ifconfig/flags.c (if_format_flags): Rename to if_list_flags.
+	(if_format_flags): New function.
+	(print_if_flags): Fix spelling of the 3rd argument.
+	* ifconfig/flags.h (IF_FORMAT_FLAGS_BUFSIZE): New define.
+	(if_format_flags): Rename to if_list_flags.
+	(if_format_flags): New prototype.
+	* ifconfig/ifconfig.h: Include obstack.h
+	* ifconfig/options.c (formats)<netstat>: New format.
+	(argp_options): New option: --short (-s).
+	(parse_opt_set_default_format): Optimize.
+	(parse_opt_set_default_format_from_file): New function.
+	(parse_opt): Handle -s option.
+	If argument to --format begins with a '@', it specifies a
+	file to read format from.
+	(parse_cmdline): Order interfaces alphabetically.
+	* ifconfig/printif.c (put_flags_short): New function.
+	(fh_flags): ${flags}{short} prints flags in short notation.
+
 2010-02-04  Alfred M. Szmidt  <ams@gnu.org>
 
 	New options --active and --passive.

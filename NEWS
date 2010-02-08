@@ -26,6 +26,18 @@ now uses -a instead.
 
 New commands (multicast, allmulti) to set multicast flags.
 
+New option -s displays a short list of interfaces (similar to
+netstat -i).
+
+The --format option can be used to read format from a file.  To do so,
+prefix the file name with a '@' sign, e.g.:
+
+          ifconfig --format=@FILE
+
+The contents of this file is read literally, except that the lines
+beginning with a `#' sign are ignored (and can thus be used to introduce
+comments).
+
 * Man pages for the daemons are now in section 8 instead of 1.
 
 * There is now a man page for ping6 too.

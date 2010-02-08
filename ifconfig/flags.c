@@ -233,7 +233,7 @@ cmpname (const void *a, const void *b)
 }
 
 char *
-if_format_flags (const char *prefix)
+if_list_flags (const char *prefix)
 {
   size_t len = 0;
   struct if_flag *fp;
@@ -377,11 +377,62 @@ if_nameztoflag (const char *name, int *prev)
   return if_nametoflag (name, strlen (name), prev);
 }
 
+struct if_flag_char
+{
+  int mask;
+  int ch;
+};
+
+/* Interface flag bits and the corresponding letters for short output.
+   Notice that the entries must be ordered alphabetically, by the letter name.
+   There are two lamentable exceptions:
+
+   1. The 'd' is misplaced.
+   2. The 'P' letter is ambiguous. Depending on its position in the output
+      line it may stand for IFF_PROMISC or IFF_POINTOPOINT.
+
+   That's the way netstat does it.
+*/
+static struct if_flag_char flag_char_tab[] = {
+  { IFF_ALLMULTI,    'A' },
+  { IFF_BROADCAST,   'B' },
+  { IFF_DEBUG,       'D' },
+  { IFF_LOOPBACK,    'L' },
+  { IFF_MULTICAST,   'M' },
+#ifdef HAVE_DYNAMIC
+  { IFF_DYNAMIC,     'd' },
+#endif
+  { IFF_PROMISC,     'P' },
+  { IFF_NOTRAILERS,  'N' },
+  { IFF_NOARP,       'O' },
+  { IFF_POINTOPOINT, 'P' },
+  { IFF_SLAVE,       's' },
+  { IFF_MASTER,      'm' },
+  { IFF_RUNNING,     'R' },
+  { IFF_UP,          'U' },
+  { 0 }
+};
+
+void
+if_format_flags (int flags, char *buf, size_t size)
+{
+  struct if_flag_char *fp;
+  size--;
+  for (fp = flag_char_tab; size && fp->mask; fp++)
+    if (fp->mask & flags)
+      {
+	*buf++ = fp->ch;
+	size--;
+      }
+  *buf = 0;
+}
+
+
 /* Print the flags in FLAGS, using AVOID as in if_flagtoname, and
-   SEPERATOR between individual flags.  Returns the number of
+   SEPARATOR between individual flags.  Returns the number of
    characters printed.  */
 int
-print_if_flags (int flags, const char *avoid, char seperator)
+print_if_flags (int flags, const char *avoid, char separator)
 {
   int f = 1;
   const char *name;
@@ -397,7 +448,7 @@ print_if_flags (int flags, const char *avoid, char seperator)
 	    {
 	      if (!first)
 		{
-		  putchar (seperator);
+		  putchar (separator);
 		  length++;
 		}
 	      length += printf ("%s", name);
@@ -411,7 +462,7 @@ print_if_flags (int flags, const char *avoid, char seperator)
     {
       if (!first)
 	{
-	  putchar (seperator);
+	  putchar (separator);
 	  length++;
 	}
       length += printf ("%#x", flags);
