@@ -515,13 +515,6 @@ AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
-AC_CHECK_TYPE(sa_family_t, , AC_DEFINE([sa_family_t], unsigned int, [FIXME]),
-  [IU_FLUSHLEFT([#include <sys/types.h>
-                 #ifdef HAVE_SOCKET_H
-                 #include <socket.h>
-                 #endif
-                 #include <sys/socket.h> ])])
-
 dnl Check for termio-related types and defines
 AC_CHECK_TYPES(cc_t, , ,
  [IU_FLUSHLEFT([#if defined(HAVE_TERMIOS_H)
