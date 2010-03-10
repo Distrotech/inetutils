@@ -1,3 +1,7 @@
+2010-03-10  Ludovic Courtès  <ludo@gnu.org> (tiny change)
+
+	* ifconfig/flags.c (if_flags): Add trailing entry with NULL `name'.
+
 2010-02-13  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* configure.ac: Don't check for the `sa_family_t' type.  It is already

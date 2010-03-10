@@ -224,6 +224,7 @@ struct if_flag
 #ifdef IFF_D2			/* Flag is specific to device.  */
     {"D2", IFF_D2},
 #endif
+    { NULL }
   };
 
 static int
