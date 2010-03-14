@@ -1,5 +1,10 @@
 2010-03-10  Ludovic Courtès  <ludo@gnu.org> (tiny change)
 
+	* ftp/main.c (main): Call getservbyname(3) after arguments have
+	been parsed.
+
+2010-03-10  Ludovic Courtès  <ludo@gnu.org> (tiny change)
+
 	* ifconfig/flags.c (if_flags): Add trailing entry with NULL `name'.
 
 2010-02-13  Giuseppe Scrivano  <gscrivano@gnu.org>

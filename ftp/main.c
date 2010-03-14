@@ -175,10 +175,7 @@ main (int argc, char *argv[])
   char *cp;
 
   set_program_name (argv[0]);
-  
-  sp = getservbyname ("ftp", "tcp");
-  if (sp == 0)
-    error (EXIT_FAILURE, 0, "ftp/tcp: unknown service");
+
   doglob = 1;
   interactive = 1;
   autologin = 1;
@@ -190,6 +187,10 @@ main (int argc, char *argv[])
 
   argc -= index;
   argv += index;
+
+  sp = getservbyname ("ftp", "tcp");
+  if (sp == 0)
+    error (EXIT_FAILURE, 0, "ftp/tcp: unknown service");
 
   fromatty = isatty (fileno (stdin));
   if (fromatty)
