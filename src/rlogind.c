@@ -190,8 +190,10 @@ int local_dot_count;
 
 struct winsize win = { 0, 0, 0, 0 };
 
+#ifdef __GLIBC__
 extern int iruserok (uint32_t raddr, int superuser,
                      const char *ruser, const char *luser);
+#endif
 
 void rlogin_daemon (int maxchildren, int port);
 int rlogind_auth (int fd, struct auth_data *ap);

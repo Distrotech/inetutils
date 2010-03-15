@@ -1,3 +1,7 @@
+2010-03-15  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* src/rlogind.c (iruserok): declare extern only under glibc.
+
 2010-03-10  Ludovic Courtès  <ludo@gnu.org> (tiny change)
 
 	* ftp/main.c (main): Call getservbyname(3) after arguments have
