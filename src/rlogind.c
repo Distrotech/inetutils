@@ -75,7 +75,10 @@
 #endif
 #include <sys/ioctl.h>
 #include <sys/stat.h>		/* Needed for chmod() */
-#include <pty.h>
+
+#ifdef HAVE_PTY_H
+# include <pty.h>
+#endif
 
 #include <progname.h>
 #include <argp.h>
