@@ -174,8 +174,10 @@ static struct argp_option options[] = {
 
 extern int __check_rhosts_file;	/* hook in rcmd(3) */
 
+#ifdef __GLIBC__
 extern int iruserok (uint32_t raddr, int superuser,
                      const char *ruser, const char *luser);
+#endif
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)

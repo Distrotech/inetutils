@@ -1,5 +1,7 @@
 2010-03-15  Giuseppe Scrivano  <gscrivano@gnu.org>
 
+	* src/rshd.c (iruserok): declare extern only under glibc.
+
 	* src/rlogind.c: Include pty.h only if HAVE_PTY_H is defined.
 	(iruserok): declare extern only under glibc.
 
