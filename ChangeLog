@@ -1,5 +1,9 @@
 2010-05-03  Simon Josefsson  <simon@josefsson.org>
 
+	* lib/.gitignore: Remove file.
+
+2010-05-03  Simon Josefsson  <simon@josefsson.org>
+
 	* tests/traceroute-localhost.sh (TRACEROUTE): Update to reflect
 	move of traceroute to src/.
 
