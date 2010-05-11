@@ -333,7 +333,7 @@ main (int argc, char *argv[])
 		 iamrecursive ? " -r" : "", preserve_option ? " -p" : "",
 		 targetshouldbedirectory ? " -d" : "");
 #endif
-  if (rc)
+  if (rc < 0)
     xalloc_die ();
 
   rem = -1;

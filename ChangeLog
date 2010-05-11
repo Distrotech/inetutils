@@ -1,3 +1,8 @@
+2010-05-11  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* src/rcp.c (main): Change the test to check if the call to
+	`asprintf' failed.
+
 2010-05-04  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* bootstrap: Update to the last gnulib version.
