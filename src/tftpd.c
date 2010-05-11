@@ -508,7 +508,7 @@ timer (int sig)
   timeout += rexmtval;
   if (timeout >= maxtimeout)
     exit (1);
-  longjmp (timeoutbuf, 1);
+  siglongjmp (timeoutbuf, 1);
 }
 
 /*
@@ -537,7 +537,7 @@ send_file (struct formats *pf)
       dp->th_opcode = htons ((u_short) DATA);
       dp->th_block = htons ((u_short) block);
       timeout = 0;
-      setjmp (timeoutbuf);
+      sigsetjmp (timeoutbuf, SIGALRM);
 
     send_data:
       if (send (peer, (const char *) dp, size + 4, 0) != size + 4)
@@ -608,7 +608,7 @@ recvfile (struct formats *pf)
       ap->th_opcode = htons ((u_short) ACK);
       ap->th_block = htons ((u_short) block);
       block++;
-      setjmp (timeoutbuf);
+      sigsetjmp (timeoutbuf, SIGALRM);
     send_ack:
       if (send (peer, ackbuf, 4, 0) != 4)
 	{

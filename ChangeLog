@@ -1,5 +1,13 @@
 2010-05-11  Giuseppe Scrivano  <gscrivano@gnu.org>
 
+	* src/tftpd.c (timer): Use `siglongjmp' instead of `longjmp'.
+	(send_file): Use `sigsetjmp' instead of `setjmp'.
+	(recvfile): Likewise.
+
+	Reported by Hugo Heutinck <hheutinck@mail.altenpts.nl>.
+
+2010-05-11  Giuseppe Scrivano  <gscrivano@gnu.org>
+
 	* src/rcp.c (main): Change the test to check if the call to
 	`asprintf' failed.
 
