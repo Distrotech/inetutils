@@ -1,6 +1,6 @@
 #! /bin/sh
 # Print a version string.
-scriptversion=2010-04-30.16; # UTC
+scriptversion=2010-05-12.08; # UTC
 
 # Bootstrap this package from checked-out sources.
 
@@ -766,10 +766,6 @@ find "$m4_base" "$source_base" \
   -type l -xtype l -delete > /dev/null 2>&1
 
 # Reconfigure, getting other files.
-
-# Skip autoheader if it's not needed.
-grep -E '^[	 ]*AC_CONFIG_HEADERS?\>' configure.ac >/dev/null ||
-  AUTOHEADER=true
 
 for command in \
   libtool \
