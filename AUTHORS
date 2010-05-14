@@ -1,9 +1,39 @@
-Here are the names of the programs in this package, each followed by
-the name(s) of its author(s).  Most of the utilities are from
-4.4BSD-Lite2, and might not have an author associated with them.
+This is a partial list of people (in alphabetical order) who have
+contributed to inetutils, some utilities originate from BSB 4.4-Lite2,
+and might not have an author associated with them.
 
-ifconfig: Marcus Brinkmann
-ping, talkd: Sergey Poznyakoff
-ping6: Jeroen Dekkers
-talk: Kipp Hickman
-whois: Joel N. Weber II
+Alain Malgoire
+Alfred M. Szmidt
+Arash Yadegarnia
+Bernhard Rosenkraenzer
+Dan Stromberg
+David O'Shea
+Debarshi Ray
+Edward Attfield
+Elian Gidoni
+Giuseppe Scrivano
+Guillem Jover
+Jakob  Kaivo
+Jeff Bailey
+Jeff Smith
+Jeroen Dekkers
+Joachim Gabler
+Joel N. Weber II
+Karl Berry
+Kaveh R. Ghazi
+Ludovic Courtès
+Marcus Brinkmann
+Matt Roberds
+Michael Weiser
+Michal Svoboda
+Michael Vogt
+Miles Bader
+Pedro Alves
+Petr Salinger
+Philippe De Muyter
+Rakesh Pandit
+Roland McGrath
+Samuel Thibault
+Sergey Poznyakoff
+Simon Josefsson
+Winston Edmond

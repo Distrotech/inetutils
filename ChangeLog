@@ -1,3 +1,7 @@
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
+	* AUTHORS: Updated.
+
 2010-05-14  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* bootstrap (gnulib_path): Default to "gnulib" if it doesn't have a
@@ -42,10 +46,10 @@
 
 2010-03-15  Giuseppe Scrivano  <gscrivano@gnu.org>
 
-	* src/rshd.c (iruserok): declare extern only under glibc.
+	* src/rshd.c (iruserok): Declare extern only under glibc.
 
 	* src/rlogind.c: Include pty.h only if HAVE_PTY_H is defined.
-	(iruserok): declare extern only under glibc.
+	(iruserok): Declare extern only under glibc.
 
 2010-03-10  Ludovic Courtès  <ludo@gnu.org> (tiny change)
 
@@ -54,12 +58,13 @@
 
 2010-03-10  Ludovic Courtès  <ludo@gnu.org> (tiny change)
 
-	* ifconfig/flags.c (if_flags): Add trailing entry with NULL `name'.
+	* ifconfig/flags.c (if_flags): Add trailing entry with NULL
+	`name'.
 
 2010-02-13  Giuseppe Scrivano  <gscrivano@gnu.org>
 
-	* configure.ac: Don't check for the `sa_family_t' type.  It is already
-	done by gnulib.
+	* configure.ac: Don't check for the `sa_family_t' type.  It is
+	already done by gnulib.
 
 2010-02-08  Sergey Poznyakoff  <gray@gnu.org.ua>
 
@@ -67,13 +72,13 @@
 
 	* ifconfig/if_index.c (if_nametoindex): Fix return value.
 	* ifconfig/ifconfig.c (main): Rewrite loop.
-	* ifconfig/options.c (formats): Add docstrings.
-	Add "help" format.
+	* ifconfig/options.c (formats): Add docstrings.  Add "help"
+	format.
 	(format_find): New function.
 	* ifconfig/options.h (format)<docstr>: New member.
 	(format_find): New prototype.
-	* ifconfig/printif.c (format_handles): New functions:
-	format?, docstr?, defn, foreachformat, verbose?, rep.
+	* ifconfig/printif.c (format_handles): New functions: format?,
+	docstr?, defn, foreachformat, verbose?, rep.
 	(put_flags): Minor change.
 	(format_handler, fh_exists_query, fh_error): Rewrite the loop.
 	(fh_format_query, fh_docstr)
@@ -100,9 +105,8 @@
 	(argp_options): New option: --short (-s).
 	(parse_opt_set_default_format): Optimize.
 	(parse_opt_set_default_format_from_file): New function.
-	(parse_opt): Handle -s option.
-	If argument to --format begins with a '@', it specifies a
-	file to read format from.
+	(parse_opt): Handle -s option.  If argument to --format begins
+	with a '@', it specifies a file to read format from.
 	(parse_cmdline): Order interfaces alphabetically.
 	* ifconfig/printif.c (put_flags_short): New function.
 	(fh_flags): ${flags}{short} prints flags in short notation.
@@ -131,8 +135,8 @@
 	Implement -a option; correctly print interface metric.
 
 	* ifconfig/options.c (formats) <gnu-one-entry>
-	<net-tools,unix,osf>: Use ${ifdisplay?} to select interfaces to
-	be displayed.
+	<net-tools,unix,osf>: Use ${ifdisplay?} to select interfaces to be
+	displayed.
 	(ifs_cmdline): New global.
 	(parse_opt_new_ifs): Set ifs_cmdline.
 	* ifconfig/options.h (all_option, ifs_cmdline): New externs.
@@ -378,8 +382,8 @@
 	(.h2m.1): Invoke new meta-rule 'man'.
 	(man): New meta-rule to invoke help2man, simplified from before.
 	(EXTRA_DIST): Add $(all:.8=.h2m).
-	* NEWS: Updated.
-	Reported by Juergen Daubert <juergen.daubert@gmx.net>.
+	* NEWS: Updated.  Reported by Juergen Daubert
+	<juergen.daubert@gmx.net>.
 
 2009-12-17  Simon Josefsson  <simon@josefsson.org>
 
@@ -7244,7 +7248,7 @@ AC_REPLACE_FUNC (setproctitle).
 
 	* README-alpha: Update with CVS info and mailing list info.
 
-	* THANKS: Add Marcus Brinkman
+	* THANKS: Add Marcus Brinkmann.
 
 1999-09-13  Jeff Bailey
 
@@ -7259,7 +7263,7 @@ AC_REPLACE_FUNC (setproctitle).
 	* ftp/cmds.c/account(): occurences of 49 change for sizeof(acct) - 1
 	* ftp/cmds.c: Typos in comments corrected.
 
-1999-05-19  Jeff Bayley
+1999-05-19  Jeff Bailey
 
 	* uucpd/Makefile.am : add LIBUTIL, needed for the Hurd.
 
@@ -7273,7 +7277,7 @@ AC_REPLACE_FUNC (setproctitle).
 	* rlogind/rlogind.c : make an utmp entry before exec(login);
 	remove entry in cleanup().
 
-1999-05-19  Jeff Bayley
+1999-05-19  Jeff Bailey
 
 	* rlogind/Makefile.am : add LIBUTIL, needed for the Hurd.
 
@@ -7281,8 +7285,8 @@ AC_REPLACE_FUNC (setproctitle).
 
 	* ftp/ruserpass.c: MACH was define on Hurd.  We protect
 	the defines before using them, MACH was change to MACHINE.
-	Noted by the Hurd people(Bayley, Marcus)
-	* cmds.c : use xgetcwd().
+	Noted by the Hurd people (Jeff Bailey, Marcus Brinkmann)
+	* cmds.c: use xgetcwd().
 
 1999-05-19 Alain Magloire
 
