@@ -1,5 +1,9 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* doc/.gitignore (Makefile, Makefile.in): Removed rules.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* AUTHORS: Updated.
 
 2010-05-14  Giuseppe Scrivano  <gscrivano@gnu.org>
