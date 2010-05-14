@@ -1,5 +1,19 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	Silence makefile_at_at_check_exceptions from `make syntax-check'.
+
+	* telnetd/Makefile.am (INCLUDES, LDADD): Use $() variables, instead of @@.
+	(LIBTERMCAP, LIBCRYPT, LIBUTIL): Removed variables.
+	* telnet/Makefile.am (noinst_HEADERS): Removed fdset.h from list.
+	(LIBTERMCAP, LIBCRYPT): Removed variables.
+	* src/Makefile.am (LDADD): Use $() variables, instead of @@.
+	* libtelnet/Makefile.am (INCLUDES): Use $() variables, instead of @@.
+	* ftpd/Makefile.am (LIBCRYPT, LIBWRAP, LIBPAM, LIBLS): Variables removed.
+	* ftp/Makefile.am (READLINE): Use $() variables, instead of @@.
+	* cfg.mk (_makefile_at_at_check_exceptions): New variable.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libicmp/.gitignore: Removed file.
 
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>

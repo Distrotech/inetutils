@@ -24,13 +24,10 @@ EXTRA_PROGRAMS = telnet
 telnet_SOURCES = authenc.c commands.c main.c network.c ring.c sys_bsd.c \
 	telnet.c terminal.c tn3270.c utilities.c
 
-noinst_HEADERS = defines.h externs.h fdset.h general.h ring.h types.h
+noinst_HEADERS = defines.h externs.h general.h ring.h types.h
 
 INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
 AM_CPPFLAGS=-DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
-
-LIBTERMCAP = @LIBTERMCAP@
-LIBCRYPT = @LIBCRYPT@
 
 LDADD = -L../libinetutils -L../libtelnet -linetutils	\
 	-ltelnet ../lib/libgnu.a $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)

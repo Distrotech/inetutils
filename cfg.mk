@@ -18,6 +18,8 @@
 
 news-check-regexp = '^Version $(VERSION_REGEXP):'
 
+_makefile_at_at_check_exceptions = ' && !/PATHDEFS_MAKE/'
+
 local-checks-to-skip = \
 	sc_error_message_period \
 	sc_error_message_uppercase \
