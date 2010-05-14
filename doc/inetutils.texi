@@ -10,7 +10,8 @@
 @defcodeindex op
 @defcodeindex fl
 
-@c Put everything in one index (arbitrarily chosen to be the concept index).
+@c Put everything in one index (arbitrarily chosen to be the concept
+@c index).
 @syncodeindex fl cp
 @syncodeindex fn cp
 @syncodeindex ky cp
@@ -54,11 +55,10 @@
 @end direntry
 
 @copying
-This manual documents version @value{VERSION} of the @sc{gnu}
-networking utilities.
+This manual documents version @value{VERSION} of the @sc{gnu} networking
+utilities.
 
-Copyright @copyright{} 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
-2008, 2009, 2010 Free Software Foundation, Inc.
+Copyright @copyright{} 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -211,15 +211,14 @@ Nearly every command invocation yields an integral @dfn{exit status}
 that can be used to change how other commands work.  For the vast
 majority of commands, an exit status of zero indicates success.
 Failure is indicated by a nonzero value---typically @samp{1}, though
-it may differ on unusual platforms as @acronym{POSIX} requires only
-that it be nonzero.
+it may differ on unusual platforms as POSIX requires only that it be
+nonzero.
 
 @node hostname invocation
 @chapter @command{hostname}: Show or set system host name.
 @cindex hostname
 
-@command{hostname} is a program to show or set the name of host
-system.
+@command{hostname} is a program to show or set the name of host system.
 
 @example
 hostname [@var{option}@dots{}] [@var{name}]
@@ -277,8 +276,8 @@ Get NIS/YP domain name.
 @chapter @command{logger}: Send messages to system log
 @cindex logger
 
-@command{logger} is a program to send entries to system log.
-It provides a shell command interface similar to the system log module.
+@command{logger} is a program to send entries to system log.  It
+provides a shell command interface similar to the system log module.
 @xref{Syslog, , Syslog, libc, The GNU C Library Reference Manual}, for
 details.
 
@@ -291,8 +290,8 @@ logger [@var{option}@dots{}] [@var{message}]
 @itemx --id=[@var{pid}]
 @opindex -i
 @opindex --id
-Add process ID to each message.  If @var{pid} is not supplied, use
-the process ID of the logger process with each line.  Notice, that
+Add process ID to each message.  If @var{pid} is not supplied, use the
+process ID of the logger process with each line.  Notice, that
 @var{pid} is an optional argument.  When supplied to the @option{-i}
 option, it must follow the @samp{i} letter immediately, without any
 separating whitespace.  When supplied to the @option{--id} form, it
@@ -303,8 +302,8 @@ must be separated from it by exactly one equals sign.
 @opindex -h
 @opindex --host
 Send messages to the given host or socket.  The @var{host} argument
-can be either a local @acronym{UNIX} socket name (always
-starting with a @samp{/} or:
+can be either a local UNIX socket name (always starting with a
+@samp{/} or:
 
 @smallexample
 @var{host}[:@var{port}]
@@ -321,8 +320,8 @@ is used.
 @itemx --source=@var{addr}
 @opindex -S
 @opindex --source
-Supply the source IP address for @acronym{INET} connections.  This
-option is useful in conjunction with @option{--host} (see above).
+Supply the source IP address for INET connections.  This option is
+useful in conjunction with @option{--host} (see above).
 
 @item -s
 @itemx --stderr
@@ -385,7 +384,8 @@ channel on host @samp{logger.runasimi.org}, using the source IP
 @samp{10.10.10.1}:
 
 @example
-logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1 --file warnings
+logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1 --file
+warnings
 @end example
 @end enumerate
 
@@ -397,11 +397,10 @@ logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1 --file warnings
 @c of ping.  A user doesn't need to know that we are using TIMEVAL, or
 @c how things are padded.
 
-@command{ping} uses the @acronym{ICMP} protocol's mandatory
-@code{ECHO_REQUEST} datagram to elicit an @acronym{ICMP}
-@code{ECHO_RESPONSE} from a host or gateway.  @code{ECHO_REQUEST}
-datagrams (@dfn{pings}) have an @acronym{IP} and @acronym{ICMP}
-header, followed by a @dfn{struct timeval} and then an arbitrary
+@command{ping} uses the ICMP protocol's mandatory @code{ECHO_REQUEST}
+datagram to elicit an ICMP @code{ECHO_RESPONSE} from a host or
+gateway.  @code{ECHO_REQUEST} datagrams (@dfn{pings}) have an IP and
+ICMP header, followed by a @dfn{struct timeval} and then an arbitrary
 number of @dfn{pad} bytes used to fill out the packet.  Synopsis:
 
 @example
@@ -470,7 +469,7 @@ for host addresses.
 @item -r
 @itemx --ignore-routing
 @opindex -r
-@opindex --nignore-routingo-klog
+@opindex --ignore-routing-log
 Bypass the normal routing tables and send directly to a host on an
 attached network.  If the host is not on a directly-attached network,
 an error is returned.  This option can be used to ping a local host
@@ -519,16 +518,16 @@ with all ones.
 @opindex --route
 Record route.  Includes the @code{RECORD_ROUTE} field in the
 ECHO_REQUEST packet and displays the route buffer on returned packets.
-Note that the @acronym{IP} header is only large enough for nine such
-routes.  Many hosts ignore or discard this option.
+Note that the IP header is only large enough for nine such routes.
+Many hosts ignore or discard this option.
 
 @item -s @var{n}
 @itemx --size=@var{n}
 @opindex -s
 @opindex --size
 Specifies the number of data bytes to be sent.  The default is 56,
-which translates into 64 @acronym{ICMP} data bytes when combined with
-the 8 bytes of ICMP header data.
+which translates into 64 ICMP data bytes when combined with the 8
+bytes of ICMP header data.
 
 @item -w @var{n}
 @itemx --timeout=@var{n}
@@ -555,15 +554,14 @@ management.  Because of the load it can impose on the network, it is
 unwise to use ping during normal operations or from automated scripts.
 
 @ignore
-@section @acronym{ICMP} Packet Details
+@section ICMP Packet Details
 
-An @acronym{IP} header without options is 20 bytes.  An @acronym{ICMP}
-ECHO_REQUEST packet contains an additional 8 bytes worth of
-@acronym{ICMP} header followed by an arbitrary amount of data.  When a
-packetsize is given, this indicated the size of this extra piece of
-data (the default is 56).  Thus the amount of data received inside of
-an @acronym{IP} packet of type @acronym{ICMP} ECHO_REPLY will always
-be 8 bytes more than the requested data space (the @acronym{ICMP}
+An IP header without options is 20 bytes.  An ICMP ECHO_REQUEST packet
+contains an additional 8 bytes worth of ICMP header followed by an
+arbitrary amount of data.  When a packetsize is given, this indicated
+the size of this extra piece of data (the default is 56).  Thus the
+amount of data received inside of an IP packet of type ICMP ECHO_REPLY
+will always be 8 bytes more than the requested data space (the ICMP
 header).
 
 If the data space is at least eight bytes large, ping uses the first
@@ -605,52 +603,48 @@ that takes much longer to transfer than other similar length files.
 You can then examine this file for repeated patterns that you can test
 using the @option{-p} option of ping.
 
-@section @acronym{TTL} Details
+@section TTL Details
 
-The @acronym{TTL, Time To Live} value of an @acronym{IP} packet
-represents the maximum number of @acronym{IP} routers that the packet
-can go through before being thrown away.  In current practice you can
-expect each router in the Internet to decrement the @acronym{TTL}
-field by exactly one.
+The TTL, Time To Live value of an IP packet represents the maximum
+number of IP routers that the packet can go through before being
+thrown away.  In current practice you can expect each router in the
+Internet to decrement the TTL field by exactly one.
 
-The @acronym{TCP/IP} specification states that the @acronym{TTL} field
-for @acronym{TCP} packets should be set to 60, but many systems use
-smaller values (4.3 BSD uses 30, 4.2 used 15).
+The TCP/IP specification states that the TTL field for TCP packets
+should be set to 60, but many systems use smaller values (4.3 BSD uses
+30, 4.2 used 15).
 
-The maximum possible value of this field is 255, and most
-@acronym{UNIX} systems set the @acronym{TTL} field of ICMP
-(@code{ECHO_REQUEST}) packets to 255.  This is why you will find you
-can ping some hosts, but not reach them with @command{telnet} or
-@command{ftp}.
+The maximum possible value of this field is 255, and most UNIX systems
+set the TTL field of ICMP (@code{ECHO_REQUEST}) packets to 255.  This
+is why you will find you can ping some hosts, but not reach them with
+@command{telnet} or @command{ftp}.
 
-In normal operation @command{ping} prints the @acronym{TTL} value from
-the packet it receives.  When a remote system receives a
-@acronym{ICMP} packet, it can do one of three things with the
-@acronym{TTL} field in its response:
+In normal operation @command{ping} prints the TTL value from the
+packet it receives.  When a remote system receives a ICMP packet, it
+can do one of three things with the TTL field in its response:
 
 @table @bullet
 @item
-Not change it; this is what Berkeley @acronym{UNIX} systems did before
-the 4.3BSD-Tahoe release.  In this case the @acronym{TTL} value in the
-received packet will be 255 minus the number of routers in the
-round-trip path.
+Not change it; this is what Berkeley UNIX systems did before the
+4.3BSD-Tahoe release.  In this case the TTL value in the received
+packet will be 255 minus the number of routers in the round-trip path.
 
 @item
-Set it to 255; this is what current Berkeley @acronym{UNIX} systems
-do.  In this case the @code{TTL} value in the received packet will be
-255 minus the number of routers in the path from the remote system to
-the pinging host.
+Set it to 255; this is what current Berkeley UNIX systems do.  In this
+case the @code{TTL} value in the received packet will be 255 minus the
+number of routers in the path from the remote system to the pinging
+host.
 
 @item
-Set it to some other value.  Some machines use the same value for
-@acronym{ICMP} packets that they use for @acronym{TCP} packets, for
-example either 30 or 60.  Others may use completely wild values.
+Set it to some other value.  Some machines use the same value for ICMP
+packets that they use for TCP packets, for example either 30 or 60.
+Others may use completely wild values.
 
 @end table
 
 Many hosts and gateways ignore the @code{RECORD_ROUTE} field, since
-the maximum @acronym{IP} header length is far to small to hold all the
-routes.  There's not much that can be done about this.
+the maximum IP header length is far to small to hold all the routes.
+There's not much that can be done about this.
 
 Flood pinging is not recommended in general, and flood pinging the
 broadcast address should only be done under very controlled
@@ -718,7 +712,7 @@ Connect to server HOST.
 Hide legal disclaimers.
 
 @item -i ATTR[,ATTR]...
-Do an inverse lookup for specified ATTRibutes.
+Do an inverse lookup for specified attributes.
 
 @item -l
 One level less specific lookup (RPSL only).
@@ -768,15 +762,27 @@ Exact match only (RPSL only).
 @chapter @command{ftp}: FTP client
 @cindex ftp
 
-@command{ftp} is the user interface for @acronym{FTP, File Transfer
-Protocol}.  The program allows a user to transfer files to and from a
-remote network site.  Synopsis:
+@command{ftp} is the user interface for FTP, File Transfer Protocol.
+The program allows a user to transfer files to and from a remote
+network site.  Synopsis:
 
 @example
 ftp [@var{option}@dots{}] [@var{host} [@var{port}]]
 @end example
 
 @table @option
+@item -A
+@itemx --acctive
+@opindex -A
+@opindex --active
+Enable active mode transfer.
+
+@item -p
+@itemx --passive
+@opindex -p
+@opindex --passive
+Enable passive mode transfer.
+
 @item -d
 @itemx --debug
 @opindex -d
@@ -808,16 +814,11 @@ login name (default is the user identity on the local machine), and,
 if necessary, prompt for a password and an account with which to
 login.
 
-@item -p[@var{prompt}]
 @itemx --prompt[=@var{prompt}]
-@opindex -p
 @opindex --prompt
 Print a command-line prompt, even if not on a tty.  If @var{prompt} is
 supplied, its value is used instead of the default @samp{ftp> }.
-Notice, that the argument is optional.  When specified, if short
-option form is used (@option{-p}) the argument should follow the
-option letter immediately, @emph{without any intervening white space
-characters}.
+Notice, that the argument is optional.
 
 @item -t
 @item --trace
@@ -839,11 +840,11 @@ Enable packet tracing.
 
 The client host with which @command{ftp} is to communicate may be
 specified on the command line.  If this is done, @command{ftp} will
-immediately attempt to establish a connection to an @acronym{FTP}
-server on that host; otherwise, it will enter its command interpreter
-and await instructions from the user.  When @command{ftp} is awaiting
-commands from the user the prompt @samp{ftp>} is provided to the user.
-The following commands are recognized by @command{ftp}:
+immediately attempt to establish a connection to an FTP server on that
+host; otherwise, it will enter its command interpreter and await
+instructions from the user.  When @command{ftp} is awaiting commands
+from the user the prompt @samp{ftp>} is provided to the user.  The
+following commands are recognized by @command{ftp}:
 
 @table @code
 @item ! [@var{command} [@var{args}]]
@@ -869,8 +870,8 @@ naming the remote file after being altered by any @code{ntrans} or
 type, format, mode, and structure.
 
 @item ascii
-Set the file transfer type to network @acronym{ASCII}.  This is the
-default type.
+Set the file transfer type to network ASCII.  This is the default
+type.
 
 @item bell
 Arrange that a bell be sounded after each file transfer command is
@@ -881,7 +882,7 @@ Set the file transfer type to support binary image transfer.
 
 @item bye
 @itemx quit
-Terminate the @acronym{FTP} session with the remote server and exit
+Terminate the FTP session with the remote server and exit
 @command{ftp}.  An end of file will also terminate the session and
 exit.
 
@@ -905,18 +906,18 @@ sytem to @var{mode}.
 
 @item close
 @itemx disconnect
-Terminate the @acronym{FTP} session with the remote server, and return
-to the command interpreter.  Any defined macros are erased.
+Terminate the FTP session with the remote server, and return to the
+command interpreter.  Any defined macros are erased.
 
 @item cr
-Toggle carriage return stripping during @acronym{ASCII} type file
-retrieval.  Records are denoted by a carriage return/linefeed sequence
-during @acronym{ASCII} type file transfer.  When @code{cr} is on (the
-default), carriage returns are stripped from this sequence to conform
-with the @acronym{UNIX} single linefeed record delimiter.  Records on
-non-@acronym{UNIX} remote systems may contain single linefeeds; when
-an @acronym{ASCII} type transfer is made, these linefeeds may be
-distinguished from a record delimiter only when cr is off.
+Toggle carriage return stripping during ASCII type file retrieval.
+Records are denoted by a carriage return/linefeed sequence during
+ASCII type file transfer.  When @code{cr} is on (the default),
+carriage returns are stripped from this sequence to conform with the
+UNIX single linefeed record delimiter.  Records on non-UNIX remote
+systems may contain single linefeeds; when an ASCII type transfer is
+made, these linefeeds may be distinguished from a record delimiter
+only when cr is off.
 
 @item delete @var{remote-file}
 Delete the file @var{remote-file} on the remote machine.
@@ -961,8 +962,8 @@ name arguments are taken literally and not expanded.  Globbing for
 remote machine and the lists are not merged.  Expansion of a directory
 name is likely to be different from expansion of the name of an
 ordinary file: the exact result depends on the foreign operating
-system and @acronym{FTP} server, and can be previewed by doing
-@code{mls remote-files -}.
+system and FTP server, and can be previewed by doing @code{mls
+remote-files -}.
 
 Note: @code{mget} and @code{mput} are not meant to transfer entire
 directory subtrees of files.  That can be done by transferring a
@@ -984,19 +985,19 @@ seconds.  If seconds is omitted, the current inactivity timer is
 printed.
 
 @item lcd [@var{directory}]
-Change the working directory on the local machine.   If no directory is
+Change the working directory on the local machine.  If no directory is
 specified, the user's home directory is used.
 
 @item ls [@var{remote-directory}] [@var{local-file}]
 Print a listing of the contents of a directory on the remote machine.
 The listing includes any system-dependent information that the server
-chooses to include; for example, most @acronym{UNIX} systems will
-produce output from the command @command{ls -l}. If @var{remote}-directory is left unspecified, the
-current working directory is used.  If interactive prompting is on,
-@command{ftp} will prompt the user to verify that the last argument is
-indeed the target local file for receiving ls output.  If no local
-file is specified, or if @var{local-file} is @samp{-}, the output is
-sent to the terminal.
+chooses to include; for example, most UNIX systems will produce output
+from the command @command{ls -l}. If @var{remote}-directory is left
+unspecified, the current working directory is used.  If interactive
+prompting is on, @command{ftp} will prompt the user to verify that the
+last argument is indeed the target local file for receiving ls output.
+If no local file is specified, or if @var{local-file} is @samp{-}, the
+output is sent to the terminal.
 
 @item macdef @var{macro-name}
 Define a macro called @var{macro-name}, with subsequent lines as the
@@ -1077,8 +1078,8 @@ specified, remote filenames are mapped during @code{mput} commands and
 If arguments are specified, local filenames are mapped during
 @code{mget} commands and @code{get} commands issued without a
 specified local target filename.  This command is useful when
-connecting to a non-@acronym{UNIX} remote computer with different file
-naming conventions or practices.
+connecting to a non-UNIX remote computer with different file naming
+conventions or practices.
 
 The mapping follows the pattern set by @var{inpattern} and
 @var{outpattern}.  The template @var{inpattern} is used for incoming
@@ -1094,12 +1095,12 @@ For example, given inpattern @samp{$1.$2} and the remote file name
 @file{mydata.data}, @samp{$1} would have the value @samp{mydata}, and
 @samp{$2} would have the value @samp{data}.  The @var{outpattern}
 determines the resulting mapped filename.  The sequences @samp{$1},
-@samp{$2}, @dots{}., @samp{$9} are replaced by any value resulting from
-the @var{inpattern} template.  The sequence @samp{$0} is replaced by
-the original filename.  Additionally, the sequence @samp{[@var{seq1},
-@var{seq2}]} is replaced by @var{seq1} if @var{seq1} is not a null
-string; otherwise it is replaced by @var{seq2}.  For example, the
-command
+@samp{$2}, @dots{}., @samp{$9} are replaced by any value resulting
+from the @var{inpattern} template.  The sequence @samp{$0} is replaced
+by the original filename.  Additionally, the sequence
+@samp{[@var{seq1}, @var{seq2}]} is replaced by @var{seq1} if
+@var{seq1} is not a null string; otherwise it is replaced by
+@var{seq2}.  For example, the command
 
 @example
 nmap $1.$2.$3 [$1,$2].[$2,file]
@@ -1124,8 +1125,8 @@ issued without a specified remote target filename.  If arguments are
 specified, characters in local filenames are translated during
 @code{mget} commands and @code{get} commands issued without a
 specified local target filename.  This command is useful when
-connecting to a non-@acronym{UNIX} remote computer with different file
-naming conventions or practices.
+connecting to a non-UNIX remote computer with different file naming
+conventions or practices.
 
 Characters in a filename matching a character in @var{inchars} are
 replaced with the corresponding character in @var{outchars}.  If the
@@ -1133,11 +1134,11 @@ character's position in @var{inchars} is longer than the length of
 @var{outchars}, the character is deleted from the file name.
 
 @item open @var{host} [@var{port}]
-Establish a connection to the specified host @acronym{FTP} server.  An
-optional port number may be supplied, in which case, @command{ftp}
-will attempt to contact an @acronym{FTP} server at that port.  If the
-@code{autologin} option is on (default), @command{ftp} will also
-attempt to automatically log the user in to the @acronym{FTP} server.
+Establish a connection to the specified host FTP server.  An optional
+port number may be supplied, in which case, @command{ftp} will attempt
+to contact an FTP server at that port.  If the @code{autologin} option
+is on (default), @command{ftp} will also attempt to automatically log
+the user in to the FTP server.
 
 @item passive
 Toggle passive mode.  If passive mode is turned on (default is off),
@@ -1162,10 +1163,10 @@ store files.  If prompting is turned off (default is on), any
 
 @item proxy @var{ftp-command}
 Execute an @command{ftp} command on a secondary control connection.
-This command allows simultaneous connection to two remote
-@acronym{FTP} servers for transferring files between the two servers.
-The first proxy command should be an open, to establish the secondary
-control connection.  Enter the command @code{proxy ?} to see other ftp
+This command allows simultaneous connection to two remote FTP servers
+for transferring files between the two servers.  The first proxy
+command should be an open, to establish the secondary control
+connection.  Enter the command @code{proxy ?} to see other ftp
 commands executable on the secondary connection.  The following
 commands behave differently when prefaced by @code{proxy}: @code{open}
 will not define new macros during the auto-login process, @code{close}
@@ -1174,9 +1175,8 @@ transfer files from the host on the primary control connection to the
 host on the secondary control connection, and @code{put}, @code{mput},
 and @code{append} transfer files from the host on the secondary
 control connection to the host on the primary control connection.
-Third party file transfers depend upon support of the @acronym{FTP}
-protocol @code{PASV} command by the server on the secondary control
-connection.
+Third party file transfers depend upon support of the FTP protocol
+@code{PASV} command by the server on the secondary control connection.
 
 @item put @var{local-file} [@var{remote-file}]
 @itemx send @var{local-file} [@var{remote-file}]
@@ -1201,8 +1201,8 @@ command is useful when transferring very large files over networks
 that are prone to dropping connections.
 
 @item remotehelp [@var{command-name}]
-Request help from the remote @acronym{FTP} server.  If a command-name
-is specified it is supplied to the server as well.
+Request help from the remote FTP server.  If a command-name is
+specified it is supplied to the server as well.
 
 @item remotestatus [@var{file-name}]
 With no arguments, show status of remote machine.  If filename is
@@ -1212,15 +1212,15 @@ specified, show status of @var{file-name} on remote machine.
 Rename the file from on the remote machine, to the file to.
 
 @item reset
-Clear reply queue.   This command re-synchronizes command/reply
-sequencing with the remote @acronym{FTP} server.   Resynchronization
-may be necessary following a violation of the @acronym{FTP} protocol
-by the remote server.
+Clear reply queue.  This command re-synchronizes command/reply
+sequencing with the remote FTP server.  Resynchronization may be
+necessary following a violation of the FTP protocol by the remote
+server.
 
 @item restart @var{marker}
 Restart the immediately following @code{get} or @code{put} at the
-indicated marker.  On @acronym{UNIX} systems, marker is usually a byte
-offset into the file.
+indicated marker.  On UNIX systems, marker is usually a byte offset
+into the file.
 
 @item rmdir @var{directory-name}
 Delete a directory on the remote machine.
@@ -1244,12 +1244,12 @@ can prevent delays when performing multiple file transfers.  If the
 @code{PORT} command fails, @command{ftp} will use the default data
 port.  When the use of @code{PORT} commands is disabled, no attempt
 will be made to use @code{PORT} commands for each data transfer.  This
-is useful for certain @acronym{FTP} implementations which do ignore
-@code{PORT} commands but, incorrectly, indicate they've been accepted.
+is useful for certain FTP implementations which do ignore @code{PORT}
+commands but, incorrectly, indicate they've been accepted.
 
 @item site @var{arg}@dots{}
-The arguments specified are sent, verbatim, to the remote
-@acronym{FTP} server as a @code{SITE} command.
+The arguments specified are sent, verbatim, to the remote FTP server
+as a @code{SITE} command.
 
 @item size @var{file-name}
 Return size of @var{file-name} on remote machine.
@@ -1263,16 +1263,15 @@ Set the file transfer structure to @var{struct-name}.  By default
 
 @item sunique
 Toggle storing of files on remote machine under unique file names.
-Remote @acronym{FTP} server must support @acronym{FTP} protocol
-@code{STOU} command for successful completion.  The remote server will
-report unique name.  Default value is off.
+Remote FTP server must support FTP protocol @code{STOU} command for
+successful completion.  The remote server will report unique name.
+Default value is off.
 
 @item system
 Show the type of operating system running on the remote machine.
 
 @item tenex
-Set the file transfer type to that needed to talk to @acronym{TENEX}
-machines.
+Set the file transfer type to that needed to talk to TENEX machines.
 
 @item trace
 Toggle packet tracing.
@@ -1280,30 +1279,28 @@ Toggle packet tracing.
 @item type [@var{type-name}]
 Set the file transfer type to @var{type-name}.  If no type is
 specified, the current type is printed.  The default type is network
-@acronym{ASCII}.
+ASCII.
 
 @item umask [@var{newmask}]
 Set the default umask on the remote server to @var{newmask}.  If
 @var{newmask} is omitted, the current umask is printed.
 
 @item user @var{user-name} [@var{password}] [@var{account}]
-Identify yourself to the remote @acronym{FTP} server.  If the password
-is not specified and the server requires it, @command{ftp} will prompt
-the user for it (after disabling local echo).  If an account field is
-not specified, and the @acronym{FTP} server requires it, the user will
-be prompted for it.  If an account field is specified, an account
-command will be relayed to the remote server after the login sequence
-is completed if the remote server did not require it for logging in.
-Unless @command{ftp} is invoked with @code{auto-login} disabled, this
-process is done automatically on initial connection to the
-@acronym{FTP} server.
+Identify yourself to the remote FTP server.  If the password is not
+specified and the server requires it, @command{ftp} will prompt the
+user for it (after disabling local echo).  If an account field is not
+specified, and the FTP server requires it, the user will be prompted
+for it.  If an account field is specified, an account command will be
+relayed to the remote server after the login sequence is completed if
+the remote server did not require it for logging in.  Unless
+@command{ftp} is invoked with @code{auto-login} disabled, this process
+is done automatically on initial connection to the FTP server.
 
 @item verbose
-Toggle verbose mode.  In verbose mode, all responses from the
-@acronym{FTP} server are displayed to the user.  In addition, if
-verbose is on, when a file transfer completes, statistics regarding
-the efficiency of the transfer are reported.  By default, verbose is
-on.
+Toggle verbose mode.  In verbose mode, all responses from the FTP
+server are displayed to the user.  In addition, if verbose is on, when
+a file transfer completes, statistics regarding the efficiency of the
+transfer are reported.  By default, verbose is on.
 @end table
 
 Command arguments which have embedded spaces may be quoted with quote
@@ -1314,20 +1311,19 @@ Command arguments which have embedded spaces may be quoted with quote
 
 To abort a file transfer, use the terminal interrupt key (usually
 @kbd{C-c}).  Sending transfers will be immediately halted.  Receiving
-transfers will be halted by sending a @acronym{FTP} protocol
-@acronym{ABOR} command to the remote server, and discarding any
-further data received.  The speed at which this is accomplished
-depends upon the remote server's support for @code{ABOR} processing.
-If the remote server does not support the @code{ABOR} command, an
-@samp{ftp>} prompt will not appear until the remote server has
-completed sending the requested file.
+transfers will be halted by sending a FTP protocol ABOR command to the
+remote server, and discarding any further data received.  The speed at
+which this is accomplished depends upon the remote server's support
+for @code{ABOR} processing.  If the remote server does not support the
+@code{ABOR} command, an @samp{ftp>} prompt will not appear until the
+remote server has completed sending the requested file.
 
 The terminal interrupt key sequence will be ignored when @command{ftp}
 has completed any local processing and is awaiting a reply from the
 remote server.  A long delay in this mode may result from the
 @code{ABOR} processing described above, or from unexpected behavior by
-the remote server, including violations of the @acronym{FTP} protocol.
-If the delay results from unexpected remote server behavior, the local
+the remote server, including violations of the FTP protocol.  If the
+delay results from unexpected remote server behavior, the local
 @command{ftp} program must be killed by hand.
 
 @node File Naming Conventions
@@ -1351,10 +1347,10 @@ A particularly useful example of this mechanism is @samp{dir more}.
 
 @item
 Failing the above checks, if @dfn{globbing} is enabled, local file
-names are expanded according to the rules used in the @command{csh}; c.f.
-the @code{glob} command.  If the @command{ftp} command
-expects a single local file (e.g.  @code{put}), only the first
-filename generated by the globbing operation is used.
+names are expanded according to the rules used in the @command{csh};
+c.f.  the @code{glob} command.  If the @command{ftp} command expects a
+single local file (e.g.  @code{put}), only the first filename
+generated by the globbing operation is used.
 
 @item
 For @code{mget} commands and @code{get} commands with unspecified
@@ -1373,12 +1369,12 @@ resulting filename may then be altered by the remote server if
 @node File Transfer Parameters
 @section File Transfer Parameters
 
-The @acronym{FTP} specification specifies many parameters which may
-affect a file transfer.  The type may be one of @samp{ascii},
-@samp{image} (binary), @samp{ebcdic}, and @samp{local} byte size (for
-PDP-10's and PDP-20's mostly).  @command{ftp} supports the
-@samp{ascii} and @samp{image} types of file transfer, plus local byte
-size 8 for tenex mode transfers.
+The FTP specification specifies many parameters which may affect a
+file transfer.  The type may be one of @samp{ascii}, @samp{image}
+(binary), @samp{ebcdic}, and @samp{local} byte size (for PDP-10's and
+PDP-20's mostly).  @command{ftp} supports the @samp{ascii} and
+@samp{image} types of file transfer, plus local byte size 8 for tenex
+mode transfers.
 
 @command{ftp} supports only the default values for the remaining file
 transfer parameters: @code{mode}, @code{form}, and @code{struct}.
@@ -1392,7 +1388,6 @@ directory.  The following tokens are recognized; they may be separated
 by spaces, tabs, or new-lines:
 
 @table @samp
-
 @item machine name
 Identify a remote machine name.  The auto-login process searches the
 @file{.netrc} file for a machine token that matches the remote machine
@@ -1463,9 +1458,9 @@ the ascii type.  Avoid this problem by using the binary image type.
 @chapter @command{tftp}: TFTP client
 @cindex tftp
 
-@command{tftp} is the user interface to the Internet @acronym{TFTP,
-Trivial File Transfer Protocol}, which allows users to transfer files
-to and from a remote machine.  The remote host may be specified on the
+@command{tftp} is the user interface to the Internet TFTP, Trivial
+File Transfer Protocol, which allows users to transfer files to and
+from a remote machine.  The remote host may be specified on the
 command line, in which case @command{tftp} uses host as the default
 host for future transfers.
 
@@ -1489,12 +1484,12 @@ Shorthand for @code{mode ascii}
 Shorthand for @code{mode binary}
 
 @item connect @var{host-name} [@var{port}]
-Set the host (and optionally port) for transfers.  Note that the
-@acronym{TFTP} protocol, unlike the @acronym{FTP} protocol, does not
-maintain connections between transfers; thus, the connect command does
-not actually create a connection, but merely remembers what host is to
-be used for transfers.  You do not have to use the connect command;
-the remote host can be specified as part of the get or put commands.
+Set the host (and optionally port) for transfers.  Note that the TFTP
+protocol, unlike the FTP protocol, does not maintain connections
+between transfers; thus, the connect command does not actually create
+a connection, but merely remembers what host is to be used for
+transfers.  You do not have to use the connect command; the remote
+host can be specified as part of the get or put commands.
 
 @item get @var{file-name}
 @itemx get @var{remotename} @var{localname}
@@ -1519,7 +1514,7 @@ host, if the host has already been specified, or a string of the form
 @samp{hosts:filename} to specify both a host and filename at the same
 time.  If the latter form is used, the hostname specified becomes the
 default for future transfers.  If the @file{remote-directory} form is
-used, the remote host is assumed to be a @acronym{UNIX} machine.
+used, the remote host is assumed to be a UNIX machine.
 
 @item quit
 Exit @command{tftp}.  An end of file also exits.
@@ -1560,7 +1555,6 @@ When using the @command{rsh} command, you can create a link to your
 path using a host name as the link name.  For example:
 
 @example
-#
 # ln -s /usr/bin/rsh @var{hostname}
 # @var{hostname} ls
 @end example
@@ -1599,9 +1593,9 @@ The option requests rsh to obtain tickets for the remote host in
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on @acronym{DES} encryption for all data passed via the rsh
-session.  This may impact response time and @acronym{CPU} utilization,
-but provides increased security.
+Turns on DES encryption for all data passed via the rsh session.  This
+may impact response time and CPU utilization, but provides increased
+security.
 
 @item -l
 @itemx --user
@@ -1690,8 +1684,8 @@ Turns off all Kerberos authentication.
 @itemx --debug
 @opindex -d
 @opindex --debug
-Turns on socket debugging on the @acronym{TCP} sockets used for
-communication with the remote host.
+Turns on socket debugging on the TCP sockets used for communication
+with the remote host.
 
 @item -e
 @itemx --escape=@var{char}
@@ -1712,10 +1706,9 @@ The option requests rlogin to obtain tickets for the remote host in
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on @acronym{DES} encryption for all data passed via the rlogin
-session.  This may impact response time and @acronym{CPU} utilization,
-but provides increased security.
-
+Turns on DES encryption for all data passed via the rlogin session.
+This may impact response time and CPU utilization, but provides
+increased security.
 @end table
 
 A line of the form @kbd{@var{escape-char}.} disconnects from the
@@ -1803,9 +1796,9 @@ directory.
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on @acronym{DES} encryption for all data passed via the rcp
-session.  This may impact response time and @acronym{CPU} utilization,
-but provides increased security.
+Turns on DES encryption for all data passed via the rcp session.  This
+may impact response time and CPU utilization, but provides increased
+security.
 
 @end table
 
@@ -2324,7 +2317,7 @@ The user or group ID for the entry's user is invalid.
 @cindex syslogd
 
 @command{syslogd} is a system service that provides error logging
-facility.  Messages are read from the @acronym{UNIX} domain socket
+facility.  Messages are read from the UNIX domain socket
 @file{/dev/log}, from an Internet domain socket specified in
 @file{/etc/services}, and from the special device @file{/dev/klog} (to
 read kernel messages).
@@ -2370,11 +2363,10 @@ Print debug information (implies @option{-n}).
 @item --socket=@var{file}
 @opindex -p
 @opindex --socket
-Override default @acronym{UNIX} domain socket @file{/dev/log}.
+Override default UNIX domain socket @file{/dev/log}.
 
 @item -a @var{socket}
-Add @acronym{UNIX} socket to listen.  An unlimited number of sockets
-is allowed.
+Add UNIX socket to listen.  An unlimited number of sockets is allowed.
 
 @item -r
 @itemx --inet
@@ -2384,8 +2376,8 @@ Receive remote messages via Internet domain socket.
 
 @item --no-unixaf
 @opindex --no-unixaf
-Do not listen on @acronym{UNIX} domain sockets (overrides @option{-a}
-and @option{-p}).
+Do not listen on UNIX domain sockets (overrides @option{-a} and
+@option{-p}).
 
 @item --no-klog
 @opindex --no-klog
@@ -2414,8 +2406,8 @@ allowed.
 
 @item -s @var{domainlist}
 @opindex -s
-List of domains which should be stripped from the @acronym{FQDN} of
-hosts before logging their name.  Multiple lists are allowed.
+List of domains which should be stripped from the FQDN of hosts before
+logging their name.  Multiple lists are allowed.
 @end table
 
 @section Configuration file
@@ -2562,8 +2554,8 @@ messages at the level of @samp{err} or higher, not at the level of
 @cindex ftpd
 
 @command{ftpd} is the Internet File Transfer Protocol server process.
-The server uses the @acronym{TCP} protocol and listens at the port
-specified in the @samp{ftp} service specification.
+The server uses the TCP protocol and listens at the port specified in
+the @samp{ftp} service specification.
 
 @example
 ftpd [@var{option}]@dots{}
@@ -2651,8 +2643,8 @@ the file exists,@command{ ftpd} displays it and exits.  If the file
 the @samp{ready} message.  If the file @command{/etc/motd} exists,
 @command{ftpd} prints it after a successful login.
 
-The @acronym{FTP} server currently supports the following
-@acronym{FTP} requests.  The case of the requests is ignored.
+The FTP server currently supports the following FTP requests.  The
+case of the requests is ignored.
 
 @multitable @columnfractions 0.3 0.7
 @headitem Request  @tab  Description
@@ -2696,8 +2688,8 @@ The @acronym{FTP} server currently supports the following
 @item XRMD         @tab  remove a directory (deprecated)
 @end multitable
 
-The following non-standard or @acronym{UNIX} specific commands are
-supported by the @code{SITE} request.
+The following non-standard or UNIX specific commands are supported by
+the @code{SITE} request.
 
 @multitable @columnfractions 0.3 0.7
 @item Request      @tab  Description
@@ -2707,9 +2699,9 @@ supported by the @code{SITE} request.
 @item HELP         @tab  give help information.
 @end multitable
 
-The remaining @acronym{FTP} requests specified in RFC 959 are
-recognized, but not implemented.  @code{MDTM} and @code{SIZE} are not
-specified in RFC 959, but will appear in the next updated FTP RFC.
+The remaining FTP requests specified in RFC 959 are recognized, but
+not implemented.  @code{MDTM} and @code{SIZE} are not specified in RFC
+959, but will appear in the next updated FTP RFC.
 
 The ftp server will abort an active file transfer only when the
 @code{ABOR} command is preceded by a Telnet @samp{Interrupt Process}
@@ -2828,8 +2820,8 @@ range 512--1023, the server aborts the connection.
 
 @item
 The server reads characters from the socket up to a NUL (@samp{\0})
-byte.  The resultant string is interpreted as an @acronym{ASCII}
-number, base 10.
+byte.  The resultant string is interpreted as an ASCII number, base
+10.
 
 @item
 If the number received in step 2 is non-zero, it is interpreted as the
@@ -2938,9 +2930,9 @@ Use kerberos IV authentication.
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on @acronym{DES} encryption for all data passed via the
-@command{rshd} session.  This may impact response time and
-@acronym{CPU} utilization, but provides increased security.
+Turns on DES encryption for all data passed via the @command{rshd}
+session.  This may impact response time and CPU utilization, but
+provides increased security.
 
 @item -D[@var{level}]
 @itemx --debug[=@var{level}]
@@ -2964,7 +2956,7 @@ Set debug level, not implemented.
 @c @itemx --reverse-required
 @c @opindex -r
 @c @opindex --reverse-required
-@c Required  Require reverse resolving of a remote host @acronym{IP}.
+@c Required  Require reverse resolving of a remote host IP.
 @end table
 
 @section Diagnostics
@@ -3115,9 +3107,9 @@ Use kerberos IV authentication.
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on @acronym{DES} encryption for all data passed via the rlogind
-session.  This may impact response time and @acronym{CPU} utilization,
-but provides increased security.
+Turns on DES encryption for all data passed via the rlogind session.
+This may impact response time and CPU utilization, but provides
+increased security.
 
 @item -D[@var{level}]
 @itemx --debug[=@var{level}]
@@ -3141,7 +3133,7 @@ Listen on given port (valid only in daemon mode).
 @itemx --reverse-required
 @opindex -r
 @opindex --reverse-required
-Require reverse resolving of a remote host @acronym{IP}.
+Require reverse resolving of a remote host IP.
 
 @end table
 
@@ -3180,8 +3172,8 @@ received the following protocol is initiated:
 @enumerate
 @item
 The server reads characters from the socket up to a NUL (@samp{\0})
-byte.  The resultant string is interpreted as an @acronym{ASCII}
-number, base 10.
+byte.  The resultant string is interpreted as an ASCII number, base
+10.
 
 @item
 If the number received in step 1 is non-zero, it is interpreted as the
@@ -3274,7 +3266,7 @@ talkd [@var{option}]@dots{}
 @itemx --acl=@var{file}
 @opindex -a
 @opindex --acl
-Read site-wide @acronym{ACL}s from @var{file}.
+Read site-wide ACLs from @var{file}.
 
 @item -d
 @item --debug

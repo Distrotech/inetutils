@@ -1,5 +1,8 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* doc/inetutils.texi: Removed all occurances of @acronym.
+	(ftp invocation): Document --passive and --active options.
+
 	* doc/.gitignore (Makefile, Makefile.in): Removed rules.
 
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
