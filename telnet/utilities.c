@@ -59,27 +59,13 @@
 #include <arpa/telnet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
+#include <sys/time.h>
+#include <time.h>
 #include <ctype.h>
 
 #include "general.h"
-
-#include "fdset.h"
-
 #include "ring.h"
-
 #include "defines.h"
-
 #include "externs.h"
 
 FILE *NetTrace = 0;		/* Not in bss, since needs to stay */

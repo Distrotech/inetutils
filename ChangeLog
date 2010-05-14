@@ -1,5 +1,18 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* telnet/utilities.c: Include <sys/time.h>, <time.h> unconditionally.
+	Don't include "fdset.h".
+	* telnet/tn3270.c: Don't include "fdset.h".
+	* telnet/telnet.c:  Include <stdlib.h> unconditionally.
+	* telnet/sys_bsd.c: Include <sys/time.h>, <time.h>, <sys/select.h> unconditionally.
+	Don't include "fdset.h".
+	* telnet/network.c: Include <sys/time.h>, <time.h>, <sys/select.h> unconditionally.
+	* telnet/commands.c: Include <fcntl.h>, <stdarg.h>, <stdlib.h> unconditionally.
+	(call): Don't use K&R variable arguments.
+	* telnet/fdset.h: File removed.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	Silence makefile_at_at_check_exceptions from `make syntax-check'.
 
 	* telnetd/Makefile.am (INCLUDES, LDADD): Use $() variables, instead of @@.

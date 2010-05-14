@@ -64,9 +64,7 @@
 #include <arpa/telnet.h>
 
 #include <ctype.h>
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-# include <stdlib.h>
-#endif
+#include <stdlib.h>
 
 #include <libinetutils.h>
 

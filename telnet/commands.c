@@ -63,24 +63,16 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#ifdef HAVE_FCNTL_H
-# include <fcntl.h>
-#endif /* CRAY */
+#include <fcntl.h>
 
 #include <signal.h>
 #include <netdb.h>
 #include <ctype.h>
 #include <pwd.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
+#include <stdarg.h>
 #include <errno.h>
 
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-# include <stdlib.h>
-#endif
+#include <stdlib.h>
 #ifdef HAVE_MALLOC_H
 # include <malloc.h>
 #endif
@@ -2846,26 +2838,13 @@ static Command cmdtab2[] = {
  */
 
 static int
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 call (intrtn_t routine, ...)
-#else
-call (va_alist)
-     va_dcl
-#endif
 {
   va_list ap;
-#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
-  intrtn_t routine;
-#endif
   char *args[100];
   int argno = 0;
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, routine);
-#else
-  va_start (ap);
-  routine = (va_arg (ap, intrtn_t));
-#endif
   while ((args[argno++] = va_arg (ap, char *)) != 0)
     {
       ;

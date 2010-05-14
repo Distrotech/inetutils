@@ -59,7 +59,6 @@
 #include "defines.h"
 #include "ring.h"
 #include "externs.h"
-#include "fdset.h"
 
 #if defined(TN3270)
 

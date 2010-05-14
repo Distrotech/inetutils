@@ -55,29 +55,17 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
-
+#include <sys/time.h>
+#include <time.h>
 #include <errno.h>
 
 #include <arpa/telnet.h>
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
+#include <sys/select.h>
 
 #include "ring.h"
 
 #include "defines.h"
 #include "externs.h"
-#include "fdset.h"
 
 Ring netoring, netiring;
 unsigned char netobuf[2 * BUFSIZ], netibuf[BUFSIZ];
