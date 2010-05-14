@@ -1,5 +1,9 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libicmp/.gitignore: Removed file.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* doc/inetutils.texi: Removed all occurances of @acronym.
 	(ftp invocation): Document --passive and --active options.
 
