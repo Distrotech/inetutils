@@ -13,7 +13,7 @@ Version 1.7.90:
 ** ftp
 
 New options --active and --passive to enable/disable active transfer
-mode. The short option for --prompt has been removed, and is instead
+mode.  The short option for --prompt has been removed, and is instead
 now used to enable passive transfer mode.
 
 ** ifconfig
@@ -26,8 +26,8 @@ now uses -a instead.
 
 New commands (multicast, allmulti) to set multicast flags.
 
-New option -s displays a short list of interfaces (similar to
-netstat -i).
+New option -s displays a short list of interfaces (similar to netstat
+-i).
 
 The --format option can be used to read format from a file.  To do so,
 prefix the file name with a '@' sign, e.g.:
@@ -35,8 +35,8 @@ prefix the file name with a '@' sign, e.g.:
           ifconfig --format=@FILE
 
 The contents of this file is read literally, except that the lines
-beginning with a `#' sign are ignored (and can thus be used to introduce
-comments).
+beginning with a `#' sign are ignored (and can thus be used to
+introduce comments).
 
 To obtain a list of the available built-in output formats, use
 
