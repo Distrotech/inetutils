@@ -55,16 +55,8 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #include <sys/file.h>
 
 #include <netinet/in.h>
@@ -89,14 +81,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
+#include <stdarg.h>
+#include <sys/select.h>
 
 #include "ftp_var.h"
 
@@ -354,17 +340,9 @@ cmdabort (int sig ARG_UNUSED)
 }
 
 int
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 command (const char *fmt, ...)
-#else
-command (va_alist)
-     va_dcl
-#endif
 {
   va_list ap;
-#if !(defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__)
-  const char *fmt;
-#endif
   int r;
   sig_t oldintr;
 
@@ -372,12 +350,7 @@ command (va_alist)
   if (debug)
     {
       printf ("---> ");
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
       va_start (ap, fmt);
-#else
-      va_start (ap);
-      fmt = va_arg (ap, char *);
-#endif
       if (strncmp ("PASS ", fmt, 5) == 0)
 	printf ("PASS XXXX");
       else
@@ -395,12 +368,7 @@ command (va_alist)
   oldintr = signal (SIGINT, cmdabort);
   /* Under weird circumstances, we get a SIGPIPE from fflush().  */
   signal (SIGPIPE, SIG_IGN);
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, fmt);
-#else
-  va_start (ap);
-  fmt = va_arg (ap, char *);
-#endif
   vfprintf (cout, fmt, ap);
   va_end (ap);
   fprintf (cout, "\r\n");

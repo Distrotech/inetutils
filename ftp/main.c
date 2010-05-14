@@ -79,10 +79,10 @@
 #include "libinetutils.h"
 
 #if HAVE_LIBREADLINE
-#  include <readline/readline.h>
-#  include <readline/history.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 #else
-#  include "readline.h"
+# include "readline.h"
 #endif
 
 

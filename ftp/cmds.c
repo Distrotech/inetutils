@@ -55,9 +55,7 @@
 #endif
 
 #include <sys/param.h>
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
+#include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -74,26 +72,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 /* Include glob.h last, because it may define "const" which breaks
    system headers on some platforms. */
 #include <glob.h>
 
 #if HAVE_LIBREADLINE
-#  include <readline/readline.h>
-#  include <readline/history.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 #else
-#  include "readline.h"
+# include "readline.h"
 #endif
 
 #include "ftp_var.h"

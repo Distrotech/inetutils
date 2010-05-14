@@ -1,5 +1,11 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ftp/ruserpass.c: Include <stdarg.h> unconditionally.
+	* ftp/ftp.c: Include <sys/time.h>, <time.h>, <stdarg.h>,
+	<sys/select.h> unconditionally.
+	(command): Don't use K&R variable arguments.
+	* ftp/cmds.c: <sys/wait.h>, <sys/time.h>, <time.h>
+
 	* telnetd/telnetd.c: Include <sys/utsname.h>, <strings.h>
 	unconditionally.
 
