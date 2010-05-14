@@ -29,7 +29,7 @@ SUBDIRS = lib \
 	doc man \
 	tests
 
-DISTCLEANFILES = pathdefs.make paths.defs
+DISTCLEANFILES = pathdefs.make paths.defs $(PACKAGE)-$(VERSION).tar.gz
 
 snapshot:
 	$(MAKE) dist distdir=$(PACKAGE)-`date +"%Y%m%d"`

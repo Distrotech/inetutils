@@ -1,5 +1,9 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* Makefile.am (DISTCLEANFILES): Added `$(PACKAGE)-$(VERSION).tar.gz' to list.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	Use || and && instead of -o and -a in calls to test.
 
 	* configure.ac: Use || and && type of test instead of -o and -a
