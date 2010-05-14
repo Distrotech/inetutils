@@ -1,5 +1,13 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* talk/msgs.c: Include <sys/time.h>, <time.h> unconditionally.
+	* talk/io.c: Include <sys/time.h>, <time.h>, <sys/select.h> unconditionally.
+	* talk/invite.c: Include <sys/time.h>, <time.h> unconditionally.
+	* talk/ctl_transact.c: Include <sys/time.h>, <time.h>,
+	<sys/select.h> unconditionally.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* Makefile.am (DISTCLEANFILES): Added `$(PACKAGE)-$(VERSION).tar.gz' to list.
 
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
@@ -8,8 +16,8 @@
 
 	* configure.ac: Use || and && type of test instead of -o and -a
 	for calls to `test'.  Don't check for poll() Include <errno.h>
-	unconditionallyincheck for `sys_errlist'.  Include <unistd.h> and
-	<stdlib.h> in check for `environ'.
+	unconditionally in check for `sys_errlist'.  Include <unistd.h>
+	and <stdlib.h> in check for `environ'.
 	* am/config_paths.m4: Use || and && type of test instead of -o and
 	-a for calls to `test'.
 	* am/libcurses.m4: Likewise.

@@ -127,4 +127,3 @@ open_ctl ()
 
   return 0;
 }
-

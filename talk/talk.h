@@ -105,5 +105,3 @@ int open_ctl (void);
 
 /* look_up.c */
 int check_local (void);
-
-

@@ -137,4 +137,3 @@ check_local ()
 
   return -1;
 }
-

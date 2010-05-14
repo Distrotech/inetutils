@@ -222,4 +222,3 @@ display (register xwin_t * win, register char *text, int size)
 
   return 0;
 }
-
