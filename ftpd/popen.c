@@ -55,9 +55,7 @@
 #endif
 
 #include <sys/types.h>
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
+#include <sys/wait.h>
 
 #include <errno.h>
 #include <signal.h>

@@ -60,9 +60,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
+#include <sys/wait.h>
 
 #include <netinet/in.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
@@ -91,16 +89,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <syslog.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 #ifdef HAVE_MMAP
 # include <sys/mman.h>
@@ -1488,11 +1478,7 @@ void
 reply (int n, const char *fmt, ...)
 {
   va_list ap;
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, fmt);
-#else
-  va_start (ap);
-#endif
   printf ("%d ", n);
   vprintf (fmt, ap);
   printf ("\r\n");
@@ -1508,11 +1494,7 @@ void
 lreply (int n, const char *fmt, ...)
 {
   va_list ap;
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, fmt);
-#else
-  va_start (ap);
-#endif
   printf ("%d- ", n);
   vprintf (fmt, ap);
   printf ("\r\n");

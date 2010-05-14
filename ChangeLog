@@ -1,14 +1,27 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ftpd/popen.c: Include <sys/wait.h> unconditionally.
+	* ftpd/ftpd.c: Include <sys/time.h>, <time.h>, <sys/wait.h>
+	unconditionally.
+	(reply): Don't use K&R variable arguments.
+	(lreply): Don't use K&R variable arguments.
+	* ftpd/ftpcmd.y: Include <sys/time.h>, <time.h>, <sys/utsname.h>
+	unconditionally.
+	* ftpd/auth.c: Include <sys/time.h>, <time.h> unconditionally.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* talk/msgs.c: Include <sys/time.h>, <time.h> unconditionally.
-	* talk/io.c: Include <sys/time.h>, <time.h>, <sys/select.h> unconditionally.
+	* talk/io.c: Include <sys/time.h>, <time.h>, <sys/select.h>
+	unconditionally.
 	* talk/invite.c: Include <sys/time.h>, <time.h> unconditionally.
 	* talk/ctl_transact.c: Include <sys/time.h>, <time.h>,
 	<sys/select.h> unconditionally.
 
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
-	* Makefile.am (DISTCLEANFILES): Added `$(PACKAGE)-$(VERSION).tar.gz' to list.
+	* Makefile.am (DISTCLEANFILES): Added
+	`$(PACKAGE)-$(VERSION).tar.gz' to list.
 
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
