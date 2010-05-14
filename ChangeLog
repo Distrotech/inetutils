@@ -1,5 +1,17 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	Use || and && instead of -o and -a in calls to test.
+
+	* configure.ac: Use || and && type of test instead of -o and -a
+	for calls to `test'.  Don't check for poll() Include <errno.h>
+	unconditionallyincheck for `sys_errlist'.  Include <unistd.h> and
+	<stdlib.h> in check for `environ'.
+	* am/config_paths.m4: Use || and && type of test instead of -o and
+	-a for calls to `test'.
+	* am/libcurses.m4: Likewise.
+
+2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
+
 	* ftp/ruserpass.c: Include <stdarg.h> unconditionally.
 	* ftp/ftp.c: Include <sys/time.h>, <time.h>, <stdarg.h>,
 	<sys/select.h> unconditionally.
@@ -12,7 +24,7 @@
 	* telnet/utilities.c: Include <sys/time.h>, <time.h> unconditionally.
 	Don't include "fdset.h".
 	* telnet/tn3270.c: Don't include "fdset.h".
-	* telnet/telnet.c:  Include <stdlib.h> unconditionally.
+	* telnet/telnet.c: Include <stdlib.h> unconditionally.
 	* telnet/sys_bsd.c: Include <sys/time.h>, <time.h>, <sys/select.h> unconditionally.
 	Don't include "fdset.h".
 	* telnet/network.c: Include <sys/time.h>, <time.h>, <sys/select.h> unconditionally.

@@ -61,7 +61,7 @@ AC_DEFUN([IU_CONFIG_PATHS], [
   iu_tmp_file="$tmpdir/,iu-tmp.$$"
   ac_clean_files="$ac_clean_files $iu_cache_file $iu_tmp_file"
   while read iu_path iu_search; do
-    test "$iu_path" = "#" -o -z "$iu_path" && continue
+    test "$iu_path" = "#" || test -z "$iu_path" && continue
 
     iu_pathvar="`echo $iu_path  | sed y/${IU_UCASE}/${iu_lcase}/`"
     AC_MSG_CHECKING(for value of $iu_path)
@@ -172,12 +172,12 @@ HAVE_$iu_sym
 
 	esac
 
-	test "$iu_val" -o "$iu_hdr" && break
-	test "$iu_cross_test" -a "$iu_prev_cross_test" && iu_cross_conflict=yes
+	test "$iu_val" || test "$iu_hdr" && break
+	test "$iu_cross_test" && test "$iu_prev_cross_test" && iu_cross_conflict=yes
 	iu_prev_cross_test=$iu_cross_test
       done
 
-      if test -z "$iu_val" -a -z "$iu_hdr"; then
+      if test -z "$iu_val" && test -z "$iu_hdr"; then
 	if test -z "$iu_default"; then
 	  iu_val=no
 	else
@@ -189,7 +189,7 @@ HAVE_$iu_sym
 
     if test "$iu_val"; then
       AC_MSG_RESULT(${iu_cached}${iu_defaulted}$iu_val)
-      test "$iu_cross_conflict" -a "$iu_defaulted" \
+      test "$iu_cross_conflict" && test "$iu_defaulted" \
 	&& AC_MSG_WARN(may be incorrect because of cross-compilation)
       # Put the value in the autoconf cache.  We replace $( with @( to avoid
       # variable evaluation problems when autoconf reads the cache later.

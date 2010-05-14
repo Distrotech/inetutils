@@ -35,4 +35,3 @@ AC_DEFUN([IU_RESULT_ACTIONS], [
 else
   ]ifelse([$4], , [:], [$4])[
 fi]])dnl
-

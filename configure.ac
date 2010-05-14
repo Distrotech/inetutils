@@ -200,7 +200,7 @@ fi
 AC_SUBST(LIBPAM)
 
 # Can we use libls? but we must have fchdir()
-if test "$enable_libls" = yes  -a "$ac_cv_func_fchdir" = yes ; then
+if test "$enable_libls" = yes && test "$ac_cv_func_fchdir" = yes ; then
   LIBLS="../libls/libls.a"
   libls_BUILD="libls.a"
   AC_DEFINE([WITH_LIBLS], 1, [Define to one if you have -lls])
@@ -215,7 +215,7 @@ AC_SUBST(libls_BUILD)
 if test "$enable_talk" != no; then
   IU_LIB_CURSES
 fi
-if test "$enable_talk" != no -a "$LIBCURSES"; then
+if test "$enable_talk" != no && test "$LIBCURSES"; then
   enable_talk=yes
 else
   if test "$enable_talk" = yes; then
@@ -228,7 +228,8 @@ fi
 dnl FIXME: Make this test case a bit more robust. Remove KRB4
 LIBAUTH=
 INCAUTH=
-if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
+if test "$enable_encryption" = yes \
+   || test "$enable_authentication" = yes; then
   AH_TEMPLATE(KERBEROS, [Define to one if you have Kerberos])
   AH_TEMPLATE(KRB4, [Define to one if you have Kerberos IV])
   AH_TEMPLATE(KRB5, [Define to one if you have Kerberos V])
@@ -246,12 +247,17 @@ if test "$enable_encryption" = yes -o "$enable_authentication" = yes; then
                    [LIBAUTH="$LIBAUTH -ldes"],
                    -L$KERBEROS_DIR)
       dnl FIXME: Fix this to one test case.
-      test "$enable_authentication" = yes -a "$ac_cv_lib_krb_krb_mk_req" = yes\
-  && AC_DEFINE([KRB4])
-      test "$enable_authentication" = yes -a "$ac_cv_lib_krb_krb_mk_req" = yes \
-  && AC_DEFINE([KERBEROS])
-      test "$enable_encryption" = yes -a "$ac_cv_lib_des_des_key_sched" = yes \
-        && AC_DEFINE([DES_ENCRYPTION])
+      test "$enable_authentication" = yes \
+      && test "$ac_cv_lib_krb_krb_mk_req" = yes \
+      && AC_DEFINE([KRB4])
+
+      test "$enable_authentication" = yes \
+      && test "$ac_cv_lib_krb_krb_mk_req" = yes \
+      && AC_DEFINE([KERBEROS])
+
+      test "$enable_encryption" = yes \
+      && test "$ac_cv_lib_des_des_key_sched" = yes \
+      && AC_DEFINE([DES_ENCRYPTION])
     fi
     ;;
   5)
@@ -309,43 +315,43 @@ AC_ARG_ENABLE([ipv6],
 )
 
 working_ipv6=yes
-if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
   IU_CHECK_MACRO(AF_INET6, [#include <sys/socket.h>], , , working_ipv6=no)
 fi
 
-if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
   IU_CHECK_MACRO(IPV6_V6ONLY, [#include <netinet/in.h>], , , working_ipv6=no)
 fi
 
-if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
   AC_CHECK_TYPE(struct sockaddr_storage, , working_ipv6=no, [#include <sys/socket.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
   AC_CHECK_TYPE(struct sockaddr_in6, , working_ipv6=no, [#include <netinet/in.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
   AC_CHECK_TYPE(struct addrinfo, , working_ipv6=no, [#include <netdb.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
   AC_CHECK_FUNC(getnameinfo, ,working_ipv6=no, [#include <netdb.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" -a "X$working_ipv6" = "Xyes"; then
+if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
   AC_DEFINE([IPV6], 1, [Define to one if you want IPv6.])
-else 
+else
   if test "X$ipv6" = "Xyes"; then
     AC_MSG_FAILURE([IPv6 support not available])
-  else 
+  else
     if test "X$ipv6" = "Xauto"; then
       AC_MSG_WARN([IPv6 support not available, disabling IPv6])
     fi
   fi
 fi
 
-if test "X$ipv6" = "Xno" -o "X$working_ipv6" = "Xno";then
+if test "X$ipv6" = "Xno" || test "X$working_ipv6" = "Xno";then
   ping6_BUILD=''
 else
   working_icmp6=yes
@@ -536,9 +542,9 @@ IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
 
 if test "$ac_cv_header_utmp_h" = yes; then
   AC_CHECK_TYPES(struct lastlog, , , [#include <utmp.h>])
-  IU_CHECK_MEMBERS([struct utmp.ut_type, struct utmp.ut_pid, 
+  IU_CHECK_MEMBERS([struct utmp.ut_type, struct utmp.ut_pid,
                     struct utmp.ut_id, struct utmp.ut_user,
-		    struct utmp.ut_host, struct utmp.ut_tv, 
+		    struct utmp.ut_host, struct utmp.ut_tv,
 		    struct utmp.ut_exit], , ,
 		   [#include <sys/types.h>
 		    #include <utmp.h>])
@@ -615,11 +621,6 @@ AC_CHECK_FUNC(getopt_long)
 
 AC_CHECK_HEADER(poll.h)
 
-dnl Supply a version of poll() if the libray is missing.
-dnl syslogd uses poll() unconditionnaly.
-AC_CHECK_FUNC(poll, ,
-  [AC_DEFINE([HAVE_POLL_H], 1, [Define to one if you have <poll.h>])])
-
 dnl See if snprintf exists, otherwise just use a bogus version
 AC_CHECK_FUNC(snprintf,
   [AC_DEFINE([HAVE_SNPRINTF], 1, [Define to one if you have snprintf])])
@@ -637,9 +638,7 @@ if test "$ac_cv_func_strerror" = no; then
   if test "$ac_cv_func_sys_errlist" = yes; then
     AC_CHECK_DECL(sys_errlist, , ,
       [IU_FLUSHLEFT([#include <stdio.h>
-                    #ifdef HAVE_ERRNO_H
-                    #include <errno.h>
-                    #endif])])
+                    #include <errno.h>])])
   fi
 fi
 
@@ -654,7 +653,8 @@ else
     AC_CHECK_DECL(h_errlist, , , [#include <netdb.h>])
   fi
 fi
-if test "$ac_cv_func_hstrerror" = yes -o "$ac_cv_func_h_errlist" = yes; then
+if test "$ac_cv_func_hstrerror" = yes \
+   || test "$ac_cv_func_h_errlist" = yes; then
   # If there's a system hstrerror, or we can reasonably replace it, say so.
   # We still provide some definition, regardless, but this allows people to use
   # a reasonable alternative if the situation allows, rather than using a
@@ -708,12 +708,8 @@ AC_CHECK_DECLS(htons, , ,
 
 dnl Our home-grown version of setenv needs to use ENVIRON
 AC_CHECK_DECLS(environ, , ,
-  [IU_FLUSHLEFT([#ifdef HAVE_UNISTD_H
-                 # include <unistd.h>
-                 #endif
-                 #ifdef HAVE_STDLIB_H
-                 # include <stdlib.h>
-                 #endif ])])
+  [IU_FLUSHLEFT([#include <unistd.h>
+                 #include <stdlib.h>])])
 
 dnl See if we have h_errno (the test is here so we can use -lresolv
 dnl if necessary).
@@ -800,7 +796,7 @@ esac
 AC_CONFIG_FILES([
 Makefile
 lib/Makefile
-libinetutils/Makefile 
+libinetutils/Makefile
 libtelnet/Makefile
 libicmp/Makefile
 libls/Makefile
