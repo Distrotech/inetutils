@@ -35,9 +35,7 @@
 #include <syslog.h>
 #include <string.h>
 #include <ctype.h>
-#ifdef HAVE_STRINGS_H
-# include <strings.h>
-#endif
+#include <strings.h>
 #ifdef HAVE_SYS_FILIO_H
 # include <sys/filio.h>
 #endif

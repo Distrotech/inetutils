@@ -1,5 +1,8 @@
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
+	* telnetd/telnetd.c: Include <sys/utsname.h>, <strings.h>
+	unconditionally.
+
 	* telnet/utilities.c: Include <sys/time.h>, <time.h> unconditionally.
 	Don't include "fdset.h".
 	* telnet/tn3270.c: Don't include "fdset.h".

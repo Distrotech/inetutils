@@ -22,9 +22,7 @@
 
 #include "telnetd.h"
 
-#ifdef HAVE_SYS_UTSNAME_H
-# include <sys/utsname.h>
-#endif
+#include <sys/utsname.h>
 #include <argp.h>
 #include <progname.h>
 #include <error.h>
