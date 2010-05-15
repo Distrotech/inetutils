@@ -1,3 +1,7 @@
+2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
+
+	* libls/fts.c: Include <string.h> unconditionally.
+
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ftpd/popen.c: Include <sys/wait.h> unconditionally.

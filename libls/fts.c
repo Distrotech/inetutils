@@ -55,11 +55,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+#include <string.h>
 #include <unistd.h>
 
 #include "fts.h"
