@@ -23,9 +23,7 @@
 # include <config.h>
 #endif
 
-#ifdef HAVE_STDLIB_H
-# include <stdlib.h>
-#endif
+#include <stdlib.h>
 
 #include <signal.h>
 

@@ -27,9 +27,7 @@
 #ifdef HAVE_MALLOC_H
 # include <malloc.h>
 #endif
-#if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
-# include <stdlib.h>
-#endif
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>

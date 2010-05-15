@@ -46,11 +46,8 @@
 
 #include <sys/types.h>
 
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
-#else
-# include <time.h>
-#endif
+#include <sys/time.h>
+#include <time.h>
 #ifdef HAVE_UTMPX_H
 # ifndef __USE_GNU
 #  define __USE_GNU
@@ -59,11 +56,7 @@
 #else
 # include <utmp.h>
 #endif
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+#include <string.h>
 #include <unistd.h>
 
 /* utmp_init - update utmp and wtmp before login */

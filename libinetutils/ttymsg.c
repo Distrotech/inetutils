@@ -62,10 +62,6 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-#if !defined (O_NONBLOCK) && defined (O_NDELAY)
-# define O_NONBLOCK O_NDELAY	/* O_NDELAY is an old BSD name for this.  */
-#endif
-
 #define MAX_ERRBUF 1024
 
 static int fork2 (void);

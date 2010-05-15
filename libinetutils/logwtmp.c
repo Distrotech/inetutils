@@ -29,22 +29,12 @@
 
 #include <unistd.h>
 #include <sys/types.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#ifdef HAVE_ERRNO_H
-# include <errno.h>
-#endif
+#include <errno.h>
 #ifdef HAVE_UTMP_H
 # include <utmp.h>
 #else
@@ -53,9 +43,7 @@
 #  define utmp utmpx		/* make utmpx look more like utmp */
 # endif
 #endif
-#ifdef HAVE_STRING_H
-# include <string.h>
-#endif
+#include <string.h>
 
 #if !HAVE_DECL_ERRNO
 extern int errno;

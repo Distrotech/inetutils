@@ -1,5 +1,19 @@
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libinetutils/utmp_logout.c: Include <sys/time.h>, <time.h>,
+	<string.h> unconditionally.
+	* libinetutils/utmp_init.c: Include <sys/time.h>, <time.h>,
+	<string.h> unconditionally.
+	* libinetutils/ttymsg.c (O_NONBLOCK): Removed macro.
+	* libinetutils/setsig.c: Include <stdlib.h> unconditionally.
+	* libinetutils/logwtmp.c: Include <sys/time.h>, <time.h>,
+	<errno.h>, <string.h> unconditionally.
+	* libinetutils/localhost.c: Include <stdlib.h> unconditionally.
+	* libinetutils/cleansess.c: Include <sys/time.h>, <time.h>,
+	<string.h> unconditionally.
+
+2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libtelnet/shishi.c: Include <string.h> unconditionally.
 	* libtelnet/read_passwd.c: Don't include <strings.h>.
 	* libtelnet/kerberos5.c: Include <string.h> unconditionally.

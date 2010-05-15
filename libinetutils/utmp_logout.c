@@ -45,22 +45,15 @@
 #endif
 
 #include <sys/types.h>
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
-#else
-# include <time.h>
-#endif
+#include <sys/time.h>
+#include <time.h>
 #if defined(UTMPX) && defined(HAVE_UTMPX_H)
 # define __USE_GNU
 # include <utmpx.h>
 #else
 # include <utmp.h>
 #endif
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+#include <string.h>
 
 /* utmp_logout - update utmp and wtmp after logout */
 
