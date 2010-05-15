@@ -27,16 +27,8 @@
 # include <sys/filio.h>
 #endif
 #include <termios.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #ifdef HAVE_SYS_STREAM_H
 # include <sys/stream.h>
 #endif
@@ -70,9 +62,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
+#include <sys/select.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>		/* Needed for chmod() */
 

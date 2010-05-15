@@ -1,5 +1,31 @@
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* src/uucpd.c: Include <sys/wait.h>, <sys/time.h>, <time.h>
+	unconditionally.
+	* src/tftp.c: Include <sys/time.h>, <time.h> unconditionally.
+	* src/syslogd.c: Include <sys/time.h>, <time.h>, <stdarg.h>
+	unconditionally.
+	(dbg_printf): Remove redundant va_start call, don't use K&R style
+	variable arguments.
+	* src/rshd.c Include <alloca.h>, <sys/time.h>, <time.h>,
+	<sys/select.h> unconditionally.
+	[!alloca]: Removed macro.
+	* src/rsh.c: Include <sys/time.h>, <time.h>, <sys/select.h>
+	unconditionally.
+	* src/rlogind.c: Include <sys/time.h>, <time.h>, <sys/select.h>
+	unconditionally.
+	* src/rlogin.c: Include <sys/time.h>, <time.h>, <sys/wait.h>,
+	<stdarg.h> unconditionally.
+	(warning): Don't use K&R variable arguments.
+	* src/rexecd.c: Include <sys/time.h>, <time.h>, <sys/select.h>
+	unconditionally.
+	* src/rexec.c: Include <sys/select.h> unconditionally.
+	* src/rcp.c: Include <sys/time.h>, <time.h> unconditionally.
+	* src/inetd.c: Include <sys/wait.h>, <sys/time.h>, <time.h>,
+	<sys/select.h> unconditionally.
+
+2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* ifconfig/system/solaris.c: Include <unistd.h>, <string.h> unconditionally.
 	* ifconfig/system/qnx.c: Include <unistd.h> unconditionally.
 	* ifconfig/system/osf.c: Include <unistd.h>, <string.h> unconditionally.

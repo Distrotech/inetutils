@@ -40,9 +40,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
+#include <sys/select.h>
 
 #include <stdarg.h>
 #include <progname.h>

@@ -58,22 +58,12 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #ifdef HAVE_SYS_RESOURCE_H
 # include <sys/resource.h>
 #endif
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
+#include <sys/wait.h>
 #include <sys/ioctl.h>
 #ifdef HAVE_SYS_STREAM_H
 # include <sys/stream.h>
@@ -110,11 +100,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
+#include <stdarg.h>
+
 #include <progname.h>
 #include "libinetutils.h"
 
@@ -246,10 +233,10 @@ static struct argp_option argp_options[] = {
    "an escape character", GRP+1},
   {"user", 'l', "USER", 0, "run as USER on the remote system", GRP+1},
 #if defined(KERBEROS) || defined(SHISHI)
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
   {"encrypt", 'x', NULL, 0, "turns on DES encryption for all data passed via "
    "the rlogin session", GRP+1},
-#endif
+# endif
   {"kerberos", 'K', NULL, 0, "turns off all Kerberos authentication", GRP+1},
   {"realm", 'k', "REALM", 0, "obtain tickets for the remote host in REALM "
    "realm instead of the remote's realm", GRP+1},
@@ -290,14 +277,14 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
 #if defined (KERBEROS) || defined(SHISHI)
-#ifdef ENCRYPTION
+# ifdef ENCRYPTION
     case 'x':
       doencrypt = 1;
-#ifdef KERBEROS
+#  ifdef KERBEROS
       des_set_key (cred.session, schedule);
-#endif
+#  endif
       break;
-#endif
+# endif
 
     case 'K':
       use_kerberos = 0;
@@ -1289,22 +1276,12 @@ copytochild (int signo ARG_UNUSED)
 
 #if defined(KERBEROS) || defined(SHISHI)
 void
-# if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
 warning (const char *fmt, ...)
-# else
-warning (fmt, va_alist)
-     char *fmt;
-     va_dcl
-# endif
 {
   va_list ap;
 
   fprintf (stderr, "rlogin: warning, using standard rlogin: ");
-# if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
   va_start (ap, fmt);
-# else
-  va_start (ap);
-# endif
   vfprintf (stderr, fmt, ap);
   va_end (ap);
   fprintf (stderr, ".\n");

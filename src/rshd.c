@@ -60,35 +60,12 @@
 # include <config.h>
 #endif
 
-#if !defined (__GNUC__) && defined (_AIX)
-# pragma alloca
-#endif
-#ifndef alloca			/* Make alloca work the best possible way.  */
-# ifdef __GNUC__
-#  define alloca __builtin_alloca
-# else /* not __GNUC__ */
-#  if HAVE_ALLOCA_H
-#   include <alloca.h>
-#  else	/* not __GNUC__ or HAVE_ALLOCA_H */
-#   ifndef _AIX			/* Already did AIX, up at the top.  */
-char *alloca ();
-#   endif /* not _AIX */
-#  endif /* not HAVE_ALLOCA_H */
-# endif	/* not __GNUC__ */
-#endif /* not alloca */
+#include <alloca.h>
 
 #include <sys/param.h>
 #include <sys/ioctl.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #include <sys/socket.h>
 
 #include <netinet/in.h>
@@ -110,9 +87,7 @@ char *alloca ();
 #include <syslog.h>
 #include <unistd.h>
 #include <grp.h>
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#endif
+#include <sys/select.h>
 #include <error.h>
 #include <progname.h>
 #include <argp.h>

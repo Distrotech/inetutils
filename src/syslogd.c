@@ -87,16 +87,8 @@
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <sys/un.h>
-#ifdef TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# ifdef HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 #include <sys/resource.h>
 #include <poll.h>
 #ifdef HAVE_SYS_TYPES_H
@@ -118,11 +110,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef HAVE_STDARG_H
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
+#include <stdarg.h>
 
 #define SYSLOG_NAMES
 #include <syslog.h>
@@ -2020,12 +2008,6 @@ dbg_printf (const char *fmt, ...)
 
   if (!(Debug && dbg_output))
     return;
-
-#if defined(HAVE_STDARG_H) && defined(__STDC__) && __STDC__
-  va_start (ap, fmt);
-#else
-  va_start (ap);
-#endif
 
   va_start (ap, fmt);
   vfprintf (stdout, fmt, ap);
