@@ -19,7 +19,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([GNU inetutils], [1.7.90], [bug-inetutils@gnu.org])
+AC_INIT([GNU inetutils], [1.7], [bug-inetutils@gnu.org])
 
 AC_CONFIG_SRCDIR([src/inetd.c])
 AC_CONFIG_AUX_DIR([build-aux])

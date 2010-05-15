@@ -5,18 +5,16 @@ See the end of this file for for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
-Unreleased
-Version 1.7.90:
+May 15, 2010
+Version 1.7:
 
-* inetutils
-
-** ftp
+* ftp
 
 New options --active and --passive to enable/disable active transfer
 mode.  The short option for --prompt has been removed, and is instead
 now used to enable passive transfer mode.
 
-** ifconfig
+* ifconfig
 
 New commands (up and down) to bring up/down an interface using
 ifconfig.
@@ -48,7 +46,6 @@ format definitions.
 * Man pages for the daemons are now in section 8 instead of 1.
 
 * There is now a man page for ping6 too.
-
 
 December 16, 2009
 Version 1.7:

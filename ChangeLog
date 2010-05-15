@@ -1,5 +1,10 @@
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* configure.ac: Bump version number to 1.7.
+	* NEWS: Update.
+
+2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* src/uucpd.c: Include <sys/wait.h>, <sys/time.h>, <time.h>
 	unconditionally.
 	* src/tftp.c: Include <sys/time.h>, <time.h> unconditionally.
@@ -26,14 +31,20 @@
 
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
 
-	* ifconfig/system/solaris.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/system/solaris.c: Include <unistd.h>, <string.h>
+	unconditionally.
 	* ifconfig/system/qnx.c: Include <unistd.h> unconditionally.
-	* ifconfig/system/osf.c: Include <unistd.h>, <string.h> unconditionally.
-	* ifconfig/system/linux.c: Include <unistd.h>, <string.h> unconditionally.
-	* ifconfig/system/hpux.c: Include <unistd.h>, <string.h> unconditionally.
-	* ifconfig/printif.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/system/osf.c: Include <unistd.h>, <string.h>
+	unconditionally.
+	* ifconfig/system/linux.c: Include <unistd.h>, <string.h>
+	unconditionally.
+	* ifconfig/system/hpux.c: Include <unistd.h>, <string.h>
+	unconditionally.
+	* ifconfig/printif.c: Include <unistd.h>, <string.h>
+	unconditionally.
 	* ifconfig/options.c: Include <string.h> unconditionally.
-	* ifconfig/ifconfig.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/ifconfig.c: Include <unistd.h>, <string.h>
+	unconditionally.
 	* ifconfig/flags.c: Include <string.h> unconditionally.
 	* ifconfig/changeif.c: Include <string.h> unconditionally.
 
@@ -56,8 +67,10 @@
 	* libtelnet/shishi.c: Include <string.h> unconditionally.
 	* libtelnet/read_passwd.c: Don't include <strings.h>.
 	* libtelnet/kerberos5.c: Include <string.h> unconditionally.
-	* libtelnet/kerberos.c: Include <stdlib.h>, <string.h> unconditionally.
-	* libtelnet/encrypt.c: Include <stdlib.h>, <string.h>, "genget.h" unconditionally.
+	* libtelnet/kerberos.c: Include <stdlib.h>, <string.h>
+	unconditionally.
+	* libtelnet/encrypt.c: Include <stdlib.h>, <string.h>, "genget.h"
+	unconditionally.
 	* libtelnet/enc_des.c: Include <stdlib.h> unconditionally.
 	* libtelnet/auth.c: Include <stdlib.h> unconditionally.
 
