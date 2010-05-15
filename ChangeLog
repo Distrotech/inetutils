@@ -1,6 +1,6 @@
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
 
-	* configure.ac: Bump version number to 1.7.
+	* configure.ac: Bump version number to 1.8.
 	* NEWS: Update.
 
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
