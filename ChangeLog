@@ -1,5 +1,18 @@
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ifconfig/system/solaris.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/system/qnx.c: Include <unistd.h> unconditionally.
+	* ifconfig/system/osf.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/system/linux.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/system/hpux.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/printif.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/options.c: Include <string.h> unconditionally.
+	* ifconfig/ifconfig.c: Include <unistd.h>, <string.h> unconditionally.
+	* ifconfig/flags.c: Include <string.h> unconditionally.
+	* ifconfig/changeif.c: Include <string.h> unconditionally.
+
+2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libinetutils/utmp_logout.c: Include <sys/time.h>, <time.h>,
 	<string.h> unconditionally.
 	* libinetutils/utmp_init.c: Include <sys/time.h>, <time.h>,

@@ -39,10 +39,10 @@ struct system_ifconfig
 
 /* Output format support.  */
 
-#define _IU_CAT2(a,b) a ## b
-#define _IU_DCL(name,fld)				\
+# define _IU_CAT2(a,b) a ## b
+# define _IU_DCL(name,fld)				\
   {#name, _IU_CAT2(system_fh_,fld) }
-#define _IU_EXTRN(fld)				\
+# define _IU_EXTRN(fld)				\
   extern void _IU_CAT2(system_fh_,fld) (format_data_t, int, char *[]);	\
 
 # define SYSTEM_FORMAT_HANDLER \

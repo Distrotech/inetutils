@@ -26,15 +26,9 @@
 #include <stdio.h>
 #include <errno.h>
 
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 
-#if HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+#include <string.h>
 
 #if STDC_HEADERS
 # include <stdlib.h>
@@ -864,11 +858,11 @@ fh_flags (format_data_t form, int argc, char *argv[])
 void
 fh_map_query (format_data_t form, int argc, char *argv[])
 {
-#ifdef SIOCGIFMAP
+# ifdef SIOCGIFMAP
   if (ioctl (form->sfd, SIOCGIFMAP, form->ifr) >= 0)
     select_arg (form, argc, argv, 0);
   else
-#endif
+# endif
     select_arg (form, argc, argv, 1);
 }
 

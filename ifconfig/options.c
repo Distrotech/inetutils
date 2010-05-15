@@ -35,11 +35,7 @@
 # endif
 #endif
 
-#if HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+#include <string.h>
 
 #include <sys/socket.h>
 #include <net/if.h>

@@ -25,11 +25,7 @@
 
 #include <stdio.h>
 
-#if HAVE_STRING_H
-# include <string.h>
-#else
-# include <strings.h>
-#endif
+#include <string.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>

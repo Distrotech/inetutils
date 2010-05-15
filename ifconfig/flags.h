@@ -55,7 +55,7 @@ int print_if_flags (int flags, const char *avoid, char seperator);
 char *if_list_flags (const char *prefix);
 
 /* Size of the buffer for the if_format_flags call */
-#define IF_FORMAT_FLAGS_BUFSIZE 15
+# define IF_FORMAT_FLAGS_BUFSIZE 15
 void if_format_flags (int flags, char *buf, size_t size);
 
 #endif
