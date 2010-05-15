@@ -60,9 +60,7 @@ extern Shishi *shishi_handle;
 #   endif
 #   include <arpa/telnet.h>
 #   include <stdio.h>
-#   ifdef HAVE_STDLIB_H
-#    include <stdlib.h>
-#   endif
+#   include <stdlib.h>
 
 #   include "encrypt.h"
 #   include "key-proto.h"
@@ -81,7 +79,7 @@ extern int encrypt_debug_mode;
 #   define FAILED		-1
 
 
-#include <string.h>
+#   include <string.h>
 
 struct fb
 {

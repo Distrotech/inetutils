@@ -65,7 +65,6 @@
 #if defined(RSA_ENCPWD) || defined(KRB4_ENCPWD)
 
 # include <stdio.h>
-# include <strings.h>
 # include <sys/ioctl.h>
 # include <signal.h>
 # include <setjmp.h>

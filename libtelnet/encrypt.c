@@ -79,17 +79,11 @@
 # include "encrypt.h"
 # include "misc.h"
 
-# ifdef HAVE_STDLIB_H
-#  include <stdlib.h>
-# endif
-# ifdef	NO_STRING_H
-#  include <strings.h>
-# else
-#  include <string.h>
-# endif
+# include <stdlib.h>
+# include <string.h>
 
-#include <stdio.h>
-#include "genget.h"
+# include <stdio.h>
+# include "genget.h"
 
 /*
  * These functions pointers point to the current routines

@@ -1,5 +1,15 @@
 2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libtelnet/shishi.c: Include <string.h> unconditionally.
+	* libtelnet/read_passwd.c: Don't include <strings.h>.
+	* libtelnet/kerberos5.c: Include <string.h> unconditionally.
+	* libtelnet/kerberos.c: Include <stdlib.h>, <string.h> unconditionally.
+	* libtelnet/encrypt.c: Include <stdlib.h>, <string.h>, "genget.h" unconditionally.
+	* libtelnet/enc_des.c: Include <stdlib.h> unconditionally.
+	* libtelnet/auth.c: Include <stdlib.h> unconditionally.
+
+2010-05-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libls/fts.c: Include <string.h> unconditionally.
 
 2010-05-14  Alfred M. Szmidt  <ams@gnu.org>

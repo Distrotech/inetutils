@@ -33,11 +33,7 @@
 # include <netdb.h>
 # include <ctype.h>
 # include <syslog.h>
-# ifdef  HAVE_STRING_H
-#  include <string.h>
-# else
-#  include <strings.h>
-# endif
+# include <string.h>
 
 # include "auth.h"
 # include "misc.h"

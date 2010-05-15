@@ -77,9 +77,7 @@
 # include <signal.h>
 # define AUTH_NAMES
 # include <arpa/telnet.h>
-# ifdef HAVE_STDLIB_H
-#  include <stdlib.h>
-# endif
+# include <stdlib.h>
 # ifdef	NO_STRING_H
 #  include <strings.h>
 # else

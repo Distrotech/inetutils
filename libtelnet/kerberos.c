@@ -77,14 +77,8 @@
 # include <stdio.h>
 # include <des.h>		/* BSD wont include this in krb.h, so we do it here */
 # include <krb.h>
-# ifdef HAVE_STDLIB_H
-#  include <stdlib.h>
-# endif
-# ifdef	NO_STRING_H
-#  include <strings.h>
-# else
-#  include <string.h>
-# endif
+# include <stdlib.h>
+# include <string.h>
 
 # include "encrypt.h"
 # include "auth.h"
