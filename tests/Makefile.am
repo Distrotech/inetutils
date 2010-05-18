@@ -21,7 +21,13 @@ AM_CPPFLAGS = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib
 LDADD = -L../libinetutils -linetutils  ../lib/libgnu.a
 
 check_PROGRAMS = localhost
-dist_check_SCRIPTS = ping-localhost.sh traceroute-localhost.sh
+dist_check_SCRIPTS =
+if ENABLE_ping
+dist_check_SCRIPTS += ping-localhost.sh
+endif
+if ENABLE_traceroute
+dist_check_SCRIPTS += traceroute-localhost.sh
+endif
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
