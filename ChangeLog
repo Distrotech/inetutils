@@ -1,3 +1,9 @@
+2010-05-19  Kaio Rafael <kaiorafael@gmail.com>  (tiny change)
+
+	* whois/as_del_list, whois/make_as_del.pl: Added copyright notice.
+	* whois/ip_del_list, whois/make_ip_del.pl: Likewise.
+	* whois/make_tld_serv.pl, whois/tld_serv_list: Likewise.
+
 2010-05-18  Simon Josefsson  <simon@josefsson.org>
 
 	* tests/Makefile.am (dist_check_SCRIPTS): Make testing ping and
