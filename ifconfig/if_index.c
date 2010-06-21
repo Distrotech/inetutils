@@ -254,4 +254,5 @@ if_indextoname (unsigned int ifindex, char *ifname)
     return result;
   }
 #endif
+  return NULL;
 }

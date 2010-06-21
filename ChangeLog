@@ -1,3 +1,7 @@
+2010-06-21  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* ifconfig/if_index.c (if_indextoname): Return NULL on errors.
+
 2010-05-19  Kaio Rafael <kaiorafael@gmail.com>  (tiny change)
 
 	* whois/as_del_list, whois/make_as_del.pl: Added copyright notice.
