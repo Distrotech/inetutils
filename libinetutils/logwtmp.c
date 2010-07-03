@@ -104,7 +104,7 @@ logwtmp (char *line, char *name, char *host)
 #endif
 
   /* Set information in new entry.  */
-  bzero (&ut, sizeof (ut));
+  memset (&ut, 0, sizeof (ut));
 #ifdef HAVE_STRUCT_UTMP_UT_TYPE
   ut.ut_type = USER_PROCESS;
 #endif

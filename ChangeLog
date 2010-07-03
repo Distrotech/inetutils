@@ -1,3 +1,23 @@
+2010-07-03  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* configure.ac: Do not check if `bcmp', `bcopy' and `bzero' exist.
+
+	* libinetutils/des_rw.c (des_read): Use `memcpy' instead of `bcopy'.
+	(des_write): Likewise.
+	(des_clear_key): Use `memset' instead of `bzero'.
+
+	* libtelnet/encrypt.h (SAMEKEY): Use `memcmp' instead of `bcmp'.
+
+	* libinetutils/kcmd.c (kcmd): Use `memcpy' instead of `bcopy'.
+
+	* libinetutils/logwtmp.c (logwtmp_keep_open): Use `memset' instead of
+	`bzero'.
+	* ftp/ftp.c (initconn): Likewise.
+	* src/uucpd.c (main): Likewise.
+
+	* talk/get_addrs.c (get_addrs): Use `memmove' instead of `bcopy'.
+
+
 2010-06-21  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* ifconfig/if_index.c (if_indextoname): Return NULL on errors.

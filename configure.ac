@@ -589,7 +589,7 @@ AC_FUNC_MMAP
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 
-AC_CHECK_FUNCS(bcopy bcmp bzero cfsetspeed cgetent dirfd fchdir flock \
+AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                fpathconf ftruncate \
 	       getcwd getmsg getspnam initgroups initsetproctitle killpg \
                mkstemp ptsname \

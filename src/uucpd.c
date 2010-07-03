@@ -138,7 +138,7 @@ main (int argc, char **argv)
       close (s);
     }
 
-  bzero ((char *) &myctladdr, sizeof (myctladdr));
+  memset (&myctladdr, 0, sizeof (myctladdr));
   myctladdr.sin_family = AF_INET;
   myctladdr.sin_port = sp->s_port;
 }

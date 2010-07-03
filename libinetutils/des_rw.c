@@ -77,8 +77,8 @@ int krb_net_read (int, char *, int);
 void
 des_clear_key ()
 {
-  bzero ((char *) key, sizeof (C_Block));
-  bzero ((char *) key_schedule, sizeof (Key_schedule));
+  memset (key, 0, sizeof (C_Block));
+  memset (key_schedule, 0, sizeof (Key_schedule));
 }
 
 
@@ -94,14 +94,14 @@ des_read (fd, buf, len)
 
   if (nstored >= len)
     {
-      bcopy (store_ptr, buf, len);
+      memcpy (buf, store_ptr, len);
       store_ptr += len;
       nstored -= len;
       return (len);
     }
   else if (nstored)
     {
-      bcopy (store_ptr, buf, nstored);
+      memcpy (buf, store_ptr, nstored);
       nreturned += nstored;
       buf += nstored;
       len -= nstored;
@@ -145,14 +145,14 @@ des_read (fd, buf, len)
   nstored = net_len;
   if (nstored > len)
     {
-      bcopy (store_ptr, buf, len);
+      memcpy (buf, store_ptr, len);
       nreturned += len;
       store_ptr += len;
       nstored -= len;
     }
   else
     {
-      bcopy (store_ptr, buf, nstored);
+      memcpy (buf, store_ptr, nstored);
       nreturned += nstored;
       nstored = 0;
     }
@@ -181,9 +181,9 @@ des_write (fd, buf, len)
 	}
       garbage = random ();
       /* insert random garbage */
-      bcopy (&garbage, garbage_buf, MIN (sizeof (long), 8));
+      memcpy (garbage_buf, &garbage, MIN (sizeof (long), 8));
       /* this "right-justifies" the data in the buffer */
-      bcopy (buf, garbage_buf + 8 - len, len);
+      memcpy (garbage_buf + 8 - len, buf, len);
     }
   /* pcbc_encrypt outputs in 8-byte (64 bit) increments */
 

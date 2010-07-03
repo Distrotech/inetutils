@@ -153,11 +153,8 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 	}
       fcntl (s, F_SETOWN, pid);
       sin.sin_family = hp->h_addrtype;
-# if defined(ultrix) || defined(sun)
-      bcopy (hp->h_addr, (caddr_t) & sin.sin_addr, hp->h_length);
-# else
-      bcopy (hp->h_addr_list[0], (caddr_t) & sin.sin_addr, hp->h_length);
-# endif
+
+      memcpy (&sin.sin_addr, hp->h_addr, hp->h_length);
       sin.sin_port = rport;
 
       if (connect (s, (struct sockaddr *) &sin, sizeof (sin)) >= 0)
@@ -187,7 +184,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 	  errno = oerrno;
 	  perror (NULL);
 	  hp->h_addr_list++;
-	  bcopy (hp->h_addr_list[0], (caddr_t) & sin.sin_addr, hp->h_length);
+	  memcpy (& sin.sin_addr, hp->h_addr_list, hp->h_length);
 	  fprintf (stderr, "Trying %s...\n", inet_ntoa (sin.sin_addr));
 	  continue;
 	}

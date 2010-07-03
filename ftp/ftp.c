@@ -1161,7 +1161,7 @@ initconn ()
 	  goto bad;
 	}
 
-      bzero (&data_addr, sizeof (data_addr));
+      memset (&data_addr, 0, sizeof (data_addr));
       data_addr.sin_family = AF_INET;
       a = (char *) &data_addr.sin_addr.s_addr;
       a[0] = a0 & 0xff;

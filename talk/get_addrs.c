@@ -81,7 +81,7 @@ get_addrs (char *my_machine_name, char *his_machine_name)
       herror ((char *) NULL);
       exit (-1);
     }
-  bcopy (hp->h_addr, (char *) &my_machine_addr, hp->h_length);
+  memmove (&my_machine_addr, hp->h_addr, hp->h_length);
   /*
    * If the callee is on-machine, just copy the
    * network address, otherwise do a lookup...
@@ -95,7 +95,7 @@ get_addrs (char *my_machine_name, char *his_machine_name)
 	  herror ((char *) NULL);
 	  exit (-1);
 	}
-      bcopy (hp->h_addr, (char *) &his_machine_addr, hp->h_length);
+      memmove (&his_machine_addr, hp->h_addr, hp->h_length);
     }
   else
     his_machine_addr = my_machine_addr;
