@@ -9,12 +9,6 @@ supdup: A telnet client/daemon like program for the SUPDUP protocol;
   running.  And I don't think there is an actual daemon program for
   GNU systems at all (ITS has one though :-).
 
-ifconfig: when a unknown format option is passed to --format, ifconfig
-  will output the name of the format twice.
-
-  % ifconfig --format=unknown
-  unknownunknown%
-
 Add framework for tests.
 
 Function for parsing [USER@]HOSTNAME[:PORT], that returns each value
