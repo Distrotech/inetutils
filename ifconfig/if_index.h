@@ -27,7 +27,6 @@ struct if_nameindex
   int if_index;
 };
 extern unsigned int if_nametoindex (const char *ifname);
-extern char *if_indextoname (unsigned int ifindex, char *ifname);
 extern struct if_nameindex *if_nameindex (void);
 extern void if_freenameindex (struct if_nameindex *ptr);
 # endif

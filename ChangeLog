@@ -1,3 +1,9 @@
+2010-07-10  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* ifconfig/if_index.h (if_indextoname): Remove function declaration.
+
+	* ifconfig/if_index.c (if_indextoname): Remove unused function.
+
 2010-07-03  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* configure.ac: Do not check if `bcmp', `bcopy' and `bzero' exist.
