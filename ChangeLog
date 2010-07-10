@@ -1,3 +1,8 @@
+2010-07-10  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ifconfig/options.c (parse_opt_set_default_format): Abort if no
+	output format could be found.
+
 2010-07-10  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* ifconfig/if_index.h (if_indextoname): Remove function declaration.
