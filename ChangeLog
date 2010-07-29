@@ -1,3 +1,8 @@
+2010-07-30  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* ifconfig/if_index.c (if_nameindex): Remove local variable `len'.
+	Remove code that compute the sizeof of the struct `ifreq'.
+
 2010-07-10  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ifconfig/options.c (parse_opt_set_default_format): Abort if no

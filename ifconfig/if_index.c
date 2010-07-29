@@ -132,19 +132,9 @@ if_nameindex (void)
   end = (struct ifreq *) ((caddr_t) ifr + ifc.ifc_len);
   while (ifr < end)
     {
-      int len;
-# ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
-#  undef MAX
-#  define MAX(a,b)  (((a) > (b)) ? (a) : (b))
-      len = MAX (sizeof (struct sockaddr), ifr->ifr_addr.sa_len);
-# else
-      len = sizeof (struct sockaddr);
-# endif
-
       cur = ifr;
 
-      /* Step along the array by the size of the current structure */
-      ifr = (struct ifreq *) ((caddr_t) ifr + len + IFNAMSIZ);
+      ++ifr;
 
       /* We ignore the other families .. OK ?  */
       if (cur->ifr_addr.sa_family != AF_INET)
