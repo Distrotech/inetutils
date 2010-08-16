@@ -1,3 +1,8 @@
+2010-08-16  Sergey Poznyakoff  <gray@gnu.org.ua>
+
+	* ifconfig/flags.c (flag_char_tab): Protect the
+	uses of IFF_SLAVE and IFF_MASTER by #ifdefs.
+
 2010-08-16  Alfred M. Szmidt  <ams@gnu.org>
 
 	* ifconfig/options.c (parse_cmdline): Error out if IFNX is NULL.

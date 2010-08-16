@@ -403,8 +403,12 @@ static struct if_flag_char flag_char_tab[] = {
   { IFF_NOTRAILERS,  'N' },
   { IFF_NOARP,       'O' },
   { IFF_POINTOPOINT, 'P' },
+#ifdef IFF_SLAVE
   { IFF_SLAVE,       's' },
+#endif
+#ifdef IFF_MASTER
   { IFF_MASTER,      'm' },
+#endif
   { IFF_RUNNING,     'R' },
   { IFF_UP,          'U' },
   { 0 }
