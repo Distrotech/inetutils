@@ -1,3 +1,7 @@
+2010-08-16  Alfred M. Szmidt  <ams@gnu.org>
+
+	* ifconfig/options.c (parse_cmdline): Error out if IFNX is NULL.
+
 2010-07-30  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* ifconfig/if_index.c (if_nameindex): Remove local variable `len'.
