@@ -65,3 +65,9 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
 {
   return 0;
 }
+
+
+
+/* System hooks. */
+
+struct if_nameindex* (*system_if_nameindex) (void) = if_nameindex;

@@ -46,6 +46,8 @@
 #include <net/if_arp.h>
 #include <linux/if_ether.h>
 
+#include <read-file.h>
+
 #include "../ifconfig.h"
 
 
@@ -846,3 +848,86 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
     }
   return 0;
 }
+
+static struct if_nameindex *
+linux_if_nameindex (void)
+{
+  char *content, *it;
+  size_t length, index;
+  struct if_nameindex *idx = NULL;
+  int fd;
+
+  fd = socket (AF_INET, SOCK_DGRAM, 0);
+  if (fd < 0)
+    return NULL;
+
+  content = read_file (PATH_PROCNET_DEV, &length);
+  if (content == NULL)
+    return NULL;
+
+  /* Count how many interfaces we have.  */
+  {
+    size_t n = 0;
+    it = content;
+    do
+      {
+        it = memchr (it + 1, ':', length - (it - content));
+        n++;
+      }
+    while (it);
+
+    idx = malloc (n * sizeof (*idx));
+    if (idx == NULL)
+      {
+        int saved_errno = errno;
+        close (fd);
+        free (content);
+        errno = saved_errno;
+        return NULL;
+      }
+  }
+
+  for (it = memchr (content, ':', length), index = 0; it;
+       it = memchr (it, ':', it - content), index++)
+    {
+      char *start = it - 1;
+      *it = '\0';
+
+      while (*start != ' ' && *start != '\n')
+        start--;
+
+      idx[index].if_name = strdup (start + 1);
+      idx[index].if_index = index + 1;
+
+# if defined(SIOCGIFINDEX)
+      {
+        struct ifreq cur;
+        strcpy (cur.ifr_name, idx[index].if_name);
+        cur.ifr_index = -1;
+        if (ioctl (fd, SIOCGIFINDEX, &cur) >= 0)
+          idx[index].if_index = cur.ifr_index;
+      }
+# endif
+
+      if (idx[index].if_name == NULL)
+        {
+          int saved_errno = errno;
+          close (fd);
+          free (content);
+          errno = saved_errno;
+          return NULL;
+        }
+    }
+
+  idx[index].if_index = 0;
+  idx[index].if_name = NULL;
+
+  free (content);
+  return idx;
+}
+
+
+
+/* System hooks. */
+
+struct if_nameindex* (*system_if_nameindex) (void) = linux_if_nameindex;

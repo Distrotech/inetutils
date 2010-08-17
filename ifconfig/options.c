@@ -590,7 +590,7 @@ parse_cmdline (int argc, char *argv[])
       /* No interfaces specified.  Get a list of all interfaces.  */
       struct if_nameindex *ifnx, *ifnxp;
 
-      ifnx = ifnxp = if_nameindex ();
+      ifnx = ifnxp = system_if_nameindex ();
       if (!ifnx)
 	error (EXIT_FAILURE, 0, "could not get list of interfaces");
       while (ifnxp->if_index != 0 || ifnxp->if_name != NULL)

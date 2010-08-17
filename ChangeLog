@@ -1,3 +1,24 @@
+2010-08-18  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	Under GNU/Linux print interfaces without an address with ifconfig -a.
+	* bootstrap.conf (gnulib_modules): Add module `read-file'.
+
+	* NEWS: Update.
+
+	* ifconfig/options.c (parse_cmdline): Use system_if_nameindex, not
+	if_nameindex.
+
+	* ifconfig/system.h: Include <if_index.h>.
+
+	* ifconfig/system/generic.c (system_if_nameindex): New variable.
+	* ifconfig/system/hpux.c (system_if_nameindex): New variable.
+	* ifconfig/system/osf.c (system_if_nameindex): Likewise.
+	* ifconfig/system/qnc.c (system_if_nameindex): Likewise.
+	* ifconfig/system/solaris.c (system_if_nameindex): Likewise.
+
+	* ifconfig/system/linux.c (linux_if_nameindex): New function.
+	(system_if_nameindex): New variable.
+
 2010-08-16  Sergey Poznyakoff  <gray@gnu.org.ua>
 
 	* ifconfig/flags.c (flag_char_tab): Protect the

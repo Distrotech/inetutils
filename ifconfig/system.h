@@ -23,6 +23,8 @@
 # define IFCONFIG_SYSTEM_H
 
 
+# include <if_index.h>
+
 /* Option parsing.  */
 
 extern struct argp_child system_argp_child;
@@ -85,6 +87,7 @@ int system_configure (int sfd, struct ifreq *ifr,
 # endif
 
 
+extern struct if_nameindex* (*system_if_nameindex) (void);
 
 # if defined(__linux__)
 #  include "system/linux.h"
