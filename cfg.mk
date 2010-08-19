@@ -31,7 +31,6 @@ local-checks-to-skip = \
 	sc_prohibit_signal_without_use \
 	sc_prohibit_stat_st_blocks \
 	sc_prohibit_strcmp \
-	sc_space_tab \
 	sc_trailing_blank \
 	sc_unmarked_diagnostics \
 	sc_useless_cpp_parens \

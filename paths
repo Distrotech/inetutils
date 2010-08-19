@@ -26,7 +26,7 @@
 #      lists of things to try, in order.  The various sorts of entries are:
 #
 #       "value" -- If a file VALUE exists, use VALUE; if no default yet, set
-#       	   it to VALUE.  If VALUE begins with a make-variable of the
+#		   it to VALUE.	 If VALUE begins with a make-variable of the
 #		   form `$(NAME)' and a corresponding shell-variable $NAME
 #		   exists at configure time, the value of $NAME is substituted
 #		   for the $(NAME) for testing (but not subsitution) purposes.

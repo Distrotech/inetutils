@@ -1,5 +1,9 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	* cfg.mk (local-checks-to-skip): Removed sc_space_tab from list.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	Don't protect <config.h> with HAVE_CONFIG_H.
 
 	* cfg.mk (local-checks-to-skip): Removed sc_prohibit_have_config_h

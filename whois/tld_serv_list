@@ -155,7 +155,7 @@
 .ir	WEB http://aria.nic.ir/forms/whois.html
 .is	whois.isnet.is
 .it	whois.nic.it
-.je	NONE 		# http://www.isles.net
+.je	NONE		# http://www.isles.net
 #.jm			# NIC? uwimona.edu.jm ns.jm
 .jo	NONE		# www.nic.gov.jo
 .jp	whois.nic.ad.jp

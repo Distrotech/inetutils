@@ -368,7 +368,7 @@ else
 		     # include <sys/types.h>
 		     #endif
 		     #include <sys/socket.h>
-  		     #include <netinet/in.h>])])
+		     #include <netinet/in.h>])])
 
   fi
 
@@ -378,7 +378,7 @@ else
 		     # include <sys/types.h>
 		     #endif
 		     #include <sys/socket.h>
-  		     #include <netinet/in.h>
+		     #include <netinet/in.h>
 		     #include <netinet/icmp6.h>])])
   fi
 
@@ -388,13 +388,13 @@ else
 		     # include <sys/types.h>
 		     #endif
 		     #include <sys/socket.h>
-  		     #include <netinet/in.h>
+		     #include <netinet/in.h>
 		     #include <netinet/icmp6.h>])])
   fi
 
   if test "X$working_icmp6" = "Xyes"; then
     IU_CHECK_MACRO(IPV6_RECVHOPLIMIT, [#include <netinet/in.h>], ,
-    		   [have_recvhoplimt=yes], [have_recvhoplimt=no])
+		   [have_recvhoplimt=yes], [have_recvhoplimt=no])
     if test "X$have_recvhoplimt" = "Xno"; then
       IU_CHECK_MACRO(IPV6_HOPLIMIT, [#include <netinet/in.h>], , [
         AC_DEFINE([IPV6_RECVHOPLIMIT], IPV6_HOPLIMIT,
@@ -409,9 +409,9 @@ else
 		    # include <sys/types.h>
 		    #endif
 		    #include <sys/socket.h>
-  		    #include <netinet/in.h>
+		    #include <netinet/in.h>
 		    #include <netinet/icmp6.h>], ,
-    		   [have_beyondscope=yes], [have_beyondscope=no])
+		   [have_beyondscope=yes], [have_beyondscope=no])
     if test "X$have_beyondscope" = "Xno"; then
       IU_CHECK_MACRO(ICMP6_DST_UNREACH_NOTNEIGHBOR, [#include <netinet/icmp6.h>], , [
         AC_DEFINE([ICMP6_DST_UNREACH_BEYONDSCOPE], ICMP6_DST_UNREACH_NOTNEIGHBOR,

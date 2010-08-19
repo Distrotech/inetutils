@@ -79,10 +79,10 @@ int newmap = 1;			/* nonzero if \n maps to ^M^J */
  * Linemode support uses the following state flags to keep track of
  * current and desired linemode state.
  *	alwayslinemode : true if -l was specified on the telnetd
- * 	command line.  It means to have linemode on as much as
+ *	command line.  It means to have linemode on as much as
  *	possible.
  *
- * 	lmodetype: signifies whether the client can
+ *	lmodetype: signifies whether the client can
  *	handle real linemode, or if use of kludgeomatic linemode
  *	is preferred.  It will be set to one of the following:
  *		REAL_LINEMODE : use linemode option

@@ -69,7 +69,7 @@ int krb_net_read (int, char *, int);
 
 /*
  * NB: These routines will not function properly if NBIO
- * 	is set
+ *	is set
  */
 
 void

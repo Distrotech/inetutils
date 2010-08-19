@@ -48,7 +48,7 @@
   err = ioctl (sfd, SIOCSIF##type, ifr);				\
   if (err < 0)								\
     {									\
-      error (0, errno, "%s failed", "SIOCSIF" #type); 		        \
+      error (0, errno, "%s failed", "SIOCSIF" #type);			\
       return -1;							\
     }
 

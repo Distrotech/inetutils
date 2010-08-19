@@ -97,7 +97,7 @@ struct icmp_header
 #define ICMP_PROT_UNREACH	2	/* Protocol Unreachable         */
 #define ICMP_PORT_UNREACH	3	/* Port Unreachable             */
 #define ICMP_FRAG_NEEDED	4	/* Fragmentation Needed/DF set  */
-#define ICMP_SR_FAILED       	5	/* Source Route failed          */
+#define ICMP_SR_FAILED		5	/* Source Route failed		*/
 #define ICMP_NET_UNKNOWN	6
 #define ICMP_HOST_UNKNOWN	7
 #define ICMP_HOST_ISOLATED	8

@@ -259,5 +259,5 @@ also that they carry prominent notices stating who last changed them.
 
 Local variables:
 mode: outline
-paragraph-separate: "[ 	]*$"
+paragraph-separate: "[	 ]*$"
 end:

@@ -24,5 +24,5 @@ dnl This is useful for c-code which may include cpp statements
 dnl
 AC_DEFUN([IU_FLUSHLEFT],
  [m4_changequote(`,')dnl
-m4_bpatsubst(`$1', `^[ 	]+')
+m4_bpatsubst(`$1', `^[	 ]+')
 m4_changequote([,])])dnl

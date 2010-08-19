@@ -173,7 +173,7 @@ carry prominent notices stating who last changed them.
 
 Local Variables:
 mode: outline
-paragraph-separate: "[ 	]*$"
+paragraph-separate: "[	 ]*$"
 version-control: never
 End:
   
