@@ -1,5 +1,9 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	* ifconfig/system.h [__hpux__]: Don't include "system/hpux.c".
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	ifconfig: Random fixes for the `generic' operating system.
 
 	* ifconfig/system/generic.c (system_if_nameindex): New variable.
