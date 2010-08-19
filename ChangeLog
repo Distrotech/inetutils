@@ -1,5 +1,15 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	ifconfig: Removed support for HPUX and OSF.
+
+	* ifconfig/system/hpux.c, ifconfig/system/hpux.h,
+	ifconfig/system/osf.c, ifconfig/system/osf.h: Files removed.
+	* ifconfig/system/Makefile.am (noinst_HEADERS): Don't include
+	hpux.h, hpux.c, osf.c, osf.h.
+	* ifconfig/system.c [__hpux__]: Don't include "system/hpux.c".
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	Converted K&R style declarations to ISO C89.
 
 	* ftp/cmds.c (account, all_lower, all_upper, another, cd, cdup)
