@@ -364,7 +364,7 @@ traverse (argc, argv, options)
   if ((ftsp = fts_open (argv, options, f_nosort ? NULL : mastercmp)) == NULL)
     {
       fprintf (stderr, "%s: fts_open: %s", argv[0], strerror (errno));
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   display (NULL, fts_children (ftsp, 0));
@@ -416,7 +416,7 @@ traverse (argc, argv, options)
   if (errno)
     {
       fprintf (stderr, "fts_read: %s", strerror (errno));
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 }
 
@@ -540,7 +540,7 @@ display (p, list)
 				ulen + glen + flen + 3)) == NULL)
 		{
 		  fprintf (stderr, "malloc: %s", strerror (errno));
-		  exit (1);
+		  exit (EXIT_FAILURE);
 		}
 
 	      np->user = &np->data[0];

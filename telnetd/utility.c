@@ -405,12 +405,12 @@ again:
 	  goto again;
 	}
       syslog (LOG_INFO, "ttloop:  read: %m\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   else if (ncc == 0)
     {
       syslog (LOG_INFO, "ttloop:  peer died: %m\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   DEBUG (debug_report, 1,
 	 debug_output_data ("td: ttloop read %d chars\r\n", ncc));
@@ -644,7 +644,7 @@ fatal (int f, char *msg)
 #endif /* ENCRYPTION */
   write (f, buf, (int) strlen (buf));
   sleep (1);
-   /*FIXME*/ exit (1);
+   /*FIXME*/ exit (EXIT_FAILURE);
 }
 
 void

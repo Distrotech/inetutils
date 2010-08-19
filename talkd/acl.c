@@ -120,7 +120,7 @@ netdef_parse (char *str)
   if (!netdef)
     {
       syslog (LOG_ERR, "out of memory");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   netdef->next = NULL;
@@ -218,7 +218,7 @@ read_acl (char *config_file)
       if (!acl)
 	{
 	  syslog (LOG_CRIT, "out of memory");
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
       acl->next = NULL;
       acl->action = action;

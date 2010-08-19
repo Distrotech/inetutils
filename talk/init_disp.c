@@ -94,7 +94,7 @@ init_display ()
 #endif
 
   if (initscr () == NULL)
-    error (1, 0, "Terminal type unset or lacking necessary features.");
+    error (EXIT_FAILURE, 0, "Terminal type unset or lacking necessary features.");
 
 #ifdef HAVE_SIGACTION
   sigaction (SIGTSTP, (struct sigaction *) 0, &siga);
@@ -226,5 +226,5 @@ quit ()
     }
   if (invitation_waiting)
     send_delete ();
-  exit (0);
+  exit (EXIT_SUCCESS);
 }

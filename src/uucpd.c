@@ -125,10 +125,10 @@ main (int argc, char **argv)
   if (sp == NULL)
     {
       perror ("uucpd: getservbyname");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   if (fork ())
-    exit (0);
+    exit (EXIT_SUCCESS);
   if ((s = open (PATH_TTY, O_RDWR)) >= 0)
     {
       ioctl (s, TIOCNOTTY, (char *) 0);

@@ -1,5 +1,50 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	Use EXIT_SUCCESS and EXIT_FAILURE macros through out.
+
+	* cfg.mk (local-checks-to-skip): Removed sc_prohibit_magic_number_exit from list.
+
+	* whois/whois.c (main, err_sys, err_quit): Don't use magical exit numbers.
+	* telnetd/utility.c (io_drain, fatal): Likewise.
+	* telnetd/telnetd.c (main, telnetd_setup): Likewise.
+	* telnetd/state.c (telrcv): Likewise.
+	* telnetd/pty.c (startslave, cleanup): Likewise.
+	* telnet/terminal.c (init_terminal): Likewise.
+	* telnet/network.c (init_network): Likewise.
+	* telnet/main.c (main): Likewise.
+	* talkd/talkd.c (talkd_init, alarm_handler): Likewise.
+	* talkd/table.c (insert_table): Likewise.
+	* talkd/announce.c (announce): Likewise.
+	* talkd/acl.c (netdef_parse, read_acl): Likewise.
+	* talk/init_disp.c (init_display, quit): Likewise.
+	* src/uucpd.c (main): Likewise.
+	* src/traceroute.c (main): Likewise.
+	* src/tftpd.c (main, tftp, timer, justquit): Likewise.
+	* src/tftp.c (main, command, quit): Likewise.
+	* src/syslogd.c (main, add_funix, crunch_list, die): Likewise.
+	* src/rshd.c (main, doit, getstr): Likewise.
+	* src/rsh.c (main, else, sigmask, talk, copyargs): Likewise.
+	* src/rlogind.c (main, rlogin_daemon, rlogind_auth)
+	(rlogind_mainloop, getstr, cleanup, fatal): Likewise.
+	* src/rlogin.c (main): Likewise.
+	* src/rexecd.c (main, doit): Likewise.
+	* src/rexec.c (main): Likewise.
+	* src/rcp.c (main, toremote, sink): Likewise.
+	* src/logger.c (main): Likewise.
+	* src/inetd.c (echo_stream, discard_stream, chargen_stream)
+	(tcpmux, main): Likewise.
+	* ping/ping.c (main): Likewise.
+	* libtelnet/auth.c (auth_send): Likewise.
+	* libls/util.c (usage): Likewise.
+	* libls/ls.c (traverse, display): Likewise.
+	* ifconfig/ifconfig.c (main): Likewise.
+	* ftpd/ftpd.c (main, pass): Likewise.
+	* ftp/cmds.c (fatal): Likewise.
+	* libinetutils/daemon.c: Include <stdlib.h>.
+	(waitdaemon_timeout): Don't use magical exit numbers.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	Only include <signal.h> if it is used.
 
 	* cfg.mk (local-checks-to-skip): Removed

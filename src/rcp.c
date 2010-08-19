@@ -280,11 +280,11 @@ main (int argc, char *argv[])
   sp = getservbyname (shell = "shell", "tcp");
 #endif
   if (sp == NULL)
-    error (1, 0, "%s/tcp: unknown service", shell);
+    error (EXIT_FAILURE, 0, "%s/tcp: unknown service", shell);
   port = sp->s_port;
 
   if ((pwd = getpwuid (userid = getuid ())) == NULL)
-    error (1, 0, "unknown user %d", (int) userid);
+    error (EXIT_FAILURE, 0, "unknown user %d", (int) userid);
 
   rem = STDIN_FILENO;		/* XXX */
 
@@ -304,7 +304,7 @@ main (int argc, char *argv[])
     }
 
   if (argc < 2)
-    error (1, 0, "not enough arguments");
+    error (EXIT_FAILURE, 0, "not enough arguments");
 
   if (argc > 2)
     targetshouldbedirectory = 1;
@@ -361,7 +361,7 @@ toremote (char *targ, int argc, char *argv[])
       if (*tuser == '\0')
 	tuser = NULL;
       else if (!okname (tuser))
-	exit (1);
+	exit (EXIT_FAILURE);
     }
   else
     {
@@ -422,7 +422,7 @@ toremote (char *targ, int argc, char *argv[])
 		rem = rcmd (&host, port, pwd->pw_name,
 			    tuser ? tuser : pwd->pw_name, bp, 0);
 	      if (rem < 0)
-		exit (1);
+		exit (EXIT_FAILURE);
 #if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
 	      tos = IPTOS_THROUGHPUT;
 	      if (setsockopt (rem, IPPROTO_IP, IP_TOS,
@@ -430,7 +430,7 @@ toremote (char *targ, int argc, char *argv[])
 		error (0, errno, "TOS (ignored)");
 #endif
 	      if (response () < 0)
-		exit (1);
+		exit (EXIT_FAILURE);
 	      free (bp);
 	      setuid (userid);
 	    }
@@ -726,7 +726,7 @@ sink (int argc, char *argv[])
   if (argc != 1)
     {
       run_err ("ambiguous target");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   targ = *argv;
   if (targetshouldbedirectory)
@@ -755,7 +755,7 @@ sink (int argc, char *argv[])
 	  if (iamremote == 0)
 	    write (STDERR_FILENO, buf + 1, strlen (buf + 1));
 	  if (buf[0] == '\02')
-	    exit (1);
+	    exit (EXIT_FAILURE);
 	  ++errs;
 	  continue;
 	}
@@ -801,7 +801,7 @@ sink (int argc, char *argv[])
 	  if (first)
 	    {
 	      run_err ("%s", cp);
-	      exit (1);
+	      exit (EXIT_FAILURE);
 	    }
 	  SCREWUP ("expected control record");
 	}
@@ -906,7 +906,7 @@ sink (int argc, char *argv[])
 	      if (j <= 0)
 		{
 		  run_err ("%s", j ? strerror (errno) : "dropped connection");
-		  exit (1);
+		  exit (EXIT_FAILURE);
 		}
 	      amt -= j;
 	      cp += j;
@@ -988,7 +988,7 @@ sink (int argc, char *argv[])
     }
 screwup:
   run_err ("protocol error: %s", why);
-  exit (1);
+  exit (EXIT_FAILURE);
 }
 
 #ifdef KERBEROS
@@ -1015,7 +1015,7 @@ again:
 	{
 	  use_kerberos = 0;
 	  if ((sp = getservbyname ("shell", "tcp")) == NULL)
-	    error (1, 0, "unknown service shell/tcp");
+	    error (EXIT_FAILURE, 0, "unknown service shell/tcp");
 	  if (errno == ECONNREFUSED)
 	    oldw ("remote host doesn't support Kerberos");
 	  else if (errno == ENOENT)
@@ -1028,7 +1028,7 @@ again:
     {
 # ifdef CRYPT
       if (doencrypt)
-	error (1, 0, "the -x option requires Kerberos authentication");
+	error (EXIT_FAILURE, 0, "the -x option requires Kerberos authentication");
 # endif
       rem = rcmd (host, port, locuser, user, bp, 0);
     }
@@ -1067,7 +1067,7 @@ response ()
       ++errs;
       if (resp == 1)
 	return -1;
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 }
 
@@ -1140,7 +1140,7 @@ verifydir (char *cp)
       errno = ENOTDIR;
     }
   run_err ("%s: %s", cp, strerror (errno));
-  exit (1);
+  exit (EXIT_FAILURE);
 }
 
 int
@@ -1227,5 +1227,5 @@ lostconn (int signo)
 {
   if (!iamremote)
     error (0, 0, "lost connection");
-  exit (1);
+  exit (EXIT_FAILURE);
 }

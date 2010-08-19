@@ -124,7 +124,7 @@ main (int argc, char **argv)
   if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
     error (EXIT_FAILURE, errno, "getpeername");
   doit (sockfd, &from);
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 char username[20] = "USER=";
@@ -194,7 +194,7 @@ doit (int f, struct sockaddr_in *fromp)
     {
       char c;
       if (read (f, &c, 1) != 1)
-	exit (1);
+	exit (EXIT_FAILURE);
       if (c == 0)
 	break;
       port = port * 10 + c - '0';
@@ -204,13 +204,13 @@ doit (int f, struct sockaddr_in *fromp)
     {
       s = socket (AF_INET, SOCK_STREAM, 0);
       if (s < 0)
-	exit (1);
+	exit (EXIT_FAILURE);
       if (bind (s, (struct sockaddr *) &a_sin, sizeof (a_sin)) < 0)
-	exit (1);
+	exit (EXIT_FAILURE);
       alarm (60);
       fromp->sin_port = htons (port);
       if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
-	exit (1);
+	exit (EXIT_FAILURE);
       alarm (0);
     }
 
@@ -280,7 +280,7 @@ doit (int f, struct sockaddr_in *fromp)
 		}
 	    }
 	  while (FD_ISSET (pv[0], &readfrom) || FD_ISSET (s, &readfrom));
-	  exit (0);
+	  exit (EXIT_SUCCESS);
 	}
       setpgid (0, getpid ());
       close (s);

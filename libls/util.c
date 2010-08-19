@@ -77,5 +77,5 @@ void
 usage ()
 {
   fprintf (stderr, "usage: ls [-1ACFLRSTWacdfiklmnopqrstux] [file ...]\n");
-  exit (1);
+  exit (EXIT_FAILURE);
 }

@@ -137,7 +137,7 @@ announce (CTL_MSG * request, char *remote_machine)
   if (!ttypath)
     {
       syslog (LOG_CRIT, "out of memory");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   sprintf (ttypath, "%s/%s", PATH_DEV, request->r_tty);
   rc = stat (ttypath, &st);

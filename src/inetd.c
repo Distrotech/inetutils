@@ -1359,7 +1359,7 @@ echo_stream (int s, struct servtab *sep)
   while ((i = read (s, buffer, sizeof buffer)) > 0
 	 && write (s, buffer, i) > 0)
     ;
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 /* Echo service -- echo data back */
@@ -1397,7 +1397,7 @@ discard_stream (int s, struct servtab *sep)
       if (ret == 0 || errno != EINTR)
 	break;
     }
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 void
@@ -1457,7 +1457,7 @@ chargen_stream (int s, struct servtab *sep)
       if (write (s, text, sizeof text) != sizeof text)
 	break;
     }
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 /* Character generator */
@@ -1669,7 +1669,7 @@ tcpmux (int s, struct servtab *sep)
 	}
     }
   strwrite (s, "-Service not available\r\n");
-  exit (1);
+  exit (EXIT_FAILURE);
 }
 
 /* Set TCP environment variables, modelled after djb's ucspi-tcp tools:

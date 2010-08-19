@@ -1931,7 +1931,7 @@ fatal (msg)
      char *msg;
 {
 
-  error (1, 0, "%s", msg);
+  error (EXIT_FAILURE, 0, "%s", msg);
 }
 
 /*

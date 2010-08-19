@@ -222,20 +222,20 @@ main (int argc, char *argv[])
   if (argc > 0)
     {
       syslog (LOG_ERR, "%d extra arguments", argc);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
 #if defined(KERBEROS) || defined(SHISHI)
   if (use_kerberos && vacuous)
     {
       syslog (LOG_ERR, "only one of -k and -v allowed");
-      exit (2);
+      exit (EXIT_FAILURE);
     }
 # ifdef ENCRYPTION
   if (doencrypt && !use_kerberos)
     {
       syslog (LOG_ERR, "-k is required for -x");
-      exit (2);
+      exit (EXIT_FAILURE);
     }
 # endif
 #endif
@@ -333,7 +333,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
     {
       syslog (LOG_ERR, "malformed \"from\" address (af %d)\n",
 	      fromp->sin_family);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 #ifdef IP_OPTIONS
   {
@@ -365,7 +365,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 			(char *) NULL, optsize) != 0)
 	  {
 	    syslog (LOG_ERR, "setsockopt IP_OPTIONS NULL: %m");
-	    exit (1);
+	    exit (EXIT_FAILURE);
 	  }
       }
   }
@@ -383,7 +383,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	syslog (LOG_NOTICE | LOG_AUTH,
 		"Connection from %s on illegal port %u",
 		inet_ntoa (fromp->sin_addr), fromp->sin_port);
-	exit (1);
+	exit (EXIT_FAILURE);
       }
 
   /* Read the ASCII string specifying the secondary port# from
@@ -401,7 +401,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  if (cc < 0)
 	    syslog (LOG_NOTICE, "read: %m");
 	  shutdown (sockfd, 2);
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
       /* null byte terminates the string */
       if (c == 0)
@@ -425,7 +425,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       if (s < 0)
 	{
 	  syslog (LOG_ERR, "can't get stderr port: %m");
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
 #if defined(KERBEROS) || defined(SHISHI)
       if (!use_kerberos)
@@ -433,7 +433,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	if (port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
 	  {
 	    syslog (LOG_ERR, "2nd port not reserved\n");
-	    exit (1);
+	    exit (EXIT_FAILURE);
 	  }
       /* Use the fromp structure taht we already have.
        * The 32-bit Internet address is obviously that of the
@@ -446,7 +446,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
 	{
 	  syslog (LOG_INFO, "connect second port %d: %m", port);
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
     }
 
@@ -454,7 +454,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   if (vacuous)
     {
       rshd_error ("rshd: remote host requires Kerberos authentication\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 #endif
 
@@ -546,7 +546,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	    {
 	      syslog (LOG_ERR, "getsockname: %m");
 	      rshd_error ("rlogind: getsockname: %s", strerror (errno));
-	      exit (1);
+	      exit (EXIT_FAILURE);
 	    }
 	  authopts = KOPT_DO_MUTUAL;
 	  rc = krb_recvauth (authopts, 0, ticket,
@@ -564,7 +564,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	{
 	  rshd_error ("Kerberos authentication failure: %s\n",
 		      krb_err_txt[rc]);
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
     }
   else
@@ -580,7 +580,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	{
 	  rshd_error ("Kerberos authentication failure: %s\n",
 		      err_msg ? err_msg : shishi_strerror (rc));
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
     }
   else
@@ -665,7 +665,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
     remuser = getstr ("remuser");
     rc = read (STDIN_FILENO, &error, sizeof (int));
     if ((rc != sizeof (int)) && rc)
-      exit (1);
+      exit (EXIT_FAILURE);
 
     /* verify checksum */
 
@@ -673,7 +673,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
        if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
        {
        syslog (LOG_ERR, "Can't get sock name");
-       exit (1);
+       exit (EXIT_FAILURE);
        }
      */
     snprintf (cksumdata, 100, "544:%s%s", /*ntohs(sock.sin_port), */ cmdbuf,
@@ -690,7 +690,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	/* *err_msg = "checksum verify failed"; */
 	syslog (LOG_ERR, "checksum verify failed: %s", shishi_error (h));
 	free (compcksum);
-	exit (1);
+	exit (EXIT_FAILURE);
       }
 
     rc = shishi_authorized_p (h, shishi_ap_tkt (ap), locuser);
@@ -698,7 +698,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       {
 	syslog (LOG_ERR, "User is not authorized to log in as: %s", locuser);
 	shishi_ap_done (ap);
-	exit (1);
+	exit (EXIT_FAILURE);
       }
 
     free (compcksum);
@@ -732,7 +732,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      syslog (LOG_INFO | LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
 		      kdata->pname, kdata->pinst, kdata->prealm);
 	      rshd_error ("Permission denied.\n");
-	      exit (1);
+	      exit (EXIT_FAILURE);
 	    }
 	}
     }
@@ -747,7 +747,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 				   syslog (LOG_INFO|LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
 				   kdata->pname, kdata->pinst, kdata->prealm);
 				   rshd_error ("Permission denied.\n");
-				   exit (1);
+				   exit (EXIT_FAILURE);
 				   }
 				   } */
     }
@@ -769,14 +769,14 @@ doit (int sockfd, struct sockaddr_in *fromp)
       if (errorstr == NULL)
 	errorstr = "Permission denied.\n";
       rshd_error (errorstr, errorhost);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   /* If the locuser isn't root, then check if logins are disabled. */
   if (pwd->pw_uid && !access (PATH_NOLOGIN, F_OK))
     {
       rshd_error ("Logins currently disabled.\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   /* Now write the null byte back to the client telling it
@@ -789,7 +789,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   if (write (STDERR_FILENO, "\0", 1) < 0)
     {
       rshd_error ("Lost connection.\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   sent_null = 1;
 
@@ -804,7 +804,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       if (pipe (pv) < 0)
 	{
 	  rshd_error ("Can't make pipe.\n");
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
 #ifdef ENCRYPTION
 # if defined(KERBEROS) || defined(SHISHI)
@@ -813,12 +813,12 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  if (pipe (pv1) < 0)
 	    {
 	      rshd_error ("Can't make 2nd pipe.\n");
-	      exit (1);
+	      exit (EXIT_FAILURE);
 	    }
 	  if (pipe (pv2) < 0)
 	    {
 	      rshd_error ("Can't make 3rd pipe.\n");
-	      exit (1);
+	      exit (EXIT_FAILURE);
 	    }
 	}
 # endif
@@ -827,7 +827,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       if (pid == -1)
 	{
 	  rshd_error ("Can't fork; try again.\n");
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
       if (pid)
 	{
@@ -1007,7 +1007,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	   * terminates.  The socket will terninate whe the
 	   * client process terminates.
 	   */
-	  exit (0);
+	  exit (EXIT_SUCCESS);
 	}
 
       /* Child process. Become a process group leader, so that
@@ -1119,7 +1119,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   else
 #endif
     execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
-  error (1, errno, "cannot execute %s", pwd->pw_shell);
+  error (EXIT_FAILURE, errno, "cannot execute %s", pwd->pw_shell);
 }
 
 /*
@@ -1157,7 +1157,7 @@ getstr (const char *err)
   if (!buf)
     {
       rshd_error ("Out of space reading %s\n", err);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   do
@@ -1170,7 +1170,7 @@ getstr (const char *err)
 	    rshd_error ("EOF reading %s\n", err);
 	  else
 	    perror (err);
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
 
       end += rd;
@@ -1183,7 +1183,7 @@ getstr (const char *err)
 	  if (!buf)
 	    {
 	      rshd_error ("Out of space reading %s\n", err);
-	      exit (1);
+	      exit (EXIT_FAILURE);
 	    }
 	  end = buf + end_offs;
 	}

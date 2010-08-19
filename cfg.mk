@@ -27,7 +27,6 @@ local-checks-to-skip = \
 	sc_m4_quote_check \
 	sc_program_name \
 	sc_prohibit_atoi_atof \
-	sc_prohibit_magic_number_exit \
 	sc_prohibit_stat_st_blocks \
 	sc_prohibit_strcmp \
 	sc_unmarked_diagnostics \

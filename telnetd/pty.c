@@ -49,7 +49,7 @@ startslave (char *host, int autologin, char *autoname)
   if (autologin < auth_level)
     {
       fatal (net, "Authorization failed");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 #endif
   pid = forkpty (&master, line, NULL, NULL);
@@ -149,5 +149,5 @@ cleanup (int sig)
   chmod (line, 0644);
   chown (line, 0, 0);
   shutdown (net, 2);
-  exit (1);
+  exit (EXIT_FAILURE);
 }

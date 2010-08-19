@@ -351,7 +351,7 @@ main (int argc, char *argv[])
       char *args[8], **argp = args;
 
       if (argc > 2)
-	error (1, 0, "too many arguments");
+	error (EXIT_FAILURE, 0, "too many arguments");
       *argp++ = prompt;
       if (user)
 	{

@@ -239,7 +239,7 @@ main (int argc, char **argv)
 
   /* To few args.  */
   if (!host)
-    error (1, 0, "host not specified");
+    error (EXIT_FAILURE, 0, "host not specified");
 
   /* If no further arguments, must have been called as rlogin. */
   if (!argv[index])
@@ -249,7 +249,7 @@ main (int argc, char **argv)
       seteuid (getuid ());
       setuid (getuid ());
       execv (PATH_RLOGIN, argv);
-      error (1, errno, "cannot execute %s", PATH_RLOGIN);
+      error (EXIT_FAILURE, errno, "cannot execute %s", PATH_RLOGIN);
     }
 
   argc -= index;
@@ -257,10 +257,10 @@ main (int argc, char **argv)
 
   /* We must be setuid root.  */
   if (geteuid ())
-    error (1, 0, "must be setuid root.\n");
+    error (EXIT_FAILURE, 0, "must be setuid root.\n");
 
   if (!(pw = getpwuid (uid = getuid ())))
-    error (1, 0, "unknown user id");
+    error (EXIT_FAILURE, 0, "unknown user id");
 
   /* Accept user1@host format, though "-l user2" overrides user1 */
   {
@@ -272,7 +272,7 @@ main (int argc, char **argv)
 	  user = host;
 	host = p + 1;
 	if (*host == '\0')
-	  error (1, 0, "empty host name");
+	  error (EXIT_FAILURE, 0, "empty host name");
       }
   }
 
@@ -312,7 +312,7 @@ main (int argc, char **argv)
   if (sp == NULL)
     sp = getservbyname ("shell", "tcp");
   if (sp == NULL)
-    error (1, 0, "shell/tcp: unknown service");
+    error (EXIT_FAILURE, 0, "shell/tcp: unknown service");
 
 
 #if defined (KERBEROS) || defined(SHISHI)
@@ -324,7 +324,7 @@ try_connect:
       /* fully qualify hostname (needed for krb_realmofhost) */
       hp = gethostbyname (host);
       if (hp != NULL && !(host = strdup (hp->h_name)))
-	error (1, errno, "strdup");
+	error (EXIT_FAILURE, errno, "strdup");
 
 # if defined (KERBEROS)
       rem = KSUCCESS;
@@ -420,7 +420,7 @@ try_connect:
 	  use_kerberos = 0;
 	  sp = getservbyname ("shell", "tcp");
 	  if (sp == NULL)
-	    error (1, 0, "shell/tcp: unknown service");
+	    error (EXIT_FAILURE, 0, "shell/tcp: unknown service");
 	  if (errno == ECONNREFUSED)
 	    warning ("remote host doesn't support Kerberos");
 	  if (errno == ENOENT)
@@ -433,7 +433,7 @@ try_connect:
       if (!user)
 	user = pw->pw_name;
       if (doencrypt)
-	error (1, 0, "the -x flag requires Kerberos authentication");
+	error (EXIT_FAILURE, 0, "the -x flag requires Kerberos authentication");
       rem = rcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
     }
 #else
@@ -443,10 +443,10 @@ try_connect:
 #endif
 
   if (rem < 0)
-    exit (1);
+    exit (EXIT_FAILURE);
 
   if (rfd2 < 0)
-    error (1, 0, "can't establish stderr");
+    error (EXIT_FAILURE, 0, "can't establish stderr");
 
   if (debug_option)
     {
@@ -482,7 +482,7 @@ try_connect:
     {
       pid = fork ();
       if (pid < 0)
-	error (1, errno, "fork");
+	error (EXIT_FAILURE, errno, "fork");
     }
 
 #if defined(KERBEROS) || defined(SHISHI)
@@ -546,7 +546,7 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
       if (select (rem + 1, 0, &rembits, 0, 0) < 0)
 	{
 	  if (errno != EINTR)
-	    error (1, errno, "select");
+	    error (EXIT_FAILURE, errno, "select");
 	  goto rewrite;
 	}
       if (!FD_ISSET (rem, &rembits))
@@ -576,7 +576,7 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
       goto rewrite;
     done:
       shutdown (rem, 1);
-      exit (0);
+      exit (EXIT_SUCCESS);
     }
 
 #ifdef HAVE_SIGACTION
@@ -596,7 +596,7 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
       if (select (maxfd + 1, &ready, 0, 0, 0) < 0)
 	{
 	  if (errno != EINTR)
-	    error (1, errno, "select");
+	    error (EXIT_FAILURE, errno, "select");
 	  continue;
 	}
       if (FD_ISSET (rfd2, &ready))
@@ -699,7 +699,7 @@ copyargs (char **argv)
   for (ap = argv; *ap; ++ap)
     cc += strlen (*ap) + 1;
   if (!(args = malloc ((u_int) cc)))
-    error (1, errno, "copyargs");
+    error (EXIT_FAILURE, errno, "copyargs");
   for (p = args, ap = argv; *ap; ++ap)
     {
       strcpy (p, *ap);

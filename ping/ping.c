@@ -248,7 +248,7 @@ main (int argc, char **argv)
   ping = ping_init (ICMP_ECHO, getpid ());
   if (ping == NULL)
     /* ping_init() prints our error message.  */
-    exit (1);
+    exit (EXIT_FAILURE);
 
   ping_set_sockopt (ping, SO_BROADCAST, (char *) &one, sizeof (one));
 

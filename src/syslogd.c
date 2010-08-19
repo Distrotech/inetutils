@@ -450,7 +450,7 @@ main (int argc, char *argv[])
       signal (SIGTERM, doexit);
       ppid = waitdaemon (0, 0, 30);
       if (ppid < 0)
-        error (1, errno, "could not become daemon");
+        error (EXIT_FAILURE, errno, "could not become daemon");
     }
   else
     {
@@ -461,7 +461,7 @@ main (int argc, char *argv[])
   /* Get our hostname.  */
   LocalHostName = localhost ();
   if (LocalHostName == NULL)
-    error (2, errno, "can't get local host name");
+    error (EXIT_FAILURE, errno, "can't get local host name");
 
   /* Get the domainname.  */
   p = strchr (LocalHostName, '.');
@@ -505,7 +505,7 @@ main (int argc, char *argv[])
   /* We add  2 = 1(klog) + 1(inet), even if they may be not use.  */
   fdarray = (struct pollfd *) malloc ((nfunix + 2) * sizeof (*fdarray));
   if (fdarray == NULL)
-    error (2, errno, "can't allocate fd table");
+    error (EXIT_FAILURE, errno, "can't allocate fd table");
 
   /* read configuration file */
   init (0);
@@ -747,7 +747,7 @@ add_funix (const char *name)
 {
   funix = realloc (funix, (nfunix + 1) * sizeof (*funix));
   if (funix == NULL)
-    error (1, errno, "cannot allocate space for unix sockets");
+    error (EXIT_FAILURE, errno, "cannot allocate space for unix sockets");
 
   funix[nfunix].name = name;
   funix[nfunix].fd = -1;
@@ -841,7 +841,7 @@ crunch_list (char **oldlist, char *list)
   /* allocate enough space */
   oldlist = (char **) realloc (oldlist, (i + count + 1) * sizeof (*oldlist));
   if (oldlist == NULL)
-    error (1, errno, "can't allocate memory");
+    error (EXIT_FAILURE, errno, "can't allocate memory");
 
   /*
      We now can assume that the first and last
@@ -854,7 +854,7 @@ crunch_list (char **oldlist, char *list)
     {
       oldlist[count] = (char *) malloc ((q - p + 1) * sizeof (char));
       if (oldlist[count] == NULL)
-        error (1, errno, "can't allocate memory");
+        error (EXIT_FAILURE, errno, "can't allocate memory");
 
       strncpy (oldlist[count], p, q - p);
       oldlist[count][q - p] = '\0';
@@ -863,7 +863,7 @@ crunch_list (char **oldlist, char *list)
   /* take the last one */
   oldlist[count] = (char *) malloc ((strlen (p) + 1) * sizeof (char));
   if (oldlist[count] == NULL)
-    error (1, errno, "can't allocate memory");
+    error (EXIT_FAILURE, errno, "can't allocate memory");
 
   strcpy (oldlist[count], p);
 
@@ -1536,7 +1536,7 @@ die (int signo)
   if (finet >= 0)
     close (finet);
 
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 /* INIT -- Initialize syslogd from configuration table.  */

@@ -154,7 +154,7 @@ insert_table (CTL_MSG * request, CTL_RESPONSE * response)
   if (!ptr)
     {
       syslog (LOG_CRIT, "out of memory");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   request->id_num = new_id ();

@@ -187,7 +187,7 @@ main (int argc, char **argv)
   ping = ping_init (0, getpid ());
   if (ping == NULL)
     /* ping_init() prints our error message.  */
-    exit (1);
+    exit (EXIT_FAILURE);
 
   setsockopt (ping->ping_fd, SOL_SOCKET, SO_BROADCAST, (char *) &one, sizeof (one));
 

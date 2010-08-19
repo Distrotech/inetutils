@@ -347,11 +347,11 @@ main (int argc, char *argv[])
 
   /* We must be uid root to access rcmd().  */
   if (geteuid ())
-    error (1, 0, "must be setuid root.\n");
+    error (EXIT_FAILURE, 0, "must be setuid root.\n");
 
   /* Get the name of the user invoking us: the client-user-name.  */
   if (!(pw = getpwuid (uid = getuid ())))
-    error (1, 0, "unknown user id.");
+    error (EXIT_FAILURE, 0, "unknown user id.");
 
   /* Accept user1@host format, though "-l user2" overrides user1 */
   {
@@ -385,7 +385,7 @@ main (int argc, char *argv[])
   if (sp == NULL)
     sp = getservbyname ("login", "tcp");
   if (sp == NULL)
-    error (1, 0, "login/tcp: unknown service.");
+    error (EXIT_FAILURE, 0, "login/tcp: unknown service.");
 
   /* Get the name of the terminal from the environment.  Also get the
      terminal's spee.  Both the name and the spee are passed to the server
@@ -434,7 +434,7 @@ try_connect:
       /* Fully qualify hostname (needed for krb_realmofhost).  */
       hp = gethostbyname (host);
       if (hp != NULL && !(host = strdup (hp->h_name)))
-	error (1, errno, "strdup");
+	error (EXIT_FAILURE, errno, "strdup");
 
 # if defined (KERBEROS)
       rem = KSUCCESS;
@@ -522,7 +522,7 @@ try_connect:
 	  use_kerberos = 0;
 	  sp = getservbyname ("login", "tcp");
 	  if (sp == NULL)
-	    error (1, 0, "unknown service login/tcp.");
+	    error (EXIT_FAILURE, 0, "unknown service login/tcp.");
 	  if (errno == ECONNREFUSED)
 	    warning ("remote host doesn't support Kerberos");
 	  if (errno == ENOENT)
@@ -535,7 +535,7 @@ try_connect:
     {
 # ifdef ENCRYPTION
       if (doencrypt)
-	error (1, 0, "the -x flag requires Kerberos authentication.");
+	error (EXIT_FAILURE, 0, "the -x flag requires Kerberos authentication.");
 # endif	/* CRYPT */
       if (!user)
 	user = pw->pw_name;
@@ -551,7 +551,7 @@ try_connect:
 #endif /* KERBEROS */
 
   if (rem < 0)
-    exit (1);
+    exit (EXIT_FAILURE);
 
   {
     int one = 1;

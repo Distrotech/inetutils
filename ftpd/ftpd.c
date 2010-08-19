@@ -426,7 +426,7 @@ main (int argc, char *argv[], char **envp)
   /* Bail out, wrong usage */
   argc -= index;
   if (argc != 0)
-    error (1, 0, "surplus arguments; try `%s --help' for more info",
+    error (EXIT_FAILURE, 0, "surplus arguments; try `%s --help' for more info",
 	   program_name);
 
   /* LOG_NDELAY sets up the logging connection immediately,
@@ -439,7 +439,7 @@ main (int argc, char *argv[], char **envp)
   if (daemon_mode)
     {
       if (server_mode (pid_file, &his_addr) < 0)
-	exit (1);
+	exit (EXIT_FAILURE);
     }
   else
     {
@@ -448,7 +448,7 @@ main (int argc, char *argv[], char **envp)
 		       &addrlen) < 0)
 	{
 	  syslog (LOG_ERR, "getpeername (%s): %m", program_name);
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
     }
 
@@ -468,7 +468,7 @@ main (int argc, char *argv[], char **envp)
 		     &addrlen) < 0)
       {
 	syslog (LOG_ERR, "getsockname (%s): %m", program_name);
-	exit (1);
+	exit (EXIT_FAILURE);
       }
   }
 
@@ -513,7 +513,7 @@ main (int argc, char *argv[], char **envp)
   if (display_file (PATH_NOLOGIN, 530) == 0)
     {
       reply (530, "System not available.");
-      exit (0);
+      exit (EXIT_SUCCESS);
     }
 
   /* Display a Welcome message if exists,
@@ -819,7 +819,7 @@ pass (const char *passwd)
 	    {
 	      syslog (LOG_NOTICE, "repeated login failures from %s",
 		      cred.remotehost);
-	      exit (0);
+	      exit (EXIT_SUCCESS);
 	    }
 	  return;
 	}

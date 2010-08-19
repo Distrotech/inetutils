@@ -377,7 +377,7 @@ main (int argc, char *argv[])
   if (argc > 0)
     {
       syslog (LOG_ERR, "%d extra arguments", argc);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   signal (SIGHUP, SIG_IGN);
@@ -389,7 +389,7 @@ main (int argc, char *argv[])
       if (!p)
 	{
 	  syslog (LOG_ERR, "can't determine local hostname");
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
       local_dot_count = 2;
       local_domain_name = topdomain (p, local_dot_count);
@@ -448,7 +448,7 @@ rlogin_daemon (int maxchildren, int port)
   if (listenfd == -1)
     {
       syslog (LOG_ERR, "socket: %s", strerror (errno));
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   {
@@ -467,13 +467,13 @@ rlogin_daemon (int maxchildren, int port)
   if (bind (listenfd, (struct sockaddr *) &saddr, size) == -1)
     {
       syslog (LOG_ERR, "bind: %s", strerror (errno));
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   if (listen (listenfd, 128) == -1)
     {
       syslog (LOG_ERR, "listen: %s", strerror (errno));
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   while (1)
@@ -493,7 +493,7 @@ rlogin_daemon (int maxchildren, int port)
 	  if (errno == EINTR)
 	    continue;
 	  syslog (LOG_ERR, "accept: %s", strerror (errno));
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
 
       pid = fork ();
@@ -531,7 +531,7 @@ rlogind_auth (int fd, struct auth_data *ap)
   else if (reverse_required)
     {
       syslog (LOG_CRIT, "can't resolve remote IP address");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   else
     hostname = inet_ntoa (ap->from.sin_addr);
@@ -604,7 +604,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 	    if (setsockopt (0, ipproto, IP_OPTIONS, (char *) NULL, optsize))
 	      {
 		syslog (LOG_ERR, "setsockopt IP_OPTIONS NULL: %m");
-		exit (1);
+		exit (EXIT_FAILURE);
 	      }
 	  }
       }
@@ -742,7 +742,7 @@ rlogind_mainloop (int infd, int outfd)
   if (read (infd, &c, 1) != 1 || c != 0)
     {
       syslog (LOG_CRIT, "protocol error: expected 0 byte");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   alarm (0);
@@ -1219,7 +1219,7 @@ getstr (int infd, char **ptr, const char *prefix)
   if (!buf)
     {
       syslog (LOG_ERR, "not enough memory");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   pos = 0;
@@ -1234,7 +1234,7 @@ getstr (int infd, char **ptr, const char *prefix)
       if (read (infd, &c, 1) != 1)
 	{
 	  syslog (LOG_ERR, "read error: %m");
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
       if (pos == size)
 	{
@@ -1243,7 +1243,7 @@ getstr (int infd, char **ptr, const char *prefix)
 	  if (!buf)
 	    {
 	      syslog (LOG_ERR, "not enough memory");
-	      exit (1);
+	      exit (EXIT_FAILURE);
 	    }
 	}
       buf[pos++] = c;
@@ -1495,7 +1495,7 @@ cleanup (int signo ARG_UNUSED)
   chown (line, 0, 0);
 #endif
   shutdown (netf, 2);
-  exit (1);
+  exit (EXIT_FAILURE);
 }
 
 int
@@ -1539,5 +1539,5 @@ fatal (int f, const char *msg, int syserr)
     snprintf (bp, sizeof buf - (bp - buf), "rlogind: %s.\r\n", msg);
   len = strlen (bp);
   write (f, buf, bp + len - buf);
-  exit (1);
+  exit (EXIT_FAILURE);
 }

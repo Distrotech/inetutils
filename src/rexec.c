@@ -163,7 +163,7 @@ main (int argc, char **argv)
 
   do_rexec (&arguments);
 
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 static void

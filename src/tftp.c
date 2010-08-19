@@ -233,27 +233,27 @@ main (int argc, char *argv[])
   if (sp == 0)
     {
       fprintf (stderr, "tftp: udp/tftp: unknown service\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   f = socket (AF_INET, SOCK_DGRAM, 0);
   if (f < 0)
     {
       perror ("tftp: socket");
-      exit (3);
+      exit (EXIT_FAILURE);
     }
   memset (&sin, 0, sizeof (sin));
   sin.sin_family = AF_INET;
   if (bind (f, (struct sockaddr *) &sin, sizeof (sin)) < 0)
     {
       perror ("tftp: bind");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   strcpy (mode, "netascii");
   signal (SIGINT, intr);
   if (hostport_argc > 1)
     {
       if (setjmp (toplevel) != 0)
-	exit (0);
+	exit (EXIT_SUCCESS);
       setpeer (hostport_argc, hostport_argv);
     }
   if (setjmp (toplevel) != 0)
@@ -693,7 +693,7 @@ command ()
       if (fgets (line, sizeof line, stdin) == 0)
 	{
 	  if (feof (stdin))
-	    exit (0);
+	    exit (EXIT_SUCCESS);
 	  else
 	    continue;
 	}
@@ -780,7 +780,7 @@ makeargv ()
 void
 quit (int argc, char *argv[])
 {
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 /*

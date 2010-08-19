@@ -211,7 +211,7 @@ main (int argc, char *argv[])
   argv += index;
 
   if (argc == 0 && !nopar)	/* there is no parameter */
-    error (1, 0, "not enough arguments");
+    error (EXIT_FAILURE, 0, "not enough arguments");
 
   /* parse other parameters, if any */
   if (!nopar)
@@ -235,7 +235,7 @@ main (int argc, char *argv[])
       server = query_crsnic (sockfd, qstring);
       closeconn (sockfd);
       if (!server)
-	exit (0);
+	exit (EXIT_SUCCESS);
       printf (_("\nFound InterNIC referral to %s.\n\n"), server);
     }
 
@@ -255,10 +255,10 @@ main (int argc, char *argv[])
 		  "whois database at"));
 	case 2:
 	  puts (server + 1);
-	  exit (0);
+	  exit (EXIT_SUCCESS);
 	case 3:
 	  puts (_("This TLD has no whois server."));
-	  exit (0);
+	  exit (EXIT_SUCCESS);
 	default:
 	  if (verb)
 	    printf (_("Using server %s.\n"), server);
@@ -280,7 +280,7 @@ main (int argc, char *argv[])
   do_query (sockfd, p);
   closeconn (sockfd);
 
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 const char *
@@ -650,7 +650,7 @@ err_sys (const char *fmt, ...)
   vfprintf (stderr, fmt, ap);
   fprintf (stderr, ": %s\n", strerror (errno));
   va_end (ap);
-  exit (2);
+  exit (EXIT_FAILURE);
 }
 
 void
@@ -662,5 +662,5 @@ err_quit (const char *fmt, ...)
   vfprintf (stderr, fmt, ap);
   fputs ("\n", stderr);
   va_end (ap);
-  exit (2);
+  exit (EXIT_FAILURE);
 }

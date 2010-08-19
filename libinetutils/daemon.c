@@ -51,6 +51,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <error.h>
+#include <stdlib.h>
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -110,7 +111,7 @@ waitdaemon_timeout (int signo)
   left = alarm (0);
   signal (SIGALRM, SIG_DFL);
   if (left == 0)
-    error (1, 0, "timed out waiting for child");
+    error (EXIT_FAILURE, 0, "timed out waiting for child");
 }
 
 /* waitdaemon is like daemon, but optionally the parent pause up

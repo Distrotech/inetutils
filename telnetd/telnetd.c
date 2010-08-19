@@ -179,7 +179,7 @@ main (int argc, char **argv)
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (argc != index)
-    error (1, 0, "junk arguments in the command line");
+    error (EXIT_FAILURE, 0, "junk arguments in the command line");
 
   openlog ("telnetd", LOG_PID | LOG_ODELAY, LOG_DAEMON);
   telnetd_setup (0);
@@ -296,7 +296,7 @@ telnetd_setup (int fd)
   if (getpeername (fd, (struct sockaddr *) &saddr, &len) < 0)
     {
       syslog (LOG_ERR, "getpeername: %m");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
 #ifdef IPV6
@@ -362,7 +362,7 @@ telnetd_setup (int fd)
 	{
 	  syslog (LOG_AUTH | LOG_NOTICE,
 		  "None of addresses of %s matched %s", remote_hostname, buf);
-	  exit (0);
+	  exit (EXIT_SUCCESS);
 	}
 
       freeaddrinfo (result);
@@ -409,7 +409,7 @@ telnetd_setup (int fd)
 	  syslog (LOG_AUTH | LOG_NOTICE,
 		  "None of addresses of %s matched %s",
 		  remote_hostname, inet_ntoa (saddr.sin_addr));
-	  exit (0);
+	  exit (EXIT_SUCCESS);
 	}
     }
   else

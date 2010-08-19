@@ -113,7 +113,7 @@ talkd_init ()
   if (!hostname)
     {
       syslog (LOG_ERR, "can't determine my hostname: %m");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 }
 
@@ -123,7 +123,7 @@ static void
 alarm_handler (int err ARG_UNUSED)
 {
   if ((time (NULL) - last_msg_time) >= max_idle_time)
-    exit (0);
+    exit (EXIT_SUCCESS);
   alarm (timeout);
 }
 

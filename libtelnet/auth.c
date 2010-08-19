@@ -537,7 +537,7 @@ auth_send (unsigned char *data, int cnt)
    *  Therefore, exit on client end.
    */
   printf ("Unable to securely authenticate user ... exit\n");
-  exit (0);
+  exit (EXIT_SUCCESS);
 # endif	/* KANNAN */
 }
 

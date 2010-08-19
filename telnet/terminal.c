@@ -109,11 +109,11 @@ init_terminal ()
 {
   if (ring_init (&ttyoring, ttyobuf, sizeof ttyobuf) != 1)
     {
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   if (ring_init (&ttyiring, ttyibuf, sizeof ttyibuf) != 1)
     {
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   autoflush = TerminalAutoFlush ();
 }

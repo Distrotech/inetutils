@@ -200,14 +200,14 @@ main (int argc, char *argv[])
   if (ioctl (0, FIONBIO, &on) < 0)
     {
       syslog (LOG_ERR, "ioctl(FIONBIO): %m\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   fromlen = sizeof (from);
   n = recvfrom (0, buf, sizeof (buf), 0, (struct sockaddr *) &from, &fromlen);
   if (n < 0)
     {
       syslog (LOG_ERR, "recvfrom: %m\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   /*
    * Now that we have read the message out of the UDP
@@ -261,11 +261,11 @@ main (int argc, char *argv[])
     if (pid < 0)
       {
 	syslog (LOG_ERR, "fork: %m\n");
-	exit (1);
+	exit (EXIT_FAILURE);
       }
     else if (pid != 0)
       {
-	exit (0);
+	exit (EXIT_SUCCESS);
       }
   }
   from.sin_family = AF_INET;
@@ -276,25 +276,25 @@ main (int argc, char *argv[])
   if (peer < 0)
     {
       syslog (LOG_ERR, "socket: %m\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   memset (&sin, 0, sizeof (sin));
   sin.sin_family = AF_INET;
   if (bind (peer, (struct sockaddr *) &sin, sizeof (sin)) < 0)
     {
       syslog (LOG_ERR, "bind: %m\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   if (connect (peer, (struct sockaddr *) &from, sizeof (from)) < 0)
     {
       syslog (LOG_ERR, "connect: %m\n");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   tp = (struct tftphdr *) buf;
   tp->th_opcode = ntohs (tp->th_opcode);
   if (tp->th_opcode == RRQ || tp->th_opcode == WRQ)
     tftp (tp, n);
-  exit (1);
+  exit (EXIT_FAILURE);
 }
 
 struct formats;
@@ -338,7 +338,7 @@ again:
   if (*cp != '\0')
     {
       nak (EBADOP);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   if (first)
     {
@@ -355,7 +355,7 @@ again:
   if (pf->f_mode == 0)
     {
       nak (EBADOP);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   ecode = (*pf->f_validate) (&filename, tp->th_opcode);
   if (logging)
@@ -372,15 +372,15 @@ again:
        * bootfile pathname from a diskless Sun.
        */
       if (suppress_naks && *filename != '/' && ecode == ENOTFOUND)
-	exit (0);
+	exit (EXIT_SUCCESS);
       nak (ecode);
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   if (tp->th_opcode == WRQ)
     (*pf->f_recv) (pf);
   else
     (*pf->f_send) (pf);
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 
@@ -505,7 +505,7 @@ timer (int sig)
 
   timeout += rexmtval;
   if (timeout >= maxtimeout)
-    exit (1);
+    exit (EXIT_FAILURE);
   siglongjmp (timeoutbuf, 1);
 }
 
@@ -581,7 +581,7 @@ abort:
 void
 justquit (int sig)
 {
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 

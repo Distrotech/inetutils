@@ -371,5 +371,5 @@ main (int argc, char *argv[])
 	send_to_syslog (buf);
     }
   free (buf);
-  exit (0);
+  exit (EXIT_SUCCESS);
 }

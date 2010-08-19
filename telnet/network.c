@@ -77,11 +77,11 @@ init_network ()
 {
   if (ring_init (&netoring, netobuf, sizeof netobuf) != 1)
     {
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   if (ring_init (&netiring, netibuf, sizeof netibuf) != 1)
     {
-      exit (1);
+      exit (EXIT_FAILURE);
     }
   NetTrace = stdout;
 }

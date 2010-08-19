@@ -449,7 +449,7 @@ telrcv ()
 	default:
 	  syslog (LOG_ERR, "telnetd: panic state=%d\n", state);
 	  printf ("telnetd: panic state=%d\n", state);
-	  exit (1);
+	  exit (EXIT_FAILURE);
 	}
     }
 }				/* end of telrcv */

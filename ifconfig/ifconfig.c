@@ -58,7 +58,7 @@ main (int argc, char *argv[])
   if (sfd < 0)
     {
       error (0, errno, "socket error");
-      exit (1);
+      exit (EXIT_FAILURE);
     }
 
   for (ifp = ifs; ifp < ifs + nifs; ifp++)

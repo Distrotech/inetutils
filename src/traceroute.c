@@ -204,14 +204,14 @@ main (int argc, char **argv)
   while (!stop)
     {
       if (hop > opt_max_hops)
-	exit (0);
+	exit (EXIT_SUCCESS);
       do_try (&trace, hop, opt_max_hops, opt_max_tries);
       trace_inc_ttl (&trace);
       trace_inc_port (&trace);
       hop++;
     }
 
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 void
