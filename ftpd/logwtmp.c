@@ -59,7 +59,7 @@
 #include <string.h>
 #include "extern.h"
 
-#if !defined (_PATH_WTMP) && defined (WTMP_FILE)
+#if !defined _PATH_WTMP && defined WTMP_FILE
 # define _PATH_WTMP WTMP_FILE
 #endif
 
@@ -95,7 +95,7 @@ logwtmp (const char *line, const char *name, const char *host)
   time (&ut.ut_time);
 #endif
 
-#if defined (HAVE_UTMPNAME) && defined (HAVE_SETUTENT_R)
+#if defined HAVE_UTMPNAME && defined HAVE_SETUTENT_R
   /* XXX I think frobbing the details of DATA is GNU libc specific.  */
   {
     static struct utmp_data data = { -1 };

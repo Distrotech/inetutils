@@ -49,7 +49,7 @@
 
 #include <config.h>
 
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
+#if defined AUTHENTICATION || defined ENCRYPTION
 # include <unistd.h>
 # include <sys/types.h>
 # include <arpa/telnet.h>

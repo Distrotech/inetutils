@@ -77,7 +77,7 @@ int lmodetype;			/* Client support for linemode */
 int flowmode;			/* current flow control state */
 int restartany;			/* restart output on any character state */
 int diagnostic;			/* telnet diagnostic capabilities */
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 int auth_level;
 int autologin;
 #endif
@@ -436,7 +436,7 @@ telnetd_setup (int fd)
   net = fd;
 
   local_hostname = localhost ();
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
+#if defined AUTHENTICATION || defined ENCRYPTION
   auth_encrypt_init (remote_hostname, local_hostname, "TELNETD", 1);
 #endif
 
@@ -457,7 +457,7 @@ telnetd_setup (int fd)
   ioctl (pty, FIONBIO, (char *) &true);
   ioctl (net, FIONBIO, (char *) &true);
 
-#if defined(SO_OOBINLINE)
+#if defined SO_OOBINLINE
   setsockopt (net, SOL_SOCKET, SO_OOBINLINE, (char *) &true, sizeof true);
 #endif
 
@@ -602,7 +602,7 @@ telnetd_run ()
 	  if (pty_read () < 0)
 	    break;
 	  c = pty_get_char (1);
-#if defined(TIOCPKT_IOCTL)
+#if defined TIOCPKT_IOCTL
 	  if (c & TIOCPKT_IOCTL)
 	    {
 	      pty_get_char (0);

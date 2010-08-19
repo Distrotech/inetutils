@@ -98,7 +98,7 @@
 #define AUTH_KERBEROS_SHISHI 1
 #define AUTH_KERBEROS_4 4
 #define AUTH_KERBEROS_5 5
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # ifdef	KRB4
 #  define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
 #  include <kerberosIV/des.h>
@@ -159,7 +159,7 @@ int allow_root = 0;
 int verify_hostname = 0;
 int keepalive = 1;
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 int kerberos = 0;
 
 # ifdef ENCRYPTION
@@ -210,7 +210,7 @@ rlogind_sigchld (int sig)
   signal (sig, rlogind_sigchld);
 }
 
-#if defined(KERBEROS) && defined (ENCRYPTION)
+#if defined KERBEROS && defined ENCRYPTION
 # define ENCRYPT_IO encrypt_io
 # define IF_ENCRYPT(stmt) if (encrypt_io) stmt
 # define IF_NOT_ENCRYPT(stmt) if (!encrypt_io) stmt
@@ -267,11 +267,11 @@ static struct argp_option options[] = {
     "do not set SO_KEEPALIVE" },
   { "local-domain", 'L', "NAME", 0,
     "set local domain name" },
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
   { "kerberos", 'k', NULL, 0,
     "use kerberos IV/V authentication" },
 #endif
-#if defined(ENCRYPTION)
+#if defined ENCRYPTION
   { "encrypt", 'x', NULL, 0,
     "use DES encryption" },
 #endif
@@ -318,7 +318,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       keepalive = 0;
       break;
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
     case 'k':
       if (arg)
 	{
@@ -557,7 +557,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 	}
     }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
   if (kerberos)
     {
       const char *err_msg;
@@ -730,7 +730,7 @@ rlogind_mainloop (int infd, int outfd)
       && setsockopt (infd, SOL_SOCKET, SO_KEEPALIVE, &true, sizeof true) < 0)
     syslog (LOG_WARNING, "setsockopt (SO_KEEPALIVE): %m");
 
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_LOWDELAY
   true = IPTOS_LOWDELAY;
   if (setsockopt (infd, IPPROTO_IP, IP_TOS, (char *) &true, sizeof true) < 0)
     syslog (LOG_WARNING, "setsockopt (IP_TOS): %m");
@@ -842,14 +842,14 @@ do_rlogin (int infd, struct auth_data *ap)
   return rc;
 }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 int
 do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
 {
   int rc;
 
   err_msg = NULL;
-# if defined(KRB5)
+# if defined KRB5
   if (kerberos == AUTH_KERBEROS_5)
     rc = do_krb5_login (infd, ap, err_msg);
   else

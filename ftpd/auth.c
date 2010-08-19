@@ -189,7 +189,7 @@ sgetcred (const char *name, struct credentials *pcred)
   free (pcred->rootdir);
   free (pcred->shell);
 
-#if defined(HAVE_GETSPNAM) && defined(HAVE_SHADOW_H)
+#if defined HAVE_GETSPNAM && defined HAVE_SHADOW_H
   if (p->pw_passwd == NULL || strlen (p->pw_passwd) == 1)
     {
       struct spwd *spw;

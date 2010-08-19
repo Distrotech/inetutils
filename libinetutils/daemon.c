@@ -172,7 +172,7 @@ waitdaemon (int nochdir, int noclose, int maxwait)
       int i;
       long fdlimit = -1;
 
-#if defined (HAVE_SYSCONF) && defined (_SC_OPEN_MAX)
+#if defined HAVE_SYSCONF && defined _SC_OPEN_MAX
       fdlimit = sysconf (_SC_OPEN_MAX);
 #elif defined (HAVE_GETDTABLESIZE)
       fdlimit = getdtablesize ();

@@ -65,19 +65,19 @@
 /*
  * ucb stdio.h defines BSD as something wierd
  */
-#if defined(sun) && defined(__svr4__)
+#if defined sun && defined __svr4__
 # define BSD 43
 #endif
 
 #ifndef USE_TERMIO
-# if BSD > 43 || defined(SYSV_TERMIO)
+# if BSD > 43 || defined SYSV_TERMIO
 #  define USE_TERMIO
 # endif
 #endif
 
 #include <stdio.h>
 #include <setjmp.h>
-#if defined(CRAY) && !defined(NO_BSD_SETJMP)
+#if defined CRAY && !defined NO_BSD_SETJMP
 # include <bsdsetjmp.h>
 #endif
 #include <sys/ioctl.h>
@@ -96,15 +96,15 @@
 #  endif
 # endif
 #endif
-#if defined(NO_CC_T) || !defined(USE_TERMIO)
-# if !defined(USE_TERMIO)
+#if defined NO_CC_T || !defined USE_TERMIO
+# if !defined USE_TERMIO
 typedef char cc_t;
 # else
 typedef unsigned char cc_t;
 # endif
 #endif
 
-#if defined (USE_TERMIO) && !defined (SYSV_TERMIO)
+#if defined USE_TERMIO && !defined SYSV_TERMIO
 # define termio termios
 #endif
 
@@ -156,7 +156,7 @@ extern int autologin,		/* Autologin enabled */
   dontlecho,			/* do we suppress local echoing right now? */
   crmod, netdata,		/* Print out network data flow */
   prettydump,			/* Print "netdata" output in user readable format */
-#if defined(TN3270)
+#if defined TN3270
   cursesdata,			/* Print out curses data flow */
   apitrace,			/* Trace API transactions */
 #endif
@@ -393,7 +393,7 @@ extern cc_t termSuspChar;
 # else
 #  define termSuspChar		new_tc.c_cc[VSUSP]
 # endif
-# if defined(VFLUSHO) && !defined(VDISCARD)
+# if defined VFLUSHO && !defined VDISCARD
 #  define VDISCARD VFLUSHO
 # endif
 # ifndef VDISCARD
@@ -442,7 +442,7 @@ extern cc_t termAytChar;
 #  define termAytChar		new_tc.c_cc[VSTATUS]
 # endif
 
-# if !defined(CRAY) || defined(__STDC__)
+# if !defined CRAY || defined __STDC__
 #  define termEofCharp		&termEofChar
 #  define termEraseCharp	&termEraseChar
 #  define termIntCharp		&termIntChar
@@ -484,7 +484,7 @@ extern cc_t termAytChar;
 extern Ring netoring, netiring, ttyoring, ttyiring;
 
 /* Tn3270 section */
-#if defined(TN3270)
+#if defined TN3270
 
 extern int HaveInput,		/* Whether an asynchronous I/O indication came in */
   noasynchtty,			/* Don't do signals on I/O (SIGURG, SIGIO) */

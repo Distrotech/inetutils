@@ -897,7 +897,7 @@ linux_if_nameindex (void)
       idx[index].if_name = strdup (start + 1);
       idx[index].if_index = index + 1;
 
-# if defined(SIOCGIFINDEX)
+# if defined SIOCGIFINDEX
       {
         struct ifreq cur;
         strcpy (cur.ifr_name, idx[index].if_name);

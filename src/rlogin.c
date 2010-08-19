@@ -107,7 +107,7 @@
 # define REALM_SZ 1040
 #endif
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
 # ifdef KERBEROS
 #  include <kerberosIV/des.h>
@@ -205,13 +205,13 @@ void stop (char);
 void writer (void);
 RETSIGTYPE writeroob (int);
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 void warning (const char *, ...);
 #endif
 
 extern sig_t setsig (int, sig_t);
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # define OPTIONS	"8EKde:k:l:xhV"
 #else
 # define OPTIONS	"8EKde:l:hV"
@@ -230,7 +230,7 @@ static struct argp_option argp_options[] = {
   {"no-escape", 'E', NULL, 0, "stops any character from being recognized as "
    "an escape character", GRP+1},
   {"user", 'l', "USER", 0, "run as USER on the remote system", GRP+1},
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # ifdef ENCRYPTION
   {"encrypt", 'x', NULL, 0, "turns on DES encryption for all data passed via "
    "the rlogin session", GRP+1},
@@ -274,7 +274,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       user = arg;
       break;
 
-#if defined (KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # ifdef ENCRYPTION
     case 'x':
       doencrypt = 1;
@@ -368,7 +368,7 @@ main (int argc, char *argv[])
   }
 
   sp = NULL;
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
   if (use_kerberos)
     {
       sp = getservbyname ((doencrypt ? "eklogin" : "klogin"), "tcp");
@@ -425,7 +425,7 @@ main (int argc, char *argv[])
   setsig (SIGURG, copytochild);
   setsig (SIGUSR1, writeroob);
 
-#if defined (KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 try_connect:
   if (use_kerberos)
     {
@@ -436,7 +436,7 @@ try_connect:
       if (hp != NULL && !(host = strdup (hp->h_name)))
 	error (EXIT_FAILURE, errno, "strdup");
 
-# if defined (KERBEROS)
+# if defined KERBEROS
       rem = KSUCCESS;
       errno = 0;
       if (dest_realm == NULL)
@@ -448,7 +448,7 @@ try_connect:
 
 # ifdef ENCRYPTION
       if (doencrypt)
-#  if defined(SHISHI)
+#  if defined SHISHI
 	{
 	  int i;
 
@@ -512,7 +512,7 @@ try_connect:
 # endif	/* CRYPT */
 
 	rem = krcmd (
-# if defined (SHISHI)
+# if defined SHISHI
 		      &handle, &host, sp->s_port, &user, term, 0, dest_realm);
 # else
 		      &host, sp->s_port, user, term, 0, dest_realm);
@@ -560,7 +560,7 @@ try_connect:
       error (0, errno, "setsockopt DEBUG (ignored)");
   }
 
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_LOWDELAY
   {
     int one = IPTOS_LOWDELAY;
     if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &one, sizeof (int)) < 0)
@@ -1156,7 +1156,7 @@ reader (sigset_t * smask)
   int n, remaining;
   char *bufp;
 
-#if BSD >= 43 || defined(SUNOS4)
+#if BSD >= 43 || defined SUNOS4
   pid = getpid ();		/* modern systems use positives for pid */
 #else
   pid = -getpid ();		/* old broken systems use negatives */
@@ -1272,7 +1272,7 @@ copytochild (int signo ARG_UNUSED)
   kill (child, SIGURG);
 }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 void
 warning (const char *fmt, ...)
 {

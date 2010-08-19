@@ -122,7 +122,7 @@ static long i_support_encrypt = typemask (ENCTYPE_DES_CFB64)
      static
        Encryptions
        encryptions[] = {
-# if defined (DES_ENCRYPTION) || defined (SHISHI)
+# if defined DES_ENCRYPTION || defined SHISHI
        {"DES_CFB64", ENCTYPE_DES_CFB64,
 	cfb64_encrypt,
 	cfb64_decrypt,

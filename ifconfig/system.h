@@ -89,7 +89,7 @@ int system_configure (int sfd, struct ifreq *ifr,
 
 extern struct if_nameindex* (*system_if_nameindex) (void);
 
-# if defined(__linux__)
+# if defined __linux__
 #  include "system/linux.h"
 # elif defined(__sun__)
 #  include "system/solaris.h"

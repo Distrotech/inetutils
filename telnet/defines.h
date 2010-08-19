@@ -49,7 +49,7 @@
 
 #define settimer(x)	clocks.x = clocks.system++
 
-#if !defined(TN3270)
+#if !defined TN3270
 
 # define SetIn3270()
 

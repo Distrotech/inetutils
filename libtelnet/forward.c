@@ -51,7 +51,7 @@
 
 #include <config.h>
 
-#if defined(KRB5) && defined(FORWARD)
+#if defined KRB5 && defined FORWARD
 # include <stdio.h>
 # include <pwd.h>
 # include <netdb.h>

@@ -65,7 +65,7 @@ auth_encrypt_init (char *local, char *remote, char *name, int server)
   LocalHostName = local;
   (void) name;
   (void) server;		/* shutup gcc */
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
   auth_init (name, server);
 #endif
 #ifdef	ENCRYPTION

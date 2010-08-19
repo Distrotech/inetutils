@@ -258,7 +258,7 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
 
   logwtmp (line, pw->pw_name, remotehost);
 
-#if defined (PATH_LASTLOG) && defined (HAVE_STRUCT_LASTLOG)
+#if defined PATH_LASTLOG && defined HAVE_STRUCT_LASTLOG
 # define SCPYN(a, b)	strncpy(a, b, sizeof (a))
   f = open (PATH_LASTLOG, O_RDWR);
   if (f >= 0)

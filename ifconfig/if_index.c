@@ -29,7 +29,7 @@
 
 /* Solaris at least earlier 2.6 and before does not include
    the ioctl definitions if BSD_COMP is not set.  */
-#if defined(__svr4__)
+#if defined __svr4__
 # define BSD_COMP 1
 #endif
 
@@ -95,7 +95,7 @@ if_freenameindex (struct if_nameindex *ifn)
 struct if_nameindex *
 if_nameindex (void)
 {
-#if defined(SIOCGIFCONF)
+#if defined SIOCGIFCONF
   int fd = socket (AF_INET, SOCK_DGRAM, 0);
   struct ifconf ifc;
   unsigned int i = 0;
@@ -163,7 +163,7 @@ if_nameindex (void)
 	  return NULL;
 	}
 
-# if defined(SIOCGIFINDEX)
+# if defined SIOCGIFINDEX
       if (ioctl (fd, SIOCGIFINDEX, cur) >= 0)
 	idx[i].if_index = cur->ifr_index;
       else

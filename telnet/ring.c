@@ -80,7 +80,7 @@
 
 /* Internal macros */
 
-#if !defined(MIN)
+#if !defined MIN
 # define MIN(a,b)	(((a)<(b))? (a):(b))
 #endif /* !defined(MIN) */
 

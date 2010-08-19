@@ -153,7 +153,7 @@ static off_t file_size;
 static off_t byte_count;
 static sig_atomic_t transflag;	/* Flag where in a middle of transfer.  */
 static const char *pid_file = PATH_FTPDPID;
-#if !defined(CMASK) || CMASK == 0
+#if !defined CMASK || CMASK == 0
 # undef CMASK
 # define CMASK 027
 #endif
@@ -472,7 +472,7 @@ main (int argc, char *argv[], char **envp)
       }
   }
 
-#if defined (IP_TOS) && defined (IPTOS_LOWDELAY) && defined (IPPROTO_IP)
+#if defined IP_TOS && defined IPTOS_LOWDELAY && defined IPPROTO_IP
   /* To  minimize delays for interactive traffic.  */
   {
     int tos = IPTOS_LOWDELAY;
@@ -1029,7 +1029,7 @@ getdatasock (const char *mode)
     }
   seteuid ((uid_t) cred.uid);
 
-#if defined (IP_TOS) && defined (IPTOS_THROUGHPUT) && defined (IPPROTO_IP)
+#if defined IP_TOS && defined IPTOS_THROUGHPUT && defined IPPROTO_IP
   {
     int on = IPTOS_THROUGHPUT;
     if (setsockopt (s, IPPROTO_IP, IP_TOS, (char *) &on, sizeof (int)) < 0)
@@ -1079,7 +1079,7 @@ dataconn (const char *name, off_t size, const char *mode)
 	}
       close (pdata);
       pdata = s;
-#if defined (IP_TOS) && defined (IPTOS_THROUGHPUT) && defined (IPPROTO_IP)
+#if defined IP_TOS && defined IPTOS_THROUGHPUT && defined IPPROTO_IP
       /* Optimize throughput.  */
       {
 	int tos = IPTOS_THROUGHPUT;

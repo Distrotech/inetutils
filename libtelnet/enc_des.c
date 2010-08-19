@@ -51,7 +51,7 @@
 
 #ifdef	ENCRYPTION
 # ifdef	AUTHENTICATION
-#  if defined (DES_ENCRYPTION) || defined (SHISHI)
+# if defined DES_ENCRYPTION || defined SHISHI
 #   ifdef SHISHI
 #    include <shishi.h>
 extern Shishi *shishi_handle;

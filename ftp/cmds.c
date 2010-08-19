@@ -258,7 +258,7 @@ setpeer (argc, argv)
       if (autologin)
 	login (host);
 
-#if defined(unix) && NBBY == 8
+#if defined unix && NBBY == 8
 /*
  * this ifdef is to keep someone form "porting" this to an incompatible
  * system and not checking this out. This way they have to think about it.

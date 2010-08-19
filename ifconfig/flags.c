@@ -114,7 +114,7 @@ struct if_flag
 #ifdef IFF_LINK1		/* Per link layer defined bit.  */
     {"LINK1", IFF_LINK1},
 #endif
-#if defined(IFF_LINK2) && defined(IFF_ALTPHYS)
+#if defined IFF_LINK2 && defined IFF_ALTPHYS
 # if IFF_LINK2 == IFF_ALTPHYS
     /* IFF_ALTPHYS == IFF_LINK2 on FreeBSD.  This entry is used as a
        fallback for if_flagtoname conversion, if no relevant EXPECT_
@@ -201,7 +201,7 @@ struct if_flag
 #ifdef IFF_VMIFNET		/* Used to identify a virtual MAC address.  */
     {"VMIFNET", IFF_VMIFNET},
 #endif
-#if defined(IFF_D1) && defined(IFF_SNAP)
+#if defined IFF_D1 && defined IFF_SNAP
 # if IFF_D1 == IFF_SNAP
     /* IFF_SNAP == IFF_D1 on OSF 4.0g systems.  This entry is used as a
        fallback for if_flagtoname conversion, if no relevant EXPECT_

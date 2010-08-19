@@ -19,7 +19,7 @@
 
 #include <config.h>
 
-#if defined(__linux__)
+#if defined __linux__
 # include "system/linux.c"
 #elif defined(__sun__)
 # include "system/solaris.c"

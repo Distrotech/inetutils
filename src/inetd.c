@@ -326,7 +326,7 @@ bi_lookup (const struct servtab *sep)
 
 /* Signal handling */
 
-#if defined(HAVE_SIGACTION)
+#if defined HAVE_SIGACTION
 # define SIGSTATUS sigset_t
 # define sigstatus_empty(s) sigemptyset(&s)
 # define inetd_pause(s) sigsuspend(&s)
@@ -339,7 +339,7 @@ bi_lookup (const struct servtab *sep)
 void
 signal_set_handler (int signo, RETSIGTYPE (*handler) ())
 {
-#if defined(HAVE_SIGACTION)
+#if defined HAVE_SIGACTION
   struct sigaction sa;
   memset ((char *) &sa, 0, sizeof (sa));
   sigemptyset (&sa.sa_mask);

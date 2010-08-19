@@ -197,7 +197,7 @@ hookup (host, port)
       code = -1;
       goto bad;
     }
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_LOWDELAY)
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_LOWDELAY
   tos = IPTOS_LOWDELAY;
   if (setsockopt (s, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int)) < 0)
     error (0, errno, "setsockopt TOS (ignored)");
@@ -1176,7 +1176,7 @@ initconn ()
 	  perror ("ftp: connect");
 	  goto bad;
 	}
-#if defined(IP_TOS) && defined(IPTOS_THROUGPUT)
+#if defined IP_TOS && defined IPTOS_THROUGPUT
       on = IPTOS_THROUGHPUT;
       if (setsockopt (data, IPPROTO_IP, IP_TOS, (char *) &on,
 		      sizeof (int)) < 0)
@@ -1241,7 +1241,7 @@ noport:
     }
   if (tmpno)
     sendport = 1;
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
   on = IPTOS_THROUGHPUT;
   if (setsockopt (data, IPPROTO_IP, IP_TOS, (char *) &on, sizeof (int)) < 0)
     error (0, errno, "setsockopt TOS (ignored)");
@@ -1274,7 +1274,7 @@ dataconn (lmode)
     }
   close (data);
   data = s;
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
   tos = IPTOS_THROUGHPUT;
   if (setsockopt (s, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int)) < 0)
     error (0, errno, "setsockopt TOS (ignored)");

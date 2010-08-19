@@ -66,7 +66,7 @@
  * or implied warranty.
  */
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 TN_Authenticator *findauthenticator (int, int);
 
 void auth_init (char *, int);

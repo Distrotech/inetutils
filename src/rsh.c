@@ -82,7 +82,7 @@ int debug_option = 0;
 int null_input_option = 0;
 char *user = NULL;
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
 # ifdef KERBEROS
 #  include <kerberosIV/des.h>
@@ -134,7 +134,7 @@ static struct argp_option options[] = {
     "allows an eight-bit input data path at all times" },
   { "no-input", 'n', NULL, 0,
     "use /dev/null as input" },
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
   { "kerberos", 'K', NULL, 0,
     "turns off all Kerberos authentication" },
   { "realm", 'k', NULL, 0,
@@ -165,13 +165,13 @@ parse_opt (int key, char *arg, struct argp_state *state)
       user = arg;
       break;
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
     case 'K':
       use_kerberos = 0;
       break;
 #endif
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
     case 'k':
       dest_realm = arg;
       break;
@@ -276,7 +276,7 @@ main (int argc, char **argv)
       }
   }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # ifdef ENCRYPTION
   /* -x turns off -n */
   if (doencrypt)
@@ -315,7 +315,7 @@ main (int argc, char **argv)
     error (EXIT_FAILURE, 0, "shell/tcp: unknown service");
 
 
-#if defined (KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 try_connect:
   if (use_kerberos)
     {
@@ -326,7 +326,7 @@ try_connect:
       if (hp != NULL && !(host = strdup (hp->h_name)))
 	error (EXIT_FAILURE, errno, "strdup");
 
-# if defined (KERBEROS)
+# if defined KERBEROS
       rem = KSUCCESS;
       errno = 0;
       if (dest_realm == NULL)
@@ -338,7 +338,7 @@ try_connect:
 
 # ifdef ENCRYPTION
       if (doencrypt)
-#  if defined(SHISHI)
+#  if defined SHISHI
 	{
 	  int i;
 	  char *term;
@@ -410,7 +410,7 @@ try_connect:
 #  endif
 # endif
 	rem = krcmd (
-# if defined (SHISHI)
+# if defined SHISHI
 		      &h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
 # else
 		      &host, sp->s_port, user, args, &rfd2, dest_realm);
@@ -485,7 +485,7 @@ try_connect:
 	error (EXIT_FAILURE, errno, "fork");
     }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # ifdef ENCRYPTION
   if (!doencrypt)
 # endif
@@ -654,7 +654,7 @@ sendsig (int sig)
 {
   char signo;
 
-#if defined(SHISHI) && defined (ENCRYPTION)
+#if defined SHISHI && defined ENCRYPTION
   int n;
 #endif
 
@@ -674,7 +674,7 @@ sendsig (int sig)
     write (rfd2, &signo, 1);
 }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 void
 warning (const char *fmt, ...)
 {

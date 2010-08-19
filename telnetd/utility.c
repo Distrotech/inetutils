@@ -30,7 +30,7 @@
 #endif
 #include <time.h>
 
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
+#if defined AUTHENTICATION || defined ENCRYPTION
 # include <libtelnet/misc.h>
 # define NET_ENCRYPT net_encrypt
 #else
@@ -682,7 +682,7 @@ getterminaltype (char *user_name)
   int retval = -1;
 
   settimer (baseline);
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
   /*
    * Handle the Authentication option before we do anything else.
    */
@@ -899,7 +899,7 @@ printsub (int direction, unsigned char *pointer, int length)
 {
   register int i;
 
-#if defined(AUTHENTICATION) && defined(ENCRYPTION)
+#if defined AUTHENTICATION && defined ENCRYPTION
   char buf[512];
 #endif
 
@@ -1358,7 +1358,7 @@ printsub (int direction, unsigned char *pointer, int length)
 	}
       break;
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
     case TELOPT_AUTHENTICATION:
       debug_output_data ("AUTHENTICATION");
 
@@ -1547,7 +1547,7 @@ printdata (register char *tag, register char *ptr, register int cnt)
     }
 }
 
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
+#if defined AUTHENTICATION || defined ENCRYPTION
 
 int
 net_write (unsigned char *str, int len)

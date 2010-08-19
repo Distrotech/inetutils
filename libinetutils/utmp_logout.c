@@ -45,7 +45,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <time.h>
-#if defined(UTMPX) && defined(HAVE_UTMPX_H)
+#if defined UTMPX && defined HAVE_UTMPX_H
 # define __USE_GNU
 # include <utmpx.h>
 #else

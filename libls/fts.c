@@ -643,7 +643,7 @@ fts_build (sp, type)
    * Open the directory for reading.  If this fails, we're done.
    * If being called from fts_read, set the fts_info field.
    */
-#if defined(HAVE_OPENDIR2) && defined(DTF_HIDEW)
+#if defined HAVE_OPENDIR2 && defined DTF_HIDEW
   if (ISSET (FTS_WHITEOUT))
     oflag = DTF_NODUP | DTF_REWIND;
   else
@@ -882,7 +882,7 @@ fts_stat (sp, dp, p, follow)
   /* If user needs stat info, stat buffer already allocated. */
   sbp = ISSET (FTS_NOSTAT) ? &sb : p->fts_statp;
 
-#if defined(DT_WHT) && defined(S_IFWHT)
+#if defined DT_WHT && defined S_IFWHT
   /*
    * Whited-out files don't really exist.  However, there's stat(2) file
    * mask for them, so we set it so that programs (i.e., find) don't have

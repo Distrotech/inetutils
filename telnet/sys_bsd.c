@@ -155,7 +155,7 @@ TerminalRead (char *buf, int n)
 int
 TerminalAutoFlush ()
 {
-#if defined(LNOFLSH)
+#if defined LNOFLSH
   int flush;
 
   ioctl (0, TIOCLGET, (char *) &flush);
@@ -683,7 +683,7 @@ TerminalNewMode (register int f)
 #ifdef	SIGINFO
       signal (SIGINFO, ayt);
 #endif
-#if defined(USE_TERMIO) && defined(NOKERNINFO)
+#if defined USE_TERMIO && defined NOKERNINFO
       tmp_tc.c_lflag |= NOKERNINFO;
 #endif
       /*
@@ -762,13 +762,13 @@ TerminalNewMode (register int f)
     tcsetattr (tin, TCSANOW, &tmp_tc);
 #endif
 
-#if (!defined(TN3270)) || ((!defined(NOT43)) || defined(PUTCHAR))
-# if !defined(sysV88)
+#if  !defined TN3270 ||  (!defined NOT43 || defined PUTCHAR)
+# if !defined sysV88
   ioctl (tin, FIONBIO, (char *) &onoff);
   ioctl (tout, FIONBIO, (char *) &onoff);
 # endif
 #endif /* (!defined(TN3270)) || ((!defined(NOT43)) || defined(PUTCHAR)) */
-#if defined(TN3270)
+#if defined TN3270
   if (noasynchtty == 0)
     {
       ioctl (tin, FIOASYNC, (char *) &onoff);
@@ -917,7 +917,7 @@ NetNonblockingIO (int fd, int onoff)
   ioctl (fd, FIONBIO, (char *) &onoff);
 }
 
-#if defined(TN3270)
+#if defined TN3270
 void
 NetSigIO (int fd, int onoff)
 {
@@ -1028,7 +1028,7 @@ sys_telnet_init ()
 
   NetNonblockingIO (net, 1);
 
-#if defined(TN3270)
+#if defined TN3270
   if (noasynchnet == 0)
     {				/* DBX can't handle! */
       NetSigIO (net, 1);
@@ -1036,7 +1036,7 @@ sys_telnet_init ()
     }
 #endif /* defined(TN3270) */
 
-#if defined(SO_OOBINLINE)
+#if defined SO_OOBINLINE
   if (SetSockOpt (net, SOL_SOCKET, SO_OOBINLINE, 1) == -1)
     {
       perror ("SetSockOpt");
@@ -1082,7 +1082,7 @@ process_rings (int netin, int netout, int netex, int ttyin, int ttyout,
       if (tout > nfds)
         nfds = tout;
     }
-#if defined(TN3270)
+#if defined TN3270
   if (ttyin)
     {
       FD_SET (tin, &ibits);
@@ -1097,7 +1097,7 @@ process_rings (int netin, int netout, int netex, int ttyin, int ttyout,
         nfds = tin;
     }
 #endif /* defined(TN3270) */
-#if defined(TN3270)
+#if defined TN3270
   if (netin)
     {
       FD_SET (net, &ibits);
@@ -1132,7 +1132,7 @@ process_rings (int netin, int netout, int netex, int ttyin, int ttyout,
 	    {
 	      return 0;
 	    }
-#if defined(TN3270)
+#if defined TN3270
 	  /*
 	   * we can get EBADF if we were in transparent
 	   * mode, and the transcom process died.
@@ -1176,7 +1176,7 @@ process_rings (int netin, int netout, int netex, int ttyin, int ttyout,
 
       FD_CLR (net, &ibits);
       canread = ring_empty_consecutive (&netiring);
-#if !defined(SO_OOBINLINE)
+#if !defined SO_OOBINLINE
       /*
        * In 4.2 (and some early 4.3) systems, the
        * OOB indication and data handling in the kernel

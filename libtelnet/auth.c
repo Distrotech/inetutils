@@ -69,7 +69,7 @@
 
 #include <config.h>
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 # include <stdio.h>
 # include <sys/types.h>
 # include <signal.h>

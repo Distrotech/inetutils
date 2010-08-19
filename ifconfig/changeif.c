@@ -185,7 +185,7 @@ set_metric (int sfd, struct ifreq *ifr, int metric)
 int
 set_flags (int sfd, struct ifreq *ifr, int setflags, int clrflags)
 {
-#if !defined (SIOCGIFFLAGS) || !defined (SIOCSIFFLAGS)
+#if !defined SIOCGIFFLAGS || !defined SIOCSIFFLAGS
   error (0, 0,
          "don't know how to set the interface flags on this system");
   return -1;

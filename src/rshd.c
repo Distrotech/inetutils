@@ -102,7 +102,7 @@ char *getstr (const char *);
 int local_domain (const char *);
 const char *topdomain (const char *);
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # ifdef KERBEROS
 #  include <kerberosIV/des.h>
 #  include <kerberosIV/krb.h>
@@ -169,7 +169,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       keepalive = 0;	/* don't enable SO_KEEPALIVE */
       break;
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
     case 'k':
       use_kerberos = 1;
       break;
@@ -225,7 +225,7 @@ main (int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
   if (use_kerberos && vacuous)
     {
       syslog (LOG_ERR, "only one of -k and -v allowed");
@@ -374,7 +374,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   /* Need host byte ordered port# to compare */
   fromp->sin_port = ntohs ((u_short) fromp->sin_port);
   /* Verify that the client's address was bound to a reserved port */
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
   if (!use_kerberos)
 #endif
     if (fromp->sin_port >= IPPORT_RESERVED
@@ -427,7 +427,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  syslog (LOG_ERR, "can't get stderr port: %m");
 	  exit (EXIT_FAILURE);
 	}
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
       if (!use_kerberos)
 #endif
 	if (port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
@@ -450,7 +450,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	}
     }
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
   if (vacuous)
     {
       rshd_error ("rshd: remote host requires Kerberos authentication\n");
@@ -481,7 +481,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
        * address corresponds to the name.
        */
       hostname = strdup (hp->h_name);
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
       if (!use_kerberos)
 #endif
 	if (check_all || local_domain (hp->h_name))
@@ -807,7 +807,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  exit (EXIT_FAILURE);
 	}
 #ifdef ENCRYPTION
-# if defined(KERBEROS) || defined(SHISHI)
+# if defined KERBEROS || defined SHISHI
       if (doencrypt)
 	{
 	  if (pipe (pv1) < 0)
@@ -837,7 +837,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	   *         signal.
 	   */
 #ifdef ENCRYPTION
-# if defined(KERBEROS)
+# if defined KERBEROS
 	  if (doencrypt)
 	    {
 	      static char msg[] = SECURE_MESSAGE;
@@ -873,7 +873,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  else
 	    nfd = s;
 #ifdef ENCRYPTION
-# if defined(KERBEROS) || defined(SHISHI)
+# if defined KERBEROS || defined SHISHI
 	  if (doencrypt)
 	    {
 	      FD_ZERO (&writeto);
@@ -893,7 +893,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	    {
 	      ready = readfrom;
 #ifdef ENCRYPTION
-# if defined(KERBEROS) || defined(SHISHI)
+# if defined KERBEROS || defined SHISHI
 	      if (doencrypt)
 		{
 #  ifdef SHISHI
@@ -958,7 +958,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		    }
 		}
 #ifdef ENCRYPTION
-# if defined(KERBEROS) || defined(SHISHI)
+# if defined KERBEROS || defined SHISHI
 	      if (doencrypt && FD_ISSET (pv1[0], &ready))
 		{
 		  errno = 0;
@@ -998,7 +998,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	    }
 	  while (FD_ISSET (s, &readfrom) ||
 #ifdef ENCRYPTION
-# if defined(KERBEROS) || defined(SHISHI)
+# if defined KERBEROS || defined SHISHI
 		 (doencrypt && FD_ISSET (pv1[0], &readfrom)) ||
 # endif
 #endif
@@ -1020,7 +1020,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       close (s);		/* control process handles this fd */
       close (pv[0]);		/* close read end of pipe */
 #ifdef ENCRYPTION
-# if defined(KERBEROS) || defined(SHISHI)
+# if defined KERBEROS || defined SHISHI
       if (doencrypt)
 	{
 	  close (pv1[0]);
@@ -1033,7 +1033,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 # endif
 #endif
 
-#if defined(SHISHI)
+#if defined SHISHI
       if (use_kerberos)
 	{
 	  int i;

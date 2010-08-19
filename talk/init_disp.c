@@ -155,7 +155,7 @@ set_edit_chars ()
   struct termios tty;
   cc_t disable = (cc_t) - 1, erase, werase, kill;
 
-# if !defined (_POSIX_VDISABLE) && defined (HAVE_FPATHCONF) && defined (_PC_VDISABLE)
+# if !defined _POSIX_VDISABLE && defined HAVE_FPATHCONF && defined _PC_VDISABLE
   disable = fpathconf (0, _PC_VDISABLE);
 # endif
 

@@ -423,7 +423,7 @@ toremote (char *targ, int argc, char *argv[])
 			    tuser ? tuser : pwd->pw_name, bp, 0);
 	      if (rem < 0)
 		exit (EXIT_FAILURE);
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
 	      tos = IPTOS_THROUGHPUT;
 	      if (setsockopt (rem, IPPROTO_IP, IP_TOS,
 			      (char *) &tos, sizeof (int)) < 0)
@@ -492,7 +492,7 @@ tolocal (int argc, char *argv[])
 	  continue;
 	}
       seteuid (userid);
-#if defined (IP_TOS) && defined (IPPROTO_IP) && defined (IPTOS_THROUGHPUT)
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
       tos = IPTOS_THROUGHPUT;
       if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int)) <
 	  0)

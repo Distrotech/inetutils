@@ -48,7 +48,7 @@
 
 #include <config.h>
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 # include <sys/types.h>
 # ifdef ENCRYPTION
 #  include <sys/socket.h>
@@ -68,7 +68,7 @@
 
 # define SERVICE_NAME	"rcmd"
 
-# if defined(SHISHI)
+# if defined SHISHI
 int kcmd (Shishi **, int *, char **, u_short, char *, char **,
 	  char *, int *, char *, char *, Shishi_key **,
 	  struct sockaddr_in *, struct sockaddr_in *, long);
@@ -84,7 +84,7 @@ int kcmd (int *, char **, u_short, char *, char *, char *, int *,
  *	if fd2p is non-NULL, another socket is filled in for it
  */
 
-# if defined(SHISHI)
+# if defined SHISHI
 int
 krcmd (Shishi ** h, char **ahost, u_short rport, char **remuser, char *cmd,
        int *fd2p, char *realm)
@@ -138,7 +138,7 @@ krcmd (char **ahost, u_short rport, char *remuser, char *cmd, int *fd2p,
 
 # ifdef ENCRYPTION
 
-#  if defined(SHISHI)
+#  if defined SHISHI
 int
 krcmd_mutual (Shishi ** h, char **ahost, u_short rport, char **remuser,
 	      char *cmd, int *fd2p, char *realm, Shishi_key ** key)

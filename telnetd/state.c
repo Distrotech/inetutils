@@ -110,7 +110,7 @@ send_eof ()
 static void
 recv_ayt ()
 {
-#if defined(SIGINFO) && defined(TCSIG)
+#if defined SIGINFO && defined TCSIG
   if (slctab[SLC_AYT].sptr && *slctab[SLC_AYT].sptr != _POSIX_VDISABLE)
     {
       ioctl (pty, TCSIG, (char *) SIGINFO);
@@ -162,7 +162,7 @@ send_intr ()
 {
   ptyflush ();			/* half-hearted */
 
-#if defined(HAVE_STREAMSPTY) && defined(TIOCSIGNAL)
+#if defined HAVE_STREAMSPTY && defined TIOCSIGNAL
   /* Streams PTY style ioctl to post a signal */
   {
     int sig = SIGINT;
@@ -816,7 +816,7 @@ wontoption (int option)
 	      slctab[SLC_XOFF].defset.flag |= SLC_CANTCHANGE;
 	      break;
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 	    case TELOPT_AUTHENTICATION:
 	      auth_finished (0, AUTH_REJECT);
 	      break;
@@ -871,7 +871,7 @@ wontoption (int option)
 		}
 	      break;
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 	    case TELOPT_AUTHENTICATION:
 	      auth_finished (0, AUTH_REJECT);
 	      break;
@@ -1511,7 +1511,7 @@ suboption ()
 	  unsetenv (varp);
 	break;
       }				/* end of case TELOPT_NEW_ENVIRON */
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
     case TELOPT_AUTHENTICATION:
       if (SB_EOF ())
 	break;

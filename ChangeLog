@@ -1,5 +1,61 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	Removed useless C preprocessor parentehsis.
+
+	* cfg.mk (local-checks-to-skip): Removed sc_useless_cpp_parens from list.
+
+	* ftp/cmds.c: Removed useless C preprocessor parentehsis.
+	* ftp/ftp.c: Likewise.
+	* ftpd/auth.c: Likewise.
+	* ftpd/ftpcmd.y: Likewise.
+	* ftpd/ftpd.c: Likewise.
+	* ftpd/logwtmp.c: Likewise.
+	* ifconfig/changeif.c: Likewise.
+	* ifconfig/flags.c: Likewise.
+	* ifconfig/if_index.c: Likewise.
+	* ifconfig/system.c: Likewise.
+	* ifconfig/system.h: Likewise.
+	* ifconfig/system/linux.c: Likewise.
+	* libinetutils/daemon.c: Likewise.
+	* libinetutils/kcmd.c: Likewise.
+	* libinetutils/krcmd.c: Likewise.
+	* libinetutils/utmp_init.c: Likewise.
+	* libinetutils/utmp_logout.c: Likewise.
+	* libls/fts.c: Likewise.
+	* libtelnet/auth-proto.h: Likewise.
+	* libtelnet/auth.c: Likewise.
+	* libtelnet/enc_des.c: Likewise.
+	* libtelnet/encrypt.c: Likewise.
+	* libtelnet/forward.c: Likewise.
+	* libtelnet/misc.c: Likewise.
+	* libtelnet/read_passwd.c: Likewise.
+	* src/inetd.c: Likewise.
+	* src/rcp.c: Likewise.
+	* src/rlogin.c: Likewise.
+	* src/rlogind.c: Likewise.
+	* src/rsh.c: Likewise.
+	* src/rshd.c: Likewise.
+	* src/uucpd.c: Likewise.
+	* talk/init_disp.c: Likewise.
+	* telnet/authenc.c: Likewise.
+	* telnet/commands.c: Likewise.
+	* telnet/defines.h: Likewise.
+	* telnet/externs.h: Likewise.
+	* telnet/main.c: Likewise.
+	* telnet/ring.c: Likewise.
+	* telnet/sys_bsd.c: Likewise.
+	* telnet/telnet.c: Likewise.
+	* telnet/tn3270.c: Likewise.
+	* telnet/utilities.c: Likewise.
+	* telnetd/state.c: Likewise.
+	* telnetd/telnetd.c: Likewise.
+	* telnetd/telnetd.h: Likewise.
+	* telnetd/term.c: Likewise.
+	* telnetd/termstat.c: Likewise.
+	* telnetd/utility.c: Likewise.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	Use EXIT_SUCCESS and EXIT_FAILURE macros through out.
 
 	* cfg.mk (local-checks-to-skip): Removed sc_prohibit_magic_number_exit from list.

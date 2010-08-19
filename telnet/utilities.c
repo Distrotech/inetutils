@@ -336,7 +336,7 @@ printsub (char direction, unsigned char *pointer, int length)
   register int i;
   extern int want_status_response;
 
-#if defined(AUTHENTICATION) && defined(ENCRYPTION)
+#if defined AUTHENTICATION && defined ENCRYPTION
   char buf[512];
 #endif
 
@@ -481,7 +481,7 @@ printsub (char direction, unsigned char *pointer, int length)
 	    fprintf (NetTrace, " ?%d?", pointer[i]);
 	  break;
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 	case TELOPT_AUTHENTICATION:
 	  fprintf (NetTrace, "AUTHENTICATION");
 	  if (length < 2)
@@ -877,7 +877,7 @@ printsub (char direction, unsigned char *pointer, int length)
 	    env_common:
 	      {
 		register int noquote = 2;
-#if defined(ENV_HACK) && defined(OLD_ENVIRON)
+#if defined ENV_HACK && defined OLD_ENVIRON
 		extern int old_env_var, old_env_value;
 #endif
 		for (i = 2; i < length; i++)
@@ -985,7 +985,7 @@ printsub (char direction, unsigned char *pointer, int length)
 void
 EmptyTerminal ()
 {
-#if defined(unix)
+#if defined unix
   fd_set o;
 
   FD_ZERO (&o);
@@ -993,7 +993,7 @@ EmptyTerminal ()
 
   if (TTYBYTES () == 0)
     {
-#if defined(unix)
+#if defined unix
       FD_SET (tout, &o);
       select (tout + 1, (fd_set *) 0, &o, (fd_set *) 0, (struct timeval *) 0);	/* wait for TTLOWAT */
 #endif /* defined(unix) */
@@ -1003,7 +1003,7 @@ EmptyTerminal ()
       while (TTYBYTES ())
 	{
 	  ttyflush (0);
-#if defined(unix)
+#if defined unix
 	  FD_SET (tout, &o);
 	  select (tout + 1, (fd_set *) 0, &o, (fd_set *) 0, (struct timeval *) 0);	/* wait for TTLOWAT */
 #endif /* defined(unix) */
@@ -1015,7 +1015,7 @@ void
 SetForExit ()
 {
   setconnmode (0);
-#if defined(TN3270)
+#if defined TN3270
   if (In3270)
     {
       Finish3270 ();
@@ -1031,7 +1031,7 @@ SetForExit ()
   setcommandmode ();
   fflush (stdout);
   fflush (stderr);
-#if defined(TN3270)
+#if defined TN3270
   if (In3270)
     {
       StopScreen (1);

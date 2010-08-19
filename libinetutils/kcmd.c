@@ -48,7 +48,7 @@
 
 #include <config.h>
 
-#if defined(KERBEROS) || defined(SHISHI)
+#if defined KERBEROS || defined SHISHI
 
 # include <sys/param.h>
 # include <sys/file.h>
@@ -58,7 +58,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 
-# if defined(KERBEROS)
+# if defined KERBEROS
 #  include <kerberosIV/des.h>
 #  include <kerberosIV/krb.h>
 # elif defined(SHISHI)
@@ -84,7 +84,7 @@
 
 int getport (int *);
 
-# if defined (KERBEROS)
+# if defined KERBEROS
 int
 kcmd (int *sock, char **ahost, u_short rport, char *locuser,
       char *remuser, char *cmd, int *fd2p, KTEXT ticket,
@@ -114,7 +114,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
   char *host_save;
   int status;
 
-# if defined(SHISHI)
+# if defined SHISHI
   int zero = 0;
 # endif
 
@@ -172,7 +172,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 	  timo *= 2;
 	  continue;
 	}
-# if !(defined(ultrix) || defined(sun))
+# if ! defined ultrix || defined sun
       if (hp->h_addr_list[1] != NULL)
 	{
 	  int oerrno = errno;
@@ -322,7 +322,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
     }
   sigsetmask (oldmask);
   *sock = s;
-# if defined(KERBEROS)
+# if defined KERBEROS
   return (KSUCCESS);
 # elif defined(SHISHI)
   return (SHISHI_OK);

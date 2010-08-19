@@ -30,7 +30,6 @@ local-checks-to-skip = \
 	sc_prohibit_stat_st_blocks \
 	sc_prohibit_strcmp \
 	sc_unmarked_diagnostics \
-	sc_useless_cpp_parens \
 	sc_makefile_check
 
 htmldir = ../www-$(PACKAGE)

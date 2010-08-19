@@ -58,7 +58,7 @@
 #include "ring.h"
 #include "externs.h"
 
-#if defined(TN3270)
+#if defined TN3270
 
 # include "../ctlr/screen.h"
 # include "../general/globals.h"
@@ -66,7 +66,7 @@
 # include "../sys_curses/telextrn.h"
 # include "../ctlr/externs.h"
 
-# if defined(unix)
+# if defined unix
 int HaveInput,			/* There is input available to scan */
   cursesdata,			/* Do we dump curses data? */
   sigiocount;			/* Number of times we got a SIGIO */
@@ -93,8 +93,8 @@ static int Sent3270TerminalType;	/* Have we said we are a 3270? */
 void
 init_3270 ()
 {
-#if defined(TN3270)
-# if defined(unix)
+#if defined TN3270
+# if defined unix
   HaveInput = 0;
   sigiocount = 0;
 # endif	/* defined(unix) */
@@ -108,7 +108,7 @@ init_3270 ()
 }
 
 
-#if defined(TN3270)
+#if defined TN3270
 
 /*
  * DataToNetwork - queue up some data to go to network.  If "done" is set,
@@ -184,7 +184,7 @@ DataToNetwork (register char *buffer, register int count, int done)
 }
 
 
-# if defined(unix)
+# if defined unix
 void
 inputAvailable (int signo)
 {
@@ -226,7 +226,7 @@ DataToTerminal (register char *buffer, register int count)
     {
       if (TTYROOM () == 0)
 	{
-# if defined(unix)
+# if defined unix
 	  fd_set o;
 
 	  FD_ZERO (&o);
@@ -234,7 +234,7 @@ DataToTerminal (register char *buffer, register int count)
 	  ttyflush (0);
 	  while (TTYROOM () == 0)
 	    {
-# if defined(unix)
+# if defined unix
 	      FD_SET (tout, &o);
 	      select (tout + 1, (fd_set *) 0, &o, (fd_set *) 0,
 		      (struct timeval *) 0);
@@ -294,7 +294,7 @@ Finish3270 ()
 {
   while (Push3270 () || !DoTerminalOutput ())
     {
-# if defined(unix)
+# if defined unix
       HaveInput = 0;
 # endif	/* defined(unix) */
       ;
@@ -317,7 +317,7 @@ StringToTerminal (char *s)
 }
 
 
-# if ((!defined(NOT43)) || defined(PUTCHAR))
+# if   !defined NOT43 || defined PUTCHAR
 /* _putchar - output a single character to the terminal.  This name is so that
  *	curses(3x) can call us to send out data.
  */
@@ -325,7 +325,7 @@ StringToTerminal (char *s)
 void
 _putchar (char c)
 {
-#  if defined(sun)		/* SunOS 4.0 bug */
+#  if defined sun		/* SunOS 4.0 bug */
   c &= 0x7f;
 #  endif /* defined(sun) */
   if (cursesdata)
@@ -431,7 +431,7 @@ tn3270_ttype ()
     }
 }
 
-# if defined(unix)
+# if defined unix
 int
 settranscom (int argc, char *argv[])
 {

@@ -91,11 +91,11 @@
 #include "xalloc.h"
 #include "xvasprintf.h"
 
-#if !defined(CRAY) && !defined(sysV88)
+#if !defined CRAY && !defined sysV88
 # ifdef HAVE_NETINET_IN_SYSTM_H
 #  include <netinet/in_systm.h>
 # endif
-# if (defined(vax) || defined(tahoe) || defined(hp300)) && !defined(ultrix)
+# if (defined vax || defined tahoe || defined hp300) && !defined ultrix
 #  include <machine/endian.h>
 # endif	/* vax */
 #endif /* !defined(CRAY) && !defined(sysV88) */
@@ -711,7 +711,7 @@ togxbinary (int val)
 
 
 static int togglehelp (void);
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 extern int auth_togdebug (int);
 #endif
 #ifdef	ENCRYPTION
@@ -741,7 +741,7 @@ static struct togglelist Togglelist[] = {
    0,
    &autosynch,
    "send interrupt characters in urgent mode"},
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
   {"autologin",
    "automatic sending of login and/or authentication info",
    0,
@@ -811,7 +811,7 @@ static struct togglelist Togglelist[] = {
    &localchars,
    "recognize certain control characters"},
   {" ", "", 0},			/* empty line */
-#if defined(unix) && defined(TN3270)
+#if defined unix && defined TN3270
   {"apitrace",
    "(debugging) toggle tracing of API transactions",
    0,
@@ -995,7 +995,7 @@ static struct setlist Setlist[] = {
   {0}
 };
 
-#if defined(CRAY) && !defined(__STDC__)
+#if defined CRAY && !defined __STDC__
 /* Work around compiler bug in pcc 4.1.5 */
 void
 _setlist_init ()
@@ -1544,7 +1544,7 @@ suspend ()
   return 1;
 }
 
-#if !defined(TN3270)
+#if !defined TN3270
 int
 shell (int argc, char *argv[])
 {
@@ -1614,12 +1614,12 @@ bye (int argc, char *argv[])
       NetClose (net);
       connected = 0;
       resettermname = 1;
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
+#if defined AUTHENTICATION || defined ENCRYPTION
       auth_encrypt_connect (connected);
 #endif /* defined(AUTHENTICATION) || defined(ENCRYPTION) */
       /* reset options */
       tninit ();
-#if defined(TN3270)
+#if defined TN3270
       SetIn3270 ();		/* Get out of 3270 mode */
 #endif /* defined(TN3270) */
     }
@@ -1746,7 +1746,7 @@ extern void
 env_undefine (const char *),
 env_export (const char *),
 env_unexport (const char *), env_send (const char *),
-#if defined(OLD_ENVIRON) && defined(ENV_HACK)
+#if defined OLD_ENVIRON && defined ENV_HACK
   env_varval (const char *),
 #endif
   env_list (void);
@@ -1764,7 +1764,7 @@ struct envlist EnvList[] = {
   {"send", "Send an environment variable", env_send, 1},
   {"list", "List the current environment variables",
    env_list, 0},
-#if defined(OLD_ENVIRON) && defined(ENV_HACK)
+#if defined OLD_ENVIRON && defined ENV_HACK
   {"varval", "Reverse VAR and VALUE (auto, right, wrong, status)",
    env_varval, 1},
 #endif
@@ -2036,7 +2036,7 @@ env_getvalue (const char *var)
   return (NULL);
 }
 
-#if defined(OLD_ENVIRON) && defined(ENV_HACK)
+#if defined OLD_ENVIRON && defined ENV_HACK
 void
 env_varval (const char *what)
 {
@@ -2083,7 +2083,7 @@ env_varval (const char *what)
 }
 #endif
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 /*
  * The AUTHENTICATE command.
  */
@@ -2295,7 +2295,7 @@ encrypt_cmd (int argc, char *argv[])
 }
 #endif /* ENCRYPTION */
 
-#if defined(unix) && defined(TN3270)
+#if defined unix && defined TN3270
 static void
 filestuff (int fd)
 {
@@ -2373,7 +2373,7 @@ status (int argc, char *argv[])
     {
       printf ("No connection.\n");
     }
-#if !defined(TN3270)
+#if !defined TN3270
   printf ("Escape character is '%s'.\n", control (escape));
   fflush (stdout);
 #else /* !defined(TN3270) */
@@ -2381,7 +2381,7 @@ status (int argc, char *argv[])
     {
       printf ("Escape character is '%s'.\n", control (escape));
     }
-# if defined(unix)
+# if defined unix
   if ((argc >= 2) && !strcmp (argv[1], "everything"))
     {
       printf ("SIGIO received %d time%s.\n",
@@ -2624,7 +2624,7 @@ tn (int argc, char *argv[])
 	}
 
       connected++;
-# if defined(AUTHENTICATION) || defined(ENCRYPTION)
+# if defined AUTHENTICATION || defined ENCRYPTION
       auth_encrypt_connect (connected);
 # endif	/* defined(AUTHENTICATION) || defined(ENCRYPTION) */
     }
@@ -2676,7 +2676,7 @@ tn (int argc, char *argv[])
 	  perror ("telnet: socket");
 	  return 0;
 	}
-# if defined(IPPROTO_IP) && defined(IP_TOS)
+# if defined IPPROTO_IP && defined IP_TOS
       {
 #  ifdef IPTOS_LOWDELAY
 	const int tos = IPTOS_LOWDELAY;
@@ -2715,7 +2715,7 @@ tn (int argc, char *argv[])
 	  return 0;
 	}
       connected++;
-# if defined(AUTHENTICATION) || defined(ENCRYPTION)
+# if defined AUTHENTICATION || defined ENCRYPTION
       auth_encrypt_connect (connected);
 # endif	/* defined(AUTHENTICATION) || defined(ENCRYPTION) */
     }
@@ -2764,18 +2764,18 @@ static char
   togglestring[] = "toggle operating parameters ('toggle ?' for more)",
   slchelp[] = "change state of special characters ('slc ?' for more)",
   displayhelp[] = "display operating parameters",
-#if defined(TN3270) && defined(unix)
+#if defined TN3270 && defined unix
   transcomhelp[] = "specify Unix command for transparent mode pipe",
 #endif
   /* defined(TN3270) && defined(unix) */
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
   authhelp[] = "turn on (off) authentication ('auth ?' for more)",
 #endif
 #ifdef	ENCRYPTION
   encrypthelp[] = "turn on (off) encryption ('encrypt ?' for more)",
 #endif
   /* ENCRYPTION */
-#if defined(unix)
+#if defined unix
   zhelp[] = "suspend telnet",
 #endif
   /* defined(unix) */
@@ -2798,19 +2798,19 @@ static Command cmdtab[] = {
   {"status", statushelp, status, 0},
   {"toggle", togglestring, toggle, 0},
   {"slc", slchelp, slccmd, 0},
-#if defined(TN3270) && defined(unix)
+#if defined TN3270 && defined unix
   {"transcom", transcomhelp, settranscom, 0},
 #endif /* defined(TN3270) && defined(unix) */
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
   {"auth", authhelp, auth_cmd, 0},
 #endif
 #ifdef	ENCRYPTION
   {"encrypt", encrypthelp, encrypt_cmd, 0},
 #endif /* ENCRYPTION */
-#if defined(unix)
+#if defined unix
   {"z", zhelp, suspend, 0},
 #endif /* defined(unix) */
-#if defined(TN3270)
+#if defined TN3270
   {"!", shellhelp, shell, 1},
 #else
   {"!", shellhelp, shell, 0},
@@ -2871,7 +2871,7 @@ command (int top, char *tbuf, int cnt)
   if (!top)
     {
       putchar ('\n');
-#if defined(unix)
+#if defined unix
     }
   else
     {
@@ -2944,7 +2944,7 @@ command (int top, char *tbuf, int cnt)
 	{
 	  longjmp (toplevel, 1);
 	}
-#if defined(TN3270)
+#if defined TN3270
       if (shell_active == 0)
 	{
 	  setconnmode (0);

@@ -60,7 +60,7 @@
 
 #include <config.h>
 
-#if defined(RSA_ENCPWD) || defined(KRB4_ENCPWD)
+#if defined RSA_ENCPWD || defined KRB4_ENCPWD
 
 # include <stdio.h>
 # include <sys/ioctl.h>

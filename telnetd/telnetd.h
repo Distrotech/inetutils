@@ -51,7 +51,7 @@
 #include <arpa/telnet.h>
 #include <libtelnet/auth.h>
 
-#if defined(HAVE_TERMIOS_H)
+#if defined HAVE_TERMIOS_H
 # include <termios.h>
 #elif defined(HAVE_TERMIO_H)
 # include <termio.h>
@@ -240,7 +240,7 @@ extern int lmodetype;		/* Client support for linemode */
 extern int flowmode;		/* current flow control state */
 extern int restartany;		/* restart output on any character state */
 extern int diagnostic;		/* telnet diagnostic capabilities */
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 extern int auth_level;
 extern int autologin;
 #endif

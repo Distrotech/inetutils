@@ -21,7 +21,7 @@
 
 #include <telnetd.h>
 
-#if defined(HAVE_TERMIOS_H)
+#if defined HAVE_TERMIOS_H
 typedef struct termios TERMDESC;
 # define _term_getattr tcgetattr
 # define _term_setattr(fd, tp) tcsetattr (fd, TCSANOW, tp)
@@ -160,7 +160,7 @@ tty_israw ()
   return termbuf.sg.sg_flags & RAW;
 }
 
-# if defined (AUTHENTICATION) && defined(NO_LOGIN_F) && defined(LOGIN_R)
+# if defined AUTHENTICATION && defined NO_LOGIN_F && defined LOGIN_R
 int
 tty_setraw (int on)
 {
@@ -277,7 +277,7 @@ tty_iscrnl ()
 #  define termdesc_xoff   c_cc[VSTOP]
 # endif
 
-# if !defined(VDISCARD) && defined(VFLUSHO)
+# if !defined VDISCARD && defined VFLUSHO
 #  define VDISCARD VFLUSHO
 # endif
 # ifdef	VDISCARD
@@ -392,7 +392,7 @@ tty_israw ()
   return !(termbuf.c_lflag & ICANON);
 }
 
-# if defined (AUTHENTICATION) && defined(NO_LOGIN_F) && defined(LOGIN_R)
+# if defined AUTHENTICATION && defined NO_LOGIN_F && defined LOGIN_R
 int
 tty_setraw (int on)
 {
@@ -516,7 +516,7 @@ tty_islitecho ()
 # ifdef	TCTLECH
   return !(termbuf.c_lflag & TCTLECH);
 # endif
-# if !defined(ECHOCTL) && !defined(TCTLECH)
+# if !defined ECHOCTL && !defined TCTLECH
   return 0;			/* assumes ctl chars are echoed '^x' */
 # endif
 }
@@ -553,7 +553,7 @@ init_termbuf ()
   termbuf2 = termbuf;
 }
 
-#if defined(TIOCPKT_IOCTL)
+#if defined TIOCPKT_IOCTL
 /*FIXME: Hardly needed*/
 void
 copy_termbuf ()

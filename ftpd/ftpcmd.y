@@ -84,7 +84,7 @@
 
 #include "extern.h"
 
-#if ! defined (NBBY) && defined (CHAR_BIT)
+#if !defined NBBY && defined CHAR_BIT
 #define NBBY CHAR_BIT
 #endif
 
@@ -223,7 +223,7 @@ cmd
 				break;
 
 			case TYPE_L:
-#if defined (NBBY) && NBBY == 8
+#if defined NBBY && NBBY == 8
 				if (cmd_bytesz == 8) {
 					reply(200,
 					    "Type set to L (byte size 8).");

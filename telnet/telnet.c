@@ -51,7 +51,7 @@
 
 #include <sys/types.h>
 
-#if defined(unix)
+#if defined unix
 # include <signal.h>
 /* By the way, we need to include curses.h before telnet.h since,
  * among other things, telnet.h #defines 'DO', which is a variable
@@ -101,7 +101,7 @@ int eight = 0, autologin = 0,	/* Autologin anyone? */
   ISend,			/* trying to send network data in */
   debug = 0, crmod, netdata,	/* Print out network data flow */
   crlf,				/* Should '\r' be mapped to <CR><LF> (or <CR><NUL>)? */
-#if defined(TN3270)
+#if defined TN3270
   noasynchtty = 0,		/* User specified "-noasynch" on command line */
   noasynchnet = 0,		/* User specified "-noasynch" on command line */
   askedSGA = 0,			/* We have talked about suppress go ahead */
@@ -179,7 +179,7 @@ init_telnet ()
   ClearArray (options);
 
   connected = In3270 = ISend = localflow = donebinarytoggle = 0;
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
+#if defined AUTHENTICATION || defined ENCRYPTION
   auth_encrypt_connect (connected);
 #endif /* defined(AUTHENTICATION) || defined(ENCRYPTION)  */
   restartany = -1;
@@ -290,7 +290,7 @@ willoption (int option)
 	{
 
 	case TELOPT_ECHO:
-#if defined(TN3270)
+#if defined TN3270
 	  /*
 	   * The following is a pain in the rear-end.
 	   * Various IBM servers (some versions of Wiscnet,
@@ -320,7 +320,7 @@ willoption (int option)
 	  settimer (modenegotiated);
 	  /* FALL THROUGH */
 	case TELOPT_STATUS:
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 	case TELOPT_AUTHENTICATION:
 #endif
 #ifdef	ENCRYPTION
@@ -447,7 +447,7 @@ dooption (int option)
 	      set_my_state_wont (TELOPT_TM);
 	      return;
 
-#if defined(TN3270)
+#if defined TN3270
 	    case TELOPT_EOR:	/* end of record */
 #endif /* defined(TN3270) */
 	    case TELOPT_BINARY:	/* binary mode */
@@ -476,7 +476,7 @@ dooption (int option)
 	      new_state_ok = 1;
 	      break;
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
 	    case TELOPT_AUTHENTICATION:
 	      if (autologin)
 		new_state_ok = 1;
@@ -816,7 +816,7 @@ suboption ()
 	  unsigned char temp[50];
 	  int len;
 
-#if defined(TN3270)
+#if defined TN3270
 	  if (tn3270_ttype ())
 	    {
 	      return;
@@ -979,7 +979,7 @@ suboption ()
 	}
       break;
 
-#if defined(AUTHENTICATION)
+#if defined AUTHENTICATION
     case TELOPT_AUTHENTICATION:
       {
 	if (!autologin)
@@ -1833,7 +1833,7 @@ telrcv ()
 	      telrcv_state = TS_IAC;
 	      break;
 	    }
-#if defined(TN3270)
+#if defined TN3270
 	  if (In3270)
 	    {
 	      *Ifrontp++ = c;
@@ -1953,7 +1953,7 @@ telrcv ()
 	      telrcv_state = TS_SB;
 	      continue;
 
-#if defined(TN3270)
+#if defined TN3270
 	    case EOR:
 	      if (In3270)
 		{
@@ -1973,7 +1973,7 @@ telrcv ()
 #endif /* defined(TN3270) */
 
 	    case IAC:
-#if !defined(TN3270)
+#if !defined TN3270
 	      TTYADD (IAC);
 #else /* !defined(TN3270) */
 	      if (In3270)
@@ -2321,13 +2321,13 @@ Scheduler (int block)
      ) || my_want_state_is_will (TELOPT_BINARY));
   ttyout = ring_full_count (&ttyoring);
 
-#if defined(TN3270)
+#if defined TN3270
   ttyin = ring_empty_count (&ttyiring) && (shell_active == 0);
 #else /* defined(TN3270) */
   ttyin = ring_empty_count (&ttyiring);
 #endif /* defined(TN3270) */
 
-#if defined(TN3270)
+#if defined TN3270
   netin = ring_empty_count (&netiring);
 #else /* !defined(TN3270) */
   netin = !ISend && ring_empty_count (&netiring);
@@ -2336,7 +2336,7 @@ Scheduler (int block)
   netex = !SYNCHing;
 
   /* If we have seen a signal recently, reset things */
-#if defined(TN3270) && defined(unix)
+#if defined TN3270 && defined unix
   if (HaveInput)
     {
       HaveInput = 0;
@@ -2352,7 +2352,7 @@ Scheduler (int block)
 
   if (ring_full_count (&ttyiring))
     {
-#if defined(TN3270)
+#if defined TN3270
       if (In3270)
 	{
 	  int c;
@@ -2369,14 +2369,14 @@ Scheduler (int block)
 	{
 #endif /* defined(TN3270) */
 	  returnValue |= telsnd ();
-#if defined(TN3270)
+#if defined TN3270
 	}
 #endif /* defined(TN3270) */
     }
 
   if (ring_full_count (&netiring))
     {
-#if !defined(TN3270)
+#if !defined TN3270
       returnValue |= telrcv ();
 #else /* !defined(TN3270) */
       returnValue = Push3270 ();
@@ -2393,7 +2393,7 @@ telnet (char *user)
 {
   sys_telnet_init ();
 
-#if defined(AUTHENTICATION) || defined(ENCRYPTION)
+#if defined AUTHENTICATION || defined ENCRYPTION
   {
     static char *local_host = 0;
 
@@ -2404,10 +2404,10 @@ telnet (char *user)
     auth_encrypt_user (user);
   }
 #endif /* defined(AUTHENTICATION) || defined(ENCRYPTION)  */
-#if !defined(TN3270)
+#if !defined TN3270
   if (telnetport)
     {
-# if defined(AUTHENTICATION)
+# if defined AUTHENTICATION
       if (autologin)
 	send_will (TELOPT_AUTHENTICATION, 1);
 # endif
@@ -2430,7 +2430,7 @@ telnet (char *user)
     }
 #endif /* !defined(TN3270) */
 
-#if !defined(TN3270)
+#if !defined TN3270
   for (;;)
     {
       int schedValue;
