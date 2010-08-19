@@ -136,7 +136,8 @@
 
 	Use fseeko instead of fseek.
 
-	* libinetutils/tftpsubs.c (write_behind): Use fseeko instead of fseek.
+	* libinetutils/tftpsubs.c (write_behind): Use fseeko instead of
+	fseek.
 	* libinetutils/tftpsubs.c (write_behind): Likewise.
 	* ftpd/ftpd.c (store): Likewise.
 	* ftp/ftp.c (recvrequest): Likewise.
@@ -144,13 +145,15 @@
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
-	* cfg.mk (local-checks-to-skip): Removed sc_makefile_check from list.
+	* cfg.mk (local-checks-to-skip): Removed sc_makefile_check from
+	list.
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
 	Removed useless C preprocessor parentehsis.
 
-	* cfg.mk (local-checks-to-skip): Removed sc_useless_cpp_parens from list.
+	* cfg.mk (local-checks-to-skip): Removed sc_useless_cpp_parens
+	from list.
 
 	* ftp/cmds.c: Removed useless C preprocessor parentehsis.
 	* ftp/ftp.c: Likewise.
@@ -206,9 +209,11 @@
 
 	Use EXIT_SUCCESS and EXIT_FAILURE macros through out.
 
-	* cfg.mk (local-checks-to-skip): Removed sc_prohibit_magic_number_exit from list.
+	* cfg.mk (local-checks-to-skip): Removed
+	sc_prohibit_magic_number_exit from list.
 
-	* whois/whois.c (main, err_sys, err_quit): Don't use magical exit numbers.
+	* whois/whois.c (main, err_sys, err_quit): Don't use magical exit
+	numbers.
 	* telnetd/utility.c (io_drain, fatal): Likewise.
 	* telnetd/telnetd.c (main, telnetd_setup): Likewise.
 	* telnetd/state.c (telrcv): Likewise.
@@ -269,7 +274,8 @@
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
-	* cfg.mk (local-checks-to-skip): Removed sc_trailing_blank from list.
+	* cfg.mk (local-checks-to-skip): Removed sc_trailing_blank from
+	list.
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -387,15 +393,18 @@
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
-	* cfg.mk (local-checks-to-skip): Removed sc_prohibit_assert_without_use from list.
+	* cfg.mk (local-checks-to-skip): Removed
+	sc_prohibit_assert_without_use from list.
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
-	* cfg.mk (local-checks-to-skip): Removed sc_obsolete_symbols from list.
+	* cfg.mk (local-checks-to-skip): Removed sc_obsolete_symbols from
+	list.
 
 2010-08-18  Giuseppe Scrivano  <gscrivano@gnu.org>
 
-	Under GNU/Linux print interfaces without an address with ifconfig -a.
+	Under GNU/Linux print interfaces without an address with ifconfig
+	-a.
 
 	* bootstrap.conf (gnulib_modules): Add module `read-file'.
 
@@ -406,7 +415,6 @@
 
 	* ifconfig/system.h: Include <if_index.h>.
 
-	* ifconfig/system/generic.c (system_if_nameindex): New variable.
 	* ifconfig/system/hpux.c (system_if_nameindex): New variable.
 	* ifconfig/system/osf.c (system_if_nameindex): Likewise.
 	* ifconfig/system/qnc.c (system_if_nameindex): Likewise.
@@ -417,8 +425,8 @@
 
 2010-08-16  Sergey Poznyakoff  <gray@gnu.org.ua>
 
-	* ifconfig/flags.c (flag_char_tab): Protect the
-	uses of IFF_SLAVE and IFF_MASTER by #ifdefs.
+	* ifconfig/flags.c (flag_char_tab): Protect the uses of IFF_SLAVE
+	and IFF_MASTER by #ifdefs.
 
 2010-08-16  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -436,7 +444,8 @@
 
 2010-07-10  Giuseppe Scrivano  <gscrivano@gnu.org>
 
-	* ifconfig/if_index.h (if_indextoname): Remove function declaration.
+	* ifconfig/if_index.h (if_indextoname): Remove function
+	declaration.
 
 	* ifconfig/if_index.c (if_indextoname): Remove unused function.
 
@@ -444,7 +453,8 @@
 
 	* configure.ac: Do not check if `bcmp', `bcopy' and `bzero' exist.
 
-	* libinetutils/des_rw.c (des_read): Use `memcpy' instead of `bcopy'.
+	* libinetutils/des_rw.c (des_read): Use `memcpy' instead of
+	`bcopy'.
 	(des_write): Likewise.
 	(des_clear_key): Use `memset' instead of `bzero'.
 
@@ -452,13 +462,12 @@
 
 	* libinetutils/kcmd.c (kcmd): Use `memcpy' instead of `bcopy'.
 
-	* libinetutils/logwtmp.c (logwtmp_keep_open): Use `memset' instead of
-	`bzero'.
+	* libinetutils/logwtmp.c (logwtmp_keep_open): Use `memset' instead
+	of `bzero'.
 	* ftp/ftp.c (initconn): Likewise.
 	* src/uucpd.c (main): Likewise.
 
 	* talk/get_addrs.c (get_addrs): Use `memmove' instead of `bcopy'.
-
 
 2010-06-21  Giuseppe Scrivano  <gscrivano@gnu.org>
 
