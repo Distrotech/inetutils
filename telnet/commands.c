@@ -47,9 +47,7 @@
  * SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #ifdef HAVE_SYS_PARAM_H
 # include <sys/param.h>

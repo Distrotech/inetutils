@@ -68,9 +68,7 @@
  * more extensive changes by Eric Allman (again)
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #define IOVCNT          6	/* size of the iovec array */
 #define MAXLINE		1024	/* Maximum line length.  */

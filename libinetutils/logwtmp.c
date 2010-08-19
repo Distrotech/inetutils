@@ -23,9 +23,7 @@
    called logwtmp_keep_open, which keeps the wtmp file descriptor open
    between calls, and doesn't attempt to open the file after the first call. */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <unistd.h>
 #include <sys/types.h>

@@ -40,9 +40,7 @@
 /* Written by Wietse Venema.  With port to GNU Inetutils done by Alain
    Magloire.  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <sys/types.h>
 #include <sys/time.h>

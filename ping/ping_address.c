@@ -18,9 +18,7 @@
   along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
 /* NOTE: most of existing routers simply discard ICMP_ADDRESS requests. */
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <sys/param.h>
 #include <sys/socket.h>

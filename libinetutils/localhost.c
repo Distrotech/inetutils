@@ -19,9 +19,7 @@
 
 /* Written by Miles Bader.  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <unistd.h>
 #ifdef HAVE_MALLOC_H

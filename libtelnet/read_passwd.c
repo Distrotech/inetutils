@@ -58,9 +58,7 @@
  * echoing.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #if defined(RSA_ENCPWD) || defined(KRB4_ENCPWD)
 

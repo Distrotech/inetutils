@@ -52,9 +52,7 @@
  * (at least between 4.x and dos) which is used in telnet.c.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <fcntl.h>
 #include <sys/types.h>

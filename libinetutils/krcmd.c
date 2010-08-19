@@ -46,9 +46,7 @@
  * SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #if defined(KERBEROS) || defined(SHISHI)
 # include <sys/types.h>

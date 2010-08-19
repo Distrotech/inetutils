@@ -55,9 +55,7 @@
  * uucico's TCP channel causes this server to be run at the remote end.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <sys/types.h>
 #include <sys/wait.h>

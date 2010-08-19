@@ -20,9 +20,7 @@
 /* Written by Simon Josefsson and Nicolas Pouvesle, based on
    kerberos5.c from GNU Inetutils. */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #ifdef SHISHI
 # include <stdlib.h>

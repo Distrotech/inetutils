@@ -67,9 +67,7 @@
  * or implied warranty.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #ifdef	KRB4
 # include <sys/types.h>

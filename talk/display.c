@@ -52,9 +52,7 @@
  * displaying of text
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include "talk.h"
 

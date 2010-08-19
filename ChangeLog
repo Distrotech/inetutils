@@ -1,5 +1,115 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	Don't protect <config.h> with HAVE_CONFIG_H.
+
+	* cfg.mk (local-checks-to-skip): Removed sc_prohibit_have_config_h
+	from list.
+
+	* ftp/cmdtab.c: Include <config.h> uncondtionally.
+	* ftp/domacro.c: Likewise.
+	* ftp/ftp.c: Likewise.
+	* ftp/main.c: Likewise.
+	* ftp/ruserpass.c: Likewise.
+	* ftpd/auth.c: Likewise.
+	* ftpd/conf.c: Likewise.
+	* ftpd/ftpcmd.y: Likewise.
+	* ftpd/ftpd.c: Likewise.
+	* ftpd/logwtmp.c: Likewise.
+	* ftpd/pam.c: Likewise.
+	* ftpd/popen.c: Likewise.
+	* ftpd/server_mode.c: Likewise.
+	* ifconfig/changeif.c: Likewise.
+	* ifconfig/flags.c: Likewise.
+	* ifconfig/if_index.c: Likewise.
+	* ifconfig/ifconfig.c: Likewise.
+	* ifconfig/options.c: Likewise.
+	* ifconfig/printif.c: Likewise.
+	* ifconfig/system/generic.c: Likewise.
+	* ifconfig/system/hpux.c: Likewise.
+	* ifconfig/system/linux.c: Likewise.
+	* ifconfig/system/osf.c: Likewise.
+	* ifconfig/system/qnx.c: Likewise.
+	* ifconfig/system/solaris.c: Likewise.
+	* libicmp/icmp_address.c: Likewise.
+	* libicmp/icmp_cksum.c: Likewise.
+	* libicmp/icmp_echo.c: Likewise.
+	* libicmp/icmp_timestamp.c: Likewise.
+	* libinetutils/cleansess.c: Likewise.
+	* libinetutils/des_rw.c: Likewise.
+	* libinetutils/kcmd.c: Likewise.
+	* libinetutils/krcmd.c: Likewise.
+	* libinetutils/localhost.c: Likewise.
+	* libinetutils/logwtmp.c: Likewise.
+	* libinetutils/setsig.c: Likewise.
+	* libinetutils/shishi.c: Likewise.
+	* libinetutils/tftpsubs.c: Likewise.
+	* libinetutils/ttymsg.c: Likewise.
+	* libinetutils/utmp_init.c: Likewise.
+	* libinetutils/utmp_logout.c: Likewise.
+	* libls/cmp.c: Likewise.
+	* libls/fts.c: Likewise.
+	* libls/ls.c: Likewise.
+	* libls/print.c: Likewise.
+	* libls/stat_flags.c: Likewise.
+	* libls/util.c: Likewise.
+	* libtelnet/auth.c: Likewise.
+	* libtelnet/enc_des.c: Likewise.
+	* libtelnet/encrypt.c: Likewise.
+	* libtelnet/genget.c: Likewise.
+	* libtelnet/getent.c: Likewise.
+	* libtelnet/kerberos.c: Likewise.
+	* libtelnet/kerberos5.c: Likewise.
+	* libtelnet/misc.c: Likewise.
+	* libtelnet/read_passwd.c: Likewise.
+	* libtelnet/shishi.c: Likewise.
+	* ping/libping.c: Likewise.
+	* ping/ping.c: Likewise.
+	* ping/ping6.c: Likewise.
+	* ping/ping_address.c: Likewise.
+	* ping/ping_common.c: Likewise.
+	* ping/ping_echo.c: Likewise.
+	* ping/ping_router.c: Likewise.
+	* ping/ping_timestamp.c: Likewise.
+	* src/inetd.c: Likewise.
+	* src/logger.c: Likewise.
+	* src/rcp.c: Likewise.
+	* src/rexec.c: Likewise.
+	* src/rexecd.c: Likewise.
+	* src/rlogin.c: Likewise.
+	* src/rlogind.c: Likewise.
+	* src/rsh.c: Likewise.
+	* src/rshd.c: Likewise.
+	* src/syslogd.c: Likewise.
+	* src/tftp.c: Likewise.
+	* src/tftpd.c: Likewise.
+	* src/traceroute.c: Likewise.
+	* src/uucpd.c: Likewise.
+	* talk/ctl.c: Likewise.
+	* talk/ctl_transact.c: Likewise.
+	* talk/display.c: Likewise.
+	* talk/get_addrs.c: Likewise.
+	* talk/get_names.c: Likewise.
+	* talk/invite.c: Likewise.
+	* talk/io.c: Likewise.
+	* talk/look_up.c: Likewise.
+	* talk/msgs.c: Likewise.
+	* talk/talk.c: Likewise.
+	* talkd/talkd.c: Likewise.
+	* telnet/authenc.c: Likewise.
+	* telnet/commands.c: Likewise.
+	* telnet/main.c: Likewise.
+	* telnet/network.c: Likewise.
+	* telnet/sys_bsd.c: Likewise.
+	* telnet/telnet.c: Likewise.
+	* telnet/terminal.c: Likewise.
+	* telnet/tn3270.c: Likewise.
+	* telnet/utilities.c: Likewise.
+	* telnetd/telnetd.h: Likewise.
+	* whois/whois.c: Likewise.
+	* ftp/cmds.c: Likewise.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	* cfg.mk (local-checks-to-skip): Removed sc_prohibit_assert_without_use from list.
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>

@@ -27,7 +27,6 @@ local-checks-to-skip = \
 	sc_m4_quote_check \
 	sc_program_name \
 	sc_prohibit_atoi_atof \
-	sc_prohibit_have_config_h \
 	sc_prohibit_magic_number_exit \
 	sc_prohibit_signal_without_use \
 	sc_prohibit_stat_st_blocks \

@@ -50,9 +50,7 @@
 /* This code is derived from software written by Ken Arnold and
    published in UNIX Review, Vol. 6, No. 8.  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <sys/types.h>
 #include <sys/wait.h>

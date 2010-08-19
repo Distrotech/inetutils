@@ -51,9 +51,7 @@
  * FTP server.
  */
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <config.h>
 
 #include <alloca.h>
 #include <sys/param.h>
