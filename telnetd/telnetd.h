@@ -274,8 +274,8 @@ void io_drain (void);
 int stilloob (int s);
 void ptyflush (void);
 char *nextitem (char *current);
-void netclear ();
-void netflush ();
+void netclear (void);
+void netflush (void);
 
 int pty_buffer_is_full (void);
 void pty_output_byte (int c);

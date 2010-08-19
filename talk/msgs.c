@@ -72,7 +72,7 @@ disp_msg (int sig)
 }
 
 int
-start_msgs ()
+start_msgs (void)
 {
   struct itimerval itimer;
 
@@ -86,7 +86,7 @@ start_msgs ()
 }
 
 int
-end_msgs ()
+end_msgs (void)
 {
   struct itimerval itimer;
 

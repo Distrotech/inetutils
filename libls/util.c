@@ -63,8 +63,7 @@
 #include "extern.h"
 
 int
-putname (name)
-     char *name;
+putname (char *name)
 {
   int len;
 
@@ -74,7 +73,7 @@ putname (name)
 }
 
 void
-usage ()
+usage (void)
 {
   fprintf (stderr, "usage: ls [-1ACFLRSTWacdfiklmnopqrstux] [file ...]\n");
   exit (EXIT_FAILURE);

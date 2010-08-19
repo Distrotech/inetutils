@@ -94,7 +94,7 @@ jmp_buf invitebuf;
  * Transmit the invitation and process the response
  */
 int
-announce_invite ()
+announce_invite (void)
 {
   CTL_RESPONSE response;
 
@@ -130,7 +130,7 @@ re_invite (int sig)
 }
 
 int
-invite_remote ()
+invite_remote (void)
 {
   int new_sockt;
   struct itimerval itimer;
@@ -188,7 +188,7 @@ invite_remote ()
  * Tell the daemon to remove your invitation
  */
 int
-send_delete ()
+send_delete (void)
 {
 
   msg.type = DELETE;

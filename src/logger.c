@@ -109,7 +109,7 @@ union logger_sockaddr
 int fd;
 
 static void
-open_socket ()
+open_socket (void)
 {
   union logger_sockaddr sockaddr;
   socklen_t socklen;

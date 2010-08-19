@@ -141,9 +141,9 @@ int newmap = 1;			/* nonzero if \n maps to ^M^J */
  *	   is on.
  */
 void
-localstat ()
+localstat (void)
 {
-  void netflush ();
+  void netflush (void);
   int need_will_echo = 0;
 
 #if defined CRAY2 && defined UNICOS5
@@ -371,7 +371,7 @@ done:
  * Check for changes to flow control
  */
 void
-flowstat ()
+flowstat (void)
 {
   if (his_state_is_will (TELOPT_LFLOW))
     {
@@ -404,7 +404,7 @@ flowstat ()
 void
 clientstat (register int code, register int parm1, register int parm2)
 {
-  void netflush ();
+  void netflush (void);
 
   /*
    * Get a copy of terminal characteristics.
@@ -623,7 +623,7 @@ _termstat ()
  * It calls other functions that do things that were deferred in each module.
  */
 void
-defer_terminit ()
+defer_terminit (void)
 {
 
   /*
@@ -660,7 +660,7 @@ defer_terminit ()
  * Returns true if the pty state has been processed yet.
  */
 int
-terminit ()
+terminit (void)
 {
   return (_terminit);
 

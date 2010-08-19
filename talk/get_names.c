@@ -65,8 +65,8 @@
 #include <unistd.h>
 #include "talk.h"
 
-char *getlogin ();
-char *ttyname ();
+char *getlogin (void);
+char *ttyname (int);
 extern CTL_MSG msg;
 
 /*

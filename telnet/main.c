@@ -75,7 +75,7 @@
  * Initialize variables.
  */
 void
-tninit ()
+tninit (void)
 {
   init_terminal ();
 

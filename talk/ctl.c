@@ -88,7 +88,7 @@ int invitation_waiting = 0;
 CTL_MSG msg;
 
 int
-open_sockt ()
+open_sockt (void)
 {
   socklen_t length;
 
@@ -108,7 +108,7 @@ open_sockt ()
 
 /* open the ctl socket */
 int
-open_ctl ()
+open_ctl (void)
 {
   socklen_t length;
 

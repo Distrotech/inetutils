@@ -105,7 +105,7 @@ cc_t termAytChar;
  */
 
 void
-init_terminal ()
+init_terminal (void)
 {
   if (ring_init (&ttyoring, ttyobuf, sizeof ttyobuf) != 1)
     {
@@ -188,7 +188,7 @@ ttyflush (int drop)
 
 
 int
-getconnmode ()
+getconnmode (void)
 {
   extern int linemode;
   int mode = 0;
@@ -266,7 +266,7 @@ setconnmode (int force)
 
 
 void
-setcommandmode ()
+setcommandmode (void)
 {
   TerminalNewMode (-1);
 }

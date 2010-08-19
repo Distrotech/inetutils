@@ -83,7 +83,7 @@ sig_sent (int sig ARG_UNUSED)
  * and build the various windows.
  */
 int
-init_display ()
+init_display (void)
 {
 #ifdef HAVE_SIGACTION
   struct sigaction siga;
@@ -146,7 +146,7 @@ init_display ()
  * connection are the three edit characters.
  */
 int
-set_edit_chars ()
+set_edit_chars (void)
 {
   int cc;
   char buf[3];
@@ -214,7 +214,7 @@ set_edit_chars ()
  * All done talking...hang up the phone and reset terminal thingy's
  */
 int
-quit ()
+quit (void)
 {
 
   if (curses_initialized)

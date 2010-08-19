@@ -106,7 +106,7 @@ main (int argc, char *argv[])
 }
 
 void
-talkd_init ()
+talkd_init (void)
 {
   openlog ("talkd", LOG_PID, LOG_FACILITY);
   hostname = localhost ();

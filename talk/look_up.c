@@ -89,7 +89,7 @@ look_for_invite (CTL_RESPONSE *rp)
  * See if the local daemon has an invitation for us.
  */
 int
-check_local ()
+check_local (void)
 {
   CTL_RESPONSE response;
   register CTL_RESPONSE *rp = &response;

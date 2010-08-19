@@ -124,7 +124,7 @@ static fd_set ibits, obits, xbits;
 
 
 void
-init_sys ()
+init_sys (void)
 {
   tout = fileno (stdout);
   tin = fileno (stdin);
@@ -153,7 +153,7 @@ TerminalRead (char *buf, int n)
  */
 
 int
-TerminalAutoFlush ()
+TerminalAutoFlush (void)
 {
 #if defined LNOFLSH
   int flush;
@@ -180,7 +180,7 @@ extern int kludgelinemode;
  *	1	Do add this character
  */
 
-extern void xmitAO (), xmitEL (), xmitEC (), intp (), sendbrk ();
+extern void xmitAO (void), xmitEL (void), xmitEC (void), intp (void), sendbrk (void);
 
 int
 TerminalSpecialChars (int c)
@@ -241,7 +241,7 @@ TerminalSpecialChars (int c)
  */
 
 void
-TerminalFlushOutput ()
+TerminalFlushOutput (void)
 {
   int flags = 0;
 #ifdef	TIOCFLUSH
@@ -252,7 +252,7 @@ TerminalFlushOutput ()
 }
 
 void
-TerminalSaveState ()
+TerminalSaveState (void)
 {
 #ifndef USE_TERMIO
   ioctl (0, TIOCGETP, (char *) &ottyb);
@@ -352,7 +352,7 @@ tcval (register int func)
 }
 
 void
-TerminalDefaultChars ()
+TerminalDefaultChars (void)
 {
 #ifndef USE_TERMIO
   ntc = otc;
@@ -671,7 +671,7 @@ TerminalNewMode (register int f)
   if (f != -1)
     {
 #ifdef	SIGTSTP
-      RETSIGTYPE susp ();
+      RETSIGTYPE susp (int sig);
 #endif /* SIGTSTP */
 #ifdef	SIGINFO
       RETSIGTYPE ayt ();
@@ -1009,7 +1009,7 @@ ayt (int sig)
 
 
 void
-sys_telnet_init ()
+sys_telnet_init (void)
 {
   signal (SIGINT, intr);
   signal (SIGQUIT, intr2);

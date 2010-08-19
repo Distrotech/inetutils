@@ -110,9 +110,7 @@ off_t restart_point = 0;
 FILE *cin, *cout;
 
 char *
-hookup (host, port)
-     char *host;
-     int port;
+hookup (char *host, int port)
 {
   struct hostent *hp = 0;
   int s, tos;
@@ -246,8 +244,7 @@ bad:
 }
 
 int
-login (host)
-     char *host;
+login (char *host)
 {
   char tmp[80];
   char *user, *pass, *acct;
@@ -383,8 +380,7 @@ command (const char *fmt, ...)
 char reply_string[BUFSIZ];	/* last line of previous reply */
 
 int
-getreply (expecteof)
-     int expecteof;
+getreply (int expecteof)
 {
   int c, n;
   int dig;
@@ -430,7 +426,7 @@ getreply (expecteof)
 		  code = 221;
 		  return (0);
 		}
-	      lostpeer ();
+	      lostpeer (0);
 	      if (verbose)
 		{
 		  printf
@@ -490,7 +486,7 @@ getreply (expecteof)
 	cpend = 0;
       signal (SIGINT, oldintr);
       if (code == 421 || originalcode == 421)
-	lostpeer ();
+	lostpeer (0);
       if (abrtflag && oldintr != cmdabort && oldintr != SIG_IGN)
 	(*oldintr) (SIGINT);
       return (n - '0');
@@ -498,9 +494,7 @@ getreply (expecteof)
 }
 
 int
-empty (mask, sec)
-     fd_set *mask;
-     int sec;
+empty (fd_set *mask, int sec)
 {
   struct timeval t;
 
@@ -512,8 +506,7 @@ empty (mask, sec)
 jmp_buf sendabort;
 
 void
-abortsend (sig)
-     int sig;
+abortsend (int sig)
 {
 
   mflag = 0;
@@ -524,14 +517,12 @@ abortsend (sig)
 }
 
 void
-sendrequest (cmd, local, remote, printnames)
-     char *cmd, *local, *remote;
-     int printnames;
+sendrequest (char *cmd, char *local, char *remote, int printnames)
 {
   struct stat st;
   struct timeval start, stop;
   int c, d;
-  FILE *fin, *dout = 0, *popen ();
+  FILE *fin, *dout = 0, *popen (const char *, const char *);
   int (*closefunc) (FILE *);
   sig_t oldintr, oldintp;
   long bytes = 0, local_hashbytes = hashbytes;
@@ -800,8 +791,7 @@ abort:
 jmp_buf recvabort;
 
 void
-abortrecv (sig)
-     int sig;
+abortrecv (int sig)
 {
 
   mflag = 0;
@@ -812,9 +802,7 @@ abortrecv (sig)
 }
 
 void
-recvrequest (cmd, local, remote, lmode, printnames)
-     char *cmd, *local, *remote, *lmode;
-     int printnames;
+recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
 {
   FILE *fout, *din = 0;
   int (*closefunc) (FILE *);
@@ -1118,7 +1106,7 @@ abort:
  * otherwise the server's connect may fail.
  */
 int
-initconn ()
+initconn (void)
 {
   char *p, *a;
   int result, tmpno = 0;
@@ -1255,8 +1243,7 @@ bad:
 }
 
 FILE *
-dataconn (lmode)
-     char *lmode;
+dataconn (char *lmode)
 {
   struct sockaddr_in from;
   int s, tos;
@@ -1283,10 +1270,7 @@ dataconn (lmode)
 }
 
 void
-ptransfer (direction, bytes, t0, t1)
-     char *direction;
-     long bytes;
-     struct timeval *t0, *t1;
+ptransfer (char *direction, long int bytes, struct timeval *t0, struct timeval *t1)
 {
   struct timeval td;
   float s;
@@ -1317,8 +1301,7 @@ tvadd(tsum, t0)
 */
 
 void
-tvsub (tdiff, t1, t0)
-     struct timeval *tdiff, *t1, *t0;
+tvsub (struct timeval *tdiff, struct timeval *t1, struct timeval *t0)
 {
 
   tdiff->tv_sec = t1->tv_sec - t0->tv_sec;
@@ -1328,16 +1311,14 @@ tvsub (tdiff, t1, t0)
 }
 
 void
-psabort (sig)
-     int sig;
+psabort (int sig)
 {
 
   abrtflag++;
 }
 
 void
-pswitch (flag)
-     int flag;
+pswitch (int flag)
 {
   sig_t oldintr;
   static struct comvars
@@ -1443,8 +1424,7 @@ pswitch (flag)
 }
 
 void
-abortpt (sig)
-     int sig;
+abortpt (int sig)
 {
 
   printf ("\n");
@@ -1456,8 +1436,7 @@ abortpt (sig)
 }
 
 void
-proxtrans (cmd, local, remote)
-     char *cmd, *local, *remote;
+proxtrans (char *cmd, char *local, char *remote)
 {
   sig_t oldintr;
   int secndflag = 0, prox_type, nfnd;
@@ -1573,7 +1552,7 @@ abort:
 	    }
 	  if (ptabflg)
 	    code = -1;
-	  lostpeer ();
+	  lostpeer (0);
 	}
       getreply (0);
       getreply (0);
@@ -1587,9 +1566,7 @@ abort:
 }
 
 void
-reset (argc, argv)
-     int argc;
-     char *argv[];
+reset (int argc, char **argv)
 {
   fd_set mask;
   int nfnd = 1;
@@ -1602,7 +1579,7 @@ reset (argc, argv)
 	{
 	  error (0, errno, "reset");
 	  code = -1;
-	  lostpeer ();
+	  lostpeer (0);
 	}
       else if (nfnd)
 	{
@@ -1612,8 +1589,7 @@ reset (argc, argv)
 }
 
 char *
-gunique (local)
-     char *local;
+gunique (char *local)
 {
   static char *new = 0;
   char *cp;
@@ -1668,8 +1644,7 @@ gunique (local)
 }
 
 void
-abort_remote (din)
-     FILE *din;
+abort_remote (FILE *din)
 {
   char buf[BUFSIZ];
   int nfnd;
@@ -1698,7 +1673,7 @@ abort_remote (din)
 	}
       if (ptabflg)
 	code = -1;
-      lostpeer ();
+      lostpeer (0);
     }
   if (din && FD_ISSET (fileno (din), &mask))
     {

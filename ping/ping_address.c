@@ -53,7 +53,7 @@ static void print_address (int dupflag, void *closure,
 static void print_address (int dupflag, void *closure,
 			   struct sockaddr_in *dest, struct sockaddr_in *from,
 			   struct ip *ip, icmphdr_t * icmp, int datalen);
-static int address_finish ();
+static int address_finish (void);
 
 int
 ping_address (char *hostname)
@@ -111,7 +111,7 @@ print_address (int dupflag, void *closure,
 
 
 int
-address_finish ()
+address_finish (void)
 {
   return 0;
 }

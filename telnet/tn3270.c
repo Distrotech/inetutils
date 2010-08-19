@@ -91,7 +91,7 @@ static int Sent3270TerminalType;	/* Have we said we are a 3270? */
 
 
 void
-init_3270 ()
+init_3270 (void)
 {
 #if defined TN3270
 # if defined unix

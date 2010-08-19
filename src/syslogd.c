@@ -782,7 +782,7 @@ create_unix_socket (const char *path)
 }
 
 static int
-create_inet_socket ()
+create_inet_socket (void)
 {
   int fd;
   struct sockaddr_in sin;

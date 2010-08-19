@@ -422,7 +422,7 @@ sendcmd (int argc, char **argv)
 }
 
 static int
-send_esc ()
+send_esc (void)
 {
   NETADD (escape);
   return 1;
@@ -526,7 +526,7 @@ send_wontcmd (char *name)
 }
 
 static int
-send_help ()
+send_help (void)
 {
   struct sendlist *s;		/* pointer to current command */
   for (s = Sendlist; s->name; s++)
@@ -543,14 +543,14 @@ send_help ()
  */
 
 static int
-lclchars ()
+lclchars (void)
 {
   donelclchars = 1;
   return 1;
 }
 
 static int
-togdebug ()
+togdebug (void)
 {
 #ifndef NOT43
   if (net > 0 && (SetSockOpt (net, SOL_SOCKET, SO_DEBUG, debug)) < 0)
@@ -571,7 +571,7 @@ togdebug ()
 
 
 static int
-togcrlf ()
+togcrlf (void)
 {
   if (crlf)
     {
@@ -858,7 +858,7 @@ static struct togglelist Togglelist[] = {
 };
 
 static int
-togglehelp ()
+togglehelp (void)
 {
   struct togglelist *c;
 
@@ -1225,7 +1225,7 @@ unsetcmd (int argc, char *argv[])
 extern int kludgelinemode;
 
 static int
-dokludgemode ()
+dokludgemode (void)
 {
   kludgelinemode = 1;
   send_wont (TELOPT_LINEMODE, 1);
@@ -1236,7 +1236,7 @@ dokludgemode ()
 #endif
 
 static int
-dolinemode ()
+dolinemode (void)
 {
 #ifdef	KLUDGELINEMODE
   if (kludgelinemode)
@@ -1248,7 +1248,7 @@ dolinemode ()
 }
 
 static int
-docharmode ()
+docharmode (void)
 {
 #ifdef	KLUDGELINEMODE
   if (kludgelinemode)
@@ -1261,8 +1261,7 @@ docharmode ()
 }
 
 static int
-dolmmode (bit, on)
-     int bit, on;
+dolmmode (int bit, int on)
 {
   unsigned char c;
   extern int linemode;
@@ -1303,7 +1302,7 @@ struct modelist
   int arg1;
 };
 
-extern int modehelp ();
+extern int modehelp (void);
 
 static struct modelist ModeList[] = {
   {"character", "Disable LINEMODE option", docharmode, 1},
@@ -1340,7 +1339,7 @@ static struct modelist ModeList[] = {
 
 
 int
-modehelp ()
+modehelp (void)
 {
   struct modelist *mt;
 
@@ -1505,7 +1504,7 @@ setescape (int argc, char *argv[])
 }
 
 static int
-togcrmod ()
+togcrmod (void)
 {
   crmod = !crmod;
   printf ("Deprecated usage - please use 'toggle crmod' in the future.\n");
@@ -1515,7 +1514,7 @@ togcrmod ()
 }
 
 int
-suspend ()
+suspend (void)
 {
 #ifdef	SIGTSTP
   setcommandmode ();
@@ -1566,7 +1565,7 @@ shell (int argc, char *argv[])
 	 */
 	register char *shellp, *shellname;
 # ifndef strrchr
-	extern char *strrchr ();
+	extern char *strrchr (const char *, int);
 # endif
 
 	shellp = getenv ("SHELL");
@@ -1631,7 +1630,7 @@ bye (int argc, char *argv[])
 }
 
 int
-quit ()
+quit (void)
 {
   call (bye, "bye", "fromquit", 0);
   Exit (0);
@@ -1639,7 +1638,7 @@ quit ()
 }
 
 int
-logout ()
+logout (void)
 {
   send_do (TELOPT_LOGOUT, 1);
   netflush ();
@@ -1659,7 +1658,7 @@ struct slclist
   int arg;
 };
 
-static void slc_help ();
+static void slc_help (void);
 
 struct slclist SlcList[] = {
   {"export", "Use local special character definitions",
@@ -1674,7 +1673,7 @@ struct slclist SlcList[] = {
 };
 
 static void
-slc_help ()
+slc_help (void)
 {
   struct slclist *c;
 
@@ -1691,17 +1690,14 @@ slc_help ()
 }
 
 static struct slclist *
-getslc (name)
-     char *name;
+getslc (char *name)
 {
   return (struct slclist *)
     genget (name, (char **) SlcList, sizeof (struct slclist));
 }
 
 static int
-slccmd (argc, argv)
-     int argc;
-     char *argv[];
+slccmd (int argc, char **argv)
 {
   struct slclist *c;
 
@@ -1774,7 +1770,7 @@ struct envlist EnvList[] = {
 };
 
 static void
-env_help ()
+env_help (void)
 {
   struct envlist *c;
 
@@ -1859,13 +1855,13 @@ env_find (const char *var)
 }
 
 void
-env_init ()
+env_init (void)
 {
   extern char **environ;
   register char **epp, *cp;
   register struct env_lst *ep;
 #ifndef strchr
-  extern char *strchr ();
+  extern char *strchr (const char *, int);
 #endif
 
   for (epp = environ; *epp; epp++)
@@ -1996,7 +1992,7 @@ env_send (const char *var)
 }
 
 void
-env_list ()
+env_list (void)
 {
   register struct env_lst *ep;
 
@@ -2783,7 +2779,7 @@ static char
   envhelp[] = "change environment variables ('environ ?' for more)",
   modestring[] = "try to enter line or character mode ('mode ?' for more)";
 
-static int help ();
+static int help (int argc, char **argv);
 
 static Command cmdtab[] = {
   {"close", closehelp, bye, 1},

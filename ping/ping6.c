@@ -392,7 +392,7 @@ send_echo (PING * ping)
 }
 
 static int
-ping_finish ()
+ping_finish (void)
 {
   fflush (stdout);
   printf ("--- %s ping statistics ---\n", ping->ping_hostname);
@@ -676,7 +676,7 @@ print_icmp_error (struct sockaddr_in6 *from, struct icmp6_hdr *icmp6, int len)
 }
 
 static int
-echo_finish ()
+echo_finish (void)
 {
   ping_finish ();
   if (ping->ping_num_recv && PING_TIMING (data_length))

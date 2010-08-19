@@ -50,7 +50,7 @@ static void print_timestamp (int dupflag, void *closure,
 			     struct sockaddr_in *dest,
 			     struct sockaddr_in *from, struct ip *ip,
 			     icmphdr_t * icmp, int datalen);
-static int timestamp_finish ();
+static int timestamp_finish (void);
 
 int
 ping_timestamp (char *hostname)
@@ -106,7 +106,7 @@ print_timestamp (int dupflag, void *closure,
 }
 
 int
-timestamp_finish ()
+timestamp_finish (void)
 {
   return ping_finish ();
 }

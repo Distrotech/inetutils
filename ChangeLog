@@ -1,5 +1,114 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	Converted K&R style declarations to ISO C89.
+
+	* ftp/cmds.c (account, all_lower, all_upper, another, cd, cdup)
+	(changetype, confirm, cp_subst, delete, disconnect, do_chmod)
+	(do_umask, domap, doproxy, dotrans, fatal, get, getit, globulize)
+	(lcd, ls, macdef, makedir, mdelete, mget, mls, modtime, mput)
+	(newer, onoff, proxabort, put, pwd, quit, quote, quote1, reget)
+	(remglob, removedir, renamefile, restart, rmthelp, rmtstatus)
+	(setascii, setbell, setbinary, setcase, setcr, setdebug, setform)
+	(setftmode, setglob, sethash, setnmap, setntrans, setpassive)
+	(setpeer, setport, setprompt, setrunique, setstruct, setsunique)
+	(settenex, settrace, settype, setverbose, shell, site, site_idle)
+	(sizecmd, status, strdown, syst, user): Use ANSI style
+	declarations for prototypes.
+	* ftp/extern.h (abortpt, abortrecv, abortsend, cmdabort, intr)
+	(lostpeer, proxabort, psabort): Likewise.
+	* ftp/ftp.c (abort_remote, abortpt, abortrecv, abortsend)
+	(dataconn, empty, getreply, gunique, hookup, initconn, login)
+	(proxtrans, psabort, pswitch, ptransfer, recvrequest, reset)
+	(sendrequest, tvsub): Likewise.
+	* ftp/main.c (makeargv, slurpstring): Likewise.
+	* ftpd/ftpcmd.y (lookupyyle): Likewise.
+	* libinetutils/tftpsubs.c (r_init, w_init): Likewise.
+	* libls/cmp.c (acccmp, modcmp, namecmp, revacccmp, revmodcmp)
+	(revnamecmp, revsizecmp, revstatcmp, sizecmp, statcmp): Likewise.
+	* libls/fts.c (fts_alloc, fts_build, fts_children, fts_close)
+	(fts_lfree, fts_load, fts_maxarglen, fts_open, fts_padjust)
+	(fts_palloc, fts_read, fts_set, fts_sort, fts_stat): Likewise.
+	* libls/ls.c (display, ls_main, mastercmp, traverse): Likewise.
+	* libls/print.c (compute_columns, printacol, printaname, printcol)
+	(printlink, printlong, printscol, printstream, printtime)
+	(printtype): Likewise.
+	* libls/stat_flags.c (flags_to_string, string_to_flags): Likewise.
+	* libls/util.c (putname, usage): Likewise.
+	* ping/ping.c (ping_finish): Likewise.
+	* ping/ping6.c (echo_finish, ping_finish): Likewise.
+	* ping/ping_address.c (address_finish): Likewise.
+	* ping/ping_echo.c (echo_finish): Likewise.
+	* ping/ping_timestamp.c (timestamp_finish): Likewise.
+	* src/inetd.c (fix_tcpmux): Likewise.
+	* src/logger.c (open_socket): Likewise.
+	* src/rcp.c (response): Likewise.
+	* src/rlogin.c (sendwindow, writer): Likewise.
+	* src/syslogd.c (create_inet_socket): Likewise.
+	* src/tftp.c (w_init, , r_init, , tail, , command, intr, makeargv)
+	(startclock, stopclock, getcmd, intr): Likewise.
+	* src/tftpd.c (r_init, w_init): Likewise.
+	* src/uucpd.c (getpwnam, , dologout, dologout, dologin): Likewise.
+	* talk/ctl.c (open_ctl, open_sockt): Likewise.
+	* talk/get_names.c (getlogin, , ttyname): Likewise.
+	* talk/init_disp.c (init_display, quit, set_edit_chars): Likewise.
+	* talk/invite.c (announce_invite, invite_remote, send_delete):
+	Likewise.
+	* talk/io.c (talk): Likewise.
+	* talk/look_up.c (check_local): Likewise.
+	* talk/msgs.c (end_msgs, start_msgs): Likewise.
+	* talkd/table.c (new_id): Likewise.
+	* talkd/talkd.c (talkd_init): Likewise.
+	* telnet/commands.c (docharmode, dokludgemode, dolinemode)
+	(dolmmode, env_help, env_init, env_list, modehelp, getslc)
+	(lclchars, logout, modehelp, quit, send_esc, send_help, slc_help)
+	(slccmd, help, slc_help, suspend, togcrlf, togcrmod, togdebug)
+	(togglehelp): Likewise.
+	* telnet/main.c (tninit): Likewise.
+	* telnet/network.c (init_network, netflush, setneturg, stilloob):
+	Likewise.
+	* telnet/sys_bsd.c (susp, TerminalAutoFlush, TerminalDefaultChars)
+	(TerminalFlushOutput, TerminalSaveState, xmitAO, init_sys)
+	(sys_telnet_init): Likewise.
+	* telnet/telnet.c (doflush, dosynch, env_opt_start)
+	(env_opt_start_info, get_status, gettermname, init_telnet, intp)
+	(netclear, rlogin_susp, sendabort, sendayt, sendbrk, sendeof)
+	(sendnaws, sendsusp, slc_check, slc_end_reply, slc_export)
+	(slc_init, slc_mode_export, slc_start_reply, slc_update, slcstate)
+	(suboption, telrcv, telsnd, xmitAO, xmitEC, xmitEL): Likewise.
+	* telnet/terminal.c (getconnmode, init_terminal, setcommandmode):
+	Likewise.
+	* telnet/tn3270.c (init_3270): Likewise.
+	* telnet/utilities.c (EmptyTerminal, SetForExit, optionstatus):
+	Likewise.
+	* telnetd/pty.c (scrub_env): Likewise.
+	* telnetd/slc.c (netflush, check_slc, default_slc, deferslc)
+	(get_slc_defaults, send_slc): Likewise.
+	* telnetd/state.c (doclientstat, doclientstat, recv_ayt, send_brk)
+	(send_eof, send_intr, send_status, send_susp, suboption, telrcv):
+	Likewise.
+	* telnetd/telnetd.c (print_hostinfo, telnetd_run): Likewise.
+	* telnetd/telnetd.h (netclear, netflush): Likewise.
+	* telnetd/term.c (init_termbuf, set_termbuf, term_change_eof)
+	(term_send_eof, tty_flowmode, tty_isbinaryin, tty_isbinaryout)
+	(tty_iscrnl, tty_isecho, tty_isediting, tty_islitecho, tty_israw)
+	(tty_issofttab, tty_istrapsig, tty_linemode, tty_restartany):
+	Likewise.
+	* telnetd/termstat.c (netflush, defer_terminit, flowstat)
+	(localstat, terminit): Likewise.
+	* telnetd/utility.c (_gettermname, debug_close, debug_open)
+	(io_drain, io_setup, net_buffer_is_full, net_input_level)
+	(net_output_level, net_read, netclear, netflush)
+	(pty_buffer_is_full, pty_input_level, pty_output_level, pty_read)
+	(ptyflush, set_neturg): Likewise.
+
+	* ftp/ftp.c (getreply): Pass bogus value to lostpeer.
+	(proxtrans): Likewise.
+	(reset): Likewise.
+	(abort_remote): Likewise.
+	* ftp/cmds.c (another): Likewise.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	Use fseeko instead of fseek.
 
 	* libinetutils/tftpsubs.c (write_behind): Use fseeko instead of fseek.

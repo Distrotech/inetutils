@@ -158,7 +158,7 @@ readstream (int p, char *ibuf, int bufsize)
 /* Net and PTY I/O functions */
 
 void
-io_setup ()
+io_setup (void)
 {
   pfrontp = pbackp = ptyobuf;
   nfrontp = nbackp = netobuf;
@@ -170,7 +170,7 @@ io_setup ()
 }
 
 void
-set_neturg ()
+set_neturg (void)
 {
   neturg = nfrontp - 1;
 }
@@ -222,19 +222,19 @@ net_output_datalen (const void *buf, size_t l)
 }
 
 int
-net_input_level ()
+net_input_level (void)
 {
   return ncc;
 }
 
 int
-net_output_level ()
+net_output_level (void)
 {
   return nfrontp - nbackp;
 }
 
 int
-net_buffer_is_full ()
+net_buffer_is_full (void)
 {
   return (&netobuf[BUFSIZ] - nfrontp) < 2;
 }
@@ -254,7 +254,7 @@ net_get_char (int peek)
 }
 
 int
-net_read ()
+net_read (void)
 {
   ncc = read (net, netibuf, sizeof (netibuf));
   if (ncc < 0 && errno == EWOULDBLOCK)
@@ -277,7 +277,7 @@ net_read ()
 /* PTY buffer functions */
 
 int
-pty_buffer_is_full ()
+pty_buffer_is_full (void)
 {
   return (&ptyobuf[BUFSIZ] - pfrontp) < 2;
 }
@@ -298,19 +298,19 @@ pty_output_datalen (const void *data, size_t len)
 }
 
 int
-pty_input_level ()
+pty_input_level (void)
 {
   return pcc;
 }
 
 int
-pty_output_level ()
+pty_output_level (void)
 {
   return pfrontp - pbackp;
 }
 
 void
-ptyflush ()
+ptyflush (void)
 {
   int n;
 
@@ -360,7 +360,7 @@ pty_input_putback (const char *str, size_t len)
 }
 
 int
-pty_read ()
+pty_read (void)
 {
   pcc = readstream (pty, ptyibuf, BUFSIZ);
   if (pcc < 0 && (errno == EWOULDBLOCK
@@ -389,7 +389,7 @@ pty_read ()
  */
 
 void
-io_drain ()
+io_drain (void)
 {
   DEBUG (debug_report, 1, debug_output_data ("td: ttloop\r\n"));
   if (nfrontp - nbackp > 0)
@@ -509,7 +509,7 @@ nextitem (char *current)
 
 
 void
-netclear ()
+netclear (void)
 {
   register char *thisitem, *next;
   char *good;
@@ -563,7 +563,7 @@ netclear ()
  *	handling requests for urgent data.
  */
 void
-netflush ()
+netflush (void)
 {
   int n;
 
@@ -664,7 +664,7 @@ static unsigned char ttytype_sbbuf[] = {
 };
 
 static void
-_gettermname ()
+_gettermname (void)
 {
   if (his_state_is_wont (TELOPT_TTYPE))
     return;
@@ -836,7 +836,7 @@ terminaltypeok (char *s)
 static FILE *debug_fp = NULL;
 
 static int
-debug_open ()
+debug_open (void)
 {
   int um = umask (077);
   if (!debug_fp)
@@ -846,7 +846,7 @@ debug_open ()
 }
 
 static int
-debug_close ()
+debug_close (void)
 {
   if (debug_fp)
     fclose (debug_fp);

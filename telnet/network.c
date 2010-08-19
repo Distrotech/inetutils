@@ -73,7 +73,7 @@ unsigned char netobuf[2 * BUFSIZ], netibuf[BUFSIZ];
  */
 
 void
-init_network ()
+init_network (void)
 {
   if (ring_init (&netoring, netobuf, sizeof netobuf) != 1)
     {
@@ -93,7 +93,7 @@ init_network ()
  */
 
 int
-stilloob ()
+stilloob (void)
 {
   static struct timeval timeout = { 0 };
   fd_set excepts;
@@ -131,7 +131,7 @@ stilloob ()
  */
 
 void
-setneturg ()
+setneturg (void)
 {
   ring_mark (&netoring);
 }
@@ -148,7 +148,7 @@ setneturg ()
 
 
 int
-netflush ()
+netflush (void)
 {
   register int n, n1;
 

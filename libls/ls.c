@@ -116,9 +116,7 @@ int f_whiteout;			/* show whiteout entries */
 int rval;
 
 int
-ls_main (argc, argv)
-     int argc;
-     char *argv[];
+ls_main (int argc, char **argv)
 {
   static char dot[] = ".", *dotav[] = { dot, NULL };
   struct winsize win;
@@ -353,9 +351,7 @@ static int output;		/* If anything output. */
  * a superset (may be exact set) of the files to be displayed.
  */
 static void
-traverse (argc, argv, options)
-     int argc, options;
-     char *argv[];
+traverse (int argc, char **argv, int options)
 {
   FTS *ftsp;
   FTSENT *p, *chp;
@@ -426,8 +422,7 @@ traverse (argc, argv, options)
  * points to the parent directory of the display list.
  */
 static void
-display (p, list)
-     FTSENT *p, *list;
+display (FTSENT *p, FTSENT *list)
 {
   struct stat *sp;
   DISPLAY d;
@@ -596,8 +591,7 @@ display (p, list)
  * All other levels use the sort function.  Error entries remain unsorted.
  */
 static int
-mastercmp (a, b)
-     const FTSENT **a, **b;
+mastercmp (const FTSENT **a, const FTSENT **b)
 {
   int a_info, b_info;
 

@@ -134,7 +134,7 @@ find_request (CTL_MSG * request)
 
 /* Generate a unique non-zero sequence number */
 int
-new_id ()
+new_id (void)
 {
   static int current_id = 0;
 

@@ -1037,7 +1037,7 @@ again:
 #endif /* KERBEROS */
 
 int
-response ()
+response (void)
 {
   char ch, *cp, resp, rbuf[BUFSIZ];
 

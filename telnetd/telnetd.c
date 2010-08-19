@@ -472,7 +472,7 @@ telnetd_setup (int fd)
 }
 
 int
-telnetd_run ()
+telnetd_run (void)
 {
   int nfd;
 
@@ -666,7 +666,7 @@ telnetd_run ()
 }
 
 void
-print_hostinfo ()
+print_hostinfo (void)
 {
   char *im = NULL;
   char *str;

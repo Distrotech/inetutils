@@ -851,7 +851,7 @@ catch_child (int signo ARG_UNUSED)
  * ~<delayed-suspend char>	suspend rlogin process, but leave reader alone.
  */
 void
-writer ()
+writer (void)
 {
   register int bol, local, n;
   char c;
@@ -1007,7 +1007,7 @@ sigwinch (int signo ARG_UNUSED)
  * Send the window size to the server via the magic escape
  */
 void
-sendwindow ()
+sendwindow (void)
 {
   struct winsize *wp;
   char obuf[4 + sizeof (struct winsize)];

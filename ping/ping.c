@@ -435,7 +435,7 @@ send_echo (PING * ping)
 }
 
 int
-ping_finish ()
+ping_finish (void)
 {
   fflush (stdout);
   printf ("--- %s ping statistics ---\n", ping->ping_hostname);

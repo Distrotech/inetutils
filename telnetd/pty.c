@@ -93,7 +93,7 @@ extern char **environ;
  * Security fix included in telnet-95.10.23.NE of David Borman <deb@cray.com>.
  */
 static void
-scrub_env ()
+scrub_env (void)
 {
   register char **cpp, **cpp2;
 

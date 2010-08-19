@@ -238,7 +238,7 @@ printoption (char *direction, int cmd, int option)
 }
 
 void
-optionstatus ()
+optionstatus (void)
 {
   register int i;
   extern char will_wont_resp[], do_dont_resp[];
@@ -983,7 +983,7 @@ printsub (char direction, unsigned char *pointer, int length)
  */
 
 void
-EmptyTerminal ()
+EmptyTerminal (void)
 {
 #if defined unix
   fd_set o;
@@ -1012,7 +1012,7 @@ EmptyTerminal ()
 }
 
 void
-SetForExit ()
+SetForExit (void)
 {
   setconnmode (0);
 #if defined TN3270

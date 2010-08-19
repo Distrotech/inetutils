@@ -379,7 +379,7 @@ cmdscanner (int top)
 int slrflag;
 
 void
-makeargv ()
+makeargv (void)
 {
   char **argp;
 
@@ -398,7 +398,7 @@ makeargv ()
  * handle quoting and strings
  */
 char *
-slurpstring ()
+slurpstring (void)
 {
   int got_one = 0;
   char *sb = stringbase;

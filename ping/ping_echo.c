@@ -512,7 +512,7 @@ print_ip_opt (struct ip *ip, int hlen)
 }
 
 int
-echo_finish ()
+echo_finish (void)
 {
   ping_finish ();
   if (ping->ping_num_recv && PING_TIMING (data_length))

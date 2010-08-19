@@ -113,7 +113,7 @@ int margc;
 char *margv[20];
 char *prompt = "tftp";
 jmp_buf toplevel;
-void intr ();
+void intr (void);
 struct servent *sp;
 
 void get (int, char **);
@@ -177,8 +177,8 @@ struct cmd cmdtab[] = {
   {0}
 };
 
-struct cmd *getcmd ();
-char *tail ();
+struct cmd *getcmd (register char *name);
+char *tail (char *filename);
 
 
 const char args_doc[] = "[HOST [PORT]]";
@@ -655,7 +655,7 @@ status (int argc, char *argv[])
 }
 
 void
-intr ()
+intr (void)
 {
   signal (SIGALRM, SIG_IGN);
   alarm (0);
@@ -683,7 +683,7 @@ tail (char *filename)
  * Command parser.
  */
 static void
-command ()
+command (void)
 {
   register struct cmd *c;
 
@@ -754,7 +754,7 @@ getcmd (register char *name)
  * Slice a string up into argc/argv.
  */
 static void
-makeargv ()
+makeargv (void)
 {
   register char *cp;
   register char **argp = margv;
@@ -835,7 +835,7 @@ void
 send_file (int fd, char *name, char *mode)
 {
   register struct tftphdr *ap;	/* data and ack packets */
-  struct tftphdr *r_init (), *dp;
+  struct tftphdr *r_init (void), *dp;
   register int n;
   volatile int block, size, convert;
   volatile unsigned long amount;
@@ -948,7 +948,7 @@ void
 recvfile (int fd, char *name, char *mode)
 {
   register struct tftphdr *ap;
-  struct tftphdr *dp, *w_init ();
+  struct tftphdr *dp, *w_init (void);
   register int n;
   volatile int block, size, firsttrip;
   volatile unsigned long amount;
@@ -1171,13 +1171,13 @@ struct timeval tstart;
 struct timeval tstop;
 
 static void
-startclock ()
+startclock (void)
 {
   gettimeofday (&tstart, NULL);
 }
 
 static void
-stopclock ()
+stopclock (void)
 {
   gettimeofday (&tstop, NULL);
 }

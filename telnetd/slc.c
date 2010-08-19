@@ -66,7 +66,7 @@ static unsigned char slcbuf[NSLC * 6];	/* buffer for slc negotiation */
  * Write out the current special characters to the client.
  */
 void
-send_slc ()
+send_slc (void)
 {
   register int i;
 
@@ -91,7 +91,7 @@ send_slc ()
  * Set pty special characters to all the defaults.
  */
 void
-default_slc ()
+default_slc (void)
 {
   register int i;
 
@@ -117,7 +117,7 @@ default_slc ()
  * Initialize the slc mapping table.
  */
 void
-get_slc_defaults ()
+get_slc_defaults (void)
 {
   register int i;
 
@@ -182,7 +182,7 @@ int
 end_slc (register unsigned char **bufp)
 {
   register int len;
-  void netflush ();
+  void netflush (void);
 
   /*
    * If a change has occured, store the new terminal control
@@ -422,7 +422,7 @@ change_slc (register char func_c, register char flag, register cc_t val)
  * and flags up to the defaults.
  */
 void
-check_slc ()
+check_slc (void)
 {
   register int i;
 
@@ -499,7 +499,7 @@ do_opt_slc (register unsigned char *ptr, register int len)
  * Do slc stuff that was deferred.
  */
 void
-deferslc ()
+deferslc (void)
 {
   if (def_slcbuf)
     {

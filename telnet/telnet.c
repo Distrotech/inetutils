@@ -171,7 +171,7 @@ Clocks clocks;
  */
 
 void
-init_telnet ()
+init_telnet (void)
 {
   env_init ();
 
@@ -746,7 +746,7 @@ init_term (char *tname, int fd, int *errp)
 int resettermname = 1;
 
 char *
-gettermname ()
+gettermname (void)
 {
   char *tname;
   static char **tnamep = 0;
@@ -796,7 +796,7 @@ gettermname ()
  */
 
 static void
-suboption ()
+suboption (void)
 {
   unsigned char subchar;
 
@@ -1220,7 +1220,7 @@ struct spc
 static int slc_mode = SLC_EXPORT;
 
 void
-slc_init ()
+slc_init (void)
 {
   register struct spc *spcp;
 
@@ -1283,7 +1283,7 @@ slc_init ()
 }
 
 void
-slcstate ()
+slcstate (void)
 {
   printf ("Special characters are %s values\n",
 	  slc_mode == SLC_IMPORT ? "remote default" :
@@ -1291,7 +1291,7 @@ slcstate ()
 }
 
 void
-slc_mode_export ()
+slc_mode_export (void)
 {
   slc_mode = SLC_EXPORT;
   if (my_state_is_will (TELOPT_LINEMODE))
@@ -1337,7 +1337,7 @@ slc_import (int def)
 }
 
 void
-slc_export ()
+slc_export (void)
 {
   register struct spc *spcp;
 
@@ -1439,7 +1439,7 @@ slc (register unsigned char *cp, int len)
 }
 
 void
-slc_check ()
+slc_check (void)
 {
   register struct spc *spcp;
 
@@ -1465,7 +1465,7 @@ unsigned char slc_reply[128];
 unsigned char *slc_replyp;
 
 void
-slc_start_reply ()
+slc_start_reply (void)
 {
   slc_replyp = slc_reply;
   *slc_replyp++ = IAC;
@@ -1486,7 +1486,7 @@ slc_add_reply (unsigned char func, unsigned char flags, cc_t value)
 }
 
 void
-slc_end_reply ()
+slc_end_reply (void)
 {
   register int len;
 
@@ -1506,7 +1506,7 @@ slc_end_reply ()
 }
 
 int
-slc_update ()
+slc_update (void)
 {
   register struct spc *spcp;
   int need_update = 0;
@@ -1626,7 +1626,7 @@ unsigned char *opt_replyp;
 unsigned char *opt_replyend;
 
 void
-env_opt_start ()
+env_opt_start (void)
 {
   if (opt_reply)
     opt_reply = (unsigned char *) realloc (opt_reply, OPT_REPLY_SIZE);
@@ -1647,7 +1647,7 @@ env_opt_start ()
 }
 
 void
-env_opt_start_info ()
+env_opt_start_info (void)
 {
   env_opt_start ();
   if (opt_replyp)
@@ -1774,7 +1774,7 @@ env_opt_end (register int emptyok)
 
 
 int
-telrcv ()
+telrcv (void)
 {
   register int c;
   register int scc;
@@ -2098,7 +2098,7 @@ telrcv ()
 static int bol = 1, local = 0;
 
 int
-rlogin_susp ()
+rlogin_susp (void)
 {
   if (local)
     {
@@ -2111,7 +2111,7 @@ rlogin_susp ()
 }
 
 static int
-telsnd ()
+telsnd (void)
 {
   int tcc;
   int count;
@@ -2570,7 +2570,7 @@ nextitem (char *current)
  */
 
 static void
-netclear ()
+netclear (void)
 {
 #if 0				/* XXX */
   register char *thisitem, *next;
@@ -2620,7 +2620,7 @@ netclear ()
  */
 
 static void
-doflush ()
+doflush (void)
 {
   NET2ADD (IAC, DO);
   NETADD (TELOPT_TM);
@@ -2632,7 +2632,7 @@ doflush ()
 }
 
 void
-xmitAO ()
+xmitAO (void)
 {
   NET2ADD (IAC, AO);
   printoption ("SENT", IAC, AO);
@@ -2644,14 +2644,14 @@ xmitAO ()
 
 
 void
-xmitEL ()
+xmitEL (void)
 {
   NET2ADD (IAC, EL);
   printoption ("SENT", IAC, EL);
 }
 
 void
-xmitEC ()
+xmitEC (void)
 {
   NET2ADD (IAC, EC);
   printoption ("SENT", IAC, EC);
@@ -2659,7 +2659,7 @@ xmitEC ()
 
 
 int
-dosynch ()
+dosynch (void)
 {
   netclear ();			/* clear the path to the network */
   NETADD (IAC);
@@ -2672,7 +2672,7 @@ dosynch ()
 int want_status_response = 0;
 
 int
-get_status ()
+get_status (void)
 {
   unsigned char tmp[16];
   register unsigned char *cp;
@@ -2700,7 +2700,7 @@ get_status ()
 }
 
 void
-intp ()
+intp (void)
 {
   NET2ADD (IAC, IP);
   printoption ("SENT", IAC, IP);
@@ -2716,7 +2716,7 @@ intp ()
 }
 
 void
-sendbrk ()
+sendbrk (void)
 {
   NET2ADD (IAC, BREAK);
   printoption ("SENT", IAC, BREAK);
@@ -2732,7 +2732,7 @@ sendbrk ()
 }
 
 void
-sendabort ()
+sendabort (void)
 {
   NET2ADD (IAC, ABORT);
   printoption ("SENT", IAC, ABORT);
@@ -2748,7 +2748,7 @@ sendabort ()
 }
 
 void
-sendsusp ()
+sendsusp (void)
 {
   NET2ADD (IAC, SUSP);
   printoption ("SENT", IAC, SUSP);
@@ -2764,14 +2764,14 @@ sendsusp ()
 }
 
 void
-sendeof ()
+sendeof (void)
 {
   NET2ADD (IAC, xEOF);
   printoption ("SENT", IAC, xEOF);
 }
 
 void
-sendayt ()
+sendayt (void)
 {
   NET2ADD (IAC, AYT);
   printoption ("SENT", IAC, AYT);
@@ -2782,7 +2782,7 @@ sendayt ()
  */
 
 void
-sendnaws ()
+sendnaws (void)
 {
   long rows, cols;
   unsigned char tmp[16];

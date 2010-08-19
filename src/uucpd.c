@@ -87,7 +87,7 @@
 #include <progname.h>
 #include <libinetutils.h>
 
-void dologin ();
+void dologin (struct passwd *pw, struct sockaddr_in *sin);
 
 struct sockaddr_in hisctladdr;
 int hisaddrlen = sizeof hisctladdr;
@@ -114,7 +114,7 @@ main (int argc, char **argv)
 {
   register int s;
   struct servent *sp;
-  void dologout ();
+  void dologout (void);
 
   set_program_name (argv[0]);
   iu_argp_init ("uucpd", default_program_authors);
@@ -163,7 +163,7 @@ readline (register char *p, register int n)
 void
 doit (struct sockaddr_in *sinp)
 {
-  struct passwd *pw, *getpwnam ();
+  struct passwd *pw, *getpwnam (const char *);
   char user[64], passwd[64];
   char *xpasswd;
 
@@ -214,7 +214,7 @@ doit (struct sockaddr_in *sinp)
 }
 
 void
-dologout ()
+dologout (void)
 {
   int pid;
 

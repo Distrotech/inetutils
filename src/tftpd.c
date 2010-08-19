@@ -515,7 +515,7 @@ timer (int sig)
 void
 send_file (struct formats *pf)
 {
-  struct tftphdr *dp, *r_init ();
+  struct tftphdr *dp, *r_init (void);
   register struct tftphdr *ap;	/* ack packet */
   register int size, n;
   volatile int block;
@@ -591,7 +591,7 @@ justquit (int sig)
 void
 recvfile (struct formats *pf)
 {
-  struct tftphdr *dp, *w_init ();
+  struct tftphdr *dp, *w_init (void);
   register struct tftphdr *ap;	/* ack buffer */
   register int n, size;
   volatile int block;

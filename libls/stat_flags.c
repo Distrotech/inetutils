@@ -67,9 +67,7 @@
  *	are set, return the default string.
  */
 char *
-flags_to_string (flags, def)
-     u_int flags;
-     char *def;
+flags_to_string (u_int flags, char *def)
 {
   static char string[128];
   char *prefix;
@@ -97,9 +95,7 @@ flags_to_string (flags, def)
  *	to the offending token.
  */
 int
-string_to_flags (stringp, setp, clrp)
-     char **stringp;
-     u_int *setp, *clrp;
+string_to_flags (char **stringp, u_int *setp, u_int *clrp)
 {
   if (setp)
     *setp = 0;

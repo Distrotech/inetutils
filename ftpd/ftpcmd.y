@@ -858,9 +858,7 @@ struct tab sitetab[] = {
 };
 
 static struct tab *
-lookup(p, cmd)
-	struct tab *p;
-	char *cmd;
+lookup(struct tab *p, char *cmd)
 {
 
 	for (; p->name != NULL; p++)
@@ -960,7 +958,7 @@ toolong(int signo)
 }
 
 static int
-yylex()
+yylex(void)
 {
 	static int cpos, state;
 	char *cp, *cp2;

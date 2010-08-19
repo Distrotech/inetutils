@@ -95,7 +95,7 @@ unsigned char *subsave;
 #define TS_DONT		8	/* dont " */
 
 static void
-send_eof ()
+send_eof (void)
 {
   init_termbuf ();
   term_send_eof ();
@@ -108,7 +108,7 @@ send_eof ()
  * just send back "[Yes]".
  */
 static void
-recv_ayt ()
+recv_ayt (void)
 {
 #if defined SIGINFO && defined TCSIG
   if (slctab[SLC_AYT].sptr && *slctab[SLC_AYT].sptr != _POSIX_VDISABLE)
@@ -121,7 +121,7 @@ recv_ayt ()
 }
 
 static void
-send_susp ()
+send_susp (void)
 {
 #ifdef	SIGTSTP
   ptyflush ();			/* half-hearted */
@@ -140,7 +140,7 @@ send_susp ()
  * otherwise, write quit char.
  */
 static void
-send_brk ()
+send_brk (void)
 {
   ptyflush ();			/* half-hearted */
 #ifdef	TCSIG
@@ -158,7 +158,7 @@ send_brk ()
  * otherwise, write intr char.
  */
 static void
-send_intr ()
+send_intr (void)
 {
   ptyflush ();			/* half-hearted */
 
@@ -181,7 +181,7 @@ send_intr ()
 }
 
 void
-telrcv ()
+telrcv (void)
 {
   register int c;
   static int state = TS_DATA;
@@ -537,7 +537,7 @@ send_do (int option, int init)
 #ifdef	AUTHENTICATION
 extern void auth_request ();
 #endif
-extern void doclientstat ();
+extern void doclientstat (void);
 #ifdef	ENCRYPTION
 extern void encrypt_send_support ();
 #endif /* ENCRYPTION */
@@ -1135,7 +1135,7 @@ int env_ovalue = -1;
  *      Terminal speed
  */
 void
-suboption ()
+suboption (void)
 {
   register int subchar;
 
@@ -1585,13 +1585,13 @@ suboption ()
 }				/* end of suboption */
 
 void
-doclientstat ()
+doclientstat (void)
 {
   clientstat (TELOPT_LINEMODE, WILL, 0);
 }
 
 void
-send_status ()
+send_status (void)
 {
 #define ADD(c) \
         do { \

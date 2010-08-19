@@ -1177,7 +1177,7 @@ nextconfig (const char *file)
 }
 
 void
-fix_tcpmux ()
+fix_tcpmux (void)
 {
   struct servtab *sep;
   int need_tcpmux = 0;

@@ -75,7 +75,7 @@
  * The routine to do the actual talking
  */
 int
-talk ()
+talk (void)
 {
   fd_set read_template, read_set;
   int stdin_fd = fileno (stdin);

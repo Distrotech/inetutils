@@ -311,7 +311,7 @@ static cc_t oldeofc = '\004';
 # endif
 
 void
-term_send_eof ()
+term_send_eof (void)
 {
 # if VEOF == VMIN
   if (!tty_isediting ())
@@ -320,7 +320,7 @@ term_send_eof ()
 }
 
 int
-term_change_eof ()
+term_change_eof (void)
 {
 # if VEOF == VMIN
   if (!tty_isediting ())
@@ -333,7 +333,7 @@ term_change_eof ()
 }
 
 int
-tty_linemode ()
+tty_linemode (void)
 {
 # ifdef EXTPROC
   return (termbuf.c_lflag & EXTPROC);
@@ -360,19 +360,19 @@ tty_setlinemode (int on)
 }
 
 int
-tty_isecho ()
+tty_isecho (void)
 {
   return termbuf.c_lflag & ECHO;
 }
 
 int
-tty_flowmode ()
+tty_flowmode (void)
 {
   return (termbuf.c_iflag & IXON) ? 1 : 0;
 }
 
 int
-tty_restartany ()
+tty_restartany (void)
 {
   return (termbuf.c_iflag & IXANY) ? 1 : 0;
 }
@@ -387,7 +387,7 @@ tty_setecho (int on)
 }
 
 int
-tty_israw ()
+tty_israw (void)
 {
   return !(termbuf.c_lflag & ICANON);
 }
@@ -430,25 +430,25 @@ tty_binaryout (int on)
 }
 
 int
-tty_isbinaryin ()
+tty_isbinaryin (void)
 {
   return !(termbuf.c_iflag & ISTRIP);
 }
 
 int
-tty_isbinaryout ()
+tty_isbinaryout (void)
 {
   return !(termbuf.c_oflag & OPOST);
 }
 
 int
-tty_isediting ()
+tty_isediting (void)
 {
   return termbuf.c_lflag & ICANON;
 }
 
 int
-tty_istrapsig ()
+tty_istrapsig (void)
 {
   return termbuf.c_lflag & ISIG;
 }
@@ -472,7 +472,7 @@ tty_setsig (int on)
 }
 
 int
-tty_issofttab ()
+tty_issofttab (void)
 {
 # ifdef	OXTABS
   return termbuf.c_oflag & OXTABS;
@@ -508,7 +508,7 @@ tty_setsofttab (int on)
 }
 
 int
-tty_islitecho ()
+tty_islitecho (void)
 {
 # ifdef	ECHOCTL
   return !(termbuf.c_lflag & ECHOCTL);
@@ -539,7 +539,7 @@ tty_setlitecho (int on)
 }
 
 int
-tty_iscrnl ()
+tty_iscrnl (void)
 {
   return termbuf.c_iflag & ICRNL;
 }
@@ -547,7 +547,7 @@ tty_iscrnl ()
 #endif
 
 void
-init_termbuf ()
+init_termbuf (void)
 {
   _term_getattr (pty, &termbuf);
   termbuf2 = termbuf;
@@ -572,7 +572,7 @@ copy_termbuf ()
 #endif
 
 void
-set_termbuf ()
+set_termbuf (void)
 {
   if (memcmp (&termbuf, &termbuf2, sizeof (termbuf)))
     _term_setattr (pty, &termbuf);
