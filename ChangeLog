@@ -1,5 +1,15 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	Use fseeko instead of fseek.
+
+	* libinetutils/tftpsubs.c (write_behind): Use fseeko instead of fseek.
+	* libinetutils/tftpsubs.c (write_behind): Likewise.
+	* ftpd/ftpd.c (store): Likewise.
+	* ftp/ftp.c (recvrequest): Likewise.
+	(sendrequest): Likewise.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	* cfg.mk (local-checks-to-skip): Removed sc_makefile_check from list.
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>

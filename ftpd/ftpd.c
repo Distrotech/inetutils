@@ -965,7 +965,7 @@ store (const char *name, const char *mode, int unique)
 	  /* We must do this seek to "current" position
 	     because we are changing from reading to
 	     writing.  */
-	  if (fseek (fout, 0L, SEEK_CUR) < 0)
+	  if (fseeko (fout, 0L, SEEK_CUR) < 0)
 	    {
 	      perror_reply (550, name);
 	      goto done;

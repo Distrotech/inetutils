@@ -255,7 +255,7 @@ write_behind (FILE * file, int convert)
       if (prevchar == '\r')
 	{			/* if prev char was cr */
 	  if (c == '\n')	/* if have cr,lf then just */
-	    fseek (file, -1, 1);	/* smash lf on top of the cr */
+	    fseeko (file, -1, 1);	/* smash lf on top of the cr */
 	  else if (c == '\0')	/* if have cr,nul then */
 	    goto skipit;	/* just skip over the putc */
 	  /* else just fall through and allow it */
