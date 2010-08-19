@@ -113,7 +113,7 @@ int margc;
 char *margv[20];
 char *prompt = "tftp";
 jmp_buf toplevel;
-void intr (void);
+void intr (int signo);
 struct servent *sp;
 
 void get (int, char **);
@@ -655,7 +655,7 @@ status (int argc, char *argv[])
 }
 
 void
-intr (void)
+intr (int signo)
 {
   signal (SIGALRM, SIG_IGN);
   alarm (0);
