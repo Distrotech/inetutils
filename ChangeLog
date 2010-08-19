@@ -1,5 +1,9 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	* cfg.mk (local-checks-to-skip): Removed sc_makefile_check from list.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	Removed useless C preprocessor parentehsis.
 
 	* cfg.mk (local-checks-to-skip): Removed sc_useless_cpp_parens from list.

@@ -29,8 +29,7 @@ local-checks-to-skip = \
 	sc_prohibit_atoi_atof \
 	sc_prohibit_stat_st_blocks \
 	sc_prohibit_strcmp \
-	sc_unmarked_diagnostics \
-	sc_makefile_check
+	sc_unmarked_diagnostics
 
 htmldir = ../www-$(PACKAGE)
 
