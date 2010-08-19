@@ -26,7 +26,6 @@ local-checks-to-skip = \
 	sc_immutable_NEWS \
 	sc_m4_quote_check \
 	sc_program_name \
-	sc_prohibit_assert_without_use \
 	sc_prohibit_atoi_atof \
 	sc_prohibit_have_config_h \
 	sc_prohibit_magic_number_exit \
