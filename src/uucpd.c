@@ -64,7 +64,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <signal.h>
 #include <fcntl.h>
 #include <sys/time.h>
 #include <time.h>

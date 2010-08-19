@@ -64,7 +64,6 @@
 
 # include <stdio.h>
 # include <sys/ioctl.h>
-# include <signal.h>
 # include <setjmp.h>
 
 static jmp_buf env;

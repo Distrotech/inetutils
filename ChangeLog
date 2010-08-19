@@ -1,5 +1,25 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	Only include <signal.h> if it is used.
+
+	* cfg.mk (local-checks-to-skip): Removed
+	sc_prohibit_signal_without_use from list.
+
+	* ftp/domacro.c: Don't include <signal.h>.
+	* libicmp/icmp_address.c: Likewise.
+	* libicmp/icmp_echo.c: Likewise.
+	* libicmp/icmp_timestamp.c: Likewise.
+	* libtelnet/read_passwd.c: Likewise.
+	* ping/libping.c: Likewise.
+	* ping/ping_address.c: Likewise.
+	* ping/ping_echo.c: Likewise.
+	* ping/ping_router.c: Likewise.
+	* ping/ping_timestamp.c: Likewise.
+	* src/traceroute.c: Likewise.
+	* src/uucpd.c: Likewise.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	* cfg.mk (local-checks-to-skip): Removed sc_trailing_blank from list.
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>

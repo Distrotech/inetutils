@@ -22,7 +22,6 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <sys/time.h>
-#include <signal.h>
 
 /*#include <netinet/ip_icmp.h> -- deliberately not including this */
 #include <arpa/inet.h>
