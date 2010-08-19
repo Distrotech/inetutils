@@ -22,6 +22,8 @@
 #ifndef IFCONFIG_FLAGS_H
 # define IFCONFIG_FLAGS_H
 
+#include <sys/types.h>
+
 /* Using these avoid strings with if_flagtoname, the caller can set a
    preference on returned flag names.  If one of the names in the list
    is found for the flag, the search continues to attempt a better
