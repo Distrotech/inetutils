@@ -57,4 +57,4 @@ extern int ctl_sockt;
 extern CTL_MSG msg;
 
 /* ctl_transact.c */
-int ctl_transact (struct in_addr, CTL_MSG, int, CTL_RESPONSE *); 
+int ctl_transact (struct in_addr, CTL_MSG, int, CTL_RESPONSE *);

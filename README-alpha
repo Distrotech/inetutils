@@ -176,4 +176,3 @@ mode: outline
 paragraph-separate: "[	 ]*$"
 version-control: never
 End:
-  

@@ -176,7 +176,7 @@ main (int argc, char **argv)
   int status = 0;
 
   set_program_name (argv[0]);
-  
+
   if (getuid () == 0)
     is_root = true;
 

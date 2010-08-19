@@ -579,12 +579,12 @@ set_termbuf ()
 }
 
 /* spcset(func, valp, valpp)
- 
+
    This function takes various special characters (func), and
    sets *valp to the current value of that character, and
    *valpp to point to where in the "termbuf" structure that
    value is kept.
- 
+
    It returns the SLC_ level of support for this function. */
 
 #define setval(a, b)	*valp = termbuf.a ; \

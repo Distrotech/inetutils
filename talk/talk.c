@@ -105,7 +105,7 @@ main (int argc, char *argv[])
       printf ("Standard input must be a tty, not a pipe or a file\n");
       exit (-1);
     }
-  
+
   get_names (argc, argv);
   init_display ();
   open_ctl ();

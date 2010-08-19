@@ -46,7 +46,7 @@ struct system_ifconfig
    for in generic format strings with ${exists?}{foobar?}.  */
 # undef SYSTEM_FORMAT_HANDLER
 
-/* Prototype system_fh_* functions here. 
+/* Prototype system_fh_* functions here.
    void system_fh_newline (format_data_t, int, char **);
 */
 

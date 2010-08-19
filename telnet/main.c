@@ -106,7 +106,7 @@ static struct argp_option argp_options[] = {
 #define GRID 10
   { NULL, 0, NULL, 0,
     "General options:", GRID },
-    
+
   { "ipv4", '4', NULL, 0,
     "use only IPv4", GRID+1 },
   { "ipv6", '6', NULL, 0,
@@ -151,21 +151,21 @@ static struct argp_option argp_options[] = {
     "Authentication and Kerberos options:", GRID },
   { "disable-auth", 'X', "ATYPE", 0,
     "disable type ATYPE authentication", GRID+1 },
-# if defined(KRB4)  
+# if defined(KRB4)
   { "realm", 'k', "REALM", 0,
     "obtain tickets for the remote host in REALM "
     "instead of the remote host's realm", GRID+1 },
 # endif
-# if defined(KRB5) && defined(FORWARD)  
+# if defined(KRB5) && defined(FORWARD)
   { "fwd-credentials", 'f', NULL, 0,
     "allow the local credentials to be forwarded", GRID+1 },
   { NULL, 'F', NULL, 0,
     "forward a forwardable copy of the local credentials "
     "to the remote system", GRID+1 },
 # endif
-# undef GRID  
+# undef GRID
 #endif
-  
+
 #if defined(TN3270) && defined(unix)
 # define GRID 40
   { NULL, 0, NULL, 0,
@@ -192,15 +192,15 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case '6':
       family = 6;
       break;
-	  
+
     case '8':
       eight = 3;		/* binary output and input */
       break;
-      
+
     case 'E':
       rlogin = escape = _POSIX_VDISABLE;
       break;
-      
+
     case 'K':
 #ifdef	AUTHENTICATION
       autologin = 0;
@@ -239,7 +239,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 	argp_error (state, "Only one of -f and -F allowed.", prompt);
       forward_flags |= OPTS_FORWARD_CREDS;
       break;
-      
+
     case 'F':
       if (forward_flags & OPTS_FORWARD_CREDS)
 	argp_error (state, "Only one of -f and -F allowed");
@@ -247,18 +247,18 @@ parse_opt (int key, char *arg, struct argp_state *state)
       forward_flags |= OPTS_FORWARDABLE_CREDS;
       break;
 #endif
-      
+
 #if defined(AUTHENTICATION) && defined(KRB4)
     case 'k':
       dest_realm = arg;
       break;
 #endif
-      
+
     case 'l':
       autologin = 1;
       user = arg;
       break;
-      
+
     case 'n':
       SetNetTrace (arg);
       break;
@@ -266,7 +266,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'r':
       rlogin = '~';
       break;
-      
+
 #if defined(TN3270) && defined(unix)
     case 't':
       /* FIXME: Buffer!!! */
@@ -277,27 +277,27 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case OPTION_NOASYNCH:
       noasynchtty = noasynchtty = 1;
       break;
-      
+
     case OPTION_NOASYNCTTY:
       noasynchtty = 1;
       break;
-      
+
     case OPTION_NOASYNCNET:
       noasynchnet = 1;
       break;
 #endif
-      
+
 #ifdef	ENCRYPTION
     case 'x':
       encrypt_auto (1);
       decrypt_auto (1);
       break;
 #endif
-      
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
-  
+
   return 0;
 }
 
@@ -318,7 +318,7 @@ main (int argc, char *argv[])
   int index;
 
   set_program_name (argv[0]);
-  
+
   tninit ();			/* Clear out things */
 #if defined(CRAY) && !defined(__STDC__)
   _setlist_init ();		/* Work around compiler bug */

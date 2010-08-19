@@ -105,11 +105,11 @@ struct ping_data
   int ping_ident;              /* Our identifier */
   union event ping_event;      /* User-defined handler */
   void *ping_closure;          /* User-defined data */
-  
+
   /* Runtime info */
   int ping_cktab_size;
   char *ping_cktab;
-  
+
   u_char *ping_buffer;         /* I/O buffer */
   union ping_address ping_from;
   long ping_num_xmit;          /* Number of packets transmitted */

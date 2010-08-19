@@ -1,5 +1,9 @@
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	* cfg.mk (local-checks-to-skip): Removed sc_trailing_blank from list.
+
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
 	* cfg.mk (local-checks-to-skip): Removed sc_space_tab from list.
 
 2010-08-19  Alfred M. Szmidt  <ams@gnu.org>

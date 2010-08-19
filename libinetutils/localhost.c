@@ -80,7 +80,7 @@ localhost (void)
     /* Determine FQDN */
     {
       struct hostent *hp = gethostbyname (buf);
-      
+
       if (hp)
 	{
 	  struct in_addr addr;

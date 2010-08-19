@@ -139,7 +139,7 @@ int
 set_mtu (int sfd, struct ifreq *ifr, int mtu)
 {
 #ifndef SIOCSIFMTU
-  error (0, 0, 
+  error (0, 0,
          "don't know how to set the interface mtu on this system");
   return -1;
 #else

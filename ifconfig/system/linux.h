@@ -86,7 +86,7 @@ void system_fh_txqlen_query (format_data_t form, int argc, char *argv[]);
 void system_fh_txqlen (format_data_t form, int argc, char *argv[]);
 
 void system_fh_ifstat_query (format_data_t form, int argc, char *argv[]);
-				    
+
 _IU_EXTRN (rx_packets)
 _IU_EXTRN (tx_packets)
 _IU_EXTRN (rx_bytes)

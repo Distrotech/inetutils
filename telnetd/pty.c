@@ -86,10 +86,10 @@ startslave (char *host, int autologin, char *autoname)
 extern char **environ;
 /*
  * scrub_env()
- *  
+ *
  * Remove a few things from the environment that
  * don't need to be there.
- *  
+ *
  * Security fix included in telnet-95.10.23.NE of David Borman <deb@cray.com>.
  */
 static void

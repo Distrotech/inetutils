@@ -129,7 +129,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'E':
       login_invocation = arg;
       break;
-	  
+
     case 'h':
       hostinfo = 0;
       break;
@@ -141,7 +141,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'n':
       keepalive = 0;
       break;
-	  
+
     case 'U':
       reverse_lookup = 1;
       break;
@@ -151,7 +151,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       auth_disable_name (arg);
       break;
 #endif
-      
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -177,7 +177,7 @@ main (int argc, char **argv)
   set_program_name (argv[0]);
   iu_argp_init ("telnetd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
-  
+
   if (argc != index)
     error (1, 0, "junk arguments in the command line");
 
@@ -505,7 +505,7 @@ telnetd_run ()
      clients might not respond to it. To work around this, we wait
      for a response to NAWS, which should have been processed after
      DO ECHO (most dumb telnets respond with WONT for a DO that
-     they don't understand).  
+     they don't understand).
      On the other hand, the client might have sent WILL NAWS as
      part of its startup code, in this case it surely should have
      answered our DO ECHO, so the second loop is waiting for

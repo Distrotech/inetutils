@@ -28,7 +28,7 @@ noinst_HEADERS = telnetd.h
 
 @PATHDEFS_MAKE@
 
-AM_CPPFLAGS =  $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN) 
+AM_CPPFLAGS =  $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN)
 INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib -I../lib	\
            -I$(top_srcdir)/libinetutils $(INCAUTH)
 

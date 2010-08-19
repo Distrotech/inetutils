@@ -373,7 +373,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       if (timeout > maxtimeout)
 	timeout = maxtimeout;
       break;
-      
+
     case 'u':		/* Set umask.  */
       {
 	long val = 0;
@@ -385,7 +385,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 	  defumask = val;
 	break;
       }
-      
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -422,7 +422,7 @@ main (int argc, char *argv[], char **envp)
   /* Parse the command line */
   iu_argp_init ("ftpd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
-  
+
   /* Bail out, wrong usage */
   argc -= index;
   if (argc != 0)
@@ -921,7 +921,7 @@ store (const char *name, const char *mode, int unique)
   if (unique && stat (name, &st) == 0)
     {
       const char *name_unique = gunique (name);
-      
+
       if (name_unique)
         name = name_unique;
       else
@@ -1063,7 +1063,7 @@ dataconn (const char *name, off_t size, const char *mode)
   if (pdata >= 0)
     {
       struct sockaddr_in from;
-      socklen_t s; 
+      socklen_t s;
       socklen_t fromlen = sizeof (from);
 
       signal (SIGALRM, toolong);

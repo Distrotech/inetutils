@@ -34,7 +34,7 @@ talkd_SOURCES = \
 
 @PATHDEFS_MAKE@
 
-AM_CPPFLAGS = $(PATHDEF_DEV) 
+AM_CPPFLAGS = $(PATHDEF_DEV)
 INCLUDES = -I$(top_srcdir)/lib -I../lib -I${top_srcdir}/libinetutils
 
 LDADD = -L../libinetutils -linetutils ../lib/libgnu.a

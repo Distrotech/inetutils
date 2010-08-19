@@ -194,10 +194,10 @@ setpeer (argc, argv)
 {
   char *host = NULL;
   int port;
-  
-  if (connected && command ("NOOP") != COMPLETE) 
+
+  if (connected && command ("NOOP") != COMPLETE)
     disconnect (0, 0);
-  else if (connected) 
+  else if (connected)
     {
       printf ("Already connected to %s, use close first.\n", hostname);
       code = -1;

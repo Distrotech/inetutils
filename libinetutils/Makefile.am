@@ -44,6 +44,6 @@ libinetutils_a_LIBADD = daemon.o $(top_builddir)/lib/libgnu.a
 
 @PATHDEFS_MAKE@
 
-AM_CPPFLAGS = $(PATHDEF_WTMPX) $(PATHDEF_TTY_PFX) $(PATHDEF_DEVNULL) $(PATHDEF_HEQUIV) 
+AM_CPPFLAGS = $(PATHDEF_WTMPX) $(PATHDEF_TTY_PFX) $(PATHDEF_DEVNULL) $(PATHDEF_HEQUIV)
 
 INCLUDES = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib
