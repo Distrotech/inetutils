@@ -25,7 +25,6 @@ local-checks-to-skip = \
 	sc_error_message_uppercase \
 	sc_immutable_NEWS \
 	sc_m4_quote_check \
-	sc_obsolete_symbols \
 	sc_program_name \
 	sc_prohibit_assert_without_use \
 	sc_prohibit_atoi_atof \

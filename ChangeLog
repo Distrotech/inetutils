@@ -1,6 +1,11 @@
+2010-08-19  Alfred M. Szmidt  <ams@gnu.org>
+
+	* cfg.mk (local-checks-to-skip): Removed sc_obsolete_symbols from list.
+
 2010-08-18  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	Under GNU/Linux print interfaces without an address with ifconfig -a.
+
 	* bootstrap.conf (gnulib_modules): Add module `read-file'.
 
 	* NEWS: Update.
