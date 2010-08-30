@@ -1,5 +1,11 @@
 2010-08-20  Simon Josefsson  <simon@josefsson.org>
 
+	* doc/inetutils.texi (telnetd invocation): Document --authmode and
+	--debug values.  Tiny patch from Mats Erik Andersson
+	<mats.andersson@gisladisker.se>.
+
+2010-08-20  Simon Josefsson  <simon@josefsson.org>
+
 	* src/logger.c: Include sys/uio.h for writev.  Suggested by Mats
 	Erik Andersson <mats.andersson@gisladisker.se>.
 
