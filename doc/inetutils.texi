@@ -3316,11 +3316,25 @@ telnetd [@var{option}]@dots{}
 @table @option
 @item -a AUTHMODE
 @itemx --authmode=AUTHMODE
-Specify what mode to use for authentication.
+Specify what mode to use for authentication. Allowed values
+are: @samp{none}, @samp{other}, @samp{user}, @samp{valid},
+and @samp{off}.
 
 @item -D[LEVEL]
 @itemx --debug=[LEVEL]
-Set debugging level.
+Set the debugging level. The argument is a comma separated list
+of the categories: @samp{options}, @samp{report}, @samp{netdata},
+@samp{ptydata}, and @samp{auth}. All these may be used in the
+form @samp{name[=level]}. Omission of @samp{level} implies the
+maximal possible debugging for that particular category.
+
+There is one additional cetegory @samp{tcp}, that does not allow
+the additional level indicator, but is instead equivalent to
+setting the socket option @samp{SO_DEBUG} for debugging the
+complete traffic.
+
+The outcome is the file @file{/var/telnet.debug}, to which
+data is incrementally added as time passes.
 
 @item    -E
 @itemx --exec-login=STRING
