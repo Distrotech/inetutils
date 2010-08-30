@@ -3328,7 +3328,7 @@ of the categories: @samp{options}, @samp{report}, @samp{netdata},
 form @samp{name[=level]}. Omission of @samp{level} implies the
 maximal possible debugging for that particular category.
 
-There is one additional cetegory @samp{tcp}, that does not allow
+There is one additional category @samp{tcp}, that does not allow
 the additional level indicator, but is instead equivalent to
 setting the socket option @samp{SO_DEBUG} for debugging the
 complete traffic.
