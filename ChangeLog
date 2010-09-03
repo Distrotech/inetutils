@@ -1,3 +1,9 @@
+2010-09-03  Simon Josefsson  <simon@josefsson.org>
+
+	* doc/inetutils.texi (telnetd invocation): Use two spaces after
+	end-of-sentence period.  Reported by "Alfred M. Szmidt"
+	<ams@gnu.org>.
+
 2010-08-20  Simon Josefsson  <simon@josefsson.org>
 
 	* doc/inetutils.texi (telnetd invocation): Document --authmode and
