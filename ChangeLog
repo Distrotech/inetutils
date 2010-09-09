@@ -1,3 +1,11 @@
+2010-09-09  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/tftp.c (peeraddr, f, trace, verbose, rexmtval)
+	(maxtimeout): Remove external scope.
+	(peeraddr, f, port, trace, verbose, connected): Upgrade
+	to static scope in file.
+	(rexmtval, maxtimeout): Static scope and new positioning.
+
 2010-09-03  Simon Josefsson  <simon@josefsson.org>
 
 	* doc/inetutils.texi (telnetd invocation): Use two spaces after

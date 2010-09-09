@@ -79,13 +79,6 @@
 #include "progname.h"
 #include "tftpsubs.h"
 
-extern struct sockaddr_in peeraddr;	/* filled in by main */
-extern int f;			/* the opened socket */
-extern int trace;
-extern int verbose;
-extern int rexmtval;
-extern int maxtimeout;
-
 #define PKTSIZE    SEGSIZE+4
 char ackbuf[PKTSIZE];
 int timeout;
@@ -101,12 +94,16 @@ static void tpacket (const char *, struct tftphdr *, int);
 
 #define TIMEOUT		5	/* secs between rexmt's */
 
-struct sockaddr_in peeraddr;
-int f;
-short port;
-int trace;
-int verbose;
-int connected;
+static int rexmtval = TIMEOUT;
+static int maxtimeout = 5 * TIMEOUT;
+
+static struct sockaddr_in peeraddr;	/* filled in by main */
+static int f;			/* the opened socket */
+static short port;
+static int trace;
+static int verbose;
+static int connected;
+
 char mode[32];
 char line[200];
 int margc;
@@ -597,8 +594,6 @@ getusage (char *s)
   printf ("       %s file file ... file if connected\n", s);
 }
 
-int rexmtval = TIMEOUT;
-
 void
 setrexmt (int argc, char *argv[])
 {
@@ -618,8 +613,6 @@ setrexmt (int argc, char *argv[])
   else
     rexmtval = t;
 }
-
-int maxtimeout = 5 * TIMEOUT;
 
 void
 settimeout (int argc, char *argv[])
