@@ -1,5 +1,10 @@
 2010-09-15  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* telnetd/telnetd.c (login_invocation, argp_options):
+	Access login(1) by detected PATH_LOGIN.
+
+2010-09-15  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* man/Makefile.am: Use expansion "$(MAKE)".
 
 2010-09-21  Simon Josefsson  <simon@josefsson.org>

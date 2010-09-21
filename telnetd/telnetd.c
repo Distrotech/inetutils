@@ -39,9 +39,9 @@ static void print_hostinfo (void);
 
 char *login_invocation =
 #ifdef SOLARIS
-  "/bin/login -h %h %?T{TERM=%T}{-} %?u{%?a{-f }-- %u}"
+  PATH_LOGIN " -h %h %?T{TERM=%T}{-} %?u{%?a{-f }-- %u}"
 #else
-  "/bin/login -p -h %h %?u{-f %u}"
+  PATH_LOGIN " -p -h %h %?u{-f %u}"
 #endif
   ;
 
@@ -96,7 +96,7 @@ static struct argp_option argp_options[] = {
   { "debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
     "set debugging level" },
   { "exec-login", 'E', "STRING", 0,
-    "set program to be executed instead of /bin/login" },
+    "set program to be executed instead of " PATH_LOGIN },
   { "no-hostinfo", 'h', NULL, 0,
     "do not print host information before login has been completed" },
   { "linemode", 'l', "MODE", OPTION_ARG_OPTIONAL,
