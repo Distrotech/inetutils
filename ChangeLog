@@ -1,3 +1,9 @@
+2010-09-21  Simon Josefsson  <simon@josefsson.org>
+
+	* ifconfig/system/qnx.h: Rename pre-processor symbol
+	IFCONFIG_SYSTEM_SOLARIS_H to IFCONFIG_SYSTEM_QNX_H.  Reported by
+	Mats Erik Andersson <gnu@gisladisker.se>.
+
 2010-09-09  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/tftp.c (peeraddr, f, trace, verbose, rexmtval)

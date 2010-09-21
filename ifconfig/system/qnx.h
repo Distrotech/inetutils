@@ -19,8 +19,8 @@
 
 /* Written by Marcus Brinkmann.  */
 
-#ifndef IFCONFIG_SYSTEM_SOLARIS_H
-# define IFCONFIG_SYSTEM_SOLARIS_H
+#ifndef IFCONFIG_SYSTEM_QNX_H
+# define IFCONFIG_SYSTEM_QNX_H
 
 # include "../printif.h"
 # include "../options.h"
