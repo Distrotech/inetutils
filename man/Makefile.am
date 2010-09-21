@@ -178,10 +178,10 @@ uucpd.8: uucpd.h2m $(top_srcdir)/src/uucpd.c $(top_srcdir)/configure.ac
 whois.1: whois.h2m $(top_srcdir)/whois/whois.c $(top_srcdir)/configure.ac
 
 .h2m.1:
-	make man TOOL=$* SECTION=1
+	$(MAKE) man TOOL=$* SECTION=1
 
 .h2m.8:
-	make man TOOL=$* SECTION=8
+	$(MAKE) man TOOL=$* SECTION=8
 
 mapped_name = `echo ../$(TOOL)/$(TOOL) \
 | sed s,../ping6/ping6,../ping/ping6,\
