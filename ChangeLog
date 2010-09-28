@@ -1,3 +1,8 @@
+2010-09-28  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* configure.ac: Unconditionally include <sys/types.h> when
+	checking for `struct sockaddr_in6'. Needed for OpenBSD.
+
 2010-09-15  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* telnetd/telnetd.c (login_invocation, argp_options):

@@ -328,7 +328,8 @@ if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
 fi
 
 if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
-  AC_CHECK_TYPE(struct sockaddr_in6, , working_ipv6=no, [#include <netinet/in.h>])
+  AC_CHECK_TYPE(struct sockaddr_in6, , working_ipv6=no, [#include <sys/types.h>
+#include <netinet/in.h>])
 fi
 
 if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
