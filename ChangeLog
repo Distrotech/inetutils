@@ -1,3 +1,9 @@
+2010-09-18  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ping/ping6.c: Include <sys/uio.h> for knowing "struct iov" in BSD.
+	* ping/ping6.c (ping_init): Check for EACCES failure from socket(2).
+	* ping/libping.c (ping_init): Likewise.
+
 2010-09-23  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ifconfig/system/linux.c (linux_if_nameindex): Express the exact

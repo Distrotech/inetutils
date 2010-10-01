@@ -21,6 +21,7 @@
 
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/uio.h>
 #include <signal.h>
 
 #include <netinet/in.h>
@@ -704,7 +705,7 @@ ping_init (int type, int ident)
   fd = socket (PF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
   if (fd < 0)
     {
-      if (errno == EPERM)
+      if (errno == EPERM || errno == EACCES)
         error (EXIT_FAILURE, errno, NULL);
 
       return NULL;

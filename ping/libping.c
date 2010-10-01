@@ -62,7 +62,7 @@ ping_init (int type, int ident)
   fd = socket (AF_INET, SOCK_RAW, proto->p_proto);
   if (fd < 0)
     {
-      if (errno == EPERM)
+      if (errno == EPERM || errno == EACCES)
 	fprintf (stderr, "ping: ping must run as root\n");
       return NULL;
     }
