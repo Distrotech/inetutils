@@ -547,7 +547,7 @@ setup (struct servtab *sep)
       if (errno == EAFNOSUPPORT && sep->se_family == AF_INET6
 	  && sep->se_v4mapped)
 	{
-	  /* Fall back to IPv6 silently.  */
+	  /* Fall back to IPv4 silently.  */
 	  sep->se_family = AF_INET;
 	  goto tryagain;
 	}
@@ -563,9 +563,8 @@ setup (struct servtab *sep)
   if (sep->se_family == AF_INET6)
     {
       /* Reverse the value of SEP->se_v4mapped, since otherwise if
-	 using `tcp' as a protocol type all connections will be mapped
-	 to IPv6, and with `tcp6' they get mapped IPv4 mapped to
-	 IPv6.  */
+	 using `tcp' as a protocol type, all connections will be mapped
+	 to IPv6, and with `tcp6', IPv4 get mapped to IPv6.  */
       int val = sep->se_v4mapped ? 0 : 1;
       if (setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
 		      (char *) &val, sizeof (val)) < 0)
@@ -592,7 +591,7 @@ setup (struct servtab *sep)
       if ((errno == EADDRNOTAVAIL || errno == EAFNOSUPPORT)
 	  && sep->se_family == AF_INET6 && sep->se_v4mapped)
 	{
-	  /* Fall back to IPv6 silently.  */
+	  /* Fall back to IPv4 silently.  */
 	  sep->se_family = AF_INET;
 	  close (sep->se_fd);
 	  goto tryagain;
@@ -779,7 +778,7 @@ expand_enter (struct servtab *sep)
   if (err == EAI_ADDRFAMILY
       && sep->se_family == AF_INET6 && sep->se_v4mapped)
     {
-      /* Fall back to IPv6 silently.  */
+      /* Fall back to IPv4 silently.  */
       sep->se_family = AF_INET;
       err = inetd_getaddrinfo (sep, proto->p_proto, &result);
     }
@@ -1002,7 +1001,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
       sep->se_proto = newstr (argv[INETD_PROTOCOL]);
 
 #ifdef IPV6
-      /* We default to IPv6, in setup() we'll fall back to IPv4 if
+      /* We default to IPv6.  In setup() we'll fall back to IPv4 if
          it doesn't work.  */
       sep->se_family = AF_INET6;
       sep->se_v4mapped = 1;
@@ -1674,7 +1673,7 @@ tcpmux (int s, struct servtab *sep)
 
 /* Set TCP environment variables, modelled after djb's ucspi-tcp tools:
    http://cr.yp.to/ucspi-tcp/environment.html
-   FIXME: This needs support for IPv6
+   FIXME: This needs support for IPv6.
 */
 void
 prepenv (int ctrl, struct sockaddr_in sa_client)
