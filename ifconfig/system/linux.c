@@ -886,7 +886,7 @@ linux_if_nameindex (void)
   }
 
   for (it = memchr (content, ':', length), index = 0; it;
-       it = memchr (it, ':', it - content), index++)
+       it = memchr (it, ':', length - (it - content)), index++)
     {
       char *start = it - 1;
       *it = '\0';

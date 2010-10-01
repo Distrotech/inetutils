@@ -1,3 +1,8 @@
+2010-09-23  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ifconfig/system/linux.c (linux_if_nameindex): Express the exact
+	amount remaining of the string when locating next token.
+
 2010-09-28  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* configure.ac: Unconditionally include <sys/types.h> when
