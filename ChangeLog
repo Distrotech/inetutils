@@ -1,5 +1,11 @@
 2010-10-18  Guillem Jover  <guillem@hadrons.org>
 
+	* src/inetd.c (nextconfig): Call expand_enter instead of enter for
+	tcpmux services.
+	(fix_tcpmux): Likewise.
+
+2010-10-18  Guillem Jover  <guillem@hadrons.org>
+
 	* src/inetd.c (getconfigent): If se_argc == 1 inject the
 	normalized se_server name into se_argv[0].
 

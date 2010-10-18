@@ -1110,7 +1110,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	  sep->se_argv[i] = argv[INETD_SERVER_ARGS + i];
 	  argv[INETD_SERVER_ARGS + i] = 0;
 	}
-      
+
       /* If no arguments are provided, use server name as argv[0].  */
       if (sep->se_argc == 1)
 	{
@@ -1121,7 +1121,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	    argv0 = sep->se_server;
           sep->se_argv[0] = newstr (argv0);
 	}
-      
+
       sep->se_argv[i] = NULL;
       break;
     }
@@ -1160,10 +1160,8 @@ nextconfig (const char *file)
 	{
 	  sep->se_fd = -1;
 	  sep->se_checked = 1;
-	  enter (sep);
 	}
-      else
-	expand_enter (sep);
+      expand_enter (sep);
       freeconfig (sep);
     }
   endconfig (fconfig);
@@ -1249,7 +1247,7 @@ fix_tcpmux (void)
       if (debug)
 	fprintf (stderr, "inserting default tcpmux entry\n");
       syslog (LOG_INFO, "inserting default tcpmux entry");
-      enter (&serv);
+      expand_enter (&serv);
     }
 }
 
