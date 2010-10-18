@@ -51,13 +51,7 @@
 #include <arpa/telnet.h>
 #include <libtelnet/auth.h>
 
-#if defined HAVE_TERMIOS_H
-# include <termios.h>
-#elif defined(HAVE_TERMIO_H)
-# include <termio.h>
-#else
-# include <sgtty.h>
-#endif
+#include <termios.h>
 
 #define obstack_chunk_alloc malloc
 #define obstack_chunk_free free

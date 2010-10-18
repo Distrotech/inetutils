@@ -1,3 +1,26 @@
+2010-10-18  Alfred M. Szmidt  <ams@gnu.org>
+
+	Always use <termios.h> interface.
+
+	* telnetd/term.c: Always use <termios.h> interface.
+	* telnetd/telnetd.h [!HAVE_TERMIO_H]: Don't include <termio.h>
+	[!HAVE_TERMIO_H && !HAVE_TERMIO_H]: Don't include <sgtty.h>.
+	* telnet/externs.h (USE_TERMIO): Uncondtionally define macro.
+	(SYSV_TERMIO) [!HAVE_TERMIOS_H && HAVE_TERMIO_H]: Undefine macro.
+
+	* talk/init_disp.c [!HAVE_TERMIOS_H]: Don't include <sys/ioctl.h>.
+	[!HAVE_TERMIOS_H && HAVE_SYS_IOCTL_COMPAT_H]: Don't include
+	<sys/ioctl_compat.h>.
+
+	* libls/ls.c: Unconditionally include <termios.h>
+
+	* src/uucpd.c: Likewise.
+
+	* configure.ac: Removed checks for termios.h and termio.h specifc
+	functions, variables and headers.
+
+	* bootstrap.conf (gnulib_modules): Added termios module.
+
 2010-10-18  Mats Erik Andersson <address@hidden>
 
 	* libinetutils/tftpsubs.c (synchnet): Changed type of FROM to be

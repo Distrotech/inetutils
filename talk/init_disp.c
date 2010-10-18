@@ -56,15 +56,7 @@
  * as well as the signal handling routines.
  */
 
-#ifdef HAVE_TERMIOS_H
-# include <termios.h>
-#else
-# include <sys/ioctl.h>
-# ifdef HAVE_SYS_IOCTL_COMPAT_H
-#  include <sys/ioctl_compat.h>
-# endif
-#endif
-
+#include <termios.h>
 #include <unistd.h>
 #include <signal.h>
 #include <error.h>

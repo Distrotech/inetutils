@@ -466,7 +466,7 @@ AC_CHECK_HEADERS([arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
 		  sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
 		  sys/proc.h sys/select.h sys/time.h sys/wait.h \
                   sys/resource.h \
-		  stropts.h tcpd.h termio.h termios.h utmp.h utmpx.h unistd.h \
+		  stropts.h tcpd.h utmp.h utmpx.h unistd.h \
                   vis.h], [], [], [
 #include <sys/types.h>
 #ifdef HAVE_NETINET_IN_SYSTM_H
@@ -520,16 +520,6 @@ dnl I'm not sure what this is, but netbsd has it; just use int if necessary.
 AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
-
-dnl Check for termio-related types and defines
-AC_CHECK_TYPES(cc_t, , ,
- [IU_FLUSHLEFT([#if defined(HAVE_TERMIOS_H)
-                # include <termios.h>
-                #elif defined(HAVE_TERMIO_H)
-                # include <termio.h>
-                #else
-                # include <sgtty.h>
-                #endif ])])
 
 dnl Check for compile support for ceratin type
 AC_CHECK_TYPE(long long, , AC_DEFINE([LONG_LONG], long, [Define to long if compiler does not support]))

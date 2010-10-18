@@ -21,59 +21,9 @@
 
 #include <telnetd.h>
 
-#if defined HAVE_TERMIOS_H
 typedef struct termios TERMDESC;
-# define _term_getattr tcgetattr
-# define _term_setattr(fd, tp) tcsetattr (fd, TCSANOW, tp)
-
-#elif defined(HAVE_TERMIO_H)
-typedef struct termio TERMDESC;
-# define _term_getattr tcgetattr
-# define _term_setattr(fd, tp) tcsetattr (fd, TCSANOW, tp)
-
-#else
-
-# define IOCTL_INTERFACE
-
-typedef struct
-{
-  struct sgttyb sg;
-  struct tchars tc;
-  struct ltchars ltc;
-  int state;
-  int lflags;
-# define termdesc_eofc   tc.t_eofc
-# define termdesc_erase  tc.sg.sg_erase
-# define termdesc_kill   sg.sg_kill
-# define termdesc_ip     tc.t_intrc
-# define termdesc_abort  tc.t_quitc
-# define termdesc_xon    tc.t_startc
-# define termdesc_xoff   tc.t_stopc
-# define termdesc_ao     ltc.t_flushc
-# define termdesc_susp   ltc.t_suspc
-# define termdesc_ew     ltc.t_werasc
-# define termdesc_rp     ltc.t_rprntc
-# define termdesc_lnext  ltc.t_lnextc
-# define termdesc_forw1  tc.t_brkc
-} TERMDESC;
-
-# define cfsetospeed(tp, val) (tp)->sg.sg_ospeed = (val)
-# define cfsetispeed(tp, val) (tp)->sg.sg_ispeed = (val)
-# define cfgetospeed(tp)      (tp)->sg.sg_ospeed
-# define cfgetispeed(tp)      (tp)->sg.sg_ispeed
-
-int
-_term_getattr (int fd, TERMDESC * tp)
-{
-  ioctl (fd, TIOCGETP, (char *) &tp->sg);
-  ioctl (fd, TIOCGETC, (char *) &tp->tc);
-  ioctl (fd, TIOCGLTC, (char *) &tp->ltc);
-# ifdef	TIOCGSTATE
-  ioctl (fd, TIOCGSTATE, (char *) &tp->state);
-# endif
-  return 0;
-}
-#endif
+#define _term_getattr tcgetattr
+#define _term_setattr(fd, tp) tcsetattr (fd, TCSANOW, tp)
 
 TERMDESC termbuf, termbuf2;
 

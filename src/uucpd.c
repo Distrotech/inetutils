@@ -76,9 +76,7 @@
 #ifdef HAVE_CRYPT_H
 # include <crypt.h>
 #endif
-#ifdef HAVE_TERMIOS_H
-# include <termios.h>
-#endif
+#include <termios.h>
 #ifdef HAVE_UTMP_H
 # include <utmp.h>
 #endif
