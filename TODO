@@ -1,3 +1,8 @@
+* Before release
+
+Write documentation (NEWS and manual) for how IPv6/IPv4 gets mapped by
+inetd.
+
 * General
 
 broadcasted terminals: provide a client/daemon that broadcasts a users
