@@ -101,7 +101,7 @@ static int maxtimeout = 5 * TIMEOUT;
 #define PKTSIZE	SEGSIZE+4
 static char buf[PKTSIZE];
 static char ackbuf[PKTSIZE];
-static struct sockaddr_in from;
+static struct sockaddr_storage from;
 static socklen_t fromlen;
 
 void tftp (struct tftphdr *, int);
@@ -124,7 +124,7 @@ static int logging;
 
 static const char *errtomsg (int);
 static void nak (int);
-static const char *verifyhost (struct sockaddr_in *);
+static const char *verifyhost (struct sockaddr_storage *, socklen_t);
 
 
 
@@ -172,7 +172,7 @@ main (int argc, char *argv[])
   int index;
   register struct tftphdr *tp;
   int on, n;
-  struct sockaddr_in sin;
+  struct sockaddr_storage sin;
 
   set_program_name (argv[0]);
   iu_argp_init ("tftpd", default_program_authors);
@@ -268,24 +268,29 @@ main (int argc, char *argv[])
 	exit (EXIT_SUCCESS);
       }
   }
-  from.sin_family = AF_INET;
+
   alarm (0);
   close (0);
   close (1);
-  peer = socket (AF_INET, SOCK_DGRAM, 0);
+
+  /* The peer's address 'from' is valid at this point.
+   * 'from.ss_family' contains the correct address
+   * family for any callback connection, and 'fromlen'
+   * is the length of the corresponding address structure.  */
+  peer = socket (from.ss_family, SOCK_DGRAM, 0);
   if (peer < 0)
     {
       syslog (LOG_ERR, "socket: %m\n");
       exit (EXIT_FAILURE);
     }
   memset (&sin, 0, sizeof (sin));
-  sin.sin_family = AF_INET;
-  if (bind (peer, (struct sockaddr *) &sin, sizeof (sin)) < 0)
+  sin.ss_family = from.ss_family;
+  if (bind (peer, (struct sockaddr *) &sin, fromlen) < 0)
     {
       syslog (LOG_ERR, "bind: %m\n");
       exit (EXIT_FAILURE);
     }
-  if (connect (peer, (struct sockaddr *) &from, sizeof (from)) < 0)
+  if (connect (peer, (struct sockaddr *) &from, fromlen) < 0)
     {
       syslog (LOG_ERR, "connect: %m\n");
       exit (EXIT_FAILURE);
@@ -360,8 +365,22 @@ again:
   ecode = (*pf->f_validate) (&filename, tp->th_opcode);
   if (logging)
     {
-      syslog (LOG_INFO, "%s: %s request for %s: %s",
-	      verifyhost (&from),
+      char *family;
+
+      switch (from.ss_family)
+	{
+	case AF_INET:
+	  family = "IPv4";
+	  break;
+	case AF_INET6:
+	  /* Should mapped IPv4 addresses be reported?  */
+	  family = "IPv6";
+	  break;
+	default:
+	  family = "?";
+	}
+      syslog (LOG_INFO, "%s (%s): %s request for %s: %s",
+	      verifyhost (&from, fromlen), family,
 	      tp->th_opcode == WRQ ? "write" : "read",
 	      filename, errtomsg (ecode));
     }
@@ -737,16 +756,20 @@ nak (int error)
 }
 
 static const char *
-verifyhost (struct sockaddr_in *fromp)
+verifyhost (struct sockaddr_storage *fromp, socklen_t frlen)
 {
-  struct hostent *hp;
+  int rc;
+  static char host[NI_MAXHOST];
 
-  hp = gethostbyaddr ((char *) &fromp->sin_addr, sizeof (fromp->sin_addr),
-		      fromp->sin_family);
-  if (hp)
-    return hp->h_name;
+  rc = getnameinfo ((struct sockaddr *) fromp, frlen,
+		    host, sizeof (host), NULL, 0, 0);
+  if (rc == 0)
+    return host;
   else
-    return inet_ntoa (fromp->sin_addr);
+    {
+      syslog (LOG_ERR, "getnameinfo: %s\n", gai_strerror(rc));
+      return "0.0.0.0";
+    }
 }
 
 static const char usage_str[] =

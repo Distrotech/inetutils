@@ -1,3 +1,17 @@
+2010-10-18  Mats Erik Andersson <address@hidden>
+
+	* libinetutils/tftpsubs.c (synchnet): Changed type of FROM to be
+	"struct sockaddr_storage".
+
+	* src/tftpd.c: Changed all uses of "struct sockaddr_in" to be
+	"struct sockaddr_storage".
+	(fromlen): Meticulously tracks length of address structure FROM in
+	every function.
+	(verifyhost): Expanded declaration signature to be "(struct
+	sockaddr_storage *, socklen_t)".  Use getnameinfo(3) as resolver.
+	(tftp) <logging>: Now displays address family "IPv4", "IPv6", or
+	"?".
+
 2010-10-18  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ifconfig/printif.c (put_flags): Declare F as `unsigned short

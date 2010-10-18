@@ -285,7 +285,7 @@ synchnet (int f)
 {
   int i, j = 0;
   char rbuf[PKTSIZE];
-  struct sockaddr_in from;
+  struct sockaddr_storage from;
   socklen_t fromlen;
 
   while (1)
