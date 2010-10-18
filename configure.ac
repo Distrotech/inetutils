@@ -141,7 +141,6 @@ gl_INIT
 AC_CHECK_LIB(nsl, inet_ntoa)
 AC_CHECK_LIB(resolv, gethostname)
 AC_CHECK_LIB(socket, getpeername)
-AC_CHECK_LIB(opie, opiegenerator)
 
 # See if a termcap library is available (under one of several names)
 IU_LIB_TERMCAP

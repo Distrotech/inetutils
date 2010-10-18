@@ -1,5 +1,9 @@
 2010-10-18  Guillem Jover  <guillem@hadrons.org>
 
+	* configure.ac: Remove opie AC_CHECK_LIB check.
+
+2010-10-18  Guillem Jover  <guillem@hadrons.org>
+
 	* src/inetd.c (nextconfig): Call expand_enter instead of enter for
 	tcpmux services.
 	(fix_tcpmux): Likewise.
