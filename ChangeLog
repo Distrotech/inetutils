@@ -1,3 +1,12 @@
+2010-10-18  Guillem Jover  <guillem@hadrons.org>
+
+	* src/inetd.c (getconfigent) [IPV6]: Change default family to IPv4
+	for "tcp" and "udp".  Change "tcp6" and "udp6" to support IPv4
+	mapped addresses.  Add "tcp6only" and "udp6only" protocols for
+	IPv6 only addresses.
+	(fix_tcpmux) [IPV6]: Set se_proto to "tcp6".
+	[!IPV6]: Set se_proto to "tcp".
+
 2010-10-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/inetd.c (setup, expand_enter, getconfigent, prepenv): Fix

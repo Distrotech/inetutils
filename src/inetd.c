@@ -563,8 +563,9 @@ setup (struct servtab *sep)
   if (sep->se_family == AF_INET6)
     {
       /* Reverse the value of SEP->se_v4mapped, since otherwise if
-	 using `tcp' as a protocol type, all connections will be mapped
-	 to IPv6, and with `tcp6', IPv4 get mapped to IPv6.  */
+	 using `tcp6' as a protocol type, all connections will be
+	 mapped to IPv6, and with `tcp6only', IPv4 gets mapped to
+	 IPv6.  */
       int val = sep->se_v4mapped ? 0 : 1;
       if (setsockopt (sep->se_fd, IPPROTO_IPV6, IPV6_V6ONLY,
 		      (char *) &val, sizeof (val)) < 0)
@@ -1001,9 +1002,8 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
       sep->se_proto = newstr (argv[INETD_PROTOCOL]);
 
 #ifdef IPV6
-      /* We default to IPv6.  In setup() we'll fall back to IPv4 if
-         it doesn't work.  */
-      sep->se_family = AF_INET6;
+      /* We default to IPv4. */
+      sep->se_family = AF_INET;
       sep->se_v4mapped = 1;
 
       if ((strncmp (sep->se_proto, "tcp", 3) == 0)
@@ -1013,6 +1013,9 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	    {
 	      sep->se_family = AF_INET6;
 	      sep->se_v4mapped = 0;
+	      /* Check for tcp6only and udp6only.  */
+	      if (strcmp (&sep->se_proto[3], "6only") == 0)
+	        sep->se_v4mapped = 0;
 	    }
 	  else if (sep->se_proto[3] == '4')
 	    {
@@ -1207,7 +1210,6 @@ fix_tcpmux (void)
 
       serv.se_service = newstr ("tcpmux");
       serv.se_socktype = SOCK_STREAM;
-      serv.se_proto = newstr ("tcp");
       serv.se_checked = 1;
       serv.se_user = newstr ("root");
       serv.se_bi = bi_lookup (&serv);
@@ -1225,9 +1227,11 @@ fix_tcpmux (void)
       serv.se_fd = -1;
       serv.se_type = NORM_TYPE;
 #ifdef IPV6
+      serv.se_proto = newstr ("tcp6");
       serv.se_family = AF_INET6;
       serv.se_v4mapped = 1;
 #else
+      serv.se_proto = newstr ("tcp");
       serv.se_family = AF_INET;
 #endif
       if (debug)
