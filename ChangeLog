@@ -1,3 +1,12 @@
+2010-10-18  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ifconfig/printif.c (put_flags): Declare F as `unsigned short
+	int'.
+	(put_int): Parse H, h, and # modifiers.
+	* ifconfig/options.c (formats) <unix>: Fix formating.
+	* ifconfig/flags.c (flag_char_tab) [IFF_SIMPLEX]: New member
+	IFF_SIMPLEX
+
 2010-10-18  Guillem Jover  <guillem@hadrons.org>
 
 	* configure.ac: Remove opie AC_CHECK_LIB check.

@@ -139,10 +139,10 @@ struct format formats[] = {
    "Traditional UNIX interface listing.  Default for Solaris and HPUX.",
    "${format}{check-existence}"
    "${ifdisplay?}{"
-   "${name}: flags=${flags}{number}<${flags}{string}{,}>"
+   "${name}: flags=${flags}{number}{%hx}<${flags}{string}{,}>"
    "${mtu?}{ mtu ${mtu}}${\\n}"
    "${addr?}{${\\t}inet ${addr}"
-   " netmask ${netmask}{0}{%02x}${netmask}{1}{%02x}"
+   " netmask ${netmask}{0}{%#02x}${netmask}{1}{%02x}"
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
    "${brdaddr?}{ broadcast ${brdaddr}}${\\n}}"
    "${exists?}{hwtype?}{${hwtype?}{${\\t}${hwtype}"

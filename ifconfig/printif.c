@@ -153,11 +153,14 @@ put_int (format_data_t form, int argc, char *argv[], int nr)
 	{
 	  p++;
 
+	  if (*p == '#')
+	    p++;
+
 	  while (isdigit (*p))
 	    p++;
 
-	  if (*p == '#')
-	    p++;
+	  if ((*p == 'h' || *p == 'H') && p[1])
+	    ++p; /* Half length modifier, go to type specifier.  */
 
 	  switch (*p)
 	    {
@@ -293,8 +296,7 @@ put_addr (format_data_t form, int argc, char *argv[], struct sockaddr *sa)
 void
 put_flags (format_data_t form, int argc, char *argv[], short flags)
 {
-  /* XXX */
-  short int f = 1;
+  unsigned short int f = 1;
   const char *name;
   int first = 1;
 

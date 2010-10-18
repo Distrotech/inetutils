@@ -407,6 +407,9 @@ static struct if_flag_char flag_char_tab[] = {
 #ifdef IFF_MASTER
   { IFF_MASTER,      'm' },
 #endif
+#ifdef IFF_SIMPLEX
+  { IFF_SIMPLEX,     'S' },
+#endif
   { IFF_RUNNING,     'R' },
   { IFF_UP,          'U' },
   { 0 }
