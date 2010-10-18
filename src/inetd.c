@@ -1110,6 +1110,18 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	  sep->se_argv[i] = argv[INETD_SERVER_ARGS + i];
 	  argv[INETD_SERVER_ARGS + i] = 0;
 	}
+      
+      /* If no arguments are provided, use server name as argv[0].  */
+      if (sep->se_argc == 1)
+	{
+	  const char *argv0 = strrchr (sep->se_server, '/');
+	  if (argv0)
+	    argv0++;
+	  else
+	    argv0 = sep->se_server;
+          sep->se_argv[0] = newstr (argv0);
+	}
+      
       sep->se_argv[i] = NULL;
       break;
     }

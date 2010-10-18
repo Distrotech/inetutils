@@ -1,5 +1,10 @@
 2010-10-18  Guillem Jover  <guillem@hadrons.org>
 
+	* src/inetd.c (getconfigent): If se_argc == 1 inject the
+	normalized se_server name into se_argv[0].
+
+2010-10-18  Guillem Jover  <guillem@hadrons.org>
+
 	* src/inetd.c (getconfigent) [IPV6]: Change default family to IPv4
 	for "tcp" and "udp".  Change "tcp6" and "udp6" to support IPv4
 	mapped addresses.  Add "tcp6only" and "udp6only" protocols for
