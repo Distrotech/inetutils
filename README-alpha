@@ -116,6 +116,7 @@ When doing a stable release, do not forget to:
  - record the release date in NEWS
  - create a tag (inetutils-N_M)
  - post an announcment to info-gnu@gnu.org
+ - update web manual and coverage testing
 
 ** Announcement template
 
