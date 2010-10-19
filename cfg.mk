@@ -32,6 +32,8 @@ local-checks-to-skip = \
 
 htmldir = ../www-$(PACKAGE)
 
+manual_title = GNU network utilities
+
 web-coverage:
 	rm -fv `find $(htmldir)/coverage -type f | grep -v CVS`
 	cp -rv doc/coverage/* $(htmldir)/coverage/

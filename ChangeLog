@@ -1,3 +1,11 @@
+2010-10-19  Alfred M. Szmidt  <ams@gnu.org>
+
+	Added gendocs module for generation of web manual.
+
+	* doc/.gitignore: Ignore gendocs_template.
+	* cfg.mk (manual_title): New variable.
+	* bootstrap.conf (gnulib_modules): Added gendocs to list.
+
 2010-10-19  Ludovic Courtès  <ludo@gnu.org>
 
 	Add `tftpd' and `tftp' test.
