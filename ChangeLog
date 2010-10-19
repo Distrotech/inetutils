@@ -1,3 +1,25 @@
+2010-10-19  Alfred M. Szmidt  <ams@gnu.org>
+
+	Silence sc_program_name errors.
+
+	* cfg.mk (local-checks-to-skip): Removed sc_program_name from
+	list.
+	* tests/localhost.c: Include <progname.h>.
+	(main): Set type to `int main (int argc, char **argv)'.  Call
+	set_program_name.
+	* talkd/talkd.c: Include <progname.h>.
+	(main): Call set_program_name.
+	* libinetutils/argcv.c: Include <progname.h>.
+	(main): Set type to `int main (int argc, char **argv)'.  Call
+	set_program_name.
+	* ifconfig/options.c (parse_cmdline): Removed call to
+	set_program_name.
+	* ifconfig/ifconfig.c: Include <progname.h>
+	(main): Call set_program_name.
+
+	* bootstrap.conf (gnulib_modules): Added git-merge-changelog to
+	list.
+
 2010-10-18  Alfred M. Szmidt  <ams@gnu.org>
 
 	Always use <termios.h> interface.

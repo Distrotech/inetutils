@@ -566,7 +566,6 @@ parse_cmdline (int argc, char *argv[])
 {
   int index;
   struct ifconfig *ifp = ifs;
-  set_program_name (argv[0]);
 
   parse_opt_set_default_format (NULL);
   iu_argp_init ("ifconfig", program_authors);

@@ -21,12 +21,13 @@
 #include "libinetutils.h"
 
 #include <stdio.h>
+#include <progname.h>
 
 int
-main (void)
+main (int argc, char **argv)
 {
   const char *p = localhost ();
-
+  set_program_name (argv[0]);
   if (!p)
     return 1;
 

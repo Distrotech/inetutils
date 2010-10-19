@@ -21,6 +21,7 @@
 
 #include "argcv.h"
 #include <ctype.h>
+#include <progname.h>
 
 /*
  * takes a string and splits it into several strings, breaking at ' '
@@ -177,11 +178,12 @@ argcv_string (int argc, char **argv, char **pstring)
 #if 0
 char *command = "set prompt=\"& \"";
 
-main ()
+int
+main (int argc, char **argv)
 {
   int i, argc;
   char **argv;
-
+  set_program_name (argv[0]);
   argcv_get (command, "=", &argc, &argv);
   printf ("%d args:\n", argc);
   for (i = 0; i < argc; i++)

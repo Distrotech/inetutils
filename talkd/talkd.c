@@ -22,6 +22,7 @@
 #include <intalkd.h>
 #include <signal.h>
 #include <libinetutils.h>
+#include <progname.h>
 
 #ifndef LOG_FACILITY
 # define LOG_FACILITY LOG_DAEMON
@@ -95,6 +96,7 @@ static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 int
 main (int argc, char *argv[])
 {
+  set_program_name (argv[0]);
   /* Parse command line */
   iu_argp_init ("talkd", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);

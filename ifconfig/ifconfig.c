@@ -43,6 +43,7 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <arpa/inet.h>
+#include <progname.h>
 #include "ifconfig.h"
 
 int
@@ -51,7 +52,7 @@ main (int argc, char *argv[])
   int err = 0;
   int sfd;
   struct ifconfig *ifp;
-
+  set_program_name (argv[0]);
   parse_cmdline (argc, argv);
 
   sfd = socket (AF_INET, SOCK_STREAM, 0);
