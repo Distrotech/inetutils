@@ -28,6 +28,13 @@ endif
 if ENABLE_traceroute
 dist_check_SCRIPTS += traceroute-localhost.sh
 endif
+if ENABLE_inetd
+if ENABLE_tftpd
+if ENABLE_tftp
+dist_check_SCRIPTS += tftp.sh
+endif
+endif
+endif
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)

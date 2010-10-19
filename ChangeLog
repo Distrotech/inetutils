@@ -1,3 +1,11 @@
+2010-10-19  Ludovic Courtès  <ludo@gnu.org>
+
+	Add `tftpd' and `tftp' test.
+
+	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_inetd &&
+	ENABLE_tftpd && ENABLE_tftp]: Add `tftp.sh'.
+	* tests/tftp.sh: New file.
+
 2010-10-19  Alfred M. Szmidt  <ams@gnu.org>
 
 	Silence sc_program_name errors.
