@@ -1,29 +1,10 @@
-GNU Inetutils
+GNU inetutils - The GNU Network Utilities
 
 This is a distribution of common networking utilities and servers.
 
-They are currently mostly from the 4.4BSD-Lite2 distribution, with
-some changes to make them compatible with the GNU Hurd (in particular,
-the Hurd does not define some arbitrary limits, such as MAXPATHLEN),
-and to make them more portable, using autoconf.  A GNU build
-environment has also been added.
-
-The GNU whois client reads a whois-servers file to figure out which
-whois server to use.  It won't always pick the best server;
-whois.internic.net seems to know something about nic.ddn.mil, but the
-GNU whois client will use nic.ddn.mil to look up nic.ddn.mil if you
-use the configuration file we supply.  Our configuration file probably
-also does not have a complete list of whois servers; feel free to send
-information about additional whois servers to the bug reporting
-address.
-
-There are probably many BSD dependencies remaining, but inetutils is
-believed to work on the following system types (and others may work):
-
-  i486-pc-gnu
-  i486-pc-linux-gnu
-  m68k-hp-netbsd1.2
-  sparc-sun-netbsd1.2
+The individual utilities were originally derived from the 4.4BSDLite2
+distribution.  Many features were integrated from NetBSD, OpenBSD,
+FreeBSD and GNU/Linux
 
 The file `paths' contains a list of all paths used by programs in this
 distribution, and rules to find values for them.  To change a path
@@ -38,6 +19,15 @@ invoking `configure'.  You can also use --enable-<program> or
 if you explicitly specify whether to build a program, that will
 override the values specified by --disable-clients or
 --disable-servers.
+
+The GNU whois client reads a whois-servers file to figure out which
+whois server to use.  It won't always pick the best server;
+whois.internic.net seems to know something about nic.ddn.mil, but the
+GNU whois client will use nic.ddn.mil to look up nic.ddn.mil if you
+use the configuration file we supply.  Our configuration file probably
+also does not have a complete list of whois servers; feel free to send
+information about additional whois servers to the bug reporting
+address.
 
 Notes:
 
