@@ -300,7 +300,7 @@ telnetd_setup (int fd)
     }
 
 #ifdef IPV6
-  err = getnameinfo ((struct sockaddr *) &saddr, sizeof (saddr), buf,
+  err = getnameinfo ((struct sockaddr *) &saddr, len, buf,
 		     sizeof (buf), NULL, 0, NI_NUMERICHOST);
   if (err)
     {

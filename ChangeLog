@@ -1,3 +1,7 @@
+2010-10-26  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* telnetd/telnetd.c (telnetd_setup): Really use LEN as size of address.
+
 2010-10-19  Alfred M. Szmidt  <ams@gnu.org>
 
 	Added gendocs module for generation of web manual.
