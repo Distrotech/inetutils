@@ -1,3 +1,9 @@
+2010-10-27  Mats Erik Andersson <gnu@gisladisker.se>
+	    Simon Josefsson  <simon@josefsson.org>
+
+	* telnetd/telnetd.c (telnetd_setup): Pass correct length of saddr
+	to getnameinfo calls.
+
 2010-10-26  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* telnetd/telnetd.c (telnetd_setup): Really use LEN as size of address.

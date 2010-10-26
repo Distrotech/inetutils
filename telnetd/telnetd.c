@@ -317,7 +317,7 @@ telnetd_setup (int fd)
 
   /* We use a second buffer so we don't have to call getnameinfo again
      if we need the numeric host below.  */
-  err = getnameinfo ((struct sockaddr *) &saddr, sizeof (saddr), buf2,
+  err = getnameinfo ((struct sockaddr *) &saddr, len, buf2,
 		     sizeof (buf2), NULL, 0, NI_NAMEREQD);
 
   if (reverse_lookup)
