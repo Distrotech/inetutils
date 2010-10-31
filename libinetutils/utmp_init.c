@@ -52,6 +52,9 @@
 # endif
 # include <utmpx.h>
 #else
+# if HAVE_UTIL_H
+#  include <util.h>
+# endif
 # include <utmp.h>
 #endif
 #include <string.h>
@@ -77,8 +80,11 @@ utmp_init (char *line, char *user, char *id)
 #endif
 #if defined HAVE_STRUCT_UTMP_UT_USER || defined HAVE_STRUCT_UTMPX_UT_USER
   strncpy (utx.ut_user, user, sizeof (utx.ut_user));
-#else
+#elif defined HAVE_STRUCT_UTMP_UT_NAME || defined HAVE_STRUCT_UTMPX_UT_NAME
   strncpy (utx.ut_name, user, sizeof (utx.ut_name));
+#endif
+#if defined HAVE_STRUCT_UTMP_UT_HOST
+  strncpy (utx.ut_host, user, sizeof (utx.ut_host));
 #endif
   strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 #if defined HAVE_STRUCT_UTMP_UT_PID
@@ -100,7 +106,7 @@ utmp_init (char *line, char *user, char *id)
   updwtmpx (PATH_WTMPX, &utx);
 # endif
   endutxent ();
-#else
+#elif HAVE_DECL_GETUTENT
   pututline (&utx);
 # ifdef HAVE_UPDWTMP
   updwtmp (PATH_WTMP, &utx);
@@ -108,6 +114,8 @@ utmp_init (char *line, char *user, char *id)
   logwtmp (line, user, id);
 # endif
   endutent ();
+#else
+  login (&utx);
 #endif
 }
 

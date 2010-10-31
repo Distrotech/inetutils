@@ -26,6 +26,9 @@
 #include <sys/time.h>
 #include <time.h>
 #ifdef HAVE_UTMP_H
+# if HAVE_UTIL_H
+#  include <util.h>
+# endif
 # include <utmp.h>
 #else
 # ifdef  HAVE_UTMPX_H

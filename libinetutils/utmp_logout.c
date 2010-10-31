@@ -49,6 +49,9 @@
 # define __USE_GNU
 # include <utmpx.h>
 #else
+# if HAVE_UTIL_H
+#  include <util.h>
+# endif
 # include <utmp.h>
 #endif
 #include <string.h>
@@ -79,7 +82,7 @@ utmp_logout (char *line)
       updwtmpx (PATH_WTMPX, ut);
     }
   endutxent ();
-#else
+#elif HAVE_DECL_GETUTENT
   struct utmp utx;
   struct utmp *ut;
 
@@ -116,5 +119,8 @@ utmp_logout (char *line)
 # endif
     }
   endutent ();
+#else
+  if (logout (line))
+    logwtmp (line, "", "");
 #endif
 }
