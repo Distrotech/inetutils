@@ -1,5 +1,13 @@
 2010-10-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	traceroute: Pass integer values to IP_TTL option.
+
+	* src/traceroute.c (trace_init): Renamed TTLP to TTL, and changed
+	type to `int'.
+	(trace_inc_ttl): Likewise.
+
+2010-10-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Calculate socket length using sockaddr.
 
 	* src/inetd.c: New element `se_addrlen' in `struct servtab'.

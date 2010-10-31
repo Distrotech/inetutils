@@ -311,9 +311,9 @@ void
 trace_init (trace_t * t, const struct sockaddr_in to,
 	    const enum trace_type type)
 {
-  const unsigned char *ttlp;
+  int ttl;
   assert (t);
-  ttlp = &t->ttl;
+  ttl = t->ttl;
 
   t->type = type;
   t->to = to;
@@ -325,8 +325,8 @@ trace_init (trace_t * t, const struct sockaddr_in to,
       if (t->udpfd < 0)
         error (EXIT_FAILURE, errno, "socket");
 
-      if (setsockopt (t->udpfd, IPPROTO_IP, IP_TTL, ttlp,
-		      sizeof (t->ttl)) < 0)
+      if (setsockopt (t->udpfd, IPPROTO_IP, IP_TTL, &ttl,
+		      sizeof (ttl)) < 0)
         error (EXIT_FAILURE, errno, "setsockopt");
     }
 
@@ -340,7 +340,7 @@ trace_init (trace_t * t, const struct sockaddr_in to,
             error (EXIT_FAILURE, errno, "socket");
 
 	  if (setsockopt (t->icmpfd, IPPROTO_IP, IP_TTL,
-			  ttlp, sizeof (t->ttl)) < 0)
+			  &ttl, sizeof (ttl)) < 0)
             error (EXIT_FAILURE, errno, "setsockopt");
 	}
       else
@@ -520,14 +520,14 @@ void
 trace_inc_ttl (trace_t * t)
 {
   int fd;
-  const unsigned char *ttlp;
+  int ttl;
 
   assert (t);
 
-  ttlp = &t->ttl;
+  ttl = t->ttl;
   t->ttl++;
   fd = (t->type == TRACE_UDP ? t->udpfd : t->icmpfd);
-  if (setsockopt (fd, IPPROTO_IP, IP_TTL, ttlp, sizeof (t->ttl)) < 0)
+  if (setsockopt (fd, IPPROTO_IP, IP_TTL, &ttl, sizeof (ttl)) < 0)
     error (EXIT_FAILURE, errno, "setsockopt");
 }
 
