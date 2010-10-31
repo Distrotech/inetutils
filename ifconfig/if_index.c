@@ -38,6 +38,7 @@
 
 #include <ifconfig.h>
 
+#ifndef HAVE_STRUCT_IF_NAMEINDEX
 unsigned int
 if_nametoindex (const char *ifname)
 {
@@ -196,3 +197,4 @@ if_nameindex (void)
   return NULL;
 #endif
 }
+#endif

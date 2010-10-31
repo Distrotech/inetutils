@@ -1,3 +1,9 @@
+2010-10-31  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ifconfig/if_index.c (if_nametoindex, if_freenameindex)
+	(if_nameindex): Provide functions only if HAVE_STRUCT_IF_NAMEINDEX
+	isn't defined.
+
 2010-10-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libinetutils: UTMP fixes for OpenBSD.
@@ -132,7 +138,7 @@
 
 	* bootstrap.conf (gnulib_modules): Added termios module.
 
-2010-10-18  Mats Erik Andersson <address@hidden>
+2010-10-18  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* libinetutils/tftpsubs.c (synchnet): Changed type of FROM to be
 	"struct sockaddr_storage".
