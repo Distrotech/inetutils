@@ -1,5 +1,14 @@
 2010-10-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Calculate socket length using sockaddr.
+
+	* src/inetd.c: New element `se_addrlen' in `struct servtab'.
+	(expand_enter): Record in SE_ADDRLEN the actual length of each
+	established control address.
+	(setup): Use the exact address length in call to bind(3).
+
+2010-10-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Improve the test suite.
 
 	* tests/tftp.sh: Make it robust and portable to GNU/Linux and BSD.

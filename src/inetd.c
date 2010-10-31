@@ -254,6 +254,7 @@ struct servtab
   sa_family_t se_family;	/* address family of the socket */
   char se_v4mapped;		/* 1 = accept v4mapped connection, 0 = don't */
   struct sockaddr_storage se_ctrladdr;	/* bound address */
+  socklen_t se_addrlen;		/* exact address length in use */
   unsigned se_refcnt;
   int se_count;			/* number started since se_time */
   struct timeval se_time;	/* start of se_count */
@@ -585,7 +586,7 @@ setup (struct servtab *sep)
     syslog (LOG_ERR, "setsockopt (SO_REUSEADDR): %m");
 
   err = bind (sep->se_fd, (struct sockaddr *) &sep->se_ctrladdr,
-	      sizeof (sep->se_ctrladdr));
+	      sep->se_addrlen);
   if (err < 0)
     {
       /* If we can't bind with AF_INET6 try again with AF_INET.  */
@@ -800,7 +801,9 @@ expand_enter (struct servtab *sep)
 
   for (rp = result; rp != NULL; rp = rp->ai_next)
     {
+      memset (&sep->se_ctrladdr, 0, sizeof (sep->se_ctrladdr));
       memcpy (&sep->se_ctrladdr, rp->ai_addr, rp->ai_addrlen);
+      sep->se_addrlen = rp->ai_addrlen;
       cp = enter (sep);
       servent_setup (cp);
     }
