@@ -101,7 +101,7 @@ for addr in $ADDRESSES; do
     fi
 done
 
-+ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
+ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
 
 rm -rf tftp-test tftp-test-file "$INETD_CONF"
 
