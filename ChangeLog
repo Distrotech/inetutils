@@ -1,3 +1,16 @@
+2010-10-31  Alfred M. Szmidt  <ams@gnu.org>
+
+	Use git-version-gen to extract version number.
+
+	* .gitignore (.tarball-version, .version): Added to list.
+	* configure.ac: Use git-version-gen to extract version number.
+	* bootstrap.conf (gnulib_modules): Added git-version-gen to list.
+
+	* Makefile.am (BUILT_SOURCES): New variable.
+	($(top_srcdir)/.version, dist-hook): New targets.
+
+	* bootstrap.conf (gnulib_modules): Removed unlocked-io from list.
+
 2010-10-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	traceroute: Pass integer values to IP_TTL option.
