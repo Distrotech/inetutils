@@ -63,6 +63,7 @@
 #include <arpa/inet.h>
 
 #include <errno.h>
+#include <error.h>
 #include <fcntl.h>
 #include <netdb.h>
 #include <setjmp.h>
@@ -99,7 +100,7 @@ static int maxtimeout = 5 * TIMEOUT;
 
 static struct sockaddr_in peeraddr;	/* filled in by main */
 static int f;			/* the opened socket */
-static short port;
+static int port; /* Port number in network byte order of the server. */
 static int trace;
 static int verbose;
 static int connected;
@@ -111,7 +112,6 @@ char *margv[20];
 char *prompt = "tftp";
 jmp_buf toplevel;
 void intr (int signo);
-struct servent *sp;
 
 void get (int, char **);
 void help (int, char **);
@@ -226,12 +226,6 @@ main (int argc, char *argv[])
   iu_argp_init ("tftp", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
-  sp = getservbyname ("tftp", "udp");
-  if (sp == 0)
-    {
-      fprintf (stderr, "tftp: udp/tftp: unknown service\n");
-      exit (EXIT_FAILURE);
-    }
   f = socket (AF_INET, SOCK_DGRAM, 0);
   if (f < 0)
     {
@@ -345,9 +339,9 @@ setpeer (int argc, char *argv[])
       hostname = xstrdup (argv[1]);
     }
 
-  port = sp->s_port;
   if (argc == 3)
     {
+      /* Take a user-specified port number.  */
       port = atoi (argv[2]);
       if (port < 0)
 	{
@@ -356,6 +350,15 @@ setpeer (int argc, char *argv[])
 	  return;
 	}
       port = htons (port);
+    }
+  else
+    {
+      /* Use the standard TFTP port.  */
+      struct servent *sp;
+      sp = getservbyname ("tftp", "udp");
+      if (sp == 0)
+	error (EXIT_FAILURE, 0, "udp/tftp: unknown service\n");
+      port = sp->s_port;
     }
   connected = 1;
 }
@@ -483,7 +486,7 @@ put (int argc, char *argv[])
 	}
       if (verbose)
 	printf ("putting %s to %s:%s [%s]\n", cp, hostname, targ, mode);
-      peeraddr.sin_port = port ? port : sp->s_port;
+      peeraddr.sin_port = port;
       send_file (fd, targ, mode);
       return;
     }
@@ -503,7 +506,7 @@ put (int argc, char *argv[])
 	}
       if (verbose)
 	printf ("putting %s to %s:%s [%s]\n", argv[n], hostname, targ, mode);
-      peeraddr.sin_port = port ? port : sp->s_port;
+      peeraddr.sin_port = port;
       send_file (fd, targ, mode);
     }
 }
@@ -568,7 +571,7 @@ get (int argc, char *argv[])
 	  if (verbose)
 	    printf ("getting from %s:%s to %s [%s]\n",
 		    hostname, src, cp, mode);
-	  peeraddr.sin_port = port ? port : sp->s_port;
+	  peeraddr.sin_port = port;
 	  recvfile (fd, src, mode);
 	  break;
 	}
@@ -582,7 +585,7 @@ get (int argc, char *argv[])
 	}
       if (verbose)
 	printf ("getting from %s:%s to %s [%s]\n", hostname, src, cp, mode);
-      peeraddr.sin_port = port ? port : sp->s_port;
+      peeraddr.sin_port = port;
       recvfile (fd, src, mode);
     }
 }

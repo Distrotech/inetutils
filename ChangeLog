@@ -1,3 +1,14 @@
+2010-10-31  Ludovic Courtès  <ludo@gnu.org>
+
+	tftp: Resolve the "tftp" service only when no port is specified.
+
+	* src/tftp.c: Include <error.h>.
+	(port): Change from `short' to `int'.
+	(sp): Remove variable.
+	(main): Don't call `getservbyname'.
+	(setpeer): Call `getservbyname' when ARGC != 3.
+	(put, get): Refer to PORT instead of SP->s_port.
+
 2010-10-27  Mats Erik Andersson <gnu@gisladisker.se>
 	    Simon Josefsson  <simon@josefsson.org>
 
