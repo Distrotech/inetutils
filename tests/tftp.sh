@@ -22,13 +22,15 @@
 TFTP="${TFTP:-../src/tftp$EXEEXT}"
 TFTPD="${TFTPD:-$PWD/../src/tftpd$EXEEXT}"
 INETD="${INETD:-../src/inetd$EXEEXT}"
-IFCONFIG="${IFCONFIG:-../ifconfig/ifconfig$EXEEXT}"
+IFCONFIG="${IFCONFIG:-../ifconfig/ifconfig$EXEEXT --format=unix}"
 
-PORT=7777
+AF=${AF:-inet}
+PROTO=${PROTO:-udp}
+PORT=${PORT:-7777}
 INETD_CONF="$PWD/inetd.conf.tmp"
 
-ADDRESSES="`$IFCONFIG | grep 'inet addr:' | \
-  sed -e's/inet addr:\([^ ]\+\)[[:blank:]].*$/\1/g'`"
+ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
+     -e "s/^.*$AF[[:blank:]]\([:.0-9]\{1,\}\)[[:blank:]].*$/\1/g"`"
 
 if [ "$VERBOSE" ]; then
     set -x
@@ -37,16 +39,37 @@ if [ "$VERBOSE" ]; then
     "$INETD" --version
 fi
 
+# Check that the port is still available
+netstat -na | grep -q "^$PROTO .*$PORT "
+if test $? -eq 0; then
+    echo "Desired port $PORT/$PROTO is already in use."
+    exit 1
+fi
+
 # Create `inetd.conf'.  Note: We want $TFTPD to be an absolute file
 # name because `inetd' chdirs to `/' in daemon mode; ditto for
 # $INETD_CONF.
 cat > "$INETD_CONF" <<EOF
-$PORT dgram udp wait $USER $TFTPD   tftpd -l `pwd`/tftp-test
+$PORT dgram $PROTO wait $USER $TFTPD   tftpd -l `pwd`/tftp-test
 EOF
 
 # Launch `inetd', assuming it's reachable at all $ADDRESSES.
-$INETD "${VERBOSE:+-d}" "$INETD_CONF" &
+$INETD -d "$INETD_CONF" &
 inetd_pid="$!"
+
+test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
+
+# Wait somewhat for the service to settle.
+sleep 1
+
+# Did `inetd' really succeed in establishing a listener?
+netstat -na | grep "^$PROTO .*$PORT "
+if test $? -ne 0; then
+    # No it did not.
+    ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
+    echo "Failed in starting correct Inetd instance." >&2
+    exit 1
+fi
 
 if [ -f /dev/urandom ]; then
     input="/dev/urandom"
@@ -56,7 +79,9 @@ fi
 
 rm -fr tftp-test tftp-test-file
 mkdir tftp-test && \
-    dd if="$input" of="tftp-test/tftp-test-file" bs=1024 count=170
+    dd if="$input" of="tftp-test/tftp-test-file" bs=1024 count=170 2>/dev/null
+
+echo "Looks into $ADDRESSES."
 
 for addr in $ADDRESSES; do
     echo "trying with address \`$addr'..." >&2
@@ -69,12 +94,18 @@ for addr in $ADDRESSES; do
 
     if [ "$result" -ne 0 ]; then
 	# Failure.
+	test -z "$VERBOSE" || echo "Failed comparison for $addr." >&2
 	break
+    else
+	test -z "$VERBOSE" || echo "Successful comparison for $addr." >&2
     fi
 done
 
-kill "$inetd_pid"
++ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
 
 rm -rf tftp-test tftp-test-file "$INETD_CONF"
+
+# Minimal clean up
+echo
 
 exit $result

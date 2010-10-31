@@ -18,6 +18,7 @@
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
 TRACEROUTE=${TRACEROUTE:-../src/traceroute$EXEEXT}
+TARGET=${TARGET:-127.0.0.1}
 
 if [ $VERBOSE ]; then
     set -x
@@ -29,6 +30,15 @@ if [ `id -u` != 0 ]; then
     exit 77
 fi
 
-$TRACEROUTE 127.0.0.1; errno=$?
+errno=0
+errno2=0
 
-exit $errno
+$TRACEROUTE --type=udp $TARGET || errno=$?
+test $errno -eq 0 || echo "Failed at UDP tracing." >&2
+
+$TRACEROUTE --type=icmp $TARGET || errno2=$?
+test $errno2 -eq 0 || echo "Failed at ICMP tracing." >&2
+
+test $errno -eq 0 || exit $errno
+
+exit $errno2

@@ -18,6 +18,10 @@
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
 PING=${PING:-../ping/ping$EXEEXT}
+TARGET=${TARGET:-127.0.0.1}
+
+PING6=${PING6:-../ping/ping6$EXEEXT}
+TARGET6=${TARGET6:-::1}
 
 if [ $VERBOSE ]; then
     set -x
@@ -29,6 +33,16 @@ if [ `id -u` != 0 ]; then
     exit 77
 fi
 
-$PING -c 1 127.0.0.1; errno=$?
+errno=0
+errno2=0
 
-exit $errno
+$PING -c 1 $TARGET || errno=$?
+test $errno -eq 0 || echo "Failed at pinging $TARGET." >&2
+
+# Host might not have been built with IPv6 support..
+test -x $PING6 && $PING6 -c 1 $TARGET6 || errno2=$?
+test $errno2 -eq 0 || echo "Failed at pinging $TARGET6." >&2
+
+test $errno -eq 0 || exit $errno
+
+exit $errno2

@@ -1,3 +1,11 @@
+2010-10-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Improve the test suite.
+
+	* tests/tftp.sh: Make it robust and portable to GNU/Linux and BSD.
+	* tests/ping-localhost.sh: Test `ping' and `ping6'.
+	* tests/traceroute-localhost.sh: Test UDP and ICMP.
+
 2010-10-31  Ludovic Courtès  <ludo@gnu.org>
 
 	tftp: Resolve the "tftp" service only when no port is specified.
