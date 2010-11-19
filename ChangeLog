@@ -1,3 +1,9 @@
+2010-11-19  Mike Frysinger <vapier@gentoo.org>
+
+	* ftp/extern.h: Rename function ruserpass to remote_userpass.
+	* ftp/ftp.c (login): Call remote_userpass instead of ruserpass.
+	* ftp/ruserpass.c (remote_userpass): Renamed from ruserpass.
+
 2010-10-31  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ifconfig/if_index.c (if_nametoindex, if_freenameindex)

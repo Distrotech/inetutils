@@ -111,7 +111,7 @@ static struct toktab
 };
 
 int
-ruserpass (char *host, char **aname, char **apass, char **aacct)
+remote_userpass (char *host, char **aname, char **apass, char **aacct)
 {
   char *hdir, buf[BUFSIZ], *tmp;
   char *myname = 0, *mydomain;
