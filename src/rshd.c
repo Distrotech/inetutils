@@ -284,7 +284,9 @@ extern char **environ;
 void
 doit (int sockfd, struct sockaddr_in *fromp)
 {
+#ifdef HAVE___RCMD_ERRSTR
   extern char *__rcmd_errstr;	/* syslog hook from libc/net/rcmd.c. */
+#endif
   struct hostent *hp;
   struct passwd *pwd;
   u_short port;
@@ -757,11 +759,13 @@ doit (int sockfd, struct sockaddr_in *fromp)
                      && (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
                                    remuser, locuser)) < 0))
     {
+#ifdef HAVE___RCMD_ERRSTR
       if (__rcmd_errstr)
 	syslog (LOG_INFO | LOG_AUTH,
 		"%s@%s as %s: permission denied (%s). cmd='%.80s'",
 		remuser, hostname, locuser, __rcmd_errstr, cmdbuf);
       else
+#endif
 	syslog (LOG_INFO | LOG_AUTH,
 		"%s@%s as %s: permission denied. cmd='%.80s'",
 		remuser, hostname, locuser, cmdbuf);

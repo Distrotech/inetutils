@@ -1,3 +1,9 @@
+2010-11-21  Mike Frysinger <vapier@gentoo.org>
+
+	* configure.ac: Check for __rcmd_errstr.
+	* src/rshd.c (doit): Protect declaration and use of __rcmd_errstr
+	variable with HAVE___RCMD_ERRSTR check.
+
 2010-11-19  Mike Frysinger <vapier@gentoo.org>
 
 	* ftp/extern.h: Rename function ruserpass to remote_userpass.
