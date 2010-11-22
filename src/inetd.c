@@ -1163,8 +1163,11 @@ nextconfig (const char *file)
 	{
 	  sep->se_fd = -1;
 	  sep->se_checked = 1;
+	  enter (sep);
 	}
-      expand_enter (sep);
+      else
+	expand_enter (sep);
+
       freeconfig (sep);
     }
   endconfig (fconfig);

@@ -1,5 +1,12 @@
 2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	Partially revert changes introduced in fd64a202.
+
+	* src/inetd.c (nextconfig): Call `enter' for TCPMUX services,
+	but `expand_enter' for every other service.
+
+2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* src/inetd.c (inetd_getaddrinfo): Do not use AI_V4MAPPED with
 	address family AF_INET.  FreeBSD fails otherwise.
 
