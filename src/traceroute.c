@@ -47,6 +47,7 @@
 #include <argp.h>
 #include <icmp.h>
 
+#include "xalloc.h"
 #include "libinetutils.h"
 
 #define TRACE_UDP_PORT 33434
@@ -87,7 +88,8 @@ char *get_hostname (struct in_addr *addr);
 
 int stop = 0;
 int pid = 0;
-struct hostent *host;
+static char *hostname = NULL;
+char addrstr[INET6_ADDRSTRLEN];
 struct sockaddr_in dest;
 
 static enum trace_type opt_type = TRACE_ICMP;
@@ -158,9 +160,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case ARGP_KEY_ARG:
       host_is_given = true;
-      host = gethostbyname (arg);
-      if (host == NULL)
-        error (EXIT_FAILURE, 0, "unknown host");
+      hostname = xstrdup(arg);
       break;
 
     case ARGP_KEY_SUCCESS:
@@ -180,6 +180,7 @@ static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 int
 main (int argc, char **argv)
 {
+  struct addrinfo hints, *res;
   trace_t trace;
 
   set_program_name (argv[0]);
@@ -188,15 +189,28 @@ main (int argc, char **argv)
   iu_argp_init ("traceroute", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
+  /* Hostname lookup first for better information */
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_INET;
+  hints.ai_flags = AI_CANONNAME;
+
+  if ((hostname == NULL) || (*hostname == '\0')
+      || getaddrinfo (hostname, NULL, &hints, &res))
+    error (EXIT_FAILURE, 0, "unknown host");
+
   if (geteuid () != 0)
     error (EXIT_FAILURE, EPERM, "insufficient permissions");
 
-  dest.sin_addr = *(struct in_addr *) host->h_addr;
-  dest.sin_family = AF_INET;
+  memcpy (&dest, res->ai_addr, res->ai_addrlen);
   dest.sin_port = htons (opt_port);
 
+  getnameinfo (res->ai_addr, res->ai_addrlen, addrstr, sizeof (addrstr),
+                  NULL, 0, NI_NUMERICHOST);
+
   printf ("traceroute to %s (%s), %d hops max\n",
-	  host->h_name, inet_ntoa (dest.sin_addr), opt_max_hops);
+	  res->ai_canonname, addrstr, opt_max_hops);
+
+  freeaddrinfo (res);
 
   trace_init (&trace, dest, opt_type);
 

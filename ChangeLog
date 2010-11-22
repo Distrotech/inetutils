@@ -1,5 +1,15 @@
 2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* src/traceroute.c: Include "xalloc.h".
+	* src/traceroute.c (host): Deleted variable.
+	(hostname, addrstr): New variables;
+	(parse_opt) [ARGP_KEY_ARG]: Abolish gethostbyname. Only use
+	xstrdup to copy argument.
+	(main): Use getaddrinfo and getnameinfo for name resolving.
+	New variables HINTS and *RES of type `struct addrinfo'.
+
+2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Resolve a double free issue.  Leads to segmentation faults.
 
 	* src/inetd.c (nextconfig): Do not use `freeconfig' unconditionally.
