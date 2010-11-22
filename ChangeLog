@@ -1,5 +1,10 @@
 2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* src/inetd.c (inetd_getaddrinfo): Do not use AI_V4MAPPED with
+	address family AF_INET.  FreeBSD fails otherwise.
+
+2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* ifconfig/flags.c (flag_char_tab): Protect the uses of
 	IFF_NOTRAILERS by `#ifdef'.
 

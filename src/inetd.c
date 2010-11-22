@@ -743,7 +743,7 @@ inetd_getaddrinfo (struct servtab *sep, int proto, struct addrinfo **result)
 
   hints.ai_flags = AI_PASSIVE;
 #ifdef AI_V4MAPPED
-  if (sep->se_v4mapped)
+  if (sep->se_v4mapped && (sep->se_family != AF_INET))
     hints.ai_flags |= AI_V4MAPPED;
 #endif
   hints.ai_family = sep->se_family;
