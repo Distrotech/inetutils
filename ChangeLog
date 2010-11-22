@@ -1,5 +1,12 @@
 2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	Resolve a double free issue.  Leads to segmentation faults.
+
+	* src/inetd.c (nextconfig): Do not use `freeconfig' unconditionally.
+	Condition on SERV_NODE, which needs partial memory deallocation.
+
+2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Partially revert changes introduced in fd64a202.
 
 	* src/inetd.c (nextconfig): Call `enter' for TCPMUX services,

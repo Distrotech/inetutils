@@ -1168,7 +1168,10 @@ nextconfig (const char *file)
       else
 	expand_enter (sep);
 
-      freeconfig (sep);
+      if (serv_node)
+	free (sep->se_node);
+      else
+	freeconfig (sep);
     }
   endconfig (fconfig);
   /*
