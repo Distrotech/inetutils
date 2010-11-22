@@ -1,3 +1,13 @@
+2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Regression caused by fe539ae9...797d881c
+
+	* src/traceroute.c: Revert change from 2010-10-31.
+	Change element `ttl' in `struct trace' to be plain `int'.
+	(trace_init): Change type of TTLP to be `const int *'.
+	Use `sizeof (*ttlp)' in both calls to setsockopt.
+	(trace_inc_ttl): Likewise.
+
 2010-11-21  Mike Frysinger <vapier@gentoo.org>
 
 	* configure.ac: Check for __rcmd_errstr.
