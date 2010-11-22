@@ -398,7 +398,9 @@ static struct if_flag_char flag_char_tab[] = {
   { IFF_DYNAMIC,     'd' },
 #endif
   { IFF_PROMISC,     'P' },
+#ifdef IFF_NOTRAILERS
   { IFF_NOTRAILERS,  'N' },
+#endif
   { IFF_NOARP,       'O' },
   { IFF_POINTOPOINT, 'P' },
 #ifdef IFF_SLAVE

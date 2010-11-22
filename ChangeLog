@@ -1,5 +1,10 @@
 2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* ifconfig/flags.c (flag_char_tab): Protect the uses of
+	IFF_NOTRAILERS by `#ifdef'.
+
+2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Regression caused by fe539ae9...797d881c
 
 	* src/traceroute.c: Revert change from 2010-10-31.
