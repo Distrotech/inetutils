@@ -1,3 +1,7 @@
+2010-12-04  Mike Frysinger <vapier@gentoo.org>  (tiny change)
+
+	* man/Makefile.am (dist_man1_MANS): Renamed to dist_man_MANS.
+
 2010-11-22  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/traceroute.c: Include "xalloc.h".

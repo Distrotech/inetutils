@@ -21,106 +21,106 @@ all = hostname.1 ifconfig.1 inetd.8 ftp.1 ftpd.8 logger.1 ping.1	\
       syslogd.8 talk.1 talkd.8 telnet.1 telnetd.8 tftp.1 tftpd.8	\
       traceroute.1 uucpd.8 whois.1
 
-dist_man1_MANS =
+dist_man_MANS =
 
 if ENABLE_hostname
-dist_man1_MANS += hostname.1
+dist_man_MANS += hostname.1
 endif
 
 if ENABLE_ifconfig
-dist_man1_MANS += ifconfig.1
+dist_man_MANS += ifconfig.1
 endif
 
 if ENABLE_inetd
-dist_man1_MANS += inetd.8
+dist_man_MANS += inetd.8
 endif
 
 if ENABLE_ftp
-dist_man1_MANS += ftp.1
+dist_man_MANS += ftp.1
 endif
 
 if ENABLE_ftpd
-dist_man1_MANS += ftpd.8
+dist_man_MANS += ftpd.8
 endif
 
 if ENABLE_logger
-dist_man1_MANS += logger.1
+dist_man_MANS += logger.1
 endif
 
 if ENABLE_ping
-dist_man1_MANS += ping.1
+dist_man_MANS += ping.1
 endif
 
 if ENABLE_ping6
-dist_man1_MANS += ping6.1
+dist_man_MANS += ping6.1
 endif
 
 if ENABLE_rcp
-dist_man1_MANS += rcp.1
+dist_man_MANS += rcp.1
 endif
 
 if ENABLE_rexec
-dist_man1_MANS += rexec.1
+dist_man_MANS += rexec.1
 endif
 
 if ENABLE_rexecd
-dist_man1_MANS += rexecd.8
+dist_man_MANS += rexecd.8
 endif
 
 if ENABLE_rlogin
-dist_man1_MANS += rlogin.1
+dist_man_MANS += rlogin.1
 endif
 
 if ENABLE_rlogind
-dist_man1_MANS += rlogind.8
+dist_man_MANS += rlogind.8
 endif
 
 if ENABLE_rsh
-dist_man1_MANS += rsh.1
+dist_man_MANS += rsh.1
 endif
 
 if ENABLE_rshd
-dist_man1_MANS += rshd.8
+dist_man_MANS += rshd.8
 endif
 
 if ENABLE_syslogd
-dist_man1_MANS += syslogd.8
+dist_man_MANS += syslogd.8
 endif
 
 if ENABLE_talk
-dist_man1_MANS += talk.1
+dist_man_MANS += talk.1
 endif
 
 if ENABLE_talkd
-dist_man1_MANS += talkd.8
+dist_man_MANS += talkd.8
 endif
 
 if ENABLE_telnet
-dist_man1_MANS += telnet.1
+dist_man_MANS += telnet.1
 endif
 
 if ENABLE_telnetd
-dist_man1_MANS += telnetd.8
+dist_man_MANS += telnetd.8
 endif
 
 if ENABLE_tftp
-dist_man1_MANS += tftp.1
+dist_man_MANS += tftp.1
 endif
 
 if ENABLE_tftpd
-dist_man1_MANS += tftpd.8
+dist_man_MANS += tftpd.8
 endif
 
 if ENABLE_traceroute
-dist_man1_MANS += traceroute.1
+dist_man_MANS += traceroute.1
 endif
 
 if ENABLE_uucpd
-dist_man1_MANS += uucpd.8
+dist_man_MANS += uucpd.8
 endif
 
 if ENABLE_whois
-dist_man1_MANS += whois.1
+dist_man_MANS += whois.1
 endif
 
 EXTRA_DIST = $(all) $(all:.1=.h2m) $(all:.8=.h2m)
