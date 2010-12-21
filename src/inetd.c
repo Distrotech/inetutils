@@ -737,10 +737,33 @@ enter (struct servtab *cp)
   return sep;
 }
 
+#define IPV4_NUMCHARS ".0123456789"
+#define IPV6_NUMCHARS ".:0123456789abcdefABCDEF"
+
 int
 inetd_getaddrinfo (struct servtab *sep, int proto, struct addrinfo **result)
 {
   struct addrinfo hints;
+#ifdef IPV6
+  bool numeric_address = false;
+
+  /* In case a numerical address is supplied, which does not
+     apply to the indicated domain, a non-local resolver
+     will wait in vain until time out occurs, thus blocking.
+     Avoid this by falling back to numerical host resolving
+     when address string seems to be numerical.  */
+
+  /* Purely numeric address?  Separate criteria for IPv4 and IPv6,
+     since IPv6 allows hexadecimal coding and IPv4 mapping!  */
+  if (sep->se_node
+      && (strspn (sep->se_node, IPV4_NUMCHARS) == strlen (sep->se_node)
+	  || (strchr (sep->se_node, ':')
+	      && strspn (sep->se_node, IPV6_NUMCHARS)) ) )
+    numeric_address = true;
+  else
+    if (debug && sep->se_node)
+      fprintf (stderr, "Resolving address: %s\n", sep->se_node);
+#endif /* IPV6 */
 
   memset (&hints, 0, sizeof (hints));
 
@@ -748,6 +771,10 @@ inetd_getaddrinfo (struct servtab *sep, int proto, struct addrinfo **result)
 #ifdef AI_V4MAPPED
   if (sep->se_v4mapped && (sep->se_family != AF_INET))
     hints.ai_flags |= AI_V4MAPPED;
+#endif
+#ifdef IPV6
+  if (numeric_address)
+    hints.ai_flags |= AI_NUMERICHOST;
 #endif
   hints.ai_family = sep->se_family;
   hints.ai_socktype = sep->se_socktype;
@@ -944,7 +971,7 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
       sep->se_line = *line;
 
       node = argv[INETD_SERVICE];
-      service = strchr (node, ':');
+      service = strrchr (node, ':');
       if (!service)
         {
 	  if (global_serv_node)
