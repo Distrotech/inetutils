@@ -1,5 +1,11 @@
 2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/addrpeek.c: New file.
+	* tests/Makefile.am: Register `addrpeek' using
+	`check_PROGRAMS', but conditioned on `ENABLE_inetd'.
+
+2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* src/inetd.c (prepenv): New prototype:
 	`prepenv(int, struct sockaddr *, socklen_t)'.
 	(prepenv): Change type of IP to `char []' of fixed length.

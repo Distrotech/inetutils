@@ -21,6 +21,10 @@ AM_CPPFLAGS = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib
 LDADD = -L../libinetutils -linetutils  ../lib/libgnu.a
 
 check_PROGRAMS = localhost
+if ENABLE_inetd
+check_PROGRAMS += addrpeek
+endif
+
 dist_check_SCRIPTS =
 if ENABLE_ping
 dist_check_SCRIPTS += ping-localhost.sh
