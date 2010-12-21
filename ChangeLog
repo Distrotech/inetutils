@@ -1,3 +1,19 @@
+2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/inetd.c (prepenv): New prototype:
+	`prepenv(int, struct sockaddr *, socklen_t)'.
+	(prepenv): Change type of IP to `char []' of fixed length.
+	Delete HOST.  New integer variable RET.
+	Make type of SA_SERVER depend on macro IPV6, either
+	`struct sockaddr_storage' or `struct sockaddr_in'.
+	(prepenv): Eliminate use of `inet_ntoa' and `gethostbyaddr'
+	by new calls to `getnameinfo', with and without restiction
+	to numeric results.  Debugging output for three select
+	environment variables.
+	(main): Make type of SA_CLIENT depend on macro IPV6, either
+	`struct sockaddr_storage' or `struct sockaddr_in'.  Adaptions
+	to the new prototype for `prepenv'.
+
 2010-12-04  Mike Frysinger <vapier@gentoo.org>  (tiny change)
 
 	* man/Makefile.am (dist_man1_MANS): Renamed to dist_man_MANS.

@@ -1696,15 +1696,21 @@ tcpmux (int s, struct servtab *sep)
 
 /* Set TCP environment variables, modelled after djb's ucspi-tcp tools:
    http://cr.yp.to/ucspi-tcp/environment.html
-   FIXME: This needs support for IPv6.
 */
 void
-prepenv (int ctrl, struct sockaddr_in sa_client)
+prepenv (int ctrl, struct sockaddr *sa_client, socklen_t sa_len)
 {
   char str[16];
-  char *ip;
-  struct hostent *host;
+  /* IP is used both for numeric addresses and for symbolic ones.
+   * Being statically allocated, and only for logging purposes,
+   * a full MAXPATHLEN is exaggerated, so a compromise is made.  */
+  char ip[4 * INET6_ADDRSTRLEN];
+  int ret;
+#ifdef IPV6
+  struct sockaddr_storage sa_server;
+#else
   struct sockaddr_in sa_server;
+#endif
   socklen_t len = sizeof (sa_server);
 
   setenv ("PROTO", "TCP", 1);
@@ -1719,47 +1725,58 @@ prepenv (int ctrl, struct sockaddr_in sa_client)
     syslog (LOG_WARNING, "getsockname(): %m");
   else
     {
-      ip = inet_ntoa (sa_server.sin_addr);
-      if (ip)
+      ret = getnameinfo ((struct sockaddr *) &sa_server, len,
+			  ip, sizeof (ip), str, sizeof (str),
+			  NI_NUMERICHOST | NI_NUMERICSERV);
+      if (ret == 0)
 	{
 	  if (setenv ("TCPLOCALIP", ip, 1) < 0)
 	    syslog (LOG_WARNING, "setenv (TCPLOCALIP): %m");
-	}
+	  else if (debug)
+	    fprintf (stderr, "Assigned TCPLOCALIP = %s\n", ip);
 
-      snprintf (str, sizeof (str), "%d", ntohs (sa_server.sin_port));
-      setenv ("TCPLOCALPORT", str, 1);
+	  if (setenv ("TCPLOCALPORT", str, 1) < 0)
+	    syslog (LOG_WARNING, "setenv (TCPLOCALPORT): %m");
+	}
+      else
+	syslog (LOG_WARNING, "getnameinfo: %s", gai_strerror (ret));
 
       if (resolve_option)
 	{
-	  if ((host = gethostbyaddr ((char *) &sa_server.sin_addr,
-				     sizeof (sa_server.sin_addr),
-				     AF_INET)) == NULL)
-	    syslog (LOG_WARNING, "gethostbyaddr: %m");
-	  else if (setenv ("TCPLOCALHOST", host->h_name, 1) < 0)
+	  ret = getnameinfo ((struct sockaddr *) &sa_server, len,
+			      ip, sizeof (ip), NULL, 0, 0);
+	  if (ret != 0)
+	    syslog (LOG_WARNING, "getnameinfo: %s", gai_strerror (ret));
+	  else if (setenv ("TCPLOCALHOST", ip, 1) < 0)
 	    syslog (LOG_WARNING, "setenv(TCPLOCALHOST): %m");
 	}
     }
 
-  ip = inet_ntoa (sa_client.sin_addr);
-  if (ip)
+  ret = getnameinfo (sa_client, sa_len, ip, sizeof (ip), str, sizeof (str),
+		      NI_NUMERICHOST | NI_NUMERICSERV);
+  if (ret == 0)
     {
       if (setenv ("TCPREMOTEIP", ip, 1) < 0)
 	syslog (LOG_WARNING, "setenv(TCPREMOTEIP): %m");
-    }
+      else if (debug)
+	fprintf (stderr, "Assigned TCPREMOTEIP = %s\n", ip);
 
-  snprintf (str, sizeof (str), "%d", ntohs (sa_client.sin_port));
-  if (setenv ("TCPREMOTEPORT", str, 1) < 0)
-    syslog (LOG_WARNING, "setenv(TCPREMOTEPORT): %m");
+      if (setenv ("TCPREMOTEPORT", str, 1) < 0)
+	syslog (LOG_WARNING, "setenv(TCPREMOTEPORT): %m");
 
-  if (resolve_option)
-    {
-      if ((host = gethostbyaddr ((char *) &sa_client.sin_addr,
-				 sizeof (sa_client.sin_addr),
-				 AF_INET)) == NULL)
-	syslog (LOG_WARNING, "gethostbyaddr: %m");
-      else if (setenv ("TCPREMOTEHOST", host->h_name, 1) < 0)
-	syslog (LOG_WARNING, "setenv(TCPREMOTEHOST): %m");
+      if (resolve_option)
+	{
+	  ret = getnameinfo (sa_client, sa_len, ip, sizeof (ip), NULL, 0, 0);
+	  if (ret != 0)
+	    syslog (LOG_WARNING, "getnameinfo: %s", gai_strerror (ret));
+	  else if (setenv ("TCPREMOTEHOST", ip, 1) < 0)
+	    syslog (LOG_WARNING, "setenv(TCPREMOTEHOST): %m");
+	  else if (debug)
+	    fprintf (stderr, "Assigned TCPREMOTEHOST = %s\n", ip);
+	}
     }
+  else
+    syslog (LOG_WARNING, "getnameinfo: %s", gai_strerror (ret));
 }
 
 
@@ -1870,7 +1887,11 @@ main (int argc, char *argv[], char *envp[])
 	      fprintf (stderr, "someone wants %s\n", sep->se_service);
 	    if (!sep->se_wait && sep->se_socktype == SOCK_STREAM)
 	      {
+#ifdef IPV6
+		struct sockaddr_storage sa_client;
+#else
 		struct sockaddr_in sa_client;
+#endif
 		socklen_t len = sizeof (sa_client);
 
 		ctrl = accept (sep->se_fd, (struct sockaddr *) &sa_client,
@@ -1885,7 +1906,7 @@ main (int argc, char *argv[], char *envp[])
 		    continue;
 		  }
 		if (env_option)
-		  prepenv (ctrl, sa_client);
+		  prepenv (ctrl, (struct sockaddr *) &sa_client, len);
 	      }
 	    else
 	      ctrl = sep->se_fd;
