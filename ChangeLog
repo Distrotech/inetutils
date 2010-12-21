@@ -1,5 +1,13 @@
 2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* src/inetd.c (print_service): If `ISMUX(SEP)' then present the
+	node name as `tcpmux' or as `tcpmuxplus'.  Make 'builtin=' show
+	actual service name, or `no' for non-builtins.
+	(fix_tcpmux): Let SERV.se_file report `fix_tcpmux' as origin.
+	Correct some spelling mistakes in error message.
+
+2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/addrpeek.c: New file.
 	* tests/Makefile.am: Register `addrpeek' using
 	`check_PROGRAMS', but conditioned on `ENABLE_inetd'.

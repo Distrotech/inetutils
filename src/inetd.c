@@ -523,12 +523,15 @@ void
 print_service (const char *action, struct servtab *sep)
 {
   fprintf (stderr,
-	   "%s:%d: %s: %s:%s proto=%s, wait=%d, max=%u, user=%s builtin=%lx server=%s\n",
+	   "%s:%d: %s: %s:%s proto=%s, wait=%d, max=%u, user=%s builtin=%s server=%s\n",
 	   sep->se_file, sep->se_line,
 	   action,
-	   sep->se_node ? sep->se_node : "*", sep->se_service, sep->se_proto,
+	   ISMUX (sep) ? (ISMUXPLUS (sep) ? "tcpmuxplus" : "tcpmux")
+		      : (sep->se_node ? sep->se_node : "*"),
+	   sep->se_service, sep->se_proto,
 	   sep->se_wait, sep->se_max, sep->se_user,
-	   (long) sep->se_bi, sep->se_server);
+	   sep->se_bi ? sep->se_bi->bi_service : "no",
+	   sep->se_server);
 }
 
 
@@ -1227,6 +1230,7 @@ fix_tcpmux (void)
       struct servtab serv;
       memset (&serv, 0, sizeof (serv));
 
+      serv.se_file = "fix_tcpmux";
       serv.se_service = newstr ("tcpmux");
       serv.se_socktype = SOCK_STREAM;
       serv.se_checked = 1;
@@ -1237,8 +1241,8 @@ fix_tcpmux (void)
 	  /* Should not happen */
 	  freeconfig (&serv);
 	  if (debug)
-	    fprintf (stderr, "INETERNAL ERROR: could not found tcpmux built-in");
-	  syslog (LOG_ERR, "INETERNAL ERROR: could not found tcpmux built-in");
+	    fprintf (stderr, "INTERNAL ERROR: could not find tcpmux built-in");
+	  syslog (LOG_ERR, "INTERNAL ERROR: could not find tcpmux built-in");
 	  return;
 	}
       serv.se_wait = serv.se_bi->bi_wait;
