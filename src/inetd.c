@@ -163,6 +163,8 @@ char **config_files;
 
 static bool env_option = false;	       /* Set environment variables */
 static bool resolve_option = false;    /* Resolve IP addresses */
+static bool pidfile_option = true;     /* Record the PID in a file */
+static const char *pid_file = PATH_INETDPID;
 
 const char args_doc[] = "[CONF-FILE [CONF-DIR]]...";
 const char doc[] = "Internet super-server.";
@@ -185,6 +187,9 @@ static struct argp_option argp_options[] = {
    "turn on debugging, run in foreground mode", GRP+1},
   {"environment", OPT_ENVIRON, NULL, 0,
    "pass local and remote socket information in environment variables", GRP+1},
+  { "pidfile", 'p', "PIDFILE", OPTION_ARG_OPTIONAL,
+    "replace the default path \"" PATH_INETDPID "\"",
+    GRP+1 },
   {"rate", 'R', "NUMBER", 0,
    "maximum invocation rate (per minute)", GRP+1},
   {"resolve", OPT_RESOLVE, NULL, 0,
@@ -209,6 +214,13 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case OPT_ENVIRON:
       env_option = true;
+      break;
+
+    case 'p':
+      if (arg && strlen (arg))
+	pid_file = arg;
+      else
+	pidfile_option = false;
       break;
 
     case 'R':
@@ -1859,15 +1871,18 @@ main (int argc, char *argv[], char *envp[])
 
   openlog ("inetd", LOG_PID | LOG_NOWAIT, LOG_DAEMON);
 
+  if (pidfile_option)
   {
-    FILE *fp = fopen (PATH_INETDPID, "w");
+    FILE *fp = fopen (pid_file, "w");
     if (fp != NULL)
       {
+	if (debug)
+	  fprintf(stderr, "Using pid-file at \"%s\".\n", pid_file);
 	fprintf (fp, "%d\n", getpid ());
 	fclose (fp);
       }
     else
-      syslog (LOG_CRIT, "can't open %s: %s\n", PATH_INETDPID,
+      syslog (LOG_CRIT, "can't open %s: %s\n", pid_file,
 	      strerror (errno));
   }
 

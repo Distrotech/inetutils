@@ -1,5 +1,14 @@
 2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* src/inetd.c (pidfile_option): New variable.
+	(pid_file): New variable.
+	(argp_options): Add an option for replacing path of PID file.
+	(parse_opt): Handle option `p'.
+	(main): Condition PID file use on PIDFILE_OPTION. Replace the
+	macro PATH_INETDPID by variable PID_FILE.
+
+2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* src/inetd.c (inetd_getaddrinfo): If IPV6, then add a flag
 	AI_NUMERICHOST if the node is a numeric address string.
 	New variable NUMERIC_ADDRESS.  Debug symbolic addresses.
