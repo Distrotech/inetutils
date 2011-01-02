@@ -2,7 +2,7 @@
 
 	* src/inetd.c (pidfile_option): New variable.
 	(pid_file): New variable.
-	(argp_options): Add an option for replacing path of PID file.
+	(argp_options): Add an option for replacing file name of PID file.
 	(parse_opt): Handle option `p'.
 	(main): Condition PID file use on PIDFILE_OPTION. Replace the
 	macro PATH_INETDPID by variable PID_FILE.
