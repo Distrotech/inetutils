@@ -56,6 +56,15 @@ static char *host = PATH_LOG;
 static char *source;
 static char *pidstr;
 
+#if HAVE_DECL_GETADDRINFO
+# if HAVE_IPV6
+static int host_family = AF_UNSPEC;
+# else
+/* Fall back to only IPv4.  */
+static int host_family = AF_INET;
+# endif /* !HAVE_IPV6 */
+#endif /* HAVE_DECL_GETADDRINFO */
+
 
 
 int
@@ -104,6 +113,9 @@ union logger_sockaddr
   {
     struct sockaddr sa;
     struct sockaddr_in sinet;
+#if HAVE_IPV6
+    struct sockaddr_in6 sinet6;
+#endif
     struct sockaddr_un sunix;
 };
 
@@ -115,6 +127,9 @@ open_socket (void)
   union logger_sockaddr sockaddr;
   socklen_t socklen;
   int family;
+#if HAVE_DECL_GETADDRINFO
+  int ret;
+#endif
 
   if (host[0] == '/')
     {
@@ -128,14 +143,129 @@ open_socket (void)
     }
   else
     {
+#if HAVE_DECL_GETADDRINFO
+      struct addrinfo hints, *ai, *res;
+#else
       struct hostent *hp;
       struct servent *sp;
       unsigned short port;
+#endif /* !HAVE_DECL_GETADDRINFO */
       char *p;
 
+#if HAVE_IPV6
+      /* Bare, numeric IPv6 addresses must be contained
+       * in brackets in order that an appended port not
+       * be read by mistake.  */
+      if (*host == '[')
+	{
+	  ++host;
+	  p = strchr (host, ']');
+	  if (p)
+	    {
+	      *p++ = '\0';
+	      if (*p == ':')
+		++p;
+	      else
+		p = NULL;
+	    }
+	}
+      else
+        {
+	  /* When no bracket was detected, then seek the
+	   * right-most colon character in order to correctly
+	   * parse IPv6 addresses.  */
+	  p = strrchr (host, ':');
+	  if (p)
+	    *p++ = 0;
+	}
+#else /* !HAVE_IPV6 */
       p = strchr (host, ':');
       if (p)
 	*p++ = 0;
+#endif /* !HAVE_IPV6 */
+
+      if (!p)
+	p = "syslog";
+
+#if HAVE_DECL_GETADDRINFO
+      memset (&hints, 0, sizeof (hints));
+      hints.ai_socktype = SOCK_DGRAM;
+
+      /* This falls back to AF_INET if compilation
+       * was made with !HAVE_IPV6.  */
+      hints.ai_family = host_family;
+
+# ifdef AI_ADDRCONFIG
+      hints.ai_flags = AI_ADDRCONFIG;
+# endif
+
+      /* The complete handshake is attempted within
+       * a single while-loop, since the answers from
+       * getaddrinfo() need to be checked in detail.  */
+      ret = getaddrinfo (host, p, &hints, &res);
+      if (ret < 0)
+	error (EXIT_FAILURE, 0, "%s:%s, %s", host, p, gai_strerror(ret));
+
+      for (ai = res; ai; ai = ai->ai_next)
+        {
+	  fd = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+	  if (fd < 0)
+	    continue;
+
+	  if (source)
+	    {
+	      /* Make the assumption that the source address
+	       * encodes a desired domain family and that it
+	       * be numeric.  */
+	      int ret;
+	      struct addrinfo tips, *a;
+
+	      memset (&tips, 0, sizeof (tips));
+	      tips.ai_family = ai->ai_family;
+	      tips.ai_flags = AI_NUMERICHOST;
+
+	      ret = getaddrinfo(source, NULL, &tips, &a);
+	      if (ret)
+		{
+		  close (fd);
+		  continue;
+		}
+
+	      if (bind (fd, a->ai_addr, a->ai_addrlen))
+		{
+		  freeaddrinfo (a);
+		  close (fd);
+		  continue;
+		}
+
+	      freeaddrinfo (a);
+	    }
+
+	  if (connect (fd, ai->ai_addr, ai->ai_addrlen))
+	    {
+	      close (fd);
+	      continue;
+	    }
+
+	  /* Socket standing, bound and connected.  */
+	  break;
+	}
+
+      if (res)
+	freeaddrinfo (res);
+
+      if (ai == NULL)
+	error (EXIT_FAILURE, EADDRNOTAVAIL, "%s:%s", host, p);
+
+      /* Existing socket can be returned now.
+       * This handles AF_INET and AF_INET6 in case
+       * HAVE_DECL_GETADDRINFO is true.  */
+      return;
+
+#else /* !HAVE_DECL_GETADDRINFO */
+
+      sockaddr.sinet.sin_family = AF_INET;
+      family = PF_INET;
 
       hp = gethostbyname (host);
       if (hp)
@@ -143,11 +273,6 @@ open_socket (void)
       else if (inet_aton (host, (struct in_addr *) &sockaddr.sinet.sin_addr)
 	       != 1)
 	error (EXIT_FAILURE, 0, "unknown host name");
-
-      sockaddr.sinet.sin_family = AF_INET;
-      family = PF_INET;
-      if (!p)
-	p = "syslog";
 
       if (isdigit (*p))
 	{
@@ -163,8 +288,13 @@ open_socket (void)
 	error (EXIT_FAILURE, 0, "%s: unknown service name", p);
 
       sockaddr.sinet.sin_port = port;
+#endif /* !HAVE_DECL_GETADDRINFO */
+
       socklen = sizeof (sockaddr.sinet);
     }
+
+  /* Execution arrives here for AF_UNIX and for
+   * situations with !HAVE_DECL_GETADDRINFO.  */
 
   fd = socket (family, SOCK_DGRAM, 0);
   if (fd < 0)
@@ -244,6 +374,8 @@ const char args_doc[] = "[MESSAGE]";
 const char doc[] = "Send messages to syslog";
 
 static struct argp_option argp_options[] = {
+  {"ipv4", '4', NULL, 0, "use IPv4 for logging to host" },
+  {"ipv6", '6', NULL, 0, "use IPv6 with a host target" },
   { "host", 'h', "HOST", 0,
     "log to host instead of the default " PATH_LOG },
   { "source", 'S', "IP", 0,
@@ -264,6 +396,23 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+    case '4':
+      host_family = AF_INET;
+      break;
+
+    case '6':
+#if HAVE_IPV6
+      host_family = AF_INET6;
+      break;
+
+#else /* !HAVE_IPV6 */
+      /* Print a warning but continue with IPv4.  */
+      error (0, 0, "Warning: Falling back to IPv4, "
+		"since IPv6 is disabled");
+      /* AF_INET is set by default in this case.  */
+      break;
+#endif /* !HAVE_IPV6 */
+
     case 'h':
       host = arg;
       break;

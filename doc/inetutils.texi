@@ -287,6 +287,25 @@ logger [@var{option}@dots{}] [@var{message}]
 @end example
 
 @table @option
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Use IPv4 as transport when logging to a host.  The default behaviour
+is to use whatever IP version that matches the host.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Use IPv6 as transport when logging to a host.  The option is present
+also on systems without support for IPv6, but will then issue a warning
+and then fall back to IPv4 when delivering the message.
+
+Both options are most influencial when the target host is named using
+a symbolic name, but numerical addresses for host or source must also
+match if either of @option{--ipv4} or @option{--ipv6} is stated.
+
 @item -i[@var{pid}]
 @itemx --id=[@var{pid}]
 @opindex -i
@@ -303,26 +322,29 @@ must be separated from it by exactly one equals sign.
 @opindex -h
 @opindex --host
 Send messages to the given host or socket.  The @var{host} argument
-can be either a local UNIX socket name (always starting with a
-@samp{/} or:
+can be either a local UNIX socket name (starting with a dash @samp{/}),
+or:
 
 @smallexample
 @var{host}[:@var{port}]
 @end smallexample
 
 @noindent
-where @var{host} is the remote host name or IP address (only IPv4 is
-supported so far), and optional @var{port} is a decimal port number or
-symbolic service name from @file{/etc/services}.  If @var{port} is not
-specified, the port number corresponding to the @samp{syslog} service
-is used.
+where @var{host} is the remote host name or IP address, and the
+optional @var{port} is a decimal port number or symbolic service
+name from @file{/etc/services}.  If @var{port} is not specified,
+the port number corresponding to the @samp{syslog} service is used.
+If a numerical IPv6 address is given without a port specification,
+then the address must be enclosed within brackets (like [::1]).
 
 @item -S @var{addr}
 @itemx --source=@var{addr}
 @opindex -S
 @opindex --source
 Supply the source IP address for INET connections.  This option is
-useful in conjunction with @option{--host} (see above).
+useful in conjunction with @option{--host} (see above).  The kind of
+address specified here (IPv4 or IPv6) will propagate to influence
+the resolution of the host address, if it is a symbolic name.
 
 @item -s
 @itemx --stderr
@@ -366,23 +388,23 @@ The following examples illustrate the usage of the @command{logger}
 command:
 
 @enumerate 1
-@item Log the @samp{System rebooted} message to the local syslog. Use
-the default facility and priority:
+@item Log the message @samp{System rebooted} to the local syslog.
+Use default facility and priority:
 
 @example
 logger System rebooted
 @end example
 
 @item Run command and send its error output to the channel
-@samp{local0.err} channel.  Mark each message with tag @samp{cmd}:
+@samp{local0.err}.  Mark each message with tag @samp{cmd}:
 
 @example
 command 2>&1 | logger -p local0.notice -t cmd
 @end example
 
-@item Log each line from file @file{warnings} to @samp{daemon.warn}
-channel on host @samp{logger.runasimi.org}, using the source IP
-@samp{10.10.10.1}:
+@item Log each line from file @file{warnings} to channel
+@samp{daemon.warn} on host @samp{logger.runasimi.org},
+using the source IP @samp{10.10.10.1}:
 
 @example
 logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1 --file

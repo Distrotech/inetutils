@@ -1,3 +1,14 @@
+2011-01-25  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/logger.c (host_family) [HAVE_DECL_GETADDRINFO]: New variable.
+	(struct logger_sockaddr) [HAVE_IPV6]: New component SINET6.
+	(open_socket) [HAVE_DECL_GETADDRINFO]: Implement new code based
+	on getaddrinfo.  Reorganize old handler of port specification.
+	(argp_options): New options `--ipv4' and `--ipv6`.
+	(parse_opt): Implement parsing of new options.
+	* doc/inetutils.texi (logger): Describe implications of
+	IPv6-support and fallback.  Small corrections to example usage.
+
 2010-12-21  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/inetd.c (pidfile_option): New variable.
