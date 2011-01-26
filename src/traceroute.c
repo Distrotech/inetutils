@@ -199,9 +199,6 @@ main (int argc, char **argv)
       || getaddrinfo (hostname, NULL, &hints, &res))
     error (EXIT_FAILURE, 0, "unknown host");
 
-  if (geteuid () != 0)
-    error (EXIT_FAILURE, EPERM, "insufficient permissions");
-
   memcpy (&dest, res->ai_addr, res->ai_addrlen);
   dest.sin_port = htons (opt_port);
 

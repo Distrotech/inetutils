@@ -1,3 +1,7 @@
+2011-01-26  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/traceroute.c (main): Remove test on geteuid().
+
 2011-01-25  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/logger.c (host_family) [HAVE_DECL_GETADDRINFO]: New variable.
