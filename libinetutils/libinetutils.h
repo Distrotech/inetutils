@@ -17,6 +17,8 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
+#include <config.h>
+
 #include "argp-version-etc.h"
 
 void utmp_init (char *line, char *user, char *id);
@@ -32,3 +34,10 @@ extern const char *default_program_authors[];
 #define iu_argp_init(name, authors)				\
   argp_program_bug_address = "<" PACKAGE_BUGREPORT ">";		\
   argp_version_setup (name, authors);
+
+#ifdef HAVE_FORK
+# define fork_exit(s) exit(s)
+#else
+# define fork() vfork()
+# define fork_exit(s) _exit(s)
+#endif

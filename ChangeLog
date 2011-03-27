@@ -1,3 +1,9 @@
+2011-03-27  Mike Frysinger  <vapier@gentoo.org>
+
+	* libinetutils/libinetutils.h: Include <config.h>.
+	(fork_exit, fork): New macros.
+	* configure.ac: Check for presence of fork().
+
 2011-01-26  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/traceroute.c (main): Remove test on geteuid().
