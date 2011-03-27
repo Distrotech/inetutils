@@ -110,7 +110,8 @@ extern char tmpline[];
 extern off_t restart_point;
 
 /* Exported from server_mode.c.  */
-extern int server_mode (const char *pidfile, struct sockaddr_in *phis_addr);
+extern int server_mode (const char *pidfile, struct sockaddr_in *phis_addr,
+			char *argv[]);
 
 /* Credential for the request.  */
 struct credentials

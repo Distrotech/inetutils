@@ -424,8 +424,7 @@ main (int argc, char *argv[], char **envp)
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   /* Bail out, wrong usage */
-  argc -= index;
-  if (argc != 0)
+  if (argc - index != 0)
     error (EXIT_FAILURE, 0, "surplus arguments; try `%s --help' for more info",
 	   program_name);
 
@@ -438,7 +437,19 @@ main (int argc, char *argv[], char **envp)
      fd = accept(). tcpd is check if compile with the support  */
   if (daemon_mode)
     {
-      if (server_mode (pid_file, &his_addr) < 0)
+#ifndef HAVE_FORK
+      /* Shift out the daemon option in subforks  */
+      int i;
+      for (i = 0; i < argc; ++i)
+	if (strcmp (argv[i], "-D") == 0)
+	  {
+	    int j;
+	    for (j = i; j < argc; ++j)
+	      argv[j] = argv[j + 1];
+	    argv[--argc] = NULL;
+	  }
+#endif
+      if (server_mode (pid_file, &his_addr, argv) < 0)
 	exit (EXIT_FAILURE);
     }
   else
