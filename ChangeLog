@@ -1,5 +1,9 @@
 2011-03-27  Mike Frysinger  <vapier@gentoo.org>
 
+	* configure.ac: Use AC_CANONICAL_HOST instead of AC_CANONICAL_SYSTEM.
+
+2011-03-27  Mike Frysinger  <vapier@gentoo.org>
+
 	* ftpd/server_mode.c: Include <libinetutils.h>.
 	(server_mode): Changed prototype to ` int server_mode (const char
 	*pidfile, struct sockaddr_in *phis_addr, char *argv[])'.  Handle

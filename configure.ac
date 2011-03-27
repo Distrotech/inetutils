@@ -25,7 +25,7 @@ AC_INIT([GNU inetutils], m4_esyscmd([build-aux/git-version-gen .tarball-version]
 AC_CONFIG_SRCDIR([src/inetd.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_CONFIG_HEADER([config.h:config.hin])
-AC_CANONICAL_SYSTEM # FIXME: Why not just _HOST?
+AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([1.11])
 
