@@ -87,6 +87,7 @@ FTP_EXTERN int code;		/* return/reply code for ftp command */
 FTP_EXTERN int crflag;		/* if 1, strip car. rets. on ascii gets */
 FTP_EXTERN char pasv[64];	/* passive port for proxy data connection */
 FTP_EXTERN int passivemode;	/* passive mode enabled */
+FTP_EXTERN int doepsv4;		/* EPSV/EPRT for IPv4 enabled */
 FTP_EXTERN char *altarg;	/* argv[1] with no shell-like preprocessing  */
 FTP_EXTERN char ntin[17];	/* input translation table */
 FTP_EXTERN char ntout[17];	/* output translation table */

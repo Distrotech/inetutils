@@ -227,10 +227,9 @@ setpeer (int argc, char **argv)
 	  code = -1;
 	  return;
 	}
-      port = htons (port);
     }
   else
-    port = sp->s_port;
+    port = ntohs (sp->s_port);
 
   host = hookup (host, port);
   if (host)
@@ -1092,6 +1091,7 @@ status (int argc, char **argv)
     }
   printf ("Hash mark printing: %s; Use of PORT cmds: %s\n",
 	  onoff (hash), onoff (sendport));
+  printf ("Use of EPRT/EPSV for IPv4: %s\n", onoff (doepsv4));
   if (macnum > 0)
     {
       printf ("Macros:\n");
@@ -1155,6 +1155,18 @@ setverbose (int argc, char **argv)
   verbose = !verbose;
   printf ("Verbose mode %s.\n", onoff (verbose));
   code = verbose;
+}
+
+/*
+ * Toggle use of EPRT/EPRT for IPv4.
+ */
+void
+setepsv4 (int argc, char **argv)
+{
+
+  doepsv4 = !doepsv4;
+  printf ("Use of EPRT/EPSV for IPv4: %s.\n", onoff (doepsv4));
+  code = doepsv4;
 }
 
 /*

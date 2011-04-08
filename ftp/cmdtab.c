@@ -74,6 +74,7 @@ char debughelp[] = "toggle/set debugging mode";
 char dirhelp[] = "list contents of remote directory";
 char disconhelp[] = "terminate ftp session";
 char domachelp[] = "execute macro";
+char epsv4help[] ="toggle the use of EPRT/EPSV for IPv4";
 char formhelp[] = "set file transfer format";
 char globhelp[] = "toggle metacharacter expansion of local file names";
 char hashhelp[] = "toggle printing `#' for each buffer transferred";
@@ -145,6 +146,7 @@ static struct cmd cmdtab[] = {
   {"debug", debughelp, 0, 0, 0, setdebug},
   {"dir", dirhelp, 1, 1, 1, ls},
   {"disconnect", disconhelp, 0, 1, 1, disconnect},
+  {"epsv4", epsv4help, 0, 0, 0, setepsv4},
   {"form", formhelp, 0, 1, 1, setform},
   {"get", receivehelp, 1, 1, 1, get},
   {"glob", globhelp, 0, 0, 0, setglob},

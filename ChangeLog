@@ -1,3 +1,25 @@
+2011-04-08  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ftp/cmds.c (setepsv4): New function.
+	(setpeer): Use the variable PORT in host byte order.
+	(status): New status message, based on DOEPSV4.
+	* ftp/cmdtab.c (epsv4help): New string variable.
+	(cmdtab): New command `epsv4` inserted.
+	* ftp/extern.h (setepsv4): New declaration.
+	* ftp/ftp_var.h (doepsv4): New variable.
+	* ftp/main.c (main): Initiate DOEPSV4 to `off`.
+	* ftp/ftp.c: Explicitly condition IP_TOS on address family AF_INET.
+	Replace `struct sockaddr_in` by `struct sockaddr_storage`. Always
+	use CTLADDRLEN when referencing address lengths.
+	(ctladdrlen, ia, portstr): New variables.
+	(FTP_CONNECT_TIMEOUT): New macro.
+	(hookup): Replace resolver `gethostbyname` by `getaddrinfo`.
+	A timed alarm interrupts any slow connection attempt.
+	(getreply): New server return codes for `LPSV` and `EPSV`.
+	(initconn): New protocol methods `EPSV` and `LPSV`.
+	(initconn) [noport]: Trivial switch statement on `AF_INET`.
+	New protocol methods `EPRT` and `LPRT`.
+
 2011-03-27  Mike Frysinger  <vapier@gentoo.org>
 
 	* configure.ac: Use AC_CANONICAL_HOST instead of AC_CANONICAL_SYSTEM.

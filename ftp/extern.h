@@ -127,6 +127,7 @@ void setbinary (int, char **);
 void setcase (int, char **);
 void setcr (int, char **);
 void setdebug (int, char **);
+void setepsv4 (int, char **);
 void setform (int, char **);
 void setftmode (int, char **);
 void setglob (int, char **);

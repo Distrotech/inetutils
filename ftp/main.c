@@ -178,6 +178,7 @@ main (int argc, char *argv[])
   interactive = 1;
   autologin = 1;
   passivemode = 0;		/* passive mode not active */
+  doepsv4 = 0;			/* use EPRT/EPSV for IPv4 */
 
   /* Parse command line */
   iu_argp_init ("ftp", default_program_authors);
