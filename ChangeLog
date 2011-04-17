@@ -1,3 +1,15 @@
+2011-04-17  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ftp/ftp_var.h (usefamily): New variable.
+	* ftp/main.c (argp_options): New options `ipv4` and `ipv6`.
+	(parse_opt): Parse cases '4' and '6', set USEFAMILY accordingly.
+	(main): Initialize USEFAMILY to `AF_UNSPEC`.
+	* ftp/ftp.c (hookup): Resolve addresses according to USEFAMILY.
+	Use macro AI_ADDRCONFIG only with family `AF_UNSPEC`.
+	(initconn): New IPv6 protocol methods `EPSV` and `LPSV`.
+	New variable DATA_ADDR_SA6.
+	(initconn) [noport]: New IPv6 methods `EPRT` and `LPRT`.
+
 2011-04-08  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ftp/cmds.c (setepsv4): New function.

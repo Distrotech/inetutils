@@ -108,6 +108,8 @@ static struct argp_option argp_options[] = {
   {"prompt", OPT_PROMPT, "PROMPT", OPTION_ARG_OPTIONAL, "print a command line PROMPT "
    "(optionally), even if not on a tty", GRP+1},
   {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
+  {"ipv4", '4', NULL, 0, "contact IPv4 hosts", GRP+1},
+  {"ipv6", '6', NULL, 0, "contact IPv6 hosts", GRP+1},
 #undef GRP
   {NULL}
 };
@@ -154,6 +156,14 @@ parse_opt (int key, char *arg, struct argp_state *state)
       passivemode = 0;
       break;
 
+    case '4':
+      usefamily = AF_INET;
+      break;
+
+    case '6':
+      usefamily = AF_INET6;
+      break;
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -179,6 +189,7 @@ main (int argc, char *argv[])
   autologin = 1;
   passivemode = 0;		/* passive mode not active */
   doepsv4 = 0;			/* use EPRT/EPSV for IPv4 */
+  usefamily = AF_UNSPEC;	/* allow any address family */
 
   /* Parse command line */
   iu_argp_init ("ftp", default_program_authors);

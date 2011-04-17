@@ -132,9 +132,13 @@ hookup (char *host, int port)
   memset (&hisctladdr, 0, sizeof (hisctladdr));
   memset (&hints, 0, sizeof (hints));
 
-  hints.ai_family = AF_INET;
+  hints.ai_family = usefamily;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_CANONNAME;
+#ifdef AI_ADDRCONFIG
+  if (hints.ai_family == AF_UNSPEC)
+    hints.ai_flags |= AI_ADDRCONFIG;
+#endif /* AI_ADDRCONFIG */
 
   status = getaddrinfo (host, portstr, &hints, &res);
   if (status)
@@ -1128,8 +1132,9 @@ initconn (void)
   socklen_t len;
   int on = 1;
   uint32_t a0, a1, a2, a3, p0, p1, port;
-  uint32_t af, hal, h[4], pal; /* RFC 1639: LPSV resonse.  */
+  uint32_t af, hal, h[16], pal; /* RFC 1639: LPSV resonse.  */
   struct sockaddr_in *data_addr_sa4 = (struct sockaddr_in *) &data_addr;
+  struct sockaddr_in6 *data_addr_sa6 = (struct sockaddr_in6 *) &data_addr;
 
   if (passivemode)
     {
@@ -1171,11 +1176,25 @@ initconn (void)
 	    printf ("Passive mode refused.\n");
 	    goto bad;
 	    break;
+	  case AF_INET6:
+	    if (command ("EPSV") == COMPLETE)
+	      {
+		good_epsv = 1;
+		break;
+	      }
+	    if (command ("LPSV") == COMPLETE)
+	      {
+		good_lpsv = 1;
+		break;
+	      }
+	    printf ("Passive mode refused.\n");
+	    goto bad;
+	    break;
 	}
 
       if (good_epsv)
 	{
-	  /* EPSV: IPv4
+	  /* EPSV: IPv4 or IPv6
 	   *
 	   * Expected response (perl): pasv =~ '%u|'
 	   * This communicates a port number.
@@ -1193,11 +1212,14 @@ initconn (void)
 	      case AF_INET:
 		data_addr_sa4->sin_port = htons (port);
 		break;
+	      case AF_INET6:
+		data_addr_sa6->sin6_port = htons (port);
+		break;
 	    }
 	} /* EPSV */
       else if (good_lpsv)
 	{
-	  /* LPSV: IPv4
+	  /* LPSV: IPv4 or IPv6
 	   *
 	   * At this point we have got a string of comma
 	   * separated, one-byte unsigned integer values.
@@ -1229,7 +1251,37 @@ initconn (void)
 		  uint32_t *pu32 = (uint32_t *) &data_addr_sa4->sin_addr.s_addr;
 		  pu32[0] = htonl ( (h[0] << 24) | (h[1] << 16) | (h[2] << 8) | h[3]);
 		}
-	    }
+	    } /* LPSV IPv4 */
+	  else /* IPv6 */
+	    {
+	      if ((sscanf (pasv, "%u," /* af */
+				"%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u," /* hal, h[16] */
+				"%u,%u,%u", /* pal, p0, p1 */
+				&af, &hal, &h[0], &h[1], &h[2], &h[3], &h[4], &h[5], &h[6], &h[7],
+				&h[8], &h[9], &h[10], &h[11], &h[12], &h[13], &h[14], &h[15],
+				&pal, &p0, &p1) != 21)
+		  || (/* Strong checking */ af != 6 || hal != 16 || pal != 2) )
+		{
+		  printf ("Passive mode address scan failure. "
+			  "Shouldn't happen!\n");
+		  (void) command ("ABOR");	/* Cancel any open connection.  */
+		  goto bad;
+		}
+	      for (j = 0; j < 16; ++j)
+		h[j] &= 0xff; /* Mask only the significant bits.  */
+
+	      data_addr.ss_family = AF_INET6;
+	      data_addr_sa6->sin6_port =
+		  htons (((p0 & 0xff) << 8) | (p1 & 0xff));
+
+		{
+		  uint32_t *pu32 = (uint32_t *) &data_addr_sa6->sin6_addr.s6_addr;
+		  pu32[0] = htonl ( (h[0] << 24) | (h[1] << 16) | (h[2] << 8) | h[3]);
+		  pu32[1] = htonl ( (h[4] << 24) | (h[5] << 16) | (h[6] << 8) | h[7]);
+		  pu32[2] = htonl ( (h[8] << 24) | (h[9] << 16) | (h[10] << 8) | h[11]);
+		  pu32[3] = htonl ( (h[12] << 24) | (h[13] << 16) | (h[14] << 8) | h[15]);
+		}
+	    } /* LPSV IPv6 */
 	}
       else /* !EPSV && !LPSV */
 	{ /* PASV */
@@ -1282,6 +1334,9 @@ noport:
 	case AF_INET:
 	  data_addr_sa4->sin_port = 0;
 	  break;
+	case AF_INET6:
+	  data_addr_sa6->sin6_port = 0;
+	  break;
       }
 
   if (data != -1)
@@ -1322,6 +1377,7 @@ noport:
 #define UC(b)	(((int)b)&0xff)
       /* Preferences:
        *   IPv4: EPRT, PORT, LPRT
+       *   IPv6: EPRT, LPRT
        */
       result = ERROR;	/* For success detection.  */
       if (data_addr.ss_family != AF_INET || doepsv4)
@@ -1361,6 +1417,16 @@ noport:
 		p = (uint8_t *) &data_addr_sa4->sin_port;
 		result = command ("LPRT 4,4,%u,%u,%u,%u,2,%u,%u",
 				  h[0], h[1], h[2], h[3], p[0], p[1]);
+		break;
+	      case AF_INET6:
+		h = (uint8_t *) &data_addr_sa6->sin6_addr;
+		p = (uint8_t *) &data_addr_sa6->sin6_port;
+		result = command ("LPRT 6,16," /* af, hal */
+				  "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u," /* h[16] */
+				  "2,%u,%u", /* pal, p[2] */
+				  h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7],
+				  h[8], h[9], h[10], h[11], h[12], h[13], h[14], h[15],
+				  p[0], p[1]);
 		break;
 	    }
 	}
