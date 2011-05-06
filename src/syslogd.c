@@ -1211,7 +1211,11 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	      dbg_printf ("Failure: %s\n", hstrerror (h_errno));
 	      dbg_printf ("Retries: %d\n", f->f_prevcount);
 	      if (--f->f_prevcount < 0)
-		f->f_type = F_UNUSED;
+		{
+		  f->f_type = F_UNUSED;
+		  free (f->f_un.f_forw.f_hname);
+		  f->f_un.f_forw.f_hname = NULL;
+		}
 	    }
 	  else
 	    {
@@ -1301,6 +1305,8 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 		{
 		  f->f_type = F_UNUSED;
 		  logerror (f->f_un.f_fname);
+		  free (f->f_un.f_fname);
+		  f->f_un.f_fname = NULL;
 		}
 	      else
 		goto again;
@@ -1310,6 +1316,8 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	      f->f_type = F_UNUSED;
 	      errno = e;
 	      logerror (f->f_un.f_fname);
+	      free (f->f_un.f_fname);
+	      f->f_un.f_fname = NULL;
 	    }
 	}
       else if ((flags & SYNC_FILE) && !(f->f_flags & OMIT_SYNC))
@@ -1571,6 +1579,8 @@ init (int signo ARG_UNUSED)
   Initialized = 0;
   for (f = Files; f != NULL; f = next)
     {
+      int j;
+
       /* Flush any pending output.  */
       if (f->f_prevcount)
 	fprintlog (f, LocalHostName, 0, (char *) NULL);
@@ -1581,9 +1591,22 @@ init (int signo ARG_UNUSED)
 	case F_TTY:
 	case F_CONSOLE:
 	case F_PIPE:
+	  free (f->f_un.f_fname);
 	  close (f->f_file);
 	  break;
+	case F_FORW:
+	case F_FORW_SUSP:
+	case F_FORW_UNKN:
+	  free (f->f_un.f_forw.f_hname);
+	  break;
+	case F_USERS:
+	  for (j = 0; j < f->f_un.f_user.f_nusers; ++j)
+	    free (f->f_un.f_user.f_unames[j]);
+	  free (f->f_un.f_user.f_unames);
+	  break;
 	}
+      if (f->f_prevhost)
+	free (f->f_prevhost);
       next = f->f_next;
       free (f);
     }
@@ -1915,6 +1938,8 @@ cfline (const char *line, struct filed *f)
 	{
 	  f->f_type = F_UNUSED;
 	  logerror (p);
+	  free (f->f_un.f_fname);
+	  f->f_un.f_fname = NULL;
 	  break;
 	}
       if (strcmp (p, ctty) == 0)
@@ -1931,6 +1956,8 @@ cfline (const char *line, struct filed *f)
 	{
 	  f->f_type = F_UNUSED;
 	  logerror (p);
+	  free (f->f_un.f_fname);
+	  f->f_un.f_fname = NULL;
 	  break;
 	}
       if (strcmp (p, ctty) == 0)

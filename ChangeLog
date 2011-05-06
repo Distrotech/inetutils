@@ -1,3 +1,11 @@
+2011-05-06  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c (fprintlog): Deallocate pointers F_HNAME or F_FNAME
+	when F_TYPE is invalidated as F_UNUSED.
+	(cfline): Likewise.
+	(init): Deallocate F_FNAME, F_HNAME, F_UNAMES, and F_PREVHOST before
+	reclaiming the pointer F.
+
 2011-04-17  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ftp/ftp_var.h (usefamily): New variable.
