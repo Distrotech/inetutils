@@ -80,6 +80,9 @@ char globhelp[] = "toggle metacharacter expansion of local file names";
 char hashhelp[] = "toggle printing `#' for each buffer transferred";
 char helphelp[] = "print local help information";
 char idlehelp[] = "get (set) idle timer on remote side";
+char ipanyhelp[] = "allow all address families";
+char ipv4help[] = "select only IPv4 addresses";
+char ipv6help[] = "select only IPv6 addresses";
 char lcdhelp[] = "change local working directory";
 char lshelp[] = "list contents of remote directory";
 char macdefhelp[] = "define a macro";
@@ -154,6 +157,9 @@ static struct cmd cmdtab[] = {
   {"help", helphelp, 0, 0, 1, help},
   {"idle", idlehelp, 0, 1, 1, site_idle},
   {"image", binaryhelp, 0, 1, 1, setbinary},
+  {"ipany", ipanyhelp, 0, 0, 0, setipany},
+  {"ipv4", ipv4help, 0, 0, 0, setipv4},
+  {"ipv6", ipv6help, 0, 0, 0, setipv6},
   {"lcd", lcdhelp, 0, 0, 0, lcd},
   {"ls", lshelp, 1, 1, 1, ls},
   {"macdef", macdefhelp, 0, 0, 0, macdef},

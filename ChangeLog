@@ -1,5 +1,13 @@
 2011-05-06  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* ftp/extern.h (setipany,setipv4,setipv6): New prototypes.
+	* ftp/cmdtab.c (ipanyhelp,ipv4help,ipv6help): New help texts.
+	(cmdtab): Register commands `ipany', `ipv4', and `ipv6'.
+	* ftp/cmds.c (status): Report address family.
+	(setipany,setipv4,setipv6): New functions.
+
+2011-05-06  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* src/syslogd.c (fprintlog): Deallocate pointers F_HNAME or F_FNAME
 	when F_TYPE is invalidated as F_UNUSED.
 	(cfline): Likewise.

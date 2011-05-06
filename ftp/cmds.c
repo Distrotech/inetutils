@@ -1053,6 +1053,9 @@ status (int argc, char **argv)
     printf ("Connected to %s.\n", hostname);
   else
     printf ("Not connected.\n");
+  printf ("Connection addressing: %s\n",
+	  (usefamily == AF_UNSPEC) ? "any"
+	    : (usefamily == AF_INET6) ? "IPv6" : "IPv4");
   if (!proxy)
     {
       pswitch (1);
@@ -1155,6 +1158,39 @@ setverbose (int argc, char **argv)
   verbose = !verbose;
   printf ("Verbose mode %s.\n", onoff (verbose));
   code = verbose;
+}
+
+/*
+ * Allow any address family.
+ */
+void
+setipany (int argc, char **argv)
+{
+  usefamily = AF_UNSPEC;
+  printf ("Selecting addresses: %s.\n", "any");
+  code = usefamily;
+}
+
+/*
+ * Restrict to IPv4 addresses.
+ */
+void
+setipv4 (int argc, char **argv)
+{
+  usefamily = AF_INET;
+  printf ("Selecting addresses: %s.\n", "IPv4");
+  code = usefamily;
+}
+
+/*
+ * Restrict to IPv6 addresses.
+ */
+void
+setipv6 (int argc, char **argv)
+{
+  usefamily = AF_INET6;
+  printf ("Selecting addresses: %s.\n", "IPv6");
+  code = usefamily;
 }
 
 /*
