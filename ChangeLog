@@ -1,6 +1,8 @@
 2011-05-09  Simon Josefsson  <simon@josefsson.org>
 
 	* bootstrap.conf (gnulib_modules): Removed 'exit' from list.
+	(gnulib_modules): Remove 'strcase' from list (not needed anymore,
+	according to gnulib documentation).
 
 2011-05-06  Mats Erik Andersson <gnu@gisladisker.se>
 
