@@ -1,3 +1,7 @@
+2011-05-09  Simon Josefsson  <simon@josefsson.org>
+
+	* bootstrap.conf (gnulib_modules): Removed 'exit' from list.
+
 2011-05-06  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* doc/inetutils.texi (ftp invocation): Document new capabilities
