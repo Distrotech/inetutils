@@ -114,7 +114,7 @@ static char portstr[10];
 
 FILE *cin, *cout;
 
-#if ! defined (FTP_CONNECT_TIMEOUT) || FTP_CONNECT_TIMEOUT < 1
+#if ! defined FTP_CONNECT_TIMEOUT || FTP_CONNECT_TIMEOUT < 1
 # define FTP_CONNECT_TIMEOUT 5
 #endif
 

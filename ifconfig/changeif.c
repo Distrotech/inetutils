@@ -70,7 +70,7 @@ set_address (int sfd, struct ifreq *ifr, char *address)
 
   if (!host)
     {
-      error (0, 0, "can not resolve `%s': %s", address, hstrerror (h_errno));
+      error (0, 0, "cannot resolve `%s': %s", address, hstrerror (h_errno));
       return -1;
     }
   if (host->h_addrtype != AF_INET)

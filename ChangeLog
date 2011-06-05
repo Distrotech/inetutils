@@ -1,5 +1,24 @@
 2011-06-05  Alfred M. Szmidt  <ams@gnu.org>
 
+	Clean up `make syntax-check' errors.
+
+	* tests/addrpeek.c: Include <config.h> instead of "config.h".
+	(main): Call set_program_name.
+
+	* src/syslogd.c (init): Removed redundant if statment before free
+	call.
+
+	* libls/stat_flags.c: Don't include <stddef.h>.
+
+	* ifconfig/changeif.c (set_address): Fix typo.
+	* src/logger.c (parse_opt): Likewise.
+	* src/rlogin.c: Likewise.
+	* talk/invite.c (answers): Likewise.
+
+	* ftp/ftp.c: Removed redundant parentehsis in #if guard.
+
+2011-06-05  Alfred M. Szmidt  <ams@gnu.org>
+
 	* configure.ac: Don't check for <osockaddr.h>.
 	* talkd/intalkd.h [HAVE_OSOCKADDR_H]: Don't include <osockaddr.h>.
 	* talk/look_up.c: Likewise.

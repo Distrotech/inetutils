@@ -51,7 +51,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <stddef.h>
 #include <string.h>
 
 #define SAPPEND(s) {							\

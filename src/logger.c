@@ -407,7 +407,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
 #else /* !HAVE_IPV6 */
       /* Print a warning but continue with IPv4.  */
-      error (0, 0, "Warning: Falling back to IPv4, "
+      error (0, 0, "warning: Falling back to IPv4, "
 		"since IPv6 is disabled");
       /* AF_INET is set by default in this case.  */
       break;

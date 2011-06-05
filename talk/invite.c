@@ -70,7 +70,7 @@ static char *answers[] = {
   "Target machine is too confused to talk to us",	/* FAILED */
   "Target machine does not recognize us",	/* MACHINE_UNKNOWN */
   "Your party is refusing messages",	/* PERMISSION_REFUSED */
-  "Target machine can not handle remote talk",	/* UNKNOWN_REQUEST */
+  "Target machine cannot handle remote talk",	/* UNKNOWN_REQUEST */
   "Target machine indicates protocol mismatch",	/* BADVERSION */
   "Target machine indicates protocol botch (addr)",	/* BADADDR */
   "Target machine indicates protocol botch (ctl_addr)",	/* BADCTLADDR */

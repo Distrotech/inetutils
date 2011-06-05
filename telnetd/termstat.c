@@ -427,7 +427,7 @@ clientstat (register int code, register int parm1, register int parm2)
 	  /*
 	   * If using kludge linemode, make sure that
 	   * we can do what the client asks.
-	   * We can not turn off linemode if alwayslinemode
+	   * We cannot turn off linemode if alwayslinemode
 	   * and the ICANON bit is set.
 	   */
 	  if (lmodetype == KLUDGE_LINEMODE)

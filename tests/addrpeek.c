@@ -40,7 +40,8 @@
  *    tcpmux/env stream tcp nowait nobody /tmp/addrpeek addrkeep env addr
  */
 
-#include "config.h"
+#include <config.h>
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -49,6 +50,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <progname.h>
 
 #ifndef SEPARATOR
 # define SEPARATOR "\n"
@@ -111,7 +113,7 @@ int
 main (int argc, char *argv[])
 {
   int j;
-
+  set_program_name (argv[0]);
   for (j = 1; j < argc; ++j)
     {
       if (strncmp (argv[j], "addr", strlen ("addr")) == 0)

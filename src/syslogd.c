@@ -1605,8 +1605,7 @@ init (int signo ARG_UNUSED)
 	  free (f->f_un.f_user.f_unames);
 	  break;
 	}
-      if (f->f_prevhost)
-	free (f->f_prevhost);
+      free (f->f_prevhost);
       next = f->f_next;
       free (f);
     }

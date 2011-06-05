@@ -143,7 +143,7 @@ int wlen;
 # define TIOCPKT_DOSTOP          0x20
 #endif /*TIOCPKT*/
 /* The server sends us a TIOCPKT_WINDOW notification when it starts up.
-   The value for this (0x80) can not overlap the kernel defined TIOCPKT_xxx
+   The value for this (0x80) cannot overlap the kernel defined TIOCPKT_xxx
    values.  */
 #ifndef TIOCPKT_WINDOW
 # define TIOCPKT_WINDOW	0x80
