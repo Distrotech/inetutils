@@ -55,9 +55,6 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
-#ifdef HAVE_OSOCKADDR_H
-# include <osockaddr.h>
-#endif
 #include <netinet/in.h>
 #include <protocols/talkd.h>
 #include <pwd.h>

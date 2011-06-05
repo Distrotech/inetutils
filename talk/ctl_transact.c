@@ -55,9 +55,6 @@
 #include <time.h>
 #include <netinet/in.h>
 #include <sys/select.h>
-#ifdef HAVE_OSOCKADDR_H
-# include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <errno.h>
 #include "talk_ctl.h"

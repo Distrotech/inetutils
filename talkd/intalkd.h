@@ -22,9 +22,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#ifdef HAVE_OSOCKADDR_H
-# include <osockaddr.h>
-#endif
 #include <protocols/talkd.h>
 #include <netdb.h>
 #include <syslog.h>

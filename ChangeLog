@@ -1,3 +1,14 @@
+2011-06-05  Alfred M. Szmidt  <ams@gnu.org>
+
+	* configure.ac: Don't check for <osockaddr.h>.
+	* talkd/intalkd.h [HAVE_OSOCKADDR_H]: Don't include <osockaddr.h>.
+	* talk/look_up.c: Likewise.
+	* talk/invite.c: Likewise.
+	* talk/get_names.c: Likewise.
+	* talk/get_addrs.c: Likewise.
+	* talk/ctl_transact.c: Likewise.
+	* talk/ctl.c: Likewise.
+
 2011-05-09  Simon Josefsson  <simon@josefsson.org>
 
 	* bootstrap.conf (gnulib_modules): Removed 'exit' from list.

@@ -433,7 +433,7 @@ dnl ftpd have support for it.
 
 if test "$with_wrap" = yes; then
 dnl See if we have libwrap.a
-dnl we can not use AC_CHECK_LIB reliably since for the wrap lib
+dnl we cannot use AC_CHECK_LIB reliably since for the wrap lib
 dnl you have to define some global variables
 #AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
   AC_MSG_CHECKING(hosts_ctl in -lwrap);
@@ -493,14 +493,6 @@ AC_CHECK_TYPE(socklen_t, ,
                          [Define to int if <sys/types.h> does not define])],
               [IU_FLUSHLEFT([#include <sys/types.h>
 	                     #include <sys/socket.h>])])
-
-dnl We may need our own definition for struct osockaddr (equivalent to the
-dnl old 4.3BSD struct sockaddr, and used in grotty bsd talk protocol)
-AC_CHECK_TYPE(struct osockaddr, ,
-              [AC_DEFINE([HAVE_OSOCKADDR_H], 1,
-                         [Define to one if you have <osockaddr.h>.])],
-	      [IU_FLUSHLEFT([#include <sys/types.h>
-                             #include <sys/socket.h> ])])
 
 AC_CHECK_TYPES(struct if_nameindex, , ,
   [IU_FLUSHLEFT([#include <sys/types.h>
