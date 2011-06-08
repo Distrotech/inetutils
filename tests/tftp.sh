@@ -19,6 +19,10 @@
 
 # Run `inetd' with `tftpd' and try to fetch a file from there using `tftp'.
 
+if [ "$VERBOSE" ]; then
+    set -x
+fi
+
 TFTP="${TFTP:-../src/tftp$EXEEXT}"
 TFTPD="${TFTPD:-$PWD/../src/tftpd$EXEEXT}"
 INETD="${INETD:-../src/inetd$EXEEXT}"
@@ -32,8 +36,14 @@ INETD_CONF="$PWD/inetd.conf.tmp"
 ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
      -e "s/^.*$AF[[:blank:]]\([:.0-9]\{1,\}\)[[:blank:]].*$/\1/g"`"
 
+# Check that netstat works before proceeding.
+netstat -na > /dev/null
+if [ ! $? -eq 0 ]; then
+    echo "netstat: command failed to execute successfully"
+    exit 77
+fi
+
 if [ "$VERBOSE" ]; then
-    set -x
     "$TFTP" --version
     "$TFTPD" --version
     "$INETD" --version

@@ -1,3 +1,8 @@
+2011-06-08  Alfred M. Szmidt  <ams@gnu.org>
+
+	* tests/tftp.sh: Skip test if we cannot execute netstat.  Enable
+	verbose execution of test as early as possible.
+
 2011-06-05  Alfred M. Szmidt  <ams@gnu.org>
 
 	Clean up `make syntax-check' errors.
