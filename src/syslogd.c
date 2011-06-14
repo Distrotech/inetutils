@@ -1148,9 +1148,12 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
       v->iov_len = 1;
       v++;
     }
-  v->iov_base = f->f_prevhost;
-  v->iov_len = strlen (v->iov_base);
-  v++;
+  if (f->f_prevhost)
+    {
+      v->iov_base = f->f_prevhost;
+      v->iov_len = strlen (v->iov_base);
+      v++;
+    }
   v->iov_base = (char *) " ";
   v->iov_len = 1;
   v++;
@@ -1918,7 +1921,11 @@ cfline (const char *line, struct filed *f)
       hp = gethostbyname (p);
       if (hp == NULL)
 	{
-	  f->f_type = F_FORW_UNKN;
+	  extern int h_errno;
+	  if (h_errno == NO_DATA || h_errno == HOST_NOT_FOUND)
+	    f->f_type = F_UNUSED;	/* No recovery possible.  */
+	  else
+	    f->f_type = F_FORW_UNKN;	/* Temporary failure.  */
 	  f->f_prevcount = INET_RETRY_MAX;
 	  f->f_time = time ((time_t *) 0);
 	}

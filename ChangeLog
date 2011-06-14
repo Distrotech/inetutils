@@ -1,3 +1,12 @@
+2011-06-15  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c (fprintlog): Sanity check on `f->f_prevhost'
+	to avoid deferencing NULL.
+	(cfline): A permanently failed DNS lookup must produce F_UNUSED.
+	* tests/syslogd.sh: New file.
+	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_logger &&
+	ENABLE_syslogd]: Add `syslogd.sh'.
+
 2011-06-08  Alfred M. Szmidt  <ams@gnu.org>
 
 	* tests/tftp.sh: Skip test if we cannot execute netstat.  Enable

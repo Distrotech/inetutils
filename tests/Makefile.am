@@ -40,6 +40,12 @@ dist_check_SCRIPTS += tftp.sh
 endif
 endif
 endif
+if ENABLE_logger
+if ENABLE_syslogd
+dist_check_SCRIPTS += syslogd.sh
+endif
+endif
+
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
