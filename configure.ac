@@ -499,11 +499,6 @@ AC_CHECK_TYPES(struct if_nameindex, , ,
                  #include <sys/socket.h>
                  #include <net/if.h>])])
 
-dnl sig_t is the type of a signal handler (4.4BSD)
-AC_CHECK_TYPES(sig_t, , ,
-  [IU_FLUSHLEFT([#include <sys/types.h>
-                 #include <signal.h> ])])
-
 dnl sigset_t is a set of signals (4.4BSD)
 AC_CHECK_TYPE(sigset_t, , AC_DEFINE([sigset_t], unsigned long, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>

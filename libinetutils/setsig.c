@@ -27,8 +27,8 @@
 
 /* This is exactly like the traditional signal function, but turns on the
    SA_RESTART bit where possible.  */
-sig_t
-setsig (int sig, sig_t handler)
+sighandler_t
+setsig (int sig, sighandler_t handler)
 {
 #ifdef HAVE_SIGACTION
   struct sigaction sa;

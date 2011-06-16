@@ -546,7 +546,7 @@ void
 mput (int argc, char **argv)
 {
   int i;
-  sig_t oldintr;
+  sighandler_t oldintr;
   int ointer;
 
   if (argc < 2 && !another (&argc, &argv, "local-files"))
@@ -862,7 +862,7 @@ mabort (int signo ARG_UNUSED)
 void
 mget (int argc, char **argv)
 {
-  sig_t oldintr;
+  sighandler_t oldintr;
   int ointer;
   char *cp, *tp;
 
@@ -1364,7 +1364,7 @@ delete (int argc, char **argv)
 void
 mdelete (int argc, char **argv)
 {
-  sig_t oldintr;
+  sighandler_t oldintr;
   int ointer;
   char *cp;
 
@@ -1475,7 +1475,7 @@ out:
 void
 mls (int argc, char **argv)
 {
-  sig_t oldintr;
+  sighandler_t oldintr;
   int ointer, i;
   char *cmd, mode[1], *dest;
 
@@ -1542,7 +1542,7 @@ void
 shell (int argc, char **argv)
 {
   pid_t pid;
-  sig_t old1, old2;
+  sighandler_t old1, old2;
   char shellnam[40], *shell, *namep;
 
   old1 = signal (SIGINT, SIG_IGN);
@@ -1965,7 +1965,7 @@ void
 doproxy (int argc, char **argv)
 {
   struct cmd *c;
-  sig_t oldintr;
+  sighandler_t oldintr;
 
   if (argc < 2 && !another (&argc, &argv, "command"))
     {

@@ -357,7 +357,7 @@ command (const char *fmt, ...)
 {
   va_list ap;
   int r;
-  sig_t oldintr;
+  sighandler_t oldintr;
 
   abrtflag = 0;
   if (debug)
@@ -403,7 +403,7 @@ getreply (int expecteof)
   int c, n;
   int dig;
   int originalcode = 0, continuation = 0;
-  sig_t oldintr;
+  sighandler_t oldintr;
   int pflag = 0;
   char *cp, *pt = pasv;
 
@@ -542,7 +542,7 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
   int c, d;
   FILE *fin, *dout = 0, *popen (const char *, const char *);
   int (*closefunc) (FILE *);
-  sig_t oldintr, oldintp;
+  sighandler_t oldintr, oldintp;
   long bytes = 0, local_hashbytes = hashbytes;
   char *lmode, buf[BUFSIZ], *bufp;
 
@@ -824,7 +824,7 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
 {
   FILE *fout, *din = 0;
   int (*closefunc) (FILE *);
-  sig_t oldintr, oldintp;
+  sighandler_t oldintr, oldintp;
   int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
   static int bufsize = 0;
   static char *buf;
@@ -1534,7 +1534,7 @@ psabort (int sig)
 void
 pswitch (int flag)
 {
-  sig_t oldintr;
+  sighandler_t oldintr;
   static struct comvars
   {
     int connect;
@@ -1652,7 +1652,7 @@ abortpt (int sig)
 void
 proxtrans (char *cmd, char *local, char *remote)
 {
-  sig_t oldintr;
+  sighandler_t oldintr;
   int secndflag = 0, prox_type, nfnd;
   char *cmd2;
   fd_set mask;

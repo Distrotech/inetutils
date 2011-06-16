@@ -209,7 +209,7 @@ RETSIGTYPE writeroob (int);
 void warning (const char *, ...);
 #endif
 
-extern sig_t setsig (int, sig_t);
+extern sighandler_t setsig (int, sighandler_t);
 
 #if defined KERBEROS || defined SHISHI
 # define OPTIONS	"8EKde:k:l:xhV"
@@ -771,7 +771,7 @@ doit (sigset_t * smask)
 void
 setsignal (int sig)
 {
-  sig_t handler;
+  sighandler_t handler;
   sigset_t sigs;
 
   sigemptyset (&sigs);

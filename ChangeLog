@@ -1,3 +1,14 @@
+2011-06-16  Simon Josefsson  <simon@josefsson.org>
+
+	* configure.ac: Don't check for sig_t.
+	* libinetutils/setsig.c (setsig): Use sighandler_t instead of sig_t.
+	Reported by Mats Erik Andersson <gnu@gisladisker.se>.
+	* ftp/cmds.c (mput, mget, mdelete, mls, shell, doproxy): Likewise.
+	* ftp/ftp.c (command, getreply, sendrequest, recvrequest)
+	(pswitch, proxtrans): Likewise.
+	* src/rlogin.c (setsignal): Likewise.
+	* src/rcp.c (susystem): Likewise.
+
 2011-06-15  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/syslogd.c (fprintlog): Sanity check on `f->f_prevhost'

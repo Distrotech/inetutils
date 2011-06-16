@@ -1169,7 +1169,7 @@ bad:
 int
 susystem (char *s, int userid)
 {
-  sig_t istat, qstat;
+  sighandler_t istat, qstat;
   int status;
   pid_t pid;
 
