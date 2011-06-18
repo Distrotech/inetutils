@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <libinetutils.h>
 #include <progname.h>
+#include "unused-parameter.h"
 
 #ifndef LOG_FACILITY
 # define LOG_FACILITY LOG_DAEMON
@@ -123,7 +124,7 @@ talkd_init (void)
 time_t last_msg_time;
 
 static void
-alarm_handler (int err ARG_UNUSED)
+alarm_handler (int err _GL_UNUSED_PARAMETER)
 {
   if ((time (NULL) - last_msg_time) >= max_idle_time)
     exit (EXIT_SUCCESS);

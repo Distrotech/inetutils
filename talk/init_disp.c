@@ -61,9 +61,10 @@
 #include <signal.h>
 #include <error.h>
 #include "talk.h"
+#include "unused-parameter.h"
 
 static void
-sig_sent (int sig ARG_UNUSED)
+sig_sent (int sig _GL_UNUSED_PARAMETER)
 {
 
   message ("Connection closing. Exiting");

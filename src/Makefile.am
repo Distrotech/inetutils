@@ -85,7 +85,7 @@ inetdaemon_PROGRAMS += @uucpd_BUILD@
 uucpd_SOURCES = uucpd.c
 EXTRA_PROGRAMS += uucpd
 
-INCLUDES = -I$(top_srcdir)/lib \
+INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib \
 	-I$(top_srcdir)/libinetutils \
 	-I$(top_srcdir)/libicmp
 

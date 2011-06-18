@@ -102,6 +102,7 @@
 
 #include <progname.h>
 #include "libinetutils.h"
+#include "unused-parameter.h"
 
 #ifdef SHISHI
 # define REALM_SZ 1040
@@ -817,7 +818,7 @@ int dosigwinch;
  * request to turn on the window-changing protocol.
  */
 void
-writeroob (int signo ARG_UNUSED)
+writeroob (int signo _GL_UNUSED_PARAMETER)
 {
   if (dosigwinch == 0)
     {
@@ -828,7 +829,7 @@ writeroob (int signo ARG_UNUSED)
 }
 
 void
-catch_child (int signo ARG_UNUSED)
+catch_child (int signo _GL_UNUSED_PARAMETER)
 {
   int status;
   pid_t pid;
@@ -991,7 +992,7 @@ stop (char cmdc)
 }
 
 void
-sigwinch (int signo ARG_UNUSED)
+sigwinch (int signo _GL_UNUSED_PARAMETER)
 {
   struct winsize ws;
 
@@ -1048,7 +1049,7 @@ int rcvcnt, rcvstate;
 char rcvbuf[8 * 1024];
 
 void
-oob (int signo ARG_UNUSED)
+oob (int signo _GL_UNUSED_PARAMETER)
 {
   char mark;
   struct termios tt;
@@ -1258,7 +1259,7 @@ mode (int f)
 }
 
 void
-lostpeer (int signo ARG_UNUSED)
+lostpeer (int signo _GL_UNUSED_PARAMETER)
 {
   setsig (SIGPIPE, SIG_IGN);
   error (0, 0, "\007connection closed.");
@@ -1267,7 +1268,7 @@ lostpeer (int signo ARG_UNUSED)
 
 /* copy SIGURGs to the child process. */
 void
-copytochild (int signo ARG_UNUSED)
+copytochild (int signo _GL_UNUSED_PARAMETER)
 {
   kill (child, SIGURG);
 }

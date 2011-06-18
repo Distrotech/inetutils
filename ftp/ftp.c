@@ -83,6 +83,7 @@
 #include <sys/select.h>
 
 #include "ftp_var.h"
+#include "unused-parameter.h"
 
 #if !HAVE_DECL_FCLOSE
 /* Some systems don't declare fclose in <stdio.h>, so do it ourselves.  */
@@ -342,7 +343,7 @@ login (char *host)
 }
 
 void
-cmdabort (int sig ARG_UNUSED)
+cmdabort (int sig _GL_UNUSED_PARAMETER)
 {
 
   printf ("\n");

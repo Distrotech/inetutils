@@ -38,6 +38,7 @@
 #endif
 
 #include <libinetutils.h>
+#include "unused-parameter.h"
 
 static void reapchild (int);
 
@@ -84,7 +85,7 @@ check_host (struct sockaddr *sa)
 #endif
 
 static void
-reapchild (int signo ARG_UNUSED)
+reapchild (int signo _GL_UNUSED_PARAMETER)
 {
   int save_errno = errno;
 

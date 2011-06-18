@@ -75,6 +75,7 @@
 #include "ftp_var.h"
 
 #include "libinetutils.h"
+#include "unused-parameter.h"
 
 #if HAVE_LIBREADLINE
 # include <readline/readline.h>
@@ -260,13 +261,13 @@ main (int argc, char *argv[])
 }
 
 void
-intr (int sig ARG_UNUSED)
+intr (int sig _GL_UNUSED_PARAMETER)
 {
   longjmp (toplevel, 1);
 }
 
 void
-lostpeer (int sig ARG_UNUSED)
+lostpeer (int sig _GL_UNUSED_PARAMETER)
 {
   if (connected)
     {

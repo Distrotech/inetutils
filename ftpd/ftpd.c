@@ -102,6 +102,7 @@
 #include <progname.h>
 #include <libinetutils.h>
 #include "extern.h"
+#include "unused-parameter.h"
 
 #ifndef LINE_MAX
 # define LINE_MAX 2048
@@ -584,7 +585,7 @@ sigquit (int signo)
 
 
 static void
-lostconn (int signo ARG_UNUSED)
+lostconn (int signo _GL_UNUSED_PARAMETER)
 {
   if (debug)
     syslog (LOG_DEBUG, "lost connection");
@@ -1685,7 +1686,7 @@ dologout (int status)
 }
 
 static void
-myoob (int signo ARG_UNUSED)
+myoob (int signo _GL_UNUSED_PARAMETER)
 {
   char *cp;
 

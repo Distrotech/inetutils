@@ -1,5 +1,28 @@
 2011-06-18  Alfred M. Szmidt  <ams@gnu.org>
 
+	* bootstrap.conf (gnulib_modules): Added unused-parameter to list.
+
+	* libtelnet/Makefile.am (INCLUDES): Added "-I$(top_srcdir)/lib
+	-I../lib" to list.
+	* src/Makefile.am (INCLUDES): Added -I$(top_builddir)/lib to list.
+
+	* talkd/talkd.c: Include "unused-parameter.h".  Replaced all usage
+	of ARG_UNUSED with _GL_UNUSED_PARAMETER.
+	* talkd/table.c: Likewise.
+	* talk/init_disp.c: Likewise.
+	* src/syslogd.c: Likewise.
+	* src/rlogind.c: Likewise.
+	* src/rlogin.c: Likewise.
+	* src/inetd.c: Likewise.
+	* libtelnet/auth.c: Likewise.
+	* ftpd/server_mode.c: Likewise.
+	* ftpd/ftpd.c: Likewise.
+	* ftp/main.c: Likewise.
+	* ftp/ftp.c: Likewise.
+	* ftp/cmds.c: Likewise.
+
+2011-06-18  Alfred M. Szmidt  <ams@gnu.org>
+
 	* whois/whois.h: Replace RETSIGTYPE with void; this is old K&Rism.
 	* whois/whois.c: Likewise.
 	* telnet/sys_bsd.c (ayt): Likewise.

@@ -69,6 +69,7 @@
 #include <progname.h>
 #include <argp.h>
 #include <libinetutils.h>
+#include "unused-parameter.h"
 
 /*
   The TIOCPKT_* macros may not be implemented in the pty driver.
@@ -1476,7 +1477,7 @@ control (int pty, char *cp, size_t n)
 }
 
 void
-cleanup (int signo ARG_UNUSED)
+cleanup (int signo _GL_UNUSED_PARAMETER)
 {
   char *p;
 

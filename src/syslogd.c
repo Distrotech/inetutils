@@ -120,6 +120,7 @@
 #include <progname.h>
 #include <libinetutils.h>
 #include <readutmp.h>
+#include "unused-parameter.h"
 
 /* A mask of all facilities mentioned explicitly in the configuration file
  *
@@ -1458,7 +1459,7 @@ cvthname (struct sockaddr_in *f)
 }
 
 void
-domark (int signo ARG_UNUSED)
+domark (int signo _GL_UNUSED_PARAMETER)
 {
   struct filed *f;
 
@@ -1503,7 +1504,7 @@ logerror (const char *type)
 }
 
 void
-doexit (int signo ARG_UNUSED)
+doexit (int signo _GL_UNUSED_PARAMETER)
 {
   _exit (0);
 }
@@ -1552,7 +1553,7 @@ die (int signo)
 
 /* INIT -- Initialize syslogd from configuration table.  */
 void
-init (int signo ARG_UNUSED)
+init (int signo _GL_UNUSED_PARAMETER)
 {
   FILE *cf;
   struct filed *f, *next, **nextp;
@@ -2021,7 +2022,7 @@ decode (const char *name, CODE * codetab)
 }
 
 void
-dbg_toggle (int signo ARG_UNUSED)
+dbg_toggle (int signo _GL_UNUSED_PARAMETER)
 {
   int dbg_save = dbg_output;
 
@@ -2053,7 +2054,7 @@ dbg_printf (const char *fmt, ...)
    set a flag variable which will tell the main loop to go through a
    restart.  */
 void
-trigger_restart (int signo ARG_UNUSED)
+trigger_restart (int signo _GL_UNUSED_PARAMETER)
 {
   restart = 1;
 }

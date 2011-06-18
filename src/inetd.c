@@ -136,6 +136,7 @@
 #include "libinetutils.h"
 #include "argcv.h"
 #include "version-etc.h"
+#include "unused-parameter.h"
 
 #ifndef EAI_ADDRFAMILY
 # define EAI_ADDRFAMILY 1
@@ -461,7 +462,7 @@ run_service (int ctrl, struct servtab *sep)
 }
 
 void
-reapchild (int signo ARG_UNUSED)
+reapchild (int signo _GL_UNUSED_PARAMETER)
 {
   int status;
   pid_t pid;
@@ -647,7 +648,7 @@ servent_setup (struct servtab *sep)
 }
 
 void
-retry (int signo ARG_UNUSED)
+retry (int signo _GL_UNUSED_PARAMETER)
 {
   struct servtab *sep;
 

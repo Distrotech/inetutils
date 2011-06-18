@@ -85,6 +85,7 @@
 #endif
 
 #include "ftp_var.h"
+#include "unused-parameter.h"
 
 /* Returns true if STR is entirely lower case.  */
 static int
@@ -835,7 +836,7 @@ getit (int argc, char **argv, int restartit, char *mode)
 }
 
 void
-mabort (int signo ARG_UNUSED)
+mabort (int signo _GL_UNUSED_PARAMETER)
 {
   int ointer;
 
