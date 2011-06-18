@@ -1,3 +1,7 @@
+2011-06-17  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap.conf (gnulib_modules): Added signal to list.
+
 2011-06-16  Simon Josefsson  <simon@josefsson.org>
 
 	* configure.ac: Don't check for sig_t.
