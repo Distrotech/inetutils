@@ -71,7 +71,7 @@
 #include "types.h"
 
 #ifdef	SIGINFO
-extern RETSIGTYPE ayt_status ();
+extern void ayt_status ();
 #endif
 
 int tout,			/* Output file descriptor */
@@ -671,10 +671,10 @@ TerminalNewMode (register int f)
   if (f != -1)
     {
 #ifdef	SIGTSTP
-      RETSIGTYPE susp (int sig);
+      void susp (int sig);
 #endif /* SIGTSTP */
 #ifdef	SIGINFO
-      RETSIGTYPE ayt ();
+      void ayt ();
 #endif
 
 #ifdef	SIGTSTP
@@ -726,7 +726,7 @@ TerminalNewMode (register int f)
   else
     {
 #ifdef	SIGINFO
-      RETSIGTYPE ayt_status ();
+      void ayt_status ();
 
       signal (SIGINFO, ayt_status);
 #endif
@@ -938,7 +938,7 @@ NetSetPgrp (int fd)
  * Various signal handling routines.
  */
 
-RETSIGTYPE
+void
 deadpeer (int sig)
 {
   setcommandmode ();
@@ -946,7 +946,7 @@ deadpeer (int sig)
 }
 
 
-RETSIGTYPE
+void
 intr (int sig)
 {
   if (localchars)
@@ -959,7 +959,7 @@ intr (int sig)
 }
 
 
-RETSIGTYPE
+void
 intr2 (int sig)
 {
   if (localchars)
@@ -975,7 +975,7 @@ intr2 (int sig)
 }
 
 #ifdef	SIGTSTP
-RETSIGTYPE
+void
 susp (int sig)
 {
   if ((rlogin != _POSIX_VDISABLE) && rlogin_susp ())
@@ -986,7 +986,7 @@ susp (int sig)
 #endif
 
 #ifdef	SIGWINCH
-RETSIGTYPE
+void
 sendwin (int sig)
 {
   if (connected)
@@ -997,7 +997,7 @@ sendwin (int sig)
 #endif
 
 #ifdef	SIGINFO
-RETSIGTYPE
+void
 ayt (int sig)
 {
   if (connected)

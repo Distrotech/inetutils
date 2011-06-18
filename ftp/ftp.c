@@ -341,7 +341,7 @@ login (char *host)
   return (1);
 }
 
-RETSIGTYPE
+void
 cmdabort (int sig ARG_UNUSED)
 {
 

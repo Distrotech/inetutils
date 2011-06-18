@@ -115,7 +115,7 @@ int wlen;
 int rfd2;
 
 char *copyargs (char **);
-RETSIGTYPE sendsig (int);
+void sendsig (int);
 void talk (int, sigset_t *, pid_t, int);
 void warning (const char *, ...);
 

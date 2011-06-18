@@ -258,7 +258,7 @@ ipaddr2str (struct sockaddr_in6 *from)
 
 static volatile int stop = 0;
 
-static RETSIGTYPE
+static void
 sig_int (int signal)
 {
   stop = 1;

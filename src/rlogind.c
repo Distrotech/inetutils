@@ -194,12 +194,12 @@ int do_krb_login (int infd, struct auth_data *ap, const char **msg);
 void getstr (int infd, char **ptr, const char *prefix);
 void protocol (int f, int p, struct auth_data *ap);
 int control (int pty, char *cp, size_t n);
-RETSIGTYPE cleanup (int signo);
+void cleanup (int signo);
 void fatal (int f, const char *msg, int syserr);
 int in_local_domain (char *hostname);
 char *topdomain (char *name, int max_dots);
 
-RETSIGTYPE
+void
 rlogind_sigchld (int sig)
 {
   pid_t pid;
@@ -1475,7 +1475,7 @@ control (int pty, char *cp, size_t n)
   return (4 + sizeof w);
 }
 
-RETSIGTYPE
+void
 cleanup (int signo ARG_UNUSED)
 {
   char *p;

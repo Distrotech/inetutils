@@ -259,13 +259,13 @@ main (int argc, char *argv[])
     }
 }
 
-RETSIGTYPE
+void
 intr (int sig ARG_UNUSED)
 {
   longjmp (toplevel, 1);
 }
 
-RETSIGTYPE
+void
 lostpeer (int sig ARG_UNUSED)
 {
   if (connected)

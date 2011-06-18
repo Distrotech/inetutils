@@ -1,5 +1,23 @@
 2011-06-18  Alfred M. Szmidt  <ams@gnu.org>
 
+	* whois/whois.h: Replace RETSIGTYPE with void; this is old K&Rism.
+	* whois/whois.c: Likewise.
+	* telnet/sys_bsd.c (ayt): Likewise.
+	* talk/invite.c (re_invite): Likewise.
+	* talk/init_disp.c (sig_sent): Likewise.
+	* src/syslogd.c (trigger_restart): Likewise.
+	* src/rsh.c: Likewise.
+	* src/rlogind.c (cleanup): Likewise.
+	* src/rlogin.c (copytochild): Likewise.
+	* src/rcp.c (lostconn): Likewise.
+	* src/inetd.c (signal_set_handler): Likewise.
+	* ping/ping6.c (sig_int): Likewise.
+	* ping/ping.c (sig_int): Likewise.
+	* libtelnet/auth.c (auth_intr): Likewise.
+	* libinetutils/daemon.c (waitdaemon_timeout): Likewise.
+
+2011-06-18  Alfred M. Szmidt  <ams@gnu.org>
+
 	* bootstrap.conf (gnulib_modules): Use malloc-gnu and realloc-gnu
 	instead of the old malloc and realloc modules.
 

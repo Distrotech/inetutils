@@ -62,7 +62,7 @@
 #include <error.h>
 #include "talk.h"
 
-static RETSIGTYPE
+static void
 sig_sent (int sig ARG_UNUSED)
 {
 

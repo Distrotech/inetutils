@@ -83,7 +83,7 @@ check_host (struct sockaddr *sa)
 }
 #endif
 
-static RETSIGTYPE
+static void
 reapchild (int signo ARG_UNUSED)
 {
   int save_errno = errno;

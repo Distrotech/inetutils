@@ -1222,7 +1222,7 @@ allocbuf (BUF * bp, int fd, int blksize)
   return (bp);
 }
 
-RETSIGTYPE
+void
 lostconn (int signo)
 {
   if (!iamremote)

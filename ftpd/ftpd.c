@@ -575,7 +575,7 @@ curdir (void)
   return (cred.guest ? path + 1 : path);
 }
 
-static RETSIGTYPE
+static void
 sigquit (int signo)
 {
   syslog (LOG_ERR, "got signal %s", strsignal (signo));
@@ -583,7 +583,7 @@ sigquit (int signo)
 }
 
 
-static RETSIGTYPE
+static void
 lostconn (int signo ARG_UNUSED)
 {
   if (debug)
@@ -1684,7 +1684,7 @@ dologout (int status)
   _exit (status);
 }
 
-static RETSIGTYPE
+static void
 myoob (int signo ARG_UNUSED)
 {
   char *cp;

@@ -588,7 +588,7 @@ closeconn (const int fd)
   close (fd);
 }
 
-RETSIGTYPE
+void
 sighandler (int signum)
 {
   closeconn (sockfd);

@@ -186,24 +186,24 @@ int get_window_size (int, struct winsize *);
 #endif
 struct winsize winsize;
 
-RETSIGTYPE catch_child (int);
-RETSIGTYPE copytochild (int);
+void catch_child (int);
+void copytochild (int);
 void doit (sigset_t *);
 void done (int);
 void echo (char);
 u_int getescape (char *);
-RETSIGTYPE lostpeer (int);
+void lostpeer (int);
 void mode (int);
-RETSIGTYPE oob (int);
+void oob (int);
 int reader (sigset_t *);
 void sendwindow (void);
 void setsignal (int);
 int speed (int);
 unsigned int speed_translate (unsigned int);
-RETSIGTYPE sigwinch (int);
+void sigwinch (int);
 void stop (char);
 void writer (void);
-RETSIGTYPE writeroob (int);
+void writeroob (int);
 
 #if defined KERBEROS || defined SHISHI
 void warning (const char *, ...);
@@ -816,7 +816,7 @@ int dosigwinch;
  * This is called when the reader process gets the out-of-band (urgent)
  * request to turn on the window-changing protocol.
  */
-RETSIGTYPE
+void
 writeroob (int signo ARG_UNUSED)
 {
   if (dosigwinch == 0)
@@ -827,7 +827,7 @@ writeroob (int signo ARG_UNUSED)
   dosigwinch = 1;
 }
 
-RETSIGTYPE
+void
 catch_child (int signo ARG_UNUSED)
 {
   int status;
@@ -990,7 +990,7 @@ stop (char cmdc)
   sigwinch (0);			/* check for size changes */
 }
 
-RETSIGTYPE
+void
 sigwinch (int signo ARG_UNUSED)
 {
   struct winsize ws;
@@ -1047,7 +1047,7 @@ pid_t ppid;
 int rcvcnt, rcvstate;
 char rcvbuf[8 * 1024];
 
-RETSIGTYPE
+void
 oob (int signo ARG_UNUSED)
 {
   char mark;
@@ -1257,7 +1257,7 @@ mode (int f)
     }
 }
 
-RETSIGTYPE
+void
 lostpeer (int signo ARG_UNUSED)
 {
   setsig (SIGPIPE, SIG_IGN);
@@ -1266,7 +1266,7 @@ lostpeer (int signo ARG_UNUSED)
 }
 
 /* copy SIGURGs to the child process. */
-RETSIGTYPE
+void
 copytochild (int signo ARG_UNUSED)
 {
   kill (child, SIGURG);

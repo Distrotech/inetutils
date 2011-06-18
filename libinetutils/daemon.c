@@ -104,7 +104,7 @@
 
 #define MAXFD 64
 
-RETSIGTYPE
+void
 waitdaemon_timeout (int signo)
 {
   int left;

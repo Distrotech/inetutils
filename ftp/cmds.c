@@ -834,7 +834,7 @@ getit (int argc, char **argv, int restartit, char *mode)
   return (0);
 }
 
-RETSIGTYPE
+void
 mabort (int signo ARG_UNUSED)
 {
   int ointer;

@@ -1502,13 +1502,13 @@ logerror (const char *type)
   logmsg (LOG_SYSLOG | LOG_ERR, buf, LocalHostName, ADDDATE);
 }
 
-RETSIGTYPE
+void
 doexit (int signo ARG_UNUSED)
 {
   _exit (0);
 }
 
-RETSIGTYPE
+void
 die (int signo)
 {
   struct filed *f;
@@ -1551,7 +1551,7 @@ die (int signo)
 }
 
 /* INIT -- Initialize syslogd from configuration table.  */
-RETSIGTYPE
+void
 init (int signo ARG_UNUSED)
 {
   FILE *cf;
@@ -2020,7 +2020,7 @@ decode (const char *name, CODE * codetab)
   return -1;
 }
 
-RETSIGTYPE
+void
 dbg_toggle (int signo ARG_UNUSED)
 {
   int dbg_save = dbg_output;
@@ -2052,7 +2052,7 @@ dbg_printf (const char *fmt, ...)
    not being doing this during a signal handler.  Instead we simply
    set a flag variable which will tell the main loop to go through a
    restart.  */
-RETSIGTYPE
+void
 trigger_restart (int signo ARG_UNUSED)
 {
   restart = 1;

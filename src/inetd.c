@@ -350,7 +350,7 @@ bi_lookup (const struct servtab *sep)
 #endif
 
 void
-signal_set_handler (int signo, RETSIGTYPE (*handler) ())
+signal_set_handler (int signo, void (*handler) ())
 {
 #if defined HAVE_SIGACTION
   struct sigaction sa;

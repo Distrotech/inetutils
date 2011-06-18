@@ -649,7 +649,7 @@ auth_finished (TN_Authenticator * ap, int result)
   validuser = result;
 }
 
-static RETSIGTYPE
+static void
 auth_intr (int sig ARG_UNUSED)
 {
   auth_finished (0, AUTH_REJECT);

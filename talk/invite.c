@@ -114,7 +114,7 @@ announce_invite (void)
 /*
  * Routine called on interupt to re-invite the callee
  */
-RETSIGTYPE
+void
 re_invite (int sig)
 {
 

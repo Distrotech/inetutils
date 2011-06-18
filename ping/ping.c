@@ -302,7 +302,7 @@ int (*decode_type (const char *arg)) (char *hostname)
 
 int volatile stop = 0;
 
-RETSIGTYPE
+void
 sig_int (int signal)
 {
   stop = 1;
