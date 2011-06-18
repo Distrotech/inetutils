@@ -1,3 +1,8 @@
+2011-06-18  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap.conf (gnulib_modules): Use malloc-gnu and realloc-gnu
+	instead of the old malloc and realloc modules.
+
 2011-06-17  Alfred M. Szmidt  <ams@gnu.org>
 
 	* libinetutils/libinetutils.h: Don't include <config.h>; instead
