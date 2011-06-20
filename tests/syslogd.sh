@@ -72,6 +72,15 @@ cat > $CONF <<-EOT
 	*.*	@not.in.existence
 EOT
 
+# Set REMOTE_LOGHOST to activate forwarding
+#
+if [ -n "$REMOTE_LOGHOST" ]; then
+	# Append a forwarding stanza.
+	cat >> $CONF <<-EOT
+		*.*	@$REMOTE_LOGHOST
+	EOT
+fi
+
 # Attempt to start the server after first
 # building the desired option list.
 #
@@ -79,7 +88,7 @@ EOT
 IU_OPTIONS="--rcfile=$CONF --pidfile=$PID --socket=$SOCKET"
 ## Enable INET service when running as root.
 if [ "$USER" = "root" ]; then
-	IU_OPTIONS="$IU_OPTIONS --inet"
+	IU_OPTIONS="$IU_OPTIONS --inet --hop"
 fi
 ## Bring in additional options from command line.
 ## Disable kernel messages otherwise.

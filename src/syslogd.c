@@ -175,7 +175,8 @@ struct filed
     struct
     {
       char *f_hname;
-      struct sockaddr_in f_addr;
+      struct sockaddr_storage f_addr;
+      socklen_t f_addrlen;
     } f_forw;			/* Forwarding address.  */
     char *f_fname;		/* Name use for Files|Pipes|TTYs.  */
   } f_un;
@@ -242,7 +243,7 @@ int repeatinterval[] = { 30, 60 };	/* Number of seconds before flush.  */
 extern int waitdaemon (int nochdir, int noclose, int maxwait);
 
 void cfline (const char *, struct filed *);
-const char *cvthname (struct sockaddr_in *);
+const char *cvthname (struct sockaddr *, socklen_t);
 int decode (const char *, CODE *);
 void die (int);
 void doexit (int);
@@ -262,13 +263,19 @@ static void dbg_printf (const char *, ...);
 void trigger_restart (int);
 static void add_funix (const char *path);
 static int create_unix_socket (const char *path);
-static int create_inet_socket (void);
+static int create_inet_socket (int af);
 
 char *LocalHostName;		/* Our hostname.  */
 char *LocalDomain;		/* Our local domain name.  */
+char addrstr[INET6_ADDRSTRLEN];	/* Common address presentation.  */
+char addrname[NI_MAXHOST];	/* Common name lookup.  */
+int usefamily = AF_INET;	/* Address family for INET services.
+				 * Each of the values `AF_INET' and `AF_INET6'
+				 * produces a single-stacked server.  */
 int finet = -1;			/* Internet datagram socket fd.  */
 int fklog = -1;			/* Kernel log device fd.  */
-int LogPort;			/* Port number for INET connections.  */
+char *LogPortText = "syslog";	/* Service/port for INET connections.  */
+int LogPort;			/* LogPortText translated to a numeric value.  */
 int Initialized;		/* True when we are initialized. */
 int MarkInterval = 20 * 60;	/* Interval between marks in seconds.  */
 int MarkSeq;			/* Mark sequence number.  */
@@ -473,21 +480,27 @@ main (int argc, char *argv[])
     }
   else
     {
-      struct hostent *host_ent;
+      struct addrinfo hints, *rp;
+      int err;
 
-      /* Try to resolve the domainname by calling DNS. */
-      host_ent = gethostbyname (LocalHostName);
-      if (host_ent)
+      memset (&hints, 0, sizeof (hints));
+      hints.ai_family = AF_UNSPEC;	/* Family is irrelevant.  */
+      hints.ai_flags = AI_CANONNAME;
+
+      /* Try to resolve the domainname by calling DNS.  */
+      err = getaddrinfo (LocalHostName, NULL, &hints, &rp);
+      if (err == 0)
 	{
 	  /* Override what we had */
 	  free (LocalHostName);
-	  LocalHostName = strdup (host_ent->h_name);
+	  LocalHostName = strdup (rp->ai_canonname);
 	  p = strchr (LocalHostName, '.');
 	  if (p != NULL)
 	    {
 	      *p++ = '\0';
 	      LocalDomain = p;
 	    }
+	  freeaddrinfo (rp);
 	}
       if (LocalDomain == NULL)
 	LocalDomain = strdup ("");
@@ -550,7 +563,7 @@ main (int argc, char *argv[])
   /* Initialize inet socket and add them to the list.  */
   if (AcceptRemote || (!NoForward))
     {
-      finet = create_inet_socket ();
+      finet = create_inet_socket (usefamily);
       if (finet >= 0)
 	{
 	  fdarray[nfds].fd = finet;
@@ -697,7 +710,7 @@ main (int argc, char *argv[])
 	      }
 	    else if (fdarray[i].fd == finet)
 	      {
-		struct sockaddr_in frominet;
+		struct sockaddr_storage frominet;
 		/*dbg_printf ("inet message\n"); */
 		len = sizeof (frominet);
 		memset (line, '\0', sizeof (line));
@@ -706,7 +719,7 @@ main (int argc, char *argv[])
 		if (result > 0)
 		  {
 		    line[result] = '\0';
-		    printline (cvthname (&frominet), line);
+		    printline (cvthname ((struct sockaddr *) &frominet, len), line);
 		  }
 		else if (result < 0 && errno != EINTR)
 		  logerror ("recvfrom inet");
@@ -783,26 +796,49 @@ create_unix_socket (const char *path)
 }
 
 static int
-create_inet_socket (void)
+create_inet_socket (int af)
 {
-  int fd;
-  struct sockaddr_in sin;
+  int err, fd = -1;
+  struct addrinfo hints, *rp, *ai;
 
-  fd = socket (AF_INET, SOCK_DGRAM, 0);
-  if (fd < 0)
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = af;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_flags = AI_PASSIVE;
+
+  err = getaddrinfo (NULL, LogPortText, &hints, &rp);
+  if (err)
     {
-      logerror ("unknown protocol, suspending inet service");
+      logerror ("lookup error, suspending inet service");
       return fd;
     }
 
-  memset (&sin, 0, sizeof (sin));
-  sin.sin_family = AF_INET;
-  sin.sin_port = LogPort;
-  if (bind (fd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
+  for (ai = rp; ai; ai = ai->ai_next)
     {
-      logerror ("bind, suspending inet");
-      close (fd);
-      return -1;
+      fd = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+      if (fd < 0)
+	continue;
+      if (ai->ai_family == AF_INET6)
+	{
+	  int yes = 1;
+	  /* Avoid dual stacked sockets.  Better to use distinct sockets.  */
+	  (void) setsockopt (fd, IPPROTO_IPV6, IPV6_V6ONLY, &yes, sizeof (yes));
+	}
+      if (bind (fd, ai->ai_addr, ai->ai_addrlen) < 0)
+	{
+	  close (fd);
+	  fd = -1;
+	  continue;
+	}
+      /* Success.  Only one socket at this time.  */
+      break;
+    }
+  freeaddrinfo (rp);
+
+  if (ai == NULL)
+    {
+      logerror ("inet service, failed lookup.");
+      return fd;
     }
   return fd;
 }
@@ -1123,7 +1159,6 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
   int l;
   char line[MAXLINE + 1], repbuf[80], greetings[200];
   time_t fwd_suspend;
-  struct hostent *hp;
 
   v = iov;
   /* Be paranoid.  */
@@ -1208,11 +1243,18 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
       fwd_suspend = time ((time_t *) 0) - f->f_time;
       if (fwd_suspend >= INET_SUSPEND_TIME)
 	{
-	  hp = gethostbyname (f->f_un.f_forw.f_hname);
-	  if (hp == NULL)
+	  struct addrinfo hints, *rp;
+	  int err;
+
+	  memset (&hints, 0, sizeof (hints));
+	  hints.ai_family = usefamily;
+#ifdef AI_ADDRCONFIG
+	  hints.ai_flags = AI_ADDRCONFIG;
+#endif
+	  err = getaddrinfo (f->f_un.f_forw.f_hname, LogPortText, &hints, &rp);
+	  if (err)
 	    {
-	      extern int h_errno;
-	      dbg_printf ("Failure: %s\n", hstrerror (h_errno));
+	      dbg_printf ("Failure: %s\n", gai_strerror (err));
 	      dbg_printf ("Retries: %d\n", f->f_prevcount);
 	      if (--f->f_prevcount < 0)
 		{
@@ -1224,8 +1266,9 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	  else
 	    {
 	      dbg_printf ("%s found, resuming.\n", f->f_un.f_forw.f_hname);
-	      memcpy (&f->f_un.f_forw.f_addr.sin_addr,
-		      hp->h_addr, hp->h_length);
+	      f->f_un.f_forw.f_addrlen = rp->ai_addrlen;
+	      memcpy (&f->f_un.f_forw.f_addr, rp->ai_addr, rp->ai_addrlen);
+	      freeaddrinfo (rp);
 	      f->f_prevcount = 0;
 	      f->f_type = F_FORW;
 	      goto f_forw;
@@ -1256,7 +1299,7 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	    l = MAXLINE;
 	  if (sendto (finet, line, l, 0,
 		      (struct sockaddr *) &f->f_un.f_forw.f_addr,
-		      sizeof (f->f_un.f_forw.f_addr)) != l)
+		      f->f_un.f_forw.f_addrlen) != l)
 	    {
 	      int e = errno;
 	      dbg_printf ("INET sendto error: %d = %s.\n", e, strerror (e));
@@ -1397,28 +1440,31 @@ wallmsg (struct filed *f, struct iovec *iov)
 
 /* Return a printable representation of a host address.  */
 const char *
-cvthname (struct sockaddr_in *f)
+cvthname (struct sockaddr *f, socklen_t len)
 {
-  struct hostent *hp;
+  int err;
   char *p;
 
-  dbg_printf ("cvthname(%s)\n", inet_ntoa (f->sin_addr));
-
-  if (f->sin_family != AF_INET)
+  err = getnameinfo (f, len, addrstr, sizeof (addrstr),
+		     NULL, 0, NI_NUMERICHOST);
+  if (err)
     {
-      dbg_printf ("Malformed from address.\n");
+      dbg_printf ("Malformed from address: %s.\n",
+		  gai_strerror (err));
       return "???";
     }
-  hp = gethostbyaddr ((char *) &f->sin_addr,
-		      sizeof (struct in_addr), f->sin_family);
-  if (hp == 0)
+
+  dbg_printf ("cvthname(%s)\n", addrstr);
+
+  err = getnameinfo (f, len, addrname, sizeof (addrname),
+		     NULL, 0, NI_NAMEREQD);
+  if (err)
     {
-      dbg_printf ("Host name for your address (%s) unknown.\n",
-		  inet_ntoa (f->sin_addr));
-      return inet_ntoa (f->sin_addr);
+      dbg_printf ("Host name for your address (%s) unknown.\n", addrstr);
+      return addrstr;
     }
 
-  p = strchr (hp->h_name, '.');
+  p = strchr (addrname, '.');
   if (p != NULL)
     {
       if (strcasecmp (p + 1, LocalDomain) == 0)
@@ -1435,7 +1481,7 @@ cvthname (struct sockaddr_in *f)
 		  if (strcasecmp (p + 1, StripDomains[count]) == 0)
 		    {
 		      *p = '\0';
-		      return hp->h_name;
+		      return addrname;
 		    }
 		  count++;
 		}
@@ -1445,17 +1491,17 @@ cvthname (struct sockaddr_in *f)
 	      count = 0;
 	      while (LocalHosts[count])
 		{
-		  if (strcasecmp (hp->h_name, LocalHosts[count]) == 0)
+		  if (strcasecmp (addrname, LocalHosts[count]) == 0)
 		    {
 		      *p = '\0';
-		      return hp->h_name;
+		      return addrname;
 		    }
 		  count++;
 		}
 	    }
 	}
     }
-  return hp->h_name;
+  return addrname;
 }
 
 void
@@ -1568,7 +1614,7 @@ init (int signo _GL_UNUSED_PARAMETER)
   struct servent *sp;
 
   dbg_printf ("init\n");
-  sp = getservbyname ("syslog", "udp");
+  sp = getservbyname (LogPortText, "udp");
   if (sp == NULL)
     {
       errno = 0;
@@ -1609,7 +1655,8 @@ init (int signo _GL_UNUSED_PARAMETER)
 	  free (f->f_un.f_user.f_unames);
 	  break;
 	}
-      free (f->f_prevhost);
+      if (f->f_prevhost)
+	free (f->f_prevhost);
       next = f->f_next;
       free (f);
     }
@@ -1780,8 +1827,8 @@ init (int signo _GL_UNUSED_PARAMETER)
 void
 cfline (const char *line, struct filed *f)
 {
-  struct hostent *hp;
-  int i, pri, negate_pri, excl_pri;
+  struct addrinfo hints, *rp;
+  int i, pri, negate_pri, excl_pri, err;
   unsigned int pri_set, pri_clear;
   char *bp;
   const char *p, *q;
@@ -1919,24 +1966,47 @@ cfline (const char *line, struct filed *f)
     {
     case '@':
       f->f_un.f_forw.f_hname = strdup (++p);
-      hp = gethostbyname (p);
-      if (hp == NULL)
+      memset (&hints, 0, sizeof (hints));
+      hints.ai_family = usefamily;
+      hints.ai_socktype = SOCK_DGRAM;
+#ifdef AI_ADDRCONFIG
+      hints.ai_flags = AI_ADDRCONFIG;
+#endif
+
+      f->f_un.f_forw.f_addrlen = 0;	/* Invalidate address.  */
+      memset (&f->f_un.f_forw.f_addr, 0, sizeof (f->f_un.f_forw.f_addr));
+
+      err = getaddrinfo (p, LogPortText, &hints, &rp);
+      if (err)
 	{
-	  extern int h_errno;
-	  if (h_errno == NO_DATA || h_errno == HOST_NOT_FOUND)
-	    f->f_type = F_UNUSED;	/* No recovery possible.  */
-	  else
-	    f->f_type = F_FORW_UNKN;	/* Temporary failure.  */
-	  f->f_prevcount = INET_RETRY_MAX;
+	  switch (err)
+	    {
+	      case EAI_AGAIN:	/* Known kinds of temporary error.  */
+	      case EAI_MEMORY:
+		f->f_type = F_FORW_UNKN;
+		f->f_prevcount = INET_RETRY_MAX;
+		break;
+
+	      case EAI_NONAME:	/* The most probable causes for failure.  */
+#if defined(EAI_NODATA) && (EAI_NODATA != EAI_NONAME)	/* FreeBSD complains.  */
+	      case EAI_NODATA:
+#endif
+#ifdef EAI_ADDRFAMILY
+	      case EAI_ADDRFAMILY:
+#endif
+	      default:		/* Catch system exceptions.  */
+		f->f_type = F_UNUSED;
+	    }
+
 	  f->f_time = time ((time_t *) 0);
 	}
       else
-	f->f_type = F_FORW;
-      memset (&f->f_un.f_forw.f_addr, 0, sizeof (f->f_un.f_forw.f_addr));
-      f->f_un.f_forw.f_addr.sin_family = AF_INET;
-      f->f_un.f_forw.f_addr.sin_port = LogPort;
-      if (f->f_type == F_FORW)
-	memcpy (&f->f_un.f_forw.f_addr.sin_addr, hp->h_addr, hp->h_length);
+	{
+	  f->f_type = F_FORW;
+	  f->f_un.f_forw.f_addrlen = rp->ai_addrlen;
+	  memcpy (&f->f_un.f_forw.f_addr, rp->ai_addr, rp->ai_addrlen);
+	  freeaddrinfo (rp);
+	}
       break;
 
     case '|':

@@ -1,3 +1,22 @@
+2011-06-20  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c: Replace all `struct sockaddr_in' with
+	`struct sockaddr_storage'; provide `socklen_t' where needed.
+	Replace `gethostbyname', `struct hostent' with `getaddrinfo'
+	and `struct addrinfo'.
+	(struct filed): In `struct f_forw', use `struct sockaddr_storage'
+	and `socklen_t'.
+	(addrstr, addrname, usefamily, LogPortText): New variables.
+	(main): Call `create_inet_socket' with parameter USEFAMILY.
+	(create_inet_socket): New parameter list `int' with address family.
+	Enforce `IPV6_ONLY' for family `AF_INET6'.
+	(cvthname): New parameter list `struct sockaddr *, socklen_t'.
+	Replace `inet_ntoa' and `gethostbyaddr' by two applications
+	of `getnameinfo'.
+	(init): Use LOGPORTTEXT to determine listening port.  Sanity
+	check on `f->f_prevhost' before freeing memory.
+	* tests/syslogd.sh [REMOTE_LOGHOST]: Include a loghost setting.
+
 2011-06-18  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Added mkstemp to list.
