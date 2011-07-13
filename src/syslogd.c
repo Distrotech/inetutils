@@ -1860,7 +1860,7 @@ cfline (const char *line, struct filed *f)
       *bp = '\0';
 
       /* Skip cruft.  */
-      while (strchr (",;", *q))
+      while (*q && strchr (",;", *q))
 	q++;
 
       bp = buf;
@@ -1960,6 +1960,14 @@ cfline (const char *line, struct filed *f)
     {
       f->f_flags |= OMIT_SYNC;
       p++;
+    }
+
+  if (!strlen(p))
+    {
+      /* Invalidate an entry with empty action field.  */
+      f->f_type = F_UNUSED;
+      logerror ("empty action field");
+      return;
     }
 
   switch (*p)

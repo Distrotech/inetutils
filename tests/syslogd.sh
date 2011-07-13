@@ -69,7 +69,12 @@ fi
 #
 cat > $CONF <<-EOT
 	*.*	$OUT
+	# Test incorrect forwarding.
 	*.*	@not.in.existence
+	# Recover from missing action field and short selector.
+	12345
+	*.*
+	*.	/dev/null
 EOT
 
 # Set REMOTE_LOGHOST to activate forwarding
@@ -77,6 +82,7 @@ EOT
 if [ -n "$REMOTE_LOGHOST" ]; then
 	# Append a forwarding stanza.
 	cat >> $CONF <<-EOT
+		# Forwarding remotely
 		*.*	@$REMOTE_LOGHOST
 	EOT
 fi

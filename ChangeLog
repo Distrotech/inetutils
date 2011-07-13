@@ -1,3 +1,9 @@
+2011-07-13  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c (cfline): Prevent incrementing beyond string end.
+	Discard config line with empty action.
+	* tests/syslogd.sh: Three new degenerate config lines.
+
 2011-06-20  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/syslogd.c: Replace all `struct sockaddr_in' with
