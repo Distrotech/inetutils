@@ -275,7 +275,6 @@ int usefamily = AF_INET;	/* Address family for INET services.
 int finet = -1;			/* Internet datagram socket fd.  */
 int fklog = -1;			/* Kernel log device fd.  */
 char *LogPortText = "syslog";	/* Service/port for INET connections.  */
-int LogPort;			/* LogPortText translated to a numeric value.  */
 int Initialized;		/* True when we are initialized. */
 int MarkInterval = 20 * 60;	/* Interval between marks in seconds.  */
 int MarkSeq;			/* Mark sequence number.  */
@@ -560,8 +559,8 @@ main (int argc, char *argv[])
 	}
     }
 
-  /* Initialize inet socket and add them to the list.  */
-  if (AcceptRemote || (!NoForward))
+  /* Initialize inet socket and add it to the list.  */
+  if (AcceptRemote)
     {
       finet = create_inet_socket (usefamily);
       if (finet >= 0)
@@ -1286,10 +1285,48 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	dbg_printf ("Not forwarding remote message.\n");
       else if (NoForward)
 	dbg_printf ("Not forwarding because forwarding is disabled.\n");
-      else if (finet < 0)
-	dbg_printf ("Not forwarding because of invalid inet fd.\n");
       else
 	{
+	  int temp_finet = finet;
+
+	  if (temp_finet < 0)
+	    {
+	      int err;
+	      struct addrinfo hints, *rp;
+
+	      /* Forwarding needs a temporary socket.
+	       * The source port is fixed!  */
+	      memset (&hints, 0, sizeof (hints));
+	      hints.ai_family = f->f_un.f_forw.f_addr.ss_family;
+	      hints.ai_socktype = SOCK_DGRAM;
+	      hints.ai_flags = AI_PASSIVE;
+
+	      err = getaddrinfo (NULL, LogPortText, &hints, &rp);
+	      if (err)
+		{
+		  dbg_printf ("Not forwarding due to lookup failure: %s.\n",
+			      gai_strerror(err));
+		  break;
+		}
+	      temp_finet = socket (rp->ai_family, rp->ai_socktype,
+				   rp->ai_protocol);
+	      if (temp_finet < 0)
+		{
+		  dbg_printf ("Not forwarding due to socket failure.\n");
+		  freeaddrinfo (rp);
+		  break;
+		}
+
+	      err = bind (temp_finet, rp->ai_addr, rp->ai_addrlen);
+	      freeaddrinfo (rp);
+	      if (err)
+		{
+		  dbg_printf ("Not forwarding due to bind error: %s.\n",
+			      strerror (errno));
+		  break;
+		}
+	    } /* Creation of temporary outgoing socket since "finet < 0" */
+
 	  f->f_time = now;
 	  snprintf (line, sizeof (line), "<%d>%.15s %s",
 		    f->f_prevpri, (char *) iov[0].iov_base,
@@ -1297,7 +1334,7 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	  l = strlen (line);
 	  if (l > MAXLINE)
 	    l = MAXLINE;
-	  if (sendto (finet, line, l, 0,
+	  if (sendto (temp_finet, line, l, 0,
 		      (struct sockaddr *) &f->f_un.f_forw.f_addr,
 		      f->f_un.f_forw.f_addrlen) != l)
 	    {
@@ -1307,6 +1344,9 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	      errno = e;
 	      logerror ("sendto");
 	    }
+
+	  if (finet < 0)
+	    close (temp_finet);	/* Only temporary socket may be closed.  */
 	}
       break;
 
@@ -1611,19 +1651,8 @@ init (int signo _GL_UNUSED_PARAMETER)
   char *cbuf;
   char *cline;
   int cont_line = 0;
-  struct servent *sp;
 
   dbg_printf ("init\n");
-  sp = getservbyname (LogPortText, "udp");
-  if (sp == NULL)
-    {
-      errno = 0;
-      logerror ("network logging disabled (syslog/udp service unknown).");
-      logerror
-	("see syslogd(8) for details of whether and how to enable it.");
-      return;
-    }
-  LogPort = sp->s_port;
 
   /* Close all open log files.  */
   Initialized = 0;

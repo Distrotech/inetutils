@@ -1,3 +1,12 @@
+2011-07-17  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c (LogPort): Remove variable.
+	(main): Initialize INET socket based only on ACCEPTREMOTE.
+	(fprintlog): Implement forwarding independently of any INET
+	listener.  A socket using TEMP_FINET is initialized as needed.
+	(init): Remove call to `getservbyname()' and variable SP.  They
+	are no longer needed and accidential config loss is now avoided.
+
 2011-07-13  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/syslogd.c (cfline): Prevent incrementing beyond string end.
