@@ -1030,6 +1030,9 @@ getdatasock (const char *mode)
   /* anchor socket to avoid multi-homing problems */
   data_source.sin_family = AF_INET;
   data_source.sin_addr = ctrl_addr.sin_addr;
+#if HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+  data_dest.sin_len = sizeof (struct sockaddr_in);
+#endif
   for (tries = 1;; tries++)
     {
       if (bind (s, (struct sockaddr *) &data_source,

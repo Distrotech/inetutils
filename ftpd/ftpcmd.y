@@ -615,6 +615,9 @@ host_port
 			p = (char *)&data_dest.sin_port;
 			p[0] = $9; p[1] = $11;
 			data_dest.sin_family = AF_INET;
+#if HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+			data_dest.sin_len = sizeof (struct sockaddr_in);
+#endif
 		}
 	;
 
