@@ -1,3 +1,8 @@
+2011-08-17  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* bootstrap.conf (gnulib_modules): Use snippet/unused-parameter instead
+	of unused-parameter.  It tracks a gnulib change.
+
 2011-07-28  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ftpd/ftpd.c (getdatasock): Misnamed variable DATA_SOURCE.
