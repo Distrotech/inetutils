@@ -76,8 +76,8 @@ utmp_logout (char *line)
       ut->ut_exit.e_termination = 0;
       ut->ut_exit.e_exit = 0;
       gettimeofday (&tv, 0);
-      ut->ut_tv.tv_sec = tv_sec;
-      ut->ut_tv.tv_usec = tv_usec;
+      ut->ut_tv.tv_sec = tv.tv_sec;
+      ut->ut_tv.tv_usec = tv.tv_usec;
       pututxline (ut);
       updwtmpx (PATH_WTMPX, ut);
     }
