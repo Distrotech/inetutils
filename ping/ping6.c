@@ -19,6 +19,10 @@
 
 #include <config.h>
 
+#ifdef __sun__
+#  define _XPG4_2	1	/* OpenSolaris: msg_control */
+#endif /* __sun__ */
+
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/uio.h>
@@ -112,7 +116,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'f':
       if (!is_root)
-        error (EXIT_FAILURE, errno, NULL);
+        error (EXIT_FAILURE, 0, "flooding needs root privilege");
 
       options |= OPT_FLOOD;
       setbuf (stdout, (char *) NULL);
@@ -125,11 +129,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'l':
       if (!is_root)
-        error (EXIT_FAILURE, errno, NULL);
+        error (EXIT_FAILURE, 0, "preloading needs root privilege");
 
       preload = strtoul (arg, &endptr, 0);
       if (*endptr || preload > INT_MAX)
-        error (EXIT_FAILURE, errno, NULL);
+        error (EXIT_FAILURE, 0, "preload size too large");
 
       break;
 
@@ -706,7 +710,7 @@ ping_init (int type, int ident)
   if (fd < 0)
     {
       if (errno == EPERM || errno == EACCES)
-        error (EXIT_FAILURE, errno, NULL);
+        error (EXIT_FAILURE, errno, "raw socket");
 
       return NULL;
     }

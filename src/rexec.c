@@ -45,6 +45,7 @@
 #include <argp.h>
 #include <error.h>
 #include "libinetutils.h"
+#include "minmax.h"
 
 #define MAX3(a, b, c) (MAX (MAX (a, b), c))
 

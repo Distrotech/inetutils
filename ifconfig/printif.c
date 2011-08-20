@@ -37,6 +37,10 @@
 # endif
 #endif
 
+#if HAVE_ALLOCA_H
+# include <alloca.h>
+#endif
+
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>

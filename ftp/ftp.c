@@ -129,7 +129,7 @@ hookup (char *host, int port)
   socklen_t len;
   static char hostnamebuf[80];
 
-  snprintf (portstr, sizeof (portstr) - 1, "%8u", port);
+  snprintf (portstr, sizeof (portstr) - 1, "%u", port);
   memset (&hisctladdr, 0, sizeof (hisctladdr));
   memset (&hints, 0, sizeof (hints));
 

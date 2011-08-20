@@ -224,7 +224,7 @@ fts_load (FTS *sp, register FTSENT *p)
    */
   len = p->fts_pathlen = p->fts_namelen;
   memmove (sp->fts_path, p->fts_name, len + 1);
-  if ((cp = rindex (p->fts_name, '/')) && (cp != p->fts_name || cp[1]))
+  if ((cp = strrchr (p->fts_name, '/')) && (cp != p->fts_name || cp[1]))
     {
       len = strlen (++cp);
       memmove (p->fts_name, cp, len + 1);

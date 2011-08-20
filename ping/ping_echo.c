@@ -94,7 +94,7 @@ ping_echo (char *hostname)
       rspace[IPOPT_OFFSET] = IPOPT_MINOFF;
       if (setsockopt (ping->ping_fd, IPPROTO_IP,
 		      IP_OPTIONS, rspace, sizeof (rspace)) < 0)
-        error (EXIT_FAILURE, errno, NULL);
+        error (EXIT_FAILURE, errno, "setsockopt");
 #else
       error (EXIT_FAILURE, 0, "record route not available in this "
              "implementation.");
