@@ -44,7 +44,7 @@
 #define SYSLOG_NAMES
 #include <syslog.h>
 #ifndef HAVE_SYSLOG_INTERNAL
-# include <syslog-int.h>
+# include "logprio.h"
 #endif
 
 #define MAKE_PRI(fac,pri) (((fac) & LOG_FACMASK) | ((pri) & LOG_PRIMASK))
@@ -341,6 +341,7 @@ send_to_syslog (const char *msg)
     error (EXIT_FAILURE, errno, "cannot format message");
   len = strlen (pbuf);
 
+#ifdef LOG_PERROR
   if (logflags & LOG_PERROR)
     {
       struct iovec iov[2], *ioptr;
@@ -359,6 +360,7 @@ send_to_syslog (const char *msg)
 	}
       writev (fileno (stderr), iov, ioptr - iov + 1);
     }
+#endif /* LOG_PERROR */
 
   rc = send (fd, pbuf, len, 0);
   free (pbuf);
@@ -433,9 +435,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
 	}
       break;
 
+#ifdef LOG_PERROR
     case 's':
       logflags |= LOG_PERROR;
       break;
+#endif /* LOG_PERROR */
 
     case 'f':
       if (strcmp (arg, "-") && freopen (arg, "r", stdin) == NULL)

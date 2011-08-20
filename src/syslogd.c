@@ -113,7 +113,7 @@
 #define SYSLOG_NAMES
 #include <syslog.h>
 #ifndef HAVE_SYSLOG_INTERNAL
-# include <syslog-int.h>
+# include "logprio.h"
 #endif
 
 #include <error.h>

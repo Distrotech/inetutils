@@ -1,5 +1,14 @@
 2011-08-20  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* src/logger.c (send_to_syslog, parse_opt) [LOG_PERROR]: Enclose every
+	reference to LOG_PERROR in a compiler conditional.
+	* src/logprio.h: New file.
+	* src/logger.c [!HAVE_SYSLOG_INTERNAL]: Include "logprio.h" instead of
+	the irregularly present <syslog-int.h>.
+	* src/syslogd.c: Likewise.
+
+2011-08-20  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* ftp/ftp.c (hookup): Remove length in format string.
 	* ifconfig/printif.c [HAVE_ALLOCA_H]: Include <alloca.h>.
 	* src/rexec.c: Include "minmax.h".
