@@ -1,3 +1,18 @@
+2011-09-01  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c (BindAddress): New variable.
+	(finet): Replace by two-element vector of same name.
+	(argp_options): New options: "ipv4", "ipv6", "ipany", "bind".
+	(parse_opt): Likewise.
+	(main): Adaptions to the vector `finet[2]'.
+	(create_inet_socket): New prototype `void c_i_s (int, int [2])'.
+	Separate address families. Use BINDADDRESS at resolve time.
+	(fprintlog): Temporary socket by family; use descriptor pointer.
+	(die): Close both internet sockets.
+	* doc/inetutils.texi (syslogd): Update capabilities and options
+	for the server `syslogd'.
+	* tests/syslogd.sh: Adapt server options for IPv6.
+
 2011-08-20  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/logger.c (send_to_syslog, parse_opt) [LOG_PERROR]: Enclose every

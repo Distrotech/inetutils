@@ -263,16 +263,20 @@ static void dbg_printf (const char *, ...);
 void trigger_restart (int);
 static void add_funix (const char *path);
 static int create_unix_socket (const char *path);
-static int create_inet_socket (int af);
+static void create_inet_socket (int af, int fd46[2]);
 
 char *LocalHostName;		/* Our hostname.  */
 char *LocalDomain;		/* Our local domain name.  */
+char *BindAddress = NULL;	/* Binding address for INET listeners.
+				 * The default is a wildcard address.  */
 char addrstr[INET6_ADDRSTRLEN];	/* Common address presentation.  */
 char addrname[NI_MAXHOST];	/* Common name lookup.  */
 int usefamily = AF_INET;	/* Address family for INET services.
 				 * Each of the values `AF_INET' and `AF_INET6'
 				 * produces a single-stacked server.  */
-int finet = -1;			/* Internet datagram socket fd.  */
+int finet[2] = {-1, -1};	/* Internet datagram socket fd.  */
+#define IU_FD_IP4	0	/* Indices for the address families.  */
+#define IU_FD_IP6	1
 int fklog = -1;			/* Kernel log device fd.  */
 char *LogPortText = "syslog";	/* Service/port for INET connections.  */
 int Initialized;		/* True when we are initialized. */
@@ -301,7 +305,8 @@ enum {
   OPT_NO_FORWARD = 256,
   OPT_NO_KLOG,
   OPT_NO_UNIXAF,
-  OPT_PIDFILE
+  OPT_PIDFILE,
+  OPT_IPANY
 };
 
 static struct argp_option argp_options[] = {
@@ -316,6 +321,10 @@ static struct argp_option argp_options[] = {
   {"hop", 'h', NULL, 0, "forward messages from remote hosts", GRP+1},
   {"inet", 'r', NULL, 0, "receive remote messages via internet domain socket",
    GRP+1},
+  {"ipv4", '4', NULL, 0, "restrict to IPv4 transport (default)", GRP+1},
+  {"ipv6", '6', NULL, 0, "restrict to IPv6 transport", GRP+1},
+  {"ipany", OPT_IPANY, NULL, 0, "allow transport with IPv4 and IPv6", GRP+1},
+  {"bind", 'b', "ADDR", 0, "bind listener to this address/name", GRP+1},
   {"mark", 'm', "INTVL", 0, "specify timestamp interval in logs (0 for no "
    "timestamps)", GRP+1},
   {"no-detach", 'n', NULL, 0, "do not enter daemon mode", GRP+1},
@@ -370,6 +379,22 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'r':
       AcceptRemote = 1;
+      break;
+
+    case '4':
+      usefamily = AF_INET;
+      break;
+
+    case '6':
+      usefamily = AF_INET6;
+      break;
+
+    case OPT_IPANY:
+      usefamily = AF_UNSPEC;
+      break;
+
+    case 'b':
+      BindAddress = arg;
       break;
 
     case 'm':
@@ -515,8 +540,8 @@ main (int argc, char *argv[])
   signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
   alarm (TIMERINTVL);
 
-  /* We add  2 = 1(klog) + 1(inet), even if they may be not use.  */
-  fdarray = (struct pollfd *) malloc ((nfunix + 2) * sizeof (*fdarray));
+  /* We add  3 = 1(klog) + 2(inet,inet6), even if they may stay unused.  */
+  fdarray = (struct pollfd *) malloc ((nfunix + 3) * sizeof (*fdarray));
   if (fdarray == NULL)
     error (EXIT_FAILURE, errno, "can't allocate fd table");
 
@@ -562,15 +587,24 @@ main (int argc, char *argv[])
   /* Initialize inet socket and add it to the list.  */
   if (AcceptRemote)
     {
-      finet = create_inet_socket (usefamily);
-      if (finet >= 0)
+      create_inet_socket (usefamily, finet);
+      if (finet[IU_FD_IP4] >= 0)
 	{
-	  fdarray[nfds].fd = finet;
+	  /* IPv4 socket is present.  */
+	  fdarray[nfds].fd = finet[IU_FD_IP4];
 	  fdarray[nfds].events = POLLIN | POLLPRI;
 	  nfds++;
-	  dbg_printf ("Opened syslog UDP port.\n");
+	  dbg_printf ("Opened syslog UDP/IPv4 port.\n");
 	}
-      else
+      if (finet[IU_FD_IP6] >= 0)
+	{
+	  /* IPv6 socket is present.  */
+	  fdarray[nfds].fd = finet[IU_FD_IP6];
+	  fdarray[nfds].events = POLLIN | POLLPRI;
+	  nfds++;
+	  dbg_printf ("Opened syslog UDP/IPv6 port.\n");
+	}
+      if (finet[IU_FD_IP4] < 0 && finet[IU_FD_IP6] < 0)
 	dbg_printf ("Can't open UDP port: %s\n", strerror (errno));
     }
 
@@ -707,7 +741,8 @@ main (int argc, char *argv[])
 		      }
 		  }
 	      }
-	    else if (fdarray[i].fd == finet)
+	    else if (fdarray[i].fd == finet[IU_FD_IP4]
+		     || fdarray[i].fd == finet[IU_FD_IP6])
 	      {
 		struct sockaddr_storage frominet;
 		/*dbg_printf ("inet message\n"); */
@@ -794,22 +829,25 @@ create_unix_socket (const char *path)
   return fd;
 }
 
-static int
-create_inet_socket (int af)
+static void
+create_inet_socket (int af, int fd46[2])
 {
   int err, fd = -1;
   struct addrinfo hints, *rp, *ai;
+
+  /* Invalidate old descriptors.  */
+  fd46[IU_FD_IP4] = fd46[IU_FD_IP6] = -1;
 
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = af;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = AI_PASSIVE;
 
-  err = getaddrinfo (NULL, LogPortText, &hints, &rp);
+  err = getaddrinfo (BindAddress, LogPortText, &hints, &rp);
   if (err)
     {
       logerror ("lookup error, suspending inet service");
-      return fd;
+      return;
     }
 
   for (ai = rp; ai; ai = ai->ai_next)
@@ -829,17 +867,20 @@ create_inet_socket (int af)
 	  fd = -1;
 	  continue;
 	}
-      /* Success.  Only one socket at this time.  */
-      break;
+      /* Register any success.  */
+      if (ai->ai_family == AF_INET && fd46[IU_FD_IP4] < 0)
+	fd46[IU_FD_IP4] = fd;
+      else if (ai->ai_family == AF_INET6 && fd46[IU_FD_IP6] < 0)
+	fd46[IU_FD_IP6] = fd;
     }
   freeaddrinfo (rp);
 
-  if (ai == NULL)
+  if (fd46[IU_FD_IP4] < 0 && fd46[IU_FD_IP6] < 0)
     {
       logerror ("inet service, failed lookup.");
-      return fd;
+      return;
     }
-  return fd;
+  return;
 }
 
 char **
@@ -1287,7 +1328,14 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	dbg_printf ("Not forwarding because forwarding is disabled.\n");
       else
 	{
-	  int temp_finet = finet;
+	  int temp_finet, *pfinet;	/* PFINET points to active fd.  */
+
+	  if (f->f_un.f_forw.f_addr.ss_family == AF_INET)
+	    pfinet = &finet[IU_FD_IP4];
+	  else	/* AF_INET6 */
+	    pfinet = &finet[IU_FD_IP6];
+
+	  temp_finet = *pfinet;
 
 	  if (temp_finet < 0)
 	    {
@@ -1345,7 +1393,7 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	      logerror ("sendto");
 	    }
 
-	  if (finet < 0)
+	  if (*pfinet < 0)
 	    close (temp_finet);	/* Only temporary socket may be closed.  */
 	}
       break;
@@ -1631,8 +1679,10 @@ die (int signo)
 	  unlink (funix[i].name);
       }
 
-  if (finet >= 0)
-    close (finet);
+  if (finet[IU_FD_IP4] >= 0)
+    close (finet[IU_FD_IP4]);
+  if (finet[IU_FD_IP6] >= 0)
+    close (finet[IU_FD_IP6]);
 
   exit (EXIT_SUCCESS);
 }

@@ -94,7 +94,7 @@ fi
 IU_OPTIONS="--rcfile=$CONF --pidfile=$PID --socket=$SOCKET"
 ## Enable INET service when running as root.
 if [ "$USER" = "root" ]; then
-	IU_OPTIONS="$IU_OPTIONS --inet --hop"
+	IU_OPTIONS="$IU_OPTIONS --ipany --inet --hop"
 fi
 ## Bring in additional options from command line.
 ## Disable kernel messages otherwise.
@@ -125,11 +125,12 @@ EXITCODE=1
 # Send messages on two sockets: IPv4 and UNIX.
 #
 TESTCASES=$((TESTCASES + 1))
-$IU_LOGGER -h $SOCKET -p user -t $TAG "Sending BSD message."
+$IU_LOGGER -h $SOCKET -p user.info -t $TAG "Sending BSD message. (pid $$)"
 
 if [ "$USER" = "root" ]; then
-	TESTCASES=$((TESTCASES + 1))
-	$IU_LOGGER -4 -h localhost -p user -t $TAG "Sending IPv4 message."
+	TESTCASES=$((TESTCASES + 2))
+	$IU_LOGGER -4 -h localhost -p user.info -t $TAG "Sending IPv4 message. (pid $$)"
+	$IU_LOGGER -6 -h localhost -p user.info -t $TAG "Sending IPv6 message. (pid $$)"
 fi
 
 # Detection of registered messages.

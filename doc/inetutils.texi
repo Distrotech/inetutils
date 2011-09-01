@@ -2409,7 +2409,7 @@ Do not enter daemon mode.
 Print debug information (implies @option{-n}).
 
 @item -p @var{file}
-@item --socket=@var{file}
+@itemx --socket=@var{file}
 @opindex -p
 @opindex --socket
 Override default UNIX domain socket @file{/dev/log}.
@@ -2422,6 +2422,20 @@ Add UNIX socket to listen.  An unlimited number of sockets is allowed.
 @opindex -r
 @opindex --inet
 Receive remote messages via Internet domain socket.
+Without this option no remote massages are received,
+since there is no listening socket. Yet sockets for
+forwarding are created on the fly as needed,
+which might cause performance issues on busy systems.
+
+@item -b @var{address}
+@itemx --bind=@var{address}
+@opindex -b
+@opindex --bind
+Restrict the listening Internet domain socket to a single address.
+The default (given the use of @option{-r}) is a wildcard address,
+implying that the server listens at every available address.
+Any name will be resolved, and the lookup result will depend
+on the options @option{-4}, @option{-6}, and @option{--ipany}.
 
 @item --no-unixaf
 @opindex --no-unixaf
@@ -2432,18 +2446,37 @@ Do not listen on UNIX domain sockets (overrides @option{-a} and
 @opindex --no-klog
 Do not listen to the kernel log device @file{/dev/klog}.
 
+@item --ipany
+@opindex --ipany
+Allow both address families: IPv4 and IPv6.
+
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Use only IPv4 for Internet domain sockets.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Use only IPv6 for Internet domain sockets.
+
 @item --no-forward
 @opindex --no-forward
 Do not forward any messages (overrides @option{-h}).
+This disables even temporary creation of forwarding
+sockets, an ability which is otherwise active when
+the option @option{-r} is left out.
 
 @item -h
-@item --hop
+@itemx --hop
 @opindex -h
 @opindex --hop
 Forward messages from remote hosts.
 
 @item -m @var{interval}
-@item --mark=@var{interval}
+@itemx --mark=@var{interval}
 @opindex -m
 @opindex --mark
 Specify timestamp interval in logs (0 for no timestamps).
