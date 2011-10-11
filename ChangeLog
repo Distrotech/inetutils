@@ -1,3 +1,8 @@
+2011-10-11  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* ping/ping.c (parse_opt): Make `pattern' static.
+	* ping/ping6.c (parse_opt): Likewise.
+
 2011-09-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/syslogd.c (BindAddress): New variable.

@@ -102,7 +102,7 @@ static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   char *endptr;
-  u_char pattern[16];
+  static u_char pattern[16];
 
   switch (key)
     {
