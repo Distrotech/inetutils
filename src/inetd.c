@@ -189,7 +189,7 @@ static struct argp_option argp_options[] = {
   {"environment", OPT_ENVIRON, NULL, 0,
    "pass local and remote socket information in environment variables", GRP+1},
   { "pidfile", 'p', "PIDFILE", OPTION_ARG_OPTIONAL,
-    "replace the default path \"" PATH_INETDPID "\"",
+    "override pidfile (default: \"" PATH_INETDPID "\")",
     GRP+1 },
   {"rate", 'R', "NUMBER", 0,
    "maximum invocation rate (per minute)", GRP+1},

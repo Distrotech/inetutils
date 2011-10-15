@@ -1,3 +1,7 @@
+2011-10-15  Alfred M. Szmidt  <ams@gnu.org>
+
+	* src/inetd.c (argp_options) <pidfile>: Updated doc. string.
+
 2011-10-11  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* ping/ping.c (parse_opt): Make `pattern' static.
