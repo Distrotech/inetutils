@@ -13,6 +13,8 @@
 .deps
 .emacs*
 .libs
+.sc-start-sc_bindtextdomain
+.sc-start-sc_prohibit_have_config_h
 .tarball-version
 .version
 ABOUT-NLS
@@ -32,9 +34,13 @@ config.log
 config.status
 configure
 confpaths.h
+gnulib
+gnulib/
 include
 inetutils-*.tar.gz
 inetutils-*/
+lib/
+!lib/Makefile.am
 libtool
 m4
 maint.mk

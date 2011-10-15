@@ -1,5 +1,11 @@
 2011-10-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	* .gitignore (gnulib, gnulib/, .sc-start-sc_bindtextdomain)
+	(.sc-start-sc_prohibit_have_config_h,lib/, !lib/Makefile.am):
+	Added to list.
+
+2011-10-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	Clean up (some) `make syntax-check' errors.
 
 	* src/syslogd.c (init): Removed redundant if statment before free
