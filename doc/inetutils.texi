@@ -2688,7 +2688,7 @@ arguments are also logged.
 @item --pidfile=@var{pidfile}
 @opindex -p
 @opindex --pidfile
-Change default location of @var{pidfile}
+Change default location of @var{pidfile}.
 
 @item -q
 @item --no-version
