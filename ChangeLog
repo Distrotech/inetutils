@@ -1,5 +1,14 @@
 2011-10-15  Alfred M. Szmidt  <ams@gnu.org>
 
+	Clean up (some) `make syntax-check' errors.
+
+	* src/syslogd.c (init): Removed redundant if statment before free
+	call (was reintroduced 2011-06-20).
+	* libicmp/icmp_timestamp.c: Don't include <stddef.h>.
+	* src/syslogd.c (cfline): Removed redundant parentehsis around macros.
+
+2011-10-15  Alfred M. Szmidt  <ams@gnu.org>
+
 	* src/inetd.c (argp_options) <pidfile>: Updated doc. string.
 
 2011-10-11  Giuseppe Scrivano  <gscrivano@gnu.org>

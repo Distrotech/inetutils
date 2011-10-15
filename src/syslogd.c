@@ -1734,8 +1734,7 @@ init (int signo _GL_UNUSED_PARAMETER)
 	  free (f->f_un.f_user.f_unames);
 	  break;
 	}
-      if (f->f_prevhost)
-	free (f->f_prevhost);
+      free (f->f_prevhost);
       next = f->f_next;
       free (f);
     }
@@ -2075,7 +2074,7 @@ cfline (const char *line, struct filed *f)
 		break;
 
 	      case EAI_NONAME:	/* The most probable causes for failure.  */
-#if defined(EAI_NODATA) && (EAI_NODATA != EAI_NONAME)	/* FreeBSD complains.  */
+#if defined EAI_NODATA && (EAI_NODATA != EAI_NONAME)	/* FreeBSD complains.  */
 	      case EAI_NODATA:
 #endif
 #ifdef EAI_ADDRFAMILY
