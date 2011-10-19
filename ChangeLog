@@ -1,3 +1,8 @@
+2011-10-19  Alfred M. Szmidt  <ams@gnu.org>
+
+	* telnetd/telnetd.h [HAVE_STROPTS_H && !HAVE_IOCTL]: Only include
+	<stropts.h> if HAVE_IOCTL wasn't defined.
+
 2011-10-15  Alfred M. Szmidt  <ams@gnu.org>
 
 	* .gitignore (gnulib, gnulib/, .sc-start-sc_bindtextdomain)
