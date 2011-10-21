@@ -98,7 +98,10 @@ static int peer;
 static int rexmtval = TIMEOUT;
 static int maxtimeout = 5 * TIMEOUT;
 
+/* Some systems define PKTSIZE in <arpa/tftp.h>.  */
+#ifndef PKTSIZE
 #define PKTSIZE	SEGSIZE+4
+#endif
 static char buf[PKTSIZE];
 static char ackbuf[PKTSIZE];
 static struct sockaddr_storage from;

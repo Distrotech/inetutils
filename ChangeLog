@@ -1,3 +1,8 @@
+2011-10-21  Alfred M. Szmidt  <ams@gnu.org>
+
+	* libinetutils/tftpsubs.c (PKTSIZE) [PKTSIZE]: Only define PKTSIZE if needed.
+	* src/tftp.c, src/tftpd.c: Likewise.
+
 2011-10-19  Alfred M. Szmidt  <ams@gnu.org>
 
 	* telnetd/telnetd.h [HAVE_STROPTS_H && !HAVE_IOCTL]: Only include

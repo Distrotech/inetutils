@@ -73,7 +73,10 @@
 
 #include "tftpsubs.h"
 
+/* Some systems define PKTSIZE in <arpa/tftp.h>.  */
+#ifndef PKTSIZE
 #define PKTSIZE SEGSIZE+4	/* should be moved to tftp.h */
+#endif
 
 struct bf
 {

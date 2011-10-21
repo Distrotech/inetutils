@@ -80,7 +80,11 @@
 #include "progname.h"
 #include "tftpsubs.h"
 
+/* Some systems define PKTSIZE in <arpa/tftp.h>.  */
+#ifndef PKTSIZE
 #define PKTSIZE    SEGSIZE+4
+#endif
+
 char ackbuf[PKTSIZE];
 int timeout;
 jmp_buf timeoutbuf;
