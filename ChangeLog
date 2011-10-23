@@ -1,5 +1,10 @@
 2011-10-23  Alfred M. Szmidt  <ams@gnu.org>
 
+	* README-prereq: New file.
+	* README-alpha: Mention that help2man is required for building.
+
+2011-10-23  Alfred M. Szmidt  <ams@gnu.org>
+
 	Updated ./bootstrap.
 
 	* bootstrap: Updated from gnulib (2011-10-23).

@@ -51,6 +51,7 @@ latest stable version.
 - Libtool <http://www.gnu.org/software/libtool/>
 - M4 <http://www.gnu.org/software/m4/>
 - Texinfo <http://www.gnu.org/software/texinfo>
+- help2man <http://www.gnu.org/software/help2man>
 
 * Building
 
