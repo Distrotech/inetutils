@@ -1,5 +1,10 @@
 2011-10-23  Alfred M. Szmidt  <ams@gnu.org>
 
+	* README-alpha: Don't mention gettext and libtool as build
+	requirements.
+
+2011-10-23  Alfred M. Szmidt  <ams@gnu.org>
+
 	* bootstrap.conf (buildreq): New variable.
 	(bootstrap_sync): Likewise.
 

@@ -46,9 +46,7 @@ latest stable version.
 - Autoconf <http://www.gnu.org/software/autoconf/>
 - Automake <http://www.gnu.org/software/automake/>
 - Bison <http://www.gnu.org/software/bison/>
-- Gettext <http://www.gnu.org/software/gettext/>
 - Gnulib <http://www.gnu.org/software/gnulib/>
-- Libtool <http://www.gnu.org/software/libtool/>
 - M4 <http://www.gnu.org/software/m4/>
 - Texinfo <http://www.gnu.org/software/texinfo>
 - help2man <http://www.gnu.org/software/help2man>
