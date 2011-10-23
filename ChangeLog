@@ -1,3 +1,12 @@
+2011-10-23  Alfred M. Szmidt  <ams@gnu.org>
+
+	Updated ./bootstrap.
+
+	* bootstrap: Updated from gnulib (2011-10-23).
+	* bootstrap.conf (ACLOCAL_FLAGS): New variable.
+	* Makefile.am (AUTOMAKE_OPTIONS): Removed variable.
+	(ACLOCAL_AMFLAGS): Removed variable.
+
 2011-10-21  Alfred M. Szmidt  <ams@gnu.org>
 
 	* libinetutils/tftpsubs.c (PKTSIZE) [PKTSIZE]: Only define PKTSIZE if needed.
