@@ -26,7 +26,7 @@ AC_INIT([GNU inetutils],
 
 AC_CONFIG_SRCDIR([src/inetd.c])
 AC_CONFIG_AUX_DIR([build-aux])
-AM_CONFIG_HEADER([config.h:config.hin])
+AC_CONFIG_HEADER([config.h:config.hin])
 AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([1.11])

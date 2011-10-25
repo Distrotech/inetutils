@@ -1,6 +1,7 @@
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* configure.ac: Pass regexp to git-version-gen to get version tag.
+	Use AC_CONFIG_HEADER instead of AM_CONFIG_HEADER.
 
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
