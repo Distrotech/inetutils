@@ -1,3 +1,8 @@
+2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
+
+	* libicmp/icmp_address.c: Include <stddef.h>; reverts parts of
+	2011-10-15.
+
 2011-10-24  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (buildreq): Lowered build requirement of autoconf
