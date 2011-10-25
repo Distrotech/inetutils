@@ -1,5 +1,9 @@
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* configure.ac: Pass regexp to git-version-gen to get version tag.
+
+2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
+
 	New variables (iu_LIBRARIES and iu_INCLUDES ) for specifying core
 	inetutils libraries and header files in Makefile.am.
 
