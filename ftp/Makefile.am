@@ -27,8 +27,7 @@ noinst_HEADERS = extern.h ftp_var.h
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
+INCLUDES = $(iu_INCLUDES)
 AM_CPPFLAGS = $(PATHDEF_TMP) $(PATHDEF_BSHELL)
 
-READLINE = $(LIBREADLINE) $(LIBTERMCAP) $(LIBHISTORY)
-LDADD = -L../libinetutils -linetutils ../lib/libgnu.a $(LIBGLOB) $(READLINE)
+LDADD = $(iu_LIBRARIES) $(LIBGLOB) $(LIBREADLINE) $(LIBTERMCAP) $(LIBHISTORY)

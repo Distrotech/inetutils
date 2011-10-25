@@ -28,11 +28,10 @@ EXTRA_DIST = as_del_list ip_del_list tld_serv_list \
   as_del.h ip_del.h tld_serv.h
 
 noinst_HEADERS = data.h as_del.h ip_del.h tld_serv.h whois.h
-BUILT_SOURCES=as_del.h ip_del.h tld_serv.h
+BUILT_SOURCES = as_del.h ip_del.h tld_serv.h
 
-INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
-LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
-
+INCLUDES = $(iu_INCLUDES)
+LDADD = $(iu_LIBRARIES)
 
 as_del.h: $(srcdir)/as_del_list $(srcdir)/make_as_del.pl
 	perl $(srcdir)/make_as_del.pl < $(srcdir)/as_del_list > as_del.h

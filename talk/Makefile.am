@@ -25,6 +25,6 @@ talk_SOURCES = ctl.c ctl_transact.c display.c get_addrs.c get_names.c init_disp.
 
 noinst_HEADERS = talk.h talk_ctl.h
 
-INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils $(NCURSES_INCLUDE)
+INCLUDES = $(iu_INCLUDES) $(NCURSES_INCLUDE)
 
-LDADD = $(LIBCURSES) -L../libinetutils -linetutils ../lib/libgnu.a
+LDADD = $(iu_LIBRARIES) $(LIBCURSES)

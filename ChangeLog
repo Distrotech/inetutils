@@ -1,5 +1,36 @@
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	New variables (iu_LIBRARIES and iu_INCLUDES ) for specifying core
+	inetutils libraries and header files in Makefile.am.
+
+	* configure.ac (iu_INCLUDES, iu_LIBRARIES): New variables.
+
+	* whois/Makefile.am (INCLUDES, LDADD): Use $(iu_INCLUDES) and
+	$(iu_LIBRARIES), respectivley.
+	* tests/Makefile.am (AM_CPPFLAGS, LDADD): Likewise.
+	* ifconfig/Makefile.am (INCLUDES, LDADD): Likewise.
+	* ftp/Makefile.am (INCLUDES, LDADD): Likewise.
+	* ftpd/Makefile.am (INCLUDES, LDADD): Likewise.
+	* talkd/Makefile.am (INCLUDES, LDADD): Likewise.
+	* talk/Makefile.am (INCLUDES, LDADD): Likewise.
+
+	* telnetd/Makefile.am (INCLUDES): Use $(iu_INCLUDES).
+	(LDADD): Use $(iu_LIBRARIES) and explicitly use static version of libtelnet.
+	* telnet/Makefile.am (INCLUDES, LDADD): Likewise.
+	* src/Makefile.am (INCLUDES): Use $(iu_INCLUDES).
+	(LDADD): Use $(iu_LIBRARIES) and explicitly use static version of libicmp.
+	* ping/Makefile.am (ping_LDADD): Use $(iu_LIBRARIES) and
+	explicitly use static version of libicmp.
+	(INCLUDES, ping6_LDADD): Use $(iu_INCLUDES) and $(iu_LIBRARIES),
+	respectivley.
+
+	* libtelnet/Makefile.am (INCLUDES): Use $(iu_INCLUDES).
+	* libls/Makefile.am (INCLUDES): Likewise.
+	* libinetutils/Makefile.am (libinetutils_a_LIBADD): Variable removed.
+	(INCLUDES): Use $(iu_INCLUDES).
+
+2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
+
 	* configure.ac: Don't try to define ARG_UNUSED macro.
 
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>

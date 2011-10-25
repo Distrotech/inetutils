@@ -734,6 +734,12 @@ if test "$inetutils_cv_macro_fd_set_macros" = no; then
     FD_ZERO FD_CLR FD_SET FD_ISSET)
 fi
 
+dnl Set convinience variables for inetutils.
+iu_LIBRARIES='$(top_builddir)/libinetutils/libinetutils.a $(top_builddir)/lib/libgnu.a'
+iu_INCLUDES='-I$(top_srcdir)/lib -I$(top_builddir)/lib -I$(top_srcdir)/libinetutils'
+AC_SUBST(iu_LIBRARIES)
+AC_SUBST(iu_INCLUDES)
+
 dnl Configure paths used by inetutils programs.  See the file `paths' for
 dnl details.
 PATHDEFS_MAKE=pathdefs.make

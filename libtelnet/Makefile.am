@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-INCLUDES = $(INCAUTH) -I$(top_srcdir)/lib -I../lib
+INCLUDES = $(iu_INCLUDES) $(INCAUTH)
 
 noinst_LIBRARIES = libtelnet.a
 

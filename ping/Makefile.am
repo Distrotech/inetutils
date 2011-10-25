@@ -21,10 +21,9 @@ bin_PROGRAMS = @ping_BUILD@ @ping6_BUILD@
 
 EXTRA_PROGRAMS = ping ping6
 
-ping_LDADD = -L../libinetutils -linetutils -L../libicmp -licmp ../lib/libgnu.a
-ping6_LDADD = ../lib/libgnu.a -L../libinetutils -linetutils
-INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libicmp \
-  -I$(top_srcdir)/libinetutils
+ping_LDADD = $(iu_LIBRARIES) $(top_builddir)/libicmp/libicmp.a
+ping6_LDADD = $(iu_LIBRARIES)
+INCLUDES = $(iu_INCLUDES) -I$(top_srcdir)/libicmp
 
 ping_SOURCES = ping.c ping_common.c ping_echo.c ping_address.c \
   ping_router.c ping_timestamp.c ping_common.h  ping_impl.h ping.h libping.c

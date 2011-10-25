@@ -30,12 +30,11 @@ noinst_HEADERS = extern.h
 
 @PATHDEFS_MAKE@
 
-INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
+INCLUDES = $(iu_INCLUDES)
 AM_CPPFLAGS = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
            $(PATHDEF_FTPLOGINMESG) $(PATHDEF_FTPCHROOT) $(PATHDEF_FTPDPID) \
            $(PATHDEF_DEVNULL)  $(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)
 
-LDADD = -L../libinetutils -linetutils $(LIBLS) ../lib/libgnu.a \
-          $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
+LDADD = $(iu_LIBRARIES) $(LIBLS) $(LIBCRYPT) $(LIBWRAP) $(LIBPAM)
 
 EXTRA_DIST = ftpcmd.c

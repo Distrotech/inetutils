@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-SUBDIRS=system
+SUBDIRS = system
 
 bin_PROGRAMS = @ifconfig_BUILD@
 
@@ -28,6 +28,6 @@ ifconfig_SOURCES = ifconfig.c flags.c changeif.c options.c printif.c system.c if
 noinst_HEADERS = ifconfig.h if_index.h flags.h options.h printif.h system.h
 
 @PATHDEFS_MAKE@
-AM_CPPFLAGS=$(PATHDEF_PROCNET_DEV)
-INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
-LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
+AM_CPPFLAGS = $(PATHDEF_PROCNET_DEV)
+INCLUDES = $(iu_INCLUDES)
+LDADD = $(iu_LIBRARIES)

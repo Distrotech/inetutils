@@ -25,4 +25,4 @@ libls_a_SOURCES = cmp.c stat_flags.c ls.c print.c util.c fts.c
 
 noinst_HEADERS = extern.h ls.h fts.h
 
-INCLUDES=-I$(top_srcdir)/lib -I../lib
+INCLUDES = $(iu_INCLUDES)

@@ -85,14 +85,9 @@ inetdaemon_PROGRAMS += @uucpd_BUILD@
 uucpd_SOURCES = uucpd.c
 EXTRA_PROGRAMS += uucpd
 
-INCLUDES = -I$(top_srcdir)/lib -I$(top_builddir)/lib \
-	-I$(top_srcdir)/libinetutils \
-	-I$(top_srcdir)/libicmp
+INCLUDES = $(iu_INCLUDES) -I$(top_srcdir)/libicmp
 
-LDADD = -L$(top_builddir)/libicmp -licmp \
-	-L$(top_builddir)/libinetutils -linetutils \
-	-L$(top_builddir)/lib ../lib/libgnu.a \
-	$(LIBAUTH) $(LIBCRYPT) $(LIBUTIL)
+LDADD = $(iu_LIBRARIES) $(top_builddir)/libicmp/libicmp.a $(LIBAUTH) $(LIBCRYPT) $(LIBUTIL)
 
 AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_CONSOLE) $(PATHDEF_CP) $(PATHDEF_DEFPATH) $(PATHDEF_DEV) $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) $(PATHDEF_INETDPID) $(PATHDEF_KLOG) $(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGIN) $(PATHDEF_LOGPID) $(PATHDEF_NOLOGIN) $(PATHDEF_RLOGIN) $(PATHDEF_RSH) $(PATHDEF_TTY) $(PATHDEF_UTMP) $(PATHDEF_UUCICO)
 

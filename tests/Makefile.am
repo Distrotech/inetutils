@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-AM_CPPFLAGS = -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib
+AM_CPPFLAGS = $(iu_INCLUDES)
 
-LDADD = -L../libinetutils -linetutils  ../lib/libgnu.a
+LDADD = $(iu_LIBRARIES)
 
 check_PROGRAMS = localhost
 if ENABLE_inetd
