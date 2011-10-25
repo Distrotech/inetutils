@@ -743,18 +743,6 @@ AH_BOTTOM(
 [/* Defaults for PATH_ variables.  */
 #include <confpaths.h>])
 
-dnl Define ARG_UNUSED macro
-dnl
-AH_BOTTOM([
-#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 7)
-#  define __attribute__(x)
-#endif
-
-#ifndef ARG_UNUSED
-# define ARG_UNUSED __attribute__ ((__unused__))
-#endif
-])
-
 dnl Ok this is the end of the rope, even autoconf can't help.
 dnl For example on certain system login(1) will not work if we
 dnl don't have an entry in utmpx.

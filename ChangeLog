@@ -1,5 +1,9 @@
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* configure.ac: Don't try to define ARG_UNUSED macro.
+
+2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libicmp/icmp_address.c: Include <stddef.h>; reverts parts of
 	2011-10-15.
 
