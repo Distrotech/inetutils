@@ -1,5 +1,7 @@
 2011-10-26  Giuseppe Scrivano  <gscrivano@gnu.org>
 
+	* libicmp/icmp_address.c: Do not include <stddef.h>.  Revert change of 2011-10-25.
+
 	* ftpd/Makefile.am (LDADD): Put iu_LIBRARIES as last element of LDADD.
 
 	* libicmp/icmp_timestamp.c: Include <stddef.h>; reverts parts of
