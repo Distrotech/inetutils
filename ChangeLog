@@ -1,14 +1,14 @@
 2011-10-26  Giuseppe Scrivano  <gscrivano@gnu.org>
 
-	* bootstrap.conf: Include module ioctl.
+	* bootstrap.conf (gnulib_modules): Add ioctl to list.
 
-	* libicmp/icmp_address.c: Do not include <stddef.h>.  Revert change of 2011-10-25.
-
-	* ftpd/Makefile.am (LDADD): Put iu_LIBRARIES as last element of LDADD.
+	* ftpd/Makefile.am (LDADD): Put iu_LIBRARIES as last element of
+	LDADD.
 
 	* libicmp/icmp_timestamp.c: Include <stddef.h>; reverts parts of
 	2011-10-15.
-	Reported by: Alfred M. Szmidt  <ams@gnu.org>.
+	* libicmp/icmp_address.c: Do not include <stddef.h>.  Revert
+	change of 2011-10-25.
 
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
