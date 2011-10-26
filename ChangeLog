@@ -1,3 +1,9 @@
+2011-10-25  Giuseppe Scrivano <gscrivano@gnu.org>
+
+	* libicmp/icmp_timestamp.c: Include <stddef.h>; reverts parts of
+	2011-10-15.
+	Reported by: Alfred M. Szmidt  <ams@gnu.org>.
+
 2011-10-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* configure.ac: Pass regexp to git-version-gen to get version tag.
