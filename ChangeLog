@@ -1,4 +1,6 @@
-2011-10-25  Giuseppe Scrivano <gscrivano@gnu.org>
+2011-10-26  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* ftpd/Makefile.am (LDADD): Put iu_LIBRARIES as last element of LDADD.
 
 	* libicmp/icmp_timestamp.c: Include <stddef.h>; reverts parts of
 	2011-10-15.
