@@ -29,6 +29,6 @@ noinst_HEADERS = telnetd.h
 @PATHDEFS_MAKE@
 
 AM_CPPFLAGS = $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN)
-INCLUDES = $(iu_INCLUDES) $(INCAUTH) -I$(top_srcdir)/libtelnet
+INCLUDES = $(iu_INCLUDES) -I$(top_srcdir) $(INCAUTH)
 
 LDADD = $(iu_LIBRARIES) $(top_builddir)/libtelnet/libtelnet.a $(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT) $(LIBAUTH)
