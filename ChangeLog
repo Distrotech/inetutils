@@ -1,5 +1,12 @@
 2011-10-27  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* src/tftpd.c (main) [HAVE_STRUCT_SOCKADDR_SA_LEN]: Assign
+	value to `sin.ss_len'.
+	(main): Do not use connect() on the socket.
+	(send_file, recvfile, nak): Replace send() by sendto().
+
+2011-10-27  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* configure.ac (HAVE_STRUCT_TFTPHDR_TH_U): Detect whether
 	`struct tftphdr' contains a member `th_u'.
 	* src/tftp.c (makerequest, tpacket) [HAVE_STRUCT_TFTPHDR_TH_U]:

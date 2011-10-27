@@ -288,16 +288,15 @@ main (int argc, char *argv[])
     }
   memset (&sin, 0, sizeof (sin));
   sin.ss_family = from.ss_family;
+#if HAVE_STRUCT_SOCKADDR_SA_LEN
+  sin.ss_len = from.ss_len;
+#endif
   if (bind (peer, (struct sockaddr *) &sin, fromlen) < 0)
     {
       syslog (LOG_ERR, "bind: %m\n");
       exit (EXIT_FAILURE);
     }
-  if (connect (peer, (struct sockaddr *) &from, fromlen) < 0)
-    {
-      syslog (LOG_ERR, "connect: %m\n");
-      exit (EXIT_FAILURE);
-    }
+
   tp = (struct tftphdr *) buf;
   tp->th_opcode = ntohs (tp->th_opcode);
   if (tp->th_opcode == RRQ || tp->th_opcode == WRQ)
@@ -564,7 +563,8 @@ send_file (struct formats *pf)
       sigsetjmp (timeoutbuf, SIGALRM);
 
     send_data:
-      if (send (peer, (const char *) dp, size + 4, 0) != size + 4)
+      if (sendto (peer, (const char *) dp, size + 4, 0,
+		 (struct sockaddr *) &from, fromlen) != size + 4)
 	{
 	  syslog (LOG_ERR, "tftpd: write: %m\n");
 	  goto abort;
@@ -634,7 +634,7 @@ recvfile (struct formats *pf)
       block++;
       sigsetjmp (timeoutbuf, SIGALRM);
     send_ack:
-      if (send (peer, ackbuf, 4, 0) != 4)
+      if (sendto (peer, ackbuf, 4, 0, (struct sockaddr *) &from, fromlen) != 4)
 	{
 	  syslog (LOG_ERR, "tftpd: write: %m\n");
 	  goto abort;
@@ -683,7 +683,7 @@ recvfile (struct formats *pf)
 
   ap->th_opcode = htons ((u_short) ACK);	/* send the "final" ack */
   ap->th_block = htons ((u_short) (block));
-  send (peer, ackbuf, 4, 0);
+  sendto (peer, ackbuf, 4, 0, (struct sockaddr *) &from, fromlen);
 
   signal (SIGALRM, justquit);	/* just quit on timeout */
   alarm (rexmtval);
@@ -693,7 +693,7 @@ recvfile (struct formats *pf)
       dp->th_opcode == DATA &&	/* and got a data block */
       block == dp->th_block)
     {				/* then my last ack was lost */
-      send (peer, ackbuf, 4, 0);	/* resend final ack */
+      sendto (peer, ackbuf, 4, 0, (struct sockaddr *) &from, fromlen);	/* resend final ack */
     }
 abort:
   return;
@@ -758,7 +758,7 @@ nak (int error)
   length = strlen (pe->e_msg);
   tp->th_msg[length] = '\0';
   length += 5;
-  if (send (peer, buf, length, 0) != length)
+  if (sendto (peer, buf, length, 0, (struct sockaddr *) &from, fromlen) != length)
     syslog (LOG_ERR, "nak: %m\n");
 }
 
