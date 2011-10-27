@@ -548,6 +548,14 @@ IU_CHECK_MEMBERS([struct hostent.h_addr_list], , , [#include <netdb.h>])
 
 IU_CHECK_MEMBERS([struct stat.st_blksize])
 
+dnl OpenSolaris does not use a union for `struct tftphdr.th_u'.
+dnl As a consequence `struct tftphdr.th_stuff' is a macro
+dnl resolving to a `ushort_t'. BSD and Linux produce `char *'.
+IU_CHECK_MEMBERS([struct tftphdr.th_u], , ,
+		 [#include <sys/types.h>
+		  #include <sys/socket.h>
+		  #include <arpa/tftp.h>])
+
 ### Checks for compiler characteristics.
 AM_C_PROTOTYPES dnl FIXME: Does inetutils even compile on pre-ANSI compilers?
 AC_C_CONST

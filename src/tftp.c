@@ -1071,7 +1071,11 @@ makerequest (int request, const char *name, struct tftphdr *tp,
   register char *cp;
 
   tp->th_opcode = htons ((u_short) request);
+#if HAVE_STRUCT_TFTPHDR_TH_U
   cp = tp->th_stuff;
+#else
+  cp = (char *) &(tp->th_stuff);
+#endif
   strcpy (cp, name);
   cp += strlen (name);
   *cp++ = '\0';
@@ -1148,7 +1152,11 @@ tpacket (const char *s, struct tftphdr *tp, int n)
     case RRQ:
     case WRQ:
       n -= 2;
+#if HAVE_STRUCT_TFTPHDR_TH_U
       file = cp = tp->th_stuff;
+#else
+      file = cp = (char *) &(tp->th_stuff);
+#endif
       cp = strchr (cp, '\0');
       printf ("<file=%s, mode=%s>\n", file, cp + 1);
       break;

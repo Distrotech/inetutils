@@ -335,7 +335,11 @@ tftp (struct tftphdr *tp, int size)
   register struct formats *pf;
   char *filename, *mode;
 
+#if HAVE_STRUCT_TFTPHDR_TH_U
   filename = cp = tp->th_stuff;
+#else
+  filename = cp = (char *) &(tp->th_stuff);
+#endif
 again:
   while (cp < buf + size)
     {

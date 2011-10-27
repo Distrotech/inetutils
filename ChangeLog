@@ -1,3 +1,11 @@
+2011-10-27  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* configure.ac (HAVE_STRUCT_TFTPHDR_TH_U): Detect whether
+	`struct tftphdr' contains a member `th_u'.
+	* src/tftp.c (makerequest, tpacket) [HAVE_STRUCT_TFTPHDR_TH_U]:
+	Use pointer variable `tp->th_stuff', or generate a correct pointer.
+	* src/tftpd.c (tftp) [HAVE_STRUCT_TFTPHDR_TH_U]: Likewise.
+
 2011-10-27  Alfred M. Szmidt  <ams@gnu.org>
 
 	* telnetd/Makefile.am (INCLUDES): Add -I$(top_srcdir) to list.
