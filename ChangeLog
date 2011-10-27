@@ -1,3 +1,7 @@
+2011-10-27  Alfred M. Szmidt  <ams@gnu.org>
+
+	* telnetd/Makefile.am (INCLUDES): Add -I$(top_srcdir)/libtelnet to list.
+
 2011-10-26  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Add ioctl to list.
