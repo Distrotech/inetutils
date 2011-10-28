@@ -1,3 +1,8 @@
+2011-10-28  Simon Josefsson  <simon@josefsson.org>
+
+	* cfg.mk (_build-aux): Add variable, gnulib now needs this for
+	syntax-check.
+
 2011-10-27  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/tftpd.c (main) [HAVE_STRUCT_SOCKADDR_SA_LEN]: Assign
