@@ -1,3 +1,7 @@
+2011-10-29  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/tftp.c (main): New variable SP. Set default value for PORT.
+
 2011-10-28  Simon Josefsson  <simon@josefsson.org>
 
 	* cfg.mk (_build-aux): Add variable, gnulib now needs this for

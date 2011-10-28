@@ -225,10 +225,18 @@ int
 main (int argc, char *argv[])
 {
   struct sockaddr_in sin;
+  struct servent *sp;
 
   set_program_name (argv[0]);
   iu_argp_init ("tftp", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
+
+  /* Initiate a default port.  */
+  sp = getservbyname ("tftp", "udp");
+  if (sp == 0)
+    port = htons (69);
+  else
+    port = sp->s_port;
 
   f = socket (AF_INET, SOCK_DGRAM, 0);
   if (f < 0)
