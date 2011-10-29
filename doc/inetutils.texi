@@ -1543,12 +1543,19 @@ host can be specified as part of the get or put commands.
 @item get @var{file-name}
 @itemx get @var{remotename} @var{localname}
 @itemx get @var{file}@dots{}
-Get a file or set of files from the specified sources.  Source can be
-in one of two forms: a filename on the remote host, if the host has
-already been specified, or a string of the form @samp{hosts:filename}
-to specify both a host and filename at the same time.  If the latter
+Get a file, or a set of files, from the specified sources.  The source can
+be in one of two forms: a file name on the remote host, if the host has
+already been specified, or a string of the form @samp{host:filename}
+to specify both a host and file name at the same time.  If the latter
 form is used, the last hostname specified becomes the default for
-future transfers.
+future transfers.  When specifying a numeric IPv6 address as host
+part, then this address must be enclosed between square brackets,
+since it contains colons and would interfere with the delimiter
+before the file name.  Brackets are optional for IPv4 addresses.
+
+@example
+tftp> get [2001:1234::12]:issue
+@end example
 
 @item mode @var{transfer-mode}
 Set the mode for transfers; @var{transfer-mode} may be one of
@@ -1560,10 +1567,12 @@ Set the mode for transfers; @var{transfer-mode} may be one of
 Put a file or set of files to the specified remote file or directory.
 The destination can be in one of two forms: a filename on the remote
 host, if the host has already been specified, or a string of the form
-@samp{hosts:filename} to specify both a host and filename at the same
+@samp{host:filename} to specify both a host and filename at the same
 time.  If the latter form is used, the hostname specified becomes the
 default for future transfers.  If the @file{remote-directory} form is
-used, the remote host is assumed to be a UNIX machine.
+used, the remote host is assumed to be a UNIX machine.  The same use
+of square brackets for enclosing numeric IPv6 addresses applies here,
+as was mentioned for the command @command{get}.
 
 @item quit
 Exit @command{tftp}.  An end of file also exits.

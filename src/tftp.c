@@ -102,9 +102,10 @@ static void tpacket (const char *, struct tftphdr *, int);
 static int rexmtval = TIMEOUT;
 static int maxtimeout = 5 * TIMEOUT;
 
-static struct sockaddr_in peeraddr;	/* filled in by main */
-static int f;			/* the opened socket */
-static int port; /* Port number in network byte order of the server. */
+static struct sockaddr_storage peeraddr;	/* filled in by main */
+static socklen_t peerlen;
+static int f = -1;				/* the opened socket */
+static int port; /* Port number in host byte order of the server. */
 static int trace;
 static int verbose;
 static int connected;
@@ -137,6 +138,8 @@ static void getusage (char *);
 static void makeargv (void);
 static void putusage (char *);
 static void settftpmode (char *);
+static in_port_t get_port (struct sockaddr_storage *);
+static void set_port (struct sockaddr_storage *, in_port_t);
 
 #define HELPINDENT (sizeof("connect"))
 
@@ -193,6 +196,36 @@ static struct argp_option argp_options[] = {
 char *hostport_argv[3] = { "connect" };
 int hostport_argc = 1;
 
+static in_port_t
+get_port (struct sockaddr_storage *ss)
+{
+  switch (ss->ss_family)
+    {
+    case AF_INET6:
+      return ntohs (((struct sockaddr_in6 *) ss)->sin6_port);
+      break;
+    case AF_INET:
+    default:
+      return ntohs (((struct sockaddr_in *) ss)->sin_port);
+      break;
+    }
+}
+
+static void
+set_port (struct sockaddr_storage *ss, in_port_t port)
+{
+  switch (ss->ss_family)
+    {
+    case AF_INET6:
+      ((struct sockaddr_in6 *) ss)->sin6_port = htons(port);
+      break;
+    case AF_INET:
+    default:
+      ((struct sockaddr_in *) ss)->sin_port = htons(port);
+      break;
+    }
+}
+
 void recvfile (int, char *, char *);
 void send_file (int, char *, char *);
 
@@ -224,7 +257,6 @@ static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 int
 main (int argc, char *argv[])
 {
-  struct sockaddr_in sin;
   struct servent *sp;
 
   set_program_name (argv[0]);
@@ -234,23 +266,10 @@ main (int argc, char *argv[])
   /* Initiate a default port.  */
   sp = getservbyname ("tftp", "udp");
   if (sp == 0)
-    port = htons (69);
+    port = 69;
   else
-    port = sp->s_port;
+    port = ntohs (sp->s_port);
 
-  f = socket (AF_INET, SOCK_DGRAM, 0);
-  if (f < 0)
-    {
-      perror ("tftp: socket");
-      exit (EXIT_FAILURE);
-    }
-  memset (&sin, 0, sizeof (sin));
-  sin.sin_family = AF_INET;
-  if (bind (f, (struct sockaddr *) &sin, sizeof (sin)) < 0)
-    {
-      perror ("tftp: bind");
-      exit (EXIT_FAILURE);
-    }
   strcpy (mode, "netascii");
   signal (SIGINT, intr);
   if (hostport_argc > 1)
@@ -268,36 +287,72 @@ char *hostname;
 
 #define RESOLVE_OK            0
 #define RESOLVE_FAIL         -1
-#define RESOLVE_NOT_RESOLVED  1
 
 /* Resolve NAME. Fill in peeraddr, hostname and set connected on success.
    Return value: RESOLVE_OK success
                  RESOLVE_FAIL error
-		 RESOLVE_NOT_RESOLVED name is not resolved and ALLOW_NULL
-		 is true */
+ */
 static int
-resolve_name (char *name, int allow_null)
+resolve_name (char *name)
 {
-  struct hostent *hp = gethostbyname (name);
-  if (hp == NULL)
+  int err;
+  struct sockaddr_storage ss;
+  struct addrinfo hints, *ai, *aiptr;
+
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_flags = AI_CANONNAME;
+#ifdef AI_ADDRCONFIG
+  hints.ai_flags += AI_ADDRCONFIG;
+#endif
+
+  err = getaddrinfo (name, "tftp", &hints, &aiptr);
+  if (err)
     {
-      if (allow_null)
-	return RESOLVE_NOT_RESOLVED;
-      fprintf (stderr, "tftp: %s: ", name);
-      herror ((char *) NULL);
+      fprintf (stderr, "tftp: %s: %s\n", name, gai_strerror (err));
       return RESOLVE_FAIL;
     }
-  else if (hp->h_length != sizeof peeraddr.sin_addr)
+
+  if (f >= 0)
     {
-      fprintf (stderr, "tftp: resolving %s returns unexpected length", name);
-      return RESOLVE_FAIL;
+      close (f);
+      f = -1;
     }
-  memcpy (&peeraddr.sin_addr, hp->h_addr, hp->h_length);
-  peeraddr.sin_family = hp->h_addrtype;
-  connected = 1;
-  free (hostname);
-  hostname = xstrdup (hp->h_name);
-  return RESOLVE_OK;
+
+  for (ai = aiptr; ai; ai = ai->ai_next)
+    {
+      f = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+      if (f < 0)
+	continue;
+
+      memset (&ss, 0, sizeof (ss));
+      ss.ss_family = ai->ai_family;
+#if HAVE_STRUCT_SOCKADDR_SA_LEN
+      ss.ss_len = ai->ai_addrlen;
+#endif
+      if (bind (f, (struct sockaddr *) &ss, ai->ai_addrlen))
+        {
+	  close (f);
+	  f = -1;
+	  continue;
+	}
+
+      /* Successfully resolved hostname. */
+      peerlen = ai->ai_addrlen;
+      memcpy (&peeraddr, ai->ai_addr, ai->ai_addrlen);
+      connected = 1;
+      free (hostname);
+      hostname = xstrdup (ai->ai_canonname);
+      break;
+    }
+
+  freeaddrinfo (aiptr);
+
+  if (ai == NULL)
+    return RESOLVE_FAIL;
+  else
+    return RESOLVE_OK;
 }
 
 /* Prompt for more arguments from the user with PROMPT, putting the results
@@ -331,37 +386,25 @@ setpeer (int argc, char *argv[])
       return;
     }
 
-  switch (resolve_name (argv[1], 1))
+  switch (resolve_name (argv[1]))
     {
     case RESOLVE_OK:
       break;
 
     case RESOLVE_FAIL:
       return;
-
-    case RESOLVE_NOT_RESOLVED:
-      peeraddr.sin_family = AF_INET;
-      peeraddr.sin_addr.s_addr = inet_addr (argv[1]);
-      if (peeraddr.sin_addr.s_addr == -1)
-	{
-	  connected = 0;
-	  printf ("%s: unknown host\n", argv[1]);
-	  return;
-	}
-      hostname = xstrdup (argv[1]);
     }
 
   if (argc == 3)
     {
       /* Take a user-specified port number.  */
       port = atoi (argv[2]);
-      if (port < 0)
+      if (port <= 0)
 	{
 	  printf ("%s: bad port number\n", argv[2]);
 	  connected = 0;
 	  return;
 	}
-      port = htons (port);
     }
   else
     {
@@ -370,7 +413,7 @@ setpeer (int argc, char *argv[])
       sp = getservbyname ("tftp", "udp");
       if (sp == 0)
 	error (EXIT_FAILURE, 0, "udp/tftp: unknown service\n");
-      port = sp->s_port;
+      port = ntohs (sp->s_port);
     }
   connected = 1;
 }
@@ -476,9 +519,38 @@ put (int argc, char *argv[])
 	    return;
 	  }
       cp = argv[argc - 1];
-      targ = strchr (cp, ':');
-      *targ++ = 0;
-      if (resolve_name (cp, 0) != RESOLVE_OK)
+      /* Is host string escaped using square brackets?  */
+      if (cp[0] == '[')
+	{ /* Locate far end.  */
+	  cp = strchr (cp, ']');
+	  if (cp == NULL)
+	    return;	/* Unpaired bracket.  Fail!  */
+
+	  /* Erase far end and capture valid host string.  */
+	  *cp = 0;
+	  targ = cp + 1;	/* Position beyond bracket.  */
+	  cp = argv[argc - 1] + 1;
+	  /* Verify presence of a colon. Else backup
+	   * in order to accept a strange file name.  */
+	  if (targ[0] == ':')
+	    ++targ;
+	  else
+	    {
+	      targ = argv[argc - 1];
+	      cp = NULL;	/* Invalidate host name string.  */
+	    }
+	}
+      else
+	{
+	  targ = strchr (cp, ':');
+	  *targ++ = 0;
+	  /* Test whether host string lacks content.
+	   * Then the host string will be ignored.  */
+	  if (strlen (cp) == 0)
+	    cp = NULL;	/* Invalidate host name string.  */
+	}
+      /* If a remote host was stated, resolve it!  */
+      if (cp != NULL && resolve_name (cp) != RESOLVE_OK)
 	return;
     }
   if (!connected)
@@ -498,7 +570,7 @@ put (int argc, char *argv[])
 	}
       if (verbose)
 	printf ("putting %s to %s:%s [%s]\n", cp, hostname, targ, mode);
-      peeraddr.sin_port = port;
+      set_port (&peeraddr, port);
       send_file (fd, targ, mode);
       return;
     }
@@ -518,7 +590,7 @@ put (int argc, char *argv[])
 	}
       if (verbose)
 	printf ("putting %s to %s:%s [%s]\n", argv[n], hostname, targ, mode);
-      peeraddr.sin_port = port;
+      set_port (&peeraddr, port);
       send_file (fd, targ, mode);
     }
 }
@@ -563,10 +635,34 @@ get (int argc, char *argv[])
       src = strchr (argv[n], ':');
       if (src == NULL)
 	src = argv[n];
-      else
+      else if (src == argv[n])
 	{
-	  *src++ = 0;
-	  if (resolve_name (argv[n], 0) != RESOLVE_OK)
+	  /* Degenerate case: silently drop initial colon.
+	   * No usable host name.  */
+	  ++src;
+	}
+      else
+	{ /* Parse the host name string; remove square brackets.  */
+	  cp = argv[n];
+
+	  if (cp[0] == '[')
+	    {
+	      cp = strchr (argv[n], ']');
+	      if (cp)
+		{
+		  /* Calculate host string and sorce file name.  */
+		  src = cp + 1;
+		  *cp = 0;
+		  if (*src == ':')
+		    ++src;
+		  cp = argv[n] + 1;
+		}
+	    }
+	  else
+	    { /* No escaping; break string at first colon.  */
+	      *src++ = 0;
+	    }
+	  if (cp != NULL && resolve_name (cp) != RESOLVE_OK)
 	    continue;
 	}
 
@@ -583,7 +679,7 @@ get (int argc, char *argv[])
 	  if (verbose)
 	    printf ("getting from %s:%s to %s [%s]\n",
 		    hostname, src, cp, mode);
-	  peeraddr.sin_port = port;
+	  set_port (&peeraddr, port);
 	  recvfile (fd, src, mode);
 	  break;
 	}
@@ -597,7 +693,7 @@ get (int argc, char *argv[])
 	}
       if (verbose)
 	printf ("getting from %s:%s to %s [%s]\n", hostname, src, cp, mode);
-      peeraddr.sin_port = port;
+      set_port (&peeraddr, port);
       recvfile (fd, src, mode);
     }
 }
@@ -847,7 +943,7 @@ send_file (int fd, char *name, char *mode)
   register int n;
   volatile int block, size, convert;
   volatile unsigned long amount;
-  struct sockaddr_in from;
+  struct sockaddr_storage from;
   socklen_t fromlen;
   FILE *file;
 
@@ -883,7 +979,7 @@ send_file (int fd, char *name, char *mode)
       if (trace)
 	tpacket ("sent", dp, size + 4);
       n = sendto (f, (const char *) dp, size + 4, 0,
-		  (struct sockaddr *) &peeraddr, sizeof (peeraddr));
+		  (struct sockaddr *) &peeraddr, peerlen);
       if (n != size + 4)
 	{
 	  perror ("tftp: sendto");
@@ -907,7 +1003,7 @@ send_file (int fd, char *name, char *mode)
 	      perror ("tftp: recvfrom");
 	      goto abort;
 	    }
-	  peeraddr.sin_port = from.sin_port;	/* added */
+	  set_port (&peeraddr, get_port (&from));
 	  if (trace)
 	    tpacket ("received", ap, n);
 	  /* should verify packet came from server */
@@ -960,7 +1056,7 @@ recvfile (int fd, char *name, char *mode)
   register int n;
   volatile int block, size, firsttrip;
   volatile unsigned long amount;
-  struct sockaddr_in from;
+  struct sockaddr_storage from;
   socklen_t fromlen;
   FILE *file;
   volatile int convert;		/* true if converting crlf -> lf */
@@ -996,7 +1092,7 @@ recvfile (int fd, char *name, char *mode)
       if (trace)
 	tpacket ("sent", ap, size);
       if (sendto (f, ackbuf, size, 0, (struct sockaddr *) &peeraddr,
-		  sizeof (peeraddr)) != size)
+		  peerlen) != size)
 	{
 	  alarm (0);
 	  perror ("tftp: sendto");
@@ -1021,7 +1117,7 @@ recvfile (int fd, char *name, char *mode)
 	      perror ("tftp: recvfrom");
 	      goto abort;
 	    }
-	  peeraddr.sin_port = from.sin_port;	/* added */
+	  set_port (&peeraddr, get_port (&from));
 	  if (trace)
 	    tpacket ("received", dp, n);
 	  /* should verify client address */
@@ -1064,7 +1160,7 @@ recvfile (int fd, char *name, char *mode)
 abort:				/* ok to ack, since user */
   ap->th_opcode = htons ((u_short) ACK);	/* has seen err msg */
   ap->th_block = htons ((u_short) block);
-  sendto (f, ackbuf, 4, 0, (struct sockaddr *) &peeraddr, sizeof (peeraddr));
+  sendto (f, ackbuf, 4, 0, (struct sockaddr *) &peeraddr, peerlen);
   write_behind (file, convert);	/* flush last buffer */
   fclose (file);
   stopclock ();
@@ -1140,7 +1236,7 @@ nak (int error)
   if (trace)
     tpacket ("sent", tp, length);
   if (sendto (f, ackbuf, length, 0, (struct sockaddr *) &peeraddr,
-	      sizeof (peeraddr)) != length)
+	      peerlen) != length)
     perror ("nak");
 }
 
