@@ -129,14 +129,16 @@ Daemons
 * uucpd invocation::                   Unix to Unix Copy.
 
 * GNU Free Documentation License::     The license for this manual.
-* Concept Index::                      Index of concepts.
-* Index::                              Index of commands, options and variables.
+* Index::                              Index of manual.
 @end menu
 
 @c OK -- 2009-04-27
 @node Introduction
 @chapter Introduction
 @cindex introduction
+
+The GNU Network Utilities is a distribution of common networking
+utilities and servers, including for example ping, traceroute and ftp.
 
 This manual is a work in progress: many sections make no attempt to
 explain basic concepts in a way suitable for novices.  Thus, if you
@@ -152,9 +154,10 @@ please include a description of the problem as well, since this is
 sometimes difficult to infer.
 
 The individual utilities were originally derived from the 4.4BSDLite2
-distribution.  What you are reading now is the authoritative
-documentation for these utilities; the man pages are no longer being
-maintained.
+distribution, although some of them have more or less been rewritten.
+What you are reading now is the authoritative and complete
+documentation for these utilities; the man pages are now automatically
+generated.
 
 Many features were integrated from NetBSD, OpenBSD, FreeBSD and
 GNU/Linux, the merges were done by a group of dedicated hackers (in no
@@ -3466,21 +3469,9 @@ uucpd [@var{option}]...
 @include fdl-1.3.texi
 
 @page
-@node Concept Index
-@unnumbered Concept Index
-
-This is a general index of all issues discussed in this manual, with
-the exception of the commands and command-line options.
-
-@printindex cp
-
-@page
 @node Index
 @unnumbered Index
 
-This is an alphabetical list of all commands, command-line options,
-and environment variables.
-
-@printindex fn
+@printindex cp
 
 @bye

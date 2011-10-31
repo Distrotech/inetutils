@@ -1,5 +1,12 @@
 2011-10-31  Simon Josefsson  <simon@josefsson.org>
 
+	* doc/inetutils.texi (Top): Remove 'Concept Index'.  Doc fix.
+	(Introduction): Doc fix.
+	(Concept Index): Removed chapter, not used properly.
+	(Index): Remove incorrect description text.
+
+2011-10-31  Simon Josefsson  <simon@josefsson.org>
+
 	* tests/.gitignore: Add addrpeek.
 
 2011-10-31  Simon Josefsson  <simon@josefsson.org>
