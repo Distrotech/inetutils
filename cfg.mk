@@ -30,7 +30,11 @@ local-checks-to-skip = \
 	sc_prohibit_atoi_atof \
 	sc_prohibit_stat_st_blocks \
 	sc_prohibit_strcmp \
-	sc_unmarked_diagnostics
+	sc_unmarked_diagnostics \
+	sc_bindtextdomain
+
+exclude_file_name_regexp--sc_prohibit_have_config_h = \
+	^libinetutils/libinetutils.h$$
 
 htmldir = ../www-$(PACKAGE)
 
