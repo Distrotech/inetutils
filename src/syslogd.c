@@ -812,11 +812,18 @@ create_unix_socket (const char *path)
   if (path[0] == '\0')
     return -1;
 
+  if (strlen (path) >= sizeof (sunx.sun_path))
+    {
+      snprintf (line, sizeof (line), "UNIX socket name too long: %s", path);
+      logerror (line);
+      return -1;
+    }
+
   unlink (path);
 
   memset (&sunx, 0, sizeof (sunx));
   sunx.sun_family = AF_UNIX;
-  strncpy (sunx.sun_path, path, sizeof (sunx.sun_path));
+  strncpy (sunx.sun_path, path, sizeof (sunx.sun_path) - 1);
   fd = socket (AF_UNIX, SOCK_DGRAM, 0);
   if (fd < 0 || bind (fd, (struct sockaddr *) &sunx, SUN_LEN (&sunx)) < 0
       || chmod (path, 0666) < 0)
@@ -825,6 +832,7 @@ create_unix_socket (const char *path)
       logerror (line);
       dbg_printf ("cannot create %s: %s\n", path, strerror (errno));
       close (fd);
+      fd = -1;
     }
   return fd;
 }

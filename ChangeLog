@@ -1,3 +1,11 @@
+2011-11-09  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c (create_unix_socket): Avoid buffer
+	overrun for very long UNIX socket names.  Return proper
+	error codes also when bind() or chmod() fail.
+	* tests/syslogd.sh: Implement tests for the boundary
+	cases of very long UNIX socket names.
+
 2011-10-31  Simon Josefsson  <simon@josefsson.org>
 
 	* doc/inetutils.texi (Top): Remove 'Concept Index'.  Doc fix.

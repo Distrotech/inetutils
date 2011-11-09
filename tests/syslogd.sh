@@ -31,12 +31,42 @@ PID=$IU_TESTDIR/syslogd.pid
 OUT=$IU_TESTDIR/messages
 : ${SOCKET:=$IU_TESTDIR/log}
 
-IU_SYSLOGD=./src/syslogd$EXEEXT
-IU_LOGGER=./src/logger$EXEEXT
+# For testing of critical lengths for UNIX socket names,
+# we need a well defined base directory; choose "/tmp/".
+IU_TEN=0123456789
+IU_TWENTY=${IU_TEN}${IU_TEN}
+IU_FORTY=${IU_TWENTY}${IU_TWENTY}
+IU_EIGHTY=${IU_FORTY}${IU_FORTY}
+
+# This good name base consumes twentythree chracters.
+IU_GOOD_BASE=/tmp/$(date +%y-%m-%d)_socket_iu
+
+# Add a single character to violate the size condition.
+IU_BAD_BASE=/tmp/X$(date +%y-%m-%d)_socket_iu
+
+IU_OS=$(uname -s)
+if [ "${IU_OS}" != "OpenBSD" -a "${IU_OS}" != "FreeBSD" ]; then
+	# Aim at the boundary of 108 characters.
+	IU_GOOD_BASE=${IU_GOOD_BASE}_lnx
+	IU_BAD_BASE=${IU_BAD_BASE}_lnx
+fi
+
+# Establish largest possible socket name.  The long
+# name consists of 103 or 107 non-NUL characters,
+# where the excessive string contains 104 or 108.
+# BSD allocates only 104, whereas GLIBC and Solaris
+# admits 108 characters in "sun_path", including NUL.
+IU_LONG_SOCKET=${IU_GOOD_BASE}${IU_EIGHTY}
+IU_EXCESSIVE_SOCKET=${IU_BAD_BASE}${IU_EIGHTY}
 
 # All messages intended for post-detection are
 # to be uniformly tagged.
 TAG="syslogd-test"
+
+# The executables under test.
+
+IU_SYSLOGD=./src/syslogd$EXEEXT
+IU_LOGGER=./src/logger$EXEEXT
 
 # Step out of `tests/', should the invokation
 # have been made there.
@@ -92,6 +122,8 @@ fi
 #
 ## Base configuration.
 IU_OPTIONS="--rcfile=$CONF --pidfile=$PID --socket=$SOCKET"
+IU_OPTIONS="$IU_OPTIONS -a $IU_LONG_SOCKET -a $IU_EXCESSIVE_SOCKET"
+
 ## Enable INET service when running as root.
 if [ "$USER" = "root" ]; then
 	IU_OPTIONS="$IU_OPTIONS --ipany --inet --hop"
@@ -120,12 +152,20 @@ fi
 # as well as an exit code.
 #
 TESTCASES=0
+SUCCESSES=0
 EXITCODE=1
+
+# Check that the excessively long UNIX socket name was rejected.
+TESTCASES=$((TESTCASES + 1))
+if grep -q "UNIX socket name too long.*${IU_BAD_BASE}" $OUT; then
+	SUCCESSES="$((SUCCESSES + 1))"
+fi
 
 # Send messages on two sockets: IPv4 and UNIX.
 #
-TESTCASES=$((TESTCASES + 1))
+TESTCASES=$((TESTCASES + 2))
 $IU_LOGGER -h $SOCKET -p user.info -t $TAG "Sending BSD message. (pid $$)"
+$IU_LOGGER -h $IU_LONG_SOCKET -p user.info -t $TAG "Sending via long socket name. (pid $$)"
 
 if [ "$USER" = "root" ]; then
 	TESTCASES=$((TESTCASES + 2))
@@ -135,15 +175,15 @@ fi
 
 # Detection of registered messages.
 #
-TEXTLINES="$(grep $TAG $OUT | wc -l)"
+SUCCESSES="$((SUCCESSES + $(grep $TAG $OUT | wc -l) ))"
 
 if [ -n "${VERBOSE+yes}" ]; then
 	grep $TAG $OUT
 fi
 
-echo "Registered $TEXTLINES lines out of $TESTCASES."
+echo "Registered $SUCCESSES successes out of $TESTCASES."
 
-if [ "$TEXTLINES" -eq "$TESTCASES" ]; then
+if [ "$SUCCESSES" -eq "$TESTCASES" ]; then
 	echo "Successful testing."
 	EXITCODE=0
 else
