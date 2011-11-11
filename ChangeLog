@@ -1,3 +1,11 @@
+2011-11-11  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* doc/inetutils.texi (Introduction): White space.
+	(Common options): Mention `--usage'.  Replace brackets.
+	(Exit status): Spacing around `---'.
+	(telnetd invocation): Several corrections.
+	* telnetd/telnetd.c (argp_options): Remove duplicate space.
+
 2011-11-09  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/syslogd.c (create_unix_socket): Avoid buffer

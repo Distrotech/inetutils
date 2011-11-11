@@ -104,7 +104,7 @@ static struct argp_option argp_options[] = {
   { "no-keepalive", 'n', NULL, 0,
     "disable TCP keep-alives" },
   { "reverse-lookup", 'U', NULL, 0,
-    "refuse  connections from addresses that "
+    "refuse connections from addresses that "
     "cannot be mapped back into a symbolic name" },
 #ifdef  AUTHENTICATION
   { "disable-auth-type", 'X', "TYPE", 0,

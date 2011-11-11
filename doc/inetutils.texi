@@ -162,7 +162,7 @@ generated.
 Many features were integrated from NetBSD, OpenBSD, FreeBSD and
 GNU/Linux, the merges were done by a group of dedicated hackers (in no
 particular order): Jeff Bailey, Marcus Brinkmann, Michael Vogt,
-Bernhard Rosenkraenzer, Kaveh R.  Ghazi, NIIBE Yutaka, Nathan
+Bernhard Rosenkraenzer, Kaveh R. Ghazi, NIIBE Yutaka, Nathan
 Neulinger, Jeff Smith, Dan Stromberg, David O'Shea, Frederic Goudal,
 Gerald Combs, Joachim Gabler, Marco D'Itri, Sergey Poznyakoff, and
 many more.
@@ -172,8 +172,8 @@ many more.
 
 Certain options are available in all these programs.  Rather than
 writing identical descriptions for each of the programs, they are
-described here.  (In fact, every @sc{gnu} program accepts (or should
-accept) these options.)
+described here.  (In fact, every @sc{gnu} program accepts, or should
+accept, these options.)
 
 Many of these programs take arbitrary strings as arguments.  In those
 cases, @option{--help} and @option{--version} are taken as these
@@ -183,8 +183,14 @@ options only if there is one and exactly one command line argument.
 @item --help
 @opindex --help
 @cindex help, online
-Print a usage message listing all available options, then exit
+Print a usage message, listing all available options, then exit
 successfully.
+
+@item --usage
+@opindex --usage
+@cindex usage, online
+Print a condensed usage message, displaying all available options
+formatted like a command line call, then exit successfully.
 
 @item --version
 @opindex --version
@@ -213,8 +219,8 @@ indicates failure.
 Nearly every command invocation yields an integral @dfn{exit status}
 that can be used to change how other commands work.  For the vast
 majority of commands, an exit status of zero indicates success.
-Failure is indicated by a nonzero value---typically @samp{1}, though
-it may differ on unusual platforms as POSIX requires only that it be
+Failure is indicated by a nonzero value --- typically @samp{1}, though
+it may differ on unusual platforms, as POSIX requires only that it be
 nonzero.
 
 @node hostname invocation
@@ -3426,20 +3432,21 @@ the additional level indicator, but is instead equivalent to
 setting the socket option @samp{SO_DEBUG} for debugging the
 complete traffic.
 
-The outcome is the file @file{/var/telnet.debug}, to which
+The outcome is the file @file{/tmp/telnet.debug}, to which
 data is incrementally added as time passes.
 
-@item    -E
+@item -E STRING
 @itemx --exec-login=STRING
 Set program to be executed instead of @command{/bin/login}.
 
-@item    -h
+@item -h
 @itemx --no-hostinfo
 Do not print host information before login has been completed.
 
-@item -l
-@item --linemode=[MODE]
-Set line mode.
+@item -l[MODE]
+@itemx --linemode=[MODE]
+Set line mode.  An empty argument will force line mode at all times.
+The only recognised value is otherwise @samp{nokludge}.
 
 @item -n
 @itemx --no-keepalive
@@ -3450,9 +3457,12 @@ Disable TCP keep-alives.
 Refuse connections from addresses that cannot be mapped back into a
 symbolic name.
 
-@item -X
+@item -X AUTHTYPE
 @itemx --disable-auth-type=AUTHTYPE
-Disable the use of given authentication option.
+Disable the use of the given authentication type.
+Use this option multiple times if more than one type
+is to be disabled.  Standard choices are @samp{null},
+@samp{kerberos_v4}, and @samp{kerberos_v5}.
 @end table
 
 @node uucpd invocation
