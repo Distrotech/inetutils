@@ -1,3 +1,8 @@
+2011-11-12  Simon Josefsson  <simon@josefsson.org>
+
+	* .gitignore, doc/.gitignore: Update from gnulib-tool.
+	* NEWS: Add.
+
 2011-11-11  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* doc/inetutils.texi (Introduction): White space.

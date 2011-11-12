@@ -17,6 +17,7 @@
 .sc-start-sc_prohibit_have_config_h
 .tarball-version
 .version
+/build-aux
 ABOUT-NLS
 GNUmakefile
 INSTALL
@@ -40,7 +41,6 @@ include
 inetutils-*.tar.gz
 inetutils-*/
 lib/
-!lib/Makefile.am
 libtool
 m4
 maint.mk
@@ -48,3 +48,4 @@ pathdefs.make
 paths.defs
 stamp-h.in
 stamp-h1
+!lib/Makefile.am

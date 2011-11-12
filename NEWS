@@ -19,6 +19,8 @@ Handle IPv6 connections.
 Now under GNU/Linux "ifconfig -a" shows also interfaces without an address.
 
 Adjusted output formating for "unix".
+
+* Various bugs fixes, internal improvements and clean ups.
 
 May 15, 2010
 Version 1.8:
