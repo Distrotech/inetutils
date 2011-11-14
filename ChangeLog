@@ -1,6 +1,6 @@
 2011-11-14  Simon Josefsson  <simon@josefsson.org>
 
-	* src/Makefile.am (logger_SOURCES): Add logprio.h
+	* src/Makefile.am (logger_SOURCES): Add logprio.h.
 
 2011-11-14  Simon Josefsson  <simon@josefsson.org>
 
