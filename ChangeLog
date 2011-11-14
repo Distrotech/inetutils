@@ -1,5 +1,9 @@
 2011-11-14  Simon Josefsson  <simon@josefsson.org>
 
+	* src/Makefile.am (logger_SOURCES): Add logprio.h
+
+2011-11-14  Simon Josefsson  <simon@josefsson.org>
+
 	* ping/ping.c: New variable.
 	(argp_options): Add parameter -W aka --linger.
 	(parse_opt): Parse -W parameter.

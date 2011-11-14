@@ -30,7 +30,7 @@ hostname_SOURCES = hostname.c
 EXTRA_PROGRAMS += hostname
 
 bin_PROGRAMS += @logger_BUILD@
-logger_SOURCES = logger.c
+logger_SOURCES = logger.c logprio.h
 EXTRA_PROGRAMS += logger
 
 bin_PROGRAMS += @rcp_BUILD@
