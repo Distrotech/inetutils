@@ -65,6 +65,7 @@ size_t data_length = PING_DATALEN;
 unsigned options;
 unsigned long preload = 0;
 int timeout = -1;
+int linger = MAXWAIT;
 int (*ping_type) (char *hostname) = ping_echo;
 
 int (*decode_type (const char *arg)) (char *hostname);
@@ -112,6 +113,7 @@ static struct argp_option argp_options[] = {
    "network", GRP+1},
   {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
   {"timeout", 'w', "N", 0, "stop after N seconds", GRP+1},
+  {"linger", 'W', "N", 0, "number of seconds to wait for response", GRP+1},
 #undef GRP
 #define GRP 20
   {NULL, 0, NULL, 0, "Options valid for --echo requests:", GRP},
@@ -177,6 +179,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'w':
       timeout = ping_cvt_number (arg, INT_MAX, 0);
+      break;
+
+    case 'W':
+      linger = ping_cvt_number (arg, INT_MAX, 0);
       break;
 
     case 'R':
@@ -402,7 +408,7 @@ ping_run (PING * ping, int (*finish) ())
 	    {
 	      finishing = 1;
 
-	      intvl.tv_sec = MAXWAIT;
+	      intvl.tv_sec = linger;
 	    }
 	  gettimeofday (&last, NULL);
 	}

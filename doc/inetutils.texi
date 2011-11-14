@@ -565,6 +565,12 @@ bytes of ICMP header data.
 @opindex -w
 @opindex --timeout
 Stop after @var{n} seconds.
+
+@item -W @var{n}
+@itemx --linger=@var{n}
+@opindex -W
+@opindex --linger
+Maximum number of seconds @var{n} to wait for a response.
 @end table
 
 @section Using ping for network fault isolation

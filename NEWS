@@ -20,6 +20,11 @@ Now under GNU/Linux "ifconfig -a" shows also interfaces without an address.
 
 Adjusted output formating for "unix".
 
+* ping
+
+Now supports -W parameter to specify number of seconds to wait for
+response.
+
 * Various bugs fixes, internal improvements and clean ups.
 
 May 15, 2010
