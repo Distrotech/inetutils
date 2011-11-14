@@ -40,6 +40,8 @@ Some known deficiencies:
  - GNU Inetutils does not work on Solaris.  Patches to make GNU
    inetutils work on Solaris are happily accepted.
 
+ - Non-Shishi Kerberos support does not build.  Patches welcome.
+
 See the file INSTALL for installation instructions.
 
 Please send all bug reports to <bug-inetutils@gnu.org>.
