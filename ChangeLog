@@ -1,3 +1,11 @@
+2011-11-17  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* telnet/telnet.c [HAVE_LIBREADLINE]: Include <curses.h>.
+	* telnetd/utility.c [HAVE_LIBREADLINE]: Likewise.
+	[HAVE_STREAMSPTY && ...]: Include <stropts.h>.
+	* telnetd/state.c [HAVE_STREAMSPTY && ...]: Likewise.
+	[!NTELOPTS]: Define NTELOPTS.
+
 2011-11-14  Simon Josefsson  <simon@josefsson.org>
 
 	* README (Notes): Doc fix.

@@ -74,6 +74,7 @@
 #include "general.h"
 
 #ifdef HAVE_LIBREADLINE
+# include <curses.h>
 # include <term.h>
 #endif
 

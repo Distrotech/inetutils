@@ -38,9 +38,14 @@
 #endif
 
 #ifdef HAVE_LIBREADLINE
+# include <curses.h>
 # include <term.h>
 #endif
 
+#if defined HAVE_STREAMSPTY && defined HAVE_GETMSG \
+	&& defined HAVE_STROPTS_H
+# include <stropts.h>
+#endif
 
 static char netobuf[BUFSIZ + NETSLOP], *nfrontp, *nbackp;
 static char *neturg;		/* one past last byte of urgent data */
