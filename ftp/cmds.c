@@ -77,12 +77,7 @@
    system headers on some platforms. */
 #include <glob.h>
 
-#if HAVE_LIBREADLINE
-# include <readline/readline.h>
-# include <readline/history.h>
-#else
-# include "readline.h"
-#endif
+#include "readline.h"
 
 #include "ftp_var.h"
 #include "unused-parameter.h"
@@ -147,10 +142,8 @@ another (int *pargc, char ***pargv, const char *prompt)
   arg = readline (buffer);
   free (buffer);
 
-#if HAVE_LIBHISTORY
   if (arg && *arg)
     add_history (arg);
-#endif
 
   if (!arg)
     intr (0);

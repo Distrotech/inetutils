@@ -77,12 +77,7 @@
 #include "libinetutils.h"
 #include "unused-parameter.h"
 
-#if HAVE_LIBREADLINE
-# include <readline/readline.h>
-# include <readline/history.h>
-#else
-# include "readline.h"
-#endif
+#include "readline.h"
 
 
 #define DEFAULT_PROMPT "ftp> "
@@ -347,10 +342,8 @@ cmdscanner (int top)
 	  break;
 	}
 
-#if HAVE_LIBHISTORY
       if (line && *line)
 	add_history (line);
-#endif
 
       if (l == 0)
 	break;

@@ -148,37 +148,6 @@ AC_CHECK_LIB(socket, getpeername)
 # See if a termcap library is available (under one of several names)
 IU_LIB_TERMCAP
 
-# We want to use libreadline if it is available.  However, it seems that the
-# guile hackers have had problems because there is a Solaris libreadline
-# that is different from the GNU libreadline; therefore we test for an obscure
-# function in the GNU libreadline.
-#AC_CHECK_LIB(termcap, tputs)
-#AC_CHECK_LIB(readline, rl_bind_key,,, -ltermcap)
-AC_CHECK_LIB(readline, rl_bind_key,
-             [LIBREADLINE=-lreadline
-              AC_DEFINE([HAVE_LIBREADLINE], 1,
-	           [Define to one if you have -lreadline])],
-             [LIBREADLINE=], "$LIBTERMCAP")
-AC_SUBST(LIBREADLINE)
-AC_SUBST(LIBTERMCAP)
-
-AC_CHECK_LIB(history, add_history,
-             [LIBHISTORY=-lhistory
-              AC_DEFINE([HAVE_LIBHISTORY], 1,
-	           [Define to one if you have -lhistory])],
-             [LIBHISTORY=])
-
-# If libhistory does not provide add_history check if libreadline has it.
-if test -z "$LIBHISTORY" && test -n "$LIBREADLINE"; then
-  AC_CHECK_LIB(readline, add_history,
-               [LIBHISTORY=-lreadline
-                AC_DEFINE([HAVE_LIBHISTORY], 1,
-                     [Define to one if you have -lhistory])],
-               [LIBHISTORY=])
-fi
-
-AC_SUBST(LIBHISTORY)
-
 dnl See if there's a separate libcrypt (many systems put crypt there)
 AC_CHECK_LIB(crypt, crypt, LIBCRYPT=-lcrypt)
 AC_SUBST(LIBCRYPT)
@@ -461,7 +430,6 @@ AC_HEADER_DIRENT
 AC_CHECK_HEADERS([arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
                   krb.h memory.h malloc.h netinet/in_systm.h netinet/ip.h \
                   netinet/ip_icmp.h netinet/ip_var.h \
-		  readline/readline.h \
 		  security/pam_appl.h \
                   shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \
                   sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \

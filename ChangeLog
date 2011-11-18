@@ -1,3 +1,12 @@
+2011-11-18  Simon Josefsson  <simon@josefsson.org>
+
+	* ftp/cmds.c: Replace complex readline #includes with simple
+	include of gnulib's readline.h.
+	(another): Assume libreadline has add_history.
+	* ftp/main.c: Likewise.
+	* configure.ac: Remove obsolete readline checks (we now use
+	gnulib's readline module).
+
 2011-11-17  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* telnet/telnet.c [HAVE_LIBREADLINE]: Include <curses.h>.
