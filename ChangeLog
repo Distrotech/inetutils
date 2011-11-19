@@ -1,5 +1,10 @@
 2011-11-19  Simon Josefsson  <simon@josefsson.org>
 
+	* tests/Makefile.am (dist_check_SCRIPTS): Add ftp-localhost.sh.
+	* tests/ftp-localhost.sh: New file.
+
+2011-11-19  Simon Josefsson  <simon@josefsson.org>
+
 	* ftp/cmds.c [HAVE_READLINE_HISTORY_H]: Include
 	readline/history.h.
 	* ftp/main.c: Likewise.

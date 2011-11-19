@@ -46,6 +46,14 @@ dist_check_SCRIPTS += syslogd.sh
 endif
 endif
 
+if ENABLE_inetd
+if ENABLE_ftp
+if ENABLE_ftpd
+dist_check_SCRIPTS += ftp-localhost.sh
+endif
+endif
+endif
+
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
