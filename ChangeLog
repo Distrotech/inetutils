@@ -1,5 +1,9 @@
 2011-11-19  Simon Josefsson  <simon@josefsson.org>
 
+	* README (Notes): Doc fix.
+
+2011-11-19  Simon Josefsson  <simon@josefsson.org>
+
 	* bootstrap.conf (gnulib_modules): Remove readline.
 	* configure.ac: Search for readline.
 	* ftp/cmds.c: Unconditionally include readline headers.
