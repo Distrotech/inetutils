@@ -73,7 +73,7 @@
 #include "types.h"
 #include "general.h"
 
-#ifdef HAVE_LIBREADLINE
+#ifdef HAVE_READLINE
 # include <curses.h>
 # include <term.h>
 #endif
@@ -729,7 +729,7 @@ int
 init_term (char *tname, int fd, int *errp)
 {
   int err = -1;
-#ifdef HAVE_LIBREADLINE
+#ifdef HAVE_READLINE
   err = tgetent (termbuf, tname);
 #endif
   if (err == 1)

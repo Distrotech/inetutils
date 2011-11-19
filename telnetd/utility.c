@@ -37,7 +37,7 @@
 # define NET_ENCRYPT()
 #endif
 
-#ifdef HAVE_LIBREADLINE
+#ifdef HAVE_READLINE
 # include <curses.h>
 # include <term.h>
 #endif
@@ -826,7 +826,7 @@ terminaltypeok (char *s)
   if (terminaltype == NULL)
     return 1;
 
-#ifdef HAVE_LIBREADLINE
+#ifdef HAVE_READLINE
   if (tgetent (buf, s) == 0)
 #endif
     return 0;
