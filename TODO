@@ -107,6 +107,10 @@ translations, especially for the clients.
 2.0 will be a release that tries to put as much as possible into
 libraries (startup code, etc).  We would also like to try and write
 (or convince someone else to write) a gopher and gopherd pair.
+
+Make src/hostname.c handle missing 'sethostname' functions on
+platforms that doesn't have them (it could just print an error
+message).
 
 * libicmp
 
