@@ -78,6 +78,9 @@
 #include <glob.h>
 
 #include "readline.h"
+#ifdef HAVE_READLINE_HISTORY_H
+# include <readline/history.h>
+#endif
 
 #include "ftp_var.h"
 #include "unused-parameter.h"

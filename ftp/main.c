@@ -78,6 +78,9 @@
 #include "unused-parameter.h"
 
 #include "readline.h"
+#ifdef HAVE_READLINE_HISTORY_H
+# include <readline/history.h>
+#endif
 
 
 #define DEFAULT_PROMPT "ftp> "

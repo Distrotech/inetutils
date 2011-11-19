@@ -1,3 +1,9 @@
+2011-11-19  Simon Josefsson  <simon@josefsson.org>
+
+	* ftp/cmds.c [HAVE_READLINE_HISTORY_H]: Include
+	readline/history.h.
+	* ftp/main.c: Likewise.
+
 2011-11-18  Simon Josefsson  <simon@josefsson.org>
 
 	* ftp/cmds.c: Replace complex readline #includes with simple
