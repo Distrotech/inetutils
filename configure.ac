@@ -367,6 +367,10 @@ else
   if test "X$working_icmp6" = "Xyes"; then
     IU_CHECK_MACRO(IPV6_RECVHOPLIMIT, [#include <netinet/in.h>], ,
 		   [have_recvhoplimt=yes], [have_recvhoplimt=no])
+    IU_CHECK_MACRO(IPV6_2292HOPLIMIT, [#include <netinet/in.h>], , [
+      AC_DEFINE([IPV6_HOPLIMIT], IPV6_2292HOPLIMIT,
+                [Define to IPV6_HOPLIMIT if not available])
+    ], [working_icmp6=no])
     if test "X$have_recvhoplimt" = "Xno"; then
       IU_CHECK_MACRO(IPV6_HOPLIMIT, [#include <netinet/in.h>], , [
         AC_DEFINE([IPV6_RECVHOPLIMIT], IPV6_HOPLIMIT,
