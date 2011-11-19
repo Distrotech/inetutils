@@ -1,5 +1,8 @@
 2011-11-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	* bootstrap.conf (gnulib_modules): Don't try to create m4/ for
+	./bootstrap.
+
 	* configure.ac: Add check for IPV6_2292HOPLIMIT.
 
 2011-11-19  Alfred M. Szmidt  <ams@gnu.org>
@@ -20,7 +23,7 @@
 2011-11-19  Simon Josefsson  <simon@josefsson.org>
 
 	* ftp/cmds.c [HAVE_READLINE_HISTORY_H]: Include
-	readline/history.h.
+	<readline/history.h>.
 	* ftp/main.c: Likewise.
 
 2011-11-18  Simon Josefsson  <simon@josefsson.org>
@@ -36,9 +39,9 @@
 
 	* telnet/telnet.c [HAVE_LIBREADLINE]: Include <curses.h>.
 	* telnetd/utility.c [HAVE_LIBREADLINE]: Likewise.
-	[HAVE_STREAMSPTY && ...]: Include <stropts.h>.
-	* telnetd/state.c [HAVE_STREAMSPTY && ...]: Likewise.
-	[!NTELOPTS]: Define NTELOPTS.
+	[HAVE_STREAMSPTY && HAVE_GETMSG && HAVE_STROPTS_H]: Include <stropts.h>.
+	* telnetd/state.c [HAVE_STREAMSPTY && TIOCSIGNAL && HAVE_STROPTS_H]: Likewise.
+	(NTELOPTS) [!NTELOPTS]: New macro.
 
 2011-11-14  Simon Josefsson  <simon@josefsson.org>
 
