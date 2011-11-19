@@ -1,3 +1,10 @@
+2011-11-19  Simon Josefsson  <simon@josefsson.org>
+
+	* bootstrap.conf (gnulib_modules): Remove readline.
+	* configure.ac: Search for readline.
+	* ftp/cmds.c: Unconditionally include readline headers.
+	* ftp/main.c: Likewise.
+
 2011-11-19  Alfred M. Szmidt  <ams@gnu.org>
 
 	* .gitignore (/m4): Added to list.

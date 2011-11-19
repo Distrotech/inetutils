@@ -148,6 +148,14 @@ AC_CHECK_LIB(socket, getpeername)
 # See if a termcap library is available (under one of several names)
 IU_LIB_TERMCAP
 
+# Find libreadline -- disable the ftp client if not found.
+gl_FUNC_READLINE
+if test "$gl_cv_lib_readline" = no; then
+  enable_ftp=no
+  ftp_BUILD=''
+  ftp_INSTALL_HOOK=''
+fi
+
 dnl See if there's a separate libcrypt (many systems put crypt there)
 AC_CHECK_LIB(crypt, crypt, LIBCRYPT=-lcrypt)
 AC_SUBST(LIBCRYPT)

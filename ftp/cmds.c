@@ -77,10 +77,8 @@
    system headers on some platforms. */
 #include <glob.h>
 
-#include "readline.h"
-#ifdef HAVE_READLINE_HISTORY_H
-# include <readline/history.h>
-#endif
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include "ftp_var.h"
 #include "unused-parameter.h"

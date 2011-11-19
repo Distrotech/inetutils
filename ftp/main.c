@@ -77,10 +77,8 @@
 #include "libinetutils.h"
 #include "unused-parameter.h"
 
-#include "readline.h"
-#ifdef HAVE_READLINE_HISTORY_H
-# include <readline/history.h>
-#endif
+#include <readline/readline.h>
+#include <readline/history.h>
 
 
 #define DEFAULT_PROMPT "ftp> "
