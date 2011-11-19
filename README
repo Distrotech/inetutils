@@ -39,8 +39,9 @@ Some known deficiencies:
 
  - Non-Shishi Kerberos support does not build.  Patches welcome.
 
- - InetUtils does not build on Cygwin, Minix, MinGW, MSCV, BeOS, Haiki
-   (and probably other systems as well).  Patches welcome.
+ - InetUtils does not build on HP-UX 11.00, Cygwin, Minix, MinGW,
+   MSCV, BeOS, Haiki (and probably other systems as well).  Patches
+   welcome.
 
 See the file INSTALL for installation instructions.
 
