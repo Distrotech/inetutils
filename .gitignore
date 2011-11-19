@@ -18,6 +18,7 @@
 .tarball-version
 .version
 /build-aux
+/m4
 ABOUT-NLS
 GNUmakefile
 INSTALL

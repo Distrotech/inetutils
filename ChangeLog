@@ -1,5 +1,6 @@
 2011-11-19  Alfred M. Szmidt  <ams@gnu.org>
 
+	* .gitignore (/m4): Added to list.
 	* bootstrap.conf (gnulib_modules): Don't try to create m4/ for
 	./bootstrap.
 
