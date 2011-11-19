@@ -25,8 +25,6 @@ TODO, confpaths.h.in, ifconfig/COMPATIBILITY, whois/as_del_list,
 whois/ip_del_list, whois/make_as_del.pl, whois/make_ip_del.pl,
 whois/make_tld_serv.pl, and whois/tld_serv_list.
 
-tftp does not work with IPv6.
-
 Add a better autoconf check for bison, it will succeed even though the
 generated files do not exist.
 
@@ -147,6 +145,17 @@ Ability to ping multiple host in one go.
 ** Is it necessary to merge long/short options intelligently?
   For example, if a system specific option shadows a normal option?
   Allow this?
+
+* telnetd
+
+With OpenSolaris, the variable TERM is not set correctly.
+No issue with other systems. Debug this!
+
+* tftpd
+
+OpenSolaris is only able to transmit a single package of
+size at most PKTSIZE. Debug libinetutils/tftpsubs.c on this.
+No issue with other systems.
 
 * whois
 
