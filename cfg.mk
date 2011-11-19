@@ -49,3 +49,13 @@ upload-web-coverage:
 		cvs commit -m "Update." coverage
 
 release-prep-hook =
+
+sc_unsigned_char:
+	@prohibit=u''_char \
+	halt='don'\''t use u''_char; instead use unsigned char'	\
+	  $(_sc_search_regexp)
+
+sc_unsigned_long:
+	@prohibit=u''_long \
+	halt='don'\''t use u''_long; instead use unsigned long'	\
+	  $(_sc_search_regexp)

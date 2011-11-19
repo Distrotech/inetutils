@@ -1,3 +1,7 @@
+2011-11-19  Alfred M. Szmidt  <ams@gnu.org>
+
+	* cfg.mk (sc_unsigned_char, sc_unsigned_long): New targets.
+
 2011-11-19  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* telnet/telnet.c [HAVE_READLINE]: Replace previous use of
