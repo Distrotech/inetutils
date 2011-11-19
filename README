@@ -32,8 +32,8 @@ address.
 Notes:
 
 1) All of the r* commands clients, rcp, rlogin, rsh, need to be
-   install setuid root to work correctly they use privileged ports for
-   communication.
+   install setuid root to work correctly because they use privileged
+   ports for communication.
 
 Some known deficiencies:
 
