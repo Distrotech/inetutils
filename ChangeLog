@@ -1,3 +1,10 @@
+2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* libtelnet/getent.c [HAVE_CGETENT]: Include <stdlib.h>.
+	* telnet/sys_bsd.c [SIGINFO] (sendayt): Missing declaration.
+	* doc/inetutils.texi (telnet invocation): Minor fixes.
+	* TODO: Updated.
+
 2011-11-19  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* TODO: Updated.

@@ -1981,7 +1981,8 @@ previous state.
 @node telnet invocation
 @chapter @command{telnet}: User interface to TELNET
 
-Login to remote system HOST (optionally, on service port PORT)
+Login to a remote system HOST, optionally using a (non-standard)
+service port PORT:
 
 @example
 telnet [@var{OPTION}...] [@var{HOST} [@var{PORT}]]
@@ -2006,7 +2007,7 @@ Attempt automatic login.
 
 @item -c
 @itemx --no-rc
-Don't read the user's .telnetrc file.
+Do not read the user's file @file{$HOME/.telnetrc}.
 
 @item -d
 @itemx --debug
@@ -2014,7 +2015,7 @@ Turn on debugging.
 
 @item -e CHAR
 @itemx --escape=CHAR
-Use CHAR as an escape character.
+Use CHAR as escape character.
 
 @item -E
 @itemx --no-escape
@@ -2022,7 +2023,7 @@ Use no escape character.
 
 @item -K
 @itemx --no-login
-Don't automatically login to the remote system.
+Do not automatically login to the remote system.
 
 @item -l USER
 @itemx --user=USER
@@ -2038,11 +2039,18 @@ Record trace information into FILE.
 
 @item -r
 @itemx --rlogin
-Use a user-interface similar to rlogin.
+Display a user-interface similar to that of @command{rlogin}.
+
+@item -x
+@itemx --encrypt
+If possible, encrypt the data stream.
 
 @item -X ATYPE
 @itemx --disable-auth=ATYPE
-Disable type ATYPE authentication.
+Disable authentication of type ATYPE.
+Use this option multiple times if more than one type
+is to be disabled.  Standard choices are @samp{null},
+@samp{kerberos_v4}, and @samp{kerberos_v5}.
 @end table
 
 @node inetd invocation

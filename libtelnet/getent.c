@@ -50,6 +50,8 @@
 #include <config.h>
 
 #ifdef HAVE_CGETENT
+# include <stdlib.h>
+
 static char *area;
 #endif
 

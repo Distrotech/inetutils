@@ -14,7 +14,8 @@ supdup: A telnet client/daemon like program for the SUPDUP protocol;
   running.  And I don't think there is an actual daemon program for
   GNU systems at all (ITS has one though :-).
 
-Add framework for tests.
+Add framework for tests.  How can tests needing root priviliges
+be maintained, automated, or rewritten?
 
 Function for parsing [USER@]HOSTNAME[:PORT], that returns each value
 in a structure.  Handle IP (v4 and v6) numbers as well.  And make
@@ -90,6 +91,10 @@ unconditionally in a lot of places, even if an autoconf test is
 already done for them, &c.
 
 Testing and debugging the encryption and authentication modes.
+Include all relevant options in the Texinfo source.
+
+Remove support for kerberos_v4. Make sure kerberos_v5 and shishi
+do not interfere when building on systems where both are present.
 
 Add more utilities:
   Tcpdump

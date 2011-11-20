@@ -72,6 +72,7 @@
 
 #ifdef	SIGINFO
 extern void ayt_status ();
+extern void sendayt ();
 #endif
 
 int tout,			/* Output file descriptor */
