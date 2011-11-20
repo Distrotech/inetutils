@@ -16,6 +16,7 @@
 	* configure.ac: Search for readline.
 	* ftp/cmds.c: Unconditionally include readline headers.
 	* ftp/main.c: Likewise.
+	* am/readline.m4: New file.
 
 2011-11-19  Alfred M. Szmidt  <ams@gnu.org>
 
