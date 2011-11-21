@@ -20,11 +20,48 @@
 # Tests to establish functionality of SYSLOG daemon.
 #
 
-# Keep any external assignment.
+# Is usage explanation in demand?
 #
-: ${IU_TESTDIR:=/tmp/iu_syslog}
+if [ "$1" = "-h" -o "$1" = "--help" -o "$1" = "--usage" ]; then
+	cat <<HERE
+Test utility for syslogd and logger.
 
-mkdir -p $IU_TESTDIR
+The following environment variables are used:
+
+NOCLEAN		No clean up of testing directory, if set.
+VERBOSE		Be verbose, if set.
+OPTIONS		Base options to build upon.
+IU_TESTDIR	If set, use this as testing dir. Unless
+		NOCLEAN is also set, any created \$IU_TESTDIR
+		will be erased after the test.
+REMOTE_LOGHOST	Add this host as a receiving loghost.
+
+HERE
+	exit 0
+fi
+
+# Keep any external assignment of testing directory.
+# Otherwise a randomisation is included if NOCLEAN
+# has been set.
+#
+if [ -n "${NOCLEAN+yes}" ]; then
+	: ${IU_TESTDIR:=/tmp/iu_syslog}
+else
+	: ${IU_TESTDIR:=/tmp/iu_syslog$$}
+fi
+
+if [ ! -d $IU_TESTDIR ]; then
+	IU_DO_CLEANDIR=yes
+	mkdir -p $IU_TESTDIR
+fi
+
+# Erase the testing directory.
+#
+clean_testdir () {
+	if [ -z "${NOCLEAN+no}" -a "$IU_DO_CLEANDIR" = "yes" ]; then
+		rm -fR $IU_TESTDIR
+	fi
+}
 
 CONF=$IU_TESTDIR/syslog.conf
 PID=$IU_TESTDIR/syslogd.pid
@@ -75,11 +112,13 @@ IU_LOGGER=./src/logger$EXEEXT
 
 if [ ! -x $IU_SYSLOGD ]; then
 	echo "Missing executable 'syslogd'. Failing."
+	clean_testdir
 	exit 1;
 fi
 
 if [ ! -x $IU_LOGGER ]; then
 	echo "Missing executable 'logger'. Failing."
+	clean_testdir
 	exit 1
 fi
 
@@ -130,7 +169,9 @@ if [ "$USER" = "root" ]; then
 fi
 ## Bring in additional options from command line.
 ## Disable kernel messages otherwise.
-: OPTIONS=${OPTIONS:=--no-klog}
+if [ -c /dev/klog ]; then
+	: OPTIONS=${OPTIONS:=--no-klog}
+fi
 IU_OPTIONS="$IU_OPTIONS $OPTIONS"
 
 $IU_SYSLOGD $IU_OPTIONS
@@ -145,6 +186,7 @@ sleep 1
 #
 if [ ! -r $PID ]; then
 	echo "The service daemon never started. Failing."
+	clean_testdir
 	exit 1
 fi
 
@@ -192,5 +234,7 @@ fi
 
 # Remove the daemon process.
 [ -r $PID ] && kill "$(cat $PID)"
+
+clean_testdir
 
 exit $EXITCODE
