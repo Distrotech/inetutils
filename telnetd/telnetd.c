@@ -39,7 +39,7 @@ static void print_hostinfo (void);
 
 char *login_invocation =
 #ifdef SOLARIS
-  PATH_LOGIN " -h %h %?T{TERM=%T}{-} %?u{%?a{-f }-- %u}"
+  PATH_LOGIN " -h %h %?T{-t %T} %?u{-u %u}"
 #else
   PATH_LOGIN " -p -h %h %?u{-f %u}"
 #endif

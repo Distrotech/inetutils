@@ -151,11 +151,6 @@ Ability to ping multiple host in one go.
   For example, if a system specific option shadows a normal option?
   Allow this?
 
-* telnetd
-
-With OpenSolaris, the variable TERM is not set correctly.
-No issue with other systems. Debug this!
-
 * tftpd
 
 OpenSolaris is only able to transmit a single package of

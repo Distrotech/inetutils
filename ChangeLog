@@ -1,5 +1,11 @@
 2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* telnetd/telnetd.c (login_invocation) [SOLARIS]: Changes for terminal
+	and user name.
+	* TODO: Updated.
+
+2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/syslogd.sh: Implement post-run cleanup.
 
 2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
