@@ -440,7 +440,7 @@ AC_HEADER_TIME
 AC_HEADER_DIRENT
 
 AC_CHECK_HEADERS([arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
-                  krb.h memory.h malloc.h netinet/in_systm.h netinet/ip.h \
+                  krb.h memory.h netinet/in_systm.h netinet/ip.h \
                   netinet/ip_icmp.h netinet/ip_var.h \
 		  security/pam_appl.h \
                   shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \

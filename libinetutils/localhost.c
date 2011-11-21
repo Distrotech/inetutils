@@ -23,9 +23,6 @@
 #include <config.h>
 
 #include <unistd.h>
-#ifdef HAVE_MALLOC_H
-# include <malloc.h>
-#endif
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>

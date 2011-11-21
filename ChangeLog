@@ -1,5 +1,12 @@
 2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* configure.ac: Do not check for <malloc.h>.
+	* libinetutils/localhost.c [HAVE_MALLOC_H]: Do not include
+	<malloc.h> and delete the conditional.
+	* telnet/commands.c [HAVE_MALLOC_H]: Likewise.
+
+2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* telnetd/telnetd.c (login_invocation) [SOLARIS]: Changes for terminal
 	and user name.
 	* TODO: Updated.

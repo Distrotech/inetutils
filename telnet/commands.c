@@ -71,9 +71,6 @@
 #include <errno.h>
 
 #include <stdlib.h>
-#ifdef HAVE_MALLOC_H
-# include <malloc.h>
-#endif
 
 #include <arpa/inet.h>
 #include <arpa/telnet.h>
