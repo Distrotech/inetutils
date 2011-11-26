@@ -1,5 +1,10 @@
 2011-11-26  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/tftp.sh (INETD_PID): New variable; allows better robustness.
+	Improve patterns to fit also BSD.
+
+2011-11-26  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* configure.ac: Check presence of <protocols/talkd.h>. Disable
 	building of `talk' and `talkd' if it is missing.
 	* ftpd/Makefile.am (ftpd_SOURCES): Exclude unused `logwtmp.c'.

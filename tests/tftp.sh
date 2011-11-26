@@ -32,6 +32,7 @@ AF=${AF:-inet}
 PROTO=${PROTO:-udp}
 PORT=${PORT:-7777}
 INETD_CONF="$PWD/inetd.conf.tmp"
+INETD_PID="$PWD/inetd.pid.$$"
 
 ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
      -e "s/^.*$AF[[:blank:]]\([:.0-9]\{1,\}\)[[:blank:]].*$/\1/g"`"
@@ -50,7 +51,7 @@ if [ "$VERBOSE" ]; then
 fi
 
 # Check that the port is still available
-netstat -na | grep -q "^$PROTO .*$PORT "
+netstat -na | grep -q -E "^$PROTO(4|6|46)? .*$PORT "
 if test $? -eq 0; then
     echo "Desired port $PORT/$PROTO is already in use."
     exit 1
@@ -64,8 +65,9 @@ $PORT dgram $PROTO wait $USER $TFTPD   tftpd -l `pwd`/tftp-test
 EOF
 
 # Launch `inetd', assuming it's reachable at all $ADDRESSES.
-$INETD -d "$INETD_CONF" &
-inetd_pid="$!"
+$INETD -d -p"$INETD_PID" "$INETD_CONF" &
+sleep 1
+inetd_pid="$(cat $INETD_PID)"
 
 test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
 
@@ -73,7 +75,7 @@ test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
 sleep 1
 
 # Did `inetd' really succeed in establishing a listener?
-netstat -na | grep "^$PROTO .*$PORT "
+netstat -na | grep -q -E "^$PROTO(4|6|46)? .*$PORT "
 if test $? -ne 0; then
     # No it did not.
     ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
@@ -113,7 +115,7 @@ done
 
 ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
 
-rm -rf tftp-test tftp-test-file "$INETD_CONF"
+rm -rf tftp-test tftp-test-file "$INETD_CONF" "$INETD_PID"
 
 # Minimal clean up
 echo
