@@ -23,7 +23,7 @@ inetdaemon_PROGRAMS = @ftpd_BUILD@
 
 EXTRA_PROGRAMS = ftpd
 
-ftpd_SOURCES = ftpcmd.y ftpd.c logwtmp.c popen.c pam.c auth.c \
+ftpd_SOURCES = ftpcmd.y ftpd.c popen.c pam.c auth.c \
                conf.c server_mode.c
 
 noinst_HEADERS = extern.h

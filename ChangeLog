@@ -1,3 +1,12 @@
+2011-11-26  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* configure.ac: Check presence of <protocols/talkd.h>. Disable
+	building of `talk' and `talkd' if it is missing.
+	* ftpd/Makefile.am (ftpd_SOURCES): Exclude unused `logwtmp.c'.
+	* libinetutils/logwtmpko.c [HAVE_UTMPX_H && SOLARIS]: Include
+	<utmpx.h>.
+	[HAVE_UPDWTMP && SOLARIS]: Implement missing `logwtmp()'.
+
 2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* configure.ac: Do not check for <malloc.h>.

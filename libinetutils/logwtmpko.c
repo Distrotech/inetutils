@@ -19,5 +19,43 @@
 
 #include <config.h>
 
+#if HAVE_UTMPX_H && defined SOLARIS
+# include <utmpx.h>	/* updwtmp() */
+#endif
+
 #define KEEP_OPEN
 #include "logwtmp.c"
+
+/* Solaris does not provide logwtmp(3c).
+ * It is needed in addition to logwtmp_keep_open().
+ */
+#if HAVE_UPDWTMP && defined SOLARIS
+void
+logwtmp (char *line, char *name, char *host)
+{
+  struct utmp ut;
+#ifdef HAVE_STRUCT_UTMP_UT_TV
+  struct timeval tv;
+#endif
+
+  memset (&ut, 0, sizeof (ut));
+#ifdef HAVE_STRUCT_UTMP_UT_TYPE
+  ut.ut_type = USER_PROCESS;
+#endif
+  strncpy (ut.ut_line, line, sizeof ut.ut_line);
+  strncpy (ut.ut_name, name, sizeof ut.ut_name);
+#ifdef HAVE_STRUCT_UTMP_UT_HOST
+  strncpy (ut.ut_host, host, sizeof ut.ut_host);
+#endif
+
+# ifdef HAVE_STRUCT_UTMP_UT_TV
+  gettimeofday (&tv, NULL);
+  ut.ut_tv.tv_sec = tv.tv_sec;
+  ut.ut_tv.tv_usec = tv.tv_usec;
+# else
+  time (&ut.ut_time);
+# endif
+
+  updwtmp (PATH_WTMP, &ut);
+}
+#endif /* HAVE_UPDWTMP && defined SOLARIS */

@@ -190,6 +190,21 @@ fi
 AC_SUBST(LIBLS)
 AC_SUBST(libls_BUILD)
 
+dnl At least OpenSolaris is missing <protocols/talkd.h>.
+AC_CHECK_HEADER(protocols/talkd.h, , ,
+  [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
+		 # include <sys/types.h>
+		 #endif
+		 #include <sys/socket.h>])])
+
+if test "$ac_cv_header_protocols_talkd_h" = no; then
+  AC_MSG_WARN([protocols/talkd.h is not available, not building talk, nor talkd])
+  enable_talk=no
+  talk_BUILD=''
+  enable_talkd=no
+  talkd_BUILD=''
+fi
+
 # Only talk uses curses, so only check for it if we want that
 if test "$enable_talk" != no; then
   IU_LIB_CURSES
