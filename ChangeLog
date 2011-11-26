@@ -1,5 +1,11 @@
 2011-11-26  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/tftp.sh: Return skip code if INET port is already in use.
+	* tests/syslogd.sh: Likewise. Implement the corresponding test.
+	(PORT, PROTO): New variables.
+
+2011-11-26  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/tftp.sh (INETD_PID): New variable; allows better robustness.
 	Improve patterns to fit also BSD.
 

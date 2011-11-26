@@ -68,6 +68,11 @@ PID=$IU_TESTDIR/syslogd.pid
 OUT=$IU_TESTDIR/messages
 : ${SOCKET:=$IU_TESTDIR/log}
 
+# Test at this port.
+# Standard is syslog at 514/udp.
+PROTO=udp
+PORT=514
+
 # For testing of critical lengths for UNIX socket names,
 # we need a well defined base directory; choose "/tmp/".
 IU_TEN=0123456789
@@ -113,13 +118,13 @@ IU_LOGGER=./src/logger$EXEEXT
 if [ ! -x $IU_SYSLOGD ]; then
 	echo "Missing executable 'syslogd'. Failing."
 	clean_testdir
-	exit 1;
+	exit 77
 fi
 
 if [ ! -x $IU_LOGGER ]; then
 	echo "Missing executable 'logger'. Failing."
 	clean_testdir
-	exit 1
+	exit 77
 fi
 
 # Remove old messages.
@@ -132,6 +137,15 @@ if [ "$USER" != "root" ]; then
 	Disabling INET server tests since you seem
 	to be underprivileged.
 	EOT
+else
+	# Is the INET port already in use? If so,
+	# skip the test in its entirety.
+	netstat -na | grep -q -E "^$PROTO(4|6|46)? .*$PORT "
+	if [ $? -eq 0 ]; then
+		echo "The INET port $PORT/$PROTO is already in use."
+		echo "No reliable test is possible."
+		exit 77
+	fi
 fi
 
 # A minimal, catch-all configuration.

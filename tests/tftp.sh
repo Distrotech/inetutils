@@ -54,7 +54,7 @@ fi
 netstat -na | grep -q -E "^$PROTO(4|6|46)? .*$PORT "
 if test $? -eq 0; then
     echo "Desired port $PORT/$PROTO is already in use."
-    exit 1
+    exit 77
 fi
 
 # Create `inetd.conf'.  Note: We want $TFTPD to be an absolute file
