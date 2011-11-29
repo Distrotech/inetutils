@@ -1,3 +1,8 @@
+2011-11-29  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* whois/make_ip_del.pl: Compute netmasks correctly
+	also with 64-bit arithmetic.
+
 2011-11-26  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/tftp.sh: Return skip code if INET port is already in use.
