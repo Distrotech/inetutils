@@ -1,6 +1,6 @@
 2011-11-29  Giuseppe Scrivano  <gscrivano@gnu.org>
 
-	* tests/syslogd.sh: Use 12.0.0.1 and [::1] instead of localhost as
+	* tests/syslogd.sh: Use 127.0.0.1 and [::1] instead of localhost as
 	arguments to logger.
 
 2011-11-29  Mats Erik Andersson <gnu@gisladisker.se>
