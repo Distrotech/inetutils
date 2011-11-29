@@ -1,5 +1,9 @@
 2011-11-29  Alfred M. Szmidt  <ams@gnu.org>
 
+	* tests/syslogd.sh: Output verbose output if VERBOSE is true.
+
+2011-11-29  Alfred M. Szmidt  <ams@gnu.org>
+
 	Be more robust in checking for IPV6_HOPLIMIT, and
 	IPV6_RECVHOPLIMIT.
 

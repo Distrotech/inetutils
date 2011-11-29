@@ -110,6 +110,12 @@ TAG="syslogd-test"
 IU_SYSLOGD=./src/syslogd$EXEEXT
 IU_LOGGER=./src/logger$EXEEXT
 
+if [ $VERBOSE ]; then
+    set -x
+    $IU_SYSLOGD --version
+    $IU_LOGGER --version
+fi
+
 # Step out of `tests/', should the invokation
 # have been made there.
 #
