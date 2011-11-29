@@ -54,6 +54,10 @@ endif
 endif
 endif
 
+if ENABLE_hostname
+dist_check_SCRIPTS += hostname.sh
+endif
+
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)

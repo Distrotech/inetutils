@@ -1,5 +1,12 @@
 2011-11-29  Alfred M. Szmidt  <ams@gnu.org>
 
+	Basic test case for `hostname'.
+
+	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_hostname]: Added hostname.sh.
+	* tests/hostname.sh: New file.
+
+2011-11-29  Alfred M. Szmidt  <ams@gnu.org>
+
 	* tests/syslogd.sh: Output verbose output if VERBOSE is true.
 
 2011-11-29  Alfred M. Szmidt  <ams@gnu.org>
