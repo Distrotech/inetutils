@@ -309,44 +309,44 @@ AC_ARG_ENABLE([ipv6],
 )
 
 working_ipv6=yes
-if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
+if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then
   IU_CHECK_MACRO(AF_INET6, [#include <sys/socket.h>], , , working_ipv6=no)
 fi
 
-if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
+if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then
   IU_CHECK_MACRO(IPV6_V6ONLY, [#include <netinet/in.h>], , , working_ipv6=no)
 fi
 
-if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
+if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then
   AC_CHECK_TYPE(struct sockaddr_storage, , working_ipv6=no, [#include <sys/socket.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
+if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then
   AC_CHECK_TYPE(struct sockaddr_in6, , working_ipv6=no, [#include <sys/types.h>
 #include <netinet/in.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
+if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then
   AC_CHECK_TYPE(struct addrinfo, , working_ipv6=no, [#include <netdb.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
+if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then
   AC_CHECK_FUNC(getnameinfo, ,working_ipv6=no, [#include <netdb.h>])
 fi
 
-if test ! "X$ipv6" = "Xno" && test "X$working_ipv6" = "Xyes"; then
+if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then
   AC_DEFINE([IPV6], 1, [Define to one if you want IPv6.])
 else
-  if test "X$ipv6" = "Xyes"; then
+  if test "$ipv6" = "yes"; then
     AC_MSG_FAILURE([IPv6 support not available])
   else
-    if test "X$ipv6" = "Xauto"; then
+    if test "$ipv6" = "auto"; then
       AC_MSG_WARN([IPv6 support not available, disabling IPv6])
     fi
   fi
 fi
 
-if test "X$ipv6" = "Xno" || test "X$working_ipv6" = "Xno";then
+if test "$ipv6" = "no" || test "$working_ipv6" = "no";then
   ping6_BUILD=''
 else
   working_icmp6=yes
@@ -357,7 +357,7 @@ else
 		   #include <sys/socket.h>
 		   #include <netinet/in.h>])])
 
-  if test "X$working_icmp6" = "Xyes"; then
+  if test "$working_icmp6" = "yes"; then
     AC_CHECK_HEADER(netinet/ip6.h, , working_icmp6=no,
       [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
 		     # include <sys/types.h>
@@ -367,7 +367,7 @@ else
 
   fi
 
-  if test "X$working_icmp6" = "Xyes"; then
+  if test "$working_icmp6" = "yes"; then
     AC_CHECK_TYPE(struct icmp6_filter, , working_icmp6=no,
       [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
 		     # include <sys/types.h>
@@ -377,7 +377,7 @@ else
 		     #include <netinet/icmp6.h>])])
   fi
 
-  if test "X$working_icmp6" = "Xyes"; then
+  if test "$working_icmp6" = "yes"; then
     AC_CHECK_TYPE(struct icmp6_hdr, , working_icmp6=no,
       [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
 		     # include <sys/types.h>
@@ -387,22 +387,47 @@ else
 		     #include <netinet/icmp6.h>])])
   fi
 
-  if test "X$working_icmp6" = "Xyes"; then
+  if test "$working_icmp6" = "yes"; then
+    IU_CHECK_MACRO(IPV6_HOPLIMIT, [#include <netinet/in.h>], ,
+		   [have_hoplimit=yes], [have_hoplimit=no])
+    IU_CHECK_MACRO(IPV6_2292HOPLIMIT, [#include <netinet/in.h>], ,
+		   [have_2292hoplimit=yes], [have_2292hoplimit=no])
     IU_CHECK_MACRO(IPV6_RECVHOPLIMIT, [#include <netinet/in.h>], ,
-		   [have_recvhoplimt=yes], [have_recvhoplimt=no])
-    IU_CHECK_MACRO(IPV6_2292HOPLIMIT, [#include <netinet/in.h>], , [
-      AC_DEFINE([IPV6_HOPLIMIT], IPV6_2292HOPLIMIT,
-                [Define to IPV6_HOPLIMIT if not available])
-    ], [working_icmp6=no])
-    if test "X$have_recvhoplimt" = "Xno"; then
-      IU_CHECK_MACRO(IPV6_HOPLIMIT, [#include <netinet/in.h>], , [
-        AC_DEFINE([IPV6_RECVHOPLIMIT], IPV6_HOPLIMIT,
-                  [Define to IPV6_HOPLIMIT if not available])
-      ], [working_icmp6=no])
+		   [have_recvhoplimit=yes], [have_recvhoplimit=no])
+
+    # Reset, ping6 can't compile without HOPLIMIT/RECVHOPLIMIT (or
+    # similar).
+    working_icmp6=no
+
+    if test $have_recvhoplimit = yes && test $have_hoplimit = yes; then
+      # ping6 uses HOPLIMIT and RECVLIMIT, if those exist, happy happy
+      # joy joy.
+      working_icmp6=yes
     fi
+
+    if test $have_2292hoplimit = yes && test $have_hoplimit = no; then
+      # Some systems (BSDs) define these macros prefixed with "2292",
+      # violating RFC 2292; work around it.
+      AC_DEFINE([IPV6_HOPLIMIT], IPV6_2292HOPLIMIT,
+                [Define to IPV6_2292HOPLIMIT if not available])
+      have_hoplimit=yes
+      working_icmp6=yes
+    fi
+
+    if test $have_recvhoplimit = no && test $have_hoplimit = yes; then
+      # There exist strange systems (FIXME: which ones?) where
+      # RECVHOPLIMIT might not be defined, but HOPLIMIT is.  So define
+      # that.
+      AC_DEFINE([IPV6_RECVHOPLIMIT], IPV6_HOPLIMIT,
+                [Define to IPV6_HOPLIMIT if not available])
+      working_icmp6=yes
+    fi
+
+    # If we got this far then we are SOL, and the reset above takes
+    # care of the rest.
   fi
 
-  if test "X$working_icmp6" = "Xyes"; then
+  if test "$working_icmp6" = "yes"; then
     IU_CHECK_MACRO(ICMP6_DST_UNREACH_BEYONDSCOPE,
                    [#ifdef HAVE_SYS_TYPES_H
 		    # include <sys/types.h>
@@ -411,7 +436,7 @@ else
 		    #include <netinet/in.h>
 		    #include <netinet/icmp6.h>], ,
 		   [have_beyondscope=yes], [have_beyondscope=no])
-    if test "X$have_beyondscope" = "Xno"; then
+    if test "$have_beyondscope" = "no"; then
       IU_CHECK_MACRO(ICMP6_DST_UNREACH_NOTNEIGHBOR, [#include <netinet/icmp6.h>], , [
         AC_DEFINE([ICMP6_DST_UNREACH_BEYONDSCOPE], ICMP6_DST_UNREACH_NOTNEIGHBOR,
                   [Define to ICMP6_DST_UNREACH_NOTNEIGHBOR if not available])
@@ -419,7 +444,7 @@ else
     fi
   fi
 
-  if test "X$working_icmp6" = "Xno"; then
+  if test "$working_icmp6" = "no"; then
     AC_MSG_WARN([ICMPv6 support not available, disabling ping6])
     ping6_BUILD=''
   fi

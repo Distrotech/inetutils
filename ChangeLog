@@ -1,3 +1,12 @@
+2011-11-29  Alfred M. Szmidt  <ams@gnu.org>
+
+	Be more robust in checking for IPV6_HOPLIMIT, and
+	IPV6_RECVHOPLIMIT.
+
+	* configure.ac: Rewrite check for IPV6_HOPLIMIT,
+	IPV6_RECVHOPLIMIT, and IPV6_2292HOPLIMIT.  Don't add X prefix to
+	checks related to working_icmp6, have_beyondscope and ipv6.
+
 2011-11-29  Giuseppe Scrivano  <gscrivano@gnu.org>
 
 	* tests/syslogd.sh: Use 127.0.0.1 and [::1] instead of localhost as
