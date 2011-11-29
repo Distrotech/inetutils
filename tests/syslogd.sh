@@ -225,8 +225,8 @@ $IU_LOGGER -h $IU_LONG_SOCKET -p user.info -t $TAG "Sending via long socket name
 
 if [ "$USER" = "root" ]; then
 	TESTCASES=$((TESTCASES + 2))
-	$IU_LOGGER -4 -h localhost -p user.info -t $TAG "Sending IPv4 message. (pid $$)"
-	$IU_LOGGER -6 -h localhost -p user.info -t $TAG "Sending IPv6 message. (pid $$)"
+	$IU_LOGGER -4 -h 127.0.0.1 -p user.info -t $TAG "Sending IPv4 message. (pid $$)"
+	$IU_LOGGER -6 -h "[::1]" -p user.info -t $TAG "Sending IPv6 message. (pid $$)"
 fi
 
 # Detection of registered messages.
