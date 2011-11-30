@@ -116,6 +116,10 @@
 # include "logprio.h"
 #endif
 
+#ifndef LOG_MAKEPRI
+#  define LOG_MAKEPRI(fac, p)	(((fac) << 3) | (p))
+#endif
+
 #include <error.h>
 #include <progname.h>
 #include <libinetutils.h>

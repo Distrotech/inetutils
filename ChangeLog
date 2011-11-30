@@ -1,3 +1,10 @@
+2011-11-30  Mats Erik Andersson <gnu@gisladisker.se>
+
+	OpenBSD 4.9 has changed <syslog.h>.  Relax configuration.
+
+	* configure.ac (syslog internal macros): Remove check of LOG_MAKEPRI.
+	* src/syslogd.c (LOG_MAKEPRI) [!LOG_MAKEPRI]: New macro.
+
 2011-11-29  Alfred M. Szmidt  <ams@gnu.org>
 
 	Basic test case for `hostname'.

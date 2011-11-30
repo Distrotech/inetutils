@@ -690,7 +690,7 @@ define([iu_syslog_includes],
     #include <syslog.h> ]])
 IU_CHECK_MACRO(syslog internal macros,
   iu_syslog_includes,
-  [LOG_MAKEPRI LOG_PRI LOG_FAC],
+  [LOG_PRI LOG_FAC],
   AC_CHECK_TYPE(CODE,
     AC_CHECK_DECL(prioritynames,
       AC_DEFINE([HAVE_SYSLOG_INTERNAL], 1, [FIXME]),,
