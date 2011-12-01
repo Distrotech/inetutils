@@ -26,8 +26,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <arpa/inet.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <progname.h>
 #include "libinetutils.h"
 #include "xalloc.h"

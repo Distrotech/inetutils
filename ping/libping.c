@@ -23,6 +23,7 @@
 #include <sys/file.h>
 #include <sys/time.h>
 
+#include <netinet/in.h>
 /*#include <netinet/ip_icmp.h> -- deliberately not including this */
 #include <arpa/inet.h>
 #include <netdb.h>

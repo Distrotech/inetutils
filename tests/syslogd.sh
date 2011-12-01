@@ -87,7 +87,8 @@ IU_GOOD_BASE=/tmp/$(date +%y-%m-%d)_socket_iu
 IU_BAD_BASE=/tmp/X$(date +%y-%m-%d)_socket_iu
 
 IU_OS=$(uname -s)
-if [ "${IU_OS}" != "OpenBSD" -a "${IU_OS}" != "FreeBSD" ]; then
+if [ "${IU_OS}" = "Linux" -o "${IU_OS}" = "GNU/kFreeBSD" \
+     -o "${IU_OS}" = "SunOS" ]; then
 	# Aim at the boundary of 108 characters.
 	IU_GOOD_BASE=${IU_GOOD_BASE}_lnx
 	IU_BAD_BASE=${IU_BAD_BASE}_lnx
@@ -110,16 +111,16 @@ TAG="syslogd-test"
 IU_SYSLOGD=./src/syslogd$EXEEXT
 IU_LOGGER=./src/logger$EXEEXT
 
+# Step out of `tests/', should the invokation
+# have been made there.
+#
+[ -d ../src ] && cd ..
+
 if [ $VERBOSE ]; then
     set -x
     $IU_SYSLOGD --version
     $IU_LOGGER --version
 fi
-
-# Step out of `tests/', should the invokation
-# have been made there.
-#
-[ -d ../src ] && cd ..
 
 if [ ! -x $IU_SYSLOGD ]; then
 	echo "Missing executable 'syslogd'. Failing."
@@ -150,6 +151,7 @@ else
 	if [ $? -eq 0 ]; then
 		echo "The INET port $PORT/$PROTO is already in use."
 		echo "No reliable test is possible."
+		clean_testdir
 		exit 77
 	fi
 fi

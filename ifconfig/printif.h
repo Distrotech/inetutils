@@ -22,6 +22,7 @@
 #ifndef IFCONFIG_PRINTIF_H
 # define IFCONFIG_PRINTIF_H
 
+# include <netinet/in.h>
 # include <net/if.h>
 # include <arpa/inet.h>
 # include "ifconfig.h"

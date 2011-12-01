@@ -1,3 +1,12 @@
+2011-12-01  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ifconfig/ifconfig.c: Include <netinet/in.h>.
+	* ifconfig/printif.h: Likewise.
+	* ping/libping.c: Likewise.
+	* src/hostname.c: Include <arpa/inet.h> after <netinet/in.h>.
+	* tests/syslogd.sh: Extra long socket name only for known cases.
+	Delay verbose version printing.  Clean up when port was busy.
+
 2011-11-30  Mats Erik Andersson <gnu@gisladisker.se>
 
 	OpenBSD 4.9 has changed <syslog.h>.  Relax configuration.
