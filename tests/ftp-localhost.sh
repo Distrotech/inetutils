@@ -46,7 +46,7 @@ fi
 # Note that inetd changes directory to / when --debug is not given so
 # all paths must be absolute for things to work.
 
-TMPDIR=`mktemp --tmpdir=$PWD -d`
+TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`
 trap 'rm -rf "$TMPDIR"' 0 1 2 3 15
 
 echo "4711 stream tcp nowait root $PWD/$FTPD ftpd -A -l" > $TMPDIR/inetd.conf
