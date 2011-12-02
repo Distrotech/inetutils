@@ -1,3 +1,11 @@
+2011-12-02  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* configure.ac: Check for external declarations of `telcmds'
+	and `telopts'.  Define UTMPX for NetBSD.
+	* telnet/commands.c (send_tncmd) [!HAVE_DECL_TELOPTS]: Make the
+	external declaration conditional.
+	[HAVE_DECL_TELOPTS]: Enforce a cast `char **' on system's TELOPTS.
+
 2011-12-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ifconfig/ifconfig.c: Include <netinet/in.h>.

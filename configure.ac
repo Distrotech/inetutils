@@ -670,6 +670,16 @@ if test "$ac_cv_func_hstrerror" = yes \
   AC_DEFINE([HAVE_HSTRERROR], 1, [Define to one if you have hstrerror.])
 fi
 
+dnl OpenSolaris does not provide an external reference.
+AC_CHECK_DECLS(telcmds, , ,
+  [IU_FLUSHLEFT([#undef TELCMDS
+                 #include <arpa/telnet.h>])])
+
+dnl NetBSD does include an external reference.
+AC_CHECK_DECLS(telopts, , ,
+  [IU_FLUSHLEFT([#undef TELOPTS
+                 #include <arpa/telnet.h>])])
+
 ## Checks for function declarations.
 
 AC_DECL_SYS_SIGLIST
@@ -789,8 +799,7 @@ case "$host" in
   AC_DEFINE([UTMPX], 1, [FIXME])
   AC_DEFINE([HAVE_STREAMSPTY], 1, [FIXME])
   ;;
-*irix* | *hpux*)
-  AC_DEFINE([UTMPX], 1, [FIXME])
+*irix* | *hpux* | *netbsd*)
   AC_DEFINE([UTMPX], 1, [FIXME])
   ;;
 esac

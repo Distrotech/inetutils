@@ -429,7 +429,9 @@ int
 send_tncmd (void (*func) (), char *cmd, char *name)
 {
   char **cpp;
+#if !HAVE_DECL_TELOPTS
   extern char *telopts[];
+#endif
   register int val = 0;
 
   if (isprefix (name, "help") || isprefix (name, "?"))
@@ -464,7 +466,11 @@ send_tncmd (void (*func) (), char *cmd, char *name)
     }
   if (cpp)
     {
+#if HAVE_DECL_TELOPTS
+      val = cpp - (char **) telopts;
+#else /* !HAVE_DECL_TELOPTS */
       val = cpp - telopts;
+#endif
     }
   else
     {
