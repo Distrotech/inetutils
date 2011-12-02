@@ -19,6 +19,8 @@
 
 # Tests to establish functionality of SYSLOG daemon.
 #
+# Written by Mats Erik Andersson.
+
 
 # Is usage explanation in demand?
 #
@@ -41,18 +43,13 @@ HERE
 fi
 
 # Keep any external assignment of testing directory.
-# Otherwise a randomisation is included if NOCLEAN
-# has been set.
+# Otherwise a randomisation is included.
 #
-if [ -n "${NOCLEAN+yes}" ]; then
-	: ${IU_TESTDIR:=/tmp/iu_syslog}
-else
-	: ${IU_TESTDIR:=/tmp/iu_syslog$$}
-fi
+: ${IU_TESTDIR:=$PWD/iu_syslog.XXXXXX}
 
 if [ ! -d $IU_TESTDIR ]; then
 	IU_DO_CLEANDIR=yes
-	mkdir -p $IU_TESTDIR
+	IU_TESTDIR=$(mktemp -d $IU_TESTDIR)
 fi
 
 # Erase the testing directory.
@@ -62,6 +59,11 @@ clean_testdir () {
 		rm -fR $IU_TESTDIR
 	fi
 }
+
+# Clean artifacts as execution stops.
+#
+trap clean_testdir EXIT HUP INT QUIT TERM
+
 
 CONF=$IU_TESTDIR/syslog.conf
 PID=$IU_TESTDIR/syslogd.pid
@@ -124,13 +126,11 @@ fi
 
 if [ ! -x $IU_SYSLOGD ]; then
 	echo "Missing executable 'syslogd'. Failing."
-	clean_testdir
 	exit 77
 fi
 
 if [ ! -x $IU_LOGGER ]; then
 	echo "Missing executable 'logger'. Failing."
-	clean_testdir
 	exit 77
 fi
 
@@ -138,7 +138,7 @@ fi
 rm -f $OUT $PID
 
 # Full testing needs a superuser.  Report this.
-if [ "$USER" != "root" ]; then
+if [ $(id -u) -ne 0 ]; then
 	cat <<-EOT
 	WARNING!!
 	Disabling INET server tests since you seem
@@ -151,7 +151,6 @@ else
 	if [ $? -eq 0 ]; then
 		echo "The INET port $PORT/$PROTO is already in use."
 		echo "No reliable test is possible."
-		clean_testdir
 		exit 77
 	fi
 fi
@@ -186,7 +185,7 @@ IU_OPTIONS="--rcfile=$CONF --pidfile=$PID --socket=$SOCKET"
 IU_OPTIONS="$IU_OPTIONS -a $IU_LONG_SOCKET -a $IU_EXCESSIVE_SOCKET"
 
 ## Enable INET service when running as root.
-if [ "$USER" = "root" ]; then
+if [ $(id -u) -eq 0 ]; then
 	IU_OPTIONS="$IU_OPTIONS --ipany --inet --hop"
 fi
 ## Bring in additional options from command line.
@@ -208,7 +207,6 @@ sleep 1
 #
 if [ ! -r $PID ]; then
 	echo "The service daemon never started. Failing."
-	clean_testdir
 	exit 1
 fi
 
@@ -231,7 +229,7 @@ TESTCASES=$((TESTCASES + 2))
 $IU_LOGGER -h $SOCKET -p user.info -t $TAG "Sending BSD message. (pid $$)"
 $IU_LOGGER -h $IU_LONG_SOCKET -p user.info -t $TAG "Sending via long socket name. (pid $$)"
 
-if [ "$USER" = "root" ]; then
+if [ $(id -u) -eq 0 ]; then
 	TESTCASES=$((TESTCASES + 2))
 	$IU_LOGGER -4 -h 127.0.0.1 -p user.info -t $TAG "Sending IPv4 message. (pid $$)"
 	$IU_LOGGER -6 -h "[::1]" -p user.info -t $TAG "Sending IPv6 message. (pid $$)"
@@ -256,7 +254,5 @@ fi
 
 # Remove the daemon process.
 [ -r $PID ] && kill "$(cat $PID)"
-
-clean_testdir
 
 exit $EXITCODE

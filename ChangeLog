@@ -1,3 +1,8 @@
+2011-12-03  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/syslogd.sh: Random test directory.  Identity from id(1).
+	Trap exit conditions for clean up.
+
 2011-12-02  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/syslogd.sh: Match exact port number in regex pattern.
