@@ -1,5 +1,10 @@
 2011-12-02  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/syslogd.sh: Match exact port number in regex pattern.
+	* tests/tftp.sh: Likewise.
+
+2011-12-02  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/ftp-localhost.sh: Portable invokation of mktemp(1).
 
 2011-12-02  Mats Erik Andersson <gnu@gisladisker.se>

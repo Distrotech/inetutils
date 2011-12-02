@@ -147,7 +147,7 @@ if [ "$USER" != "root" ]; then
 else
 	# Is the INET port already in use? If so,
 	# skip the test in its entirety.
-	netstat -na | grep -q -E "^$PROTO(4|6|46)? .*$PORT "
+	netstat -na | grep -q -E "^$PROTO(4|6|46)?.*[^0-9]$PORT[^0-9]"
 	if [ $? -eq 0 ]; then
 		echo "The INET port $PORT/$PROTO is already in use."
 		echo "No reliable test is possible."

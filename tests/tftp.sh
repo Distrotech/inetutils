@@ -51,7 +51,7 @@ if [ "$VERBOSE" ]; then
 fi
 
 # Check that the port is still available
-netstat -na | grep -q -E "^$PROTO(4|6|46)? .*$PORT "
+netstat -na | grep -q -E "^$PROTO(4|6|46)?.*[^0-9]$PORT[^0-9]"
 if test $? -eq 0; then
     echo "Desired port $PORT/$PROTO is already in use."
     exit 77
@@ -75,7 +75,7 @@ test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
 sleep 1
 
 # Did `inetd' really succeed in establishing a listener?
-netstat -na | grep -q -E "^$PROTO(4|6|46)? .*$PORT "
+netstat -na | grep -q -E "^$PROTO(4|6|46)?.*[^0-9]$PORT[^0-9]"
 if test $? -ne 0; then
     # No it did not.
     ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
