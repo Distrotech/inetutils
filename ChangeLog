@@ -1,3 +1,10 @@
+2011-12-09  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* telnet/Makefile.am (INCLUDES): Add $(NCURSES_INCLUDE) to list.
+	* telnetd/Makefile.am: Likewise.
+	* telnetd/utility.c (readstream) [HAVE_STREAMSPTY && HAVE_TERMIO_H]:
+	Make use of `struct termio' conditioned on HAVE_TERMIO_H.
+
 2011-12-03  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/syslogd.sh: Random test directory.  Identity from id(1).

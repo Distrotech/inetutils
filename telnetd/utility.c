@@ -72,7 +72,9 @@ readstream (int p, char *ibuf, int bufsize)
   int flags = 0;
   int ret = 0;
   struct termios *tsp;
+#ifdef HAVE_TERMIO_H
   struct termio *tp;
+#endif
   struct iocblk *ip;
   char vstop, vstart;
   int ixon;
@@ -130,6 +132,7 @@ readstream (int p, char *ibuf, int bufsize)
 	  ixon = tsp->c_iflag & IXON;
 	  break;
 
+#ifdef HAVE_TERMIO_H
 	case TCSETA:
 	case TCSETAW:
 	case TCSETAF:
@@ -138,6 +141,7 @@ readstream (int p, char *ibuf, int bufsize)
 	  vstart = tp->c_cc[VSTART];
 	  ixon = tp->c_iflag & IXON;
 	  break;
+#endif /* HAVE_TERMIO_H */
 
 	default:
 	  errno = EAGAIN;
