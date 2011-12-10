@@ -31,8 +31,22 @@ IFCONFIG="${IFCONFIG:-../ifconfig/ifconfig$EXEEXT --format=unix}"
 AF=${AF:-inet}
 PROTO=${PROTO:-udp}
 PORT=${PORT:-7777}
-INETD_CONF="$PWD/inetd.conf.tmp"
-INETD_PID="$PWD/inetd.pid.$$"
+
+# Random base diractory at testing time.
+TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`
+INETD_CONF="$TMPDIR/inetd.conf.tmp"
+INETD_PID="$TMPDIR/inetd.pid.$$"
+
+posttesting () {
+    if test -f "$INETD_PID" -a -r "$INETD_PID" \
+	&& ps "$(cat $INETD_PID)" >/dev/null 2>&1
+    then
+	kill -9 "$(cat $INETD_PID)"
+    fi
+    rm -rf "$TMPDIR" tftp-test-file
+}
+
+trap posttesting EXIT HUP INT QUIT TERM
 
 ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
      -e "s/^.*$AF[[:blank:]]\([:.0-9]\{1,\}\)[[:blank:]].*$/\1/g"`"
@@ -61,7 +75,7 @@ fi
 # name because `inetd' chdirs to `/' in daemon mode; ditto for
 # $INETD_CONF.
 cat > "$INETD_CONF" <<EOF
-$PORT dgram $PROTO wait $USER $TFTPD   tftpd -l `pwd`/tftp-test
+$PORT dgram $PROTO wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
 EOF
 
 # Launch `inetd', assuming it's reachable at all $ADDRESSES.
@@ -89,9 +103,10 @@ else
     input="/dev/zero"
 fi
 
-rm -fr tftp-test tftp-test-file
-mkdir tftp-test && \
-    dd if="$input" of="tftp-test/tftp-test-file" bs=1024 count=170 2>/dev/null
+rm -fr $TMPDIR/tftp-test tftp-test-file
+mkdir -p $TMPDIR/tftp-test && \
+    dd if="$input" of="$TMPDIR/tftp-test/tftp-test-file" \
+	bs=1024 count=170 2>/dev/null
 
 echo "Looks into $ADDRESSES."
 
@@ -101,7 +116,7 @@ for addr in $ADDRESSES; do
     rm -f tftp-test-file
     echo "get tftp-test-file" | "$TFTP" $addr $PORT
 
-    cmp tftp-test/tftp-test-file tftp-test-file
+    cmp $TMPDIR/tftp-test/tftp-test-file tftp-test-file
     result=$?
 
     if [ "$result" -ne 0 ]; then
@@ -113,11 +128,7 @@ for addr in $ADDRESSES; do
     fi
 done
 
-ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
-
-rm -rf tftp-test tftp-test-file "$INETD_CONF" "$INETD_PID"
-
-# Minimal clean up
+# Minimal clean up. Main work in posttesting().
 echo
 
 exit $result

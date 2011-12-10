@@ -1,3 +1,10 @@
+2011-12-10  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/ftp-localhost.sh: Expand trapping to kill inetd process.
+	* tests/syslogd.sh: Likewise.
+	* tests/tftp.sh: Use a random testing directory and implement
+	cleanup in a trapping function.
+
 2011-12-09  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* telnet/Makefile.am (INCLUDES): Add $(NCURSES_INCLUDE) to list.

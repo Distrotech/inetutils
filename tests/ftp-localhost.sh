@@ -47,7 +47,14 @@ fi
 # all paths must be absolute for things to work.
 
 TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`
-trap 'rm -rf "$TMPDIR"' 0 1 2 3 15
+
+posttesting () {
+    test -f "$TMPDIR/inetd.pid" -a -r "$TMPDIR/inetd.pid" \
+	&& kill -9 "$(cat $TMPDIR/inetd.pid)"
+    rm -rf "$TMPDIR"
+}
+
+trap posttesting 0 1 2 3 15
 
 echo "4711 stream tcp nowait root $PWD/$FTPD ftpd -A -l" > $TMPDIR/inetd.conf
 echo "machine 127.0.0.1 login ftp password foobar" > $TMPDIR/.netrc
@@ -75,8 +82,5 @@ if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
     echo cannot find expected output from ftp client?
     exit 1
 fi
-
-inetd_pid=`cat $TMPDIR/inetd.pid`
-kill -9 $inetd_pid
 
 exit 0

@@ -58,6 +58,8 @@ clean_testdir () {
 	if [ -z "${NOCLEAN+no}" -a "$IU_DO_CLEANDIR" = "yes" ]; then
 		rm -fR $IU_TESTDIR
 	fi
+	test -f "$PID" && ps "$(cat $PID)" >/dev/null 2>&1 \
+		&& kill -9 "$(cat $PID)"
 }
 
 # Clean artifacts as execution stops.
