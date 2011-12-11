@@ -65,8 +65,12 @@ $INETD --pidfile=$TMPDIR/inetd.pid $TMPDIR/inetd.conf
 # Wait for inetd to write pid and open socket
 sleep 2
 
-echo "rstatus\ndir\n" \
-    | HOME=$TMPDIR $FTP $TARGET 4711 -v -p -t | tee $TMPDIR/ftp.stdout
+cat <<STOP |
+rstatus
+dir
+STOP
+HOME=$TMPDIR $FTP $TARGET 4711 -v -p -t | tee $TMPDIR/ftp.stdout
+
 errno=$?
 if [ $errno != 0 ]; then
     echo running ftp failed? errno $errno
