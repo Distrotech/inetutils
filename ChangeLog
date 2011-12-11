@@ -1,5 +1,12 @@
 2011-12-11  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/ftp-localhost.sh: Use strict IPv4 options for portability.
+	* configure.ac: Check for iruserok.  Disable building of rshd and
+	rlogind if it is missing.
+	* NEWS,TODO: Updated.
+
+2011-12-11  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/ftp-localhost.sh: Replace `echo' with portable construct.
 
 2011-12-10  Mats Erik Andersson <gnu@gisladisker.se>

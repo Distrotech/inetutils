@@ -134,6 +134,9 @@ Ability to ping multiple host in one go.
 ** Make sure it is a drop in replacement at least for the most
    common options on Linux and BSD.
 
+** Parse options before taking actions: `ifconfig --down -i gif0'
+   segfaults, but `ifconfig -i gif0 --down' does not.
+
 ** Some systems can provide more interfaces than
   SIOCGIFCONF/if_nameindex, interfaces which are usually not UP but
   registered nevertheless.  (linux: /prov/net/dev). Some support for
@@ -150,6 +153,10 @@ Ability to ping multiple host in one go.
 ** Is it necessary to merge long/short options intelligently?
   For example, if a system specific option shadows a normal option?
   Allow this?
+
+* ftpd
+
+Complete the initiated rewrite for supporting IPv6.
 
 * tftpd
 

@@ -219,6 +219,17 @@ else
   talk_BUILD=''
 fi
 
+dnl FIXME: Presently rshd and rlogind need iruserok(3),
+dnl which is not univerally available.  Replacement code?
+AC_CHECK_FUNC(iruserok, , , [#include <netdb.h>])
+if test "$ac_cv_func_iruserok" = no; then
+  enable_rlogind=no
+  rlogind_BUILD=''
+  enable_rshd=no
+  rshd_BUILD=''
+fi
+
+
 dnl FIXME: Make this test case a bit more robust. Remove KRB4
 LIBAUTH=
 INCAUTH=

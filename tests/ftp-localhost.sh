@@ -19,6 +19,10 @@
 
 # Written by Simon Josefsson
 
+# FIXME: Strict IPv4 setup, until Mats has completed the migration
+# of ftpd to support IPv6.  Address mapping IPv4-to-IPv6 is not
+# uniform an all platforms, thus `tcp4' for inetd and '-4' for ftp.
+
 set -e
 
 FTP=${FTP:-../ftp/ftp$EXEEXT}
@@ -56,8 +60,8 @@ posttesting () {
 
 trap posttesting 0 1 2 3 15
 
-echo "4711 stream tcp nowait root $PWD/$FTPD ftpd -A -l" > $TMPDIR/inetd.conf
-echo "machine 127.0.0.1 login ftp password foobar" > $TMPDIR/.netrc
+echo "4711 stream tcp4 nowait root $PWD/$FTPD ftpd -A -l" > $TMPDIR/inetd.conf
+echo "machine $TARGET login ftp password foobar" > $TMPDIR/.netrc
 chmod 600 $TMPDIR/.netrc
 
 $INETD --pidfile=$TMPDIR/inetd.pid $TMPDIR/inetd.conf
@@ -69,9 +73,11 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET 4711 -v -p -t | tee $TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP $TARGET 4711 -4 -v -p -t >$TMPDIR/ftp.stdout
 
 errno=$?
+cat $TMPDIR/ftp.stdout
+
 if [ $errno != 0 ]; then
     echo running ftp failed? errno $errno
     exit 77
