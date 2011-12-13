@@ -47,6 +47,11 @@ if ! id -u ftp > /dev/null; then
     exit 77
 fi
 
+if [ ! -d ~ftp ]; then
+    echo "the user 'ftp' must have a home directory"
+    exit 77
+fi
+
 # Note that inetd changes directory to / when --debug is not given so
 # all paths must be absolute for things to work.
 

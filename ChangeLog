@@ -1,5 +1,9 @@
 2011-12-13  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/ftp-localhost.sh: Check presence of directory `~ftp'.
+
+2011-12-13  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/tftp.sh: Subtests for differing data transfer size.
 	Portability fix for Solaris.
 
