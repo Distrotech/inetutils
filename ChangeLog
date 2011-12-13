@@ -1,5 +1,19 @@
 2011-12-13  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* am/libcurses.m4 (IU_LIB_TERMCAP): Check libtermcap before libcurses.
+	New macros HAVE_TGETENT, HAVE_TERMCAP_TGETENT, HAVE_CURSES_TGETENT,
+	and HAVE_TERMINFO_TGETENT.
+	* am/readline.m4 (gl_FUNC_READLINE): In case libreadline is absent,
+	check whether libedit is present and suffices.
+	* telnet/telnet.c [HAVE_TERMCAP_TGETENT]: Include <termcap.h>.
+	[HAVE_CURSES_TGETENT]: Include <curses.h> and <term.h>.
+	(init_term) [HAVE_TGETENT]: Replace HAVE_READLINE by HAVE_TGETENT.
+	* telnetd/utility.c [HAVE_TERMCAP_TGETENT]: Likewise.
+	[HAVE_CURSES_TGETENT]: Likewise.
+	(terminaltypeok) [HAVE_TGETENT]: Likewise.
+
+2011-12-13  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/ftp-localhost.sh: Check presence of directory `~ftp'.
 
 2011-12-13  Mats Erik Andersson <gnu@gisladisker.se>

@@ -73,7 +73,9 @@
 #include "types.h"
 #include "general.h"
 
-#ifdef HAVE_READLINE
+#ifdef HAVE_TERMCAP_TGETENT
+# include <termcap.h>
+#elif defined HAVE_CURSES_TGETENT
 # include <curses.h>
 # include <term.h>
 #endif
@@ -729,7 +731,7 @@ int
 init_term (char *tname, int fd, int *errp)
 {
   int err = -1;
-#ifdef HAVE_READLINE
+#ifdef HAVE_TGETENT
   err = tgetent (termbuf, tname);
 #endif
   if (err == 1)

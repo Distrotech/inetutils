@@ -53,6 +53,20 @@ AC_DEFUN([gl_FUNC_READLINE],
     LIBS="$am_save_LIBS"
   ])
 
+  dnl In case of failure, examine whether libedit can act
+  dnl as replacement. Small NetBSD systems use editline
+  dnl as wrapper for readline.
+  if test "$gl_cv_lib_readline" = no; then
+    am_save_LIBS="$LIBS"
+    LIBS="$am_save_LIBS -ledit"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>
+#include <readline/readline.h>]],
+        [[readline((char*)0);]])],
+      [gl_cv_lib_readline="yes"])
+    LIBS="$am_save_LIBS"
+    LIBREADLINE=-ledit
+  fi
+
   if test "$gl_cv_lib_readline" != no; then
     AC_DEFINE([HAVE_READLINE], [1], [Define if you have the readline library.])
     extra_lib=`echo "$gl_cv_lib_readline" | sed -n -e 's/yes, requires //p'`

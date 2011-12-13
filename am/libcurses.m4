@@ -88,19 +88,37 @@ AC_DEFUN([IU_LIB_TERMCAP], [
   if test "$LIBNCURSES"; then
     LIBTERMCAP="$LIBNCURSES"
   else
-    AC_CHECK_LIB(curses, tgetent, LIBTERMCAP=-lcurses)
-    if test "$ac_cv_lib_curses_tgetent" = no; then
-      AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
+    AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
+    AC_CHECK_HEADERS([termcap.h])
+    if test "$ac_cv_lib_termcap_tgetent" = yes \
+	|| test "$ac_cv_header_termcap_h" = yes; then
+      AC_DEFINE([HAVE_TERMCAP_TGETENT], 1,
+		[Define to 1 if tgetent() exists in <termcap.h>.])
+    else
+      AC_CHECK_LIB(curses, tgetent, LIBTERMCAP=-lcurses)
     fi
-    if test "$ac_cv_lib_termcap_tgetent" = no; then
+    if test "$ac_cv_lib_curses_tgetent" = yes \
+	&& test "$ac_cv_lib_termcap_tgetent" = no; then
+      AC_DEFINE([HAVE_CURSES_TGETENT], 1,
+		[Define to 1 if tgetent() exists in <curses.h>.])
+    fi
+    if test "$ac_cv_lib_curses_tgetent" = no \
+	&& test "$ac_cv_lib_termcap_tgetent" = no; then
       AC_CHECK_LIB(termlib, tgetent, LIBTERMCAP=-ltermlib)
+      if "$ac_cv_lib_termlib_tgetent" = yes; then
+	AC_DEFINE([HAVE_TERMINFO_TGETENT], 1,
+		  [Define to 1 if tgetent() exists in libterminfo.])
+      fi
+    fi
+    if test -n "$LIBTERMCAP"; then
+      AC_DEFINE([HAVE_TGETENT], 1, [Define to 1 if tgetent() exists.])
     fi
   fi
   AC_SUBST(LIBTERMCAP)])dnl
 
-dnl IU_LIB_CURSES -- checke for curses, and associated libraries
+dnl IU_LIB_CURSES -- check for curses, and associated libraries
 dnl
-dnl Checks for varions libraries implementing the curses interface, and if
+dnl Checks for various libraries implementing the curses interface, and if
 dnl found, defines LIBCURSES to be the appropriate linker specification,
 dnl *including* any termcap libraries if needed (some versions of curses
 dnl don't need termcap).
