@@ -414,12 +414,12 @@ doit (int sockfd, struct sockaddr_in *fromp)
   alarm (0);
   if (port != 0)
     {
-      /* If the secondary port# is nonzero, the we have to
+      /* If the secondary port# is non-zero, then we have to
        * connect to that port (which the client has already
        * created and is listening on).  The secondary port#
-       * that the client tells us to connect to has to also be
+       * that the client tells us to connect to has also to be
        * a reserved port#.  Also, our end of this secondary
-       * connection has to also have a reserved TCP port bond
+       * connection has also to have a reserved TCP port bound
        * to it, plus.
        */
       int lport = IPPORT_RESERVED - 1;
@@ -437,13 +437,11 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	    syslog (LOG_ERR, "2nd port not reserved\n");
 	    exit (EXIT_FAILURE);
 	  }
-      /* Use the fromp structure taht we already have.
+      /* Use the fromp structure that we already have available.
        * The 32-bit Internet address is obviously that of the
-       * client's, just change the port# to the one specified
-       * by the clent as the secondary port.
+       * client; just change the port# to the one specified
+       * as secondary port by the client.
        */
-      syslog (LOG_ERR, "2nd port not reserved %d\n", port);
-
       fromp->sin_port = htons (port);
       if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
 	{

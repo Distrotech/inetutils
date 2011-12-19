@@ -309,6 +309,12 @@ main (int argc, char *argv[])
   if (argc > 2)
     targetshouldbedirectory = 1;
 
+#ifndef KERBEROS
+  /* We must be setuid root.  */
+  if (geteuid ())
+    error (EXIT_FAILURE, 0, "must be setuid root.");
+#endif
+
   /* Command to be executed on remote system using "rsh". */
 #ifdef	KERBEROS
   rc = asprintf (&command, "rcp%s%s%s%s", iamrecursive ? " -r" : "",
@@ -427,7 +433,8 @@ toremote (char *targ, int argc, char *argv[])
 	      tos = IPTOS_THROUGHPUT;
 	      if (setsockopt (rem, IPPROTO_IP, IP_TOS,
 			      (char *) &tos, sizeof (int)) < 0)
-		error (0, errno, "TOS (ignored)");
+		if (errno != ENOPROTOOPT)
+		  error (0, errno, "TOS (ignored)");
 #endif
 	      if (response () < 0)
 		exit (EXIT_FAILURE);
@@ -496,7 +503,8 @@ tolocal (int argc, char *argv[])
       tos = IPTOS_THROUGHPUT;
       if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int)) <
 	  0)
-	error (0, errno, "TOS (ignored)");
+	if (errno != ENOPROTOOPT)
+	  error (0, errno, "TOS (ignored)");
 #endif
       sink (1, argv + argc - 1);
       seteuid (0);

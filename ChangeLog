@@ -1,3 +1,12 @@
+2011-12-19  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/rcp.c (main) [!KERBEROS]: Exit at non-zero geteuid().
+	(toremote): After setting IPTOS_THROUGHPUT, print warning
+	only for ERRNO not equal to ENOPROTOOPT.
+	(tolocal): Likewise.
+	* src/rshd.c (doit): Remove misplaced syslog message.
+	Improve comments on port usage.
+
 2011-12-13  Alfred M. Szmidt  <ams@gnu.org>
 
 	Require automake 1.11.1.
