@@ -1,3 +1,14 @@
+2011-12-20  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/rlogind.c (rlogind_auth) [IP_OPTIONS]: Abort connection as soon
+	either of IPOPT_SSRR or IPOPT_LSRR is found.  Other options are recorded,
+	and reported, but immediately erased.
+	* src/rshd.c (doit) [IP_OPTIONS]: Likewise.
+	[HAVE_NETINET_IN_SYSTM_H]: Include <netinet/in_systm.h>.
+	[HAVE_NETINET_IP_H]: Include <netinet/ip.h>.
+	* NEWS: Mention security issue inherent in source routing.
+	* AUTHORS: Mention myself as contributing author.
+
 2011-12-19  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/rcp.c (main) [!KERBEROS]: Exit at non-zero geteuid().

@@ -599,8 +599,33 @@ rlogind_auth (int fd, struct auth_data *ap)
 			&optsize) == 0 && optsize != 0)
 	  {
 	    lp = lbuf;
-	    for (cp = optbuf; optsize > 0; cp++, optsize--, lp += 3)
-	      sprintf (lp, " %2.2x", *cp);
+	    for (cp = optbuf; optsize > 0; )
+	      {
+		sprintf (lp, " %2.2x", *cp);
+		lp += 3;
+
+		/* These two open an attack vector.  */
+		if (*cp == IPOPT_SSRR || *cp == IPOPT_LSRR)
+		  {
+		    syslog (LOG_NOTICE,
+			    "Discarding connection from %s with set source routing",
+			    inet_ntoa (ap->from.sin_addr));
+		    exit (EXIT_FAILURE);
+		  }
+		if (*cp == IPOPT_EOL)
+		  break;
+		if (*cp == IPOPT_NOP)
+		  cp++, optsize--;
+		else
+		  {
+		    /* Options using a length octet, see RFC 791.  */
+		    int inc = cp[1];
+
+		    optsize -= inc;
+		    cp += inc;
+		  }
+	      }
+
 	    syslog (LOG_NOTICE, "Ignoring IP options: %s", lbuf);
 	    if (setsockopt (0, ipproto, IP_OPTIONS, (char *) NULL, optsize))
 	      {

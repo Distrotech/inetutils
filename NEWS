@@ -25,6 +25,14 @@ Handle IPv6 connections.  The server can forward messages
 without using a listening INET socket.  It can also bind
 to a single INET/INET6 address.
 
+* rlogind, rshd
+
+This legacy code was vulnerable to an attack based on source routing.
+Whenever either of IPOPT_SSRR or IPOPT_LSRR is encountered, the newly
+initiated connection is now server-side aborted.  The advisory issued
+by Secure Networks, Inc., February 1997, was adapted.  It was found at
+http://www.citi.umich.edu/u/provos/papers/secnet-spoof.txt
+
 * ifconfig
 
 Now under GNU/Linux "ifconfig -a" shows also interfaces without an address.

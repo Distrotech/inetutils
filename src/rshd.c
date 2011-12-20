@@ -48,7 +48,7 @@
  */
 
 /*
- * remote shell server:
+ * remote shell server exchange protocol:
  *	[port]\0
  *	remuser\0
  *	locuser\0
@@ -69,6 +69,12 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#ifdef HAVE_NETINET_IN_SYSTM_H
+# include <netinet/in_systm.h>	/* n_time */
+#endif
+#ifdef HAVE_NETINET_IP_H
+# include <netinet/ip.h>	/* IPOPT_* */
+#endif
 
 #include <unistd.h>
 #include <errno.h>
@@ -353,16 +359,46 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		     &optsize) && optsize != 0)
       {
 	lp = lbuf;
-	/* The clent has set IP options.  This isn't allowd.
-	 * Use syslog() to record the fact.
+	/* The client has set IP options.  This isn't allowed.
+	 * Use syslog() to record the fact.  Only the option
+	 * types are printed, not their contents.
 	 */
-	for (cp = optbuf; optsize > 0; cp++, optsize--, lp += 3)
-	  sprintf (lp, " %2.2x", *cp);
+	for (cp = optbuf; optsize > 0; )
+	  {
+	    sprintf (lp, " %2.2x", *cp);
+	    lp += 3;
+
+	    if (*cp == IPOPT_SSRR || *cp == IPOPT_LSRR)
+	      {
+		/* Already the TCP handshake suffices for
+		 * a man-in-the-middle attack vector.
+		 */
+		syslog (LOG_NOTICE,
+			"Discarding connection from %s with set source routing",
+			inet_ntoa (fromp->sin_addr));
+		exit (EXIT_FAILURE);
+	      }
+	    if (*cp == IPOPT_EOL)
+	      break;
+	    if (*cp == IPOPT_NOP)
+	      cp++, optsize--;
+	    else
+	      {
+		/* Options using a length octet, see RFC 791.  */
+		int inc = cp[1];
+
+		optsize -= inc;
+		cp += inc;
+	      }
+	  }
+
+	/* At this point presumably harmless options are present.
+	 * Make a report about them, erase them, and continue.  */
 	syslog (LOG_NOTICE,
-		"Connection received from %s using IP options (ignored):%s",
+		"Connection received from %s using IP options (erased):%s",
 		inet_ntoa (fromp->sin_addr), lbuf);
 
-	/* Turn off the options.  If this doesn't work, we quit */
+	/* Turn off the options.  If this doesn't work, we quit.  */
 	if (setsockopt (sockfd, ipproto, IP_OPTIONS,
 			(char *) NULL, optsize) != 0)
 	  {
