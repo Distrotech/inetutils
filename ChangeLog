@@ -1,3 +1,12 @@
+2011-12-22  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* libinetutils/setsig.c (setsig) [HAVE_SIGACTION]: New variable OSA.
+	Superpose SA_RESTART on SA_FLAGS, no replacement!  Use OSA for old
+	signal mask in calling sigaction.  Return SIG_ERR on error, or fetch
+	old signal handler from OSA upon success.
+	[HAVE_SIGVEC]: Likewise:  New variable OSV.  Use OSV in call to sigvec.
+	Return SIG_ERR on error, or old handler brought in from OSV.
+
 2011-12-20  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/rlogind.c (rlogind_auth) [IP_OPTIONS]: Abort connection as soon

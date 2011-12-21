@@ -31,21 +31,23 @@ sighandler_t
 setsig (int sig, sighandler_t handler)
 {
 #ifdef HAVE_SIGACTION
-  struct sigaction sa;
+  struct sigaction sa, osa;
   sigemptyset (&sa.sa_mask);
 # ifdef SA_RESTART
-  sa.sa_flags = SA_RESTART;
+  sa.sa_flags |= SA_RESTART;
 # endif
   sa.sa_handler = handler;
-  sigaction (sig, &sa, &sa);
-  return sa.sa_handler;
+  if (sigaction (sig, &sa, &osa) < 0)
+    return SIG_ERR;
+  return osa.sa_handler;
 #else /* !HAVE_SIGACTION */
 # ifdef HAVE_SIGVEC
-  struct sigvec sv;
+  struct sigvec sv, osv;
   sigemptyset (&sv.sv_mask);
   sv.sv_handler = handler;
-  sigvec (sig, &sv, &sv);
-  return sv.sv_handler;
+  if (sigvec (sig, &sv, &osv) < 0)
+    return SIG_ERR;
+  return osv.sv_handler;
 # else /* !HAVE_SIGVEC */
   return signal (sig, handler);
 # endif	/* HAVE_SIGVEC */
