@@ -1,5 +1,18 @@
 2011-12-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* libinetutils/setsig.c (setsig) [HAVE_SIGACTION]: Initialize
+	`osa.sa_mask' just to be sure.
+	[HAVE_SIGVEC]: Likewise with `osv.sv_mask'.
+	* src/rlogin.c: Many rewritten comments.
+	(main): New variable OSMASK, used for old, saved signal mask.
+	(setsignal): New variable OSIGS, likewise.
+	(done): Use waitpid() instead of wait().
+	(catch_child): Detect errno equal to EINTR.
+	(doit,lostpeer): Let exit messages explain better.  Add host
+	name to them, and append CR for correct printout.
+
+2011-12-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* libinetutils/setsig.c (setsig) [HAVE_SIGACTION]: New variable OSA.
 	Superpose SA_RESTART on SA_FLAGS, no replacement!  Use OSA for old
 	signal mask in calling sigaction.  Return SIG_ERR on error, or fetch

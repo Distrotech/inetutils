@@ -315,7 +315,7 @@ main (int argc, char *argv[])
 {
   struct passwd *pw;
   struct servent *sp;
-  sigset_t smask;
+  sigset_t smask, osmask;
   uid_t uid;
   int index;
   int term_speed;
@@ -323,9 +323,9 @@ main (int argc, char *argv[])
 
   set_program_name (argv[0]);
 
-  /* Traditionnaly, if a symbolic link was made to the rlogin binary
-     rlogin --> hostname
-     hostname will be use as the name of the server to login too.  */
+  /* Traditionally, if a symbolic link was made to the rlogin binary
+         hostname --> rlogin
+     then hostname will be used as the name of the server to access.  */
   {
     char *p = strrchr (argv[0], '/');
     if (p)
@@ -389,8 +389,8 @@ main (int argc, char *argv[])
     error (EXIT_FAILURE, 0, "login/tcp: unknown service.");
 
   /* Get the name of the terminal from the environment.  Also get the
-     terminal's spee.  Both the name and the spee are passed to the server
-     as the "cmd" argument of the rcmd() function.  This is something like
+     terminal's speed.  The name and the speed are passed to the server
+     as the argument "cmd" of the rcmd() function.  This is something like
      "vt100/9600".  */
   term_speed = speed (0);
   if (term_speed == SPEED_NOTATTY)
@@ -409,13 +409,14 @@ main (int argc, char *argv[])
 
   setsig (SIGPIPE, lostpeer);
 
-  /* Block SIGURG and SIGUSR1 signals.  This will be handled by the
+  /* Block SIGURG and SIGUSR1 signals.  These will be handled by the
      parent and the child after the fork.  */
-  /* Will use SIGUSR1 for window size hack, so hold it off.  */
+  /* Will be using SIGUSR1 for window size hack, so hold it off.  */
   sigemptyset (&smask);
+  sigemptyset (&osmask);
   sigaddset (&smask, SIGURG);
   sigaddset (&smask, SIGUSR1);
-  sigprocmask (SIG_SETMASK, &smask, &smask);
+  sigprocmask (SIG_SETMASK, &smask, &osmask);
 
   /*
    * We set SIGURG and SIGUSR1 below so that an
@@ -432,7 +433,7 @@ try_connect:
     {
       struct hostent *hp;
 
-      /* Fully qualify hostname (needed for krb_realmofhost).  */
+      /* Fully qualified hostname (needed for krb_realmofhost).  */
       hp = gethostbyname (host);
       if (hp != NULL && !(host = strdup (hp->h_name)))
 	error (EXIT_FAILURE, errno, "strdup");
@@ -570,22 +571,23 @@ try_connect:
 #endif
 
   /* Now change to the real user ID.  We have to be set-user-ID root
-     to get the privileged port that rcmd () uses,  however we now want to
-     run as the real user who invoked us.  */
+     to get the privileged port that rcmd () uses.  We now want, however,
+     to run as the real user who invoked us.  */
   seteuid (uid);
   setuid (uid);
 
-  doit (&smask);
+  doit (&osmask);
 
   return 0;
 }
 
-/* Some systems, like QNX/Neutrino , The constant B0, B50,.. maps straigth to
-   the actual speed, 0, 50, ..., where on other system like GNU/Linux
-   it maps to a const 0, 1, ... i.e the value are encoded.
-   cfgetispeed(), according to posix should return a constant value reprensenting the Baud.
-   So to be portable we have to the conversion ourselves.  */
-/* Some values are not not define by POSIX.  */
+/* On some systems, like QNX/Neutrino, the constants B0, B50, etcetera,
+ * map straight to the actual speed (0, 50, etcetera), whereas on other
+ * systems like GNU/Linux, they map to ordered constants (0, 1, etcetera),
+ * i.e, the values are only order encoded.  cfgetispeed() should according
+ * to POSIX return a constant value representing the numerical speed.
+ * To be portable we need to do the conversion ourselves.  */
+/* Some values are not defined by POSIX.  */
 #ifndef B7200
 # define B7200   B4800
 #endif
@@ -664,8 +666,8 @@ speed_translate (unsigned int sym)
   return 0;
 }
 
-/* Returns the terminal speed for the file descriptor FD, or
-   SPEED_NOTATTY if FD is not associated with a terminal.  */
+/* Returns the terminal speed for the file descriptor FD,
+   or SPEED_NOTATTY if FD is not associated with a terminal.  */
 int
 speed (int fd)
 {
@@ -711,17 +713,17 @@ doit (sigset_t * smask)
       mode (1);
       if (reader (smask) == 0)
 	{
-	  /* If the reader () return 0, the socket to the server returned an
-	     EOF, meaning the client logged out of the remote system.
+	  /* If the reader returns zero, the socket to the server returned
+	     an EOF, meaning the client logged out of the remote system.
 	     This is the normal termination.  */
-          error (0, 0, "connection closed");
+          error (0, 0, "Connection to %s closed normally.\r", host);
           /* EXIT_SUCCESS is usually zero. So error might not exit.  */
           exit (EXIT_SUCCESS);
 	}
-      /* If the reader () returns nonzero, the socket to the server
-         returned an error.  Somethingg went wrong.  */
+      /* If the reader returns non-zero, the socket to the server
+         returned an error.  Something went wrong.  */
       sleep (1);
-      error (EXIT_FAILURE, 0, "\007connection closed");
+      error (EXIT_FAILURE, 0, "\007Connection to %s closed with error.\r", host);
     }
 
   /*
@@ -733,18 +735,18 @@ doit (sigset_t * smask)
    * signals to the child. We can now unblock SIGURG and SIGUSR1
    * that were set above.
    */
-  /* Reenables SIGURG and SIUSR1.  */
+  /* Reenable SIGURG and SIGUSR1.  */
   sigprocmask (SIG_SETMASK, smask, (sigset_t *) 0);
 
   setsig (SIGCHLD, catch_child);
 
   writer ();
 
-  /* If the write returns, it means the user entered "~." on the terminal.
+  /* If the writer returns, it means the user entered "~." on the terminal.
      In this case we terminate and the server will eventually get an EOF
      on its end of the network connection.  This should cause the server to
      log you out on the remote system.  */
-  error (0, 0, "closed connection");
+  error (0, 0, "Connection to %s aborted.\r", host);
 
 #ifdef SHISHI
   if (use_kerberos)
@@ -768,28 +770,28 @@ doit (sigset_t * smask)
 
 /* Enable a signal handler, unless the signal is already being ignored.
    This function is called before the fork (), for SIGHUP and SIGQUIT.  */
-/* Trap a signal, unless it is being ignored. */
 void
 setsignal (int sig)
 {
   sighandler_t handler;
-  sigset_t sigs;
+  sigset_t sigs, osigs;
 
   sigemptyset (&sigs);
+  sigemptyset (&osigs);
   sigaddset (&sigs, sig);
-  sigprocmask (SIG_BLOCK, &sigs, &sigs);
+  sigprocmask (SIG_BLOCK, &sigs, &osigs);
 
   handler = setsig (sig, exit);
   if (handler == SIG_IGN)
     setsig (sig, handler);
 
-  sigprocmask (SIG_SETMASK, &sigs, (sigset_t *) 0);
+  sigprocmask (SIG_SETMASK, &osigs, (sigset_t *) 0);
 }
 
 /* This function is called by the parent:
    (1) at the end (user terminates the client end);
-   (2) SIGCLD signal - the sigcld_parent () function.
-   (3) SIGPPE signal - the connection has dropped.
+   (2) SIGCHLD signal - the catch_child () function.
+   (3) SIGPIPE signal - the connection was lost.
 
    We send the child a SIGKILL signal, which it can't ignore, then
    wait for it to terminate.  */
@@ -799,13 +801,13 @@ done (int status)
   pid_t w;
   int wstatus;
 
-  mode (0);
+  mode (0);	/* FIXME: Calls tcgetattr/tcsetattr in signal handler.  */
   if (child > 0)
     {
       /* make sure catch_child does not snap it up */
       setsig (SIGCHLD, SIG_DFL);
       if (kill (child, SIGKILL) >= 0)
-	while ((w = wait (&wstatus)) > 0 && w != child)
+	while ((w = waitpid (-1, &wstatus, WNOHANG)) > 0 && w != child)
 	  continue;
     }
   exit (status);
@@ -816,6 +818,8 @@ int dosigwinch;
 /*
  * This is called when the reader process gets the out-of-band (urgent)
  * request to turn on the window-changing protocol.
+ *
+ * FIXME: Race condition due to sendwindow() in signal handler?
  */
 void
 writeroob (int signo _GL_UNUSED_PARAMETER)
@@ -828,6 +832,8 @@ writeroob (int signo _GL_UNUSED_PARAMETER)
   dosigwinch = 1;
 }
 
+/* FIXME: System dependent race condition due to done().
+ */
 void
 catch_child (int signo _GL_UNUSED_PARAMETER)
 {
@@ -840,6 +846,8 @@ catch_child (int signo _GL_UNUSED_PARAMETER)
       if (pid == 0)
 	return;
       /* if the child (reader) dies, just quit */
+      if (pid < 0 && errno == EINTR)
+	continue;
       if (pid < 0 || (pid == child && !WIFSTOPPED (status)))
 	done (WEXITSTATUS (status) | WTERMSIG (status));
     }
@@ -1006,6 +1014,8 @@ sigwinch (int signo _GL_UNUSED_PARAMETER)
 
 /*
  * Send the window size to the server via the magic escape
+ *
+ * FIXME: Used in signal handler. Race condition?
  */
 void
 sendwindow (void)
@@ -1258,11 +1268,13 @@ mode (int f)
     }
 }
 
+/* FIXME: Race condition due to done() in signal handler?
+ */
 void
 lostpeer (int signo _GL_UNUSED_PARAMETER)
 {
   setsig (SIGPIPE, SIG_IGN);
-  error (0, 0, "\007connection closed.");
+  error (0, 0, "\007Connection to %s lost.\r", host);
   done (1);
 }
 
