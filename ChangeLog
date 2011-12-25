@@ -1,3 +1,8 @@
+2011-12-25  Alfred M. Szmidt  <ams@gnu.org>
+
+	* libtelnet/encrypt.c (encrypt_keyid): Make sure that LEN never is
+	greater than MAXKEYLEN.
+
 2011-12-22  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* libinetutils/setsig.c (setsig) [HAVE_SIGACTION]: Initialize

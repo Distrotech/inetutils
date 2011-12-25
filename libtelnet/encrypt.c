@@ -796,6 +796,9 @@ encrypt_keyid (kp, keyid, len)
   int dir = kp->dir;
   register int ret = 0;
 
+  if (len > MAXKEYLEN)
+    len = MAXKEYLEN;
+
   if (!(ep = (*kp->getcrypt) (*kp->modep)))
     {
       if (len == 0)
