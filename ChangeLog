@@ -1,5 +1,14 @@
 2011-12-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* libtelnet/encrypt.c: Fix indentation, and Use ANSI style
+	declarations for prototypes.
+	(EncryptDisable, EncryptType, EncryptStart, encrypt_support)
+	(encrypt_is, encrypt_reply, encrypt_keyid, encrypt_start_output)
+	(encrypt_send_request_start, encrypt_wait, encrypt_printsub):
+	Don't declare any variables as `register'.
+
+2011-12-25  Alfred M. Szmidt  <ams@gnu.org>
+
 	* libtelnet/encrypt.c (encrypt_keyid): Make sure that LEN never is
 	greater than MAXKEYLEN.
 
