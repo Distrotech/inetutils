@@ -229,7 +229,7 @@ encrypt_list_types (void)
 }
 
 int
-EncryptEnable (char *type, *mode)
+EncryptEnable (char *type, char *mode)
 {
   if (isprefix (type, "help") || isprefix (type, "?"))
     {
@@ -243,7 +243,7 @@ EncryptEnable (char *type, *mode)
 }
 
 int
-EncryptDisable (char *type, *mode)
+EncryptDisable (char *type, char *mode)
 {
   Encryptions *ep;
   int ret = 0;
