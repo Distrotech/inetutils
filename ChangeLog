@@ -28,6 +28,10 @@
 
 2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
 
+	* cfg.mk (sc_unsigned_short): New target.
+
+2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
+
 	* bootstrap: Updated from gnulib.
 	* lib/Makefile.am: File removed.
 

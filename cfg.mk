@@ -59,3 +59,8 @@ sc_unsigned_long:
 	@prohibit=u''_long \
 	halt='don'\''t use u''_long; instead use unsigned long'	\
 	  $(_sc_search_regexp)
+
+sc_unsigned_short:
+	@prohibit=u''_short \
+	halt='don'\''t use u''_char; instead use unsigned short' \
+	  $(_sc_search_regexp)
