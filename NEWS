@@ -8,6 +8,11 @@ Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 XXX YY, ZZ
 Version A.B:
 
+* Security fixes
+
+This release fixes a security flaw in telnetd that could lead to
+remote access.
+
 * Solaris is now a supported platform
 
 Support is still new, so please report any bugs to
