@@ -2364,7 +2364,7 @@ restart (int argc, char **argv)
     {
       restart_point = atol (argv[1]);
       printf ((sizeof (restart_point) > sizeof (long)
-	       ? "restarting at %qd. %s\n"
+	       ? "restarting at %lld. %s\n"
 	       : "restarting at %ld. %s\n"), restart_point,
 	      "execute get, put or append to initiate transfer");
     }

@@ -1,3 +1,10 @@
+2011-12-30  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ftp/cmds.c (restart): Use `%lld' as format for long long int.
+	* ftpd/ftpcmd.y (rcmd,sizecmd): Likewise; also `%llu'.
+	* ftpd/ftpd.c (off_to_str): Likewise.
+	* src/rcp.c (source): Likewise.
+
 2011-12-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* libtelnet/encrypt.c: Fix indentation, and Use ANSI style

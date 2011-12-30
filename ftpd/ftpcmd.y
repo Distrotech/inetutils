@@ -582,7 +582,7 @@ rcmd
 			restart_point = $3;	/* XXX $3 is only "int" */
 			reply(350,
 			      (sizeof(restart_point) > sizeof(long)
-			       ? "Restarting at %qd. %s"
+			       ? "Restarting at %lld. %s"
 			       : "Restarting at %ld. %s"), restart_point,
 			    "Send STORE or RETRIEVE to initiate transfer.");
 		}
@@ -1276,7 +1276,7 @@ sizecmd(char *filename)
 		else
 			reply(213,
 			      (sizeof (stbuf.st_size) > sizeof(long)
-			       ? "%qu" : "%lu"), stbuf.st_size);
+			       ? "%llu" : "%lu"), stbuf.st_size);
 		break; }
 	case TYPE_A: {
 		FILE *fin;
@@ -1302,7 +1302,7 @@ sizecmd(char *filename)
 		}
 		 fclose(fin);
 
-		reply(213, sizeof(count) > sizeof(long) ? "%qd" : "%ld",
+		reply(213, sizeof(count) > sizeof(long) ? "%lld" : "%ld",
 		      count);
 		break; }
 	default:

@@ -182,7 +182,7 @@ off_to_str (off_t off)
     next_buf = bufs;
 
   if (sizeof (off) > sizeof (long))
-    sprintf (*next_buf, "%qd", (long long int) off);
+    sprintf (*next_buf, "%lld", (long long int) off);
   else if (sizeof (off) == sizeof (long))
     sprintf (*next_buf, "%ld", off);
   else
