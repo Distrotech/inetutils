@@ -17,13 +17,13 @@ Support is still new, so please report any bugs to
 
 * ftp, tftp, tftpd
 
-Handle IPv6 connections.  (Ftpd is IPv4-only until next release.)
+Handle IPv6 connections.  ftpd is still IPv4-only until next release.
 
 * syslogd, logger
 
-Handle IPv6 connections.  The server can forward messages
-without using a listening INET socket.  It can also bind
-to a single INET/INET6 address.
+Handle IPv6 connections.  The server can forward messages without
+using a listening INET socket.  It can also bind to a single
+INET/INET6 address.
 
 * rlogind, rshd
 
@@ -35,7 +35,8 @@ http://www.citi.umich.edu/u/provos/papers/secnet-spoof.txt
 
 * ifconfig
 
-Now under GNU/Linux "ifconfig -a" shows also interfaces without an address.
+Now under GNU/Linux "ifconfig -a" shows also interfaces without an
+address.
 
 Adjusted output formating for "unix".
 
