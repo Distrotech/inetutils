@@ -134,8 +134,10 @@ int doencrypt, use_kerberos, vacuous;
 static struct argp_option options[] = {
   { "verify-hostname", 'a', NULL, 0,
     "ask hostname for verification" },
+#ifdef HAVE___CHECK_RHOSTS_FILE
   { "no-rhosts", 'l', NULL, 0,
     "ignore .rhosts file" },
+#endif
   { "no-keepalive", 'n', NULL, 0,
     "do not set SO_KEEPALIVE" },
   { "log-sessions", 'L', NULL, 0,
@@ -151,9 +153,11 @@ static struct argp_option options[] = {
   { NULL }
 };
 
+#ifdef HAVE___CHECK_RHOSTS_FILE
 extern int __check_rhosts_file;	/* hook in rcmd(3) */
+#endif
 
-#ifdef __GLIBC__
+#if defined __GLIBC__ && defined WITH_IRUSEROK
 extern int iruserok (uint32_t raddr, int superuser,
                      const char *ruser, const char *luser);
 #endif
@@ -167,9 +171,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
       check_all = 1;
       break;
 
+#ifdef HAVE___CHECK_RHOSTS_FILE
     case 'l':
       __check_rhosts_file = 0;	/* don't check .rhosts file */
       break;
+#endif
 
     case 'n':
       keepalive = 0;	/* don't enable SO_KEEPALIVE */
@@ -789,9 +795,17 @@ doit (int sockfd, struct sockaddr_in *fromp)
     }
   else
 #endif
+#ifdef WITH_IRUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
                                    remuser, locuser)) < 0))
+#elif defined WITH_RUSEROK
+    if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
+                     && (ruserok (inet_ntoa (fromp->sin_addr),
+				  pwd->pw_uid == 0, remuser, locuser)) < 0))
+#else /* !WITH_IRUSEROK && !WITH_RUSEROK */
+#error Unable to use mandatory iruserok/ruserok.  This should not happen.
+#endif /* !WITH_IRUSEROK && !WITH_RUSEROK */
     {
 #ifdef HAVE___RCMD_ERRSTR
       if (__rcmd_errstr)

@@ -127,7 +127,10 @@
 #ifndef DEFPORT
 # define DEFPORT 513
 #endif
+
+#ifdef HAVE___CHECK_RHOSTS_FILE
 extern int __check_rhosts_file;
+#endif
 
 #ifndef SHISHI
 struct auth_data
@@ -180,7 +183,7 @@ int local_dot_count;
 
 struct winsize win = { 0, 0, 0, 0 };
 
-#ifdef __GLIBC__
+#if defined __GLIBC__ && defined WITH_IRUSEROK
 extern int iruserok (uint32_t raddr, int superuser,
                      const char *ruser, const char *luser);
 #endif
@@ -262,8 +265,10 @@ static struct argp_option options[] = {
     "ask hostname for verification" },
   { "daemon", 'd', NULL, 0,
     "daemon mode" },
+#ifdef HAVE___CHECK_RHOSTS_FILE
   { "no-rhosts", 'l', NULL, 0,
     "ignore .rhosts file" },
+#endif
   { "no-keepalive", 'n', NULL, 0,
     "do not set SO_KEEPALIVE" },
   { "local-domain", 'L', "NAME", 0,
@@ -307,9 +312,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
 	maxchildren = DEFMAXCHILDREN;
       break;
 
+#ifdef HAVE___CHECK_RHOSTS_FILE
     case 'l':
       __check_rhosts_file = 0;	/* FIXME: extern var? */
       break;
+#endif
 
     case 'L':
       local_domain_name = arg;
@@ -706,8 +713,8 @@ exec_login (int authenticated, struct auth_data *ap)
   if (authenticated)
     {
 #ifdef SOLARIS
-      execle (path_login, "login", "-p",
-	      "-h", ap->hostname, ap->term, "-f", "--",
+      execle (path_login, "login", "-p", "-s", "rlogin",
+	      "-r", ap->hostname, "-U", ap->rusername,
 	      ap->lusername, NULL, ap->env);
 #else
       execle (path_login, "login", "-p",
@@ -717,8 +724,8 @@ exec_login (int authenticated, struct auth_data *ap)
   else
     {
 #ifdef SOLARIS
-      execle (path_login, "login", "-p",
-	      "-h", ap->hostname, ap->term, "--",
+      execle (path_login, "login", "-p", "-s", "rlogin",
+	      "-r", ap->hostname, "-U", ap->rusername,
 	      ap->lusername, NULL, ap->env);
 #else
       execle (path_login, "login", "-p",
@@ -861,10 +868,20 @@ do_rlogin (int infd, struct auth_data *ap)
       fatal (infd, "Permission denied", 0);
     }
 
+#ifdef WITH_IRUSEROK
   rc = iruserok (ap->from.sin_addr.s_addr, 0, ap->rusername, ap->lusername);
   if (rc)
     syslog (LOG_ERR, "iruserok failed: rusername=%s, lusername=%s",
 	    ap->rusername, ap->lusername);
+#elif defined WITH_RUSEROK
+  rc = ruserok (inet_ntoa (ap->from.sin_addr), 0, ap->rusername, ap->lusername);
+  if (rc)
+    syslog (LOG_ERR, "ruserok failed: rusername=%s, lusername=%s",
+	    ap->rusername, ap->lusername);
+#else /* !WITH_IRUSEROK && !WITH_RUSEROK */
+#error Unable to use mandatory iruserok/ruserok.  This should not happen.
+#endif /* !WITH_IRUSEROK && !WITH_RUSEROK */
+
   return rc;
 }
 

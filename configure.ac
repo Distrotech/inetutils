@@ -219,14 +219,24 @@ else
   talk_BUILD=''
 fi
 
-dnl FIXME: Presently rshd and rlogind need iruserok(3),
-dnl which is not univerally available.  Replacement code?
+dnl FIXME: Presently rshd and rlogind prefer iruserok(3),
+dnl which is not universally available.  Replacement code?
+dnl A fallback is being built from ruserok(3) and inet_ntoa(3).
 AC_CHECK_FUNC(iruserok, , , [#include <netdb.h>])
-if test "$ac_cv_func_iruserok" = no; then
-  enable_rlogind=no
-  rlogind_BUILD=''
-  enable_rshd=no
-  rshd_BUILD=''
+AC_CHECK_FUNC(ruserok, , , [#include <netdb.h>])
+if test "$ac_cv_func_iruserok" = yes; then
+  AC_DEFINE([WITH_IRUSEROK], 1, [Define to one if you can use iruserok.])
+else
+  if test "$ac_cv_func_ruserok" = yes; then
+    AC_DEFINE([WITH_RUSEROK], 1, [Define to one if you can use ruserok.])
+    AC_MSG_WARN([iruserok is not available, falling back to ruserok.])
+  else
+    AC_MSG_WARN([Disabling rlogind and rshd, since no iruserok and no ruserok.])
+    enable_rlogind=no
+    rlogind_BUILD=''
+    enable_rshd=no
+    rshd_BUILD=''
+  fi
 fi
 
 
@@ -616,7 +626,8 @@ AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
                utime uname \
-               updwtmp updwtmpx vhangup wait3 wait4 opendir2 __rcmd_errstr)
+               updwtmp updwtmpx vhangup wait3 wait4 opendir2 \
+	       __rcmd_errstr __check_rhosts_file )
 
 dnl Functions that we will define if necessary.
 AC_REPLACE_FUNCS(getpass getusershell memcmp memcpy memmove memset \

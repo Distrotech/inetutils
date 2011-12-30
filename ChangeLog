@@ -1,3 +1,31 @@
+2011-12-30  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* configure.ac: Check for ruserok.  If iruserok exists, then define
+	WITH_IRUSEROK, else if ruserok exists, then define WITH_RUSEROK.
+	Disable rlogind and rshd otherwise.  Check for __check_rhosts_file.
+	* src/rlogind.c [HAVE___CHECK_RHOSTS_FILE] (__check_rhosts_file):
+	Protect declaration as extern variable.
+	[__GLIBC__ && WITH_IRUSEROK] (iruserok): Protect declaration
+	as extern.
+	(options) [HAVE___CHECK_RHOSTS_FILE]: Conditionally include the
+	option `-l/--no-rhosts'.
+	(parse_opt) [HAVE___CHECK_RHOSTS_FILE]: Likewise.
+	(exec_login) [SOLARIS]: Contemporary arguments for execle.
+	(do_rlogin) [WITH_IRUSEROK]: Protect usage of iruserok.
+	[!WITH_IRUSEROK && WITH_RUSEROK]: Do authorization with ruserok
+	composed with inet_ntoa.
+	* src/rshd.c (options) [HAVE___CHECK_RHOSTS_FILE]: Conditionally
+	include the option `-l/--no-rhosts'.
+	[HAVE___CHECK_RHOSTS_FILE] (__check_rhosts_file): Protect declaration
+	as extern variable.
+	[__GLIBC__ && WITH_IRUSEROK] (iruserok): Protect declaration
+	as extern.
+	(parse_opt) [HAVE___CHECK_RHOSTS_FILE]: Conditional detection of
+	`-l/--no-rhosts'.
+	(doit) [WITH_IRUSEROK]: Protect call to iruserok.
+	[!WITH_IRUSEROK && WITH_RUSEROK]: Do authorization with ruserok
+	composed with inet_ntoa.
+
 2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap: Updated from gnulib.
