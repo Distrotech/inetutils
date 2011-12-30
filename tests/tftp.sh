@@ -41,7 +41,7 @@ INETD_CONF="$TMPDIR/inetd.conf.tmp"
 INETD_PID="$TMPDIR/inetd.pid.$$"
 
 posttesting () {
-    if test -f "$INETD_PID" -a -r "$INETD_PID" \
+    if test -f "$INETD_PID" && test -r "$INETD_PID" \
 	&& ps "$(cat $INETD_PID)" >/dev/null 2>&1
     then
 	kill -9 "$(cat $INETD_PID)"

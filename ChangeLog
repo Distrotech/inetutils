@@ -28,6 +28,14 @@
 
 2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
 
+	Fix sc_prohibit_test_minus_ao check.
+
+	* tests/tftp.sh: Fix sc_prohibit_test_minus_ao check.
+	* tests/syslogd.sh: Likewise.
+	* tests/ftp-localhost.sh: Likewise.
+
+2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
+
 	* cfg.mk (sc_unsigned_short): New target.
 
 2011-12-30  Alfred M. Szmidt  <ams@gnu.org>

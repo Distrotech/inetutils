@@ -58,7 +58,7 @@ fi
 TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`
 
 posttesting () {
-    test -f "$TMPDIR/inetd.pid" -a -r "$TMPDIR/inetd.pid" \
+    test -f "$TMPDIR/inetd.pid" && test -r "$TMPDIR/inetd.pid" \
 	&& kill -9 "$(cat $TMPDIR/inetd.pid)"
     rm -rf "$TMPDIR"
 }

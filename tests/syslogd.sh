@@ -24,7 +24,7 @@
 
 # Is usage explanation in demand?
 #
-if [ "$1" = "-h" -o "$1" = "--help" -o "$1" = "--usage" ]; then
+if test "$1" = "-h" || test "$1" = "--help" || test "$1" = "--usage"; then
 	cat <<HERE
 Test utility for syslogd and logger.
 
@@ -55,7 +55,7 @@ fi
 # Erase the testing directory.
 #
 clean_testdir () {
-	if [ -z "${NOCLEAN+no}" -a "$IU_DO_CLEANDIR" = "yes" ]; then
+	if test -z "${NOCLEAN+no}" && test "$IU_DO_CLEANDIR" = "yes"; then
 		rm -fR $IU_TESTDIR
 	fi
 	test -f "$PID" && ps "$(cat $PID)" >/dev/null 2>&1 \
@@ -91,8 +91,8 @@ IU_GOOD_BASE=/tmp/$(date +%y-%m-%d)_socket_iu
 IU_BAD_BASE=/tmp/X$(date +%y-%m-%d)_socket_iu
 
 IU_OS=$(uname -s)
-if [ "${IU_OS}" = "Linux" -o "${IU_OS}" = "GNU/kFreeBSD" \
-     -o "${IU_OS}" = "SunOS" ]; then
+if test "${IU_OS}" = "Linux" || test "${IU_OS}" = "GNU/kFreeBSD" \
+    || test "${IU_OS}" = "SunOS"; then
 	# Aim at the boundary of 108 characters.
 	IU_GOOD_BASE=${IU_GOOD_BASE}_lnx
 	IU_BAD_BASE=${IU_BAD_BASE}_lnx
