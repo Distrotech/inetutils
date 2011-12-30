@@ -384,7 +384,7 @@ int
 trace_read (trace_t * t)
 {
   int len;
-  u_char data[56];		/* For a TIME_EXCEEDED datagram. */
+  unsigned char data[56];		/* For a TIME_EXCEEDED datagram. */
   struct ip *ip;
   icmphdr_t *ic;
   socklen_t siz;
@@ -486,7 +486,7 @@ trace_write (trace_t * t)
       {
 	icmphdr_t hdr;
 	/* FIXME: We could use the pid as the icmp seqno/ident. */
-	if (icmp_echo_encode ((u_char *) &hdr, sizeof (hdr), pid, pid))
+	if (icmp_echo_encode ((unsigned char *) &hdr, sizeof (hdr), pid, pid))
 	  return -1;
 
 	len = sendto (t->icmpfd, (char *) &hdr, sizeof (hdr),

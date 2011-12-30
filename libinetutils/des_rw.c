@@ -62,7 +62,7 @@
 
 static unsigned char des_inbuf[10240], storage[10240], *store_ptr;
 static bit_64 *key;
-static u_char *key_schedule;
+static unsigned char *key_schedule;
 
 /* XXX these should be in a kerberos include file */
 int krb_net_read (int, char *, int);

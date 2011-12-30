@@ -168,7 +168,7 @@ struct filed
   short f_type;			/* Entry type, see below.  */
   short f_file;			/* File descriptor.  */
   time_t f_time;		/* Time this was last written.  */
-  u_char f_pmask[LOG_NFACILITIES + 1];	/* Priority mask.  */
+  unsigned char f_pmask[LOG_NFACILITIES + 1];	/* Priority mask.  */
   union
   {
     struct

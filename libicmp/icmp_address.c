@@ -31,7 +31,7 @@
 #include <icmp.h>
 
 int
-icmp_address_encode (u_char * buffer, size_t bufsize, int ident, int seqno)
+icmp_address_encode (unsigned char * buffer, size_t bufsize, int ident, int seqno)
 {
   icmphdr_t *icmp;
 

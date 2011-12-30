@@ -1419,7 +1419,7 @@ void
 statcmd (void)
 {
   struct sockaddr_in *sin;
-  u_char *a, *p;
+  unsigned char *a, *p;
 
   lreply (211, "%s FTP server status:", hostname);
   if (!no_version)
@@ -1467,8 +1467,8 @@ statcmd (void)
       printf ("     PORT");
       sin = &data_dest;
     printaddr:
-      a = (u_char *) & sin->sin_addr;
-      p = (u_char *) & sin->sin_port;
+      a = (unsigned char *) & sin->sin_addr;
+      p = (unsigned char *) & sin->sin_port;
 #define UC(b) (((int) b) & 0xff)
       printf (" (%d,%d,%d,%d,%d,%d)\r\n", UC (a[0]),
 	      UC (a[1]), UC (a[2]), UC (a[3]), UC (p[0]), UC (p[1]));

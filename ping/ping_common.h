@@ -110,7 +110,7 @@ struct ping_data
   int ping_cktab_size;
   char *ping_cktab;
 
-  u_char *ping_buffer;         /* I/O buffer */
+  unsigned char *ping_buffer;         /* I/O buffer */
   union ping_address ping_from;
   long ping_num_xmit;          /* Number of packets transmitted */
   long ping_num_recv;          /* Number of packets received */

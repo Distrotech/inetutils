@@ -69,7 +69,7 @@ typedef struct
   unsigned char *encryyptedto;	/* Data is encrypted to here */
 #endif				/* ENCRYPTION */
   int size;			/* size in bytes of buffer */
-  u_long consumetime,		/* help us keep straight full, empty, etc. */
+  unsigned long consumetime,		/* help us keep straight full, empty, etc. */
     supplytime;
 } Ring;
 

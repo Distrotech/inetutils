@@ -226,7 +226,7 @@ static struct argp argp = {
 };
 
 struct passwd *pwd;
-u_short port;
+unsigned short port;
 uid_t userid;
 int errs, rem;
 

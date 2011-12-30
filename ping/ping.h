@@ -25,7 +25,7 @@ void ping_reset (PING * p);
 void ping_set_type (PING * p, int type);
 void ping_set_packetsize (PING * ping, size_t size);
 int ping_set_dest (PING * ping, char *host);
-int ping_set_pattern (PING * p, int len, u_char * pat);
+int ping_set_pattern (PING * p, int len, unsigned char * pat);
 void ping_set_event_handler (PING * ping, ping_efp fp, void *closure);
 int ping_recv (PING * p);
 int ping_xmit (PING * p);

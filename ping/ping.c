@@ -55,8 +55,8 @@ extern int ping_router (char *hostname);
 
 PING *ping;
 bool is_root = false;
-u_char *data_buffer;
-u_char *patptr;
+unsigned char *data_buffer;
+unsigned char *patptr;
 int pattern_len = 16;
 int socket_type;
 size_t count = DEFAULT_PING_COUNT;
@@ -133,7 +133,7 @@ static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   char *endptr;
-  static u_char pattern[16];
+  static unsigned char pattern[16];
   double v;
 
   switch (key)

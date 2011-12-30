@@ -1583,7 +1583,7 @@ machtime (void)
 	fprintf (stderr, "Unable to get time of day\n");
       return 0L;
     }
-#define OFFSET ((u_long)25567 * 24*60*60)
+#define OFFSET ((unsigned long)25567 * 24*60*60)
   return (htonl ((long) (tv.tv_sec + OFFSET)));
 #undef OFFSET
 }

@@ -67,7 +67,7 @@ extern int f_typedir;		/* add type character for directories */
 typedef struct
 {
   FTSENT *list;
-  u_long btotal;
+  unsigned long btotal;
   int bcfile;
   int entries;
   int maxlen;

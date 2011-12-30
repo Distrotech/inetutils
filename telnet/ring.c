@@ -101,7 +101,7 @@
  * to ZERO on allocation, we need to make sure, when interpreting the
  * clock, that when the times are EQUAL, then the buffer is FULL.
  */
-static u_long ring_clock = 0;
+static unsigned long ring_clock = 0;
 
 
 #define ring_empty(d) (((d)->consume == (d)->supply) && \

@@ -31,7 +31,7 @@
 #include <icmp.h>
 
 int
-icmp_generic_encode (u_char * buffer, size_t bufsize, int type, int ident,
+icmp_generic_encode (unsigned char * buffer, size_t bufsize, int type, int ident,
 		     int seqno)
 {
   icmphdr_t *icmp;
@@ -50,11 +50,11 @@ icmp_generic_encode (u_char * buffer, size_t bufsize, int type, int ident,
 }
 
 int
-icmp_generic_decode (u_char * buffer, size_t bufsize,
+icmp_generic_decode (unsigned char * buffer, size_t bufsize,
 		     struct ip **ipp, icmphdr_t ** icmpp)
 {
   size_t hlen;
-  u_short cksum;
+  unsigned short cksum;
   struct ip *ip;
   icmphdr_t *icmp;
 
@@ -74,20 +74,20 @@ icmp_generic_decode (u_char * buffer, size_t bufsize,
   /* Recompute checksum */
   cksum = icmp->icmp_cksum;
   icmp->icmp_cksum = 0;
-  icmp->icmp_cksum = icmp_cksum ((u_char *) icmp, bufsize - hlen);
+  icmp->icmp_cksum = icmp_cksum ((unsigned char *) icmp, bufsize - hlen);
   if (icmp->icmp_cksum != cksum)
     return 1;
   return 0;
 }
 
 int
-icmp_echo_encode (u_char * buffer, size_t bufsize, int ident, int seqno)
+icmp_echo_encode (unsigned char * buffer, size_t bufsize, int ident, int seqno)
 {
   return icmp_generic_encode (buffer, bufsize, ICMP_ECHO, ident, seqno);
 }
 
 int
-icmp_echo_decode (u_char * buffer, size_t bufsize,
+icmp_echo_decode (unsigned char * buffer, size_t bufsize,
 		  struct ip **ipp, icmphdr_t ** icmpp)
 {
   return icmp_generic_decode (buffer, bufsize, ipp, icmpp);

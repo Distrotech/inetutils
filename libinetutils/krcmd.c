@@ -69,11 +69,11 @@
 # define SERVICE_NAME	"rcmd"
 
 # if defined SHISHI
-int kcmd (Shishi **, int *, char **, u_short, char *, char **,
+int kcmd (Shishi **, int *, char **, unsigned short, char *, char **,
 	  char *, int *, char *, char *, Shishi_key **,
 	  struct sockaddr_in *, struct sockaddr_in *, long);
 # else
-int kcmd (int *, char **, u_short, char *, char *, char *, int *,
+int kcmd (int *, char **, unsigned short, char *, char *, char *, int *,
 	  KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
 	  MSG_DAT *, struct sockaddr_in *, struct sockaddr_in *, long);
 # endif
@@ -86,7 +86,7 @@ int kcmd (int *, char **, u_short, char *, char *, char *, int *,
 
 # if defined SHISHI
 int
-krcmd (Shishi ** h, char **ahost, u_short rport, char **remuser, char *cmd,
+krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cmd,
        int *fd2p, char *realm)
 {
   int sock = -1, err = 0;
@@ -110,7 +110,7 @@ krcmd (Shishi ** h, char **ahost, u_short rport, char **remuser, char *cmd,
 
 # elif defined(KERBEROS)
 int
-krcmd (char **ahost, u_short rport, char *remuser, char *cmd, int *fd2p,
+krcmd (char **ahost, unsigned short rport, char *remuser, char *cmd, int *fd2p,
        char *realm)
 {
   int sock = -1, err = 0;
@@ -140,7 +140,7 @@ krcmd (char **ahost, u_short rport, char *remuser, char *cmd, int *fd2p,
 
 #  if defined SHISHI
 int
-krcmd_mutual (Shishi ** h, char **ahost, u_short rport, char **remuser,
+krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
 	      char *cmd, int *fd2p, char *realm, Shishi_key ** key)
 {
   int sock = -1, err = 0;
@@ -166,7 +166,7 @@ krcmd_mutual (Shishi ** h, char **ahost, u_short rport, char **remuser,
 
 #  elif defined(KERBEROS)
 int
-krcmd_mutual (char **ahost, u_short rport, char *remuser, char *cmd,
+krcmd_mutual (char **ahost, unsigned short rport, char *remuser, char *cmd,
 	      int *fd2p, char *realm, CREDENTIALS * cred, Key_schedule sched)
 {
   int sock, err;

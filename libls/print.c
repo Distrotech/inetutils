@@ -88,7 +88,7 @@
 # define minor(x)        ((int)((x)&0377))
 #endif
 
-static int printaname (FTSENT *, u_long, u_long);
+static int printaname (FTSENT *, unsigned long, unsigned long);
 static void printlink (FTSENT *);
 static void printtime (time_t);
 static int printtype (u_int);
@@ -246,7 +246,7 @@ printcol (DISPLAY *dp)
  * return # of characters printed, no trailing characters.
  */
 static int
-printaname (FTSENT *p, u_long inodefield, u_long sizefield)
+printaname (FTSENT *p, unsigned long inodefield, unsigned long sizefield)
 {
   struct stat *sp;
   int chcnt;

@@ -49,7 +49,7 @@
 static PING *ping;
 bool is_root = false;
 unsigned char *data_buffer;
-u_char *patptr;
+unsigned char *patptr;
 int one = 1;
 int pattern_len = 16;
 size_t data_length = PING_DATALEN;
@@ -102,7 +102,7 @@ static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   char *endptr;
-  static u_char pattern[16];
+  static unsigned char pattern[16];
 
   switch (key)
     {
@@ -752,7 +752,7 @@ ping_init (int type, int ident)
   p->ping_count = DEFAULT_PING_COUNT;
   p->ping_interval = PING_DEFAULT_INTERVAL;
   p->ping_datalen = sizeof (struct icmp6_hdr);
-  /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
+  /* Make sure we use only 16 bits in this field, id for icmp is a unsigned short.  */
   p->ping_ident = ident & 0xFFFF;
   p->ping_cktab_size = PING_CKTABSIZE;
   gettimeofday (&p->ping_start_time, NULL);

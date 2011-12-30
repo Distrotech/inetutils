@@ -83,7 +83,7 @@ ping_init (int type, int ident)
   p->ping_count = 0;
   p->ping_interval = PING_DEFAULT_INTERVAL;
   p->ping_datalen = sizeof (icmphdr_t);
-  /* Make sure we use only 16 bits in this field, id for icmp is a u_short.  */
+  /* Make sure we use only 16 bits in this field, id for icmp is a unsigned short.  */
   p->ping_ident = ident & 0xFFFF;
   p->ping_cktab_size = PING_CKTABSIZE;
   gettimeofday (&p->ping_start_time, NULL);

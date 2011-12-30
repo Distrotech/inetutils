@@ -83,8 +83,8 @@
 # include "misc.h"
 
 int kerberos4_cksum (unsigned char *, int);
-int krb_mk_req (KTEXT, char *, char *, char *, u_long);
-int krb_rd_req (KTEXT, char *, char *, u_long, AUTH_DAT *, char *);
+int krb_mk_req (KTEXT, char *, char *, char *, unsigned long);
+int krb_rd_req (KTEXT, char *, char *, unsigned long, AUTH_DAT *, char *);
 int krb_kntoln (AUTH_DAT *, char *);
 int krb_get_cred (char *, char *, char *, CREDENTIALS *);
 int krb_get_lrealm (char *, int);

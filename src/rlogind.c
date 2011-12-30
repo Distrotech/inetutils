@@ -592,7 +592,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 	}
 #ifdef IP_OPTIONS
       {
-	u_char optbuf[BUFSIZ / 3], *cp;
+	unsigned char optbuf[BUFSIZ / 3], *cp;
 	char lbuf[BUFSIZ], *lp;
 	socklen_t optsize = sizeof (optbuf);
 	int ipproto;
@@ -918,8 +918,8 @@ do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
   char instance[INST_SZ], version[VERSION_SZ];
   long authopts = 0L;		/* !mutual */
   struct sockaddr_in faddr;
-  u_char auth_buf[sizeof (AUTH_DAT)];
-  u_char tick_buf[sizeof (KTEXT_ST)];
+  unsigned char auth_buf[sizeof (AUTH_DAT)];
+  unsigned char tick_buf[sizeof (KTEXT_ST)];
   Key_schedule schedule;
   AUTH_DAT *kdata;
   KTEXT ticket;

@@ -282,10 +282,10 @@ static void
 print_ip_header (struct ip *ip)
 {
   int hlen;
-  u_char *cp;
+  unsigned char *cp;
 
   hlen = ip->ip_hl << 2;
-  cp = (u_char *) ip + 20;	/* point to options */
+  cp = (unsigned char *) ip + 20;	/* point to options */
 
   printf
     ("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src      Dst Data\n");
@@ -306,13 +306,13 @@ void
 print_ip_data (icmphdr_t * icmp, void *data)
 {
   int hlen;
-  u_char *cp;
+  unsigned char *cp;
   struct ip *ip = &icmp->icmp_ip;
 
   print_ip_header (ip);
 
   hlen = ip->ip_hl << 2;
-  cp = (u_char *) ip + hlen;
+  cp = (unsigned char *) ip + hlen;
 
   if (ip->ip_p == 6)
     printf ("TCP: from port %u, to port %u (decimal)\n",
@@ -392,12 +392,12 @@ print_icmp_header (struct sockaddr_in *from,
 void
 print_ip_opt (struct ip *ip, int hlen)
 {
-  u_char *cp;
+  unsigned char *cp;
   int i, j, l;
   static int old_rrlen;
   static char old_rr[MAX_IPOPTLEN];
 
-  cp = (u_char *) (ip + 1);
+  cp = (unsigned char *) (ip + 1);
 
   for (; hlen > (int) sizeof (struct ip); --hlen, ++cp)
     switch (*cp)
@@ -449,7 +449,7 @@ print_ip_opt (struct ip *ip, int hlen)
 	if (i <= 0)
 	  continue;
 	if (i == old_rrlen
-	    && cp == (u_char *) (ip + 1) + 2
+	    && cp == (unsigned char *) (ip + 1) + 2
 	    && !memcmp ((char *) cp, old_rr, i) && !(options & OPT_FLOOD))
 	  {
 	    printf ("\t (same route)");

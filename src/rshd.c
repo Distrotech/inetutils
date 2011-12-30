@@ -301,7 +301,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #endif
   struct hostent *hp;
   struct passwd *pwd;
-  u_short port;
+  unsigned short port;
   fd_set ready, readfrom;
   int cc, nfd, pv[2], pid, s = sockfd;
   int one = 1;
@@ -351,7 +351,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
     }
 #ifdef IP_OPTIONS
   {
-    u_char optbuf[BUFSIZ / 3], *cp;
+    unsigned char optbuf[BUFSIZ / 3], *cp;
     char lbuf[BUFSIZ], *lp;
     socklen_t optsize = sizeof (optbuf);
     int ipproto;
@@ -416,7 +416,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #endif
 
   /* Need host byte ordered port# to compare */
-  fromp->sin_port = ntohs ((u_short) fromp->sin_port);
+  fromp->sin_port = ntohs ((unsigned short) fromp->sin_port);
   /* Verify that the client's address was bound to a reserved port */
 #if defined KERBEROS || defined SHISHI
   if (!use_kerberos)

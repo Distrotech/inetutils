@@ -86,14 +86,14 @@ int getport (int *);
 
 # if defined KERBEROS
 int
-kcmd (int *sock, char **ahost, u_short rport, char *locuser,
+kcmd (int *sock, char **ahost, unsigned short rport, char *locuser,
       char *remuser, char *cmd, int *fd2p, KTEXT ticket,
       char *service, char *realm,
       CREDENTIALS * cred, Key_schedule schedule, MSG_DAT * msg_data,
       struct sockaddr_in *laddr, struct sockaddr_in *faddr, long authopts)
 # elif defined(SHISHI)
 int
-kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
+kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
       char **remuser, char *cmd, int *fd2p, char *service, char *realm,
       Shishi_key ** key,
       struct sockaddr_in *laddr, struct sockaddr_in *faddr, long authopts)
@@ -229,7 +229,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, u_short rport, char *locuser,
 	  goto bad;
 	}
       *fd2p = s3;
-      from.sin_port = ntohs ((u_short) from.sin_port);
+      from.sin_port = ntohs ((unsigned short) from.sin_port);
       if (from.sin_family != AF_INET || from.sin_port >= IPPORT_RESERVED)
 	{
 	  fprintf (stderr,
@@ -349,7 +349,7 @@ getport (int *alport)
     return (-1);
   for (;;)
     {
-      sin.sin_port = htons ((u_short) * alport);
+      sin.sin_port = htons ((unsigned short) * alport);
       if (bind (s, (struct sockaddr *) &sin, sizeof (sin)) >= 0)
 	return (s);
       if (errno != EADDRINUSE)

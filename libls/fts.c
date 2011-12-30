@@ -66,7 +66,7 @@ static size_t fts_maxarglen (char *const *);
 static void fts_padjust (FTS *, void *);
 static int fts_palloc (FTS *, size_t);
 static FTSENT *fts_sort (FTS *, FTSENT *, int);
-static u_short fts_stat (FTS *, struct dirent *, FTSENT *, int);
+static unsigned short fts_stat (FTS *, struct dirent *, FTSENT *, int);
 
 #ifndef MAX
 # define MAX(a, b)	(((a) > (b)) ? (a) : (b))
@@ -852,7 +852,7 @@ fts_build (register FTS *sp, int type)
   return (head);
 }
 
-static u_short
+static unsigned short
 fts_stat (FTS *sp, struct dirent *dp, register FTSENT *p, int follow)
 {
   register FTSENT *t;

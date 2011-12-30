@@ -24,33 +24,33 @@ typedef struct icmp_header icmphdr_t;
 
 struct icmp_header
 {
-  u_char icmp_type;		/* type of message, see below */
-  u_char icmp_code;		/* type sub code */
-  u_short icmp_cksum;		/* ones complement cksum of struct */
+  unsigned char icmp_type;		/* type of message, see below */
+  unsigned char icmp_code;		/* type sub code */
+  unsigned short icmp_cksum;		/* ones complement cksum of struct */
   union
   {
-    u_char ih_pptr;		/* ICMP_PARAMPROB */
+    unsigned char ih_pptr;		/* ICMP_PARAMPROB */
     struct in_addr ih_gwaddr;	/* ICMP_REDIRECT */
     struct ih_idseq
     {
-      u_short icd_id;
-      u_short icd_seq;
+      unsigned short icd_id;
+      unsigned short icd_seq;
     } ih_idseq;
     int ih_void;
 
     /* ICMP_UNREACH_NEEDFRAG -- Path MTU discovery as per rfc 1191 */
     struct ih_pmtu
     {
-      u_short ipm_void;
-      u_short ipm_nextmtu;
+      unsigned short ipm_void;
+      unsigned short ipm_nextmtu;
     } ih_pmtu;
 
     /* ICMP_ROUTERADV -- RFC 1256 */
     struct ih_rtradv
     {
-      u_char irt_num_addrs;	/* Number of addresses following the msg */
-      u_char irt_wpa;		/* Address Entry Size (32-bit words) */
-      u_short irt_lifetime;	/* Lifetime */
+      unsigned char irt_num_addrs;	/* Number of addresses following the msg */
+      unsigned char irt_wpa;		/* Address Entry Size (32-bit words) */
+      unsigned short irt_lifetime;	/* Lifetime */
     } ih_rtradv;
 
   } icmp_hun;
@@ -78,7 +78,7 @@ struct icmp_header
       struct ip idi_ip;
       /* options and then 64 bits of data */
     } id_ip;
-    u_long id_mask;		/* ICMP_ADDRESS, ICMP_ADDRESSREPLY */
+    unsigned long id_mask;		/* ICMP_ADDRESS, ICMP_ADDRESSREPLY */
     char id_data[1];
   } icmp_dun;
 #define icmp_otime	icmp_dun.id_ts.its_otime
@@ -140,22 +140,22 @@ struct icmp_header
 #define MAXIPLEN	60
 #define MAXICMPLEN	76
 #define ICMP_MINLEN	8	/* abs minimum */
-#define ICMP_TSLEN	(8 + 3 * sizeof (u_long))	/* timestamp */
+#define ICMP_TSLEN	(8 + 3 * sizeof (unsigned long))	/* timestamp */
 #define ICMP_MASKLEN	12	/* address mask */
 #define ICMP_ADVLENMIN	(8 + sizeof (struct ip) + 8)	/* min */
 #define ICMP_ADVLEN(p)	(8 + ((p)->icmp_ip.ip_hl << 2) + 8)
 	/* N.B.: must separately check that ip_hl >= 5 */
 
-u_short icmp_cksum (u_char * addr, int len);
-int icmp_generic_encode (u_char * buffer, size_t bufsize, int type, int ident,
+unsigned short icmp_cksum (unsigned char * addr, int len);
+int icmp_generic_encode (unsigned char * buffer, size_t bufsize, int type, int ident,
 			 int seqno);
-int icmp_generic_decode (u_char * buffer, size_t bufsize,
+int icmp_generic_decode (unsigned char * buffer, size_t bufsize,
 			 struct ip **ipp, icmphdr_t ** icmpp);
 
-int icmp_echo_encode (u_char * buffer, size_t bufsize, int ident, int seqno);
-int icmp_echo_decode (u_char * buffer, size_t bufsize,
+int icmp_echo_encode (unsigned char * buffer, size_t bufsize, int ident, int seqno);
+int icmp_echo_decode (unsigned char * buffer, size_t bufsize,
 		      struct ip **ip, icmphdr_t ** icmp);
-int icmp_timestamp_encode (u_char * buffer, size_t bufsize,
+int icmp_timestamp_encode (unsigned char * buffer, size_t bufsize,
 			   int ident, int seqno);
-int icmp_address_encode (u_char * buffer, size_t bufsize, int ident,
+int icmp_address_encode (unsigned char * buffer, size_t bufsize, int ident,
 			 int seqno);

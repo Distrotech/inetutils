@@ -162,7 +162,7 @@ doit (int f, struct sockaddr_in *fromp)
   char *user, *pass, *pw_password;
   struct passwd *pwd;
   int s;
-  u_short port;
+  unsigned short port;
   int pv[2], pid, cc;
   fd_set readfrom, ready;
   char buf[BUFSIZ], sig;

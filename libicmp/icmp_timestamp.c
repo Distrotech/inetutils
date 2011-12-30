@@ -33,7 +33,7 @@
 #include <icmp.h>
 
 int
-icmp_timestamp_encode (u_char * buffer, size_t bufsize, int ident, int seqno)
+icmp_timestamp_encode (unsigned char * buffer, size_t bufsize, int ident, int seqno)
 {
   icmphdr_t *icmp;
   struct timeval tv;

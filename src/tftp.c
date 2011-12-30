@@ -969,8 +969,8 @@ send_file (int fd, char *name, char *mode)
 	      nak (errno + 100);
 	      break;
 	    }
-	  dp->th_opcode = htons ((u_short) DATA);
-	  dp->th_block = htons ((u_short) block);
+	  dp->th_opcode = htons ((unsigned short) DATA);
+	  dp->th_block = htons ((unsigned short) block);
 	}
       timeout = 0;
       setjmp (timeoutbuf);
@@ -1080,8 +1080,8 @@ recvfile (int fd, char *name, char *mode)
 	}
       else
 	{
-	  ap->th_opcode = htons ((u_short) ACK);
-	  ap->th_block = htons ((u_short) (block));
+	  ap->th_opcode = htons ((unsigned short) ACK);
+	  ap->th_block = htons ((unsigned short) (block));
 	  size = 4;
 	  block++;
 	}
@@ -1158,8 +1158,8 @@ recvfile (int fd, char *name, char *mode)
   while (size == SEGSIZE);
 
 abort:				/* ok to ack, since user */
-  ap->th_opcode = htons ((u_short) ACK);	/* has seen err msg */
-  ap->th_block = htons ((u_short) block);
+  ap->th_opcode = htons ((unsigned short) ACK);	/* has seen err msg */
+  ap->th_block = htons ((unsigned short) block);
   sendto (f, ackbuf, 4, 0, (struct sockaddr *) &peeraddr, peerlen);
   write_behind (file, convert);	/* flush last buffer */
   fclose (file);
@@ -1174,7 +1174,7 @@ makerequest (int request, const char *name, struct tftphdr *tp,
 {
   register char *cp;
 
-  tp->th_opcode = htons ((u_short) request);
+  tp->th_opcode = htons ((unsigned short) request);
 #if HAVE_STRUCT_TFTPHDR_TH_U
   cp = tp->th_stuff;
 #else
@@ -1220,8 +1220,8 @@ nak (int error)
   int length;
 
   tp = (struct tftphdr *) ackbuf;
-  tp->th_opcode = htons ((u_short) ERROR);
-  tp->th_code = htons ((u_short) error);
+  tp->th_opcode = htons ((unsigned short) ERROR);
+  tp->th_code = htons ((unsigned short) error);
   for (pe = errmsgs; pe->e_code >= 0; pe++)
     if (pe->e_code == error)
       break;
@@ -1245,7 +1245,7 @@ tpacket (const char *s, struct tftphdr *tp, int n)
 {
   static char *opcodes[] = { "#0", "RRQ", "WRQ", "DATA", "ACK", "ERROR" };
   register char *cp, *file;
-  u_short op = ntohs (tp->th_opcode);
+  unsigned short op = ntohs (tp->th_opcode);
 
   if (op < RRQ || op > ERROR)
     printf ("%s opcode=%x ", s, op);

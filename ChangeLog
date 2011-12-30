@@ -28,6 +28,25 @@
 
 2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
 
+	Fix prohibit_dirent_without_use, sc_unsigned_short,
+	sc_unsigned_long sc_unsigned_char checks.
+
+	* ftpd/ftpd.c, libicmp/icmp.h, libicmp/icmp_address.c,
+	libicmp/icmp_cksum.c, libicmp/icmp_echo.c,
+	libicmp/icmp_timestamp.c, libinetutils/des_rw.c,
+	libinetutils/kcmd.c, libinetutils/krcmd.c, libinetutils/ttymsg.c,
+	libls/fts.c, libls/fts.h, libls/ls.c, libls/ls.h, libls/print.c,
+	libtelnet/kerberos.c, ping/libping.c, ping/ping.c, ping/ping.h,
+	ping/ping6.c, ping/ping_common.c, ping/ping_common.h,
+	ping/ping_echo.c, ping/ping_impl.h, src/inetd.c, src/rcp.c,
+	src/rexecd.c, src/rlogin.c, src/rlogind.c, src/rshd.c,
+	src/syslogd.c, src/tftp.c, src/tftpd.c, src/traceroute.c,
+	talk/ctl.c, talk/talk_ctl.h, telnet/krb4-proto.h, telnet/ring.c,
+	telnet/ring.h: Silence Fix prohibit_dirent_without_use,
+	sc_unsigned_short, sc_unsigned_long sc_unsigned_char checks.
+
+2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
+
 	Fix sc_prohibit_test_minus_ao check.
 
 	* tests/tftp.sh: Fix sc_prohibit_test_minus_ao check.

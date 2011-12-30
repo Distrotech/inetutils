@@ -54,10 +54,10 @@ ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
 }
 
 void
-init_data_buffer (u_char * pat, int len)
+init_data_buffer (unsigned char * pat, int len)
 {
   int i = 0;
-  u_char *p;
+  unsigned char *p;
 
   if (data_length == 0)
     return;

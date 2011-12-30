@@ -22,20 +22,20 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-u_short
-icmp_cksum (u_char * addr, int len)
+unsigned short
+icmp_cksum (unsigned char * addr, int len)
 {
   register int sum = 0;
-  u_short answer = 0;
-  u_short *wp;
+  unsigned short answer = 0;
+  unsigned short *wp;
 
-  for (wp = (u_short *) addr; len > 1; wp++, len -= 2)
+  for (wp = (unsigned short *) addr; len > 1; wp++, len -= 2)
     sum += *wp;
 
   /* Take in an odd byte if present */
   if (len == 1)
     {
-      *(u_char *) & answer = *(u_char *) wp;
+      *(unsigned char *) & answer = *(unsigned char *) wp;
       sum += answer;
     }
 

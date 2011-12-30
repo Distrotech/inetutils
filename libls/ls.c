@@ -55,7 +55,6 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 
-#include <dirent.h>
 #include <errno.h>
 #include "fts.h"
 #include <stdio.h>
@@ -427,7 +426,7 @@ display (FTSENT *p, FTSENT *list)
   FTSENT *cur;
   NAMES *np;
   unsigned long long maxsize;
-  u_long btotal, maxblock, maxinode, maxlen, maxnlink;
+  unsigned long btotal, maxblock, maxinode, maxlen, maxnlink;
   int bcfile, flen, glen, ulen, maxflags, maxgroup, maxuser;
   int entries, needstats;
   char *user = NULL, *group = NULL, buf[INT_BUFSIZE_BOUND (uintmax_t)];

@@ -169,7 +169,7 @@ int dflag = 0;
 int noescape;
 char * host = NULL;
 char * user = NULL;
-u_char escapechar = '~';
+unsigned char escapechar = '~';
 
 #ifdef OLDSUN
 

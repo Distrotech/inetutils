@@ -21,7 +21,7 @@
 
 extern unsigned options;
 extern PING *ping;
-extern u_char *data_buffer;
+extern unsigned char *data_buffer;
 extern size_t data_length;
 
 extern int ping_run (PING * ping, int (*finish) ());

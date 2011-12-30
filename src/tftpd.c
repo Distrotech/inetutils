@@ -557,8 +557,8 @@ send_file (struct formats *pf)
 	  nak (errno + 100);
 	  goto abort;
 	}
-      dp->th_opcode = htons ((u_short) DATA);
-      dp->th_block = htons ((u_short) block);
+      dp->th_opcode = htons ((unsigned short) DATA);
+      dp->th_block = htons ((unsigned short) block);
       timeout = 0;
       sigsetjmp (timeoutbuf, SIGALRM);
 
@@ -580,19 +580,19 @@ send_file (struct formats *pf)
 	      syslog (LOG_ERR, "tftpd: read: %m\n");
 	      goto abort;
 	    }
-	  ap->th_opcode = ntohs ((u_short) ap->th_opcode);
-	  ap->th_block = ntohs ((u_short) ap->th_block);
+	  ap->th_opcode = ntohs ((unsigned short) ap->th_opcode);
+	  ap->th_block = ntohs ((unsigned short) ap->th_block);
 
 	  if (ap->th_opcode == ERROR)
 	    goto abort;
 
 	  if (ap->th_opcode == ACK)
 	    {
-	      if ((u_short) ap->th_block == (u_short) block)
+	      if ((unsigned short) ap->th_block == (unsigned short) block)
 		break;
 	      /* Re-synchronize with the other side */
 	      synchnet (peer);
-	      if ((u_short) ap->th_block == (u_short) (block - 1))
+	      if ((unsigned short) ap->th_block == (unsigned short) (block - 1))
 		goto send_data;
 	    }
 
@@ -629,8 +629,8 @@ recvfile (struct formats *pf)
   do
     {
       timeout = 0;
-      ap->th_opcode = htons ((u_short) ACK);
-      ap->th_block = htons ((u_short) block);
+      ap->th_opcode = htons ((unsigned short) ACK);
+      ap->th_block = htons ((unsigned short) block);
       block++;
       sigsetjmp (timeoutbuf, SIGALRM);
     send_ack:
@@ -650,8 +650,8 @@ recvfile (struct formats *pf)
 	      syslog (LOG_ERR, "tftpd: read: %m\n");
 	      goto abort;
 	    }
-	  dp->th_opcode = ntohs ((u_short) dp->th_opcode);
-	  dp->th_block = ntohs ((u_short) dp->th_block);
+	  dp->th_opcode = ntohs ((unsigned short) dp->th_opcode);
+	  dp->th_block = ntohs ((unsigned short) dp->th_block);
 	  if (dp->th_opcode == ERROR)
 	    goto abort;
 	  if (dp->th_opcode == DATA)
@@ -681,8 +681,8 @@ recvfile (struct formats *pf)
   write_behind (file, pf->f_convert);
   fclose (file);		/* close data file */
 
-  ap->th_opcode = htons ((u_short) ACK);	/* send the "final" ack */
-  ap->th_block = htons ((u_short) (block));
+  ap->th_opcode = htons ((unsigned short) ACK);	/* send the "final" ack */
+  ap->th_block = htons ((unsigned short) (block));
   sendto (peer, ackbuf, 4, 0, (struct sockaddr *) &from, fromlen);
 
   signal (SIGALRM, justquit);	/* just quit on timeout */
@@ -744,8 +744,8 @@ nak (int error)
   register struct errmsg *pe;
 
   tp = (struct tftphdr *) buf;
-  tp->th_opcode = htons ((u_short) ERROR);
-  tp->th_code = htons ((u_short) error);
+  tp->th_opcode = htons ((unsigned short) ERROR);
+  tp->th_code = htons ((unsigned short) error);
   for (pe = errmsgs; pe->e_code >= 0; pe++)
     if (pe->e_code == error)
       break;
