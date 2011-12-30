@@ -1,3 +1,8 @@
+2011-12-30  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap: Updated from gnulib.
+	* lib/Makefile.am: File removed.
+
 2011-12-30  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ftp/cmds.c (restart): Use `%lld' as format for long long int.
