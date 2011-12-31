@@ -2,6 +2,8 @@
 
 	inetutils 1.9
 
+	* Makefile.am (EXTRA_DIST): Removed README-alpha from list.
+
 	* NEWS: Updated.
 
 2011-12-31  Alfred M. Szmidt  <ams@gnu.org>

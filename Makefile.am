@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-EXTRA_DIST = README-alpha paths ChangeLog.0
+EXTRA_DIST = paths ChangeLog.0
 
 SUBDIRS = lib \
 	libinetutils libtelnet libicmp libls \
