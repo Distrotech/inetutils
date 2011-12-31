@@ -1,3 +1,16 @@
+2011-12-31  Alfred M. Szmidt  <ams@gnu.org>
+
+	Fix prohibit_always_true_header_tests syntax-checks.
+
+	* ifconfig/printif.c: Don't protect inclusion of <alloca.h> with
+	HAVE_ALLOCA_H.
+
+	* configure.ac: Don't protect inclusion of <sys/types.h> with
+	HAVE_SYS_TYPES_H.
+	* libinetutils/daemon.c: Likewise.
+	* telnet/commands.c: Likewise.
+	* src/syslogd.c: Likewise.
+
 2011-12-30  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* configure.ac: Check for ruserok.  If iruserok exists, then define

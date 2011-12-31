@@ -192,9 +192,7 @@ AC_SUBST(libls_BUILD)
 
 dnl At least OpenSolaris is missing <protocols/talkd.h>.
 AC_CHECK_HEADER(protocols/talkd.h, , ,
-  [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
-		 # include <sys/types.h>
-		 #endif
+  [IU_FLUSHLEFT([#include <sys/types.h>
 		 #include <sys/socket.h>])])
 
 if test "$ac_cv_header_protocols_talkd_h" = no; then
@@ -372,17 +370,13 @@ if test "$ipv6" = "no" || test "$working_ipv6" = "no";then
 else
   working_icmp6=yes
   AC_CHECK_HEADER(netinet/icmp6.h, , working_icmp6=no,
-    [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
-		   # include <sys/types.h>
-		   #endif
+    [IU_FLUSHLEFT([#include <sys/types.h>
 		   #include <sys/socket.h>
 		   #include <netinet/in.h>])])
 
   if test "$working_icmp6" = "yes"; then
     AC_CHECK_HEADER(netinet/ip6.h, , working_icmp6=no,
-      [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
-		     # include <sys/types.h>
-		     #endif
+      [IU_FLUSHLEFT([#include <sys/types.h>
 		     #include <sys/socket.h>
 		     #include <netinet/in.h>])])
 
@@ -390,9 +384,7 @@ else
 
   if test "$working_icmp6" = "yes"; then
     AC_CHECK_TYPE(struct icmp6_filter, , working_icmp6=no,
-      [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
-		     # include <sys/types.h>
-		     #endif
+      [IU_FLUSHLEFT([#include <sys/types.h>
 		     #include <sys/socket.h>
 		     #include <netinet/in.h>
 		     #include <netinet/icmp6.h>])])
@@ -400,9 +392,7 @@ else
 
   if test "$working_icmp6" = "yes"; then
     AC_CHECK_TYPE(struct icmp6_hdr, , working_icmp6=no,
-      [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
-		     # include <sys/types.h>
-		     #endif
+      [IU_FLUSHLEFT([#include <sys/types.h>
 		     #include <sys/socket.h>
 		     #include <netinet/in.h>
 		     #include <netinet/icmp6.h>])])
@@ -450,9 +440,7 @@ else
 
   if test "$working_icmp6" = "yes"; then
     IU_CHECK_MACRO(ICMP6_DST_UNREACH_BEYONDSCOPE,
-                   [#ifdef HAVE_SYS_TYPES_H
-		    # include <sys/types.h>
-		    #endif
+                   [#include <sys/types.h>
 		    #include <sys/socket.h>
 		    #include <netinet/in.h>
 		    #include <netinet/icmp6.h>], ,
@@ -738,9 +726,7 @@ AC_CHECK_DECLS([getcwd, getlogin, getpass, getusershell, ttyname], , ,
 AC_CHECK_DECLS([getgrnam, initgroups], , , [#include <grp.h>])
 
 AC_CHECK_DECLS(htons, , ,
-  [IU_FLUSHLEFT([#ifdef HAVE_SYS_TYPES_H
-                 # include <sys/types.h>
-                 #endif
+  [IU_FLUSHLEFT([# include <sys/types.h>
                  #ifdef HAVE_SYS_PARAM_H
                  # include <sys/param.h>
                  #endif

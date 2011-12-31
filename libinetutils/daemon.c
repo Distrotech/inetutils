@@ -53,9 +53,7 @@
 #include <signal.h>
 #include <error.h>
 #include <stdlib.h>
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
+#include <sys/types.h>
 #include <sys/wait.h>
 
 /*

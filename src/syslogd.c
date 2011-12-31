@@ -89,9 +89,7 @@
 #include <time.h>
 #include <sys/resource.h>
 #include <poll.h>
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
+#include <sys/types.h>
 
 #include <netinet/in.h>
 #include <netdb.h>
