@@ -1,5 +1,11 @@
 2011-12-31  Alfred M. Szmidt  <ams@gnu.org>
 
+	inetutils 1.9
+
+	* NEWS: Updated.
+
+2011-12-31  Alfred M. Szmidt  <ams@gnu.org>
+
 	Fix prohibit_always_true_header_tests syntax-checks.
 
 	* ifconfig/printif.c: Don't protect inclusion of <alloca.h> with
