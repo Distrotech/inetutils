@@ -182,10 +182,10 @@ cmd
 				pdata = -1;
 			}
 			if ($2) {
-				if (memcmp (&his_addr.sin_addr,
-					&data_dest.sin_addr,
-					sizeof (data_dest.sin_addr)) == 0 &&
-					ntohs (data_dest.sin_port) >
+				if (memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+					&((struct sockaddr_in *) &data_dest)->sin_addr,
+					sizeof (struct in_addr)) == 0 &&
+					ntohs (((struct sockaddr_in *) &data_dest)->sin_port) >
 					IPPORT_RESERVED) {
 					reply (200, "PORT command successful.");
 				}
@@ -995,7 +995,7 @@ yylex(void)
 			}
 			 alarm(0);
 #ifdef HAVE_SETPROCTITLE
-			if (strncasecmp(cbuf, "PASS", 4) != NULL)
+			if (strncasecmp(cbuf, "PASS", 4) != 0)
 				setproctitle("%s: %s", proctitle, cbuf);
 #endif /* HAVE_SETPROCTITLE */
 			if ((cp = strchr(cbuf, '\r'))) {

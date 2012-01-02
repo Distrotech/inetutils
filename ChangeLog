@@ -1,3 +1,26 @@
+2012-01-03  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Internal address structure rewrite for `ftpd'.
+
+	* ftpd/extern.h (data_dest, his_addr): Change to `struct sockaddr_storage'.
+	(server_mode): New prototype: second argument `struct sockaddr *'.
+	* ftpd/ftpcmd.y (cmd): Use casts to `struct sockaddr_in' to evaluate
+	sub case `host_port'.
+	(yylex) [HAVE_SETPROCTITLE]: Compare to numeric naught, not NULL.
+	* ftpd/ftpd.c (data_dest, his_addr, ctrl_addr, data_source, pasv_addr):
+	Change to `struct sockaddr_storage'.
+	(main): Apply updated server_mode().
+	(main, getdatasock, dataconn): Set IP_TOS only for AF_INET.
+	(dataconn, passive): Copy addresses using memcpy().
+	(statfilecmd): Change SIN to `struct sockaddr_storage'.
+	(statcmd): Casts as `struct sockaddr_in' needed for A and P.
+	(passive): Clear port number depending on address family.
+	Reply with 229 for EPSV/IPv6 and 227 for PASV.
+	* ftpd/server_mode.c (check_host): Activate AF_INET6 case.
+	(server_mode): Second argument is 'struct sockaddr *', must be
+	initiated before call, and returns actual address length.
+	New variable SAVED_ADDRLEN.  Changed call due to these two.
+
 2012-01-02  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Initial address family abstraction for `ftpd'.

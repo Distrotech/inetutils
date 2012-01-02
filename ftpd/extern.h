@@ -89,9 +89,9 @@ extern char *sgetsave (const char *);
 
 /* Exported from ftpd.c.  */
 jmp_buf errcatch;
-extern struct sockaddr_in data_dest;
+extern struct sockaddr_storage data_dest;
 extern socklen_t data_dest_len;
-extern struct sockaddr_in his_addr;
+extern struct sockaddr_storage his_addr;
 extern socklen_t his_addrlen;
 extern int logged_in;
 extern struct passwd *pw;
@@ -113,7 +113,7 @@ extern char tmpline[];
 extern off_t restart_point;
 
 /* Exported from server_mode.c.  */
-extern int server_mode (const char *pidfile, struct sockaddr_in *phis_addr,
+extern int server_mode (const char *pidfile, struct sockaddr *phis_addr,
 			socklen_t *phis_addrlen, char *argv[]);
 
 /* Credential for the request.  */

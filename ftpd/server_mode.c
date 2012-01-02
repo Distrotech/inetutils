@@ -57,7 +57,7 @@ check_host (struct sockaddr *sa, socklen_t len)
   char name[NI_MAXHOST];
 
   if (sa->sa_family != AF_INET
-      /* && sa->sa_family != AF_INET6 */)
+      && sa->sa_family != AF_INET6)
     return 1;
 
   (void) getnameinfo(sa, len, addr, sizeof (addr), NULL, 0, NI_NUMERICHOST);
@@ -93,14 +93,18 @@ reapchild (int signo _GL_UNUSED_PARAMETER)
   errno = save_errno;
 }
 
+/* The parameter '*phis_addrlen' must be initiated
+   with the space available at calling time.
+   The actually used space will then be returned.  */
 int
-server_mode (const char *pidfile, struct sockaddr_in *phis_addr,
+server_mode (const char *pidfile, struct sockaddr *phis_addr,
 	     socklen_t *phis_addrlen, char *argv[])
 {
   int ctl_sock, fd;
   struct servent *sv;
   int port, err;
   char portstr[8];
+  socklen_t saved_addrlen = *phis_addrlen;
   struct addrinfo hints, *res, *ai;
 
   /* Become a daemon.  */
@@ -189,8 +193,8 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr,
      children to handle them.  */
   while (1)
     {
-      *phis_addrlen = sizeof (*phis_addr);
-      fd = accept (ctl_sock, (struct sockaddr *) phis_addr, phis_addrlen);
+      *phis_addrlen = saved_addrlen;
+      fd = accept (ctl_sock, phis_addr, phis_addrlen);
       if (fork () == 0)		/* child */
 	{
 	  dup2 (fd, 0);
@@ -203,7 +207,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr,
 
 #ifdef WITH_WRAP
   /* In the child.  */
-  if (!check_host ((struct sockaddr *) phis_addr, *phis_addrlen))
+  if (!check_host (phis_addr, *phis_addrlen))
     return -1;
 #endif
 

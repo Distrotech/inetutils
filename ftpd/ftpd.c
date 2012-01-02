@@ -122,9 +122,9 @@ extern int fclose (FILE *);
 #endif
 
 /* Exported to ftpcmd.h.  */
-struct sockaddr_in data_dest;	/* Data port.  */
+struct sockaddr_storage data_dest;	/* Data port.  */
 socklen_t data_dest_len;
-struct sockaddr_in his_addr;	/* Peer address.  */
+struct sockaddr_storage his_addr;	/* Peer address.  */
 socklen_t his_addrlen;
 int logging;			/* Enable log to syslog.  */
 int type = TYPE_A;		/* Default TYPE_A.  */
@@ -143,11 +143,11 @@ char portstr[8];		/* Numeric port as string.  */
 /* Requester credentials.  */
 struct credentials cred;
 
-static struct sockaddr_in ctrl_addr;	/* Control address.  */
+static struct sockaddr_storage ctrl_addr;	/* Control address.  */
 static socklen_t ctrl_addrlen;
-static struct sockaddr_in data_source;	/* Port address.  */
+static struct sockaddr_storage data_source;	/* Port address.  */
 static socklen_t data_source_len;
-static struct sockaddr_in pasv_addr;	/* Pasv address.  */
+static struct sockaddr_storage pasv_addr;	/* Pasv address.  */
 static socklen_t pasv_addrlen;
 
 static int data = -1;		/* Port data connection socket.  */
@@ -457,7 +457,9 @@ main (int argc, char *argv[], char **envp)
 	    argv[--argc] = NULL;
 	  }
 #endif
-      if (server_mode (pid_file, &his_addr, &his_addrlen, argv) < 0)
+      his_addrlen = sizeof (his_addr);
+      if (server_mode (pid_file, (struct sockaddr *) &his_addr,
+			&his_addrlen, argv) < 0)
 	exit (EXIT_FAILURE);
     }
   else
@@ -493,12 +495,13 @@ main (int argc, char *argv[], char **envp)
 
 #if defined IP_TOS && defined IPTOS_LOWDELAY && defined IPPROTO_IP
   /* To  minimize delays for interactive traffic.  */
-  {
-    int tos = IPTOS_LOWDELAY;
-    if (setsockopt (STDIN_FILENO, IPPROTO_IP, IP_TOS,
+  if (ctrl_addr.ss_family == AF_INET)
+    {
+      int tos = IPTOS_LOWDELAY;
+      if (setsockopt (STDIN_FILENO, IPPROTO_IP, IP_TOS,
 		    (char *) &tos, sizeof (int)) < 0)
-      syslog (LOG_WARNING, "setsockopt (IP_TOS): %m");
-  }
+	syslog (LOG_WARNING, "setsockopt (IP_TOS): %m");
+    }
 #endif
 
 #ifdef SO_OOBINLINE
@@ -1022,7 +1025,7 @@ getdatasock (const char *mode)
   if (data >= 0)
     return fdopen (data, mode);
   seteuid ((uid_t) 0);
-  s = socket (ctrl_addr.sin_family, SOCK_STREAM, 0);
+  s = socket (ctrl_addr.ss_family, SOCK_STREAM, 0);
   if (s < 0)
     goto bad;
 
@@ -1049,11 +1052,12 @@ getdatasock (const char *mode)
   seteuid ((uid_t) cred.uid);
 
 #if defined IP_TOS && defined IPTOS_THROUGHPUT && defined IPPROTO_IP
-  {
-    int on = IPTOS_THROUGHPUT;
-    if (setsockopt (s, IPPROTO_IP, IP_TOS, (char *) &on, sizeof (int)) < 0)
-      syslog (LOG_WARNING, "setsockopt (IP_TOS): %m");
-  }
+  if (ctrl_addr.ss_family == AF_INET)
+    {
+      int on = IPTOS_THROUGHPUT;
+      if (setsockopt (s, IPPROTO_IP, IP_TOS, (char *) &on, sizeof (int)) < 0)
+	syslog (LOG_WARNING, "setsockopt (IP_TOS): %m");
+    }
 #endif
 
   return (fdopen (s, mode));
@@ -1100,10 +1104,11 @@ dataconn (const char *name, off_t size, const char *mode)
       pdata = s;
 #if defined IP_TOS && defined IPTOS_THROUGHPUT && defined IPPROTO_IP
       /* Optimize throughput.  */
-      {
-	int tos = IPTOS_THROUGHPUT;
-	setsockopt (s, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int));
-      }
+      if (from.ss_family == AF_INET)
+	{
+	  int tos = IPTOS_THROUGHPUT;
+	  setsockopt (s, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int));
+	}
 #endif
 #ifdef SO_KEEPALIVE
       /* Set keepalives on the socket to detect dropped conns.  */
@@ -1126,7 +1131,7 @@ dataconn (const char *name, off_t size, const char *mode)
     }
   if (usedefault)
     {
-      data_dest = his_addr;
+      memcpy (&data_dest, &his_addr, sizeof (data_dest));
       data_dest_len = his_addrlen;
     }
   usedefault = 1;
@@ -1428,7 +1433,7 @@ statfilecmd (const char *filename)
 void
 statcmd (void)
 {
-  struct sockaddr_in *sin;
+  struct sockaddr_storage *sin;
   unsigned char *a, *p;
 
   lreply (211, "%s FTP server status:", hostname);
@@ -1479,8 +1484,8 @@ statcmd (void)
       printf ("     PORT");
       sin = &data_dest;
     printaddr:
-      a = (unsigned char *) & sin->sin_addr;
-      p = (unsigned char *) & sin->sin_port;
+      a = (unsigned char *) & ((struct sockaddr_in *) sin)->sin_addr;
+      p = (unsigned char *) & ((struct sockaddr_in *) sin)->sin_port;
 #define UC(b) (((int) b) & 0xff)
       printf (" (%d,%d,%d,%d,%d,%d)\r\n", UC (a[0]),
 	      UC (a[1]), UC (a[2]), UC (a[3]), UC (p[0]), UC (p[1]));
@@ -1734,15 +1739,20 @@ passive (void)
 {
   char *p, *a;
 
-  pdata = socket (ctrl_addr.sin_family, SOCK_STREAM, 0);
+  pdata = socket (ctrl_addr.ss_family, SOCK_STREAM, 0);
   if (pdata < 0)
     {
       perror_reply (425, "Can't open passive connection");
       return;
     }
-  pasv_addr = ctrl_addr;
+  memcpy (&pasv_addr, &ctrl_addr, sizeof (pasv_addr));
   pasv_addrlen = ctrl_addrlen;
-  pasv_addr.sin_port = 0;
+  /* Erase the port number.  */
+  if (pasv_addr.ss_family == AF_INET6)
+    ((struct sockaddr_in6 *) &pasv_addr)->sin6_port = 0;
+  else	/* !AF_INET6 */
+    ((struct sockaddr_in *) &pasv_addr)->sin_port = 0;
+
   seteuid ((uid_t) 0);
   if (bind (pdata, (struct sockaddr *) &pasv_addr, pasv_addrlen) < 0)
     {
@@ -1755,14 +1765,24 @@ passive (void)
     goto pasv_error;
   if (listen (pdata, 1) < 0)
     goto pasv_error;
-  a = (char *) &pasv_addr.sin_addr;
-  p = (char *) &pasv_addr.sin_port;
+
+  if (pasv_addr.ss_family == AF_INET6)
+    {
+      reply (229, "Extended Passive Mode OK (|||%u|)",
+	     ((struct sockaddr_in6 *) &pasv_addr)->sin6_port);
+      return;
+    }
+  else
+    {
+      a = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_addr;
+      p = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_port;
 
 #define UC(b) (((int) b) & 0xff)
 
-  reply (227, "Entering Passive Mode (%d,%d,%d,%d,%d,%d)", UC (a[0]),
-	 UC (a[1]), UC (a[2]), UC (a[3]), UC (p[0]), UC (p[1]));
-  return;
+      reply (227, "Entering Passive Mode (%d,%d,%d,%d,%d,%d)", UC (a[0]),
+	     UC (a[1]), UC (a[2]), UC (a[3]), UC (p[0]), UC (p[1]));
+      return;
+    }
 
 pasv_error:
   close (pdata);
