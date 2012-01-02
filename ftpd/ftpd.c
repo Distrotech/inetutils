@@ -123,7 +123,9 @@ extern int fclose (FILE *);
 
 /* Exported to ftpcmd.h.  */
 struct sockaddr_in data_dest;	/* Data port.  */
+socklen_t data_dest_len;
 struct sockaddr_in his_addr;	/* Peer address.  */
+socklen_t his_addrlen;
 int logging;			/* Enable log to syslog.  */
 int type = TYPE_A;		/* Default TYPE_A.  */
 int form = FORM_N;		/* Default FORM_N.  */
@@ -135,13 +137,18 @@ int pdata = -1;			/* For passive mode.  */
 char *hostname;			/* Who we are.  */
 int usedefault = 1;		/* For data transfers.  */
 char tmpline[7];		/* Temp buffer use in OOB.  */
+char addrstr[NI_MAXHOST];	/* Host name or address string.  */
+char portstr[8];		/* Numeric port as string.  */
 
 /* Requester credentials.  */
 struct credentials cred;
 
 static struct sockaddr_in ctrl_addr;	/* Control address.  */
+static socklen_t ctrl_addrlen;
 static struct sockaddr_in data_source;	/* Port address.  */
+static socklen_t data_source_len;
 static struct sockaddr_in pasv_addr;	/* Pasv address.  */
+static socklen_t pasv_addrlen;
 
 static int data = -1;		/* Port data connection socket.  */
 static jmp_buf urgcatch;
@@ -230,12 +237,12 @@ extern int yyparse (void);
 
 static void ack (const char *);
 #ifdef HAVE_LIBWRAP
-static int check_host (struct sockaddr *sa);
+static int check_host (struct sockaddr *sa, socklen_t len);
 #endif
 static void complete_login (struct credentials *);
 static char *curdir (void);
 static FILE *dataconn (const char *, off_t, const char *);
-static void dolog (struct sockaddr_in *, struct credentials *);
+static void dolog (struct sockaddr *, socklen_t, struct credentials *);
 static void end_login (struct credentials *);
 static FILE *getdatasock (const char *);
 static char *gunique (const char *);
@@ -450,14 +457,14 @@ main (int argc, char *argv[], char **envp)
 	    argv[--argc] = NULL;
 	  }
 #endif
-      if (server_mode (pid_file, &his_addr, argv) < 0)
+      if (server_mode (pid_file, &his_addr, &his_addrlen, argv) < 0)
 	exit (EXIT_FAILURE);
     }
   else
     {
-      socklen_t addrlen = sizeof (his_addr);
+      his_addrlen = sizeof (his_addr);
       if (getpeername (STDIN_FILENO, (struct sockaddr *) &his_addr,
-		       &addrlen) < 0)
+		       &his_addrlen) < 0)
 	{
 	  syslog (LOG_ERR, "getpeername (%s): %m", program_name);
 	  exit (EXIT_FAILURE);
@@ -475,9 +482,9 @@ main (int argc, char *argv[], char **envp)
 
   /* Get info on the ctrl connection.  */
   {
-    socklen_t addrlen = sizeof (ctrl_addr);
+    ctrl_addrlen = sizeof (ctrl_addr);
     if (getsockname (STDIN_FILENO, (struct sockaddr *) &ctrl_addr,
-		     &addrlen) < 0)
+		     &ctrl_addrlen) < 0)
       {
 	syslog (LOG_ERR, "getsockname (%s): %m", program_name);
 	exit (EXIT_FAILURE);
@@ -519,7 +526,7 @@ main (int argc, char *argv[], char **envp)
     syslog (LOG_ERR, "fcntl F_SETOWN: %m");
 #endif
 
-  dolog (&his_addr, &cred);
+  dolog ((struct sockaddr *) &his_addr, his_addrlen, &cred);
 
   /* Deal with login disable.  */
   if (display_file (PATH_NOLOGIN, 530) == 0)
@@ -1015,7 +1022,7 @@ getdatasock (const char *mode)
   if (data >= 0)
     return fdopen (data, mode);
   seteuid ((uid_t) 0);
-  s = socket (AF_INET, SOCK_STREAM, 0);
+  s = socket (ctrl_addr.sin_family, SOCK_STREAM, 0);
   if (s < 0)
     goto bad;
 
@@ -1028,15 +1035,12 @@ getdatasock (const char *mode)
   }
 
   /* anchor socket to avoid multi-homing problems */
-  data_source.sin_family = AF_INET;
-  data_source.sin_addr = ctrl_addr.sin_addr;
-#if HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-  data_source.sin_len = sizeof (struct sockaddr_in);
-#endif
+  memcpy (&data_source, &ctrl_addr, sizeof (data_source));
+  data_source_len = ctrl_addrlen;
+
   for (tries = 1;; tries++)
     {
-      if (bind (s, (struct sockaddr *) &data_source,
-		sizeof (data_source)) >= 0)
+      if (bind (s, (struct sockaddr *) &data_source, data_source_len) >= 0)
 	break;
       if (errno != EADDRINUSE || tries > 10)
 	goto bad;
@@ -1077,8 +1081,8 @@ dataconn (const char *name, off_t size, const char *mode)
     *sizebuf = '\0';
   if (pdata >= 0)
     {
-      struct sockaddr_in from;
-      socklen_t s;
+      struct sockaddr_storage from;
+      int s;
       socklen_t fromlen = sizeof (from);
 
       signal (SIGALRM, toolong);
@@ -1121,19 +1125,25 @@ dataconn (const char *name, off_t size, const char *mode)
       return fdopen (data, mode);
     }
   if (usedefault)
-    data_dest = his_addr;
+    {
+      data_dest = his_addr;
+      data_dest_len = his_addrlen;
+    }
   usedefault = 1;
   file = getdatasock (mode);
   if (file == NULL)
     {
-      reply (425, "Can't create data socket (%s,%d): %s.",
-	     inet_ntoa (data_source.sin_addr),
-	     ntohs (data_source.sin_port), strerror (errno));
+      int oerrno = errno;
+      (void) getnameinfo ((struct sockaddr *) &data_source, data_source_len,
+			  addrstr, sizeof (addrstr),
+			  portstr, sizeof (portstr),
+			  NI_NUMERICSERV);
+      reply (425, "Can't create data socket (%s,%s): %s.",
+	     addrstr, portstr, strerror (oerrno));
       return NULL;
     }
   data = fileno (file);
-  while (connect (data, (struct sockaddr *) &data_dest,
-		  sizeof (data_dest)) < 0)
+  while (connect (data, (struct sockaddr *) &data_dest, data_dest_len) < 0)
     {
       if (errno == EADDRINUSE && retry < swaitmax)
 	{
@@ -1425,8 +1435,10 @@ statcmd (void)
   if (!no_version)
     printf ("     ftpd (%s) %s\r\n", PACKAGE_NAME, PACKAGE_VERSION);
   printf ("     Connected to %s", cred.remotehost);
+  (void) getnameinfo ((struct sockaddr *) &his_addr, his_addrlen,
+		      addrstr, sizeof (addrstr), NULL, 0, NI_NUMERICHOST);
   if (!isdigit (cred.remotehost[0]))
-    printf (" (%s)", inet_ntoa (his_addr.sin_addr));
+    printf (" (%s)", addrstr);
   printf ("\r\n");
   if (cred.logged_in)
     {
@@ -1645,19 +1657,12 @@ renamecmd (const char *from, const char *to)
 }
 
 static void
-dolog (struct sockaddr_in *sin, struct credentials *pcred)
+dolog (struct sockaddr *sa, socklen_t salen, struct credentials *pcred)
 {
-  const char *name;
-  struct hostent *hp = gethostbyaddr ((char *) &sin->sin_addr,
-				      sizeof (struct in_addr), AF_INET);
-
-  if (hp)
-    name = hp->h_name;
-  else
-    name = inet_ntoa (sin->sin_addr);
+  (void) getnameinfo (sa, salen, addrstr, sizeof (addrstr), NULL, 0, 0);
 
   free (pcred->remotehost);
-  pcred->remotehost = sgetsave (name);
+  pcred->remotehost = sgetsave (addrstr);
 
 #ifdef HAVE_SETPROCTITLE
   snprintf (proctitle, sizeof (proctitle), "%s: connected",
@@ -1727,26 +1732,26 @@ myoob (int signo _GL_UNUSED_PARAMETER)
 void
 passive (void)
 {
-  socklen_t len;
   char *p, *a;
 
-  pdata = socket (AF_INET, SOCK_STREAM, 0);
+  pdata = socket (ctrl_addr.sin_family, SOCK_STREAM, 0);
   if (pdata < 0)
     {
       perror_reply (425, "Can't open passive connection");
       return;
     }
   pasv_addr = ctrl_addr;
+  pasv_addrlen = ctrl_addrlen;
   pasv_addr.sin_port = 0;
   seteuid ((uid_t) 0);
-  if (bind (pdata, (struct sockaddr *) &pasv_addr, sizeof (pasv_addr)) < 0)
+  if (bind (pdata, (struct sockaddr *) &pasv_addr, pasv_addrlen) < 0)
     {
       seteuid ((uid_t) cred.uid);
       goto pasv_error;
     }
   seteuid ((uid_t) cred.uid);
-  len = sizeof (pasv_addr);
-  if (getsockname (pdata, (struct sockaddr *) &pasv_addr, &len) < 0)
+  pasv_addrlen = sizeof (pasv_addr);
+  if (getsockname (pdata, (struct sockaddr *) &pasv_addr, &pasv_addrlen) < 0)
     goto pasv_error;
   if (listen (pdata, 1) < 0)
     goto pasv_error;

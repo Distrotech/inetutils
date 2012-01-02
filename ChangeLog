@@ -1,3 +1,37 @@
+2012-01-02  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Initial address family abstraction for `ftpd'.
+
+	* ftpd/extern.h: Include <netinet/in.h>.
+	(data_dest_len, his_addr_len): New socklen_t variables.
+	(server_mode): Use a socklen_t argument.
+	* ftpd/ftpcmd.y: Include <netdb.h>.
+	(cmd) [unix || __unix__]: SYS_TYPE must recognize __unix__.
+	(host_port): Use getaddrinfo to initiate DATA_DEST.
+	* ftpd/ftpd.c (data_set_len, his_addrlen, addrstr, portstr,
+	ctrl_addrlen, data_source_len, pasv_addrlen): New variables.
+	[HAVE_LIBWRAP] (check_host): Prototype extended with socklen_t.
+	(dolog): Likewise.
+	(main): Use HIS_ADDRLEN, CTRL_ADDRLEN instead of local ADDRLEN.
+	Changed calls to server_mode and dolog due to new prototypes.
+	(getdatasock): Address family determined by CTRL_ADDR.  Inherit
+	fields in DATA_SOURCE from CTRL_ADDR, and DATA_SOURCE_LEN from
+	CTRL_ADDRLEN.  Dynamic address length to bind().
+	(dataconn): Use FROM as `struct sockaddr_storage.  Change socket
+	descriptor S to be `int'.  Assign DATA_DEST and DATA_DEST_LEN
+	in a block.  Use getnameinfo for error message.  Dynamic socket
+	length in connect().
+	(statcmd): Lookup using getnameinfo().
+	(dolog): New prototype, extended by `socklen_t'.  Likewise.
+	(passive): Removed variable LEN, now using length and family stored
+	in address variables, which are global.
+	* ftpd/server_mode.c (check_host): New prototype: adding `socklen_t'.
+	Removed SIN, HP. New variables ERR, NAME.  Lookup uses getnameinfo().
+	(server_mode): New prototype: adding `socklen_t'.  Delete SERVER_ADDR.
+	New varables ERR, PORTSTR, HINTS, RES, AI.  Lookup uses getaddrinfo
+	and a loop to get listener.  Server loop removes ADDRLEN, now setting
+	address length by use of PHIS_ADDRLEN.
+
 2011-12-31  Alfred M. Szmidt  <ams@gnu.org>
 
 	inetutils 1.9

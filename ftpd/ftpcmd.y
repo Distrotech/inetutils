@@ -62,6 +62,7 @@
 #include <sys/stat.h>
 
 #include <netinet/in.h>
+#include <netdb.h>
 #include <arpa/ftp.h>
 
 #include <ctype.h>
@@ -493,7 +494,7 @@ cmd
 #endif
 #endif
 
-#ifdef unix
+#if defined unix || defined __unix__
 			sys_type = "UNIX";
 #else
 			sys_type = "UNKNOWN";
@@ -608,16 +609,29 @@ host_port
 	: NUMBER COMMA NUMBER COMMA NUMBER COMMA NUMBER COMMA
 		NUMBER COMMA NUMBER
 		{
-			char *a, *p;
+			int err;
+			char a[INET_ADDRSTRLEN], p[8];
+			struct addrinfo hints, *res;
 
-			a = (char *)&data_dest.sin_addr;
-			a[0] = $1; a[1] = $3; a[2] = $5; a[3] = $7;
-			p = (char *)&data_dest.sin_port;
-			p[0] = $9; p[1] = $11;
-			data_dest.sin_family = AF_INET;
-#if HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-			data_dest.sin_len = sizeof (struct sockaddr_in);
+			snprintf (a, sizeof (a), "%u.%u.%u.%u",
+				$1 & 0xff, $3 & 0xff, $5 & 0xff, $7 & 0xff);
+			snprintf (p, sizeof (p), "%u",
+				(($9 & 0xff) << 8) + ($11 & 0xff));
+			memset (&hints, 0, sizeof (hints));
+			hints.ai_family = AF_INET;
+			hints.ai_socktype = SOCK_STREAM;
+#ifdef AI_ADDRCONFIG
+			hints.ai_flags = AI_ADDRCONFIG;
 #endif
+			err = getaddrinfo (a, p, &hints, &res);
+			if (err)
+			  reply (550, "Address failure: %s,%s", a, p);
+			else
+			  {
+			    memcpy (&data_dest, res->ai_addr, res->ai_addrlen);
+			    data_dest_len = res->ai_addrlen;
+			    freeaddrinfo (res);
+			  }
 		}
 	;
 

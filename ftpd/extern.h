@@ -51,6 +51,7 @@
 #include <setjmp.h>
 #include <getopt.h>
 #include <sys/types.h>
+#include <netinet/in.h>
 
 extern void cwd (const char *);
 extern int checkuser (const char *filename, const char *name);
@@ -89,7 +90,9 @@ extern char *sgetsave (const char *);
 /* Exported from ftpd.c.  */
 jmp_buf errcatch;
 extern struct sockaddr_in data_dest;
+extern socklen_t data_dest_len;
 extern struct sockaddr_in his_addr;
+extern socklen_t his_addrlen;
 extern int logged_in;
 extern struct passwd *pw;
 extern int guest;
@@ -111,7 +114,7 @@ extern off_t restart_point;
 
 /* Exported from server_mode.c.  */
 extern int server_mode (const char *pidfile, struct sockaddr_in *phis_addr,
-			char *argv[]);
+			socklen_t *phis_addrlen, char *argv[]);
 
 /* Credential for the request.  */
 struct credentials

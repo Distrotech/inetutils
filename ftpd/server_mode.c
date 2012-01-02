@@ -50,25 +50,24 @@ int allow_severity = LOG_INFO;
 int deny_severity = LOG_NOTICE;
 
 static int
-check_host (struct sockaddr *sa)
+check_host (struct sockaddr *sa, socklen_t len)
 {
-  struct sockaddr_in *sin;
-  struct hostent *hp;
-  char *addr;
+  int err;
+  char addr[INET6_ADDRSTRLEN];
+  char name[NI_MAXHOST];
 
-  if (sa->sa_family != AF_INET)
+  if (sa->sa_family != AF_INET
+      /* && sa->sa_family != AF_INET6 */)
     return 1;
 
-  sin = (struct sockaddr_in *) sa;
-  hp = gethostbyaddr ((char *) &sin->sin_addr,
-		      sizeof (struct in_addr), AF_INET);
-  addr = inet_ntoa (sin->sin_addr);
-  if (hp)
+  (void) getnameinfo(sa, len, addr, sizeof (addr), NULL, 0, NI_NUMERICHOST);
+  err = getnameinfo(sa, len, name, sizeof (name), NULL, 0, NI_NAMEREQD);
+  if (!err)
     {
-      if (!hosts_ctl ("ftpd", hp->h_name, addr, STRING_UNKNOWN))
+      if (!hosts_ctl ("ftpd", name, addr, STRING_UNKNOWN))
 	{
 	  syslog (LOG_NOTICE, "tcpwrappers rejected: %s [%s]",
-		  hp->h_name, addr);
+		  name, addr);
 	  return 0;
 	}
     }
@@ -95,12 +94,14 @@ reapchild (int signo _GL_UNUSED_PARAMETER)
 }
 
 int
-server_mode (const char *pidfile, struct sockaddr_in *phis_addr, char *argv[])
+server_mode (const char *pidfile, struct sockaddr_in *phis_addr,
+	     socklen_t *phis_addrlen, char *argv[])
 {
   int ctl_sock, fd;
   struct servent *sv;
-  int port;
-  static struct sockaddr_in server_addr;	/* Our address.  */
+  int port, err;
+  char portstr[8];
+  struct addrinfo hints, *res, *ai;
 
   /* Become a daemon.  */
   if (daemon (1, 1) < 0)
@@ -113,38 +114,61 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr, char *argv[])
   /* Get port for ftp/tcp.  */
   sv = getservbyname ("ftp", "tcp");
   port = (sv == NULL) ? DEFPORT : ntohs (sv->s_port);
+  snprintf (portstr, sizeof (portstr), "%u", port);
 
-  /* Open socket, bind and start listen.  */
-  ctl_sock = socket (AF_INET, SOCK_STREAM, 0);
-  if (ctl_sock < 0)
-    {
-      syslog (LOG_ERR, "control socket: %m");
-      return -1;
-    }
-
-  /* Enable local address reuse.  */
-  {
-    int on = 1;
-    if (setsockopt (ctl_sock, SOL_SOCKET, SO_REUSEADDR,
-		    (char *) &on, sizeof (on)) < 0)
-      syslog (LOG_ERR, "control setsockopt: %m");
-  }
-
-  memset (&server_addr, 0, sizeof server_addr);
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons (port);
-#if HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-  server_addr.sin_len = sizeof (struct sockaddr_in);
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE;
+#ifdef AI_ADDRCONFIG
+  hints.ai_flags |= AI_ADDRCONFIG;
 #endif
 
-  if (bind (ctl_sock, (struct sockaddr *) &server_addr, sizeof server_addr))
+  err = getaddrinfo (NULL, portstr, &hints, &res);
+  if (err)
     {
-      syslog (LOG_ERR, "control bind: %m");
+      syslog (LOG_ERR, "control socket: %s", gai_strerror (err));
       return -1;
     }
-  if (listen (ctl_sock, 32) < 0)
+  /* Attempt to open socket, bind and start listen.  */
+  for (ai = res; ai; ai = ai->ai_next)
     {
-      syslog (LOG_ERR, "control listen: %m");
+      ctl_sock = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+      if (ctl_sock < 0)
+	continue;
+
+      /* Enable local address reuse.  */
+      {
+	int on = 1;
+	if (setsockopt (ctl_sock, SOL_SOCKET, SO_REUSEADDR,
+			(char *) &on, sizeof (on)) < 0)
+	  syslog (LOG_ERR, "control setsockopt: %m");
+      }
+
+      if (bind (ctl_sock, ai->ai_addr, ai->ai_addrlen))
+	{
+	  close (ctl_sock);
+	  ctl_sock = -1;
+	  continue;
+	}
+
+      if (listen (ctl_sock, 32) < 0)
+	{
+	  close (ctl_sock);
+	  ctl_sock = -1;
+	  continue;
+	}
+
+      /* Accept the first choice!  */
+      break;
+    }
+
+  if (res)
+    freeaddrinfo (res);
+
+  if (ai == NULL)
+    {
+      syslog (LOG_ERR, "control socket: %m");
       return -1;
     }
 
@@ -165,8 +189,8 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr, char *argv[])
      children to handle them.  */
   while (1)
     {
-      socklen_t addrlen = sizeof (*phis_addr);
-      fd = accept (ctl_sock, (struct sockaddr *) phis_addr, &addrlen);
+      *phis_addrlen = sizeof (*phis_addr);
+      fd = accept (ctl_sock, (struct sockaddr *) phis_addr, phis_addrlen);
       if (fork () == 0)		/* child */
 	{
 	  dup2 (fd, 0);
@@ -179,7 +203,7 @@ server_mode (const char *pidfile, struct sockaddr_in *phis_addr, char *argv[])
 
 #ifdef WITH_WRAP
   /* In the child.  */
-  if (!check_host ((struct sockaddr *) phis_addr))
+  if (!check_host ((struct sockaddr *) phis_addr, *phis_addrlen))
     return -1;
 #endif
 
