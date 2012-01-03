@@ -1,3 +1,7 @@
+2012-01-03  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap.conf (gnulib_modules): Removed git-merge-changelog.
+
 2012-01-03  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Internal address structure rewrite for `ftpd'.
