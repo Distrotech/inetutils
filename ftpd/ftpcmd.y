@@ -620,9 +620,8 @@ host_port
 			memset (&hints, 0, sizeof (hints));
 			hints.ai_family = AF_INET;
 			hints.ai_socktype = SOCK_STREAM;
-#ifdef AI_ADDRCONFIG
-			hints.ai_flags = AI_ADDRCONFIG;
-#endif
+			hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+
 			err = getaddrinfo (a, p, &hints, &res);
 			if (err)
 			  reply (550, "Address failure: %s,%s", a, p);

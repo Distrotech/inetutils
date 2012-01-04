@@ -74,6 +74,8 @@ $INETD --pidfile=$TMPDIR/inetd.pid $TMPDIR/inetd.conf
 # Wait for inetd to write pid and open socket
 sleep 2
 
+# Test a passive connection.
+#
 cat <<STOP |
 rstatus
 dir
@@ -93,8 +95,48 @@ if [ $errno != 0 ]; then
     exit 77
 fi
 
+# Standing control connection?
 if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-    echo cannot find expected output from ftp client?
+    echo cannot find expected output for passive ftp client?
+    exit 1
+fi
+
+# Was data transfer successful?
+if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
+    echo cannot find transfer result for passive ftp client?
+    exit 1
+fi
+
+# Test an active connection.
+#
+cat <<STOP |
+rstatus
+dir
+STOP
+HOME=$TMPDIR $FTP $TARGET 4711 -4 -v -t >$TMPDIR/ftp.stdout
+
+errno=$?
+cat $TMPDIR/ftp.stdout
+
+if [ $errno != 0 ]; then
+    echo running ftp failed? errno $errno
+    exit 77
+fi
+
+if [ $errno != 0 ]; then
+    echo running ftp failed? errno $errno
+    exit 77
+fi
+
+# Standing control connection?
+if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
+    echo cannot find expected output for active ftp client?
+    exit 1
+fi
+
+# Was data transfer successful?
+if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
+    echo cannot find transfer result for active ftp client?
     exit 1
 fi
 

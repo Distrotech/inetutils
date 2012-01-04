@@ -1037,9 +1037,22 @@ getdatasock (const char *mode)
       goto bad;
   }
 
-  /* anchor socket to avoid multi-homing problems */
+  /* Anchor socket to avoid multi-homing problems.  */
   memcpy (&data_source, &ctrl_addr, sizeof (data_source));
   data_source_len = ctrl_addrlen;
+
+  /* Erase port number, suggesting bind() to allocate a new port.  */
+  switch (data_source.ss_family)
+    {
+    case AF_INET6:
+      ((struct sockaddr_in6 *) &data_source)->sin6_port = 0;
+      break;
+    case AF_INET:
+      ((struct sockaddr_in *) &data_source)->sin_port = 0;
+      break;
+    default:
+      break;	/* Do nothing; should not happen!  */
+    }
 
   for (tries = 1;; tries++)
     {

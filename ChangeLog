@@ -1,3 +1,13 @@
+2012-01-04  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Regression: Erase port for active data transmission.
+
+	* ftpd/ftpcmd.y (host_port): Use AI_NUMERICHOST and AI_NUMERICSERV
+	in `HINTS.ai_flags'.  Do not use AI_ADDRCONFIG.
+	* ftpd/ftpd.c (getdatasock): Erase port number stored in DATA_SOURCE.
+	* tests/ftp-localhost.sh: Detect transfered data and duplicate tests
+	also for an active connection, not only a passive attempt.
+
 2012-01-03  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Removed git-merge-changelog.
