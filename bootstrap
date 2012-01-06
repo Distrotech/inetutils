@@ -1,10 +1,10 @@
 #! /bin/sh
 # Print a version string.
-scriptversion=2011-12-21.09; # UTC
+scriptversion=2012-01-06.07; # UTC
 
 # Bootstrap this package from checked-out sources.
 
-# Copyright (C) 2003-2011 Free Software Foundation, Inc.
+# Copyright (C) 2003-2012 Free Software Foundation, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -316,8 +316,8 @@ insert_vc_ignore() {
   pattern="$2"
   case $vc_ignore_file in
   *.gitignore)
-    # A .gitignore entry that does not start with `/' applies
-    # recursively to subdirectories, so prepend `/' to every
+    # A .gitignore entry that does not start with '/' applies
+    # recursively to subdirectories, so prepend '/' to every
     # .gitignore entry.
     pattern=`echo "$pattern" | sed s,^,/,`;;
   esac

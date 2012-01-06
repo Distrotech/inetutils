@@ -2,6 +2,8 @@
 
 	* NEWS: Updated.
 
+	* bootstrap: Updated from gnulib.
+
 2012-01-04  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Regression: Erase port for active data transmission.
