@@ -1,3 +1,9 @@
+2012-01-07  Guillem Jover  <guillem@hadrons.org>
+
+	* telnet/utilities.c (printsub) <env_common>: Use constant format
+	strings instead of offsets into fixed string.  Remove NOQUOTE,
+	add QUOTE.
+
 2012-01-06  Simon Josefsson  <simon@josefsson.org>
 
 	inetutils 1.9.1
