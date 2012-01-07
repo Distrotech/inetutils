@@ -389,20 +389,36 @@ struct if_flag_char
    That's the way netstat does it.
 */
 static struct if_flag_char flag_char_tab[] = {
+#ifdef IFF_ALLMULTI
   { IFF_ALLMULTI,    'A' },
+#endif
+#ifdef IFF_BROADCAST
   { IFF_BROADCAST,   'B' },
+#endif
+#ifdef IFF_DEBUG
   { IFF_DEBUG,       'D' },
+#endif
+#ifdef IFF_LOOPBACK
   { IFF_LOOPBACK,    'L' },
+#endif
+#ifdef IFF_MULTICAST
   { IFF_MULTICAST,   'M' },
+#endif
 #ifdef HAVE_DYNAMIC
   { IFF_DYNAMIC,     'd' },
 #endif
+#ifdef IFF_PROMISC
   { IFF_PROMISC,     'P' },
+#endif
 #ifdef IFF_NOTRAILERS
   { IFF_NOTRAILERS,  'N' },
 #endif
+#ifdef IFF_NOARP
   { IFF_NOARP,       'O' },
+#endif
+#ifdef IFF_POINTOPOINT
   { IFF_POINTOPOINT, 'P' },
+#endif
 #ifdef IFF_SLAVE
   { IFF_SLAVE,       's' },
 #endif
@@ -412,8 +428,12 @@ static struct if_flag_char flag_char_tab[] = {
 #ifdef IFF_SIMPLEX
   { IFF_SIMPLEX,     'S' },
 #endif
+#ifdef IFF_RUNNING
   { IFF_RUNNING,     'R' },
+#endif
+#ifdef IFF_UP
   { IFF_UP,          'U' },
+#endif
   { 0 }
 };
 

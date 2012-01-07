@@ -1,3 +1,8 @@
+2012-01-07  Guillem Jover  <guillem@hadrons.org>
+
+	* ifconfig/flags.c (flag_char_tab): Protect for full portability
+	every macro invokation IFF_* by a precompiler conditional.
+
 2012-01-07  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* telnet/utilities.c (SetNetTrace): Filename buffer overrun: replace
