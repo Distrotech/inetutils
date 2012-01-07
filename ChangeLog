@@ -1,3 +1,9 @@
+2012-01-07  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* telnet/utilities.c (SetNetTrace): Filename buffer overrun: replace
+	strcpy() by strncpy().
+	(printoption, printsub): Code formatting of ternary operator.
+
 2012-01-07  Guillem Jover  <guillem@hadrons.org>
 
 	* telnet/utilities.c (printsub) <env_common>: Use constant format

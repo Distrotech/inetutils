@@ -128,7 +128,8 @@ SetNetTrace (register char *file)
       NetTrace = fopen (file, "w");
       if (NetTrace)
 	{
-	  strcpy ((char *) NetTraceFile, file);
+	  strncpy ((char *) NetTraceFile, file, sizeof (NetTraceFile));
+	  NetTraceFile[sizeof (NetTraceFile) - 1] = 0;
 	  return;
 	}
       fprintf (stderr, "Cannot open %s.\n", file);
@@ -210,8 +211,10 @@ printoption (char *direction, int cmd, int option)
   else
     {
       register char *fmt;
-      fmt = (cmd == WILL) ? "WILL" : (cmd == WONT) ? "WONT" :
-	(cmd == DO) ? "DO" : (cmd == DONT) ? "DONT" : 0;
+      fmt = (cmd == WILL)
+	    ? "WILL" : (cmd == WONT)
+		       ? "WONT" : (cmd == DO)
+				  ? "DO" : (cmd == DONT) ? "DONT" : 0;
       if (fmt)
 	{
 	  fprintf (NetTrace, "%s %s ", direction, fmt);
@@ -395,8 +398,7 @@ printsub (char direction, unsigned char *pointer, int length)
 	      fprintf (NetTrace, "SEND");
 	      break;
 	    default:
-	      fprintf (NetTrace,
-		       "- unknown qualifier %d (0x%x).",
+	      fprintf (NetTrace, "- unknown qualifier %d (0x%x).",
 		       pointer[1], pointer[1]);
 	    }
 	  break;
@@ -493,8 +495,8 @@ printsub (char direction, unsigned char *pointer, int length)
 	    {
 	    case TELQUAL_REPLY:
 	    case TELQUAL_IS:
-	      fprintf (NetTrace, " %s ", (pointer[1] == TELQUAL_IS) ?
-		       "IS" : "REPLY");
+	      fprintf (NetTrace, " %s ",
+		       (pointer[1] == TELQUAL_IS) ? "IS" : "REPLY");
 	      if (AUTHTYPE_NAME_OK (pointer[2]))
 		fprintf (NetTrace, "%s ", AUTHTYPE_NAME (pointer[2]));
 	      else
@@ -505,10 +507,10 @@ printsub (char direction, unsigned char *pointer, int length)
 		  break;
 		}
 	      fprintf (NetTrace, "%s|%s",
-		       ((pointer[3] & AUTH_WHO_MASK) == AUTH_WHO_CLIENT) ?
-		       "CLIENT" : "SERVER",
-		       ((pointer[3] & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL) ?
-		       "MUTUAL" : "ONE-WAY");
+		       ((pointer[3] & AUTH_WHO_MASK) == AUTH_WHO_CLIENT)
+		       ? "CLIENT" : "SERVER",
+		       ((pointer[3] & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL)
+		       ? "MUTUAL" : "ONE-WAY");
 
 	      auth_printsub (&pointer[1], length - 1, buf, sizeof (buf));
 	      fprintf (NetTrace, "%s", buf);
@@ -529,10 +531,10 @@ printsub (char direction, unsigned char *pointer, int length)
 		      break;
 		    }
 		  fprintf (NetTrace, "%s|%s ",
-			   ((pointer[i] & AUTH_WHO_MASK) == AUTH_WHO_CLIENT) ?
-			   "CLIENT" : "SERVER",
-			   ((pointer[i] & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL) ?
-			   "MUTUAL" : "ONE-WAY");
+			   ((pointer[i] & AUTH_WHO_MASK) == AUTH_WHO_CLIENT)
+			   ? "CLIENT" : "SERVER",
+			   ((pointer[i] & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL)
+			   ? "MUTUAL" : "ONE-WAY");
 		  ++i;
 		}
 	      break;
@@ -581,8 +583,8 @@ printsub (char direction, unsigned char *pointer, int length)
 
 	    case ENCRYPT_IS:
 	    case ENCRYPT_REPLY:
-	      fprintf (NetTrace, " %s ", (pointer[1] == ENCRYPT_IS) ?
-		       "IS" : "REPLY");
+	      fprintf (NetTrace, " %s ",
+		       (pointer[1] == ENCRYPT_IS) ? "IS" : "REPLY");
 	      if (length < 3)
 		{
 		  fprintf (NetTrace, " (partial suboption??\?)");
@@ -694,12 +696,12 @@ printsub (char direction, unsigned char *pointer, int length)
 		      break;
 		    }
 		  fprintf (NetTrace, "%s%s%s",
-			   pointer[i + SLC_FLAGS] & SLC_ACK ? "|ACK" : "",
-			   pointer[i +
-				   SLC_FLAGS] & SLC_FLUSHIN ? "|FLUSHIN" : "",
-			   pointer[i +
-				   SLC_FLAGS] & SLC_FLUSHOUT ? "|FLUSHOUT" :
-			   "");
+			   (pointer[i + SLC_FLAGS] & SLC_ACK)
+			   ? "|ACK" : "",
+			   (pointer[i + SLC_FLAGS] & SLC_FLUSHIN)
+			   ? "|FLUSHIN" : "",
+			   (pointer[i + SLC_FLAGS] & SLC_FLUSHOUT)
+			   ?  "|FLUSHOUT" : "");
 		  if (pointer[i + SLC_FLAGS] &
 		      ~(SLC_ACK | SLC_FLUSHIN | SLC_FLUSHOUT | SLC_LEVELBITS))
 		    fprintf (NetTrace, "(0x%x)", pointer[i + SLC_FLAGS]);
