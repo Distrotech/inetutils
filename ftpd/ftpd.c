@@ -283,7 +283,7 @@ static struct argp_option options[] = {
   { "umask", 'u', "VAL", 0,
     "set default umask",
     GRID+1 },
-  { "auth", 'a', "AUTH", OPTION_ARG_OPTIONAL,
+  { "auth", 'a', "AUTH", 0,
     "use AUTH for authentication",
     GRID+1 },
   { NULL, 0, NULL, 0, "AUTH can be one of the following:", GRID+2 },

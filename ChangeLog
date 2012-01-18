@@ -1,3 +1,8 @@
+2012-01-18  Simon Josefsson  <simon@josefsson.org>
+
+	* ftpd/ftpd.c (options): Don't use OPTION_ARG_OPTIONAL for -a.
+	Resolves crash reported by Michal Mazurek <akfaew@jasminek.net>.
+
 2012-01-07  Guillem Jover  <guillem@hadrons.org>
 
 	* ifconfig/flags.c (flag_char_tab): Protect for full portability
