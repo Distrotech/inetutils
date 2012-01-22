@@ -1,3 +1,26 @@
+2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* ftpd/extern.h (passive): New prototype.
+	* ftpd/ftpcmd.y (EPRT, EPSV, CHAR): New tokens.
+	(net_proto, tcp_port, net_addr): New value returning types.
+	(cmd) <PORT>: Use value returned from `host_port'. Erase PDATA
+	and USEDEFAULT only if successful.
+	(cmd) <PASV>: Changed call to passive().
+	(cmd) <EPRT, EPSV>: New code for token parsers.
+	(host_port): Declare as `%type <i>', returning an integer.
+	Handle mapped IPv4 addresses.  Erase DATA_DEST after an address
+	resolving failure.
+	(DLIST): New macro used as state in finite state automata.
+	(cmdtab): New entries EPRT and EPSV.
+	(yylex) <DLIST>: Implement new state.
+	* ftpd/ftpd.c (passive): New prototype `passive(int, int)'.
+	New variable TRY_AF.  Select address family based on parameters
+	and CTRL_ADDR.
+	(passive) <EPSV>: Handle AF_INET and AF_INET6.
+	(passive) <PASV>: Process also mapped IPv4 address.
+	* tests/ftp-localhost.sh: More tests in inetd mode: EPSV and
+	EPRT for IPv4 and IPv6.  Suppress FTP dialog unless verbose.
+
 2012-01-18  Simon Josefsson  <simon@josefsson.org>
 
 	* ftpd/ftpd.c (options): Don't use OPTION_ARG_OPTIONAL for -a.

@@ -68,7 +68,7 @@ extern void lreply (int, const char *, ...);
 extern void makedir (const char *);
 extern void nack (const char *);
 extern void pass (const char *);
-extern void passive (void);
+extern void passive (int, int);
 extern void perror_reply (int, const char *);
 extern void pwd (void);
 extern void removedir (const char *);

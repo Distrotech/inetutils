@@ -50,6 +50,14 @@
 /*
  * Grammar for FTP commands.
  * See RFC 959.
+ *
+ * TODO Update to RFC 3659
+ *
+ * RFC 2428
+ *
+ * TODO RFC 1639
+ *
+ * FIXME: Rewrite with GNU standard formatting.  Legacy code is changed!
  */
 
 %{
@@ -136,16 +144,20 @@ static void yyerror       (const char *s);
 	STAT	HELP	NOOP	MKD	RMD	PWD
 	CDUP	STOU	SMNT	SYST	SIZE	MDTM
 
+	EPRT	EPSV
+
 	UMASK	IDLE	CHMOD
 
 	LEXERR
 
 %token	<s> STRING
-%token	<i> NUMBER
+%token	<i> NUMBER CHAR
 
 %type	<i> check_login octal_number byte_size
 %type	<i> struct_code mode_code type_code form_code
 %type	<s> pathstring pathname password username
+%type	<i> host_port net_proto tcp_port
+%type	<s> net_addr
 
 %start	cmd_list
 
@@ -176,20 +188,33 @@ cmd
 		}
 	| PORT check_login SP host_port CRLF
 		{
-			usedefault = 0;
-			if (pdata >= 0) {
-				 close(pdata);
-				pdata = -1;
-			}
 			if ($2) {
-				if (memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
-					&((struct sockaddr_in *) &data_dest)->sin_addr,
-					sizeof (struct in_addr)) == 0 &&
-					ntohs (((struct sockaddr_in *) &data_dest)->sin_port) >
-					IPPORT_RESERVED) {
+				if ($4
+				    && (his_addr.ss_family == AF_INET
+					&& memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+						   &((struct sockaddr_in *) &data_dest)->sin_addr,
+						   sizeof (struct in_addr)) == 0
+					&& ntohs (((struct sockaddr_in *) &data_dest)->sin_port)
+					   > IPPORT_RESERVED
+					||
+					his_addr.ss_family == AF_INET6
+					&& memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
+						   &((struct sockaddr_in6 *) &data_dest)->sin6_addr,
+						   sizeof (struct in6_addr)) == 0
+					&& ntohs (((struct sockaddr_in6 *) &data_dest)->sin6_port)
+					   > IPPORT_RESERVED
+				       )
+				   )
+				{
+					usedefault = 0;
+					if (pdata >= 0) {
+						close(pdata);
+						pdata = -1;
+					}
 					reply (200, "PORT command successful.");
 				}
 				else {
+					usedefault = 1;
 					memset (&data_dest, 0,
 						sizeof (data_dest));
 					reply(500, "Illegal PORT Command");
@@ -199,7 +224,7 @@ cmd
 	| PASV check_login CRLF
 		{
 			if ($2)
-				passive();
+				passive(0, AF_INET);
 		}
 	| TYPE SP type_code CRLF
 		{
@@ -555,6 +580,143 @@ cmd
 			}
 			free($4);
 		}
+	| EPRT check_login SP CHAR net_proto CHAR net_addr CHAR tcp_port CHAR CRLF
+		{
+			usedefault = 0;
+			if (pdata >= 0) {
+				close(pdata);
+				pdata = -1;
+			}
+			/* A first sanity check.  */
+			if ($2				/* valid login */
+			    && ($5 > 0)			/* valid protocols */
+			    && ($4 > 32 && $4 < 127)	/* legal first delimiter */
+							/* identical delimiters */
+			    && ($4 == $6 && $4 == $8 && $4 == $10))
+			{
+				/* We only accept connections using
+				 * the same address family as is
+				 * currently in use, unless we
+				 * detect IPv4-mapped-to-IPv6.  */
+				if (his_addr.ss_family == $5
+#ifdef AI_V4MAPPED
+				    || ($5 == AF_INET6 && his_addr.ss_family == AF_INET)
+				    || ($5 == AF_INET && his_addr.ss_family == AF_INET6)
+#endif
+				    ) {
+					int err;
+					char p[8];
+					struct addrinfo hints, *res;
+
+					memset (&hints, 0, sizeof (hints));
+					snprintf (p, sizeof (p), "%u", $9 & 0xffff);
+					hints.ai_family = $5;
+					hints.ai_socktype = SOCK_STREAM;
+					hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+
+#ifdef AI_V4MAPPED
+					if (his_addr.ss_family != $5)
+						hints.ai_flags |= AI_V4MAPPED;
+#endif
+
+					err = getaddrinfo ($7, p, &hints, &res);
+					if (err)
+						reply (500, "Illegal EPRT Command");
+					else if (/* sanity check */
+						 (his_addr.ss_family == AF_INET
+						  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+							     &((struct sockaddr_in *) res->ai_addr)->sin_addr,
+							     sizeof (struct in_addr)) == 0
+						  && ntohs (((struct sockaddr_in *) res->ai_addr)->sin_port) > IPPORT_RESERVED
+						 )
+						 ||
+						 (his_addr.ss_family == AF_INET6
+						  && memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
+							     &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr,
+							     sizeof (struct in6_addr)) == 0
+						  && ntohs (((struct sockaddr_in6 *) res->ai_addr)->sin6_port) > IPPORT_RESERVED
+						 )
+#ifdef AI_V4MAPPED
+						 ||
+						 (his_addr.ss_family == AF_INET && res->ai_family == AF_INET6
+						  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) res->ai_addr)->sin6_addr)
+						  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+							     &((struct in_addr *) &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr)[3],
+							     sizeof (struct in_addr)) == 0
+						  && ntohs (((struct sockaddr_in6 *) res->ai_addr)->sin6_port) > IPPORT_RESERVED
+						 )
+						 ||
+						 (his_addr.ss_family == AF_INET6 && res->ai_family == AF_INET
+						  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) &his_addr)->sin6_addr)
+						  && memcmp (&((struct in_addr *) &((struct sockaddr_in6 *) &his_addr)->sin6_addr)[3],
+							     &((struct sockaddr_in *) res->ai_addr)->sin_addr,
+							     sizeof (struct in_addr)) == 0
+						  && ntohs (((struct sockaddr_in *) res->ai_addr)->sin_port) > IPPORT_RESERVED
+						 )
+#endif /* AI_V4MAPPED */
+						)
+					{
+						/* In the case of IPv4 mapped as IPv6,
+						 * the addresses were proven to coincide,
+						 * only the extraction remains.  Since
+						 * non-mapped is the standard, test that
+						 * situation first.
+						 */
+						if (his_addr.ss_family == res->ai_family)
+						{
+						memcpy (&data_dest, res->ai_addr, res->ai_addrlen);
+						data_dest_len = res->ai_addrlen;
+						}
+						else if (his_addr.ss_family == AF_INET && res->ai_family == AF_INET6)
+						{
+						/* `his_addr' contains the reduced IPv4 address.  */
+						memcpy (&data_dest, &his_addr, sizeof (struct sockaddr_in));
+						data_dest_len = sizeof (struct sockaddr_in);
+						((struct sockaddr_in *) &data_dest)->sin_port = ((struct sockaddr_in6 *) res->ai_addr)->sin6_port;
+						} else
+						{
+						/* `res->ai_addr' contains the reduced IPv4 address,
+						 * but the connection stands on `his_addr' which is
+						 * an IPv4-mapped-IPv6 address.  */
+						memcpy (&data_dest, &his_addr, sizeof (struct sockaddr_in6));
+						data_dest_len = sizeof (struct sockaddr_in6);
+						((struct sockaddr_in6 *) &data_dest)->sin6_port = ((struct sockaddr_in *) res->ai_addr)->sin_port;
+						}
+						freeaddrinfo (res);
+						reply (200, "EPRT command successful.");
+					} else {
+						/* failed identity check */
+						if (res)
+							freeaddrinfo (res);
+						reply (500, "Illegal EPRT Command");
+					}
+				} else {
+					/* Not fit for established connection.  */
+					reply (522, "Network protocol not supported, use (%d)",
+						($5 == 1) ? 2 : 1);
+				}
+			} else if ($2 && ($5 <= 0)) {
+				reply (522, "Network protocol not supported, use (1,2)");
+			} else if ($2) {
+				/* Incorrect delimiters detected,
+				 * the other conditions are true. */
+				reply (500, "Illegal EPRT Command");
+			}
+		}
+	| EPSV check_login CRLF
+		{
+			if ($2)
+				passive(1, AF_UNSPEC);
+		}
+	| EPSV check_login SP net_proto CRLF
+		{
+			if ($2) {
+				if ($4 > 0)
+					passive(1, $4);
+				else
+					reply (522, "Network protocol not supported, use (1,2)");
+			}
+		}
 	| QUIT CRLF
 		{
 			reply(221, "Goodbye.");
@@ -605,12 +767,33 @@ byte_size
 	: NUMBER
 	;
 
+net_proto
+	: NUMBER
+		{	/* Rewrite as valid address family.  */
+			if ($1 == 1)
+				$$ = AF_INET;
+			else if ($1 == 2)
+				$$ = AF_INET6;
+			else
+				$$ = -1;	/* Invalid protocol.  */
+
+		}
+	;
+
+tcp_port
+	: NUMBER
+	;
+
+net_addr
+	: STRING
+	;
+
 host_port
 	: NUMBER COMMA NUMBER COMMA NUMBER COMMA NUMBER COMMA
 		NUMBER COMMA NUMBER
 		{
 			int err;
-			char a[INET_ADDRSTRLEN], p[8];
+			char a[INET6_ADDRSTRLEN], p[8];
 			struct addrinfo hints, *res;
 
 			snprintf (a, sizeof (a), "%u.%u.%u.%u",
@@ -618,18 +801,33 @@ host_port
 			snprintf (p, sizeof (p), "%u",
 				(($9 & 0xff) << 8) + ($11 & 0xff));
 			memset (&hints, 0, sizeof (hints));
-			hints.ai_family = AF_INET;
+			hints.ai_family = his_addr.ss_family;
 			hints.ai_socktype = SOCK_STREAM;
 			hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
 
+			if (his_addr.ss_family == AF_INET6) {
+			    /* IPv4 mapped to IPv6.  */
+			    hints.ai_family = AF_INET6;
+#ifdef AI_V4MAPPED
+			    hints.ai_flags |= AI_V4MAPPED;
+#endif
+			    snprintf (a, sizeof (a), "::ffff:%u.%u.%u.%u",
+				      $1 & 0xff, $3 & 0xff, $5 & 0xff, $7 & 0xff);
+			}
+
 			err = getaddrinfo (a, p, &hints, &res);
-			if (err)
-			  reply (550, "Address failure: %s,%s", a, p);
+			if (err) {
+			    reply (550, "Address failure: %s,%s", a, p);
+			    memset (&data_dest, 0, sizeof (data_dest));
+			    data_dest_len = 0;
+			    $$ = 0;
+			  }
 			else
 			  {
 			    memcpy (&data_dest, res->ai_addr, res->ai_addrlen);
 			    data_dest_len = res->ai_addrlen;
 			    freeaddrinfo (res);
+			    $$ = 1;
 			  }
 		}
 	;
@@ -789,7 +987,6 @@ octal_number
 		}
 	;
 
-
 check_login
 	: /* empty */
 		{
@@ -813,6 +1010,7 @@ check_login
 #define	ZSTR2	6	/* optional STRING after SP */
 #define	SITECMD	7	/* SITE command */
 #define	NSTR	8	/* Number followed by a string */
+#define	DLIST	9	/* SP and delimited list for EPRT/EPSV */
 
 struct tab cmdtab[] = {		/* In order defined in RFC 765 */
 	{ "USER", USER, STR1, 1,	"<sp> username" },
@@ -862,6 +1060,8 @@ struct tab cmdtab[] = {		/* In order defined in RFC 765 */
 	{ "STOU", STOU, STR1, 1,	"<sp> file-name" },
 	{ "SIZE", SIZE, OSTR, 1,	"<sp> path-name" },
 	{ "MDTM", MDTM, OSTR, 1,	"<sp> path-name" },
+	{ "EPRT", EPRT, DLIST, 1,	"<sp> <d> proto <d> addr <d> port <d>" },
+	{ "EPSV", EPSV, ARGS, 1,	"[ <sp> af ]" },
 	{ NULL,   0,    0,    0,	0 }
 };
 
@@ -1108,6 +1308,51 @@ yylex(void)
 			}
 			state = STR1;
 			goto dostr1;
+
+		case DLIST:
+			/* Either numerical strings or
+			 * address strings for IPv4 and IPv6.
+			 * The consist of hexadecimal chars,
+			 * colon and periods.  A period can
+			 * not begin a valid address.  */
+			if (isxdigit(cbuf[cpos]) || cbuf[cpos] == ':') {
+				int is_num = 1;	/* Only to turn off.  */
+
+				cp = &cbuf[cpos];
+				while (isxdigit(cbuf[cpos])
+						|| cbuf[cpos] == ':'
+						|| cbuf[cpos] == '.') {
+					if (!isdigit(cbuf[cpos]))
+						is_num = 0;
+					cpos++;
+				}
+				c = cbuf[cpos];
+				cbuf[cpos] = '\0';
+				if (is_num) {
+					yylval.i = atoi(cp);
+					cbuf[cpos] = c;
+					return (NUMBER);
+				} else {
+					yylval.s = copy(cp);
+					cbuf[cpos] = c;
+					return (STRING);
+				}
+			}
+
+			switch (c = cbuf[cpos++]) {
+
+			case ' ':
+				return (SP);
+
+			case '\n':
+				state = CMD;
+				return (CRLF);
+
+			default:
+				yylval.i = c;
+				return (CHAR);
+			}
+			break;
 
 		case ARGS:
 			if (isdigit(cbuf[cpos])) {

@@ -1748,11 +1748,18 @@ myoob (int signo _GL_UNUSED_PARAMETER)
    a legitimate response by Jon Postel in a telephone conversation
    with Rick Adams on 25 Jan 89.  */
 void
-passive (void)
+passive (int epsv, int af)
 {
   char *p, *a;
+  int try_af;
 
-  pdata = socket (ctrl_addr.ss_family, SOCK_STREAM, 0);
+  /* EPSV might ask for a particular address family.  */
+  if (epsv && af > 0)
+    try_af = af;
+  else
+    try_af = ctrl_addr.ss_family;
+
+  pdata = socket (try_af, SOCK_STREAM, 0);
   if (pdata < 0)
     {
       perror_reply (425, "Can't open passive connection");
@@ -1760,6 +1767,7 @@ passive (void)
     }
   memcpy (&pasv_addr, &ctrl_addr, sizeof (pasv_addr));
   pasv_addrlen = ctrl_addrlen;
+
   /* Erase the port number.  */
   if (pasv_addr.ss_family == AF_INET6)
     ((struct sockaddr_in6 *) &pasv_addr)->sin6_port = 0;
@@ -1779,16 +1787,34 @@ passive (void)
   if (listen (pdata, 1) < 0)
     goto pasv_error;
 
-  if (pasv_addr.ss_family == AF_INET6)
+  if (epsv)
     {
-      reply (229, "Extended Passive Mode OK (|||%u|)",
-	     ((struct sockaddr_in6 *) &pasv_addr)->sin6_port);
+      /* EPSV for IPv4 and IPv6.  */
+      reply (229, "Entering Extended Passive Mode (|||%u|)",
+	     ntohs((pasv_addr.ss_family == AF_INET)
+		    ? ((struct sockaddr_in *) &pasv_addr)->sin_port
+		    : ((struct sockaddr_in6 *) &pasv_addr)->sin6_port));
       return;
     }
-  else
+  else /* !epsv */
     {
-      a = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_addr;
-      p = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_port;
+      /* PASV for IPv4.
+       *
+       * Some systems, like OpenSolaris, prefer to return
+       * an IPv4-mapped-IPv6 address, which must be processed
+       * for printout.  */
+      if (pasv_addr.ss_family == AF_INET6
+	  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) &pasv_addr)->sin6_addr))
+	{
+	  a = (char *) &((struct sockaddr_in6 *) &pasv_addr)->sin6_addr;
+	  a += 3 * sizeof (struct in_addr);	/* Skip padding up to IPv4 content.  */
+	  p = (char *) &((struct sockaddr_in6 *) &pasv_addr)->sin6_port;
+	}
+      else
+	{
+	  a = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_addr;
+	  p = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_port;
+	}
 
 #define UC(b) (((int) b) & 0xff)
 
