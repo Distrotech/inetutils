@@ -1,5 +1,10 @@
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/ftp-localhost.sh: sysctl(1) uses `=' or `:'
+	as delimeter.  Detect both.
+
+2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* ftpd/extern.h (usefamily): New declaration.
 	* ftpd/ftpd.c (options): New options `-4/ipv4' and `-6/ipv6`.
 	(parse_opt): Detect `4' and `6'.

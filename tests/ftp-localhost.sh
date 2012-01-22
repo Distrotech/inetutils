@@ -321,7 +321,7 @@ if ! $have_address_mapping && $have_sysctl; then
     #
     value_v6only=`sysctl -a 2>/dev/null | grep v6only`
     if test -n "$value_v6only"; then
-	value_v6only=`echo $value_v6only | sed 's/^.*= *//'`
+	value_v6only=`echo $value_v6only | sed 's/^.*[=:] *//'`
 	if test "$value_v6only" -eq 0; then
 	    # This is the good value.  Keep it.
 	    have_address_mapping=true
