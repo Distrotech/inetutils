@@ -1,5 +1,15 @@
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* ftpd/extern.h (usefamily): New declaration.
+	* ftpd/ftpd.c (options): New options `-4/ipv4' and `-6/ipv6`.
+	(parse_opt): Detect `4' and `6'.
+	* ftpd/server_mode.c (usefamily): New variable.
+	[!DEFPORT] (DEFPORT): Use IPPORT_FTP if available.
+	(server_mode): Remove use of AI_ADDRCONFIG.  When seeing AF_UNSPEC,
+	build AF_INET6 socket and reset socket option IPV6_V6ONLY.
+
+2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* ftpd/extern.h (passive): New prototype.
 	* ftpd/ftpcmd.y (EPRT, EPSV, CHAR): New tokens.
 	(net_proto, tcp_port, net_addr): New value returning types.

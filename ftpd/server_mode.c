@@ -40,9 +40,17 @@
 #include <libinetutils.h>
 #include "unused-parameter.h"
 
+int usefamily = AF_UNSPEC;	/* Address family for daemon.  */
+
 static void reapchild (int);
 
-#define DEFPORT 21
+#ifndef DEFPORT
+# ifdef IPPORT_FTP
+#  define DEFPORT IPPORT_FTP
+# else /* !IPPORT_FTP */
+#  define DEFPORT 21
+# endif
+#endif /* !DEFPORT */
 
 #ifdef WITH_WRAP
 
@@ -81,7 +89,7 @@ check_host (struct sockaddr *sa, socklen_t len)
     }
   return (1);
 }
-#endif
+#endif /* WITH_WRAP */
 
 static void
 reapchild (int signo _GL_UNUSED_PARAMETER)
@@ -95,7 +103,8 @@ reapchild (int signo _GL_UNUSED_PARAMETER)
 
 /* The parameter '*phis_addrlen' must be initiated
    with the space available at calling time.
-   The actually used space will then be returned.  */
+   The size of used space will then be returned.
+ */
 int
 server_mode (const char *pidfile, struct sockaddr *phis_addr,
 	     socklen_t *phis_addrlen, char *argv[])
@@ -121,12 +130,15 @@ server_mode (const char *pidfile, struct sockaddr *phis_addr,
   snprintf (portstr, sizeof (portstr), "%u", port);
 
   memset (&hints, 0, sizeof (hints));
-  hints.ai_family = AF_INET;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
-#ifdef AI_ADDRCONFIG
-  hints.ai_flags |= AI_ADDRCONFIG;
-#endif
+
+  /* If an undetermined address family is passed,
+   * we build a dual stacked listener from an AF_INET6
+   * socket by unsetting the sockopt IPV6_V6ONLY.
+   * Otherwise the resolver often prefers AF_INET.
+   */
+  hints.ai_family = (usefamily != AF_UNSPEC) ? usefamily : AF_INET6;
 
   err = getaddrinfo (NULL, portstr, &hints, &res);
   if (err)
@@ -148,6 +160,15 @@ server_mode (const char *pidfile, struct sockaddr *phis_addr,
 			(char *) &on, sizeof (on)) < 0)
 	  syslog (LOG_ERR, "control setsockopt: %m");
       }
+
+      /* Upgrade to dual stacked socket.  */
+      if (usefamily == AF_UNSPEC && ai->ai_family == AF_INET6)
+	{
+	  int off = 0;
+	  if (setsockopt (ctl_sock, IPPROTO_IPV6, IPV6_V6ONLY,
+			  (char *) &off, sizeof (off)) < 0)
+	    syslog (LOG_DEBUG, "setsockopt bindv6only: %m");
+	}
 
       if (bind (ctl_sock, ai->ai_addr, ai->ai_addrlen))
 	{

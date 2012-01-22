@@ -265,6 +265,12 @@ static struct argp_option options[] = {
   { "debug", 'd', NULL, 0,
     "debug mode",
     GRID+1 },
+  { "ipv4", '4', NULL, 0,
+    "restrict daemon to IPv4",
+    GRID+1 },
+  { "ipv6", '6', NULL, 0,
+    "restrict daemon to IPv6",
+    GRID+1 },
   { "logging", 'l', NULL, 0,
     "increase verbosity of syslog messages",
     GRID+1 },
@@ -318,6 +324,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+    case '4':
+      /* Active in daemon mode only.  */
+      usefamily = AF_INET;
+      break;
+
+    case '6':
+      /* Active in daemon mode only.  */
+      usefamily = AF_INET6;
+      break;
+
     case 'A':
       /* Anonymous ftp only.  */
       anon_only = 1;
