@@ -33,7 +33,7 @@ IFCONFIG="${IFCONFIG:-../ifconfig/ifconfig$EXEEXT --format=unix}"
 AF=${AF:-inet}
 PROTO=${PROTO:-udp}
 PORT=${PORT:-7777}
-USER=${USER:-$LOGNAME}
+USER=`id -u -n`
 
 # Random base diractory at testing time.
 TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`

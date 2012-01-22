@@ -1,5 +1,9 @@
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/tftp.sh (USER): Calculate as `id -u -n'.
+
+2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/ftp-localhost.sh: sysctl(1) uses `=' or `:'
 	as delimeter.  Detect both.
 
