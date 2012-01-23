@@ -1,3 +1,13 @@
+2012-01-23  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/ftp-localhost.sh: New preamble to fail
+	with SVR4 shell.  Backtics in command substitution.
+	* tests/tftp.sh: Rewrite for SVR4 portability.
+	Backtics in command substitution.  expr(1) for
+	arithmetic.  Only basic regex with grep(1), no `-q'.
+	Remove character classes.  Quotation issue for tr(1).
+	Use `test -r /dev/urandom' to circumvent soft link.
+
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/tftp.sh (USER): Calculate as `id -u -n'.

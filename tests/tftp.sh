@@ -42,9 +42,9 @@ INETD_PID="$TMPDIR/inetd.pid.$$"
 
 posttesting () {
     if test -f "$INETD_PID" && test -r "$INETD_PID" \
-	&& ps "$(cat $INETD_PID)" >/dev/null 2>&1
+	&& ps "`cat $INETD_PID`" >/dev/null 2>&1
     then
-	kill -9 "$(cat $INETD_PID)"
+	kill -9 "`cat $INETD_PID`" 2>/dev/null
     fi
     rm -rf "$TMPDIR" $FILELIST
 }
@@ -61,7 +61,7 @@ ADDRESSES="${ADDRESSES:-127.0.0.1}"
 
 if [ "$ADDRESSES" = "sense" ]; then
     ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
-	-e "s/^.*$AF[[:blank:]]\([:.0-9]\{1,\}\)[[:blank:]].*$/\1/g"`"
+	-e "s/^.*$AF \([:.0-9]\{1,\}\) .*$/\1/g"`"
 fi
 
 # Check that netstat works before proceeding.
@@ -76,10 +76,11 @@ fi
 # locate_port family proto port
 #
 locate_port () {
-    if [ "$(uname -s)" = "SunOS" ]; then
-	netstat -na -f$1 -P$2 | grep -q -E "\.$3[^0-9]"
+    if [ "`uname -s`" = "SunOS" ]; then
+	netstat -na -f$1 -P$2 | grep "\.$3[^0-9]" >/dev/null 2>&1
     else
-	netstat -na | grep -q -E "^$2(4|6|46)?.*[^0-9]$3[^0-9]"
+	netstat -na |
+	grep "^$2\(4\|6\|46\)\{0,1\}.*[^0-9]$3[^0-9]" >/dev/null 2>&1
     fi
 }
 
@@ -90,7 +91,7 @@ if [ "$VERBOSE" ]; then
 fi
 
 # Check that the port is still available
-locate_port inet $PROTO $PORT
+locate_port $AF $PROTO $PORT
 if test $? -eq 0; then
     echo "Desired port $PORT/$PROTO is already in use."
     exit 77
@@ -106,7 +107,7 @@ EOF
 # Launch `inetd', assuming it's reachable at all $ADDRESSES.
 $INETD -d -p"$INETD_PID" "$INETD_CONF" &
 sleep 1
-inetd_pid="$(cat $INETD_PID)"
+inetd_pid="`cat $INETD_PID`"
 
 test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
 
@@ -114,15 +115,15 @@ test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
 sleep 1
 
 # Did `inetd' really succeed in establishing a listener?
-locate_port inet $PROTO $PORT
+locate_port $AF $PROTO $PORT
 if test $? -ne 0; then
     # No it did not.
-    ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid"
+    ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid" 2>/dev/null
     echo "Failed in starting correct Inetd instance." >&2
     exit 1
 fi
 
-if [ -f /dev/urandom ]; then
+if [ -r /dev/urandom ]; then
     input="/dev/urandom"
 else
     input="/dev/zero"
@@ -149,23 +150,23 @@ while read name bsize count; do
 	bs=$bsize count=$count 2>/dev/null
 done
 
-FILELIST="$(echo "$FILEDATA" | sed 's/[[:space:]].*//' | tr "\n" ' ')"
+FILELIST="`echo "$FILEDATA" | sed 's/ .*//' | tr "\n" ' '`"
 
 SUCCESSES=0
 EFFORTS=0
 RESULT=0
 
-echo "Looking into \"$(echo $ADDRESSES | tr "\n" " ")\"."
+echo "Looking into '`echo $ADDRESSES | tr "\n" ' '`'."
 
 for addr in $ADDRESSES; do
     echo "trying with address \`$addr'..." >&2
 
     for name in $FILELIST; do
-	EFFORTS=$((EFFORTS + 1))
+	EFFORTS=`expr $EFFORTS + 1`
 	rm -f $name
 	echo "get $name" | "$TFTP" $addr $PORT
 
-	cmp "$TMPDIR/tftp-test/$name" "$name"
+	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?
 
 	if [ "$result" -ne 0 ]; then
@@ -173,7 +174,7 @@ for addr in $ADDRESSES; do
 	    test -z "$VERBOSE" || echo "Failed comparison for $addr/$name." >&2
 	    RESULT=$result
 	else
-	    SUCCESSES=$((SUCCESSES + 1))
+	    SUCCESSES=`expr $SUCCESSES + 1`
 	    test -z "$VERBOSE" || echo "Successful comparison for $addr/$name." >&2
 	fi
    done

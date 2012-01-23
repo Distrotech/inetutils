@@ -43,6 +43,18 @@ if [ $VERBOSE ]; then
     $INETD --version | head -1
 fi
 
+# This script is using '! command' in many tests,
+# which is not available in old shells.  We fail
+# for those old shell releases.
+if eval '! false' 2>/dev/null; then
+    :	# This is expected
+else
+    echo 'Presently using the SVR4 Bourne shell.'
+    echo 'This test needs a recent shell with'
+    echo 'keyword ! and tilde expansion.'
+    exit 77
+fi
+
 if [ `id -u` != 0 ]; then
     echo "ftpd needs to run as root"
     exit 77
@@ -65,7 +77,7 @@ TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`
 
 posttesting () {
     test -f "$TMPDIR/inetd.pid" && test -r "$TMPDIR/inetd.pid" \
-	&& kill -9 "$(cat $TMPDIR/inetd.pid)"
+	&& kill -9 "`cat $TMPDIR/inetd.pid`"
     rm -rf "$TMPDIR"
 }
 
