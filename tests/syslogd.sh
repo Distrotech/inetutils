@@ -25,7 +25,7 @@
 # Is usage explanation in demand?
 #
 if test "$1" = "-h" || test "$1" = "--help" || test "$1" = "--usage"; then
-	cat <<HERE
+    cat <<HERE
 Test utility for syslogd and logger.
 
 The following environment variables are used:
@@ -33,92 +33,32 @@ The following environment variables are used:
 NOCLEAN		No clean up of testing directory, if set.
 VERBOSE		Be verbose, if set.
 OPTIONS		Base options to build upon.
-IU_TESTDIR	If set, use this as testing dir. Unless
+IU_TESTDIR	If set, use this as testing dir.  Unless
 		NOCLEAN is also set, any created \$IU_TESTDIR
-		will be erased after the test.
+		will be erased after the test.  A non-existing
+		directory must be named as a template for mktemp(1).
 REMOTE_LOGHOST	Add this host as a receiving loghost.
+TARGET		Receiving IPv4 address.
+TARGET6		Receiving IPv6 address.
 
 HERE
-	exit 0
+    exit 0
 fi
 
-# Keep any external assignment of testing directory.
-# Otherwise a randomisation is included.
+# Execution control.  Initialise early!
 #
-: ${IU_TESTDIR:=$PWD/iu_syslog.XXXXXX}
-
-if [ ! -d $IU_TESTDIR ]; then
-	IU_DO_CLEANDIR=yes
-	IU_TESTDIR=$(mktemp -d $IU_TESTDIR)
-fi
-
-# Erase the testing directory.
-#
-clean_testdir () {
-	if test -z "${NOCLEAN+no}" && test "$IU_DO_CLEANDIR" = "yes"; then
-		rm -fR $IU_TESTDIR
-	fi
-	test -f "$PID" && ps "$(cat $PID)" >/dev/null 2>&1 \
-		&& kill -9 "$(cat $PID)"
-}
-
-# Clean artifacts as execution stops.
-#
-trap clean_testdir EXIT HUP INT QUIT TERM
-
-
-CONF=$IU_TESTDIR/syslog.conf
-PID=$IU_TESTDIR/syslogd.pid
-OUT=$IU_TESTDIR/messages
-: ${SOCKET:=$IU_TESTDIR/log}
-
-# Test at this port.
-# Standard is syslog at 514/udp.
-PROTO=udp
-PORT=514
-
-# For testing of critical lengths for UNIX socket names,
-# we need a well defined base directory; choose "/tmp/".
-IU_TEN=0123456789
-IU_TWENTY=${IU_TEN}${IU_TEN}
-IU_FORTY=${IU_TWENTY}${IU_TWENTY}
-IU_EIGHTY=${IU_FORTY}${IU_FORTY}
-
-# This good name base consumes twentythree chracters.
-IU_GOOD_BASE=/tmp/$(date +%y-%m-%d)_socket_iu
-
-# Add a single character to violate the size condition.
-IU_BAD_BASE=/tmp/X$(date +%y-%m-%d)_socket_iu
-
-IU_OS=$(uname -s)
-if test "${IU_OS}" = "Linux" || test "${IU_OS}" = "GNU/kFreeBSD" \
-    || test "${IU_OS}" = "SunOS"; then
-	# Aim at the boundary of 108 characters.
-	IU_GOOD_BASE=${IU_GOOD_BASE}_lnx
-	IU_BAD_BASE=${IU_BAD_BASE}_lnx
-fi
-
-# Establish largest possible socket name.  The long
-# name consists of 103 or 107 non-NUL characters,
-# where the excessive string contains 104 or 108.
-# BSD allocates only 104, whereas GLIBC and Solaris
-# admits 108 characters in "sun_path", including NUL.
-IU_LONG_SOCKET=${IU_GOOD_BASE}${IU_EIGHTY}
-IU_EXCESSIVE_SOCKET=${IU_BAD_BASE}${IU_EIGHTY}
-
-# All messages intended for post-detection are
-# to be uniformly tagged.
-TAG="syslogd-test"
+do_cleandir=false
+do_socket_length=true
 
 # The executables under test.
-
-IU_SYSLOGD=./src/syslogd$EXEEXT
-IU_LOGGER=./src/logger$EXEEXT
-
-# Step out of `tests/', should the invokation
-# have been made there.
 #
-[ -d ../src ] && cd ..
+IU_SYSLOGD=../src/syslogd$EXEEXT
+IU_LOGGER=../src/logger$EXEEXT
+
+# Step into `tests/', should the invokation
+# have been made outside of it.
+#
+[ -d src ] && [ -f tests/syslogd.sh ] && cd tests/
 
 if [ $VERBOSE ]; then
     set -x
@@ -127,39 +67,195 @@ if [ $VERBOSE ]; then
 fi
 
 if [ ! -x $IU_SYSLOGD ]; then
-	echo "Missing executable 'syslogd'. Failing."
-	exit 77
+    echo "Missing executable 'syslogd'.  Failing."
+    exit 77
 fi
 
 if [ ! -x $IU_LOGGER ]; then
-	echo "Missing executable 'logger'. Failing."
-	exit 77
+    echo "Missing executable 'logger'.  Failing."
+    exit 77
 fi
 
-# Remove old messages.
-rm -f $OUT $PID
+# For file creation below IU_TESTDIR.
+umask 0077
+
+# Keep any external assignment of testing directory.
+# Otherwise a randomisation is included.
+#
+: ${IU_TESTDIR:=$PWD/iu_syslog.XXXXXX}
+
+if [ ! -d "$IU_TESTDIR" ]; then
+    do_cleandir=true
+    IU_TESTDIR="`mktemp -d "$IU_TESTDIR" 2>/dev/null`" ||
+	{
+	    echo 'Failed at creating test directory.  Aborting.' >&2
+	    exit 77
+	}
+elif expr X"$IU_TESTDIR" : X"\.\{1,2\}/\{0,1\}$" >/dev/null; then
+    # Eliminating directories: . ./ .. ../
+    echo 'Dangerous input for test directory.  Aborting.' >&2
+    exit 77
+fi
+
+# The SYSLOG daemon uses four files.
+#
+CONF="$IU_TESTDIR"/syslog.conf
+PID="$IU_TESTDIR"/syslogd.pid
+OUT="$IU_TESTDIR"/messages
+: ${SOCKET:=$IU_TESTDIR/log}
+
+# Are we able to write in IU_TESTDIR?
+# This could happen with preset IU_TESTDIR.
+#
+touch "$OUT" || {
+    echo 'No write access in test directory.  Aborting.' >&2
+    exit 1
+}
+
+# Erase the testing directory.
+#
+clean_testdir () {
+    if test -f "$PID" && ps "`cat "$PID"`" >/dev/null 2>&1; then
+	kill -9 "`cat "$PID"`"
+    fi
+    if test -z "${NOCLEAN+no}" && $do_cleandir; then
+	rm -r -f "$IU_TESTDIR"
+    fi
+    if $do_socket_length && test -d "$IU_TMPDIR"; then
+	rmdir "$IU_TMPDIR"	# Should be empty.
+    fi
+}
+
+# Clean artifacts as execution stops.
+#
+trap clean_testdir EXIT HUP INT QUIT TERM
+
+# Test at this port.
+# Standard is syslog at 514/udp.
+PROTO=udp
+PORT=514
+
+# Receivers for INET sockets.
+: ${TARGET:=127.0.0.1}
+: ${TARGET6:=[::1]}
+
+# For testing of critical lengths for UNIX socket names,
+# we need a well defined base directory; choose $TMPDIR.
+IU_TMPDIR=${TMPDIR:=/tmp}
+
+if test ! -d "$IU_TMPDIR"; then
+    do_socket_length=false
+    cat <<-EOT >&2
+	WARNING!  Disabling socket length test since the directory
+	"$IU_TMPDIR", for temporary storage, does not exist.
+	EOT
+else
+    # Append a slash if it is missing.
+    expr X"$IU_TMPDIR" : X".*/$" >/dev/null || IU_TMPDIR="$IU_TMPDIR/"
+
+    IU_TMPDIR="`mktemp -d "${IU_TMPDIR}iu.XXXXXX" 2>/dev/null`" ||
+	{   # Directory creation failed.  Disable test.
+	    cat <<-EOT >&2
+		WARNING!  Unable to create temporary directory below
+		"${TMPDIR:-/tmp}" for socket length test.
+		Now disabling this subtest.
+		EOT
+	    do_socket_length=false
+	}
+fi
+
+iu_eighty=0123456789
+iu_eighty=${iu_eighty}${iu_eighty}
+iu_eighty=${iu_eighty}${iu_eighty}
+iu_eighty=${iu_eighty}${iu_eighty}
+
+# This good name base will be expanded.
+IU_GOOD_BASE=${IU_TMPDIR}/_iu
+
+# Add a single character to violate the size condition.
+IU_BAD_BASE=${IU_TMPDIR}/X_iu
+
+iu_socklen_max=104	# BSD flavour!
+
+IU_OS=`uname -s`
+if test "$IU_OS" = "Linux" || test "$IU_OS" = "GNU/kFreeBSD" ||
+	test "$IU_OS" = "SunOS"; then
+    # Aim at the boundary of 108 characters.
+    iu_socklen_max=108
+fi
+
+# Establish largest possible socket name.
+#
+# The long name consists of 103 or 107 non-NUL
+# characters, whereas the excessive string contains
+# 104 or 108 characters.  BSD allocates only 104,
+# while Glibc and Solaris admit 108 characters in
+# "sun_path", a count which includes the final NUL.
+
+if test `expr X"$IU_GOOD_BASE" : X".*"` -gt $iu_socklen_max; then
+    # Maximum socket length is already less than prefix.
+    echo 'WARNING! Disabling socket length test.  Too long base name' >&2
+    do_socket_length=false
+fi
+
+if $do_socket_length; then
+    # Compute any patching needed to get socket names
+    # touching the limit of allowed length.
+    iu_patch=''
+    iu_pt="$IU_GOOD_BASE"	# Computational helper.
+
+    if test `expr X"$iu_pt$iu_eighty" : X".*"` -le $iu_socklen_max; then
+	iu_patch="$iu_patch$iu_eighty" && iu_pt="$iu_pt$iu_eighty"
+    fi
+
+    count=`expr X"$iu_pt" : X".*"`
+    count=`expr $iu_socklen_max - $count`
+
+    # $count gives the number, and $iu_eighty the characters.
+    if test $count -gt 0; then
+	iu_patch="$iu_patch`expr X"$iu_eighty" : X"\(.\{1,$count\}\)"`"
+    fi
+
+    IU_LONG_SOCKET="$IU_GOOD_BASE$iu_patch"
+    IU_EXCESSIVE_SOCKET="$IU_BAD_BASE$iu_patch"
+fi
+
+# All messages intended for post-detection are
+# to be uniformly tagged.
+TAG="syslogd-test"
+
+# Remove old files in use by daemon.
+rm -f "$OUT" "$PID" "$CONF"
 
 # Full testing needs a superuser.  Report this.
-if [ $(id -u) -ne 0 ]; then
-	cat <<-EOT
-	WARNING!!
-	Disabling INET server tests since you seem
+if [ `id -u` -ne 0 ]; then
+    cat <<-EOT >&2
+	WARNING!!  Disabling INET server tests since you seem
 	to be underprivileged.
 	EOT
 else
-	# Is the INET port already in use? If so,
-	# skip the test in its entirety.
-	netstat -na | grep -q -E "^$PROTO(4|6|46)?.*[^0-9]$PORT[^0-9]"
-	if [ $? -eq 0 ]; then
-		echo "The INET port $PORT/$PROTO is already in use."
-		echo "No reliable test is possible."
-		exit 77
-	fi
+    # Is the INET port already in use? If so,
+    # skip the test in its entirety.
+    if [ "`uname -s`" = "SunOS" ]; then
+	netstat -na -finet -finet6 -P$PROTO |
+	grep "\.$PORT[^0-9]" >/dev/null 2>&1
+    else
+	netstat -na |
+	grep "^$PROTO\(4\|6\|46\)\{0,1\}.*[^0-9]$PORT[^0-9]" \
+	    >/dev/null 2>&1
+    fi
+    if [ $? -eq 0 ]; then
+	cat <<-EOT >&2
+		The INET port $PORT/$PROTO is already in use.
+		No reliable test of INET socket is possible.
+	EOT
+	exit 77
+    fi
 fi
 
 # A minimal, catch-all configuration.
 #
-cat > $CONF <<-EOT
+cat > "$CONF" <<-EOT
 	*.*	$OUT
 	# Test incorrect forwarding.
 	*.*	@not.in.existence
@@ -172,10 +268,10 @@ EOT
 # Set REMOTE_LOGHOST to activate forwarding
 #
 if [ -n "$REMOTE_LOGHOST" ]; then
-	# Append a forwarding stanza.
-	cat >> $CONF <<-EOT
-		# Forwarding remotely
-		*.*	@$REMOTE_LOGHOST
+    # Append a forwarding stanza.
+    cat >> "$CONF" <<-EOT
+	# Forwarding remotely
+	*.*	@$REMOTE_LOGHOST
 	EOT
 fi
 
@@ -183,21 +279,25 @@ fi
 # building the desired option list.
 #
 ## Base configuration.
-IU_OPTIONS="--rcfile=$CONF --pidfile=$PID --socket=$SOCKET"
-IU_OPTIONS="$IU_OPTIONS -a $IU_LONG_SOCKET -a $IU_EXCESSIVE_SOCKET"
+IU_OPTIONS="--rcfile='$CONF' --pidfile='$PID' --socket='$SOCKET'"
+if $do_socket_length; then
+    IU_OPTIONS="$IU_OPTIONS -a '$IU_LONG_SOCKET' -a '$IU_EXCESSIVE_SOCKET'"
+fi
 
 ## Enable INET service when running as root.
-if [ $(id -u) -eq 0 ]; then
-	IU_OPTIONS="$IU_OPTIONS --ipany --inet --hop"
+if [ `id -u` -eq 0 ]; then
+    IU_OPTIONS="$IU_OPTIONS --ipany --inet --hop"
 fi
 ## Bring in additional options from command line.
 ## Disable kernel messages otherwise.
 if [ -c /dev/klog ]; then
-	: OPTIONS=${OPTIONS:=--no-klog}
+    : OPTIONS=${OPTIONS:=--no-klog}
 fi
 IU_OPTIONS="$IU_OPTIONS $OPTIONS"
 
-$IU_SYSLOGD $IU_OPTIONS
+# The eval-construct allows white space in file names,
+# based on the use of single quotes in IU_OPTIONS.
+eval $IU_SYSLOGD $IU_OPTIONS
 
 # Wait a moment in order to avoid an obvious
 # race condition with the server daemon on
@@ -207,9 +307,9 @@ sleep 1
 
 # Test to see whether the service got started.
 #
-if [ ! -r $PID ]; then
-	echo "The service daemon never started. Failing."
-	exit 1
+if [ ! -r "$PID" ]; then
+    echo "The service daemon never started.  Failing." >&2
+    exit 1
 fi
 
 # Declare the number of implemented tests,
@@ -220,41 +320,52 @@ SUCCESSES=0
 EXITCODE=1
 
 # Check that the excessively long UNIX socket name was rejected.
-TESTCASES=$((TESTCASES + 1))
-if grep -q "UNIX socket name too long.*${IU_BAD_BASE}" $OUT; then
-	SUCCESSES="$((SUCCESSES + 1))"
+if $do_socket_length; then
+    TESTCASES=`expr $TESTCASES + 1`
+    if grep "UNIX socket name too long.*${IU_BAD_BASE}" "$OUT" >/dev/null 2>&1; then
+	SUCCESSES=`expr $SUCCESSES + 1`
+    fi
 fi
 
 # Send messages on two sockets: IPv4 and UNIX.
 #
-TESTCASES=$((TESTCASES + 2))
-$IU_LOGGER -h $SOCKET -p user.info -t $TAG "Sending BSD message. (pid $$)"
-$IU_LOGGER -h $IU_LONG_SOCKET -p user.info -t $TAG "Sending via long socket name. (pid $$)"
+TESTCASES=`expr $TESTCASES + 1`
+$IU_LOGGER -h "$SOCKET" -p user.info -t "$TAG" \
+    "Sending BSD message. (pid $$)"
 
-if [ $(id -u) -eq 0 ]; then
-	TESTCASES=$((TESTCASES + 2))
-	$IU_LOGGER -4 -h 127.0.0.1 -p user.info -t $TAG "Sending IPv4 message. (pid $$)"
-	$IU_LOGGER -6 -h "[::1]" -p user.info -t $TAG "Sending IPv6 message. (pid $$)"
+if $do_socket_length; then
+    TESTCASES=`expr $TESTCASES + 1`
+    $IU_LOGGER -h "$IU_LONG_SOCKET" -p user.info \
+	-t "$TAG" "Sending via long socket name. (pid $$)"
+fi
+
+if [ `id -u` -eq 0 ]; then
+    TESTCASES=`expr $TESTCASES + 2`
+    $IU_LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
+	"Sending IPv4 message. (pid $$)"
+    $IU_LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
+	"Sending IPv6 message. (pid $$)"
 fi
 
 # Detection of registered messages.
 #
-SUCCESSES="$((SUCCESSES + $(grep $TAG $OUT | wc -l) ))"
+COUNT=`grep "$TAG" "$OUT" | wc -l`
+SUCCESSES=`expr $SUCCESSES + $COUNT`
 
 if [ -n "${VERBOSE+yes}" ]; then
-	grep $TAG $OUT
+    grep "$TAG" "$OUT"
 fi
 
 echo "Registered $SUCCESSES successes out of $TESTCASES."
 
 if [ "$SUCCESSES" -eq "$TESTCASES" ]; then
-	echo "Successful testing."
-	EXITCODE=0
+    echo "Successful testing."
+    EXITCODE=0
 else
-	echo "Failing some tests."
+    echo "Failing some tests."
 fi
 
 # Remove the daemon process.
-[ -r $PID ] && kill "$(cat $PID)"
+[ -r "$PID" ] && kill "`cat "$PID"`"
 
 exit $EXITCODE

@@ -1,3 +1,11 @@
+2012-01-25  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/syslogd.sh: Substantial rewrite.  Early verbosity.
+	Consistent quoting for white space in IU_TESTDIR.  Robustness
+	with error checking.  Execution inside `tests/'.
+	(TARGET, TARGET6): New variables.
+	(TMPDIR): Overrides `/tmp/' as temporary directory.
+
 2012-01-23  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/ftp-localhost.sh: New preamble to fail
