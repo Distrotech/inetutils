@@ -49,6 +49,24 @@ fi
 #
 do_cleandir=false
 do_socket_length=true
+do_unix_socket=true
+
+# The UNIX socket name length is preset by the system
+# and is also system dependent.
+#
+# A long name consists of 103 or 107 non-NUL characters,
+# whereas the excessive string contains 104 or 108 characters.
+# BSD allocates only 104, while Glibc and Solaris admit 108
+# characters in "sun_path", a count which includes the final NUL.
+
+iu_socklen_max=104	# BSD flavour!
+
+IU_OS=`uname -s`
+if test "$IU_OS" = "Linux" || test "$IU_OS" = "GNU/kFreeBSD" ||
+	test "$IU_OS" = "SunOS"; then
+    # Aim at the boundary of 108 characters.
+    iu_socklen_max=108
+fi
 
 # The executables under test.
 #
@@ -62,8 +80,8 @@ LOGGER=../src/logger$EXEEXT
 
 if [ $VERBOSE ]; then
     set -x
-    $SYSLOGD --version
-    $LOGGER --version
+    $SYSLOGD --version | head -1
+    $LOGGER --version | head -1
 fi
 
 if [ ! -x $SYSLOGD ]; then
@@ -111,6 +129,19 @@ touch "$OUT" || {
     echo 'No write access in test directory.  Aborting.' >&2
     exit 1
 }
+
+# Some automated build environments dig deep chroots, i.e.,
+# make the paths to this working directory disturbingly long.
+# Check SOCKET for this calamity.
+#
+if test `expr X"$SOCKET" : X".*"` -gt $iu_socklen_max; then
+    do_unix_socket=false
+    cat <<-EOT >&2
+	WARNING! The working directory uses a disturbingly long path.
+	We are not able to construct a UNIX socket on top of it.
+	Therefore disabling socket messaging in this test run.
+	EOT
+fi
 
 # Erase the testing directory.
 #
@@ -174,23 +205,6 @@ IU_GOOD_BASE=${IU_TMPDIR}/_iu
 
 # Add a single character to violate the size condition.
 IU_BAD_BASE=${IU_TMPDIR}/X_iu
-
-iu_socklen_max=104	# BSD flavour!
-
-IU_OS=`uname -s`
-if test "$IU_OS" = "Linux" || test "$IU_OS" = "GNU/kFreeBSD" ||
-	test "$IU_OS" = "SunOS"; then
-    # Aim at the boundary of 108 characters.
-    iu_socklen_max=108
-fi
-
-# Establish largest possible socket name.
-#
-# The long name consists of 103 or 107 non-NUL
-# characters, whereas the excessive string contains
-# 104 or 108 characters.  BSD allocates only 104,
-# while Glibc and Solaris admit 108 characters in
-# "sun_path", a count which includes the final NUL.
 
 if test `expr X"$IU_GOOD_BASE" : X".*"` -gt $iu_socklen_max; then
     # Maximum socket length is already less than prefix.
@@ -279,7 +293,13 @@ fi
 # building the desired option list.
 #
 ## Base configuration.
-IU_OPTIONS="--rcfile='$CONF' --pidfile='$PID' --socket='$SOCKET'"
+IU_OPTIONS="--rcfile='$CONF' --pidfile='$PID'"
+if $do_unix_socket; then
+    IU_OPTIONS="$IU_OPTIONS --socket='$SOCKET'"
+else
+    # The empty string will disable the standard socket.
+    IU_OPTIONS="$IU_OPTIONS --socket=''"
+fi
 if $do_socket_length; then
     IU_OPTIONS="$IU_OPTIONS -a '$IU_LONG_SOCKET' -a '$IU_EXCESSIVE_SOCKET'"
 fi
@@ -322,16 +342,23 @@ EXITCODE=1
 # Check that the excessively long UNIX socket name was rejected.
 if $do_socket_length; then
     TESTCASES=`expr $TESTCASES + 1`
-    if grep "UNIX socket name too long.*${IU_BAD_BASE}" "$OUT" >/dev/null 2>&1; then
+    # Messages can be truncated in the message log, so make a best
+    # effort to limit the length of the string we are searching for.
+    # Allowing 55 characters for IU_BAD_BASE is almost aggressive.
+    # A host name of length six would allow 64 characters
+    pruned=`expr "UNIX socket name too long.*${IU_BAD_BASE}" : '\(.\{1,82\}\)'`
+    if grep "$pruned" "$OUT" >/dev/null 2>&1; then
 	SUCCESSES=`expr $SUCCESSES + 1`
     fi
 fi
 
 # Send messages on two sockets: IPv4 and UNIX.
 #
-TESTCASES=`expr $TESTCASES + 1`
-$LOGGER -h "$SOCKET" -p user.info -t "$TAG" \
-    "Sending BSD message. (pid $$)"
+if $do_unix_socket; then
+    TESTCASES=`expr $TESTCASES + 1`
+    $LOGGER -h "$SOCKET" -p user.info -t "$TAG" \
+	"Sending BSD message. (pid $$)"
+fi
 
 if $do_socket_length; then
     TESTCASES=`expr $TESTCASES + 1`
@@ -353,7 +380,13 @@ COUNT=`grep "$TAG" "$OUT" | wc -l`
 SUCCESSES=`expr $SUCCESSES + $COUNT`
 
 if [ -n "${VERBOSE+yes}" ]; then
-    grep "$TAG" "$OUT"
+    cat <<-EOT
+	---------- Successfully detected messages. ----------
+	`grep "$TAG" "$OUT"`
+	---------- Full message log for syslogd. ------------
+	`cat "$OUT"`
+	-----------------------------------------------------
+	EOT
 fi
 
 echo "Registered $SUCCESSES successes out of $TESTCASES."

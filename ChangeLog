@@ -1,5 +1,10 @@
 2012-01-26  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/syslogd.sh (SOCKET): Disable the use of this
+	UNIX socket name if its length would be excessive.
+
+2012-01-26  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/ftp-localhost.sh, tests/ping-localhost.sh,
 	tests/syslogd.sh, tests/tftp.sh, tests/traceroute-localhost.sh:
 	Test the availability of compiled resources.
