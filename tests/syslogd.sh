@@ -52,8 +52,8 @@ do_socket_length=true
 
 # The executables under test.
 #
-IU_SYSLOGD=../src/syslogd$EXEEXT
-IU_LOGGER=../src/logger$EXEEXT
+SYSLOGD=../src/syslogd$EXEEXT
+LOGGER=../src/logger$EXEEXT
 
 # Step into `tests/', should the invokation
 # have been made outside of it.
@@ -62,17 +62,17 @@ IU_LOGGER=../src/logger$EXEEXT
 
 if [ $VERBOSE ]; then
     set -x
-    $IU_SYSLOGD --version
-    $IU_LOGGER --version
+    $SYSLOGD --version
+    $LOGGER --version
 fi
 
-if [ ! -x $IU_SYSLOGD ]; then
-    echo "Missing executable 'syslogd'.  Failing."
+if [ ! -x $SYSLOGD ]; then
+    echo "Missing executable '$SYSLOGD'.  Failing." >&2
     exit 77
 fi
 
-if [ ! -x $IU_LOGGER ]; then
-    echo "Missing executable 'logger'.  Failing."
+if [ ! -x $LOGGER ]; then
+    echo "Missing executable '$LOGGER'.  Failing." >&2
     exit 77
 fi
 
@@ -297,7 +297,7 @@ IU_OPTIONS="$IU_OPTIONS $OPTIONS"
 
 # The eval-construct allows white space in file names,
 # based on the use of single quotes in IU_OPTIONS.
-eval $IU_SYSLOGD $IU_OPTIONS
+eval $SYSLOGD $IU_OPTIONS
 
 # Wait a moment in order to avoid an obvious
 # race condition with the server daemon on
@@ -330,20 +330,20 @@ fi
 # Send messages on two sockets: IPv4 and UNIX.
 #
 TESTCASES=`expr $TESTCASES + 1`
-$IU_LOGGER -h "$SOCKET" -p user.info -t "$TAG" \
+$LOGGER -h "$SOCKET" -p user.info -t "$TAG" \
     "Sending BSD message. (pid $$)"
 
 if $do_socket_length; then
     TESTCASES=`expr $TESTCASES + 1`
-    $IU_LOGGER -h "$IU_LONG_SOCKET" -p user.info \
+    $LOGGER -h "$IU_LONG_SOCKET" -p user.info \
 	-t "$TAG" "Sending via long socket name. (pid $$)"
 fi
 
 if [ `id -u` -eq 0 ]; then
     TESTCASES=`expr $TESTCASES + 2`
-    $IU_LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
+    $LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
 	"Sending IPv4 message. (pid $$)"
-    $IU_LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
+    $LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
 	"Sending IPv6 message. (pid $$)"
 fi
 

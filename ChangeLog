@@ -1,3 +1,12 @@
+2012-01-26  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/ftp-localhost.sh, tests/ping-localhost.sh,
+	tests/syslogd.sh, tests/tftp.sh, tests/traceroute-localhost.sh:
+	Test the availability of compiled resources.
+	* tests/syslogd.sh (LOGGER): Rename from IU_LOGGER.
+	(SYSLOGD): Rename from IU_SYSLOGD.
+	* tests/tftp.sh (IFCONFIG_SIMPLE): New helper variable.
+
 2012-01-25  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/syslogd.sh: Substantial rewrite.  Early verbosity.

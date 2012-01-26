@@ -23,6 +23,11 @@ TARGET=${TARGET:-127.0.0.1}
 PING6=${PING6:-../ping/ping6$EXEEXT}
 TARGET6=${TARGET6:-::1}
 
+if [ ! -x $PING ]; then
+    echo 'No executable "$PING" available.  Skipping test.' >&2
+    exit 77
+fi
+
 if [ $VERBOSE ]; then
     set -x
     $PING --version

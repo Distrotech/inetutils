@@ -29,6 +29,21 @@ TFTP="${TFTP:-../src/tftp$EXEEXT}"
 TFTPD="${TFTPD:-$PWD/../src/tftpd$EXEEXT}"
 INETD="${INETD:-../src/inetd$EXEEXT}"
 IFCONFIG="${IFCONFIG:-../ifconfig/ifconfig$EXEEXT --format=unix}"
+IFCONFIG_SIMPLE=`expr X"$IFCONFIG" : X'\([^ ]*\)'`	# Remove options
+
+if [ ! -x $TFTP ]; then
+    echo "No TFTP client '$TFTP' present.  Skipping test" >&2
+    exit 77
+elif [ ! -x $TFTPD ]; then
+    echo "No TFTP server '$TFTPD' present.  Skipping test" >&2
+    exit 77
+elif [ ! -x $INETD ]; then
+    echo "No inetd superserver '$INETD' present.  Skipping test" >&2
+    exit 77
+elif [ ! -x $IFCONFIG_SIMPLE ]; then	# Remove options
+    echo "No ifconfig '$IFCONFIG_SIMPLE' present.  Skipping test" >&2
+    exit 77
+fi
 
 AF=${AF:-inet}
 PROTO=${PROTO:-udp}

@@ -36,6 +36,17 @@ TARGET=${TARGET:-127.0.0.1}
 TARGET6=${TARGET6:-::1}
 TARGET46=${TARGET46:-::ffff:127.0.0.1}
 
+if [ ! -x $FTP ]; then
+    echo "No FTP client '$FTP' present.  Skipping test" >&2
+    exit 77
+elif [ ! -x $FTPD ]; then
+    echo "No FTP server '$FTPD' present.  Skipping test" >&2
+    exit 77
+elif [ ! -x $INETD ]; then
+    echo "No inetd superserver '$INETD' present.  Skipping test" >&2
+    exit 77
+fi
+
 if [ $VERBOSE ]; then
     set -x
     $FTP --version | head -1
