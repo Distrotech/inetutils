@@ -1,3 +1,8 @@
+2012-01-27  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/ftp-localhost.sh, tests/tftp.sh (PORT): Detect if it
+	is preset, or detect an unused value from a short list.
+
 2012-01-26  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/syslogd.sh (SOCKET): Disable the use of this

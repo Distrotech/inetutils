@@ -47,7 +47,6 @@ fi
 
 AF=${AF:-inet}
 PROTO=${PROTO:-udp}
-PORT=${PORT:-7777}
 USER=`id -u -n`
 
 # Random base diractory at testing time.
@@ -92,7 +91,8 @@ fi
 #
 locate_port () {
     if [ "`uname -s`" = "SunOS" ]; then
-	netstat -na -f$1 -P$2 | grep "\.$3[^0-9]" >/dev/null 2>&1
+	netstat -na -f$1 -P$2 |
+	grep "\.$3[^0-9]" >/dev/null 2>&1
     else
 	netstat -na |
 	grep "^$2\(4\|6\|46\)\{0,1\}.*[^0-9]$3[^0-9]" >/dev/null 2>&1
@@ -105,11 +105,23 @@ if [ "$VERBOSE" ]; then
     "$INETD" --version
 fi
 
-# Check that the port is still available
-locate_port $AF $PROTO $PORT
-if test $? -eq 0; then
-    echo "Desired port $PORT/$PROTO is already in use."
-    exit 77
+# Find an available port number.  There will be some
+# room left for a race condition, but we try to be
+# flexible enough for running copies of this script.
+#
+if test -z "$PORT"; then
+    for PORT in 7777 7779 7783 7791 7807 7839 none; do
+	test $PORT = none && break
+	if locate_port $AF $PROTO $PORT; then
+	    continue
+	else
+	    break
+	fi
+    done
+    if test "$PORT" = 'none'; then
+	echo 'Our port allocation failed.  Skipping test.'
+	exit 77
+    fi
 fi
 
 # Create `inetd.conf'.  Note: We want $TFTPD to be an absolute file

@@ -94,8 +94,40 @@ posttesting () {
 
 trap posttesting 0 1 2 3 15
 
-echo "4711 stream tcp4 nowait root $PWD/$FTPD ftpd -A -l" > $TMPDIR/inetd.conf
-echo "4711 stream tcp6 nowait root $PWD/$FTPD ftpd -A -l" >> $TMPDIR/inetd.conf
+# locate_port  port
+#
+# Test for IPv4 as well as for IPv6.
+locate_port () {
+    if [ "`uname -s`" = "SunOS" ]; then
+	netstat -na -finet -finet6 -Ptcp |
+	grep "\.$1[^0-9]" >/dev/null 2>&1
+    else
+	netstat -na |
+	grep "^$2\(4\|6\|46\)\{0,1\}.*[^0-9]$1[^0-9]" >/dev/null 2>&1
+    fi
+}
+
+# Find an available port number.  There will be some
+# room left for a race condition, but we try to be
+# flexible enough for running copies of this script.
+#
+if test -z "$PORT"; then
+    for PORT in 4711 4713 4717 4725 4741 4773 none; do
+	test $PORT = none && break
+	if locate_port $PORT; then
+	    continue
+	else
+	    break
+	fi
+    done
+    if test "$PORT" = 'none'; then
+	echo 'Our port allocation failed.  Skipping test.'
+	exit 77
+    fi
+fi
+
+echo "$PORT stream tcp4 nowait root $PWD/$FTPD ftpd -A -l" > $TMPDIR/inetd.conf
+echo "$PORT stream tcp6 nowait root $PWD/$FTPD ftpd -A -l" >> $TMPDIR/inetd.conf
 echo "machine $TARGET login ftp password foobar" > $TMPDIR/.netrc
 echo "machine $TARGET6 login ftp password foobar" >> $TMPDIR/.netrc
 echo "machine $TARGET46 login ftp password foobar" >> $TMPDIR/.netrc
@@ -113,7 +145,7 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET 4711 -4 -v -p -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -p -t >$TMPDIR/ftp.stdout
 
 errno=$?
 [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
@@ -147,7 +179,7 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET 4711 -4 -v -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -t >$TMPDIR/ftp.stdout
 
 errno=$?
 [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
@@ -182,7 +214,7 @@ rstatus
 epsv4
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET 4711 -4 -v -p -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -p -t >$TMPDIR/ftp.stdout
 
 errno=$?
 [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
@@ -217,7 +249,7 @@ rstatus
 epsv4
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET 4711 -4 -v -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -t >$TMPDIR/ftp.stdout
 
 errno=$?
 [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
@@ -251,7 +283,7 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET6 4711 -6 -v -p -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP $TARGET6 $PORT -6 -v -p -t >$TMPDIR/ftp.stdout
 
 errno=$?
 [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
@@ -285,7 +317,7 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET6 4711 -6 -v -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP $TARGET6 $PORT -6 -v -t >$TMPDIR/ftp.stdout
 
 errno=$?
 [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
@@ -369,7 +401,7 @@ if $have_address_mapping && test -n "$TARGET46" ; then
 	rstatus
 	dir
 	STOP
-    HOME=$TMPDIR $FTP $TARGET46 4711 -6 -v -p -t >$TMPDIR/ftp.stdout
+    HOME=$TMPDIR $FTP $TARGET46 $PORT -6 -v -p -t >$TMPDIR/ftp.stdout
 
     errno=$?
     [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
@@ -403,7 +435,7 @@ if $have_address_mapping && test -n "$TARGET46" ; then
 	rstatus
 	dir
 	STOP
-    HOME=$TMPDIR $FTP $TARGET46 4711 -6 -v -t >$TMPDIR/ftp.stdout
+    HOME=$TMPDIR $FTP $TARGET46 $PORT -6 -v -t >$TMPDIR/ftp.stdout
 
     errno=$?
     [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
