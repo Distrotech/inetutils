@@ -1,5 +1,25 @@
 2012-01-27  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* libtelnet/auth.c, libtelnet/enc_des.c, libtelnet/encrypt.c,
+	libtelnet/kerberos.c, libtelnet/kerberos5.c, libtelnet/shishi.c:
+	Add external prototype `void printsub (char, unsigned char *, int)',
+	appearing as callback.
+	* libtelnet/auth-proto.h (auth_gen_printsub): Remove prototype.
+	(auth_printsub): Missing prototype.
+	* libtelnet/auth.c (auth_gen_printsub): Declare as static, and
+	position before code for `auth_printsub'.
+	* libtelnet/enc-proto.h (encrypt_printsub): Missing prototype.
+	[ENCRYPTION && TELNETD]: Rename macro TELENTD as TELNETD,
+	both are otherwise not in use.
+	* libtelnet/encrypt.c (encrypt_gen_printsub): Reorder parameters
+	in declaration to read `(unsigned char *, int, unsigned char *, int)'.
+	(encrypt_printsub): Likewise.
+	* telnet/utilities.c [AUTHENTICATION]: Include <libtelnet/auth.h>.
+	[ENCRYPTION]: Include <libtelnet/encrypt.h>.
+	* telnetd/telnetd.h: Include <libtelnet/encrypt.h>.
+
+2012-01-27  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* tests/ftp-localhost.sh, tests/tftp.sh (PORT): Detect if it
 	is preset, or detect an unused value from a short list.
 

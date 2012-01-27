@@ -83,6 +83,9 @@
 # include <stdio.h>
 # include "genget.h"
 
+/* Callback from consumer.  */
+extern void printsub (char, unsigned char *, int);
+
 /*
  * These functions pointers point to the current routines
  * for encrypting and decrypting data.
@@ -967,9 +970,9 @@ encrypt_debug (int mode)
   encrypt_debug_mode = mode;
 }
 
-void
-encrypt_gen_printsub (unsigned char *data, unsigned char *buf,
-		      int cnt, int buflen)
+static void
+encrypt_gen_printsub (unsigned char *data, int cnt,
+		      unsigned char *buf, int buflen)
 {
   char tbuf[16], *cp;
 
@@ -990,8 +993,8 @@ encrypt_gen_printsub (unsigned char *data, unsigned char *buf,
 }
 
 void
-encrypt_printsub (unsigned char *data, unsigned char *buf,
-		  int cnt, int buflen)
+encrypt_printsub (unsigned char *data, int cnt,
+		  unsigned char *buf, int buflen)
 {
   Encryptions *ep;
   int type = data[1];

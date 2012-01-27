@@ -132,6 +132,9 @@ struct keyidlist
 #   define FB64_IV_BAD	3
 
 
+/* Callback from consumer.  */
+extern void printsub (char, unsigned char *, int);
+
 void fb64_stream_iv (Block, struct stinfo *);
 void fb64_init (struct fb *);
 static int fb64_start (struct fb *, int, int);

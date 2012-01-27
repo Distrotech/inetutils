@@ -50,7 +50,9 @@
 #include <sys/ioctl.h>
 
 #include <arpa/telnet.h>
+
 #include <libtelnet/auth.h>
+#include <libtelnet/encrypt.h>
 
 #include <termios.h>
 

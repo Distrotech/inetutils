@@ -56,6 +56,9 @@ Shishi_ap *auth_handle;
 
 # define DEBUG(c) if (auth_debug_mode) printf c
 
+/* Callback from consumer.  */
+extern void printsub (char, unsigned char *, int);
+
 static int
 Data (TN_Authenticator * ap, int type, unsigned char *d, int c)
 {

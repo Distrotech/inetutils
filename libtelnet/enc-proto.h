@@ -86,9 +86,10 @@ void encrypt_send_end (void);
 void encrypt_wait (void);
 void encrypt_send_support (void);
 void encrypt_send_keyid (int, unsigned char *, int, int);
+void encrypt_printsub (unsigned char *, int, unsigned char *, int);
 int net_write (unsigned char *, int);
 
-# ifdef	TELENTD
+# ifdef	TELNETD
 void encrypt_wait (void);
 # else
 int encrypt_cmd (int, char **);

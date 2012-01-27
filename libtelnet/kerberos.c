@@ -92,6 +92,9 @@ int kuserok (AUTH_DAT *, char *);
 
 extern auth_debug_mode;
 
+/* Callback from consumer.  */
+extern void printsub (char, unsigned char *, int);
+
 static unsigned char str_data[1024] = { IAC, SB, TELOPT_AUTHENTICATION, 0,
   AUTHTYPE_KERBEROS_V4,
 };

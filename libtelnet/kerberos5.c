@@ -76,6 +76,9 @@ char *telnet_krb5_realm = NULL;
 
 # define DEBUG(c) if (auth_debug_mode) printf c
 
+/* Callback from consumer.  */
+extern void printsub (char, unsigned char *, int);
+
 static int
 Data (TN_Authenticator * ap, int type, krb5_pointer d, int c)
 {

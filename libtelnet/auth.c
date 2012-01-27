@@ -93,6 +93,9 @@
 
 # define typemask(x)		(1<<((x)-1))
 
+/* Callback from consumer.  */
+extern void printsub (char, unsigned char *, int);
+
 # ifdef	KRB4_ENCPWD
 extern krb4encpwd_init ();
 extern krb4encpwd_send ();
@@ -694,18 +697,7 @@ auth_debug (int mode)
   auth_debug_mode = mode;
 }
 
-void
-auth_printsub (unsigned char *data, int cnt, unsigned char *buf, int buflen)
-{
-  TN_Authenticator *ap;
-
-  if ((ap = findauthenticator (data[1], data[2])) && ap->printsub)
-    (*ap->printsub) (data, cnt, buf, buflen);
-  else
-    auth_gen_printsub (data, cnt, buf, buflen);
-}
-
-void
+static void
 auth_gen_printsub (unsigned char *data, int cnt, unsigned char *buf,
 		   int buflen)
 {
@@ -726,5 +718,16 @@ auth_gen_printsub (unsigned char *data, int cnt, unsigned char *buf,
 	return;
     }
   *buf = '\0';
+}
+
+void
+auth_printsub (unsigned char *data, int cnt, unsigned char *buf, int buflen)
+{
+  TN_Authenticator *ap;
+
+  if ((ap = findauthenticator (data[1], data[2])) && ap->printsub)
+    (*ap->printsub) (data, cnt, buf, buflen);
+  else
+    auth_gen_printsub (data, cnt, buf, buflen);
 }
 #endif

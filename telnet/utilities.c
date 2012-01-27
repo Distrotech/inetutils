@@ -66,6 +66,13 @@
 #include "defines.h"
 #include "externs.h"
 
+#ifdef AUTHENTICATION
+# include <libtelnet/auth.h>
+#endif
+#ifdef ENCRYPTION
+# include <libtelnet/encrypt.h>
+#endif
+
 FILE *NetTrace = 0;		/* Not in bss, since needs to stay */
 int prettydump;
 
