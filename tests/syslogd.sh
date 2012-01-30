@@ -45,6 +45,9 @@ HERE
     exit 0
 fi
 
+# Portability fix for SVR4
+PWD="${PWD:-`pwd`}"
+
 # Execution control.  Initialise early!
 #
 do_cleandir=false

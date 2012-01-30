@@ -19,11 +19,12 @@
 
 # Run `inetd' with `tftpd' and try to fetch a file from there using `tftp'.
 
-# FIXME: Presently tailored for IPv4.
-
 if [ "$VERBOSE" ]; then
     set -x
 fi
+
+# Portability fix for SVR4
+PWD="${PWD:-`pwd`}"
 
 TFTP="${TFTP:-../src/tftp$EXEEXT}"
 TFTPD="${TFTPD:-$PWD/../src/tftpd$EXEEXT}"
@@ -65,13 +66,13 @@ posttesting () {
 
 trap posttesting EXIT HUP INT QUIT TERM
 
-# Use only "127.0.0.1" as default address list.
+# Use only "127.0.0.1 ::1" as default address list.
 # Other configured addresses might be set under
 # strict filter policies, thus might block.
 #
 # Allow a setting "ADDRESSES=sense" to compute the
 # available addresses and then to test them all.
-ADDRESSES="${ADDRESSES:-127.0.0.1}"
+ADDRESSES="${ADDRESSES:-127.0.0.1 ::1}"
 
 if [ "$ADDRESSES" = "sense" ]; then
     ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
@@ -81,28 +82,29 @@ fi
 # Check that netstat works before proceeding.
 netstat -na > /dev/null
 if [ ! $? -eq 0 ]; then
-    echo "netstat: command failed to execute successfully"
+    echo "netstat: command failed to execute successfully" >&2
     exit 77
 fi
 
 # Work around the peculiar output of netstat(1m,solaris).
 #
-# locate_port family proto port
+# locate_port proto port
 #
 locate_port () {
     if [ "`uname -s`" = "SunOS" ]; then
-	netstat -na -f$1 -P$2 |
-	grep "\.$3[^0-9]" >/dev/null 2>&1
+	netstat -na -finet -finet6 -P$1 |
+	grep "\.$2[^0-9]" >/dev/null 2>&1
     else
 	netstat -na |
-	grep "^$2\(4\|6\|46\)\{0,1\}.*[^0-9]$3[^0-9]" >/dev/null 2>&1
+	grep "^$1\(4\|6\|46\)\{0,1\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
     fi
 }
 
 if [ "$VERBOSE" ]; then
-    "$TFTP" --version
-    "$TFTPD" --version
-    "$INETD" --version
+    "$TFTP" --version | head -1
+    "$TFTPD" --version | head -1
+    "$INETD" --version | head -1
+    "$IFCONFIG_SIMPLE" --version | head -1
 fi
 
 # Find an available port number.  There will be some
@@ -112,27 +114,29 @@ fi
 if test -z "$PORT"; then
     for PORT in 7777 7779 7783 7791 7807 7839 none; do
 	test $PORT = none && break
-	if locate_port $AF $PROTO $PORT; then
+	if locate_port $PROTO $PORT; then
 	    continue
 	else
 	    break
 	fi
     done
     if test "$PORT" = 'none'; then
-	echo 'Our port allocation failed.  Skipping test.'
+	echo 'Our port allocation failed.  Skipping test.' >&2
 	exit 77
     fi
 fi
 
 # Create `inetd.conf'.  Note: We want $TFTPD to be an absolute file
 # name because `inetd' chdirs to `/' in daemon mode; ditto for
-# $INETD_CONF.
+# $INETD_CONF.  Thus the dependency on file locations will be
+# identical in daemon-mode and in debug-mode.
 cat > "$INETD_CONF" <<EOF
 $PORT dgram ${PROTO}4 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
+$PORT dgram ${PROTO}6 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
 EOF
 
 # Launch `inetd', assuming it's reachable at all $ADDRESSES.
-$INETD -d -p"$INETD_PID" "$INETD_CONF" &
+$INETD ${VERBOSE+-d} -p"$INETD_PID" "$INETD_CONF" &
 sleep 1
 inetd_pid="`cat $INETD_PID`"
 
@@ -142,7 +146,7 @@ test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
 sleep 1
 
 # Did `inetd' really succeed in establishing a listener?
-locate_port $AF $PROTO $PORT
+locate_port $PROTO $PORT
 if test $? -ne 0; then
     # No it did not.
     ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid" 2>/dev/null
@@ -191,7 +195,7 @@ for addr in $ADDRESSES; do
     for name in $FILELIST; do
 	EFFORTS=`expr $EFFORTS + 1`
 	rm -f $name
-	echo "get $name" | "$TFTP" $addr $PORT
+	echo "get $name" | "$TFTP" ${VERBOSE+-v} "$addr" $PORT
 
 	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?

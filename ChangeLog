@@ -1,3 +1,23 @@
+2012-01-31  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/tftp.c (resolve_name): Do not use AI_ADDRCONFIG at all.
+	Assign HOSTNAME with `ai->ai_canonname' only if it has contents,
+	otherwise assign `<dummy>', which is very unlikely.
+	* tests/ftp-localhost.sh: Make SVR4-compliant.  Refactor code.
+	Error messages go to STDERR.  Use HERE-docs for configuration.
+	(PWD): If not exported, assign with command substitution `pwd`.
+	(USER, FTPUSER, save_IFS): New variables.
+	(FTPHOME): New variable, for portably calculating home of FTPUSER.
+	Make certain of existence and readability of this directory.
+	(test_report): New function for common evaluation tasks.
+	* tests/syslogd.sh (PWD): If not exported, assign with command
+	substitution `pwd`.
+	* tests/tftp.sh: Expand to cover IPv6.  Error messages to STDERR.
+	Make `inetd' and `tftp' verbose only with VERBOSE set.
+	(PWD): If not exported, assign with command substitution `pwd`.
+	(locate_port): New prototype, dropping address family argument,
+	always detecting IPv4 and IPv6.
+
 2012-01-27  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* libtelnet/auth.c, libtelnet/enc_des.c, libtelnet/encrypt.c,
@@ -22,6 +42,7 @@
 
 	* tests/ftp-localhost.sh, tests/tftp.sh (PORT): Detect if it
 	is preset, or detect an unused value from a short list.
+	* tests/ftp-localhost.sh (locate_port): New function.
 
 2012-01-26  Mats Erik Andersson <gnu@gisladisker.se>
 

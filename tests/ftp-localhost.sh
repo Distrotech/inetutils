@@ -19,8 +19,12 @@
 
 # Written by Simon Josefsson
 
-# FIXME: Separate tests of IPv4 and IPv6 using `inetd', no testing
-# of standalone daemon yet.
+# FIXME: Better test coverage!
+#
+# Implemented: anonymous-only in inetd-mode.
+#
+# Wanted:  * standalone-mode
+#          * underprivileged mode.
 
 # Address mapping IPv4-to-IPv6 is not uniform an all platforms,
 # thus separately using `tcp4' and `tcp6' for streams in `inetd.conf'.
@@ -35,6 +39,14 @@ INETD=${INETD:-../src/inetd$EXEEXT}
 TARGET=${TARGET:-127.0.0.1}
 TARGET6=${TARGET6:-::1}
 TARGET46=${TARGET46:-::ffff:127.0.0.1}
+
+# Portability fix for SVR4
+PWD="${PWD:-`pwd`}"
+
+# Acting user and target user
+#
+USER="`id -u -n`"
+FTPUSER=${FTPUSER:-ftp}
 
 if [ ! -x $FTP ]; then
     echo "No FTP client '$FTP' present.  Skipping test" >&2
@@ -54,30 +66,35 @@ if [ $VERBOSE ]; then
     $INETD --version | head -1
 fi
 
-# This script is using '! command' in many tests,
-# which is not available in old shells.  We fail
-# for those old shell releases.
-if eval '! false' 2>/dev/null; then
-    :	# This is expected
-else
-    echo 'Presently using the SVR4 Bourne shell.'
-    echo 'This test needs a recent shell with'
-    echo 'keyword ! and tilde expansion.'
-    exit 77
-fi
-
 if [ `id -u` != 0 ]; then
-    echo "ftpd needs to run as root"
+    echo "ftpd needs to run as root" >&2
     exit 77
 fi
 
-if ! id -u ftp > /dev/null; then
-    echo "anonymous ftpd needs a 'ftp' user"
+if id -u "$FTPUSER" > /dev/null; then
+    :
+else
+    echo "anonymous ftpd needs a '$FTPUSER' user" >&2
     exit 77
 fi
 
-if [ ! -d ~ftp ]; then
-    echo "the user 'ftp' must have a home directory"
+FTPHOME="`eval echo ~"$FTPUSER"`"
+if test ! -d "$FTPHOME"; then
+    save_IFS="$IFS"
+    IFS=:
+    set -- `grep "^$FTPUSER:" /etc/passwd`	# Existence is known above.
+    IFS="$save_IFS"
+    if test ! -d "$6"; then
+	echo "The user '$FTPUSER' must have a home directory." >&2
+	exit 77
+    fi
+    FTPHOME="$6"
+fi
+
+if test -d "$FTPHOME" && test -r "$FTPHOME" && test -x "$FTPHOME"; then
+    :	# We have full access to anonymous' home directory.
+else
+    echo "Insufficient access for $FTPUSER's home directory." >&2
     exit 77
 fi
 
@@ -121,22 +138,63 @@ if test -z "$PORT"; then
 	fi
     done
     if test "$PORT" = 'none'; then
-	echo 'Our port allocation failed.  Skipping test.'
+	echo 'Our port allocation failed.  Skipping test.' >&2
 	exit 77
     fi
 fi
 
-echo "$PORT stream tcp4 nowait root $PWD/$FTPD ftpd -A -l" > $TMPDIR/inetd.conf
-echo "$PORT stream tcp6 nowait root $PWD/$FTPD ftpd -A -l" >> $TMPDIR/inetd.conf
-echo "machine $TARGET login ftp password foobar" > $TMPDIR/.netrc
-echo "machine $TARGET6 login ftp password foobar" >> $TMPDIR/.netrc
-echo "machine $TARGET46 login ftp password foobar" >> $TMPDIR/.netrc
+cat <<EOT > "$TMPDIR/inetd.conf"
+$PORT stream tcp4 nowait $USER $PWD/$FTPD ftpd -A -l
+$PORT stream tcp6 nowait $USER $PWD/$FTPD ftpd -A -l
+EOT
+
+cat <<EOT > "$TMPDIR/.netrc"
+machine $TARGET login $FTPUSER password foobar
+machine $TARGET6 login $FTPUSER password foobar
+machine $TARGET46 login $FTPUSER password foobar
+EOT
+
 chmod 600 $TMPDIR/.netrc
 
-$INETD --pidfile=$TMPDIR/inetd.pid $TMPDIR/inetd.conf
+$INETD --pidfile="$TMPDIR/inetd.pid" "$TMPDIR/inetd.conf"
 
 # Wait for inetd to write pid and open socket
 sleep 2
+
+# Test evaluation helper
+#
+# test_report  errno output_file hint_msg
+#
+test_report () {
+    test -z "${VERBOSE+yes}" || cat "$2"
+
+    if [ $1 != 0 ]; then
+	echo "Running '$FTP' failed with errno $1." >&2
+	exit 77
+    fi
+
+    # Did we get access?
+    if grep 'Login failed' "$2" >/dev/null 2>&1; then
+	echo "Failed login for access using '$3' FTP client." >&2
+	exit 1
+    fi
+
+    # Standing control connection?
+    if grep 'FTP server status' "$2" >/dev/null 2>&1; then
+	:
+    else
+	echo "Cannot find server status for '$3' FTP client?" >&2
+	exit 1
+    fi
+
+    # Was data transfer successful?
+    if grep '226 Transfer complete.' "$2" >/dev/null 2>&1; then
+	:
+    else
+	echo "Cannot find transfer result for '$3' FTP client?" >&2
+	exit 1
+    fi
+}
 
 # Test a passive connection: PASV and IPv4.
 #
@@ -145,32 +203,9 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -p -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
-errno=$?
-[ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-# Standing control connection?
-if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-    echo cannot find expected output for passive ftp client?
-    exit 1
-fi
-
-# Was data transfer successful?
-if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-    echo cannot find transfer result for passive ftp client?
-    exit 1
-fi
+test_report $? "$TMPDIR/ftp.stdout" "PASV/$TARGET"
 
 # Test an active connection: PORT and IPv4.
 #
@@ -179,32 +214,9 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -t >$TMPDIR/ftp.stdout 2>&1
 
-errno=$?
-[ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-# Standing control connection?
-if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-    echo cannot find expected output for active ftp client?
-    exit 1
-fi
-
-# Was data transfer successful?
-if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-    echo cannot find transfer result for active ftp client?
-    exit 1
-fi
+test_report $? "$TMPDIR/ftp.stdout" "PORT/$TARGET"
 
 # Test a passive connection: EPSV and IPv4.
 #
@@ -214,32 +226,9 @@ rstatus
 epsv4
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -p -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
-errno=$?
-[ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-# Standing control connection?
-if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-    echo cannot find expected output for passive ftp client?
-    exit 1
-fi
-
-# Was data transfer successful?
-if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-    echo cannot find transfer result for passive ftp client?
-    exit 1
-fi
+test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET"
 
 # Test an active connection: EPRT and IPv4.
 #
@@ -249,32 +238,9 @@ rstatus
 epsv4
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET $PORT -4 -v -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -t >$TMPDIR/ftp.stdout 2>&1
 
-errno=$?
-[ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-# Standing control connection?
-if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-    echo cannot find expected output for active ftp client?
-    exit 1
-fi
-
-# Was data transfer successful?
-if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-    echo cannot find transfer result for active ftp client?
-    exit 1
-fi
+test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET"
 
 # Test a passive connection: EPSV and IPv6.
 #
@@ -283,32 +249,9 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET6 $PORT -6 -v -p -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
-errno=$?
-[ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-# Standing control connection?
-if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-    echo cannot find expected output for passive ftp client?
-    exit 1
-fi
-
-# Was data transfer successful?
-if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-    echo cannot find transfer result for passive ftp client?
-    exit 1
-fi
+test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET6"
 
 # Test an active connection: EPRT and IPv6.
 #
@@ -317,32 +260,9 @@ cat <<STOP |
 rstatus
 dir
 STOP
-HOME=$TMPDIR $FTP $TARGET6 $PORT -6 -v -t >$TMPDIR/ftp.stdout
+HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -t >$TMPDIR/ftp.stdout 2>&1
 
-errno=$?
-[ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-if [ $errno != 0 ]; then
-    echo running ftp failed? errno $errno
-    exit 77
-fi
-
-# Standing control connection?
-if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-    echo cannot find expected output for active ftp client?
-    exit 1
-fi
-
-# Was data transfer successful?
-if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-    echo cannot find transfer result for active ftp client?
-    exit 1
-fi
+test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET6"
 
 # Availability of IPv4-mapped IPv6 addresses.
 #
@@ -358,16 +278,20 @@ have_address_mapping=false
 # OpenSolaris is known to allow address mapping
 test `uname -s` = 'SunOS' && have_address_mapping=true
 
-if ! $have_address_mapping; then
+if $have_address_mapping; then
+    :
+else
     # Do we have sysctl(1) available?
-    if ! which sysctl >/dev/null 2>&1; then
-	echo "Warning: Not testing IPv4-mapped addresses."
-    else
+    if which sysctl >/dev/null 2>&1; then
 	have_sysctl=true
+    else
+	echo "Warning: Not testing IPv4-mapped addresses." >&2
     fi
 fi
 
-if ! $have_address_mapping && $have_sysctl; then
+if $have_address_mapping; then
+    :
+elif $have_sysctl; then
     # Extract the present setting of
     #
     #    net.ipv6.bindv6only (Linux)
@@ -381,7 +305,7 @@ if ! $have_address_mapping && $have_sysctl; then
 	    # This is the good value.  Keep it.
 	    have_address_mapping=true
 	else
-	    echo "Warning: Address mapping IPv4-to-Ipv6 is disabled."
+	    echo "Warning: Address mapping IPv4-to-Ipv6 is disabled." >&2
 	    # Set a non-zero value for later testing.
 	    value_v6only=2
 	fi
@@ -401,32 +325,9 @@ if $have_address_mapping && test -n "$TARGET46" ; then
 	rstatus
 	dir
 	STOP
-    HOME=$TMPDIR $FTP $TARGET46 $PORT -6 -v -p -t >$TMPDIR/ftp.stdout
+    HOME=$TMPDIR $FTP "$TARGET46" $PORT -6 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
-    errno=$?
-    [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-    if [ $errno != 0 ]; then
-	echo running ftp failed? errno $errno
-	exit 77
-    fi
-
-    if [ $errno != 0 ]; then
-	echo running ftp failed? errno $errno
-	exit 77
-    fi
-
-    # Standing control connection?
-    if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-	echo cannot find expected output for passive ftp client?
-	exit 1
-    fi
-
-    # Was data transfer successful?
-    if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-	echo cannot find transfer result for passive ftp client?
-	exit 1
-    fi
+    test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET46"
 
     # Test an active connection: EPRT and IPvIPv6.
     #
@@ -435,32 +336,9 @@ if $have_address_mapping && test -n "$TARGET46" ; then
 	rstatus
 	dir
 	STOP
-    HOME=$TMPDIR $FTP $TARGET46 $PORT -6 -v -t >$TMPDIR/ftp.stdout
+    HOME=$TMPDIR $FTP "$TARGET46" $PORT -6 -v -t >$TMPDIR/ftp.stdout 2>&1
 
-    errno=$?
-    [ -z "$VERBOSE" ] || cat $TMPDIR/ftp.stdout
-
-    if [ $errno != 0 ]; then
-	echo running ftp failed? errno $errno
-	exit 77
-    fi
-
-    if [ $errno != 0 ]; then
-	echo running ftp failed? errno $errno
-	exit 77
-    fi
-
-    # Standing control connection?
-    if ! grep 'FTP server status' $TMPDIR/ftp.stdout; then
-	echo cannot find expected output for active ftp client?
-	exit 1
-    fi
-
-    # Was data transfer successful?
-    if ! grep '226 Transfer complete.' $TMPDIR/ftp.stdout; then
-	echo cannot find transfer result for active ftp client?
-	exit 1
-    fi
+    test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET46"
 else
     # The IPv4-as-IPv6 tests were not performed.
     echo 'Skipping two tests of IPv4 mapped as IPv6.'

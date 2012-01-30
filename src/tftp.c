@@ -303,9 +303,6 @@ resolve_name (char *name)
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = AI_CANONNAME;
-#ifdef AI_ADDRCONFIG
-  hints.ai_flags += AI_ADDRCONFIG;
-#endif
 
   err = getaddrinfo (name, "tftp", &hints, &aiptr);
   if (err)
@@ -343,7 +340,10 @@ resolve_name (char *name)
       memcpy (&peeraddr, ai->ai_addr, ai->ai_addrlen);
       connected = 1;
       free (hostname);
-      hostname = xstrdup (ai->ai_canonname);
+      if (ai->ai_canonname)
+	hostname = xstrdup (ai->ai_canonname);
+      else
+	hostname = xstrdup ("<dummy>");
       break;
     }
 
