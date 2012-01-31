@@ -74,6 +74,20 @@
 #  define DIR_DECRYPT		1
 #  define DIR_ENCRYPT		2
 
+/* Cope with variants of <arpa/telnet.h>.  */
+#  if !defined ENCTYPE_ANY && defined TELOPT_ENCTYPE_NULL
+#   define ENCTYPE_ANY TELOPT_ENCTYPE_NULL
+#  endif
+#  if !defined ENCTYPE_DES_CFB64 && defined TELOPT_ENCTYPE_DES_CFB64
+#   define ENCTYPE_DES_CFB64 TELOPT_ENCTYPE_DES_CFB64
+#  endif
+#  if !defined ENCTYPE_DES_OFB64 && defined TELOPT_ENCTYPE_DES_OFB64
+#   define ENCTYPE_DES_OFB64 TELOPT_ENCTYPE_DES_OFB64
+#  endif
+#  if !defined ENCTYPE_CNT && defined TELOPT_ENCTYPE_CNT
+#   define ENCTYPE_CNT TELOPT_ENCTYPE_CNT
+#  endif
+
 typedef unsigned char Block[8];
 typedef unsigned char *BlockT;
 typedef struct
@@ -81,8 +95,10 @@ typedef struct
   Block _;
 } Schedule[16];
 
-#  define VALIDKEY(key)	( key[0] | key[1] | key[2] | key[3] | \
-			  key[4] | key[5] | key[6] | key[7])
+#  ifndef VALIDKEY
+#   define VALIDKEY(key)	( key[0] | key[1] | key[2] | key[3] | \
+				  key[4] | key[5] | key[6] | key[7])
+#  endif
 
 #  define SAMEKEY(k1, k2)	(!memcmp ((void *) k1, (void *) k2, sizeof (Block)))
 

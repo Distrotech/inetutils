@@ -105,8 +105,15 @@ static char *Name = "Noname";
 
 # define typemask(x)	((x) > 0 ? 1 << ((x)-1) : 0)
 
+/* Only the type ENCTYPE_DES_CFB64 seems universal.  */
+# ifdef ENCTYPE_DES_OFB64
 static long i_support_encrypt = typemask (ENCTYPE_DES_CFB64) | typemask (ENCTYPE_DES_OFB64);
 static long i_support_decrypt = typemask (ENCTYPE_DES_CFB64) | typemask (ENCTYPE_DES_OFB64);
+# else /* !ENCTYPE_DES_OFB64 */
+static long i_support_encrypt = typemask (ENCTYPE_DES_CFB64);
+static long i_support_decrypt = typemask (ENCTYPE_DES_CFB64);
+# endif /* !ENCTYPE_DES_OFB64 */
+
 static long i_wont_support_encrypt = 0;
 static long i_wont_support_decrypt = 0;
 # define I_SUPPORT_ENCRYPT	(i_support_encrypt & ~i_wont_support_encrypt)
@@ -127,6 +134,7 @@ static Encryptions encryptions[] = {
    cfb64_session,
    cfb64_keyid,
    cfb64_printsub},
+#  ifdef ENCTYPE_DES_OFB64
   {"DES_OFB64", ENCTYPE_DES_OFB64,
    ofb64_encrypt,
    ofb64_decrypt,
@@ -137,6 +145,7 @@ static Encryptions encryptions[] = {
    ofb64_session,
    ofb64_keyid,
    ofb64_printsub},
+#  endif /* ENCTYPE_DES_OFB64 */
 # endif	/* DES_ENCRYPTION */
   {0,},
 };

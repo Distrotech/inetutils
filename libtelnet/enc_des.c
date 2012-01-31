@@ -167,6 +167,7 @@ cfb64_init (server)
   fb[CFB].streams[1].str_flagshift = SHIFT_VAL (1, CFB);
 }
 
+#   ifdef ENCTYPE_DES_OFB64
 void
 ofb64_init (server)
      int server;
@@ -176,6 +177,7 @@ ofb64_init (server)
   fb[CFB].streams[0].str_flagshift = SHIFT_VAL (0, OFB);
   fb[CFB].streams[1].str_flagshift = SHIFT_VAL (1, OFB);
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 
 void
 fb64_init (fbp)
@@ -205,6 +207,7 @@ cfb64_start (dir, server)
   return (fb64_start (&fb[CFB], dir, server));
 }
 
+#   ifdef ENCTYPE_DES_OFB64
 int
 ofb64_start (dir, server)
      int dir;
@@ -212,6 +215,7 @@ ofb64_start (dir, server)
 {
   return (fb64_start (&fb[OFB], dir, server));
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 
 static int
 fb64_start (fbp, dir, server)
@@ -298,6 +302,7 @@ cfb64_is (data, cnt)
   return (fb64_is (data, cnt, &fb[CFB]));
 }
 
+#   ifdef ENCTYPE_DES_OFB64
 int
 ofb64_is (data, cnt)
      unsigned char *data;
@@ -305,6 +310,7 @@ ofb64_is (data, cnt)
 {
   return (fb64_is (data, cnt, &fb[OFB]));
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 
 int
 fb64_is (data, cnt, fbp)
@@ -393,6 +399,7 @@ cfb64_reply (data, cnt)
   return (fb64_reply (data, cnt, &fb[CFB]));
 }
 
+#   ifdef ENCTYPE_DES_OFB64
 int
 ofb64_reply (data, cnt)
      unsigned char *data;
@@ -400,6 +407,7 @@ ofb64_reply (data, cnt)
 {
   return (fb64_reply (data, cnt, &fb[OFB]));
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 
 
 int
@@ -455,6 +463,7 @@ cfb64_session (key, server)
   fb64_session (key, server, &fb[CFB]);
 }
 
+#   ifdef ENCTYPE_DES_OFB64
 void
 ofb64_session (key, server)
      Session_Key *key;
@@ -462,6 +471,7 @@ ofb64_session (key, server)
 {
   fb64_session (key, server, &fb[OFB]);
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 
 static void
 fb64_session (key, server, fbp)
@@ -517,6 +527,7 @@ cfb64_keyid (dir, kp, lenp)
   return (fb64_keyid (dir, kp, lenp, &fb[CFB]));
 }
 
+#   ifdef ENCTYPE_DES_OFB64
 int
 ofb64_keyid (dir, kp, lenp)
      int dir, *lenp;
@@ -524,6 +535,7 @@ ofb64_keyid (dir, kp, lenp)
 {
   return (fb64_keyid (dir, kp, lenp, &fb[OFB]));
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 
 int
 fb64_keyid (dir, kp, lenp, fbp)
@@ -600,6 +612,7 @@ cfb64_printsub (data, cnt, buf, buflen)
   fb64_printsub (data, cnt, buf, buflen, "CFB64");
 }
 
+#   ifdef ENCTYPE_DES_OFB64
 void
 ofb64_printsub (data, cnt, buf, buflen)
      unsigned char *data, *buf;
@@ -607,6 +620,7 @@ ofb64_printsub (data, cnt, buf, buflen)
 {
   fb64_printsub (data, cnt, buf, buflen, "OFB64");
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 
 void
 fb64_stream_iv (seed, stp)
@@ -750,6 +764,7 @@ cfb64_decrypt (data)
  *	V(n+1) = DES(Vn, key)
  *	On = Dn ^ Vn
  */
+#   ifdef ENCTYPE_DES_OFB64
 void
 ofb64_encrypt (s, c)
      register unsigned char *s;
@@ -764,12 +779,12 @@ ofb64_encrypt (s, c)
       if (index == sizeof (Block))
 	{
 	  Block b;
-#   ifdef SHISHI
+#    ifdef SHISHI
 	  shishi_des_ecb_encrypt (shishi_handle, fb[OFB].krbdes_key,
 				  stp->str_feed, b);
-#   else
+#    else
 	  des_ecb_encrypt (stp->str_feed, b, stp->str_sched, 1);
-#   endif
+#    endif
 	  memmove ((void *) stp->str_feed, (void *) b, sizeof (Block));
 	  index = 0;
 	}
@@ -802,12 +817,12 @@ ofb64_decrypt (data)
   if (index == sizeof (Block))
     {
       Block b;
-#   ifdef SHISHI
+#    ifdef SHISHI
       shishi_des_ecb_encrypt (shishi_handle, fb[OFB].krbdes_key,
 			      stp->str_feed, b);
-#   else
+#    else
       des_ecb_encrypt (stp->str_feed, b, stp->str_sched, 1);
-#   endif
+#    endif
       memmove ((void *) stp->str_feed, (void *) b, sizeof (Block));
       stp->str_index = 1;	/* Next time will be 1 */
       index = 0;		/* But now use 0 */
@@ -815,6 +830,7 @@ ofb64_decrypt (data)
 
   return (data ^ stp->str_feed[index]);
 }
+#   endif /* ENCTYPE_DES_OFB64 */
 #  endif /* DES_ENCRYPTION */
 # endif	/* AUTHENTICATION */
 #endif /* ENCRYPTION */

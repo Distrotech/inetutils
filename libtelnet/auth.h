@@ -70,11 +70,22 @@
 #ifndef __AUTH__
 # define __AUTH__
 
-# define AUTH_REJECT	0	/* Rejected */
-# define AUTH_UNKNOWN	1	/* We don't know who he is, but he's okay */
-# define AUTH_OTHER	2	/* We know him, but not his name */
-# define AUTH_USER	3	/* We know he name */
-# define AUTH_VALID	4	/* We know him, and he needs no password */
+/* These might be defined in <arpa/telnet.h>.  */
+# ifndef AUTH_REJECT
+#  define AUTH_REJECT	0	/* Rejected */
+# endif
+# ifndef AUTH_UNKNOWN
+#  define AUTH_UNKNOWN	1	/* We don't know who he is, but he's okay */
+# endif
+# ifndef AUTH_OTHER
+#  define AUTH_OTHER	2	/* We know him, but not his name */
+# endif
+# ifndef AUTH_USER
+#  define AUTH_USER	3	/* We know the name */
+# endif
+# ifndef AUTH_VALID
+#  define AUTH_VALID	4	/* We know him, and he needs no password */
+# endif
 
 typedef struct XauthP
 {

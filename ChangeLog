@@ -1,5 +1,29 @@
 2012-01-31  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* libinetutils/kcmd.c: Include <fcntl.h>.
+	* libtelnet/auth.h [!AUTH_REJECT] (AUTH_REJECT): Protect `#define'.
+	[!AUTH_UNKNOWN] (AUTH_UNKNOWN): Likewise.
+	[!AUTH_OTHER] (AUTH_OTHER): Likewise.
+	[!AUTH_USER] (AUTH_USER): Likewise.
+	[!AUTH_VALID] (AUTH_VALID): Likewise.
+	* libtelnet/enc_des.c [ENCTYPE_DES_OFB64] (ofb64_init, ofb64_start)
+	(ofb64_is, ofb64_reply, ofb64_session, ofb64_keyid, ofb64_printsub)
+	(ofb64_encrypt, ofb64_decrypt): Protect definitions.
+	* libtelnet/encrypt.c [ENCTYPE_DES_OFB64] (i_support_encrypt)
+	(i_support_decrypt): Add ENCTYPE_DES_OFB64 only if existing,
+	otherwise only ENCTYPE_DES_CFB64.
+	(encryptions) [ENCTYPE_DES_OFB64]: Conditional use of OFB64 calls.
+	* libtelnet/encrypt.h [!ENCTYPE_ANY && TELOPT_ENCTYPE_NULL]
+	(ENCTYPE_ANY): Use alternate macro.
+	[!ENCTYPE_DES_CFB64 && TELOPT_ENCTYPE_DES_CFB64]
+	(ENCTYPE_DES_CFB64): Likewise
+	[!ENCTYPE_DES_OFB64 && TELOPT_ENCTYPE_DES_OFB64]
+	(ENCTYPE_DES_OFB64): Likewise.
+	[!ENCTYPE_CNT && TELOPT_ENCTYPE_CNT] (ENCTYPE_CNT): Likewise.
+	[!VALIDKEY] (VALIDKEY): Protect `#define'.
+
+2012-01-31  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* src/tftp.c (resolve_name): Do not use AI_ADDRCONFIG at all.
 	Assign HOSTNAME with `ai->ai_canonname' only if it has contents,
 	otherwise assign `<dummy>', which is very unlikely.
