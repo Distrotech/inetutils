@@ -1,5 +1,25 @@
 2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* configure.ac: Check for typedefs `Schedule' and `Session_Key'
+	in <arpa/telnet.h>.
+	* libinetutils/des_rw.c [ENCRYPTION && KERBEROS && !MIN] (MIN):
+	Define missing macro.
+	[ENCRYPTION && KERBEROS && !roundup] (roundup): Likewise.
+	* libinetutils/kcmd.c (kcmd) [HAVE_SIGACTION]:  Use modern signal
+	handling.  New variables SIGS and OSIGS.
+	* libtelnet/auth.c [AUTHENTICATION] (AUTHTYPE_NAMES): New macro,
+	needed by OpenSolaris to fill in `authtype_names' by <arpa/telnet.h>.
+	* libtelnet/encrypt.h [ENCRYPTION && !HAVE_ARPA_TELNET_H_SCHEDULE]:
+	Typedef for `Schedule' is conditional.
+	[ENCRYPTION && !HAVE_ARPA_TELNET_H_SESSION_KEY]: Typedef for
+	`Session_Key' is conditional.
+	* libtelnet/misc.c: Include <arpa/telnet.h>.
+	* src/rlogind.c [KERBEROS && ENCRYPTION] (ENC_WRITE): Define macro
+	using correct name.
+	* src/rshd.c [!MAX] (MAX): Define missing macro.
+
+2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Detect and protect header files for Kerberos support.
 	* configure.ac: Check for <com_err.h>, <kerberosIV/des.h>,
 	<kerberosIV/krb.h>, <kerberosV/krb5.h>, <krb5.h>, <krb5/asn1.h>,

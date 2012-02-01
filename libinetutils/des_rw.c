@@ -65,6 +65,13 @@
 #  include <time.h>
 #  include <unistd.h>
 
+#  ifndef MIN
+#   define MIN(a,b)	(((a)<(b))? (a):(b))
+#  endif
+#  ifndef roundup
+#   define roundup(x, y)   ((((x)+((y)-1))/(y))*(y))
+#  endif
+
 static unsigned char des_inbuf[10240], storage[10240], *store_ptr;
 static bit_64 *key;
 static unsigned char *key_schedule;

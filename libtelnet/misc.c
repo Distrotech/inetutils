@@ -50,6 +50,7 @@
 #include <config.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <arpa/telnet.h>
 
 #include "auth.h"
 #include "encrypt.h"

@@ -231,7 +231,7 @@ rlogind_sigchld (int sig)
      c = des_read(fd, buf, size); \
  else \
      c = read(fd, buf, size);
-# define EN_WRITE(c, fd, buf, size, ap) \
+# define ENC_WRITE(c, fd, buf, size, ap) \
  if (encrypt_io) \
      c = des_write(fd, buf, size); \
  else \

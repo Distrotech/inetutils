@@ -106,7 +106,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # endif
 {
   int s, timo = 1, pid;
+# ifdef HAVE_SIGACTION
+  sigset_t sigs, osigs;
+# else
   long oldmask;
+# endif /* !HAVE_SIGACTION */
   struct sockaddr_in sin, from;
   char c;
 
@@ -142,7 +146,13 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
     realm = krb_realmofhost (host_save);
 # endif	/* KERBEROS */
 
+# ifdef HAVE_SIGACTION
+  sigemptyset (&sigs);
+  sigaddset (&sigs, SIGURG);
+  sigprocmask (SIG_BLOCK, &sigs, &osigs);
+# else
   oldmask = sigblock (sigmask (SIGURG));
+# endif /* !HAVE_SIGACTION */
   for (;;)
     {
       s = getport (&lport);
@@ -152,7 +162,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	    fprintf (stderr, "kcmd(socket): All ports in use\n");
 	  else
 	    perror ("kcmd: socket");
+# if HAVE_SIGACTION
+	  sigprocmask (SIG_SETMASK, &osigs, NULL);
+# else
 	  sigsetmask (oldmask);
+# endif /* !HAVE_SIGACTION */
 	  return (-1);
 	}
       fcntl (s, F_SETOWN, pid);
@@ -195,7 +209,12 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # endif	/* !(defined(ultrix) || defined(sun)) */
       if (errno != ECONNREFUSED)
 	perror (hp->h_name);
+
+# if HAVE_SIGACTION
+      sigprocmask (SIG_SETMASK, &osigs, NULL);
+# else
       sigsetmask (oldmask);
+# endif /* !HAVE_SIGACTION */
 
       return (-1);
     }
@@ -326,7 +345,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
       status = -1;
       goto bad2;
     }
+# if HAVE_SIGACTION
+  sigprocmask (SIG_SETMASK, &osigs, NULL);
+# else
   sigsetmask (oldmask);
+# endif /* !HAVE_SIGACTION */
   *sock = s;
 # if defined KERBEROS
   return (KSUCCESS);
@@ -338,7 +361,11 @@ bad2:
     close (*fd2p);
 bad:
   close (s);
+# if HAVE_SIGACTION
+  sigprocmask (SIG_SETMASK, &osigs, NULL);
+# else
   sigsetmask (oldmask);
+# endif /* !HAVE_SIGACTION */
   return (status);
 }
 

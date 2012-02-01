@@ -693,6 +693,16 @@ AC_CHECK_DECLS(telopts, , ,
   [IU_FLUSHLEFT([#undef TELOPTS
                  #include <arpa/telnet.h>])])
 
+dnl OpenSolaris provides Schedule and Session_Key.
+AC_CHECK_TYPE(Schedule,
+  AC_DEFINE([HAVE_ARPA_TELNET_H_SCHEDULE], 1,
+	    [Define to one if <arpa/telnet.h> defines a type Schedule.]), ,
+  [#include <arpa/telnet.h>])
+AC_CHECK_TYPE(Session_Key,
+  AC_DEFINE([HAVE_ARPA_TELNET_H_SESSION_KEY], 1,
+	    [Define to 1 if <arpa/telnet.h> defines a type Session_Key.]), ,
+  [#include <arpa/telnet.h>])
+
 ## Checks for function declarations.
 
 AC_DECL_SYS_SIGLIST

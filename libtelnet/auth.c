@@ -76,6 +76,7 @@
 # include <sys/types.h>
 # include <signal.h>
 # define AUTH_NAMES
+# define AUTHTYPE_NAMES		/* Needed by Solaris.  */
 # include <arpa/telnet.h>
 # include <stdlib.h>
 # ifdef	NO_STRING_H

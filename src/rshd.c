@@ -111,6 +111,10 @@
 # include <shishi_def.h>
 #endif
 
+#ifndef MAX
+# define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
 int keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
 int check_all;
 int log_success;		/* If TRUE, log all successful accesses */
