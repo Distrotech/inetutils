@@ -97,6 +97,20 @@
 #include <argp.h>
 #include <libinetutils.h>
 
+#ifdef KERBEROS
+# ifdef HAVE_KERBEROSIV_DES_H
+#  include <kerberosIV/des.h>
+# endif
+# ifdef HAVE_KERBEROSIV_KRB_H
+#  include <kerberosIV/krb.h>
+# endif
+#endif /* KERBEROS */
+
+#ifdef SHISHI
+# include <shishi.h>
+# include <shishi_def.h>
+#endif
+
 int keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
 int check_all;
 int log_success;		/* If TRUE, log all successful accesses */
@@ -110,14 +124,10 @@ const char *topdomain (const char *);
 
 #if defined KERBEROS || defined SHISHI
 # ifdef KERBEROS
-#  include <kerberosIV/des.h>
-#  include <kerberosIV/krb.h>
 Key_schedule schedule;
 char authbuf[sizeof (AUTH_DAT)];
 char tickbuf[sizeof (KTEXT_ST)];
 # elif defined(SHISHI)
-#  include <shishi.h>
-#  include <shishi_def.h>
 Shishi *h;
 Shishi_ap *ap;
 Shishi_key *enckey;

@@ -488,8 +488,11 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
 
-AC_CHECK_HEADERS([arpa/nameser.h des.h errno.h fcntl.h features.h glob.h \
-                  krb.h memory.h netinet/in_systm.h netinet/ip.h \
+AC_CHECK_HEADERS([arpa/nameser.h com_err.h des.h errno.h fcntl.h features.h \
+		  glob.h kerberosIV/des.h kerberosIV/krb.h kerberosV/krb5.h \
+		  krb.h krb5.h krb5/asn1.h krb5/crc-32.h krb5/ext-proto.h \
+		  krb5/krb5.h krb5/los-proto.h \
+		  memory.h netinet/in_systm.h netinet/ip.h \
                   netinet/ip_icmp.h netinet/ip_var.h \
 		  security/pam_appl.h \
                   shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \

@@ -102,8 +102,12 @@ int susystem (char *, int);
 void verifydir (char *);
 
 #ifdef KERBEROS
-# include <kerberosIV/des.h>
-# include <kerberosIV/krb.h>
+# ifdef HAVE_KERBEROSIV_DES_H
+#  include <kerberosIV/des.h>
+# endif
+# ifdef HAVE_KERBEROSIV_KRB_H
+#  include <kerberosIV/krb.h>
+# endif
 
 char *dest_realm = NULL;
 int use_kerberos = 1;

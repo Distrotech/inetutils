@@ -102,14 +102,22 @@
 #if defined KERBEROS || defined SHISHI
 # ifdef	KRB4
 #  define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
-#  include <kerberosIV/des.h>
-#  include <kerberosIV/krb.h>
+#  ifdef HAVE_KERBEROSIV_DES_H
+#   include <kerberosIV/des.h>
+#  endif
+#  ifdef HAVE_KERBEROSIV_KRB_H
+#   include <kerberosIV/krb.h>
+#  endif
 #  define kerberos_error_string(c) krb_err_txt[c]
 #  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_4
 # elif defined(KRB5)
 #  define SECURE_MESSAGE "This rlogin session is using DES encryption for all transmissions.\r\n"
-#  include <krb5.h>
-#  include <kerberosIV/krb.h>
+#  ifdef HAVE_KRB5_H
+#   include <krb5.h>
+#  endif
+#  ifdef HAVE_KERBEROSIV_KRB_H
+#   include <kerberosIV/krb.h>
+#  endif
 #  define kerberos_error_string(c) error_message (c)
 #  define AUTH_KERBEROS_DEFAULT AUTH_KERBEROS_5
 # elif defined(SHISHI)

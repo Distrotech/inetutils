@@ -24,10 +24,14 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include <arpa/telnet.h>
-# include <krb5.h>
+# ifdef HAVE_KRB5_H
+#  include <krb5.h>
+# endif
 # include <assert.h>
 
-# include <com_err.h>
+# ifdef HAVE_COM_ERR_H
+#  include <com_err.h>
+# endif
 # include <netdb.h>
 # include <ctype.h>
 # include <syslog.h>

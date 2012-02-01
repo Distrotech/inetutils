@@ -78,6 +78,20 @@
 #include <argp.h>
 #include <libinetutils.h>
 
+#ifdef KERBEROS
+# ifdef HAVE_KERBEROSIV_DES_H
+#  include <kerberosIV/des.h>
+# endif
+# ifdef KERBEROSIV_KRB_H
+#  include <kerberosIV/krb.h>
+# endif
+#endif /* KERBEROS */
+
+#ifdef SHISHI
+# include <shishi.h>
+# include "shishi_def.h"
+#endif
+
 int debug_option = 0;
 int null_input_option = 0;
 char *user = NULL;
@@ -85,16 +99,12 @@ char *user = NULL;
 #if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
 # ifdef KERBEROS
-#  include <kerberosIV/des.h>
-#  include <kerberosIV/krb.h>
 char *dest_realm = NULL;
 CREDENTIALS cred;
 Key_schedule schedule;
 extern char *krb_realmofhost ();
 
 # elif defined(SHISHI)
-#  include <shishi.h>
-#  include "shishi_def.h"
 char *dest_realm = NULL;
 
 Shishi *h;
@@ -106,8 +116,8 @@ int keytype;
 int keylen;
 int rc;
 int wlen;
-# endif
-#endif /* KERBEROS */
+# endif /* SHISHI */
+#endif /* KERBEROS || SHISHI */
 
 /*
  * rsh - remote shell

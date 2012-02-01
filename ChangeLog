@@ -1,3 +1,43 @@
+2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Detect and protect header files for Kerberos support.
+	* configure.ac: Check for <com_err.h>, <kerberosIV/des.h>,
+	<kerberosIV/krb.h>, <kerberosV/krb5.h>, <krb5.h>, <krb5/asn1.h>,
+	<krb5/crc-32.h>, <krb5/ext-proto.h>, <krb5/krb5.h>, <krb5/los-proto.h>.
+
+	* libinetutils/des_rw.c
+	[ENCRYPTION && KERBEROS && HAVE_KERBEROSIV_DES_H]:
+	Include <kerberosIV/des.h>.
+	[ENCRYPTION && KERBEROS && HAVE_KERBEROSIV_KRB_H]:
+	Include <kerberosIV/krb.h>.
+	* libinetutils/kcmd.c, libinetutils/krcmd.c
+	[KERBEROS && HAVE_KERBEROSIV_DES_H]: Include <kerberosIV/des.h>.
+	[KERBEROS && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
+	* libtelnet/forward.c [KRB5 && FORWARD && HAVE_KRB5_KRB5_H]:
+	Include <krb5/krb5.h>.
+	[KRB5 && FORWARD && HAVE_KRB5_ASN1_H]: Include <krb5/asn1.h>.
+	[KRB5 && FORWARD && HAVE_KRB5_CRC_32_H]: Include <krb5/crc-32.h>.
+	[KRB5 && FORWARD && HAVE_KRB5_LOS_PROTO_H]: Include <krb5/los-proto.h>.
+	[KRB5 && FORWARD && HAVE_KRB5_EXT_PROTO_H]: Include <krb5/ext-proto.h>.
+	* libtelnet/kerberos.c [KRB4 && HAVE_DES_H]: Include <des.h>.
+	[KRB4 && HAVE_KRB_H]: Include <krb.h>.
+	* libtelnet/kerberos5.c [KRB5 && HAVE_KRB5_H]: Include <krb5.h>.
+	[KRB5 && HAVE_COM_ERR_H]: Include <com_err.h>.
+	* src/rcp.c
+	[KERBEROS && HAVE_KERBEROSIV_DES_H]: Include <kerberosIV/des.h>.
+	[KERBEROS && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
+	* src/rlogin.c: Likewise.
+	[SHISHI]: Do inclusions independently of conditional code.
+	* src/rlogind.c [KERBEROS && KRB4 && HAVE_KERBEROSIV_DES_H]: Include
+	<kerberosIV/des.h>.
+	[KERBEROS && KRB4 && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
+	[KERBEROS && KRB5 && HAVE_KRB5_H]: Include <krb5.h>.
+	[KERBEROS && KRB5 && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
+	* src/rsh.c, src/rshd.c [KERBEROS && HAVE_KERBEROSIV_DES_H]: Include
+	<kerberosIV/des.h>.
+	[KERBEROS && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
+	[SHISHI]: Do inclusions independently of conditional code.
+
 2012-01-31  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* libinetutils/kcmd.c: Include <fcntl.h>.

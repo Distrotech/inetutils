@@ -104,22 +104,29 @@
 #include "libinetutils.h"
 #include "unused-parameter.h"
 
+#ifdef KERBEROS
+# ifdef HAVE_KERBEROSIV_DES_H
+#  include <kerberosIV/des.h>
+# endif
+# ifdef HAVE_KERBEROSIV_KRB_H
+#  include <kerberosIV/krb.h>
+# endif
+#endif /* KERBEROS */
+
 #ifdef SHISHI
+# include <shishi.h>
+# include "shishi_def.h"
 # define REALM_SZ 1040
 #endif
 
 #if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
 # ifdef KERBEROS
-#  include <kerberosIV/des.h>
-#  include <kerberosIV/krb.h>
 char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
 CREDENTIALS cred;
 Key_schedule schedule;
 
 # elif defined(SHISHI)
-#  include <shishi.h>
-#  include "shishi_def.h"
 char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
 
 Shishi *handle;
@@ -131,8 +138,8 @@ int keytype;
 int keylen;
 int rc;
 int wlen;
-# endif
-#endif /* KERBEROS */
+# endif /* SHISHI */
+#endif /* KERBEROS || SHISHI */
 
 /*
   The TIOCPKT_* macros may not be implemented in the pty driver.

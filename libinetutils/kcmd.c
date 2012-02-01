@@ -61,8 +61,12 @@
 # include <arpa/inet.h>
 
 # if defined KERBEROS
-#  include <kerberosIV/des.h>
-#  include <kerberosIV/krb.h>
+#  ifdef HAVE_KERBEROSIV_DES_H
+#   include <kerberosIV/des.h>
+#  endif
+#  ifdef HAVE_KERBEROSIV_KRB_H
+#   include <kerberosIV/krb.h>
+#  endif
 # elif defined(SHISHI)
 #  include <shishi.h>
 #  include "shishi_def.h"

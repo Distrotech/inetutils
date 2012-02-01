@@ -57,11 +57,21 @@
 # include <pwd.h>
 # include <netdb.h>
 
-# include <krb5/krb5.h>
-# include <krb5/asn1.h>
-# include <krb5/crc-32.h>
-# include <krb5/los-proto.h>
-# include <krb5/ext-proto.h>
+# ifdef HAVE_KRB5_KRB5_H
+#  include <krb5/krb5.h>
+# endif
+# ifdef HAVE_KRB5_ASN1_H
+#  include <krb5/asn1.h>
+# endif
+# ifdef HAVE_KRB5_CRC_32_H
+#  include <krb5/crc-32.h>
+# endif
+# ifdef HAVE_KRB5_LOS_PROTO_H
+#  include <krb5/los-proto.h>
+# endif
+# ifdef HAVE_KRB5_EXT_PROTO_H
+#  include <krb5/ext-proto.h>
+# endif
 
 # define KRB5_DEFAULT_LIFE 60*60*8	/* 8 hours */
 /* helper function: convert flags to necessary KDC options */

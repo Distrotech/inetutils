@@ -53,8 +53,12 @@
 # ifdef KERBEROS
 #  include <sys/param.h>
 
-#  include <kerberosIV/des.h>
-#  include <kerberosIV/krb.h>
+#  ifdef HAVE_KERBEROSIV_DES_H
+#   include <kerberosIV/des.h>
+#  endif
+#  ifdef HAVE_KERBEROSIV_KRB_H
+#   include <kerberosIV/krb.h>
+#  endif
 
 #  include <stdlib.h>
 #  include <string.h>

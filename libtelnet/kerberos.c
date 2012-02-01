@@ -73,8 +73,12 @@
 # include <sys/types.h>
 # include <arpa/telnet.h>
 # include <stdio.h>
-# include <des.h>		/* BSD wont include this in krb.h, so we do it here */
-# include <krb.h>
+# ifdef HAVE_DES_H
+#  include <des.h>		/* BSD wont include this in krb.h, so we do it here */
+# endif
+# ifdef HAVE_KRB_H
+#  include <krb.h>
+# endif
 # include <stdlib.h>
 # include <string.h>
 
