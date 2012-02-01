@@ -53,6 +53,7 @@ PWD="${PWD:-`pwd`}"
 do_cleandir=false
 do_socket_length=true
 do_unix_socket=true
+do_inet_socket=true
 
 # The UNIX socket name length is preset by the system
 # and is also system dependent.
@@ -250,6 +251,7 @@ if [ `id -u` -ne 0 ]; then
 	WARNING!!  Disabling INET server tests since you seem
 	to be underprivileged.
 	EOT
+    do_inet_socket=false
 else
     # Is the INET port already in use? If so,
     # skip the test in its entirety.
@@ -266,7 +268,7 @@ else
 		The INET port $PORT/$PROTO is already in use.
 		No reliable test of INET socket is possible.
 	EOT
-	exit 77
+	do_inet_socket=false
     fi
 fi
 
@@ -307,8 +309,8 @@ if $do_socket_length; then
     IU_OPTIONS="$IU_OPTIONS -a '$IU_LONG_SOCKET' -a '$IU_EXCESSIVE_SOCKET'"
 fi
 
-## Enable INET service when running as root.
-if [ `id -u` -eq 0 ]; then
+## Enable INET service when possible.
+if $do_inet_socket; then
     IU_OPTIONS="$IU_OPTIONS --ipany --inet --hop"
 fi
 ## Bring in additional options from command line.
@@ -369,7 +371,7 @@ if $do_socket_length; then
 	-t "$TAG" "Sending via long socket name. (pid $$)"
 fi
 
-if [ `id -u` -eq 0 ]; then
+if $do_inet_socket; then
     TESTCASES=`expr $TESTCASES + 2`
     $LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
 	"Sending IPv4 message. (pid $$)"
@@ -393,6 +395,9 @@ if [ -n "${VERBOSE+yes}" ]; then
 fi
 
 echo "Registered $SUCCESSES successes out of $TESTCASES."
+
+# Report incomplete test setup.
+$do_inet_socket || echo 'NOTICE: No INET socket tests were performed.' >&2
 
 if [ "$SUCCESSES" -eq "$TESTCASES" ]; then
     echo "Successful testing."

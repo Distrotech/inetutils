@@ -130,14 +130,18 @@ fi
 # name because `inetd' chdirs to `/' in daemon mode; ditto for
 # $INETD_CONF.  Thus the dependency on file locations will be
 # identical in daemon-mode and in debug-mode.
-cat > "$INETD_CONF" <<EOF
-$PORT dgram ${PROTO}4 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
-$PORT dgram ${PROTO}6 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
-EOF
+write_conf () {
+    cat > "$INETD_CONF" <<-EOF
+	$PORT dgram ${PROTO}4 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
+	$PORT dgram ${PROTO}6 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
+	EOF
+}
+
+write_conf
 
 # Launch `inetd', assuming it's reachable at all $ADDRESSES.
 $INETD ${VERBOSE+-d} -p"$INETD_PID" "$INETD_CONF" &
-sleep 1
+sleep 2
 inetd_pid="`cat $INETD_PID`"
 
 test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
@@ -150,8 +154,26 @@ locate_port $PROTO $PORT
 if test $? -ne 0; then
     # No it did not.
     ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid" 2>/dev/null
-    echo "Failed in starting correct Inetd instance." >&2
-    exit 1
+    echo 'First attempt at starting Inetd has failed.' >&2
+    echo 'A new attempt will follow after some delay.' >&2
+    echo 'Increasing verbosity for better backtrace.' >&2
+    sleep 7
+
+    # Select a new port, with offset and some randomness.
+    PORT=`expr $PORT + 137 + \( ${RANDOM:-$$} % 517 \)`
+    write_conf
+
+    $INETD -d -p"$INETD_PID" "$INETD_CONF" &
+    sleep 2
+    inetd_pid="`cat $INETD_PID`"
+    echo "Launched Inetd as process $inetd_pid." >&2
+
+    if locate_port $PROTO $PORT; then
+	: # Successful this time.
+    else
+	echo "Failed again at starting correct Inetd instance." >&2
+	exit 1
+    fi
 fi
 
 if [ -r /dev/urandom ]; then

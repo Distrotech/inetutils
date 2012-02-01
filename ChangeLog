@@ -1,3 +1,10 @@
+2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/syslogd.sh (do_inet_socket): New variable.
+	<port is busy>: Continue, but disable INET test.  Issue a notice.
+	* tests/tftp.sh (write_conf): New function.
+	<failed inetd launch>: Make a second start attempt, with new port.
+
 2012-02-01  Guillem Jover  <guillem@hadrons.org>
 
 	* src/Makefile.am (LDADD): Set to minimal, common value.
