@@ -21,6 +21,8 @@
 inetdaemondir = @inetdaemondir@
 
 # Initialise variables.
+LDADD = $(iu_LIBRARIES) $(LIBUTIL)
+
 inetdaemon_PROGRAMS =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
@@ -36,6 +38,7 @@ EXTRA_PROGRAMS += logger
 
 bin_PROGRAMS += @rcp_BUILD@
 rcp_SOURCES = rcp.c
+rcp_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rcp
 
 bin_PROGRAMS += @rexec_BUILD@
@@ -44,10 +47,12 @@ EXTRA_PROGRAMS += rexec
 
 bin_PROGRAMS += @rlogin_BUILD@
 rlogin_SOURCES = rlogin.c
+rlogin_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rlogin
 
 bin_PROGRAMS += @rsh_BUILD@
 rsh_SOURCES = rsh.c
+rsh_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rsh
 
 bin_PROGRAMS += @tftp_BUILD@
@@ -56,6 +61,7 @@ EXTRA_PROGRAMS += tftp
 
 bin_PROGRAMS += @traceroute_BUILD@
 traceroute_SOURCES = traceroute.c
+traceroute_LDADD = $(top_builddir)/libicmp/libicmp.a $(LDADD)
 EXTRA_PROGRAMS += traceroute
 
 inetdaemon_PROGRAMS += @inetd_BUILD@
@@ -64,14 +70,17 @@ EXTRA_PROGRAMS += inetd
 
 inetdaemon_PROGRAMS += @rexecd_BUILD@
 rexecd_SOURCES = rexecd.c
+rexecd_LDADD = $(LDADD) $(LIBCRYPT)
 EXTRA_PROGRAMS += rexecd
 
 inetdaemon_PROGRAMS += @rlogind_BUILD@
 rlogind_SOURCES = rlogind.c
+rlogind_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rlogind
 
 inetdaemon_PROGRAMS += @rshd_BUILD@
 rshd_SOURCES = rshd.c
+rshd_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rshd
 
 inetdaemon_PROGRAMS += @syslogd_BUILD@
@@ -84,11 +93,10 @@ EXTRA_PROGRAMS += tftpd
 
 inetdaemon_PROGRAMS += @uucpd_BUILD@
 uucpd_SOURCES = uucpd.c
+uucpd_LDADD = $(LDADD) $(LIBCRYPT)
 EXTRA_PROGRAMS += uucpd
 
 INCLUDES = $(iu_INCLUDES) -I$(top_srcdir)/libicmp
-
-LDADD = $(iu_LIBRARIES) $(top_builddir)/libicmp/libicmp.a $(LIBAUTH) $(LIBCRYPT) $(LIBUTIL)
 
 AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_CONSOLE) $(PATHDEF_CP) $(PATHDEF_DEFPATH) $(PATHDEF_DEV) $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) $(PATHDEF_INETDPID) $(PATHDEF_KLOG) $(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGIN) $(PATHDEF_LOGPID) $(PATHDEF_NOLOGIN) $(PATHDEF_RLOGIN) $(PATHDEF_RSH) $(PATHDEF_TTY) $(PATHDEF_UTMP) $(PATHDEF_UUCICO)
 

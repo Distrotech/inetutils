@@ -1,3 +1,9 @@
+2012-02-01  Guillem Jover  <guillem@hadrons.org>
+
+	* src/Makefile.am (LDADD): Set to minimal, common value.
+	(rcp_LDADD, rexecd_LDADD, rlogin_LDADD, rlogind_LDADD, rsh_LDADD)
+	(rshd_LDADD, traceroute_LDADD, uucpd_LDADD): New variables.
+
 2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* configure.ac: Check for typedefs `Schedule' and `Session_Key'
