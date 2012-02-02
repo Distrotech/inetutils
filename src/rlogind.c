@@ -211,6 +211,10 @@ void fatal (int f, const char *msg, int syserr);
 int in_local_domain (char *hostname);
 char *topdomain (char *name, int max_dots);
 
+#ifdef SHISHI
+int do_shishi_login (int infd, struct auth_data *ad, const char **err_msg);
+#endif
+
 void
 rlogind_sigchld (int sig)
 {

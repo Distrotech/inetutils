@@ -59,6 +59,10 @@
 #include "externs.h"
 #include "types.h"
 
+#ifdef  ENCRYPTION
+# include <libtelnet/encrypt.h>
+#endif
+
 Ring ttyoring, ttyiring;
 unsigned char ttyobuf[2 * BUFSIZ], ttyibuf[BUFSIZ];
 

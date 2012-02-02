@@ -62,6 +62,13 @@
 #include <argp.h>
 #include <libinetutils.h>
 
+#ifdef	AUTHENTICATION
+# include <libtelnet/auth.h>
+#endif
+#ifdef	ENCRYPTION
+# include <libtelnet/encrypt.h>
+#endif
+
 /* These values need to be the same as defined in libtelnet/kerberos5.c */
 /* Either define them in both places, or put in some common header file. */
 #define OPTS_FORWARD_CREDS           0x00000002

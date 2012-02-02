@@ -86,6 +86,13 @@
 #include "xalloc.h"
 #include "xvasprintf.h"
 
+#ifdef	ENCRYPTION
+# include <libtelnet/encrypt.h>
+#endif
+#if defined AUTHENTICATION || defined ENCRYPTION
+# include <libtelnet/misc.h>
+#endif
+
 #if !defined CRAY && !defined sysV88
 # ifdef HAVE_NETINET_IN_SYSTM_H
 #  include <netinet/in_systm.h>

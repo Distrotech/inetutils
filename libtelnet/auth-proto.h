@@ -79,6 +79,7 @@ void auth_is (unsigned char *, int);
 void auth_reply (unsigned char *, int);
 void auth_finished (TN_Authenticator *, int);
 int auth_wait (char *);
+void auth_name (unsigned char *, int);
 void auth_disable_name (char *);
 void auth_printsub (unsigned char *, int, unsigned char *, int);
 int auth_sendname (unsigned char *, int);

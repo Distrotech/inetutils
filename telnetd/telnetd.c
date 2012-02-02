@@ -28,6 +28,10 @@
 #include <error.h>
 #include <libinetutils.h>
 
+#if defined AUTHENTICATION || defined ENCRYPTION
+# include <libtelnet/misc.h>
+#endif
+
 static void parse_authmode (char *str);
 static void parse_linemode (char *str);
 static void parse_debug_level (char *str);

@@ -307,6 +307,8 @@ getauthmask (char *type, int *maskp)
   return (0);
 }
 
+int auth_onoff (char *, int);
+
 int
 auth_enable (char *type)
 {

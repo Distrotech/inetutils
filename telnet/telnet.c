@@ -79,6 +79,16 @@
 # include <curses.h>
 # include <term.h>
 #endif
+
+#ifdef AUTHENTICATION
+# include <libtelnet/auth.h>
+#endif
+#ifdef ENCRYPTION
+# include <libtelnet/encrypt.h>
+#endif
+#if defined AUTHENTICATION || defined ENCRYPTION
+# include <libtelnet/misc.h>
+#endif
 
 
 #define strip(x) ((my_want_state_is_wont(TELOPT_BINARY)) ? ((x)&0x7f) : (x))

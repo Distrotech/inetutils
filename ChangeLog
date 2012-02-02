@@ -1,3 +1,29 @@
+2012-02-02  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Full set of prototypes for Shishi enabled builds.
+	* libinetutils/shishi_def.h [SHISHI] (krcmd, krcmd_mutual):
+	New prototypes.
+	* libtelnet/auth-proto.h [AUTHENTICATION] (auth_name): Likewise.
+	* libtelnet/auth.c [AUTHENTICATION] (auth_onoff): Likewise.
+	* libtelnet/enc-proto.h [ENCRYPTION] (EncryptStart, EncryptStartInput)
+	(EncryptStartOutput, EncryptStatus, EncryptStop, EncryptStopInput)
+	(EncryptStopOutput, EncryptType, encrypt_start, encrypt_end)
+	(encrypt_request_start, encrypt_request_end, encrypt_support)
+	(encrypt_dec_keyid, encrypt_enc_keyid): Likewise.
+	* libtelnet/genget.h (Ambiguous): Likewise.
+	* libtelnet/misc-proto.h (auth_encrypt_user): Likewise.
+	* src/rlogind.c [SHISHI] (do_shishi_login): New prototype.
+	* telnet/commands.c [ENCRYPTION]: Include <libtelnet/encrypt.h>.
+	[AUTHENTICATION || ENCRYPTION]: Include <libtelnet/misc.h>.
+	* telnet/main.c [AUTHENTICATION]: Include <libtelnet/auth.h>.
+	[ENCRYPTION]: Include <libtelnet/encrypt.h>.
+	* telnet/telnet.c [AUTHENTICATION]: Include <libtelnet/auth.h>.
+	[ENCRYPTION]: Include <libtelnet/encrypt.h>.
+	[AUTHENTICATION || ENCRYPTION]: Include <libtelnet/misc.h>.
+	* telnet/terminal.c [ENCRYPTION]: Include <libtelnet/encrypt.h>.
+	* telnetd/telnetd.c [AUTHENTICATION || ENCRYPTION]: Include
+	<libtelnet/misc.h>.
+
 2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/syslogd.sh (do_inet_socket): New variable.
