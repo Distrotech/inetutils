@@ -1,3 +1,24 @@
+2012-02-03  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Attempt full detection of any intermediary step failing.
+	* tests/ftp-localhost.sh: Test presence of grep(1), netstat(1).
+	Capture failing mktemp(1).
+	(posttesting): Verify non-empty TMPDIR and it being a directory.
+	<inetd.conf, .netrc>: Test successful write to these files.
+	<starting INETD>: Test successful start as well as presence of
+	`$TMPDIR/inetd.pid' afterwards.
+	* tests/tftp.sh: Test presence of grep(1) and netstat(1).
+	Capture failing mktemp(1).
+	(posttesting): Verify non-empty TMPDIR and it being a directory.
+	<write_conf>: Test successful execution.
+	(REDIRECT): New variable.
+	<INETD invokation>: Always use debug-mode `-d', but suppress STDERR
+	in non-verbose execution mode.  An eval call implements this during
+	the first attempt.  Test the validity of `inetd_pid' afterwards.
+	<restart of INETD>: Use `kill -9' and delete the file INETD_PID.
+	<creation of test files>: Check validity of TMPDIR and test for
+	failure when creating the directory `$TMPDIR/tftp-test'.
+
 2012-02-02  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Full set of prototypes for Shishi enabled builds.

@@ -59,6 +59,18 @@ elif [ ! -x $INETD ]; then
     exit 77
 fi
 
+which grep >/dev/null 2>&1 ||
+    {
+	echo 'No available grep(1), used for diagnosis.  Skipping test.' >&2
+	exit 77
+    }
+
+which netstat >/dev/null 2>&1 ||
+    {
+	echo 'No available netstat(1), used for diagnosis.  Skipping test.' >&2
+	exit 77
+    }
+
 if [ $VERBOSE ]; then
     set -x
     $FTP --version | head -1
@@ -101,12 +113,17 @@ fi
 # Note that inetd changes directory to / when --debug is not given so
 # all paths must be absolute for things to work.
 
-TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`
+TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX` ||
+    {
+	echo 'Failed at creating test directory.  Aborting.' >&2
+	exit 1
+    }
 
 posttesting () {
-    test -f "$TMPDIR/inetd.pid" && test -r "$TMPDIR/inetd.pid" \
+    test -n "$TMPDIR" && test -f "$TMPDIR/inetd.pid" \
+	&& test -r "$TMPDIR/inetd.pid" \
 	&& kill -9 "`cat $TMPDIR/inetd.pid`"
-    rm -rf "$TMPDIR"
+    test -n "$TMPDIR" && test -d "$TMPDIR" && rm -rf "$TMPDIR"
 }
 
 trap posttesting 0 1 2 3 15
@@ -148,18 +165,43 @@ $PORT stream tcp4 nowait $USER $PWD/$FTPD ftpd -A -l
 $PORT stream tcp6 nowait $USER $PWD/$FTPD ftpd -A -l
 EOT
 
+if test $? -ne 0; then
+    echo 'Failed at writing configuration for Inetd.  Skipping test.' >&2
+    exit 77
+fi
+
 cat <<EOT > "$TMPDIR/.netrc"
 machine $TARGET login $FTPUSER password foobar
 machine $TARGET6 login $FTPUSER password foobar
 machine $TARGET46 login $FTPUSER password foobar
 EOT
 
-chmod 600 $TMPDIR/.netrc
+if test $? -ne 0; then
+    echo 'Failed at writing access file ".netrc".  Skipping test.' >&2
+    exit 77
+fi
 
-$INETD --pidfile="$TMPDIR/inetd.pid" "$TMPDIR/inetd.conf"
+chmod 600 "$TMPDIR/.netrc"
+
+$INETD --pidfile="$TMPDIR/inetd.pid" "$TMPDIR/inetd.conf" ||
+    {
+	echo 'Not able to start Inetd.  Skipping test.' >&2
+	exit 1
+    }
 
 # Wait for inetd to write pid and open socket
 sleep 2
+
+
+test -r "$TMPDIR/inetd.pid" ||
+    {
+	cat <<-EOT >&2
+		Inetd could not write a PID-file, but did claim a start.
+		This is a serious problem.  Doing an emergency abort,
+		without possibility of killing the Inetd-process.
+	EOT
+	exit 1
+    }
 
 # Test evaluation helper
 #
@@ -170,7 +212,7 @@ test_report () {
 
     if [ $1 != 0 ]; then
 	echo "Running '$FTP' failed with errno $1." >&2
-	exit 77
+	exit 1
     fi
 
     # Did we get access?

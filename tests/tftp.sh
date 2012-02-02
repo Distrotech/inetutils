@@ -46,22 +46,43 @@ elif [ ! -x $IFCONFIG_SIMPLE ]; then	# Remove options
     exit 77
 fi
 
+# Check that netstat works before proceeding.
+netstat -na > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "netstat: command failed to execute successfully" >&2
+    exit 77
+fi
+
+# And grep!
+which grep > /dev/null 2>&1 ||
+    {
+	echo 'grep(1) is not available.  Skipping test.' >&2
+	exit 77
+    }
+
 AF=${AF:-inet}
 PROTO=${PROTO:-udp}
 USER=`id -u -n`
 
-# Random base diractory at testing time.
-TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX`
+# Random base directory at testing time.
+TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX` ||
+    {
+	echo 'Failed at creating test directory.  Aborting.' >&2
+	exit 1
+    }
+
 INETD_CONF="$TMPDIR/inetd.conf.tmp"
 INETD_PID="$TMPDIR/inetd.pid.$$"
 
 posttesting () {
-    if test -f "$INETD_PID" && test -r "$INETD_PID" \
+    if test -n "$TMPDIR" && test -f "$INETD_PID" \
+	&& test -r "$INETD_PID" \
 	&& ps "`cat $INETD_PID`" >/dev/null 2>&1
     then
 	kill -9 "`cat $INETD_PID`" 2>/dev/null
     fi
-    rm -rf "$TMPDIR" $FILELIST
+    test -n "$TMPDIR" && test -d "$TMPDIR" \
+	&& rm -rf "$TMPDIR" $FILELIST
 }
 
 trap posttesting EXIT HUP INT QUIT TERM
@@ -77,13 +98,6 @@ ADDRESSES="${ADDRESSES:-127.0.0.1 ::1}"
 if [ "$ADDRESSES" = "sense" ]; then
     ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
 	-e "s/^.*$AF \([:.0-9]\{1,\}\) .*$/\1/g"`"
-fi
-
-# Check that netstat works before proceeding.
-netstat -na > /dev/null
-if [ ! $? -eq 0 ]; then
-    echo "netstat: command failed to execute successfully" >&2
-    exit 77
 fi
 
 # Work around the peculiar output of netstat(1m,solaris).
@@ -137,12 +151,32 @@ write_conf () {
 	EOF
 }
 
-write_conf
+write_conf ||
+    {
+	echo 'Could not create configuration file for Inetd.  Aborting.' >&2
+	exit 1
+    }
 
 # Launch `inetd', assuming it's reachable at all $ADDRESSES.
-$INETD ${VERBOSE+-d} -p"$INETD_PID" "$INETD_CONF" &
+# Must use '-d' consistently to prevent daemonizing, but we
+# would like to suppress the verbose output.  The variable
+# REDIRECT is set to '2>/dev/null' in non-verbose mode.
+#
+test -n "${VERBOSE+yes}" || REDIRECT='2>/dev/null'
+
+eval "$INETD -d -p'$INETD_PID' '$INETD_CONF' $REDIRECT &"
+
 sleep 2
-inetd_pid="`cat $INETD_PID`"
+
+inetd_pid="`cat $INETD_PID 2>/dev/null`" ||
+    {
+	cat <<-EOT >&2
+		Inetd did not create a PID-file.  Aborting test,
+		but loosing control whether an Inetd process is
+		still around.
+	EOT
+	exit 1
+    }
 
 test -z "$VERBOSE" || echo "Launched Inetd as process $inetd_pid." >&2
 
@@ -153,7 +187,9 @@ sleep 1
 locate_port $PROTO $PORT
 if test $? -ne 0; then
     # No it did not.
-    ps "$inetd_pid" >/dev/null 2>&1 && kill "$inetd_pid" 2>/dev/null
+    ps "$inetd_pid" >/dev/null 2>&1 && kill -9 "$inetd_pid" 2>/dev/null
+    rm -f "$INETD_PID"
+
     echo 'First attempt at starting Inetd has failed.' >&2
     echo 'A new attempt will follow after some delay.' >&2
     echo 'Increasing verbosity for better backtrace.' >&2
@@ -161,11 +197,24 @@ if test $? -ne 0; then
 
     # Select a new port, with offset and some randomness.
     PORT=`expr $PORT + 137 + \( ${RANDOM:-$$} % 517 \)`
-    write_conf
+    write_conf ||
+	{
+	    echo 'Could not create configuration file for Inetd.  Aborting.' >&2
+	    exit 1
+	}
 
     $INETD -d -p"$INETD_PID" "$INETD_CONF" &
     sleep 2
-    inetd_pid="`cat $INETD_PID`"
+    inetd_pid="`cat $INETD_PID 2>/dev/null`" ||
+	{
+	    cat <<-EOT >&2
+		Inetd did not create a PID-file.  Aborting test,
+		but loosing control whether an Inetd process is
+		still around.
+		EOT
+	    exit 1
+	}
+
     echo "Launched Inetd as process $inetd_pid." >&2
 
     if locate_port $PROTO $PORT; then
@@ -182,8 +231,12 @@ else
     input="/dev/zero"
 fi
 
-rm -fr $TMPDIR/tftp-test tftp-test-file*
-mkdir -p $TMPDIR/tftp-test
+test -d "$TMPDIR" && rm -fr "$TMPDIR/tftp-test" tftp-test-file*
+test -d "$TMPDIR" && mkdir -p "$TMPDIR/tftp-test" \
+    || {
+	echo 'Failed at creating directory for master files.  Aborting.' >&2
+	exit 1
+    }
 
 # It is important to test data of differing sizes.
 #
@@ -193,8 +246,7 @@ mkdir -p $TMPDIR/tftp-test
 
 FILEDATA="file-small 320 1
 file-medium 320 2
-tftp-test-file 1024 170
-"
+tftp-test-file 1024 170"
 
 echo "$FILEDATA" |
 while read name bsize count; do
@@ -212,7 +264,7 @@ RESULT=0
 echo "Looking into '`echo $ADDRESSES | tr "\n" ' '`'."
 
 for addr in $ADDRESSES; do
-    echo "trying with address \`$addr'..." >&2
+    echo "trying address '$addr'..." >&2
 
     for name in $FILELIST; do
 	EFFORTS=`expr $EFFORTS + 1`
