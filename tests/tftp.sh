@@ -54,8 +54,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # And grep!
-which grep > /dev/null 2>&1 ||
-    {
+echo 'Good luck.' | grep 'ood' > /dev/null 2>&1 \
+    || {
 	echo 'grep(1) is not available.  Skipping test.' >&2
 	exit 77
     }

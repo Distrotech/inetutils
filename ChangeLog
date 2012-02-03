@@ -1,5 +1,13 @@
 2012-02-03  Mats Erik Andersson <gnu@gisladisker.se>
 
+	Do not use which(1) in test scripts.
+	* tests/ftp-localhost.sh: Use a trivial match to detect grep(1)
+	and a trivial invokation of netstat(1).  Use `sysctl -a', while
+	discarding STDOUT and STDERR, to sense for sysctl(8).
+	* tests/tftp.sh: Likewise with grep(1).
+
+2012-02-03  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Attempt full detection of any intermediary step failing.
 	* tests/ftp-localhost.sh: Test presence of grep(1), netstat(1).
 	Capture failing mktemp(1).

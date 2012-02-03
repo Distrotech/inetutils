@@ -59,13 +59,14 @@ elif [ ! -x $INETD ]; then
     exit 77
 fi
 
-which grep >/dev/null 2>&1 ||
-    {
+# Use a trivial test to detect grep(1).
+echo 'Good luck.' | grep 'ood' >/dev/null 2>&1 \
+    || {
 	echo 'No available grep(1), used for diagnosis.  Skipping test.' >&2
 	exit 77
     }
 
-which netstat >/dev/null 2>&1 ||
+netstat -na >/dev/null 2>&1 ||
     {
 	echo 'No available netstat(1), used for diagnosis.  Skipping test.' >&2
 	exit 77
@@ -324,7 +325,7 @@ if $have_address_mapping; then
     :
 else
     # Do we have sysctl(1) available?
-    if which sysctl >/dev/null 2>&1; then
+    if sysctl -a >/dev/null 2>&1; then
 	have_sysctl=true
     else
 	echo "Warning: Not testing IPv4-mapped addresses." >&2
