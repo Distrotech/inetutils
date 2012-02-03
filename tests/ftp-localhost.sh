@@ -19,6 +19,17 @@
 
 # Written by Simon Josefsson
 
+# Prerequisites:
+#
+#  * Shell: SVR4 Bourne shell, or newer.
+#
+#  * cat(1), chmod(1), head(1), kill(1), rm(1).
+#
+#  * id(1), grep(1), mktemp(1), netstat(8), sed(1), uname(1).
+#
+#  * Detection of sysctl(8) is made.  Availability will
+#    lead to better test coverage.
+
 # FIXME: Better test coverage!
 #
 # Implemented: anonymous-only in inetd-mode.

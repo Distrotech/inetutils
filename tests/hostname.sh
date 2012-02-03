@@ -17,6 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+# Prerequisites:
+#
+#  * Shell: SVR3 Bourne shell, or newer.
+#
+#  * id(1), uname(1).
+
 hostname=${hostname:-../src/hostname$EXEEXT}
 
 if [ $VERBOSE ]; then

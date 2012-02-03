@@ -21,6 +21,14 @@
 #
 # Written by Mats Erik Andersson.
 
+# Prerequisites:
+#
+#  * Shell: SVR4 Bourne shell, or newer.
+#
+#  * cat(1), expr(1), head(1), kill(1), pwd(1), rm(1), rmdir(1).
+#
+#  * id(1), grep(1), mktemp(1), netstat(8), ps(1), touch(1), uname(1).
+
 
 # Is usage explanation in demand?
 #

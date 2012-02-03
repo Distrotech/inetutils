@@ -19,6 +19,15 @@
 
 # Run `inetd' with `tftpd' and try to fetch a file from there using `tftp'.
 
+# Prerequisites:
+#
+#  * Shell: SVR4 Bourne shell, or newer.
+#
+#  * cat(1), expr(1), head(1), kill(1), pwd(1), rm(1).
+#
+#  * cmp(1), dd(1), id(1), grep(1), mktemp(1), netstat(8),
+#    ps(1), sed(1), uname(1).
+
 if [ "$VERBOSE" ]; then
     set -x
 fi
