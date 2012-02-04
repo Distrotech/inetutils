@@ -1,5 +1,14 @@
 2012-02-04  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* src/logger.c (unixsock): New variable.
+	(open_socket): Allow HOST and UNIXSOCK to determine
+	UNIX socket name.  Add test that HOST be non-NULL.
+	(argp_options): New option `-u/--unix'.
+	(parse_opt) <h>: Erase UNIXSOCK, i.e., clear `-u'.
+	<u>: New option. Set UNIXSOCK, erase HOST.
+
+2012-02-04  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* libinetutils/Makefile.am (INCLUDES): Add $(INCAUTH) to list.
 	* src/Makefile.am (INCLUDES): Likewise.
 

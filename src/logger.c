@@ -52,7 +52,10 @@
 static char *tag = NULL;
 static int logflags = 0;
 static int pri = MAKE_PRI (LOG_USER, LOG_NOTICE);
+/* Only one of `host' and `unixsock' will be non-NULL
+ * once option parsing has been completed. */
 static char *host = PATH_LOG;
+static char *unixsock = NULL;
 static char *source;
 static char *pidstr;
 
@@ -131,9 +134,17 @@ open_socket (void)
   int ret;
 #endif
 
-  if (host[0] == '/')
+  /* A UNIX socket name can be specified in two ways.
+   * Zero length of `unixsock' is handled automatically.  */
+  if ((host != NULL && host[0] == '/') || unixsock != NULL)
     {
-      size_t len = strlen (host);
+      size_t len;
+
+      /* Copy `unixsock' to `host' if necessary.
+       * There is no need to differentiate them.  */
+      if (unixsock)
+	host = unixsock;
+      len = strlen (host);
       if (len >= sizeof sockaddr.sunix.sun_path)
 	error (EXIT_FAILURE, 0, "UNIX socket name too long");
       strcpy (sockaddr.sunix.sun_path, host);
@@ -379,7 +390,9 @@ static struct argp_option argp_options[] = {
   {"ipv4", '4', NULL, 0, "use IPv4 for logging to host" },
   {"ipv6", '6', NULL, 0, "use IPv6 with a host target" },
   { "host", 'h', "HOST", 0,
-    "log to host instead of the default " PATH_LOG },
+    "log to HOST instead of to the default " PATH_LOG },
+  { "unix", 'u', "SOCK", 0,
+    "log to UNIX socket SOCK instead of " PATH_LOG },
   { "source", 'S', "IP", 0,
     "set source IP address" },
   { "id", 'i', "PID", OPTION_ARG_OPTIONAL,
@@ -417,6 +430,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'h':
       host = arg;
+      unixsock = NULL;	/* Erase any previous `-u'.  */
+      break;
+
+    case 'u':
+      unixsock = arg;
+      host = NULL;	/* Erase previous `-h'.  */
       break;
 
     case 'S':
