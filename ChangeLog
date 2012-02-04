@@ -1,3 +1,8 @@
+2012-02-04  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* libinetutils/Makefile.am (INCLUDES): Add $(INCAUTH) to list.
+	* src/Makefile.am (INCLUDES): Likewise.
+
 2012-02-03  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Do not use which(1) in test scripts.
