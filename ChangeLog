@@ -1,3 +1,10 @@
+2012-02-05  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* tests/tftp.sh: Need job control, issue `set -m'.
+	(spawned_pid): New variable.
+	<inetd restart failure>: For better robustness, kill process
+	immediately using SPAWNED_PID.
+
 2012-02-04  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/logger.c (unixsock): New variable.

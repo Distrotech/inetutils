@@ -21,12 +21,15 @@
 
 # Prerequisites:
 #
-#  * Shell: SVR4 Bourne shell, or newer.
+#  * Shell: SVR4 Bourne shell, or newer, and allowing job control.
 #
 #  * cat(1), expr(1), head(1), kill(1), pwd(1), rm(1).
 #
 #  * cmp(1), dd(1), id(1), grep(1), mktemp(1), netstat(8),
 #    ps(1), sed(1), uname(1).
+
+# Need job control when spawning Inetd.
+set -m
 
 if [ "$VERBOSE" ]; then
     set -x
@@ -175,6 +178,9 @@ test -n "${VERBOSE+yes}" || REDIRECT='2>/dev/null'
 
 eval "$INETD -d -p'$INETD_PID' '$INETD_CONF' $REDIRECT &"
 
+# Debug mode allows the shell to recover PID of Inetd.
+spawned_pid=$!
+
 sleep 2
 
 inetd_pid="`cat $INETD_PID 2>/dev/null`" ||
@@ -213,6 +219,7 @@ if test $? -ne 0; then
 	}
 
     $INETD -d -p"$INETD_PID" "$INETD_CONF" &
+    spawned_pid=$!
     sleep 2
     inetd_pid="`cat $INETD_PID 2>/dev/null`" ||
 	{
@@ -221,6 +228,7 @@ if test $? -ne 0; then
 		but loosing control whether an Inetd process is
 		still around.
 		EOT
+	    ps "$spawned_pid" >/dev/null 2>&1 && kill -9 "$spawned_pid" 2>/dev/null
 	    exit 1
 	}
 
@@ -230,6 +238,7 @@ if test $? -ne 0; then
 	: # Successful this time.
     else
 	echo "Failed again at starting correct Inetd instance." >&2
+	ps "$spawned_pid" >/dev/null 2>&1 && kill -9 "$spawned_pid" 2>/dev/null
 	exit 1
     fi
 fi
