@@ -1,3 +1,11 @@
+2012-02-06  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* doc/inetutils.texi (logger invocation): Describe option `-u/--unix'.
+	(ftpd invocation): Describe options `-4/ipv4' and `-6/--ipv6'.
+	* tests/ftp-localhost.sh (NSSWITCH, PASSWD, PROTOCOLS): New variables
+	naming standard files.  Check their presence and skip test otherwise.
+	* tests/tftp.sh (NSSWITCH, PASSWD, PROTOCOLS): Likewise.
+
 2012-02-05  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/tftp.sh: Need job control, issue `set -m'.

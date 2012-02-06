@@ -29,6 +29,9 @@
 #
 #  * Detection of sysctl(8) is made.  Availability will
 #    lead to better test coverage.
+#
+#  * Accessed by launched Inetd:
+#      /etc/nsswitch.conf, /etc/passwd, /etc/protocols.
 
 # FIXME: Better test coverage!
 #
@@ -82,6 +85,24 @@ netstat -na >/dev/null 2>&1 ||
 	echo 'No available netstat(1), used for diagnosis.  Skipping test.' >&2
 	exit 77
     }
+
+# The superserver Inetd puts constraints on any chroot
+# when running this script, since it needs to look up
+# some basic facts stated in the configuration file.
+NSSWITCH=/etc/nsswitch.conf
+PASSWD=/etc/passwd
+PROTOCOLS=/etc/protocols
+
+if test ! -r $NSSWITCH || test ! -r $PASSWD \
+      || test ! -r $PROTOCOLS; then
+    cat <<-EOT >&2
+	The use of the superserver Inetd in this script requires
+	the availability of "$NSSWITCH", "$PASSWD", and
+	"$PROTOCOLS".  At least one of these is now missing.
+	Therefore skipping test.
+	EOT
+    exit 77
+fi
 
 if [ $VERBOSE ]; then
     set -x

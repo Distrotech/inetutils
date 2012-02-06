@@ -27,6 +27,9 @@
 #
 #  * cmp(1), dd(1), id(1), grep(1), mktemp(1), netstat(8),
 #    ps(1), sed(1), uname(1).
+#
+#  * Accessed by launched Inetd:
+#      /etc/nsswitch.conf, /etc/passwd, /etc/protocols.
 
 # Need job control when spawning Inetd.
 set -m
@@ -71,6 +74,24 @@ echo 'Good luck.' | grep 'ood' > /dev/null 2>&1 \
 	echo 'grep(1) is not available.  Skipping test.' >&2
 	exit 77
     }
+
+# The superserver Inetd puts constraints on any chroot
+# when running this script, since it needs to look up
+# some basic facts stated in the configuration file.
+NSSWITCH=/etc/nsswitch.conf
+PASSWD=/etc/passwd
+PROTOCOLS=/etc/protocols
+
+if test ! -r $NSSWITCH || test ! -r $PASSWD \
+      || test ! -r $PROTOCOLS; then
+    cat <<-EOT >&2
+	The use of the superserver Inetd in this script requires
+	the availability of "$NSSWITCH", "$PASSWD", and
+	"$PROTOCOLS".  At least one of these is now missing.
+	Therefore skipping test.
+	EOT
+    exit 77
+fi
 
 AF=${AF:-inet}
 PROTO=${PROTO:-udp}

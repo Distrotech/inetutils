@@ -330,7 +330,7 @@ must be separated from it by exactly one equals sign.
 @opindex -h
 @opindex --host
 Send messages to the given host or socket.  The @var{host} argument
-can be either a local UNIX socket name (starting with a dash @samp{/}),
+can be either a local UNIX socket name (starting with a slash @samp{/}),
 or:
 
 @smallexample
@@ -344,6 +344,14 @@ name from @file{/etc/services}.  If @var{port} is not specified,
 the port number corresponding to the @samp{syslog} service is used.
 If a numerical IPv6 address is given without a port specification,
 then the address must be enclosed within brackets (like [::1]).
+
+@item -u @var{socket}
+@itemx --unix=@var{socket}
+@opindex -h
+@opindex --host
+Send messages to the given local UNIX socket.  The @var{socket} argument
+can be either an absolute path (starting with a slash @samp{/}), or a relative
+path understood relative to the current working directory.
 
 @item -S @var{addr}
 @itemx --source=@var{addr}
@@ -2676,6 +2684,18 @@ ftpd [@var{option}]@dots{}
 @end example
 
 @table @option
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Daemon uses only IPv4 addressing.  Ignored in inetd mode.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Daemon uses only IPv6 addressing.  Ignored in inetd mode.
+
 @item -A
 @itemx --anonymous-only
 @opindex -A
