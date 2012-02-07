@@ -251,6 +251,7 @@ int decode (const char *, CODE *);
 void die (int);
 void doexit (int);
 void domark (int);
+void find_inet_port (const char *);
 void fprintlog (struct filed *, const char *, int, const char *);
 void init (int);
 void logerror (const char *);
@@ -272,6 +273,11 @@ char *LocalHostName;		/* Our hostname.  */
 char *LocalDomain;		/* Our local domain name.  */
 char *BindAddress = NULL;	/* Binding address for INET listeners.
 				 * The default is a wildcard address.  */
+char *BindPort = NULL;		/* Optional non-standard port, instead
+				 * of the usual 514/udp.  */
+#ifdef IPPORT_SYSLOG
+char portstr[8];		/* Fallback port number.  */
+#endif
 char addrstr[INET6_ADDRSTRLEN];	/* Common address presentation.  */
 char addrname[NI_MAXHOST];	/* Common name lookup.  */
 int usefamily = AF_INET;	/* Address family for INET services.
@@ -281,7 +287,8 @@ int finet[2] = {-1, -1};	/* Internet datagram socket fd.  */
 #define IU_FD_IP4	0	/* Indices for the address families.  */
 #define IU_FD_IP6	1
 int fklog = -1;			/* Kernel log device fd.  */
-char *LogPortText = "syslog";	/* Service/port for INET connections.  */
+char *LogPortText = NULL;	/* Service/port for INET connections.  */
+char *LogForwardPort = NULL;	/* Target port for message forwarding.  */
 int Initialized;		/* True when we are initialized. */
 int MarkInterval = 20 * 60;	/* Interval between marks in seconds.  */
 int MarkSeq;			/* Mark sequence number.  */
@@ -328,6 +335,7 @@ static struct argp_option argp_options[] = {
   {"ipv6", '6', NULL, 0, "restrict to IPv6 transport", GRP+1},
   {"ipany", OPT_IPANY, NULL, 0, "allow transport with IPv4 and IPv6", GRP+1},
   {"bind", 'b', "ADDR", 0, "bind listener to this address/name", GRP+1},
+  {"bind-port", 'B', "PORT", 0, "bind listener to this port", GRP+1},
   {"mark", 'm', "INTVL", 0, "specify timestamp interval in logs (0 for no "
    "timestamps)", GRP+1},
   {"no-detach", 'n', NULL, 0, "do not enter daemon mode", GRP+1},
@@ -400,6 +408,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       BindAddress = arg;
       break;
 
+    case 'B':
+      BindPort = arg;
+      break;
+
     case 'm':
       v = strtol (arg, &endptr, 10);
       if (*endptr)
@@ -464,12 +476,15 @@ main (int argc, char *argv[])
 
   set_program_name (argv[0]);
 
-  /* Initiliaze PATH_LOG as the first element of the unix sockets array.  */
+  /* Initialize PATH_LOG as the first element of the unix sockets array.  */
   add_funix (PATH_LOG);
 
   /* Parse command line */
   iu_argp_init ("syslogd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
+
+  /* Check desired port, if in demand at all.  */
+  find_inet_port (BindPort);
 
   /* Daemonise, if not, set the buffering for line buffer.  */
   if (!NoDetach)
@@ -848,6 +863,12 @@ create_inet_socket (int af, int fd46[2])
 
   /* Invalidate old descriptors.  */
   fd46[IU_FD_IP4] = fd46[IU_FD_IP6] = -1;
+
+  if (!LogPortText)
+    {
+      dbg_printf ("No listen port has been accepted.\n");
+      return;
+    }
 
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = af;
@@ -1300,9 +1321,11 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	  memset (&hints, 0, sizeof (hints));
 	  hints.ai_family = usefamily;
 #ifdef AI_ADDRCONFIG
-	  hints.ai_flags = AI_ADDRCONFIG;
+	  if (usefamily == AF_UNSPEC)
+	    hints.ai_flags |= AI_ADDRCONFIG;
 #endif
-	  err = getaddrinfo (f->f_un.f_forw.f_hname, LogPortText, &hints, &rp);
+	  err = getaddrinfo (f->f_un.f_forw.f_hname, LogForwardPort,
+			     &hints, &rp);
 	  if (err)
 	    {
 	      dbg_printf ("Failure: %s\n", gai_strerror (err));
@@ -1360,7 +1383,7 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
 	      hints.ai_socktype = SOCK_DGRAM;
 	      hints.ai_flags = AI_PASSIVE;
 
-	      err = getaddrinfo (NULL, LogPortText, &hints, &rp);
+	      err = getaddrinfo (NULL, LogForwardPort, &hints, &rp);
 	      if (err)
 		{
 		  dbg_printf ("Not forwarding due to lookup failure: %s.\n",
@@ -2067,13 +2090,14 @@ cfline (const char *line, struct filed *f)
       hints.ai_family = usefamily;
       hints.ai_socktype = SOCK_DGRAM;
 #ifdef AI_ADDRCONFIG
-      hints.ai_flags = AI_ADDRCONFIG;
+      if (usefamily == AF_UNSPEC)
+	hints.ai_flags |= AI_ADDRCONFIG;
 #endif
 
       f->f_un.f_forw.f_addrlen = 0;	/* Invalidate address.  */
       memset (&f->f_un.f_forw.f_addr, 0, sizeof (f->f_un.f_forw.f_addr));
 
-      err = getaddrinfo (p, LogPortText, &hints, &rp);
+      err = getaddrinfo (p, LogForwardPort, &hints, &rp);
       if (err)
 	{
 	  switch (err)
@@ -2224,4 +2248,60 @@ void
 trigger_restart (int signo _GL_UNUSED_PARAMETER)
 {
   restart = 1;
+}
+
+/* Override default port with a non-NULL argument.
+ * Otherwise identify the default syslog/udp with
+ * proper fallback to avoid resolve issues.  */
+void
+find_inet_port (const char *port)
+{
+  int err;
+  struct addrinfo hints, *ai;
+
+  /* Fall back to numerical description.  */
+#ifdef IPPORT_SYSLOG
+  snprintf (portstr, sizeof (portstr), "%u", IPPORT_SYSLOG);
+  LogForwardPort = portstr;
+#else
+  LogForwardPort = "514";
+#endif
+
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_flags = AI_PASSIVE;
+
+  err = getaddrinfo (NULL, "syslog", &hints, &ai);
+  if (err == 0)
+    {
+      LogForwardPort = "syslog";	/* Symbolic name is usable.  */
+      freeaddrinfo (ai);
+    }
+
+  LogPortText = (char *) port;
+
+  if (!LogPortText)
+    {
+      LogPortText = LogForwardPort;
+      return;
+    }
+
+  /* Is the port specified on command line really usable?  */
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_flags = AI_PASSIVE;
+
+  err = getaddrinfo (NULL, LogPortText, &hints, &ai);
+  if (err != 0)
+    {
+      /* Not usable, disable listener.
+       * It is too early to report failure at this time.  */
+      LogPortText = NULL;
+    }
+  else
+    freeaddrinfo (ai);
+
+  return;
 }

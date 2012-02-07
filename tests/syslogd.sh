@@ -176,7 +176,19 @@ trap clean_testdir EXIT HUP INT QUIT TERM
 # Test at this port.
 # Standard is syslog at 514/udp.
 PROTO=udp
-PORT=514
+PORT=${PORT:-514}
+
+# locate_port proto port
+#
+locate_port () {
+    if [ "`uname -s`" = "SunOS" ]; then
+	netstat -na -finet -finet6 -P$1 |
+	grep "\.$2[^0-9]" >/dev/null 2>&1
+    else
+	netstat -na |
+	grep "^$1\(4\|6\|46\)\{0,1\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
+    fi
+}
 
 # Receivers for INET sockets.
 : ${TARGET:=127.0.0.1}
@@ -253,31 +265,31 @@ TAG="syslogd-test"
 # Remove old files in use by daemon.
 rm -f "$OUT" "$PID" "$CONF"
 
-# Full testing needs a superuser.  Report this.
-if [ `id -u` -ne 0 ]; then
+# Full testing at the standard port needs a superuser.
+# Randomise if necessary.
+if test `id -u` -ne 0 && test $PORT -le 1023; then
     cat <<-EOT >&2
-	WARNING!!  Disabling INET server tests since you seem
-	to be underprivileged.
+	WARNING!!  The preset port $PORT/$PROTO is not usable,
+	since you are underprivileged.  Now attempting
+	a randomised higher port.
+	EOT
+    PORT=`expr $PORT + 3917 + ${RANDOM:-$$} % 2711`
+fi
+
+# Is the INET port already in use? If so,
+# randomise somewhat.
+if locate_port $PROTO $PORT; then
+    echo "Port $PORT/$PROTO is in use. Randomising port somewhat." >&2
+    PORT=`expr $PORT + 2711 + ${RANDOM:-$$} % 917`
+fi
+
+# Test a final time.
+if locate_port $PROTO $PORT; then
+    cat <<-EOT >&2
+	The INET port $PORT/$PROTO is already in use.
+	Skipping test of INET socket this time.
 	EOT
     do_inet_socket=false
-else
-    # Is the INET port already in use? If so,
-    # skip the test in its entirety.
-    if [ "`uname -s`" = "SunOS" ]; then
-	netstat -na -finet -finet6 -P$PROTO |
-	grep "\.$PORT[^0-9]" >/dev/null 2>&1
-    else
-	netstat -na |
-	grep "^$PROTO\(4\|6\|46\)\{0,1\}.*[^0-9]$PORT[^0-9]" \
-	    >/dev/null 2>&1
-    fi
-    if [ $? -eq 0 ]; then
-	cat <<-EOT >&2
-		The INET port $PORT/$PROTO is already in use.
-		No reliable test of INET socket is possible.
-	EOT
-	do_inet_socket=false
-    fi
 fi
 
 # A minimal, catch-all configuration.
@@ -319,7 +331,7 @@ fi
 
 ## Enable INET service when possible.
 if $do_inet_socket; then
-    IU_OPTIONS="$IU_OPTIONS --ipany --inet --hop"
+    IU_OPTIONS="$IU_OPTIONS --ipany --inet -B$PORT --hop"
 fi
 ## Bring in additional options from command line.
 ## Disable kernel messages otherwise.
@@ -381,9 +393,9 @@ fi
 
 if $do_inet_socket; then
     TESTCASES=`expr $TESTCASES + 2`
-    $LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
+    $LOGGER -4 -h "$TARGET:$PORT" -p user.info -t "$TAG" \
 	"Sending IPv4 message. (pid $$)"
-    $LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
+    $LOGGER -6 -h "$TARGET6:$PORT" -p user.info -t "$TAG" \
 	"Sending IPv6 message. (pid $$)"
 fi
 

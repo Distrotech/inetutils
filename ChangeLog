@@ -1,3 +1,32 @@
+2012-02-08  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* src/syslogd.c: Implement presetable inet port, defaulting to the
+	standard port `syslog/udp'.  Fall back to `514' if `syslog' fails.
+	(find_inet_port): New function.
+	(BindPort): New variable.
+	[IPPORT_SYSLOG] (portstr): New variable.
+	(LogPortText): Initialize to NULL.
+	(LogForwardPort): New variable.
+	(argp_options, parse_opt): New option `-B/--bind-port'.
+	(main): New call to `find_inet_port'.
+	(create_inet_socket): Check that LOGPORTTEXT is non-null,
+	otherwise inet sockets are left disabled.
+	[AI_ADDRCONFIG] (fprintflog, cfline): Only AF_UNSPEC invokes
+	AI_ADDRCONFIG.  Replace LOGPORTTEXT by LOGFORWARDPORT in calls
+	to getaddrinfo.
+
+	* tests/syslogd.sh: Adapt to `syslogd' allowing non-standard ports.
+	(PORT): Make presetable from command line.
+	(locate_port): New function.
+	<non-root && privileged port>: Use a pseudo-random port.
+	<port in use>: Take a pseudo-random step to an even higher port, only
+	to disable inet sockets if even that action fails.
+	[do_inet_socket]: Add `-B$PORT' to IU_OPTIONS and append `:$PORT'
+	to option `-h' in calls to logger.
+
+	* tests/ftp-localhost.sh, tests/tftp.sh (NSSWITCH): Override
+	with value `/etc/services' when running OpenBSD.
+
 2012-02-06  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* doc/inetutils.texi (logger invocation): Describe option `-u/--unix'.

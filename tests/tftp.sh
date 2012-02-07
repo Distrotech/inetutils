@@ -30,6 +30,8 @@
 #
 #  * Accessed by launched Inetd:
 #      /etc/nsswitch.conf, /etc/passwd, /etc/protocols.
+#
+#    OpenBSD uses /etc/services directly, not via /etc/nsswitch.conf.
 
 # Need job control when spawning Inetd.
 set -m
@@ -81,6 +83,9 @@ echo 'Good luck.' | grep 'ood' > /dev/null 2>&1 \
 NSSWITCH=/etc/nsswitch.conf
 PASSWD=/etc/passwd
 PROTOCOLS=/etc/protocols
+
+# Overrides based on systems.
+test `uname -s` = OpenBSD && NSSWITCH=/etc/services
 
 if test ! -r $NSSWITCH || test ! -r $PASSWD \
       || test ! -r $PROTOCOLS; then
