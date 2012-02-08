@@ -62,6 +62,7 @@ do_cleandir=false
 do_socket_length=true
 do_unix_socket=true
 do_inet_socket=true
+do_standard_port=true
 
 # The UNIX socket name length is preset by the system
 # and is also system dependent.
@@ -266,7 +267,9 @@ TAG="syslogd-test"
 rm -f "$OUT" "$PID" "$CONF"
 
 # Full testing at the standard port needs a superuser.
-# Randomise if necessary.
+# Randomise if necessary to get an underprivileged port.
+test `id -u` -eq 0 || do_standard_port=false
+
 if test `id -u` -ne 0 && test $PORT -le 1023; then
     cat <<-EOT >&2
 	WARNING!!  The preset port $PORT/$PROTO is not usable,
@@ -399,6 +402,35 @@ if $do_inet_socket; then
 	"Sending IPv6 message. (pid $$)"
 fi
 
+# Remove previous SYSLOG daemon.
+test -r "$PID" && ps "`cat "$PID"`" >/dev/null 2>&1 &&
+    kill "`cat "$PID"`"
+
+# Check functionality of standard port, i.e., execution
+# where neither syslogd nor logger have been instructed
+# to use specific ports for inet sockets.
+#
+locate_port $PROTO 514 && do_standard_port=false
+
+if $do_standard_port; then
+    echo 'Checking also standard port 514/udp.' >&2
+    TESTCASES=`expr $TESTCASES + 2`
+
+    # New configuration, but continuing old message file.
+    rm -f "$PID"
+    cat > "$CONF" <<-EOT
+	*.*	$OUT
+	EOT
+
+    # Only INET socket, no UNIX socket.
+    $SYSLOGD --rcfile="$CONF" --pidfile="$PID" --socket='' \
+	--inet --ipany $OPTIONS
+    $LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
+	"IPv4 to standard port. (pid $$)"
+    $LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
+	"IPv6 to standard port. (pid $$)"
+fi
+
 # Detection of registered messages.
 #
 COUNT=`grep "$TAG" "$OUT" | wc -l`
@@ -417,7 +449,10 @@ fi
 echo "Registered $SUCCESSES successes out of $TESTCASES."
 
 # Report incomplete test setup.
-$do_inet_socket || echo 'NOTICE: No INET socket tests were performed.' >&2
+$do_inet_socket ||
+    echo 'NOTICE: Port specified INET socket test was not run' >&2
+$do_standard_port ||
+    echo 'NOTICE: Standard port test was not run.' >&1
 
 if [ "$SUCCESSES" -eq "$TESTCASES" ]; then
     echo "Successful testing."
@@ -427,6 +462,7 @@ else
 fi
 
 # Remove the daemon process.
-[ -r "$PID" ] && kill "`cat "$PID"`"
+test -r "$PID" && ps "`cat "$PID"`" >/dev/null 2>&1 &&
+    kill "`cat "$PID"`"
 
 exit $EXITCODE

@@ -1,5 +1,12 @@
 2012-02-08  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/syslogd.sh: Reimplement a subtest using standard INET port.
+	A second SYSLOG daemon is started, which only uses INET sockets.
+	(do_standard_port): New variable, initially `true', changed to
+	`false' for non-root user and when 514/udp is in use.
+
+2012-02-08  Mats Erik Andersson <gnu@gisladisker.se>
+
 	* src/syslogd.c: Implement presetable inet port, defaulting to the
 	standard port `syslog/udp'.  Fall back to `514' if `syslog' fails.
 	(find_inet_port): New function.
