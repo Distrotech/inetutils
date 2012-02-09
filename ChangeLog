@@ -1,3 +1,10 @@
+2012-02-09  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* am/krb5.m4: When examining `libkrb5', replace AC_CHECK_LIB
+	by AC_TRY_LINK in order to avoid cached results, since identical
+	library and function names are tested for.
+	<OpenBSD Heimdal>: New test case.
+
 2012-02-08  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/syslogd.sh: Reimplement a subtest using standard INET port.

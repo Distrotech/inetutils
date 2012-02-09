@@ -59,27 +59,42 @@ AC_DEFUN([IU_CHECK_KRB5],
     KRB4_LIBS="-lkrb4 -ldes425"
 
     ## Check for new MIT kerberos V support
-    AC_CHECK_LIB(krb5, krb5_init_context,
+    LIBS="$saved_LIBS -lkrb5 -lk5crypto -lcom_err"
+    AC_TRY_LINK([], [return krb5_init_context((void *) 0); ],
       [KRB5_IMPL="MIT"
-       KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lk5crypto -lcom_err"]
-       ,, -lk5crypto -lcom_err)
+       KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lk5crypto -lcom_err"], )
 
     ## Heimdal kerberos V support
     if test "$KRB5_IMPL" = "none"; then
-      AC_CHECK_LIB(krb5, krb5_init_context,
+      LIBS="$saved_LIBS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"
+      AC_TRY_LINK([], [return krb5_init_context((void *) 0); ],
         [KRB5_IMPL="Heimdal"
          KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"]
-         ,, -ldes -lasn1 -lroken -lcrypt -lcom_err)
+         , )
+    fi
+
+    ### FIXME: Implement a robust distinction between
+    ### Heimdal a la OpenBSD and Old MIT Kerberos V.
+    ### Presently the first will catch all, since it
+    ### is readily available on contemporary systems.
+
+    ## OpenBSD variant of Heimdal
+    if test "$KRB5_IMPL" = "none"; then
+      LIBS="$saved_LIBS -lkrb5 -lcrypto"
+      AC_TRY_LINK([], [return krb5_init_context((void *) 0); ],
+        [KRB5_IMPL="OpenBSD-Heimdal"
+	 KRB5_CFLAGS="-I/usr/include/kerberosV"
+         KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -lcrypto -lasn1 -ldes"], )
     fi
 
     ## Old MIT Kerberos V
     ## Note: older krb5 distributions use -lcrypto instead of
     ## -lk5crypto. This may conflict with OpenSSL.
     if test "$KRB5_IMPL" = "none"; then
-      AC_CHECK_LIB(krb5, krb5_init_context,
-        [KRB5_IMPL="OldMIT",
-         KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lkrb5 -lcrypto -lcom_err"]
-        ,, -lcrypto -lcom_err)
+      LIBS="$saved_LIBS -lkrb5 -lcrypto -lcom_err"
+      AC_TRY_LINK([], [return krb5_init_context((void *) 0); ],
+        [KRB5_IMPL="OldMIT"
+         KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lcrypto -lcom_err"], )
     fi
 
     LDFLAGS="$saved_LDFLAGS"
