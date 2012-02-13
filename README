@@ -39,6 +39,9 @@ Some known deficiencies:
 
  - Non-Shishi Kerberos support does not build.  Patches welcome.
 
+ - Not all utilities are Kerberized even when built with Kerberos
+   libraries, including 'rcp'.
+
  - InetUtils does not build on HP-UX 11.00, Cygwin, Minix, MinGW,
    MSCV, BeOS, Haiki (and probably other systems as well).  Patches
    welcome.
