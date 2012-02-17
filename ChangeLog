@@ -1,3 +1,12 @@
+2012-02-18  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* README (Notes): Explicitly name extent of Shishi support.
+
+	Portability issue caused by FreeBSD.
+	* ftpd/ftpcmd.y (cmd) <EPRT>: Remove precompiler conditionals
+	using AI_V4MAPPED, keeping code, but do not set AI_V4MAPPED in
+	`hints.ai_flags'.
+
 2012-02-13  Simon Josefsson  <simon@josefsson.org>
 
 	* README (Notes): Doc fix.

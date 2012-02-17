@@ -39,6 +39,9 @@ Some known deficiencies:
 
  - Non-Shishi Kerberos support does not build.  Patches welcome.
 
+ - Shishi Kerberos support is only implemented for 'rlogin', 'rlogind',
+   'rsh', 'rshd', 'telnet', and 'telnetd'.
+
  - Not all utilities are Kerberized even when built with Kerberos
    libraries, including 'rcp'.
 

@@ -599,10 +599,8 @@ cmd
 				 * currently in use, unless we
 				 * detect IPv4-mapped-to-IPv6.  */
 				if (his_addr.ss_family == $5
-#ifdef AI_V4MAPPED
 				    || ($5 == AF_INET6 && his_addr.ss_family == AF_INET)
 				    || ($5 == AF_INET && his_addr.ss_family == AF_INET6)
-#endif
 				    ) {
 					int err;
 					char p[8];
@@ -613,11 +611,6 @@ cmd
 					hints.ai_family = $5;
 					hints.ai_socktype = SOCK_STREAM;
 					hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
-
-#ifdef AI_V4MAPPED
-					if (his_addr.ss_family != $5)
-						hints.ai_flags |= AI_V4MAPPED;
-#endif
 
 					err = getaddrinfo ($7, p, &hints, &res);
 					if (err)
@@ -636,7 +629,6 @@ cmd
 							     sizeof (struct in6_addr)) == 0
 						  && ntohs (((struct sockaddr_in6 *) res->ai_addr)->sin6_port) > IPPORT_RESERVED
 						 )
-#ifdef AI_V4MAPPED
 						 ||
 						 (his_addr.ss_family == AF_INET && res->ai_family == AF_INET6
 						  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) res->ai_addr)->sin6_addr)
@@ -653,7 +645,6 @@ cmd
 							     sizeof (struct in_addr)) == 0
 						  && ntohs (((struct sockaddr_in *) res->ai_addr)->sin_port) > IPPORT_RESERVED
 						 )
-#endif /* AI_V4MAPPED */
 						)
 					{
 						/* In the case of IPv4 mapped as IPv6,
