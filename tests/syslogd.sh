@@ -431,6 +431,9 @@ if $do_standard_port; then
 	"IPv6 to standard port. (pid $$)"
 fi
 
+# Delay detection due to observed race condition.
+sleep 1
+
 # Detection of registered messages.
 #
 COUNT=`grep "$TAG" "$OUT" | wc -l`

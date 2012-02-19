@@ -1,3 +1,9 @@
+2012-02-19  Mats Erik Andersson <gnu@gisladisker.se>
+
+	* bootstrap.conf (gnulib_modules): Add sethostname to list.
+
+	* tests/syslogd.sh: Sleep slightly before evaluating outcome.
+
 2012-02-18  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* README (Notes): Explicitly name extent of Shishi support.
