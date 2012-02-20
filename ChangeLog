@@ -1,3 +1,13 @@
+2012-02-20  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Improve behaviour of single stacked clients.
+	* ftp/ftp.c (hookup): Do not add AI_ADDRCONFIG to HINTS.ai_flags.
+	* src/logger.c (open_socket): Likewise.
+	* telnet/commands.c (tn): Likewise.
+
+	* telnet/Makefile.am, telnetd/Makefile.am (LDADD): Remove the
+	addition of `$(LIBREADLINE)': not needed.
+
 2012-02-19  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* bootstrap.conf (gnulib_modules): Add sethostname to list.

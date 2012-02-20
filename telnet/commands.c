@@ -2555,9 +2555,6 @@ tn (int argc, char *argv[])
     }
 
 #ifdef IPV6
-# ifdef AI_ADDRCONFIG
-  hints.ai_flags = AI_ADDRCONFIG;
-# endif
   hints.ai_socktype = SOCK_STREAM;
 
   err = getaddrinfo (hostp, portp, &hints, &result);

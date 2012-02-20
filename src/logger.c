@@ -206,10 +206,6 @@ open_socket (void)
        * was made with !HAVE_IPV6.  */
       hints.ai_family = host_family;
 
-# ifdef AI_ADDRCONFIG
-      hints.ai_flags = AI_ADDRCONFIG;
-# endif
-
       /* The complete handshake is attempted within
        * a single while-loop, since the answers from
        * getaddrinfo() need to be checked in detail.  */

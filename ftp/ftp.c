@@ -136,10 +136,6 @@ hookup (char *host, int port)
   hints.ai_family = usefamily;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_CANONNAME;
-#ifdef AI_ADDRCONFIG
-  if (hints.ai_family == AF_UNSPEC)
-    hints.ai_flags |= AI_ADDRCONFIG;
-#endif /* AI_ADDRCONFIG */
 
   status = getaddrinfo (host, portstr, &hints, &res);
   if (status)

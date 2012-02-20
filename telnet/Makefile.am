@@ -30,4 +30,4 @@ noinst_HEADERS = defines.h externs.h general.h ring.h types.h
 INCLUDES = $(iu_INCLUDES) $(NCURSES_INCLUDE)
 AM_CPPFLAGS = -DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK
 
-LDADD = $(iu_LIBRARIES) $(top_builddir)/libtelnet/libtelnet.a $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH) $(LIBREADLINE)
+LDADD = $(iu_LIBRARIES) $(top_builddir)/libtelnet/libtelnet.a $(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
