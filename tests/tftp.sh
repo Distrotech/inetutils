@@ -117,6 +117,7 @@ posttesting () {
 	&& test -r "$INETD_PID" \
 	&& ps "`cat $INETD_PID`" >/dev/null 2>&1
     then
+	kill "`cat $INETD_PID`" 2>/dev/null ||
 	kill -9 "`cat $INETD_PID`" 2>/dev/null
     fi
     test -n "$TMPDIR" && test -d "$TMPDIR" \
@@ -148,7 +149,7 @@ locate_port () {
 	grep "\.$2[^0-9]" >/dev/null 2>&1
     else
 	netstat -na |
-	grep "^$1\(4\|6\|46\)\{0,1\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
+	grep "^$1[46]\{0,2\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
     fi
 }
 

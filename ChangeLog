@@ -1,3 +1,15 @@
+2012-02-21  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Basic test case for `telnet'.
+	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_inetd && ENABLE_telnet]:
+	Added telnet-localhost.sh.
+	* tests/telnet-localhost.sh: New file.
+
+	* tests/ftp-localhost.sh (posttesting): Use SIGTERM first, then SIGKILL.
+	(locate_port): Adapt regex alternate pattern for legacy `grep'.
+	* tests/syslogd.sh (clean_testdir, locate_port): Likewise.
+	* tests/tftp.sh (posttesting, locate_port): Likewise.
+
 2012-02-20  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Improve behaviour of single stacked clients.

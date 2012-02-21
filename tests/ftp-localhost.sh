@@ -160,7 +160,8 @@ TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX` ||
 posttesting () {
     test -n "$TMPDIR" && test -f "$TMPDIR/inetd.pid" \
 	&& test -r "$TMPDIR/inetd.pid" \
-	&& kill -9 "`cat $TMPDIR/inetd.pid`"
+	&& { kill "`cat $TMPDIR/inetd.pid`" \
+	     || kill -9 "`cat $TMPDIR/inetd.pid`"; }
     test -n "$TMPDIR" && test -d "$TMPDIR" && rm -rf "$TMPDIR"
 }
 
@@ -175,7 +176,7 @@ locate_port () {
 	grep "\.$1[^0-9]" >/dev/null 2>&1
     else
 	netstat -na |
-	grep "^$2\(4\|6\|46\)\{0,1\}.*[^0-9]$1[^0-9]" >/dev/null 2>&1
+	grep "^$2[46]\{0,2\}.*[^0-9]$1[^0-9]" >/dev/null 2>&1
     fi
 }
 

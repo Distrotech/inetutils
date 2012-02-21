@@ -160,7 +160,7 @@ fi
 #
 clean_testdir () {
     if test -f "$PID" && ps "`cat "$PID"`" >/dev/null 2>&1; then
-	kill -9 "`cat "$PID"`"
+	kill "`cat "$PID"`" || kill -9 "`cat "$PID"`"
     fi
     if test -z "${NOCLEAN+no}" && $do_cleandir; then
 	rm -r -f "$IU_TESTDIR"
@@ -187,7 +187,7 @@ locate_port () {
 	grep "\.$2[^0-9]" >/dev/null 2>&1
     else
 	netstat -na |
-	grep "^$1\(4\|6\|46\)\{0,1\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
+	grep "^$1[46]\{0,2\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
     fi
 }
 

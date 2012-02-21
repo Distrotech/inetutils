@@ -54,6 +54,12 @@ endif
 endif
 endif
 
+if ENABLE_inetd
+if ENABLE_telnet
+dist_check_SCRIPTS += telnet-localhost.sh
+endif
+endif
+
 if ENABLE_hostname
 dist_check_SCRIPTS += hostname.sh
 endif
