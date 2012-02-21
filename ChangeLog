@@ -1,5 +1,10 @@
 2012-02-21  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/telnet-localhost.sh: Skip test in absence of assigned TTY.
+	Rewrite case evaluation without nested pipelines and OR connectives.
+
+2012-02-21  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Basic test case for `telnet'.
 	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_inetd && ENABLE_telnet]:
 	Added telnet-localhost.sh.

@@ -27,7 +27,7 @@
 #
 #  * cat(1), expr(1), head(1), kill(1), pwd(1), rm(1).
 #
-#  * id(1), grep(1), mktemp(1), ps(1).
+#  * id(1), grep(1), mktemp(1), ps(1), tty(1).
 
 # Is usage explanation in demand?
 #
@@ -67,18 +67,26 @@ if test -n "$VERBOSE"; then
     $TELNET --version | head -1
 fi
 
+# The use of telnet is portable only with a connected TTY.
+if tty >/dev/null; then
+    :
+else
+    echo 'No TTY assigned to this process.  Skipping test.' >&2
+    exit 77
+fi
+
 if test ! -x $INETD; then
-    echo "Missing executable '$INETD'.  Skipping." >&2
+    echo "Missing executable '$INETD'.  Skipping test." >&2
     exit 77
 fi
 
 if test ! -x $TELNET; then
-    echo "Missing executable '$TELNET'.  Skipping." >&2
+    echo "Missing executable '$TELNET'.  Skipping test." >&2
     exit 77
 fi
 
 if test ! -x $ADDRPEEK; then
-    echo "Missing executable '$ADDRPEEK'.  Skipping." >&2
+    echo "Missing executable '$ADDRPEEK'.  Skipping test." >&2
     exit 77
 fi
 
@@ -159,27 +167,30 @@ telnet_opts="--no-rc --no-escape --no-login"
 
 errno=0
 
-test -z "$TARGET4" || {
-    $TELNET $telnet_opts $TARGET4 $PORT 2>/dev/null |
-    eval "grep 'Your address is $TARGET4.' $display"  || {
+if test -n "$TARGET4"; then
+    output=`$TELNET $telnet_opts $TARGET4 $PORT 2>/dev/null`
+    echo "$output" | eval "grep 'Your address is $TARGET4.' $display"
+    if test $? -ne 0; then
 	errno=1
 	echo "Failed at '$TARGET4'." >&2
-    }
-}
+    fi
+fi
 
-test -z "$TARGET6" || {
-    $TELNET $telnet_opts $TARGET6 $PORT 2>/dev/null |
-    eval "grep 'Your address is $TARGET6.' $display"  || {
+if test -n "$TARGET6"; then
+    output=`$TELNET $telnet_opts $TARGET6 $PORT 2>/dev/null`
+    echo "$output" | eval "grep 'Your address is $TARGET6.' $display"
+    if test $? -ne 0; then
 	errno=1
 	echo "Failed at '$TARGET6'." >&2
-    }
-}
+    fi
+fi
 
-test -z "$TARGET46" || {
-    $TELNET $telnet_opts $TARGET46 $PORT 2>/dev/null |
-    eval "grep 'Your address is .*$TARGET4.' $display" || {
+if test -n "$TARGET46"; then
+    output=`$TELNET $telnet_opts $TARGET46 $PORT 2>/dev/null`
+    echo "$output" | eval "grep 'Your address is .*$TARGET4.' $display"
+    if test $? -ne 0; then
 	echo "Informational: Unsuccessful with mapped address '$TARGET46'." >&2
-    }
-}
+    fi
+fi
 
 exit $errno
