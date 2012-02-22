@@ -38,7 +38,7 @@ Minimal test for TELNET client.
 The following environment variables are used:
 
 VERBOSE		Be verbose, if set.
-TARGET4		Receiving IPv4 address.
+TARGET		Receiving IPv4 address.
 TARGET6		Receiving IPv6 address.
 
 HERE
@@ -47,14 +47,14 @@ fi
 
 # The executables under test.
 #
-INETD=../src/inetd$EXEEXT
-TELNET=../telnet/telnet$EXEEXT
-ADDRPEEK=./addrpeek$EXEEXT
+INETD=${INETD:-../src/inetd$EXEEXT}
+TELNET=${TELNET:-../telnet/telnet$EXEEXT}
+ADDRPEEK=${ADDRPEEK:-./addrpeek$EXEEXT}
 
 # Selected targets.
-TARGET4=${TARGET4:-127.0.0.1}
+TARGET=${TARGET:-127.0.0.1}
 TARGET6=${TARGET6:-::1}
-TARGET46="::ffff:$TARGET4"
+TARGET46="::ffff:$TARGET"
 
 # Step into `tests/', should the invokation
 # have been made outside of it.
@@ -167,12 +167,12 @@ telnet_opts="--no-rc --no-escape --no-login"
 
 errno=0
 
-if test -n "$TARGET4"; then
-    output=`$TELNET $telnet_opts $TARGET4 $PORT 2>/dev/null`
-    echo "$output" | eval "grep 'Your address is $TARGET4.' $display"
+if test -n "$TARGET"; then
+    output=`$TELNET $telnet_opts $TARGET $PORT 2>/dev/null`
+    echo "$output" | eval "grep 'Your address is $TARGET.' $display"
     if test $? -ne 0; then
 	errno=1
-	echo "Failed at '$TARGET4'." >&2
+	echo "Failed at '$TARGET'." >&2
     fi
 fi
 
@@ -187,7 +187,7 @@ fi
 
 if test -n "$TARGET46"; then
     output=`$TELNET $telnet_opts $TARGET46 $PORT 2>/dev/null`
-    echo "$output" | eval "grep 'Your address is .*$TARGET4.' $display"
+    echo "$output" | eval "grep 'Your address is .*$TARGET.' $display"
     if test $? -ne 0; then
 	echo "Informational: Unsuccessful with mapped address '$TARGET46'." >&2
     fi

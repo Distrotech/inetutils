@@ -1,5 +1,13 @@
 2012-02-22  Mats Erik Andersson <gnu@gisladisker.se>
 
+	* tests/ping-localhost.sh, tests/traceroute-localhost.sh: Mend string
+	quotation for expected variable expansion.
+	* tests/syslogd.sh (SYSLOGD, LOGGER): Allow value overriding.
+	* tests/telnet-localhost.sh (INETD, TELNET, ADDRPEEK): Likewise.
+	(TARGET): New variable, replacing previous TARGET4.
+
+2012-02-22  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Implement group assignment for services.
 	* src/inetd.c (struct servtab): New component `char *se_group'.
 	(run_service): New variable GRP.  Check existence of `sep->se_group'.

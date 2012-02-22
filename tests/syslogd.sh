@@ -83,8 +83,8 @@ fi
 
 # The executables under test.
 #
-SYSLOGD=../src/syslogd$EXEEXT
-LOGGER=../src/logger$EXEEXT
+SYSLOGD=${SYSLOGD:-../src/syslogd$EXEEXT}
+LOGGER=${LOGGER:-../src/logger$EXEEXT}
 
 # Step into `tests/', should the invokation
 # have been made outside of it.

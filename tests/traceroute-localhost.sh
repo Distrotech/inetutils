@@ -27,7 +27,7 @@ TRACEROUTE=${TRACEROUTE:-../src/traceroute$EXEEXT}
 TARGET=${TARGET:-127.0.0.1}
 
 if [ ! -x $TRACEROUTE ]; then
-    echo 'No executable "$TRACEROUTE" available.  Skipping test.' >&2
+    echo 'No executable "'$TRACEROUTE'" available.  Skipping test.' >&2
     exit 77
 fi
 

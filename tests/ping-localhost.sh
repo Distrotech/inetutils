@@ -30,7 +30,7 @@ PING6=${PING6:-../ping/ping6$EXEEXT}
 TARGET6=${TARGET6:-::1}
 
 if [ ! -x $PING ]; then
-    echo 'No executable "$PING" available.  Skipping test.' >&2
+    echo 'No executable "'$PING'" available.  Skipping test.' >&2
     exit 77
 fi
 
