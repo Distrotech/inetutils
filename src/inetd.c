@@ -76,7 +76,7 @@
  *	protocol			must be in /etc/protocols
  *	wait/nowait[.max]		single-threaded/multi-threaded
  *                                      [with an optional fork limit]
- *	user				user to run daemon as
+ *	user[:group] or user[.group]	user (and group) to run daemon as
  *	server program			full path name
  *	server program arguments	arguments starting with argv[0]
  *
@@ -258,6 +258,7 @@ struct servtab
   unsigned se_max;              /* Maximum number of instances per CNT_INTVL */
   short se_checked;		/* looked at during merge */
   char *se_user;		/* user name to run as */
+  char *se_group;		/* group name to run as */
   struct biltin *se_bi;		/* if built-in, description */
   char *se_server;		/* server program */
   char **se_argv;		/* program arguments */
@@ -413,6 +414,7 @@ void
 run_service (int ctrl, struct servtab *sep)
 {
   struct passwd *pwd;
+  struct group *grp = NULL;
   char buf[50];
 
   if (sep->se_bi)
@@ -435,16 +437,37 @@ run_service (int ctrl, struct servtab *sep)
 	    recv (0, buf, sizeof buf, 0);
 	  _exit (1);
 	}
+      if (sep->se_group && *sep->se_group)
+	{
+	  if ((grp = getgrnam (sep->se_group)) == NULL)
+	    {
+	      syslog (LOG_ERR, "%s/%s: %s: No such group",
+		      sep->se_service, sep->se_proto, sep->se_group);
+	      if (sep->se_socktype != SOCK_STREAM)
+		recv (0, buf, sizeof buf, 0);
+	      _exit (1);
+	    }
+	}
       if (pwd->pw_uid)
 	{
-	  if (setgid (pwd->pw_gid) < 0)
+	  if (grp && grp->gr_gid)
+	    {
+	      if (setgid (grp->gr_gid) < 0)
+		{
+		  syslog (LOG_ERR, "%s: can't set gid %d: %m",
+			  sep->se_service, grp->gr_gid);
+		  _exit (1);
+		}
+	    }
+	  else if (setgid (pwd->pw_gid) < 0)
 	    {
 	      syslog (LOG_ERR, "%s: can't set gid %d: %m",
 		      sep->se_service, pwd->pw_gid);
 	      _exit (1);
 	    }
 #ifdef HAVE_INITGROUPS
-	  initgroups (pwd->pw_name, pwd->pw_gid);
+	  initgroups (pwd->pw_name,
+		      (grp && grp->gr_gid) ? grp->gr_gid : pwd->pw_gid);
 #endif
 	  if (setuid (pwd->pw_uid) < 0)
 	    {
@@ -536,13 +559,13 @@ void
 print_service (const char *action, struct servtab *sep)
 {
   fprintf (stderr,
-	   "%s:%d: %s: %s:%s proto=%s, wait=%d, max=%u, user=%s builtin=%s server=%s\n",
+	   "%s:%d: %s: %s:%s proto=%s, wait=%d, max=%u, user=%s group=%s builtin=%s server=%s\n",
 	   sep->se_file, sep->se_line,
 	   action,
 	   ISMUX (sep) ? (ISMUXPLUS (sep) ? "tcpmuxplus" : "tcpmux")
 		      : (sep->se_node ? sep->se_node : "*"),
 	   sep->se_service, sep->se_proto,
-	   sep->se_wait, sep->se_max, sep->se_user,
+	   sep->se_wait, sep->se_max, sep->se_user, sep->se_group,
 	   sep->se_bi ? sep->se_bi->bi_service : "no",
 	   sep->se_server);
 }
@@ -709,6 +732,8 @@ enter (struct servtab *cp)
 #define SWAP(a, b) { char *c = a; a = b; b = c; }
       if (cp->se_user)
 	SWAP (sep->se_user, cp->se_user);
+      if (cp->se_group)
+	SWAP (sep->se_group, cp->se_group);
       if (cp->se_server)
 	SWAP (sep->se_server, cp->se_server);
       argcv_free (sep->se_argc, sep->se_argv);
@@ -737,6 +762,7 @@ enter (struct servtab *cp)
   dupstr (&sep->se_service);
   dupstr (&sep->se_proto);
   dupstr (&sep->se_user);
+  dupstr (&sep->se_group);
   dupstr (&sep->se_server);
   dupmem ((void**)&sep->se_argv, sep->se_argc * sizeof (sep->se_argv[0]));
   for (i = 0; i < sep->se_argc; i++)
@@ -885,6 +911,7 @@ freeconfig (struct servtab *cp)
   free (cp->se_service);
   free (cp->se_proto);
   free (cp->se_user);
+  free (cp->se_group);
   free (cp->se_server);
   argcv_free (cp->se_argc, cp->se_argv);
 }
@@ -1126,7 +1153,27 @@ getconfigent (FILE *fconfig, const char *file, size_t *line)
 	    }
 	}
 
-      sep->se_user = newstr (argv[INETD_USER]);
+      /* Establish optional group identity:
+       *   user:group, user.group
+       */
+      {
+	char *p;
+
+	sep->se_user = newstr (argv[INETD_USER]);
+
+	p = strchr (sep->se_user, ':');
+	if (!p)
+	  p = strchr (sep->se_user, '.');
+
+	if (p)
+	  {
+	    *p = '\0';
+	    sep->se_group = newstr (++p);
+	  }
+	else
+	  sep->se_group = newstr (NULL);
+      }
+
       sep->se_server = newstr (argv[INETD_SERVER_PATH]);
       if (strcmp (sep->se_server, "internal") == 0)
 	{
@@ -1183,6 +1230,7 @@ nextconfig (const char *file)
 #endif
   struct servtab *sep, **sepp;
   struct passwd *pwd;
+  struct group *grp;
   FILE *fconfig;
   SIGSTATUS sigstatus;
 
@@ -1201,6 +1249,15 @@ nextconfig (const char *file)
 	  syslog (LOG_ERR, "%s/%s: No such user '%s', service ignored",
 		  sep->se_service, sep->se_proto, sep->se_user);
 	  continue;
+	}
+      if (sep->se_group && *sep->se_group)
+	{
+	  if ((grp = getgrnam (sep->se_group)) == NULL)
+	    {
+	      syslog (LOG_ERR, "%s/%s: No such group '%s', service ignored",
+		      sep->se_service, sep->se_proto, sep->se_group);
+	      continue;
+	    }
 	}
       if (ISMUX (sep))
 	{
@@ -1275,6 +1332,7 @@ fix_tcpmux (void)
       serv.se_socktype = SOCK_STREAM;
       serv.se_checked = 1;
       serv.se_user = newstr ("root");
+      serv.se_group = newstr (NULL);	/* Group name for root is not portable.  */
       serv.se_bi = bi_lookup (&serv);
       if (!serv.se_bi)
 	{

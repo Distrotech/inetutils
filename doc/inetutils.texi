@@ -2230,13 +2230,15 @@ e.g.: @samp{nowait.15}.
 Stream-based servers that use @samp{wait} are started with the
 listening service socket, and must accept at least one connection
 request before exiting.  Such a server would normally accept and
-process incoming connection requests until a timeout.  services must
-use @samp{nowait}.
+process incoming connection requests until a timeout.
+Other services must use @samp{nowait}.
 
 @item user
 The user entry should contain the user name of the user as whom the
 server should run.  This allows for servers to be given less
-permission than root.
+permission than root.  An optional form includes also a group name
+as a suffix, separated from the user name by colon or a period, i.e.,
+@samp{user:group} or @samp{user.group}.
 
 @item server program
 The server-program entry should contain the pathname of the program

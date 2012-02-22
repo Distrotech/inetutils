@@ -1,3 +1,18 @@
+2012-02-22  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Implement group assignment for services.
+	* src/inetd.c (struct servtab): New component `char *se_group'.
+	(run_service): New variable GRP.  Check existence of `sep->se_group'.
+	If valid, then apply setgid() to `grp->gr_gid' instead of `pwd->pw_gid'.
+	[HAVE_INITGROUPS] <initgroups>: Use `grp->gr_id' if an explicit group
+	was stated, otherwise use `pwd->pw_gid'.
+	(print_service): Display also group membership.
+	(enter, freeconfig): Add string handling for groups.
+	(getconfigent): Parse user string for an optional group component.
+	(nextconfig): Assure that an assigned group really exists.
+	(fix_tcpmux): Add empty group string.
+	* doc/inetutils.texi (inetd configuration file): Add setting of group.
+
 2012-02-21  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/telnet-localhost.sh: Skip test in absence of assigned TTY.
