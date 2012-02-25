@@ -31,7 +31,8 @@ local-checks-to-skip = \
 	sc_prohibit_stat_st_blocks \
 	sc_prohibit_strcmp \
 	sc_unmarked_diagnostics \
-	sc_bindtextdomain
+	sc_bindtextdomain \
+	sc_assignment_in_if
 
 exclude_file_name_regexp--sc_prohibit_have_config_h = \
 	^libinetutils/libinetutils.h$$
@@ -63,4 +64,8 @@ sc_unsigned_long:
 sc_unsigned_short:
 	@prohibit=u''_short \
 	halt='don'\''t use u''_char; instead use unsigned short' \
+	  $(_sc_search_regexp)
+
+sc_assignment_in_if:
+	prohibit='\<if *\(.* = ' halt="don't use assignments in if statements"	\
 	  $(_sc_search_regexp)

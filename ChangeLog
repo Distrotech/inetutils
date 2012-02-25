@@ -1,5 +1,8 @@
 2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* cfg.mk (local-checks-to-skip): Added sc_assignment_in_if to list.
+	(sc_assignment_in_if): New target.
+
 	* bootstrap: Updated from gnulib.
 
 	* src/inetd.c (main, tcpmux, chargen_dg, chargen_stream)
