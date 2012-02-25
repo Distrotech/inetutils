@@ -429,7 +429,8 @@ run_service (int ctrl, struct servtab *sep)
       close (ctrl);
       dup2 (0, 1);
       dup2 (0, 2);
-      if ((pwd = getpwnam (sep->se_user)) == NULL)
+      pwd = getpwnam (sep->se_user);
+      if (pwd == NULL)
 	{
 	  syslog (LOG_ERR, "%s/%s: %s: No such user",
 		  sep->se_service, sep->se_proto, sep->se_user);
@@ -439,7 +440,8 @@ run_service (int ctrl, struct servtab *sep)
 	}
       if (sep->se_group && *sep->se_group)
 	{
-	  if ((grp = getgrnam (sep->se_group)) == NULL)
+	  grp = getgrnam (sep->se_group);
+	  if (grp == NULL)
 	    {
 	      syslog (LOG_ERR, "%s/%s: %s: No such group",
 		      sep->se_service, sep->se_proto, sep->se_group);
@@ -524,7 +526,8 @@ char *
 newstr (const char *cp)
 {
   char *s;
-  if ((s = strdup (cp ? cp : "")))
+  s = strdup (cp ? cp : "");
+  if (s != NULL)
     return s;
   syslog (LOG_ERR, "strdup: %m");
   exit (-1);
@@ -1244,7 +1247,8 @@ nextconfig (const char *file)
     }
   while ((sep = getconfigent (fconfig, file, &line)))
     {
-      if ((pwd = getpwnam (sep->se_user)) == NULL)
+      pwd = getpwnam (sep->se_user);
+      if (pwd == NULL)
 	{
 	  syslog (LOG_ERR, "%s/%s: No such user '%s', service ignored",
 		  sep->se_service, sep->se_proto, sep->se_user);
@@ -1252,7 +1256,8 @@ nextconfig (const char *file)
 	}
       if (sep->se_group && *sep->se_group)
 	{
-	  if ((grp = getgrnam (sep->se_group)) == NULL)
+	  grp = getgrnam (sep->se_group);
+	  if (grp == NULL)
 	    {
 	      syslog (LOG_ERR, "%s/%s: No such group '%s', service ignored",
 		      sep->se_service, sep->se_proto, sep->se_group);
@@ -1569,7 +1574,8 @@ chargen_stream (int s, struct servtab *sep)
   text[LINESIZ + 1] = '\n';
   for (rs = ring;;)
     {
-      if ((len = endring - rs) >= LINESIZ)
+      len = endring - rs;
+      if (len >= LINESIZ)
 	memmove (text, rs, LINESIZ);
       else
 	{
@@ -1608,7 +1614,8 @@ chargen_dg (int s, struct servtab *sep)
   if (recvfrom (s, text, sizeof text, 0, (struct sockaddr *) &sa, &size) < 0)
     return;
 
-  if ((len = endring - rs) >= LINESIZ)
+  len = endring - rs;
+  if (len >= LINESIZ)
     memmove (text, rs, LINESIZ);
   else
     {
@@ -1753,7 +1760,8 @@ tcpmux (int s, struct servtab *sep)
   int len;
 
   /* Get requested service name */
-  if ((len = fd_getline (s, service, MAX_SERV_LEN)) < 0)
+  len = fd_getline (s, service, MAX_SERV_LEN);
+  if (len < 0)
     {
       strwrite (s, "-Error reading service name\r\n");
       _exit (1);
@@ -1977,7 +1985,8 @@ main (int argc, char *argv[], char *envp[])
 	  signal_unblock (NULL);
 	}
       readable = allsock;
-      if ((n = select (maxsock + 1, &readable, NULL, NULL, NULL)) <= 0)
+      n = select (maxsock + 1, &readable, NULL, NULL, NULL);
+      if (n <= 0)
 	{
 	  if (n < 0 && errno != EINTR)
 	    syslog (LOG_WARNING, "select: %m");

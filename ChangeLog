@@ -1,3 +1,8 @@
+2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
+
+	* src/inetd.c (main, tcpmux, chargen_dg, chargen_stream)
+	(nextconfig, newstr, run_service): Fix indentation.
+
 2012-02-22  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/ping-localhost.sh, tests/traceroute-localhost.sh: Mend string
