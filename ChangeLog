@@ -1,5 +1,9 @@
 2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* bootstrap.conf (gnulib_modules): Sort lexically.
+
+2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
+
 	Silence sc_makefile_at_at_check.
 
 	* whois/Makefile.am (bin_PROGRAMS): Use $(...) type of variable

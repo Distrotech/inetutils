@@ -1347,12 +1347,12 @@ printsub (int direction, unsigned char *pointer, int length)
 		  default:
 		    if (isprint (pointer[i]) && pointer[i] != '"')
 		      {
-                        if (noquote)
+			if (noquote)
 			  {
 			    debug_output_data ("\"");
 			    noquote = 0;
 			  }
-			debug_output_datalen ((char*) &pointer[i], 1);
+			debug_output_datalen ((char *) &pointer[i], 1);
 		      }
 		    else
 		      {

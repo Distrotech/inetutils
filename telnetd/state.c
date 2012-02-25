@@ -54,10 +54,10 @@
 
 #if defined HAVE_STREAMSPTY && defined TIOCSIGNAL \
 	&& defined HAVE_STROPTS_H
-# include <stropts.h>	/* I_FLUSH, FLUSHR */
+# include <stropts.h>		/* I_FLUSH, FLUSHR */
 #endif
 
-#ifndef NTELOPTS	/* OpenSolaris */
+#ifndef NTELOPTS		/* OpenSolaris */
 # define NTELOPTS	(1+TELOPT_NEW_ENVIRON)
 #endif
 
@@ -66,6 +66,7 @@ char doopt[] = { IAC, DO, '%', 'c', 0 };
 char dont[] = { IAC, DONT, '%', 'c', 0 };
 char will[] = { IAC, WILL, '%', 'c', 0 };
 char wont[] = { IAC, WONT, '%', 'c', 0 };
+
 int not42 = 1;
 
 /*

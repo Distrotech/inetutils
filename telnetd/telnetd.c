@@ -92,29 +92,29 @@ char *terminaltype;
 
 int SYNCHing;			/* we are in TELNET SYNCH mode */
 struct telnetd_clocks clocks;
-
 
+
 static struct argp_option argp_options[] = {
-  { "authmode", 'a', "MODE", 0,
-    "specify what mode to use for authentication" },
-  { "debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
-    "set debugging level" },
-  { "exec-login", 'E', "STRING", 0,
-    "set program to be executed instead of " PATH_LOGIN },
-  { "no-hostinfo", 'h', NULL, 0,
-    "do not print host information before login has been completed" },
-  { "linemode", 'l', "MODE", OPTION_ARG_OPTIONAL,
-    "set line mode" },
-  { "no-keepalive", 'n', NULL, 0,
-    "disable TCP keep-alives" },
-  { "reverse-lookup", 'U', NULL, 0,
-    "refuse connections from addresses that "
-    "cannot be mapped back into a symbolic name" },
+  {"authmode", 'a', "MODE", 0,
+   "specify what mode to use for authentication"},
+  {"debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
+   "set debugging level"},
+  {"exec-login", 'E', "STRING", 0,
+   "set program to be executed instead of " PATH_LOGIN},
+  {"no-hostinfo", 'h', NULL, 0,
+   "do not print host information before login has been completed"},
+  {"linemode", 'l', "MODE", OPTION_ARG_OPTIONAL,
+   "set line mode"},
+  {"no-keepalive", 'n', NULL, 0,
+   "disable TCP keep-alives"},
+  {"reverse-lookup", 'U', NULL, 0,
+   "refuse connections from addresses that "
+   "cannot be mapped back into a symbolic name"},
 #ifdef  AUTHENTICATION
-  { "disable-auth-type", 'X', "TYPE", 0,
-    "disable the use of given authentication option" },
+  {"disable-auth-type", 'X', "TYPE", 0,
+   "disable the use of given authentication option"},
 #endif
-  { NULL }
+  {NULL}
 };
 
 static error_t
@@ -163,15 +163,14 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp =
-  {
-    argp_options,
-    parse_opt,
-    NULL,
-    "DARPA telnet protocol server"
-  };
-
+static struct argp argp = {
+  argp_options,
+  parse_opt,
+  NULL,
+  "DARPA telnet protocol server"
+};
 
+
 
 int
 main (int argc, char **argv)
@@ -224,11 +223,16 @@ static struct
   int modnum;
 } debug_mode[debug_max_mode] =
 {
-  {"options", debug_options},
-  {"report", debug_report},
-  {"netdata", debug_net_data},
-  {"ptydata", debug_pty_data},
-  {"auth", debug_auth},};
+  {
+  "options", debug_options},
+  {
+  "report", debug_report},
+  {
+  "netdata", debug_net_data},
+  {
+  "ptydata", debug_pty_data},
+  {
+"auth", debug_auth},};
 
 void
 parse_debug_level (char *str)
