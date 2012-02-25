@@ -1,5 +1,7 @@
 2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	* bootstrap: Updated from gnulib.
+
 	* src/inetd.c (main, tcpmux, chargen_dg, chargen_stream)
 	(nextconfig, newstr, run_service): Fix indentation.
 
