@@ -20,7 +20,7 @@
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @talkd_BUILD@
+inetdaemon_PROGRAMS = $(talkd_BUILD)
 
 EXTRA_PROGRAMS = talkd
 

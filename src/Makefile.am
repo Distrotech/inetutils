@@ -28,70 +28,70 @@ bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
 
-bin_PROGRAMS += @hostname_BUILD@
+bin_PROGRAMS += $(hostname_BUILD)
 hostname_SOURCES = hostname.c
 EXTRA_PROGRAMS += hostname
 
-bin_PROGRAMS += @logger_BUILD@
+bin_PROGRAMS += $(logger_BUILD)
 logger_SOURCES = logger.c logprio.h
 EXTRA_PROGRAMS += logger
 
-bin_PROGRAMS += @rcp_BUILD@
+bin_PROGRAMS += $(rcp_BUILD)
 rcp_SOURCES = rcp.c
 rcp_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rcp
 
-bin_PROGRAMS += @rexec_BUILD@
+bin_PROGRAMS += $(rexec_BUILD)
 rexec_SOURCES = rexec.c
 EXTRA_PROGRAMS += rexec
 
-bin_PROGRAMS += @rlogin_BUILD@
+bin_PROGRAMS += $(rlogin_BUILD)
 rlogin_SOURCES = rlogin.c
 rlogin_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rlogin
 
-bin_PROGRAMS += @rsh_BUILD@
+bin_PROGRAMS += $(rsh_BUILD)
 rsh_SOURCES = rsh.c
 rsh_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rsh
 
-bin_PROGRAMS += @tftp_BUILD@
+bin_PROGRAMS += $(tftp_BUILD)
 tftp_SOURCES = tftp.c
 EXTRA_PROGRAMS += tftp
 
-bin_PROGRAMS += @traceroute_BUILD@
+bin_PROGRAMS += $(traceroute_BUILD)
 traceroute_SOURCES = traceroute.c
 traceroute_LDADD = $(top_builddir)/libicmp/libicmp.a $(LDADD)
 EXTRA_PROGRAMS += traceroute
 
-inetdaemon_PROGRAMS += @inetd_BUILD@
+inetdaemon_PROGRAMS += $(inetd_BUILD)
 inetd_SOURCES = inetd.c
 EXTRA_PROGRAMS += inetd
 
-inetdaemon_PROGRAMS += @rexecd_BUILD@
+inetdaemon_PROGRAMS += $(rexecd_BUILD)
 rexecd_SOURCES = rexecd.c
 rexecd_LDADD = $(LDADD) $(LIBCRYPT)
 EXTRA_PROGRAMS += rexecd
 
-inetdaemon_PROGRAMS += @rlogind_BUILD@
+inetdaemon_PROGRAMS += $(rlogind_BUILD)
 rlogind_SOURCES = rlogind.c
 rlogind_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rlogind
 
-inetdaemon_PROGRAMS += @rshd_BUILD@
+inetdaemon_PROGRAMS += $(rshd_BUILD)
 rshd_SOURCES = rshd.c
 rshd_LDADD = $(LDADD) $(LIBAUTH)
 EXTRA_PROGRAMS += rshd
 
-inetdaemon_PROGRAMS += @syslogd_BUILD@
+inetdaemon_PROGRAMS += $(syslogd_BUILD)
 syslogd_SOURCES = syslogd.c
 EXTRA_PROGRAMS += syslogd
 
-inetdaemon_PROGRAMS += @tftpd_BUILD@
+inetdaemon_PROGRAMS += $(tftpd_BUILD)
 tftpd_SOURCES = tftpd.c
 EXTRA_PROGRAMS += tftpd
 
-inetdaemon_PROGRAMS += @uucpd_BUILD@
+inetdaemon_PROGRAMS += $(uucpd_BUILD)
 uucpd_SOURCES = uucpd.c
 uucpd_LDADD = $(LDADD) $(LIBCRYPT)
 EXTRA_PROGRAMS += uucpd
@@ -102,7 +102,7 @@ AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_CONSOLE) $(PATHDEF_CP) $(PATHDEF_DEFPA
 
 SUIDMODE = -o root -m 4775
 
-install-exec-hook: @traceroute_INSTALL_HOOK@ @rsh_INSTALL_HOOK@ @rlogin_INSTALL_HOOK@ @rcp_INSTALL_HOOK@
+install-exec-hook: $(traceroute_INSTALL_HOOK) $(rsh_INSTALL_HOOK) $(rlogin_INSTALL_HOOK) $(rcp_INSTALL_HOOK)
 
 install-traceroute-hook:
 	-@$(INSTALL_PROGRAM) traceroute $(SUIDMODE) $(AM_INSTALL_PROGRAM_FLAGS) $(DESTDIR)$(bindir)/`echo traceroute|sed '$(transform)'` ; \

@@ -20,7 +20,7 @@
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @telnetd_BUILD@
+inetdaemon_PROGRAMS = $(telnetd_BUILD)
 
 EXTRA_PROGRAMS = telnetd
 

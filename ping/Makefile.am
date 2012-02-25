@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-bin_PROGRAMS = @ping_BUILD@ @ping6_BUILD@
+bin_PROGRAMS = $(ping_BUILD) $(ping6_BUILD)
 
 EXTRA_PROGRAMS = ping ping6
 
@@ -41,4 +41,4 @@ install-ping-hook:
 	fi \
 	done
 
-install-exec-hook: @ping_INSTALL_HOOK@
+install-exec-hook: $(ping_INSTALL_HOOK)

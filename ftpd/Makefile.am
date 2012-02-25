@@ -20,7 +20,7 @@
 
 inetdaemondir = @inetdaemondir@
 
-inetdaemon_PROGRAMS = @ftpd_BUILD@
+inetdaemon_PROGRAMS = $(ftpd_BUILD)
 
 EXTRA_PROGRAMS = ftpd
 

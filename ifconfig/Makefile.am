@@ -19,7 +19,7 @@
 
 SUBDIRS = system
 
-bin_PROGRAMS = @ifconfig_BUILD@
+bin_PROGRAMS = $(ifconfig_BUILD)
 
 EXTRA_PROGRAMS = ifconfig
 

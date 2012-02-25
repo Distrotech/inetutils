@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-bin_PROGRAMS = @telnet_BUILD@
+bin_PROGRAMS = $(telnet_BUILD)
 
 EXTRA_PROGRAMS = telnet
 

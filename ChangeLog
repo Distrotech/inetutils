@@ -1,5 +1,23 @@
 2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
 
+	Silence sc_makefile_at_at_check.
+
+	* whois/Makefile.am (bin_PROGRAMS): Use $(...) type of variable
+	reference instead of @...@.
+	* telnetd/Makefile.am: Likewise.
+	* telnet/Makefile.am (bin_PROGRAMS): Likewise.
+	* talkd/Makefile.am (inetdaemon_PROGRAMS): Likewise.
+	* talk/Makefile.am (bin_PROGRAMS): Likewise.
+	* src/Makefile.am (bin_PROGRAMS, inetdaemon_PROGRAMS)
+	(install-exec-hook): Likewise.
+	* ping/Makefile.am (bin_PROGRAMS, install-exec-hook): Likewise.
+	* libls/Makefile.am (noinst_LIBRARIES): Likewise.
+	* ifconfig/Makefile.am (bin_PROGRAMS): Likewise.
+	* ftpd/Makefile.am (inetdaemon_PROGRAMS): Likewise.
+	* ftp/Makefile.am (bin_PROGRAMS): Likewise.
+
+2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
+
 	* cfg.mk (local-checks-to-skip): Added sc_assignment_in_if to list.
 	(sc_assignment_in_if): New target.
 
