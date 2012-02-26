@@ -84,14 +84,14 @@ write_address (int fd)
     {
       sslen = sizeof (ss);
       recvfrom (fd, answer, sizeof (answer), 0,
-		(struct sockaddr *) &ss, &sslen);
+                  (struct sockaddr *) &ss, &sslen);
       shutdown (fd, SHUT_RD);
     }
   else
-    return;
+      return;
 
   getnameinfo ((struct sockaddr *) &ss, sslen, addr, sizeof (addr),
-	       NULL, 0, NI_NUMERICHOST);
+                NULL, 0, NI_NUMERICHOST);
 
   len = snprintf (answer, sizeof (answer),
                   "Your address is %s." SEPARATOR, addr);
