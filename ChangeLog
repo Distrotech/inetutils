@@ -1,5 +1,20 @@
 2012-03-01  Mats Erik Andersson <gnu@gisladisker.se>
 
+	Subtests for SIGHUP reaction of `inetd' and `syslogd'.
+
+	* tests/syslogd.sh: Write a second configuration file after first run,
+	send SIGHUP to server, and evaluate message response.
+	(SUCCESSES): Update arithmetic expression used in evaluation.
+	(OUT_USER, OUT_DEBUG, TAG2, COUNT2, COUNT2_debug, COUNT3, COUNT3_info):
+	New variables.
+	<verbose report>: Print messages of files $OUT_USER and $OUT_DEBUG.
+
+	* tests/tftp.sh: Calculate new port after first test run, send SIGHUP
+	to server, and transmit a small file at each adress in old list.
+	(do_conf_reload): New variable.
+
+2012-03-01  Mats Erik Andersson <gnu@gisladisker.se>
+
 	Reduce external prerequisites in test scripts.
 	* tests/ftp-localhost.sh: Replace `head -1' by `sed 1q'.
 	* tests/telnet-localhost.sh, tests/tftp.sh: Likewise.  Replace `ps pid'

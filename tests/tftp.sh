@@ -96,6 +96,9 @@ AF=${AF:-inet}
 PROTO=${PROTO:-udp}
 USER=`id -u -n`
 
+# Late supplimentary subtest.
+do_conf_reload=true
+
 # Random base directory at testing time.
 TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX` ||
     {
@@ -323,6 +326,52 @@ for addr in $ADDRESSES; do
 	fi
    done
 done
+
+# Test the ability of inetd to reload configuration:
+#
+# Assign a new port in the configuration file. Send SIGHUP
+# to inetd and check whether transmission of the small
+# file used previously still succeeds.
+#
+PORT=`expr $PORT + 1 + ${RANDOM:-$$} % 521`
+
+locate_port $PROTO $PORT &&
+    {
+	# Try a second port.
+	PORT=`expr $PORT + 97 + ${RANDOM:-$$} % 479`
+	# Disable subtest if still no free port.
+	locate_port $PROTO $PORT && do_conf_reload=false
+    }
+
+echo
+
+if $do_conf_reload; then
+    echo >&2 'Testing altered and reloaded configuration.'
+    write_conf ||
+	{
+	    echo >&2 'Could not rewrite configuration file for Inetd.  Failing.'
+	    exit 1
+	}
+
+    kill -HUP $inetd_pid
+    name=`echo "$FILELIST" | sed 's/ .*//'`
+    for addr in $ADDRESSES; do
+	EFFORTS=`expr $EFFORTS + 1`
+	test -f "$name" && rm "$name"
+	echo "get $name" | "$TFTP" ${VERBOSE+-v} "$addr" $PORT
+	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
+	result=$?
+	if test $result -ne 0; then
+	    test -z "$VERBOSE" || echo >&2 "Failed comparison for $addr/$name."
+	    RESULT=$result
+	else
+	    SUCCESSES=`expr $SUCCESSES + 1`
+	    test -z "$VERBOSE" || echo >&2 "Success at new port for $addr/$name."
+	fi
+    done
+else
+    echo >&2 'Informational: Inhibiting config reload test.'
+fi
 
 # Minimal clean up. Main work in posttesting().
 echo

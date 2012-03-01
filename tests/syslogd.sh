@@ -400,6 +400,47 @@ if $do_inet_socket; then
 	"Sending IPv6 message. (pid $$)"
 fi
 
+# Generate a more elaborate message routing, aimed at confirming
+# discrimination of severity and facility.  This is made active
+# by sending SIGHUP to the server process.
+#
+OUT_USER="$IU_TESTDIR"/user.log
+OUT_DEBUG="$IU_TESTDIR"/debug.log
+
+# Create the new files to avoid false negatives.
+: > "$OUT_USER"
+: > "$OUT_DEBUG"
+
+cat > "$CONF" <<-EOT
+	*.*;user.none	$OUT
+	user.info	$OUT_USER
+	*.=debug	$OUT_DEBUG
+EOT
+
+# Use another tag for better discrimination.
+TAG2="syslogd-reload-test"
+
+# Load the new configuration
+kill -HUP `cat "$PID"`
+
+if $do_unix_socket; then
+    # Two messages, but absence is also awarded credit.
+    TESTCASES=`expr $TESTCASES + 4`
+    $LOGGER -h "$SOCKET" -p user.info -t "$TAG2" \
+	"user.info as BSD message. (pid $$)"
+    $LOGGER -h "$SOCKET" -p user.debug -t "$TAG2" \
+	"user.debug as BSD message. (pid $$)"
+fi
+
+if $do_inet_socket; then
+    # Two messages, but absence is also awarded credit.
+    TESTCASES=`expr $TESTCASES + 4`
+    $LOGGER -4 -h "$TARGET:$PORT" -p user.info -t "$TAG2" \
+	"user.info IPv4 message. (pid $$)"
+    $LOGGER -4 -h "$TARGET:$PORT" -p user.debug -t "$TAG2" \
+	"user.debug as IPv4 message. (pid $$)"
+fi
+
 # Remove previous SYSLOG daemon.
 test -r "$PID" && kill -0 "`cat "$PID"`" >/dev/null 2>&1 &&
     kill "`cat "$PID"`"
@@ -435,14 +476,24 @@ sleep 1
 # Detection of registered messages.
 #
 COUNT=`grep -c "$TAG" "$OUT"`
-SUCCESSES=`expr $SUCCESSES + $COUNT`
+COUNT2=`grep -c "$TAG2" "$OUT_USER"`
+COUNT2_debug=`grep -c "$TAG2.*user.debug" "$OUT_USER"`
+COUNT3=`grep -c "$TAG2" "$OUT_DEBUG"`
+COUNT3_info=`grep -c "$TAG2.*user.info" "$OUT_DEBUG"`
+SUCCESSES=`expr $SUCCESSES + $COUNT + 2 \* $COUNT2 - $COUNT2_debug \
+		+ 2 \* $COUNT3 - $COUNT3_info`
 
 if [ -n "${VERBOSE+yes}" ]; then
     cat <<-EOT
 	---------- Successfully detected messages. ----------
 	`grep "$TAG" "$OUT"`
+	`grep -h "$TAG2" "$OUT_USER" "$OUT_DEBUG"`
 	---------- Full message log for syslogd. ------------
 	`cat "$OUT"`
+	---------- User message log. ------------------------
+	`cat "$OUT_USER"`
+	---------- Debug message log. -----------------------
+	`cat "$OUT_DEBUG"`
 	-----------------------------------------------------
 	EOT
 fi
