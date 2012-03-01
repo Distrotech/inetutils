@@ -21,20 +21,14 @@
 
 # Prerequisites:
 #
-#  * Shell: SVR4 Bourne shell, or newer, and allowing job control.
+#  * Shell: SVR4 Bourne shell, or newer.
 #
-#  * cat(1), expr(1), head(1), kill(1), pwd(1), rm(1).
-#
-#  * cmp(1), dd(1), id(1), grep(1), mktemp(1), netstat(8),
-#    ps(1), sed(1), uname(1).
+#  * dd(1), id(1), kill(1), mktemp(1), netstat(8), uname(1).
 #
 #  * Accessed by launched Inetd:
 #      /etc/nsswitch.conf, /etc/passwd, /etc/protocols.
 #
 #    OpenBSD uses /etc/services directly, not via /etc/nsswitch.conf.
-
-# Need job control when spawning Inetd.
-set -m
 
 if [ "$VERBOSE" ]; then
     set -x
@@ -115,7 +109,7 @@ INETD_PID="$TMPDIR/inetd.pid.$$"
 posttesting () {
     if test -n "$TMPDIR" && test -f "$INETD_PID" \
 	&& test -r "$INETD_PID" \
-	&& ps "`cat $INETD_PID`" >/dev/null 2>&1
+	&& kill -0 "`cat $INETD_PID`" >/dev/null 2>&1
     then
 	kill "`cat $INETD_PID`" 2>/dev/null ||
 	kill -9 "`cat $INETD_PID`" 2>/dev/null
@@ -154,10 +148,10 @@ locate_port () {
 }
 
 if [ "$VERBOSE" ]; then
-    "$TFTP" --version | head -1
-    "$TFTPD" --version | head -1
-    "$INETD" --version | head -1
-    "$IFCONFIG_SIMPLE" --version | head -1
+    "$TFTP" --version | sed '1q'
+    "$TFTPD" --version | sed '1q'
+    "$INETD" --version | sed '1q'
+    "$IFCONFIG_SIMPLE" --version | sed '1q'
 fi
 
 # Find an available port number.  There will be some
@@ -229,7 +223,7 @@ sleep 1
 locate_port $PROTO $PORT
 if test $? -ne 0; then
     # No it did not.
-    ps "$inetd_pid" >/dev/null 2>&1 && kill -9 "$inetd_pid" 2>/dev/null
+    kill -0 "$inetd_pid" >/dev/null 2>&1 && kill -9 "$inetd_pid" 2>/dev/null
     rm -f "$INETD_PID"
 
     echo 'First attempt at starting Inetd has failed.' >&2
@@ -255,7 +249,7 @@ if test $? -ne 0; then
 		but loosing control whether an Inetd process is
 		still around.
 		EOT
-	    ps "$spawned_pid" >/dev/null 2>&1 && kill -9 "$spawned_pid" 2>/dev/null
+	    kill -0 "$spawned_pid" >/dev/null 2>&1 && kill -9 "$spawned_pid" 2>/dev/null
 	    exit 1
 	}
 
@@ -265,7 +259,7 @@ if test $? -ne 0; then
 	: # Successful this time.
     else
 	echo "Failed again at starting correct Inetd instance." >&2
-	ps "$spawned_pid" >/dev/null 2>&1 && kill -9 "$spawned_pid" 2>/dev/null
+	kill -0 "$spawned_pid" >/dev/null 2>&1 && kill -9 "$spawned_pid" 2>/dev/null
 	exit 1
     fi
 fi

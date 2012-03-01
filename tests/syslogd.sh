@@ -25,9 +25,7 @@
 #
 #  * Shell: SVR4 Bourne shell, or newer.
 #
-#  * cat(1), expr(1), head(1), kill(1), pwd(1), rm(1), rmdir(1).
-#
-#  * id(1), grep(1), mktemp(1), netstat(8), ps(1), touch(1), uname(1).
+#  * id(1), kill(1), mktemp(1), netstat(8), uname(1).
 
 
 # Is usage explanation in demand?
@@ -93,8 +91,8 @@ LOGGER=${LOGGER:-../src/logger$EXEEXT}
 
 if [ $VERBOSE ]; then
     set -x
-    $SYSLOGD --version | head -1
-    $LOGGER --version | head -1
+    $SYSLOGD --version | sed '1q'
+    $LOGGER --version | sed '1q'
 fi
 
 if [ ! -x $SYSLOGD ]; then
@@ -159,7 +157,7 @@ fi
 # Erase the testing directory.
 #
 clean_testdir () {
-    if test -f "$PID" && ps "`cat "$PID"`" >/dev/null 2>&1; then
+    if test -f "$PID" && kill -0 "`cat "$PID"`" >/dev/null 2>&1; then
 	kill "`cat "$PID"`" || kill -9 "`cat "$PID"`"
     fi
     if test -z "${NOCLEAN+no}" && $do_cleandir; then
@@ -403,7 +401,7 @@ if $do_inet_socket; then
 fi
 
 # Remove previous SYSLOG daemon.
-test -r "$PID" && ps "`cat "$PID"`" >/dev/null 2>&1 &&
+test -r "$PID" && kill -0 "`cat "$PID"`" >/dev/null 2>&1 &&
     kill "`cat "$PID"`"
 
 # Check functionality of standard port, i.e., execution
@@ -436,7 +434,7 @@ sleep 1
 
 # Detection of registered messages.
 #
-COUNT=`grep "$TAG" "$OUT" | wc -l`
+COUNT=`grep -c "$TAG" "$OUT"`
 SUCCESSES=`expr $SUCCESSES + $COUNT`
 
 if [ -n "${VERBOSE+yes}" ]; then
@@ -465,7 +463,7 @@ else
 fi
 
 # Remove the daemon process.
-test -r "$PID" && ps "`cat "$PID"`" >/dev/null 2>&1 &&
+test -r "$PID" && kill -0 "`cat "$PID"`" >/dev/null 2>&1 &&
     kill "`cat "$PID"`"
 
 exit $EXITCODE

@@ -23,9 +23,7 @@
 #
 #  * Shell: SVR4 Bourne shell, or newer.
 #
-#  * cat(1), chmod(1), head(1), kill(1), rm(1).
-#
-#  * id(1), grep(1), mktemp(1), netstat(8), sed(1), uname(1).
+#  * chmod(1), id(1), kill(1), mktemp(1), netstat(8), uname(1).
 #
 #  * Detection of sysctl(8) is made.  Availability will
 #    lead to better test coverage.
@@ -111,9 +109,9 @@ fi
 
 if [ $VERBOSE ]; then
     set -x
-    $FTP --version | head -1
-    $FTPD --version | head -1
-    $INETD --version | head -1
+    $FTP --version | sed '1q'
+    $FTPD --version | sed '1q'
+    $INETD --version | sed '1q'
 fi
 
 if [ `id -u` != 0 ]; then

@@ -1,3 +1,13 @@
+2012-03-01  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Reduce external prerequisites in test scripts.
+	* tests/ftp-localhost.sh: Replace `head -1' by `sed 1q'.
+	* tests/telnet-localhost.sh, tests/tftp.sh: Likewise.  Replace `ps pid'
+	by `kill -0 pid'.
+	* tests/syslogd.sh: Likewise.  Replace `wc -l' by `grep -c'.
+
+	* tests/tftp.sh: Do not issue `set -m', since no job control in use.
+
 2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Sort lexically.

@@ -25,9 +25,12 @@
 #
 #  * Shell: SVR4 Bourne shell, or newer.
 #
-#  * cat(1), expr(1), head(1), kill(1), pwd(1), rm(1).
+#  * id(1), kill(1), mktemp(1), tty(1).
 #
-#  * id(1), grep(1), mktemp(1), ps(1), tty(1).
+#  * Accessed by launched Inetd:
+#      /etc/nsswitch.conf, /etc/passwd, /etc/protocols.
+#
+#    OpenBSD uses /etc/services directly, not via /etc/nsswitch.conf.
 
 # Is usage explanation in demand?
 #
@@ -63,8 +66,8 @@ test -d src && test -f tests/telnet-localhost.sh && cd tests/
 
 if test -n "$VERBOSE"; then
     set -x
-    $INETD --version | head -1
-    $TELNET --version | head -1
+    $INETD --version | sed '1q'
+    $TELNET --version | sed '1q'
 fi
 
 # The use of telnet is portable only with a connected TTY.
@@ -111,7 +114,7 @@ INETD_PID="$TMPDIR/inetd.pid.$$"
 posttesting () {
     if test -n "$TMPDIR" && test -f "$INETD_PID" \
 	&& test -r "$INETD_PID" \
-	&& ps "`cat $INETD_PID`" >/dev/null 2>&1
+	&& kill -0 "`cat $INETD_PID`" >/dev/null 2>&1
     then
 	kill "`cat $INETD_PID`" >/dev/null 2>&1 ||
 	kill -9 "`cat $INETD_PID`" >/dev/null 2>&1
