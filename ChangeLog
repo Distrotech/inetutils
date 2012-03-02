@@ -1,3 +1,15 @@
+2012-03-02  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Make service lookup optional in FTP client.
+	* ftp/cmds.h [!DEFPORT] (DEFPORT): New macro.  Define as IPPORT_FTP
+	if available, otherwise as 21.
+	(another): Condition call to add_history() on FROMATTY.
+	(setpeer): Call getservbyname() for `ftp/tcp'.  Set port if successful;
+	use DEFPORT otherwise.
+	* ftp/ftp_var.h (sp): Remove external variable.
+	* ftp/main.c (main): Remove call to getservbyname() and the use of SP.
+	(cmdscanner): Condition call to add_history() on FROMATTY.
+
 2012-03-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Subtests for SIGHUP reaction of `inetd' and `syslogd'.

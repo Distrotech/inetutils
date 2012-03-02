@@ -83,6 +83,14 @@
 #include "ftp_var.h"
 #include "unused-parameter.h"
 
+#ifndef DEFPORT
+# ifdef IPPORT_FTP
+#  define DEFPORT IPPORT_FTP
+# else /* !IPPORT_FTP */
+#  define DEFPORT 21
+# endif
+#endif /* !DEFPORT */
+
 /* Returns true if STR is entirely lower case.  */
 static int
 all_lower (char *str)
@@ -143,7 +151,7 @@ another (int *pargc, char ***pargv, const char *prompt)
   arg = readline (buffer);
   free (buffer);
 
-  if (arg && *arg)
+  if (fromatty && arg && *arg)
     add_history (arg);
 
   if (!arg)
@@ -224,7 +232,12 @@ setpeer (int argc, char **argv)
 	}
     }
   else
-    port = ntohs (sp->s_port);
+    {
+      struct servent *sp;
+
+      sp = getservbyname ("ftp", "tcp");
+      port = (sp) ? ntohs (sp->s_port) : DEFPORT;
+    }
 
   host = hookup (host, port);
   if (host)

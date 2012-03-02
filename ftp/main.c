@@ -195,10 +195,6 @@ main (int argc, char *argv[])
   argc -= index;
   argv += index;
 
-  sp = getservbyname ("ftp", "tcp");
-  if (sp == 0)
-    error (EXIT_FAILURE, 0, "ftp/tcp: unknown service");
-
   fromatty = isatty (fileno (stdin));
   if (fromatty)
     {
@@ -343,7 +339,7 @@ cmdscanner (int top)
 	  break;
 	}
 
-      if (line && *line)
+      if (fromatty && line && *line)
 	add_history (line);
 
       if (l == 0)

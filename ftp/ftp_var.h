@@ -110,8 +110,6 @@ FTP_EXTERN char *hostname;	/* name of host connected to */
 FTP_EXTERN int unix_server;	/* server is unix, can use binary for ascii */
 FTP_EXTERN int unix_proxy;	/* proxy is unix, can use binary for ascii */
 
-FTP_EXTERN struct servent *sp;	/* service spec for tcp/ftp */
-
 FTP_EXTERN jmp_buf toplevel;	/* non-local goto stuff for cmd scanner */
 
 FTP_EXTERN char *line;
