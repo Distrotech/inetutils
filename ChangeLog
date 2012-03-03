@@ -1,3 +1,10 @@
+2012-03-03  Mats Erik Andersson <gnu@gisladisker.se>
+
+	Display command prompt only in interactive mode.
+	* src/tftp.c (fromatty): New variable; true in interactive mode.
+	(main): Assign value to FROMATTY.
+	(command): Display prompt only if FROMATTY is true.
+
 2012-03-02  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Make service lookup optional in FTP client.

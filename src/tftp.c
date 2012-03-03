@@ -109,6 +109,7 @@ static int port; /* Port number in host byte order of the server. */
 static int trace;
 static int verbose;
 static int connected;
+static int fromatty;
 
 char mode[32];
 char line[200];
@@ -269,6 +270,8 @@ main (int argc, char *argv[])
     port = 69;
   else
     port = ntohs (sp->s_port);
+
+  fromatty = isatty (STDIN_FILENO);
 
   strcpy (mode, "netascii");
   signal (SIGINT, intr);
@@ -793,7 +796,8 @@ command (void)
 
   for (;;)
     {
-      printf ("%s> ", prompt);
+      if (fromatty)
+	printf ("%s> ", prompt);
       if (fgets (line, sizeof line, stdin) == 0)
 	{
 	  if (feof (stdin))
