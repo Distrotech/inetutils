@@ -521,8 +521,9 @@ print_echo (int dupflag, int hops, struct ping_stat *ping_stat,
       return 0;
     }
 
-  err = getnameinfo ((struct sockaddr *) from, sizeof (*from), buf,
-		     sizeof (buf), NULL, 0, 0);
+  err = getnameinfo ((struct sockaddr *) from, sizeof (*from),
+		     buf, sizeof (buf), NULL, 0,
+		     (options & OPT_NUMERIC) ? NI_NUMERICHOST : 0);
   if (err)
     {
       const char *errmsg;

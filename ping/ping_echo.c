@@ -197,23 +197,26 @@ ipaddr2str (struct in_addr ina)
 {
   struct hostent *hp;
 
-  if (options & OPT_NUMERIC
-      || !(hp = gethostbyaddr ((char *) &ina, 4, AF_INET)))
+  if (options & OPT_NUMERIC)
+    return xstrdup (inet_ntoa (ina));
+
+  hp = gethostbyaddr ((char *) &ina, sizeof (ina), AF_INET);
+  if (hp == NULL)
     return xstrdup (inet_ntoa (ina));
   else
     {
       char *ipstr = inet_ntoa (ina);
-      int len = strlen (hp->h_name) + 1;
+      int len = strlen (ipstr) + 1;
       char *buf;
 
-      if (ipstr)
-	len += strlen (ipstr) + 3;	/* a pair of parentheses and a space */
+      if (hp->h_name)
+	len += strlen (hp->h_name) + 3;	/* a pair of parentheses and a space */
 
       buf = xmalloc (len);
-      if (ipstr)
+      if (hp->h_name)
 	snprintf (buf, len, "%s (%s)", hp->h_name, ipstr);
       else
-	snprintf (buf, len, "%s", hp->h_name);
+	snprintf (buf, len, "%s", ipstr);
       return buf;
     }
 }

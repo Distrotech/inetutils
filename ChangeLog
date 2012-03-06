@@ -1,3 +1,13 @@
+2012-03-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ping/ping6.c (print_echo): Use flag NI_NUMERICHOST in call
+	to getnameinfo() whenever the option OPT_NUMERIC is active.
+	* ping/ping_echo.c (ipaddr2str): Isolate case OPT_NUMERIC to
+	call xstrdup().  Then call xstrdup() if gethostbyaddr() fails.
+	In main body, replace every `hp->h_name' for `ipstr', and
+	conversely, since only `hp->h_name' can fail do be defined.
+	* tests/ping-localhost.sh: Insert option `-n' to ping and ping6.
+
 2012-03-03  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Display command prompt only in interactive mode.
