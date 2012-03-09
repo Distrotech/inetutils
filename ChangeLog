@@ -1,3 +1,16 @@
+2012-03-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* whois/tld_serv_list (.cz, .fo, .gl, .gs, .hk, .ie, .il, .in, .is)
+	(.jp, .kr, .kz, .lt, .lu, .lv, .ms, .mx, .ng, .nz, .pe, .pl, .ro, .ru)
+	(.se, .sg, .si, .sk, .sm, .su, .tf, .th, .tr, .tw, .us): Updated entry.
+	(.dz, .ec, .es, .eu, .fi, .gd, .gg, .gi, .gy, .hn, .hr, .ht, .im, .io)
+	(.ir, .je, .ke, .la, .ly, .ma, .md, .me, .mg, .mn, .mp, .mu, .my, .na)
+	(.nc, .nf, .pm, .pr, .pt, .qa, .re, .rs, .sa, .sb, .sc, .so, .sx, .tk)
+	(.tl, .tv, .tz, .ua, .uy, .uz, .vc, .ve, .wf, .yt): New or upgraded
+	from web entry.
+	(.hm, .ki, .mf, .pk, .pw, .sl, .sn, .tj, .ug, .um, .vn, .yu, .za):
+	Broken address or other comment.
+
 2012-03-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ping/ping6.c (print_echo): Use flag NI_NUMERICHOST in call
