@@ -32,6 +32,7 @@
 * ftp: (inetutils)ftp invocation.                 FTP client.
 * ftpd: (inetutils)ftpd invocation.               FTP Daemon.
 * hostname: (inetutils)hostname invocation.       Show or set system host name.
+* dnsdomainname: (inetutils)dnsdomainname invocation.       Show DNS domain name.
 * inetd: (inetutils)inetd invocation.             Interner super-server.
 * logger: (inetutils)logger invocation.           Send messages to the system log.
 * ping: (inetutils)ping invocation.               Packets to network hosts.
@@ -99,6 +100,7 @@ Documentation License''.
 Diagnostic programs
 
 * hostname invocation::                Show or set system host name.
+* dnsdomainname invocation::           Show DNS domain name.
 * logger invocation::                  Send messages to system log.
 * ping invocation::                    Packets to network hosts.
 * traceroute invocation::              Trace the route to a host.
@@ -280,6 +282,19 @@ Get short host name.
 @opindex --nis
 Get NIS/YP domain name.
 @end table
+
+@node dnsdomainname invocation
+@chapter @command{dnsdomainname}: Show DNS domain name
+@cindex dnsdomainname
+
+@command{dnsdomainname} is a program to show the domain part of the
+system's fully qualified domain name.  For example, if the FQDN of the
+system is @code{name.example.org} the command will show
+@code{example.org}.
+
+@example
+dnsdomainname [@var{option}@dots{}]
+@end example
 
 @node logger invocation
 @chapter @command{logger}: Send messages to system log

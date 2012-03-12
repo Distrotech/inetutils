@@ -1,3 +1,17 @@
+2012-03-12  Simon Josefsson  <simon@josefsson.org>
+
+	* NEWS: Mention new dnsdomainname tool.
+	* configure.ac: Add tool dnsdomainname.
+	* doc/inetutils.texi: Document dnsdomainname.
+	* man/Makefile.am: Build dnsdomainname.1.
+	* man/dnsdomainname.h2m: New file.
+	* src/.gitignore: Ignore dnsdomainname.
+	* src/Makefile.am (bin_PROGRAMS): Add $(dnsdomainname_BUILD).
+	(dnsdomainname_SOURCES): New variable.
+	(EXTRA_PROGRAMS): Add dnsdomainname.
+	* src/dnsdomainname.c: New file.
+	* tests/dnsdomainname.sh: New file.
+
 2012-03-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* whois/tld_serv_list (.cz, .fo, .gl, .gs, .hk, .ie, .il, .in, .is)

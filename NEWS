@@ -5,6 +5,9 @@ See the end of this file for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+* New tool 'dnsdomainname'.
+
+
 January 6, 2012
 Version 1.9.1:
 

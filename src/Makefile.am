@@ -32,6 +32,10 @@ bin_PROGRAMS += $(hostname_BUILD)
 hostname_SOURCES = hostname.c
 EXTRA_PROGRAMS += hostname
 
+bin_PROGRAMS += $(dnsdomainname_BUILD)
+dnsdomainname_SOURCES = dnsdomainname.c
+EXTRA_PROGRAMS += dnsdomainname
+
 bin_PROGRAMS += $(logger_BUILD)
 logger_SOURCES = logger.c logprio.h
 EXTRA_PROGRAMS += logger
