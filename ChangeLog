@@ -1,3 +1,10 @@
+2012-03-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/traceroute.c (do_try): When displaying traces, print host name
+	only if in resolving mode; otherwise only numerical address.  Insert
+	one additional blank before time printout.
+	(get_hostname): Remove conditional clause on OPT_RESOLVE_HOSTNAMES.
+
 2012-03-12  Simon Josefsson  <simon@josefsson.org>
 
 	* NEWS: Mention new dnsdomainname tool.

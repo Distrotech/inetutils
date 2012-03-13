@@ -291,10 +291,13 @@ do_try (trace_t * trace, const int hop,
 	      else
 		{
 		  if (tries == 0 || prev_addr != trace->from.sin_addr.s_addr)
-		    printf (" %s (%s) ",
-			    inet_ntoa (trace->from.sin_addr),
+		    {
+		      printf (" %s ", inet_ntoa (trace->from.sin_addr));
+		      if (opt_resolve_hostnames)
+			printf ("(%s) ",
 			    get_hostname (&trace->from.sin_addr));
-		  printf ("%.3fms ", triptime);
+		    }
+		  printf (" %.3fms ", triptime);
 
 		}
 	      prev_addr = trace->from.sin_addr.s_addr;
@@ -309,13 +312,11 @@ do_try (trace_t * trace, const int hop,
 char *
 get_hostname (struct in_addr *addr)
 {
-  if (opt_resolve_hostnames)
-    {
-      struct hostent *info =
+  struct hostent *info =
 	gethostbyaddr ((char *) addr, sizeof (*addr), AF_INET);
-      if (info != NULL)
-	return info->h_name;
-    }
+  if (info != NULL)
+    return info->h_name;
+
   return inet_ntoa (*addr);
 }
 
