@@ -21,7 +21,7 @@ set -e
 
 DNSDOMAINNAME=${DNSDOMAINNAME:-../src/dnsdomainname$EXEEXT}
 
-if ! test -x $DNSDOMAINNAME; then
+if test ! -x $DNSDOMAINNAME; then
     echo "No executable $DNSDOMAINNAME available.  Skipping test."
     exit 77
 fi
