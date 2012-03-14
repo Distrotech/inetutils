@@ -1,3 +1,8 @@
+2012-03-14  Simon Josefsson  <simon@josefsson.org>
+
+	* tests/dnsdomainname.sh: Don't fail on configuration errors.
+	Suggested by Mats Erik Andersson <mats.andersson@gisladisker.se>.
+
 2012-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Make explicit dependency on header files for libwrap and termcap.
