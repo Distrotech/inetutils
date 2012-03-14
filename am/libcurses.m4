@@ -80,8 +80,11 @@ dnl IU_LIB_TERMCAP -- check for various termcap libraries
 dnl
 dnl Checks for various common libraries implementing the termcap interface,
 dnl including ncurses (unless --disable ncurses is specified), curses (which
-dnl does on some systems), termcap, and termlib.  If termcap is found, then
+dnl does so on some systems), termcap, and termlib.  If termcap is found, then
 dnl LIBTERMCAP is defined with the appropriate linker specification.
+dnl
+dnl Solaris is known to use libtermcap for tgetent, but to declare tgetent
+dnl in <term.h>!
 dnl
 AC_DEFUN([IU_LIB_TERMCAP], [
   AC_REQUIRE([IU_LIB_NCURSES])
@@ -89,18 +92,20 @@ AC_DEFUN([IU_LIB_TERMCAP], [
     LIBTERMCAP="$LIBNCURSES"
   else
     AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
-    AC_CHECK_HEADERS([termcap.h])
+    AC_CHECK_DECLS([tgetent], , , [[#include <termcap.h>]])
     if test "$ac_cv_lib_termcap_tgetent" = yes \
-	|| test "$ac_cv_header_termcap_h" = yes; then
+	&& test "$ac_cv_have_decl_tgetent" = yes; then
       AC_DEFINE([HAVE_TERMCAP_TGETENT], 1,
 		[Define to 1 if tgetent() exists in <termcap.h>.])
     else
       AC_CHECK_LIB(curses, tgetent, LIBTERMCAP=-lcurses)
-    fi
-    if test "$ac_cv_lib_curses_tgetent" = yes \
-	&& test "$ac_cv_lib_termcap_tgetent" = no; then
-      AC_DEFINE([HAVE_CURSES_TGETENT], 1,
-		[Define to 1 if tgetent() exists in <curses.h>.])
+      AC_CHECK_DECLS([tgetent], , , [[#include <curses.h>
+#include <term.h>]])
+      if test "$ac_cv_lib_curses_tgetent" = yes \
+	  && test "$ac_cv_have_decl_tgetent" = yes; then
+	AC_DEFINE([HAVE_CURSES_TGETENT], 1,
+		  [Define to 1 if tgetent() exists in <curses.h>.])
+      fi
     fi
     if test "$ac_cv_lib_curses_tgetent" = no \
 	&& test "$ac_cv_lib_termcap_tgetent" = no; then
@@ -108,6 +113,8 @@ AC_DEFUN([IU_LIB_TERMCAP], [
       if "$ac_cv_lib_termlib_tgetent" = yes; then
 	AC_DEFINE([HAVE_TERMINFO_TGETENT], 1,
 		  [Define to 1 if tgetent() exists in libterminfo.])
+      else
+	LIBTERMCAP=
       fi
     fi
     if test -n "$LIBTERMCAP"; then

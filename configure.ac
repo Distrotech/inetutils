@@ -469,6 +469,7 @@ dnl See if we have libwrap.a
 dnl we cannot use AC_CHECK_LIB reliably since for the wrap lib
 dnl you have to define some global variables
 #AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
+  AC_CHECK_HEADERS([tcpd.h])
   AC_MSG_CHECKING(hosts_ctl in -lwrap);
   save_LIBS=$LIBS
   LIBS="$save_LIBS -lwrap"
@@ -476,8 +477,9 @@ dnl you have to define some global variables
               hosts_ctl(), eval "ac_cv_lib_wrap_hosts_ctl=yes",
               eval "ac_cv_lib_wrap_hosts_ctl=no")
   LIBS=$save_LIBS
-  if test "$ac_cv_lib_wrap_hosts_ctl" = yes ; then
-    AC_DEFINE([WITH_WRAP], 1, [Define to one if you have -lwrap.])
+  if test "$ac_cv_lib_wrap_hosts_ctl" = yes \
+      && test "$ac_cv_header_tcpd_h" = yes; then
+    AC_DEFINE([WITH_WRAP], 1, [Define to one if you have -lwrap and <tcpd.h>.])
     LIBWRAP=-lwrap
   fi
   AC_MSG_RESULT($ac_cv_lib_wrap_hosts_ctl);

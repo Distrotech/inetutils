@@ -1,3 +1,15 @@
+2012-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Make explicit dependency on header files for libwrap and termcap.
+
+	* am/libcurses.m4 (IU_LIB_TERMCAP): Check whether tgetent() is really
+	declared in <termcap.h>, not only checking presence of <termcap.h>.
+	That failing, check declaration of tgetent() using the pair <curses.h>,
+	and <term.h>.  In case of no successful detection at all, set LIBTERMCAP
+	to empty.
+	* configure.ac (LIBWRAP): Define only if hosts_ctl() is present in
+	libwrap and also the header <tcpd.h> exists.
+
 2012-03-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* src/traceroute.c (do_try): When displaying traces, print host name
