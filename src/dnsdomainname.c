@@ -58,11 +58,8 @@ dnsdomainname (void)
     error (EXIT_FAILURE, 0, "%s", gai_strerror (rc));
 
   dn = strchr (res->ai_canonname, '.');
-  if (dn == NULL)
-    error (EXIT_FAILURE, 0, "cannot qualify host name: %s", host_name);
-  dn++;
-
-  puts (dn);
+  if (dn)
+    puts (dn + 1);
 
   free (host_name);
   freeaddrinfo (res);

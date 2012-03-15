@@ -1,5 +1,10 @@
 2012-03-15  Simon Josefsson  <simon@josefsson.org>
 
+	* src/dnsdomainname.c (dnsdomainname): Don't error when canonical
+	name does not have domain name component (compatibility with
+	Debian dnsdomainname).  Suggested by Mats Erik Andersson
+	<gnu@gisladisker.se>.
+
 	* tests/dnsdomainname.sh: Reject non-0 and non-1 exit codes (i.e.,
 	crashes).
 
