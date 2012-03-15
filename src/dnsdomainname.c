@@ -30,7 +30,11 @@
 #include "xgethostname.h"
 
 const char doc[] =
-  "Show domain part of the system's fully qualified domain name.";
+  "Show domain part of the system's fully qualified host name.\n\
+\n\
+The tool uses gethostname to get the host name of the system\n\
+and getaddrinfo to resolve it into a canonical name.  The part\n\
+after the first period ('.') of the canonical name is shown.";
 const char *program_authors[] = {
   "Simon Josefsson",
   NULL

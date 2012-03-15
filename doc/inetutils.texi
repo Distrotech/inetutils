@@ -292,6 +292,12 @@ system's fully qualified domain name.  For example, if the FQDN of the
 system is @code{name.example.org} the command will show
 @code{example.org}.
 
+The tool uses gethostname to get the host name of the system and
+getaddrinfo to resolve it into a canonical name.  The part after the
+first period (@code{.}) of the canonical name is shown.
+
+The output is not necessarily related to the NIS/YP domain name.
+
 @example
 dnsdomainname [@var{option}@dots{}]
 @end example

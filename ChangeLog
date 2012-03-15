@@ -1,5 +1,9 @@
 2012-03-15  Simon Josefsson  <simon@josefsson.org>
 
+	* doc/inetutils.texi (dnsdomainname invocation): Doc fix.
+	* man/dnsdomainname.h2m: Likewise.
+	* src/dnsdomainname.c (doc): Likewise.
+
 	* src/dnsdomainname.c (dnsdomainname): Don't error when canonical
 	name does not have domain name component (compatibility with
 	Debian dnsdomainname).  Suggested by Mats Erik Andersson
