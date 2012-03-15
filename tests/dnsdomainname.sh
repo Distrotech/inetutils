@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-set -e
-
 DNSDOMAINNAME=${DNSDOMAINNAME:-../src/dnsdomainname$EXEEXT}
 
 if test ! -x $DNSDOMAINNAME; then
@@ -46,6 +44,11 @@ fi
 # configuration issues, and the tool is arguable correct to fail in
 # these situations.  All other errors should lead to hard failures.
 
-$DNSDOMAINNAME || true
+$DNSDOMAINNAME > /dev/null
+rc=$?
+if test $rc -ne 0 && test $rc -ne 1; then
+    echo "invoking $DNSDOMAINNAME failed with error code $rc"
+    exit 1
+fi
 
 exit 0

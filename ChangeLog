@@ -1,3 +1,8 @@
+2012-03-15  Simon Josefsson  <simon@josefsson.org>
+
+	* tests/dnsdomainname.sh: Reject non-0 and non-1 exit codes (i.e.,
+	crashes).
+
 2012-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/dnsdomainname.sh: Replace `! test -x' by `test ! -x'
