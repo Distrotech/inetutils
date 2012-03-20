@@ -110,9 +110,9 @@ AC_DEFUN([IU_LIB_TERMCAP], [
     if test "$ac_cv_lib_curses_tgetent" = no \
 	&& test "$ac_cv_lib_termcap_tgetent" = no; then
       AC_CHECK_LIB(termlib, tgetent, LIBTERMCAP=-ltermlib)
-      if "$ac_cv_lib_termlib_tgetent" = yes; then
-	AC_DEFINE([HAVE_TERMINFO_TGETENT], 1,
-		  [Define to 1 if tgetent() exists in libterminfo.])
+      if test "$ac_cv_lib_termlib_tgetent" = yes; then
+	AC_DEFINE([HAVE_TERMLIB_TGETENT], 1,
+		  [Define to 1 if tgetent() exists in libtermlib.])
       else
 	LIBTERMCAP=
       fi

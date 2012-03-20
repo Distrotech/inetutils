@@ -1,3 +1,9 @@
+2012-03-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* am/libcurses.m4 (IU_LIB_TERMCAP) <termlib detection>: Add a missing
+	use of `test'.
+	(HAVE_TERMLIB_TGETENT): New macro, replaces HAVE_TERMINFO_TGETENT.
+
 2012-03-15  Simon Josefsson  <simon@josefsson.org>
 
 	* doc/inetutils.texi (dnsdomainname invocation): Doc fix.
