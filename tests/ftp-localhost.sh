@@ -47,6 +47,8 @@
 
 set -e
 
+. ./tools.sh
+
 FTP=${FTP:-../ftp/ftp$EXEEXT}
 FTPD=${FTPD:-../ftpd/ftpd$EXEEXT}
 INETD=${INETD:-../src/inetd$EXEEXT}
@@ -59,7 +61,7 @@ PWD="${PWD:-`pwd`}"
 
 # Acting user and target user
 #
-USER="`id -u -n`"
+USER=`func_id_user`
 FTPUSER=${FTPUSER:-ftp}
 
 if [ ! -x $FTP ]; then
@@ -73,18 +75,8 @@ elif [ ! -x $INETD ]; then
     exit 77
 fi
 
-# Use a trivial test to detect grep(1).
-echo 'Good luck.' | grep 'ood' >/dev/null 2>&1 \
-    || {
-	echo 'No available grep(1), used for diagnosis.  Skipping test.' >&2
-	exit 77
-    }
-
-netstat -na >/dev/null 2>&1 ||
-    {
-	echo 'No available netstat(1), used for diagnosis.  Skipping test.' >&2
-	exit 77
-    }
+$need_mktemp || exit_no_mktemp
+$need_netstat || exit_no_netstat
 
 # The superserver Inetd puts constraints on any chroot
 # when running this script, since it needs to look up
@@ -109,17 +101,17 @@ fi
 
 if [ $VERBOSE ]; then
     set -x
-    $FTP --version | sed '1q'
-    $FTPD --version | sed '1q'
-    $INETD --version | sed '1q'
+    $FTP --version | $SED '1q'
+    $FTPD --version | $SED '1q'
+    $INETD --version | $SED '1q'
 fi
 
-if [ `id -u` != 0 ]; then
+if [ `func_id_uid` != 0 ]; then
     echo "ftpd needs to run as root" >&2
     exit 77
 fi
 
-if id -u "$FTPUSER" > /dev/null; then
+if id "$FTPUSER" > /dev/null; then
     :
 else
     echo "anonymous ftpd needs a '$FTPUSER' user" >&2
@@ -130,13 +122,16 @@ FTPHOME="`eval echo ~"$FTPUSER"`"
 if test ! -d "$FTPHOME"; then
     save_IFS="$IFS"
     IFS=:
-    set -- `grep "^$FTPUSER:" /etc/passwd`	# Existence is known above.
+    set -- `$GREP "^$FTPUSER:" /etc/passwd`	# Existence is known as above.
     IFS="$save_IFS"
-    if test ! -d "$6"; then
+    if test -d "$6"; then
+	FTPHOME="$6"
+    elif test -d "$5"; then	# In cases where GECOS is empty
+	FTPHOME="$5"
+    else
 	echo "The user '$FTPUSER' must have a home directory." >&2
 	exit 77
     fi
-    FTPHOME="$6"
 fi
 
 if test -d "$FTPHOME" && test -r "$FTPHOME" && test -x "$FTPHOME"; then
@@ -149,7 +144,7 @@ fi
 # Note that inetd changes directory to / when --debug is not given so
 # all paths must be absolute for things to work.
 
-TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX` ||
+TMPDIR=`$MKTEMP -d $PWD/tmp.XXXXXXXXXX` ||
     {
 	echo 'Failed at creating test directory.  Aborting.' >&2
 	exit 1
@@ -170,11 +165,11 @@ trap posttesting 0 1 2 3 15
 # Test for IPv4 as well as for IPv6.
 locate_port () {
     if [ "`uname -s`" = "SunOS" ]; then
-	netstat -na -finet -finet6 -Ptcp |
-	grep "\.$1[^0-9]" >/dev/null 2>&1
+	$NETSTAT -na -finet -finet6 -Ptcp |
+	$GREP "\.$1[^0-9]" >/dev/null 2>&1
     else
-	netstat -na |
-	grep "^$2[46]\{0,2\}.*[^0-9]$1[^0-9]" >/dev/null 2>&1
+	$NETSTAT -na |
+	$GREP "^$2[46]\{0,2\}.*[^0-9]$1[^0-9]" >/dev/null 2>&1
     fi
 }
 
@@ -253,13 +248,13 @@ test_report () {
     fi
 
     # Did we get access?
-    if grep 'Login failed' "$2" >/dev/null 2>&1; then
+    if $GREP 'Login failed' "$2" >/dev/null 2>&1; then
 	echo "Failed login for access using '$3' FTP client." >&2
 	exit 1
     fi
 
     # Standing control connection?
-    if grep 'FTP server status' "$2" >/dev/null 2>&1; then
+    if $GREP 'FTP server status' "$2" >/dev/null 2>&1; then
 	:
     else
 	echo "Cannot find server status for '$3' FTP client?" >&2
@@ -267,7 +262,7 @@ test_report () {
     fi
 
     # Was data transfer successful?
-    if grep '226 Transfer complete.' "$2" >/dev/null 2>&1; then
+    if $GREP '226 Transfer complete.' "$2" >/dev/null 2>&1; then
 	:
     else
 	echo "Cannot find transfer result for '$3' FTP client?" >&2
@@ -377,9 +372,9 @@ elif $have_sysctl; then
     # or
     #    net.inet6.ip6.v6only (BSD).
     #
-    value_v6only=`sysctl -a 2>/dev/null | grep v6only`
+    value_v6only=`sysctl -a 2>/dev/null | $GREP v6only`
     if test -n "$value_v6only"; then
-	value_v6only=`echo $value_v6only | sed 's/^.*[=:] *//'`
+	value_v6only=`echo $value_v6only | $SED 's/^.*[=:] *//'`
 	if test "$value_v6only" -eq 0; then
 	    # This is the good value.  Keep it.
 	    have_address_mapping=true

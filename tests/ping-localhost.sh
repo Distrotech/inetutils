@@ -23,6 +23,8 @@
 #
 #  * id(1).
 
+. ./tools.sh
+
 PING=${PING:-../ping/ping$EXEEXT}
 TARGET=${TARGET:-127.0.0.1}
 
@@ -39,7 +41,7 @@ if [ $VERBOSE ]; then
     $PING --version
 fi
 
-if [ `id -u` != 0 ]; then
+if [ `func_id_uid` != 0 ]; then
     echo "ping needs to run as root"
     exit 77
 fi

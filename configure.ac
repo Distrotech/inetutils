@@ -130,6 +130,9 @@ AC_ISC_POSIX
 AC_PROG_CC
 gl_EARLY
 AC_CHECK_TOOL(AR, ar)
+AC_PATH_PROG(DD, dd, dd)
+AC_PATH_PROG(MKTEMP, mktemp, mktemp)
+AC_PATH_PROG(NETSTAT, netstat, netstat)
 AC_PATH_PROG(RM, rm, rm)
 AC_PROG_CPP
 AC_PROG_INSTALL
@@ -137,7 +140,13 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_YACC
 AC_PROG_LN_S
+AC_PROG_SED
 AM_MISSING_PROG(HELP2MAN, help2man, $missing_dir)
+AC_ARG_VAR(GREP, [Location of preferred 'grep' utility.])
+AC_ARG_VAR(SED, [Location of preferred 'sed' utility.])
+AC_ARG_VAR(DD, [Location of 'dd'.])
+AC_ARG_VAR(MKTEMP, [Location of 'mktemp'.])
+AC_ARG_VAR(NETSTAT, [Location of 'netstat'.])
 
 gl_INIT
 

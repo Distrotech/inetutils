@@ -51,8 +51,18 @@ HERE
     exit 0
 fi
 
+# Step into `tests/', should the invokation
+# have been made outside of it.
+#
+[ -d src ] && [ -f tests/syslogd.sh ] && cd tests/
+
+. ./tools.sh
+
 # Portability fix for SVR4
 PWD="${PWD:-`pwd`}"
+
+$need_mktemp || exit_no_mktemp
+$need_netstat || exit_no_netstat
 
 # Execution control.  Initialise early!
 #
@@ -84,15 +94,10 @@ fi
 SYSLOGD=${SYSLOGD:-../src/syslogd$EXEEXT}
 LOGGER=${LOGGER:-../src/logger$EXEEXT}
 
-# Step into `tests/', should the invokation
-# have been made outside of it.
-#
-[ -d src ] && [ -f tests/syslogd.sh ] && cd tests/
-
 if [ $VERBOSE ]; then
     set -x
-    $SYSLOGD --version | sed '1q'
-    $LOGGER --version | sed '1q'
+    $SYSLOGD --version | $SED '1q'
+    $LOGGER --version | $SED '1q'
 fi
 
 if [ ! -x $SYSLOGD ]; then
@@ -115,7 +120,7 @@ umask 0077
 
 if [ ! -d "$IU_TESTDIR" ]; then
     do_cleandir=true
-    IU_TESTDIR="`mktemp -d "$IU_TESTDIR" 2>/dev/null`" ||
+    IU_TESTDIR="`$MKTEMP -d "$IU_TESTDIR" 2>/dev/null`" ||
 	{
 	    echo 'Failed at creating test directory.  Aborting.' >&2
 	    exit 77
@@ -181,11 +186,11 @@ PORT=${PORT:-514}
 #
 locate_port () {
     if [ "`uname -s`" = "SunOS" ]; then
-	netstat -na -finet -finet6 -P$1 |
-	grep "\.$2[^0-9]" >/dev/null 2>&1
+	$NETSTAT -na -finet -finet6 -P$1 |
+	$GREP "\.$2[^0-9]" >/dev/null 2>&1
     else
-	netstat -na |
-	grep "^$1[46]\{0,2\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
+	$NETSTAT -na |
+	$GREP "^$1[46]\{0,2\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
     fi
 }
 
@@ -207,7 +212,7 @@ else
     # Append a slash if it is missing.
     expr X"$IU_TMPDIR" : X".*/$" >/dev/null || IU_TMPDIR="$IU_TMPDIR/"
 
-    IU_TMPDIR="`mktemp -d "${IU_TMPDIR}iu.XXXXXX" 2>/dev/null`" ||
+    IU_TMPDIR="`$MKTEMP -d "${IU_TMPDIR}iu.XXXXXX" 2>/dev/null`" ||
 	{   # Directory creation failed.  Disable test.
 	    cat <<-EOT >&2
 		WARNING!  Unable to create temporary directory below
@@ -266,9 +271,9 @@ rm -f "$OUT" "$PID" "$CONF"
 
 # Full testing at the standard port needs a superuser.
 # Randomise if necessary to get an underprivileged port.
-test `id -u` -eq 0 || do_standard_port=false
+test `func_id_uid` = 0 || do_standard_port=false
 
-if test `id -u` -ne 0 && test $PORT -le 1023; then
+if test `func_id_uid` != 0 && test $PORT -le 1023; then
     cat <<-EOT >&2
 	WARNING!!  The preset port $PORT/$PROTO is not usable,
 	since you are underprivileged.  Now attempting
@@ -373,7 +378,7 @@ if $do_socket_length; then
     # Allowing 55 characters for IU_BAD_BASE is almost aggressive.
     # A host name of length six would allow 64 characters
     pruned=`expr "UNIX socket name too long.*${IU_BAD_BASE}" : '\(.\{1,82\}\)'`
-    if grep "$pruned" "$OUT" >/dev/null 2>&1; then
+    if $GREP "$pruned" "$OUT" >/dev/null 2>&1; then
 	SUCCESSES=`expr $SUCCESSES + 1`
     fi
 fi
@@ -475,19 +480,19 @@ sleep 1
 
 # Detection of registered messages.
 #
-COUNT=`grep -c "$TAG" "$OUT"`
-COUNT2=`grep -c "$TAG2" "$OUT_USER"`
-COUNT2_debug=`grep -c "$TAG2.*user.debug" "$OUT_USER"`
-COUNT3=`grep -c "$TAG2" "$OUT_DEBUG"`
-COUNT3_info=`grep -c "$TAG2.*user.info" "$OUT_DEBUG"`
+COUNT=`$GREP -c "$TAG" "$OUT"`
+COUNT2=`$GREP -c "$TAG2" "$OUT_USER"`
+COUNT2_debug=`$GREP -c "$TAG2.*user.debug" "$OUT_USER"`
+COUNT3=`$GREP -c "$TAG2" "$OUT_DEBUG"`
+COUNT3_info=`$GREP -c "$TAG2.*user.info" "$OUT_DEBUG"`
 SUCCESSES=`expr $SUCCESSES + $COUNT + 2 \* $COUNT2 - $COUNT2_debug \
 		+ 2 \* $COUNT3 - $COUNT3_info`
 
 if [ -n "${VERBOSE+yes}" ]; then
     cat <<-EOT
 	---------- Successfully detected messages. ----------
-	`grep "$TAG" "$OUT"`
-	`grep -h "$TAG2" "$OUT_USER" "$OUT_DEBUG"`
+	`$GREP "$TAG" "$OUT"`
+	`$GREP -h "$TAG2" "$OUT_USER" "$OUT_DEBUG"`
 	---------- Full message log for syslogd. ------------
 	`cat "$OUT"`
 	---------- User message log. ------------------------

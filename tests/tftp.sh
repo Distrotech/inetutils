@@ -30,6 +30,12 @@
 #
 #    OpenBSD uses /etc/services directly, not via /etc/nsswitch.conf.
 
+. ./tools.sh
+
+$need_dd || exit_no_dd
+$need_mktemp || exit_no_mktemp
+$need_netstat || exit_no_netstat
+
 if [ "$VERBOSE" ]; then
     set -x
 fi
@@ -57,20 +63,6 @@ elif [ ! -x $IFCONFIG_SIMPLE ]; then	# Remove options
     exit 77
 fi
 
-# Check that netstat works before proceeding.
-netstat -na > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "netstat: command failed to execute successfully" >&2
-    exit 77
-fi
-
-# And grep!
-echo 'Good luck.' | grep 'ood' > /dev/null 2>&1 \
-    || {
-	echo 'grep(1) is not available.  Skipping test.' >&2
-	exit 77
-    }
-
 # The superserver Inetd puts constraints on any chroot
 # when running this script, since it needs to look up
 # some basic facts stated in the configuration file.
@@ -94,13 +86,13 @@ fi
 
 AF=${AF:-inet}
 PROTO=${PROTO:-udp}
-USER=`id -u -n`
+USER=`func_id_user`
 
 # Late supplimentary subtest.
 do_conf_reload=true
 
 # Random base directory at testing time.
-TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX` ||
+TMPDIR=`$MKTEMP -d $PWD/tmp.XXXXXXXXXX` ||
     {
 	echo 'Failed at creating test directory.  Aborting.' >&2
 	exit 1
@@ -132,7 +124,7 @@ trap posttesting EXIT HUP INT QUIT TERM
 ADDRESSES="${ADDRESSES:-127.0.0.1 ::1}"
 
 if [ "$ADDRESSES" = "sense" ]; then
-    ADDRESSES="`$IFCONFIG | sed -e "/$AF /!d" \
+    ADDRESSES="`$IFCONFIG | $SED -e "/$AF /!d" \
 	-e "s/^.*$AF \([:.0-9]\{1,\}\) .*$/\1/g"`"
 fi
 
@@ -142,19 +134,19 @@ fi
 #
 locate_port () {
     if [ "`uname -s`" = "SunOS" ]; then
-	netstat -na -finet -finet6 -P$1 |
-	grep "\.$2[^0-9]" >/dev/null 2>&1
+	$NETSTAT -na -finet -finet6 -P$1 |
+	$GREP "\.$2[^0-9]" >/dev/null 2>&1
     else
-	netstat -na |
-	grep "^$1[46]\{0,2\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
+	$NETSTAT -na |
+	$GREP "^$1[46]\{0,2\}.*[^0-9]$2[^0-9]" >/dev/null 2>&1
     fi
 }
 
 if [ "$VERBOSE" ]; then
-    "$TFTP" --version | sed '1q'
-    "$TFTPD" --version | sed '1q'
-    "$INETD" --version | sed '1q'
-    "$IFCONFIG_SIMPLE" --version | sed '1q'
+    "$TFTP" --version | $SED '1q'
+    "$TFTPD" --version | $SED '1q'
+    "$INETD" --version | $SED '1q'
+    "$IFCONFIG_SIMPLE" --version | $SED '1q'
 fi
 
 # Find an available port number.  There will be some
@@ -293,11 +285,11 @@ tftp-test-file 1024 170"
 echo "$FILEDATA" |
 while read name bsize count; do
     test -z "$name" && continue
-    dd if="$input" of="$TMPDIR/tftp-test/$name" \
+    $DD if="$input" of="$TMPDIR/tftp-test/$name" \
 	bs=$bsize count=$count 2>/dev/null
 done
 
-FILELIST="`echo "$FILEDATA" | sed 's/ .*//' | tr "\n" ' '`"
+FILELIST="`echo "$FILEDATA" | $SED 's/ .*//' | tr "\n" ' '`"
 
 SUCCESSES=0
 EFFORTS=0
@@ -354,7 +346,7 @@ if $do_conf_reload; then
 	}
 
     kill -HUP $inetd_pid
-    name=`echo "$FILELIST" | sed 's/ .*//'`
+    name=`echo "$FILELIST" | $SED 's/ .*//'`
     for addr in $ADDRESSES; do
 	EFFORTS=`expr $EFFORTS + 1`
 	test -f "$name" && rm "$name"

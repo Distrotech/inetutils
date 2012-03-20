@@ -71,3 +71,14 @@ endif
 TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
+
+BUILT_SOURCES = tools.sh
+
+tools_subst = sed -e 's,[@]GREP[@],$(GREP),g' \
+	      -e 's,[@]SED[@],$(SED),g' \
+	      -e 's,[@]DD[@],$(DD),g' \
+	      -e 's,[@]MKTEMP[@],$(MKTEMP),g' \
+	      -e 's,[@]NETSTAT[@],$(NETSTAT),g'
+
+tools.sh: tools.sh.in Makefile
+	$(tools_subst) < $(srcdir)/tools.sh.in > $@

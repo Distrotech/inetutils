@@ -1,3 +1,31 @@
+2012-03-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac (DD, MKTEMP, NETSTAT): New variables.  Use AC_PATH_PROG
+	on `dd', `mktemp', and `netstat'.  Declare as precious with AC_ARG_VAR.
+	(SED): New variable.  Set using AC_PROG_SED, protect by AC_ARG_VAR.
+	(GREP): Protect using AC_ARG_VAR.
+	* tests/Makefile.am (BUILT_SOURCES, tools_subst): New variables.
+	(tools.sh): New target.
+	* tests/ftp-localhost.sh: Source `tools.sh'.  Use $GREP, $MKTEMP,
+	$NETSTAT, and $SED instead of utility names.  Change tests for `grep',
+	and `netstat'; check $need_mktemp.
+	(FTPHOME): Check also fifth field of passwd, should GECOS be missing.
+	(USER): Calculate using `func_id_user'.
+	* tests/hostname.sh: Source `tools.sh'.  `func_id_uid` replaces `id -u'.
+	* tests/ping-localhost.sh: Likewise.
+	* tests/traceroute-localhost.sh: Likewise.
+	* tests/syslogd.sh: Check directory early, then source `tools.sh'.
+	Check $need_mktemp and $need_netstat.  Use $SED, $MKTEMP, $NETSTAT,
+	and $GREP.  Replace `id -u' by `func_id_uid'.
+	* tests/telnet-localhost.sh: Source `tools.sh'.  Check $need_mktemp.
+	Use $SED, $MKTEMP, and $GREP.
+	(USER): Compute using `func_id_user'.
+	* tests/tftp.sh: Source `tools.sh'.  Check $need_dd, $need_mktemp,
+	and $need_netstat.  Remove checks for `netstat' and `grep'.  Use $SED,
+	$MKTEMP, $NETSTAT, $GREP, and $DD.
+	(USER): Compute using `func_id_user'.
+	* tests/tools.sh.in: New file.
+
 2012-03-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* am/libcurses.m4 (IU_LIB_TERMCAP) <termlib detection>: Add a missing

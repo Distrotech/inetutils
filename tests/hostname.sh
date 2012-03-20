@@ -23,6 +23,8 @@
 #
 #  * id(1), uname(1).
 
+. ./tools.sh
+
 hostname=${hostname:-../src/hostname$EXEEXT}
 
 if [ $VERBOSE ]; then
@@ -40,7 +42,7 @@ test `$hostname` = `uname -n` || errno=$?
 test $errno -eq 0 || echo "Failed to get hostname." >&2
 test $errno -eq 0 || exit $errno
 
-if [ `id -u` != 0 ]; then
+if [ `func_id_uid` != 0 ]; then
     echo "hostname: skipping tests to set host name"
 else
     # Only run this if hostname succeeded...

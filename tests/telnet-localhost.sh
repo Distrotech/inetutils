@@ -48,6 +48,10 @@ HERE
     exit 0
 fi
 
+. ./tools.sh
+
+$need_mktemp || exit_no_mktemp
+
 # The executables under test.
 #
 INETD=${INETD:-../src/inetd$EXEEXT}
@@ -66,8 +70,8 @@ test -d src && test -f tests/telnet-localhost.sh && cd tests/
 
 if test -n "$VERBOSE"; then
     set -x
-    $INETD --version | sed '1q'
-    $TELNET --version | sed '1q'
+    $INETD --version | $SED '1q'
+    $TELNET --version | $SED '1q'
 fi
 
 # The use of telnet is portable only with a connected TTY.
@@ -99,10 +103,10 @@ PWD="${PWD:-`pwd`}"
 # For file creation below IU_TESTDIR.
 umask 0077
 
-USER=`id -u -n`
+USER=`func_id_user`
 
 # Random base directory at testing time.
-TMPDIR=`mktemp -d $PWD/tmp.XXXXXXXXXX` ||
+TMPDIR=`$MKTEMP -d $PWD/tmp.XXXXXXXXXX` ||
     {
 	echo 'Failed at creating test directory.  Aborting.' >&2
 	exit 1
@@ -172,7 +176,7 @@ errno=0
 
 if test -n "$TARGET"; then
     output=`$TELNET $telnet_opts $TARGET $PORT 2>/dev/null`
-    echo "$output" | eval "grep 'Your address is $TARGET.' $display"
+    echo "$output" | eval "$GREP 'Your address is $TARGET.' $display"
     if test $? -ne 0; then
 	errno=1
 	echo "Failed at '$TARGET'." >&2
@@ -181,7 +185,7 @@ fi
 
 if test -n "$TARGET6"; then
     output=`$TELNET $telnet_opts $TARGET6 $PORT 2>/dev/null`
-    echo "$output" | eval "grep 'Your address is $TARGET6.' $display"
+    echo "$output" | eval "$GREP 'Your address is $TARGET6.' $display"
     if test $? -ne 0; then
 	errno=1
 	echo "Failed at '$TARGET6'." >&2
@@ -190,7 +194,7 @@ fi
 
 if test -n "$TARGET46"; then
     output=`$TELNET $telnet_opts $TARGET46 $PORT 2>/dev/null`
-    echo "$output" | eval "grep 'Your address is .*$TARGET.' $display"
+    echo "$output" | eval "$GREP 'Your address is .*$TARGET.' $display"
     if test $? -ne 0; then
 	echo "Informational: Unsuccessful with mapped address '$TARGET46'." >&2
     fi

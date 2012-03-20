@@ -23,6 +23,8 @@
 #
 #  * id(1)
 
+. ./tools.sh
+
 TRACEROUTE=${TRACEROUTE:-../src/traceroute$EXEEXT}
 TARGET=${TARGET:-127.0.0.1}
 
@@ -36,7 +38,7 @@ if [ $VERBOSE ]; then
     $TRACEROUTE --version
 fi
 
-if [ `id -u` != 0 ]; then
+if [ `func_id_uid` != 0 ]; then
     echo "traceroute needs to run as root"
     exit 77
 fi
