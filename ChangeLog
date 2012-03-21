@@ -4,7 +4,8 @@
 	on `dd', `mktemp', and `netstat'.  Declare as precious with AC_ARG_VAR.
 	(SED): New variable.  Set using AC_PROG_SED, protect by AC_ARG_VAR.
 	(GREP): Protect using AC_ARG_VAR.
-	* tests/Makefile.am (BUILT_SOURCES, tools_subst): New variables.
+	* tests/Makefile.am (BUILT_SOURCES, EXTRA_DIST, CLEANFILES)
+	(tools_subst): New variables.
 	(tools.sh): New target.
 	* tests/ftp-localhost.sh: Source `tools.sh'.  Use $GREP, $MKTEMP,
 	$NETSTAT, and $SED instead of utility names.  Change tests for `grep',

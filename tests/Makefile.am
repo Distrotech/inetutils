@@ -72,7 +72,11 @@ TESTS = $(check_PROGRAMS) $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
 
+EXTRA_DIST = tools.sh.in
+
 BUILT_SOURCES = tools.sh
+
+CLEANFILES = tools.sh
 
 tools_subst = sed -e 's,[@]GREP[@],$(GREP),g' \
 	      -e 's,[@]SED[@],$(SED),g' \
