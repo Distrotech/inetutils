@@ -46,6 +46,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "ifconfig.h"
+#include "xalloc.h"
 
 FILE *ostream;			/* Either stdout or stderror.  */
 int column_stdout;		/* The column position of the cursor on stdout.  */
@@ -1044,7 +1045,7 @@ print_interfaceX (format_data_t form, int quiet)
 		  form->format = p;
 		  print_interfaceX (form, 1);
 		  q = form->format;
-		  argv[argc] = malloc (q - p + 1);
+		  argv[argc] = xmalloc (q - p + 1);
 		  memcpy (argv[argc], p, q - p);
 		  argv[argc][q - p] = '\0';
 		  if (*q == '}')

@@ -82,6 +82,7 @@
 
 #include "ftp_var.h"
 #include "unused-parameter.h"
+#include "xalloc.h"
 
 #ifndef DEFPORT
 # ifdef IPPORT_FTP
@@ -2076,7 +2077,7 @@ setntrans (int argc, char **argv)
 char *
 dotrans (char *name)
 {
-  char *new = malloc (strlen (name) + 1);
+  char *new = xmalloc (strlen (name) + 1);
   char *cp1, *cp2 = new;
   int i, ostop, found;
 
@@ -2191,7 +2192,7 @@ char *
 domap (char *name)
 {
   int buf_len = strlen (name) + 1;
-  char *buf = malloc (buf_len);
+  char *buf = xmalloc (buf_len);
   char *cp1 = name, *cp2 = mapin;
   char *tp[9], *te[9];
   int i, toks[9], toknum = 0, match = 1;

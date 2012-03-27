@@ -45,6 +45,7 @@
 /* Application-specific */
 #include <data.h>
 #include <whois.h>
+#include "xalloc.h"
 
 /* Global variables */
 int sockfd, verb = 0;
@@ -138,7 +139,7 @@ gwhois_argp_parser (int key, char *arg, struct argp_state *state)
   switch (key)
     {
     case 'h':
-      server = q = malloc (strlen (arg) + 1);
+      server = q = xmalloc (strlen (arg) + 1);
       for (p = arg; *p != '\0' && *p != ':'; *q++ = tolower (*p++));
       if (*p == ':')
 	port = p + 1;
@@ -410,7 +411,7 @@ queryformat (const char *server, const char *flags, const char *query)
   int isripe = 0;
 
   /* +10 for CORE; +2 for \r\n; +1 for NULL */
-  buf = malloc (strlen (flags) + strlen (query) + 10 + 2 + 1);
+  buf = xmalloc (strlen (flags) + strlen (query) + 10 + 2 + 1);
   *buf = '\0';
 
   isripe = is_ripe_server (ripe_servers, server)
@@ -521,7 +522,7 @@ query_crsnic (const int sock, const char *query)
   char *temp, buf[100], *ret = NULL;
   FILE *fi;
 
-  temp = malloc (strlen (query) + 1 + 2 + 1);
+  temp = xmalloc (strlen (query) + 1 + 2 + 1);
   *temp = '=';
   strcpy (temp + 1, query);
   strcat (temp, "\r\n");
@@ -539,7 +540,7 @@ query_crsnic (const int sock, const char *query)
 
 	  for (p = buf; *p != ':'; p++);	/* skip until colon */
 	  for (p++; *p == ' '; p++);	/* skip colon and spaces */
-	  ret = malloc (strlen (p) + 1);
+	  ret = xmalloc (strlen (p) + 1);
 	  for (q = ret; *p != '\n' && *p != '\r'; *q++ = *p++);	/*copy data */
 	  *q = '\0';
 	}

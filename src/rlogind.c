@@ -70,6 +70,7 @@
 #include <argp.h>
 #include <libinetutils.h>
 #include "unused-parameter.h"
+#include "xalloc.h"
 
 /*
   The TIOCPKT_* macros may not be implemented in the pty driver.
@@ -1148,7 +1149,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 	    case SHISHI_DES_CBC_NONE:
 	    case SHISHI_DES3_CBC_HMAC_SHA1_KD:
 	      ad->ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
-	      ad->ivtab[i]->iv = malloc (ad->ivtab[i]->ivlen);
+	      ad->ivtab[i]->iv = xmalloc (ad->ivtab[i]->ivlen);
 	      memset (ad->ivtab[i]->iv, i, ad->ivtab[i]->ivlen);
 	      ad->ivtab[i]->ctx =
 		shishi_crypto (ad->h, ad->enckey, ad->ivtab[i]->keyusage,
@@ -1164,7 +1165,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 	      break;
 	    default:
 	      ad->ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES + 6 - 4 * i;
-	      ad->ivtab[i]->iv = malloc (ad->ivtab[i]->ivlen);
+	      ad->ivtab[i]->iv = xmalloc (ad->ivtab[i]->ivlen);
 	      memset (ad->ivtab[i]->iv, 0, ad->ivtab[i]->ivlen);
 	      if (ad->protocol == 2)
 		ad->ivtab[i]->ctx =

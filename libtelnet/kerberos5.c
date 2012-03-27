@@ -230,7 +230,11 @@ kerberos5_send (TN_Authenticator * ap)
 
       rdata.length = strlen (telnet_krb5_realm);
       rdata.data = malloc (rdata.length + 1);
-      assert (rdata.data);
+      if (rdata.data == NULL)
+	{
+	  DEBUG (("telnet: Kerberos V5: could not allocate memory\r\n"));
+	  return 0;
+	}
       strcpy (rdata.data, telnet_krb5_realm);
       krb5_princ_set_realm (telnet_context, creds.server, &rdata);
     }

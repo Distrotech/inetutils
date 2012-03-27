@@ -96,6 +96,7 @@
 #include <progname.h>
 #include <argp.h>
 #include <libinetutils.h>
+#include "xalloc.h"
 
 #ifdef KERBEROS
 # ifdef HAVE_KERBEROSIV_DES_H
@@ -684,7 +685,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		case SHISHI_DES_CBC_NONE:
 		case SHISHI_DES3_CBC_HMAC_SHA1_KD:
 		  ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
-		  ivtab[i]->iv = malloc (ivtab[i]->ivlen);
+		  ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
 		  memset (ivtab[i]->iv, 2 * i - 3 * (i >= 2),
 			  ivtab[i]->ivlen);
 		  ivtab[i]->ctx =
@@ -705,7 +706,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		default:
 		  ivtab[i]->keyusage =
 		    SHISHI_KEYUSAGE_KCMD_DES + 4 * (i < 2) + 2 + 2 * (i % 2);
-		  ivtab[i]->iv = malloc (ivtab[i]->ivlen);
+		  ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
 		  memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
 		  if (protocol == 2)
 		    ivtab[i]->ctx =

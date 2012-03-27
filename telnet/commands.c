@@ -85,6 +85,7 @@
 
 #include "xalloc.h"
 #include "xvasprintf.h"
+#include "xalloc.h"
 
 #ifdef	ENCRYPTION
 # include <libtelnet/encrypt.h>
@@ -1895,7 +1896,7 @@ env_init (void)
       char *hostname = localhost ();
       char *cp2 = strchr ((char *) ep->value, ':');
 
-      cp = malloc (strlen (hostname) + strlen (cp2) + 1);
+      cp = xmalloc (strlen (hostname) + strlen (cp2) + 1);
       sprintf (cp, "%s%s", hostname, cp2);
 
       free (ep->value);
@@ -1928,7 +1929,7 @@ env_define (const char *var, unsigned char *value)
     }
   else
     {
-      ep = (struct env_lst *) malloc (sizeof (struct env_lst));
+      ep = (struct env_lst *) xmalloc (sizeof (struct env_lst));
       ep->next = envlisthead.next;
       envlisthead.next = ep;
       ep->prev = &envlisthead;

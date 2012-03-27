@@ -124,6 +124,7 @@
 #include <libinetutils.h>
 #include <readutmp.h>
 #include "unused-parameter.h"
+#include "xalloc.h"
 
 /* A mask of all facilities mentioned explicitly in the configuration file
  *
@@ -970,7 +971,7 @@ crunch_list (char **oldlist, char *list)
     }
 
   /* take the last one */
-  oldlist[count] = (char *) malloc ((strlen (p) + 1) * sizeof (char));
+  oldlist[count] = (char *) xmalloc ((strlen (p) + 1) * sizeof (char));
   if (oldlist[count] == NULL)
     error (EXIT_FAILURE, errno, "can't allocate memory");
 

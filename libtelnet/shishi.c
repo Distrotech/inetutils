@@ -160,6 +160,11 @@ krb5shishi_send (TN_Authenticator * ap)
     }
 
   tmp = malloc (strlen ("host/") + strlen (RemoteHostName) + 1);
+  if (tmp == NULL)
+    {
+      DEBUG (("telnet: Kerberos V5: shishi memory allocation failed\r\n"));
+      return 0;
+    }
   sprintf (tmp, "host/%s", RemoteHostName);
   memset (&hint, 0, sizeof (hint));
   hint.server = tmp;

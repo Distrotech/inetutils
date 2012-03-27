@@ -137,6 +137,8 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
     }
 
   host_save = malloc (strlen (hp->h_name) + 1);
+  if (host_save == NULL)
+    return -1;
   strcpy (host_save, hp->h_name);
   *ahost = host_save;
 

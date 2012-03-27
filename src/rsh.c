@@ -77,6 +77,7 @@
 #include <xalloc.h>
 #include <argp.h>
 #include <libinetutils.h>
+#include "xalloc.h"
 
 #ifdef KERBEROS
 # ifdef HAVE_KERBEROSIV_DES_H
@@ -381,7 +382,7 @@ try_connect:
 		    case SHISHI_DES_CBC_NONE:
 		    case SHISHI_DES3_CBC_HMAC_SHA1_KD:
 		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
-		      ivtab[i]->iv = malloc (ivtab[i]->ivlen);
+		      ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
 		      memset (ivtab[i]->iv,
 			      2 * i + 1 * (i < 2) - 4 * (i >= 2),
 			      ivtab[i]->ivlen);
@@ -401,7 +402,7 @@ try_connect:
 		    default:
 		      ivtab[i]->keyusage =
 			SHISHI_KEYUSAGE_KCMD_DES + 2 + 4 * i;
-		      ivtab[i]->iv = malloc (ivtab[i]->ivlen);
+		      ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
 		      memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
 		      ivtab[i]->ctx =
 			shishi_crypto (h, enckey, ivtab[i]->keyusage,

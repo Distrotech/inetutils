@@ -1,3 +1,42 @@
+2012-03-27  Alfred M. Szmidt  <ams@gnu.org>
+
+	Check return code of malloc, or use xmalloc.
+
+	* whois/whois.c: Include "xalloc.h".
+	(gwhois_argp_parser, queryformat): Use xmalloc over malloc.
+
+	* telnet/commands.c: Include "xalloc.h".
+	(env_init, env_define): Use xmalloc over malloc.
+
+	* src/syslogd.c: Include "xalloc.h".
+	(crunch_list): Use xmalloc over malloc.
+
+	* src/rshd.c: Include "xalloc.h".
+	(doit): Use xmalloc over malloc.
+
+	* src/rsh.c: Include "xalloc.h".
+	(main): Use xmalloc over malloc.
+
+	* src/rlogind.c: Include "xalloc.h".
+	(do_shishi_login): Use xmalloc over malloc.
+
+	* src/rlogin.c: Include "xalloc.h".
+	(main): Use xmalloc over malloc.
+
+	* libtelnet/shishi.c (krb5shishi_send): Check return code of
+	malloc.
+
+	* libtelnet/kerberos5.c (kerberos5_send): Don't use assert to
+	check the return code for malloc
+
+	* libinetutils/kcmd.c (kcmd): Check return code of malloc.
+
+	* ifconfig/printif.c: Include "xalloc.h".
+	(print_interfaceX): Use xmalloc over malloc.
+
+	* ftp/cmds.c: Include "xalloc.h".
+	(dotrans, domap): Use xmalloc over malloc.
+
 2012-03-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac (DD, MKTEMP, NETSTAT): New variables.  Use AC_PATH_PROG
