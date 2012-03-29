@@ -1,3 +1,11 @@
+2012-03-29  Alfred M. Szmidt  <ams@gnu.org>
+
+	Create xz compressed tarballs as part of `make dist'.
+
+	* README-alpha: Updated.
+	* configure.ac: Added dist-xz.
+	* .gitignore: Added inetutils-*.tar.xz to list.
+
 2012-03-27  Alfred M. Szmidt  <ams@gnu.org>
 
 	Check return code of malloc, or use xmalloc.

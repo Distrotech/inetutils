@@ -134,10 +134,10 @@ FIXME: put recent NEWS items here
 Please send bug reports to bug-inetutils@gnu.org.
 
 Here are the compressed sources:
-  ftp://ftp.gnu.org/gnu/inetutils/inetutils-VERSION.tar.gz
+  ftp://ftp.gnu.org/gnu/inetutils/inetutils-VERSION.tar.xz
 
 Here are the GPG detached signatures[*]:
-  ftp://ftp.gnu.org/gnu/inetutils/inetutils-VERSION.tar.gz.sig
+  ftp://ftp.gnu.org/gnu/inetutils/inetutils-VERSION.tar.xz.sig
 
 To reduce load on the main server, use a mirror listed at:
   http://www.gnu.org/order/ftp.html
@@ -147,7 +147,7 @@ the corresponding file (without the .sig suffix) is intact.  First,
 be sure to download both the .sig file and the corresponding tarball.
 Then, run a command like this:
 
-  gpg --verify inetutils-VERSION.tar.gz.sig
+  gpg --verify inetutils-VERSION.tar.xz.sig
 
 If that command fails because you don't have the required public key,
 then run this command to import it:

@@ -29,7 +29,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([config.h:config.hin])
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE([1.11.1])
+AM_INIT_AUTOMAKE([1.11.1 dist-xz])
 
 # config.h turns this on, so make sure it's on for our tests too
 #CPPFLAGS=-D_BSD_SOURCE
