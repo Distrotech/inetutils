@@ -1,5 +1,15 @@
 2012-03-31  Alfred M. Szmidt  <ams@gnu.org>
 
+	configure.ac: Minor cleanup.
+
+	* configure.ac: Don't check for mkstemp, don't try to replace
+	strdup.
+	(long long, long double): Remove checks.
+	(AM_C_PROTOTYPES): Likewise.
+	(AC_FUNC_ALLOCA, AC_FUNC_MALLOC, AC_FUNC_REALLOC): Likewise.
+
+2012-03-31  Alfred M. Szmidt  <ams@gnu.org>
+
 	* Makefile.am (DISTCLEANFILES): Added $(PACKAGE)-$(VERSION).tar.xz
 	to list.
 

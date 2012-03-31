@@ -555,10 +555,6 @@ AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
-# Check for compile support for ceratin type
-AC_CHECK_TYPE(long long, , AC_DEFINE([LONG_LONG], long, [Define to long if compiler does not support]))
-AC_CHECK_TYPE(long double, , AC_DEFINE([LONG_DOUBLE], double, [Define to double if compiler does not support]))
-
 ### Checks for structures.
 IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
     [ #include <sys/types.h>
@@ -614,18 +610,15 @@ IU_CHECK_WEAK_REFS
 
 ### Checks for library functions.
 AC_FUNC_CLOSEDIR_VOID
-AC_FUNC_ALLOCA
 AC_FUNC_SETVBUF_REVERSED
 AC_FUNC_FORK
 AC_FUNC_STRCOLL
 AC_FUNC_MMAP
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 
 AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                fork fpathconf ftruncate \
 	       getcwd getmsg getspnam initgroups initsetproctitle killpg \
-               mkstemp ptsname \
+               ptsname \
                setegid seteuid setpgid \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
@@ -635,7 +628,7 @@ AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
 
 # Functions that we will define if necessary.
 AC_REPLACE_FUNCS(getpass getusershell memcmp memcpy memmove memset \
-	         setenv strdup poll)
+		 strdup poll)
 
 # Look for the crypt function itself (in libcrypt if possible)
 _SAVE_LIBS="$LIBS"
