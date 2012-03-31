@@ -1,6 +1,7 @@
-GNU inetutils - The GNU Network Utilities
+GNU inetutils - The GNU Networking Utilities
 
-This is a distribution of common networking utilities and servers.
+The GNU Networking Utilities are the common networking utilities,
+clients and servers of the GNU Operating System.
 
 The individual utilities were originally derived from the 4.4BSDLite2
 distribution.  Many features were integrated from NetBSD, OpenBSD,
@@ -39,8 +40,8 @@ Some known deficiencies:
 
  - Non-Shishi Kerberos support does not build.  Patches welcome.
 
- - Shishi Kerberos support is only implemented for 'rlogin', 'rlogind',
-   'rsh', 'rshd', 'telnet', and 'telnetd'.
+ - Shishi Kerberos support is only implemented for 'rlogin',
+   'rlogind', 'rsh', 'rshd', 'telnet', and 'telnetd'.
 
  - Not all utilities are Kerberized even when built with Kerberos
    libraries, including 'rcp'.
