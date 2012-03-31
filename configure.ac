@@ -31,11 +31,8 @@ AC_CANONICAL_HOST
 
 AM_INIT_AUTOMAKE([1.11.1 dist-xz])
 
-# config.h turns this on, so make sure it's on for our tests too
-#CPPFLAGS=-D_BSD_SOURCE
-
-dnl For now, we always use libexecdir; later we may want to vary where the
-dnl daemons go.
+# For now, we always use libexecdir; later we may want to vary where
+# the daemons go.
 inetdaemondir='$(libexecdir)'
 AC_SUBST(inetdaemondir)
 
@@ -122,7 +119,7 @@ IU_ENABLE_CLIENT(traceroute)
 
 AM_INIT_AUTOMAKE
 
-AM_SILENT_RULES([yes]) # make --enable-silent-rules the default.
+AM_SILENT_RULES([yes])
 
 AC_ISC_POSIX
 
@@ -166,17 +163,18 @@ if test "$gl_cv_lib_readline" = no; then
   ftp_INSTALL_HOOK=''
 fi
 
-dnl See if there's a separate libcrypt (many systems put crypt there)
+# See if there's a separate libcrypt (many systems put crypt there).
 AC_CHECK_LIB(crypt, crypt, LIBCRYPT=-lcrypt)
 AC_SUBST(LIBCRYPT)
 
-dnl libutil is a 4.4BSD library that defines several functions handy for
-dnl inetutil daemons, doing such things as utmp frobbing, and pty setup.
+# libutil is a 4.4BSD library that defines several functions handy for
+# inetutils daemons, doing such things as utmp frobbing, and pty
+# setup.
 AC_CHECK_LIB(util, logout, LIBUTIL=-lutil)
 AC_SUBST(LIBUTIL)
 
-# Check if they want support for PAM.  Certain daemons like
-# ftpd have support for it.
+# Check if they want support for PAM.  Certain daemons like ftpd have
+# support for it.
 
 # See if we have libpam.a this is for ftpd.
 if test "$with_pam" = yes ; then
@@ -200,7 +198,7 @@ fi
 AC_SUBST(LIBLS)
 AC_SUBST(libls_BUILD)
 
-dnl At least OpenSolaris is missing <protocols/talkd.h>.
+# At least OpenSolaris is missing <protocols/talkd.h>.
 AC_CHECK_HEADER(protocols/talkd.h, , ,
   [IU_FLUSHLEFT([#include <sys/types.h>
 		 #include <sys/socket.h>])])
@@ -227,9 +225,9 @@ else
   talk_BUILD=''
 fi
 
-dnl FIXME: Presently rshd and rlogind prefer iruserok(3),
-dnl which is not universally available.  Replacement code?
-dnl A fallback is being built from ruserok(3) and inet_ntoa(3).
+# FIXME: Presently rshd and rlogind prefer iruserok(3), which is not
+# universally available.  Replacement code?  A fallback is being built
+# from ruserok(3) and inet_ntoa(3).
 AC_CHECK_FUNC(iruserok, , , [#include <netdb.h>])
 AC_CHECK_FUNC(ruserok, , , [#include <netdb.h>])
 if test "$ac_cv_func_iruserok" = yes; then
@@ -248,7 +246,7 @@ else
 fi
 
 
-dnl FIXME: Make this test case a bit more robust. Remove KRB4
+# FIXME: Make this test case a bit more robust.  Remove KRB4
 LIBAUTH=
 INCAUTH=
 if test "$enable_encryption" = yes \
@@ -269,7 +267,7 @@ if test "$enable_encryption" = yes \
       AC_CHECK_LIB(des, des_key_sched,
                    [LIBAUTH="$LIBAUTH -ldes"],
                    -L$KERBEROS_DIR)
-      dnl FIXME: Fix this to one test case.
+      # FIXME: Fix this to one test case.
       test "$enable_authentication" = yes \
       && test "$ac_cv_lib_krb_krb_mk_req" = yes \
       && AC_DEFINE([KRB4])
@@ -313,7 +311,7 @@ fi
 AC_SUBST(LIBAUTH)
 AC_SUBST(INCAUTH)
 
-dnl Define CPP macros that enable auth/encrypt code
+# Define CPP macros that enable auth/encrypt code
 if test ".$LIBAUTH" != .; then
   test "$enable_authentication" = yes && AC_DEFINE([AUTHENTICATION], 1,
                    [Define to one if you want authentication.])
@@ -321,7 +319,7 @@ if test ".$LIBAUTH" != .; then
                    [Define to one if you want encryption.])
 fi
 
-dnl Checks for IPv6 support.
+# Checks for IPv6 support.
 
 AC_ARG_ENABLE([ipv6],
   AS_HELP_STRING([--disable-ipv6], [disable IPv6 support]),
@@ -470,13 +468,12 @@ else
 fi
 
 
-dnl Check if they want support for Wrap.  Certain daemons like
-dnl ftpd have support for it.
+# Check if they want support for Wrap.  Certain daemons like ftpd have
+# support for it.
 
 if test "$with_wrap" = yes; then
-dnl See if we have libwrap.a
-dnl we cannot use AC_CHECK_LIB reliably since for the wrap lib
-dnl you have to define some global variables
+# See if we have libwrap.a we cannot use AC_CHECK_LIB reliably since
+# for the wrap lib you have to define some global variables
 #AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
   AC_CHECK_HEADERS([tcpd.h])
   AC_MSG_CHECKING(hosts_ctl in -lwrap);
@@ -496,6 +493,7 @@ fi
 AC_SUBST(LIBWRAP)
 
 ### Checks for header files.
+
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
@@ -531,7 +529,8 @@ AC_CHECK_HEADERS([arpa/nameser.h com_err.h des.h errno.h fcntl.h features.h \
 )
 
 ### Checks for types.
-dnl Checks return type of signal handlers
+
+# Checks return type of signal handlers
 AC_TYPE_SIGNAL
 
 AC_CHECK_TYPE(socklen_t, ,
@@ -545,17 +544,18 @@ AC_CHECK_TYPES(struct if_nameindex, , ,
                  #include <sys/socket.h>
                  #include <net/if.h>])])
 
-dnl sigset_t is a set of signals (4.4BSD)
+# sigset_t is a set of signals (4.4BSD)
 AC_CHECK_TYPE(sigset_t, , AC_DEFINE([sigset_t], unsigned long, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
-dnl I'm not sure what this is, but netbsd has it; just use int if necessary.
+# I'm not sure what this is, but netbsd has it; just use int if
+# necessary.
 AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
-dnl Check for compile support for ceratin type
+# Check for compile support for ceratin type
 AC_CHECK_TYPE(long long, , AC_DEFINE([LONG_LONG], long, [Define to long if compiler does not support]))
 AC_CHECK_TYPE(long double, , AC_DEFINE([LONG_DOUBLE], double, [Define to double if compiler does not support]))
 
@@ -592,23 +592,24 @@ IU_CHECK_MEMBERS([struct hostent.h_addr_list], , , [#include <netdb.h>])
 
 IU_CHECK_MEMBERS([struct stat.st_blksize])
 
-dnl OpenSolaris does not use a union for `struct tftphdr.th_u'.
-dnl As a consequence `struct tftphdr.th_stuff' is a macro
-dnl resolving to a `ushort_t'. BSD and Linux produce `char *'.
+# OpenSolaris does not use a union for `struct tftphdr.th_u'.  As a
+# consequence `struct tftphdr.th_stuff' is a macro resolving to a
+# `ushort_t'.  BSD and Linux produce `char *'.
 IU_CHECK_MEMBERS([struct tftphdr.th_u], , ,
 		 [#include <sys/types.h>
 		  #include <sys/socket.h>
 		  #include <arpa/tftp.h>])
 
 ### Checks for compiler characteristics.
-AM_C_PROTOTYPES dnl FIXME: Does inetutils even compile on pre-ANSI compilers?
+AM_C_PROTOTYPES # FIXME: Does inetutils even compile on pre-ANSI
+		# compilers?
 AC_C_CONST
 
-dnl See if `weak refs' are possible; these make it possible (with shared
-dnl libraries) to check for the existance of a standard function at run-time
-dnl instead of compile time, which is very handy for distributing binary
-dnl version programs that automatically adapt -- in inetutils case, to whether
-dnl or not crypt is available.
+# See if `weak refs' are possible; these make it possible (with shared
+# libraries) to check for the existance of a standard function at
+# run-time instead of compile time, which is very handy for
+# distributing binary version programs that automatically adapt -- in
+# inetutils case, to whether or not crypt is available.
 IU_CHECK_WEAK_REFS
 
 ### Checks for library functions.
@@ -632,11 +633,11 @@ AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                updwtmp updwtmpx vhangup wait3 wait4 opendir2 \
 	       __rcmd_errstr __check_rhosts_file )
 
-dnl Functions that we will define if necessary.
+# Functions that we will define if necessary.
 AC_REPLACE_FUNCS(getpass getusershell memcmp memcpy memmove memset \
 	         setenv strdup poll)
 
-dnl Look for the crypt function itself (in libcrypt if possible)
+# Look for the crypt function itself (in libcrypt if possible)
 _SAVE_LIBS="$LIBS"
 LIBS="$LIBCRYPT $LIBS"
 AC_CHECK_FUNCS(crypt)
@@ -644,28 +645,29 @@ LIBS="$_SAVE_LIBS"
 
 AC_CHECK_FUNC(_obstack_free)
 
-dnl Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
+# Use (posix) `setpgid' if it's around, otherwise assume a BSD setpgrp
 AC_CHECK_FUNC(setpgid, , AC_DEFINE([setpgid], setpgrp,
                           [Define to `setpgrp' if you don't have `setpgid'.]))
 
-dnl We use our own version of getopt (including our own header file) if the
-dnl system one doesn't have getopt_long.
+# We use our own version of getopt (including our own header file) if
+# the system one doesn't have getopt_long.
 AC_CHECK_FUNC(getopt_long)
 
 AC_CHECK_HEADER(poll.h)
 
-dnl See if snprintf exists, otherwise just use a bogus version
+# See if snprintf exists, otherwise just use a bogus version
 AC_CHECK_FUNC(snprintf,
   [AC_DEFINE([HAVE_SNPRINTF], 1, [Define to one if you have snprintf])])
 
-dnl See if vsnprintf exists, otherwise use our own.
+# See if vsnprintf exists, otherwise use our own.
 AC_CHECK_FUNC(vsnprintf,
   [AC_DEFINE([HAVE_VSNPRINTF], 1, [Define to one if you have vsnprintf])])
 
-dnl See if the system has strerror, and replace it if not
+# See if the system has strerror, and replace it if not
 AC_CHECK_FUNC(strerror)
 if test "$ac_cv_func_strerror" = no; then
-  # No strerror, so see if the SYS_ERRLIST variable can be used by ours
+  # No strerror, so see if the SYS_ERRLIST variable can be used by
+  # ours
   AC_CHECK_FUNC(sys_errlist, AC_DEFINE([HAVE_SYS_ERRLIST], 1,
                               [Define to one if you have sys_errlist.]))
   if test "$ac_cv_func_sys_errlist" = yes; then
@@ -675,7 +677,7 @@ if test "$ac_cv_func_strerror" = no; then
   fi
 fi
 
-dnl See if the system has hstrerror, and replace it if not
+# See if the system has hstrerror, and replace it if not
 AC_CHECK_FUNC(hstrerror)
 if test "$ac_cv_func_hstrerror" = yes; then
   AC_CHECK_DECL(hstrerror, , , [#include <netdb.h>])
@@ -688,24 +690,25 @@ else
 fi
 if test "$ac_cv_func_hstrerror" = yes \
    || test "$ac_cv_func_h_errlist" = yes; then
-  # If there's a system hstrerror, or we can reasonably replace it, say so.
-  # We still provide some definition, regardless, but this allows people to use
-  # a reasonable alternative if the situation allows, rather than using a
-  # degenerate version that only says `Host lookup error N'.
+  # If there's a system hstrerror, or we can reasonably replace it,
+  # say so.  We still provide some definition, regardless, but this
+  # allows people to use a reasonable alternative if the situation
+  # allows, rather than using a degenerate version that only says
+  # `Host lookup error N'.
   AC_DEFINE([HAVE_HSTRERROR], 1, [Define to one if you have hstrerror.])
 fi
 
-dnl OpenSolaris does not provide an external reference.
+# OpenSolaris does not provide an external reference.
 AC_CHECK_DECLS(telcmds, , ,
   [IU_FLUSHLEFT([#undef TELCMDS
                  #include <arpa/telnet.h>])])
 
-dnl NetBSD does include an external reference.
+# NetBSD does include an external reference.
 AC_CHECK_DECLS(telopts, , ,
   [IU_FLUSHLEFT([#undef TELOPTS
                  #include <arpa/telnet.h>])])
 
-dnl OpenSolaris provides Schedule and Session_Key.
+# OpenSolaris provides Schedule and Session_Key.
 AC_CHECK_TYPE(Schedule,
   AC_DEFINE([HAVE_ARPA_TELNET_H_SCHEDULE], 1,
 	    [Define to one if <arpa/telnet.h> defines a type Schedule.]), ,
@@ -721,14 +724,15 @@ AC_DECL_SYS_SIGLIST
 
 AC_CHECK_DECLS(crypt, , , [#include <unistd.h>])
 
-dnl EWOULDBLOCK is more or less the BSD version of posix EAGAIN.
+# EWOULDBLOCK is more or less the BSD version of posix EAGAIN.
 IU_CHECK_MACRO(EWOULDBLOCK, [#include <errno.h>], , ,
   AC_DEFINE([EWOULDBLOCK], EAGAIN, 1, [FIXME]))
 AC_CHECK_DECLS(errno, , , [#include <errno.h>])
 
-dnl See whether <syslog.h> will declare special internal stuff if we define
-dnl SYSLOG_NAMES before including it.  We check for various syslog internal
-dnl macros, the typedef `CODE', and the variable `prioritynames'.
+# See whether <syslog.h> will declare special internal stuff if we
+# define SYSLOG_NAMES before including it.  We check for various
+# syslog internal macros, the typedef `CODE', and the variable
+# `prioritynames'.
 define([iu_syslog_includes],
   [[#include <stdlib.h>
     #define SYSLOG_NAMES
@@ -742,8 +746,8 @@ IU_CHECK_MACRO(syslog internal macros,
       iu_syslog_includes), , iu_syslog_includes),)
 undefine([iu_syslog_includes])
 
-dnl Some systems don't declare common functions (especially if they return
-dnl int), at least in the expected header file.  Check.
+# Some systems don't declare common functions (especially if they
+# return int), at least in the expected header file.  Check.
 AC_CHECK_DECLS([fclose, pclose], , , [#include <stdio.h>])
 AC_CHECK_DECLS([getcwd, getlogin, getpass, getusershell, ttyname], , ,
                [#include <unistd.h>])
@@ -757,28 +761,29 @@ AC_CHECK_DECLS(htons, , ,
                  #endif
                  #include <netinet/in.h> ])])
 
-dnl Our home-grown version of setenv needs to use ENVIRON
+# Our home-grown version of setenv needs to use ENVIRON
 AC_CHECK_DECLS(environ, , ,
   [IU_FLUSHLEFT([#include <unistd.h>
                  #include <stdlib.h>])])
 
-dnl See if we have h_errno (the test is here so we can use -lresolv
-dnl if necessary).
+# See if we have h_errno (the test is here so we can use -lresolv if
+# necessary).
 AC_CACHE_CHECK([for h_errno], inetutils_cv_var_h_errno,
   AC_TRY_COMPILE([#include <netdb.h>],
     [ extern int h_errno; int iu_x = h_errno; ],
     inetutils_cv_var_h_errno=yes, inetutils_cv_var_h_errno=no))
 if test "$inetutils_cv_var_h_errno" = yes; then
-  dnl FIXME: Isn't this wrong? Shouldn't the declaration check define
-  dnl        this if we find h_errno?
+  # FIXME: Isn't this wrong? Shouldn't the declaration check define
+  #        this if we find h_errno?
   AC_DEFINE([HAVE_H_ERRNO], 1, [Define to one if you have h_errno.])
   AC_CHECK_DECL(h_errno, , , [#include <netdb.h>])
 fi
 
 ## Checks for CPP macros.
-dnl Look for the posix SEEK_ macros (for lseek), and if not found, try the
-dnl similar berkeley L_ macros; if neither can be found, use the classic unix
-dnl values.
+
+# Look for the posix SEEK_ macros (for lseek), and if not found, try
+# the similar berkeley L_ macros; if neither can be found, use the
+# classic unix values.
 IU_CHECK_MACRO(SEEK_ macros,
   [#include <unistd.h>], SEEK_SET SEEK_CUR SEEK_END,
   :,
@@ -791,7 +796,8 @@ IU_CHECK_MACRO(SEEK_ macros,
     AC_DEFINE([SEEK_CUR], 1, [FIXME])
     AC_DEFINE([SEEK_END], 2, [FIXME])))
 
-dnl Look for the posix _FILENO macros; if not found, use the classic unix values.
+# Look for the posix _FILENO macros; if not found, use the classic
+# unix values.
 IU_CHECK_MACRO(_FILENO macros,
   [#include <unistd.h>], STDIN_FILENO STDOUT_FILENO STDERR_FILENO,
   :,
@@ -799,7 +805,8 @@ IU_CHECK_MACRO(_FILENO macros,
   AC_DEFINE([STDOUT_FILENO], 1, [FIXME])
   AC_DEFINE([STDERR_FILENO], 2, [FIXME]))
 
-dnl See where to find fd_set (bit-vectors for select) manipulation macros.
+# See where to find fd_set (bit-vectors for select) manipulation
+# macros.
 IU_CHECK_MACRO(fd_set macros, [#include <sys/types.h>],
   FD_ZERO FD_CLR FD_SET FD_ISSET)
 if test "$inetutils_cv_macro_fd_set_macros" = no; then
@@ -807,14 +814,14 @@ if test "$inetutils_cv_macro_fd_set_macros" = no; then
     FD_ZERO FD_CLR FD_SET FD_ISSET)
 fi
 
-dnl Set convinience variables for inetutils.
+# Set convinience variables for inetutils.
 iu_LIBRARIES='$(top_builddir)/libinetutils/libinetutils.a $(top_builddir)/lib/libgnu.a'
 iu_INCLUDES='-I$(top_srcdir)/lib -I$(top_builddir)/lib -I$(top_srcdir)/libinetutils'
 AC_SUBST(iu_LIBRARIES)
 AC_SUBST(iu_INCLUDES)
 
-dnl Configure paths used by inetutils programs.  See the file `paths' for
-dnl details.
+# Configure paths used by inetutils programs.  See the file `paths'
+# for details.
 PATHDEFS_MAKE=pathdefs.make
 PATHS_DEFS=paths.defs
 IU_CONFIG_PATHS($srcdir/paths, PATHDEFS_MAKE, PATHS_DEFS)
@@ -822,10 +829,10 @@ AH_BOTTOM(
 [/* Defaults for PATH_ variables.  */
 #include <confpaths.h>])
 
-dnl Ok this is the end of the rope, even autoconf can't help.
-dnl For example on certain system login(1) will not work if we
-dnl don't have an entry in utmpx.
-dnl Also for some OS they are better handle with STREAMS
+# Ok this is the end of the rope, even autoconf can't help.  For
+# example on certain system login(1) will not work if we don't have an
+# entry in utmpx.  Also for some OS they are better handle with
+# STREAMS.
 case "$host" in
 *olaris*)
   AC_DEFINE([SOLARIS], 1, [FIXME])
