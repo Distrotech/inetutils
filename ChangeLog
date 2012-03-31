@@ -1,3 +1,8 @@
+2012-03-31  Alfred M. Szmidt  <ams@gnu.org>
+
+	* Makefile.am (DISTCLEANFILES): Added $(PACKAGE)-$(VERSION).tar.xz
+	to list.
+
 2012-03-29  Alfred M. Szmidt  <ams@gnu.org>
 
 	* tests/.gitignore: Added tools.sh to list.

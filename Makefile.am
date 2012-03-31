@@ -26,7 +26,8 @@ SUBDIRS = lib \
 	doc man \
 	tests
 
-DISTCLEANFILES = pathdefs.make paths.defs $(PACKAGE)-$(VERSION).tar.gz
+DISTCLEANFILES = pathdefs.make paths.defs \
+	$(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION).tar.xz
 
 BUILT_SOURCES = $(top_srcdir)/.version
 $(top_srcdir)/.version:
