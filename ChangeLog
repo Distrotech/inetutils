@@ -16,72 +16,65 @@
 
 	* whois/whois.c: Include "xalloc.h".
 	(gwhois_argp_parser, queryformat): Use xmalloc over malloc.
-
 	* telnet/commands.c: Include "xalloc.h".
 	(env_init, env_define): Use xmalloc over malloc.
-
 	* src/syslogd.c: Include "xalloc.h".
 	(crunch_list): Use xmalloc over malloc.
-
 	* src/rshd.c: Include "xalloc.h".
 	(doit): Use xmalloc over malloc.
-
 	* src/rsh.c: Include "xalloc.h".
 	(main): Use xmalloc over malloc.
-
 	* src/rlogind.c: Include "xalloc.h".
 	(do_shishi_login): Use xmalloc over malloc.
-
 	* src/rlogin.c: Include "xalloc.h".
 	(main): Use xmalloc over malloc.
-
 	* libtelnet/shishi.c (krb5shishi_send): Check return code of
 	malloc.
-
 	* libtelnet/kerberos5.c (kerberos5_send): Don't use assert to
 	check the return code for malloc
-
 	* libinetutils/kcmd.c (kcmd): Check return code of malloc.
-
 	* ifconfig/printif.c: Include "xalloc.h".
 	(print_interfaceX): Use xmalloc over malloc.
-
 	* ftp/cmds.c: Include "xalloc.h".
 	(dotrans, domap): Use xmalloc over malloc.
 
 2012-03-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
-	* configure.ac (DD, MKTEMP, NETSTAT): New variables.  Use AC_PATH_PROG
-	on `dd', `mktemp', and `netstat'.  Declare as precious with AC_ARG_VAR.
-	(SED): New variable.  Set using AC_PROG_SED, protect by AC_ARG_VAR.
+	* configure.ac (DD, MKTEMP, NETSTAT): New variables.  Use
+	AC_PATH_PROG on `dd', `mktemp', and `netstat'.  Declare as
+	precious with AC_ARG_VAR.
+	(SED): New variable.  Set using AC_PROG_SED, protect by
+	AC_ARG_VAR.
 	(GREP): Protect using AC_ARG_VAR.
 	* tests/Makefile.am (BUILT_SOURCES, EXTRA_DIST, CLEANFILES)
 	(tools_subst): New variables.
 	(tools.sh): New target.
 	* tests/ftp-localhost.sh: Source `tools.sh'.  Use $GREP, $MKTEMP,
-	$NETSTAT, and $SED instead of utility names.  Change tests for `grep',
-	and `netstat'; check $need_mktemp.
-	(FTPHOME): Check also fifth field of passwd, should GECOS be missing.
+	$NETSTAT, and $SED instead of utility names.  Change tests for
+	`grep', and `netstat'; check $need_mktemp.
+	(FTPHOME): Check also fifth field of passwd, should GECOS be
+	missing.
 	(USER): Calculate using `func_id_user'.
-	* tests/hostname.sh: Source `tools.sh'.  `func_id_uid` replaces `id -u'.
+	* tests/hostname.sh: Source `tools.sh'.  `func_id_uid` replaces
+	`id -u'.
 	* tests/ping-localhost.sh: Likewise.
 	* tests/traceroute-localhost.sh: Likewise.
 	* tests/syslogd.sh: Check directory early, then source `tools.sh'.
-	Check $need_mktemp and $need_netstat.  Use $SED, $MKTEMP, $NETSTAT,
-	and $GREP.  Replace `id -u' by `func_id_uid'.
-	* tests/telnet-localhost.sh: Source `tools.sh'.  Check $need_mktemp.
-	Use $SED, $MKTEMP, and $GREP.
+	Check $need_mktemp and $need_netstat.  Use $SED, $MKTEMP,
+	$NETSTAT, and $GREP.  Replace `id -u' by `func_id_uid'.
+	* tests/telnet-localhost.sh: Source `tools.sh'.  Check
+	$need_mktemp.  Use $SED, $MKTEMP, and $GREP.
 	(USER): Compute using `func_id_user'.
 	* tests/tftp.sh: Source `tools.sh'.  Check $need_dd, $need_mktemp,
-	and $need_netstat.  Remove checks for `netstat' and `grep'.  Use $SED,
-	$MKTEMP, $NETSTAT, $GREP, and $DD.
+	and $need_netstat.  Remove checks for `netstat' and `grep'.  Use
+	$SED, $MKTEMP, $NETSTAT, $GREP, and $DD.
 	(USER): Compute using `func_id_user'.
 	* tests/tools.sh.in: New file.
 
 2012-03-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
-	* am/libcurses.m4 (IU_LIB_TERMCAP) <termlib detection>: Add a missing
-	use of `test'.
+	* am/libcurses.m4 (IU_LIB_TERMCAP) <termlib detection>: Add a
+	missing use of `test'.
 	(HAVE_TERMLIB_TGETENT): New macro, replaces HAVE_TERMINFO_TGETENT.
 
 2012-03-15  Simon Josefsson  <simon@josefsson.org>
@@ -100,8 +93,8 @@
 
 2012-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
-	* tests/dnsdomainname.sh: Replace `! test -x' by `test ! -x'
-	for shell portability.
+	* tests/dnsdomainname.sh: Replace `! test -x' by `test ! -x' for
+	shell portability.
 
 2012-03-14  Simon Josefsson  <simon@josefsson.org>
 
@@ -112,20 +105,21 @@
 
 	Make explicit dependency on header files for libwrap and termcap.
 
-	* am/libcurses.m4 (IU_LIB_TERMCAP): Check whether tgetent() is really
-	declared in <termcap.h>, not only checking presence of <termcap.h>.
-	That failing, check declaration of tgetent() using the pair <curses.h>,
-	and <term.h>.  In case of no successful detection at all, set LIBTERMCAP
-	to empty.
+	* am/libcurses.m4 (IU_LIB_TERMCAP): Check whether tgetent() is
+	really declared in <termcap.h>, not only checking presence of
+	<termcap.h>.  That failing, check declaration of tgetent() using
+	the pair <curses.h>, and <term.h>.  In case of no successful
+	detection at all, set LIBTERMCAP to empty.
 	* configure.ac (LIBWRAP): Define only if hosts_ctl() is present in
 	libwrap and also the header <tcpd.h> exists.
 
 2012-03-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
-	* src/traceroute.c (do_try): When displaying traces, print host name
-	only if in resolving mode; otherwise only numerical address.  Insert
-	one additional blank before time printout.
-	(get_hostname): Remove conditional clause on OPT_RESOLVE_HOSTNAMES.
+	* src/traceroute.c (do_try): When displaying traces, print host
+	name only if in resolving mode; otherwise only numerical address.
+	Insert one additional blank before time printout.
+	(get_hostname): Remove conditional clause on
+	OPT_RESOLVE_HOSTNAMES.
 
 2012-03-12  Simon Josefsson  <simon@josefsson.org>
 
@@ -143,30 +137,32 @@
 
 2012-03-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
-	* whois/tld_serv_list (.cz, .fo, .gl, .gs, .hk, .ie, .il, .in, .is)
-	(.jp, .kr, .kz, .lt, .lu, .lv, .ms, .mx, .ng, .nz, .pe, .pl, .ro, .ru)
-	(.se, .sg, .si, .sk, .sm, .su, .tf, .th, .tr, .tw, .us): Updated entry.
-	(.dz, .ec, .es, .eu, .fi, .gd, .gg, .gi, .gy, .hn, .hr, .ht, .im, .io)
-	(.ir, .je, .ke, .la, .ly, .ma, .md, .me, .mg, .mn, .mp, .mu, .my, .na)
-	(.nc, .nf, .pm, .pr, .pt, .qa, .re, .rs, .sa, .sb, .sc, .so, .sx, .tk)
-	(.tl, .tv, .tz, .ua, .uy, .uz, .vc, .ve, .wf, .yt): New or upgraded
-	from web entry.
+	* whois/tld_serv_list (.cz, .fo, .gl, .gs, .hk, .ie, .il, .in)
+	(.is, .jp, .kr, .kz, .lt, .lu, .lv, .ms, .mx, .ng, .nz, .pe, .pl)
+	(.ro, .ru, .se, .sg, .si, .sk, .sm, .su, .tf, .th, .tr, .tw, .us):
+	Updated entry.
+	(.dz, .ec, .es, .eu, .fi, .gd, .gg, .gi, .gy, .hn, .hr, .ht, .im)
+	(.io, .ir, .je, .ke, .la, .ly, .ma, .md, .me, .mg, .mn, .mp, .mu)
+	(.my, .na, .nc, .nf, .pm, .pr, .pt, .qa, .re, .rs, .sa, .sb, .sc)
+	(.so, .sx, .tk, .tl, .tv, .tz, .ua, .uy, .uz, .vc, .ve, .wf, .yt):
+	New or upgraded from web entry.
 	(.hm, .ki, .mf, .pk, .pw, .sl, .sn, .tj, .ug, .um, .vn, .yu, .za):
 	Broken address or other comment.
 
 2012-03-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
-	* ping/ping6.c (print_echo): Use flag NI_NUMERICHOST in call
-	to getnameinfo() whenever the option OPT_NUMERIC is active.
-	* ping/ping_echo.c (ipaddr2str): Isolate case OPT_NUMERIC to
-	call xstrdup().  Then call xstrdup() if gethostbyaddr() fails.
-	In main body, replace every `hp->h_name' for `ipstr', and
-	conversely, since only `hp->h_name' can fail do be defined.
+	* ping/ping6.c (print_echo): Use flag NI_NUMERICHOST in call to
+	getnameinfo() whenever the option OPT_NUMERIC is active.
+	* ping/ping_echo.c (ipaddr2str): Isolate case OPT_NUMERIC to call
+	xstrdup().  Then call xstrdup() if gethostbyaddr() fails.  In main
+	body, replace every `hp->h_name' for `ipstr', and conversely,
+	since only `hp->h_name' can fail do be defined.
 	* tests/ping-localhost.sh: Insert option `-n' to ping and ping6.
 
 2012-03-03  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Display command prompt only in interactive mode.
+
 	* src/tftp.c (fromatty): New variable; true in interactive mode.
 	(main): Assign value to FROMATTY.
 	(command): Display prompt only if FROMATTY is true.
@@ -174,39 +170,44 @@
 2012-03-02  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Make service lookup optional in FTP client.
-	* ftp/cmds.h [!DEFPORT] (DEFPORT): New macro.  Define as IPPORT_FTP
-	if available, otherwise as 21.
+
+	* ftp/cmds.h (DEFPORT) [!DEFPORT]: New macro.  Define as
+	IPPORT_FTP if available, otherwise as 21.
 	(another): Condition call to add_history() on FROMATTY.
-	(setpeer): Call getservbyname() for `ftp/tcp'.  Set port if successful;
-	use DEFPORT otherwise.
+	(setpeer): Call getservbyname() for `ftp/tcp'.  Set port if
+	successful; use DEFPORT otherwise.
 	* ftp/ftp_var.h (sp): Remove external variable.
-	* ftp/main.c (main): Remove call to getservbyname() and the use of SP.
+	* ftp/main.c (main): Remove call to getservbyname() and the use of
+	SP.
 	(cmdscanner): Condition call to add_history() on FROMATTY.
 
 2012-03-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Subtests for SIGHUP reaction of `inetd' and `syslogd'.
 
-	* tests/syslogd.sh: Write a second configuration file after first run,
-	send SIGHUP to server, and evaluate message response.
+	* tests/syslogd.sh: Write a second configuration file after first
+	run, send SIGHUP to server, and evaluate message response.
 	(SUCCESSES): Update arithmetic expression used in evaluation.
-	(OUT_USER, OUT_DEBUG, TAG2, COUNT2, COUNT2_debug, COUNT3, COUNT3_info):
-	New variables.
-	<verbose report>: Print messages of files $OUT_USER and $OUT_DEBUG.
+	(OUT_USER, OUT_DEBUG, TAG2, COUNT2, COUNT2_debug, COUNT3)
+	(COUNT3_info): New variables.  <verbose report>: Print messages of
+	files $OUT_USER and $OUT_DEBUG.
 
-	* tests/tftp.sh: Calculate new port after first test run, send SIGHUP
-	to server, and transmit a small file at each adress in old list.
+	* tests/tftp.sh: Calculate new port after first test run, send
+	SIGHUP to server, and transmit a small file at each adress in old
+	list.
 	(do_conf_reload): New variable.
 
 2012-03-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Reduce external prerequisites in test scripts.
+
 	* tests/ftp-localhost.sh: Replace `head -1' by `sed 1q'.
-	* tests/telnet-localhost.sh, tests/tftp.sh: Likewise.  Replace `ps pid'
-	by `kill -0 pid'.
+	* tests/telnet-localhost.sh, tests/tftp.sh: Likewise.  Replace `ps
+	pid' by `kill -0 pid'.
 	* tests/syslogd.sh: Likewise.  Replace `wc -l' by `grep -c'.
 
-	* tests/tftp.sh: Do not issue `set -m', since no job control in use.
+	* tests/tftp.sh: Do not issue `set -m', since no job control in
+	use.
 
 2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -232,7 +233,8 @@
 
 2012-02-25  Alfred M. Szmidt  <ams@gnu.org>
 
-	* cfg.mk (local-checks-to-skip): Added sc_assignment_in_if to list.
+	* cfg.mk (local-checks-to-skip): Added sc_assignment_in_if to
+	list.
 	(sc_assignment_in_if): New target.
 
 	* bootstrap: Updated from gnulib.
@@ -242,8 +244,8 @@
 
 2012-02-22  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* tests/ping-localhost.sh, tests/traceroute-localhost.sh: Mend string
-	quotation for expected variable expansion.
+	* tests/ping-localhost.sh, tests/traceroute-localhost.sh: Mend
+	string quotation for expected variable expansion.
 	* tests/syslogd.sh (SYSLOGD, LOGGER): Allow value overriding.
 	* tests/telnet-localhost.sh (INETD, TELNET, ADDRPEEK): Likewise.
 	(TARGET): New variable, replacing previous TARGET4.
@@ -251,31 +253,37 @@
 2012-02-22  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Implement group assignment for services.
+
 	* src/inetd.c (struct servtab): New component `char *se_group'.
-	(run_service): New variable GRP.  Check existence of `sep->se_group'.
-	If valid, then apply setgid() to `grp->gr_gid' instead of `pwd->pw_gid'.
-	[HAVE_INITGROUPS] <initgroups>: Use `grp->gr_id' if an explicit group
-	was stated, otherwise use `pwd->pw_gid'.
+	(run_service): New variable GRP.  Check existence of
+	`sep->se_group'.  If valid, then apply setgid() to `grp->gr_gid'
+	instead of `pwd->pw_gid'.  <initgroups> [HAVE_INITGROUPS]: Use
+	`grp->gr_id' if an explicit group was stated, otherwise use
+	`pwd->pw_gid'.
 	(print_service): Display also group membership.
 	(enter, freeconfig): Add string handling for groups.
 	(getconfigent): Parse user string for an optional group component.
 	(nextconfig): Assure that an assigned group really exists.
 	(fix_tcpmux): Add empty group string.
-	* doc/inetutils.texi (inetd configuration file): Add setting of group.
+	* doc/inetutils.texi (inetd configuration file): Add setting of
+	group.
 
 2012-02-21  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/telnet-localhost.sh: Skip test in absence of assigned TTY.
-	Rewrite case evaluation without nested pipelines and OR connectives.
+	Rewrite case evaluation without nested pipelines and OR
+	connectives.
 
 2012-02-21  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Basic test case for `telnet'.
-	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_inetd && ENABLE_telnet]:
-	Added telnet-localhost.sh.
+
+	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_inetd &&
+	ENABLE_telnet]: Added telnet-localhost.sh.
 	* tests/telnet-localhost.sh: New file.
 
-	* tests/ftp-localhost.sh (posttesting): Use SIGTERM first, then SIGKILL.
+	* tests/ftp-localhost.sh (posttesting): Use SIGTERM first, then
+	SIGKILL.
 	(locate_port): Adapt regex alternate pattern for legacy `grep'.
 	* tests/syslogd.sh (clean_testdir, locate_port): Likewise.
 	* tests/tftp.sh (posttesting, locate_port): Likewise.
@@ -283,6 +291,7 @@
 2012-02-20  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Improve behaviour of single stacked clients.
+
 	* ftp/ftp.c (hookup): Do not add AI_ADDRCONFIG to HINTS.ai_flags.
 	* src/logger.c (open_socket): Likewise.
 	* telnet/commands.c (tn): Likewise.
@@ -311,15 +320,16 @@
 
 2012-02-09  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* am/krb5.m4: When examining `libkrb5', replace AC_CHECK_LIB
-	by AC_TRY_LINK in order to avoid cached results, since identical
-	library and function names are tested for.
-	<OpenBSD Heimdal>: New test case.
+	* am/krb5.m4: When examining `libkrb5', replace AC_CHECK_LIB by
+	AC_TRY_LINK in order to avoid cached results, since identical
+	library and function names are tested for.  <OpenBSD Heimdal>: New
+	test case.
 
 2012-02-08  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* tests/syslogd.sh: Reimplement a subtest using standard INET port.
-	A second SYSLOG daemon is started, which only uses INET sockets.
+	* tests/syslogd.sh: Reimplement a subtest using standard INET
+	port.  A second SYSLOG daemon is started, which only uses INET
+	sockets.
 	(do_standard_port): New variable, initially `true', changed to
 	`false' for non-root user and when 514/udp is in use.
 
@@ -329,52 +339,54 @@
 	standard port `syslog/udp'.  Fall back to `514' if `syslog' fails.
 	(find_inet_port): New function.
 	(BindPort): New variable.
-	[IPPORT_SYSLOG] (portstr): New variable.
+	(portstr) [IPPORT_SYSLOG]: New variable.
 	(LogPortText): Initialize to NULL.
 	(LogForwardPort): New variable.
 	(argp_options, parse_opt): New option `-B/--bind-port'.
 	(main): New call to `find_inet_port'.
 	(create_inet_socket): Check that LOGPORTTEXT is non-null,
 	otherwise inet sockets are left disabled.
-	[AI_ADDRCONFIG] (fprintflog, cfline): Only AF_UNSPEC invokes
-	AI_ADDRCONFIG.  Replace LOGPORTTEXT by LOGFORWARDPORT in calls
-	to getaddrinfo.
+	(fprintflog, cfline) [AI_ADDRCONFIG]: Only AF_UNSPEC invokes
+	AI_ADDRCONFIG.  Replace LOGPORTTEXT by LOGFORWARDPORT in calls to
+	getaddrinfo.
 
-	* tests/syslogd.sh: Adapt to `syslogd' allowing non-standard ports.
+	* tests/syslogd.sh: Adapt to `syslogd' allowing non-standard
+	ports.
 	(PORT): Make presetable from command line.
-	(locate_port): New function.
-	<non-root && privileged port>: Use a pseudo-random port.
-	<port in use>: Take a pseudo-random step to an even higher port, only
-	to disable inet sockets if even that action fails.
+	(locate_port): New function.  <non-root && privileged port>: Use a
+	pseudo-random port.  <port in use>: Take a pseudo-random step to
+	an even higher port, only to disable inet sockets if even that
+	action fails.
 	[do_inet_socket]: Add `-B$PORT' to IU_OPTIONS and append `:$PORT'
 	to option `-h' in calls to logger.
 
-	* tests/ftp-localhost.sh, tests/tftp.sh (NSSWITCH): Override
-	with value `/etc/services' when running OpenBSD.
+	* tests/ftp-localhost.sh, tests/tftp.sh (NSSWITCH): Override with
+	value `/etc/services' when running OpenBSD.
 
 2012-02-06  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* doc/inetutils.texi (logger invocation): Describe option `-u/--unix'.
+	* doc/inetutils.texi (logger invocation): Describe option
+	`-u/--unix'.
 	(ftpd invocation): Describe options `-4/ipv4' and `-6/--ipv6'.
-	* tests/ftp-localhost.sh (NSSWITCH, PASSWD, PROTOCOLS): New variables
-	naming standard files.  Check their presence and skip test otherwise.
+	* tests/ftp-localhost.sh (NSSWITCH, PASSWD, PROTOCOLS): New
+	variables naming standard files.  Check their presence and skip
+	test otherwise.
 	* tests/tftp.sh (NSSWITCH, PASSWD, PROTOCOLS): Likewise.
 
 2012-02-05  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/tftp.sh: Need job control, issue `set -m'.
-	(spawned_pid): New variable.
-	<inetd restart failure>: For better robustness, kill process
-	immediately using SPAWNED_PID.
+	(spawned_pid): New variable.  <inetd restart failure>: For better
+	robustness, kill process immediately using SPAWNED_PID.
 
 2012-02-04  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* src/logger.c (unixsock): New variable.
-	(open_socket): Allow HOST and UNIXSOCK to determine
-	UNIX socket name.  Add test that HOST be non-NULL.
+	(open_socket): Allow HOST and UNIXSOCK to determine UNIX socket
+	name.  Add test that HOST be non-NULL.
 	(argp_options): New option `-u/--unix'.
-	(parse_opt) <h>: Erase UNIXSOCK, i.e., clear `-u'.
-	<u>: New option. Set UNIXSOCK, erase HOST.
+	(parse_opt) <h>: Erase UNIXSOCK, i.e., clear `-u'.  <u>: New
+	option.  Set UNIXSOCK, erase HOST.
 
 2012-02-04  Mats Erik Andersson <gnu@gisladisker.se>
 
@@ -384,6 +396,7 @@
 2012-02-03  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Do not use which(1) in test scripts.
+
 	* tests/ftp-localhost.sh: Use a trivial match to detect grep(1)
 	and a trivial invokation of netstat(1).  Use `sysctl -a', while
 	discarding STDOUT and STDERR, to sense for sysctl(8).
@@ -392,39 +405,42 @@
 2012-02-03  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Attempt full detection of any intermediary step failing.
+
 	* tests/ftp-localhost.sh: Test presence of grep(1), netstat(1).
 	Capture failing mktemp(1).
 	(posttesting): Verify non-empty TMPDIR and it being a directory.
 	<inetd.conf, .netrc>: Test successful write to these files.
 	<starting INETD>: Test successful start as well as presence of
 	`$TMPDIR/inetd.pid' afterwards.
-	* tests/tftp.sh: Test presence of grep(1) and netstat(1).
-	Capture failing mktemp(1).
+	* tests/tftp.sh: Test presence of grep(1) and netstat(1).  Capture
+	failing mktemp(1).
 	(posttesting): Verify non-empty TMPDIR and it being a directory.
 	<write_conf>: Test successful execution.
-	(REDIRECT): New variable.
-	<INETD invokation>: Always use debug-mode `-d', but suppress STDERR
-	in non-verbose execution mode.  An eval call implements this during
-	the first attempt.  Test the validity of `inetd_pid' afterwards.
-	<restart of INETD>: Use `kill -9' and delete the file INETD_PID.
-	<creation of test files>: Check validity of TMPDIR and test for
-	failure when creating the directory `$TMPDIR/tftp-test'.
+	(REDIRECT): New variable.  <INETD invokation>: Always use
+	debug-mode `-d', but suppress STDERR in non-verbose execution
+	mode.  An eval call implements this during the first attempt.
+	Test the validity of `inetd_pid' afterwards.  <restart of INETD>:
+	Use `kill -9' and delete the file INETD_PID.  <creation of test
+	files>: Check validity of TMPDIR and test for failure when
+	creating the directory `$TMPDIR/tftp-test'.
 
 2012-02-02  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Full set of prototypes for Shishi enabled builds.
-	* libinetutils/shishi_def.h [SHISHI] (krcmd, krcmd_mutual):
-	New prototypes.
-	* libtelnet/auth-proto.h [AUTHENTICATION] (auth_name): Likewise.
-	* libtelnet/auth.c [AUTHENTICATION] (auth_onoff): Likewise.
-	* libtelnet/enc-proto.h [ENCRYPTION] (EncryptStart, EncryptStartInput)
+
+	* libinetutils/shishi_def.h (krcmd, krcmd_mutual) [SHISHI]: New
+	prototypes.
+	* libtelnet/auth-proto.h (auth_name) [AUTHENTICATION]: Likewise.
+	* libtelnet/auth.c (auth_onoff) [AUTHENTICATION]: Likewise.
+	* libtelnet/enc-proto.h (EncryptStart, EncryptStartInput)
+	[ENCRYPTION]
 	(EncryptStartOutput, EncryptStatus, EncryptStop, EncryptStopInput)
 	(EncryptStopOutput, EncryptType, encrypt_start, encrypt_end)
 	(encrypt_request_start, encrypt_request_end, encrypt_support)
 	(encrypt_dec_keyid, encrypt_enc_keyid): Likewise.
 	* libtelnet/genget.h (Ambiguous): Likewise.
 	* libtelnet/misc-proto.h (auth_encrypt_user): Likewise.
-	* src/rlogind.c [SHISHI] (do_shishi_login): New prototype.
+	* src/rlogind.c (do_shishi_login) [SHISHI]: New prototype.
 	* telnet/commands.c [ENCRYPTION]: Include <libtelnet/encrypt.h>.
 	[AUTHENTICATION || ENCRYPTION]: Include <libtelnet/misc.h>.
 	* telnet/main.c [AUTHENTICATION]: Include <libtelnet/auth.h>.
@@ -438,10 +454,10 @@
 
 2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* tests/syslogd.sh (do_inet_socket): New variable.
-	<port is busy>: Continue, but disable INET test.  Issue a notice.
-	* tests/tftp.sh (write_conf): New function.
-	<failed inetd launch>: Make a second start attempt, with new port.
+	* tests/syslogd.sh (do_inet_socket): New variable.  <port is
+	busy>: Continue, but disable INET test.  Issue a notice.
+	* tests/tftp.sh (write_conf): New function.  <failed inetd
+	launch>: Make a second start attempt, with new port.
 
 2012-02-01  Guillem Jover  <guillem@hadrons.org>
 
@@ -451,36 +467,40 @@
 
 2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* configure.ac: Check for typedefs `Schedule' and `Session_Key'
-	in <arpa/telnet.h>.
-	* libinetutils/des_rw.c [ENCRYPTION && KERBEROS && !MIN] (MIN):
+	* configure.ac: Check for typedefs `Schedule' and `Session_Key' in
+	<arpa/telnet.h>.
+	* libinetutils/des_rw.c (MIN) [ENCRYPTION && KERBEROS && !MIN]:
 	Define missing macro.
-	[ENCRYPTION && KERBEROS && !roundup] (roundup): Likewise.
-	* libinetutils/kcmd.c (kcmd) [HAVE_SIGACTION]:  Use modern signal
+	(roundup) [ENCRYPTION && KERBEROS && !roundup]: Likewise.
+	* libinetutils/kcmd.c (kcmd) [HAVE_SIGACTION]: Use modern signal
 	handling.  New variables SIGS and OSIGS.
-	* libtelnet/auth.c [AUTHENTICATION] (AUTHTYPE_NAMES): New macro,
-	needed by OpenSolaris to fill in `authtype_names' by <arpa/telnet.h>.
-	* libtelnet/encrypt.h [ENCRYPTION && !HAVE_ARPA_TELNET_H_SCHEDULE]:
-	Typedef for `Schedule' is conditional.
+	* libtelnet/auth.c (AUTHTYPE_NAMES) [AUTHENTICATION]: New macro,
+	needed by OpenSolaris to fill in `authtype_names' by
+	<arpa/telnet.h>.
+	* libtelnet/encrypt.h [ENCRYPTION &&
+	!HAVE_ARPA_TELNET_H_SCHEDULE]: Typedef for `Schedule' is
+	conditional.
 	[ENCRYPTION && !HAVE_ARPA_TELNET_H_SESSION_KEY]: Typedef for
 	`Session_Key' is conditional.
 	* libtelnet/misc.c: Include <arpa/telnet.h>.
-	* src/rlogind.c [KERBEROS && ENCRYPTION] (ENC_WRITE): Define macro
+	* src/rlogind.c (ENC_WRITE) [KERBEROS && ENCRYPTION]: Define macro
 	using correct name.
-	* src/rshd.c [!MAX] (MAX): Define missing macro.
+	* src/rshd.c (MAX) [!MAX]: Define missing macro.
 
 2012-02-01  Mats Erik Andersson <gnu@gisladisker.se>
 
 	Detect and protect header files for Kerberos support.
+
 	* configure.ac: Check for <com_err.h>, <kerberosIV/des.h>,
 	<kerberosIV/krb.h>, <kerberosV/krb5.h>, <krb5.h>, <krb5/asn1.h>,
-	<krb5/crc-32.h>, <krb5/ext-proto.h>, <krb5/krb5.h>, <krb5/los-proto.h>.
+	<krb5/crc-32.h>, <krb5/ext-proto.h>, <krb5/krb5.h>,
+	<krb5/los-proto.h>.
 
 	* libinetutils/des_rw.c
-	[ENCRYPTION && KERBEROS && HAVE_KERBEROSIV_DES_H]:
-	Include <kerberosIV/des.h>.
-	[ENCRYPTION && KERBEROS && HAVE_KERBEROSIV_KRB_H]:
-	Include <kerberosIV/krb.h>.
+	[ENCRYPTION && KERBEROS && HAVE_KERBEROSIV_DES_H]: Include
+	<kerberosIV/des.h>.
+	[ENCRYPTION && KERBEROS && HAVE_KERBEROSIV_KRB_H]: Include
+	<kerberosIV/krb.h>.
 	* libinetutils/kcmd.c, libinetutils/krcmd.c
 	[KERBEROS && HAVE_KERBEROSIV_DES_H]: Include <kerberosIV/des.h>.
 	[KERBEROS && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
@@ -488,8 +508,10 @@
 	Include <krb5/krb5.h>.
 	[KRB5 && FORWARD && HAVE_KRB5_ASN1_H]: Include <krb5/asn1.h>.
 	[KRB5 && FORWARD && HAVE_KRB5_CRC_32_H]: Include <krb5/crc-32.h>.
-	[KRB5 && FORWARD && HAVE_KRB5_LOS_PROTO_H]: Include <krb5/los-proto.h>.
-	[KRB5 && FORWARD && HAVE_KRB5_EXT_PROTO_H]: Include <krb5/ext-proto.h>.
+	[KRB5 && FORWARD && HAVE_KRB5_LOS_PROTO_H]: Include
+	<krb5/los-proto.h>.
+	[KRB5 && FORWARD && HAVE_KRB5_EXT_PROTO_H]: Include
+	<krb5/ext-proto.h>.
 	* libtelnet/kerberos.c [KRB4 && HAVE_DES_H]: Include <des.h>.
 	[KRB4 && HAVE_KRB_H]: Include <krb.h>.
 	* libtelnet/kerberos5.c [KRB5 && HAVE_KRB5_H]: Include <krb5.h>.
@@ -499,28 +521,33 @@
 	[KERBEROS && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
 	* src/rlogin.c: Likewise.
 	[SHISHI]: Do inclusions independently of conditional code.
-	* src/rlogind.c [KERBEROS && KRB4 && HAVE_KERBEROSIV_DES_H]: Include
-	<kerberosIV/des.h>.
-	[KERBEROS && KRB4 && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
+	* src/rlogind.c [KERBEROS && KRB4 && HAVE_KERBEROSIV_DES_H]:
+	Include <kerberosIV/des.h>.
+	[KERBEROS && KRB4 && HAVE_KERBEROSIV_KRB_H]: Include
+	<kerberosIV/krb.h>.
 	[KERBEROS && KRB5 && HAVE_KRB5_H]: Include <krb5.h>.
-	[KERBEROS && KRB5 && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
-	* src/rsh.c, src/rshd.c [KERBEROS && HAVE_KERBEROSIV_DES_H]: Include
-	<kerberosIV/des.h>.
+	[KERBEROS && KRB5 && HAVE_KERBEROSIV_KRB_H]: Include
+	<kerberosIV/krb.h>.
+	* src/rsh.c, src/rshd.c [KERBEROS && HAVE_KERBEROSIV_DES_H]:
+	Include <kerberosIV/des.h>.
 	[KERBEROS && HAVE_KERBEROSIV_KRB_H]: Include <kerberosIV/krb.h>.
 	[SHISHI]: Do inclusions independently of conditional code.
 
 2012-01-31  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* libinetutils/kcmd.c: Include <fcntl.h>.
-	* libtelnet/auth.h [!AUTH_REJECT] (AUTH_REJECT): Protect `#define'.
-	[!AUTH_UNKNOWN] (AUTH_UNKNOWN): Likewise.
-	[!AUTH_OTHER] (AUTH_OTHER): Likewise.
-	[!AUTH_USER] (AUTH_USER): Likewise.
-	[!AUTH_VALID] (AUTH_VALID): Likewise.
-	* libtelnet/enc_des.c [ENCTYPE_DES_OFB64] (ofb64_init, ofb64_start)
-	(ofb64_is, ofb64_reply, ofb64_session, ofb64_keyid, ofb64_printsub)
+	* libtelnet/auth.h (AUTH_REJECT) [!AUTH_REJECT]: Protect
+	`#define'.
+	(AUTH_UNKNOWN) [!AUTH_UNKNOWN]: Likewise.
+	(AUTH_OTHER) [!AUTH_OTHER]: Likewise.
+	(AUTH_USER) [!AUTH_USER]: Likewise.
+	(AUTH_VALID) [!AUTH_VALID]: Likewise.
+	* libtelnet/enc_des.c (ofb64_init, ofb64_start)
+	[ENCTYPE_DES_OFB64]
+	(ofb64_is, ofb64_reply, ofb64_session, ofb64_keyid)
+	(ofb64_printsub)
 	(ofb64_encrypt, ofb64_decrypt): Protect definitions.
-	* libtelnet/encrypt.c [ENCTYPE_DES_OFB64] (i_support_encrypt)
+	* libtelnet/encrypt.c (i_support_encrypt) [ENCTYPE_DES_OFB64]
 	(i_support_decrypt): Add ENCTYPE_DES_OFB64 only if existing,
 	otherwise only ENCTYPE_DES_CFB64.
 	(encryptions) [ENCTYPE_DES_OFB64]: Conditional use of OFB64 calls.
@@ -530,8 +557,8 @@
 	(ENCTYPE_DES_CFB64): Likewise
 	[!ENCTYPE_DES_OFB64 && TELOPT_ENCTYPE_DES_OFB64]
 	(ENCTYPE_DES_OFB64): Likewise.
-	[!ENCTYPE_CNT && TELOPT_ENCTYPE_CNT] (ENCTYPE_CNT): Likewise.
-	[!VALIDKEY] (VALIDKEY): Protect `#define'.
+	(ENCTYPE_CNT) [!ENCTYPE_CNT && TELOPT_ENCTYPE_CNT]: Likewise.
+	(VALIDKEY) [!VALIDKEY]: Protect `#define'.
 
 2012-01-31  Mats Erik Andersson <gnu@gisladisker.se>
 
@@ -557,17 +584,18 @@
 
 	* libtelnet/auth.c, libtelnet/enc_des.c, libtelnet/encrypt.c,
 	libtelnet/kerberos.c, libtelnet/kerberos5.c, libtelnet/shishi.c:
-	Add external prototype `void printsub (char, unsigned char *, int)',
-	appearing as callback.
+	Add external prototype `void printsub (char, unsigned char *,
+	int)', appearing as callback.
 	* libtelnet/auth-proto.h (auth_gen_printsub): Remove prototype.
 	(auth_printsub): Missing prototype.
 	* libtelnet/auth.c (auth_gen_printsub): Declare as static, and
 	position before code for `auth_printsub'.
 	* libtelnet/enc-proto.h (encrypt_printsub): Missing prototype.
-	[ENCRYPTION && TELNETD]: Rename macro TELENTD as TELNETD,
-	both are otherwise not in use.
+	[ENCRYPTION && TELNETD]: Rename macro TELENTD as TELNETD, both are
+	otherwise not in use.
 	* libtelnet/encrypt.c (encrypt_gen_printsub): Reorder parameters
-	in declaration to read `(unsigned char *, int, unsigned char *, int)'.
+	in declaration to read `(unsigned char *, int, unsigned char *,
+	int)'.
 	(encrypt_printsub): Likewise.
 	* telnet/utilities.c [AUTHENTICATION]: Include <libtelnet/auth.h>.
 	[ENCRYPTION]: Include <libtelnet/encrypt.h>.
@@ -575,14 +603,14 @@
 
 2012-01-27  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* tests/ftp-localhost.sh, tests/tftp.sh (PORT): Detect if it
-	is preset, or detect an unused value from a short list.
+	* tests/ftp-localhost.sh, tests/tftp.sh (PORT): Detect if it is
+	preset, or detect an unused value from a short list.
 	* tests/ftp-localhost.sh (locate_port): New function.
 
 2012-01-26  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* tests/syslogd.sh (SOCKET): Disable the use of this
-	UNIX socket name if its length would be excessive.
+	* tests/syslogd.sh (SOCKET): Disable the use of this UNIX socket
+	name if its length would be excessive.
 
 2012-01-26  Mats Erik Andersson <gnu@gisladisker.se>
 
@@ -596,20 +624,19 @@
 2012-01-25  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* tests/syslogd.sh: Substantial rewrite.  Early verbosity.
-	Consistent quoting for white space in IU_TESTDIR.  Robustness
-	with error checking.  Execution inside `tests/'.
+	Consistent quoting for white space in IU_TESTDIR.  Robustness with
+	error checking.  Execution inside `tests/'.
 	(TARGET, TARGET6): New variables.
 	(TMPDIR): Overrides `/tmp/' as temporary directory.
 
 2012-01-23  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* tests/ftp-localhost.sh: New preamble to fail
-	with SVR4 shell.  Backtics in command substitution.
-	* tests/tftp.sh: Rewrite for SVR4 portability.
-	Backtics in command substitution.  expr(1) for
-	arithmetic.  Only basic regex with grep(1), no `-q'.
-	Remove character classes.  Quotation issue for tr(1).
-	Use `test -r /dev/urandom' to circumvent soft link.
+	* tests/ftp-localhost.sh: New preamble to fail with SVR4 shell.
+	Backtics in command substitution.
+	* tests/tftp.sh: Rewrite for SVR4 portability.  Backtics in
+	command substitution.  expr(1) for arithmetic.  Only basic regex
+	with grep(1), no `-q'.  Remove character classes.  Quotation issue
+	for tr(1).  Use `test -r /dev/urandom' to circumvent soft link.
 
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
@@ -617,8 +644,8 @@
 
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* tests/ftp-localhost.sh: sysctl(1) uses `=' or `:'
-	as delimeter.  Detect both.
+	* tests/ftp-localhost.sh: sysctl(1) uses `=' or `:' as delimeter.
+	Detect both.
 
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
@@ -626,32 +653,33 @@
 	* ftpd/ftpd.c (options): New options `-4/ipv4' and `-6/ipv6`.
 	(parse_opt): Detect `4' and `6'.
 	* ftpd/server_mode.c (usefamily): New variable.
-	[!DEFPORT] (DEFPORT): Use IPPORT_FTP if available.
-	(server_mode): Remove use of AI_ADDRCONFIG.  When seeing AF_UNSPEC,
-	build AF_INET6 socket and reset socket option IPV6_V6ONLY.
+	(DEFPORT) [!DEFPORT]: Use IPPORT_FTP if available.
+	(server_mode): Remove use of AI_ADDRCONFIG.  When seeing
+	AF_UNSPEC, build AF_INET6 socket and reset socket option
+	IPV6_V6ONLY.
 
 2012-01-22  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* ftpd/extern.h (passive): New prototype.
 	* ftpd/ftpcmd.y (EPRT, EPSV, CHAR): New tokens.
 	(net_proto, tcp_port, net_addr): New value returning types.
-	(cmd) <PORT>: Use value returned from `host_port'. Erase PDATA
+	(cmd) <PORT>: Use value returned from `host_port'.  Erase PDATA
 	and USEDEFAULT only if successful.
 	(cmd) <PASV>: Changed call to passive().
 	(cmd) <EPRT, EPSV>: New code for token parsers.
-	(host_port): Declare as `%type <i>', returning an integer.
-	Handle mapped IPv4 addresses.  Erase DATA_DEST after an address
-	resolving failure.
+	(host_port): Declare as `%type <i>', returning an integer.  Handle
+	mapped IPv4 addresses.  Erase DATA_DEST after an address resolving
+	failure.
 	(DLIST): New macro used as state in finite state automata.
 	(cmdtab): New entries EPRT and EPSV.
 	(yylex) <DLIST>: Implement new state.
-	* ftpd/ftpd.c (passive): New prototype `passive(int, int)'.
-	New variable TRY_AF.  Select address family based on parameters
-	and CTRL_ADDR.
+	* ftpd/ftpd.c (passive): New prototype `passive(int, int)'.  New
+	variable TRY_AF.  Select address family based on parameters and
+	CTRL_ADDR.
 	(passive) <EPSV>: Handle AF_INET and AF_INET6.
 	(passive) <PASV>: Process also mapped IPv4 address.
-	* tests/ftp-localhost.sh: More tests in inetd mode: EPSV and
-	EPRT for IPv4 and IPv6.  Suppress FTP dialog unless verbose.
+	* tests/ftp-localhost.sh: More tests in inetd mode: EPSV and EPRT
+	for IPv4 and IPv6.  Suppress FTP dialog unless verbose.
 
 2012-01-18  Simon Josefsson  <simon@josefsson.org>
 
@@ -665,16 +693,16 @@
 
 2012-01-07  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* telnet/utilities.c (SetNetTrace): Filename buffer overrun: replace
-	strcpy() by strncpy().
+	* telnet/utilities.c (SetNetTrace): Filename buffer overrun:
+	replace strcpy() by strncpy().
 	(printoption, printsub): Code formatting of ternary operator.
 
 2012-01-07  Guillem Jover  <guillem@hadrons.org>
 
 	* telnet/utilities.c (printsub) <env_common>: Use constant format
-	strings instead of offsets into fixed string.  Remove NOQUOTE,
-	add QUOTE.
-
+	strings instead of offsets into fixed string.  Remove NOQUOTE, add
+	QUOTE.
+
 2012-01-06  Simon Josefsson  <simon@josefsson.org>
 
 	inetutils 1.9.1
@@ -691,9 +719,10 @@
 
 	* ftpd/ftpcmd.y (host_port): Use AI_NUMERICHOST and AI_NUMERICSERV
 	in `HINTS.ai_flags'.  Do not use AI_ADDRCONFIG.
-	* ftpd/ftpd.c (getdatasock): Erase port number stored in DATA_SOURCE.
-	* tests/ftp-localhost.sh: Detect transfered data and duplicate tests
-	also for an active connection, not only a passive attempt.
+	* ftpd/ftpd.c (getdatasock): Erase port number stored in
+	DATA_SOURCE.
+	* tests/ftp-localhost.sh: Detect transfered data and duplicate
+	tests also for an active connection, not only a passive attempt.
 
 2012-01-03  Alfred M. Szmidt  <ams@gnu.org>
 
@@ -703,24 +732,25 @@
 
 	Internal address structure rewrite for `ftpd'.
 
-	* ftpd/extern.h (data_dest, his_addr): Change to `struct sockaddr_storage'.
+	* ftpd/extern.h (data_dest, his_addr): Change to `struct
+	sockaddr_storage'.
 	(server_mode): New prototype: second argument `struct sockaddr *'.
-	* ftpd/ftpcmd.y (cmd): Use casts to `struct sockaddr_in' to evaluate
-	sub case `host_port'.
+	* ftpd/ftpcmd.y (cmd): Use casts to `struct sockaddr_in' to
+	evaluate sub case `host_port'.
 	(yylex) [HAVE_SETPROCTITLE]: Compare to numeric naught, not NULL.
-	* ftpd/ftpd.c (data_dest, his_addr, ctrl_addr, data_source, pasv_addr):
-	Change to `struct sockaddr_storage'.
+	* ftpd/ftpd.c (data_dest, his_addr, ctrl_addr, data_source)
+	(pasv_addr): Change to `struct sockaddr_storage'.
 	(main): Apply updated server_mode().
 	(main, getdatasock, dataconn): Set IP_TOS only for AF_INET.
 	(dataconn, passive): Copy addresses using memcpy().
 	(statfilecmd): Change SIN to `struct sockaddr_storage'.
 	(statcmd): Casts as `struct sockaddr_in' needed for A and P.
-	(passive): Clear port number depending on address family.
-	Reply with 229 for EPSV/IPv6 and 227 for PASV.
+	(passive): Clear port number depending on address family.  Reply
+	with 229 for EPSV/IPv6 and 227 for PASV.
 	* ftpd/server_mode.c (check_host): Activate AF_INET6 case.
 	(server_mode): Second argument is 'struct sockaddr *', must be
-	initiated before call, and returns actual address length.
-	New variable SAVED_ADDRLEN.  Changed call due to these two.
+	initiated before call, and returns actual address length.  New
+	variable SAVED_ADDRLEN.  Changed call due to these two.
 
 2012-01-02  Mats Erik Andersson <gnu@gisladisker.se>
 
@@ -732,9 +762,9 @@
 	* ftpd/ftpcmd.y: Include <netdb.h>.
 	(cmd) [unix || __unix__]: SYS_TYPE must recognize __unix__.
 	(host_port): Use getaddrinfo to initiate DATA_DEST.
-	* ftpd/ftpd.c (data_set_len, his_addrlen, addrstr, portstr,
-	ctrl_addrlen, data_source_len, pasv_addrlen): New variables.
-	[HAVE_LIBWRAP] (check_host): Prototype extended with socklen_t.
+	* ftpd/ftpd.c (data_set_len, his_addrlen, addrstr, portstr)
+	(ctrl_addrlen, data_source_len, pasv_addrlen): New variables.
+	(check_host) [HAVE_LIBWRAP]: Prototype extended with socklen_t.
 	(dolog): Likewise.
 	(main): Use HIS_ADDRLEN, CTRL_ADDRLEN instead of local ADDRLEN.
 	Changed calls to server_mode and dolog due to new prototypes.
@@ -742,20 +772,21 @@
 	fields in DATA_SOURCE from CTRL_ADDR, and DATA_SOURCE_LEN from
 	CTRL_ADDRLEN.  Dynamic address length to bind().
 	(dataconn): Use FROM as `struct sockaddr_storage.  Change socket
-	descriptor S to be `int'.  Assign DATA_DEST and DATA_DEST_LEN
-	in a block.  Use getnameinfo for error message.  Dynamic socket
-	length in connect().
+	descriptor S to be `int'.  Assign DATA_DEST and DATA_DEST_LEN in a
+	block.  Use getnameinfo for error message.  Dynamic socket length
+	in connect().
 	(statcmd): Lookup using getnameinfo().
 	(dolog): New prototype, extended by `socklen_t'.  Likewise.
-	(passive): Removed variable LEN, now using length and family stored
-	in address variables, which are global.
-	* ftpd/server_mode.c (check_host): New prototype: adding `socklen_t'.
-	Removed SIN, HP. New variables ERR, NAME.  Lookup uses getnameinfo().
-	(server_mode): New prototype: adding `socklen_t'.  Delete SERVER_ADDR.
-	New varables ERR, PORTSTR, HINTS, RES, AI.  Lookup uses getaddrinfo
-	and a loop to get listener.  Server loop removes ADDRLEN, now setting
-	address length by use of PHIS_ADDRLEN.
-
+	(passive): Removed variable LEN, now using length and family
+	stored in address variables, which are global.
+	* ftpd/server_mode.c (check_host): New prototype: adding
+	`socklen_t'.  Removed SIN, HP.  New variables ERR, NAME.  Lookup
+	uses getnameinfo().
+	(server_mode): New prototype: adding `socklen_t'.  Delete
+	SERVER_ADDR.  New varables ERR, PORTSTR, HINTS, RES, AI.  Lookup
+	uses getaddrinfo and a loop to get listener.  Server loop removes
+	ADDRLEN, now setting address length by use of PHIS_ADDRLEN.
+
 2011-12-31  Alfred M. Szmidt  <ams@gnu.org>
 
 	inetutils 1.9
@@ -779,13 +810,14 @@
 
 2011-12-30  Mats Erik Andersson <gnu@gisladisker.se>
 
-	* configure.ac: Check for ruserok.  If iruserok exists, then define
-	WITH_IRUSEROK, else if ruserok exists, then define WITH_RUSEROK.
-	Disable rlogind and rshd otherwise.  Check for __check_rhosts_file.
-	* src/rlogind.c [HAVE___CHECK_RHOSTS_FILE] (__check_rhosts_file):
+	* configure.ac: Check for ruserok.  If iruserok exists, then
+	define WITH_IRUSEROK, else if ruserok exists, then define
+	WITH_RUSEROK.  Disable rlogind and rshd otherwise.  Check for
+	__check_rhosts_file.
+	* src/rlogind.c (__check_rhosts_file) [HAVE___CHECK_RHOSTS_FILE]:
 	Protect declaration as extern variable.
-	[__GLIBC__ && WITH_IRUSEROK] (iruserok): Protect declaration
-	as extern.
+	(iruserok) [__GLIBC__ && WITH_IRUSEROK]: Protect declaration as
+	extern.
 	(options) [HAVE___CHECK_RHOSTS_FILE]: Conditionally include the
 	option `-l/--no-rhosts'.
 	(parse_opt) [HAVE___CHECK_RHOSTS_FILE]: Likewise.
@@ -795,10 +827,10 @@
 	composed with inet_ntoa.
 	* src/rshd.c (options) [HAVE___CHECK_RHOSTS_FILE]: Conditionally
 	include the option `-l/--no-rhosts'.
-	[HAVE___CHECK_RHOSTS_FILE] (__check_rhosts_file): Protect declaration
-	as extern variable.
-	[__GLIBC__ && WITH_IRUSEROK] (iruserok): Protect declaration
-	as extern.
+	(__check_rhosts_file) [HAVE___CHECK_RHOSTS_FILE]: Protect
+	declaration as extern variable.
+	(iruserok) [__GLIBC__ && WITH_IRUSEROK]: Protect declaration as
+	extern.
 	(parse_opt) [HAVE___CHECK_RHOSTS_FILE]: Conditional detection of
 	`-l/--no-rhosts'.
 	(doit) [WITH_IRUSEROK]: Protect call to iruserok.
@@ -1073,7 +1105,7 @@
 2011-11-21  Mats Erik Andersson <gnu@gisladisker.se>
 
 	* libtelnet/getent.c [HAVE_CGETENT]: Include <stdlib.h>.
-	* telnet/sys_bsd.c [SIGINFO] (sendayt): Missing declaration.
+	* telnet/sys_bsd.c (sendayt) [SIGINFO]: Missing declaration.
 	* doc/inetutils.texi (telnet invocation): Minor fixes.
 	* TODO: Updated.
 
@@ -8283,7 +8315,6 @@
 	* ping/ping_address.c, ping/ping_echo.c, ping/ping_router.c,
 	ping/ping_timestamp.c: <signal.h> -> <sys/signal.h>
 
-
 2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
 
 	Patches by Alain:
@@ -10039,7 +10070,6 @@ AC_REPLACE_FUNC (setproctitle).
 	The security fixes are gather from different sources: folks of
 	OpenBSD, FreeBSD, Debian, Redhat and wu-ftpd.  Heads-up for their
 	nice work.
-
 
 	* ftpd/popen.c : overflow in argv[] and gargv[] fix.
 
