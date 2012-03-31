@@ -3,15 +3,15 @@ Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
 2008, 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
 See end of file for copying conditions.
 
-This document describes the actions needed to build the pre-release or
-Git version of the package.
+This document describes the actions needed to build GNU inetutils from
+a pre-release tarball or sources checked out from the version control.
 
 * Introduction
 
 This is a *pre-release* version, and not ready for production use yet.
-If you are taking source from Git, you will need to have several
-special tools to help contribute.  See chapter `Building', below,
-for the detailed instructions on how to build the package.
+If you are taking source from version control, you will need to have
+several special tools to help contribute.  See the section `Building',
+below, for the detailed instructions on how to build the package.
 
 Please, note that the accompanying documentation may be inaccurate or
 incomplete.  See ChangeLog for the list of recent changes.
@@ -27,21 +27,21 @@ it or got back to you, please let us know!
 * Checking Out the Sources
 
 The following instructions apply if you wish to obtain sources from
-the Git repository:
+the version control repository.
 
-To clone the source tree from the repository, issue the following command:
+To download the source tree from the repository, issue the following
+command:
 
   git clone git://git.savannah.gnu.org/inetutils.git
 
-This will give you read-only access.  If you think you need write access,
-contact the mailing list.
+This will give you read-only access.  If you think you need write
+access, contact the mailing list.
 
 * Prerequisites
 
-You need the following packages to build the development version of
-GNU Inetutils.  We don't make any extra effort to accommodate older
-versions of these packages, so please make sure that you have the
-latest stable version.
+You need the following packages, we don't make any extra effort to
+accommodate older versions of these packages, so please make sure that
+you have the latest stable version.
 
 - Autoconf <http://www.gnu.org/software/autoconf/>
 - Automake <http://www.gnu.org/software/automake/>
@@ -64,11 +64,10 @@ latest stable version.
 Once done, proceed as described in the file INSTALL.
 
 Normally you will have to run bootstrap only once.  However, if you
-intend to hack on Inetutils, you might need to run it again later.  In
-this case, you will probably want to save some time and bandwidth by
-avoiding downloading the same files again.  If so, create in the
-inetutils root directory the file named `.bootstrap' with the
-following contents:
+intend to hack, you might need to run it again later.  In this case,
+you will probably want to save some time and bandwidth by avoiding
+downloading the same files again.  If so, create in the top level
+directory the file named `.bootstrap' with the following contents:
 
    --gnulib-srcdir=$HOME/gnulib --skip-po
 
@@ -86,18 +85,20 @@ See INSTALL and README for the detailed instructions.
 * Development
 
 If you are looking for something to hack on, please take a look at the
-TODO file in the Git repository.
+TODO file in the repository, or in our bug tracker
+<https://savannah.gnu.org/bugs/?group=inetutils>.
 
-You can track the development process through the <commit-inetutils@gnu.org>
-mailing list.  This is a medium volume moderated list.
+You can track the development process through the
+<commit-inetutils@gnu.org> mailing list.  This is a medium volume
+moderated list.
 
-Daily snapshots built from Git are available from
+Daily snapshots built are available from
 <http://hydra.nixos.org/view/gnu/inetutils-master/latest>.
 
 Log outputs from building the daily snapshot on some systems are
 available from <http://autobuild.josefsson.org/inetutils/>
 
-Statistics based on Git commit logs are available from
+Statistics based on commit logs are available from
 <http://gitstats.josefsson.org/inetutils/>.
 
 * Release procedures
@@ -106,7 +107,7 @@ Statistics based on Git commit logs are available from
 
 To make an release issue the following commands:
 
-make alpha        # or stable
+  make alpha        # or stable
 
 Finally, bump the version number in NEWS, and configure.ac.
 
@@ -119,15 +120,13 @@ When doing a stable release, do not forget to:
 
 ** Announcement template
 
-Subject: inetutils-VERSION released
+Subject: GNU inetutils VERSION released
 
 The GNU inetutils team is proud to present version VERSION of the GNU
-network utilities suite.  The GNU network utilities suite provides the
-following tools: ftp(d), hostname, ifconfig, inetd, logger, ping, rcp,
-rexec(d), rlogin(d), rsh(d), syslogd, talk(d), telnet(d), tftp(d),
-traceroute, uucpd, and whois.
+networking utilities.  The GNU Networking Utilities are the common
+networking utilities, clients and servers of the GNU Operating System.
 
-The following things are new in this release:
+The following is new in this release:
 
 FIXME: put recent NEWS items here
 
@@ -142,9 +141,9 @@ Here are the GPG detached signatures[*]:
 To reduce load on the main server, use a mirror listed at:
   http://www.gnu.org/order/ftp.html
 
-[*] You can use either of the above signature files to verify that
-the corresponding file (without the .sig suffix) is intact.  First,
-be sure to download both the .sig file and the corresponding tarball.
+[*] You can use either of the above signature files to verify that the
+corresponding file (without the .sig suffix) is intact.  First, be
+sure to download both the .sig file and the corresponding tarball.
 Then, run a command like this:
 
   gpg --verify inetutils-VERSION.tar.xz.sig
@@ -161,15 +160,10 @@ hacking!
 
 * Copyright information
 
-Permission is granted to anyone to make or distribute verbatim copies
-of this document as received, in any medium, provided that the
-copyright notice and this permission notice are preserved,
-thus giving the recipient permission to redistribute in turn.
-
-Permission is granted to distribute modified versions
-of this document, or of portions of it,
-under the above conditions, provided also that they
-carry prominent notices stating who last changed them.
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
 
 Local Variables:
 mode: outline
