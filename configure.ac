@@ -832,7 +832,7 @@ case "$host" in
   AC_DEFINE([UTMPX], 1, [FIXME])
   AC_DEFINE([HAVE_STREAMSPTY], 1, [FIXME])
   ;;
-*irix* | *hpux* | *netbsd*)
+*irix* | *hpux* | *netbsd* | *dragonfly* )
   AC_DEFINE([UTMPX], 1, [FIXME])
   ;;
 esac

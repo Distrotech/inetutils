@@ -522,7 +522,7 @@ validate_access (char **filep, int mode)
 }
 
 int timeout;
-jmp_buf timeoutbuf;
+sigjmp_buf timeoutbuf;
 
 void
 timer (int sig)

@@ -78,9 +78,7 @@
 #ifdef HAVE_SYS_FILIO_H
 # include <sys/filio.h>
 #endif
-#ifdef CRAY
-# include <errno.h>
-#endif /* CRAY */
+#include <errno.h>
 #ifdef	USE_TERMIO
 # ifndef VINTR
 #  ifdef SYSV_TERMIO
@@ -120,12 +118,6 @@ typedef unsigned char cc_t;
 #endif
 
 #define SUBBUFSIZE	256
-
-#ifndef CRAY
-# ifndef errno
-extern int errno;		/* outside this world */
-# endif
-#endif /* !CRAY */
 
 extern int autologin,		/* Autologin enabled */
   skiprc,			/* Don't process the ~/.telnetrc file */

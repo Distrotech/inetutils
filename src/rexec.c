@@ -206,7 +206,7 @@ do_rexec (struct arguments *arguments)
 
   addr.sin_port = htons ((short)arguments->port);
 
-  if (connect (sock, &addr, sizeof (addr)) < 0)
+  if (connect (sock, (struct sockaddr *) &addr, sizeof (addr)) < 0)
     error (EXIT_FAILURE, errno, "cannot connect to the specified host");
 
   if (!arguments->use_err)
@@ -228,11 +228,12 @@ do_rexec (struct arguments *arguments)
       memset (&serv_addr, 0, sizeof (serv_addr));
 
       serv_addr.sin_port = arguments->err_port;
-      if (bind (serv_sock, &serv_addr, sizeof (serv_addr)) < 0)
+      if (bind (serv_sock, (struct sockaddr *) &serv_addr,
+		sizeof (serv_addr)) < 0)
         error (EXIT_FAILURE, errno, "cannot bind socket");
 
       len = sizeof (serv_addr);
-      if (getsockname (serv_sock, &serv_addr, &len))
+      if (getsockname (serv_sock, (struct sockaddr *) &serv_addr, &len))
         error (EXIT_FAILURE, errno, "error reading socket port");
 
       if (listen (serv_sock, 1))
@@ -242,7 +243,7 @@ do_rexec (struct arguments *arguments)
       sprintf (port_str, "%i", arguments->err_port);
       safe_write (sock, port_str, strlen (port_str) + 1);
 
-      err_sock = accept (serv_sock, &serv_addr, &len);
+      err_sock = accept (serv_sock, (struct sockaddr *) &serv_addr, &len);
       if (err_sock < 0)
         error (EXIT_FAILURE, errno, "error accepting connection");
 

@@ -1,3 +1,15 @@
+2012-04-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Support for DragonFly BSD.
+
+	* configure.ac: Define UTMPX for `*dragonfly*'.
+	* ftpd/extern.h: Include <sys/socket.h>.
+	* src/rexec.c (do_rexec): Explicit casts as `struct sockaddr'.
+	* src/tftpd.c (validate_access): Declare TIMEOUTBUF correctly
+	to be of type `sigjmp_buf'.
+	* telnet/externs.h: Include <errno.h> unconditionally.  Remove
+	conditionals for `errno' depending on macro CRAY.
+
 2012-03-31  Alfred M. Szmidt  <ams@gnu.org>
 
 	configure.ac: Minor cleanup.
