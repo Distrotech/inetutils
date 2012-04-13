@@ -646,7 +646,7 @@ complete_login (struct credentials *pcred)
   if (setegid ((gid_t) pcred->gid) < 0)
     {
       reply (550, "Can't set gid.");
-      return;
+      goto bad;
     }
 
 #ifdef HAVE_INITGROUPS
@@ -726,7 +726,7 @@ complete_login (struct credentials *pcred)
   return;
 bad:
   /* Forget all about it... */
-  end_login (pcred);
+  end_login (pcred);	/* Resets pcred->logged_in.  */
 }
 
 /* USER command.
@@ -864,7 +864,10 @@ pass (const char *passwd)
     }
   cred.logged_in = 1;		/* Everything seems to be allright.  */
   complete_login (&cred);
-  login_attempts = 0;		/* This time successful.  */
+  if (cred.logged_in)
+    login_attempts = 0;		/* This time successful.  */
+  else
+    ++login_attempts;
 }
 
 void

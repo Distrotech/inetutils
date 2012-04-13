@@ -1,3 +1,11 @@
+2012-04-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Improve checking of FTP access verification.
+
+	* ftpd/ftpd.c (complete_login): Abort login attempt when
+	setegid() fails.
+	(pass): Clear LOGIN_ATTEMPTS only if login was really granted.
+
 2012-04-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Support for DragonFly BSD.
