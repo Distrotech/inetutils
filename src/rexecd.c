@@ -329,12 +329,13 @@ die (int code, const char *fmt, ...)
 
   va_start (ap, fmt);
   buf[0] = 1;
-  n = snprintf (buf + 1, sizeof buf - 1, fmt, ap);
+  n = vsnprintf (buf + 1, sizeof buf - 1, fmt, ap);
   va_end (ap);
   if (n > sizeof buf - 1)
     n = sizeof buf - 1;
-  buf[n] = '\n';
+  buf[n++] = '\n';
   write (STDERR_FILENO, buf, n);
+  exit (code);
 }
 
 char *

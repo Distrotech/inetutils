@@ -227,6 +227,10 @@ do_rexec (struct arguments *arguments)
 
       memset (&serv_addr, 0, sizeof (serv_addr));
 
+      serv_addr.sin_family = AF_INET;
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+      serv_addr.sin_len = sizeof (serv_addr);
+#endif
       serv_addr.sin_port = arguments->err_port;
       if (bind (serv_sock, (struct sockaddr *) &serv_addr,
 		sizeof (serv_addr)) < 0)

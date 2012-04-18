@@ -1,3 +1,10 @@
+2012-04-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/rexec.c (do_exec): Set missing values for `sin_family' and
+	`sin_len' in SERV_ADDR.
+	* src/rexecd.c (die): Use vsnprintf() for variadic lists!  Send
+	also final newline character.  Call exit() at the end!
+
 2012-04-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Improve checking of FTP access verification.
