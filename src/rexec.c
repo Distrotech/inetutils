@@ -116,6 +116,8 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 
 static void do_rexec (struct arguments *arguments);
 
+static int remote_err = EXIT_SUCCESS;
+
 int
 main (int argc, char **argv)
 {
@@ -164,7 +166,7 @@ main (int argc, char **argv)
 
   do_rexec (&arguments);
 
-  exit (EXIT_SUCCESS);
+  exit (remote_err);
 }
 
 static void
@@ -220,6 +222,7 @@ do_rexec (struct arguments *arguments)
     {
       struct sockaddr_in serv_addr;
       socklen_t len;
+      int on = 1;
       int serv_sock = socket (AF_INET, SOCK_STREAM, 0);
 
       if (serv_sock < 0)
@@ -232,6 +235,7 @@ do_rexec (struct arguments *arguments)
       serv_addr.sin_len = sizeof (serv_addr);
 #endif
       serv_addr.sin_port = arguments->err_port;
+      setsockopt (serv_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on));
       if (bind (serv_sock, (struct sockaddr *) &serv_addr,
 		sizeof (serv_addr)) < 0)
         error (EXIT_FAILURE, errno, "cannot bind socket");
@@ -262,7 +266,8 @@ do_rexec (struct arguments *arguments)
 
   while (1)
     {
-      int ret;
+      int consumed = 0;		/* Signals remote return status.  */
+      int ret, offset;
       fd_set rsocks;
 
       /* No other data to read.  */
@@ -314,8 +319,17 @@ do_rexec (struct arguments *arguments)
               continue;
             }
 
-          if (write (STDOUT_FILENO, buffer, err) < 0)
+	  offset = 0;
+
+	  if ((err > 0) && (consumed < 2))	/* Status can be two chars.  */
+	    while ((err > offset) && (offset < 2)
+		   && (buffer[offset] == 0 || buffer[offset] == 1))
+	      remote_err = buffer[offset++];
+
+          if (write (STDOUT_FILENO, buffer + offset, err - offset) < 0)
             error (EXIT_FAILURE, errno, "error writing");
+
+	  consumed += err;
         }
 
      if (0 <= err_sock && FD_ISSET (err_sock, &rsocks))
@@ -332,8 +346,17 @@ do_rexec (struct arguments *arguments)
               continue;
             }
 
-          if (write (STDERR_FILENO, buffer, err) < 0)
+	  offset = 0;
+
+	  if ((err > 0) && (consumed < 2))	/* Status can be two chars.  */
+	    while ((err > offset) && (offset < 2)
+		   && (buffer[offset] == 0 || buffer[offset] == 1))
+	      remote_err = buffer[offset++];
+
+          if (write (STDERR_FILENO, buffer + offset, err - offset) < 0)
             error (EXIT_FAILURE, errno, "error writing to stderr");
+
+	  consumed += err;
         }
     }
 }

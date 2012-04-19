@@ -127,12 +127,14 @@ main (int argc, char **argv)
   exit (EXIT_SUCCESS);
 }
 
-char username[20] = "USER=";
-char logname[23] = "LOGNAME=";
-char homedir[64] = "HOME=";
-char shell[64] = "SHELL=";
+/* Set lengths of USER and LOGNAME longer than
+ * the REXEC protocol prescribes.  */
+char username[32 + sizeof ("USER=")] = "USER=";
+char logname[32 + sizeof ("LOGNAME=")] = "LOGNAME=";	/* Identical to USER.  */
+char homedir[256 + sizeof ("HOME=")] = "HOME=";
+char shell[256 + sizeof ("SHELL=")] = "SHELL=";
 char path[sizeof (PATH_DEFPATH) + sizeof ("PATH=")] = "PATH=";
-char *envinit[] = { homedir, shell, path, username, logname, 0 };
+char *envinit[] = { homedir, shell, path, username, logname, NULL };
 extern char **environ;
 
 #ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
@@ -205,6 +207,7 @@ doit (int f, struct sockaddr_in *fromp)
       s = socket (AF_INET, SOCK_STREAM, 0);
       if (s < 0)
 	exit (EXIT_FAILURE);
+      setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (one));
       if (bind (s, (struct sockaddr *) &a_sin, sizeof (a_sin)) < 0)
 	exit (EXIT_FAILURE);
       alarm (60);
@@ -221,7 +224,7 @@ doit (int f, struct sockaddr_in *fromp)
   setpwent ();
   pwd = getpwnam (user);
   if (pwd == NULL)
-    die (1, "Login incorrect.");
+    die (EXIT_FAILURE, "Login incorrect.");
 
   endpwent ();
   pw_password = get_user_password (pwd);
@@ -229,7 +232,7 @@ doit (int f, struct sockaddr_in *fromp)
     {
       namep = crypt (pass, pw_password);
       if (strcmp (namep, pw_password))
-	die (1, "Password incorrect.");
+	die (EXIT_FAILURE, "Password incorrect.");
     }
   write (STDERR_FILENO, "\0", 1);
   if (port)
@@ -237,7 +240,7 @@ doit (int f, struct sockaddr_in *fromp)
       pipe (pv);
       pid = fork ();
       if (pid == -1)
-	die (1, "Try again.");
+	die (EXIT_FAILURE, "Try again.");
 
       if (pid)
 	{
@@ -303,12 +306,13 @@ doit (int f, struct sockaddr_in *fromp)
   if (setuid ((uid_t) pwd->pw_uid) < 0)
     error (EXIT_FAILURE, errno, "failed to set user-ID");
   if (chdir (pwd->pw_dir) < 0)
-    die (1, "No remote directory.");
+    die (EXIT_FAILURE, "No remote directory.");
   strcat (path, PATH_DEFPATH);
   environ = envinit;
-  strncat (homedir, pwd->pw_dir, sizeof (homedir) - 6);
-  strncat (shell, pwd->pw_shell, sizeof (shell) - 7);
-  strncat (username, pwd->pw_name, sizeof (username) - 6);
+  strncat (homedir, pwd->pw_dir, sizeof (homedir) - sizeof ("HOME=") - 1);
+  strncat (shell, pwd->pw_shell, sizeof (shell) - sizeof ("SHELL=") - 1);
+  strncat (username, pwd->pw_name, sizeof (username) - sizeof ("USER=") - 1);
+  strncat (logname, pwd->pw_name, sizeof (logname) - sizeof ("LOGNAME=") - 1);
   cp = strrchr (pwd->pw_shell, '/');
   if (cp)
     cp++;
@@ -345,7 +349,7 @@ getstr (const char *err)
   char *buf = malloc (buf_len), *end = buf;
 
   if (!buf)
-    die (1, "Out of space reading %s", err);
+    die (EXIT_FAILURE, "Out of space reading %s", err);
 
   do
     {
@@ -354,7 +358,7 @@ getstr (const char *err)
       if (rd <= 0)
 	{
 	  if (rd == 0)
-	    die (1, "EOF reading %s", err);
+	    die (EXIT_FAILURE, "EOF reading %s", err);
 	  else
 	    error (EXIT_FAILURE, 0, "%s", err);
 	}
@@ -367,7 +371,7 @@ getstr (const char *err)
 	  buf_len += buf_len;
 	  buf = realloc (buf, buf_len);
 	  if (!buf)
-	    die (1, "Out of space reading %s", err);
+	    die (EXIT_FAILURE, "Out of space reading %s", err);
 	  end = buf + end_offs;
 	}
     }

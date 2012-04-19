@@ -1,3 +1,24 @@
+2012-04-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Let `rexec' return a relevant return status.
+
+	* src/rexec.c (remote_err): New variable.
+	(main): Return `remote_err' as status.
+	(do_rexec): New variable ON.  Set SO_REUSEADDR on SERV_SOCK.
+	(do_rexec) <while loop>: New variables CONSUMED and OFFSET.
+	Filter off initial bytes `\000' and `\001' appearing on either
+	of the sockets SOCK and ERR_SOCK, since these represent return
+	statuses and are now recorded in `remote_err'.
+
+	String storage sanitation and intelligible return codes.
+
+	* src/rexecd.c (username, logname, homedir, shell): Increase length.
+	(envinit): Use NULL as last member, not naught.
+	(doit): Set SO_REUSEADDR on socket S.  Use sizeof() to calculate
+	explicit offset in strncat() with environment variables.  Let
+	LOGNAME inherit the value from USER.
+	(doit, getstr) <die calls>: Use EXIT_FAILURE as first argument.
+
 2012-04-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* src/rexec.c (do_exec): Set missing values for `sin_family' and
