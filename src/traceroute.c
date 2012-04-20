@@ -240,21 +240,25 @@ do_try (trace_t * trace, const int hop,
 
   for (tries = 0; tries < max_tries; tries++)
     {
-      FD_ZERO (&readset);
-      FD_SET (trace_icmp_sock (trace), &readset);
+      int fd = trace_icmp_sock (trace);
 
+      FD_ZERO (&readset);
+      FD_SET (fd, &readset);
+
+      memset (&time, 0, sizeof (time));		/* 64-bit issue.  */
       time.tv_sec = TIME_INTERVAL;
       time.tv_usec = 0;
 
       if (!readonly)
 	trace_write (trace);
 
-      ret = select (FD_SETSIZE, &readset, NULL, NULL, &time);
-
       gettimeofday (&now, NULL);
 
       now.tv_usec -= trace->tsent.tv_usec;
       now.tv_sec -= trace->tsent.tv_sec;
+
+      errno = 0;
+      ret = select (fd + 1, &readset, NULL, NULL, &time);
 
       if (ret < 0)
 	{
@@ -264,7 +268,7 @@ do_try (trace_t * trace, const int hop,
 	      /* was interrupted */
 	      break;
 	    default:
-              error (EXIT_FAILURE, EPERM, "select failed");
+              error (EXIT_FAILURE, errno, "select failed");
 	      break;
 	    }
 	}
@@ -276,7 +280,7 @@ do_try (trace_t * trace, const int hop,
 	}
       else
 	{
-	  if (FD_ISSET (trace_icmp_sock (trace), &readset))
+	  if (FD_ISSET (fd, &readset))
 	    {
 	      triptime = ((double) now.tv_sec) * 1000.0 +
 		((double) now.tv_usec) / 1000.0;

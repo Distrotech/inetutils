@@ -1,5 +1,17 @@
 2012-04-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Portability issue found on 64-bit OpenBSD.
+
+	* ping/ping.c (ping_run): Break infinite loop by calling error()
+	after failure in select().
+	* ping/ping6.c (ping_run): Likewise.  Clear RESP_TIME.
+	* src/traceroute.c (do_try): New variable FD.  Clear TIME and
+	calculate NOW before calling select().  Set `fd + 1' to be the
+	maximal file descriptor when calling select().  On failure in
+	select(), return `errno' for proper detection, not EPERM.
+
+2012-04-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rexec, rexecd: Implement support for IPv6.
 
 	* src/rexec.c (options): New `-4/ipv4', `-6/ipv6', and `-a/ipany'.

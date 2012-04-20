@@ -372,7 +372,7 @@ ping_run (PING * ping, int (*finish) ())
       if (n < 0)
 	{
 	  if (errno != EINTR)
-	    perror ("select");
+	    error (EXIT_FAILURE, errno, "select failed");
 	  continue;
 	}
       else if (n == 1)

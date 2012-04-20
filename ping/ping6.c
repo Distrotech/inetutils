@@ -305,6 +305,7 @@ ping_run (PING * ping, int (*finish) ())
       FD_ZERO (&fdset);
       FD_SET (ping->ping_fd, &fdset);
       gettimeofday (&now, NULL);
+      memset (&resp_time, 0, sizeof (resp_time));	/* 64-bit issue */
       resp_time.tv_sec = last.tv_sec + intvl.tv_sec - now.tv_sec;
       resp_time.tv_usec = last.tv_usec + intvl.tv_usec - now.tv_usec;
 
@@ -326,7 +327,7 @@ ping_run (PING * ping, int (*finish) ())
       if (n < 0)
 	{
 	  if (errno != EINTR)
-	    perror ("select");
+	    error (EXIT_FAILURE, errno, "select failed");
 	  continue;
 	}
       else if (n == 1)
