@@ -1,3 +1,21 @@
+2012-04-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexec, rexecd: Implement support for IPv6.
+
+	* src/rexec.c (options): New `-4/ipv4', `-6/ipv6', and `-a/ipany'.
+	(struct arguments): New member `int af'.
+	(parse_opt): Detect `4', `6', and `a'.
+	(do_rexec): New variables `ret', `addrlen', `hints', `ai', `res'.
+	New type `struct sockaddr_storage` for ADDR.  Removed `host'.
+	Replace gethostbyname() by getaddrinfo() in resolving host name.
+	(do_rexec) <use error stream>: Use `struct sockaddr_storage` for
+	SERV_ADDR and prepare bind() based on properties of ADDR.
+	* src/rexecd.c (main): Use `struct sockaddr_storage' for FROM.
+	(a_sin): Removed variable.
+	(doit): New signature `doit(int, struct sockaddr *, socklen_t)`
+	Change PORT to be `in_port_t'.  Remove call to bind().  Rewrite
+	preparations for connect() to detect address family.
+
 2012-04-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Let `rexec' return a relevant return status.

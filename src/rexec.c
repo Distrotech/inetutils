@@ -65,6 +65,9 @@ static struct argp_option options[] = {
   {"port",  'P', "port", 0, "Specify the port to connect to"},
   {"noerr", 'n', NULL, 0, "Disable the stderr stream"},
   {"error",  'e', "error", 0, "Specify a TCP port to use for stderr"},
+  {"ipv4",  '4', NULL, 0, "Use IPv4 address space."},
+  {"ipv6",  '6', NULL, 0, "Use IPv6 address space."},
+  {"ipany",  'a', NULL, 0, "Allow any address family. (default)"},
   { 0 }
 };
 
@@ -74,6 +77,7 @@ struct arguments
   const char *user;
   const char *password;
   const char *command;
+  int af;
   int port;
   int use_err;
   int err_port;
@@ -104,6 +108,15 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'n':
       arguments->use_err = 0;
       break;
+    case '4':
+      arguments->af = AF_INET;
+      break;
+    case '6':
+      arguments->af = AF_INET6;
+      break;
+    case 'a':
+      arguments->af = AF_UNSPEC;
+      break;
     case ARGP_KEY_ARG:
       arguments->command = arg;
       state->next = state->argc;
@@ -131,6 +144,7 @@ main (int argc, char **argv)
   arguments.password = NULL;
   arguments.host = NULL;
   arguments.command = NULL;
+  arguments.af = AF_UNSPEC;
   arguments.err_port = 0;
   arguments.use_err = 1;
   arguments.port = 512;
@@ -181,35 +195,49 @@ do_rexec (struct arguments *arguments)
 {
   int err;
   char buffer[1024];
-  int sock;
-  char port_str[6];
-  struct sockaddr_in addr;
-  struct hostent *host;
+  int sock, ret;
+  char port_str[12];
+  socklen_t addrlen;
+  struct sockaddr_storage addr;
+  struct addrinfo hints, *ai, *res;
   int stdin_fd = STDIN_FILENO;
   int err_sock = -1;
 
-  sock = socket (AF_INET, SOCK_STREAM, 0);
-  if (sock < 0)
-    error (EXIT_FAILURE, errno, "cannot open socket");
+  snprintf (port_str, sizeof (port_str), "%d", arguments->port);
 
-  host = gethostbyname (arguments->host);
-  if (host == NULL)
-    error (EXIT_FAILURE, errno, "cannot find host %s", arguments->host);
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = arguments->af;
+  hints.ai_socktype = SOCK_STREAM;
 
-  memset (&addr, 0, sizeof (addr));
-  addr.sin_family = AF_INET;
-  memmove ((caddr_t) &addr.sin_addr,
-#ifdef HAVE_STRUCT_HOSTENT_H_ADDR_LIST
-	       host->h_addr_list[0],
-#else
-	       host->h_addr,
-#endif
-	       host->h_length);
+  ret = getaddrinfo (arguments->host, port_str, &hints, &res);
+  if (ret)
+    error (EXIT_FAILURE, errno, "getaddrinfo: %s", gai_strerror (ret));
 
-  addr.sin_port = htons ((short)arguments->port);
+  for (ai = res; ai != NULL; ai = ai->ai_next)
+    {
+      sock = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+      if (sock < 0)
+	continue;
 
-  if (connect (sock, (struct sockaddr *) &addr, sizeof (addr)) < 0)
-    error (EXIT_FAILURE, errno, "cannot connect to the specified host");
+      if (connect (sock, ai->ai_addr, ai->ai_addrlen) < 0)
+	{
+	  close (sock);
+	  sock = -1;
+	  continue;
+	}
+
+      break;	/* Acceptable.  */
+    }
+
+  if (ai == NULL)
+    {
+      freeaddrinfo (res);
+      error (EXIT_FAILURE, errno, "cannot find host %s", arguments->host);
+    }
+
+  addrlen = ai->ai_addrlen;
+  memcpy (&addr, ai->ai_addr, ai->ai_addrlen);
+  freeaddrinfo (res);
 
   if (!arguments->use_err)
     {
@@ -220,24 +248,42 @@ do_rexec (struct arguments *arguments)
     }
   else
     {
-      struct sockaddr_in serv_addr;
+      struct sockaddr_storage serv_addr;
       socklen_t len;
       int on = 1;
-      int serv_sock = socket (AF_INET, SOCK_STREAM, 0);
+      int serv_sock = socket (addr.ss_family, SOCK_STREAM, 0);
 
       if (serv_sock < 0)
         error (EXIT_FAILURE, errno, "cannot open socket");
 
+      setsockopt (serv_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on));
+
       memset (&serv_addr, 0, sizeof (serv_addr));
 
-      serv_addr.sin_family = AF_INET;
+      /* Need to bind to explicit port, when err_port is non-zero,
+       * or to be assigned a free port, should err_port be naught.
+       */
+      switch (addr.ss_family)
+	{
+	case AF_INET:
 #ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-      serv_addr.sin_len = sizeof (serv_addr);
+	  ((struct sockaddr_in *) &serv_addr)->sin_len = addrlen;
 #endif
-      serv_addr.sin_port = arguments->err_port;
-      setsockopt (serv_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on));
-      if (bind (serv_sock, (struct sockaddr *) &serv_addr,
-		sizeof (serv_addr)) < 0)
+	  ((struct sockaddr_in *) &serv_addr)->sin_family = addr.ss_family;
+	  ((struct sockaddr_in *) &serv_addr)->sin_port = arguments->err_port;
+	  break;
+	case AF_INET6:
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+	  ((struct sockaddr_in6 *) &serv_addr)->sin6_len = addrlen;
+#endif
+	  ((struct sockaddr_in6 *) &serv_addr)->sin6_family = addr.ss_family;
+	  ((struct sockaddr_in6 *) &serv_addr)->sin6_port = arguments->err_port;
+	  break;
+	default:
+	  error (EXIT_FAILURE, EAFNOSUPPORT, "unknown address family");
+	}
+
+      if (bind (serv_sock, (struct sockaddr *) &serv_addr, addrlen) < 0)
         error (EXIT_FAILURE, errno, "cannot bind socket");
 
       len = sizeof (serv_addr);
@@ -247,8 +293,18 @@ do_rexec (struct arguments *arguments)
       if (listen (serv_sock, 1))
         error (EXIT_FAILURE, errno, "error listening on socket");
 
-      arguments->err_port = ntohs (serv_addr.sin_port);
-      sprintf (port_str, "%i", arguments->err_port);
+      switch (serv_addr.ss_family)
+	{
+	case AF_INET:
+	  arguments->err_port = ntohs (((struct sockaddr_in *) &serv_addr)->sin_port);
+	  break;
+	case AF_INET6:
+	  arguments->err_port = ntohs (((struct sockaddr_in6 *) &serv_addr)->sin6_port);
+	  break;
+	default:
+	  error (EXIT_FAILURE, EAFNOSUPPORT, "unknown address family");
+	}
+      snprintf (port_str, sizeof (port_str), "%u", arguments->err_port);
       safe_write (sock, port_str, strlen (port_str) + 1);
 
       err_sock = accept (serv_sock, (struct sockaddr *) &serv_addr, &len);

@@ -84,7 +84,7 @@
 #include "libinetutils.h"
 
 void die (int code, const char *fmt, ...);
-int doit (int f, struct sockaddr_in *fromp);
+int doit (int f, struct sockaddr *fromp, socklen_t fromlen);
 
 const char doc[] = "remote execution daemon";
 
@@ -108,7 +108,7 @@ static struct argp argp = {
 int
 main (int argc, char **argv)
 {
-  struct sockaddr_in from;
+  struct sockaddr_storage from;
   socklen_t fromlen;
   int sockfd = STDIN_FILENO;
   int index;
@@ -123,7 +123,7 @@ main (int argc, char **argv)
   fromlen = sizeof (from);
   if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
     error (EXIT_FAILURE, errno, "getpeername");
-  doit (sockfd, &from);
+  doit (sockfd, (struct sockaddr *) &from, fromlen);
   exit (EXIT_SUCCESS);
 }
 
@@ -136,12 +136,6 @@ char shell[256 + sizeof ("SHELL=")] = "SHELL=";
 char path[sizeof (PATH_DEFPATH) + sizeof ("PATH=")] = "PATH=";
 char *envinit[] = { homedir, shell, path, username, logname, NULL };
 extern char **environ;
-
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-struct sockaddr_in a_sin = { sizeof (a_sin), AF_INET };
-#else
-struct sockaddr_in a_sin = { AF_INET };
-#endif
 
 char *getstr (const char *);
 
@@ -158,13 +152,13 @@ get_user_password (struct passwd *pwd)
 }
 
 int
-doit (int f, struct sockaddr_in *fromp)
+doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 {
   char *cmdbuf, *cp, *namep;
   char *user, *pass, *pw_password;
   struct passwd *pwd;
   int s;
-  unsigned short port;
+  in_port_t port;
   int pv[2], pid, cc;
   fd_set readfrom, ready;
   char buf[BUFSIZ], sig;
@@ -204,15 +198,23 @@ doit (int f, struct sockaddr_in *fromp)
   alarm (0);
   if (port != 0)
     {
-      s = socket (AF_INET, SOCK_STREAM, 0);
+      s = socket (fromp->sa_family, SOCK_STREAM, 0);
       if (s < 0)
 	exit (EXIT_FAILURE);
       setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (one));
-      if (bind (s, (struct sockaddr *) &a_sin, sizeof (a_sin)) < 0)
-	exit (EXIT_FAILURE);
       alarm (60);
-      fromp->sin_port = htons (port);
-      if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
+      switch (fromp->sa_family)
+	{
+	case AF_INET:
+	  ((struct sockaddr_in *) fromp)->sin_port = htons (port);
+	  break;
+	case AF_INET6:
+	  ((struct sockaddr_in6 *) fromp)->sin6_port = htons (port);
+	  break;
+	default:
+	  exit (EXIT_FAILURE);
+	}
+      if (connect (s, fromp, fromlen) < 0)
 	exit (EXIT_FAILURE);
       alarm (0);
     }
