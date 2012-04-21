@@ -47,6 +47,10 @@
  * SUCH DAMAGE.
  */
 
+/* TODO: Implement PAM support as `rexec' service.
+ *       Pending with Mats Erik Andersson.
+ */
+
 #include <config.h>
 
 #include <sys/types.h>
@@ -196,6 +200,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
       port = port * 10 + c - '0';
     }
   alarm (0);
+
   if (port != 0)
     {
       s = socket (fromp->sa_family, SOCK_STREAM, 0);
@@ -224,11 +229,14 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   cmdbuf = getstr ("command");
 
   setpwent ();
+
   pwd = getpwnam (user);
   if (pwd == NULL)
     die (EXIT_FAILURE, "Login incorrect.");
 
   endpwent ();
+
+  /* Last need of elevated privilege.  */
   pw_password = get_user_password (pwd);
   if (*pw_password != '\0')
     {
@@ -236,7 +244,24 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
       if (strcmp (namep, pw_password))
 	die (EXIT_FAILURE, "Password incorrect.");
     }
-  write (STDERR_FILENO, "\0", 1);
+
+  /* Step down from superuser personality.
+   *
+   * The changing of group membership will seldomly
+   * fail, but a relevant message is passed just in
+   * case.  These messages are non-standard.
+   */
+  if (setgid ((gid_t) pwd->pw_gid) < 0)
+    die (EXIT_FAILURE, "Failed group protections.");
+
+#ifdef HAVE_INITGROUPS
+  if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
+    die (EXIT_FAILURE, "Failed group protections.");
+#endif
+
+  if (setuid ((uid_t) pwd->pw_uid) < 0)
+    die (EXIT_FAILURE, "Failed user identity.");
+
   if (port)
     {
       pipe (pv);
@@ -287,39 +312,43 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 	  while (FD_ISSET (pv[0], &readfrom) || FD_ISSET (s, &readfrom));
 	  exit (EXIT_SUCCESS);
 	}
+#ifdef HAVE_SETPGID
       setpgid (0, getpid ());
+#endif
       close (s);
       close (pv[0]);
       dup2 (pv[1], STDERR_FILENO);
     }
-  if (*pwd->pw_shell == '\0')
-    pwd->pw_shell = PATH_BSHELL;
+
   if (f > 2)
     close (f);
-  if (setegid ((gid_t) pwd->pw_gid) < 0)
-    error (EXIT_FAILURE, errno, "failed to set additional groups");
-  if (setgid ((gid_t) pwd->pw_gid) < 0)
-    error (EXIT_FAILURE, errno, "failed to set group-ID");
-#ifdef HAVE_INITGROUPS
-  if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
-    error (EXIT_FAILURE, errno,
-	   "failed to initialize the supplementary group access list");
-#endif
-  if (setuid ((uid_t) pwd->pw_uid) < 0)
-    error (EXIT_FAILURE, errno, "failed to set user-ID");
+
+  /* Last point of failure due to incorrect user settings.  */
   if (chdir (pwd->pw_dir) < 0)
     die (EXIT_FAILURE, "No remote directory.");
+
   strcat (path, PATH_DEFPATH);
   environ = envinit;
   strncat (homedir, pwd->pw_dir, sizeof (homedir) - sizeof ("HOME=") - 1);
   strncat (shell, pwd->pw_shell, sizeof (shell) - sizeof ("SHELL=") - 1);
   strncat (username, pwd->pw_name, sizeof (username) - sizeof ("USER=") - 1);
   strncat (logname, pwd->pw_name, sizeof (logname) - sizeof ("LOGNAME=") - 1);
+
+  if (*pwd->pw_shell == '\0')
+    pwd->pw_shell = PATH_BSHELL;
+
   cp = strrchr (pwd->pw_shell, '/');
   if (cp)
     cp++;
   else
     cp = pwd->pw_shell;
+
+  /* This is the 7th step in the protocol standard.
+   * All authentication has been successful, and the
+   * execution can be handed over to the requested shell.
+   */
+  write (STDERR_FILENO, "\0", 1);
+
   execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
   error (EXIT_FAILURE, errno, "executing %s", pwd->pw_shell);
 

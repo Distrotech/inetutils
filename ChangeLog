@@ -1,3 +1,14 @@
+2012-04-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexecd: Privilege audit and protocol conformity.
+
+	* src/rexecd.c (doit): Execute changes of group as
+	soon as password has been verified.  Remove useless
+	call to setegid().  Protect setpgid() by the macro
+	HAVE_SETPGID.  Delay sending the single NUL character
+	until the time immediately before execution is handed
+	over to a shell interpreter.
+
 2012-04-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Portability issue found on 64-bit OpenBSD.
