@@ -82,6 +82,7 @@
 #ifdef HAVE_SHADOW_H
 # include <shadow.h>
 #endif
+#include <syslog.h>
 #include <progname.h>
 #include <argp.h>
 #include <error.h>
@@ -90,11 +91,33 @@
 void die (int code, const char *fmt, ...);
 int doit (int f, struct sockaddr *fromp, socklen_t fromlen);
 
+static int logging = 0;
+
+static struct argp_option options[] = {
+  { "logging", 'l', NULL, 0, "logging of requests and errors" },
+  { NULL }
+};
+
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  switch (key)
+    {
+    case 'l':
+      ++logging;
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+  return 0;
+}
+
 const char doc[] = "remote execution daemon";
 
 static struct argp argp = {
-  NULL,
-  NULL,
+  options,
+  parse_opt,
   NULL,
   doc,
   NULL,
@@ -121,12 +144,20 @@ main (int argc, char **argv)
 
   iu_argp_init ("rexecd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
+
+  openlog ("rexecd", LOG_PID | LOG_ODELAY | LOG_NOWAIT, LOG_DAEMON);
+
   if (argc > index)
-    error (EXIT_FAILURE, 0, "surplus arguments");
+    /* Record this complaint locally.  */
+    syslog (LOG_NOTICE, "%d extra arguments", argc - index);
 
   fromlen = sizeof (from);
   if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
-    error (EXIT_FAILURE, errno, "getpeername");
+    {
+      syslog (LOG_ERR, "getpeername: %m");
+      error (EXIT_FAILURE, errno, "getpeername");
+    }
+
   doit (sockfd, (struct sockaddr *) &from, fromlen);
   exit (EXIT_SUCCESS);
 }
@@ -161,7 +192,8 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   char *cmdbuf, *cp, *namep;
   char *user, *pass, *pw_password;
   struct passwd *pwd;
-  int s;
+  char rhost[INET6_ADDRSTRLEN];
+  int s, ret;
   in_port_t port;
   int pv[2], pid, cc;
   fd_set readfrom, ready;
@@ -188,13 +220,28 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
       dup2 (f, STDERR_FILENO);
     }
 
+  ret = getnameinfo (fromp, fromlen, rhost, sizeof (rhost),
+		     NULL, 0, NI_NUMERICHOST);
+  if (ret)
+    {
+      syslog (LOG_WARNING, "getnameinfo: %m");
+      strncpy (rhost, "(unknown)", sizeof (rhost));
+    }
+
+  if (logging > 1)
+    syslog (LOG_INFO, "request from \"%s\"", rhost);
+
   alarm (60);
   port = 0;
   for (;;)
     {
       char c;
       if (read (f, &c, 1) != 1)
-	exit (EXIT_FAILURE);
+	{
+	  if (logging)
+	    syslog (LOG_ERR, "main socket: %m");
+	  exit (EXIT_FAILURE);
+	}
       if (c == 0)
 	break;
       port = port * 10 + c - '0';
@@ -205,7 +252,11 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
     {
       s = socket (fromp->sa_family, SOCK_STREAM, 0);
       if (s < 0)
-	exit (EXIT_FAILURE);
+	{
+	  if (logging)
+	    syslog (LOG_ERR, "stderr socket: %m");
+	  exit (EXIT_FAILURE);
+	}
       setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (one));
       alarm (60);
       switch (fromp->sa_family)
@@ -217,10 +268,18 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 	  ((struct sockaddr_in6 *) fromp)->sin6_port = htons (port);
 	  break;
 	default:
+	  syslog (LOG_ERR, "unknown address family %d", fromp->sa_family);
 	  exit (EXIT_FAILURE);
 	}
       if (connect (s, fromp, fromlen) < 0)
-	exit (EXIT_FAILURE);
+	{
+	  /* Use LOG_NOTICE since the remote part might cause
+	   * this error by blocking.  We are less probable.
+	   */
+	  if (logging)
+	    syslog (LOG_NOTICE, "connect: %m");
+	  exit (EXIT_FAILURE);
+	}
       alarm (0);
     }
 
@@ -232,7 +291,11 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 
   pwd = getpwnam (user);
   if (pwd == NULL)
-    die (EXIT_FAILURE, "Login incorrect.");
+    {
+      if (logging)
+	syslog (LOG_WARNING, "no user named \"%s\"", user);
+      die (EXIT_FAILURE, "Login incorrect.");
+    }
 
   endpwent ();
 
@@ -242,7 +305,11 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
     {
       namep = crypt (pass, pw_password);
       if (strcmp (namep, pw_password))
-	die (EXIT_FAILURE, "Password incorrect.");
+	{
+	  if (logging)
+	    syslog (LOG_WARNING, "password failure for \"%s\"", user);
+	  die (EXIT_FAILURE, "Password incorrect.");
+	}
     }
 
   /* Step down from superuser personality.
@@ -252,22 +319,36 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
    * case.  These messages are non-standard.
    */
   if (setgid ((gid_t) pwd->pw_gid) < 0)
-    die (EXIT_FAILURE, "Failed group protections.");
+    {
+      syslog (LOG_DEBUG, "setgid(gid = %d): %m", pwd->pw_gid);
+      die (EXIT_FAILURE, "Failed group protections.");
+    }
 
 #ifdef HAVE_INITGROUPS
   if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
-    die (EXIT_FAILURE, "Failed group protections.");
+    {
+      syslog (LOG_DEBUG, "initgroups(%s, %s): %m",
+	      pwd->pw_name, pwd->pw_gid);
+      die (EXIT_FAILURE, "Failed group protections.");
+    }
 #endif
 
   if (setuid ((uid_t) pwd->pw_uid) < 0)
-    die (EXIT_FAILURE, "Failed user identity.");
+    {
+      syslog (LOG_DEBUG, "setuid(uid = %d): %m", pwd->pw_uid);
+      die (EXIT_FAILURE, "Failed user identity.");
+    }
 
   if (port)
     {
       pipe (pv);
       pid = fork ();
       if (pid == -1)
-	die (EXIT_FAILURE, "Try again.");
+	{
+	  if (logging)
+	    syslog (LOG_ERR, "forking for \"%s\": %m", user);
+	  die (EXIT_FAILURE, "Try again.");
+	}
 
       if (pid)
 	{
@@ -325,7 +406,11 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 
   /* Last point of failure due to incorrect user settings.  */
   if (chdir (pwd->pw_dir) < 0)
-    die (EXIT_FAILURE, "No remote directory.");
+    {
+      if (logging)
+	syslog (LOG_NOTICE, "\"%s\" uses invalid \"%s\"", user, pwd->pw_dir);
+      die (EXIT_FAILURE, "No remote directory.");
+    }
 
   strcat (path, PATH_DEFPATH);
   environ = envinit;
@@ -348,8 +433,12 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
    * execution can be handed over to the requested shell.
    */
   write (STDERR_FILENO, "\0", 1);
+  if (logging)
+    syslog (LOG_INFO, "accepted user \"%s\" from %s", user, rhost);
 
   execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
+  if (logging)
+    syslog (LOG_ERR, "execl fails for \"%s\": %m", user);
   error (EXIT_FAILURE, errno, "executing %s", pwd->pw_shell);
 
   return -1;

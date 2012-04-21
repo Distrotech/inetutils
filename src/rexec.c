@@ -307,9 +307,17 @@ do_rexec (struct arguments *arguments)
       snprintf (port_str, sizeof (port_str), "%u", arguments->err_port);
       safe_write (sock, port_str, strlen (port_str) + 1);
 
+      /* Limit waiting time in case the server fails to call back:
+       * if it aborts prematurely, or if a firewall is blocking
+       * the intended STDERR connection to reach us.
+       */
+      alarm (5);
+
       err_sock = accept (serv_sock, (struct sockaddr *) &serv_addr, &len);
       if (err_sock < 0)
         error (EXIT_FAILURE, errno, "error accepting connection");
+
+      alarm (0);
 
       shutdown (err_sock, SHUT_WR);
 

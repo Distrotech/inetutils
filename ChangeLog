@@ -1,3 +1,23 @@
+2012-04-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexecd: Implement syslog support.
+
+	* src/rexecd.c: Include <syslog.h>.
+	(logging, options): New variables.
+	(parse_opt): New function.
+	(argp): Insert `options' and `parse_opt'.
+	(main): Call openlog().  Do not exit at surplus arguments,
+	but make a note in syslog.  Log failed getpeername().
+	(doit): New variables RHOST and RET.  In addition to error()
+	and die(), make many entries in the syslog of varying severity.
+
+	* src/rexec.c (do_rexec): Add a five second alarm around
+	accept() for stderr channel, in case the server side is
+	not responding.
+
+	* doc/inetutils.texi (rexec, rexecd): Document recent
+	additions.  Make option encoding for `rexec' complete.
+
 2012-04-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rexecd: Privilege audit and protocol conformity.

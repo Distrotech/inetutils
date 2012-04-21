@@ -1928,26 +1928,62 @@ rexec --user=@var{login} --password=@var{pass} --host=@var{host}  \
 
 The command line arguments are as follows:
 
-@table @var
-@item --error
+@table @option
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Use only IPv4 connections as all times.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Use only IPv6 connections.
+
+@item -a
+@itemx --ipany
+@opindex -a
+@opindex --ipany
+Allow any address family for connections.  This is the default.
+
+@item -e
+@itemx --error=@var{port}
+@opindex -e
+@opindex --error
 Specify the TCP port to use for stderr redirection, in case it is not
 specified a random port will be used.
 
-@item --host
-Specify the host where connect to.
+@item -h
+@item --host=@var{name}
+@opindex -h
+@opindex --host
+Specify the host with whom to connect: symbolic name or address.
 
-@item --noerr
+@item -n
+@itemx --noerr
+@opindex -n
+@opindex --noerr
 If specified, an error stream will not be created.
 
-@item --password
+@item -p
+@itemx --password=@var{passwd}
+@opindex -p
+@opindex --password
 Specify the password for logging-in.
 
-@item --port
-Specify to which port connect to, if it is not specified by default
-use 512.
+@item -P
+@itemx --port=@var{num}
+@opindex -P
+@opindex --port
+Specify to which numerical port a connection shall be sought.
+If it is not specified, then use port 512/tcp by default.
 
-@item --user
-Specify the user to log into the server.
+@item -u
+@itemx --user=@var{name}
+@opindex -u
+@opindex --user
+Specify the user with whom to log into the server.
 @end table
 
 
@@ -3316,7 +3352,8 @@ useful in an ``open'' environment.
 
 @command{rexecd} is the server for the @code{Rexec} routine.  The
 server provides remote execution facilities with authentication based
-on user names and passwords.
+on user names and passwords.  It passes error messages and notices
+to the @code{syslog} facility @samp{LOG_DAEMON}.
 
 @example
 rexecd [@var{option}]@dots{}
@@ -3363,6 +3400,21 @@ A NUL byte is returned on the initial socket and the command line is
 passed to the normal login shell of the user.  The shell inherits the
 network connections established by rexecd.
 @end enumerate
+
+@section Invoking
+
+The only option is as follows:
+
+@table @option
+@item -l
+@itemx --logging
+@opindex -l
+@opindex --logging
+Raise logging level for this service; use more than once for
+increased verbosity.  The @code{syslog} facility in use is
+@samp{LOG_DAEMON}.
+
+@end table
 
 @section Diagnostics
 
