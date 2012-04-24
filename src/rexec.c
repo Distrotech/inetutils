@@ -135,7 +135,8 @@ int
 main (int argc, char **argv)
 {
   struct arguments arguments;
-  int failed = 0;
+  char password[64];
+  int n, failed = 0;
   set_program_name (argv[0]);
 
   iu_argp_init ("rexec", program_authors);
@@ -177,6 +178,27 @@ main (int argc, char **argv)
 
   if (failed > 0)
     exit (EXIT_FAILURE);
+
+  if (strcmp ("-", arguments.password) == 0)
+    {
+      password[0] = '\0';
+
+      alarm (15);
+      fgets (password, sizeof (password), stdin);
+      alarm (0);
+
+      n = strlen (password);
+      if ((n > 0) && (password[n - 1] == '\n'))
+	{
+	  password[n - 1] = '\0';
+	  --n;
+	}
+
+      if (n == 0)
+	error (EXIT_FAILURE, 0, "empty password");
+      else
+	arguments.password = password;
+    }
 
   do_rexec (&arguments);
 

@@ -1,3 +1,13 @@
+2012-04-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexec: Read password from stdin.
+
+	* src/rexec.c (main): New variables PASSWORD and N.
+	If `arguments.password' is a single dash, read a line
+	from standard in and assign it to `arguments.password'.
+	* doc/inetutils.texi (rexec invocation):  Mention new
+	treatment of `-p/--password'.
+
 2012-04-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rexecd: Implement syslog support.

@@ -1970,7 +1970,13 @@ If specified, an error stream will not be created.
 @itemx --password=@var{passwd}
 @opindex -p
 @opindex --password
-Specify the password for logging-in.
+Specify the password for logging-in.  The special value
+consisting of a single dash @samp{-} will make @command{rexec}
+read a single line from stdin.  This input is then used
+as password and is passed as such to the remote server.
+Thus it is possible to hide vital access information
+slightly better than the full disclosure implicit in
+the text of a command line option.
 
 @item -P
 @itemx --port=@var{num}
