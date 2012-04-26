@@ -95,6 +95,8 @@ ping_echo (char *hostname)
       if (setsockopt (ping->ping_fd, IPPROTO_IP,
 		      IP_OPTIONS, rspace, sizeof (rspace)) < 0)
         error (EXIT_FAILURE, errno, "setsockopt");
+      /* The encapsulating IP header is now augmented with options.  */
+      ping_set_packetsize (ping, data_length + sizeof (rspace));
 #else
       error (EXIT_FAILURE, 0, "record route not available in this "
              "implementation.");

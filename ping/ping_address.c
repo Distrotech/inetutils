@@ -50,9 +50,6 @@ static int recv_address (int code, void *closure,
 static void print_address (int dupflag, void *closure,
 			   struct sockaddr_in *dest, struct sockaddr_in *from,
 			   struct ip *ip, icmphdr_t * icmp, int datalen);
-static void print_address (int dupflag, void *closure,
-			   struct sockaddr_in *dest, struct sockaddr_in *from,
-			   struct ip *ip, icmphdr_t * icmp, int datalen);
 static int address_finish (void);
 
 int
@@ -103,6 +100,7 @@ print_address (int dupflag, void *closure,
 	  icmp->icmp_seq);
   if (dupflag)
     printf (" (DUP!)");
+  printf ("\n");
   addr.s_addr = icmp->icmp_mask;
   printf ("icmp_mask = %s", inet_ntoa (addr));
   printf ("\n");

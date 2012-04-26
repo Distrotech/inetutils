@@ -1,3 +1,12 @@
+2012-04-27  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ping/ping_address.c (print_address): Remove duplicate
+	prototype.  Print additional newline to conform with output
+	formatting for other types of reporting.
+	* ping/ping_echo.c (ping_echo)
+	[(options & OPT_ROUTE) & IP_OPTIONS]: Increase data length
+	to accomodate the amount used for record routes in IP header.
+
 2012-04-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rexec: Read password from stdin.
