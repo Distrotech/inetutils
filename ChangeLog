@@ -1,5 +1,22 @@
 2012-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Critical package errors in size and allocation.
+
+	* ping/ping.c (send_echo): Replace macro PING_HEADER_LEN by
+	calculated value OFF, i.e., the number of consumed bytes.
+	* ping/ping6.c (send_echo): Likewise.
+	(ping_init): Initialise `p->ping_datalen' as the size of
+	`struct timeval', a possible payload.
+	* ping/ping_common.h (PING_HEADER_LEN): Use correct size as
+	`sizeof(struct icmp6_hdr)' and ICMP_MINLEN, respectively.
+	(PING_TIMING): Compare with `sizeof(struct timeval)'.
+	(_PING_BUFLEN) <IPv4 case>: Add contribution MAXIPLEN, and
+	increase ICMP contribution to ICMP_TSLEN, the maximal length.
+	* ping/ping_echo.c (ping_echo) [options & OPT_RROUTE && IP_OPTIONS]:
+	Remove call (a recent regression) to ping_set_packetsize().
+
+2012-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Incomplete endianness conversions.
 
 	* libicmp/icmp_echo.c (icmp_generic_encode): Apply htons() to

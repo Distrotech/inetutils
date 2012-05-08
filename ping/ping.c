@@ -443,8 +443,8 @@ send_echo (PING * ping)
     }
   if (data_buffer)
     ping_set_data (ping, data_buffer, off,
-		   data_length > PING_HEADER_LEN ?
-		   data_length - PING_HEADER_LEN : data_length, USE_IPV6);
+		   data_length > off ? data_length - off : data_length,
+		   USE_IPV6);
   return ping_xmit (ping);
 }
 

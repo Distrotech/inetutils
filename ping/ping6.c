@@ -400,8 +400,8 @@ send_echo (PING * ping)
     }
   if (data_buffer)
     ping_set_data (ping, data_buffer, off,
-		   data_length > PING_HEADER_LEN ?
-		   data_length - PING_HEADER_LEN : data_length, USE_IPV6);
+		   data_length > off ? data_length - off : data_length,
+		   USE_IPV6);
   return ping_xmit (ping);
 }
 
@@ -761,7 +761,7 @@ ping_init (int type, int ident)
   p->ping_fd = fd;
   p->ping_count = DEFAULT_PING_COUNT;
   p->ping_interval = PING_DEFAULT_INTERVAL;
-  p->ping_datalen = sizeof (struct icmp6_hdr);
+  p->ping_datalen = sizeof (struct timeval);
   /* Make sure we use only 16 bits in this field, id for icmp is a unsigned short.  */
   p->ping_ident = ident & 0xFFFF;
   p->ping_cktab_size = PING_CKTABSIZE;

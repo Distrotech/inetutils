@@ -54,8 +54,8 @@ struct ping_stat
    want to follow the traditional behaviour of ping.  */
 #define DEFAULT_PING_COUNT 0
 
-#define PING_TIMING(s) (s >= PING_HEADER_LEN)
-#define PING_HEADER_LEN sizeof (struct timeval)
+#define PING_HEADER_LEN (USE_IPV6 ? sizeof (struct icmp6_hdr) : ICMP_MINLEN)
+#define PING_TIMING(s)  ((s) >= sizeof (struct timeval))
 #define PING_DATALEN    (64 - PING_HEADER_LEN)  /* default data length */
 
 #define PING_DEFAULT_INTERVAL 1000      /* Milliseconds */
@@ -66,9 +66,9 @@ struct ping_stat
   (t).tv_usec = ((i)%PING_PRECISION)*(1000000/PING_PRECISION) ;\
 } while (0)
 
-/* Not sure about this step*/
+/* FIXME: Adjust IPv6 case for options and their consumption.  */
 #define _PING_BUFLEN(p, USE_IPV6) ((USE_IPV6)? ((p)->ping_datalen + sizeof (struct icmp6_hdr)) : \
-				   ((p)->ping_datalen + sizeof (icmphdr_t)))
+				   (MAXIPLEN + (p)->ping_datalen + ICMP_TSLEN))
 
 typedef int (*ping_efp6) (int code, void *closure, struct sockaddr_in6 * dest,
 			  struct sockaddr_in6 * from, struct icmp6_hdr * icmp,
