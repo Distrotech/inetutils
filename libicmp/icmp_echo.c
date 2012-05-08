@@ -36,7 +36,7 @@ icmp_generic_encode (unsigned char * buffer, size_t bufsize, int type, int ident
 {
   icmphdr_t *icmp;
 
-  if (bufsize < 8)
+  if (bufsize < ICMP_MINLEN)
     return -1;
   icmp = (icmphdr_t *) buffer;
   icmp->icmp_type = type;

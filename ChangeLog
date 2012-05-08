@@ -1,3 +1,39 @@
+2012-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Use symbolic size names in all harmless cases.
+
+	* libicmp/icmp.h (ICMP_TSLEN): Use size of `n_time'.
+	* libicmp/icmp_address.c (icmp_address_encode): Use ICMP_MASKLEN.
+	* libicmp/icmp_echo.c (icmp_generic_encode): Use ICMP_MINLEN.
+	* libicmp/icmp_timestamp.c (icmp_timestamp_encode): Use ICMP_TSLEN.
+	* ping/libping.c (_ping_packetsize): Use ICMP_TSLEN.  Add cases
+	for ICMP_ADDRESS and ICMP_ADDRESSREPLY.  Use PING_HEADER_LEN in
+	default case.
+	(ping_set_dest) [HAVE_STRUCT_SOCKADDR_SA_LEN]: Set `s_in->sin_len'.
+	* ping/ping_address.c (ping_address): Use ICMP_MASKLEN.
+	* ping/ping_common.h (_ping_setbuf, ping_set_data): Use `use_ipv6'
+	as parameter, not the macro name USE_IPV6.
+	* ping/ping_echo.c (print_echo): Use PING_HEADER_LEN.
+	(print_ip_header): Use `sizeof(*ip)' for IP header size.
+	Use tabs at end of printed header.
+	(print_ip_data): Use IPPROTO_TCP and IPPROTO_UDP.  Add case
+	for IPPROTO_ICMP.
+	* ping/ping_timestamp.c (ping_timestamp): Use ICMP_TSLEN.
+
+	Determine correct and relevant diagnostic messages.
+
+	* ping/ping_echo.c (struct icmp_code_descr): Add field `int type'.
+	(icmp_code_descr): Prepend every member with a type value for
+	correct discrimination.
+	(print_icmp_code): New signature `(int, int, char *)'.  Test `type'
+	as well as `code' when matching.
+	(print_icmp): Update call to print_icmp_code().
+	(icmp_diag): New members ICMP_ROUTERADV and ICMP_ROUTERDISCOVERY.
+	New members ICMP_INFO_REPLY and ICMP_ADDRESS.  Replace incorrect
+	ICMP_MASKREPLY with ICMP_ADDRESSREPLY.
+	(print_ip_opt) <IPOPT_SSRR>: New case.  Code shared with IPOPT_LSRR.
+	<IPOPT_LSRR, IPOPT_RR>: Replace call to ntohl() by correct htonl().
+
 2012-05-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Portability issue for setting timeval manually.

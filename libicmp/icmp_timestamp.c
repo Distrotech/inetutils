@@ -39,7 +39,7 @@ icmp_timestamp_encode (unsigned char * buffer, size_t bufsize, int ident, int se
   struct timeval tv;
   unsigned long v;
 
-  if (bufsize < 20)
+  if (bufsize < ICMP_TSLEN)
     return -1;
 
   gettimeofday (&tv, NULL);

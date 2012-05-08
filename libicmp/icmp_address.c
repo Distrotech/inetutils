@@ -35,7 +35,7 @@ icmp_address_encode (unsigned char * buffer, size_t bufsize, int ident, int seqn
 {
   icmphdr_t *icmp;
 
-  if (bufsize < 12)
+  if (bufsize < ICMP_MASKLEN)
     return -1;
 
   icmp = (icmphdr_t *) buffer;

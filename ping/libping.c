@@ -42,8 +42,12 @@ size_t
 _ping_packetsize (PING * p)
 {
   if (p->ping_type == ICMP_TIMESTAMP || p->ping_type == ICMP_TIMESTAMPREPLY)
-    return 20;
-  return 8 + p->ping_datalen;
+    return ICMP_TSLEN;
+
+  if (p->ping_type == ICMP_ADDRESS || p->ping_type == ICMP_ADDRESSREPLY)
+    return ICMP_MASKLEN;
+
+  return PING_HEADER_LEN + p->ping_datalen;
 }
 
 PING *
@@ -262,6 +266,9 @@ ping_set_dest (PING * ping, char *host)
 {
   struct sockaddr_in *s_in = &ping->ping_dest.ping_sockaddr;
   s_in->sin_family = AF_INET;
+#ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
+  s_in->sin_len = sizeof (*s_in);
+#endif
   if (inet_aton (host, &s_in->sin_addr))
     ping->ping_hostname = strdup (host);
   else

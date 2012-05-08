@@ -151,8 +151,8 @@ void init_data_buffer (unsigned char *pat, int len);
 
 void decode_pattern (const char *text, int *pattern_len,
 		     unsigned char *pattern_data);
-int _ping_setbuf (PING * p, bool USE_IPV6);
-int ping_set_data (PING *p, void *data, size_t off, size_t len, bool USE_IPV6);
+int _ping_setbuf (PING * p, bool use_ipv6);
+int ping_set_data (PING *p, void *data, size_t off, size_t len, bool use_ipv6);
 void ping_set_count (PING * ping, size_t count);
 void ping_set_sockopt (PING * ping, int opt, void *val, int valsize);
 void ping_set_interval (PING * ping, size_t interval);
