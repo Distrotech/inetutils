@@ -548,7 +548,7 @@ print_echo (int dupflag, int hops, struct ping_stat *ping_stat,
     }
 
   printf ("%d bytes from %s: icmp_seq=%u", datalen, buf,
-	  htons (icmp6->icmp6_seq));
+	  ntohs (icmp6->icmp6_seq));
   if (hops >= 0)
     printf (" ttl=%d", hops);
   if (timing)
@@ -792,7 +792,8 @@ ping_xmit (PING * p)
   icmp6->icmp6_seq = htons (p->ping_num_xmit);
 
   i = sendto (p->ping_fd, (char *) p->ping_buffer, buflen, 0,
-	      (struct sockaddr *) &p->ping_dest.ping_sockaddr6, sizeof (p->ping_dest.ping_sockaddr6));
+	      (struct sockaddr *) &p->ping_dest.ping_sockaddr6,
+	      sizeof (p->ping_dest.ping_sockaddr6));
   if (i < 0)
     perror ("ping: sendto");
   else

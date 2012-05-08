@@ -1,5 +1,22 @@
 2012-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Incomplete endianness conversions.
+
+	* libicmp/icmp_echo.c (icmp_generic_encode): Apply htons() to
+	SEQNO and IDENT.
+	* ping/libping.c (my_echo_reply, ping_recv): Apply ntohs() to
+	`orig_icmp->icmp_id' and `orig->icmp_seq'.
+	* ping/ping6.c (print_echo): Likwise for `icmp6->icmp6_seq'.
+	* ping/ping_address.c (print_address): Apply ntohs() to
+	`icmp->icmp_seq'.
+	* ping/ping_echo.c (print_echo): Likewise.
+	(print_ip_header): Apply ntohs() to `ip->ip_len', `ip->ip_id',
+	`ip->ip_off', and to `ip->ip_sum'.
+	* ping/ping_timestamp.c (print_timestamp): Apply ntohs() to
+	`icmp->icmp_seq'.
+
+2012-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Use symbolic size names in all harmless cases.
 
 	* libicmp/icmp.h (ICMP_TSLEN): Use size of `n_time'.

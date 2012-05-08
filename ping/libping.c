@@ -169,7 +169,7 @@ my_echo_reply (PING * p, icmphdr_t * icmp)
   return (orig_ip->ip_dst.s_addr == p->ping_dest.ping_sockaddr.sin_addr.s_addr
 	  && orig_ip->ip_p == IPPROTO_ICMP
 	  && orig_icmp->icmp_type == ICMP_ECHO
-	  && orig_icmp->icmp_id == p->ping_ident);
+	  && ntohs (orig_icmp->icmp_id) == p->ping_ident);
 }
 
 int
@@ -203,7 +203,7 @@ ping_recv (PING * p)
     case ICMP_ADDRESSREPLY:
       /*    case ICMP_ROUTERADV: */
 
-      if (icmp->icmp_id != p->ping_ident)
+      if (ntohs (icmp->icmp_id) != p->ping_ident)
 	return -1;
 
       if (rc)
@@ -211,7 +211,7 @@ ping_recv (PING * p)
 		 inet_ntoa (p->ping_from.ping_sockaddr.sin_addr));
 
       p->ping_num_recv++;
-      if (_PING_TST (p, icmp->icmp_seq))
+      if (_PING_TST (p, ntohs (icmp->icmp_seq)))
 	{
 	  p->ping_num_rept++;
 	  p->ping_num_recv--;
@@ -219,7 +219,7 @@ ping_recv (PING * p)
 	}
       else
 	{
-	  _PING_SET (p, icmp->icmp_seq);
+	  _PING_SET (p, ntohs (icmp->icmp_seq));
 	  dupflag = 0;
 	}
 

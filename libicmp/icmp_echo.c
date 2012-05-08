@@ -42,8 +42,8 @@ icmp_generic_encode (unsigned char * buffer, size_t bufsize, int type, int ident
   icmp->icmp_type = type;
   icmp->icmp_code = 0;
   icmp->icmp_cksum = 0;
-  icmp->icmp_seq = seqno;
-  icmp->icmp_id = ident;
+  icmp->icmp_seq = htons (seqno);
+  icmp->icmp_id = htons (ident);
 
   icmp->icmp_cksum = icmp_cksum (buffer, bufsize);
   return 0;

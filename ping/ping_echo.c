@@ -181,7 +181,7 @@ print_echo (int dupflag, struct ping_stat *ping_stat,
 
   printf ("%d bytes from %s: icmp_seq=%u", datalen,
 	  inet_ntoa (*(struct in_addr *) &from->sin_addr.s_addr),
-	  icmp->icmp_seq);
+	  ntohs (icmp->icmp_seq));
   printf (" ttl=%d", ip->ip_ttl);
   if (timing)
     printf (" time=%.3f ms", triptime);
@@ -296,10 +296,10 @@ print_ip_header (struct ip *ip)
   printf
     ("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src\tDst\tData\n");
   printf (" %1x  %1x  %02x %04x %04x", ip->ip_v, ip->ip_hl, ip->ip_tos,
-	  ip->ip_len, ip->ip_id);
-  printf ("   %1x %04x", ((ip->ip_off) & 0xe000) >> 13,
-	  (ip->ip_off) & 0x1fff);
-  printf ("  %02x  %02x %04x", ip->ip_ttl, ip->ip_p, ip->ip_sum);
+	  ntohs (ip->ip_len), ntohs (ip->ip_id));
+  printf ("   %1x %04x", (ntohs (ip->ip_off) & 0xe000) >> 13,
+	  ntohs (ip->ip_off) & 0x1fff);
+  printf ("  %02x  %02x %04x", ip->ip_ttl, ip->ip_p, ntohs (ip->ip_sum));
   printf (" %s ", inet_ntoa (*((struct in_addr *) &ip->ip_src)));
   printf (" %s ", inet_ntoa (*((struct in_addr *) &ip->ip_dst)));
   while (hlen-- > sizeof (*ip))

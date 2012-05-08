@@ -97,7 +97,7 @@ print_address (int dupflag, void *closure,
 
   printf ("%d bytes from %s: icmp_seq=%u", datalen,
 	  inet_ntoa (*(struct in_addr *) &from->sin_addr.s_addr),
-	  icmp->icmp_seq);
+	  ntohs (icmp->icmp_seq));
   if (dupflag)
     printf (" (DUP!)");
   printf ("\n");
