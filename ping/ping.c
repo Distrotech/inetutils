@@ -330,6 +330,14 @@ ping_run (PING * ping, int (*finish) ())
 
   fdmax = ping->ping_fd + 1;
 
+  /* Some systems use `struct timeval' of size 16.  As these are
+   * not initialising `timeval' properly by assignment alone, let
+   * us play safely here.  gettimeofday() is always sufficient.
+   */
+  memset (&resp_time, 0, sizeof (resp_time));
+  memset (&intvl, 0, sizeof (intvl));
+  memset (&now, 0, sizeof (now));
+
   for (i = 0; i < preload; i++)
     send_echo (ping);
 

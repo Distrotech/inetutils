@@ -236,10 +236,11 @@ do_try (trace_t * trace, const int hop,
   double triptime = 0.0;
   uint32_t prev_addr = 0;
 
-  printf (" %d  ", hop);
+  printf (" %2d  ", hop);
 
   for (tries = 0; tries < max_tries; tries++)
     {
+      int save_errno;
       int fd = trace_icmp_sock (trace);
 
       FD_ZERO (&readset);
@@ -252,17 +253,23 @@ do_try (trace_t * trace, const int hop,
       if (!readonly)
 	trace_write (trace);
 
+      errno = 0;
+      ret = select (fd + 1, &readset, NULL, NULL, &time);
+      save_errno = errno;
+
       gettimeofday (&now, NULL);
 
       now.tv_usec -= trace->tsent.tv_usec;
       now.tv_sec -= trace->tsent.tv_sec;
-
-      errno = 0;
-      ret = select (fd + 1, &readset, NULL, NULL, &time);
+      if (now.tv_usec < 0)
+	{
+	  --now.tv_sec;
+	  now.tv_usec += 1000000;
+	}
 
       if (ret < 0)
 	{
-	  switch (errno)
+	  switch (save_errno)
 	    {
 	    case EINTR:
 	      /* was interrupted */
@@ -398,12 +405,12 @@ trace_read (trace_t * t)
 
   siz = sizeof (t->from);
 
-  len = recvfrom (t->icmpfd, (char *) data, 56, 0,
+  len = recvfrom (t->icmpfd, (char *) data, sizeof (data), 0,
 		  (struct sockaddr *) &t->from, &siz);
   if (len < 0)
     error (EXIT_FAILURE, errno, "recvfrom");
 
-  icmp_generic_decode (data, 56, &ip, &ic);
+  icmp_generic_decode (data, sizeof (data), &ip, &ic);
 
   switch (t->type)
     {
