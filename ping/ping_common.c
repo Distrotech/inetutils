@@ -140,6 +140,28 @@ nsqrt (double a, double prec)
 }
 
 int
+is_normed_time (n_time t)
+{
+  /* A set MSB indicates non-normalised time standard.  */
+  return (t & (1UL << 31)) ? 0 : 1;
+}
+
+const char *
+ping_cvt_time (char *buf, size_t buflen, n_time t)
+{
+  n_time t_red;
+
+  t_red = t & ((1UL << 31) - 1);
+
+  if (is_normed_time (t))
+    snprintf (buf, buflen, "%u", t_red);
+  else
+    snprintf (buf, buflen, "<%u>", t_red);
+
+  return buf;
+}
+
+int
 _ping_setbuf (PING * p, bool use_ipv6)
 {
   if (!p->ping_buffer)

@@ -1,3 +1,17 @@
+2012-05-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Discriminate UTC from non-UTC time stamps.
+
+	* ping/ping_common.c (is_normed_time, ping_cvt_time): New fcns.
+	* ping/ping_common.h (is_normed_time, ping_cvt_time): New prototypes.
+	* ping/ping_timestamp.c (print_timestamp): New variable TIMESTR.
+	Call ping_cvt_time() to generate strings for three time values.
+	[options & OPT_VERBOSE]: Print time difference if both of
+	`icmp->icmp_otime' and `icmp->icmp_ttime' are UTC-based.
+
+	* ping/ping_common.h (_PING_BUFLEN):  Really replace the
+	parameter name `USE_IPV6' by the neutral name `u'.
+
 2012-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Critical package errors in size and allocation.

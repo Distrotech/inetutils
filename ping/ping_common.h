@@ -67,7 +67,7 @@ struct ping_stat
 } while (0)
 
 /* FIXME: Adjust IPv6 case for options and their consumption.  */
-#define _PING_BUFLEN(p, USE_IPV6) ((USE_IPV6)? ((p)->ping_datalen + sizeof (struct icmp6_hdr)) : \
+#define _PING_BUFLEN(p, u) ((u)? ((p)->ping_datalen + sizeof (struct icmp6_hdr)) : \
 				   (MAXIPLEN + (p)->ping_datalen + ICMP_TSLEN))
 
 typedef int (*ping_efp6) (int code, void *closure, struct sockaddr_in6 * dest,
@@ -146,6 +146,8 @@ double nabs (double a);
 double nsqrt (double a, double prec);
 
 size_t ping_cvt_number (const char *optarg, size_t maxval, int allow_zero);
+int is_normed_time (n_time t);
+const char * ping_cvt_time (char *buf, size_t buflen, n_time t);
 
 void init_data_buffer (unsigned char *pat, int len);
 

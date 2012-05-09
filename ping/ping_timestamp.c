@@ -93,15 +93,30 @@ print_timestamp (int dupflag, void *closure,
 		 struct sockaddr_in *dest, struct sockaddr_in *from,
 		 struct ip *ip, icmphdr_t * icmp, int datalen)
 {
+  char timestr[16];
+
   printf ("%d bytes from %s: icmp_seq=%u", datalen,
 	  inet_ntoa (*(struct in_addr *) &from->sin_addr.s_addr),
 	  ntohs (icmp->icmp_seq));
   if (dupflag)
     printf (" (DUP!)");
   printf ("\n");
-  printf ("icmp_otime = %u\n", ntohl (icmp->icmp_otime));
-  printf ("icmp_rtime = %u\n", ntohl (icmp->icmp_rtime));
-  printf ("icmp_ttime = %u\n", ntohl (icmp->icmp_ttime));
+  printf ("icmp_otime = %s\n",
+	  ping_cvt_time (timestr, sizeof (timestr),
+			 ntohl (icmp->icmp_otime)));
+  printf ("icmp_rtime = %s\n",
+	  ping_cvt_time (timestr, sizeof (timestr),
+			 ntohl (icmp->icmp_rtime)));
+  printf ("icmp_ttime = %s\n",
+	  ping_cvt_time (timestr, sizeof (timestr),
+			 ntohl (icmp->icmp_ttime)));
+
+  if ((options & OPT_VERBOSE)
+      && is_normed_time (ntohl (icmp->icmp_otime))
+      && is_normed_time (ntohl (icmp->icmp_otime)))
+    printf ("difference = %d ms\n",
+	    ntohl (icmp->icmp_ttime) - ntohl (icmp->icmp_otime));
+
   return;
 }
 
