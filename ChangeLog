@@ -1,5 +1,27 @@
 2012-05-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ping: Options `--mask' and `--ttl'.
+
+	* ping/ping.c (ttl): New variable.
+	(ARG_TTL): New enumeration value.
+	(argp_options): Add long option `mask' as synomym to `address'.
+	New long option `ttl'.
+	(parse_opt) <ARG_TTL>: New case.
+	(main): If `ttl > 0', set value for sockopt IP_TTL.
+	(*decode_typ): Add check for `mask'.
+
+	ping6: Option `--hoplimit'.
+
+	* ping/ping6.c (hoplimit): New variable.
+	(ARG_HOPLIMIT): New enumeration value.
+	(argp_options): New long option `hoplimit'.
+	(parse_opt) <ARG_HOPLIMIT>: New case.
+	(main): If `hoplimit > 0', set value for sockopt IPV6_UNICAST_HOPS.
+
+	* doc/inetutils.texi (ping invocation): Updates, corrections.
+
+2012-05-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Discriminate UTC from non-UTC time stamps.
 
 	* ping/ping_common.c (is_normed_time, ping_cvt_time): New fcns.

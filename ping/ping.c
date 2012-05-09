@@ -64,6 +64,7 @@ size_t interval;
 size_t data_length = PING_DATALEN;
 unsigned options;
 unsigned long preload = 0;
+int ttl = 0;
 int timeout = -1;
 int linger = MAXWAIT;
 int (*ping_type) (char *hostname) = ping_echo;
@@ -87,7 +88,8 @@ enum {
   ARG_ECHO = 256,
   ARG_ADDRESS,
   ARG_TIMESTAMP,
-  ARG_ROUTERDISCOVERY
+  ARG_ROUTERDISCOVERY,
+  ARG_TTL,
 };
 
 static struct argp_option argp_options[] = {
@@ -96,6 +98,7 @@ static struct argp_option argp_options[] = {
   {"address", ARG_ADDRESS, NULL, 0, "send ICMP_ADDRESS packets (root only)",
    GRP+1},
   {"echo", ARG_ECHO, NULL, 0, "send ICMP_ECHO packets (default)", GRP+1},
+  {"mask", ARG_ADDRESS, NULL, 0, "same as --address", GRP+1},
   {"timestamp", ARG_TIMESTAMP, NULL, 0, "send ICMP_TIMESTAMP packets", GRP+1},
   {"type", 't', "TYPE", 0, "send TYPE packets", GRP+1},
   /* This option is not yet fully implemented, so mark it as hidden. */
@@ -111,6 +114,7 @@ static struct argp_option argp_options[] = {
   {"numeric", 'n', NULL, 0, "do not resolve host addresses", GRP+1},
   {"ignore-routing", 'r', NULL, 0, "send directly to a host on an attached "
    "network", GRP+1},
+  {"ttl", ARG_TTL, "N", 0, "specify N as time-to-live", GRP+1},
   {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
   {"timeout", 'w', "N", 0, "stop after N seconds", GRP+1},
   {"linger", 'W', "N", 0, "number of seconds to wait for response", GRP+1},
@@ -223,6 +227,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       ping_type = decode_type ("router");
       break;
 
+    case ARG_TTL:
+      ttl = ping_cvt_number (arg, 255, 0);
+      break;
+
     case ARGP_KEY_NO_ARGS:
       argp_error (state, "missing host operand");
 
@@ -273,6 +281,11 @@ main (int argc, char **argv)
   if (options & OPT_INTERVAL)
     ping_set_interval (ping, interval);
 
+  if (ttl > 0)
+    if (setsockopt (ping->ping_fd, IPPROTO_IP, IP_TTL,
+		    &ttl, sizeof (ttl)) < 0)
+      error (0, errno, "setsockopt(IP_TTL)");
+
   init_data_buffer (patptr, pattern_len);
 
   while (argc--)
@@ -295,6 +308,8 @@ int (*decode_type (const char *arg)) (char *hostname)
   else if (strcasecmp (arg, "timestamp") == 0)
     ping_type = ping_timestamp;
   else if (strcasecmp (arg, "address") == 0)
+    ping_type = ping_address;
+  else if (strcasecmp (arg, "mask") == 0)
     ping_type = ping_address;
 #if 0
   else if (strcasecmp (arg, "router") == 0)

@@ -470,26 +470,40 @@ ping [@var{option}@dots{}] @var{host}@dots{}
 @c Options controlling ICMP request types:
 @c       --address              Send ICMP_ADDRESS packets (root only)
 @c       --echo                 Send ICMP_ECHO packets (default)
+@c       --mask                 Same as --address
 @c       --timestamp            Send ICMP_TIMESTAMP packets
 @c   -t, --type=TYPE            Send TYPE packets
 @table @option
 @item --address
 @opindex --address
-Send ICMP_ADDRESS packets.
+Send ICMP_ADDRESS packets, thus requesting the address netmask
+being in use by the targetted host.
 
 @item --echo
 @opindex --echo
 Send ICMP_ECHO requests (default).
 
+@item --mask
+@opindex --mask
+Identical to @option{--address}.
+
 @item --timestamp
 @opindex --timestamp
-Send ICMP_TIMESTAMP packets.
+Send ICMP_TIMESTAMP packets, thereby requesting a timed response
+from the targetted host.  In successful cases three time values
+will be returned.  All are expected to state the number of
+milliseconds since midnight UTC.  The first, @samp{icmp_otime},
+contains the original time for sending the request.  Then,
+@samp{icmp_rtime}, is the time of reception by the target, and
+finally, @samp{icmp_ttime}, is the time for transmitting an answer
+back to the originator.
 
-@itemx -t @var{type}
+@item -t @var{type}
 @itemx --type=@var{type}
 @opindex --type
 @opindex -t
-Send TYPE packets.
+Send @var{type} packets.  Accepted values are @samp{address},
+@samp{echo}, @samp{mask}, and @samp{timestamp}.
 @end table
 
 @c Options valid for all request types:
@@ -498,9 +512,11 @@ Send TYPE packets.
 @c   -i, --interval=NUMBER      Wait NUMBER seconds between sending each packet
 @c   -n, --numeric              Do not resolve host addresses
 @c   -r, --ignore-routing       Send directly to a host on an attached network
+@c       --ttl=NUMBER           Set specified time-to-live on packet
+
 @table @option
 @item -c @var{n}
-@item --count=@var{n}
+@itemx --count=@var{n}
 @opindex -c
 @opindex --count
 Stop after sending (and receiving) @var{n} ECHO_RESPONSE packets.
@@ -535,6 +551,11 @@ attached network.  If the host is not on a directly-attached network,
 an error is returned.  This option can be used to ping a local host
 through an interface that has no route through it (e.g., after the
 interface was dropped by @command{routed}).
+
+@item --ttl=@var{n}
+@opindex --ttl
+Set the specified number @var{n} as value of time-to-live when
+transmitting packets.  Acceptable values are 1 to 255, inclusive.
 @end table
 
 @c Options valid for --echo requests:
@@ -557,7 +578,7 @@ packets are being dropped.  Only the super-user may use this option.
 This can be very hard on a network and should be used with caution.
 
 @item -l @var{n}
-@item --preload=@var{n}
+@itemx --preload=@var{n}
 @opindex -l
 @opindex --preload
 If @var{n} is specified, ping sends that many packets as fast as

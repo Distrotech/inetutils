@@ -57,6 +57,7 @@ size_t count = DEFAULT_PING_COUNT;
 size_t interval;
 int socket_type;
 int timeout = -1;
+int hoplimit = 0;
 static unsigned int options;
 static unsigned long preload = 0;
 
@@ -73,11 +74,16 @@ const char *program_authors[] = {
 	NULL
 };
 
+enum {
+  ARG_HOPLIMIT = 256,
+};
+
 static struct argp_option argp_options[] = {
 #define GRP 0
   {NULL, 0, NULL, 0, "Options valid for all request types:", GRP},
   {"count", 'c', "NUMBER", 0, "stop after sending NUMBER packets", GRP+1},
   {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
+  {"hoplimit", ARG_HOPLIMIT, "N", 0, "specify N as hop-limit", GRP+1},
   {"interval", 'i', "NUMBER", 0, "wait NUMBER seconds between sending each "
    "packet", GRP+1},
   {"numeric", 'n', NULL, 0, "do not resolve host addresses", GRP+1},
@@ -162,6 +168,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       data_length = ping_cvt_number (arg, PING_MAX_DATALEN, 1);
       break;
 
+    case ARG_HOPLIMIT:
+      hoplimit = ping_cvt_number (arg, 255, 0);
+      break;
+
     case ARGP_KEY_NO_ARGS:
       argp_error (state, "missing host operand");
 
@@ -210,6 +220,11 @@ main (int argc, char **argv)
 
   if (options & OPT_INTERVAL)
     ping_set_interval (ping, interval);
+
+  if (hoplimit > 0)
+    if (setsockopt (ping->ping_fd, IPPROTO_IPV6, IPV6_UNICAST_HOPS,
+		    &hoplimit, sizeof (hoplimit)) < 0)
+      error (0, errno, "setsockopt(IPV6_HOPLIMIT)");
 
   init_data_buffer (patptr, pattern_len);
 
