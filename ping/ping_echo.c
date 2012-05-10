@@ -101,9 +101,13 @@ ping_echo (char *hostname)
 #endif /* IP_OPTIONS */
     }
 
-  printf ("PING %s (%s): %d data bytes\n",
+  printf ("PING %s (%s): %d data bytes",
 	  ping->ping_hostname,
 	  inet_ntoa (ping->ping_dest.ping_sockaddr.sin_addr), data_length);
+  if (options & OPT_VERBOSE)
+    printf (", id 0x%04x = %u", ping->ping_ident, ping->ping_ident);
+
+  printf ("\n");
 
   status = ping_run (ping, echo_finish);
   free (ping->ping_hostname);
@@ -290,6 +294,17 @@ print_ip_header (struct ip *ip)
 
   hlen = ip->ip_hl << 2;
   cp = (unsigned char *) ip + sizeof (*ip);	/* point to options */
+
+  if (options & OPT_VERBOSE)
+    {
+      int j;
+
+      printf ("IP Hdr Dump:\n ");
+      for (j = 0; j < sizeof (*ip); ++j)
+	printf ("%02x%s", *((unsigned char *) ip + j),
+		(j % 2) ? " " : "");	/* Group bytes two by two.  */
+      printf ("\n");
+    }
 
   printf
     ("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src\tDst\tData\n");

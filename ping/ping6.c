@@ -90,6 +90,7 @@ static struct argp_option argp_options[] = {
   {"ignore-routing", 'r', NULL, 0, "send directly to a host on an attached "
    "network", GRP+1},
   {"timeout", 'w', "N", 0, "stop after N seconds", GRP+1},
+  {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
 #undef GRP
 #define GRP 10
   {NULL, 0, NULL, 0, "Options valid for --echo requests:", GRP},
@@ -160,12 +161,16 @@ parse_opt (int key, char *arg, struct argp_state *state)
       socket_type |= SO_DONTROUTE;
       break;
 
-    case 'w':
-      timeout = ping_cvt_number (arg, INT_MAX, 0);
-      break;
-
     case 's':
       data_length = ping_cvt_number (arg, PING_MAX_DATALEN, 1);
+      break;
+
+    case 'v':
+      options |= OPT_VERBOSE;
+      break;
+
+    case 'w':
+      timeout = ping_cvt_number (arg, INT_MAX, 0);
       break;
 
     case ARG_HOPLIMIT:
@@ -486,8 +491,12 @@ ping_echo (char *hostname)
       error (EXIT_FAILURE, 0, "getnameinfo: %s", errmsg);
     }
 
-  printf ("PING %s (%s): %d data bytes\n",
+  printf ("PING %s (%s): %d data bytes",
 	  ping->ping_hostname, buffer, data_length);
+  if (options & OPT_VERBOSE)
+    printf (", id 0x%04x = %u", ping->ping_ident, ping->ping_ident);
+
+  printf ("\n");
 
   status = ping_run (ping, echo_finish);
   free (ping->ping_hostname);
@@ -670,16 +679,12 @@ static struct icmp_diag
 {
   int type;
   void (*func) (struct icmp6_hdr *);
-} icmp_diag[] =
-{
-  {
-  ICMP6_DST_UNREACH, print_dst_unreach},
-  {
-  ICMP6_PACKET_TOO_BIG, print_packet_too_big},
-  {
-  ICMP6_TIME_EXCEEDED, print_time_exceeded},
-  {
-ICMP6_PARAM_PROB, print_param_prob},};
+} icmp_diag[] = {
+  {ICMP6_DST_UNREACH, print_dst_unreach},
+  {ICMP6_PACKET_TOO_BIG, print_packet_too_big},
+  {ICMP6_TIME_EXCEEDED, print_time_exceeded},
+  {ICMP6_PARAM_PROB, print_param_prob},
+};
 
 static void
 print_icmp_error (struct sockaddr_in6 *from, struct icmp6_hdr *icmp6, int len)

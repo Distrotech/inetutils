@@ -1,3 +1,11 @@
+2012-05-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ping/ping6.c (argp_options): New option `verbose'.
+	(parse_opt) <v>: New case.
+	(ping_echo): Print identity in verbose mode.
+	* ping/ping_echo.c (ping_echo): Likewise.
+	(print_ip_header): Print IP header dump in verbose mode.
+
 2012-05-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ping: Options `--mask' and `--ttl'.
