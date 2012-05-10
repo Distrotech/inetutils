@@ -160,3 +160,6 @@ void ping_set_sockopt (PING * ping, int opt, void *val, int valsize);
 void ping_set_interval (PING * ping, size_t interval);
 void ping_unset_data (PING * p);
 int ping_timeout_p (struct timeval *start_time, int timeout);
+
+char * ipaddr2str (struct sockaddr *from, socklen_t fromlen);
+char * sinaddr2str (struct in_addr ina);

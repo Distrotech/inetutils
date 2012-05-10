@@ -58,7 +58,7 @@ size_t interval;
 int socket_type;
 int timeout = -1;
 int hoplimit = 0;
-static unsigned int options;
+unsigned int options;
 static unsigned long preload = 0;
 
 static int ping_echo (char *hostname);
@@ -240,44 +240,6 @@ main (int argc, char **argv)
     }
 
   return status;
-}
-
-static char *
-ipaddr2str (struct sockaddr_in6 *from)
-{
-  int err;
-  size_t len;
-  char *buf, ipstr[256], hoststr[256];
-
-  err = getnameinfo ((struct sockaddr *) from, sizeof (*from), ipstr,
-		     sizeof (ipstr), NULL, 0, NI_NUMERICHOST);
-  if (err)
-    {
-      const char *errmsg;
-
-      if (err == EAI_SYSTEM)
-	errmsg = strerror (errno);
-      else
-	errmsg = gai_strerror (err);
-
-      fprintf (stderr, "ping: getnameinfo: %s\n", errmsg);
-      return xstrdup ("unknown");
-    }
-
-  if (options & OPT_NUMERIC)
-    return xstrdup (ipstr);
-
-  err = getnameinfo ((struct sockaddr *) from, sizeof (*from), hoststr,
-		     sizeof (hoststr), NULL, 0, NI_NAMEREQD);
-  if (err)
-    return xstrdup (ipstr);
-
-  len = strlen (ipstr) + strlen (hoststr) + 4;	/* Pair of parentheses, a space
-						   and a NUL. */
-  buf = xmalloc (len);
-  sprintf (buf, "%s (%s)", hoststr, ipstr);
-
-  return buf;
 }
 
 static volatile int stop = 0;
@@ -692,7 +654,7 @@ print_icmp_error (struct sockaddr_in6 *from, struct icmp6_hdr *icmp6, int len)
   char *s;
   struct icmp_diag *p;
 
-  s = ipaddr2str (from);
+  s = ipaddr2str ((struct sockaddr *) from, sizeof (*from));
   printf ("%d bytes from %s: ", len, s);
   free (s);
 

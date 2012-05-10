@@ -1,5 +1,21 @@
 2012-05-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Refactor address-to-string conversion as common code.
+
+	* ping/ping6.c (options): Remove qualifier `static'.
+	(ipaddr2str): Removed function.
+	(print_icmp_error): Call ipaddr2str() with new signature.
+	* ping/ping_common.c: Include <errno.h>, <netinet/in.h>,
+	<arpa/inet.h>, and <netdb.h>.
+	(options): New external variable.
+	(ipaddr2str, sinaddr2str): New functions.
+	* ping/ping_common.h (ipaddr2str, sinaddr2str): New prototypes.
+	* ping/ping_echo.c (ipaddr2str): Removed function.
+	(print_icmp_header): Call ipaddr2str() with new signature.
+	(print_ip_opt): Replace ipaddr2str() with sinaddr2str().
+
+2012-05-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* ping/ping6.c (argp_options): New option `verbose'.
 	(parse_opt) <v>: New case.
 	(ping_echo): Print identity in verbose mode.

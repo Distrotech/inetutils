@@ -196,35 +196,6 @@ print_echo (int dupflag, struct ping_stat *ping_stat,
   return 0;
 }
 
-char *
-ipaddr2str (struct in_addr ina)
-{
-  struct hostent *hp;
-
-  if (options & OPT_NUMERIC)
-    return xstrdup (inet_ntoa (ina));
-
-  hp = gethostbyaddr ((char *) &ina, sizeof (ina), AF_INET);
-  if (hp == NULL)
-    return xstrdup (inet_ntoa (ina));
-  else
-    {
-      char *ipstr = inet_ntoa (ina);
-      int len = strlen (ipstr) + 1;
-      char *buf;
-
-      if (hp->h_name)
-	len += strlen (hp->h_name) + 3;	/* a pair of parentheses and a space */
-
-      buf = xmalloc (len);
-      if (hp->h_name)
-	snprintf (buf, len, "%s (%s)", hp->h_name, ipstr);
-      else
-	snprintf (buf, len, "%s", ipstr);
-      return buf;
-    }
-}
-
 #define NITEMS(a) sizeof(a)/sizeof((a)[0])
 
 struct icmp_diag
@@ -404,7 +375,8 @@ print_icmp_header (struct sockaddr_in *from,
 	|| orig_ip->ip_dst.s_addr == ping->ping_dest.ping_sockaddr.sin_addr.s_addr))
     return;
 
-  printf ("%d bytes from %s: ", len - hlen, s = ipaddr2str (from->sin_addr));
+  s = ipaddr2str ((struct sockaddr *) from, sizeof (*from));
+  printf ("%d bytes from %s: ", len - hlen, s);
   free (s);
 
   for (p = icmp_diag; p < icmp_diag + NITEMS (icmp_diag); p++)
@@ -462,7 +434,7 @@ print_ip_opt (struct ip *ip, int hlen)
 		  char *s;
 
 		  ina.s_addr = htonl (l);
-		  printf ("\t%s", s = ipaddr2str (ina));
+		  printf ("\t%s", s = sinaddr2str (ina));
 		  free (s);
 		}
 	      hlen -= 4;
@@ -519,7 +491,7 @@ print_ip_opt (struct ip *ip, int hlen)
 		char *s;
 
 		ina.s_addr = htonl (l);
-		printf ("\t%s", s = ipaddr2str (ina));
+		printf ("\t%s", s = sinaddr2str (ina));
 		free (s);
 	      }
 	    hlen -= 4;
