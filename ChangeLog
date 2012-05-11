@@ -1,3 +1,16 @@
+2012-05-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	traceroute: Dynamic identity and sequence numbers.
+
+	* src/traceroute.c (seqno): New variable.
+	(main): Assign getpid() to `pid'.  Initialise `seqno'.
+	(trace_read) <TRACE_UDP>: Replace numerical offset `11'.
+	(trace_read) <TRACE_ICMP && ICMP_ECHOREPLY>: Apply ntohs()
+	to `ic->icmp_seq' and to `ic->icmp_id'.
+	<TRACE_ICMP && ICMP_TIME_EXCEEDED>: Complete code rewrite.
+	(trace_write): Activate dynamic `pid' and `seqno' in call to
+	icmp_echo_encode().
+
 2012-05-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Refactor address-to-string conversion as common code.

@@ -88,7 +88,8 @@ void do_try (trace_t * trace, const int hop,
 char *get_hostname (struct in_addr *addr);
 
 int stop = 0;
-int pid = 0;
+int pid;
+int seqno;	/* Most recent sequence number.  */
 static char *hostname = NULL;
 char addrstr[INET6_ADDRSTRLEN];
 struct sockaddr_in dest;
@@ -181,10 +182,13 @@ static struct argp argp = {argp_options, parse_opt, args_doc, doc};
 int
 main (int argc, char **argv)
 {
+  int hop;
   struct addrinfo hints, *res;
   trace_t trace;
 
   set_program_name (argv[0]);
+
+  pid = getpid();
 
   /* Parse command line */
   iu_argp_init ("traceroute", program_authors);
@@ -212,7 +216,9 @@ main (int argc, char **argv)
 
   trace_init (&trace, dest, opt_type);
 
-  int hop = 1;
+  hop = 1;
+  seqno = -1;	/* One less than first usable packet number 0.  */
+
   while (!stop)
     {
       if (hop > opt_max_hops)
@@ -424,8 +430,9 @@ trace_read (trace_t * t)
 	  return -1;
 
 	/* check whether it's for us */
-        port = (unsigned short *) &ic->icmp_ip + 11;
-	if (*port != t->to.sin_port)
+        port = (unsigned short *) ((void *) &ic->icmp_ip +
+			sizeof (struct ip) + sizeof (in_port_t));
+	if (*port != t->to.sin_port)	/* Network byte order!  */
 	  return -1;
 
 	if (ic->icmp_code == ICMP_PORT_UNREACH)
@@ -440,13 +447,21 @@ trace_read (trace_t * t)
 	return -1;
 
       if (ic->icmp_type == ICMP_ECHOREPLY
-	  && (ic->icmp_seq != pid || ic->icmp_id != pid))
+	  && (ntohs (ic->icmp_seq) != seqno
+	      || ntohs (ic->icmp_id) != pid))
 	return -1;
       else if (ic->icmp_type == ICMP_TIME_EXCEEDED)
 	{
-	  unsigned short *seq = (unsigned short *) &ic->icmp_ip + 12;
-	  unsigned short *ident = (unsigned short *) &ic->icmp_ip + 13;
-	  if (*seq != pid || *ident != pid)
+	  unsigned short seq, ident;
+	  struct ip *old_ip;
+	  icmphdr_t *old_icmp;
+
+	  old_ip = (struct ip *) &ic->icmp_ip;
+	  old_icmp = (icmphdr_t *) ((void *) old_ip + sizeof (struct ip));
+	  seq = ntohs (old_icmp->icmp_seq);
+	  ident = ntohs (old_icmp->icmp_id);
+
+	  if (seq != seqno || ident != pid)
 	    return -1;
 	}
 
@@ -497,8 +512,10 @@ trace_write (trace_t * t)
     case TRACE_ICMP:
       {
 	icmphdr_t hdr;
-	/* FIXME: We could use the pid as the icmp seqno/ident. */
-	if (icmp_echo_encode ((unsigned char *) &hdr, sizeof (hdr), pid, pid))
+
+	/* The sequence number is updated to a valid value!  */
+	if (icmp_echo_encode ((unsigned char *) &hdr, sizeof (hdr),
+			      pid, ++seqno))
 	  return -1;
 
 	len = sendto (t->icmpfd, (char *) &hdr, sizeof (hdr),
