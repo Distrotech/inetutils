@@ -20,6 +20,9 @@
 #define PING_MAX_DATALEN (65535 - MAXIPLEN - MAXICMPLEN)
 
 extern unsigned options;
+#if !USE_IPV6
+extern unsigned int suboptions;
+#endif
 extern PING *ping;
 extern unsigned char *data_buffer;
 extern size_t data_length;

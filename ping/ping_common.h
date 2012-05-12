@@ -35,6 +35,11 @@
 #define OPT_QUIET       0x008
 #define OPT_RROUTE      0x010
 #define OPT_VERBOSE     0x020
+#define OPT_IPTIMESTAMP 0x040
+
+#define SOPT_TSONLY     0x001
+#define SOPT_TSADDR     0x002
+#define SOPT_TSPRESPEC  0x004
 
 struct ping_stat
 {

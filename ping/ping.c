@@ -63,6 +63,7 @@ size_t count = DEFAULT_PING_COUNT;
 size_t interval;
 size_t data_length = PING_DATALEN;
 unsigned options;
+unsigned int suboptions;
 unsigned long preload = 0;
 int ttl = 0;
 int timeout = -1;
@@ -70,6 +71,7 @@ int linger = MAXWAIT;
 int (*ping_type) (char *hostname) = ping_echo;
 
 int (*decode_type (const char *arg)) (char *hostname);
+static int decode_ip_timestamp (char *arg);
 static int send_echo (PING * ping);
 
 #define MIN_USER_INTERVAL (200000/PING_PRECISION)
@@ -90,6 +92,7 @@ enum {
   ARG_TIMESTAMP,
   ARG_ROUTERDISCOVERY,
   ARG_TTL,
+  ARG_IPTIMESTAMP,
 };
 
 static struct argp_option argp_options[] = {
@@ -128,6 +131,8 @@ static struct argp_option argp_options[] = {
    GRP+1},
   {"quiet", 'q', NULL, 0, "quiet output", GRP+1},
   {"route", 'R', NULL, 0, "record route", GRP+1},
+  {"ip-timestamp", ARG_IPTIMESTAMP, "FLAG", 0, "IP timestamp of type FLAG, "
+   "which is one of \"tsonly\" and \"tsaddr\"", GRP+1},
   {"size", 's', "NUMBER", 0, "send NUMBER data octets", GRP+1},
 #undef GRP
   {NULL}
@@ -231,6 +236,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
       ttl = ping_cvt_number (arg, 255, 0);
       break;
 
+    case ARG_IPTIMESTAMP:
+      options |= OPT_IPTIMESTAMP;
+      suboptions |= decode_ip_timestamp (arg);
+      break;
+
     case ARGP_KEY_NO_ARGS:
       argp_error (state, "missing host operand");
 
@@ -319,6 +329,25 @@ int (*decode_type (const char *arg)) (char *hostname)
     error (EXIT_FAILURE, 0, "unsupported packet type: %s", arg);
 
  return ping_type;
+}
+
+int
+decode_ip_timestamp (char *arg)
+{
+  int sopt = 0;
+
+  if (strcasecmp (arg, "tsonly") == 0)
+    sopt = SOPT_TSONLY;
+  else if (strcasecmp (arg, "tsaddr") == 0)
+    sopt = SOPT_TSADDR;
+#if 0	/* Not yet implemented.  */
+  else if (strcasecmp (arg, "prespec") == 0)
+    sopt = SOPT_TSPRESPEC;
+#endif
+  else
+    error (EXIT_FAILURE, 0, "unsupported timestamp type: %s", arg);
+
+  return sopt;
 }
 
 int volatile stop = 0;

@@ -1,3 +1,21 @@
+2012-05-12  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ping: Support IP option Timestamp.
+
+	* doc/inetutils.texi (ping invocation): Update.
+	* ping/ping.c (suboptions): New variable.
+	(decode_ip_timestamp): New function.
+	(ARG_IPTIMESTAMP): New enumeration value.
+	(argp_options): Add long option `ip-timestamp'.
+	(parse_opt) <ARG_IPTIMESTAMP>: New case.
+	* ping/ping_common.h (OPT_IPTIMESTAMP, SOPT_TSONLY)
+	(SOPT_TSADDR, SOPT_TSPRESPEC): New macros.
+	* ping/ping_echo.c (ping_echo) [options & OPT_IPTIMESTAMP]:
+	New setup case.
+	(print_ip_opt): New variable K.
+	<IPOPT_TS>: New printout case.
+	* ping/ping_impl.h [!USE_IPV6] (suboptions): New external.
+
 2012-05-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	traceroute: Dynamic identity and sequence numbers.

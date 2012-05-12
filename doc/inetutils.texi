@@ -560,10 +560,12 @@ transmitting packets.  Acceptable values are 1 to 255, inclusive.
 
 @c Options valid for --echo requests:
 @c   -f, --flood                Flood ping (root only)
+@c       --ip-timestamp=FLAG    Timestamp IP option of types tsonly,
+@                               tsaddr, or (not yet implemented) prespec.
 @c   -l, --preload=NUMBER       Send NUMBER packets as fast as possible before
 @c                              falling into normal mode of behavior (root only)
 @c   -p, --pattern=PATTERN      Fill ICMP packet with given pattern (hex)
-@c   -R, --route                Record route
+@c   -R, --route                Record route IP option
 @c   -s, --size=NUMBER          Send NUMBER data octets
 @table @option
 @item -f
@@ -576,6 +578,13 @@ period @samp{.} is printed, while for every ECHO_REPLY received a
 backspace is printed.  This provides a rapid display of how many
 packets are being dropped.  Only the super-user may use this option.
 This can be very hard on a network and should be used with caution.
+
+@item --ip-timestamp=@var{flag}
+@opindex --ip-timestamp
+Include IP option Timestamp in transmitted packets.  The value
+@var{flag} is either of @samp{tsonly}, which only records up to nine
+time stamps, and @samp{tsaddr}, which records IP addresses as well
+as time stamps for at most four hosts.
 
 @item -l @var{n}
 @itemx --preload=@var{n}

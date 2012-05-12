@@ -100,6 +100,43 @@ ping_echo (char *hostname)
              "implementation.");
 #endif /* IP_OPTIONS */
     }
+  else if (options & OPT_IPTIMESTAMP)
+    {
+      int type;
+
+      if (suboptions & SOPT_TSPRESPEC)
+#ifdef IPOPT_TS_PRESPEC_RFC791
+	type = IPOPT_TS_PRESPEC_RFC791;
+#else
+	type = IPOPT_TS_PRESPEC;
+#endif
+      else if (suboptions & SOPT_TSADDR)
+	type = IPOPT_TS_TSANDADDR;
+      else
+        type = IPOPT_TS_TSONLY;
+
+#ifdef IP_OPTIONS
+      memset (rspace, 0, sizeof (rspace));
+      rspace[IPOPT_OPTVAL] = IPOPT_TS;
+      rspace[IPOPT_OLEN] = sizeof (rspace);
+      if (type != IPOPT_TS_TSONLY)
+	rspace[IPOPT_OLEN] -= sizeof (n_time);	/* Exsessive part.  */
+      rspace[IPOPT_OFFSET] = IPOPT_MINOFF + 1;
+
+# ifdef IPOPT_POS_OV_FLG
+      rspace[IPOPT_POS_OV_FLG] = type;
+# else
+      rspace[3] = type;
+# endif /* !IPOPT_POS_OV_FLG */
+
+      if (setsockopt (ping->ping_fd, IPPROTO_IP,
+		      IP_OPTIONS, rspace, rspace[IPOPT_OLEN]) < 0)
+        error (EXIT_FAILURE, errno, "setsockopt");
+#else /* !IP_OPTIONS */
+      error (EXIT_FAILURE, 0, "IP timestamp not available in this "
+             "implementation.");
+#endif /* IP_OPTIONS */
+    }
 
   printf ("PING %s (%s): %d data bytes",
 	  ping->ping_hostname,
@@ -397,7 +434,7 @@ void
 print_ip_opt (struct ip *ip, int hlen)
 {
   unsigned char *cp;
-  int i, j, l;
+  int i, j, k, l;
   static int old_rrlen;
   static char old_rr[MAX_IPOPTLEN];
 
@@ -506,6 +543,62 @@ print_ip_opt (struct ip *ip, int hlen)
 	      }
 	    putchar ('\n');
 	  }
+	break;
+
+      case IPOPT_TS:
+	j = *++cp;	/* len */
+	i = *++cp;	/* ptr */
+	hlen -= 2;
+	if (i > j)
+	  i = j;
+
+	k = *++cp;	/* OV, FL */
+	++cp;		/* Points at first content.  */
+	hlen -= 2;
+
+	printf ("\nTS:");
+	j = 5;		/* First possible slot.  */
+	for (;;)
+	  {
+	    char timestr[16];
+
+	    if ((k & 0x0f) != IPOPT_TS_TSONLY
+		&& ((j / 4) % 2 == 1))	/* find 5, 13, 21, 29 */
+	      {
+		/* IP addresses */
+		struct in_addr ina;
+		char *s;
+
+		ina.s_addr = *((in_addr_t *) cp);
+		printf ("\t%s", s = sinaddr2str (ina));
+		free (s);
+
+		hlen -= sizeof (in_addr_t);
+		cp += sizeof (in_addr_t);
+		j += sizeof (in_addr_t);
+	      }
+	    else
+	      {
+		/* Timestamps */
+		printf ("\t%s ms",
+			ping_cvt_time (timestr, sizeof (timestr),
+					ntohl (*(n_time *) cp)));
+		if (options & OPT_VERBOSE)
+		  printf (" = 0x%08x", ntohl (*(n_time *) cp));
+
+		hlen -= sizeof (n_time);
+		cp += sizeof (n_time);
+		j += sizeof (n_time);
+
+		putchar ('\n');
+	      }
+
+	    if (j >= i)
+	      break;
+	  }
+
+	if (k & 0xf0)
+	  printf ("\t(%u overflowing hosts)", k >> 4);
 	break;
 
       case IPOPT_NOP:
