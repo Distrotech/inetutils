@@ -30,7 +30,7 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 /* #include <netinet/ip_icmp.h> -- Deliberately not including this
-   since the definitions are are using are pulled in by libicmp. */
+   since the definitions in use are being pulled in by libicmp. */
 
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -75,7 +75,7 @@ void trace_init (trace_t * t, const struct sockaddr_in to,
 void trace_inc_ttl (trace_t * t);
 void trace_inc_port (trace_t * t);
 void trace_port (trace_t * t, const unsigned short port);
-int trace_read (trace_t * t);
+int trace_read (trace_t * t, int * type, int * code);
 int trace_write (trace_t * t);
 int trace_udp_sock (trace_t * t);
 int trace_icmp_sock (trace_t * t);
@@ -93,6 +93,11 @@ int seqno;	/* Most recent sequence number.  */
 static char *hostname = NULL;
 char addrstr[INET6_ADDRSTRLEN];
 struct sockaddr_in dest;
+
+/* Cause for destination unreachable reply,
+ * encoded as a single character.
+ */
+const char unreach_sign[NR_ICMP_UNREACH + 2] = "NHPPFS**U**TTXXX";
 
 static enum trace_type opt_type = TRACE_ICMP;
 int opt_port = 33434;
@@ -295,10 +300,14 @@ do_try (trace_t * trace, const int hop,
 	{
 	  if (FD_ISSET (fd, &readset))
 	    {
+	      int rc, type, code;
+
 	      triptime = ((double) now.tv_sec) * 1000.0 +
 		((double) now.tv_usec) / 1000.0;
 
-	      if (trace_read (trace))
+	      rc = trace_read (trace, &type, &code);
+
+	      if (rc < 0)
 		{
 		  /* FIXME: printf ("Some error ocurred\n"); */
 		  tries--;
@@ -315,6 +324,10 @@ do_try (trace_t * trace, const int hop,
 			    get_hostname (&trace->from.sin_addr));
 		    }
 		  printf (" %.3fms ", triptime);
+
+		  /* Additional messages.  */
+		  if (rc > 0 && type == ICMP_DEST_UNREACH)
+		    printf ("!%c ", unreach_sign[code & 0x0f]);
 
 		}
 	      prev_addr = trace->from.sin_addr.s_addr;
@@ -398,11 +411,20 @@ trace_port (trace_t * t, const unsigned short int port)
     t->to.sin_port = port;
 }
 
+/* Returned packet may contain, according to specifications:
+ *
+ *   IP-header + IP-options		(new IP-header)
+ *     + ICMP-header + old-IP-header	(ICMP message)
+ *     + old-IP-options + old-ICMP-header
+ */
+
+#define CAPTURE_LEN (MAXIPLEN + MAXICMPLEN)
+
 int
-trace_read (trace_t * t)
+trace_read (trace_t * t, int * type, int * code)
 {
-  int len;
-  unsigned char data[56];		/* For a TIME_EXCEEDED datagram. */
+  int len, rc = 0;
+  unsigned char data[CAPTURE_LEN];
   struct ip *ip;
   icmphdr_t *ic;
   socklen_t siz;
@@ -418,56 +440,77 @@ trace_read (trace_t * t)
 
   icmp_generic_decode (data, sizeof (data), &ip, &ic);
 
+  /* Pass type and code of incoming packet.  */
+  *type = ic->icmp_type;
+  *code = ic->icmp_code;
+
   switch (t->type)
     {
     case TRACE_UDP:
       {
 	unsigned short *port;
 	if ((ic->icmp_type != ICMP_TIME_EXCEEDED
-	     && ic->icmp_type != ICMP_DEST_UNREACH)
-	    || (ic->icmp_type == ICMP_DEST_UNREACH
-		&& ic->icmp_code != ICMP_PORT_UNREACH))
+	     && ic->icmp_type != ICMP_DEST_UNREACH))
 	  return -1;
 
 	/* check whether it's for us */
         port = (unsigned short *) ((void *) &ic->icmp_ip +
-			sizeof (struct ip) + sizeof (in_port_t));
+			(ic->icmp_ip.ip_hl << 2) + sizeof (in_port_t));
 	if (*port != t->to.sin_port)	/* Network byte order!  */
 	  return -1;
 
-	if (ic->icmp_code == ICMP_PORT_UNREACH)
+	if (ic->icmp_type == ICMP_DEST_UNREACH)
 	  /* FIXME: Ugly hack. */
 	  stop = 1;
+
+	/* Only ICMP_PORT_UNREACH is an expected reply,
+	 * all other denials produce additional information.
+	 */
+	if (ic->icmp_type == ICMP_DEST_UNREACH
+	    && ic->icmp_code != ICMP_PORT_UNREACH)
+	  rc = 1;
       }
       break;
 
     case TRACE_ICMP:
-      if (ic->icmp_type != ICMP_TIME_EXCEEDED
-	  && ic->icmp_type != ICMP_ECHOREPLY)
+      if (! (ic->icmp_type == ICMP_TIME_EXCEEDED
+	     || ic->icmp_type == ICMP_ECHOREPLY
+	     || ic->icmp_type == ICMP_DEST_UNREACH) )
 	return -1;
 
       if (ic->icmp_type == ICMP_ECHOREPLY
 	  && (ntohs (ic->icmp_seq) != seqno
 	      || ntohs (ic->icmp_id) != pid))
 	return -1;
-      else if (ic->icmp_type == ICMP_TIME_EXCEEDED)
+
+      if (ic->icmp_type == ICMP_TIME_EXCEEDED
+	  || ic->icmp_type == ICMP_DEST_UNREACH)
 	{
 	  unsigned short seq, ident;
 	  struct ip *old_ip;
 	  icmphdr_t *old_icmp;
 
 	  old_ip = (struct ip *) &ic->icmp_ip;
-	  old_icmp = (icmphdr_t *) ((void *) old_ip + sizeof (struct ip));
+	  old_icmp = (icmphdr_t *) ((void *) old_ip + (old_ip->ip_hl <<2));
 	  seq = ntohs (old_icmp->icmp_seq);
 	  ident = ntohs (old_icmp->icmp_id);
 
-	  if (seq != seqno || ident != pid)
+	  /* An expired packet tests identity and sequence number,
+	   * whereas an undeliverable packet only checks identity.
+	   */
+	  if (ident != pid
+	      || (ic->icmp_type == ICMP_TIME_EXCEEDED
+		  && seq != seqno))
 	    return -1;
 	}
 
-      if (ip->ip_src.s_addr == dest.sin_addr.s_addr)
+      if (ip->ip_src.s_addr == dest.sin_addr.s_addr
+	  || ic->icmp_type == ICMP_DEST_UNREACH)
 	/* FIXME: Ugly hack. */
 	stop = 1;
+
+      if (ic->icmp_type == ICMP_DEST_UNREACH)
+	rc = 1;
       break;
 
       /* FIXME: Type according to RFC 1393. */
@@ -476,7 +519,7 @@ trace_read (trace_t * t)
       break;
     }
 
-  return 0;
+  return rc;
 }
 
 int

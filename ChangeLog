@@ -1,3 +1,26 @@
+2012-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	traceroute: Stop at unreachable destinations.
+
+	* src/traceroute.c (unreach_sign): New variable.
+	(do_try): New local variables RC, TYPE, and CODE.  Let negative
+	return status from trace_read() be abnormal.  Print additional
+	packet failure information for ICMP_DEST_UNREACH.
+	(CAPTURE_LEN): New macro.
+	(trace_read): Set new signature to `(trace_t *, int *, int *)'.
+	Change size of DATA to CAPTURE_LEN.  New variable RC.  Capture
+	type and code of incoming ICMP message.
+	<TRACE_UDP>: Inspect all ICMP_DEST_UNREACH packets.  Calculate
+	port number using length offset in IP header.  Set `stop' for
+	all kinds of ICMP_DEST_UNREACH, and set positive return code,
+	except for ICMP_PORT_UNREACH.
+	<TRACE_ICMP>: Inspect also ICMP_DEST_UNREACH packets.  Check
+	their identity only, not seqno.  Set `stop' also for these,
+	and have them return positive status.  Calculate OLD_ICMP
+	using length offset in IP header.
+
+	* ping/ping_echo.c (ping_echo): Size of RSPACE is MAX_IPOPTLEN.
+
 2012-05-12  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ping: Support IP option Timestamp.
@@ -14,7 +37,7 @@
 	New setup case.
 	(print_ip_opt): New variable K.
 	<IPOPT_TS>: New printout case.
-	* ping/ping_impl.h [!USE_IPV6] (suboptions): New external.
+	* ping/ping_impl.h (suboptions) [!USE_IPV6]: New external.
 
 2012-05-11  Mats Erik Andersson  <gnu@gisladisker.se>
 

@@ -67,7 +67,7 @@ int
 ping_echo (char *hostname)
 {
 #ifdef IP_OPTIONS
-  char rspace[3 + 4 * NROUTES + 1];	/* record route space */
+  char rspace[MAX_IPOPTLEN];	/* Maximal IP option space.  */
 #endif
   struct ping_stat ping_stat;
   int status;
