@@ -1,5 +1,13 @@
 2012-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Build test binaries early.
+
+	* tests/Makefile.am (check_PROGRAMS): Removed variable.
+	(bin_PROGRAMS): New variable.
+	(TESTS): Use `bin_PROGRAMS' instead of `check_PROGRAMS'.
+
+2012-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	traceroute: Stop at unreachable destinations.
 
 	* src/traceroute.c (unreach_sign): New variable.
