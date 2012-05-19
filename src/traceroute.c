@@ -104,6 +104,7 @@ int opt_port = 33434;
 int opt_max_hops = 64;
 static int opt_max_tries = 3;
 int opt_resolve_hostnames = 0;
+int opt_tos = -1;	/* Triggers with non-negative values.  */
 
 const char args_doc[] = "HOST";
 const char doc[] = "Print the route packets trace to network host.";
@@ -122,6 +123,7 @@ static struct argp_option argp_options[] = {
   {"port", 'p', "PORT", 0, "use destination PORT port (default: 33434)",
    GRP+1},
   {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "resolve hostnames", GRP+1},
+  {"tos", 't', "NUM", 0, "set type of service (TOS) to NUM", GRP+1},
   {"tries", 'q', "NUM", 0, "send NUM probe packets per hop (default: 3)",
    GRP+1},
   {"type", 'M', "METHOD", 0, "use METHOD (`icmp' or `udp') for traceroute "
@@ -144,16 +146,18 @@ parse_opt (int key, char *arg, struct argp_state *state)
         error (EXIT_FAILURE, 0, "invalid port number `%s'", arg);
       break;
 
-    case OPT_RESOLVE:
-      opt_resolve_hostnames = 1;
-      break;
-
     case 'q':
       opt_max_tries = (int) strtol (arg, &p, 10);
       if (*p)
         argp_error (state, "invalid value (`%s' near `%s')", arg, p);
       if (opt_max_tries < 1 || opt_max_tries > 10)
         error (EXIT_FAILURE, 0, "number of tries should be between 1 and 10");
+      break;
+
+    case 't':
+      opt_tos = strtoul (arg, &p, 0);
+      if (*p || opt_tos < 0 || opt_tos > 255)
+	error (EXIT_FAILURE, 0, "invalid TOS value `%s'", arg);
       break;
 
     case 'M':
@@ -163,6 +167,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
         opt_type = TRACE_UDP;
       else
         argp_error (state, "invalid method");
+      break;
+
+    case OPT_RESOLVE:
+      opt_resolve_hostnames = 1;
       break;
 
     case ARGP_KEY_ARG:
@@ -354,7 +362,9 @@ void
 trace_init (trace_t * t, const struct sockaddr_in to,
 	    const enum trace_type type)
 {
+  int fd;
   const int *ttlp;
+
   assert (t);
   ttlp = &t->ttl;
 
@@ -399,6 +409,13 @@ trace_init (trace_t * t, const struct sockaddr_in to,
     {
       /* FIXME: type according to RFC 1393 */
     }
+
+  fd = (t->type == TRACE_UDP ? t->udpfd : t->icmpfd);
+
+  if (opt_tos >= 0)
+    if (setsockopt (fd, IPPROTO_IP, IP_TOS,
+		    &opt_tos, sizeof (opt_tos)) < 0)
+      error (0, errno, "setsockopt(IP_TOS)");
 }
 
 void
@@ -534,6 +551,7 @@ trace_write (trace_t * t)
     case TRACE_UDP:
       {
 	char data[] = "SUPERMAN";
+
 	len = sendto (t->udpfd, (char *) data, sizeof (data),
 		      0, (struct sockaddr *) &t->to, sizeof (t->to));
 	if (len < 0)

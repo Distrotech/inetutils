@@ -512,6 +512,7 @@ Send @var{type} packets.  Accepted values are @samp{address},
 @c   -i, --interval=NUMBER      Wait NUMBER seconds between sending each packet
 @c   -n, --numeric              Do not resolve host addresses
 @c   -r, --ignore-routing       Send directly to a host on an attached network
+@c   -T, --tos=NUM              Set type-of-service to NUM
 @c       --ttl=NUMBER           Set specified time-to-live on packet
 
 @table @option
@@ -551,6 +552,12 @@ attached network.  If the host is not on a directly-attached network,
 an error is returned.  This option can be used to ping a local host
 through an interface that has no route through it (e.g., after the
 interface was dropped by @command{routed}).
+
+@item -T @var{num}
+@itemx --tos=@var{num}
+@opindex -T
+@opindex --tos
+Set type-of-service, TOS, to NUM on transmitted packets.
 
 @item --ttl=@var{n}
 @opindex --ttl
@@ -780,6 +787,12 @@ Send @var{num} probe packets per hop (default: 3).
 @item --resolve-hostnames
 @opindex --resolve-hostnames
 Resolve hostnames.
+
+@item -t @var{num}
+@itemx --tos=@var{num}
+@opindex -t
+@opindex --tos
+Set type-of-service, TOS, to NUM on transmitted packets.
 @end table
 
 @node whois invocation

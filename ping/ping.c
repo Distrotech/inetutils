@@ -65,6 +65,7 @@ size_t data_length = PING_DATALEN;
 unsigned options;
 unsigned int suboptions;
 unsigned long preload = 0;
+int tos = -1;		/* Triggers with non-negative values.  */
 int ttl = 0;
 int timeout = -1;
 int linger = MAXWAIT;
@@ -117,6 +118,7 @@ static struct argp_option argp_options[] = {
   {"numeric", 'n', NULL, 0, "do not resolve host addresses", GRP+1},
   {"ignore-routing", 'r', NULL, 0, "send directly to a host on an attached "
    "network", GRP+1},
+  {"tos", 'T', "NUM", 0, "set type of service (TOS) to NUM", GRP+1},
   {"ttl", ARG_TTL, "N", 0, "specify N as time-to-live", GRP+1},
   {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
   {"timeout", 'w', "N", 0, "stop after N seconds", GRP+1},
@@ -186,16 +188,20 @@ parse_opt (int key, char *arg, struct argp_state *state)
       options |= OPT_QUIET;
       break;
 
+    case 'T':
+      tos = ping_cvt_number (arg, 255, 1);
+      break;
+
     case 'w':
       timeout = ping_cvt_number (arg, INT_MAX, 0);
       break;
 
-    case 'W':
-      linger = ping_cvt_number (arg, INT_MAX, 0);
-      break;
-
     case 'R':
       options |= OPT_RROUTE;
+      break;
+
+    case 'W':
+      linger = ping_cvt_number (arg, INT_MAX, 0);
       break;
 
     case 'v':
@@ -295,6 +301,11 @@ main (int argc, char **argv)
     if (setsockopt (ping->ping_fd, IPPROTO_IP, IP_TTL,
 		    &ttl, sizeof (ttl)) < 0)
       error (0, errno, "setsockopt(IP_TTL)");
+
+  if (tos >= 0)
+    if (setsockopt (ping->ping_fd, IPPROTO_IP, IP_TOS,
+		    &tos, sizeof (tos)) < 0)
+      error (0, errno, "setsockopt(IP_TOS)");
 
   init_data_buffer (patptr, pattern_len);
 

@@ -1,3 +1,17 @@
+2012-05-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ping, traceroute: Type-of-Service.
+
+	* doc/inetutils <ping, traceroute invocation>: Update.
+	* ping/ping.c (tos): New variable.
+	(argp_options): New option `-T/--tos'.
+	(parse_opt): New case `T'.
+	(main): Set socket option IP_TOS.
+	* src/traceroute.c (opt_tos): New variable.
+	(argp_options): New option `-t/--tos'.
+	(parse_opt): New case `t'.
+	(trace_init): New variable FD.  Set socket option IP_TOS.
+
 2012-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Build test binaries early.
