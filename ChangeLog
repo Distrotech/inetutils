@@ -1,3 +1,13 @@
+2012-05-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexecd: Use getpwnam_r() if available, thus
+	preparing migration to PAM.
+
+	* src/rexecd.c [HAVE_GETPWNAM_R]: Include <xalloc.h>.
+	(doit) [HAVE_GETPWNAM_R]: New variables PWBUF, PWBUFLEN,
+	and PWSTOR.  Dynamically allocate PWBUF.  Call getpwnam_r()
+	with composite check on result.
+
 2012-05-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ping, traceroute: Type-of-Service.

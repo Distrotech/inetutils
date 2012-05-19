@@ -83,6 +83,10 @@
 # include <shadow.h>
 #endif
 #include <syslog.h>
+#ifdef HAVE_GETPWNAM_R
+# include <xalloc.h>
+#endif
+
 #include <progname.h>
 #include <argp.h>
 #include <error.h>
@@ -191,7 +195,13 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 {
   char *cmdbuf, *cp, *namep;
   char *user, *pass, *pw_password;
+#ifdef HAVE_GETPWNAM_R
+  char *pwbuf;
+  int pwbuflen;
+  struct passwd *pwd, pwstor;
+#else /* !HAVE_GETPWNAM_R */
   struct passwd *pwd;
+#endif
   char rhost[INET6_ADDRSTRLEN];
   int s, ret;
   in_port_t port;
@@ -199,6 +209,14 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   fd_set readfrom, ready;
   char buf[BUFSIZ], sig;
   int one = 1;
+
+#ifdef HAVE_GETPWNAM_R
+  pwbuflen = sysconf (_SC_GETPW_R_SIZE_MAX);
+  if (pwbuflen <= 0)
+    pwbuflen = 1024;	/* Guessing only.  */
+
+  pwbuf = xmalloc (pwbuflen);
+#endif /* HAVE_GETPWNAM_R */
 
   signal (SIGINT, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
@@ -289,8 +307,13 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 
   setpwent ();
 
+#ifdef HAVE_GETPWNAM_R
+  ret = getpwnam_r (user, &pwstor, pwbuf, pwbuflen, &pwd);
+  if (ret || pwd == NULL)
+#else /* !HAVE_GETPWNAM_R */
   pwd = getpwnam (user);
   if (pwd == NULL)
+#endif /* HAVE_GETPWNAM_R */
     {
       if (logging)
 	syslog (LOG_WARNING, "no user named \"%s\"", user);
