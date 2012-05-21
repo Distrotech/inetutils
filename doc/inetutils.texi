@@ -3399,7 +3399,7 @@ useful in an ``open'' environment.
 @chapter @command{rexecd}: server for @code{rexec}
 @cindex rexecd
 
-@command{rexecd} is the server for the @code{Rexec} routine.  The
+@command{rexecd} is the server for the @code{rexec} routine.  The
 server provides remote execution facilities with authentication based
 on user names and passwords.  It passes error messages and notices
 to the @code{syslog} facility @samp{LOG_DAEMON}.
@@ -3464,6 +3464,9 @@ increased verbosity.  The @code{syslog} facility in use is
 @samp{LOG_DAEMON}.
 
 @end table
+
+Should @command{rexecd} have been built with PAM support,
+it reads any setting specified for a service named @samp{rexec}.
 
 @section Diagnostics
 

@@ -47,8 +47,17 @@
  * SUCH DAMAGE.
  */
 
-/* TODO: Implement PAM support as `rexec' service.
- *       Pending with Mats Erik Andersson.
+/* Implementation of PAM support for a service `rexec'
+ * was done by Mats Erik Andersson.
+ *
+ * Simple PAM configuration:
+ *
+ *   rexec auth     requisite  pam_nologin.so
+ *   rexec auth     required   pam_unix.so
+ *   rexec account  required   pam_unix.so
+ *   rexec account  required   pam_time.so
+ *   rexec session  required   pam_unix.so
+ *   rexec password required   pam_deny.so
  */
 
 #include <config.h>
@@ -83,6 +92,9 @@
 # include <shadow.h>
 #endif
 #include <syslog.h>
+#ifdef HAVE_SECURITY_PAM_APPL_H
+# include <security/pam_appl.h>
+#endif
 #ifdef HAVE_GETPWNAM_R
 # include <xalloc.h>
 #endif
@@ -94,6 +106,17 @@
 
 void die (int code, const char *fmt, ...);
 int doit (int f, struct sockaddr *fromp, socklen_t fromlen);
+
+#ifdef WITH_PAM
+static int pam_rc = PAM_AUTH_ERR;	/* doit() and die() */
+static char *password_pam = NULL;	/* doit() and rexec_conv() */
+static int pam_flags = PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK;
+
+static pam_handle_t *pam_handle = NULL;		/* doit() and die() */
+static int rexec_conv (int, const struct pam_message **,
+		       struct pam_response **, void *);
+static struct pam_conv pam_conv = { rexec_conv, NULL };
+#endif /* WITH_PAM */
 
 static int logging = 0;
 
@@ -173,7 +196,11 @@ char logname[32 + sizeof ("LOGNAME=")] = "LOGNAME=";	/* Identical to USER.  */
 char homedir[256 + sizeof ("HOME=")] = "HOME=";
 char shell[256 + sizeof ("SHELL=")] = "SHELL=";
 char path[sizeof (PATH_DEFPATH) + sizeof ("PATH=")] = "PATH=";
-char *envinit[] = { homedir, shell, path, username, logname, NULL };
+char remotehost[128 + sizeof ("RHOST=")] = "RHOST=";
+#ifndef WITH_PAM
+char *envinit[] = { homedir, shell, path, username,
+		    logname, remotehost, NULL };
+#endif
 extern char **environ;
 
 char *getstr (const char *);
@@ -195,6 +222,9 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 {
   char *cmdbuf, *cp, *namep;
   char *user, *pass, *pw_password;
+#ifdef WITH_PAM
+  const void *token;
+#endif
 #ifdef HAVE_GETPWNAM_R
   char *pwbuf;
   int pwbuflen;
@@ -322,6 +352,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 
   endpwent ();
 
+#if !WITH_PAM
   /* Last need of elevated privilege.  */
   pw_password = get_user_password (pwd);
   if (*pw_password != '\0')
@@ -334,6 +365,61 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 	  die (EXIT_FAILURE, "Password incorrect.");
 	}
     }
+#else /* WITH_PAM */
+  /* Failure at this stage should not disclose server side causes,
+   * but only fail almost silently.  Use "Try again" for now.
+   */
+  password_pam = pass;		/* Needed by pam_conv().  */
+
+  pam_rc = pam_start ("rexec", user, &pam_conv, &pam_handle);
+  if (pam_rc != PAM_SUCCESS)
+    die (EXIT_FAILURE, "Try again.");
+
+  pam_rc = pam_set_item (pam_handle, PAM_RHOST, rhost);
+  if (pam_rc != PAM_SUCCESS)
+    die (EXIT_FAILURE, "Try again.");
+
+  pam_rc = pam_authenticate (pam_handle, pam_flags);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_ABORT:
+	  /* This is potentially severe.  No communication!  */
+	  pam_end (pam_handle, pam_rc);
+	  exit (EXIT_FAILURE);
+	  break;
+	case PAM_AUTHINFO_UNAVAIL:
+	case PAM_CRED_INSUFFICIENT:
+	case PAM_USER_UNKNOWN:
+	  die (EXIT_FAILURE, "Login incorrect.");
+	  break;
+	case PAM_AUTH_ERR:
+	case PAM_MAXTRIES:
+	default:
+	  die (EXIT_FAILURE, "Password incorrect.");
+	  break;
+	}
+    }
+
+  pam_rc = pam_acct_mgmt (pam_handle, pam_flags);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_NEW_AUTHTOK_REQD:
+	case PAM_PERM_DENIED:
+	  die (EXIT_FAILURE, "Password incorrect.");
+	  break;
+	case PAM_ACCT_EXPIRED:
+	case PAM_AUTH_ERR:
+	case PAM_USER_UNKNOWN:
+	default:
+	  die (EXIT_FAILURE, "Login incorrect.");
+	  break;
+	}
+    }
+#endif /* WITH_PAM */
 
   /* Step down from superuser personality.
    *
@@ -343,6 +429,9 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
    */
   if (setgid ((gid_t) pwd->pw_gid) < 0)
     {
+#ifdef WITH_PAM
+      pam_rc = PAM_ABORT;
+#endif
       syslog (LOG_DEBUG, "setgid(gid = %d): %m", pwd->pw_gid);
       die (EXIT_FAILURE, "Failed group protections.");
     }
@@ -350,14 +439,30 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 #ifdef HAVE_INITGROUPS
   if (initgroups (pwd->pw_name, pwd->pw_gid) < 0)
     {
+# ifdef WITH_PAM
+      pam_rc = PAM_ABORT;
+# endif
       syslog (LOG_DEBUG, "initgroups(%s, %s): %m",
 	      pwd->pw_name, pwd->pw_gid);
       die (EXIT_FAILURE, "Failed group protections.");
     }
 #endif
 
+#ifdef WITH_PAM
+  pam_rc = pam_setcred(pam_handle, PAM_ESTABLISH_CRED);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_ERR, "pam_setcred: %s",
+	      pam_strerror (pam_handle, pam_rc));
+      pam_rc = PAM_SUCCESS;	/* Only report the above anomaly.  */
+    }
+#endif /* WITH_PAM */
+
   if (setuid ((uid_t) pwd->pw_uid) < 0)
     {
+#ifdef WITH_PAM
+      pam_rc = PAM_ABORT;
+#endif
       syslog (LOG_DEBUG, "setuid(uid = %d): %m", pwd->pw_uid);
       die (EXIT_FAILURE, "Failed user identity.");
     }
@@ -370,11 +475,22 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 	{
 	  if (logging)
 	    syslog (LOG_ERR, "forking for \"%s\": %m", user);
+#ifdef WITH_PAM
+	  pam_rc = PAM_ABORT;
+#endif
 	  die (EXIT_FAILURE, "Try again.");
 	}
 
       if (pid)
 	{
+#ifdef WITH_PAM
+	  /* This process steps down from PAM now,
+	   * the child continues communication.  */
+	  pam_handle = NULL;
+# ifdef PAM_DATA_SILENT
+	  pam_rc |= PAM_DATA_SILENT;
+# endif
+#endif /* WITH_PAM */
 	  close (STDIN_FILENO);
 	  close (STDOUT_FILENO);
 	  close (STDERR_FILENO);
@@ -432,15 +548,58 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
     {
       if (logging)
 	syslog (LOG_NOTICE, "\"%s\" uses invalid \"%s\"", user, pwd->pw_dir);
+#ifdef WITH_PAM
+      pam_rc = PAM_ABORT;
+#endif
       die (EXIT_FAILURE, "No remote directory.");
     }
 
+#ifdef WITH_PAM
+  /* Refresh knowledge of user, which might have been
+   * remapped by the PAM stack during conversation.
+   */
+  pam_rc = pam_get_item (pam_handle, PAM_USER, &token);
+  if (pam_rc != PAM_SUCCESS)
+    die (EXIT_FAILURE, "Try again.");
+
+# ifdef HAVE_GETPWNAM_R
+  ret = getpwnam_r (user, &pwstor, pwbuf, pwbuflen, &pwd);
+  if (ret || pwd == NULL)
+# else /* !HAVE_GETPWNAM_R */
+  pwd = getpwnam (user);
+  if (pwd == NULL)
+# endif /* HAVE_GETPWNAM_R */
+    {
+      syslog (LOG_ERR, "no user named \"%s\"", user);
+      die (EXIT_FAILURE, "Login incorrect.");
+    }
+#endif /* WITH_PAM */
+
   strcat (path, PATH_DEFPATH);
-  environ = envinit;
   strncat (homedir, pwd->pw_dir, sizeof (homedir) - sizeof ("HOME=") - 1);
   strncat (shell, pwd->pw_shell, sizeof (shell) - sizeof ("SHELL=") - 1);
   strncat (username, pwd->pw_name, sizeof (username) - sizeof ("USER=") - 1);
   strncat (logname, pwd->pw_name, sizeof (logname) - sizeof ("LOGNAME=") - 1);
+  strncat (remotehost, rhost, sizeof (remotehost) - sizeof ("RHOST=") - 1);
+
+#ifdef WITH_PAM
+  if (pam_getenv (pam_handle, "PATH") == NULL)
+    (void) pam_putenv (pam_handle, path);
+  if (pam_getenv (pam_handle, "HOME") == NULL)
+    (void) pam_putenv (pam_handle, homedir);
+  if (pam_getenv (pam_handle, "SHELL") == NULL)
+    (void) pam_putenv (pam_handle, shell);
+  if (pam_getenv (pam_handle, "USER") == NULL)
+    (void) pam_putenv (pam_handle, username);
+  if (pam_getenv (pam_handle, "LOGNAME") == NULL)
+    (void) pam_putenv (pam_handle, logname);
+  if (pam_getenv (pam_handle, "RHOST") == NULL)
+    (void) pam_putenv (pam_handle, remotehost);
+
+  environ = pam_getenvlist (pam_handle);
+#else /* !WITH_PAM */
+  environ = envinit;
+#endif /* !WITH_PAM */
 
   if (*pwd->pw_shell == '\0')
     pwd->pw_shell = PATH_BSHELL;
@@ -482,6 +641,10 @@ die (int code, const char *fmt, ...)
     n = sizeof buf - 1;
   buf[n++] = '\n';
   write (STDERR_FILENO, buf, n);
+#ifdef WITH_PAM
+  if (pam_handle != NULL)
+    pam_end (pam_handle, pam_rc);
+#endif
   exit (code);
 }
 
@@ -522,3 +685,46 @@ getstr (const char *err)
 
   return buf;
 }
+
+#ifdef WITH_PAM
+/* Call back function for passing user's password
+ * to any PAM module requesting this information.
+ */
+static int
+rexec_conv (int num, const struct pam_message **pam_msg,
+	    struct pam_response **pam_resp, void *data)
+{
+  struct pam_response *resp;
+
+  /* Reject composite call-backs.  */
+  if (num <= 0 || num > 1)
+    return PAM_CONV_ERR;
+
+  /* We only accept password reporting.  */
+  if (pam_msg[0]->msg_style != PAM_PROMPT_ECHO_OFF)
+    return PAM_CONV_ERR;
+
+  /* Allocate a single response structure,
+   * as we are ignoring composite calls.
+   *
+   * This is an external call-back, so we check
+   * for successful allocation ourselves.
+   */
+  resp = malloc (sizeof (*resp));
+  if (resp == NULL)
+    return PAM_BUF_ERR;
+
+  /* Prepare response to a single PAM_PROMPT_ECHO_OFF.  */
+  resp->resp_retcode = 0;
+  resp->resp = strdup (password_pam);
+  if (resp->resp == NULL)
+    {
+      free (resp);
+      return PAM_BUF_ERR;
+    }
+
+  *pam_resp = resp;
+
+  return PAM_SUCCESS;
+}
+#endif /* WITH_PAM */

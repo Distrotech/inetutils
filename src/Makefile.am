@@ -74,7 +74,7 @@ EXTRA_PROGRAMS += inetd
 
 inetdaemon_PROGRAMS += $(rexecd_BUILD)
 rexecd_SOURCES = rexecd.c
-rexecd_LDADD = $(LDADD) $(LIBCRYPT)
+rexecd_LDADD = $(LDADD) $(LIBCRYPT) $(LIBPAM)
 EXTRA_PROGRAMS += rexecd
 
 inetdaemon_PROGRAMS += $(rlogind_BUILD)

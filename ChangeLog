@@ -1,3 +1,23 @@
+2012-05-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexecd: Adapt to PAM authentication.
+
+	* src/Makefile.am (rexecd_LDADD): Use $(LIBPAM).
+	* src/rexecd.c [HAVE_SECURITY_PAM_APPL_H]: Include
+	<security/pam_appl.h>.
+	(pam_rc, password_pam, pam_flags, pam_handle, pam_conv)
+	[WITH_PAM]: New variables.
+	(rexec_conv) [WITH_PAM]: New function.
+	(remotehost): New variable, used in environment.
+	(envinit) [!WITH_PAM]: Add `remotehost' to list.
+	(doit) [WITH_PAM]: New variable TOKEN.  Add alternate
+	authentication checks.  Set `pam_rc = PAM_ABORT' where
+	errors are caught.
+	<parent fork>: Set `pam_handle' to NULL, since the child
+	process closes all authentication.
+	(die) [WITH_PAM]: Call pam_end() if PAM is still active.
+	* doc/inetutils.texi (rexecd invocation): Update.
+
 2012-05-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rexecd: Use getpwnam_r() if available, thus
