@@ -69,6 +69,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>	/* intmax_t */
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>

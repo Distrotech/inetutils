@@ -1,5 +1,12 @@
 2012-05-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Portability to FreeBSD.
+
+	* ftp/cmds.c: Include <stdint.h> for `intmax_t'.
+	* ftp/ftp.c: Likewise.
+
+2012-05-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftp: Large file support.  The implementation
 	has been truncating offset values.
 
