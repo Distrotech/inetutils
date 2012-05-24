@@ -1,3 +1,15 @@
+2012-05-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Large file support.  The implementation
+	has been truncating offset values.
+
+	* ftp/cmds.c (restart): Convert `restart_point' using atoll().
+	Use a format string `%jd' and cast as `intmax_t'.
+	* ftp/ftp.c (sendrequest): Remove cast of `restart_point'
+	as `long'. Use format string `%jd' and cast as `intmax_t'.
+	(recvrequest): Likewise.  Variables I and N must be `off_t'
+	for computations with `restart_point'.
+
 2012-05-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rexecd: Adapt to PAM authentication.

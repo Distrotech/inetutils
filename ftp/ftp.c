@@ -637,7 +637,7 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
       switch (curtype)
 	{
 	case TYPE_A:
-	  rc = fseeko (fin, (long) restart_point, SEEK_SET);
+	  rc = fseeko (fin, restart_point, SEEK_SET);
 	  break;
 	case TYPE_I:
 	case TYPE_L:
@@ -652,7 +652,7 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
 	    (*closefunc) (fin);
 	  return;
 	}
-      if (command ("REST %ld", (long) restart_point) != CONTINUE)
+      if (command ("REST %jd", (intmax_t) restart_point) != CONTINUE)
 	{
 	  restart_point = 0;
 	  if (closefunc != NULL)
@@ -887,7 +887,7 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
   if (setjmp (recvabort))
     goto abort;
   if (is_retr && restart_point &&
-      command ("REST %ld", (long) restart_point) != CONTINUE)
+      command ("REST %jd", (intmax_t) restart_point) != CONTINUE)
     return;
   if (remote)
     {
@@ -998,7 +998,8 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
     case TYPE_A:
       if (restart_point)
 	{
-	  int i, n, ch;
+	  off_t i, n;
+	  int ch;
 
 	  if (fseeko (fout, 0L, SEEK_SET) < 0)
 	    goto done;
