@@ -1,3 +1,14 @@
+2012-05-26  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Reporting and accounting of large files.
+
+	* ftp/extern.h (ptransfer): New signature
+	`(char *, long long, struct timeval *, struct timeval *)'.
+	* ftp/ftp.c (sendrequest, recvrequest): New type `long long'
+	for BYTES and LOCAL_HASHBYTES.
+	(ptransfer): New type `long long' for BS.  New format string
+	`%lld' for byte counter and byte rate.
+
 2012-05-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Portability to FreeBSD.

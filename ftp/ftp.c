@@ -541,7 +541,7 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
   FILE *fin, *dout = 0, *popen (const char *, const char *);
   int (*closefunc) (FILE *);
   sighandler_t oldintr, oldintp;
-  long bytes = 0, local_hashbytes = hashbytes;
+  long long bytes = 0, local_hashbytes = hashbytes;
   char *lmode, buf[BUFSIZ], *bufp;
 
   if (verbose && printnames)
@@ -826,7 +826,7 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
   int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
   static int bufsize = 0;
   static char *buf;
-  long bytes = 0, local_hashbytes = hashbytes;
+  long long bytes = 0, local_hashbytes = hashbytes;
   struct timeval start, stop;
 
   is_retr = strcmp (cmd, "RETR") == 0;
@@ -1483,11 +1483,12 @@ dataconn (char *lmode)
 }
 
 void
-ptransfer (char *direction, long int bytes, struct timeval *t0, struct timeval *t1)
+ptransfer (char *direction, long long int bytes,
+	   struct timeval *t0, struct timeval *t1)
 {
   struct timeval td;
   float s;
-  long bs;
+  long long bs;
 
   if (verbose)
     {
@@ -1495,7 +1496,7 @@ ptransfer (char *direction, long int bytes, struct timeval *t0, struct timeval *
       s = td.tv_sec + (td.tv_usec / 1000000.);
 #define nz(x)	((x) == 0 ? 1 : (x))
       bs = bytes / nz (s);
-      printf ("%ld bytes %s in %.3g seconds (%ld bytes/s)\n",
+      printf ("%lld bytes %s in %.3g seconds (%lld bytes/s)\n",
 	      bytes, direction, s, bs);
     }
 }

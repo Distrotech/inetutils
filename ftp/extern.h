@@ -104,7 +104,7 @@ void proxabort (int sig);
 void proxtrans (char *, char *, char *);
 void psabort (int sig);
 void pswitch (int);
-void ptransfer (char *, long, struct timeval *, struct timeval *);
+void ptransfer (char *, long long, struct timeval *, struct timeval *);
 void put (int, char **);
 void pwd (int, char **);
 void quit (int, char **);
