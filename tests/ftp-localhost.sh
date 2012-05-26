@@ -39,6 +39,8 @@
 #
 # Wanted:  * standalone-mode
 #          * underprivileged mode.
+#
+# FIXME: Resolve the hard coded dependency on anonymous mode.
 
 # Address mapping IPv4-to-IPv6 is not uniform an all platforms,
 # thus separately using `tcp4' and `tcp6' for streams in `inetd.conf'.
@@ -55,6 +57,16 @@ INETD=${INETD:-../src/inetd$EXEEXT}
 TARGET=${TARGET:-127.0.0.1}
 TARGET6=${TARGET6:-::1}
 TARGET46=${TARGET46:-::ffff:127.0.0.1}
+
+# Extended transmission testing.
+# This puts contents into $FTPHOME,
+# and is therefore not active by default.
+do_transfer=false
+test "${TRANSFERTEST+yes}" = "yes" && do_transfer=true
+
+# Files used in transmission tests.
+GETME=getme.$$
+PUTME=putme.$$
 
 # Portability fix for SVR4
 PWD="${PWD:-`pwd`}"
@@ -156,6 +168,9 @@ posttesting () {
 	&& { kill "`cat $TMPDIR/inetd.pid`" \
 	     || kill -9 "`cat $TMPDIR/inetd.pid`"; }
     test -n "$TMPDIR" && test -d "$TMPDIR" && rm -rf "$TMPDIR"
+    $do_transfer && test -n "$FTPHOME" \
+	&& test -f "$FTPHOME/$PUTME" && rm -f "$FTPHOME/$PUTME" \
+	|| true
 }
 
 trap posttesting 0 1 2 3 15
@@ -215,6 +230,9 @@ fi
 
 chmod 600 "$TMPDIR/.netrc"
 
+# Some simple, but variable content.
+ls -l > "$TMPDIR/$GETME"
+
 $INETD --pidfile="$TMPDIR/inetd.pid" "$TMPDIR/inetd.conf" ||
     {
 	echo 'Not able to start Inetd.  Skipping test.' >&2
@@ -240,7 +258,7 @@ test -r "$TMPDIR/inetd.pid" ||
 # test_report  errno output_file hint_msg
 #
 test_report () {
-    test -z "${VERBOSE+yes}" || cat "$2"
+    test -z "${VERBOSE}" || cat "$2"
 
     if [ $1 != 0 ]; then
 	echo "Running '$FTP' failed with errno $1." >&2
@@ -276,10 +294,23 @@ echo "PASV to $TARGET (IPv4) using inetd."
 cat <<STOP |
 rstatus
 dir
+`$do_transfer && echo "\
+lcd $TMPDIR
+image
+put $GETME $PUTME"`
 STOP
 HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
 test_report $? "$TMPDIR/ftp.stdout" "PASV/$TARGET"
+
+$do_transfer && \
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
+	date "+%s" >> "$TMPDIR/$GETME"
+    else
+	echo >&2 'Binary transfer failed.'
+	exit 1
+    fi
 
 # Test an active connection: PORT and IPv4.
 #
@@ -287,10 +318,23 @@ echo "PORT to $TARGET (IPv4) using inetd."
 cat <<STOP |
 rstatus
 dir
+`$do_transfer && echo "\
+lcd $TMPDIR
+image
+put $GETME $PUTME"`
 STOP
 HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -t >$TMPDIR/ftp.stdout 2>&1
 
 test_report $? "$TMPDIR/ftp.stdout" "PORT/$TARGET"
+
+$do_transfer && \
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
+	date "+%s" >> "$TMPDIR/$GETME"
+    else
+	echo >&2 'Binary transfer failed.'
+	exit 1
+    fi
 
 # Test a passive connection: EPSV and IPv4.
 #
@@ -311,10 +355,23 @@ cat <<STOP |
 rstatus
 epsv4
 dir
+`$do_transfer && echo "\
+lcd $TMPDIR
+image
+put $GETME $PUTME"`
 STOP
 HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -t >$TMPDIR/ftp.stdout 2>&1
 
 test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET"
+
+$do_transfer && \
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
+	date "+%s" >> "$TMPDIR/$GETME"
+    else
+	echo >&2 'Binary transfer failed.'
+	exit 1
+    fi
 
 # Test a passive connection: EPSV and IPv6.
 #
@@ -333,10 +390,23 @@ echo "EPRT to $TARGET6 (IPv6) using inetd."
 cat <<STOP |
 rstatus
 dir
+`$do_transfer && echo "\
+lcd $TMPDIR
+image
+put $GETME $PUTME"`
 STOP
 HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -t >$TMPDIR/ftp.stdout 2>&1
 
 test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET6"
+
+$do_transfer && \
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
+	date "+%s" >> "$TMPDIR/$GETME"
+    else
+	echo >&2 'Binary transfer failed.'
+	exit 1
+    fi
 
 # Availability of IPv4-mapped IPv6 addresses.
 #
@@ -398,10 +468,23 @@ if $have_address_mapping && test -n "$TARGET46" ; then
     cat <<-STOP |
 	rstatus
 	dir
+	`$do_transfer && echo "\
+lcd $TMPDIR
+image
+put $GETME $PUTME"`
 	STOP
     HOME=$TMPDIR $FTP "$TARGET46" $PORT -6 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
     test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET46"
+
+    $do_transfer && \
+	if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	    test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
+	    date "+%s" >> "$TMPDIR/$GETME"
+	else
+	    echo >&2 'Binary transfer failed.'
+	    exit 1
+	fi
 
     # Test an active connection: EPRT and IPvIPv6.
     #
@@ -409,10 +492,22 @@ if $have_address_mapping && test -n "$TARGET46" ; then
     cat <<-STOP |
 	rstatus
 	dir
+	`$do_transfer && echo "\
+lcd $TMPDIR
+image
+put $GETME $PUTME"`
 	STOP
     HOME=$TMPDIR $FTP "$TARGET46" $PORT -6 -v -t >$TMPDIR/ftp.stdout 2>&1
 
     test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET46"
+
+    $do_transfer && \
+	if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	    test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
+	else
+	    echo >&2 'Binary transfer failed.'
+	    exit 1
+	fi
 else
     # The IPv4-as-IPv6 tests were not performed.
     echo 'Skipping two tests of IPv4 mapped as IPv6.'

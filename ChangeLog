@@ -1,5 +1,16 @@
 2012-05-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* tests/ftp-localhost.sh (do_transfer, GETME, PUTME):
+	New variables.  Environmental TRANSFERTEST sets do_transfer.
+	(posttesting): Remove file `$FTPHOME/$PUTME' if $do_transfer
+	is true and file exists.
+	(test_report): Lessen verbosity by printing exchange data
+	only if $VERBOSE is non-empty.
+	[do_transfer]: Execute transmission tests.  These execute
+	an additional `put' for selected addressing and modes.
+
+2012-05-26  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftp: Reporting and accounting of large files.
 
 	* ftp/extern.h (ptransfer): New signature
