@@ -78,6 +78,11 @@
 #include <pwd.h>
 #include <setjmp.h>
 #include <signal.h>
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>	/* strtoimax */
+#elif defined HAVE_STDINT_H
+# include <stdint.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -126,7 +131,7 @@ static void yyerror       (const char *s);
 %}
 
 %union {
-	int	i;
+	intmax_t i;
 	char   *s;
 }
 
@@ -607,7 +612,7 @@ cmd
 					struct addrinfo hints, *res;
 
 					memset (&hints, 0, sizeof (hints));
-					snprintf (p, sizeof (p), "%u", $9 & 0xffff);
+					snprintf (p, sizeof (p), "%jd", $9 & 0xffffLL);
 					hints.ai_family = $5;
 					hints.ai_socktype = SOCK_STREAM;
 					hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
@@ -733,11 +738,9 @@ rcmd
 		{
 		        free (fromname);
 			fromname = (char *) 0;
-			restart_point = $3;	/* XXX $3 is only "int" */
-			reply(350,
-			      (sizeof(restart_point) > sizeof(long)
-			       ? "Restarting at %lld. %s"
-			       : "Restarting at %ld. %s"), restart_point,
+			restart_point = $3;
+			reply(350, "Restarting at %jd. %s",
+			    (intmax_t) restart_point,
 			    "Send STORE or RETRIEVE to initiate transfer.");
 		}
 	;
@@ -787,10 +790,10 @@ host_port
 			char a[INET6_ADDRSTRLEN], p[8];
 			struct addrinfo hints, *res;
 
-			snprintf (a, sizeof (a), "%u.%u.%u.%u",
-				$1 & 0xff, $3 & 0xff, $5 & 0xff, $7 & 0xff);
-			snprintf (p, sizeof (p), "%u",
-				(($9 & 0xff) << 8) + ($11 & 0xff));
+			snprintf (a, sizeof (a), "%jd.%jd.%jd.%jd",
+				  $1 & 0xffLL, $3 & 0xffLL, $5 & 0xffLL, $7 & 0xffLL);
+			snprintf (p, sizeof (p), "%jd",
+				  (($9 & 0xffLL) << 8) + ($11 & 0xffLL));
 			memset (&hints, 0, sizeof (hints));
 			hints.ai_family = his_addr.ss_family;
 			hints.ai_socktype = SOCK_STREAM;
@@ -802,8 +805,8 @@ host_port
 #ifdef AI_V4MAPPED
 			    hints.ai_flags |= AI_V4MAPPED;
 #endif
-			    snprintf (a, sizeof (a), "::ffff:%u.%u.%u.%u",
-				      $1 & 0xff, $3 & 0xff, $5 & 0xff, $7 & 0xff);
+			    snprintf (a, sizeof (a), "::ffff:%jd.%jd.%jd.%jd",
+				      $1 & 0xffLL, $3 & 0xffLL, $5 & 0xffLL, $7 & 0xffLL);
 			}
 
 			err = getaddrinfo (a, p, &hints, &res);
@@ -1352,7 +1355,7 @@ yylex(void)
 					;
 				c = cbuf[cpos];
 				cbuf[cpos] = '\0';
-				yylval.i = atoi(cp);
+				yylval.i = strtoimax (cp, NULL, 10);	/* off_t */
 				cbuf[cpos] = c;
 				return (NUMBER);
 			}
@@ -1523,9 +1526,7 @@ sizecmd(char *filename)
 		if (stat(filename, &stbuf) < 0 || !S_ISREG(stbuf.st_mode))
 			reply(550, "%s: not a plain file.", filename);
 		else
-			reply(213,
-			      (sizeof (stbuf.st_size) > sizeof(long)
-			       ? "%llu" : "%lu"), stbuf.st_size);
+			reply(213, "%ju", (uintmax_t) stbuf.st_size);
 		break; }
 	case TYPE_A: {
 		FILE *fin;
@@ -1551,8 +1552,7 @@ sizecmd(char *filename)
 		}
 		 fclose(fin);
 
-		reply(213, sizeof(count) > sizeof(long) ? "%lld" : "%ld",
-		      count);
+		reply(213, "%jd", (intmax_t) count);
 		break; }
 	default:
 		reply(504, "SIZE not implemented for Type %c.", "?AEIL"[type]);

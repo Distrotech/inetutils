@@ -1,3 +1,26 @@
+2012-05-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Allow 64-bit offsets and file sizes.  Restrict
+	file size for use of mmap() and only null offset, since
+	Solaris and Linux demand page size alignment.  Assign
+	a positive malloc size for use in data transmission.
+
+	* ftpd/ftpcmd.y: Include <inttypes.h> or <stdint.h>.
+	(token union): Use `intmax_t i' instead of `int i' in order
+	to handle 64-bit offsets and sizes.
+	(cmd, rcmd, host_port, sizecmd): Use format strings `%jd'
+	and `%ju'.  Append `LL' to numerical constants.
+	(yylex) <ARGS>: Convert numeric strings using strtoimax().
+	* ftpd/ftpd.c (retrieve): Initialise BUFFER_SIZE to `BUFSIZ'
+	in all cases.  Essential correction, since malloc() would
+	otherwise allocate 0 bytes in binary mode.
+	(IU_MMAP_SIZE): New macro.
+	(send_data): Initialise BUF to `MAP_FAILED'.  Change LEN
+	and FILESIZE to be `off_t'.  Add debug logging about offsets
+	and transmission modes `ascii/image/mmap'.
+	[HAVE_MMAP]: Attempt mapping only if file size is less than
+	IU_MMAP_SIZE and only when `restart_point == 0'.
+
 2012-05-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/ftp-localhost.sh (do_transfer, GETME, PUTME):

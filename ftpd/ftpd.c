@@ -876,7 +876,7 @@ retrieve (const char *cmd, const char *name)
   FILE *fin, *dout;
   struct stat st;
   int (*closefunc) (FILE *);
-  size_t buffer_size = 0;
+  const size_t buffer_size = BUFSIZ;	/* Dynamic buffer.  */
 
   if (cmd == 0)
     {
@@ -891,7 +891,6 @@ retrieve (const char *cmd, const char *name)
       name = line;
       fin = ftpd_popen (line, "r"), closefunc = ftpd_pclose;
       st.st_size = -1;
-      buffer_size = BUFSIZ;
     }
 
   if (fin == NULL)
@@ -1198,6 +1197,8 @@ dataconn (const char *name, off_t size, const char *mode)
   return file;
 }
 
+#define IU_MMAP_SIZE 0x800000	/* 8 MByte */
+
 /* Tranfer the contents of "instr" to "outstr" peer using the appropriate
    encapsulation of the data subject * to Mode, Structure, and Type.
 
@@ -1206,9 +1207,9 @@ static void
 send_data (FILE * instr, FILE * outstr, off_t blksize)
 {
   int c, cnt, filefd, netfd;
-  char *buf, *bp;
+  char *buf = MAP_FAILED, *bp;
   off_t curpos;
-  size_t len, filesize;
+  off_t len, filesize;
 
   transflag++;
   if (setjmp (urgcatch))
@@ -1220,9 +1221,16 @@ send_data (FILE * instr, FILE * outstr, off_t blksize)
   netfd = fileno (outstr);
   filefd = fileno (instr);
 #ifdef HAVE_MMAP
-  if (file_size > 0)
+  /* Last argument in mmap() must be page aligned,
+   * at least for Solaris and Linux, so use mmap()
+   * only with null offset retrievals.
+   */
+  if (file_size > 0 && file_size < IU_MMAP_SIZE && restart_point == 0)
     {
       curpos = lseek (filefd, 0, SEEK_CUR);
+      if (debug)
+	syslog (LOG_DEBUG, "Position is %jd. Attempting mmap call.",
+		curpos);
       if (curpos >= 0)
 	{
 	  filesize = file_size - curpos;
@@ -1238,6 +1246,8 @@ send_data (FILE * instr, FILE * outstr, off_t blksize)
 #ifdef HAVE_MMAP
       if (file_size > 0 && curpos >= 0 && buf != MAP_FAILED)
 	{
+	  if (debug)
+	    syslog (LOG_DEBUG, "Reading file as ascii in mmap mode.");
 	  len = 0;
 	  while (len < filesize)
 	    {
@@ -1260,6 +1270,8 @@ send_data (FILE * instr, FILE * outstr, off_t blksize)
 	  return;
 	}
 #endif
+      if (debug)
+	syslog (LOG_DEBUG, "Reading file as ascii in byte mode.");
       while ((c = getc (instr)) != EOF)
 	{
 	  byte_count++;
@@ -1285,6 +1297,8 @@ send_data (FILE * instr, FILE * outstr, off_t blksize)
 #ifdef HAVE_MMAP
       if (file_size > 0 && curpos >= 0 && buf != MAP_FAILED)
 	{
+	  if (debug)
+	    syslog (LOG_DEBUG, "Reading file as image in mmap mode.");
 	  bp = buf;
 	  len = filesize;
 	  do
@@ -1304,6 +1318,16 @@ send_data (FILE * instr, FILE * outstr, off_t blksize)
 	  return;
 	}
 #endif
+      if (debug)
+	{
+	  syslog (LOG_DEBUG, "Reading file as image in block mode.");
+	  curpos = lseek (filefd, 0, SEEK_CUR);
+	  if (curpos < 0)
+	    syslog (LOG_DEBUG, "Input file: %m");
+	  else
+	    syslog (LOG_DEBUG, "Starting at position %jd.", curpos);
+	}
+
       buf = malloc ((u_int) blksize);
       if (buf == NULL)
 	{
@@ -1314,6 +1338,7 @@ send_data (FILE * instr, FILE * outstr, off_t blksize)
       while ((cnt = read (filefd, buf, (u_int) blksize)) > 0 &&
 	     write (netfd, buf, cnt) == cnt)
 	byte_count += cnt;
+
       transflag = 0;
       free (buf);
       if (cnt != 0)
