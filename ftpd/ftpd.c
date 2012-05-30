@@ -248,7 +248,7 @@ static FILE *getdatasock (const char *);
 static char *gunique (const char *);
 static void lostconn (int);
 static void myoob (int);
-static int receive_data (FILE *, FILE *);
+static int receive_data (FILE *, FILE *, off_t);
 static void send_data (FILE *, FILE *, off_t);
 static void sigquit (int);
 
@@ -876,7 +876,7 @@ retrieve (const char *cmd, const char *name)
   FILE *fin, *dout;
   struct stat st;
   int (*closefunc) (FILE *);
-  const size_t buffer_size = BUFSIZ;	/* Dynamic buffer.  */
+  size_t buffer_size = BUFSIZ;	/* Dynamic buffer.  */
 
   if (cmd == 0)
     {
@@ -911,6 +911,9 @@ retrieve (const char *cmd, const char *name)
       reply (550, "%s: not a plain file.", name);
       goto done;
     }
+  else if (cmd == 0)
+    buffer_size = st.st_blksize;	/* Depends on file system.  */
+
   if (restart_point)
     {
       if (type == TYPE_A)
@@ -975,7 +978,7 @@ store (const char *name, const char *mode, int unique)
     mode = "r+";
   fout = fopen (name, mode);
   closefunc = fclose;
-  if (fout == NULL)
+  if (fout == NULL || fstat (fileno (fout), &st) < 0)
     {
       perror_reply (553, name);
       LOGCMD (*mode == 'w' ? "put" : "append", name);
@@ -1020,7 +1023,7 @@ store (const char *name, const char *mode, int unique)
   din = dataconn (name, (off_t) - 1, "r");
   if (din == NULL)
     goto done;
-  if (receive_data (din, fout) == 0)
+  if (receive_data (din, fout, st.st_blksize) == 0)
     {
       if (unique)
 	reply (226, "Transfer complete (unique file name:%s).", name);
@@ -1370,11 +1373,11 @@ file_err:
 
    N.B.: Form isn't handled.  */
 static int
-receive_data (FILE * instr, FILE * outstr)
+receive_data (FILE * instr, FILE * outstr, off_t blksize)
 {
   int c;
   int cnt, bare_lfs = 0;
-  char buf[BUFSIZ];
+  char *buf;
 
   transflag++;
   if (setjmp (urgcatch))
@@ -1386,12 +1389,24 @@ receive_data (FILE * instr, FILE * outstr)
     {
     case TYPE_I:
     case TYPE_L:
-      while ((cnt = read (fileno (instr), buf, sizeof (buf))) > 0)
+      buf = malloc ((u_int) blksize);
+      if (buf == NULL)
+	{
+	  transflag = 0;
+	  perror_reply (451, "Local resource failure: malloc");
+	  return -1;
+	}
+
+      while ((cnt = read (fileno (instr), buf, blksize)) > 0)
 	{
 	  if (write (fileno (outstr), buf, cnt) != cnt)
-	    goto file_err;
+	    {
+	      free (buf);
+	      goto file_err;
+	    }
 	  byte_count += cnt;
 	}
+      free (buf);
       if (cnt < 0)
 	goto data_err;
       transflag = 0;

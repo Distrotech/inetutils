@@ -1,3 +1,16 @@
+ 2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Use adaptive block sizes in image mode.
+
+	* ftpd/ftpd.c (receive_data): Update signature to
+	`(FILE *, FILE *, off_t)'.  Make BUF a pointer to
+	allocated memory.
+	<TYPE_I> : Allocate BUF of size `blksize'.  Change
+	buffer size to this value inside loop calling read().
+	(retrieve): Remove `const' from BUFFER_SIZE again.
+	If `cmd == 0', use `st_blksize' for setting BUFFER_SIZE.
+	(store): Call fstat() on successful stream `fout'.
+
  2012-05-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Incomplete coding of variadic printing.  Each such command
