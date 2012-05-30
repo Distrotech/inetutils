@@ -1,3 +1,14 @@
+ 2012-05-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Incomplete coding of variadic printing.  Each such command
+	consumes the pointer, leaving it in an undefined state.
+	Some 64-bit systems are sensitive to these mistakes.
+
+	* ftpd/ftpd.c (reply, lreply): Missing va_end(). Give each
+	vprintf() and vsyslog() a separate pair va_start()/va_end().
+	* src/rcp.c (run_err): Likewise for vfprintf().
+	* src/rshd.c (rshd_error): Missing va_end().
+
 2012-05-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Allow 64-bit offsets and file sizes.  Restrict

@@ -1111,17 +1111,18 @@ run_err (const char *fmt, ...)
   fprintf (fp, "%c", 0x01);
   fprintf (fp, "rcp: ");
   vfprintf (fp, fmt, ap);
+  va_end (ap);
   fprintf (fp, "\n");
   fflush (fp);
 
   if (!iamremote)
     {
       fprintf (stderr, "%s: ", program_invocation_name);
+      va_start (ap, fmt);
       vfprintf (stderr, fmt, ap);
+      va_end (ap);
       fprintf (stderr, "\n");
     }
-
-  va_end (ap);
 }
 
 char *

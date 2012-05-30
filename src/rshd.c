@@ -1212,6 +1212,7 @@ rshd_error (const char *fmt, ...)
   else
     len = 0;
   vsnprintf (bp, sizeof (buf) - 1, fmt, ap);
+  va_end (ap);
   write (STDERR_FILENO, buf, len + strlen (bp));
 }
 

@@ -1568,12 +1568,15 @@ reply (int n, const char *fmt, ...)
   va_start (ap, fmt);
   printf ("%d ", n);
   vprintf (fmt, ap);
+  va_end (ap);
   printf ("\r\n");
   fflush (stdout);
   if (debug)
     {
       syslog (LOG_DEBUG, "<--- %d ", n);
+      va_start (ap, fmt);
       vsyslog (LOG_DEBUG, fmt, ap);
+      va_end (ap);
     }
 }
 
@@ -1584,12 +1587,15 @@ lreply (int n, const char *fmt, ...)
   va_start (ap, fmt);
   printf ("%d- ", n);
   vprintf (fmt, ap);
+  va_end (ap);
   printf ("\r\n");
   fflush (stdout);
   if (debug)
     {
       syslog (LOG_DEBUG, "<--- %d- ", n);
+      va_start (ap, fmt);
       vsyslog (LOG_DEBUG, fmt, ap);
+      va_end (ap);
     }
 }
 
