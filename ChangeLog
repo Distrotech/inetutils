@@ -1,5 +1,18 @@
  2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ftp: Adaptive block size in image mode.
+
+	* ftp/ftp.c (sendrequest): New variables BLKSIZE, BUFSIZE.
+	Change type of BUF to `static char *' for allocation.
+	Set BLKSIZE to `st_blksize' for input file.  Allocate and
+	increase size of buffer as needed.
+	<TYPE_I>: Use BUFSIZE for buffer length when calling read().
+	(recvrequest): Call fstat() on successful stream `fout'
+	and set BLKSIZE to `st_blksize'.
+	(abort_remote): Replace macro BUFSIZ by `sizeof(buf)'.
+
+ 2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftpd: Use adaptive block sizes in image mode.
 
 	* ftpd/ftpd.c (receive_data): Update signature to

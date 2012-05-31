@@ -542,7 +542,10 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
   int (*closefunc) (FILE *);
   sighandler_t oldintr, oldintp;
   long long bytes = 0, local_hashbytes = hashbytes;
-  char *lmode, buf[BUFSIZ], *bufp;
+  char *lmode, *bufp;
+  int blksize = BUFSIZ;
+  static int bufsize = 0;
+  static char *buf;
 
   if (verbose && printnames)
     {
@@ -616,6 +619,7 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
 	  code = -1;
 	  return;
 	}
+	blksize = st.st_blksize;
     }
   if (initconn ())
     {
@@ -687,6 +691,20 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
   dout = dataconn (lmode);
   if (dout == NULL)
     goto abort;
+
+  if (blksize > bufsize)
+    {
+      free (buf);
+      buf = malloc ((unsigned) blksize);
+      if (buf == NULL)
+	{
+	  error (0, errno, "malloc");
+	  bufsize = 0;
+	  goto abort;
+	}
+      bufsize = blksize;
+    }
+
   gettimeofday (&start, (struct timezone *) 0);
   oldintp = signal (SIGPIPE, SIG_IGN);
   switch (curtype)
@@ -695,7 +713,7 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
     case TYPE_I:
     case TYPE_L:
       errno = d = 0;
-      while ((c = read (fileno (fin), buf, sizeof (buf))) > 0)
+      while ((c = read (fileno (fin), buf, bufsize)) > 0)
 	{
 	  bytes += c;
 	  for (bufp = buf; c > 0; c -= d, bufp += d)
@@ -823,7 +841,8 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
   FILE *fout, *din = 0;
   int (*closefunc) (FILE *);
   sighandler_t oldintr, oldintp;
-  int c, d, is_retr, tcrflag, bare_lfs = 0, blksize;
+  int c, d, is_retr, tcrflag, bare_lfs = 0;
+  int blksize = BUFSIZ;
   static int bufsize = 0;
   static char *buf;
   long long bytes = 0, local_hashbytes = hashbytes;
@@ -909,6 +928,7 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
   din = dataconn ("r");
   if (din == NULL)
     goto abort;
+
   if (strcmp (local, "-") == 0)
     fout = stdout;
   else if (*local == '|')
@@ -924,15 +944,18 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
     }
   else
     {
+      struct stat st;
+
       fout = fopen (local, lmode);
-      if (fout == NULL)
+      if (fout == NULL || fstat (fileno (fout), &st) < 0)
 	{
 	  error (0, errno, "local: %s", local);
 	  goto abort;
 	}
       closefunc = fclose;
+      blksize = st.st_blksize;
     }
-  blksize = BUFSIZ;
+
   if (blksize > bufsize)
     {
       free (buf);
@@ -945,6 +968,7 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
 	}
       bufsize = blksize;
     }
+
   gettimeofday (&start, (struct timezone *) 0);
   switch (curtype)
     {
@@ -974,6 +998,7 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
 	      fflush (stdout);
 	    }
 	}
+
       if (hash && bytes > 0)
 	{
 	  if (bytes < local_hashbytes)
@@ -1891,7 +1916,7 @@ abort_remote (FILE *din)
     }
   if (din && FD_ISSET (fileno (din), &mask))
     {
-      while (read (fileno (din), buf, BUFSIZ) > 0)
+      while (read (fileno (din), buf, sizeof (buf)) > 0)
 	/* LOOP */ ;
     }
   if (getreply (0) == ERROR && code == 552)
