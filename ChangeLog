@@ -1,4 +1,4 @@
- 2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Adaptive block size in image mode.
 
@@ -11,7 +11,7 @@
 	and set BLKSIZE to `st_blksize'.
 	(abort_remote): Replace macro BUFSIZ by `sizeof(buf)'.
 
- 2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Use adaptive block sizes in image mode.
 
@@ -24,7 +24,7 @@
 	If `cmd == 0', use `st_blksize' for setting BUFFER_SIZE.
 	(store): Call fstat() on successful stream `fout'.
 
- 2012-05-30  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-05-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Incomplete coding of variadic printing.  Each such command
 	consumes the pointer, leaving it in an undefined state.

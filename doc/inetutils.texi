@@ -2879,10 +2879,10 @@ is 15 minutes).
 Set default umask(base 8).
 @end table
 
-The file @file{/etc/nologin} can be used to disable ftp access.  If
-the file exists,@command{ ftpd} displays it and exits.  If the file
+The file @file{/etc/nologin} can be used to disable FTP access.  If
+the file exists, @command{ftpd} displays it and exits.  If the file
 @file{/etc/ftpwelcome} exists, @command{ftpd} prints it before issuing
-the @samp{ready} message.  If the file @command{/etc/motd} exists,
+the @samp{ready} message.  If the file @file{/etc/motd} exists,
 @command{ftpd} prints it after a successful login.
 
 The FTP server currently supports the following FTP requests.  The
@@ -2897,6 +2897,8 @@ case of the requests is ignored.
 @item CDUP         @tab  change to parent of current working directory
 @item CWD          @tab  change working directory
 @item DELE         @tab  delete a file
+@item EPSV         @tab  prepare for server-to-server transfer
+@item EPRT         @tab  specify data connection port
 @item HELP         @tab  give help information
 @item LIST         @tab  give list files in a directory (``ls -lgA'')
 @item MKD          @tab  make a directory
@@ -2930,20 +2932,21 @@ case of the requests is ignored.
 @item XRMD         @tab  remove a directory (deprecated)
 @end multitable
 
-The following non-standard or UNIX specific commands are supported by
+The following non-standard, or UNIX specific, commands are supported by
 the @code{SITE} request.
 
 @multitable @columnfractions 0.3 0.7
 @item Request      @tab  Description
-@item UMASK        @tab  change umask, e.g.  @code{SITE UMASK 002}
-@item IDLE         @tab  set idle-timer, e.g.  @code{SITE IDLE 60}
-@item CHMOD        @tab  change mode of a file, e.g.  @code{SITE CHMOD0 0CHMOD1 1CHMOD2}
+@item UMASK        @tab  change umask, e.g. @code{SITE UMASK 002}
+@item IDLE         @tab  set idle-timer, e.g. @code{SITE IDLE 60}
+@item CHMOD        @tab  change mode of a file, e.g. @code{SITE CHMOD0 0CHMOD1 1CHMOD2}
 @item HELP         @tab  give help information.
 @end multitable
 
 The remaining FTP requests specified in RFC 959 are recognized, but
-not implemented.  @code{MDTM} and @code{SIZE} are not specified in RFC
-959, but will appear in the next updated FTP RFC.
+not implemented.  The extensions @code{MDTM}, @code{REST},
+and @code{SIZE} are specified in RFC 3659, while @code{EPRT}
+and @code{EPSV} appear in RFC 2428.
 
 The ftp server will abort an active file transfer only when the
 @code{ABOR} command is preceded by a Telnet @samp{Interrupt Process}

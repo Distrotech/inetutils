@@ -48,14 +48,15 @@
  */
 
 /*
- * Grammar for FTP commands.
- * See RFC 959.
+ * Grammar for FTP commands:
  *
- * TODO Update to RFC 3659
+ *   See RFC 959, RFC 2428, and RFC 3659 (MDTM, REST, SIZE).
  *
- * RFC 2428
+ * TODO: Update with RFC 3659 (MLST, MLSD).
  *
- * TODO RFC 1639
+ * TODO: RFC 1639 (LPRT, LPSV).
+ *
+ * TODO: RFC 2389 (FEAT, OPTS).
  *
  * FIXME: Rewrite with GNU standard formatting.  Legacy code is changed!
  */
@@ -542,8 +543,7 @@ cmd
 		}
 
 		/*
-		 * SIZE is not in RFC959, but Postel has blessed it and
-		 * it will be in the updated RFC.
+		 * SIZE is in RFC 3659.
 		 *
 		 * Return size of file in a format suitable for
 		 * using with RESTART (we just count bytes).
@@ -556,8 +556,7 @@ cmd
 		}
 
 		/*
-		 * MDTM is not in RFC959, but Postel has blessed it and
-		 * it will be in the updated RFC.
+		 * MDTM is in RFC 3659.
 		 *
 		 * Return modification time of file as an ISO 3307
 		 * style time. E.g. YYYYMMDDHHMMSS or YYYYMMDDHHMMSS.xxx
@@ -585,6 +584,10 @@ cmd
 			}
 			free($4);
 		}
+
+		/*
+		 * EPRT is in RFC 2428.
+		 */
 	| EPRT check_login SP CHAR net_proto CHAR net_addr CHAR tcp_port CHAR CRLF
 		{
 			usedefault = 0;
@@ -699,6 +702,10 @@ cmd
 				reply (500, "Illegal EPRT Command");
 			}
 		}
+
+		/*
+		 * EPSV is in RFC 2428.
+		 */
 	| EPSV check_login CRLF
 		{
 			if ($2)
@@ -734,6 +741,10 @@ rcmd
 			if (fromname == (char *) 0 && $4)
 			    free($4);
 		}
+
+		/*
+		 * REST is in RFC 3659.
+		 */
 	| REST SP byte_size CRLF
 		{
 		        free (fromname);
