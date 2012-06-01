@@ -1819,7 +1819,7 @@ passive (int epsv, int af)
   int try_af;
 
   /* EPSV might ask for a particular address family.  */
-  if (epsv && af > 0)
+  if (epsv == PASSIVE_EPSV && af > 0)
     try_af = af;
   else
     try_af = ctrl_addr.ss_family;
@@ -1852,7 +1852,7 @@ passive (int epsv, int af)
   if (listen (pdata, 1) < 0)
     goto pasv_error;
 
-  if (epsv)
+  if (epsv == PASSIVE_EPSV)
     {
       /* EPSV for IPv4 and IPv6.  */
       reply (229, "Entering Extended Passive Mode (|||%u|)",
@@ -1861,13 +1861,16 @@ passive (int epsv, int af)
 		    : ((struct sockaddr_in6 *) &pasv_addr)->sin6_port));
       return;
     }
-  else /* !epsv */
+  else /* !EPSV */
     {
-      /* PASV for IPv4.
+      /* PASV for IPv4, or LPSV for IPv4 or IPv6.
        *
        * Some systems, like OpenSolaris, prefer to return
        * an IPv4-mapped-IPv6 address, which must be processed
        * for printout.  */
+
+#define UC(b) (((int) b) & 0xff)
+
       if (pasv_addr.ss_family == AF_INET6
 	  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) &pasv_addr)->sin6_addr))
 	{
@@ -1875,16 +1878,38 @@ passive (int epsv, int af)
 	  a += 3 * sizeof (struct in_addr);	/* Skip padding up to IPv4 content.  */
 	  p = (char *) &((struct sockaddr_in6 *) &pasv_addr)->sin6_port;
 	}
+      else if (pasv_addr.ss_family == AF_INET6)
+	{
+	  /* LPSV for IPv6, not mapped. */
+	  a = (char *) &((struct sockaddr_in6 *) &pasv_addr)->sin6_addr;
+	  p = (char *) &((struct sockaddr_in6 *) &pasv_addr)->sin6_port;
+
+	  reply (228, "Entering Long Passive Mode "
+		 "(6,16,%d,%d,%d,%d,%d,%d,%d,%d"	/* a[0..7] */
+		 ",%d,%d,%d,%d,%d,%d,%d,%d"	/* a[8..15] */
+		 ",2,%d,%d)",	/* p0, p1 */
+		 UC (a[0]), UC (a[1]), UC (a[2]), UC (a[3]),
+		 UC (a[4]), UC (a[5]), UC (a[6]), UC (a[7]),
+		 UC (a[8]), UC (a[9]), UC (a[10]), UC (a[11]),
+		 UC (a[12]), UC (a[13]), UC (a[14]), UC (a[15]),
+		 UC (p[0]), UC (p[1]));
+	  return;
+	}
       else
 	{
 	  a = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_addr;
 	  p = (char *) &((struct sockaddr_in *) &pasv_addr)->sin_port;
 	}
 
-#define UC(b) (((int) b) & 0xff)
-
-      reply (227, "Entering Passive Mode (%d,%d,%d,%d,%d,%d)", UC (a[0]),
-	     UC (a[1]), UC (a[2]), UC (a[3]), UC (p[0]), UC (p[1]));
+      if (epsv == PASSIVE_LPSV)
+	reply (228, "Entering Long Passive Mode "
+	       "(4,4,%d,%d,%d,%d,2,%d,%d)",
+	       UC (a[0]), UC (a[1]), UC (a[2]), UC (a[3]),
+	       UC (p[0]), UC (p[1]));
+      else
+	reply (227, "Entering Passive Mode (%d,%d,%d,%d,%d,%d)",
+	       UC (a[0]), UC (a[1]), UC (a[2]), UC (a[3]),
+	       UC (p[0]), UC (p[1]));
       return;
     }
 

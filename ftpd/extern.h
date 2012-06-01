@@ -113,6 +113,11 @@ extern char tmpline[];
 /* Exported from ftpcmd.y.  */
 extern off_t restart_point;
 
+/* Distinguish passive address modes.  */
+#define PASSIVE_PASV 0
+#define PASSIVE_EPSV 1
+#define PASSIVE_LPSV 2
+
 /* Exported from server_mode.c.  */
 extern int usefamily;
 extern int server_mode (const char *pidfile, struct sockaddr *phis_addr,

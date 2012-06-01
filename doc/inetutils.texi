@@ -2897,10 +2897,11 @@ case of the requests is ignored.
 @item CDUP         @tab  change to parent of current working directory
 @item CWD          @tab  change working directory
 @item DELE         @tab  delete a file
-@item EPSV         @tab  prepare for server-to-server transfer
+@item EPSV         @tab  extended passive transfer request
 @item EPRT         @tab  specify data connection port
 @item HELP         @tab  give help information
 @item LIST         @tab  give list files in a directory (``ls -lgA'')
+@item LPSV         @tab  long passive transfer request
 @item MKD          @tab  make a directory
 @item MDTM         @tab  show last modification time of file
 @item MODE         @tab  specify data transfer mode
@@ -2946,7 +2947,7 @@ the @code{SITE} request.
 The remaining FTP requests specified in RFC 959 are recognized, but
 not implemented.  The extensions @code{MDTM}, @code{REST},
 and @code{SIZE} are specified in RFC 3659, while @code{EPRT}
-and @code{EPSV} appear in RFC 2428.
+and @code{EPSV} appear in RFC 2428, and @code{LPSV} in RFC 1639.
 
 The ftp server will abort an active file transfer only when the
 @code{ABOR} command is preceded by a Telnet @samp{Interrupt Process}

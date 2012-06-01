@@ -1,3 +1,19 @@
+2012-06-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Long passive transfer request.
+
+	* ftpd/extern.h (PASSIVE_PASV, PASSIVE_EPSV, PASSIVE_LPSV):
+	New macros.
+	* ftpd/ftpcmd.y (LPSV): New token.
+	(cmd) <PASV>: Call passive() with PASSIVE_PASV.
+	<EPSV>: Call passive() with PASSIVE_EPSV; both variants.
+	<LPSV>: New subcommand.
+	(cmdtab): New entry `LPSV'.
+	* ftpd/ftpd.c (passive): Use macros PASSIVE_* to distinguish
+	subcases.  Add two subcases for `LPSV', with pointer math
+	shared with `PASV'.
+	* doc/inetutils.texi: Updated.
+
 2012-05-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Adaptive block size in image mode.

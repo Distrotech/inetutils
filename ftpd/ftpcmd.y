@@ -50,11 +50,12 @@
 /*
  * Grammar for FTP commands:
  *
- *   See RFC 959, RFC 2428, and RFC 3659 (MDTM, REST, SIZE).
+ *   See RFC 959, RFC 1636 (LPSV), RFC 2428,
+ *   and RFC 3659 (MDTM, REST, SIZE).
  *
  * TODO: Update with RFC 3659 (MLST, MLSD).
  *
- * TODO: RFC 1639 (LPRT, LPSV).
+ * TODO: RFC 1639 (LPRT).
  *
  * TODO: RFC 2389 (FEAT, OPTS).
  *
@@ -150,7 +151,7 @@ static void yyerror       (const char *s);
 	STAT	HELP	NOOP	MKD	RMD	PWD
 	CDUP	STOU	SMNT	SYST	SIZE	MDTM
 
-	EPRT	EPSV
+	EPRT	EPSV	LPSV
 
 	UMASK	IDLE	CHMOD
 
@@ -230,7 +231,7 @@ cmd
 	| PASV check_login CRLF
 		{
 			if ($2)
-				passive(0, AF_INET);
+				passive(PASSIVE_PASV, AF_INET);
 		}
 	| TYPE SP type_code CRLF
 		{
@@ -709,16 +710,25 @@ cmd
 	| EPSV check_login CRLF
 		{
 			if ($2)
-				passive(1, AF_UNSPEC);
+				passive(PASSIVE_EPSV, AF_UNSPEC);
 		}
 	| EPSV check_login SP net_proto CRLF
 		{
 			if ($2) {
 				if ($4 > 0)
-					passive(1, $4);
+					passive(PASSIVE_EPSV, $4);
 				else
 					reply (522, "Network protocol not supported, use (1,2)");
 			}
+		}
+
+		/*
+		 * LPSV is in RFC 1639.
+		 */
+	| LPSV check_login CRLF
+		{
+			if ($2)
+				passive(PASSIVE_LPSV, 0 /* not used */);
 		}
 	| QUIT CRLF
 		{
@@ -1067,6 +1077,7 @@ struct tab cmdtab[] = {		/* In order defined in RFC 765 */
 	{ "MDTM", MDTM, OSTR, 1,	"<sp> path-name" },
 	{ "EPRT", EPRT, DLIST, 1,	"<sp> <d> proto <d> addr <d> port <d>" },
 	{ "EPSV", EPSV, ARGS, 1,	"[ <sp> af ]" },
+	{ "LPSV", LPSV, ARGS, 1,	"(set server in long passive mode)" },
 	{ NULL,   0,    0,    0,	0 }
 };
 
