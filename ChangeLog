@@ -1,3 +1,24 @@
+2012-06-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Restrict to Linux-PAM, which is only valid code.
+
+	* configure.ac (WITH_PAM): Add check for PAM_CONV_AGAIN.
+	(WITH_LINUX_PAM, FTPD_LIBPAM): New variables.
+	* ftpd/Makefile.am (LDADD): Replace LIBPAM by FTPD_LIBPAM.
+	* ftpd/auth.c (auth_user, auth_pass) [WITH_LINUX_PAM]:
+	Replace old WITH_PAM by correct WITH_LINUX_PAM.
+	* ftpd/extern.h [WITH_LINUX_PAM]: Likewise.
+	* ftpd/ftpd.c [WITH_LINUX_PAM]: Likewise.
+	* ftpd/pam.c [WITH_LINUX_PAM]: Likewise.
+	(PAM_CONV_AGAIN, PAM_INCOMPLETE): Removed macro definitions.
+	(PAM_conversation): Initialise second element to NULL.
+	(GET_MEM): Return PAM_BUF_ERR.
+	(PAM_conv) [!PAM_CONV_AGAIN]: Set RETVAL to PAM_CONV_ERR.
+	(pam_doit) [PAM_CONV_AGAIN]: Test `error == PAM_CONV_AGAIN'.
+	[PAM_INCOMPLETE]: Test `error == PAM_INCOMPLETE'.
+	(pam_doit): Return PAM_SUCCESS, not 0.
+	(pam_user): Initialise `PAM_conversation.appdata_ptr'.
+
 2012-06-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Long passive transfer request.

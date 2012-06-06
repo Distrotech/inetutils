@@ -153,7 +153,7 @@ extern int auth_user (const char *, struct credentials *);
 extern int auth_pass (const char *, struct credentials *);
 
 /* Exported from pam.c */
-#ifdef WITH_PAM
+#ifdef WITH_LINUX_PAM
 extern int pam_user (const char *, struct credentials *);
 extern int pam_pass (const char *, struct credentials *);
 #endif

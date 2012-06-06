@@ -296,7 +296,7 @@ static struct argp_option options[] = {
   { "  default", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
     "passwd authentication",
     GRID+3 },
-#ifdef WITH_PAM
+#ifdef WITH_LINUX_PAM
   { "  pam", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
     "using pam 'ftp' module",
     GRID+3 },
@@ -342,7 +342,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'a':
       if (strcasecmp (arg, "default") == 0)
 	cred.auth_type = AUTH_TYPE_PASSWD;
-#ifdef WITH_PAM
+#ifdef WITH_LINUX_PAM
       else if (strcasecmp (arg, "pam") == 0)
 	cred.auth_type = AUTH_TYPE_PAM;
 #endif

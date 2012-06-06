@@ -51,7 +51,7 @@ auth_user (const char *name, struct credentials *pcred)
 
   switch (pcred->auth_type)
     {
-#ifdef WITH_PAM
+#ifdef WITH_LINUX_PAM
     case AUTH_TYPE_PAM:
       return pam_user (name, pcred);
 #endif
@@ -143,7 +143,7 @@ auth_pass (const char *passwd, struct credentials *pcred)
 {
   switch (pcred->auth_type)
     {
-#ifdef WITH_PAM
+#ifdef WITH_LINUX_PAM
     case AUTH_TYPE_PAM:
       return pam_pass (passwd, pcred);
 #endif

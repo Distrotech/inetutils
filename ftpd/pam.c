@@ -28,22 +28,21 @@
 # include <security/pam_appl.h>
 #endif
 
-#ifndef PAM_CONV_AGAIN
-# define PAM_CONV_AGAIN PAM_TRY_AGAIN
-#endif
-#ifndef PAM_INCOMPLETE
-# define PAM_INCOMPLETE PAM_TRY_AGAIN
-#endif
+/* June 3rd, 2012:
+ * The draft of A.G Morgan on behalf of the the Open-PAM
+ * working group has clearly not been able to get the
+ * additions PAM_INCOMPLETE and PAM_CONV_AGAIN accepted
+ * sufficiently well in order that the present code should
+ * force them upon BSD and Solaris.  They are thus protected
+ * by preprocessor conditionals for the time being.
+ */
 
-#ifdef WITH_PAM
+#ifdef WITH_LINUX_PAM
 
 static int PAM_conv (int num_msg, const struct pam_message **msg,
 		     struct pam_response **resp, void *appdata_ptr);
 
-/* FIXME: We still have a side effect since we use the global variable
-   cred.  A better approach would be to use the pcred parameter
-   in pam_user().  */
-static struct pam_conv PAM_conversation = { &PAM_conv, &cred };
+static struct pam_conv PAM_conversation = { &PAM_conv, NULL };
 
 /* PAM authentication, now using the PAM's async feature.  */
 static pam_handle_t *pamh;
@@ -59,7 +58,7 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 
 # define GET_MEM \
         if (!(repl = realloc (repl, size))) \
-                return PAM_CONV_ERR; \
+                return PAM_BUF_ERR; \
         size += sizeof (struct pam_response)
 
   retval = PAM_SUCCESS;
@@ -78,10 +77,14 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	  break;
 	case PAM_PROMPT_ECHO_OFF:
 	  GET_MEM;
-	  if (pcred->pass == 0)
+	  if (pcred->pass == NULL)
 	    {
 	      savemsg = 1;
+# ifdef PAM_CONV_AGAIN
 	      retval = PAM_CONV_AGAIN;
+# else /* !PAM_CONV_AGAIN */
+	      retval = PAM_CONV_ERR;
+# endif
 	    }
 	  else
 	    {
@@ -163,8 +166,15 @@ pam_doit (struct credentials *pcred)
 
   error = pam_authenticate (pamh, 0);
 
-  /* Probably being call for the passwd.  */
-  if (error == PAM_CONV_AGAIN || error == PAM_INCOMPLETE)
+  /* Probably being called for the passwd.  */
+  if (0
+# ifdef PAM_CONV_AGAIN
+      || error == PAM_CONV_AGAIN
+# endif
+# ifdef PAM_INCOMPLETE
+      || error == PAM_INCOMPLETE
+# endif
+     )
     {
       /* Avoid overly terse passwd messages and let the people
          upstairs do something sane.  */
@@ -173,7 +183,7 @@ pam_doit (struct credentials *pcred)
 	  free (pcred->message);
 	  pcred->message = NULL;
 	}
-      return 0;
+      return PAM_SUCCESS;
     }
 
   if (error == PAM_SUCCESS)	/* Alright, we got it */
@@ -217,6 +227,9 @@ pam_user (const char *username, struct credentials *pcred)
   free (pcred->message);
   pcred->message = NULL;
 
+  /* Arrange our creditive.  */
+  PAM_conversation.appdata_ptr = (void *) pcred;
+
   error = pam_start ("ftp", pcred->name, &PAM_conversation, &pamh);
   if (error == PAM_SUCCESS)
     error = pam_set_item (pamh, PAM_RHOST, pcred->remotehost);
@@ -246,4 +259,4 @@ pam_pass (const char *passwd, struct credentials *pcred)
   return error != PAM_SUCCESS;
 }
 
-#endif /* WITH_PAM */
+#endif /* WITH_LINUX_PAM */

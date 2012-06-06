@@ -176,15 +176,22 @@ AC_SUBST(LIBUTIL)
 # Check if they want support for PAM.  Certain daemons like ftpd have
 # support for it.
 
-# See if we have libpam.a this is for ftpd.
+# See if we have libpam.a.  Investigate PAM versus Linux-PAM.
 if test "$with_pam" = yes ; then
   AC_CHECK_LIB(dl, dlopen)
   AC_CHECK_LIB(pam, pam_authenticate, LIBPAM=-lpam)
   if test "$ac_cv_lib_pam_pam_authenticate" = yes ; then
-     AC_DEFINE([WITH_PAM], 1, [Define to one if you have -lpam.])
+    AC_DEFINE([WITH_PAM], 1, [Define to one if you have -lpam.])
+    AC_CHECK_DECLS(PAM_CONV_AGAIN, , , [#include <security/pam_appl.h>])
+    if test "$ac_cv_have_decl_PAM_CONV_AGAIN" = yes ; then
+      AC_DEFINE([WITH_LINUX_PAM], 1, [Define to one if you use Linux-PAM.])
+      # Presently ftpd is coded for Linux-PAM only.
+      FTPD_LIBPAM=$LIBPAM
+    fi
   fi
 fi
 AC_SUBST(LIBPAM)
+AC_SUBST(FTPD_LIBPAM)
 
 # Can we use libls? but we must have fchdir()
 if test "$enable_libls" = yes && test "$ac_cv_func_fchdir" = yes ; then
