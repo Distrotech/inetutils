@@ -50,13 +50,22 @@
 /* Implementation of PAM support for a service `rexec'
  * was done by Mats Erik Andersson.
  *
- * Simple PAM configuration:
+ * Sample PAM configuration with variations for different systems:
  *
  *   rexec auth     requisite  pam_nologin.so
  *   rexec auth     required   pam_unix.so
+ *   # rexec auth   requisite  pam_authtok_get.so
+ *   # rexec auth   required   pam_unix_cred.so
+ *   # rexec auth   required   pam_unix_auth.so
+ *   # rexec auth   required   pam_listfile.so item=user sense=allow \
+ *                                 file=/etc/rexec.allow onerr=fail
+ *
  *   rexec account  required   pam_unix.so
  *   rexec account  required   pam_time.so
- *   rexec session  required   pam_unix.so
+ *   # rexec account requisite pam_roles.so
+ *   # rexec account required  pam_unix_account.so
+ *   # rexec account required  pam_list.so allow=/etc/rexec.allow
+ *
  *   rexec password required   pam_deny.so
  */
 
@@ -140,7 +149,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-const char doc[] = "remote execution daemon";
+const char doc[] =
+#ifdef WITH_PAM
+		   "Remote execution daemon, using PAM module 'rexec'.";
+#else /* !WITH_PAM */
+		   "Remote execution daemon.";
+#endif
 
 static struct argp argp = {
   options,
@@ -222,9 +236,6 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 {
   char *cmdbuf, *cp, *namep;
   char *user, *pass, *pw_password;
-#ifdef WITH_PAM
-  const void *token;
-#endif
 #ifdef HAVE_GETPWNAM_R
   char *pwbuf;
   int pwbuflen;
@@ -449,7 +460,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 #endif
 
 #ifdef WITH_PAM
-  pam_rc = pam_setcred(pam_handle, PAM_ESTABLISH_CRED);
+  pam_rc = pam_setcred (pam_handle, PAM_SILENT | PAM_ESTABLISH_CRED);
   if (pam_rc != PAM_SUCCESS)
     {
       syslog (LOG_ERR, "pam_setcred: %s",
@@ -558,7 +569,8 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   /* Refresh knowledge of user, which might have been
    * remapped by the PAM stack during conversation.
    */
-  pam_rc = pam_get_item (pam_handle, PAM_USER, &token);
+  free (user);
+  pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &user);
   if (pam_rc != PAM_SUCCESS)
     die (EXIT_FAILURE, "Try again.");
 
@@ -621,6 +633,9 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
   if (logging)
     syslog (LOG_ERR, "execl fails for \"%s\": %m", user);
+#ifdef WITH_PAM
+  pam_end (pam_handle, PAM_SUCCESS);
+#endif
   error (EXIT_FAILURE, errno, "executing %s", pwd->pw_shell);
 
   return -1;

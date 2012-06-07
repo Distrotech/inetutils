@@ -1,5 +1,15 @@
 2012-06-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rexecd: Audit of PAM code.
+
+	* src/rexecd.c (doc) [WITH_PAM]: Expand string.
+	(doit): Remove variable TOKEN.  Add flag PAM_SILENT
+	in call to pam_setcred().  Really update USER when
+	calling pam_get_item(PAM_USER).  When execl() fails,
+	close properly by calling pam_end().
+
+2012-06-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftpd: Audit of existing PAM code.
 
 	* ftpd/extern.h (pam_end_login) [WITH_LINUX_PAM]:
