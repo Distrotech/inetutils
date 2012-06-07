@@ -1,3 +1,15 @@
+2012-06-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Audit of existing PAM code.
+
+	* ftpd/extern.h (pam_end_login) [WITH_LINUX_PAM]:
+	New prototype.
+	* ftpd/ftpd.c (end_login) [WITH_LINUX_PAM]: Call
+	pam_end_login() to tear down current client.
+	* ftpd/pam.c: Include <syslog.h>.
+	(pam_doit): Add missing call to pam_open_session().
+	(pam_end_login): New function.
+
 2012-06-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Restrict to Linux-PAM, which is only valid code.

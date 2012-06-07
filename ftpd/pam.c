@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <syslog.h>
 #include "extern.h"
 
 #ifdef HAVE_SECURITY_PAM_APPL_H
@@ -192,6 +193,8 @@ pam_doit (struct credentials *pcred)
       if (error == PAM_SUCCESS)
 	error = pam_setcred (pamh, PAM_ESTABLISH_CRED);
       if (error == PAM_SUCCESS)
+	error = pam_open_session (pamh, 0);
+      if (error == PAM_SUCCESS)
 	error = pam_get_item (pamh, PAM_USER, (const void **) &username);
       if (error == PAM_SUCCESS)
 	{
@@ -259,4 +262,26 @@ pam_pass (const char *passwd, struct credentials *pcred)
   return error != PAM_SUCCESS;
 }
 
+void
+pam_end_login (struct credentials * pcred)
+{
+  int error;
+
+  if (pamh)
+    {
+      error = pam_close_session (pamh, PAM_SILENT);
+      if (logging && error != PAM_SUCCESS)
+	syslog (LOG_ERR, "pam_session: %s", pam_strerror (pamh, error));
+
+      error = pam_setcred (pamh, PAM_SILENT | PAM_DELETE_CRED);
+      if (logging && error != PAM_SUCCESS)
+	syslog (LOG_ERR, "pam_setcred: %s", pam_strerror (pamh, error));
+
+      error = pam_end (pamh, error);
+      if (logging && error != PAM_SUCCESS)
+	syslog (LOG_ERR, "pam_end: %s", pam_strerror (pamh, error));
+
+      pamh = NULL;
+    }
+}
 #endif /* WITH_LINUX_PAM */

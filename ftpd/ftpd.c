@@ -802,9 +802,15 @@ end_login (struct credentials *pcred)
 {
   char *remotehost = pcred->remotehost;
   int atype = pcred->auth_type;
+
   seteuid ((uid_t) 0);
   if (pcred->logged_in)
-    logwtmp_keep_open (ttyline, "", "");
+    {
+      logwtmp_keep_open (ttyline, "", "");
+#ifdef WITH_LINUX_PAM
+      pam_end_login (pcred);
+#endif
+    }
 
   free (pcred->name);
   if (pcred->passwd)
