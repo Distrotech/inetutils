@@ -50,14 +50,14 @@
 /*
  * Grammar for FTP commands:
  *
- *   See RFC 959, RFC 1636 (LPSV), RFC 2428,
+ *   See RFC 959, RFC 1639, RFC 2428,
  *   and RFC 3659 (MDTM, REST, SIZE).
  *
  * TODO: Update with RFC 3659 (MLST, MLSD).
  *
- * TODO: RFC 1639 (LPRT).
- *
  * TODO: RFC 2389 (FEAT, OPTS).
+ *
+ * TODO: RFC 2428 (EPSV ALL).
  *
  * FIXME: Rewrite with GNU standard formatting.  Legacy code is changed!
  */
@@ -151,7 +151,7 @@ static void yyerror       (const char *s);
 	STAT	HELP	NOOP	MKD	RMD	PWD
 	CDUP	STOU	SMNT	SYST	SIZE	MDTM
 
-	EPRT	EPSV	LPSV
+	EPRT	EPSV	LPRT	LPSV
 
 	UMASK	IDLE	CHMOD
 
@@ -163,7 +163,7 @@ static void yyerror       (const char *s);
 %type	<i> check_login octal_number byte_size
 %type	<i> struct_code mode_code type_code form_code
 %type	<s> pathstring pathname password username
-%type	<i> host_port net_proto tcp_port
+%type	<i> host_port net_proto tcp_port long_host_port
 %type	<s> net_addr
 
 %start	cmd_list
@@ -723,6 +723,48 @@ cmd
 		}
 
 		/*
+		 * LPRT is in RFC 1639.
+		 */
+	| LPRT check_login SP long_host_port CRLF
+		{
+			if ($2)
+			  {
+			    if ($4 &&
+				( his_addr.ss_family == AF_INET
+				  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+					     &((struct sockaddr_in *) &data_dest)->sin_addr,
+					     sizeof (struct in_addr)) == 0
+				  && ntohs (((struct sockaddr_in *) &data_dest)->sin_port)
+					> IPPORT_RESERVED
+				  ||
+				  his_addr.ss_family == AF_INET6
+				  && memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
+					     &((struct sockaddr_in6 *) &data_dest)->sin6_addr,
+					     sizeof (struct in6_addr)) == 0
+				  && ntohs (((struct sockaddr_in6 *) &data_dest)->sin6_port)
+					> IPPORT_RESERVED
+				)
+			       )
+			      {
+				usedefault = 0;
+				if (pdata >= 0)
+				  {
+				    close(pdata);
+				    pdata = -1;
+				  }
+				  reply (200, "LPRT command successful.");
+			      }
+			    else
+			      {
+				usedefault = 1;
+				memset (&data_dest, 0,
+					sizeof (data_dest));
+				reply(500, "Illegal LPRT Command");
+			      }
+			  } /* check_login */
+		}
+
+		/*
 		 * LPSV is in RFC 1639.
 		 */
 	| LPSV check_login CRLF
@@ -730,6 +772,7 @@ cmd
 			if ($2)
 				passive(PASSIVE_LPSV, 0 /* not used */);
 		}
+
 	| QUIT CRLF
 		{
 			reply(221, "Goodbye.");
@@ -843,6 +886,138 @@ host_port
 			    data_dest_len = res->ai_addrlen;
 			    freeaddrinfo (res);
 			    $$ = 1;
+			  }
+		}
+	;
+
+long_host_port
+	: NUMBER COMMA NUMBER COMMA /* af, hal */
+		NUMBER COMMA NUMBER COMMA NUMBER COMMA NUMBER COMMA /* h */
+		NUMBER COMMA NUMBER COMMA NUMBER /* pal, p */
+		{
+			int err;
+			char a[INET6_ADDRSTRLEN], p[8];
+			struct addrinfo hints, *res;
+
+			/* Well formed input for IPv4?  */
+			if ($1 != 4 || $3 != 4 || $13 != 2
+			    || $5 < 0 || $5 > 255 || $7 < 0 || $7 > 255
+			    || $9 < 0 || $9 > 255 || $11 < 0 || $11 > 255
+			    || $15 < 0 || $15 > 255
+			    || $17 < 0 || $17 > 255)
+			  {
+			    reply (500, "Invalid address.");
+			    memset (&data_dest, 0, sizeof (data_dest));
+			    data_dest_len = 0;
+			    $$ = 0;
+			  }
+			else
+			  {
+			    snprintf (a, sizeof (a), "%jd.%jd.%jd.%jd",
+				      $5, $7, $9, $11);
+			    snprintf (p, sizeof (p), "%jd",
+				      ($15 << 8) + $17);
+
+			    memset (&hints, 0, sizeof (hints));
+			    hints.ai_family = his_addr.ss_family;
+			    hints.ai_socktype = SOCK_STREAM;
+			    hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+
+			    if (his_addr.ss_family == AF_INET6)
+			      {
+				/* IPv4 mapped to IPv6.  */
+				hints.ai_family = AF_INET6;
+#ifdef AI_V4MAPPED
+				hints.ai_flags |= AI_V4MAPPED;
+#endif
+				snprintf (a, sizeof (a),
+					  "::ffff:%jd.%jd.%jd.%jd",
+					  $5, $7, $9, $11);
+			      }
+
+			    err = getaddrinfo (a, p, &hints, &res);
+			    if (err)
+			      {
+				reply (550, "LPRT address failure: %s,%s",
+				       a, p);
+				memset (&data_dest, 0, sizeof (data_dest));
+				data_dest_len = 0;
+				$$ = 0;
+			      }
+			    else
+			      {
+				memcpy (&data_dest, res->ai_addr,
+					res->ai_addrlen);
+				data_dest_len = res->ai_addrlen;
+				freeaddrinfo (res);
+				$$ = 1;
+			      }
+			  }
+		}
+	| NUMBER COMMA NUMBER COMMA /* af, hal */
+		NUMBER COMMA NUMBER COMMA NUMBER COMMA NUMBER COMMA /* h */
+		NUMBER COMMA NUMBER COMMA NUMBER COMMA NUMBER COMMA
+		NUMBER COMMA NUMBER COMMA NUMBER COMMA NUMBER COMMA
+		NUMBER COMMA NUMBER COMMA NUMBER COMMA NUMBER COMMA
+		NUMBER COMMA NUMBER COMMA NUMBER /* pal, p */
+		{
+			int err;
+			char a[INET6_ADDRSTRLEN], p[8];
+			struct addrinfo hints, *res;
+
+			/* Well formed input for IPv6?  */
+			if ($1 != 6 || $3 != 16 || $37 != 2
+			    || $5 < 0 || $5 > 255 || $7 < 0 || $7 > 255
+			    || $9 < 0 || $9 > 255 || $11 < 0 || $11 > 255
+			    || $13 < 0 || $13 > 255 || $15 < 0 || $15 > 255
+			    || $17 < 0 || $17 > 255 || $19 < 0 || $19 > 255
+			    || $21 < 0 || $21 > 255 || $23 < 0 || $23 > 255
+			    || $25 < 0 || $25 > 255 || $27 < 0 || $27 > 255
+			    || $29 < 0 || $29 > 255 || $31 < 0 || $31 > 255
+			    || $33 < 0 || $33 > 255 || $35 < 0 || $35 > 255
+			    || $39 < 0 || $39 > 255 || $41 < 0 || $41 > 255)
+			  {
+			    reply (500, "Invalid address.");
+			    memset (&data_dest, 0, sizeof (data_dest));
+			    data_dest_len = 0;
+			    $$ = 0;
+			  }
+			else
+			  {
+			    snprintf (a, sizeof (a),
+				     "%02jx%02jx:%02jx%02jx:"
+				     "%02jx%02jx:%02jx%02jx:"
+				     "%02jx%02jx:%02jx%02jx:"
+				     "%02jx%02jx:%02jx%02jx",
+				      $5, $7, $9, $11,
+				      $13, $15, $17, $19,
+				      $21, $23, $25, $27,
+				      $29, $31, $33, $35);
+			    snprintf (p, sizeof (p), "%jd",
+				      ($39 << 8) + $41);
+
+			    memset (&hints, 0, sizeof (hints));
+			    hints.ai_family = his_addr.ss_family;
+			    hints.ai_socktype = SOCK_STREAM;
+			    hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+
+			    err = getaddrinfo (a, p, &hints, &res);
+			    if (err)
+			      {
+				reply (550, "LPRT address failure: %s,%s",
+				       a, p);
+				memset (&data_dest, 0, sizeof (data_dest));
+				data_dest_len = 0;
+				$$ = 0;
+			      }
+			    else
+			      {
+				memcpy (&data_dest, res->ai_addr,
+					res->ai_addrlen);
+				data_dest_len = res->ai_addrlen;
+				freeaddrinfo (res);
+				$$ = 1;
+			      }
 			  }
 		}
 	;
@@ -1077,6 +1252,7 @@ struct tab cmdtab[] = {		/* In order defined in RFC 765 */
 	{ "MDTM", MDTM, OSTR, 1,	"<sp> path-name" },
 	{ "EPRT", EPRT, DLIST, 1,	"<sp> <d> proto <d> addr <d> port <d>" },
 	{ "EPSV", EPSV, ARGS, 1,	"[ <sp> af ]" },
+	{ "LPRT", LPRT, ARGS, 1,	"<sp> af,hal,h0..hn,2,p0,p1" },
 	{ "LPSV", LPSV, ARGS, 1,	"(set server in long passive mode)" },
 	{ NULL,   0,    0,    0,	0 }
 };
