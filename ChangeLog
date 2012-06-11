@@ -1,3 +1,13 @@
+2012-06-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexecd, rlogind: Distinguish logging facility.
+	Use LOG_AUTH only for authentication messages.
+
+	* src/rexecd.c (doit): Add LOG_AUTH to syslog() in user
+	contexts.  Otherwise use default LOG_DAEMON in openlog().
+	* src/rlogind.c (main, do_rlogin, do_krb4_login)
+	(do_krb5_login, do_shishi_login): Likewise.
+
 2012-06-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Long address transfer request.

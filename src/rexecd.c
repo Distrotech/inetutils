@@ -357,7 +357,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 #endif /* HAVE_GETPWNAM_R */
     {
       if (logging)
-	syslog (LOG_WARNING, "no user named \"%s\"", user);
+	syslog (LOG_WARNING | LOG_AUTH, "no user named \"%s\"", user);
       die (EXIT_FAILURE, "Login incorrect.");
     }
 
@@ -372,7 +372,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
       if (strcmp (namep, pw_password))
 	{
 	  if (logging)
-	    syslog (LOG_WARNING, "password failure for \"%s\"", user);
+	    syslog (LOG_WARNING | LOG_AUTH, "password failure for \"%s\"", user);
 	  die (EXIT_FAILURE, "Password incorrect.");
 	}
     }
@@ -443,7 +443,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 #ifdef WITH_PAM
       pam_rc = PAM_ABORT;
 #endif
-      syslog (LOG_DEBUG, "setgid(gid = %d): %m", pwd->pw_gid);
+      syslog (LOG_DEBUG | LOG_AUTH, "setgid(gid = %d): %m", pwd->pw_gid);
       die (EXIT_FAILURE, "Failed group protections.");
     }
 
@@ -453,7 +453,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 # ifdef WITH_PAM
       pam_rc = PAM_ABORT;
 # endif
-      syslog (LOG_DEBUG, "initgroups(%s, %s): %m",
+      syslog (LOG_DEBUG | LOG_AUTH, "initgroups(%s, %s): %m",
 	      pwd->pw_name, pwd->pw_gid);
       die (EXIT_FAILURE, "Failed group protections.");
     }
@@ -463,7 +463,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   pam_rc = pam_setcred (pam_handle, PAM_SILENT | PAM_ESTABLISH_CRED);
   if (pam_rc != PAM_SUCCESS)
     {
-      syslog (LOG_ERR, "pam_setcred: %s",
+      syslog (LOG_ERR | LOG_AUTH, "pam_setcred: %s",
 	      pam_strerror (pam_handle, pam_rc));
       pam_rc = PAM_SUCCESS;	/* Only report the above anomaly.  */
     }
@@ -474,7 +474,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 #ifdef WITH_PAM
       pam_rc = PAM_ABORT;
 #endif
-      syslog (LOG_DEBUG, "setuid(uid = %d): %m", pwd->pw_uid);
+      syslog (LOG_DEBUG | LOG_AUTH, "setuid(uid = %d): %m", pwd->pw_uid);
       die (EXIT_FAILURE, "Failed user identity.");
     }
 
@@ -558,7 +558,8 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   if (chdir (pwd->pw_dir) < 0)
     {
       if (logging)
-	syslog (LOG_NOTICE, "\"%s\" uses invalid \"%s\"", user, pwd->pw_dir);
+	syslog (LOG_NOTICE | LOG_AUTH, "\"%s\" uses invalid \"%s\"",
+		user, pwd->pw_dir);
 #ifdef WITH_PAM
       pam_rc = PAM_ABORT;
 #endif
@@ -582,7 +583,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   if (pwd == NULL)
 # endif /* HAVE_GETPWNAM_R */
     {
-      syslog (LOG_ERR, "no user named \"%s\"", user);
+      syslog (LOG_ERR | LOG_AUTH, "no user named \"%s\"", user);
       die (EXIT_FAILURE, "Login incorrect.");
     }
 #endif /* WITH_PAM */

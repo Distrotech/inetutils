@@ -393,7 +393,7 @@ main (int argc, char *argv[])
   iu_argp_init ("rlogind", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
-  openlog ("rlogind", LOG_PID | LOG_CONS, LOG_AUTH);
+  openlog ("rlogind", LOG_PID | LOG_CONS, LOG_DAEMON);
   argc -= index;
   if (argc > 0)
     {
@@ -572,7 +572,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 	}
       if (!match)
 	{
-	  syslog (LOG_ERR | LOG_AUTH, "cannot find matching IP for %s (%s)",
+	  syslog (LOG_ERR | LOG_AUTH, "cannot verify matching IP for %s (%s)",
 		  ap->hostname, inet_ntoa (ap->from.sin_addr));
 	  fatal (fd, "Permission denied", 0);
 	}
@@ -872,24 +872,27 @@ do_rlogin (int infd, struct auth_data *ap)
   pwd = getpwnam (ap->lusername);
   if (pwd == NULL)
     {
-      syslog (LOG_ERR, "no passwd entry for %s", ap->lusername);
+      syslog (LOG_ERR | LOG_AUTH, "no passwd entry for %s", ap->lusername);
       fatal (infd, "Permission denied", 0);
     }
   if (!allow_root && pwd->pw_uid == 0)
     {
-      syslog (LOG_ERR, "root logins not permitted");
+      syslog (LOG_ERR | LOG_AUTH, "root logins not permitted");
       fatal (infd, "Permission denied", 0);
     }
 
 #ifdef WITH_IRUSEROK
   rc = iruserok (ap->from.sin_addr.s_addr, 0, ap->rusername, ap->lusername);
   if (rc)
-    syslog (LOG_ERR, "iruserok failed: rusername=%s, lusername=%s",
+    syslog (LOG_ERR | LOG_AUTH,
+	    "iruserok failed: rusername=%s, lusername=%s",
 	    ap->rusername, ap->lusername);
 #elif defined WITH_RUSEROK
-  rc = ruserok (inet_ntoa (ap->from.sin_addr), 0, ap->rusername, ap->lusername);
+  rc = ruserok (inet_ntoa (ap->from.sin_addr), 0, ap->rusername,
+		ap->lusername);
   if (rc)
-    syslog (LOG_ERR, "ruserok failed: rusername=%s, lusername=%s",
+    syslog (LOG_ERR | LOG_AUTH,
+	    "ruserok failed: rusername=%s, lusername=%s",
 	    ap->rusername, ap->lusername);
 #else /* !WITH_IRUSEROK && !WITH_RUSEROK */
 #error Unable to use mandatory iruserok/ruserok.  This should not happen.
@@ -979,7 +982,7 @@ do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
   if (pwd == NULL)
     {
       *err_msg = "getpwnam failed";
-      syslog (LOG_ERR, "getpwnam failed: %m");
+      syslog (LOG_ERR | LOG_AUTH, "getpwnam failed: %m");
       return 1;
     }
   /* returns nonzero for no access */
@@ -1019,7 +1022,8 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
 
   if (status = krb5_init_context (&ap->context))
     {
-      syslog (LOG_ERR, "Error initializing krb5: %s", error_message (status));
+      syslog (LOG_ERR, "Error initializing krb5: %s",
+	      error_message (status));
       return status;
     }
 
@@ -1072,7 +1076,7 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   if (pwd == NULL)
     {
       *err_msg = "getpwnam failed";
-      syslog (LOG_ERR, "getpwnam failed: %m");
+      syslog (LOG_ERR | LOG_AUTH, "getpwnam failed: %m");
       return 1;
     }
 
@@ -1196,7 +1200,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
      if (pwd == NULL)
      {
      *err_msg = "getpwnam failed";
-     syslog (LOG_ERR, "getpwnam failed: %m");
+     syslog (LOG_ERR | LOG_AUTH, "getpwnam failed: %m");
      return 1;
      }
 
@@ -1240,7 +1244,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   rc = shishi_authorized_p (ad->h, shishi_ap_tkt (ad->ap), ad->lusername);
   if (!rc)
     {
-      syslog (LOG_ERR, "User is not authorized to log in as: %s",
+      syslog (LOG_ERR | LOG_AUTH, "User is not authorized to log in as: %s",
 	      ad->lusername);
       shishi_ap_done (ad->ap);
       return 1;
