@@ -84,7 +84,7 @@ EXTRA_PROGRAMS += rlogind
 
 inetdaemon_PROGRAMS += $(rshd_BUILD)
 rshd_SOURCES = rshd.c
-rshd_LDADD = $(LDADD) $(LIBAUTH)
+rshd_LDADD = $(LDADD) $(LIBAUTH) $(LIBPAM)
 EXTRA_PROGRAMS += rshd
 
 inetdaemon_PROGRAMS += $(syslogd_BUILD)

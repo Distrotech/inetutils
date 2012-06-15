@@ -48,6 +48,24 @@
  */
 
 /*
+ * PAM implementation by Mats Erik Andersson.
+ *
+ * TODO: Check cooperation between PAM and Shishi/Kerberos.
+ *
+ * Sample settings:
+ *
+ * auth      required    pam_rhosts.so
+ * # auth      required    pam_rhosts_auth.so
+ * auth      required    pam_nologin.so
+ * # auth      required    pam_env.so
+ * # auth      required    pam_group.so
+ *
+ * account   required    pam_unix.so
+ * # account   required    pam_unix_account.so
+ *
+ */
+
+/*
  * remote shell server exchange protocol:
  *	[port]\0
  *	remuser\0
@@ -98,6 +116,9 @@
 #include <libinetutils.h>
 #include "xalloc.h"
 
+#ifdef HAVE_SECURITY_PAM_APPL_H
+# include <security/pam_appl.h>
+#endif
 #ifdef KERBEROS
 # ifdef HAVE_KERBEROSIV_DES_H
 #  include <kerberosIV/des.h>
@@ -126,6 +147,15 @@ void rshd_error (const char *, ...);
 char *getstr (const char *);
 int local_domain (const char *);
 const char *topdomain (const char *);
+
+#ifdef WITH_PAM
+static int pam_rc = PAM_AUTH_ERR;
+
+static pam_handle_t *pam_handle = NULL;
+static int rsh_conv (int, const struct pam_message **,
+		     struct pam_response **, void *);
+static struct pam_conv pam_conv = { rsh_conv, NULL };
+#endif /* WITH_PAM */
 
 #if defined KERBEROS || defined SHISHI
 # ifdef KERBEROS
@@ -172,10 +202,12 @@ static struct argp_option options[] = {
 extern int __check_rhosts_file;	/* hook in rcmd(3) */
 #endif
 
-#if defined __GLIBC__ && defined WITH_IRUSEROK
+#ifndef WITH_PAM
+# if defined __GLIBC__ && defined WITH_IRUSEROK
 extern int iruserok (uint32_t raddr, int superuser,
                      const char *ruser, const char *luser);
-#endif
+# endif
+#endif /* WITH_PAM */
 
 static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
@@ -224,7 +256,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
 }
 
 
-const char doc[] = "Remote shell server";
+const char doc[] =
+#ifdef WITH_PAM
+		   "Remote shell server, using PAM service 'rsh'.";
+#else /* !WITH_PAM */
+		   "Remote shell server.";
+#endif
 static struct argp argp = { options, parse_opt, NULL, doc};
 
 
@@ -300,12 +337,16 @@ main (int argc, char *argv[])
   return 0;
 }
 
-char username[20] = "USER=";
-char logname[23] = "LOGNAME=";
-char homedir[64] = "HOME=";
-char shell[64] = "SHELL=";
-char path[100] = "PATH=";
-char *envinit[] = { homedir, shell, path, logname, username, 0 };
+char username[32 + sizeof ("USER=")] = "USER=";
+char logname[32 + sizeof ("LOGNAME=")] = "LOGNAME=";
+char homedir[256 + sizeof ("HOME=")] = "HOME=";
+char shell[64 + sizeof ("SHELL=")] = "SHELL=";
+char path[sizeof (PATH_DEFPATH) + sizeof ("PATH=")] = "PATH=";
+char rhost[128 + sizeof ("RHOST=")] = "RHOST=";
+
+#ifndef WITH_PAM
+char *envinit[] = { homedir, shell, path, logname, username, rhost, NULL };
+#endif
 extern char **environ;
 
 void
@@ -374,7 +415,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   /* Verify that the client's address is an Internet adress. */
   if (fromp->sin_family != AF_INET)
     {
-      syslog (LOG_ERR, "malformed \"from\" address (af %d)\n",
+      syslog (LOG_ERR, "malformed originating address (af %d)\n",
 	      fromp->sin_family);
       exit (EXIT_FAILURE);
     }
@@ -571,7 +612,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 			    "Couldn't look up address for %s", remotehost);
 		    errorstr =
 		      "Couldn't look up address for your host (%s)\n";
-		    hostname = inet_ntoa (fromp->sin_addr);
+		    hostname = strdup (inet_ntoa (fromp->sin_addr));
 		  }
 		else
 		  for (;; hp->h_addr_list++)
@@ -582,14 +623,14 @@ doit (int sockfd, struct sockaddr_in *fromp)
 				  "Host addr %s not listed for host %s",
 				  inet_ntoa (fromp->sin_addr), hp->h_name);
 			  errorstr = "Host address mismatch for %s\n";
-			  hostname = inet_ntoa (fromp->sin_addr);
+			  hostname = strdup (inet_ntoa (fromp->sin_addr));
 			  break;
 			}
 		      if (!memcmp (hp->h_addr_list[0],
 				   (caddr_t) & fromp->sin_addr,
 				   sizeof fromp->sin_addr))
 			{
-			  hostname = hp->h_name;
+			  hostname = strdup (hp->h_name);
 			  break;	/* equal, OK */
 			}
 		    }
@@ -597,7 +638,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  }
     }
   else
-    errorhost = hostname = inet_ntoa (fromp->sin_addr);
+    errorhost = hostname = strdup (inet_ntoa (fromp->sin_addr));
 
 #ifdef	KERBEROS
   if (use_kerberos)
@@ -798,6 +839,81 @@ doit (int sockfd, struct sockaddr_in *fromp)
       goto fail;
     }
 
+#ifdef WITH_PAM
+  pam_rc = pam_start ("rsh", locuser, &pam_conv, &pam_handle);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_RHOST, hostname);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_RUSER, remuser);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_TTY, "rsh");
+  if (pam_rc != PAM_SUCCESS)
+    {
+      errorstr = "Try again.\n";
+      goto fail;
+    }
+
+  pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_ABORT:
+	  pam_end (pam_handle, pam_rc);
+	  exit (EXIT_FAILURE);
+	default:
+	  errorstr = "Password incorrect.\n";
+	  goto fail;
+	}
+    }
+
+  pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_NEW_AUTHTOK_REQD:
+	case PAM_AUTH_ERR:
+	  errorstr = "Password incorrect.\n";
+	  goto fail;
+	  break;
+	case PAM_ACCT_EXPIRED:
+	case PAM_PERM_DENIED:
+	case PAM_USER_UNKNOWN:
+	default:
+	  errorstr = "Permission denied.";
+	  goto fail;
+	  break;
+	}
+    }
+
+  /* Renew client information, since the PAM stack may have
+   * mapped the request onto another identity.
+   */
+  free (locuser);
+  locuser = NULL;
+  pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &locuser);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_NOTICE | LOG_AUTH, "pam_get_item(PAM_USER): %s",
+	      pam_strerror (pam_handle, pam_rc));
+      /* Intentionally let `locuser' be ill defined.  */
+    }
+# ifdef HAVE_GETPWNAM_R
+  ret = getpwnam_r (locuser, &pwstor, pwbuf, pwbuflen, &pwd);
+  if (ret || pwd == NULL)
+# else /* !HAVE_GETPWNAM_R */
+  pwd = getpwnam (locuser);
+  if (pwd == NULL)
+# endif /* HAVE_GETPWNAM_R */
+    {
+      syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: unknown login. cmd='%.80s'",
+	      remuser, hostname, locuser, cmdbuf);
+      errorstr = "Login incorrect.\n";
+      goto fail;
+    }
+#endif /* WITH_PAM */
+
 #ifdef	KERBEROS
   if (use_kerberos)
     {
@@ -829,17 +945,22 @@ doit (int sockfd, struct sockaddr_in *fromp)
     }
   else
 #endif /* KERBEROS || SHISHI */
-#ifdef WITH_IRUSEROK
+
+#ifndef WITH_PAM
+# ifdef WITH_IRUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
                                    remuser, locuser)) < 0))
-#elif defined WITH_RUSEROK
+# elif defined WITH_RUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (ruserok (inet_ntoa (fromp->sin_addr),
 				  pwd->pw_uid == 0, remuser, locuser)) < 0))
-#else /* !WITH_IRUSEROK && !WITH_RUSEROK */
-#error Unable to use mandatory iruserok/ruserok.  This should not happen.
-#endif /* !WITH_IRUSEROK && !WITH_RUSEROK */
+# else /* !WITH_IRUSEROK && !WITH_RUSEROK */
+# error Unable to use mandatory iruserok/ruserok.  This should not happen.
+# endif /* !WITH_IRUSEROK && !WITH_RUSEROK */
+#else /* WITH_PAM */
+    if (0)	/* Wrapper for `fail' jump label.  */
+#endif /* !WITH_PAM */
     {
 #ifdef HAVE___RCMD_ERRSTR
       if (__rcmd_errstr)
@@ -852,6 +973,16 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		"%s@%s as %s: permission denied. cmd='%.80s'",
 		remuser, hostname, locuser, cmdbuf);
     fail:
+#ifdef WITH_PAM
+      if (pam_handle)
+	{
+	  if (pam_rc != PAM_SUCCESS)
+	    syslog (LOG_NOTICE | LOG_AUTH, "%s@%s as %s, PAM: %s",
+		    remuser, hostname, locuser,
+		    pam_strerror (pam_handle, pam_rc));
+	  pam_end (pam_handle, pam_rc);
+	}
+#endif /* WITH_PAM */
       if (errorstr == NULL)
 	errorstr = "Permission denied.\n";
       rshd_error (errorstr, errorhost);
@@ -1151,12 +1282,22 @@ doit (int sockfd, struct sockaddr_in *fromp)
     syslog (LOG_ERR, "setlogin() failed: %m");
 #endif
 
-  /* Set the fid, then uid to become the user specified by "locuser" */
+  /* Set the gid, then uid to become the user specified by "locuser" */
   setegid ((gid_t) pwd->pw_gid);
   setgid ((gid_t) pwd->pw_gid);
 #ifdef HAVE_INITGROUPS
   initgroups (pwd->pw_name, pwd->pw_gid);	/* BSD groups */
 #endif
+
+#ifdef WITH_PAM
+  pam_rc = pam_setcred (pam_handle, PAM_SILENT | PAM_ESTABLISH_CRED);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_ERR | LOG_AUTH, "pam_setcred: %s",
+	      pam_strerror (pam_handle, pam_rc));
+      pam_rc = PAM_SUCCESS;	/* Only report the above anomaly.  */
+    }
+#endif /* WITH_PAM */
 
   setuid ((uid_t) pwd->pw_uid);
 
@@ -1175,14 +1316,35 @@ doit (int sockfd, struct sockaddr_in *fromp)
     }
 
   /* Set up an initial environment for the shell that we exec() */
+  strncat (homedir, pwd->pw_dir, sizeof (homedir) - sizeof ("HOME=") - 1);
+  strncat (path, PATH_DEFPATH, sizeof (path) - sizeof ("PATH=") - 1);
+  strncat (shell, pwd->pw_shell, sizeof (shell) - sizeof ("SHELL=") - 1);
+  strncat (username, pwd->pw_name, sizeof (username) - sizeof ("USER=") - 1);
+  strncat (logname, pwd->pw_name, sizeof (logname) - sizeof ("LOGNAME=") - 1);
+  strncat (rhost, hostname, sizeof (rhost) - sizeof ("RHOST=") - 1);
+
+#ifdef WITH_PAM
+  if (pam_getenv (pam_handle, "PATH") == NULL)
+    (void) pam_putenv (pam_handle, path);
+  if (pam_getenv (pam_handle, "HOME") == NULL)
+    (void) pam_putenv (pam_handle, homedir);
+  if (pam_getenv (pam_handle, "SHELL") == NULL)
+    (void) pam_putenv (pam_handle, shell);
+  if (pam_getenv (pam_handle, "USER") == NULL)
+    (void) pam_putenv (pam_handle, username);
+  if (pam_getenv (pam_handle, "LOGNAME") == NULL)
+    (void) pam_putenv (pam_handle, logname);
+  if (pam_getenv (pam_handle, "RHOST") == NULL)
+    (void) pam_putenv (pam_handle, rhost);
+
+  environ = pam_getenvlist (pam_handle);
+#else /* !WITH_PAM */
   environ = envinit;
-  strncat (homedir, pwd->pw_dir, sizeof (homedir) - 6);
-  strcat (path, PATH_DEFPATH);
-  strncat (shell, pwd->pw_shell, sizeof (shell) - 7);
-  strncat (username, pwd->pw_name, sizeof (username) - 6);
+#endif /* WITH_PAM */
+
   cp = strrchr (pwd->pw_shell, '/');
   if (cp)
-    cp++;			/* step past first slash */
+    cp++;			/* step past last slash */
   else
     cp = pwd->pw_shell;		/* no slash in shell string */
   endpwent ();
@@ -1205,6 +1367,11 @@ doit (int sockfd, struct sockaddr_in *fromp)
   else
 #endif /* SHISHI */
     execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
+
+#ifdef WITH_PAM
+  pam_end (pam_handle, PAM_SUCCESS);
+#endif
+  syslog (LOG_ERR, "execl failed for \"%s\": %m", pwd->pw_name);
   error (EXIT_FAILURE, errno, "cannot execute %s", pwd->pw_shell);
 }
 
@@ -1327,3 +1494,34 @@ topdomain (const char *h)
     }
   return maybe;
 }
+
+#ifdef WITH_PAM
+/* Call back function for passing user's information
+ * to any PAM module requesting this information.
+ */
+static int
+rsh_conv (int num, const struct pam_message **pam_msg,
+	    struct pam_response **pam_resp, void *data)
+{
+  struct pam_response *resp;
+
+  /* Reject composite calls at the time being.  */
+  if (num <= 0 || num > 1)
+    return PAM_CONV_ERR;
+
+  /* Ensure an empty response.  */
+  *pam_resp = NULL;
+
+  switch ((*pam_msg)->msg_style)
+    {
+    case PAM_PROMPT_ECHO_OFF:	/* Return an empty password.  */
+      return PAM_SUCCESS;
+    case PAM_TEXT_INFO:		/* Not yet supported.  */
+    case PAM_ERROR_MSG:		/* Likewise.  */
+    case PAM_PROMPT_ECHO_ON:	/* Interactivity is not supported.  */
+    default:
+      return PAM_CONV_ERR;
+    }
+  return PAM_CONV_ERR;	/* Never reached.  */
+}
+#endif /* WITH_PAM */

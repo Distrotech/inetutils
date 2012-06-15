@@ -1,5 +1,39 @@
 2012-06-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rshd: Duplicate static memory results.  Consistently
+	needed on systems running DragonFlyBSD.
+
+	* src/rshd.c (doit): When assigning HOSTNAME, apply
+	strdup() to results of inet_ntoa() and `hp->h_name'
+	in order to avoid loss of its contents later on.
+
+	rshd: Implement PAM support.
+
+	* src/Makefile.am (rshd_LDADD): Add also $(LIBPAM).
+	* src/rshd.c [HAVE_SECURITY_PAM_APPL_H]: Include
+	<security/pam_appl.h>.
+	(pam_rc, pam_handle, pam_conv) [WITH_PAM]: New variables.
+	(rsh_conv) [WITH_PAM]: New function.
+	(iruserok) [!WITH_PAM && __GLIBC__ && WITH_IRUSEROK]:
+	Set prototype only in absence of WITH_PAM.
+	(doc) [WITH_PAM]: Expand string content.
+	(username, logname, homedir, shell, path): Increase lengths,
+	including a preamble like `SHELL='.
+	(rhost): New variable used for environment variable RHOST.
+	(envinit) [!WITH_PAM]: Use only in absence of PAM support.
+	(doit) [WITH_PAM]: New code.
+	[!WITH_PAM && WITH_IRUSEROK]: Call iruserok() only in
+	absence of PAM.
+	[!WITH_PAM && !WITH_IRUSEROK && WITH_RUSEROK]: Likewise
+	for ruserok().
+	(doit) <fail label> [WITH_PAM]: Report errors via syslog.
+	(doit): Replace numerical offset by key string size when
+	setting `homedir', `path', `shell', and `username'.
+	Really assign a value to `logname', for portability.
+	(doit) <failed execl>: Report to syslog.
+
+2012-06-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* src/rshd.c (doit) [HAVE_GETPWNAM_R]: New variables
 	PWBUF, PWBUFLEN, PWSTOR, and RET.  Call getpwnam_r(),
 	checking both `ret' and `pwd == NULL' for failure.
