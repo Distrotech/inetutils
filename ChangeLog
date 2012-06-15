@@ -1,3 +1,7 @@
+2012-06-15  Simon Josefsson  <simon@josefsson.org>
+
+	* bootstrap: Updated from gnulib.
+
 2012-06-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rexecd, rlogind: Distinguish logging facility.
