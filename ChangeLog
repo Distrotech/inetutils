@@ -1,3 +1,9 @@
+2012-06-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/rshd.c (doit) [HAVE_GETPWNAM_R]: New variables
+	PWBUF, PWBUFLEN, PWSTOR, and RET.  Call getpwnam_r(),
+	checking both `ret' and `pwd == NULL' for failure.
+
 2012-06-15  Simon Josefsson  <simon@josefsson.org>
 
 	* bootstrap: Updated from gnulib.

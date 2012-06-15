@@ -139,12 +139,12 @@ Shishi_key *enckey;
 shishi_ivector iv1, iv2, iv3, iv4;
 shishi_ivector *ivtab[4];
 int protocol;
-# endif
+# endif /* SHISHI */
 # define VERSION_SIZE	9
 # define SECURE_MESSAGE  "This rsh session is using DES encryption for all transmissions.\r\n"
 int doencrypt, use_kerberos, vacuous;
 #else
-#endif
+#endif /* KERBEROS || SHISHI */
 
 static struct argp_option options[] = {
   { "verify-hostname", 'a', NULL, 0,
@@ -164,7 +164,7 @@ static struct argp_option options[] = {
   /* FIXME: Option name is misleading */
   { "vacuous", 'v', NULL, 0,
     "require Kerberos authentication" },
-#endif
+#endif /* KERBEROS */
   { NULL }
 };
 
@@ -210,7 +210,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       doencrypt = 1;
       break;
 # endif
-#endif
+#endif /* KERBEROS || SHISHI */
 
     case 'L':
       log_success = 1;
@@ -264,8 +264,8 @@ main (int argc, char *argv[])
       syslog (LOG_ERR, "-k is required for -x");
       exit (EXIT_FAILURE);
     }
-# endif
-#endif
+# endif /* ENCRYPTION */
+#endif /* KERBEROS || SHISHI */
 
   /*
    * We assume we're invoked by inetd, so the socket that the
@@ -315,7 +315,13 @@ doit (int sockfd, struct sockaddr_in *fromp)
   extern char *__rcmd_errstr;	/* syslog hook from libc/net/rcmd.c. */
 #endif
   struct hostent *hp;
+#ifdef HAVE_GETPWNAM_R
+  char *pwbuf;
+  int ret, pwbuflen;
+  struct passwd *pwd, pwstor;
+#else /* !HAVE_GETPWNAM_R */
   struct passwd *pwd;
+#endif
   unsigned short port;
   fd_set ready, readfrom;
   int cc, nfd, pv[2], pid, s = sockfd;
@@ -335,14 +341,22 @@ doit (int sockfd, struct sockaddr_in *fromp)
   fd_set wready, writeto;
 
   fromaddr = *fromp;
-#elif defined SHISHI
+#elif defined SHISHI /* !KERBEROS */
   int n;
   int pv1[2], pv2[2];
   fd_set wready, writeto;
   int keytype, keylen;
   int cksumtype, cksumlen;
   char *cksum = NULL;
-#endif
+#endif /* KERBEROS || SHISHI */
+
+#ifdef HAVE_GETPWNAM_R
+  pwbuflen = sysconf (_SC_GETPW_R_SIZE_MAX);
+  if (pwbuflen <= 0)
+    pwbuflen = 1024;	/* Guessing only.  */
+
+  pwbuf = xmalloc (pwbuflen);
+#endif /* HAVE_GETPWNAM_R */
 
   signal (SIGINT, SIG_DFL);
   signal (SIGQUIT, SIG_DFL);
@@ -513,7 +527,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
       rshd_error ("rshd: remote host requires Kerberos authentication\n");
       exit (EXIT_FAILURE);
     }
-#endif
+#endif /* KERBEROS || SHISHI */
 
   /* from inetd, socket is already on 0, 1, 2 */
   if (sockfd != STDIN_FILENO)
@@ -612,7 +626,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  des_set_key (kdata->session, schedule);
 	}
       else
-# endif
+# endif /* ENCRYPTION */
 	rc = krb_recvauth (authopts, 0, ticket, "rcmd",
 			   instance, &fromaddr,
 			   (struct sockaddr_in *) 0,
@@ -625,7 +639,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	}
     }
   else
-#elif defined (SHISHI)
+#elif defined (SHISHI) /* !KERBEROS */
   if (use_kerberos)
     {
       int rc;
@@ -641,7 +655,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	}
     }
   else
-#endif
+#endif /* KERBEROS || SHISHI */
     remuser = getstr ("remuser");
 
   /* Read three strings from the client. */
@@ -717,7 +731,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	    }
 
 	}
-# endif
+# endif /* ENCRYPTION */
 
     remuser = getstr ("remuser");
     rc = read (STDIN_FILENO, &error, sizeof (int));
@@ -763,14 +777,19 @@ doit (int sockfd, struct sockaddr_in *fromp)
     shishi_ap_done (ap);
 
   }
-#endif
+#endif /* SHISHI */
 
-  /* Look up locuser in the passerd file.  The locuser has\* to be a
+  /* Look up locuser in the passwd file.  The locuser has to be a
    * valid account on this system.
    */
   setpwent ();
+#ifdef HAVE_GETPWNAM_R
+  ret = getpwnam_r (locuser, &pwstor, pwbuf, pwbuflen, &pwd);
+  if (ret || pwd == NULL)
+#else /* !HAVE_GETPWNAM_R */
   pwd = getpwnam (locuser);
   if (pwd == NULL)
+#endif /* HAVE_GETPWNAM_R */
     {
       syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: unknown login. cmd='%.80s'",
 	      remuser, hostname, locuser, cmdbuf);
@@ -794,7 +813,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	}
     }
   else
-#elif defined(SHISHI)
+#elif defined(SHISHI) /* !KERBEROS */
   if (use_kerberos)
     {				/*
 				   if (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0')
@@ -809,7 +828,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 				   } */
     }
   else
-#endif
+#endif /* KERBEROS || SHISHI */
 #ifdef WITH_IRUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
@@ -828,7 +847,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		"%s@%s as %s: permission denied (%s). cmd='%.80s'",
 		remuser, hostname, locuser, __rcmd_errstr, cmdbuf);
       else
-#endif
+#endif /* HAVE___RCMD_ERRSTR */
 	syslog (LOG_INFO | LOG_AUTH,
 		"%s@%s as %s: permission denied. cmd='%.80s'",
 		remuser, hostname, locuser, cmdbuf);
@@ -888,8 +907,8 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      exit (EXIT_FAILURE);
 	    }
 	}
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
       pid = fork ();
       if (pid == -1)
 	{
@@ -913,15 +932,15 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      des_write (s, msg, sizeof (msg) - 1);
 	    }
 	  else
-# elif defined(SHISHI)
+# elif defined(SHISHI) /* !KERBEROS */
 	  if (doencrypt)
 	    {
 	      close (pv1[1]);
 	      close (pv2[1]);
 	    }
 	  else
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
 	    {
 	      /* child handles the original socket */
 	      close (STDIN_FILENO);
@@ -951,8 +970,8 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      nfd = MAX (nfd, pv1[0]);
 	    }
 	  else
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
 	    ioctl (pv[0], FIONBIO, (char *) &one);
 	  /* should set s nbio! */
 	  nfd++;
@@ -965,7 +984,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		{
 #  ifdef SHISHI
 		  wready = readfrom;
-#  else
+#  else /* KERBEROS && !SHISHI */
 		  wready = writeto;
 #  endif
 		  if (select (nfd, &ready, &wready, (fd_set *) 0,
@@ -973,11 +992,11 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		    break;
 		}
 	      else
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
 	      if (select (nfd, &ready, (fd_set *) 0,
 			    (fd_set *) 0, (struct timeval *) 0) < 0)
-		/* wait until something to read */
+		/* wait until there is something to read */
 		break;
 	      if (FD_ISSET (s, &ready))
 		{
@@ -987,12 +1006,12 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		  if (doencrypt)
 		    ret = des_read (s, &sig, 1);
 		  else
-# elif defined(SHISHI)
+# elif defined(SHISHI) /* !KERBEROS */
 		  if (doencrypt)
 		    readenc (h, s, &sig, &ret, &iv2, enckey, protocol);
 		  else
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
 		    ret = read (s, &sig, 1);
 		  if (ret <= 0)
 		    FD_CLR (s, &readfrom);
@@ -1015,12 +1034,12 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		      if (doencrypt)
 			des_write (s, buf, cc);
 		      else
-# elif defined(SHISHI)
+# elif defined(SHISHI) /* !KERBEROS */
 		      if (doencrypt)
 			writeenc (h, s, buf, cc, &n, &iv4, enckey, protocol);
 		      else
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
 			write (s, buf, cc);
 		    }
 		}
@@ -1039,7 +1058,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #  ifdef SHISHI
 		    writeenc (h, STDOUT_FILENO, buf, cc, &n, &iv3, enckey,
 			      protocol);
-#  else
+#  else /* KERBEROS */
 		    des_write (STDOUT_FILENO, buf, cc);
 #  endif
 		}
@@ -1049,7 +1068,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		  errno = 0;
 #  ifdef SHISHI
 		  readenc (h, STDIN_FILENO, buf, &cc, &iv1, enckey, protocol);
-#  else
+#  else /* KERBEROS */
 		  cc = des_read (STDIN_FILENO, buf, sizeof buf);
 #  endif
 		  if (cc <= 0)
@@ -1060,18 +1079,18 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		  else
 		    write (pv2[0], buf, cc);
 		}
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
 	    }
 	  while (FD_ISSET (s, &readfrom) ||
 #ifdef ENCRYPTION
 # if defined KERBEROS || defined SHISHI
 		 (doencrypt && FD_ISSET (pv1[0], &readfrom)) ||
 # endif
-#endif
+#endif /* ENCRYPTION */
 		 FD_ISSET (pv[0], &readfrom));
-	  /* The pipe will generat an EOR whe the shell
-	   * terminates.  The socket will terninate whe the
+	  /* The pipe will generate an EOF when the shell
+	   * terminates.  The socket will terminate when the
 	   * client process terminates.
 	   */
 	  exit (EXIT_SUCCESS);
@@ -1097,8 +1116,8 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	  close (pv1[1]);
 	  close (pv2[1]);
 	}
-# endif
-#endif
+# endif /* KERBEROS || SHISHI */
+#endif /* ENCRYPTION */
 
 #if defined SHISHI
       if (use_kerberos)
@@ -1116,10 +1135,10 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		  free (ivtab[i]->iv);
 		}
 	    }
-# endif
+# endif /* ENCRYPTION */
 	}
 
-#endif
+#endif /* SHISHI */
 
       dup2 (pv[1], STDERR_FILENO);	/* stderr of shell has to go
 					   pipe to control process */
@@ -1176,7 +1195,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		kdata->pname, kdata->pinst, kdata->prealm,
 		hostname, locuser, cmdbuf);
       else
-#endif
+#endif /* KERBEROS */
 	syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: cmd='%.80s'",
 		remuser, hostname, locuser, cmdbuf);
     }
@@ -1184,7 +1203,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
   if (doencrypt)
     execl (pwd->pw_shell, cp, "-c", cmdbuf + 3, NULL);
   else
-#endif
+#endif /* SHISHI */
     execl (pwd->pw_shell, cp, "-c", cmdbuf, NULL);
   error (EXIT_FAILURE, errno, "cannot execute %s", pwd->pw_shell);
 }
