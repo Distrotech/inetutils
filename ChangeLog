@@ -1,5 +1,21 @@
 2012-06-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* configure.ac (WITH_ORCMD_AF, WITH_ORCMD, WITH_RCMD_AF)
+	(WITH_RRESVPORT_AF, WITH_IRUSEROK_AF, WITH_IRUSEROK_SA)
+	(WITH_RUSEROK_AF): New macros.
+	* src/rcp.c (toremote, tolocal, kerberos)
+	[WITH_ORCMD_AF || WITH_RCMD_AF || WITH_ORCMD]:
+	Replace rcmd() by orcmd_af(), rcmd_af(), or orcmd().
+	* src/rsh.c (main)
+	[WITH_ORCMD_AF || WITH_RCMD_AF || WITH_ORCMD]: Likewise.
+	* src/rshd.c (doit) [WITH_RRESVPORT_AF]: Use rresvport_af()
+	instead of rresvport().
+	[WITH_IRUSEROK_SA || WITH_IRUSEROK_AF]: Replace iruserok()
+	with iruserok_sa() or iruserok_af().
+	[WITH_RUSEROK_AF]: Use ruserok_af(), not ruserok().
+
+2012-06-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* src/rshd.c (doit): New signature
 	`(int, struct sockaddr_in *, socklen_t)'.
 	(main): Pass FROMLEN to doit().

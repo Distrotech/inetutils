@@ -232,17 +232,54 @@ else
   talk_BUILD=''
 fi
 
+# NetBSD offers orcmd() and orcmd_af() for getting
+# exactly the functionality that rcmd() and rcmd_af()
+# offer on all other targetted systems.
+AC_CHECK_FUNC(rcmd_af, , , [#include <netdb.h>])
+if test "$ac_cv_func_rcmd_af" = yes; then
+  AC_DEFINE([WITH_RCMD_AF], 1, [Define to one if you can use rcmd_af.])
+fi
+AC_CHECK_FUNC(orcmd, , , [#include <unistd.h>])
+if test "$ac_cv_func_orcmd" = yes; then
+  AC_DEFINE([WITH_ORCMD], 1, [Define to one if you can use orcmd.])
+fi
+AC_CHECK_FUNC(orcmd_af, , , [#include <unistd.h>])
+if test "$ac_cv_func_orcmd_af" = yes; then
+  AC_DEFINE([WITH_ORCMD_AF], 1, [Define to one if you can use orcmd_af.])
+fi
+AC_CHECK_FUNC(rresvport_af, , , [#include <netdb.h>])
+if test "$ac_cv_func_rresvport_af" = yes; then
+  AC_DEFINE([WITH_RRESVPORT_AF], 1,
+	    [Define to one if you can use rresvport_af.])
+fi
+
 # FIXME: Presently rshd and rlogind prefer iruserok(3), which is not
 # universally available.  Replacement code?  A fallback is being built
-# from ruserok(3) and inet_ntoa(3).
+# from ruserok(3) and inet_ntoa(3).  Calls using iruserok/rusersok are
+# used for non-PAM configured executables rshd/rlogind.
 AC_CHECK_FUNC(iruserok, , , [#include <netdb.h>])
+AC_CHECK_FUNC(iruserok_af, , , [#include <netdb.h>])
+AC_CHECK_FUNC(iruserok_sa, , , [#include <netdb.h>])
 AC_CHECK_FUNC(ruserok, , , [#include <netdb.h>])
+AC_CHECK_FUNC(ruserok_af, , , [#include <netdb.h>])
 if test "$ac_cv_func_iruserok" = yes; then
   AC_DEFINE([WITH_IRUSEROK], 1, [Define to one if you can use iruserok.])
+  if test "$ac_cv_func_iruserok_af" = yes; then
+    AC_DEFINE([WITH_IRUSEROK_AF], 1,
+	      [Define to one if you can use iruserok_af.])
+  fi
+  if test "$ac_cv_func_iruserok_sa" = yes; then
+    AC_DEFINE([WITH_IRUSEROK_SA], 1,
+	      [Define to one if you can use iruserok_sa.])
+  fi
 else
   if test "$ac_cv_func_ruserok" = yes; then
     AC_DEFINE([WITH_RUSEROK], 1, [Define to one if you can use ruserok.])
     AC_MSG_WARN([iruserok is not available, falling back to ruserok.])
+    if test "$ac_cv_func_ruserok_af" = yes; then
+      AC_DEFINE([WITH_RUSEROK_AF], 1,
+		[Define to on if you can use ruserok_af.])
+    fi
   else
     AC_MSG_WARN([Disabling rlogind and rshd, since no iruserok and no ruserok.])
     enable_rlogind=no

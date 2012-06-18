@@ -553,7 +553,11 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
        * to it, plus.
        */
       int lport = IPPORT_RESERVED - 1;
+#ifdef WITH_RRESVPORT_AF
+      s = rresvport_af (&lport, fromp->sin_family);
+#else
       s = rresvport (&lport);
+#endif
       if (s < 0)
 	{
 	  syslog (LOG_ERR, "can't get stderr port: %m");
@@ -1021,17 +1025,29 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 #endif /* KERBEROS || SHISHI */
 
 #ifndef WITH_PAM
-# ifdef WITH_IRUSEROK
+# ifdef WITH_IRUSEROK_SA
+    if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
+                     && (iruserok_sa ((void *) fromp, fromlen,
+				      pwd->pw_uid == 0, remuser, locuser)) < 0))
+# elif defined WITH_IRUSEROK_AF
+    if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
+                     && (iruserok_af (&fromp->sin_addr, pwd->pw_uid == 0,
+                                   remuser, locuser, fromp->sin_family)) < 0))
+# elif defined WITH_IRUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
                                    remuser, locuser)) < 0))
+# elif defined WITH_RUSEROK_AF
+    if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
+                     && (ruserok_af (addrstr, pwd->pw_uid == 0,
+				  remuser, locuser, fromp->sin_family)) < 0))
 # elif defined WITH_RUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (ruserok (addrstr, pwd->pw_uid == 0,
 				  remuser, locuser)) < 0))
-# else /* !WITH_IRUSEROK && !WITH_RUSEROK */
+# else /* !WITH_IRUSEROK* && !WITH_RUSEROK* */
 # error Unable to use mandatory iruserok/ruserok.  This should not happen.
-# endif /* !WITH_IRUSEROK && !WITH_RUSEROK */
+# endif /* !WITH_IRUSEROK* && !WITH_RUSEROK* */
 #else /* WITH_PAM */
     if (0)	/* Wrapper for `fail' jump label.  */
 #endif /* !WITH_PAM */

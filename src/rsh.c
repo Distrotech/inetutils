@@ -445,13 +445,29 @@ try_connect:
 	user = pw->pw_name;
       if (doencrypt)
 	error (EXIT_FAILURE, 0, "the -x flag requires Kerberos authentication");
+# ifdef WITH_ORCMD_AF
+      rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+# elif defined WITH_RCMD_AF
+      rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+# elif defined WITH_ORCMD
+      rem = orcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
+# else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
       rem = rcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
+# endif
     }
-#else
+#else /* !KERBEROS && !SHISHI */
   if (!user)
     user = pw->pw_name;
+# ifdef WITH_ORCMD_AF
+  rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+# elif defined WITH_RCMD_AF
+  rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+# elif defined WITH_ORCMD
+  rem = orcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
+# else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
   rem = rcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
-#endif
+# endif
+#endif /* !KERBEROS && !SHISHI */
 
   if (rem < 0)
     exit (EXIT_FAILURE);

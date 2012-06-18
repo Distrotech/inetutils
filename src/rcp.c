@@ -429,8 +429,21 @@ toremote (char *targ, int argc, char *argv[])
 				tuser ? tuser : pwd->pw_name);
 	      else
 #endif
+#ifdef WITH_ORCMD_AF
+		rem = orcmd_af (&host, port, pwd->pw_name,
+				tuser ? tuser : pwd->pw_name,
+				bp, 0, AF_INET);
+#elif defined WITH_RCMD_AF
+		rem = rcmd_af (&host, port, pwd->pw_name,
+			       tuser ? tuser : pwd->pw_name,
+			       bp, 0, AF_INET);
+#elif defined WITH_ORCMD
+		rem = orcmd (&host, port, pwd->pw_name,
+			     tuser ? tuser : pwd->pw_name, bp, 0);
+#else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
 		rem = rcmd (&host, port, pwd->pw_name,
 			    tuser ? tuser : pwd->pw_name, bp, 0);
+#endif
 	      if (rem < 0)
 		exit (EXIT_FAILURE);
 #if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
@@ -495,7 +508,15 @@ tolocal (int argc, char *argv[])
 #ifdef KERBEROS
 	use_kerberos ? kerberos (&host, bp, pwd->pw_name, suser) :
 #endif
+#ifdef WITH_ORCMD_AF
+	orcmd_af (&host, port, pwd->pw_name, suser, bp, 0, AF_INET);
+#elif defined WITH_RCMD_AF
+	rcmd_af (&host, port, pwd->pw_name, suser, bp, 0, AF_INET);
+#elif defined WITH_ORCMD
+	orcmd (&host, port, pwd->pw_name, suser, bp, 0);
+#else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
 	rcmd (&host, port, pwd->pw_name, suser, bp, 0);
+#endif
       free (bp);
       if (rem < 0)
 	{
@@ -1042,7 +1063,15 @@ again:
       if (doencrypt)
 	error (EXIT_FAILURE, 0, "the -x option requires Kerberos authentication");
 # endif
+#ifdef WITH_ORCMD_AF
+      rem = orcmd_af (host, port, locuser, user, bp, 0, AF_INET);
+#elif defined WITH_RCMD_AF
+      rem = rcmd_af (host, port, locuser, user, bp, 0, AF_INET);
+#elif defined WITH_ORCMD
+      rem = orcmd (host, port, locuser, user, bp, 0);
+#else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
       rem = rcmd (host, port, locuser, user, bp, 0);
+#endif
     }
   return rem;
 }
