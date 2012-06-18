@@ -142,7 +142,7 @@ int check_all;
 int log_success;		/* If TRUE, log all successful accesses */
 int sent_null;
 
-void doit (int, struct sockaddr_in *);
+void doit (int, struct sockaddr_in *, socklen_t);
 void rshd_error (const char *, ...);
 char *getstr (const char *);
 int local_domain (const char *);
@@ -333,7 +333,7 @@ main (int argc, char *argv[])
   if (setsockopt (sockfd, SOL_SOCKET, SO_LINGER, (char *) &linger,
 		  sizeof linger) < 0)
     syslog (LOG_WARNING, "setsockopt (SO_LINGER): %m");
-  doit (sockfd, &from);
+  doit (sockfd, &from, fromlen);
   return 0;
 }
 
@@ -350,7 +350,7 @@ char *envinit[] = { homedir, shell, path, logname, username, rhost, NULL };
 extern char **environ;
 
 void
-doit (int sockfd, struct sockaddr_in *fromp)
+doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 {
 #ifdef HAVE___RCMD_ERRSTR
   extern char *__rcmd_errstr;	/* syslog hook from libc/net/rcmd.c. */
@@ -363,10 +363,14 @@ doit (int sockfd, struct sockaddr_in *fromp)
 #else /* !HAVE_GETPWNAM_R */
   struct passwd *pwd;
 #endif
-  unsigned short port;
+  unsigned short port, inport;
   fd_set ready, readfrom;
   int cc, nfd, pv[2], pid, s = sockfd;
-  int one = 1;
+  int rc, one = 1;
+  char portstr[8], addrstr[INET6_ADDRSTRLEN];
+#ifdef HAVE_DECL_GETNAMEINFO
+  char addrname[NI_MAXHOST];
+#endif
   const char *hostname, *errorstr, *errorhost = NULL;
   char *cp, sig, buf[BUFSIZ];
   char *cmdbuf, *locuser, *remuser;
@@ -376,7 +380,6 @@ doit (int sockfd, struct sockaddr_in *fromp)
   KTEXT ticket = (KTEXT) NULL;
   char instance[INST_SZ], version[VERSION_SIZE];
   struct sockaddr_in fromaddr;
-  int rc;
   long authopts;
   int pv1[2], pv2[2];
   fd_set wready, writeto;
@@ -412,6 +415,24 @@ doit (int sockfd, struct sockaddr_in *fromp)
       }
   }
 #endif
+
+#ifdef HAVE_DECL_GETNAMEINFO
+  rc = getnameinfo ((struct sockaddr *) fromp, fromlen,
+		    addrstr, sizeof (addrstr),
+		    portstr, sizeof (portstr),
+		    NI_NUMERICHOST | NI_NUMERICSERV);
+  if (rc != 0)
+    {
+      syslog (LOG_WARNING, "getnameinfo: %s", gai_strerror (rc));
+      exit (EXIT_FAILURE);
+    }
+  inport = atoi (portstr);
+#else /* !HAVE_DECL_GETNAMEINFO */
+  strncpy (addrstr, inet_ntoa (fromp->sin_addr), sizeof (addrstr));
+  inport = ntohs (fromp->sin_port);
+  snprintf (portstr, sizeof (portstr), "%u", inport);
+#endif
+
   /* Verify that the client's address is an Internet adress. */
   if (fromp->sin_family != AF_INET)
     {
@@ -451,7 +472,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 		 */
 		syslog (LOG_NOTICE,
 			"Discarding connection from %s with set source routing",
-			inet_ntoa (fromp->sin_addr));
+			addrstr);
 		exit (EXIT_FAILURE);
 	      }
 	    if (*cp == IPOPT_EOL)
@@ -472,7 +493,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	 * Make a report about them, erase them, and continue.  */
 	syslog (LOG_NOTICE,
 		"Connection received from %s using IP options (erased):%s",
-		inet_ntoa (fromp->sin_addr), lbuf);
+		addrstr, lbuf);
 
 	/* Turn off the options.  If this doesn't work, we quit.  */
 	if (setsockopt (sockfd, ipproto, IP_OPTIONS,
@@ -485,18 +506,15 @@ doit (int sockfd, struct sockaddr_in *fromp)
   }
 #endif
 
-  /* Need host byte ordered port# to compare */
-  fromp->sin_port = ntohs ((unsigned short) fromp->sin_port);
   /* Verify that the client's address was bound to a reserved port */
 #if defined KERBEROS || defined SHISHI
   if (!use_kerberos)
 #endif
-    if (fromp->sin_port >= IPPORT_RESERVED
-	|| fromp->sin_port < IPPORT_RESERVED / 2)
+    if (inport >= IPPORT_RESERVED || inport < IPPORT_RESERVED / 2)
       {
 	syslog (LOG_NOTICE | LOG_AUTH,
-		"Connection from %s on illegal port %u",
-		inet_ntoa (fromp->sin_addr), fromp->sin_port);
+		"Connection from %s on illegal port %s",
+		addrstr, portstr);
 	exit (EXIT_FAILURE);
       }
 
@@ -555,7 +573,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
        * as secondary port by the client.
        */
       fromp->sin_port = htons (port);
-      if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
+      if (connect (s, (struct sockaddr *) fromp, fromlen) < 0)
 	{
 	  syslog (LOG_INFO, "connect second port %d: %m", port);
 	  exit (EXIT_FAILURE);
@@ -582,6 +600,61 @@ doit (int sockfd, struct sockaddr_in *fromp)
    * used for the authentication below.
    */
   errorstr = NULL;
+#ifdef HAVE_DECL_GETNAMEINFO
+  rc = getnameinfo ((struct sockaddr *) fromp, fromlen,
+		    addrname, sizeof (addrname), NULL, 0, 0);
+  if (rc == 0)
+    {
+      hostname = addrname;
+# if defined KERBEROS || defined SHISHI
+      if (!use_kerberos)
+# endif
+	if (check_all || local_domain (addrname))
+	  {
+	    struct addrinfo hints, *ai, *res;
+
+	    errorhost = addrname;
+	    memset (&hints, 0, sizeof (hints));
+	    hints.ai_family = fromp->sin_family;
+	    hints.ai_socktype = SOCK_STREAM;
+
+	    rc = getaddrinfo (hostname, NULL, &hints, &res);
+	    if (rc != 0)
+	      {
+		syslog (LOG_INFO, "Could not resolve address for %s",
+			hostname);
+		errorstr = "Could not resolve address for your host (%s)\n";
+		hostname = addrstr;
+	      }
+	    else
+	      {
+		for (ai = res; ai; ai = ai->ai_next)
+		  {
+		    char astr[INET6_ADDRSTRLEN] = "";
+
+		    if (getnameinfo (ai->ai_addr, ai->ai_addrlen,
+				     astr, sizeof (astr),
+				     NULL, 0, NI_NUMERICHOST))
+		      continue;
+		    if (!strcmp (addrstr, astr))
+		      {
+			hostname = addrname;
+			break;	/* equal, OK */
+		      }
+		  }
+		freeaddrinfo (res);
+		if (ai == NULL)
+		  {
+		    syslog (LOG_NOTICE,
+			    "Host addr %s not listed for host %s",
+			    addrstr, hostname);
+		    errorstr = "Host address mismatch for %s\n";
+		    hostname = addrstr;
+		  }
+	      }
+	  }
+    }
+#else /* !HAVE_DECL_GETNAMEINFO */
   hp = gethostbyaddr ((char *) &fromp->sin_addr, sizeof (struct in_addr),
 		      fromp->sin_family);
   if (hp)
@@ -593,9 +666,9 @@ doit (int sockfd, struct sockaddr_in *fromp)
        * address corresponds to the name.
        */
       hostname = strdup (hp->h_name);
-#if defined KERBEROS || defined SHISHI
+# if defined KERBEROS || defined SHISHI
       if (!use_kerberos)
-#endif
+# endif
 	if (check_all || local_domain (hp->h_name))
 	  {
 	    char *remotehost = alloca (strlen (hostname) + 1);
@@ -612,7 +685,7 @@ doit (int sockfd, struct sockaddr_in *fromp)
 			    "Couldn't look up address for %s", remotehost);
 		    errorstr =
 		      "Couldn't look up address for your host (%s)\n";
-		    hostname = strdup (inet_ntoa (fromp->sin_addr));
+		    hostname = addrstr;
 		  }
 		else
 		  for (;; hp->h_addr_list++)
@@ -621,9 +694,9 @@ doit (int sockfd, struct sockaddr_in *fromp)
 			{
 			  syslog (LOG_NOTICE,
 				  "Host addr %s not listed for host %s",
-				  inet_ntoa (fromp->sin_addr), hp->h_name);
+				  addrstr, hp->h_name);
 			  errorstr = "Host address mismatch for %s\n";
-			  hostname = strdup (inet_ntoa (fromp->sin_addr));
+			  hostname = addrstr;
 			  break;
 			}
 		      if (!memcmp (hp->h_addr_list[0],
@@ -637,8 +710,9 @@ doit (int sockfd, struct sockaddr_in *fromp)
 	      }
 	  }
     }
+#endif /* !HAVE_DECL_GETNAMEINFO */
   else
-    errorhost = hostname = strdup (inet_ntoa (fromp->sin_addr));
+    errorhost = hostname = addrstr;
 
 #ifdef	KERBEROS
   if (use_kerberos)
@@ -953,8 +1027,8 @@ doit (int sockfd, struct sockaddr_in *fromp)
                                    remuser, locuser)) < 0))
 # elif defined WITH_RUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
-                     && (ruserok (inet_ntoa (fromp->sin_addr),
-				  pwd->pw_uid == 0, remuser, locuser)) < 0))
+                     && (ruserok (addrstr, pwd->pw_uid == 0,
+				  remuser, locuser)) < 0))
 # else /* !WITH_IRUSEROK && !WITH_RUSEROK */
 # error Unable to use mandatory iruserok/ruserok.  This should not happen.
 # endif /* !WITH_IRUSEROK && !WITH_RUSEROK */

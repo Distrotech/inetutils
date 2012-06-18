@@ -1,3 +1,17 @@
+2012-06-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/rshd.c (doit): New signature
+	`(int, struct sockaddr_in *, socklen_t)'.
+	(main): Pass FROMLEN to doit().
+	(doit): New variables INPORT, RC, PORTSTR, ADDRSTR.
+	(doit) [HAVE_DECL_GETNAMEINFO]: New variable ADDRNAME.
+	(doit): Put numeric info in ADDRSTR, INPORT, PORTSTR
+	early on, later replacing multiple inet_ntoa().  Do not
+	overwrite `fromp->sin_port', but use INPORT, PORTSTR.
+	Prefer using getnameinfo().
+	(doit) <address verification> [HAVE_DECL_GETNAMEINFO]:
+	New alternate code.
+
 2012-06-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: Duplicate static memory results.  Consistently
