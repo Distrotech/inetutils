@@ -1,3 +1,14 @@
+2012-06-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rshd: PAM session handling.
+
+	* src/rshd.c: Include <sys/wait.h>.
+	(doit) <port != 0 && parent> [WITH_PAM]: Call
+	pam_close_session(), pam_setcred(), and pam_end().
+	(doit) <without port> [WITH_PAM]: Call fork().  Parent
+	waits for child and properly closes PAM session.
+	(doit) <child> [WITH_PAM]: Call pam_open_session().
+
 2012-06-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac (WITH_ORCMD_AF, WITH_ORCMD, WITH_RCMD_AF)

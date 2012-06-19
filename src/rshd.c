@@ -54,15 +54,35 @@
  *
  * Sample settings:
  *
- * auth      required    pam_rhosts.so
- * # auth      required    pam_rhosts_auth.so
+ *   GNU/Linux, et cetera:
+ *
  * auth      required    pam_nologin.so
- * # auth      required    pam_env.so
- * # auth      required    pam_group.so
- *
+ * auth      required    pam_rhosts.so
+ * auth      required    pam_env.so
+ * auth      required    pam_group.so
+ * account   required    pam_nologin.so
  * account   required    pam_unix.so
- * # account   required    pam_unix_account.so
+ * session   required    pam_unix.so
+ * session   required    pam_lastlog.so silent
+ * password  required    pam_deny.so
  *
+ *   OpenSolaris:
+ *
+ * auth      required    pam_rhosts_auth.so
+ * auth      required    pam_unix_cred.so
+ * account   required    pam_roles.so
+ * account   required    pam_unix_account.so
+ * session   required    pam_unix_session.so
+ * password  required    pam_deny.so
+ *
+ *   BSD:
+ *
+ * auth      required    pam_nologin.so     # NetBSD
+ * auth      required    pam_rhosts.so
+ * account   required    pam_nologin.so     # FreeBSD
+ * account   required    pam_unix.so
+ * session   required    pam_lastlog.so
+ * password  required    pam_deny.so
  */
 
 /*
@@ -110,6 +130,7 @@
 #include <unistd.h>
 #include <grp.h>
 #include <sys/select.h>
+#include <sys/wait.h>
 #include <error.h>
 #include <progname.h>
 #include <argp.h>
@@ -1102,8 +1123,8 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 
   if (port)
     {
-      /* We nee a secondary channel,  Here's where we create
-       * the control process that'll handle this secondary
+      /* We need a secondary channel.  Here is where we create
+       * the control process that will handle this secondary
        * channel.
        * First create a pipe to use for communication between
        * the parent and child, then fork.
@@ -1314,6 +1335,20 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 	   * terminates.  The socket will terminate when the
 	   * client process terminates.
 	   */
+#ifdef WITH_PAM
+	  /* The child opened the session; now it
+	   * should be closed down properly.  */
+	  pam_rc = pam_close_session (pam_handle, PAM_SILENT);
+	  if (pam_rc != PAM_SUCCESS)
+	    syslog (LOG_WARNING | LOG_AUTH, "pam_close_session: %s",
+		    pam_strerror (pam_handle, pam_rc));
+	  pam_rc = pam_setcred (pam_handle, PAM_SILENT | PAM_DELETE_CRED);
+	  if (pam_rc != PAM_SUCCESS)
+	    syslog (LOG_WARNING | LOG_AUTH, "pam_setcred: %s",
+		    pam_strerror (pam_handle, pam_rc));
+	  pam_end (pam_handle, pam_rc);
+#endif /* WITH_PAM */
+
 	  exit (EXIT_SUCCESS);
 	}
 
@@ -1365,6 +1400,40 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 					   pipe to control process */
       close (pv[1]);
     }
+#ifdef WITH_PAM
+    /* Session handling must end also in this case.  */
+  else
+    {
+      pid = fork ();
+      if (pid < 0)
+	{
+	  rshd_error ("Can't fork; try again.\n");
+	  exit (EXIT_FAILURE);
+	}
+      if (pid)
+	{
+	  /* Parent: Wait for child and tear down
+	   * the PAM session.  */
+	  int status;
+
+	  while (wait (&status) < 0 && errno == EINTR)
+	    ;
+
+	  pam_rc = pam_close_session (pam_handle, PAM_SILENT);
+	  if (pam_rc != PAM_SUCCESS)
+	    syslog (LOG_WARNING | LOG_AUTH, "pam_close_session: %s",
+		    pam_strerror (pam_handle, pam_rc));
+	  pam_rc = pam_setcred (pam_handle, PAM_SILENT | PAM_DELETE_CRED);
+	  if (pam_rc != PAM_SUCCESS)
+	    syslog (LOG_WARNING | LOG_AUTH, "pam_setcred: %s",
+		    pam_strerror (pam_handle, pam_rc));
+	  pam_end (pam_handle, pam_rc);
+
+	  exit (WIFEXITED (status) ? WEXITSTATUS (status) : EXIT_FAILURE);
+	}
+    }
+#endif /* WITH_PAM */
+
   if (*pwd->pw_shell == '\0')
     pwd->pw_shell = PATH_BSHELL;
 #if BSD > 43
@@ -1384,6 +1453,13 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
   if (pam_rc != PAM_SUCCESS)
     {
       syslog (LOG_ERR | LOG_AUTH, "pam_setcred: %s",
+	      pam_strerror (pam_handle, pam_rc));
+      pam_rc = PAM_SUCCESS;	/* Only report the above anomaly.  */
+    }
+  pam_rc = pam_open_session (pam_handle, PAM_SILENT);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_ERR | LOG_AUTH, "pam_open_session: %s",
 	      pam_strerror (pam_handle, pam_rc));
       pam_rc = PAM_SUCCESS;	/* Only report the above anomaly.  */
     }
