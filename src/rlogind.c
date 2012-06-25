@@ -145,6 +145,8 @@ extern int __check_rhosts_file;
 struct auth_data
 {
   struct sockaddr_in from;
+  socklen_t fromlen;
+  char *hostaddr;
   char *hostname;
   char *lusername;
   char *rusername;
@@ -481,6 +483,9 @@ rlogin_daemon (int maxchildren, int port)
   size = sizeof saddr;
   memset (&saddr, 0, size);
   saddr.sin_family = AF_INET;
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+  saddr.sin_len = sizeof (struct sockaddr_in);
+#endif
   saddr.sin_addr.s_addr = htonl (INADDR_ANY);
   saddr.sin_port = htons (port);
 
@@ -534,7 +539,12 @@ rlogin_daemon (int maxchildren, int port)
 int
 rlogind_auth (int fd, struct auth_data *ap)
 {
+#if defined HAVE_DECL_GETNAMEINFO || defined HAVE_DECL_GETADDRINFO
+  int rc;
+  char hoststr[NI_MAXHOST];
+#else
   struct hostent *hp;
+#endif
   char *hostname;
   int authenticated = 0;
 
@@ -545,24 +555,55 @@ rlogind_auth (int fd, struct auth_data *ap)
   confirmed = 0;
 
   /* Check the remote host name */
+#ifdef HAVE_DECL_GETNAMEINFO
+  rc = getnameinfo ((struct sockaddr *) &ap->from, ap->fromlen,
+		    hoststr, sizeof (hoststr), NULL, 0, NI_NAMEREQD);
+  if (!rc)
+    hostname = hoststr;
+#else /* !HAVE_DECL_GETNAMEINFO */
   hp = gethostbyaddr ((char *) &ap->from.sin_addr, sizeof (struct in_addr),
 		      ap->from.sin_family);
   if (hp)
     hostname = hp->h_name;
+#endif /* !HAVE_DECL_GETNAMEINFO */
   else if (reverse_required)
     {
       syslog (LOG_CRIT, "can't resolve remote IP address");
       exit (EXIT_FAILURE);
     }
   else
-    hostname = inet_ntoa (ap->from.sin_addr);
+    hostname = ap->hostaddr;
 
   ap->hostname = strdup (hostname);
 
   if (verify_hostname || in_local_domain (ap->hostname))
     {
       int match = 0;
+#if defined HAVE_DECL_GETADDRINFO && defined HAVE_DECL_GETNAMEINFO
+      struct addrinfo hints, *ai, *res;
+      char astr[INET6_ADDRSTRLEN];
 
+      memset (&hints, 0, sizeof (hints));
+      hints.ai_family = ap->from.sin_family;
+      hints.ai_socktype = SOCK_STREAM;
+
+      rc = getaddrinfo (ap->hostname, NULL, &hints, &res);
+      if (!rc)
+	{
+	  for (ai = res; ai; ai = ai->ai_next)
+	    {
+	      rc = getnameinfo (ai->ai_addr, ai->ai_addrlen,
+				astr, sizeof (astr), NULL, 0,
+				NI_NUMERICHOST);
+	      if (rc)
+		continue;
+	      match = strcmp (astr, ap->hostaddr) == 0;
+	      if (match)
+		break;
+	    }
+	  freeaddrinfo (res);
+	}
+#else /* !HAVE_DECL_GETADDRINFO */
       for (hp = gethostbyname (ap->hostname); hp && !match; hp->h_addr_list++)
 	{
 	  if (hp->h_addr_list[0] == NULL)
@@ -570,10 +611,11 @@ rlogind_auth (int fd, struct auth_data *ap)
 	  match = memcmp (hp->h_addr_list[0], &ap->from.sin_addr,
 			  sizeof (ap->from.sin_addr)) == 0;
 	}
+#endif /* !HAVE_DECL_GETADDRINFO */
       if (!match)
 	{
 	  syslog (LOG_ERR | LOG_AUTH, "cannot verify matching IP for %s (%s)",
-		  ap->hostname, inet_ntoa (ap->from.sin_addr));
+		  ap->hostname, ap->hostaddr);
 	  fatal (fd, "Permission denied", 0);
 	}
     }
@@ -600,7 +642,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 	  port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
 	{
 	  syslog (LOG_NOTICE, "Connection from %s on illegal port %d",
-		  inet_ntoa (ap->from.sin_addr), port);
+		  ap->hostaddr, port);
 	  fatal (fd, "Permission denied", 0);
 	}
 #ifdef IP_OPTIONS
@@ -629,7 +671,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 		  {
 		    syslog (LOG_NOTICE,
 			    "Discarding connection from %s with set source routing",
-			    inet_ntoa (ap->from.sin_addr));
+			    ap->hostaddr);
 		    exit (EXIT_FAILURE);
 		  }
 		if (*cp == IPOPT_EOL)
@@ -751,24 +793,34 @@ exec_login (int authenticated, struct auth_data *ap)
 int
 rlogind_mainloop (int infd, int outfd)
 {
-  socklen_t size;
   struct auth_data auth_data;
+  char addrstr[INET6_ADDRSTRLEN];
+  const char *reply;
   int true;
   char c;
   int authenticated;
   pid_t pid;
   int master;
 
-  memset (&auth_data, 0, sizeof auth_data);
-  size = sizeof auth_data.from;
-  if (getpeername (infd, (struct sockaddr *) &auth_data.from, &size) < 0)
+  memset (&auth_data, 0, sizeof (auth_data));
+  auth_data.fromlen = sizeof (auth_data.from);
+  if (getpeername (infd, (struct sockaddr *) &auth_data.from,
+		   &auth_data.fromlen) < 0)
     {
       syslog (LOG_ERR, "Can't get peer name of remote host: %m");
       fatal (outfd, "Can't get peer name of remote host", 1);
     }
 
-  syslog (LOG_INFO, "Connect from %s:%d",
-	  inet_ntoa (auth_data.from.sin_addr),
+  reply = inet_ntop (auth_data.from.sin_family, &auth_data.from.sin_addr,
+		     addrstr, sizeof (addrstr));
+  if (reply == NULL)
+    {
+      syslog (LOG_ERR, "Get numerical address: %m");
+      fatal (outfd, "Cannot get numerical address of peer.", 1);
+    }
+  auth_data.hostaddr = xstrdup (addrstr);
+
+  syslog (LOG_INFO, "Connect from %s:%d", auth_data.hostaddr,
 	  ntohs (auth_data.from.sin_port));
 
   true = 1;
@@ -881,22 +933,35 @@ do_rlogin (int infd, struct auth_data *ap)
       fatal (infd, "Permission denied", 0);
     }
 
-#ifdef WITH_IRUSEROK
+#if defined WITH_IRUSEROK_SA || defined WITH_IRUSEROK_AF \
+    || defined WITH_IRUSEROK
+# ifdef WITH_IRUSEROK_SA
+  rc = iruserok_sa ((struct sockaddr *) &ap->from, ap->fromlen, 0,
+		    ap->rusername, ap->lusername);
+# elif defined WITH_IRUSEROK_AF
+  rc = iruserok_af (&ap->from.sin_addr, 0, ap->rusername, ap->lusername,
+		    ap->from.sin_family);
+# else /* WITH_IRUSEROK */
   rc = iruserok (ap->from.sin_addr.s_addr, 0, ap->rusername, ap->lusername);
+# endif /* WITH_IRUSEROK_SA || WITH_IRUSEROK_AF || WITH_IRUSEROK */
   if (rc)
     syslog (LOG_ERR | LOG_AUTH,
 	    "iruserok failed: rusername=%s, lusername=%s",
 	    ap->rusername, ap->lusername);
-#elif defined WITH_RUSEROK
-  rc = ruserok (inet_ntoa (ap->from.sin_addr), 0, ap->rusername,
-		ap->lusername);
+#elif defined WITH_RUSEROK_AF || defined WITH_RUSEROK
+# ifdef WITH_RUSEROK_AF
+  rc = ruserok_af (ap->hostaddr, 0, ap->rusername, ap->lusername,
+		   ap->from.sin_family);
+# else /* WITH_RUSEROK */
+  rc = ruserok (ap->hostaddr, 0, ap->rusername, ap->lusername);
+# endif /* WITH_RUSEROK_AF || WITH_RUSEROK */
   if (rc)
     syslog (LOG_ERR | LOG_AUTH,
 	    "ruserok failed: rusername=%s, lusername=%s",
 	    ap->rusername, ap->lusername);
-#else /* !WITH_IRUSEROK && !WITH_RUSEROK */
+#else /* !WITH_IRUSEROK* && !WITH_RUSEROK* */
 #error Unable to use mandatory iruserok/ruserok.  This should not happen.
-#endif /* !WITH_IRUSEROK && !WITH_RUSEROK */
+#endif /* !WITH_IRUSEROK* && !WITH_RUSEROK* */
 
   return rc;
 }
@@ -1116,7 +1181,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   size_t compcksumlen;
   char cksumdata[100];
   struct sockaddr_in sock;
-  size_t socklen = sizeof (struct sockaddr_in);
+  size_t socklen = sizeof (sock);
 
 #  ifdef ENCRYPTION
   rc = get_auth (infd, &ad->h, &ad->ap, &ad->enckey, err_msg, &ad->protocol,

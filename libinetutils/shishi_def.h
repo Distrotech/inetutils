@@ -37,6 +37,8 @@ typedef struct shishi_iv shishi_ivector;
 struct auth_data
 {
   struct sockaddr_in from;
+  socklen_t fromlen;
+  char *hostaddr;
   char *hostname;
   char *lusername;
   char *rusername;

@@ -1,5 +1,32 @@
 2012-06-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rlogind: Prepare for address independence.
+	Update some coding techniques to simplify later
+	IPv6 migration.
+
+	* libinetutils/shishi_def.h (struct auth_data):
+	New members `socklen_t fromlen', `char *hostaddr'.
+	* src/rlogind.c (struct auth_data): Likewise.
+	(rlogin_daemon) [HAVE_STRUCT_SOCKADDR_IN_SIN_LEN]:
+	Assign missing value for `saddr.sin_len'.
+	(rlogind_auth): Use `ap->hostaddr' as address string.
+	[HAVE_DECL_GETNAMEINFO || HAVE_DECL_GETADDRINFO]:
+	New variables RC and HOSTSTR; delete HP in this case.
+	[HAVE_DECL_GETNAMEINFO]: Alternate code for finding
+	host name.
+	[HAVE_DECL_GETADDRINFO && HAVE_DECL_GETNAMEINFO]:
+	Alternate code for host name validation.
+	(rlogind_mainloop): Deleted variable SIZE.  New
+	variables ADDRSTR and REPLY.  Put socket address
+	size in `auth_data.fromlen'.  Determine host address
+	`auth_data.hostaddr' by calling inet_ntop() once.
+	[WITH_IRUSEROK_SA || WITH_IRUSEROK_AF || WITH_IRUSEROK]:
+	Choose the best available iruserok variant.
+	[WITH_RUSEROK_AF || WITH_RUSEROK]: Choose best variant.
+	(do_shishi_login): Compute SOCKLEN as `sizeof (sock)'.
+
+2012-06-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rcp, rlogin, rsh, rshd: IPv6 ability.
 
 	* src/rcp.c (family) [WITH_ORCMD_AF || WITH_RCMD_AF]:
