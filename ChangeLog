@@ -1,3 +1,51 @@
+2012-06-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp, rlogin, rsh, rshd: IPv6 ability.
+
+	* src/rcp.c (family) [WITH_ORCMD_AF || WITH_RCMD_AF]:
+	New variable.
+	(options) [WITH_ORCMD_AF || WITH_RCMD_AF]: New options
+	`4/ipv4' and `6/ipv6'.
+	(parse_opt) [WITH_ORCMD_AF || WITH_RCMD_AF] <4, 6>:
+	Assign value AF_INET or AF_INET6 to `family'.
+	(toremote, kerberos) [WITH_ORCMD_AF || WITH_RCMD_AF]:
+	Replace AF_INET by `family' in orcmf_af() and rcmd_af().
+	(tolocal) [WITH_ORCMD_AF || WITH_RCMD_AF]: Likewise.
+	[!KERBEROS && WITH_ORCMD_AF]: Correction to conditional.
+	Call one of the rcmd() variants only if the macro KERBEROS
+	is not defined.
+
+	* src/rlogin.c (family) [WITH_ORCMD_AF || WITH_RCMD_AF]:
+	New variable.
+	(argp_options) [WITH_ORCMD_AF || WITH_RCMD_AF]: New
+	options `4/ipv4' and `6/ipv6'.
+	(parse_opt) [WITH_ORCMD_AF || WITH_RCMD_AF] <4, 6>:
+	Assign value AF_INET or AF_INET6 to `family'.
+	(main) [WITH_ORCMD_AF]: Call orcmd_af().
+	[WITH_RCMD_AF && !WITH_ORCMD_AF]: Call rcmd_af().
+	[WITH_ORCMD && !WITH_ORCMD_AF && !WITH_RCMD_AF]:
+	Call orcmd().
+
+	* src/rsh.c (family) [WITH_ORCMD_AF || WITH_RCMD_AF]:
+	New variable.
+	(options) [WITH_ORCMD_AF || WITH_RCMD_AF]: New options
+	`4/ipv4' and `6/ipv6'.
+	(parse_opt) [WITH_ORCMD_AF || WITH_RCMD_AF] <4, 6>:
+	Assign value AF_INET or AF_INET6 to `family'.
+	(main) [WITH_ORCMD_AF]: Use `family' in last argument
+	to orcmd_af().
+	[WITH_RCMD_AF]: Likewise for rcmd_af().
+
+	* src/rshd.c (main): New type `struct sockaddr_storage from'.
+	Cast &FROM as `struct sockaddr *' when calling doit().
+	(doit): New signature `(int, struct sockaddr *, socklen_t)'.
+	Adapt code to new parameter type `struct sockaddr * fromp',
+	using casts whenever needed.  Check `fromp->sa_family'.
+	[WITH_IRUSEROK_AF && !WITH_PAM]: New variable FROMADDRP.
+	[KERBEROS || SHISHI]: Check for IPv4 only in this case.
+	<hostname validation> [HAVE_DECL_GETNAMEINFO]: Use the
+	flag NI_NAMEREQD.
+
 2012-06-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: PAM session handling.

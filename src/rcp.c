@@ -128,6 +128,9 @@ const char arg_doc[] = "SOURCE DEST\n"
 int preserve_option;
 int from_option, to_option;
 int iamremote, iamrecursive, targetshouldbedirectory;
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+sa_family_t family = AF_UNSPEC;
+#endif
 
 static struct argp_option options[] = {
 #define GRID 0
@@ -162,6 +165,14 @@ static struct argp_option options[] = {
   { "to", 't', NULL, 0,
     "copying to remote host",
     GRID+1 },
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+  { "ipv4", '4', NULL, 0,
+    "use only IPv4",
+    GRID+1 },
+  { "ipv6", '6', NULL, 0,
+    "use only IPv6",
+    GRID+1 },
+#endif /* WITH_ORCMD_AF || WITH_RCMD_AF */
   { NULL }
 };
 
@@ -170,6 +181,15 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+    case '4':
+      family = AF_INET;
+      break;
+    case '6':
+      family = AF_INET6;
+      break;
+#endif /* WITH_ORCMD_AF || WITH_RCMD_AF */
+
 #ifdef KERBEROS
     case 'K':
       use_kerberos = 0;
@@ -432,11 +452,11 @@ toremote (char *targ, int argc, char *argv[])
 #ifdef WITH_ORCMD_AF
 		rem = orcmd_af (&host, port, pwd->pw_name,
 				tuser ? tuser : pwd->pw_name,
-				bp, 0, AF_INET);
+				bp, 0, family);
 #elif defined WITH_RCMD_AF
 		rem = rcmd_af (&host, port, pwd->pw_name,
 			       tuser ? tuser : pwd->pw_name,
-			       bp, 0, AF_INET);
+			       bp, 0, family);
 #elif defined WITH_ORCMD
 		rem = orcmd (&host, port, pwd->pw_name,
 			     tuser ? tuser : pwd->pw_name, bp, 0);
@@ -507,11 +527,10 @@ tolocal (int argc, char *argv[])
       rem =
 #ifdef KERBEROS
 	use_kerberos ? kerberos (&host, bp, pwd->pw_name, suser) :
-#endif
-#ifdef WITH_ORCMD_AF
-	orcmd_af (&host, port, pwd->pw_name, suser, bp, 0, AF_INET);
+#elif defined WITH_ORCMD_AF
+	orcmd_af (&host, port, pwd->pw_name, suser, bp, 0, family);
 #elif defined WITH_RCMD_AF
-	rcmd_af (&host, port, pwd->pw_name, suser, bp, 0, AF_INET);
+	rcmd_af (&host, port, pwd->pw_name, suser, bp, 0, family);
 #elif defined WITH_ORCMD
 	orcmd (&host, port, pwd->pw_name, suser, bp, 0);
 #else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
@@ -1063,15 +1082,15 @@ again:
       if (doencrypt)
 	error (EXIT_FAILURE, 0, "the -x option requires Kerberos authentication");
 # endif
-#ifdef WITH_ORCMD_AF
-      rem = orcmd_af (host, port, locuser, user, bp, 0, AF_INET);
-#elif defined WITH_RCMD_AF
-      rem = rcmd_af (host, port, locuser, user, bp, 0, AF_INET);
-#elif defined WITH_ORCMD
+# ifdef WITH_ORCMD_AF
+      rem = orcmd_af (host, port, locuser, user, bp, 0, family);
+# elif defined WITH_RCMD_AF
+      rem = rcmd_af (host, port, locuser, user, bp, 0, family);
+# elif defined WITH_ORCMD
       rem = orcmd (host, port, locuser, user, bp, 0);
-#else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
+# else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
       rem = rcmd (host, port, locuser, user, bp, 0);
-#endif
+# endif
     }
   return rem;
 }

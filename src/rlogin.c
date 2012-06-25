@@ -178,6 +178,9 @@ int noescape;
 char * host = NULL;
 char * user = NULL;
 unsigned char escapechar = '~';
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+sa_family_t family = AF_UNSPEC;
+#endif
 
 #ifdef OLDSUN
 
@@ -248,6 +251,10 @@ static struct argp_option argp_options[] = {
   {"realm", 'k', "REALM", 0, "obtain tickets for the remote host in REALM "
    "realm instead of the remote's realm", GRP+1},
 #endif
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+  { "ipv4", '4', NULL, 0, "use only IPv4" },
+  { "ipv6", '6', NULL, 0, "use only IPv6" },
+#endif
 #undef GRP
   {NULL}
 };
@@ -257,6 +264,14 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+    case '4':
+      family = AF_INET;
+      break;
+    case '6':
+      family = AF_INET6;
+      break;
+#endif
     /* 8-bit input Specifying this forces us to use RAW mode input from
        the user's terminal.  Also, in this mode we won't perform any
        local flow control.  */
@@ -550,14 +565,29 @@ try_connect:
       if (!user)
 	user = pw->pw_name;
 
+# ifdef WITH_ORCMD_AF
+      rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, term, 0, family);
+# elif defined WITH_RCMD_AF
+      rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, term, 0, family);
+# elif defined WITH_ORCMD
+      rem = orcmd (&host, sp->s_port, pw->pw_name, user, term, 0);
+# else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
       rem = rcmd (&host, sp->s_port, pw->pw_name, user, term, 0);
+# endif
     }
-#else
+#else /* !KERBEROS && !SHISHI */
   if (!user)
     user = pw->pw_name;
 
+# ifdef WITH_ORCMD_AF
+  rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, term, 0, family);
+# elif defined WITH_RCMD_AF
+  rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, term, 0, family);
+# elif defined WITH_ORCMD
+  rem = orcmd (&host, sp->s_port, pw->pw_name, user, term, 0);
+# else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
   rem = rcmd (&host, sp->s_port, pw->pw_name, user, term, 0);
-
+# endif
 #endif /* KERBEROS */
 
   if (rem < 0)

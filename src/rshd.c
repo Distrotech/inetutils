@@ -163,7 +163,7 @@ int check_all;
 int log_success;		/* If TRUE, log all successful accesses */
 int sent_null;
 
-void doit (int, struct sockaddr_in *, socklen_t);
+void doit (int, struct sockaddr *, socklen_t);
 void rshd_error (const char *, ...);
 char *getstr (const char *);
 int local_domain (const char *);
@@ -294,7 +294,7 @@ main (int argc, char *argv[])
   struct linger linger;
   int on = 1;
   socklen_t fromlen;
-  struct sockaddr_in from;
+  struct sockaddr_storage from;
   int sockfd;
 
   set_program_name (argv[0]);
@@ -354,7 +354,7 @@ main (int argc, char *argv[])
   if (setsockopt (sockfd, SOL_SOCKET, SO_LINGER, (char *) &linger,
 		  sizeof linger) < 0)
     syslog (LOG_WARNING, "setsockopt (SO_LINGER): %m");
-  doit (sockfd, &from, fromlen);
+  doit (sockfd, (struct sockaddr *) &from, fromlen);
   return 0;
 }
 
@@ -371,12 +371,11 @@ char *envinit[] = { homedir, shell, path, logname, username, rhost, NULL };
 extern char **environ;
 
 void
-doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
+doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 {
 #ifdef HAVE___RCMD_ERRSTR
   extern char *__rcmd_errstr;	/* syslog hook from libc/net/rcmd.c. */
 #endif
-  struct hostent *hp;
 #ifdef HAVE_GETPWNAM_R
   char *pwbuf;
   int ret, pwbuflen;
@@ -391,10 +390,15 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
   char portstr[8], addrstr[INET6_ADDRSTRLEN];
 #ifdef HAVE_DECL_GETNAMEINFO
   char addrname[NI_MAXHOST];
+#else /* !HAVE_DECL_GETNAMEINFO */
+  struct hostent *hp;
 #endif
   const char *hostname, *errorstr, *errorhost = NULL;
   char *cp, sig, buf[BUFSIZ];
   char *cmdbuf, *locuser, *remuser;
+#if defined WITH_IRUSEROK_AF && !defined WITH_PAM
+  void * fromaddrp;	/* Pointer to remote address.  */
+#endif
 
 #ifdef	KERBEROS
   AUTH_DAT *kdata = (AUTH_DAT *) NULL;
@@ -438,7 +442,7 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 #endif
 
 #ifdef HAVE_DECL_GETNAMEINFO
-  rc = getnameinfo ((struct sockaddr *) fromp, fromlen,
+  rc = getnameinfo (fromp, fromlen,
 		    addrstr, sizeof (addrstr),
 		    portstr, sizeof (portstr),
 		    NI_NUMERICHOST | NI_NUMERICSERV);
@@ -449,18 +453,21 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
     }
   inport = atoi (portstr);
 #else /* !HAVE_DECL_GETNAMEINFO */
-  strncpy (addrstr, inet_ntoa (fromp->sin_addr), sizeof (addrstr));
-  inport = ntohs (fromp->sin_port);
+  strncpy (addrstr, inet_ntoa (((struct sockaddr_in *) fromp)->sin_addr),
+	   sizeof (addrstr));
+  inport = ntohs (((struct sockaddr_in *) fromp)->sin_port);
   snprintf (portstr, sizeof (portstr), "%u", inport);
 #endif
 
   /* Verify that the client's address is an Internet adress. */
-  if (fromp->sin_family != AF_INET)
+#if defined KERBEROS || defined SHISHI
+  if (fromp->sa_family != AF_INET)
     {
       syslog (LOG_ERR, "malformed originating address (af %d)\n",
-	      fromp->sin_family);
+	      fromp->sa_family);
       exit (EXIT_FAILURE);
     }
+#endif
 #ifdef IP_OPTIONS
   {
     unsigned char optbuf[BUFSIZ / 3], *cp;
@@ -575,7 +582,7 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
        */
       int lport = IPPORT_RESERVED - 1;
 #ifdef WITH_RRESVPORT_AF
-      s = rresvport_af (&lport, fromp->sin_family);
+      s = rresvport_af (&lport, fromp->sa_family);
 #else
       s = rresvport (&lport);
 #endif
@@ -597,8 +604,16 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
        * client; just change the port# to the one specified
        * as secondary port by the client.
        */
-      fromp->sin_port = htons (port);
-      if (connect (s, (struct sockaddr *) fromp, fromlen) < 0)
+      switch (fromp->sa_family)
+	{
+	case AF_INET6:
+	  ((struct sockaddr_in6 *) fromp)->sin6_port = htons (port);
+	  break;
+	case AF_INET:
+	default:
+	  ((struct sockaddr_in *) fromp)->sin_port = htons (port);
+	}
+      if (connect (s, fromp, fromlen) < 0)
 	{
 	  syslog (LOG_INFO, "connect second port %d: %m", port);
 	  exit (EXIT_FAILURE);
@@ -626,8 +641,8 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
    */
   errorstr = NULL;
 #ifdef HAVE_DECL_GETNAMEINFO
-  rc = getnameinfo ((struct sockaddr *) fromp, fromlen,
-		    addrname, sizeof (addrname), NULL, 0, 0);
+  rc = getnameinfo (fromp, fromlen, addrname, sizeof (addrname),
+		    NULL, 0, NI_NAMEREQD);
   if (rc == 0)
     {
       hostname = addrname;
@@ -640,7 +655,7 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 
 	    errorhost = addrname;
 	    memset (&hints, 0, sizeof (hints));
-	    hints.ai_family = fromp->sin_family;
+	    hints.ai_family = fromp->sa_family;
 	    hints.ai_socktype = SOCK_STREAM;
 
 	    rc = getaddrinfo (hostname, NULL, &hints, &res);
@@ -680,8 +695,17 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 	  }
     }
 #else /* !HAVE_DECL_GETNAMEINFO */
-  hp = gethostbyaddr ((char *) &fromp->sin_addr, sizeof (struct in_addr),
-		      fromp->sin_family);
+  switch (fromp->sa_family)
+    {
+    case AF_INET6:
+      hp = gethostbyaddr ((void *) &((struct sockaddr_in6 *) fromp)->sin6_addr,
+			  sizeof (struct in6_addr), fromp->sa_family);
+      break;
+    case AF_INET:
+    default:
+      hp = gethostbyaddr ((void *) &((struct sockaddr_in *) fromp)->sin_addr,
+			  sizeof (struct in_addr), fromp->sa_family);
+    }
   if (hp)
     {
       /*
@@ -725,8 +749,10 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
 			  break;
 			}
 		      if (!memcmp (hp->h_addr_list[0],
-				   (caddr_t) & fromp->sin_addr,
-				   sizeof fromp->sin_addr))
+				   (fromp->sa_family == AF_INET6)
+				   ? (void *) & ((struct sockaddr_in6 *) fromp)->sin6_addr
+				   : (void *) & ((struct sockaddr_in *) fromp)->sin_addr,
+				   hp->h_length))
 			{
 			  hostname = strdup (hp->h_name);
 			  break;	/* equal, OK */
@@ -881,6 +907,7 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
     /* verify checksum */
 
     /* Doesn't give socket port ?
+       socklen = sizeof (sock);
        if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
        {
        syslog (LOG_ERR, "Can't get sock name");
@@ -1051,17 +1078,26 @@ doit (int sockfd, struct sockaddr_in *fromp, socklen_t fromlen)
                      && (iruserok_sa ((void *) fromp, fromlen,
 				      pwd->pw_uid == 0, remuser, locuser)) < 0))
 # elif defined WITH_IRUSEROK_AF
+    switch (fromp->sa_family)
+      {
+      case AF_INET6:
+	fromaddrp = (void *) &((struct sockaddr_in6 *) fromp)->sin6_addr;
+	break;
+      case AF_INET:
+      default:
+	fromaddrp = (void *) &((struct sockaddr_in *) fromp)->sin_addr;
+      }
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
-                     && (iruserok_af (&fromp->sin_addr, pwd->pw_uid == 0,
-                                   remuser, locuser, fromp->sin_family)) < 0))
+                     && (iruserok_af (fromaddrp, pwd->pw_uid == 0,
+				      remuser, locuser, fromp->sa_family)) < 0))
 # elif defined WITH_IRUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
-                     && (iruserok (fromp->sin_addr.s_addr, pwd->pw_uid == 0,
-                                   remuser, locuser)) < 0))
+                     && (iruserok (((struct sockaddr_in *) fromp)->sin_addr.s_addr,
+				   pwd->pw_uid == 0, remuser, locuser)) < 0))
 # elif defined WITH_RUSEROK_AF
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (ruserok_af (addrstr, pwd->pw_uid == 0,
-				  remuser, locuser, fromp->sin_family)) < 0))
+				  remuser, locuser, fromp->sa_family)) < 0))
 # elif defined WITH_RUSEROK
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (ruserok (addrstr, pwd->pw_uid == 0,

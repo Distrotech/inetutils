@@ -96,6 +96,9 @@
 int debug_option = 0;
 int null_input_option = 0;
 char *user = NULL;
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+sa_family_t family = AF_UNSPEC;
+#endif
 
 #if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
@@ -154,6 +157,10 @@ static struct argp_option options[] = {
   { "encrypt", 'x', NULL, 0,
     "encrypt all data using DES" },
 #endif
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+  { "ipv4", '4', NULL, 0, "use only IPv4" },
+  { "ipv6", '6', NULL, 0, "use only IPv6" },
+#endif
   { NULL }
 };
 
@@ -162,6 +169,14 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+    case '4':
+      family = AF_INET;
+      break;
+    case '6':
+      family = AF_INET6;
+      break;
+#endif
     case 'L':		/* -8Lew are ignored to allow rlogin aliases */
     case 'e':
     case 'w':
@@ -446,9 +461,9 @@ try_connect:
       if (doencrypt)
 	error (EXIT_FAILURE, 0, "the -x flag requires Kerberos authentication");
 # ifdef WITH_ORCMD_AF
-      rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+      rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, family);
 # elif defined WITH_RCMD_AF
-      rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+      rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, family);
 # elif defined WITH_ORCMD
       rem = orcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
 # else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
@@ -459,9 +474,9 @@ try_connect:
   if (!user)
     user = pw->pw_name;
 # ifdef WITH_ORCMD_AF
-  rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+  rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, family);
 # elif defined WITH_RCMD_AF
-  rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, AF_INET);
+  rem = rcmd_af (&host, sp->s_port, pw->pw_name, user, args, &rfd2, family);
 # elif defined WITH_ORCMD
   rem = orcmd (&host, sp->s_port, pw->pw_name, user, args, &rfd2);
 # else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
