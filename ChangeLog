@@ -1,3 +1,20 @@
+2012-07-01  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rshd: Fix non-kerberized Shishi code.
+
+	* src/rshd.c (options) [KERBEROS || SHISHI]: Add missing
+	SHISHI to conditional activation of `-k/--kerberos' and
+	`-v/--vacuous'.
+	(doit) [KERBEROS] <check address family>: Remove SHISHI
+	in conditional, thus preventing libshishi based server
+	from issuing failure for non AF_INET connections.
+	(doit) [SHISHI && use_kerberos] <authentication>:
+	Insert missing `if (use_kerberos)' before code block
+	for conducting Shishi authentication; adjust indentation
+	of this complete block!
+	(doit) [SHISHI] <checksum test>: Conditionally activate
+	getsockname() for reporting receiving port.
+
 2012-06-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Prepare for address independence.

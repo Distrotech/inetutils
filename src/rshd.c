@@ -208,10 +208,10 @@ static struct argp_option options[] = {
     "do not set SO_KEEPALIVE" },
   { "log-sessions", 'L', NULL, 0,
     "log successfull logins" },
-#ifdef	KERBEROS
+#if defined KERBEROS || defined SHISHI
   /* FIXME: The option semantics does not match that of others r* utilities */
   { "kerberos", 'k', NULL, 0,
-    "use kerberos IV authentication" },
+    "use kerberos authentication" },
   /* FIXME: Option name is misleading */
   { "vacuous", 'v', NULL, 0,
     "require Kerberos authentication" },
@@ -460,14 +460,14 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 #endif
 
   /* Verify that the client's address is an Internet adress. */
-#if defined KERBEROS || defined SHISHI
+#ifdef KERBEROS
   if (fromp->sa_family != AF_INET)
     {
       syslog (LOG_ERR, "malformed originating address (af %d)\n",
 	      fromp->sa_family);
       exit (EXIT_FAILURE);
     }
-#endif
+#endif /* KERBEROS */
 #ifdef IP_OPTIONS
   {
     unsigned char optbuf[BUFSIZ / 3], *cp;
@@ -829,74 +829,75 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   cmdbuf = getstr ("command");
 
 #ifdef SHISHI
-  {
-    int error;
-    int rc;
-    char *compcksum;
-    size_t compcksumlen;
-    char cksumdata[100];
-    struct sockaddr_in sock;
-    size_t socklen;
+  if (use_kerberos)
+    {
+      int error;
+      int rc;
+      char *compcksum;
+      size_t compcksumlen;
+      char cksumdata[100];
+      struct sockaddr_storage sock;
+      size_t socklen;
 
 # ifdef ENCRYPTION
-    if (strlen (cmdbuf) >= 3)
-      if (!strncmp (cmdbuf, "-x ", 3))
-	{
-	  doencrypt = 1;
-	  int i;
+      if (strlen (cmdbuf) >= 3)
+	if (!strncmp (cmdbuf, "-x ", 3))
+	  {
+	    int i;
 
-	  ivtab[0] = &iv1;
-	  ivtab[1] = &iv2;
-	  ivtab[2] = &iv3;
-	  ivtab[3] = &iv4;
+	    doencrypt = 1;
 
-	  keytype = shishi_key_type (enckey);
-	  keylen = shishi_cipher_blocksize (keytype);
+	    ivtab[0] = &iv1;
+	    ivtab[1] = &iv2;
+	    ivtab[2] = &iv3;
+	    ivtab[3] = &iv4;
 
-	  for (i = 0; i < 4; i++)
-	    {
-	      ivtab[i]->ivlen = keylen;
+	    keytype = shishi_key_type (enckey);
+	    keylen = shishi_cipher_blocksize (keytype);
 
-	      switch (keytype)
-		{
-		case SHISHI_DES_CBC_CRC:
-		case SHISHI_DES_CBC_MD4:
-		case SHISHI_DES_CBC_MD5:
-		case SHISHI_DES_CBC_NONE:
-		case SHISHI_DES3_CBC_HMAC_SHA1_KD:
-		  ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
-		  ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
-		  memset (ivtab[i]->iv, 2 * i - 3 * (i >= 2),
-			  ivtab[i]->ivlen);
-		  ivtab[i]->ctx =
-		    shishi_crypto (h, enckey, ivtab[i]->keyusage,
-				   shishi_key_type (enckey), ivtab[i]->iv,
-				   ivtab[i]->ivlen);
-		  break;
+	    for (i = 0; i < 4; i++)
+	      {
+		ivtab[i]->ivlen = keylen;
 
-		case SHISHI_ARCFOUR_HMAC:
-		case SHISHI_ARCFOUR_HMAC_EXP:
-		  ivtab[i]->keyusage =
-		    SHISHI_KEYUSAGE_KCMD_DES + 4 * (i < 2) + 2 + 2 * (i % 2);
-		  ivtab[i]->ctx =
-		    shishi_crypto (h, enckey, ivtab[i]->keyusage,
-				   shishi_key_type (enckey), NULL, 0);
-		  break;
-
-		default:
-		  ivtab[i]->keyusage =
-		    SHISHI_KEYUSAGE_KCMD_DES + 4 * (i < 2) + 2 + 2 * (i % 2);
-		  ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
-		  memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
-		  if (protocol == 2)
+		switch (keytype)
+		  {
+		  case SHISHI_DES_CBC_CRC:
+		  case SHISHI_DES_CBC_MD4:
+		  case SHISHI_DES_CBC_MD5:
+		  case SHISHI_DES_CBC_NONE:
+		  case SHISHI_DES3_CBC_HMAC_SHA1_KD:
+		    ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
+		    ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
+		    memset (ivtab[i]->iv, 2 * i - 3 * (i >= 2),
+			    ivtab[i]->ivlen);
 		    ivtab[i]->ctx =
 		      shishi_crypto (h, enckey, ivtab[i]->keyusage,
-				     shishi_key_type (enckey), ivtab[i]->iv,
-				     ivtab[i]->ivlen);
-		}
-	    }
+				     shishi_key_type (enckey),
+				     ivtab[i]->iv, ivtab[i]->ivlen);
+		    break;
 
-	}
+		  case SHISHI_ARCFOUR_HMAC:
+		  case SHISHI_ARCFOUR_HMAC_EXP:
+		    ivtab[i]->keyusage =
+		      SHISHI_KEYUSAGE_KCMD_DES + 4 * (i < 2) + 2 + 2 * (i % 2);
+		    ivtab[i]->ctx =
+		      shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				     shishi_key_type (enckey), NULL, 0);
+		    break;
+
+		  default:
+		    ivtab[i]->keyusage =
+		      SHISHI_KEYUSAGE_KCMD_DES + 4 * (i < 2) + 2 + 2 * (i % 2);
+		    ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
+		    memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
+		    if (protocol == 2)
+		      ivtab[i]->ctx =
+			shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				       shishi_key_type (enckey),
+				       ivtab[i]->iv, ivtab[i]->ivlen);
+		  }
+	      }
+	  }
 # endif /* ENCRYPTION */
 
     remuser = getstr ("remuser");
@@ -906,19 +907,30 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 
     /* verify checksum */
 
-    /* Doesn't give socket port ?
-       socklen = sizeof (sock);
-       if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
-       {
-       syslog (LOG_ERR, "Can't get sock name");
-       exit (EXIT_FAILURE);
-       }
-     */
-    snprintf (cksumdata, 100, "544:%s%s", /*ntohs(sock.sin_port), */ cmdbuf,
-	      locuser);
-    rc =
-      shishi_checksum (h, enckey, 0, cksumtype, cksumdata, strlen (cksumdata),
-		       &compcksum, &compcksumlen);
+# if 1
+    {
+      unsigned short port;
+
+    /* Doesn't give socket port ? */
+      socklen = sizeof (sock);
+      if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
+	{
+	  syslog (LOG_ERR, "Can't get sock name");
+	  exit (EXIT_FAILURE);
+	}
+
+      port = (sock.ss_family == AF_INET6)
+	     ? ((struct sockaddr_in6 *) &sock)->sin6_port
+	     : ((struct sockaddr_in *) &sock)->sin_port;
+
+      snprintf (cksumdata, 100, "%u:%s%s", port, cmdbuf, locuser);
+    }
+# else
+    snprintf (cksumdata, 100, "544:%s%s", cmdbuf, locuser);
+# endif
+    rc = shishi_checksum (h, enckey, 0, cksumtype,
+			  cksumdata, strlen (cksumdata),
+			  &compcksum, &compcksumlen);
     free (cksum);
     if (rc != SHISHI_OK
 	|| compcksumlen != cksumlen
