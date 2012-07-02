@@ -151,7 +151,7 @@ static struct argp_option options[] = {
 #if defined KERBEROS || defined SHISHI
   { "kerberos", 'K', NULL, 0,
     "turns off all Kerberos authentication" },
-  { "realm", 'k', NULL, 0,
+  { "realm", 'k', "REALM", 0,
     "obtain tickets for the remote host in REALM "
     "instead of the remote host's realm" },
   { "encrypt", 'x', NULL, 0,
@@ -435,11 +435,10 @@ try_connect:
       else
 #  endif
 # endif
-	rem = krcmd (
 # if defined SHISHI
-		      &h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
+	rem = krcmd (&h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
 # else
-		      &host, sp->s_port, user, args, &rfd2, dest_realm);
+	rem = krcmd (&host, sp->s_port, user, args, &rfd2, dest_realm);
 # endif
       if (rem < 0)
 	{

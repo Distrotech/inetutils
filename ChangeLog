@@ -1,3 +1,13 @@
+2012-07-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* libinetutils/shishi_def.c (shishi_auth): New type
+	`unsigned short port' of seventh parameter.
+	* libinetutils/shishi.c (shishi_auth): Likewise.
+	Call shishi_init() before shishi_realm_default_set().
+	* src/rlogin.c (parse_opt) <'k'>: Copy value from `arg'.
+	* src/rsh.c (options): The option `-k/--realm' takes
+	a value REALM, which was missing.
+
 2012-07-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: Fix non-kerberized Shishi code.

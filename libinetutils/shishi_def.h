@@ -55,8 +55,8 @@ struct auth_data
 };
 
 extern int shishi_auth (Shishi ** handle, int verbose, char **cname,
-			const char *sname, int sock,
-			char *cmd, int port, Shishi_key ** enckey,
+			const char *sname, int sock, char *cmd,
+			unsigned short port, Shishi_key ** enckey,
 			char *realm);
 
 extern int get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,

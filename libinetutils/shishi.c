@@ -31,8 +31,8 @@
 /* shishi authentication */
 int
 shishi_auth (Shishi ** handle, int verbose, char **cname,
-	     const char *sname, int sock,
-	     char *cmd, int port, Shishi_key ** enckey, char *realm)
+	     const char *sname, int sock, char *cmd,
+	     unsigned short port, Shishi_key ** enckey, char *realm)
 {
   Shishi_ap *ap;
   Shishi_tkt *tkt;
@@ -60,9 +60,6 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
       return 1;
     }
 
-  if (realm)
-    shishi_realm_default_set (*handle, realm);
-
   rc = shishi_init (handle);
   if (rc != SHISHI_OK)
     {
@@ -70,6 +67,9 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 	       "error initializing shishi: %s\n", shishi_strerror (rc));
       return 1;
     }
+
+  if (realm)
+    shishi_realm_default_set (*handle, realm);
 
   h = *handle;
 

@@ -313,7 +313,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case 'k':
-      strncpy (dest_realm_buf, optarg, sizeof (dest_realm_buf));
+      strncpy (dest_realm_buf, arg, sizeof (dest_realm_buf));
       /* Make sure it's null termintated.  */
       dest_realm_buf[sizeof (dest_realm_buf) - 1] = '\0';
       dest_realm = dest_realm_buf;
@@ -536,11 +536,10 @@ try_connect:
 #  endif
 # endif	/* CRYPT */
 
-	rem = krcmd (
 # if defined SHISHI
-		      &handle, &host, sp->s_port, &user, term, 0, dest_realm);
+	rem = krcmd (&handle, &host, sp->s_port, &user, term, 0, dest_realm);
 # else
-		      &host, sp->s_port, user, term, 0, dest_realm);
+	rem = krcmd (&host, sp->s_port, user, term, 0, dest_realm);
 # endif
       if (rem < 0)
 	{
