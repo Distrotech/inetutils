@@ -173,6 +173,9 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	}
       fcntl (s, F_SETOWN, pid);
       sin.sin_family = hp->h_addrtype;
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+      sin.sin_len = sizeof (sin);
+#endif
 
       memcpy (&sin.sin_addr, hp->h_addr, hp->h_length);
       sin.sin_port = rport;
@@ -198,14 +201,18 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
       if (hp->h_addr_list[1] != NULL)
 	{
 	  int oerrno = errno;
+	  char addrstr[INET6_ADDRSTRLEN];
 
-	  fprintf (stderr,
-		   "kcmd: connect to address %s: ", inet_ntoa (sin.sin_addr));
+	  fprintf (stderr, "kcmd: connect to address %s: ",
+		   inet_ntop (hp->h_addrtype, hp->h_addr_list[0],
+			      addrstr, sizeof (addrstr)));
 	  errno = oerrno;
 	  perror (NULL);
 	  hp->h_addr_list++;
 	  memcpy (& sin.sin_addr, hp->h_addr_list, hp->h_length);
-	  fprintf (stderr, "Trying %s...\n", inet_ntoa (sin.sin_addr));
+	  fprintf (stderr, "Trying %s...\n",
+		   inet_ntop (hp->h_addrtype, hp->h_addr_list[0],
+			      addrstr, sizeof (addrstr)));
 	  continue;
 	}
 # endif	/* !(defined(ultrix) || defined(sun)) */
@@ -378,8 +385,11 @@ getport (int *alport)
   int s;
 
   sin.sin_family = AF_INET;
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+  sin.sin_len = sizeof (sin);
+#endif
   sin.sin_addr.s_addr = INADDR_ANY;
-  s = socket (AF_INET, SOCK_STREAM, 0);
+  s = socket (sin.sin_family, SOCK_STREAM, 0);
   if (s < 0)
     return (-1);
   for (;;)

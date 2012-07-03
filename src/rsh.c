@@ -234,6 +234,9 @@ main (int argc, char **argv)
   struct servent *sp;
   sigset_t sigs, osigs;
   int asrsh, rem;
+#if defined KERBEROS || defined SHISHI
+  int krb_errno;
+#endif
   pid_t pid = 0;
   uid_t uid;
   char *args, *host;
@@ -354,12 +357,12 @@ try_connect:
 
 # if defined KERBEROS
       rem = KSUCCESS;
-      errno = 0;
+      krb_errno = 0;
       if (dest_realm == NULL)
 	dest_realm = krb_realmofhost (host);
 # elif defined (SHISHI)
       rem = SHISHI_OK;
-      errno = 0;
+      krb_errno = 0;
 # endif
 
 # ifdef ENCRYPTION
@@ -375,6 +378,7 @@ try_connect:
 
 	  rem = krcmd_mutual (&h, &host, sp->s_port, &user, term, &rfd2,
 			      dest_realm, &enckey);
+	  krb_errno = errno;
 	  if (rem > 0)
 	    {
 	      keytype = shishi_key_type (enckey);
@@ -429,26 +433,32 @@ try_connect:
 	  free (term);
 	}
       else
-#  else
-	rem = krcmd_mutual (&host, sp->s_port, user, args, &rfd2,
-			    dest_realm, &cred, schedule);
+#  else /* KERBEROS */
+	{
+	  rem = krcmd_mutual (&host, sp->s_port, user, args, &rfd2,
+			      dest_realm, &cred, schedule);
+	  krb_errno = errno;
+	}
       else
 #  endif
 # endif
+	{
 # if defined SHISHI
-	rem = krcmd (&h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
-# else
-	rem = krcmd (&host, sp->s_port, user, args, &rfd2, dest_realm);
+	  rem = krcmd (&h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
+# else /* KERBEROS */
+	  rem = krcmd (&host, sp->s_port, user, args, &rfd2, dest_realm);
 # endif
+	  krb_errno = errno;
+	}
       if (rem < 0)
 	{
 	  use_kerberos = 0;
 	  sp = getservbyname ("shell", "tcp");
 	  if (sp == NULL)
 	    error (EXIT_FAILURE, 0, "shell/tcp: unknown service");
-	  if (errno == ECONNREFUSED)
+	  if (krb_errno == ECONNREFUSED)
 	    warning ("remote host doesn't support Kerberos");
-	  if (errno == ENOENT)
+	  if (krb_errno == ENOENT)
 	    warning ("can't provide Kerberos auth data");
 	  goto try_connect;
 	}
@@ -723,7 +733,6 @@ warning (const char *fmt, ...)
 
   fprintf (stderr, "%s: warning, using standard rsh: ", program_name);
   va_start (ap, fmt);
-  fmt = va_arg (ap, char *);
   vfprintf (stderr, fmt, ap);
   va_end (ap);
   fprintf (stderr, ".\n");

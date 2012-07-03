@@ -1,3 +1,14 @@
+2012-07-03  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* libinetutils/kcmd.c (kcmd, getport)
+	[HAVE_STRUCT_SOCKADDR_IN_SIN_LEN]: Initiate `sin.sin_len'.
+	(kcmd): Calculate address strings using inet_ntop().
+	Use correct address location in message `Trying ...'.
+	* src/rsh.c (main) [KERBEROS || SHISHI]: New variable
+	KRB_ERRNO used for proper error diagnostics.  Assign a
+	value after each authentication call.
+	(warning): Remove erroneous call to va_arg().
+
 2012-07-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* libinetutils/shishi_def.c (shishi_auth): New type
