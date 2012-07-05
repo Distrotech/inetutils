@@ -194,6 +194,7 @@ int protocol;
 # define VERSION_SIZE	9
 # define SECURE_MESSAGE  "This rsh session is using DES encryption for all transmissions.\r\n"
 int doencrypt, use_kerberos, vacuous;
+char *servername = NULL;
 #else
 #endif /* KERBEROS || SHISHI */
 
@@ -214,7 +215,9 @@ static struct argp_option options[] = {
     "use kerberos authentication" },
   /* FIXME: Option name is misleading */
   { "vacuous", 'v', NULL, 0,
-    "require Kerberos authentication" },
+    "fail for non-Kerberos authentication" },
+  { "servername", 'S', "NAME", 0,
+    "set Kerberos server name, overriding canonical hostname" },
 #endif /* KERBEROS */
   { NULL }
 };
@@ -263,6 +266,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
       doencrypt = 1;
       break;
 # endif
+
+    case 'S':
+      servername = arg;
+      break;
 #endif /* KERBEROS || SHISHI */
 
     case 'L':
@@ -596,7 +603,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 #endif
 	if (port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
 	  {
-	    syslog (LOG_ERR, "2nd port not reserved\n");
+	    syslog (LOG_ERR, "Second port outside reserved range.");
 	    exit (EXIT_FAILURE);
 	  }
       /* Use the fromp structure that we already have available.
@@ -812,7 +819,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       char *err_msg;
 
       rc = get_auth (STDIN_FILENO, &h, &ap, &enckey, &err_msg, &protocol,
-		     &cksumtype, &cksum, &cksumlen);
+		     &cksumtype, &cksum, &cksumlen, servername);
       if (rc != SHISHI_OK)
 	{
 	  rshd_error ("Kerberos authentication failure: %s\n",
@@ -906,12 +913,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       exit (EXIT_FAILURE);
 
     /* verify checksum */
-
-# if 1
     {
       unsigned short port;
 
-    /* Doesn't give socket port ? */
       socklen = sizeof (sock);
       if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
 	{
@@ -923,15 +927,12 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	     ? ((struct sockaddr_in6 *) &sock)->sin6_port
 	     : ((struct sockaddr_in *) &sock)->sin_port;
 
-      snprintf (cksumdata, 100, "%u:%s%s", port, cmdbuf, locuser);
+      snprintf (cksumdata, 100, "%u:%s%s", ntohs (port), cmdbuf, locuser);
     }
-# else
-    snprintf (cksumdata, 100, "544:%s%s", cmdbuf, locuser);
-# endif
+
     rc = shishi_checksum (h, enckey, 0, cksumtype,
 			  cksumdata, strlen (cksumdata),
 			  &compcksum, &compcksumlen);
-    free (cksum);
     if (rc != SHISHI_OK
 	|| compcksumlen != cksumlen
 	|| memcmp (compcksum, cksum, cksumlen) != 0)
@@ -1052,6 +1053,18 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
     }
 #endif /* WITH_PAM */
 
+#if defined WITH_IRUSEROK_AF && !defined WITH_PAM
+    switch (fromp->sa_family)
+      {
+      case AF_INET6:
+	fromaddrp = (void *) &((struct sockaddr_in6 *) fromp)->sin6_addr;
+	break;
+      case AF_INET:
+      default:
+	fromaddrp = (void *) &((struct sockaddr_in *) fromp)->sin_addr;
+      }
+#endif
+
 #ifdef	KERBEROS
   if (use_kerberos)
     {
@@ -1090,15 +1103,6 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
                      && (iruserok_sa ((void *) fromp, fromlen,
 				      pwd->pw_uid == 0, remuser, locuser)) < 0))
 # elif defined WITH_IRUSEROK_AF
-    switch (fromp->sa_family)
-      {
-      case AF_INET6:
-	fromaddrp = (void *) &((struct sockaddr_in6 *) fromp)->sin6_addr;
-	break;
-      case AF_INET:
-      default:
-	fromaddrp = (void *) &((struct sockaddr_in *) fromp)->sin_addr;
-      }
     if (errorstr || (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0'
                      && (iruserok_af (fromaddrp, pwd->pw_uid == 0,
 				      remuser, locuser, fromp->sa_family)) < 0))

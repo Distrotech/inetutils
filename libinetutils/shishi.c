@@ -57,7 +57,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
     {
       fprintf (stderr, "shishi_check_version() failed:\n"
 	       "Header file incompatible with shared library.\n");
-      return 1;
+      return SHISHI_INVALID_ARGUMENT;
     }
 
   rc = shishi_init (handle);
@@ -65,7 +65,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
     {
       fprintf (stderr,
 	       "error initializing shishi: %s\n", shishi_strerror (rc));
-      return 1;
+      return rc;
     }
 
   if (realm)
@@ -97,7 +97,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
       errormsg[100] = '\0';
 
       fprintf (stderr, "Error during server authentication : %s\n", errormsg);
-      return 1;
+      return SHISHI_VERIFY_FAILED;
     }
 
   if (verbose)
@@ -114,7 +114,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   if (!tmpserver)
     {
       perror ("shishi_auth()");
-      return 1;
+      return SHISHI_TOO_SMALL_BUFFER;
     }
   strcpy (tmpserver, SERVICE);
   strcat (tmpserver, "/");
@@ -126,9 +126,9 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   tkt = shishi_tkts_get (shishi_tkts_default (h), &hint);
   if (!tkt)
     {
+      fprintf (stderr, "cannot find ticket for \"%s\"\n", tmpserver);
       free (tmpserver);
-      fprintf (stderr, "cannot find ticket for \"%s\"\n", sname);
-      return 1;
+      return SHISHI_INVALID_TICKET;
     }
 
   free (tmpserver);
@@ -142,13 +142,14 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   if (rc != SHISHI_OK)
     {
       fprintf (stderr, "cannot create authentication context\n");
-      return 1;
+      return rc;
     }
 
 
   /* checksum = port: terminal name */
 
-  snprintf (cksumdata, 100, "%u:%s%s", ntohs (port), cmd, *cname);
+  snprintf (cksumdata, sizeof (cksumdata) - 1,
+	    "%u:%s%s", ntohs (port), cmd, *cname);
 
   /* add checksum to authenticator */
 
@@ -164,7 +165,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
       fprintf (stderr, "cannot build authentication request: %s\n",
 	       shishi_strerror (rc));
 
-      return 1;
+      return rc;
     }
 
   if (verbose)
@@ -184,9 +185,11 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 
   write (sock, out, outlen);
 
-  /* read a respond from server - what ? */
+  /* read response from server - what ? */
 
-  read (sock, &auth, sizeof (int));
+  read (sock, &rc, sizeof (rc));
+  if (rc)
+    return SHISHI_APREP_VERIFY_FAILED;
 
   /* For mutual authentication, wait for server reply. */
 
@@ -216,7 +219,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 	  else
 	    fprintf (stderr, "AP-REP verification error: %s\n",
 		     shishi_strerror (rc));
-	  return 1;
+	  return rc;
 	}
 
       /* The server is authenticated. */
@@ -228,7 +231,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   if (verbose)
     printf ("User authenticated.\n");
 
-  return 0;
+  return SHISHI_OK;
 
 }
 
@@ -242,7 +245,7 @@ senderror (int s, char type, char *buf)
 int
 get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	  Shishi_key ** enckey, const char **err_msg, int *protoversion,
-	  int *cksumtype, char **cksum, int *cksumlen)
+	  int *cksumtype, char **cksum, int *cksumlen, char *srvname)
 {
   Shishi_key *key;
   char *out;
@@ -268,20 +271,32 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
     {
       *err_msg =
 	"shishi_check_version() failed: header file incompatible with shared library.";
-      return 1;
+      return SHISHI_INVALID_ARGUMENT;
     }
 
   rc = shishi_init_server (handle);
   if (rc != SHISHI_OK)
     return rc;
 
-  servername = shishi_server_for_local_service (*handle, SERVICE);
+  if (srvname && *srvname)
+    {
+      servername = malloc (sizeof (SERVICE) + strlen (srvname) + 2);
+      if (!servername)
+	{
+	  *err_msg = "Not enough memory";
+	  return SHISHI_TOO_SMALL_BUFFER;
+	}
+      sprintf (servername, "%s/%s", SERVICE, srvname);
+    }
+  else
+    servername = shishi_server_for_local_service (*handle, SERVICE);
 
   key = shishi_hostkeys_for_server (*handle, servername);
+  free (servername);
   if (!key)
     {
       *err_msg = shishi_error (*handle);
-      return 1;
+      return SHISHI_INVALID_KEY;
     }
 
   /* Read Kerberos 5 sendauth message */
@@ -289,7 +304,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (rc != sizeof (int))
     {
       *err_msg = "Error reading message size";
-      return 1;
+      return SHISHI_IO_ERROR;
     }
 
   buflen = ntohl (len);
@@ -297,14 +312,14 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (!buf)
     {
       *err_msg = "Not enough memory";
-      return 1;
+      return SHISHI_TOO_SMALL_BUFFER;
     }
 
   rc = read (infd, buf, buflen);
   if (rc != buflen)
     {
       *err_msg = "Error reading authentication message";
-      return 1;
+      return SHISHI_IO_ERROR;
     }
 
   len = strlen (krb5sendauth);
@@ -312,7 +327,9 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (rc)
     {
       *err_msg = "Invalid authentication type";
-      return 1;
+      /* Authentication type is wrong.  */
+      write (infd, "\001", 1);
+      return SHISHI_VERIFY_FAILED;
     }
 
   free (buf);
@@ -322,21 +339,21 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (rc != sizeof (int))
     {
       *err_msg = "Error reading protocol message size";
-      return 1;
+      return SHISHI_IO_ERROR;
     }
   buflen = ntohl (len);
   buf = malloc (buflen);
   if (!buf)
     {
       *err_msg = "Not enough memory";
-      return 1;
+      return SHISHI_TOO_SMALL_BUFFER;
     }
 
   rc = read (infd, buf, buflen);
   if (rc != buflen)
     {
       *err_msg = "Error reading protocol message";
-      return 1;
+      return SHISHI_IO_ERROR;
     }
 
   len = strlen (krb5kcmd1);
@@ -348,7 +365,9 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       if (rc)
 	{
 	  *err_msg = "Protocol version not supported";
-	  return 1;
+	  /* Protocol version is wrong.  */
+	  write (infd, "\002", 1);
+	  return SHISHI_VERIFY_FAILED;
 	}
       *protoversion = 2;
     }
@@ -367,7 +386,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (rc != sizeof (int))
     {
       *err_msg = "Error reading authentication request size";
-      return 1;
+      return SHISHI_IO_ERROR;
     }
 
   buflen = ntohl (len);
@@ -375,14 +394,14 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (!buf)
     {
       *err_msg = "Not enough memory";
-      return 1;
+      return SHISHI_TOO_SMALL_BUFFER;
     }
 
   rc = read (infd, buf, buflen);
   if (rc != buflen)
     {
       *err_msg = "Error reading authentication request";
-      return 1;
+      return SHISHI_IO_ERROR;
     }
 
   /* Create Authentication context */
@@ -393,7 +412,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 
   /* Store request in context */
 
-  shishi_ap_req_der_set (*ap, buf, buflen);
+  rc = shishi_ap_req_der_set (*ap, buf, buflen);
   if (rc != SHISHI_OK)
     return rc;
 
@@ -424,11 +443,11 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (rc != SHISHI_OK)
     return rc;
 
-  /* User is authenticated. */
+  /* User is authenticated.  */
   error = 0;
   write (infd, &error, sizeof (int));
 
-  /* Authenticate ourself to client, if request */
+  /* Authenticate ourself to client, if requested.  */
 
   if (shishi_apreq_mutual_required_p (*handle, shishi_ap_req (*ap)))
     {
@@ -442,7 +461,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	{
 	  *err_msg = "Error sending AP-REP";
 	  free (out);
-	  return 1;
+	  return SHISHI_IO_ERROR;
 	}
 
       rc = write (infd, out, ntohl (outlen));
@@ -450,7 +469,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	{
 	  *err_msg = "Error sending AP-REP";
 	  free (out);
-	  return 1;
+	  return SHISHI_IO_ERROR;
 	}
 
       free (out);
@@ -467,7 +486,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
       if (tkt == NULL)
 	{
 	  *err_msg = "Could not get tkt from AP-REQ";
-	  return 1;
+	  return SHISHI_INVALID_TICKET;
 	}
 
       rc = shishi_encticketpart_get_key (*handle,

@@ -101,8 +101,8 @@ kcmd (int *sock, char **ahost, unsigned short rport, char *locuser,
 int
 kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
       char **remuser, char *cmd, int *fd2p, char *service, char *realm,
-      Shishi_key ** key,
-      struct sockaddr_in *laddr, struct sockaddr_in *faddr, long authopts)
+      Shishi_key ** key, struct sockaddr_storage *laddr,
+      struct sockaddr_storage *faddr, long authopts)
 # endif
 {
   int s, timo = 1, pid;
@@ -111,7 +111,8 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # else
   long oldmask;
 # endif /* !HAVE_SIGACTION */
-  struct sockaddr_in sin, from;
+  struct sockaddr_storage sin, from;
+  socklen_t len;
   char c;
 
 # ifdef ATHENA_COMPAT
@@ -129,6 +130,9 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # endif
 
   pid = getpid ();
+
+  /* FIXME: Often the following rejects non-IPv4.
+   * This is dependent on system implementation.  */
   hp = gethostbyname (*ahost);
   if (hp == NULL)
     {
@@ -172,15 +176,30 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  return (-1);
 	}
       fcntl (s, F_SETOWN, pid);
-      sin.sin_family = hp->h_addrtype;
+      sin.ss_family = hp->h_addrtype;
+      switch (hp->h_addrtype)
+	{
+	case AF_INET6:
+	  len = sizeof (struct sockaddr_in6);
 #ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-      sin.sin_len = sizeof (sin);
+	  sin.ss_len = len;
 #endif
+	  memcpy (&((struct sockaddr_in6 *) &sin)->sin6_addr,
+		  hp->h_addr, hp->h_length);
+	  ((struct sockaddr_in6 *) &sin)->sin6_port = rport;
+	  break;
+	case AF_INET:
+	default:
+	  len = sizeof (struct sockaddr_in);
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+	  sin.ss_len = len;
+#endif
+	  memcpy (&((struct sockaddr_in *) &sin)->sin_addr,
+		  hp->h_addr, hp->h_length);
+	  ((struct sockaddr_in *) &sin)->sin_port = rport;
+	}
 
-      memcpy (&sin.sin_addr, hp->h_addr, hp->h_length);
-      sin.sin_port = rport;
-
-      if (connect (s, (struct sockaddr *) &sin, sizeof (sin)) >= 0)
+      if (connect (s, (struct sockaddr *) &sin, len) >= 0)
 	break;
       close (s);
       if (errno == EADDRINUSE)
@@ -209,7 +228,6 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  errno = oerrno;
 	  perror (NULL);
 	  hp->h_addr_list++;
-	  memcpy (& sin.sin_addr, hp->h_addr_list, hp->h_length);
 	  fprintf (stderr, "Trying %s...\n",
 		   inet_ntop (hp->h_addrtype, hp->h_addr_list[0],
 			      addrstr, sizeof (addrstr)));
@@ -236,8 +254,10 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   else
     {
       char num[8];
-      int s2 = getport (&lport), s3;
-      int len = sizeof (from);
+      int port, s2, s3;
+
+      s2 = getport (&lport);
+      len = sizeof (from);
 
       if (s2 < 0)
 	{
@@ -263,8 +283,12 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  goto bad;
 	}
       *fd2p = s3;
-      from.sin_port = ntohs ((unsigned short) from.sin_port);
-      if (from.sin_family != AF_INET || from.sin_port >= IPPORT_RESERVED)
+      port = (from.ss_family == AF_INET6)
+	     ? ntohs (((struct sockaddr_in6 *) &from)->sin6_port)
+	     : ntohs (((struct sockaddr_in *) &from)->sin_port);
+
+      if (port >= IPPORT_RESERVED
+          || from.ss_family != AF_INET && from.ss_family != AF_INET6)
 	{
 	  fprintf (stderr,
 		   "kcmd(socket): protocol failure in circuit setup.\n");
@@ -287,7 +311,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
       *faddr = sin;
 
-      sin_len = sizeof (struct sockaddr_in);
+      sin_len = sizeof (*laddr);
       if (getsockname (s, (struct sockaddr *) laddr, &sin_len) < 0)
 	{
 	  perror ("kcmd(getsockname)");
@@ -310,7 +334,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
       *faddr = sin;
 
-      sin_len = sizeof (struct sockaddr_in);
+      sin_len = sizeof (*laddr);
       if (getsockname (s, (struct sockaddr *) laddr, &sin_len) < 0)
 	{
 	  perror ("kcmd(getsockname)");

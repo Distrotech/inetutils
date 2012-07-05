@@ -1,3 +1,50 @@
+2012-07-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rsh, rshd: Functional Shishi code.  Tested on
+	32-bit system, with and without encryption,
+	but without PAM.
+
+	* src/rlogind.c (servername): New variable.
+	(options): New option `-S/--servername'.
+	(parse_opt) <'S'>: Implement `-S'.
+	(do_shishi_login): Add `servername' as additional
+	argument to get_auth().
+	* src/rsh.c (servername): New variable.
+	(options): New option `-S/--servername'.  Rephrase
+	explanation for `-v/--vacuous'.
+	(parse_opt) <'S'>: Implement `-S'.
+	(doit): Add `servername' as additional argument to
+	get_auth().  Apply ntohs() to PORT in calculating
+	CKSUMDATA.  Do not free CKSUM before use!
+	(doit) [WITH_IRUSEROK_AF && !WITH_PAM]: Calculate
+	FROMADDRP separately, not within nested conditionals.
+
+	* libinetutils/kcmd.c (kcmd) [SHISHI]: Let arguments
+	`laddr' and `faddr' be `struct sockaddr_storage *'.
+	New variables LEN and PORT, use `struct sockaddr_storage'
+	for SIN and FROM.  Modify resolver code to handle AF_INET
+	and AF_INET6.
+	* libinetutils/krcmd.c (krcmd) [SHISHI]: Produce error
+	message using shishi_strerror() at failures.
+	(krcmd_mutual) [SHISHI]: Use `struct sockaddr_storage'
+	for LADDR and FADDR.
+	* libinetutils/shishi.c (shishi_auth, get_auth): Return
+	meaningful error status, not `1' every time.
+	(shishi_auth) <ticket fetch failure>: Report Kerberos
+	principal name, not only host name of server.
+	(shishi_auth) <authentication response reading>: Store
+	int32 sized answer in an integer, not in a char!  Report
+	a failure in case authentication actually failed.
+	(get_auth): Add a further parameter `char *srvname'.
+	Call shishi_server_for_local_service() only if `srvname'
+	was NULL.  Otherwise, manually assemble the host's
+	principal name.
+	(get_auth) <authentication type failure>: Follow protocol
+	and send a response 0x01.
+	(get_auth) <protocol version failure>: Follow protocol
+	and send a response 0x02.
+	* libinetutils/shishi_def.h (get_auth): Update signature.
+
 2012-07-03  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* libinetutils/kcmd.c (kcmd, getport)

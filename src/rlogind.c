@@ -176,6 +176,7 @@ int keepalive = 1;
 
 #if defined KERBEROS || defined SHISHI
 int kerberos = 0;
+char *servername = NULL;
 
 # ifdef ENCRYPTION
 int encrypt_io = 0;
@@ -291,6 +292,8 @@ static struct argp_option options[] = {
 #if defined KERBEROS || defined SHISHI
   { "kerberos", 'k', NULL, 0,
     "use kerberos IV/V authentication" },
+  { "servername", 'S', "NAME", 0,
+    "set Kerberos server name, overriding canonical hostname" },
 #endif
 #if defined ENCRYPTION
   { "encrypt", 'x', NULL, 0,
@@ -352,6 +355,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 	}
       else
 	kerberos = AUTH_KERBEROS_DEFAULT;
+      break;
+
+    case 'S':
+      servername = arg;
       break;
 
 # ifdef ENCRYPTION
@@ -1185,10 +1192,10 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 
 #  ifdef ENCRYPTION
   rc = get_auth (infd, &ad->h, &ad->ap, &ad->enckey, err_msg, &ad->protocol,
-		 &cksumtype, &cksum, &cksumlen);
+		 &cksumtype, &cksum, &cksumlen, servername);
 #  else
   rc = get_auth (infd, &ad->h, &ad->ap, NULL, err_msg, &ad->protocol,
-		 &cksumtype, &cksum, &cksumlen);
+		 &cksumtype, &cksum, &cksumlen, servername);
 #  endif
   if (rc != SHISHI_OK)
     return rc;

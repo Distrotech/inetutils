@@ -76,7 +76,7 @@
 # if defined SHISHI
 int kcmd (Shishi **, int *, char **, unsigned short, char *, char **,
 	  char *, int *, char *, char *, Shishi_key **,
-	  struct sockaddr_in *, struct sockaddr_in *, long);
+	  struct sockaddr_storage *, struct sockaddr_storage *, long);
 # else
 int kcmd (int *, char **, unsigned short, char *, char *, char *, int *,
 	  KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
@@ -105,7 +105,7 @@ krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cm
 
   if (err > SHISHI_OK)
     {
-      fprintf (stderr, "krcmd: %s\n", "error");
+      fprintf (stderr, "krcmd: error %d, %s\n", err, shishi_strerror (err));
       return (-1);
     }
   if (err < 0)
@@ -149,7 +149,7 @@ krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
 	      char *cmd, int *fd2p, char *realm, Shishi_key ** key)
 {
   int sock = -1, err = 0;
-  struct sockaddr_in laddr, faddr;
+  struct sockaddr_storage laddr, faddr;
   long authopts = SHISHI_APOPTIONS_MUTUAL_REQUIRED;
 
   err = kcmd (h, &sock, ahost, rport, NULL,	/* locuser not used */
