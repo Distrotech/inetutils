@@ -1,3 +1,14 @@
+2012-07-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/rshd.c (doit) <PAM_NEW_AUTHTOK_REQD>:
+	When either pam_authenticate() or pam_acct_mgmt()
+	require token renewal, then call pam_chauthtok()
+	and repeat the previous call.
+	(rsh_conv) <PAM_PROMPT_ECHO_OFF>: Build a full
+	pam_response structure using an emtpy password,
+	instead of returning an empty pointer.  Make a
+	syslog notice showing the passed message string.
+
 2012-07-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rsh, rshd: Functional Shishi code.  Tested on

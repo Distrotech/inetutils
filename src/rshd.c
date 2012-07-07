@@ -1000,6 +1000,14 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	case PAM_ABORT:
 	  pam_end (pam_handle, pam_rc);
 	  exit (EXIT_FAILURE);
+	case PAM_NEW_AUTHTOK_REQD:
+	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+	  if (pam_rc == PAM_SUCCESS)
+	    {
+	      pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
+	      if (pam_rc == PAM_SUCCESS)
+		break;
+	    }
 	default:
 	  errorstr = "Password incorrect.\n";
 	  goto fail;
@@ -1012,6 +1020,13 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       switch (pam_rc)
 	{
 	case PAM_NEW_AUTHTOK_REQD:
+	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+	  if (pam_rc == PAM_SUCCESS)
+	    {
+	      pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
+	      if (pam_rc == PAM_SUCCESS)
+		break;
+	    }
 	case PAM_AUTH_ERR:
 	  errorstr = "Password incorrect.\n";
 	  goto fail;
@@ -1733,7 +1748,22 @@ rsh_conv (int num, const struct pam_message **pam_msg,
   switch ((*pam_msg)->msg_style)
     {
     case PAM_PROMPT_ECHO_OFF:	/* Return an empty password.  */
+      resp = (struct pam_response *) malloc (sizeof (*resp));
+      if (!resp)
+	return PAM_BUF_ERR;
+      resp->resp_retcode = 0;
+      resp->resp = strdup ("");
+      if (!resp->resp)
+	{
+	  free (resp);
+	  return PAM_BUF_ERR;
+	}
+      if (log_success)
+	syslog (LOG_NOTICE | LOG_AUTH, "PAM message \"%s\".",
+		(*pam_msg)->msg);
+      *pam_resp = resp;
       return PAM_SUCCESS;
+      break;
     case PAM_TEXT_INFO:		/* Not yet supported.  */
     case PAM_ERROR_MSG:		/* Likewise.  */
     case PAM_PROMPT_ECHO_ON:	/* Interactivity is not supported.  */
