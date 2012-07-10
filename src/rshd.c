@@ -422,7 +422,8 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   int pv1[2], pv2[2];
   fd_set wready, writeto;
   int keytype, keylen;
-  int cksumtype, cksumlen;
+  int cksumtype;
+  size_t cksumlen;
   char *cksum = NULL;
 #endif /* KERBEROS || SHISHI */
 
@@ -844,7 +845,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       size_t compcksumlen;
       char cksumdata[100];
       struct sockaddr_storage sock;
-      size_t socklen;
+      socklen_t socklen;
 
 # ifdef ENCRYPTION
       if (strlen (cmdbuf) >= 3)

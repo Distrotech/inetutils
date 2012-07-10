@@ -62,7 +62,7 @@ extern int shishi_auth (Shishi ** handle, int verbose, char **cname,
 extern int get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 		     Shishi_key ** enckey, const char **err_msg,
 		     int *protoversion, int *cksumtype, char **cksum,
-		     int *cksumlen, char *srvname);
+		     size_t *cksumlen, char *srvname);
 
 extern int readenc (Shishi * h, int sock, char *buf, int *len,
 		    shishi_ivector * iv, Shishi_key * enckey, int proto);

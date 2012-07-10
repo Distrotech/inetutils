@@ -1182,13 +1182,13 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   int error = 0;
   int keylen, keytype;
   struct passwd *pwd = NULL;
-  int cksumtype, cksumlen = 30;
+  int cksumtype;
   char *cksum;
   char *compcksum;
-  size_t compcksumlen;
+  size_t compcksumlen, cksumlen = 30;
   char cksumdata[100];
   struct sockaddr_in sock;
-  size_t socklen = sizeof (sock);
+  socklen_t socklen = sizeof (sock);
 
 #  ifdef ENCRYPTION
   rc = get_auth (infd, &ad->h, &ad->ap, &ad->enckey, err_msg, &ad->protocol,

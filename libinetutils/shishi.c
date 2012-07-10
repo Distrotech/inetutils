@@ -41,7 +41,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 
   int rc;
   char *out;
-  int outlen;
+  size_t outlen;
   int krb5len, msglen;
   char *tmpserver;
   char auth;
@@ -178,7 +178,8 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 
   /* send size of AP-REQ to the server */
 
-  msglen = htonl (outlen);
+  msglen = outlen;
+  msglen = htonl (msglen);
   write (sock, (char *) &msglen, sizeof (int));
 
   /* send AP-REQ to the server */
@@ -200,10 +201,10 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 
       /* read size of the AP-REP */
 
-      read (sock, (char *) &outlen, sizeof (int));
+      read (sock, (char *) &msglen, sizeof (int));
 
       /* read AP-REP */
-      outlen = ntohl (outlen);
+      outlen = ntohl (msglen);
       outlen = read (sock, out, outlen);
 
       rc = shishi_ap_rep_verify_der (ap, out, outlen);
@@ -245,11 +246,11 @@ senderror (int s, char type, char *buf)
 int
 get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	  Shishi_key ** enckey, const char **err_msg, int *protoversion,
-	  int *cksumtype, char **cksum, int *cksumlen, char *srvname)
+	  int *cksumtype, char **cksum, size_t *cksumlen, char *srvname)
 {
   Shishi_key *key;
   char *out;
-  int outlen;
+  size_t outlen;
   char *buf;
   int buflen;
   int len;
@@ -451,12 +452,15 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 
   if (shishi_apreq_mutual_required_p (*handle, shishi_ap_req (*ap)))
     {
+      int len;
+
       rc = shishi_ap_rep_der (*ap, &out, &outlen);
       if (rc != SHISHI_OK)
 	return rc;
 
-      outlen = htonl (outlen);
-      rc = write (infd, &outlen, sizeof (int));
+      len = outlen;
+      len = htonl (len);
+      rc = write (infd, &len, sizeof (len));
       if (rc != sizeof (int))
 	{
 	  *err_msg = "Error sending AP-REP";
@@ -464,8 +468,8 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	  return SHISHI_IO_ERROR;
 	}
 
-      rc = write (infd, out, ntohl (outlen));
-      if (rc != ntohl (outlen))
+      rc = write (infd, out, ntohl (len));
+      if (rc != ntohl (len))
 	{
 	  *err_msg = "Error sending AP-REP";
 	  free (out);
@@ -512,7 +516,7 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector * iv,
 
   int rc;
   int val;
-  int outlen;
+  size_t outlen;
   int dlen = 0, blocksize, enctype, hashsize;
 
   /* read size of message */
@@ -637,7 +641,8 @@ writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
   char *bufbis;
 
   int rc;
-  int dlen, outlen;
+  int dlen;
+  size_t outlen;
 
   dlen = wlen;
   dlen = htonl (dlen);

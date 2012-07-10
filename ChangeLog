@@ -1,3 +1,20 @@
+2012-07-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rshd: Resolve conflicts `int' versus `size_t'.
+	Inappropriate use of `int' leads to failure
+	of authentication on 64-bit architectures.
+
+	* libinetutils/shishi.c (shishi_auth): Let OUTLEN
+	be `size_t'. Read and write lengths using MSGLEN.
+	(get_auth): New argument type `size_t *cksumlen'.
+	Let OUTLEN be `size_t'.  New variable LEN.
+	(readenc, writeenc): New type `size_t outlen'.
+	* libinetutils/shishi_def.h (shishi_auth):
+	Modified signature.
+	* src/rlogind.c (do_shishi_login): Use `size_t'
+	for CKSUMLEN and `socklen_t' for SOCKLEN.
+	* src/rshd.c (doit) [SHISHI]: Likewise.
+
 2012-07-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* src/rshd.c (doit) <PAM_NEW_AUTHTOK_REQD>:
