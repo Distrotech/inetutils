@@ -62,6 +62,8 @@
 #include <argp.h>
 #include <libinetutils.h>
 
+#include <arpa/telnet.h>
+
 #ifdef	AUTHENTICATION
 # include <libtelnet/auth.h>
 #endif
