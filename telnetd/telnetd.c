@@ -32,7 +32,10 @@
 # include <libtelnet/misc.h>
 #endif
 
+#ifdef  AUTHENTICATION
 static void parse_authmode (char *str);
+#endif
+
 static void parse_linemode (char *str);
 static void parse_debug_level (char *str);
 static void telnetd_setup (int fd);
@@ -57,8 +60,6 @@ int lmodetype;			/* Type of linemode (2) */
 int hostinfo = 1;		/* Print the host-specific information before
 				   login */
 
-int auth_level = 0;		/* Authentication level */
-
 int debug_level[debug_max_mode];	/* Debugging levels */
 int debug_tcp = 0;		/* Should the SO_DEBUG be set? */
 
@@ -82,7 +83,7 @@ int flowmode;			/* current flow control state */
 int restartany;			/* restart output on any character state */
 int diagnostic;			/* telnet diagnostic capabilities */
 #if defined AUTHENTICATION
-int auth_level;
+int auth_level = 0;		/* Authentication level */
 int autologin;
 #endif
 
@@ -95,8 +96,10 @@ struct telnetd_clocks clocks;
 
 
 static struct argp_option argp_options[] = {
+#ifdef  AUTHENTICATION
   { "authmode", 'a', "MODE", 0,
     "specify what mode to use for authentication" },
+#endif
   { "debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
     "set debugging level" },
   { "exec-login", 'E', "STRING", 0,
@@ -122,9 +125,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
+#ifdef  AUTHENTICATION
     case 'a':
       parse_authmode (arg);
       break;
+#endif
 
     case 'D':
       parse_debug_level (arg);
@@ -201,6 +206,7 @@ parse_linemode (char *str)
     fprintf (stderr, "telnetd: invalid argument to --linemode\n");
 }
 
+#ifdef  AUTHENTICATION
 void
 parse_authmode (char *str)
 {
@@ -217,6 +223,7 @@ parse_authmode (char *str)
   else
     fprintf (stderr, "telnetd: unknown authorization level for -a\n");
 }
+#endif /* AUTHENTICATION */
 
 static struct
 {

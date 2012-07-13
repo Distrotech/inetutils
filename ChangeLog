@@ -1,5 +1,16 @@
 2012-07-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* telnetd/telnetd.c (auth_level) [AUTHENTICATION]:
+	Use only in kerberized server builds.
+	(arpg_options, parse_opt) [AUTHENTICATION]
+	<-a/--authmode>: Likewise.
+	(parse_mode) [AUTHENTICATION]: Likewise.
+
+	* telnetd/utility.c (io_drain) <EAGAIN in read()>:
+	Silence useless logging message `ttloop: retrying'.
+
+2012-07-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	telnet, telnetd: Set service name for libshishi
 	in server and allow client to specify realm.
 

@@ -412,7 +412,9 @@ again:
     {
       if (errno == EAGAIN)
 	{
-	  syslog (LOG_INFO, "ttloop: retrying");
+	  /*
+	   * syslog (LOG_INFO, "ttloop: retrying");
+	   */
 	  goto again;
 	}
       syslog (LOG_INFO, "ttloop:  read: %m\n");
