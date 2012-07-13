@@ -40,6 +40,8 @@
 #  include "encrypt.h"
 # endif
 
+char *dest_realm = NULL;
+
 Shishi_key *enckey = NULL;
 
 static unsigned char str_data[2048] = { IAC, SB, TELOPT_AUTHENTICATION, 0,
@@ -168,6 +170,10 @@ krb5shishi_send (TN_Authenticator * ap)
   sprintf (tmp, "host/%s", RemoteHostName);
   memset (&hint, 0, sizeof (hint));
   hint.server = tmp;
+
+  if (dest_realm && *dest_realm)
+    shishi_realm_default_set (shishi_handle, dest_realm);
+
   tkt = shishi_tkts_get (shishi_tkts_default (shishi_handle), &hint);
   free (tmp);
   if (!tkt)
@@ -398,7 +404,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 {
   Shishi_key *key, *key2;
   int rc;
-  char *cnamerealm;
+  char *cnamerealm, *server;
   int cnamerealmlen;
 # ifdef ENCRYPTION
   Session_Key skey;
@@ -428,7 +434,16 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
       return 1;
     }
 
-  key = shishi_hostkeys_for_localservice (shishi_handle, "host");
+  server = malloc (strlen ("host/") + strlen (LocalHostName) + 1);
+  if (server)
+    {
+      sprintf (server, "host/%s", LocalHostName);
+      key = shishi_hostkeys_for_server (shishi_handle, server);
+      free (server);
+    }
+  else
+    key = shishi_hostkeys_for_localservice (shishi_handle, "host");
+
   if (key == NULL)
     {
       snprintf (errbuf, errbuflen, "Could not find key:\n%s\n",

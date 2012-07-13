@@ -1,3 +1,21 @@
+2012-07-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnet, telnetd: Set service name for libshishi
+	in server and allow client to specify realm.
+
+	* libtelnet/shishi.c (dest_realm): New variable.
+	(krb5shishi_send): Call shishi_realm_default_set()
+	whenever `dest_realm' is set.
+	(krb5shishi_is_auth): New variable SERVER.  Construct
+	a service name from `LocalHostName' and use it in a
+	call to shishi_hostkeys_for_server().
+	* telnet/main.c (dest_realm) [KRB4 || SHISHI]:
+	New external variable.
+	(argp_options) [AUTHENTICATION && (KRB4 || SHISHI)]:
+	Activate the option `-k/--realm' also whith SHISHI.
+	(parse_opt) [AUTHENTICATION && (KRB4 || SHISHI)]:
+	Likewise.
+
 2012-07-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Allow builds on OpenSolaris with libshishi.
