@@ -1,3 +1,14 @@
+2012-07-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Activate authentication modes.
+	Send TELOPT_AUTHENTICATION based on the
+	authentication level chosen for the server.
+
+	* telnetd/utility.c (getterminaltype)
+	[AUTHENTICATION]: Choose between send_wont(),
+	send_do() and send_will() with TELOPT_AUTHENTICATION
+	depending on `auth_level'.
+
 2012-07-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* telnetd/telnetd.c (auth_level) [AUTHENTICATION]:

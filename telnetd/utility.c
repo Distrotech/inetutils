@@ -698,13 +698,27 @@ getterminaltype (char *user_name)
 #if defined AUTHENTICATION
   /*
    * Handle the Authentication option before we do anything else.
+   * Distinguish the available modes by level:
+   *
+   *   off:			Authentication is forbidden.
+   *   none:			Volontary authentication.
+   *   user, valid, other:	Mandatory authentication only.
    */
-  send_do (TELOPT_AUTHENTICATION, 1);
-  ttloop (his_will_wont_is_changing (TELOPT_AUTHENTICATION));
+  if (auth_level < 0)
+    send_wont (TELOPT_AUTHENTICATION, 1);
+  else
+    {
+      if (auth_level > 0)
+	send_do (TELOPT_AUTHENTICATION, 1);
+      else
+	send_will (TELOPT_AUTHENTICATION, 1);
 
-  if (his_state_is_will (TELOPT_AUTHENTICATION))
-    retval = auth_wait (user_name);
-#endif
+      ttloop (his_will_wont_is_changing (TELOPT_AUTHENTICATION));
+
+      if (his_state_is_will (TELOPT_AUTHENTICATION))
+	retval = auth_wait (user_name);
+    }
+#endif /* AUTHENTICATION */
 
 #ifdef	ENCRYPTION
   send_will (TELOPT_ENCRYPT, 1);
