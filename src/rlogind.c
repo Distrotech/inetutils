@@ -979,7 +979,7 @@ do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
 {
   int rc;
 
-  err_msg = NULL;
+  *err_msg = NULL;
 # if defined KRB5
   if (kerberos == AUTH_KERBEROS_5)
     rc = do_krb5_login (infd, ap, err_msg);
@@ -1300,17 +1300,18 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 	    ad->lusername);
   rc = shishi_checksum (ad->h, ad->enckey, 0, cksumtype, cksumdata,
 			strlen (cksumdata), &compcksum, &compcksumlen);
-  free (cksum);
   if (rc != SHISHI_OK
       || compcksumlen != cksumlen || memcmp (compcksum, cksum, cksumlen) != 0)
     {
       /* err_msg crash ? */
       /* *err_msg = "checksum verify failed"; */
       syslog (LOG_ERR, "checksum verify failed: %s", shishi_error (ad->h));
+      free (cksum);
       free (compcksum);
       return 1;
     }
 
+  free (cksum);
   free (compcksum);
 
   rc = shishi_authorized_p (ad->h, shishi_ap_tkt (ad->ap), ad->lusername);

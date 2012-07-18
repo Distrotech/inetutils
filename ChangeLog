@@ -1,3 +1,22 @@
+2012-07-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogin: Non-authenticating with libshishi.
+	Verified functionality with `-K' switch.
+
+	* src/rlogin.c (OPTIONS): Remove unused macro.
+	(main): Call doit() with reference to SMASK,
+	not OSMASK.
+	(reader) [SHISHI]: Check OOB data only in
+	Kerberos mode, i.e., for set `use_kerberos'.
+
+	rlogind: Authenticating mode with libshishi.
+	Avoid segmentation faults.
+
+	* src/rlogind.c (so_krb_login): Properly set
+	an empty error message by `*err_msg = NULL'.
+	(do_shishi_login): Do not free CKSUM before use,
+	but do so afterwards.
+
 2012-07-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnetd: Activate authentication modes.

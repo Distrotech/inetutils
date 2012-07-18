@@ -223,12 +223,6 @@ void warning (const char *, ...);
 
 extern sighandler_t setsig (int, sighandler_t);
 
-#if defined KERBEROS || defined SHISHI
-# define OPTIONS	"8EKde:k:l:xhV"
-#else
-# define OPTIONS	"8EKde:l:hV"
-#endif
-
 const char args_doc[] = "HOST";
 const char doc[] = "Starts a terminal session on a remote host.";
 
@@ -613,7 +607,7 @@ try_connect:
   seteuid (uid);
   setuid (uid);
 
-  doit (&osmask);
+  doit (&smask);
 
   return 0;
 }
@@ -1222,12 +1216,15 @@ reader (sigset_t * smask)
   for (;;)
     {
 #ifdef SHISHI
-      if ((rcvcnt >= 5) && (bufp[0] == '\377') && (bufp[1] == '\377'))
-	if ((bufp[2] == 'o') && (bufp[3] == 'o'))
-	  {
-	    oob (1);
-	    bufp += 5;
-	  }
+      if (use_kerberos)
+	{
+	  if ((rcvcnt >= 5) && (bufp[0] == '\377') && (bufp[1] == '\377'))
+	    if ((bufp[2] == 'o') && (bufp[3] == 'o'))
+	      {
+		oob (1);
+		bufp += 5;
+	      }
+	}
 #endif
       while ((remaining = rcvcnt - (bufp - rcvbuf)) > 0)
 	{
