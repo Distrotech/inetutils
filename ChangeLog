@@ -1,5 +1,16 @@
 2012-07-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rlogin: Close libshishi handle.
+	The normal logout action should lead to an
+	orderly close down of the active libshishi
+	handle, otherwise the tickets get lost.
+
+	* src/rlogin.c (doit) <reader returning> [SHISHI]:
+	Call shishi_done() in authenticating mode, possibly
+	also shishi_key_done() and shishi_crypto_close().
+
+2012-07-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rlogin: Non-authenticating with libshishi.
 	Verified functionality with `-K' switch.
 

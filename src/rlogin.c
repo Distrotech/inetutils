@@ -747,6 +747,22 @@ doit (sigset_t * smask)
 	  /* If the reader returns zero, the socket to the server returned
 	     an EOF, meaning the client logged out of the remote system.
 	     This is the normal termination.  */
+#ifdef SHISHI
+	  if (use_kerberos)
+	    {
+# ifdef ENCRYPTION
+	      if (doencrypt)
+		{
+		  shishi_key_done (key);
+		  shishi_crypto_close (iv1.ctx);
+		  shishi_crypto_close (iv2.ctx);
+		  free (iv1.iv);
+		  free (iv2.iv);
+		}
+# endif /* ENCRYPTION */
+	      shishi_done (handle);
+	    }
+#endif /* SHISHI */
           error (0, 0, "Connection to %s closed normally.\r", host);
           /* EXIT_SUCCESS is usually zero. So error might not exit.  */
           exit (EXIT_SUCCESS);
