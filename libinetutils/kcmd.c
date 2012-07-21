@@ -122,7 +122,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # endif
 # ifdef HAVE_DECL_GETADDRINFO
   struct addrinfo hints, *ai, *res;
-  char portstr[8];
+  char portstr[8], fqdn[NI_MAXHOST];
 # else /* !HAVE_DECL_GETADDRINFO */
   struct hostent *hp;
 # endif
@@ -152,10 +152,23 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
   ai = res;
 
-  host_save = malloc (strlen (ai->ai_canonname) + 1);
-  if (host_save == NULL)
-    return (-1);
-  strcpy (host_save, ai->ai_canonname);
+  /* Attempt back resolving into the official host name.  */
+  rc = getnameinfo (ai->ai_addr, ai->ai_addrlen, fqdn, sizeof (fqdn),
+		    NULL, 0, NI_NAMEREQD);
+  if (!rc)
+    {
+      host_save = malloc (strlen (fqdn) + 1);
+      if (host_save == NULL)
+	return (-1);
+      strcpy (host_save, fqdn);
+    }
+  else
+    {
+      host_save = malloc (strlen (ai->ai_canonname) + 1);
+      if (host_save == NULL)
+	return (-1);
+      strcpy (host_save, ai->ai_canonname);
+    }
 
 # else /* !HAVE_DECL_GETADDRINFO */
   /* Often the following rejects non-IPv4.

@@ -1,5 +1,13 @@
 2012-07-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rlogin, rsh: Find official host name.
+
+	* libinetutils/kcmd.c (kcmd) [HAVE_DECL_GETADDRINFO]:
+	New variable FQDN.  Establish official host name by
+	calling getnameinfo() on requested host.
+
+2012-07-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rsh, rlogin: Working IPv6 with libshishi.
 
 	* libinetutils/kcmd.c (kcmd) [SHISHI]: Add a
