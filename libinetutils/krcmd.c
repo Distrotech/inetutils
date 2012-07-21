@@ -76,7 +76,8 @@
 # if defined SHISHI
 int kcmd (Shishi **, int *, char **, unsigned short, char *, char **,
 	  char *, int *, char *, char *, Shishi_key **,
-	  struct sockaddr_storage *, struct sockaddr_storage *, long);
+	  struct sockaddr_storage *, struct sockaddr_storage *,
+	  long, int);
 # else
 int kcmd (int *, char **, unsigned short, char *, char *, char *, int *,
 	  KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
@@ -92,7 +93,7 @@ int kcmd (int *, char **, unsigned short, char *, char *, char *, int *,
 # if defined SHISHI
 int
 krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cmd,
-       int *fd2p, char *realm)
+       int *fd2p, char *realm, int af)
 {
   int sock = -1, err = 0;
   long authopts = 0L;
@@ -101,7 +102,7 @@ krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cm
 	      remuser, cmd, fd2p, SERVICE_NAME, realm, NULL,	/* key schedule not used */
 	      NULL,		/* local addr not used */
 	      NULL,		/* foreign addr not used */
-	      authopts);
+	      authopts, af);
 
   if (err > SHISHI_OK)
     {
@@ -146,7 +147,7 @@ krcmd (char **ahost, unsigned short rport, char *remuser, char *cmd, int *fd2p,
 #  if defined SHISHI
 int
 krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
-	      char *cmd, int *fd2p, char *realm, Shishi_key ** key)
+	      char *cmd, int *fd2p, char *realm, Shishi_key ** key, int af)
 {
   int sock = -1, err = 0;
   struct sockaddr_storage laddr, faddr;
@@ -156,7 +157,7 @@ krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
 	      remuser, cmd, fd2p, SERVICE_NAME, realm, key,	/* filled in */
 	      &laddr,		/* filled in */
 	      &faddr,		/* filled in */
-	      authopts);
+	      authopts, af);
 
   if (err > SHISHI_OK)
     {

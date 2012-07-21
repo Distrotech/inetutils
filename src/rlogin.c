@@ -472,7 +472,7 @@ try_connect:
 	  int i;
 
 	  rem = krcmd_mutual (&handle, &host, sp->s_port, &user, term, 0,
-			      dest_realm, &key);
+			      dest_realm, &key, family);
 	  if (rem > 0)
 	    {
 	      keytype = shishi_key_type (key);
@@ -523,7 +523,7 @@ try_connect:
 	}
 
       else
-#  else
+#  else /* KERBEROS */
 	rem = krcmd_mutual (&host, sp->s_port, user, term, 0,
 			    dest_realm, &cred, schedule);
       else
@@ -531,8 +531,9 @@ try_connect:
 # endif	/* CRYPT */
 
 # if defined SHISHI
-	rem = krcmd (&handle, &host, sp->s_port, &user, term, 0, dest_realm);
-# else
+	rem = krcmd (&handle, &host, sp->s_port, &user, term, 0,
+		     dest_realm, family);
+# else /* KERBEROS */
 	rem = krcmd (&host, sp->s_port, user, term, 0, dest_realm);
 # endif
       if (rem < 0)

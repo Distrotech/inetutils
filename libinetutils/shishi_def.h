@@ -71,10 +71,11 @@ extern int writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
 		     shishi_ivector * iv, Shishi_key * enckey, int proto);
 
 extern int krcmd (Shishi ** h, char **ahost, unsigned short rport,
-		  char **remuser, char *cmd, int *fd2p, char *realm);
+		  char **remuser, char *cmd, int *fd2p,
+		  char *realm, int af);
 
 extern int krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport,
 			 char **remuser, char *cmd, int *fd2p, char *realm,
-			 Shishi_key ** key);
+			 Shishi_key ** key, int af);
 
 #endif

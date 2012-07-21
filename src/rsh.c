@@ -360,7 +360,7 @@ try_connect:
       krb_errno = 0;
       if (dest_realm == NULL)
 	dest_realm = krb_realmofhost (host);
-# elif defined (SHISHI)
+# elif defined SHISHI
       rem = SHISHI_OK;
       krb_errno = 0;
 # endif
@@ -377,7 +377,7 @@ try_connect:
 	  strcat (term, args);
 
 	  rem = krcmd_mutual (&h, &host, sp->s_port, &user, term, &rfd2,
-			      dest_realm, &enckey);
+			      dest_realm, &enckey, family);
 	  krb_errno = errno;
 	  if (rem > 0)
 	    {
@@ -444,7 +444,8 @@ try_connect:
 # endif
 	{
 # if defined SHISHI
-	  rem = krcmd (&h, &host, sp->s_port, &user, args, &rfd2, dest_realm);
+	  rem = krcmd (&h, &host, sp->s_port, &user, args, &rfd2,
+		       dest_realm, family);
 # else /* KERBEROS */
 	  rem = krcmd (&host, sp->s_port, user, args, &rfd2, dest_realm);
 # endif

@@ -1,3 +1,20 @@
+2012-07-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rsh, rlogin: Working IPv6 with libshishi.
+
+	* libinetutils/kcmd.c (kcmd) [SHISHI]: Add a
+	parameter `int af' to signature.  Apply as
+	`hints.ai_family = af'.
+	* libinetutils/krcmd.c (kcmd) [SHISHI]: Update.
+	(krcmd) [SHISHI]: Add parameter `int af'.  Pass
+	this to kcmd().
+	(krcmd_mutual) [SHISHI]: Likewise.
+	* libinetutils/shishi_def.h (krcmd, krcmd_mutual):
+	Update signatures.
+	* src/rlogin.c (main) [SHISHI] <try_connect>:
+	Add parameter `family' to krcmd() and krcmd_mutual().
+	* src/rsh.c (main) [SHISHI] <try_connect>: Likewise.
+
 2012-07-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	r-commands: Partial IPv6 support.

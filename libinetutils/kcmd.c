@@ -102,7 +102,7 @@ int
 kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
       char **remuser, char *cmd, int *fd2p, char *service, char *realm,
       Shishi_key ** key, struct sockaddr_storage *laddr,
-      struct sockaddr_storage *faddr, long authopts)
+      struct sockaddr_storage *faddr, long authopts, int af)
 # endif
 {
   int s, timo = 1, pid;
@@ -138,7 +138,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
 # ifdef HAVE_DECL_GETADDRINFO
   memset (&hints, 0, sizeof (hints));
-  hints.ai_family = AF_UNSPEC;
+  hints.ai_family = af;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_CANONNAME;
   snprintf (portstr, sizeof (portstr), "%hu", ntohs (rport));
