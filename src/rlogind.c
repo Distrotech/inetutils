@@ -144,7 +144,7 @@ extern int __check_rhosts_file;
 #ifndef SHISHI
 struct auth_data
 {
-  struct sockaddr_in from;
+  struct sockaddr_storage from;
   socklen_t fromlen;
   char *hostaddr;
   char *hostname;
@@ -442,6 +442,7 @@ main (int argc, char *argv[])
   return 0;
 }
 
+/* FIXME: Migrate to IPv6 supported listener.  */
 
 void
 rlogin_daemon (int maxchildren, int port)
@@ -546,7 +547,7 @@ rlogin_daemon (int maxchildren, int port)
 int
 rlogind_auth (int fd, struct auth_data *ap)
 {
-#if defined HAVE_DECL_GETNAMEINFO || defined HAVE_DECL_GETADDRINFO
+#if defined HAVE_DECL_GETNAMEINFO && defined HAVE_DECL_GETADDRINFO
   int rc;
   char hoststr[NI_MAXHOST];
 #else
@@ -554,10 +555,24 @@ rlogind_auth (int fd, struct auth_data *ap)
 #endif
   char *hostname;
   int authenticated = 0;
+  void * addrp;
+  int port;
 
 #ifdef SHISHI
   int len, c;
 #endif
+
+  switch (ap->from.ss_family)
+    {
+    case AF_INET6:
+      addrp = (void *) &((struct sockaddr_in6 *) &ap->from)->sin6_addr;
+      port = ntohs (((struct sockaddr_in6 *) &ap->from)->sin6_port);
+      break;
+    case AF_INET:
+    default:
+      addrp = (void *) &((struct sockaddr_in *) &ap->from)->sin_addr;
+      port = ntohs (((struct sockaddr_in *) &ap->from)->sin_port);
+    }
 
   confirmed = 0;
 
@@ -568,8 +583,17 @@ rlogind_auth (int fd, struct auth_data *ap)
   if (!rc)
     hostname = hoststr;
 #else /* !HAVE_DECL_GETNAMEINFO */
-  hp = gethostbyaddr ((char *) &ap->from.sin_addr, sizeof (struct in_addr),
-		      ap->from.sin_family);
+  switch (ap->from.ss_family)
+    {
+    case AF_INET6:
+      hp = gethostbyaddr (addrp, sizeof (struct in6_addr),
+			  ap->from.ss_family);
+      break;
+    case AF_INET:
+    default:
+      hp = gethostbyaddr (addrp, sizeof (struct in_addr),
+			  ap->from.ss_family);
+    }
   if (hp)
     hostname = hp->h_name;
 #endif /* !HAVE_DECL_GETNAMEINFO */
@@ -591,7 +615,7 @@ rlogind_auth (int fd, struct auth_data *ap)
       char astr[INET6_ADDRSTRLEN];
 
       memset (&hints, 0, sizeof (hints));
-      hints.ai_family = ap->from.sin_family;
+      hints.ai_family = ap->from.ss_family;
       hints.ai_socktype = SOCK_STREAM;
 
       rc = getaddrinfo (ap->hostname, NULL, &hints, &res);
@@ -615,8 +639,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 	{
 	  if (hp->h_addr_list[0] == NULL)
 	    break;
-	  match = memcmp (hp->h_addr_list[0], &ap->from.sin_addr,
-			  sizeof (ap->from.sin_addr)) == 0;
+	  match = memcmp (hp->h_addr_list[0], addrp, hp->h_length) == 0;
 	}
 #endif /* !HAVE_DECL_GETADDRINFO */
       if (!match)
@@ -638,15 +661,17 @@ rlogind_auth (int fd, struct auth_data *ap)
       else
 	fatal (fd, err_msg, 0);
       write (fd, &c, 1);
-      confirmed = 1;		/* we sent the null! */
+      confirmed = 1;		/* We have sent the null!  */
     }
   else
 #endif
     {
-      int port = ntohs (ap->from.sin_port);
-
-      if (ap->from.sin_family != AF_INET ||
-	  port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
+      if ((ap->from.ss_family != AF_INET
+#ifndef KERBEROS
+	   && ap->from.ss_family != AF_INET6
+#endif
+	  )
+	  || port >= IPPORT_RESERVED || port < IPPORT_RESERVED / 2)
 	{
 	  syslog (LOG_NOTICE, "Connection from %s on illegal port %d",
 		  ap->hostaddr, port);
@@ -818,7 +843,10 @@ rlogind_mainloop (int infd, int outfd)
       fatal (outfd, "Can't get peer name of remote host", 1);
     }
 
-  reply = inet_ntop (auth_data.from.sin_family, &auth_data.from.sin_addr,
+  reply = inet_ntop (auth_data.from.ss_family,
+		     (auth_data.from.ss_family == AF_INET6)
+		       ? (void *) &((struct sockaddr_in6 *) &auth_data.from)->sin6_addr
+		       : (void *) &((struct sockaddr_in *) &auth_data.from)->sin_addr,
 		     addrstr, sizeof (addrstr));
   if (reply == NULL)
     {
@@ -828,7 +856,9 @@ rlogind_mainloop (int infd, int outfd)
   auth_data.hostaddr = xstrdup (addrstr);
 
   syslog (LOG_INFO, "Connect from %s:%d", auth_data.hostaddr,
-	  ntohs (auth_data.from.sin_port));
+	  (auth_data.from.ss_family == AF_INET6)
+	  ? ntohs (((struct sockaddr_in6 *) &auth_data.from)->sin6_port)
+	  : ntohs (((struct sockaddr_in *) &auth_data.from)->sin_port));
 
   true = 1;
   if (keepalive
@@ -923,6 +953,19 @@ do_rlogin (int infd, struct auth_data *ap)
 {
   struct passwd *pwd;
   int rc;
+#if defined WITH_IRUSEROK_AF || defined WITH_IRUSEROK
+  void *addrp;
+
+  switch (ap->from.ss_family)
+    {
+    case AF_INET6:
+      addrp = (void *) &((struct sockaddr_in6 *) &ap->from)->sin6_addr;
+      break;
+    case AF_INET:
+    default:
+      addrp = (void *) &((struct sockaddr_in *) &ap->from)->sin_addr;
+    }
+#endif /* WITH_IRUSEROK_AF || WITH_IRUSEROK */
 
   getstr (infd, &ap->rusername, NULL);
   getstr (infd, &ap->lusername, NULL);
@@ -946,10 +989,10 @@ do_rlogin (int infd, struct auth_data *ap)
   rc = iruserok_sa ((struct sockaddr *) &ap->from, ap->fromlen, 0,
 		    ap->rusername, ap->lusername);
 # elif defined WITH_IRUSEROK_AF
-  rc = iruserok_af (&ap->from.sin_addr, 0, ap->rusername, ap->lusername,
-		    ap->from.sin_family);
+  rc = iruserok_af (addrp, 0, ap->rusername, ap->lusername,
+		    ap->from.ss_family);
 # else /* WITH_IRUSEROK */
-  rc = iruserok (ap->from.sin_addr.s_addr, 0, ap->rusername, ap->lusername);
+  rc = iruserok (addrp, 0, ap->rusername, ap->lusername);
 # endif /* WITH_IRUSEROK_SA || WITH_IRUSEROK_AF || WITH_IRUSEROK */
   if (rc)
     syslog (LOG_ERR | LOG_AUTH,
@@ -958,7 +1001,7 @@ do_rlogin (int infd, struct auth_data *ap)
 #elif defined WITH_RUSEROK_AF || defined WITH_RUSEROK
 # ifdef WITH_RUSEROK_AF
   rc = ruserok_af (ap->hostaddr, 0, ap->rusername, ap->lusername,
-		   ap->from.sin_family);
+		   ap->from.ss_family);
 # else /* WITH_RUSEROK */
   rc = ruserok (ap->hostaddr, 0, ap->rusername, ap->lusername);
 # endif /* WITH_RUSEROK_AF || WITH_RUSEROK */
@@ -1187,7 +1230,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   char *compcksum;
   size_t compcksumlen, cksumlen = 30;
   char cksumdata[100];
-  struct sockaddr_in sock;
+  struct sockaddr_storage sock;
   socklen_t socklen = sizeof (sock);
 
 #  ifdef ENCRYPTION
@@ -1296,8 +1339,11 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
       fatal (infd, "Can't get sockname", 1);
     }
 
-  snprintf (cksumdata, 100, "%u:%s%s", ntohs (sock.sin_port), ad->term + 5,
-	    ad->lusername);
+  snprintf (cksumdata, 100, "%u:%s%s",
+	    (sock.ss_family == AF_INET6)
+	      ? ntohs (((struct sockaddr_in6 *) &sock)->sin6_port)
+	      : ntohs (((struct sockaddr_in *) &sock)->sin_port),
+	    ad->term + 5, ad->lusername);
   rc = shishi_checksum (ad->h, ad->enckey, 0, cksumtype, cksumdata,
 			strlen (cksumdata), &compcksum, &compcksumlen);
   if (rc != SHISHI_OK

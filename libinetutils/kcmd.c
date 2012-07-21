@@ -88,7 +88,7 @@
 
 # define START_PORT	5120	/* arbitrary */
 
-int getport (int *);
+int getport (int *, int);
 
 # if defined KERBEROS
 int
@@ -120,7 +120,12 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # else
   int lport = START_PORT;
 # endif
+# ifdef HAVE_DECL_GETADDRINFO
+  struct addrinfo hints, *ai, *res;
+  char portstr[8];
+# else /* !HAVE_DECL_GETADDRINFO */
   struct hostent *hp;
+# endif
   int rc;
   char *host_save;
   int status;
@@ -131,7 +136,29 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
   pid = getpid ();
 
-  /* FIXME: Often the following rejects non-IPv4.
+# ifdef HAVE_DECL_GETADDRINFO
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_CANONNAME;
+  snprintf (portstr, sizeof (portstr), "%hu", ntohs (rport));
+
+  rc = getaddrinfo (*ahost, portstr, &hints, &res);
+  if (rc)
+    {
+      fprintf (stderr, "kcmd: host %s: %s\n", *ahost, gai_strerror (rc));
+      return (-1);
+    }
+
+  ai = res;
+
+  host_save = malloc (strlen (ai->ai_canonname) + 1);
+  if (host_save == NULL)
+    return (-1);
+  strcpy (host_save, ai->ai_canonname);
+
+# else /* !HAVE_DECL_GETADDRINFO */
+  /* Often the following rejects non-IPv4.
    * This is dependent on system implementation.  */
   hp = gethostbyname (*ahost);
   if (hp == NULL)
@@ -144,6 +171,8 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   if (host_save == NULL)
     return -1;
   strcpy (host_save, hp->h_name);
+# endif /* !HAVE_DECL_GETADDRINFO */
+
   *ahost = host_save;
 
 # ifdef KERBEROS
@@ -161,7 +190,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # endif /* !HAVE_SIGACTION */
   for (;;)
     {
-      s = getport (&lport);
+# ifdef HAVE_DECL_GETADDRINFO
+      s = getport (&lport, ai->ai_family);
+# else /* !HAVE_DECL_GETADDRINFO */
+      s = getport (&lport, hp->h_addrtype);
+# endif
       if (s < 0)
 	{
 	  if (errno == EAGAIN)
@@ -176,14 +209,19 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  return (-1);
 	}
       fcntl (s, F_SETOWN, pid);
+
+# ifdef HAVE_DECL_GETADDRINFO
+      len = ai->ai_addrlen;
+      memcpy (&sin, ai->ai_addr, ai->ai_addrlen);
+# else /* !HAVE_DECL_GETADDRINFO */
       sin.ss_family = hp->h_addrtype;
       switch (hp->h_addrtype)
 	{
 	case AF_INET6:
 	  len = sizeof (struct sockaddr_in6);
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+#  ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
 	  sin.ss_len = len;
-#endif
+#  endif
 	  memcpy (&((struct sockaddr_in6 *) &sin)->sin6_addr,
 		  hp->h_addr, hp->h_length);
 	  ((struct sockaddr_in6 *) &sin)->sin6_port = rport;
@@ -191,13 +229,14 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	case AF_INET:
 	default:
 	  len = sizeof (struct sockaddr_in);
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+#  ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
 	  sin.ss_len = len;
-#endif
+#  endif
 	  memcpy (&((struct sockaddr_in *) &sin)->sin_addr,
 		  hp->h_addr, hp->h_length);
 	  ((struct sockaddr_in *) &sin)->sin_port = rport;
 	}
+# endif /* !HAVE_DECL_GETADDRINFO */
 
       if (connect (s, (struct sockaddr *) &sin, len) >= 0)
 	break;
@@ -217,11 +256,28 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  continue;
 	}
 # if ! defined ultrix || defined sun
+#  ifdef HAVE_DECL_GETADDRINFO
+      if (ai->ai_next)
+#  else /* !HAVE_DECL_GETADDRINFO */
       if (hp->h_addr_list[1] != NULL)
+#  endif
 	{
 	  int oerrno = errno;
 	  char addrstr[INET6_ADDRSTRLEN];
 
+#  ifdef HAVE_DECL_GETADDRINFO
+	  getnameinfo (ai->ai_addr, ai->ai_addrlen,
+		       addrstr, sizeof (addrstr), NULL, 0,
+		       NI_NUMERICHOST);
+	  fprintf (stderr, "kcmd: connect to address %s: ", addrstr);
+	  errno = oerrno;
+	  perror (NULL);
+	  ai = ai->ai_next;
+	  getnameinfo (ai->ai_addr, ai->ai_addrlen,
+		       addrstr, sizeof (addrstr), NULL, 0,
+		       NI_NUMERICHOST);
+	  fprintf (stderr, "Trying %s...\n", addrstr);
+#  else /* !HAVE_DECL_GETADDRINFO */
 	  fprintf (stderr, "kcmd: connect to address %s: ",
 		   inet_ntop (hp->h_addrtype, hp->h_addr_list[0],
 			      addrstr, sizeof (addrstr)));
@@ -231,11 +287,20 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  fprintf (stderr, "Trying %s...\n",
 		   inet_ntop (hp->h_addrtype, hp->h_addr_list[0],
 			      addrstr, sizeof (addrstr)));
+#  endif /* !HAVE_DECL_GETADDRINFO */
 	  continue;
 	}
 # endif	/* !(defined(ultrix) || defined(sun)) */
+# ifdef HAVE_DECL_GETADDRINFO
+      if (errno != ECONNREFUSED)
+	perror (res->ai_canonname);
+
+      if (res)
+	freeaddrinfo (res);
+# else /* !HAVE_DECL_GETADDRINFO */
       if (errno != ECONNREFUSED)
 	perror (hp->h_name);
+# endif
 
 # if HAVE_SIGACTION
       sigprocmask (SIG_SETMASK, &osigs, NULL);
@@ -245,6 +310,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
       return (-1);
     }
+# ifdef HAVE_DECL_GETADDRINFO
+  if (res)
+    freeaddrinfo (res);
+#endif
+
   lport--;
   if (fd2p == 0)
     {
@@ -256,7 +326,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
       char num[8];
       int port, s2, s3;
 
-      s2 = getport (&lport);
+      s2 = getport (&lport, sin.ss_family);
       len = sizeof (from);
 
       if (s2 < 0)
@@ -403,23 +473,38 @@ bad:
 }
 
 int
-getport (int *alport)
+getport (int *alport, int af)
 {
-  struct sockaddr_in sin;
+  struct sockaddr_storage sin;
+  socklen_t len;
   int s;
 
-  sin.sin_family = AF_INET;
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-  sin.sin_len = sizeof (sin);
-#endif
-  sin.sin_addr.s_addr = INADDR_ANY;
-  s = socket (sin.sin_family, SOCK_STREAM, 0);
+  memset (&sin, 0, sizeof (sin));
+  sin.ss_family = af;
+  len = (af == AF_INET6) ? sizeof (struct sockaddr_in6)
+	: sizeof (struct sockaddr_in);
+# ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
+  sin.ss_len = len;
+# endif
+
+  s = socket (sin.ss_family, SOCK_STREAM, 0);
   if (s < 0)
     return (-1);
   for (;;)
     {
-      sin.sin_port = htons ((unsigned short) * alport);
-      if (bind (s, (struct sockaddr *) &sin, sizeof (sin)) >= 0)
+      switch (af)
+	{
+	case AF_INET6:
+	  ((struct sockaddr_in6 *) &sin)->sin6_port =
+		htons ((unsigned short) * alport);
+	  break;
+	case AF_INET:
+	default:
+	  ((struct sockaddr_in *) &sin)->sin_port =
+		htons ((unsigned short) * alport);
+	}
+
+      if (bind (s, (struct sockaddr *) &sin, len) >= 0)
 	return (s);
       if (errno != EADDRINUSE)
 	{

@@ -1,3 +1,29 @@
+2012-07-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	r-commands: Partial IPv6 support.
+	Adapt host resolution to cope with IPv6,
+	in particular for libshishi related code.
+
+	* libinetutils/kcmd.c (getport): New signature
+	`(int *, int)', adding address family parameter.
+	Update code to use `struct sockaddr_storage'.
+	New variable LEN.
+	(kcmd): New alternate code using getaddrinfo(),
+	instead of gethostbyname().
+	[HAVE_DECL_GETADDRINFO]: New variables HINTS, AI, RES.
+
+	* libinetutils/shishi_def.h <struct auth_data>: Changed
+	type of FROM to `struct sockaddr_storage'.
+	* src/rlogind.c <struct auth_data> [!SHISHI]: Likewise.
+	(rlogind_auth): New variables ADDRP, PORT.  Adapt to new
+	type of `auth_data.from'.
+	[!KERBEROS]: Accept families AF_INET and AF_INET6.
+	(rlogind_mainloop): Adapt to new `auth_data.from'.
+	(do_rlogin): Likewise.
+	[WITH_IRUSEROK_AF || WITH_IRUSEROK]: New variable ADDRP.
+	(do_shishi_login): New type `struct sockaddr_storage'
+	for SOCK.
+
 2012-07-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogin: Close libshishi handle.
