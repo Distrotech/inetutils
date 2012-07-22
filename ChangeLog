@@ -1,3 +1,16 @@
+2012-07-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp, rlogin, rlogind: IP_TOS mending.
+
+	* src/rcp.c (toremote, tolocal)
+	[IP_TOS && IPPROTO_IP && IPTOS_THROUGHPUT]: New variables
+	SS and SSLEN.  Call getpeername() to determine domain and
+	call setsockopt(IP_TOS) only for family AF_INET.
+	* src/rlogin.c (main): Likewise.
+	* src/rlogind.c (rlogind_mainloop)
+	[IP_TOS && IPPROTO_IP && IPTOS_THROUGHPUT]: Set socket
+	option IP_TOS only for family AF_INET.
+
 2012-07-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogin, rsh: Find official host name.

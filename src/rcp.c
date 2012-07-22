@@ -377,6 +377,10 @@ toremote (char *targ, int argc, char *argv[])
 {
   int i, tos;
   char *bp, *host, *src, *suser, *thost, *tuser;
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
+  struct sockaddr_storage ss;
+  socklen_t sslen;
+#endif
 
   *targ++ = 0;
   if (*targ == 0)
@@ -467,8 +471,11 @@ toremote (char *targ, int argc, char *argv[])
 	      if (rem < 0)
 		exit (EXIT_FAILURE);
 #if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
+	      sslen = sizeof (ss);
+	      (void) getpeername (rem, (struct sockaddr *) &ss, &sslen);
 	      tos = IPTOS_THROUGHPUT;
-	      if (setsockopt (rem, IPPROTO_IP, IP_TOS,
+	      if (ss.ss_family == AF_INET &&
+		  setsockopt (rem, IPPROTO_IP, IP_TOS,
 			      (char *) &tos, sizeof (int)) < 0)
 		if (errno != ENOPROTOOPT)
 		  error (0, errno, "TOS (ignored)");
@@ -488,6 +495,10 @@ tolocal (int argc, char *argv[])
 {
   int i, len, tos;
   char *bp, *host, *src, *suser;
+#if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
+  struct sockaddr_storage ss;
+  socklen_t sslen;
+#endif
 
   for (i = 0; i < argc - 1; i++)
     {
@@ -544,9 +555,12 @@ tolocal (int argc, char *argv[])
 	}
       seteuid (userid);
 #if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
+      sslen = sizeof (ss);
+      (void) getpeername (rem, (struct sockaddr *) &ss, &sslen);
       tos = IPTOS_THROUGHPUT;
-      if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &tos, sizeof (int)) <
-	  0)
+      if (ss.ss_family == AF_INET &&
+	  setsockopt (rem, IPPROTO_IP, IP_TOS,
+		      (char *) &tos, sizeof (int)) < 0)
 	if (errno != ENOPROTOOPT)
 	  error (0, errno, "TOS (ignored)");
 #endif

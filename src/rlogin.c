@@ -596,8 +596,14 @@ try_connect:
 
 #if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_LOWDELAY
   {
+    struct sockaddr_storage ss;
+    socklen_t sslen = sizeof (ss);
     int one = IPTOS_LOWDELAY;
-    if (setsockopt (rem, IPPROTO_IP, IP_TOS, (char *) &one, sizeof (int)) < 0)
+
+    (void) getpeername (rem, (struct sockaddr *) &ss, &sslen);
+    if (ss.ss_family == AF_INET &&
+	setsockopt (rem, IPPROTO_IP, IP_TOS,
+		    (char *) &one, sizeof (int)) < 0)
       error (0, errno, "setsockopt TOS (ignored)");
   }
 #endif

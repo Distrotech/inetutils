@@ -867,7 +867,9 @@ rlogind_mainloop (int infd, int outfd)
 
 #if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_LOWDELAY
   true = IPTOS_LOWDELAY;
-  if (setsockopt (infd, IPPROTO_IP, IP_TOS, (char *) &true, sizeof true) < 0)
+  if (auth_data.from.ss_family == AF_INET &&
+      setsockopt (infd, IPPROTO_IP, IP_TOS,
+		  (char *) &true, sizeof true) < 0)
     syslog (LOG_WARNING, "setsockopt (IP_TOS): %m");
 #endif
 
