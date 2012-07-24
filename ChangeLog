@@ -1,3 +1,32 @@
+2012-07-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp: Non-encrypting libshishi support.
+
+	* src/rcp.c [SHISHI]: Include <shishi.h>, `shishi_def.h'.
+	[ENCRYPTION]: Replace obsolete conditionals on CRYPT.
+	(dest_realm, use_kerberos, doencrypt) [KERBEROS || SHISHI]:
+	Always declare variables.
+	(h, enckey, iv1, iv2, iv3, iv4, ivtab, keytype, keylen)
+	(rc, wlen) [SHISHI]: New variables.
+	(options, parse_opt) [KERBEROS || SHISHI]: Make `-K', '-k'
+	and `-x' available with libshishi.
+	(main) [KERBEROS || SHISHI]: If `doencrypt && !use_kerberos'
+	then exit with failure.
+	(toremot): Invalidate descriptor `rem'.
+	[SHISHI]: Call shishi_done() at completion.
+	(tolocal) [SHISHI]: Likewise.
+	(kerberos) [KERBEROS || SHISHI]: New variable KRB_ERRNO,
+	used to capture error conditions better.  New code for
+	libshishi support.
+	(oldw) [KERBEROS || SHISHI]: Extend to libshishi.
+
+	* libinetutils/shishi.c (shishi_auth) <missing ticket>:
+	Add realm to error message, call shishi_realm_default().
+
+	* src/rsh.c (talk) [KERBEROS && ENCRYPTION]: Replace
+	obsolete macro CRYPT.  Replace non-existent variable
+	`doenencryption' by `doencrypt'.
+
 2012-07-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rcp, rlogin, rlogind: IP_TOS mending.

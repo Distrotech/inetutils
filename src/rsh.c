@@ -102,15 +102,14 @@ sa_family_t family = AF_UNSPEC;
 
 #if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
-# ifdef KERBEROS
 char *dest_realm = NULL;
+
+# ifdef KERBEROS
 CREDENTIALS cred;
 Key_schedule schedule;
 extern char *krb_realmofhost ();
 
 # elif defined(SHISHI)
-char *dest_realm = NULL;
-
 Shishi *h;
 Shishi_key *enckey;
 shishi_ivector iv1, iv2, iv3, iv4;
@@ -155,7 +154,7 @@ static struct argp_option options[] = {
     "obtain tickets for the remote host in REALM "
     "instead of the remote host's realm" },
   { "encrypt", 'x', NULL, 0,
-    "encrypt all data using DES" },
+    "encrypt all data transfer" },
 #endif
 #if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
   { "ipv4", '4', NULL, 0, "use only IPv4" },
@@ -195,9 +194,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'K':
       use_kerberos = 0;
       break;
-#endif
 
-#if defined KERBEROS || defined SHISHI
     case 'k':
       dest_realm = arg;
       break;
@@ -210,7 +207,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 #  endif
       break;
 # endif
-#endif
+#endif /* KERBEROS || SHISHI */
 
     case 'n':
       null_input_option = 1;
@@ -655,8 +652,8 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 	{
 	  errno = 0;
 #ifdef KERBEROS
-# ifdef CRYPT
-	  if (doenencryption)
+# ifdef ENCRYPTION
+	  if (doencrypt)
 	    cc = des_read (rfd2, buf, sizeof buf);
 	  else
 # endif

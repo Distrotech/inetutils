@@ -101,6 +101,11 @@ void run_err (const char *, ...);
 int susystem (char *, int);
 void verifydir (char *);
 
+#ifdef SHISHI
+# include <shishi.h>
+# include "shishi_def.h"
+#endif /* SHISHI */
+
 #ifdef KERBEROS
 # ifdef HAVE_KERBEROSIV_DES_H
 #  include <kerberosIV/des.h>
@@ -108,17 +113,30 @@ void verifydir (char *);
 # ifdef HAVE_KERBEROSIV_KRB_H
 #  include <kerberosIV/krb.h>
 # endif
+#endif /* KERBEROS */
 
+#if defined KERBEROS || defined SHISHI
 char *dest_realm = NULL;
 int use_kerberos = 1;
+int doencrypt = 0;
+
+# ifdef KERBEROS
 CREDENTIALS cred;
 Key_schedule schedule;
 extern char *krb_realmofhost ();
 
-# ifdef CRYPT
-int doencrypt = 0;
-# endif
-#endif /* KERBEROS  */
+# elif defined SHISHI /* !KERBEROS  */
+Shishi *h;
+Shishi_key *enckey;
+shishi_ivector iv1, iv2, iv3, iv4;
+shishi_ivector *ivtab[4];
+
+int keytype;
+int keylen;
+int rc;
+int wlen;
+# endif /* SHISHI */
+#endif /* KERBEROS || SHISHI */
 
 const char doc[] = "Remote copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.";
 const char arg_doc[] = "SOURCE DEST\n"
@@ -143,7 +161,7 @@ static struct argp_option options[] = {
     "attempt to preserve (duplicate) in its copies the"
     " modification times and modes of the source files",
     GRID+1 },
-#ifdef KERBEROS
+#if defined KERBEROS || defined SHISHI
   { "kerberos", 'K', NULL, 0,
     "turns off all Kerberos authentication",
     GRID+1 },
@@ -151,19 +169,19 @@ static struct argp_option options[] = {
     "obtain tickets for the remote host in REALM instead of the remote host's realm",
     GRID+1 },
 #endif
-#ifdef CRYPT
+#ifdef ENCRYPTION
   { "encrypt", 'x', NULL, 0,
-    "encrypt all data using DES",
+    "encrypt all data transfer",
     GRID+1 },
 #endif
   { "target-directory", 'd', "DIRECTORY", 0,
     "copy all SOURCE arguments into DIRECTORY",
     GRID+1 },
   { "from", 'f', NULL, 0,
-    "copying from remote host",
+    "copying from remote host (server use only)",
     GRID+1 },
   { "to", 't', NULL, 0,
-    "copying to remote host",
+    "copying to remote host (server use only)",
     GRID+1 },
 #if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
   { "ipv4", '4', NULL, 0,
@@ -190,24 +208,24 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 #endif /* WITH_ORCMD_AF || WITH_RCMD_AF */
 
-#ifdef KERBEROS
+#if defined KERBEROS || defined SHISHI
     case 'K':
       use_kerberos = 0;
       break;
-#endif
 
-#ifdef KERBEROS
     case 'k':
       dest_realm = arg;
       break;
-#endif
 
-#ifdef CRYPT
+# ifdef ENCRYPTION
     case 'x':
       doencrypt = 1;
-      /* des_set_key(cred.session, schedule); */
+#  ifdef KERBEROS
+      des_set_key(cred.session, schedule);
+#  endif
       break;
-#endif
+# endif /* ENCRYPTION */
+#endif /* KERBEROS || SHISHI */
 
     case 'p':
       preserve_option = 1;
@@ -256,10 +274,11 @@ int errs, rem;
 
 char *command;
 
-#ifdef KERBEROS
+#if defined KERBEROS || defined SHISHI
 int kerberos (char **, char *, char *, char *);
 void oldw (const char *, ...);
-#endif
+#endif /* KERBEROS || SHISHI */
+
 int response (void);
 void rsource (char *, struct stat *);
 void sink (int, char *[]);
@@ -283,13 +302,13 @@ main (int argc, char *argv[])
   argc -= index;
   argv += index;
 
-#ifdef KERBEROS
+#if defined KERBEROS || defined SHISHI
   if (use_kerberos)
     {
-# ifdef CRYPT
+# if defined ENCRYPTION && defined KERBEROS
       shell = doencrypt ? "ekshell" : "kshell";
 # else
-      shell = "kshell";
+      shell = "kshell";		/* Libshishi uses a single service.  */
 # endif
       if ((sp = getservbyname (shell, "tcp")) == NULL)
 	{
@@ -300,7 +319,7 @@ main (int argc, char *argv[])
     }
   else
     sp = getservbyname (shell = "shell", "tcp");
-#else
+#else /* !KERBEROS && !SHISHI */
   sp = getservbyname (shell = "shell", "tcp");
 #endif
   if (sp == NULL)
@@ -333,23 +352,28 @@ main (int argc, char *argv[])
   if (argc > 2)
     targetshouldbedirectory = 1;
 
-#ifndef KERBEROS
+#if defined KERBEROS || defined SHISHI
+  if (doencrypt && !use_kerberos)
+    error (EXIT_FAILURE, 0, "encryption must use Kerberos");
+#endif
+
+#if !defined KERBEROS && !defined SHISHI
   /* We must be setuid root.  */
   if (geteuid ())
     error (EXIT_FAILURE, 0, "must be setuid root.");
 #endif
 
   /* Command to be executed on remote system using "rsh". */
-#ifdef	KERBEROS
+#if defined KERBEROS || defined SHISHI
   rc = asprintf (&command, "rcp%s%s%s%s", iamrecursive ? " -r" : "",
-# ifdef CRYPT
+# ifdef ENCRYPTION
 		 (doencrypt && use_kerberos ? " -x" : ""),
-# else
+# else /* No encryption */
 		 "",
 # endif
 		 preserve_option ? " -p" : "",
 		 targetshouldbedirectory ? " -d" : "");
-#else
+#else /* !KERBEROS && !SHISHI */
   rc = asprintf (&command, "rcp%s%s%s",
 		 iamrecursive ? " -r" : "", preserve_option ? " -p" : "",
 		 targetshouldbedirectory ? " -d" : "");
@@ -360,7 +384,7 @@ main (int argc, char *argv[])
   rem = -1;
   signal (SIGPIPE, lostconn);
 
-  targ = colon (argv[argc - 1]);	/* Dest is remote host. */
+  targ = colon (argv[argc - 1]);
   if (targ)			/* Dest is remote host. */
     toremote (targ, argc, argv);
   else
@@ -447,12 +471,12 @@ toremote (char *targ, int argc, char *argv[])
 	      if (asprintf (&bp, "%s -t %s", command, targ) < 0)
 		xalloc_die ();
 	      host = thost;
-#ifdef KERBEROS
+#if defined KERBEROS || defined SHISHI
 	      if (use_kerberos)
 		rem = kerberos (&host, bp, pwd->pw_name,
 				tuser ? tuser : pwd->pw_name);
 	      else
-#endif
+#endif /* KERBEROS || SHISHI */
 #ifdef WITH_ORCMD_AF
 		rem = orcmd_af (&host, port, pwd->pw_name,
 				tuser ? tuser : pwd->pw_name,
@@ -486,6 +510,12 @@ toremote (char *targ, int argc, char *argv[])
 	      setuid (userid);
 	    }
 	  source (1, argv + i);
+	  close (rem);
+	  rem = -1;
+#ifdef SHISHI
+	  if (use_kerberos)
+	    shishi_done (h);
+#endif
 	}
     }
 }
@@ -508,7 +538,8 @@ tolocal (int argc, char *argv[])
 	    strlen (argv[argc - 1]) + 20;
 	  if (asprintf (&bp, "exec %s%s%s %s %s",
 			PATH_CP,
-			iamrecursive ? " -r" : "", preserve_option ? " -p" : "",
+			iamrecursive ? " -r" : "",
+			preserve_option ? " -p" : "",
 			argv[i], argv[argc - 1]) < 0)
 	    xalloc_die ();
 	  if (susystem (bp, userid))
@@ -535,17 +566,19 @@ tolocal (int argc, char *argv[])
 	}
       if (asprintf (&bp, "%s -f %s", command, src) < 0)
 	xalloc_die ();
-      rem =
-#ifdef KERBEROS
-	use_kerberos ? kerberos (&host, bp, pwd->pw_name, suser) :
+
+#if defined KERBEROS || defined SHISHI
+      if (use_kerberos)
+	rem = kerberos (&host, bp, pwd->pw_name, suser);
+      else
 #elif defined WITH_ORCMD_AF
-	orcmd_af (&host, port, pwd->pw_name, suser, bp, 0, family);
+	rem = orcmd_af (&host, port, pwd->pw_name, suser, bp, 0, family);
 #elif defined WITH_RCMD_AF
-	rcmd_af (&host, port, pwd->pw_name, suser, bp, 0, family);
+	rem = rcmd_af (&host, port, pwd->pw_name, suser, bp, 0, family);
 #elif defined WITH_ORCMD
-	orcmd (&host, port, pwd->pw_name, suser, bp, 0);
+	rem = orcmd (&host, port, pwd->pw_name, suser, bp, 0);
 #else /* !WITH_ORCMD_AF && !WITH_RCMD_AF && !WITH_ORCMD */
-	rcmd (&host, port, pwd->pw_name, suser, bp, 0);
+	rem = rcmd (&host, port, pwd->pw_name, suser, bp, 0);
 #endif
       free (bp);
       if (rem < 0)
@@ -568,6 +601,10 @@ tolocal (int argc, char *argv[])
       seteuid (0);
       close (rem);
       rem = -1;
+#ifdef SHISHI
+      if (use_kerberos)
+	shishi_done (h);
+#endif
     }
 }
 
@@ -1057,34 +1094,56 @@ screwup:
   exit (EXIT_FAILURE);
 }
 
-#ifdef KERBEROS
+#if defined KERBEROS || defined SHISHI
 int
 kerberos (char **host, char *bp, char *locuser, char *user)
 {
+  int krb_errno = 0;
   struct servent *sp;
 
 again:
   if (use_kerberos)
     {
-      rem = KSUCCESS;
       errno = 0;
+# ifdef KERBEROS
+      rem = KSUCCESS;
       if (dest_realm == NULL)
 	dest_realm = krb_realmofhost (*host);
-      rem =
-# ifdef CRYPT
-	doencrypt ?
-	krcmd_mutual (host, port, user, bp, 0, dest_realm, &cred, schedule) :
+# elif defined SHISHI
+      rem = SHISHI_OK;
 # endif
-	krcmd (host, port, user, bp, 0, dest_realm);
+# ifdef ENCRYPTION
+      if (doencrypt)
+	{
+#  ifdef KERBEROS
+	  rem = krcmd_mutual (host, port, user, bp, 0, dest_realm,
+			      &cred, schedule) :
+#  elif defined SHISHI
+	  /* Not yet supported.  */
+	  rem = -1; /* krcmd_mutual () */
+	  errno = ENOENT;
+#  endif
+	  krb_errno = errno;
+	}
+      else
+# endif /* ENCRYPTION */
+	{
+# ifdef KERBEROS
+	  rem = krcmd (host, port, user, bp, 0, dest_realm);
+# else /* SHISHI */
+	  rem = krcmd (&h, host, port, &user, bp, NULL, dest_realm, family);
+# endif
+	  krb_errno = errno;
+	}
 
       if (rem < 0)
 	{
 	  use_kerberos = 0;
 	  if ((sp = getservbyname ("shell", "tcp")) == NULL)
 	    error (EXIT_FAILURE, 0, "unknown service shell/tcp");
-	  if (errno == ECONNREFUSED)
+	  if (krb_errno == ECONNREFUSED)
 	    oldw ("remote host doesn't support Kerberos");
-	  else if (errno == ENOENT)
+	  else if (krb_errno == ENOENT)
 	    oldw ("can't provide Kerberos authentication data");
 	  port = sp->s_port;
 	  goto again;
@@ -1092,7 +1151,7 @@ again:
     }
   else
     {
-# ifdef CRYPT
+# ifdef ENCRYPTION
       if (doencrypt)
 	error (EXIT_FAILURE, 0, "the -x option requires Kerberos authentication");
 # endif
@@ -1108,7 +1167,7 @@ again:
     }
   return rem;
 }
-#endif /* KERBEROS */
+#endif /* KERBEROS || SHISHI */
 
 int
 response (void)
@@ -1145,7 +1204,7 @@ response (void)
     }
 }
 
-#ifdef KERBEROS
+#if defined KERBEROS || defined SHISHI
 void
 oldw (const char *fmt, ...)
 {
@@ -1157,7 +1216,7 @@ oldw (const char *fmt, ...)
   fprintf (stderr, ", using standard rcp\n");
   va_end (ap);
 }
-#endif
+#endif /* KERBEROS || SHISHI */
 
 void
 run_err (const char *fmt, ...)

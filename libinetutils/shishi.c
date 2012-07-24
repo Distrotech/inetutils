@@ -126,7 +126,8 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   tkt = shishi_tkts_get (shishi_tkts_default (h), &hint);
   if (!tkt)
     {
-      fprintf (stderr, "cannot find ticket for \"%s\"\n", tmpserver);
+      fprintf (stderr, "cannot find ticket for \"%s@%s\"\n",
+	       tmpserver, shishi_realm_default (h));
       free (tmpserver);
       return SHISHI_INVALID_TICKET;
     }
