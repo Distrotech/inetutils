@@ -1,3 +1,35 @@
+2012-07-27  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogin, rshd: Protocol coherence.
+
+	* configure.ac: Check for `getpwuid_r'.
+	* libinetutils/kcmd.c (kcmd) [SHISHI]: Transmit `locuser' if
+	defined at all.  Set `errno' to ENOENT at protocol failure.
+	* libinetutils/krcmd.c [SHISHI && HAVE_GETPWUID_R]: Include
+	<stdlib.h>, <unistd.h>, and <pwd.h>.  New static variables
+	`pwbuflen', `pwbuf', `pwstor', and `pwd'.
+	(krcmd) [SHISHI && HAVE_GETPWUID_R]: Determine local user
+	using getpwuid_r() and pass this on to kcmd().
+	(krcmd_mutual) [SHISHI && HAVE_GETPWUID_R]: Likewise.
+
+	* src/rlogin.c (main) <label try_connect>: New variable
+	KRB_ERRNO, used to track error causes reliably.
+	* src/rlogind.c: Include <stdarg.h>.
+	(rlogind_error): New function, reusing code from fatal().
+	(fatal): Altered as trivial wrapper around rlogind_error().
+	(do_krb_login): Check `*err_msg' in detecting messages.
+	(do_shishi_login): Read `ad->rusername' and `ad->lusername'
+	in the order mandated by exchange protocol, observing their
+	meaning from server's view.  Check `error' in verifying
+	successful exchange.  Provide error messages in case of
+	failure.  Delay syslog message for success until applicable,
+	and provide more detail in both syslog messages.
+	* src/rshd.c (doit) [SHISHI]: Read `remuser' and `locuser'
+	in the order relevant from server side perspective.  Check
+	`error' in verifying successful exchange.  Pass error
+	messages and better syslog messages in response to exchange
+	and authentication.
+
 2012-07-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rcp: Non-encrypting libshishi support.

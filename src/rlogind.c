@@ -56,6 +56,7 @@
 #include <syslog.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -212,6 +213,7 @@ void protocol (int f, int p, struct auth_data *ap);
 int control (int pty, char *cp, size_t n);
 void cleanup (int signo);
 void fatal (int f, const char *msg, int syserr);
+void rlogind_error (int f, int syserr, const char *msg, ...);
 int in_local_domain (char *hostname);
 char *topdomain (char *name, int max_dots);
 
@@ -944,7 +946,7 @@ rlogind_mainloop (int infd, int outfd)
 	}
 # endif
     }
-#endif
+#endif /* SHISHI */
 
   return 0;
 }
@@ -1037,7 +1039,7 @@ do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
   rc = do_krb4_login (infd, ap, err_msg);
 # endif
 
-  if (rc && !err_msg)
+  if (rc && !*err_msg)
     *err_msg = kerberos_error_string (rc);
 
   return rc;
@@ -1118,7 +1120,7 @@ do_krb4_login (int infd, struct auth_data *ap, const char **err_msg)
 
   return 0;
 }
-# endif
+# endif /* KRB4 */
 
 # ifdef KRB5
 int
@@ -1217,7 +1219,7 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   return 0;
 }
 
-# endif
+# endif /* KRB5 */
 
 # ifdef SHISHI
 int
@@ -1298,16 +1300,17 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
     }
 #  endif
 
-  getstr (infd, &ad->lusername, NULL);
-  getstr (infd, &ad->term, "TERM=");
   getstr (infd, &ad->rusername, NULL);
+  getstr (infd, &ad->term, "TERM=");
+  getstr (infd, &ad->lusername, NULL);
 
-  rc = read (infd, &error, sizeof (int));
-  if ((rc != sizeof (int)) && rc)
+  rc = read (infd, &error, sizeof (int));	/* XXX: not protocol */
+  if ((rc != sizeof (int)) || error)
     {
+      *err_msg = "Authentication exchange failed.";
       free (pwd);
       free (cksum);
-      return 1;
+      return EXIT_FAILURE;
     }
 
   /*
@@ -1330,9 +1333,6 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 
   free (pwd);
 
-  syslog (LOG_INFO | LOG_AUTH,
-	  "Kerberos V login from %s on %s\n", ad->lusername, ad->hostname);
-
   /* verify checksum */
 
   if (getsockname (infd, (struct sockaddr *) &sock, &socklen) < 0)
@@ -1351,32 +1351,38 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   if (rc != SHISHI_OK
       || compcksumlen != cksumlen || memcmp (compcksum, cksum, cksumlen) != 0)
     {
-      /* err_msg crash ? */
-      /* *err_msg = "checksum verify failed"; */
+      *err_msg = "Authentication exchange failed.";
       syslog (LOG_ERR, "checksum verify failed: %s", shishi_error (ad->h));
       free (cksum);
       free (compcksum);
-      return 1;
+      return rc;
     }
 
   free (cksum);
+
   free (compcksum);
 
   rc = shishi_authorized_p (ad->h, shishi_ap_tkt (ad->ap), ad->lusername);
   if (!rc)
     {
-      syslog (LOG_ERR | LOG_AUTH, "User is not authorized to log in as: %s",
-	      ad->lusername);
+      syslog (LOG_ERR | LOG_AUTH,
+	      "User %s@%s is not authorized to log in as: %s.",
+	      ad->rusername, ad->hostname, ad->lusername);
       shishi_ap_done (ad->ap);
-      return 1;
+      rlogind_error (infd, 0, "Failed to get authorized as `%s'.\n", ad->lusername);
+      return rc;
     }
+
+  syslog (LOG_INFO | LOG_AUTH,
+	  "Kerberos V login from %s on %s as `%s'.\n",
+	  ad->rusername, ad->hostname, ad->lusername);
 
   shishi_ap_done (ad->ap);
 
   return SHISHI_OK;
 }
-# endif
-#endif
+# endif /* SHISHI */
+#endif /* KERBEROS || SHISHI */
 
 #define BUFFER_SIZE 128
 
@@ -1702,10 +1708,18 @@ topdomain (char *name, int max_dots)
 }
 
 void
-fatal (int f, const char *msg, int syserr)
+rlogind_error (int f, int syserr, const char *msg, ...)
 {
   int len;
-  char buf[BUFSIZ], *bp = buf;
+  char buf[BUFSIZ], buf2[BUFSIZ], *bp = buf;
+  va_list ap;
+  va_start (ap, msg);
+
+  /*
+   * Error message proper, with variadic parts.
+   */
+  vsnprintf (buf2, sizeof (buf2) - 1, msg, ap);
+  va_end (ap);
 
   /*
    * Prepend binary one to message if we haven't sent
@@ -1715,10 +1729,17 @@ fatal (int f, const char *msg, int syserr)
     *bp++ = '\01';		/* error indicator */
   if (syserr)
     snprintf (bp, sizeof buf - (bp - buf),
-	      "rlogind: %s: %s.\r\n", msg, strerror (errno));
+	      "rlogind: %s: %s.\r\n", buf2, strerror (errno));
   else
-    snprintf (bp, sizeof buf - (bp - buf), "rlogind: %s.\r\n", msg);
+    snprintf (bp, sizeof buf - (bp - buf), "rlogind: %s.\r\n", buf2);
+
   len = strlen (bp);
   write (f, buf, bp + len - buf);
+}
+
+void
+fatal (int f, const char *msg, int syserr)
+{
+  rlogind_error (f, syserr, msg);
   exit (EXIT_FAILURE);
 }

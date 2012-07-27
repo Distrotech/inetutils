@@ -86,12 +86,20 @@
  */
 
 /*
- * remote shell server exchange protocol:
+ * remote shell server exchange protocol (client view!):
  *	[port]\0
  *	remuser\0
  *	locuser\0
  *	command\0
  *	data
+ *
+ * Kerberized exchange delays the remote user name:
+ *
+ *      \0
+ *      locuser\0
+ *      command\0
+ *      remuser\0
+ *      data
  */
 
 #include <config.h>
@@ -830,10 +838,10 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
     }
   else
 #endif /* KERBEROS || SHISHI */
-    remuser = getstr ("remuser");
+    locuser = getstr ("locuser");
 
   /* Read three strings from the client. */
-  locuser = getstr ("locuser");
+  remuser = getstr ("remuser");		/* The acting client!  */
   cmdbuf = getstr ("command");
 
 #ifdef SHISHI
@@ -908,9 +916,10 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	  }
 # endif /* ENCRYPTION */
 
-    remuser = getstr ("remuser");
-    rc = read (STDIN_FILENO, &error, sizeof (int));
-    if ((rc != sizeof (int)) && rc)
+    locuser = getstr ("locuser");	/* The agent here!  */
+
+    rc = read (STDIN_FILENO, &error, sizeof (int)); /* XXX: not protocol */
+    if ((rc != sizeof (int)) || error)
       exit (EXIT_FAILURE);
 
     /* verify checksum */
@@ -942,14 +951,19 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	/* *err_msg = "checksum verify failed"; */
 	syslog (LOG_ERR, "checksum verify failed: %s", shishi_error (h));
 	free (compcksum);
+	shishi_ap_done (ap);
+	rshd_error ("Authentication exchange failed.\n");
 	exit (EXIT_FAILURE);
       }
 
     rc = shishi_authorized_p (h, shishi_ap_tkt (ap), locuser);
     if (!rc)
       {
-	syslog (LOG_ERR, "User is not authorized to log in as: %s", locuser);
+	syslog (LOG_AUTH | LOG_ERR,
+		"User %s@%s is not authorized to run as: %s.",
+		remuser, hostname, locuser);
 	shishi_ap_done (ap);
+	rshd_error ("Failed to get authorized as `%s'.\n", locuser);
 	exit (EXIT_FAILURE);
       }
 
@@ -1175,12 +1189,13 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       exit (EXIT_FAILURE);
     }
 
-  /* Now write the null byte back to the client telling it
+  /* Now write the null byte back to the client, telling it
    * that everything is OK.
+   *
    * Note that this means that any error message that we generate
    * from now on (such as the perror() if the execl() fails), won't
-   * be seen by the rcomd() fucntion, but will be seen by the
-   * application that called rcmd() when it reads from the socket.
+   * be seen by the rcmd() function, but it will be seen by the
+   * application that called rcmd() once it reads from the socket.
    */
   if (write (STDERR_FILENO, "\0", 1) < 0)
     {
@@ -1592,7 +1607,11 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 		hostname, locuser, cmdbuf);
       else
 #endif /* KERBEROS */
-	syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: cmd='%.80s'",
+	syslog (LOG_INFO | LOG_AUTH,
+#ifdef SHISHI
+		"Kerberized "
+#endif
+		"%s@%s as %s: cmd='%.80s'",
 		remuser, hostname, locuser, cmdbuf);
     }
 #ifdef SHISHI
@@ -1626,7 +1645,7 @@ rshd_error (const char *fmt, ...)
   bp = buf;
   if (sent_null == 0)
     {
-      *bp++ = 1;
+      *bp++ = 1;	/* error indicator */
       len = 1;
     }
   else

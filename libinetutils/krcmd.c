@@ -67,7 +67,12 @@
 # elif defined(SHISHI)
 #  include <shishi.h>
 #  include "shishi_def.h"
-# endif
+#  ifdef HAVE_GETPWUID_R
+#   include <stdlib.h>
+#   include <unistd.h>
+#   include <pwd.h>
+#  endif /* HAVE_GETPWUID_R */
+# endif /* SHISHI */
 
 # include <stdio.h>
 
@@ -91,6 +96,12 @@ int kcmd (int *, char **, unsigned short, char *, char *, char *, int *,
  */
 
 # if defined SHISHI
+#  ifdef HAVE_GETPWUID_R
+static int pwbuflen;
+static char *pwbuf = NULL;	/* Reused after first allocation.  */
+static struct passwd pwstor, *pwd;
+#  endif /* HAVE_GETPWUID_R */
+
 int
 krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cmd,
        int *fd2p, char *realm, int af)
@@ -98,8 +109,29 @@ krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cm
   int sock = -1, err = 0;
   long authopts = 0L;
 
-  err = kcmd (h, &sock, ahost, rport, NULL,	/* locuser not used */
-	      remuser, cmd, fd2p, SERVICE_NAME, realm, NULL,	/* key schedule not used */
+#  ifdef HAVE_GETPWUID_R
+  if (!pwbuf)
+    {
+      pwbuflen = sysconf (_SC_GETPW_R_SIZE_MAX);
+      if (pwbuflen <= 0)
+	pwbuflen = 1024;	/* Guessing only.  */
+
+      pwbuf = malloc (pwbuflen);
+    }
+
+  if (pwbuf)
+    (void) getpwuid_r (getuid (), &pwstor, pwbuf, pwbuflen, &pwd);
+#  endif /* HAVE_GETPWUID_R */
+
+  err = kcmd (h, &sock, ahost, rport,
+#  ifdef HAVE_GETPWUID_R
+	      pwd ? pwd->pw_name : *remuser,	/* locuser */
+#  else /* !HAVE_GETPWUID_R */
+	      NULL,		/* locuser not used */
+#  endif
+	      remuser, cmd, fd2p,
+	      SERVICE_NAME, realm,
+	      NULL,		/* key schedule not used */
 	      NULL,		/* local addr not used */
 	      NULL,		/* foreign addr not used */
 	      authopts, af);
@@ -153,8 +185,28 @@ krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
   struct sockaddr_storage laddr, faddr;
   long authopts = SHISHI_APOPTIONS_MUTUAL_REQUIRED;
 
-  err = kcmd (h, &sock, ahost, rport, NULL,	/* locuser not used */
-	      remuser, cmd, fd2p, SERVICE_NAME, realm, key,	/* filled in */
+#   ifdef HAVE_GETPWUID_R
+  if (!pwbuf)
+    {
+      pwbuflen = sysconf (_SC_GETPW_R_SIZE_MAX);
+      if (pwbuflen <= 0)
+	pwbuflen = 1024;	/* Guessing only.  */
+
+      pwbuf = malloc (pwbuflen);
+    }
+
+  if (pwbuf)
+    (void) getpwuid_r (getuid (), &pwstor, pwbuf, pwbuflen, &pwd);
+#   endif /* HAVE_GETPWUID_R */
+
+  err = kcmd (h, &sock, ahost, rport,
+#   ifdef HAVE_GETPWUID_R
+	      pwd ? pwd->pw_name : *remuser,	/* locuser */
+#   else /* !HAVE_GETPWUID_R */
+	      NULL,		/* locuser not used */
+#   endif
+	      remuser, cmd, fd2p,
+	      SERVICE_NAME, realm, key,	/* filled in */
 	      &laddr,		/* filled in */
 	      &faddr,		/* filled in */
 	      authopts, af);

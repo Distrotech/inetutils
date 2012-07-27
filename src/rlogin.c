@@ -448,6 +448,7 @@ main (int argc, char *argv[])
 try_connect:
   if (use_kerberos)
     {
+      int krb_errno = 0;
       struct hostent *hp;
 
       /* Fully qualified hostname (needed for krb_realmofhost).  */
@@ -473,6 +474,7 @@ try_connect:
 
 	  rem = krcmd_mutual (&handle, &host, sp->s_port, &user, term, 0,
 			      dest_realm, &key, family);
+	  krb_errno = errno;
 	  if (rem > 0)
 	    {
 	      keytype = shishi_key_type (key);
@@ -524,27 +526,32 @@ try_connect:
 
       else
 #  else /* KERBEROS */
-	rem = krcmd_mutual (&host, sp->s_port, user, term, 0,
-			    dest_realm, &cred, schedule);
+	{
+	  rem = krcmd_mutual (&host, sp->s_port, user, term, 0,
+			      dest_realm, &cred, schedule);
+	  krb_errno = errno;
+	}
       else
 #  endif
-# endif	/* CRYPT */
-
+# endif	/* ENCRYPTION */
+	{
 # if defined SHISHI
-	rem = krcmd (&handle, &host, sp->s_port, &user, term, 0,
-		     dest_realm, family);
+	  rem = krcmd (&handle, &host, sp->s_port, &user, term, 0,
+		       dest_realm, family);
 # else /* KERBEROS */
-	rem = krcmd (&host, sp->s_port, user, term, 0, dest_realm);
+	  rem = krcmd (&host, sp->s_port, user, term, 0, dest_realm);
 # endif
+	  krb_errno = errno;
+	}
       if (rem < 0)
 	{
 	  use_kerberos = 0;
 	  sp = getservbyname ("login", "tcp");
 	  if (sp == NULL)
 	    error (EXIT_FAILURE, 0, "unknown service login/tcp.");
-	  if (errno == ECONNREFUSED)
+	  if (krb_errno == ECONNREFUSED)
 	    warning ("remote host doesn't support Kerberos");
-	  if (errno == ENOENT)
+	  if (krb_errno == ENOENT)
 	    warning ("can't provide Kerberos auth data");
 	  goto try_connect;
 	}

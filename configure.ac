@@ -661,7 +661,8 @@ AC_FUNC_MMAP
 
 AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                fork fpathconf ftruncate \
-	       getcwd getmsg getspnam initgroups initsetproctitle killpg \
+               getcwd getmsg getpwuid_r getspnam \
+               initgroups initsetproctitle killpg \
                ptsname \
                setegid seteuid setpgid \
                setsid setregid setreuid setresgid setresuid setutent_r \
