@@ -1,3 +1,63 @@
+2012-08-01  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Better adaptions to different UTMP implementations.
+	FreeBSD 9.0 has left most traditions behind.
+
+	* configure.ac: Check for login, loginx, logoutx, logwtmp,
+	and logwtmpx conditioned on libutil.  Ensure `LIBUTIL=-lutil'
+	in cases where `$ac_cv_func_login_tty = yes' or
+	`$ac_cv_have_decl_openpty = yes'.  Check for more fields in
+	`struct utmp': ut_line, ut_session, ut_time, ut_addr_v6,
+	and ut_name.  Check for `struct lastlogx' and field ll_ss.
+	Add checks of `struct utmpx' for fields ut_user, ut_name,
+	ut_id, ut_line, ut_pid, ut_type, ut_exit, ut_tv, ut_session,
+	ut_syslen, ut_host, ut_ss, ut_addr_v6.  Check for pututline
+	and pututxline.
+	(UTMPX): Removed macro.
+
+	* libinetutils/libinetutils.h (utmp_init): Update.
+	* libinetutils/cleansess.c [HAVE_LOGOUT && HAVE_LOGWTMP]:
+	Make the source build conditionally.
+	* libinetutils/logwtmp.c: Prefer utmpx code if available.
+	Conditionally use fields in `struct utmpx' or `struct utmp'.
+	* libinetutils/logwtmpko.c (logwtmp)
+	[HAVE_UPDWTMPX && !HAVE_LOGWTMP]: New condition on build,
+	and migration to `struct utmpx'.
+	* libinetutils/utmp_init.c: Add parameter `char *host'.
+	Guard structure fields with conditionals.  Distinguish
+	access methods on HAVE_PUTUTXLINE, HAVE_LOGINX, and
+	HAVE_UPDWTMPX, HAVE_LOGWTMPX.  Similarly, test
+	HAVE_PUTUTLINE, HAVE_LOGIN, HAVE_UPDWTMP, and HAVE_LOGWTMP.
+	New calls to setutxent() or setutent().
+	* libinetutils/utmp_logout.c: Essentially likewise.  Erase the
+	fields ut_exit, ut_user, ut_name, and ut_host.
+	[HAVE_LOGOUTX]: Protect call to logoutx()/logwtmpx().
+	[HAVE_LOGOUT]: Likewise for logout()/logwtmp().
+
+	* libls/print.c: Do not include <utmp.h>.
+
+	* src/rlogind.c: Remove conditional on UTMPX and local
+	prototypes for utmp_ptsid() and utmp_init().  Always use
+	setup_utmp()
+	(setup_utmp): New argument `host'.
+	[!HAVE_LOGOUT && !HAVE_LOGWTMP]: Call utmp_logout().
+
+	* src/uucpd.c [HAVE_UTMPX_H]: Include <utmpx.h>.
+	(dologout) [HAVE_LOGWTMPX]: Call logwtmpx().
+	[HAVE_LOGWTMP && !HAVE_LOGWTMP]: Call logwtmp().
+	[HAVE_PUTUTXLINE && !HAVE_LOGWTMPX && !HAVE_LOGWTMP]:
+	Manual setup for recent FreeBSD.
+	(dologin): Likewise.
+
+	* telnetd/pty.c: Always use setup_utmp().
+	(setup_utmp): New argument `host'.
+
+	FreeBSD 9.0 uses new paths.
+
+	* paths (PATH_UTMPX): Add `/var/run/utx.active'.
+	(PATH_WTMPX): Add `/var/run/utx.log'.
+	(PATH_LASTLOG): Add `/var/run/utx.lastlogin'.
+
 2012-07-29  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Out-of-tree build with libshishi.

@@ -34,13 +34,14 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <errno.h>
-#ifdef HAVE_UTMP_H
-# include <utmp.h>
-#else
-# ifdef  HAVE_UTMPX_H
-#  include <utmpx.h>
-#  define utmp utmpx		/* make utmpx look more like utmp */
+#ifdef HAVE_UTMPX_H
+# ifndef __USE_GNU
+#  define __USE_GNU 1
 # endif
+# include <utmpx.h>
+#elif defined HAVE_UTMP_H
+# include <utmp.h>
+# define PATH_WTMPX PATH_WTMP	/* Simplifies file referencing.  */
 #endif
 #include <string.h>
 
@@ -48,16 +49,21 @@
 extern int errno;
 #endif
 
+#ifdef HAVE_UTMPX_H
+static void
+_logwtmp (struct utmpx *ut)
+#else /* !HAVE_UTMPX_H */
 static void
 _logwtmp (struct utmp *ut)
+#endif /* !HAVE_UTMP_H */
 {
 #ifdef KEEP_OPEN
   static int fd = -1;
 
   if (fd < 0)
-    fd = open (PATH_WTMP, O_WRONLY | O_APPEND, 0);
+    fd = open (PATH_WTMPX, O_WRONLY | O_APPEND, 0);
 #else
-  int fd = open (PATH_WTMP, O_WRONLY | O_APPEND, 0);
+  int fd = open (PATH_WTMPX, O_WRONLY | O_APPEND, 0);
 #endif
 
   if (fd >= 0)
@@ -97,23 +103,43 @@ logwtmp_keep_open (char *line, char *name, char *host)
 logwtmp (char *line, char *name, char *host)
 #endif
 {
-  struct utmp ut;
-#ifdef HAVE_STRUCT_UTMP_UT_TV
+#ifdef HAVE_UTMPX_H
+  struct utmpx ut;
   struct timeval tv;
+#else /* !HAVE_UTMPX_H */
+  struct utmp ut;
+# ifdef HAVE_STRUCT_UTMP_UT_TV
+  struct timeval tv;
+# endif
 #endif
 
   /* Set information in new entry.  */
   memset (&ut, 0, sizeof (ut));
-#ifdef HAVE_STRUCT_UTMP_UT_TYPE
-  ut.ut_type = USER_PROCESS;
-#endif
+#if defined HAVE_STRUCT_UTMP_UT_TYPE || defined HAVE_STRUCT_UTMPX_UT_TYPE
+  if (name && *name)
+    ut.ut_type = USER_PROCESS;
+  else
+    ut.ut_type = DEAD_PROCESS;
+#endif /* UT_TYPE */
+#if defined HAVE_STRUCT_UTMP_UT_PID || defined HAVE_STRUCT_UTMPX_UT_PID
+  ut.ut_pid = getpid ();
+#endif /* UT_PID */
+
   strncpy (ut.ut_line, line, sizeof ut.ut_line);
+#if defined HAVE_STRUCT_UTMP_UT_USER || defined HAVE_STRUCT_UTMPX_UT_USER
+  strncpy (ut.ut_user, name, sizeof ut.ut_user);
+#elif defined HAVE_STRUCT_UTMP_UT_NAME || defined HAVE_STRUCT_UTMPX_UT_NAME
   strncpy (ut.ut_name, name, sizeof ut.ut_name);
-#ifdef HAVE_STRUCT_UTMP_UT_HOST
-  strncpy (ut.ut_host, host, sizeof ut.ut_host);
 #endif
 
-#ifdef HAVE_STRUCT_UTMP_UT_TV
+#if defined HAVE_STRUCT_UTMP_UT_HOST || defined HAVE_STRUCT_UTMPX_UT_HOST
+  strncpy (ut.ut_host, host, sizeof ut.ut_host);
+# ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN	/* Only utmpx.  */
+  ut.ut_syslen = strlen (host) + 1;	/* Including NUL.  */
+# endif /* UT_SYSLEN */
+#endif /* UT_HOST */
+
+#if defined HAVE_STRUCT_UTMP_UT_TV || defined HAVE_STRUCT_UTMPX_UT_TV
   gettimeofday (&tv, NULL);
   ut.ut_tv.tv_sec = tv.tv_sec;
   ut.ut_tv.tv_usec = tv.tv_usec;

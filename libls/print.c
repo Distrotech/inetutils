@@ -63,7 +63,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <utmp.h>
 #include <filemode.h>
 
 #ifdef HAVE_SYS_MKDEV_H

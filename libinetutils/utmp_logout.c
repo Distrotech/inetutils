@@ -38,17 +38,20 @@
  */
 
 /* Written by Wietse Venema.  With port to GNU Inetutils done by Alain
-   Magloire.  */
+   Magloire.  Reorganized to cope with full variation between utmpx
+   and utmp, with different API sets, by Mats Erik Andersson.  */
 
 #include <config.h>
 
 #include <sys/types.h>
 #include <sys/time.h>
 #include <time.h>
-#if defined UTMPX && defined HAVE_UTMPX_H
-# define __USE_GNU
+#ifdef HAVE_UTMPX_H
+# ifndef __USE_GNU
+#  define __USE_GNU 1
+# endif
 # include <utmpx.h>
-#else
+#else /* !HAVE_UTMPX_H */
 # if HAVE_UTIL_H
 #  include <util.h>
 # endif
@@ -61,66 +64,100 @@
 void
 utmp_logout (char *line)
 {
-#ifdef UTMPX
+#ifdef HAVE_UTMPX_H
   struct utmpx utx;
   struct utmpx *ut;
 
   strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 
+# ifdef HAVE_PUTUTXLINE
+  setutxent();
   ut = getutxline (&utx);
   if (ut)
     {
       struct timeval tv;
 
       ut->ut_type = DEAD_PROCESS;
-      ut->ut_exit.e_termination = 0;
-      ut->ut_exit.e_exit = 0;
+#  ifdef HAVE_STRUCT_UTMPX_UT_EXIT
+      memset (&ut->ut_exit, 0, sizeof (ut->ut_exit));
+#  endif
       gettimeofday (&tv, 0);
       ut->ut_tv.tv_sec = tv.tv_sec;
       ut->ut_tv.tv_usec = tv.tv_usec;
+#  ifdef HAVE_STRUCT_UTMPX_UT_USER
+      memset (&ut->ut_user, 0, sizeof (ut->ut_user));
+#  elif defined HAVE_STRUCT_UTMPX_UT_NAME
+      memset (&ut->ut_name, 0, sizeof (ut->ut_name));
+#  endif
+#  ifdef HAVE_STRUCT_UTMPX_UT_HOST
+      memset (ut->ut_host, 0, sizeof (ut->ut_host));
+#   ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN
+      ut->ut_syslen = 1;	/* Counting NUL.  */
+#   endif
+#  endif /* UT_HOST */
       pututxline (ut);
+      /* Some systems perform wtmp updating
+       * already in calling pututxline().
+       */
+#  ifdef HAVE_UPDWTMPX
       updwtmpx (PATH_WTMPX, ut);
+#  elif defined HAVE_LOGWTMPX
+      logwtmpx (ut->ut_line, "", "", 0, DEAD_PROCESS);
+#  endif
     }
   endutxent ();
-#elif HAVE_DECL_GETUTENT
+# elif defined HAVE_LOGOUTX /* !HAVE_PUTUTXLINE */
+  if (logoutx (line, 0, DEAD_PROCESS))
+    logwtmpx (line, "", "", 0, DEAD_PROCESS);
+# endif /* HAVE_LOGOUTX */
+
+#else /* !HAVE_UTMPX_H */
   struct utmp utx;
   struct utmp *ut;
 
   strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 
+# ifdef HAVE_PUTUTLINE
+  setutent();
   ut = getutline (&utx);
   if (ut)
     {
-# ifdef HAVE_STRUCT_UTMP_UT_TV
+#  ifdef HAVE_STRUCT_UTMP_UT_TV
       struct timeval tv;
-# endif
+#  endif
 
-# ifdef HAVE_STRUCT_UTMP_UT_TYPE
+#  ifdef HAVE_STRUCT_UTMP_UT_TYPE
       ut->ut_type = DEAD_PROCESS;
-# endif
-# ifdef HAVE_STRUCT_UTMP_UT_EXIT
-      ut->ut_exit.e_termination = 0;
-      ut->ut_exit.e_exit = 0;
-# endif
-# ifdef HAVE_STRUCT_UTMP_UT_TV
+#  endif
+#  ifdef HAVE_STRUCT_UTMP_UT_EXIT
+      memset (&ut->ut_exit, 0, sizeof (ut->ut_exit));
+#  endif
+#  ifdef HAVE_STRUCT_UTMP_UT_TV
       gettimeofday (&tv, 0);
       ut->ut_tv.tv_sec = tv.tv_sec;
       ut->ut_tv.tv_usec = tv.tv_usec;
-# else
+#  else /* !HAVE_STRUCT_UTMP_UT_TV */
       time (&(ut->ut_time));
-# endif
+#  endif
+#  ifdef HAVE_STRUCT_UTMP_UT_USER
+      memset (&ut->ut_user, 0, sizeof (ut->ut_user));
+#  elif defined HAVE_STRUCT_UTMP_UT_NAME
+      memset (&ut->ut_name, 0, sizeof (ut->ut_name));
+#  endif
+#  ifdef HAVE_STRUCT_UTMP_UT_HOST
+      memset (ut->ut_host, 0, sizeof (ut->ut_host));
+#  endif
       pututline (ut);
-# ifdef HAVE_UPDWTMP
-      ut->ut_name[0] = 0;
-      ut->ut_host[0] = 0;
+#  ifdef HAVE_UPDWTMP
       updwtmp (WTMP_FILE, ut);
-# else
+#  elif defined HAVE_LOGWTMP /* !HAVE_UPDWTMP */
       logwtmp (ut->ut_line, "", "");
-# endif
+#  endif
     }
   endutent ();
-#else
+# elif defined HAVE_LOGOUT /* !HAVE_PUTUTLINE */
   if (logout (line))
     logwtmp (line, "", "");
+# endif /* HAVE_LOGOUT */
 #endif
 }

@@ -77,6 +77,9 @@
 # include <crypt.h>
 #endif
 #include <termios.h>
+#ifdef HAVE_UTMPX_H
+# include <utmpx.h>
+#endif
 #ifdef HAVE_UTMP_H
 # include <utmp.h>
 #endif
@@ -228,7 +231,30 @@ dologout (void)
     {
       char line[100];
       sprintf (line, "uucp%.4d", pid);
+#ifdef HAVE_LOGWTMPX
+      logwtmpx (line, "", "", 0, DEAD_PROCESS);
+#elif defined HAVE_LOGWTMP
       logwtmp (line, "", "");
+#elif defined HAVE_PUTUTXLINE
+      {
+	/* Novelty in FreeBSD 9.0.  */
+	struct utmpx ut;
+	struct timeval now;
+
+	ut.ut_type = DEAD_PROCESS;
+	ut.ut_pid = pid;
+	strncpy (ut.ut_line, line, sizeof (ut.ut_line));
+	memset (ut.ut_user, 0, sizeof (ut.ut_user));
+	memset (ut.ut_host, 0, sizeof (ut.ut_host));
+# ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN
+	ut.ut_syslen = 1;
+# endif
+	gettimeofday (&now, NULL);
+	ut.ut_tv.tv_sec = now.tv_sec;
+	ut.ut_tv.tv_usec = now.tv_usec;
+	pututxline (&ut);
+      }
+#endif /* HAVE_PUTUTXLINE && !HAVE_LOGWTMPX && !HAVE_LOGWTMP */
     }
 }
 
@@ -254,7 +280,30 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
 
   sprintf (line, "uucp%.4d", getpid ());
 
+#ifdef HAVE_LOGWTMPX
+  logwtmpx (line, pw->pw_name, remotehost, 0, USER_PROCESS);
+#elif defined HAVE_LOGWTMP
   logwtmp (line, pw->pw_name, remotehost);
+#elif defined HAVE_PUTUTXLINE
+  {
+    /* Novelty in FreeBSD 9.0.  */
+    struct utmpx ut;
+    struct timeval now;
+
+    ut.ut_type = USER_PROCESS;
+    ut.ut_pid = getpid();
+    strncpy (ut.ut_line, line, sizeof (ut.ut_line));
+    strncpy (ut.ut_user, pw->pw_name, sizeof (ut.ut_user));
+    strncpy (ut.ut_host, remotehost, sizeof (ut.ut_host));
+# ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN
+	ut.ut_syslen = strlen (remotehost) + 1;
+# endif
+    gettimeofday (&now, NULL);
+    ut.ut_tv.tv_sec = now.tv_sec;
+    ut.ut_tv.tv_usec = now.tv_usec;
+    pututxline (&ut);
+  }
+#endif /* HAVE_PUTUTXLINE && !HAVE_LOGWTMPX && !HAVE_LOGWTMP */
 
 #if defined PATH_LASTLOG && defined HAVE_STRUCT_LASTLOG
 # define SCPYN(a, b)	strncpy(a, b, sizeof (a))

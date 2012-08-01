@@ -38,7 +38,8 @@
  */
 
 /* Written by Wietse Venema.  With port to GNU Inetutils done by Alain
-   Magloire.  */
+   Magloire.  Reorganized to cope with full variation between utmpx
+   and utmp, with different API sets, by Mats Erik Andersson.  */
 
 #include <config.h>
 
@@ -48,10 +49,10 @@
 #include <time.h>
 #ifdef HAVE_UTMPX_H
 # ifndef __USE_GNU
-#  define __USE_GNU
+#  define __USE_GNU 1
 # endif
 # include <utmpx.h>
-#else
+#else /* !HAVE_UTMPX_H */
 # if HAVE_UTIL_H
 #  include <util.h>
 # endif
@@ -63,19 +64,20 @@
 /* utmp_init - update utmp and wtmp before login */
 
 void
-utmp_init (char *line, char *user, char *id)
+utmp_init (char *line, char *user, char *id, char *host)
 {
 #ifdef HAVE_UTMPX_H
   struct utmpx utx;
-#else
-  struct utmp utx;
-#endif
-#if defined HAVE_STRUCT_UTMPX_UT_TV
   struct timeval tv;
+#else /* !HAVE_UTMPX_H */
+  struct utmp utx;
+# if defined HAVE_STRUCT_UTMP_UT_TV
+  struct timeval tv;
+# endif
 #endif
 
   memset ((char *) &utx, 0, sizeof (utx));
-#if defined HAVE_STRUCT_UTMP_UT_ID
+#if defined HAVE_STRUCT_UTMP_UT_ID || defined HAVE_STRUCT_UTMPX_UT_ID
   strncpy (utx.ut_id, id, sizeof (utx.ut_id));
 #endif
 #if defined HAVE_STRUCT_UTMP_UT_USER || defined HAVE_STRUCT_UTMPX_UT_USER
@@ -83,40 +85,72 @@ utmp_init (char *line, char *user, char *id)
 #elif defined HAVE_STRUCT_UTMP_UT_NAME || defined HAVE_STRUCT_UTMPX_UT_NAME
   strncpy (utx.ut_name, user, sizeof (utx.ut_name));
 #endif
-#if defined HAVE_STRUCT_UTMP_UT_HOST
-  strncpy (utx.ut_host, user, sizeof (utx.ut_host));
-#endif
+#if defined HAVE_STRUCT_UTMP_UT_HOST || defined HAVE_STRUCT_UTMPX_UT_HOST
+  strncpy (utx.ut_host, host, sizeof (utx.ut_host));
+# ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN	/* Only utmpx.  */
+  utx.ut_syslen = strlen (host) + 1;
+# endif
+#endif /* UT_HOST */
+#if defined HAVE_STRUCT_UTMP_UT_LINE || defined HAVE_STRUCT_UTMPX_UT_LINE
   strncpy (utx.ut_line, line, sizeof (utx.ut_line));
-#if defined HAVE_STRUCT_UTMP_UT_PID
+#endif
+
+#if defined HAVE_STRUCT_UTMP_UT_PID || defined HAVE_STRUCT_UTMPX_UT_PID
   utx.ut_pid = getpid ();
 #endif
-#if defined HAVE_STRUCT_UTMP_UT_TYPE
+#if defined HAVE_STRUCT_UTMP_UT_TYPE || defined HAVE_STRUCT_UTMPX_UT_TYPE
   utx.ut_type = LOGIN_PROCESS;
 #endif
-#if defined HAVE_STRUCT_UTMPX_UT_TV
+#if defined HAVE_STRUCT_UTMP_UT_TV || defined HAVE_STRUCT_UTMPX_UT_TV
   gettimeofday (&tv, 0);
   utx.ut_tv.tv_sec = tv.tv_sec;
   utx.ut_tv.tv_usec = tv.tv_usec;
 #else
   time (&(utx.ut_time));
 #endif
+
+/* Prefer utmpx over utmp, and attempt to
+ * use pututxline/pututline for writing the
+ * initial entry.  Then apply whatever
+ * wtmp updating that happens to be available.
+ *
+ * That failing, fall back to loginx/login.
+ * This is made in order than we are granted
+ * LOGIN_PROCESS type and stay unbound by
+ * any tty sensing of stdin, stdout, or stderr,
+ * like GNU libc would do in login().
+ */
 #ifdef HAVE_UTMPX_H
+# ifdef HAVE_PUTUTXLINE
+  setutxent ();
   pututxline (&utx);
-# ifdef HAVE_UPDWTMPX
+  /* Some systems perform wtmp updating
+   * already in calling pututxline().
+   */
+#  ifdef HAVE_UPDWTMPX
   updwtmpx (PATH_WTMPX, &utx);
-# endif
+#  elif defined HAVE_LOGWTMPX
+  logwtmpx (line, user, id, 0, LOGIN_PROCESS);
+#  endif /* wtmp updating */
   endutxent ();
-#elif HAVE_DECL_GETUTENT
+# elif defined HAVE_LOGINX /* !HAVE_PUTUTXLINE */
+  loginx (&utx, 0, LOGIN_PROCESS);
+# endif /* HAVE_LOGINX && !HAVE_PUTUTXLINE */
+
+#else /* !HAVE_UTMPX_H */
+# ifdef HAVE_PUTUTLINE
+  setutent ();
   pututline (&utx);
-# ifdef HAVE_UPDWTMP
+#  ifdef HAVE_UPDWTMP
   updwtmp (PATH_WTMP, &utx);
-# else
+#  elif defined HAVE_LOGWTMP /* !HAVE_UPDWTMP */
   logwtmp (line, user, id);
-# endif
+#  endif /* wtmp updating */
   endutent ();
-#else
+# elif defined HAVE_LOGIN /* !HAVE_PUTUTLINE */
   login (&utx);
-#endif
+# endif /* HAVE_LOGIN && !HAVE_PUTUTLINE */
+#endif /* !HAVE_UTMPX_H */
 }
 
 /* utmp_ptsid - generate utmp id for pseudo terminal */

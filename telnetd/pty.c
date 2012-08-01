@@ -29,10 +29,10 @@
 #include <libinetutils.h>
 
 void
-setup_utmp (char *line)
+setup_utmp (char *line, char *host)
 {
   char *ut_id = utmp_ptsid (line, "tn");
-  utmp_init (line + sizeof ("/dev/") - 1, ".telnet", ut_id);
+  utmp_init (line + sizeof ("/dev/") - 1, ".telnet", ut_id, host);
 }
 
 
@@ -73,9 +73,7 @@ startslave (char *host, int autologin, char *autoname)
       if (net > 2)
 	close (net);
 
-#ifdef UTMPX
-      setup_utmp (line);
-#endif
+      setup_utmp (line, host);
       start_login (host, autologin, line);
     }
 

@@ -781,20 +781,13 @@ setup_tty (int fd, struct auth_data *ap)
   ap->env[1] = 0;
 }
 
-#ifdef UTMPX
-char *utmp_ptsid ();
- /*FIXME*/ void utmp_init ();
-
 void
-setup_utmp (char *line)
+setup_utmp (char *line, char *host)
 {
   char *ut_id = utmp_ptsid (line, "rl");
 
-  utmp_init (line + sizeof ("/dev/") - 1, ".rlogin", ut_id);
+  utmp_init (line + sizeof ("/dev/") - 1, ".rlogin", ut_id, host);
 }
-#else
-# define setup_utmp(line)
-#endif
 
 void
 exec_login (int authenticated, struct auth_data *ap)
@@ -911,7 +904,7 @@ rlogind_mainloop (int infd, int outfd)
 	close (infd);
 
       setup_tty (0, &auth_data);
-      setup_utmp (line);
+      setup_utmp (line, auth_data.hostname);
 
       exec_login (authenticated, &auth_data);
       fatal (infd, "can't execute login", 1);
@@ -1668,7 +1661,7 @@ cleanup (int signo _GL_UNUSED_PARAMETER)
   char *p;
 
   p = line + sizeof (PATH_DEV) - 1;
-#ifdef UTMPX
+#if !defined HAVE_LOGOUT || !defined HAVE_LOGWTMP
   utmp_logout (p);
   chmod (line, 0644);
   chown (line, 0, 0);

@@ -23,7 +23,7 @@
 
 #include "argp-version-etc.h"
 
-void utmp_init (char *line, char *user, char *id);
+void utmp_init (char *line, char *user, char *id, char *host);
 char *utmp_ptsid (char *line, char *tag);
 void utmp_logout (char *line);
 char *localhost (void);

@@ -170,8 +170,24 @@ AC_SUBST(LIBCRYPT)
 # libutil is a 4.4BSD library that defines several functions handy for
 # inetutils daemons, doing such things as utmp frobbing, and pty
 # setup.
+AC_CHECK_LIB(util, login, LIBUTIL=-lutil)
+AC_CHECK_LIB(util, loginx, LIBUTIL=-lutil)
 AC_CHECK_LIB(util, logout, LIBUTIL=-lutil)
+AC_CHECK_LIB(util, logoutx, LIBUTIL=-lutil)
+AC_CHECK_LIB(util, logwtmp, LIBUTIL=-lutil)
+AC_CHECK_LIB(util, logwtmpx, LIBUTIL=-lutil)
 AC_SUBST(LIBUTIL)
+
+# FreeBSD 9.0 has changed access to wtmp system, abolishing
+# logout(), logwtmp(), etcetera.  We need to use LIBUTIL
+# for rpl_openpty() and forkpty() in libgnu.a.
+if test "$ac_cv_func_login_tty" = yes \
+   || test "$ac_cv_have_decl_openpty" = yes; then
+  # Make sure that linking contains `-lutil'.
+  if test -z "$LIBUTIL"; then
+    LIBUTIL=-lutil
+  fi
+fi
 
 # Check if they want support for PAM.  Certain daemons like ftpd have
 # support for it.
@@ -516,8 +532,8 @@ fi
 # support for it.
 
 if test "$with_wrap" = yes; then
-# See if we have libwrap.a we cannot use AC_CHECK_LIB reliably since
-# for the wrap lib you have to define some global variables
+# See if we have libwrap.a.  We cannot use AC_CHECK_LIB reliably since
+# for the wrap lib you have to define some global variables.
 #AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
   AC_CHECK_HEADERS([tcpd.h])
   AC_MSG_CHECKING(hosts_ctl in -lwrap);
@@ -603,18 +619,33 @@ AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
 IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
     [ #include <sys/types.h>
       #include <netinet/in.h> ])
+IU_CHECK_MEMBERS([struct sockaddr_storage.ss_len], , ,
+    [ #include <sys/types.h>
+      #include <netinet/in.h> ])
 
 if test "$ac_cv_header_utmp_h" = yes; then
   AC_CHECK_TYPES(struct lastlog, , , [#include <utmp.h>])
   IU_CHECK_MEMBERS([struct utmp.ut_type, struct utmp.ut_pid,
-                    struct utmp.ut_id, struct utmp.ut_user,
-		    struct utmp.ut_host, struct utmp.ut_tv,
-		    struct utmp.ut_exit], , ,
+		    struct utmp.ut_line, struct utmp.ut_id,
+		    struct utmp.ut_user, struct utmp.ut_host,
+		    struct utmp.ut_exit, struct utmp.ut_session,
+		    struct utmp.ut_tv, struct utmp.ut_time,
+		    struct utmp.ut_addr_v6, struct utmp.ut_name], , ,
 		   [#include <sys/types.h>
 		    #include <utmp.h>])
 fi
 if test "$ac_cv_header_utmpx_h" = yes; then
-  IU_CHECK_MEMBERS([struct utmpx.ut_tv], , , [#include <utmpx.h>])
+  AC_CHECK_TYPES(struct lastlogx, , , [#include <utmp.h>])
+  IU_CHECK_MEMBERS([struct lastlogx.ll_ss], , ,
+		   [#include <sys/types.h>
+		    #include <sys/utmpx.h>])
+  IU_CHECK_MEMBERS([struct utmpx.ut_user, struct utmpx.ut_name,
+		    struct utmpx.ut_id, struct utmpx.ut_line,
+		    struct utmpx.ut_pid, struct utmpx.ut_type,
+		    struct utmpx.ut_exit, struct utmpx.ut_tv,
+		    struct utmpx.ut_session, struct utmpx.ut_syslen,
+		    struct utmpx.ut_host, struct utmpx.ut_ss,
+		    struct utmpx.ut_aadr_v6], , , [#include <utmpx.h>])
 fi
 
 IU_CHECK_MEMBERS([struct ifreq.ifr_index,
@@ -663,13 +694,20 @@ AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                fork fpathconf ftruncate \
                getcwd getmsg getpwuid_r getspnam \
                initgroups initsetproctitle killpg \
-               ptsname \
+               ptsname pututline pututxline \
                setegid seteuid setpgid \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
                utime uname \
                updwtmp updwtmpx vhangup wait3 wait4 opendir2 \
 	       __rcmd_errstr __check_rhosts_file )
+
+# Variant functions for user accounting.
+# These need $LIBUTIL for linking.
+_SAVE_LIBS="$LIBS"
+LIBS="$LIBS $LIBUTIL"
+AC_CHECK_FUNCS(login loginx logout logoutx logwtmp logwtmpx)
+LIBS="$_SAVE_LIBS"
 
 # Functions that we will define if necessary.
 AC_REPLACE_FUNCS(getpass getusershell memcmp memcpy memmove memset \
@@ -869,16 +907,15 @@ AH_BOTTOM(
 
 # Ok this is the end of the rope, even autoconf can't help.  For
 # example on certain system login(1) will not work if we don't have an
-# entry in utmpx.  Also for some OS they are better handle with
+# entry in utmpx.  Also for some OS they are better handled with
 # STREAMS.
 case "$host" in
 *olaris*)
   AC_DEFINE([SOLARIS], 1, [FIXME])
-  AC_DEFINE([UTMPX], 1, [FIXME])
   AC_DEFINE([HAVE_STREAMSPTY], 1, [FIXME])
   ;;
-*irix* | *hpux* | *netbsd* | *dragonfly* )
-  AC_DEFINE([UTMPX], 1, [FIXME])
+*irix* | *hpux* )
+  # Known and needed workarounds?
   ;;
 esac
 
