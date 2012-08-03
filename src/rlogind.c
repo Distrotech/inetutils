@@ -964,8 +964,8 @@ do_rlogin (int infd, struct auth_data *ap)
     }
 #endif /* WITH_IRUSEROK_AF || WITH_IRUSEROK */
 
-  getstr (infd, &ap->rusername, NULL);
-  getstr (infd, &ap->lusername, NULL);
+  getstr (infd, &ap->rusername, NULL);		/* Requesting user.  */
+  getstr (infd, &ap->lusername, NULL);		/* Acting user.  */
   getstr (infd, &ap->term, "TERM=");
 
   pwd = getpwnam (ap->lusername);
@@ -1293,9 +1293,9 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
     }
 #  endif
 
-  getstr (infd, &ad->rusername, NULL);
+  getstr (infd, &ad->lusername, NULL);		/* Acting user.  */
   getstr (infd, &ad->term, "TERM=");
-  getstr (infd, &ad->lusername, NULL);
+  getstr (infd, &ad->rusername, NULL);		/* Requesting user.  */
 
   rc = read (infd, &error, sizeof (int));	/* XXX: not protocol */
   if ((rc != sizeof (int)) || error)

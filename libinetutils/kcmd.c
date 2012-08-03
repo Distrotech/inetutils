@@ -431,16 +431,16 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 		    realm)) != SHISHI_OK)
     goto bad2;
 
-  if (locuser && locuser[0])
-    write (s, locuser, strlen (locuser) + 1);
-  else
-    write (s, *remuser, strlen (*remuser) + 1);
+  write (s, *remuser, strlen (*remuser) + 1);
 # endif	/* SHISHI */
 
   write (s, cmd, strlen (cmd) + 1);
 
 # ifdef SHISHI
-  write (s, *remuser, strlen (*remuser) + 1);
+  if (locuser && locuser[0])
+    write (s, locuser, strlen (locuser) + 1);
+  else
+    write (s, *remuser, strlen (*remuser) + 1);
   write (s, &zero, sizeof (int));	/* XXX: not protocol */
 # endif
 

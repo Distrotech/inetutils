@@ -1715,11 +1715,17 @@ Reference Manual}.
 The options are as follows :
 
 @table @option
-@item -K
-@itemx --kerberos
-@opindex -K
-@opindex --kerberos
-Turns off all Kerberos authentication.
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Use only IPv4.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Use only IPv6.
 
 @item -d
 @itemx --debug
@@ -1732,26 +1738,38 @@ Turns on socket debugging used for communication with the remote host.
 @opindex -k
 @opindex --realm
 The option requests rsh to obtain tickets for the remote host in
-@var{realm} realm instead of the remote host's realm.
+realm @var{realm} instead of the remote host's realm.
+
+@item -K
+@itemx --kerberos
+@opindex -K
+@opindex --kerberos
+Turns off all Kerberos authentication.
+
+@item -l @var{user}
+@itemx --user=@var{user}
+@opindex -l
+@opindex --user
+By default, the remote username is the same as the local username.
+The @option{-l} option and the @samp{username@@host} format allow the
+remote user name to be specified.  Kerberos authentication is used,
+whenever available, and authorization is determined as in @command{rlogin}
+(@pxref{rlogin invocation}).
+
+@item -n
+@itemx --no-input
+@opindex -n
+@opindex --no-input
+Use @file{/dev/null} for all input, and use no separate @samp{stderr}
+at remote end.  This option is void together with encryption.
 
 @item -x
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on DES encryption for all data passed via the rsh session.  This
+Turns on encryption for all data passed via the rsh session.  This
 may impact response time and CPU utilization, but provides increased
 security.
-
-@item -l
-@itemx --user
-@opindex -l
-@opindex --user
-By default, the remote username is the same as the local username.
-The @option{-l} option or the @samp{username@@host} format allow the
-remote name to be specified.  Kerberos authentication is used, and
-authorization is determined as in @command{rlogin} (@pxref{rlogin
-invocation}).
-
 @end table
 
 If no command is specified, you will be logged in on the remote host
@@ -1802,6 +1820,18 @@ Reference Manual}.
 The options are as follows :
 
 @table @option
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Use only IPv4.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Use only IPv6.
+
 @item -8
 @itemx --8-bit
 @opindex -8
@@ -1810,21 +1840,6 @@ Allows an eight-bit input data path at all times; otherwise parity
 bits are stripped except when the remote side's stop and start
 characters are other than @kbd{C-S}/@kbd{C-Q}.
 
-@item -E
-@item --no-escape
-@itemx --no-escape
-@opindex -E
-@opindex --no-escape
-Stops any character from being recognized as an escape character.
-When used with the @option{-8} option, this provides a completely
-transparent connection.
-
-@item -K
-@itemx --kerberos
-@opindex -K
-@opindex --kerberos
-Turns off all Kerberos authentication.
-
 @item -d
 @itemx --debug
 @opindex -d
@@ -1832,7 +1847,7 @@ Turns off all Kerberos authentication.
 Turns on socket debugging on the TCP sockets used for communication
 with the remote host.
 
-@item -e
+@item -e @var{char}
 @itemx --escape=@var{char}
 @opindex -e
 @opindex --escape
@@ -1840,18 +1855,40 @@ Allows user specification of the escape character, which is @samp{~}
 by default.  This specification may be as a literal character, or as
 an octal value in the form @samp{\nnn}.
 
-@item -k
+@item -E
+@itemx --no-escape
+@opindex -E
+@opindex --no-escape
+Stops any character from being recognized as an escape character.
+When used with the @option{-8} option, this provides a completely
+transparent connection.
+
+@item -k @var{realm}
 @itemx --realm=@var{realm}
 @opindex -k
 @opindex --realm
 The option requests rlogin to obtain tickets for the remote host in
-@var{realm} realm instead of the remote host's realm.
+realm @var{realm} instead of the remote host's realm.
+
+@item -K
+@itemx --kerberos
+@opindex -K
+@opindex --kerberos
+Turns off all Kerberos authentication.
+
+@item -l @var{user}
+@itemx --user=@var{user}
+@opindex -l
+@opindex --user
+By default, the remote username is the same as the local username.
+This option, and the @samp{user@@host} format, allow the remote
+user name to be made explicit, or changed.
 
 @item -x
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on DES encryption for all data passed via the rlogin session.
+Turns on encryption for all data passed via the rlogin session.
 This may impact response time and CPU utilization, but provides
 increased security.
 @end table
@@ -1906,18 +1943,42 @@ rcp [@var{option}]@dots{} @var{files}@dots{} @var{directory}
 @end example
 
 @table @option
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Use only IPv4.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Use only IPv6.
+
+@item -d @var{directory}
+@itemx --target-directory=@var{directory}
+@opindex -d
+@opindex --target-directory
+Copy all source arguments into @var{directory}.
+
+@item -f
+@itemx --from
+@opindex -f
+@opindex --from
+(Server mode only.) Copying from remote host.
+
+@item -k @var{realm}
+@itemx --realm=@var{realm}
+@opindex -k
+@opindex --realm
+The option requests rcp to obtain tickets for the remote host in
+realm @var{realm} instead of the remote host's realm.
+
 @item -K
 @itemx --kerberos
 @opindex -K
 @opindex --kerberos
 Turns off all Kerberos authentication.
-
-@item -k
-@itemx --realm=@var{realm}
-@opindex -k
-@opindex --realm
-The option requests rcp to obtain tickets for the remote host in
-@var{realm} realm instead of the remote host's realm.
 
 @item -p
 @itemx --preserve
@@ -1925,9 +1986,9 @@ The option requests rcp to obtain tickets for the remote host in
 @opindex --preserve
 Causes @code{rcp} to attempt to preserve (duplicate) in its copies the
 modification times and modes of the source files, ignoring the umask.
-By default, the mode and owner of file are preserved if it already
-existed; otherwise the mode of the source file modified by the
-@code{umask} function on the destination host is used.
+By default, the mode and owner of the target file are preserved
+if the target itself already exists; otherwise the mode of the source
+file is modified by the @code{umask} setting on the destination host.
 
 @item -r
 @itemx --recursive
@@ -1937,12 +1998,18 @@ If any of the source files are directories, @command{rcp} copies each
 subtree rooted at that name; in this case the destination must be a
 directory.
 
+@item -t
+@itemx --to
+@opindex -t
+@opindex --to
+(Server mode only.) Copying to remote host.
+
 @item -x
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on DES encryption for all data passed via the rcp session.  This
-may impact response time and CPU utilization, but provides increased
+Turns on encryption for all data passed via the @command{rcp} session.
+This may impact response time and CPU utilization, but provides increased
 security.
 
 @end table
@@ -3064,7 +3131,8 @@ request is received the following protocol is initiated:
 @enumerate
 @item
 The server checks the client's source port.  If the port is not in the
-range 512--1023, the server aborts the connection.
+range 512--1023, the server aborts the connection.  However, this
+condition is not applied for Kerberized service.
 
 @item
 The server reads characters from the socket up to a NUL (@samp{\0})
@@ -3150,17 +3218,23 @@ Ask hostname for verification.
 @c @opindex --daemon
 @c Daemon mode.
 
+@item -k
+@itemx --kerberos
+@opindex -k
+@opindex --kerberos
+Use Kerberos authentication.
+
 @item -l
 @itemx --no-rhosts
 @opindex -l
 @opindex --no-rhosts
 Ignore @file{.rhosts} file.
 
-@item -L @var{name}
-@itemx --local-domain=@var{name}
+@item -L
+@itemx --log-sessions
 @opindex -L
-@opindex --local-domain
-Set local domain name.
+@opindex --log-sessions
+Log successful logins.
 
 @item -n
 @itemx --no-keepalive
@@ -3168,25 +3242,32 @@ Set local domain name.
 @opindex --no-keepalive
 Do not set SO_KEEPALIVE.
 
-@item -k
-@itemx --kerberos
-@opindex -k
-@opindex --kerberos
-Use kerberos IV authentication.
+@item -S @var{name}
+@itemx --servername=@var{name}
+@opindex -S
+@opindex --servername
+Set Kerberos server name, overriding canonical hostname.
 
-@item -x
-@itemx --encrypt
-@opindex -x
-@opindex --encrypt
-Turns on DES encryption for all data passed via the @command{rshd}
-session.  This may impact response time and CPU utilization, but
-provides increased security.
+@item -v
+@itemx --vacuous
+@opindex -v
+@opindex --vacuous
+Fail any call asking for non-Kerberos authentication.
 
-@item -D[@var{level}]
-@itemx --debug[=@var{level}]
-@opindex -D
-@opindex -debug
-Set debug level, not implemented.
+@c OBSOLETE?
+@c @item -x
+@c @itemx --encrypt
+@c @opindex -x
+@c @opindex --encrypt
+@c Turns on DES encryption for all data passed via the @command{rshd}
+@c session.  This may impact response time and CPU utilization, but
+@c provides increased security.
+
+@c @item -D[@var{level}]
+@c @itemx --debug[=@var{level}]
+@c @opindex -D
+@c @opindex -debug
+@c Set debug level, not implemented.
 
 @c @item -o
 @c @itemx --allow-root
@@ -3327,6 +3408,18 @@ Ask hostname for verification.
 @opindex --daemon
 Daemon mode.
 
+@item -D[@var{level}]
+@itemx --debug[=@var{level}]
+@opindex -D
+@opindex -debug
+Set debug level, not implemented.
+
+@item -k
+@itemx --kerberos
+@opindex -k
+@opindex --kerberos
+Use Kerberos authentication.
+
 @item -l
 @itemx --no-rhosts
 @opindex -l
@@ -3345,43 +3438,37 @@ Set local domain name.
 @opindex --no-keepalive
 Do not set SO_KEEPALIVE.
 
-@item -k
-@itemx --kerberos
-@opindex -k
-@opindex --kerberos
-Use kerberos IV authentication.
-
-@item -x
-@itemx --encrypt
-@opindex -x
-@opindex --encrypt
-Turns on DES encryption for all data passed via the rlogind session.
-This may impact response time and CPU utilization, but provides
-increased security.
-
-@item -D[@var{level}]
-@itemx --debug[=@var{level}]
-@opindex -D
-@opindex -debug
-Set debug level, not implemented.
-
 @item -o
 @itemx --allow-root
 @opindex -o
 @opindex --allow-root
-Allow the root user to login, disabled by default.
+Allow the root user to login. This is disallowed by default.
 
 @item -p @var{port}
 @itemx --port=@var{port}
 @opindex -p
 @opindex --port
-Listen on given port (valid only in daemon mode).
+Listen on given port. (Applicable only in daemon mode.)
 
 @item -r
 @itemx --reverse-required
 @opindex -r
 @opindex --reverse-required
-Require reverse resolving of a remote host IP.
+Require reverse resolving of remote host's numerical IP.
+
+@item -S @var{name}
+@itemx --servername=@var{name}
+@opindex -S
+@opindex --servername
+Set Kerberos server name, overriding canonical hostname.
+
+@item -x
+@itemx --encrypt
+@opindex -x
+@opindex --encrypt
+Turns on encryption for all data passed via the @command{rlogind} session.
+This may impact response time and CPU utilization, but provides
+increased security.
 
 @end table
 

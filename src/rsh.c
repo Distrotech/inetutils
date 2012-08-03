@@ -156,7 +156,7 @@ static struct argp_option options[] = {
   { "encrypt", 'x', NULL, 0,
     "encrypt all data transfer" },
 #endif
-#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
   { "ipv4", '4', NULL, 0, "use only IPv4" },
   { "ipv6", '6', NULL, 0, "use only IPv6" },
 #endif

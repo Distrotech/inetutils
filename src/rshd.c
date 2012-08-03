@@ -86,7 +86,7 @@
  */
 
 /*
- * remote shell server exchange protocol (client view!):
+ * remote shell server exchange protocol (server view!):
  *	[port]\0
  *	remuser\0
  *	locuser\0
@@ -216,7 +216,7 @@ static struct argp_option options[] = {
   { "no-keepalive", 'n', NULL, 0,
     "do not set SO_KEEPALIVE" },
   { "log-sessions", 'L', NULL, 0,
-    "log successfull logins" },
+    "log successful logins" },
 #if defined KERBEROS || defined SHISHI
   /* FIXME: The option semantics does not match that of others r* utilities */
   { "kerberos", 'k', NULL, 0,
@@ -838,10 +838,10 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
     }
   else
 #endif /* KERBEROS || SHISHI */
-    locuser = getstr ("locuser");
+    remuser = getstr ("remuser");	/* The requesting user!  */
 
   /* Read three strings from the client. */
-  remuser = getstr ("remuser");		/* The acting client!  */
+  locuser = getstr ("locuser");		/* The acting user!  */
   cmdbuf = getstr ("command");
 
 #ifdef SHISHI
@@ -916,7 +916,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	  }
 # endif /* ENCRYPTION */
 
-    locuser = getstr ("locuser");	/* The agent here!  */
+    remuser = getstr ("remuser");	/* The requesting user!  */
 
     rc = read (STDIN_FILENO, &error, sizeof (int)); /* XXX: not protocol */
     if ((rc != sizeof (int)) || error)
@@ -1608,10 +1608,12 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       else
 #endif /* KERBEROS */
 	syslog (LOG_INFO | LOG_AUTH,
+		"%s%s@%s as %s: cmd='%.80s'",
 #ifdef SHISHI
-		"Kerberized "
+		use_kerberos ? "Kerberized " : "",
+#else
+		"",
 #endif
-		"%s@%s as %s: cmd='%.80s'",
 		remuser, hostname, locuser, cmdbuf);
     }
 #ifdef SHISHI
