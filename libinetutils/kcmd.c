@@ -232,7 +232,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	{
 	case AF_INET6:
 	  len = sizeof (struct sockaddr_in6);
-#  ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+#  ifdef HAVE_STRUCT_SOCKADDR_STORAGE_SS_LEN
 	  sin.ss_len = len;
 #  endif
 	  memcpy (&((struct sockaddr_in6 *) &sin)->sin6_addr,
@@ -242,7 +242,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	case AF_INET:
 	default:
 	  len = sizeof (struct sockaddr_in);
-#  ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+#  ifdef HAVE_STRUCT_SOCKADDR_STORAGE_SS_LEN
 	  sin.ss_len = len;
 #  endif
 	  memcpy (&((struct sockaddr_in *) &sin)->sin_addr,
@@ -500,7 +500,7 @@ getport (int *alport, int af)
   sin.ss_family = af;
   len = (af == AF_INET6) ? sizeof (struct sockaddr_in6)
 	: sizeof (struct sockaddr_in);
-# ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
+# ifdef HAVE_STRUCT_SOCKADDR_STORAGE_SS_LEN
   sin.ss_len = len;
 # endif
 

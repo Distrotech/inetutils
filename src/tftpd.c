@@ -288,7 +288,7 @@ main (int argc, char *argv[])
     }
   memset (&sin, 0, sizeof (sin));
   sin.ss_family = from.ss_family;
-#if HAVE_STRUCT_SOCKADDR_SA_LEN
+#if HAVE_STRUCT_SOCKADDR_STORAGE_SS_LEN
   sin.ss_len = from.ss_len;
 #endif
   if (bind (peer, (struct sockaddr *) &sin, fromlen) < 0)

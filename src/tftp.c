@@ -328,7 +328,7 @@ resolve_name (char *name)
 
       memset (&ss, 0, sizeof (ss));
       ss.ss_family = ai->ai_family;
-#if HAVE_STRUCT_SOCKADDR_SA_LEN
+#if HAVE_STRUCT_SOCKADDR_STORAGE_SS_LEN
       ss.ss_len = ai->ai_addrlen;
 #endif
       if (bind (f, (struct sockaddr *) &ss, ai->ai_addrlen))

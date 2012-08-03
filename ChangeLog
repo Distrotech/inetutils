@@ -1,3 +1,19 @@
+2012-08-03  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac: Check whether `struct sockaddr_in6'
+	contains sin6_len.  Correctly check for ut_addr_v6
+	inside `struct utmpx'.
+	* libinetutils/kcmd.c (kcmd) [SHISHI]: Condition on
+	HAVE_STRUCT_SOCKADDR_STORAGE_SS_LEN for access to ss_len.
+	(getport): Likewise.
+	* ping/libping.c (ping_set_dest): Access sin_len
+	conditioned on HAVE_STRUCT_SOCKADDR_IN_SIN_LEN.
+	* src/rexec.c (do_rexec): Build INET6 structure
+	guided by HAVE_STRUCT_SOCKADDR_IN6_SIN6_LEN.
+	* src/tftp.c (resolve_name): Access ss_len based on
+	HAVE_STRUCT_SOCKADDR_STORAGE_SS_LEN.
+	* src/tftpd.c (main): Likewise.
+
 2012-08-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Better adaptions to different UTMP implementations.

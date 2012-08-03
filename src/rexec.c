@@ -295,7 +295,7 @@ do_rexec (struct arguments *arguments)
 	  ((struct sockaddr_in *) &serv_addr)->sin_port = arguments->err_port;
 	  break;
 	case AF_INET6:
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+#ifdef HAVE_STRUCT_SOCKADDR_IN6_SIN6_LEN
 	  ((struct sockaddr_in6 *) &serv_addr)->sin6_len = addrlen;
 #endif
 	  ((struct sockaddr_in6 *) &serv_addr)->sin6_family = addr.ss_family;

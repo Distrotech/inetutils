@@ -266,7 +266,7 @@ ping_set_dest (PING * ping, char *host)
 {
   struct sockaddr_in *s_in = &ping->ping_dest.ping_sockaddr;
   s_in->sin_family = AF_INET;
-#ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
   s_in->sin_len = sizeof (*s_in);
 #endif
   if (inet_aton (host, &s_in->sin_addr))

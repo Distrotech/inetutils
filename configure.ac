@@ -619,6 +619,9 @@ AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
 IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
     [ #include <sys/types.h>
       #include <netinet/in.h> ])
+IU_CHECK_MEMBERS([struct sockaddr_in6.sin6_len], , ,
+    [ #include <sys/types.h>
+      #include <netinet/in.h> ])
 IU_CHECK_MEMBERS([struct sockaddr_storage.ss_len], , ,
     [ #include <sys/types.h>
       #include <netinet/in.h> ])
@@ -645,7 +648,7 @@ if test "$ac_cv_header_utmpx_h" = yes; then
 		    struct utmpx.ut_exit, struct utmpx.ut_tv,
 		    struct utmpx.ut_session, struct utmpx.ut_syslen,
 		    struct utmpx.ut_host, struct utmpx.ut_ss,
-		    struct utmpx.ut_aadr_v6], , , [#include <utmpx.h>])
+		    struct utmpx.ut_addr_v6], , , [#include <utmpx.h>])
 fi
 
 IU_CHECK_MEMBERS([struct ifreq.ifr_index,
