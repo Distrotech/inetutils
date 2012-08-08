@@ -154,15 +154,9 @@ Ability to ping multiple host in one go.
   For example, if a system specific option shadows a normal option?
   Allow this?
 
-* ftpd
+* ftp, ftpd
 
-Complete the initiated rewrite for supporting IPv6.
-
-* tftpd
-
-OpenSolaris is only able to transmit a single package of
-size at most PKTSIZE. Debug libinetutils/tftpsubs.c on this.
-No issue with other systems.
+Implement libshishi support?
 
 * whois
 

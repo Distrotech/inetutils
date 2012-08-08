@@ -293,6 +293,17 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   else
     servername = shishi_server_for_local_service (*handle, SERVICE);
 
+  /* Enable use of `~/.k5login'.  */
+  if (shishi_check_version ("1.0.2"))	/* Faulty in version 1.0.1.  */
+    {
+      rc = shishi_cfg_authorizationtype_set (*handle, "k5login basic");
+      if (rc != SHISHI_OK)
+	{
+	  *err_msg = shishi_error (*handle);
+	  return rc;
+	}
+    }
+
   key = shishi_hostkeys_for_server (*handle, servername);
   free (servername);
   if (!key)

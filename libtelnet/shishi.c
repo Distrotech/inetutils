@@ -155,6 +155,12 @@ krb5shishi_send (TN_Authenticator * ap)
   char *apreq;
   size_t apreq_len;
 
+  if (!UserNameRequested)
+    {
+      DEBUG (("telnet: Kerberos V5: no user name supplied\r\n"));
+      return 0;
+    }
+
   if (!delayed_shishi_init ())
     {
       DEBUG (("telnet: Kerberos V5: shishi initialization failed\r\n"));
@@ -170,6 +176,7 @@ krb5shishi_send (TN_Authenticator * ap)
   sprintf (tmp, "host/%s", RemoteHostName);
   memset (&hint, 0, sizeof (hint));
   hint.server = tmp;
+  hint.client = UserNameRequested;
 
   if (dest_realm && *dest_realm)
     shishi_realm_default_set (shishi_handle, dest_realm);
@@ -184,12 +191,6 @@ krb5shishi_send (TN_Authenticator * ap)
 
   if (auth_debug_mode)
     shishi_tkt_pretty_print (tkt, stdout);
-
-  if (!UserNameRequested)
-    {
-      DEBUG (("telnet: Kerberos V5: no user name supplied\r\n"));
-      return 0;
-    }
 
   if ((ap->way & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL)
     ap_opts = SHISHI_APOPTIONS_MUTUAL_REQUIRED;
@@ -333,7 +334,11 @@ krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 		" (server authenticated)" : " (server NOT authenticated)");
       else
 	printf ("[ Kerberos V5 accepts you ]\r\n");
+
       auth_finished (ap, AUTH_USER);
+      /* This was last access to handle on behalf of the client.  */
+      shishi_done (shishi_handle);
+      shishi_handle = NULL;
       break;
 
     case KRB_RESPONSE:
@@ -370,23 +375,16 @@ krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 int
 krb5shishi_status (TN_Authenticator * ap, char *name, int level)
 {
-  char *cname;
-  int cnamelen;
   int rc;
   int status;
 
   if (level < AUTH_USER)
     return level;
 
-  rc = shishi_encticketpart_client
-    (shishi_handle,
-     shishi_tkt_encticketpart (shishi_ap_tkt (auth_handle)),
-     &cname, &cnamelen);
-
   if (UserNameRequested
-      && rc == SHISHI_OK
-      && cnamelen == strlen (UserNameRequested)
-      && memcmp (UserNameRequested, cname, cnamelen) == 0)
+      && shishi_authorized_p (shishi_handle,
+			      shishi_ap_tkt (auth_handle),
+			      UserNameRequested))
     {
       /* FIXME: Check buffer length */
       strcpy (name, UserNameRequested);
@@ -394,7 +392,7 @@ krb5shishi_status (TN_Authenticator * ap, char *name, int level)
     }
   else
     status = AUTH_USER;
-  free (cname);
+
   return status;
 }
 
@@ -414,6 +412,19 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
     {
       DEBUG (("telnet: Kerberos V5: shishi initialization failed\r\n"));
       return 0;
+    }
+
+  /* Enable use of `~/.k5login'.  */
+  if (shishi_check_version ("1.0.2"))	/* Faulty in version 1.0.1.  */
+    {
+      rc = shishi_cfg_authorizationtype_set (shishi_handle, "k5login basic");
+      if (rc != SHISHI_OK)
+	{
+	  snprintf (errbuf, errbuflen,
+		    "Cannot initiate authorization types: %s",
+		    shishi_error (shishi_handle));
+	  return rc;
+	}
     }
 
   rc = shishi_ap (shishi_handle, &auth_handle);
@@ -477,10 +488,10 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
       free (der);
     }
 
-  rc = shishi_encticketpart_crealm (shishi_handle,
-				    shishi_tkt_encticketpart (shishi_ap_tkt
-							      (auth_handle)),
-				    &cnamerealm, &cnamerealmlen);
+  rc = shishi_encticketpart_clientrealm (
+		shishi_handle,
+		shishi_tkt_encticketpart (shishi_ap_tkt (auth_handle)),
+		&cnamerealm, &cnamerealmlen);
   if (rc != SHISHI_OK)
     {
       snprintf (errbuf, errbuflen, "Error getting authenticator name: %s\n",
@@ -492,6 +503,11 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 	  cnamerealm ? cnamerealm : ""));
   free (cnamerealm);
   auth_finished (a, AUTH_USER);
+
+  /* Make sure that shishi_handle is still valid,
+   * it must not be released in auth_finish()!
+   * The server side will make reference to it
+   * later on.  */
 
 # ifdef ENCRYPTION
   if (enckey)
@@ -539,8 +555,6 @@ krb5shishi_is (TN_Authenticator * ap, unsigned char *data, int cnt)
 {
   int r = 0;
   char errbuf[512];
-
-  puts ("krb5shishi_is");
 
   if (cnt-- < 1)
     return;
@@ -596,8 +610,6 @@ krb5shishi_printsub (unsigned char *data, int cnt,
 {
   char *p;
   int i;
-
-  puts ("krb5shishi_printsub");
 
   buf[buflen - 1] = '\0';	/* make sure its NULL terminated */
   buflen -= 1;

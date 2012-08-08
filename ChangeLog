@@ -1,3 +1,33 @@
+2012-08-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnet: Support k5login authorization.
+
+	* libtelnet/misc.c (UserNameRequested): Assign
+	NULL, not naught.
+	* libtelnet/auth.c (authenticated): Likewise.
+	(authenticators) [SHISHI]: Remove two references
+	to krb5shishi_cleanup.
+	* libtelnet/shishi.c (krb5shishi_send): Check for
+	non-empty UserNameRequested as the very first action.
+	Add UserNameRequested to `HINT.client'.
+	(krb5shishi_reply): Call shishi_done(), and assign NULL
+	to `shishi_handle'.
+	(krb5shishi_status): Remove variables CNAME, CNAMELEN.
+	Replace call to shishi_encticketpart_client() with a call
+	to shishi_authorized_p().
+	(krb5shishi_is_auth): Check version of libshishi and call
+	shishi_cfg_authorizationtype_set() "k5login basic".
+	Replace a call to shishi_encticketpart_crealm() with a
+	call to shishi_encticketpart_clientrealm().
+	(krb5shishi_is): Remove debug print using puts().
+	(krb5shishi_printsub): Likewise.
+
+	rlogind, rshd: Support k5login authorization.
+
+	* libinetutils/shishi.c (get_auth): Check version
+	of libshishi and call shishi_cfg_authorizationtype_set()
+	with "k5login basic".
+
 2012-08-03  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind, rshd: Protocol exchange adherence.

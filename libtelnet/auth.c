@@ -118,7 +118,7 @@ extern rsaencpwd_printsub ();
 int auth_debug_mode = 0;
 static char *Name = "Noname";
 static int Server = 0;
-static TN_Authenticator *authenticated = 0;
+static TN_Authenticator *authenticated = NULL;
 static int authenticating = 0;
 static int validuser = 0;
 static unsigned char _auth_send_data[256];
@@ -154,7 +154,7 @@ TN_Authenticator authenticators[] = {
    krb5shishi_reply,
    krb5shishi_status,
    krb5shishi_printsub,
-   krb5shishi_cleanup},
+  },
   {AUTHTYPE_KERBEROS_V5, AUTH_WHO_CLIENT | AUTH_HOW_ONE_WAY,
    krb5shishi_init,
    krb5shishi_send,
@@ -162,7 +162,7 @@ TN_Authenticator authenticators[] = {
    krb5shishi_reply,
    krb5shishi_status,
    krb5shishi_printsub,
-   krb5shishi_cleanup},
+  },
 # endif
 # ifdef	KRB5
 #  ifdef	ENCRYPTION
@@ -245,7 +245,7 @@ auth_init (char *name, int server)
   Name = name;
 
   i_support = 0;
-  authenticated = 0;
+  authenticated = NULL;
   authenticating = 0;
   while (ap->type)
     {

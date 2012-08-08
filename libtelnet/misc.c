@@ -58,7 +58,7 @@
 
 char *RemoteHostName;
 char *LocalHostName;
-char *UserNameRequested = 0;
+char *UserNameRequested = NULL;
 
 void
 auth_encrypt_init (char *local, char *remote, char *name, int server)
@@ -66,7 +66,7 @@ auth_encrypt_init (char *local, char *remote, char *name, int server)
   RemoteHostName = remote;
   LocalHostName = local;
   (void) name;
-  (void) server;		/* shutup gcc */
+  (void) server;		/* silence gcc */
 #if defined AUTHENTICATION
   auth_init (name, server);
 #endif
@@ -74,7 +74,7 @@ auth_encrypt_init (char *local, char *remote, char *name, int server)
   encrypt_init (name, server);
 #endif /* ENCRYPTION */
   free (UserNameRequested);
-  UserNameRequested = 0;
+  UserNameRequested = NULL;
 }
 
 void
@@ -83,13 +83,13 @@ auth_encrypt_user (char *name)
   extern char *strdup (const char *);
 
   free (UserNameRequested);
-  UserNameRequested = name ? strdup (name) : 0;
+  UserNameRequested = name ? strdup (name) : NULL;
 }
 
 void
 auth_encrypt_connect (int cnt)
 {
-  (void) cnt;			/*shutup gcc */
+  (void) cnt;			/* silence gcc */
 }
 
 void
