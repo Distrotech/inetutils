@@ -303,7 +303,7 @@ for addr in $ADDRESSES; do
     for name in $FILELIST; do
 	EFFORTS=`expr $EFFORTS + 1`
 	rm -f $name
-	echo "get $name" | "$TFTP" ${VERBOSE+-v} "$addr" $PORT
+	echo "get $name" | "$TFTP" ${VERBOSE:+-v} "$addr" $PORT
 
 	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?
@@ -350,7 +350,7 @@ if $do_conf_reload; then
     for addr in $ADDRESSES; do
 	EFFORTS=`expr $EFFORTS + 1`
 	test -f "$name" && rm "$name"
-	echo "get $name" | "$TFTP" ${VERBOSE+-v} "$addr" $PORT
+	echo "get $name" | "$TFTP" ${VERBOSE:+-v} "$addr" $PORT
 	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?
 	if test $result -ne 0; then

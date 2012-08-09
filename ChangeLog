@@ -1,5 +1,10 @@
 2012-08-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* tests/tftp.sh: Use evaluation `${VERBOSE:+-v}'
+	to handle empty string uniformly.
+
+2012-08-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Make building successful on FreeBSD 9.0.
 
 	* paths (PATH_UTMP): Add `/var/run/utx.active'.
