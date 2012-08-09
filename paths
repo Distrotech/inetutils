@@ -83,9 +83,9 @@ PATH_FTPDPID	$(localstatedir)/run/ftpd.pid
 PATH_INETDCONF	$(sysconfdir)/inetd.conf
 PATH_INETDDIR	$(sysconfdir)/inetd.d
 PATH_INETDPID	$(localstatedir)/run/inetd.pid
-PATH_UTMP	<utmp.h> <utmp.h>:UTMP_FILE $(localstatedir)/run/utmp search:utmp:/var/run:/var/adm:/etc
+PATH_UTMP	<utmp.h> <utmp.h>:UTMP_FILE $(localstatedir)/run/utmp search:utmp:/var/run:/var/adm:/etc "/var/run/utx.active"
 PATH_UTMPX	<utmpx.h> <utmpx.h>:UTMPX_FILE $(localstatedir)/run/utmpx search:utmpx:/var/run:/var/adm:/etc "/var/run/utx.active"
-PATH_WTMP	<utmp.h> <utmp.h>:WTMP_FILE $(localstatedir)/log/wtmp search:wtmp:/var/log:/var/adm:/etc
+PATH_WTMP	<utmp.h> <utmp.h>:WTMP_FILE $(localstatedir)/log/wtmp search:wtmp:/var/log:/var/adm:/etc "/var/log/utx.log"
 PATH_WTMPX	<utmpx.h> <utmpx.h>:WTMPX_FILE $(localstatedir)/log/wtmpx search:wtmpx:/var/log:/var/adm:/etc "/var/log/utx.log"
 PATH_LASTLOG	<utmp.h> $(localstatedir)/log/lastlog search:lastlog:/var/log:/var/adm:/etc "/var/log/utx.lastlogin"
 PATH_LOG	<syslog.h> /dev/log

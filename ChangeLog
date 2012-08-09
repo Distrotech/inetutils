@@ -1,3 +1,13 @@
+2012-08-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Make building successful on FreeBSD 9.0.
+
+	* paths (PATH_UTMP): Add `/var/run/utx.active'.
+	(PATH_WTMP): Add `/var/log/utx.log'.
+	* src/Makefile.am (AM_CPPFLAGS): Add $(PATHDEF_UTMPX).
+	* talkd/Makefile.am (AM_CPPFLAGS): Add $(PATHDEF_UTMP)
+	and $(PATHDEF_UTMPX).
+
 2012-08-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnet: Support k5login authorization.
