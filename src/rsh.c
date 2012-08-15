@@ -283,9 +283,13 @@ main (int argc, char **argv)
   argc -= index;
   argv += index;
 
+#if defined KERBEROS || defined SHISHI
+  if (!use_kerberos && geteuid ())
+#else
   /* We must be setuid root.  */
   if (geteuid ())
-    error (EXIT_FAILURE, 0, "must be setuid root.\n");
+#endif
+    error (EXIT_FAILURE, 0, "must be setuid root.");
 
   if (!(pw = getpwuid (uid = getuid ())))
     error (EXIT_FAILURE, 0, "unknown user id");

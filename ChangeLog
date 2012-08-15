@@ -1,5 +1,12 @@
 2012-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* src/rcp.c (main) [KERBEROS || SHISHI]: Add `!use_kerberos'
+	when checking for effective root UID.
+	* src/rlogin.c (main): Likewise.
+	* src/rsh.c (main): Likewise.
+
+2012-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rcp, rlogin, rsh: Host names with instances.
 
 	* libinetutils/kcmd.c (kcmd) [SHISHI]: New variable HOST.

@@ -363,9 +363,13 @@ main (int argc, char *argv[])
 
   argc -= index;
 
+#if defined KERBEROS || defined SHISHI
+  if (!use_kerberos && geteuid ())
+#else
   /* We must be uid root to access rcmd().  */
   if (geteuid ())
-    error (EXIT_FAILURE, 0, "must be setuid root.\n");
+#endif
+    error (EXIT_FAILURE, 0, "must be setuid root.");
 
   /* Get the name of the user invoking us: the client-user-name.  */
   if (!(pw = getpwuid (uid = getuid ())))

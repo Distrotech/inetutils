@@ -357,11 +357,13 @@ main (int argc, char *argv[])
     error (EXIT_FAILURE, 0, "encryption must use Kerberos");
 #endif
 
-#if !defined KERBEROS && !defined SHISHI
+#if defined KERBEROS || defined SHISHI
+  if (!use_kerberos && geteuid ())
+#else
   /* We must be setuid root.  */
   if (geteuid ())
-    error (EXIT_FAILURE, 0, "must be setuid root.");
 #endif
+    error (EXIT_FAILURE, 0, "must be setuid root.");
 
   /* Command to be executed on remote system using "rsh". */
 #if defined KERBEROS || defined SHISHI
