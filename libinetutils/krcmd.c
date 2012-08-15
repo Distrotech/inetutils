@@ -213,7 +213,8 @@ krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
 
   if (err > SHISHI_OK)
     {
-      fprintf (stderr, "krcmd_mutual: %s\n", "error");
+      fprintf (stderr, "krcmd_mutual: error %d, %s\n",
+	       err, shishi_strerror (err));
       return (-1);
     }
 

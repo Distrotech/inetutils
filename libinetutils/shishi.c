@@ -40,7 +40,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   Shishi *h;
 
   int rc;
-  char *out;
+  char *out, *p;
   size_t outlen;
   int krb5len, msglen;
   char *tmpserver;
@@ -93,8 +93,15 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   read (sock, &auth, 1);
   if (auth)
     {
-      read (sock, errormsg, 100);
-      errormsg[100] = '\0';
+      ssize_t n;
+
+      errormsg[0] = '\0';
+      n = read (sock, errormsg, sizeof (errormsg) - 1);
+
+      if (n >= 0 && n < sizeof (errormsg))
+	errormsg[n] = '\0';
+      else
+	errormsg[sizeof (errormsg) -1] = '\0';
 
       fprintf (stderr, "Error during server authentication : %s\n", errormsg);
       return SHISHI_VERIFY_FAILED;
@@ -116,9 +123,12 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
       perror ("shishi_auth()");
       return SHISHI_TOO_SMALL_BUFFER;
     }
-  strcpy (tmpserver, SERVICE);
-  strcat (tmpserver, "/");
-  strcat (tmpserver, sname);
+
+  p = strchr (sname, '/');
+  if (p && (p != sname))
+    strcpy (tmpserver, sname);	/* Non-empty prefix.  */
+  else
+    sprintf (tmpserver, "%s/%s", SERVICE, sname + (p ? 1 : 0));
 
   hint.client = (char *) *cname;
   hint.server = (char *) tmpserver;
@@ -264,7 +274,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   char krb5kcmd1[] = "KCMDV0.1";
   char krb5kcmd2[] = "KCMDV0.2";
   int auth_correct = 0;
-  char *servername;
+  char *servername, *server, *realm;
 
   *err_msg = NULL;
   /* Get key for the server. */
@@ -280,18 +290,39 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (rc != SHISHI_OK)
     return rc;
 
-  if (srvname && *srvname)
+  rc = shishi_parse_name (*handle, srvname, &server, &realm);
+  if (rc != SHISHI_OK)
     {
-      servername = malloc (sizeof (SERVICE) + strlen (srvname) + 2);
+      *err_msg = shishi_strerror (rc);
+      return rc;
+    }
+
+  if (server && *server)
+    {
+      char *p;
+
+      servername = malloc (sizeof (SERVICE) + strlen (server) + 2);
       if (!servername)
 	{
 	  *err_msg = "Not enough memory";
 	  return SHISHI_TOO_SMALL_BUFFER;
 	}
-      sprintf (servername, "%s/%s", SERVICE, srvname);
+
+      p = strchr (server, '/');
+      if (p && (p != server))
+	sprintf (servername, "%s", server);	/* Non-empty prefix.  */
+      else
+	sprintf (servername, "%s/%s", SERVICE,
+		 server + (p ? 1 : 0));	/* Remove initial slash.  */
     }
   else
     servername = shishi_server_for_local_service (*handle, SERVICE);
+
+  if (realm && *realm)
+    shishi_realm_default_set (*handle, realm);
+
+  free (server);
+  free (realm);
 
   /* Enable use of `~/.k5login'.  */
   if (shishi_check_version ("1.0.2"))	/* Faulty in version 1.0.1.  */

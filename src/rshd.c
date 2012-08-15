@@ -218,13 +218,13 @@ static struct argp_option options[] = {
   { "log-sessions", 'L', NULL, 0,
     "log successful logins" },
 #if defined KERBEROS || defined SHISHI
-  /* FIXME: The option semantics does not match that of others r* utilities */
+  /* FIXME: The option semantics does not match that of other r* utilities */
   { "kerberos", 'k', NULL, 0,
     "use kerberos authentication" },
   /* FIXME: Option name is misleading */
   { "vacuous", 'v', NULL, 0,
     "fail for non-Kerberos authentication" },
-  { "servername", 'S', "NAME", 0,
+  { "server-principal", 'S', "NAME", 0,
     "set Kerberos server name, overriding canonical hostname" },
 #endif /* KERBEROS */
   { NULL }
@@ -832,7 +832,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       if (rc != SHISHI_OK)
 	{
 	  rshd_error ("Kerberos authentication failure: %s\n",
-		      err_msg ? err_msg : shishi_strerror (rc));
+		      (err_msg && *err_msg) ? err_msg : shishi_strerror (rc));
 	  exit (EXIT_FAILURE);
 	}
     }

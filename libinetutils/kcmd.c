@@ -127,7 +127,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   struct hostent *hp;
 # endif
   int rc;
-  char *host_save;
+  char *host_save, *host;
   int status;
 
 # if defined SHISHI
@@ -136,6 +136,13 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
   pid = getpid ();
 
+  /* Extract Kerberos instance name.  */
+  host = strchr (*ahost, '/');
+  if (host)
+    ++host;
+  else
+    host = *ahost;
+
 # ifdef HAVE_DECL_GETADDRINFO
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = af;
@@ -143,10 +150,10 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   hints.ai_flags = AI_CANONNAME;
   snprintf (portstr, sizeof (portstr), "%hu", ntohs (rport));
 
-  rc = getaddrinfo (*ahost, portstr, &hints, &res);
+  rc = getaddrinfo (host, portstr, &hints, &res);
   if (rc)
     {
-      fprintf (stderr, "kcmd: host %s: %s\n", *ahost, gai_strerror (rc));
+      fprintf (stderr, "kcmd: host %s: %s\n", host, gai_strerror (rc));
       return (-1);
     }
 
@@ -173,10 +180,10 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # else /* !HAVE_DECL_GETADDRINFO */
   /* Often the following rejects non-IPv4.
    * This is dependent on system implementation.  */
-  hp = gethostbyname (*ahost);
+  hp = gethostbyname (host);
   if (hp == NULL)
     {
-      /* fprintf(stderr, "%s: unknown host\n", *ahost); */
+      /* fprintf(stderr, "%s: unknown host\n", host); */
       return (-1);
     }
 
@@ -186,7 +193,24 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   strcpy (host_save, hp->h_name);
 # endif /* !HAVE_DECL_GETADDRINFO */
 
-  *ahost = host_save;
+  if (host == *ahost)
+    *ahost = host_save;		/* Simple host name string.  */
+  else
+    {
+      /* Server name `*ahost' is a Kerberized name.  */
+      char *p;
+
+      p = malloc ((host - *ahost) + strlen (host_save) + 1);
+      if (p == NULL)
+	return (-1);
+
+      /* Extract prefix from `*ahost', excluding slash,
+       * and concatenate the host's canonical name, but
+       * preceeded by a slash.
+       */
+      sprintf (p, "%.*s/%s", host - *ahost - 1, *ahost, host_save);
+      *ahost = p;
+    }
 
 # ifdef KERBEROS
   /* If realm is null, look up from table */

@@ -178,7 +178,7 @@ int noescape;
 char * host = NULL;
 char * user = NULL;
 unsigned char escapechar = '~';
-#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
 sa_family_t family = AF_UNSPEC;
 #endif
 
@@ -238,14 +238,14 @@ static struct argp_option argp_options[] = {
   {"user", 'l', "USER", 0, "run as USER on the remote system", GRP+1},
 #if defined KERBEROS || defined SHISHI
 # ifdef ENCRYPTION
-  {"encrypt", 'x', NULL, 0, "turns on DES encryption for all data passed via "
+  {"encrypt", 'x', NULL, 0, "turns on encryption for all data passed via "
    "the rlogin session", GRP+1},
 # endif
   {"kerberos", 'K', NULL, 0, "turns off all Kerberos authentication", GRP+1},
   {"realm", 'k', "REALM", 0, "obtain tickets for the remote host in REALM "
    "realm instead of the remote's realm", GRP+1},
-#endif
-#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+#endif /* KERBEROS || SHISHI */
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
   { "ipv4", '4', NULL, 0, "use only IPv4" },
   { "ipv6", '6', NULL, 0, "use only IPv6" },
 #endif
@@ -258,7 +258,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
   switch (key)
     {
-#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
     case '4':
       family = AF_INET;
       break;
@@ -449,6 +449,7 @@ try_connect:
   if (use_kerberos)
     {
       int krb_errno = 0;
+# if defined KERBEROS
       struct hostent *hp;
 
       /* Fully qualified hostname (needed for krb_realmofhost).  */
@@ -456,7 +457,6 @@ try_connect:
       if (hp != NULL && !(host = strdup (hp->h_name)))
 	error (EXIT_FAILURE, errno, "strdup");
 
-# if defined KERBEROS
       rem = KSUCCESS;
       errno = 0;
       if (dest_realm == NULL)
@@ -546,25 +546,32 @@ try_connect:
       if (rem < 0)
 	{
 	  use_kerberos = 0;
+	  if (krb_errno == ECONNREFUSED)
+	    warning ("remote host doesn't support Kerberos");
+	  else if (krb_errno == ENOENT)
+	    error (EXIT_FAILURE, 0, "Can't provide Kerberos auth data.");
+	  else
+	    error (EXIT_FAILURE, 0, "Kerberos authentication failed.");
+
 	  sp = getservbyname ("login", "tcp");
 	  if (sp == NULL)
 	    error (EXIT_FAILURE, 0, "unknown service login/tcp.");
-	  if (krb_errno == ECONNREFUSED)
-	    warning ("remote host doesn't support Kerberos");
-	  if (krb_errno == ENOENT)
-	    warning ("can't provide Kerberos auth data");
 	  goto try_connect;
 	}
     }
 
   else
     {
+      char *p = strchr (host, '/');
+
 # ifdef ENCRYPTION
       if (doencrypt)
 	error (EXIT_FAILURE, 0, "the -x flag requires Kerberos authentication.");
-# endif	/* CRYPT */
+# endif	/* ENCRYPTION */
       if (!user)
 	user = pw->pw_name;
+      if (p)
+	host = ++p;	/* Skip prefix like `host/'.  */
 
 # ifdef WITH_ORCMD_AF
       rem = orcmd_af (&host, sp->s_port, pw->pw_name, user, term, 0, family);

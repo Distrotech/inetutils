@@ -1,3 +1,63 @@
+2012-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp, rlogin, rsh: Host names with instances.
+
+	* libinetutils/kcmd.c (kcmd) [SHISHI]: New variable HOST.
+	Whenever `*ahost' contains a slash, separate the true host
+	name into HOST.  Use HOST in resolver, and reconstruct
+	Kerberos principal as `*ahost' afterwards.
+	* libinetutils/shishi.c (shishi_auth): New variable P.
+	Check `sname' for a slash in principal name, and construct
+	TMPSERVER with prefix "host/" if needed.
+	* src/rcp.c (kerberos) <no Kerberos service>: New variable P.
+	Strip prefix like `host/' from HOST.
+	* src/rlogin.c (main): Likewise.
+	* src/rsh.c (main): Likewise.
+
+	rlogind, rshd: Qualified Kerberos server names.
+
+	* libinetutils/shishi.c (get_auth): New variables SERVER
+	and REALM.  Decompose `srvname' using shishi_parse_name().
+	Construct SERVERNAME with prefix "host/" if needed.  Use
+	shishi_realm_default_set() to set realm if present.
+	* src/rlogind.c (options) [KERBEROS || SHISHI]: Rename
+	long option name `--servername' as `--server-principal'.
+	* src/rshd.c (options) [KERBEROS || SHISHI]: Likewise.
+
+	* src/rlogin.c (main) <try_connect> [KERBEROS]: Declare HP
+	and use gethostbyname() only for KERBEROS.
+	* src/rsh.c (main) [KERBEROS]: Likewise.
+
+	rcp, rlogin, rsh: Aborting Kerberized services.
+
+	* src/rcp.c (kerberos) [KERBEROS || SHISHI]: Fail with error
+	if Kerberos authentication fails.  Degrade to plain service
+	only on ECONNREFUSED.  Resolve service `shell/tcp' only in
+	this latter case.
+	* src/rlogin.c (main) [KERBEROS || SHISHI]: Likewise.
+	* src/rsh.c (main) [KERBEROS || SHISHI]: Likewise.
+
+	Error message handling.
+
+	* libinetutils/krcmd.c (krcmd_mutual) [SHISHI]: Report
+	errors using shishi_strerror().
+	* libinetutils/shishi.c (shishi_auth) <failed verification>:
+	Write a null character at the end of the received error
+	message, not at buffer end.
+	* src/rshd.c (doit) [SHISHI] <authentication failure>:
+	Check `err_msg && *err_msg' before use in rshd_error().
+
+	Conditionals for extra features.
+
+	* src/rcp.c (family) [WITH_ORCMD_AF || WITH_RCMD_AF || SHISHI]:
+	Add SHISHI to conditional.
+	(options, parse_opt) [WITH_ORCMD_AF || WITH_RCMD_AF || SHISHI]:
+	Add SHISHI as provider of `--ipv4' and `--ipv6'.
+	* src/rlogin.c: Likewise.
+	* src/rsh.c: Likewise.
+	(options) [(KERBEROS || SHISHI) && ENCRYPTION]: Condition
+	`-x/--encrypt' on ENCRYPTION.
+
 2012-08-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/tftp.sh: Use evaluation `${VERBOSE:+-v}'

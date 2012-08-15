@@ -294,7 +294,7 @@ static struct argp_option options[] = {
 #if defined KERBEROS || defined SHISHI
   { "kerberos", 'k', NULL, 0,
     "use kerberos IV/V authentication" },
-  { "servername", 'S', "NAME", 0,
+  { "server-principal", 'S', "NAME", 0,
     "set Kerberos server name, overriding canonical hostname" },
 #endif
 #if defined ENCRYPTION
