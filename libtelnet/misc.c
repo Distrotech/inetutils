@@ -59,12 +59,15 @@
 char *RemoteHostName;
 char *LocalHostName;
 char *UserNameRequested = NULL;
+char *ServerPrincipal;
 
 void
-auth_encrypt_init (char *local, char *remote, char *name, int server)
+auth_encrypt_init (char *local, char *remote, char *principal,
+		   char *name, int server)
 {
   RemoteHostName = remote;
   LocalHostName = local;
+  ServerPrincipal = principal;
   (void) name;
   (void) server;		/* silence gcc */
 #if defined AUTHENTICATION

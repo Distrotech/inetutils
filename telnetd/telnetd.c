@@ -65,6 +65,9 @@ int debug_tcp = 0;		/* Should the SO_DEBUG be set? */
 
 int net;			/* Network connection socket */
 int pty;			/* PTY master descriptor */
+#if defined AUTHENTICATION || defined ENCRYPTION
+char *principal = NULL;
+#endif
 char *remote_hostname;
 char *local_hostname;
 char *user_name;
@@ -110,6 +113,11 @@ static struct argp_option argp_options[] = {
     "set line mode" },
   { "no-keepalive", 'n', NULL, 0,
     "disable TCP keep-alives" },
+#if defined AUTHENTICATION || defined ENCRYPTION
+  { "server-principal", 'S', "NAME", 0,
+    "set Kerberos principal name for this server instance, "
+    "with or without explicit realm" },
+#endif
   { "reverse-lookup", 'U', NULL, 0,
     "refuse connections from addresses that "
     "cannot be mapped back into a symbolic name" },
@@ -150,6 +158,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'n':
       keepalive = 0;
       break;
+
+#if defined AUTHENTICATION || defined ENCRYPTION
+    case 'S':
+      principal = arg;
+      break;
+#endif
 
     case 'U':
       reverse_lookup = 1;
@@ -448,7 +462,8 @@ telnetd_setup (int fd)
 
   local_hostname = localhost ();
 #if defined AUTHENTICATION || defined ENCRYPTION
-  auth_encrypt_init (remote_hostname, local_hostname, "TELNETD", 1);
+  auth_encrypt_init (remote_hostname, local_hostname, principal,
+		     "TELNETD", 1);
 #endif
 
   io_setup ();

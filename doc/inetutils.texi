@@ -3755,6 +3755,18 @@ The only recognised value is otherwise @samp{nokludge}.
 @opindex --no-keepalive
 Disable TCP keep-alives.
 
+@item -S @var{principal}
+@itemx --server-principal=@var{principal}
+@opindex -S
+@opindex --server-principal
+Set principal name for the server, to be used in Kerberos
+authentication.  The value @var{principal} can be set
+to provide full specification like @samp{srv.local@@REALM}
+and @samp{tnt/localhost@@REALM}, where the first uses the
+standard prefix `host/'. Or @var{principal} can override
+default settings in part only, like @samp{srv.local},
+@samp{tnt/srv.local}, or @samp{@@REALM}.
+
 @item -U
 @itemx --reverse-lookup
 @opindex -U

@@ -50,6 +50,7 @@
 extern char *UserNameRequested;
 extern char *LocalHostName;
 extern char *RemoteHostName;
+extern char *ServerPrincipal;
 extern int ConnectedCount;
 extern int ReservedPort;
 

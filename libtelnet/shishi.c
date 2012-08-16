@@ -306,7 +306,7 @@ krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
     {
     case KRB_REJECT:
       if (cnt > 0)
-	printf ("[ Kerberos V5 refuses authentication because %.*s ]\r\n",
+	printf ("[ Kerberos V5 rejects authentication: %.*s ]\r\n",
 		cnt, data);
       else
 	printf ("[ Kerberos V5 refuses authentication ]\r\n");
@@ -402,7 +402,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 {
   Shishi_key *key, *key2;
   int rc;
-  char *cnamerealm, *server;
+  char *cnamerealm, *server = NULL, *realm = NULL;
   int cnamerealmlen;
 # ifdef ENCRYPTION
   Session_Key skey;
@@ -427,6 +427,78 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 	}
     }
 
+  if (ServerPrincipal && *ServerPrincipal)
+    {
+      rc = shishi_parse_name (shishi_handle, ServerPrincipal,
+			      &server, &realm);
+      if (rc != SHISHI_OK)
+	{
+	  snprintf (errbuf, errbuflen,
+		    "Cannot parse server principal name: %s",
+		    shishi_strerror (rc));
+	  return 1;
+	}
+      if (realm)
+	shishi_realm_default_set (shishi_handle, realm);
+
+      /* Reclaim an empty server part.  */
+      if (server && !*server)
+	{
+	  free (server);
+	  server = NULL;
+	}
+    }
+
+  if (!server)
+    {
+      server = malloc (strlen ("host/") + strlen (LocalHostName) + 1);
+      if (server)
+	sprintf (server, "host/%s", LocalHostName);
+    }
+
+  if (server)
+    {
+      /* Two possible action on `server':
+       *   "srv.local"    :  rewrite as "host/srv.local"
+       *   "tn/srv.local" :  accept as is
+       */
+      char *p = strchr (server, '/');
+
+      if (!p)
+	{
+	  p = server;
+	  server = malloc (strlen ("host/") + strlen (p) + 1);
+	  if (!server)
+	    {
+	      free (p);		/* This old `server'.  */
+	      snprintf (errbuf, errbuflen,
+			"Cannot allocate memory for server name");
+	      return 1;
+	    }
+	  sprintf (server, "host/%s", p);
+	}
+
+      if (realm)
+	key = shishi_hostkeys_for_serverrealm (shishi_handle,
+					       server, realm);
+      else
+	key = shishi_hostkeys_for_server (shishi_handle, server);
+
+      free (server);
+    }
+  else
+    key = shishi_hostkeys_for_localservicerealm (shishi_handle,
+						 "host", realm);
+
+  free (realm);
+
+  if (key == NULL)
+    {
+      snprintf (errbuf, errbuflen, "Could not find key: %s",
+		shishi_error (shishi_handle));
+      return 1;
+    }
+
   rc = shishi_ap (shishi_handle, &auth_handle);
   if (rc != SHISHI_OK)
     {
@@ -445,27 +517,10 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
       return 1;
     }
 
-  server = malloc (strlen ("host/") + strlen (LocalHostName) + 1);
-  if (server)
-    {
-      sprintf (server, "host/%s", LocalHostName);
-      key = shishi_hostkeys_for_server (shishi_handle, server);
-      free (server);
-    }
-  else
-    key = shishi_hostkeys_for_localservice (shishi_handle, "host");
-
-  if (key == NULL)
-    {
-      snprintf (errbuf, errbuflen, "Could not find key:\n%s\n",
-		shishi_error (shishi_handle));
-      return 1;
-    }
-
   rc = shishi_ap_req_process (auth_handle, key);
   if (rc != SHISHI_OK)
     {
-      snprintf (errbuf, errbuflen, "Could not process AP-REQ: %s\n",
+      snprintf (errbuf, errbuflen, "Could not process AP-REQ: %s",
 		shishi_strerror (rc));
       return 1;
     }
@@ -479,7 +534,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
       rc = shishi_ap_rep_der (auth_handle, &der, &derlen);
       if (rc != SHISHI_OK)
 	{
-	  snprintf (errbuf, errbuflen, "Error DER encoding aprep: %s\n",
+	  snprintf (errbuf, errbuflen, "Error DER encoding aprep: %s",
 		    shishi_strerror (rc));
 	  return 1;
 	}
@@ -494,7 +549,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 		&cnamerealm, &cnamerealmlen);
   if (rc != SHISHI_OK)
     {
-      snprintf (errbuf, errbuflen, "Error getting authenticator name: %s\n",
+      snprintf (errbuf, errbuflen, "Error getting authenticator name: %s",
 		shishi_strerror (rc));
       return 1;
     }

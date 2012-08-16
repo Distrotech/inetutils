@@ -1,3 +1,30 @@
+2012-08-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Configurable principal name.
+
+	* libtelnet/misc.c (ServerPrincipal): New variable.
+	(auth_encrypt_init): Add `char *principal' to signature.
+	Assign value to ServerPrincipal.
+	* libtelnet/misc.h (ServerPrincipal): New external variable.
+	* libtelnet/misc-proto.h (auth_encrypt_init): Updated.
+	* libtelnet/shishi.c: Prune newlines in error messages.
+	(krb5shishi_is_auth): New variable REALM.  Delay shishi_ap()
+	and shishi_ap_req_der_set() until after complete setup.
+	Extract server name and realm from ServerPrincipal and
+	override defaults accordingly.  Use variant calls to access
+	realm also, shishi_hostkeys_for_serverrealm() and
+	shishi_hostkeys_for_localservicerealm().
+
+	* telnet/telnet.c (telnet): Call auth_encrypt_init()
+	with `principal = NULL'.
+	* telnetd/telnetd.c (principal) [AUTHENTICATION || ENCRYPTION]:
+	New variable.
+	(argp_options) [AUTHENTICATION || ENCRYPTION]: New option
+	`-S/--server-principal'.
+	(parse_opt) [AUTHENTICATION || ENCRYPTION] <'S'>: New case.
+	(telnetd_setup) [AUTHENTICATION || ENCRYPTION]: Pass
+	`principal' in call to auth_encrypt_init().
+
 2012-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* src/rcp.c (main) [KERBEROS || SHISHI]: Add `!use_kerberos'

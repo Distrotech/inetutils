@@ -2413,7 +2413,7 @@ telnet (char *user)
     if (!local_host)
       local_host = localhost ();
 
-    auth_encrypt_init (local_host, hostname, "TELNET", 0);
+    auth_encrypt_init (local_host, hostname, NULL, "TELNET", 0);
     auth_encrypt_user (user);
   }
 #endif /* defined(AUTHENTICATION) || defined(ENCRYPTION)  */
