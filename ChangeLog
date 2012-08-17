@@ -1,3 +1,13 @@
+2012-08-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnet: Selectable principal name.
+
+	* libtelnet/shishi.c (krb5shishi_send): Add a prefix
+	`host/' to RemoteHostName only if a prefix is missing.
+	* telnet/commands.c (tn) [AUTHENTICATION || ENCRYPTION]:
+	Strip off any prefix from HOSTP before resolving address.
+	[IPV6]: Improve error message at failed resolution.
+
 2012-08-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnetd: Configurable principal name.

@@ -173,7 +173,13 @@ krb5shishi_send (TN_Authenticator * ap)
       DEBUG (("telnet: Kerberos V5: shishi memory allocation failed\r\n"));
       return 0;
     }
-  sprintf (tmp, "host/%s", RemoteHostName);
+
+  /* Check for Kerberos prefix in principal name.  */
+  if (strchr (RemoteHostName, '/'))
+    strcpy (tmp, RemoteHostName);
+  else
+    sprintf (tmp, "host/%s", RemoteHostName);
+
   memset (&hint, 0, sizeof (hint));
   hint.server = tmp;
   hint.client = UserNameRequested;

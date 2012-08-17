@@ -2555,6 +2555,18 @@ tn (int argc, char *argv[])
       return 0;
     }
 
+#if defined AUTHENTICATION || defined ENCRYPTION
+  {
+    /* Extract instance name of server, eliminating
+     * the Kerberos principal prefix.
+     */
+    char *p = strchr (hostp, '/');
+
+    if (p)
+      hostp = ++p;
+  }
+#endif /* AUTHENTICATION || ENCRYPTION */
+
 #ifdef IPV6
   hints.ai_socktype = SOCK_STREAM;
 
@@ -2568,7 +2580,7 @@ tn (int argc, char *argv[])
       else
 	errmsg = gai_strerror (err);
 
-      printf ("%s/%s: lookup failure: %s\n", hostp, portp, errmsg);
+      printf ("Server lookup failure:  %s:%s, %s\n", hostp, portp, errmsg);
       return 0;
     }
 
