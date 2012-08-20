@@ -28,7 +28,7 @@
 # include <unistd.h>
 # include <shishi_def.h>
 
-/* shishi authentication */
+/* shishi authentication, client side */
 int
 shishi_auth (Shishi ** handle, int verbose, char **cname,
 	     const char *sname, int sock, char *cmd,
@@ -129,6 +129,19 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
     strcpy (tmpserver, sname);	/* Non-empty prefix.  */
   else
     sprintf (tmpserver, "%s/%s", SERVICE, sname + (p ? 1 : 0));
+
+  /* Retrieve realm assigned to this server as per configuration,
+   * unless an explicit domain was passed in the call.
+   */
+  if (!realm)
+    {
+      if (!p)
+	p = sname;
+      else if (*p == '/')
+	++p;
+
+      shishi_realm_default_set (h, shishi_realm_for_server (h, p));
+    }
 
   hint.client = (char *) *cname;
   hint.server = (char *) tmpserver;
@@ -254,6 +267,7 @@ senderror (int s, char type, char *buf)
   write (s, buf, strlen (buf));
 }
 
+/* shishi authentication, server side */
 int
 get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	  Shishi_key ** enckey, const char **err_msg, int *protoversion,

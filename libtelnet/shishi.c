@@ -186,6 +186,19 @@ krb5shishi_send (TN_Authenticator * ap)
 
   if (dest_realm && *dest_realm)
     shishi_realm_default_set (shishi_handle, dest_realm);
+  else
+    {
+      /* Retrieve realm assigned to this server as per configuration.  */
+      char *p = strchr (RemoteHostName, '/');
+
+      if (p)
+	++p;
+      else
+	p = RemoteHostName;
+
+      shishi_realm_default_set (shishi_handle,
+				shishi_realm_for_server (shishi_handle, p));
+    }
 
   tkt = shishi_tkts_get (shishi_tkts_default (shishi_handle), &hint);
   free (tmp);

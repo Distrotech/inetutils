@@ -1,3 +1,13 @@
+2012-08-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Server realm pairing: Let server name determine
+	realm to be contacted, as per library configuration.
+
+	* libinetutils/shishi.c (shishi_auth): Whenever realm
+	is not explicit, call shishi_realm_for_server() to get
+	a usable realm; pass on to shishi_realm_default_set().
+	* libtelnet/shishi.c (krb5shishi_send): Likewise.
+
 2012-08-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnet: Selectable principal name.
