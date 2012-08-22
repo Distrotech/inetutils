@@ -105,9 +105,9 @@ static unsigned char subbuffer[SUBBUFSIZE], *subpointer, *subend;	/* buffer for 
 #define SB_EOF()	(subpointer >= subend)
 #define SB_LEN()	(subend - subpointer)
 
-char options[256];		/* The combined options */
-char do_dont_resp[256];
-char will_wont_resp[256];
+char options[256] = { 0 };		/* The combined options */
+char do_dont_resp[256] = { 0 };
+char will_wont_resp[256] = { 0 };
 
 int eight = 0, autologin = 0,	/* Autologin anyone? */
   skiprc = 0, connected, showoptions, In3270,	/* Are we in 3270 mode? */
@@ -189,7 +189,6 @@ init_telnet (void)
   env_init ();
 
   SB_CLEAR ();
-  ClearArray (options);
 
   connected = In3270 = ISend = localflow = donebinarytoggle = 0;
 #if defined AUTHENTICATION || defined ENCRYPTION
