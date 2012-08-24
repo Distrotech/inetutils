@@ -402,21 +402,23 @@ pty_read (void)
 void
 io_drain (void)
 {
+  fd_set rfds;
+
   DEBUG (debug_report, 1, debug_output_data ("td: ttloop\r\n"));
   if (nfrontp - nbackp > 0)
     netflush ();
 
-again:
+  FD_ZERO(&rfds);
+  FD_SET(net, &rfds);
+  if (1 != select(net + 1, &rfds, NULL, NULL, NULL))
+    {
+      syslog (LOG_INFO, "ttloop:  select: %m\n");
+      exit (EXIT_FAILURE);
+    }
+
   ncc = read (net, netibuf, sizeof netibuf);
   if (ncc < 0)
     {
-      if (errno == EAGAIN)
-	{
-	  /*
-	   * syslog (LOG_INFO, "ttloop: retrying");
-	   */
-	  goto again;
-	}
       syslog (LOG_INFO, "ttloop:  read: %m\n");
       exit (EXIT_FAILURE);
     }

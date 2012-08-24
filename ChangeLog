@@ -1,3 +1,8 @@
+2012-08-24  Petr Malát  <oss@malat.biz>  (tiny change)
+
+	* telnetd/utility.c (io_drain): New variable rfds.
+	(io_drain): Use select to wait for data to be available.
+
 2012-08-22  Petr Malát  <oss@malat.biz>  (tiny change)
 
 	* telnet/telnet.c (options, do_dont_resp, will_wont_resp):
