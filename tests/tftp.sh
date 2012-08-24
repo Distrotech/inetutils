@@ -36,7 +36,12 @@ $need_dd || exit_no_dd
 $need_mktemp || exit_no_mktemp
 $need_netstat || exit_no_netstat
 
-if [ "$VERBOSE" ]; then
+if test -z "${VERBOSE+set}"; then
+    silence=:
+    bucket='>/dev/null'
+fi
+
+if test -n "$VERBOSE"; then
     set -x
 fi
 
@@ -295,15 +300,15 @@ SUCCESSES=0
 EFFORTS=0
 RESULT=0
 
-echo "Looking into '`echo $ADDRESSES | tr "\n" ' '`'."
+$silence echo "Looking into '`echo $ADDRESSES | tr "\n" ' '`'."
 
 for addr in $ADDRESSES; do
-    echo "trying address '$addr'..." >&2
+    $silence echo "trying address '$addr'..." >&2
 
     for name in $FILELIST; do
 	EFFORTS=`expr $EFFORTS + 1`
 	rm -f $name
-	echo "get $name" | "$TFTP" ${VERBOSE:+-v} "$addr" $PORT
+	echo "get $name" | eval "$TFTP" ${VERBOSE:+-v} "$addr" $PORT $bucket
 
 	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?
@@ -335,10 +340,10 @@ locate_port $PROTO $PORT &&
 	locate_port $PROTO $PORT && do_conf_reload=false
     }
 
-echo
+$silence echo >&2
 
 if $do_conf_reload; then
-    echo >&2 'Testing altered and reloaded configuration.'
+    $silence echo >&2 'Testing altered and reloaded configuration.'
     write_conf ||
 	{
 	    echo >&2 'Could not rewrite configuration file for Inetd.  Failing.'
@@ -350,7 +355,7 @@ if $do_conf_reload; then
     for addr in $ADDRESSES; do
 	EFFORTS=`expr $EFFORTS + 1`
 	test -f "$name" && rm "$name"
-	echo "get $name" | "$TFTP" ${VERBOSE:+-v} "$addr" $PORT
+	echo "get $name" | eval "$TFTP" ${VERBOSE:+-v} "$addr" $PORT $bucket
 	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?
 	if test $result -ne 0; then
@@ -362,11 +367,12 @@ if $do_conf_reload; then
 	fi
     done
 else
-    echo >&2 'Informational: Inhibiting config reload test.'
+    $silence echo >&2 'Informational: Inhibiting config reload test.'
 fi
 
 # Minimal clean up. Main work in posttesting().
-echo
-echo Tests in $0 had $SUCCESSES successes out of $EFFORTS cases.
+$silence echo
+test $RESULT -eq 0 && $silence false \
+    || echo Test had $SUCCESSES successes out of $EFFORTS cases.
 
 exit $RESULT

@@ -1,3 +1,8 @@
+2012-08-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/tftp.sh (silence, bucket): New variables.
+	Make the script silent in standard case.
+
 2012-08-24  Petr Malát  <oss@malat.biz>  (tiny change)
 
 	* telnetd/utility.c (terminaltypeok): Use 2kb buffer, as suggested
