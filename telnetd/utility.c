@@ -845,7 +845,7 @@ getterminaltype (char *user_name)
 int
 terminaltypeok (char *s)
 {
-  char buf[1024];
+  char buf[2048];
 
   if (terminaltype == NULL)
     return 1;

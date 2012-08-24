@@ -1,5 +1,10 @@
 2012-08-24  Petr Malát  <oss@malat.biz>  (tiny change)
 
+	* telnetd/utility.c (terminaltypeok): Use 2kb buffer, as suggested
+	by GNU termcap manual.
+
+2012-08-24  Petr Malát  <oss@malat.biz>  (tiny change)
+
 	* telnetd/utility.c (io_drain): New variable rfds.
 	(io_drain): Use select to wait for data to be available.
 
