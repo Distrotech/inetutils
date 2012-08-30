@@ -58,6 +58,10 @@ fi
 
 . ./tools.sh
 
+if test -z "${VERBOSE+set}"; then
+    silence=:
+fi
+
 # Portability fix for SVR4
 PWD="${PWD:-`pwd`}"
 
@@ -274,7 +278,7 @@ rm -f "$OUT" "$PID" "$CONF"
 test `func_id_uid` = 0 || do_standard_port=false
 
 if test `func_id_uid` != 0 && test $PORT -le 1023; then
-    cat <<-EOT >&2
+    $silence cat <<-EOT >&2
 	WARNING!!  The preset port $PORT/$PROTO is not usable,
 	since you are underprivileged.  Now attempting
 	a randomised higher port.
@@ -503,7 +507,8 @@ if [ -n "${VERBOSE+yes}" ]; then
 	EOT
 fi
 
-echo "Registered $SUCCESSES successes out of $TESTCASES."
+test $SUCCESSES -eq $TESTCASES && $silence false \
+    || echo "Registered $SUCCESSES successes out of $TESTCASES."
 
 # Report incomplete test setup.
 $do_inet_socket ||
@@ -512,10 +517,10 @@ $do_standard_port ||
     echo 'NOTICE: Standard port test was not run.' >&1
 
 if [ "$SUCCESSES" -eq "$TESTCASES" ]; then
-    echo "Successful testing."
+    $silence echo "Successful testing."
     EXITCODE=0
 else
-    echo "Failing some tests."
+    $silence echo "Failing some tests."
 fi
 
 # Remove the daemon process.

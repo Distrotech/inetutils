@@ -1,3 +1,22 @@
+2012-08-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac: Add a final AC_MSG_NOTICE, containing a summary
+	of established compilation tasks.
+	(KERBEROS_VERSION): Assign values `krb4' and `krb5'.  Change test
+	values in case patterns.
+	(enable_authentication, enable_encryption) [-n KERBEROS_VERSION]:
+	Assign `yes' as default value in two separate tests.
+	<KERBEROS_VERSION == Shishi>: Have `--without-shishi' bypass
+	the feature checks for libshishi.  Set KERBEROS_VERSION empty
+	when AC_CHECK_LIB fails.  Empty INCAUTH, LIBAUTH, and also
+	KERBEROS_VERSION when AC_CHECK_HEADER fails.
+
+	* tests/Makefile.am (bin_PROGRAMS): Remove variable.
+	(check_PROGRAMS): New variable replaces bin_PROGRAMS, not added
+	to variable TESTS.
+
+	* tests/syslogd.sh (silence): New variable, decreases verbosity.
+
 2012-08-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/tftp.sh (silence, bucket): New variables.

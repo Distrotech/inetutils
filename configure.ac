@@ -39,12 +39,12 @@ AC_SUBST(inetdaemondir)
 AC_ARG_WITH([krb4],
             AC_HELP_STRING([--with-krb4[[=PATH]]],
                            [Compile with Kerberos IV]),
-            [KERBEROS_VERSION=4
+            [KERBEROS_VERSION=krb4
              KERBEROS_DIR=$withval])
 AC_ARG_WITH([krb5],
             AC_HELP_STRING([--with-krb5[[=PATH]]],
                            [Compile with Kerberos V]),
-            [KERBEROS_VERSION=5
+            [KERBEROS_VERSION=krb5
              KERBEROS_DIR=$withval])
 AC_ARG_WITH([shishi],
             AC_HELP_STRING([--with-shishi[[=PATH]]],
@@ -54,11 +54,11 @@ AC_ARG_WITH([shishi],
 
 AC_ARG_ENABLE([servers],
               AC_HELP_STRING([--disable-servers],
-                             [Don't compile servers]),
+                             [Do not compile servers]),
 	      , [enable_servers=yes])
 AC_ARG_ENABLE([clients],
               AC_HELP_STRING([--disable-clients],
-                             [Don't compile clients]),
+                             [Do not compile clients]),
 	      , [enable_clients=yes])
 AC_ARG_ENABLE([libls],
               AC_HELP_STRING([--disable-libls],
@@ -67,19 +67,17 @@ AC_ARG_ENABLE([libls],
 AC_ARG_ENABLE([encryption],
               AC_HELP_STRING([--enable-encryption],
                              [Enable encryption]),
-              [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-encryption is given but no Kerberos version is required])],
+              [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-encryption is given, but a Kerberos version is not provided])],
               [test -z "$KERBEROS_VERSION" && enable_encryption=no])
 AC_ARG_ENABLE([authentication],
               AC_HELP_STRING([--enable-authentication],
                              [Enable connection authentication]),
-              [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-authentication is given but no Kerberos version is required])],
+              [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-authentication is given, but a Kerberos version is not provided])],
 	      [test -z "$KERBEROS_VERSION" && enable_authentication=no])
 
 if test -n "$KERBEROS_VERSION"; then
-  if test -z "$enable_authentication$enable_encryption"; then
-    enable_authentication=yes
-    enable_encryption=yes
-  fi
+  test -n "$enable_authentication" || enable_authentication=yes
+  test -n "$enable_encryption" || enable_encryption=yes
 fi
 
 AC_ARG_WITH([wrap],
@@ -318,7 +316,7 @@ if test "$enable_encryption" = yes \
   AH_TEMPLATE(DES_ENCRYPTION, [FIXME])
 
   case $KERBEROS_VERSION in
-  4)
+  krb4)
     AC_CHECK_LIB(krb, krb_mk_req,
                  LIBAUTH=-lkrb
                   AC_DEFINE([KRB4]),
@@ -341,31 +339,38 @@ if test "$enable_encryption" = yes \
       && AC_DEFINE([DES_ENCRYPTION])
     fi
     ;;
-  5)
-    IU_CHECK_KRB5($KERBEROS_VERSION,$KERBEROS_DIR)
+  krb5)
+    IU_CHECK_KRB5([5],$KERBEROS_DIR)
     LIBAUTH="$KRB5_LIBS" # FIXME
-    INCAUTH=$KRB5_CFLAGS
+    INCAUTH="$KRB5_CFLAGS"
     if test ".$LIBAUTH" != . ;then
       AC_DEFINE([KERBEROS])
       AC_DEFINE([KRB5])
     fi
     ;;
   *)
-    if test x$KERBEROS_DIR != x; then
-      LIBAUTH=-L$KERBEROS_DIR/lib
-      INCAUTH=-I$KERBEROS_DIR/include
+    # Properly handle --without-shishi.
+    if test x$KERBEROS_DIR = xno; then
+      KERBEROS_VERSION=
+    else
+      if test x$KERBEROS_DIR != x \
+	  && test x$KERBEROS_DIR != xyes; then
+	LIBAUTH=-L$KERBEROS_DIR/lib
+	INCAUTH=-I$KERBEROS_DIR/include
+      fi
+      LIBAUTH="$LIBAUTH -lshishi"
+      save_LIBS=$LIBS
+      LIBS="$LIBS $LIBAUTH"
+      save_CPPFLAGS=$CPPFLAGS
+      CPPFLAGS="$CPPFLAGS $INCAUTH"
+      AC_CHECK_HEADER(shishi.h,
+	AC_CHECK_LIB(shishi, shishi_check_version,
+	  AC_DEFINE([SHISHI]),
+	  [INCAUTH= LIBAUTH= KERBEROS_VERSION=]),
+	[INCAUTH= LIBAUTH= KERBEROS_VERSION=])
+      LIBS=$save_LIBS
+      CPPFLAGS=$save_CPPFLAGS
     fi
-    LIBAUTH="$LIBAUTH -lshishi"
-    save_LIBS=$LIBS
-    LIBS="$LIBS $LIBAUTH"
-    save_CPPFLAGS=$CPPFLAGS
-    CPPFLAGS="$CPPFLAGS $INCAUTH"
-    AC_CHECK_HEADER(shishi.h,
-      AC_CHECK_LIB(shishi, shishi_check_version,
-        AC_DEFINE([SHISHI]),
-        [INCAUTH= LIBAUTH=]))
-    LIBS=$save_LIBS
-    CPPFLAGS=$save_CPPFLAGS
   esac
 fi
 AC_SUBST(LIBAUTH)
@@ -893,7 +898,7 @@ if test "$inetutils_cv_macro_fd_set_macros" = no; then
     FD_ZERO FD_CLR FD_SET FD_ISSET)
 fi
 
-# Set convinience variables for inetutils.
+# Set convenience variables for inetutils.
 iu_LIBRARIES='$(top_builddir)/libinetutils/libinetutils.a $(top_builddir)/lib/libgnu.a'
 iu_INCLUDES='-I$(top_srcdir)/lib -I$(top_builddir)/lib -I$(top_srcdir)/libinetutils'
 AC_SUBST(iu_LIBRARIES)
@@ -946,3 +951,49 @@ tests/Makefile
 confpaths.h:confpaths.h.in
 ])
 AC_OUTPUT
+
+# Collect informational status.
+AC_MSG_NOTICE([summary of build decisions:
+
+  Clients:
+
+    dnsdomainname  ${enable_dnsdomainname}
+    ftp            ${enable_ftp}  \
+${ftp_BUILD:+${LIBREADLINE:+$LIBREADLINE }$LIBTERMCAP}
+    hostname       ${enable_hostname}
+    ifconfig       ${enable_ifconfig}
+    logger         ${enable_logger}
+    ping           ${enable_ping}
+    ping6          ${enable_ping6}
+    rcp            ${enable_rcp}  \
+${rcp_BUILD:+$KERBEROS_VERSION}
+    rexec          ${enable_rexec}
+    rlogin         ${enable_rlogin}  \
+${rlogin_BUILD:+$KERBEROS_VERSION}
+    rsh            ${enable_rsh}  \
+${rshd_BUILD:+$KERBEROS_VERSION}
+    talk           ${enable_talk}
+    telnet         ${enable_telnet}  \
+${telnet_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }$LIBTERMCAP}
+    tftp           ${enable_tftp}
+    traceroute     ${enable_traceroute}
+    whois          ${enable_whois}
+
+  Servers:
+
+    ftpd           ${enable_ftpd}  \
+${ftpd_BUILD:+${FTPD_LIBPAM:+PAM }$LIBWRAP}
+    inetd          ${enable_inetd}
+    rexecd         ${enable_rexecd}  \
+${rexecd_BUILD:+${LIBPAM:+PAM}}
+    rlogind        ${enable_rlogind}  \
+${rlogind_BUILD:+$KERBEROS_VERSION}
+    rshd           ${enable_rshd}  \
+${rshd_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }${LIBPAM:+PAM}}
+    syslogd        ${enable_syslogd}
+    talkd          ${enable_talkd}
+    telnetd        ${enable_telnetd}  \
+${telnetd_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }$LIBTERMCAP}
+    tftpd          ${enable_tftpd}
+    uucpd          ${enable_uucpd}
+])
