@@ -86,6 +86,10 @@ AC_ARG_WITH([wrap],
 AC_ARG_WITH([pam],
             AC_HELP_STRING([--with-pam],
                            [Add support for PAM]))
+AC_ARG_WITH([idn],
+  AC_HELP_STRING([--with-idn],
+		 [Use IDN support, with optional inclusion directory]), ,
+		 [with_idn=no])
 
 IU_ENABLE_SERVER(ftpd)
 IU_ENABLE_SERVER(inetd)
@@ -557,6 +561,31 @@ if test "$with_wrap" = yes; then
 fi
 AC_SUBST(LIBWRAP)
 
+### Check for GNU Libidn
+AC_CHECK_HEADERS([locale.h])
+AC_CHECK_FUNCS([setlocale])
+if test x"$with_idn" != xno \
+    && test "$ac_cv_header_locale_h" = yes \
+    && test "$ac_cv_func_setlocale" = yes; then
+  AC_MSG_CHECKING([if GNU libidn is available])
+  if test x"$with_idn" != xyes; then
+    INCIDN=-I$with_idn
+  fi
+  save_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$CPPFLAGS $INCIDN"
+  AC_CHECK_HEADERS([idna.h])
+  if test "$ac_cv_header_idna_h" = yes; then
+    AC_CHECK_LIB(idn, idna_to_ascii_lz, [LIBIDN=-lidn], [INCIDN=])
+    if test "$ac_cv_lib_idn_idna_to_ascii_lz" = yes; then
+      AC_DEFINE(HAVE_IDN, 1, [Define to 1 for use of GNU Libidn.])
+    fi
+  fi
+  AC_MSG_RESULT($ac_cv_lib_idna_to_ascii_lz)
+  CPPFLAGS=$save_CPPFLAGS
+fi
+AC_SUBST([LIBIDN])
+AC_SUBST([INCIDN])
+
 ### Checks for header files.
 
 AC_HEADER_STDC
@@ -963,8 +992,10 @@ ${ftp_BUILD:+${LIBREADLINE:+$LIBREADLINE }$LIBTERMCAP}
     hostname       ${enable_hostname}
     ifconfig       ${enable_ifconfig}
     logger         ${enable_logger}
-    ping           ${enable_ping}
-    ping6          ${enable_ping6}
+    ping           ${enable_ping}  \
+${ping_BUILD:+$LIBIDN}
+    ping6          ${enable_ping6}  \
+${ping6_BUILD:+$LIBIDN}
     rcp            ${enable_rcp}  \
 ${rcp_BUILD:+$KERBEROS_VERSION}
     rexec          ${enable_rexec}

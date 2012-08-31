@@ -1,3 +1,25 @@
+2012-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ping, ping6: Support IDN named hosts.
+
+	* configure.ac: New checks for `locale.h' and setlocale().
+	(--with-idn): New setting.
+	(INCIDN, LIBIDN): New variables.
+	* ping/Makefile.am (ping_LDADD): Add $(LIBIDN).
+	(ping6_LDADD): Likewise.
+	(INCLUDES): Add $(INCIDN).
+	* ping/libping.c [HAVE_LOCALE_H]: Include <locale.h>.
+	[HAVE_IDNA_H]: Include <idna.h>.
+	(ping_set_dest) [HAVE_IDN]: New variables P and RC.
+	Resolve HOST by a call to idna_to_ascii_lz().
+	[HAVE_IDN && HAVE_SETLOCALE]: Call setlocale().
+	* ping/ping6.c [HAVE_LOCALE_H]: Include <locale.h>.
+	[HAVE_IDNA_H]: Include <idna.h>.
+	(ping_set_dest): New variable RHOST used in getaddrinfo().
+	[!HAVE_IDN]: Make RHOST a reference to HOST.
+	[HAVE_IDN]: Resolve HOST by a call to idna_to_ascii_lz().
+	[HAVE_IDN && HAVE_SETLOCALE]: Call setlocale().
+
 2012-08-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac: Add a final AC_MSG_NOTICE, containing a summary

@@ -33,6 +33,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
+#ifdef HAVE_IDNA_H
+# include <idna.h>
+#endif
 
 #include "ping.h"
 
@@ -273,7 +279,22 @@ ping_set_dest (PING * ping, char *host)
     ping->ping_hostname = strdup (host);
   else
     {
-      struct hostent *hp = gethostbyname (host);
+      struct hostent *hp;
+#ifdef HAVE_IDN
+      char *p;
+      int rc;
+
+# ifdef HAVE_SETLOCALE
+      setlocale(LC_ALL, "");
+# endif
+      rc = idna_to_ascii_lz (host, &p, 0);
+      if (rc)
+	return 1;
+      hp = gethostbyname (p);
+      free (p);
+#else /* !HAVE_IDN */
+      hp = gethostbyname (host);
+#endif
       if (!hp)
 	return 1;
 

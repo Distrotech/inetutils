@@ -41,6 +41,12 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
+#ifdef HAVE_IDNA_H
+# include <idna.h>
+#endif
 
 #include <xalloc.h>
 #include "ping6.h"
@@ -877,12 +883,26 @@ ping_set_dest (PING * ping, char *host)
 {
   int err;
   struct addrinfo *result, hints;
+  char *rhost;
+
+#ifdef HAVE_IDN
+# ifdef HAVE_SETLOCALE
+  setlocale (LC_ALL, "");
+# endif
+  err = idna_to_ascii_lz (host, &rhost, 0);
+  if (err)
+    return 1;
+#else /* !HAVE_IDN */
+  rhost = host;
+#endif
 
   memset (&hints, 0, sizeof (hints));
-
   hints.ai_family = AF_INET6;
 
-  err = getaddrinfo (host, NULL, &hints, &result);
+  err = getaddrinfo (rhost, NULL, &hints, &result);
+#if HAVE_IDN
+  free (rhost);
+#endif
   if (err)
     return 1;
 
