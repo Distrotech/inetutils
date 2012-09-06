@@ -1518,7 +1518,7 @@ transfer parameters: @code{mode}, @code{form}, and @code{struct}.
 @node The .netrc File
 @section The @file{.netrc} File
 
-The @code{.netrc} file contains login and initialization information
+The @file{.netrc} file contains login and initialization information
 used by the auto-login process.  It resides in the user's home
 directory.  The following tokens are recognized; they may be separated
 by spaces, tabs, or new-lines:
@@ -2424,8 +2424,8 @@ from the socket and create a new socket connected to the peer.  It
 should fork, and the parent should then exit to allow inetd to check
 for new service requests to spawn new servers.  Datagram servers which
 process all incoming datagrams on a socket and eventually time out are
-said to be ``single-threaded''.  @command{comsat} and talkd are both
-examples of the latter type of datagram server.  @command{tftpd} is an
+said to be ``single-threaded''.  @command{comsat} and @command{talkd} are
+both examples of the latter type of datagram server.  @command{tftpd} is an
 example of a multi-threaded datagram server.
 
 Servers using stream sockets generally are multi-threaded and use the
@@ -3639,6 +3639,7 @@ on the connection associated with the stderr, and is not ...
 @samp{Password incorrect} is a security breach which allows people to
 probe a system for users with null passwords.
 
+
 @node talkd invocation
 @chapter @command{talkd}: a server for communication between users
 @cindex talkd
@@ -3646,11 +3647,12 @@ probe a system for users with null passwords.
 @command{talkd} is the server that notifies a user that someone else
 wants to initiate a conversation.  It acts as a repository of
 invitations, responding to requests by clients wishing to rendezvous
-to hold a conversation.
+in order to hold a conversation.
 
-@example
-talkd [@var{option}]@dots{}
-@end example
+@section Invoking
+This implementation uses the newer protocol specification @samp{ntalk},
+and is intended to be invoked by a super-server @command{inetd} at that
+datagram port.  The following switches and options are available.
 
 @table @option
 @item -a @var{file}
@@ -3660,7 +3662,7 @@ talkd [@var{option}]@dots{}
 Read site-wide ACLs from @var{file}.
 
 @item -d
-@item --debug
+@itemx --debug
 @opindex --debug
 @opindex --d
 Enable debugging.
@@ -3669,32 +3671,76 @@ Enable debugging.
 @itemx --idle-timeout=@var{seconds}
 @opindex -i
 @opindex --idle-timeout
-Set idle timeout value.
+Set idle timeout length
+
+@item -l
+@itemx --logging
+@opindex -i
+@opindex --logging
+Enable a somewhat enhanced logging verbosity, reporting
+some more unexpected events that might arise.
 
 @item -r @var{seconds}
 @itemx --request-ttl=@var{seconds}
 @opindex -r
 @opindex --request-ttl
-Set request time-to-live value.
+Set time-to-live length for requests.
 
 @item -t @var{seconds}
-@item --timeout=@var{seconds}
+@itemx --timeout=@var{seconds}
 @opindex -t
 @opindex --timeout
-Set timeout value.
+Set timeout length.
 @end table
 
+@section Modus operandi
+
 In normal operation, a client, the caller, initiates a rendezvous by
-sending a @code{CTL_MSG} to the server of type @samp{LOOK_UP} (see
+sending a @code{CTL_MSG} of type @samp{LOOK_UP} to the server (see
 @file{protocols/talkd.h}).  This causes the server to search its
-invitation tables to check if an invitation currently exists for the
-caller (to speak to the callee specified in the message).  If the
+invitation tables to check whether an invitation currently exists for the
+caller (wanting to talk to the callee specified in the message).  If the
 lookup fails, the caller then sends an @samp{ANNOUNCE} message causing
 the server to broadcast an announcement on the callee's login ports
 requesting contact.  When the callee responds, the local server uses
 the recorded invitation to respond with the appropriate rendezvous
 address and the caller and callee client programs establish a stream
 connection through which the conversation takes place.
+
+This implementation inserts an additional preparation where a site-wide
+access control list can be used to limit service access in general, and
+for any local user, i.e., present on the server's system, a further user
+owned file @file{.talkd} is parsed if at all present, in order to even
+further fine tune access to this particular user.
+
+@section Access control in talkd
+
+The server can be run in a mode with additional access control,
+beyond the legacy capabilities of @command{ntalkd}.  This is done
+using the option @option{-a}, or equivalently @option{--acl}.
+The format of this access control is shared with the user specific
+file @file{.talkrc}.
+
+As is usual, indentation, empty lines, and lines whose first printable
+character is the hash character, are all ignored.  Each active line
+must contain at least two fields, an @code{action} and a @code{user-exp},
+where the only acceptable action types are @samp{allow} and @samp{deny}.
+The second field @code{user-exp} is a POSIX regular expression crafted
+to match user names of callers, i.e., the remote participant, for which
+the action applies.
+
+@example
+action user-exp [net-exp @dots{}]
+@end example
+
+Each line may be augmented by a net list, containing one or more
+expressions @code{net-exp}. Each of these is either the simple
+word @samp{any}, a full IPv4 address, or a full IPv4 address with
+an appended netmask.  The effect is to restrict the applicability
+of the rule to the specified address ranges, or to set an explicit
+wildcard match.  The absence of a net list is equivalent to specifying
+a single @samp{any}.
+
 
 @node telnetd invocation
 @chapter @command{telnetd}: Telnet server

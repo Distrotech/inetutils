@@ -1,3 +1,46 @@
+2012-09-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	talkd: Partial activation of ACL features.
+	Upstream Gnulib has repaired read_utmp() call.
+
+	* talkd/acl.c (ACT_ALLOW, ACT_DENY): Removed macros.
+	(read_acl): Add parameter `int silent'.  Report missing
+	file only if `!silent'.  Partially decrease syslog severity.
+	New return values ACL_ALLOW and ACL_DENY.
+	(open_users_acl): Call read_acl() with silent flag, a file
+	is not mandatory for users.
+	(acl_match): Return ACL_ALLOW as default result.
+	* talkd/announce.c (print_msg, announce): Lower severity
+	LOG_CRIT to LOG_ERR.
+	* talkd/intalkd.h (ACL_ALLOW, ACL_DENY): New macros.
+	(logging): New variable.
+	(read_acl): Update prototype.
+	* talkd/process.c (process_request): Delay ACL matching
+	until protocol and address have been checked.  Send answer
+	FAILED in reply whenever acl_match() returns ACL_DENY.
+	Give syslog messages lower severity and condition on
+	`logging || debug'.
+	* talkd/table.c (insert_table): Change LOG_CRIT to LOG_ERR.
+	* talkd/talkd.c (logging): New variable.
+	(doc): Mention service `ntalk'.
+	(argp_options): New option `-l/--logging'.
+	(parse_opt) <'l'>: New case.
+	(main): Call read_acl() with non-silent flag.  Explicitly
+	use STDIN_FILENO as descriptor for talkd_run().
+	(alarm_handler): New variable OERRNO. Protect and recover
+	errno across handler actions.
+	(talkd_run): Commit syslog messages for `logging || debug'.
+	Lower severity to LOG_NOTICE.
+
+	* doc/inetutils.texi <talkd invokation>: Expose the
+	distinguishing features of the present implementation.
+
+	* talk/init_disp.c (init_display): Catch SIGQUIT.
+
+	* configure.ac: Include <sys/socket.h> when checking
+	for `sockaddr_in6.sin6_len' and `sockaddr_storage.ss_len'.
+	Check talk_BUILD and LIBCURSES in summary message.
+
 2012-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ping, ping6: Support IDN named hosts.

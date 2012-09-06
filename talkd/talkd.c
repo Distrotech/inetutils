@@ -35,6 +35,7 @@ void talkd_run (int fd);
 
 /* Configurable parameters: */
 int debug;
+int logging;
 unsigned int timeout = 30;
 time_t max_idle_time = 120;
 time_t max_request_ttl = MAX_LIFE;
@@ -43,7 +44,7 @@ char *acl_file;
 char *hostname;
 
 const char args_doc[] = "";
-const char doc[] = "Talk daemon.";
+const char doc[] = "Talk daemon, using service `ntalk'.";
 const char *program_authors[] = {
 	"Sergey Poznyakoff",
 	NULL
@@ -54,6 +55,7 @@ static struct argp_option argp_options[] = {
   {"debug", 'd', NULL, 0, "enable debugging", GRP+1},
   {"idle-timeout", 'i', "SECONDS", 0, "set idle timeout value to SECONDS",
    GRP+1},
+  {"logging", 'l', NULL, 0, "enable more syslog reporting", GRP+1},
   {"request-ttl", 'r', "SECONDS", 0, "set request time-to-live value to "
    "SECONDS", GRP+1},
   {"timeout", 't', "SECONDS", 0, "set timeout value to SECONDS", GRP+1},
@@ -72,6 +74,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'd':
       debug++;
+      break;
+
+    case 'l':
+      logging++;
       break;
 
     case 't':
@@ -103,9 +109,9 @@ main (int argc, char *argv[])
   iu_argp_init ("talkd", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
-  read_acl (acl_file);
+  read_acl (acl_file, 0);
   talkd_init ();
-  talkd_run (0);
+  talkd_run (STDIN_FILENO);
   return 0;
 }
 
@@ -116,7 +122,7 @@ talkd_init (void)
   hostname = localhost ();
   if (!hostname)
     {
-      syslog (LOG_ERR, "can't determine my hostname: %m");
+      syslog (LOG_ERR, "Cannot determine my hostname: %m");
       exit (EXIT_FAILURE);
     }
 }
@@ -126,9 +132,12 @@ time_t last_msg_time;
 static void
 alarm_handler (int err _GL_UNUSED_PARAMETER)
 {
+  int oerrno = errno;
+
   if ((time (NULL) - last_msg_time) >= max_idle_time)
     exit (EXIT_SUCCESS);
   alarm (timeout);
+  errno = oerrno;
 }
 
 void
@@ -149,8 +158,8 @@ talkd_run (int fd)
 	recvfrom (fd, &msg, sizeof msg, 0, (struct sockaddr *) &sa_in, &len);
       if (rc != sizeof msg)
 	{
-	  if (rc < 0 && errno != EINTR)
-	    syslog (LOG_WARNING, "recvfrom: %m");
+	  if (rc < 0 && errno != EINTR && (logging || debug))
+	    syslog (LOG_NOTICE, "recvfrom: %m");
 	  continue;
 	}
       last_msg_time = time (NULL);
@@ -159,8 +168,8 @@ talkd_run (int fd)
 	  rc = sendto (fd, &resp, sizeof resp, 0,
 		       (struct sockaddr *) &msg.ctl_addr,
 		       sizeof (msg.ctl_addr));
-	  if (rc != sizeof resp)
-	    syslog (LOG_WARNING, "sendto: %m");
+	  if (rc != sizeof resp && (logging || debug))
+	    syslog (LOG_NOTICE, "sendto: %m");
 	}
     }
 }

@@ -655,9 +655,11 @@ IU_CHECK_MEMBERS([struct sockaddr_in.sin_len], , ,
       #include <netinet/in.h> ])
 IU_CHECK_MEMBERS([struct sockaddr_in6.sin6_len], , ,
     [ #include <sys/types.h>
+      #include <sys/socket.h>
       #include <netinet/in.h> ])
 IU_CHECK_MEMBERS([struct sockaddr_storage.ss_len], , ,
     [ #include <sys/types.h>
+      #include <sys/socket.h>
       #include <netinet/in.h> ])
 
 if test "$ac_cv_header_utmp_h" = yes; then
@@ -1003,7 +1005,8 @@ ${rcp_BUILD:+$KERBEROS_VERSION}
 ${rlogin_BUILD:+$KERBEROS_VERSION}
     rsh            ${enable_rsh}  \
 ${rshd_BUILD:+$KERBEROS_VERSION}
-    talk           ${enable_talk}
+    talk           ${enable_talk}  \
+${talk_BUILD:+$LIBCURSES}
     telnet         ${enable_telnet}  \
 ${telnet_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }$LIBTERMCAP}
     tftp           ${enable_tftp}

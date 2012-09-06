@@ -31,24 +31,13 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
 {
   CTL_MSG *ptr;
 
-  if (debug)
-    {
-      print_request ("process_request", msg);
-    }
-
-  if (acl_match (msg, sa_in))
-    {
-      syslog (LOG_NOTICE, "dropping request: %s@%s",
-	      msg->l_name, inet_ntoa (sa_in->sin_addr));
-      return 1;
-    }
-
   rp->vers = TALK_VERSION;
   rp->type = msg->type;
   rp->id_num = htonl (0);
   if (msg->vers != TALK_VERSION)
     {
-      syslog (LOG_ERR, "Bad protocol version %d", msg->vers);
+      if (logging || debug)
+	syslog (LOG_NOTICE, "Bad protocol version %d", msg->vers);
       rp->answer = BADVERSION;
       return 0;
     }
@@ -57,19 +46,37 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
   msg->addr.sa_family = ntohs (msg->addr.sa_family);
   if (msg->addr.sa_family != AF_INET)
     {
-      syslog (LOG_ERR, "Bad address, family %d", msg->addr.sa_family);
+      if (logging || debug)
+	syslog (LOG_NOTICE, "Bad address, family %d", msg->addr.sa_family);
       rp->answer = BADADDR;
       return 0;
     }
   msg->ctl_addr.sa_family = ntohs (msg->ctl_addr.sa_family);
   if (msg->ctl_addr.sa_family != AF_INET)
     {
-      syslog (LOG_WARNING, "Bad control address, family %d",
-	      msg->ctl_addr.sa_family);
+      if (logging || debug)
+	syslog (LOG_NOTICE, "Bad control address, family %d",
+		msg->ctl_addr.sa_family);
       rp->answer = BADCTLADDR;
       return 0;
     }
   /* FIXME: compare address and sa_in? */
+
+  if (acl_match (msg, sa_in) == ACL_DENY)
+    {
+      if (logging || debug)
+	syslog (LOG_NOTICE, "dropping request: %s@%s",
+		msg->l_name, inet_ntoa (sa_in->sin_addr));
+      /* Answer FAILED to minimise information leakage,
+       * since ACL has denied access.  */
+      rp->answer = FAILED;
+      return 0;
+    }
+
+  if (debug)
+    {
+      print_request ("process_request", msg);
+    }
 
   msg->pid = ntohl (msg->pid);
 

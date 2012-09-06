@@ -107,6 +107,7 @@ init_display (void)
   noecho ();
   crmode ();
 
+  signal (SIGQUIT, sig_sent);
   signal (SIGINT, sig_sent);
   signal (SIGPIPE, sig_sent);
 

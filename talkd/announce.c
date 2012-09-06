@@ -116,7 +116,7 @@ print_mesg (char *tty, CTL_MSG * request, char *remote_machine)
 
   if ((cp = ttymsg (&iovec, 1, tty, RING_WAIT - 5)) != NULL)
     {
-      syslog (LOG_CRIT, "%s", cp);
+      syslog (LOG_ERR, "%s", cp);
       return FAILED;
     }
   return SUCCESS;
@@ -136,7 +136,7 @@ announce (CTL_MSG * request, char *remote_machine)
   ttypath = malloc (len);
   if (!ttypath)
     {
-      syslog (LOG_CRIT, "out of memory");
+      syslog (LOG_ERR, "Out of memory");
       exit (EXIT_FAILURE);
     }
   sprintf (ttypath, "%s/%s", PATH_DEV, request->r_tty);

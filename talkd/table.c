@@ -156,7 +156,7 @@ insert_table (CTL_MSG * request, CTL_RESPONSE * response)
   ptr = malloc (sizeof *ptr);
   if (!ptr)
     {
-      syslog (LOG_CRIT, "out of memory");
+      syslog (LOG_ERR, "Out of memory");
       exit (EXIT_FAILURE);
     }
 

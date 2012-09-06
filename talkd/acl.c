@@ -34,9 +34,6 @@ struct netdef
   unsigned int netmask;
 };
 
-#define ACT_ALLOW  0
-#define ACT_DENY   1
-
 typedef struct acl acl_t;
 
 struct acl
@@ -119,7 +116,7 @@ netdef_parse (char *str)
   netdef = malloc (sizeof *netdef);
   if (!netdef)
     {
-      syslog (LOG_ERR, "out of memory");
+      syslog (LOG_ERR, "Out of memory");
       exit (EXIT_FAILURE);
     }
 
@@ -131,7 +128,7 @@ netdef_parse (char *str)
 }
 
 void
-read_acl (char *config_file)
+read_acl (char *config_file, int silent)
 {
   FILE *fp;
   int line;
@@ -144,7 +141,8 @@ read_acl (char *config_file)
   fp = fopen (config_file, "r");
   if (!fp)
     {
-      syslog (LOG_ERR, "can't open config file %s: %m", config_file);
+      if (!silent)
+	syslog (LOG_ERR, "Cannot open config file %s: %m", config_file);
       return;
     }
 
@@ -178,19 +176,19 @@ read_acl (char *config_file)
 	}
 
       if (strcmp (argv[0], "allow") == 0)
-	action = ACT_ALLOW;
+	action = ACL_ALLOW;
       else if (strcmp (argv[0], "deny") == 0)
-	action = ACT_DENY;
+	action = ACL_DENY;
       else
 	{
-	  syslog (LOG_ERR, "%s:%d: unknown keyword", config_file, line);
+	  syslog (LOG_WARNING, "%s:%d: unknown keyword", config_file, line);
 	  argcv_free (argc, argv);
 	  continue;
 	}
 
       if (regcomp (&re, argv[1], 0) != 0)
 	{
-	  syslog (LOG_ERR, "%s:%d: bad regexp", config_file, line);
+	  syslog (LOG_WARNING, "%s:%d: bad regexp", config_file, line);
 	  argcv_free (argc, argv);
 	  continue;
 	}
@@ -217,7 +215,7 @@ read_acl (char *config_file)
       acl = malloc (sizeof *acl);
       if (!acl)
 	{
-	  syslog (LOG_CRIT, "out of memory");
+	  syslog (LOG_ERR, "Out of memory");
 	  exit (EXIT_FAILURE);
 	}
       acl->next = NULL;
@@ -251,14 +249,14 @@ open_users_acl (char *name)
 	    2 /* Null and separator.  */ );
   if (!filename)
     {
-      syslog (LOG_ERR, "out of memory");
+      syslog (LOG_ERR, "Out of memory");
       return NULL;
     }
 
   sprintf (filename, "%s/%s", pw->pw_dir, USER_ACL_NAME);
 
   mark = acl_tail;
-  read_acl (filename);
+  read_acl (filename, 1);
   free (filename);
   return mark;
 }
@@ -329,5 +327,5 @@ acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in)
 	}
     }
   discard_acl (mark);
-  return ACT_ALLOW;
+  return ACL_ALLOW;
 }
