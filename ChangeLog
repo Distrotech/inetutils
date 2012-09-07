@@ -1,3 +1,26 @@
+2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	talkd: Full ACL capability.
+
+	* talkd/acl.c (struct acl): New member `system'.
+	(read_acl): Rename parameter `silent' as `system',
+	used to distinguish site-wide and user setting.
+	If `system' is true and file is set, but non-readable,
+	then write a syslog message and abort execution.
+	(open_user_acl): Call read_acl() with `system = 0'.
+	(acl_match): New variables SYSTEM_ACTION, USER_ACTION,
+	and FOUND_USER_ACL.  Check site-wide ACL against
+	`msg->r_name' and user ACL against `msg->l_name'.
+	Travers the full list of rules for applicable actions.
+	Implement overriding mechanism depending on policy
+	for the returned value.
+	* talkd/intalkd.h (strict_policy): New variable.
+	* talkd/talkd.c (strict_policy): Likewise.
+	(arpg_options): New option `-S/--strict-policy'.
+	(parse_opt) <'S'>: New case.
+	(main): Call read_acl() with `system = 1'.
+	* doc/inetutils.texi <talkd invocation>: Updated.
+
 2012-09-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	talkd: Partial activation of ACL features.

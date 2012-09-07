@@ -36,6 +36,7 @@ void talkd_run (int fd);
 /* Configurable parameters: */
 int debug;
 int logging;
+int strict_policy;
 unsigned int timeout = 30;
 time_t max_idle_time = 120;
 time_t max_request_ttl = MAX_LIFE;
@@ -58,6 +59,7 @@ static struct argp_option argp_options[] = {
   {"logging", 'l', NULL, 0, "enable more syslog reporting", GRP+1},
   {"request-ttl", 'r', "SECONDS", 0, "set request time-to-live value to "
    "SECONDS", GRP+1},
+  {"strict-policy", 'S', NULL, 0, "apply strict ACL policy", GRP+1},
   {"timeout", 't', "SECONDS", 0, "set timeout value to SECONDS", GRP+1},
 #undef GRP
   {NULL}
@@ -76,20 +78,24 @@ parse_opt (int key, char *arg, struct argp_state *state)
       debug++;
       break;
 
-    case 'l':
-      logging++;
-      break;
-
-    case 't':
-      timeout = strtoul (arg, NULL, 0);
-      break;
-
     case 'i':
       max_idle_time = strtoul (arg, NULL, 0);
       break;
 
+    case 'l':
+      logging++;
+      break;
+
     case 'r':
       max_request_ttl = strtoul (arg, NULL, 0);
+      break;
+
+    case 'S':
+      strict_policy++;
+      break;
+
+    case 't':
+      timeout = strtoul (arg, NULL, 0);
       break;
 
     default:
@@ -109,7 +115,7 @@ main (int argc, char *argv[])
   iu_argp_init ("talkd", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
-  read_acl (acl_file, 0);
+  read_acl (acl_file, 1);	/* System wide ACL.  Can abort.  */
   talkd_init ();
   talkd_run (STDIN_FILENO);
   return 0;

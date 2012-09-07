@@ -41,6 +41,7 @@ struct acl
   acl_t *next;
   regex_t re;
   netdef_t *netlist;
+  int system;
   int action;
 };
 
@@ -128,7 +129,7 @@ netdef_parse (char *str)
 }
 
 void
-read_acl (char *config_file, int silent)
+read_acl (char *config_file, int system)
 {
   FILE *fp;
   int line;
@@ -141,9 +142,15 @@ read_acl (char *config_file, int silent)
   fp = fopen (config_file, "r");
   if (!fp)
     {
-      if (!silent)
-	syslog (LOG_ERR, "Cannot open config file %s: %m", config_file);
-      return;
+      if (system)
+	{
+	  /* A missing, yet specified, site-wide ACL is a serious error.
+	   * Abort execution whenever this happens.
+	   */
+	  syslog (LOG_ERR, "Cannot open config file %s: %m", config_file);
+	  exit (EXIT_FAILURE);
+	}
+      return;	/* User setting may fail to exist.  Just ignore.  */
     }
 
   line = 0;
@@ -220,6 +227,7 @@ read_acl (char *config_file, int silent)
 	}
       acl->next = NULL;
       acl->action = action;
+      acl->system = system;
       acl->netlist = head;
       acl->re = re;
 
@@ -256,8 +264,9 @@ open_users_acl (char *name)
   sprintf (filename, "%s/%s", pw->pw_dir, USER_ACL_NAME);
 
   mark = acl_tail;
-  read_acl (filename, 1);
+  read_acl (filename, 0);	/* Private file, not mandatory.  */
   free (filename);
+
   return mark;
 }
 
@@ -307,9 +316,17 @@ acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in)
 {
   acl_t *acl, *mark;
   unsigned int ip;
+  int system_action = ACL_ALLOW, user_action = ACL_ALLOW;
+  int found_user_acl = 0;
+
+  if (strict_policy)
+    system_action = ACL_DENY;
 
   mark = open_users_acl (msg->r_name);
   ip = sa_in->sin_addr.s_addr;
+  if (mark && (mark != acl_tail))
+    found_user_acl = 1;
+
   for (acl = acl_head; acl; acl = acl->next)
     {
       netdef_t *net;
@@ -318,14 +335,36 @@ acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in)
 	{
 	  if (net->ipaddr == (ip & net->netmask))
 	    {
-	      if (regexec (&acl->re, msg->l_name, 0, NULL, 0) == 0)
-		{
-		  discard_acl (mark);
-		  return acl->action;
-		}
+	      /*
+	       * Site-wide ACLs concern user's name on this machine,
+	       * whereas user's rules concern the incoming client name.
+	       */
+	      if (acl->system &&
+		  regexec (&acl->re, msg->r_name, 0, NULL, 0) == 0)
+		system_action = acl->action;
+	      else if (regexec (&acl->re, msg->l_name, 0, NULL, 0) == 0)
+		user_action = acl->action;
 	    }
 	}
     }
   discard_acl (mark);
-  return ACL_ALLOW;
+
+  if (system_action == ACL_ALLOW)
+    return user_action;
+
+  if (strict_policy)
+    return ACL_DENY;	/* Equal to `system_action'.  */
+
+  /* At this point it is known that last activated site-wide
+   * ACL rule has set SYSTEM_ACTION to ACL_DENY.  Do we
+   * always want it to be overridable?
+   */
+
+  /* Override ACL_DENY only if there was a user specific file
+   * ~/.talkrc containing some active rules at all.  In other
+   * words, a site-policy claiming `deny' will need an act of
+   * will by the user in order that it be overridden.
+   */
+
+  return found_user_acl ? user_action : ACL_DENY;
 }

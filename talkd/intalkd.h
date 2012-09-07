@@ -44,6 +44,7 @@
 
 extern int debug;
 extern int logging;
+extern int strict_policy;
 extern unsigned int timeout;
 extern time_t max_idle_time;
 extern time_t max_request_ttl;
@@ -62,6 +63,6 @@ extern int print_response (const char *cp, CTL_RESPONSE * rp);
 extern int insert_table (CTL_MSG * request, CTL_RESPONSE * response);
 extern int delete_invite (unsigned long id_num);
 extern int new_id (void);
-extern void read_acl (char *config_file, int silent);
+extern void read_acl (char *config_file, int system);
 extern int acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in);
 extern int announce (CTL_MSG * request, char *remote_machine);
