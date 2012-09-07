@@ -46,7 +46,14 @@
 #include <limits.h>
 #include <assert.h>
 #include <argp.h>
+#include <unused-parameter.h>
 #include <icmp.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
+#ifdef HAVE_IDNA_H
+# include <idna.h>
+#endif
 
 #include "xalloc.h"
 #include "libinetutils.h"
@@ -129,7 +136,7 @@ static struct argp_option argp_options[] = {
   {"type", 'M', "METHOD", 0, "use METHOD (`icmp' or `udp') for traceroute "
    "operations", GRP+1},
 #undef GRP
-  {NULL}
+  {NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
@@ -190,16 +197,22 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 int
 main (int argc, char **argv)
 {
-  int hop;
+  int hop, rc;
+  char *rhost;
   struct addrinfo hints, *res;
   trace_t trace;
 
   set_program_name (argv[0]);
+
+#ifdef HAVE_SETLOCALE
+  setlocale (LC_ALL, "");
+#endif
 
   pid = getpid();
 
@@ -207,13 +220,24 @@ main (int argc, char **argv)
   iu_argp_init ("traceroute", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
+  if ((hostname == NULL) || (*hostname == '\0'))
+    error (EXIT_FAILURE, 0, "unknown host");
+
   /* Hostname lookup first for better information */
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = AF_INET;
   hints.ai_flags = AI_CANONNAME;
 
-  if ((hostname == NULL) || (*hostname == '\0')
-      || getaddrinfo (hostname, NULL, &hints, &res))
+#ifdef HAVE_IDN
+  rc = idna_to_ascii_lz (hostname, &rhost, 0);
+  if (rc)
+    error (EXIT_FAILURE, 0, "unknown host");
+#else /* !HAVE_IDN */
+  rhost = hostname;
+#endif
+
+  rc = getaddrinfo (rhost, NULL, &hints, &res);
+  if (rc)
     error (EXIT_FAILURE, 0, "unknown host");
 
   memcpy (&dest, res->ai_addr, res->ai_addrlen);
@@ -247,7 +271,8 @@ main (int argc, char **argv)
 
 void
 do_try (trace_t * trace, const int hop,
-	const int max_hops, const int max_tries)
+	const int max_hops _GL_UNUSED_PARAMETER,
+	const int max_tries)
 {
   fd_set readset;
   int ret, tries, readonly = 0;

@@ -42,8 +42,12 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
 
 #include <argp.h>
+#include <unused-parameter.h>
 #include <ping.h>
 #include "ping_impl.h"
 #include "libinetutils.h"
@@ -137,7 +141,7 @@ static struct argp_option argp_options[] = {
    "which is one of \"tsonly\" and \"tsaddr\"", GRP+1},
   {"size", 's', "NUMBER", 0, "send NUMBER data octets", GRP+1},
 #undef GRP
-  {NULL}
+  {NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
@@ -257,7 +261,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 int
 main (int argc, char **argv)
@@ -267,6 +272,10 @@ main (int argc, char **argv)
   int status = 0;
 
   set_program_name (argv[0]);
+
+# ifdef HAVE_SETLOCALE
+  setlocale(LC_ALL, "");
+# endif
 
   if (getuid () == 0)
     is_root = true;
@@ -364,7 +373,7 @@ decode_ip_timestamp (char *arg)
 int volatile stop = 0;
 
 void
-sig_int (int signal)
+sig_int (int signal _GL_UNUSED_PARAMETER)
 {
   stop = 1;
 }
@@ -378,8 +387,8 @@ ping_run (PING * ping, int (*finish) ())
   struct timeval last, intvl, now;
   struct timeval *t = NULL;
   int finishing = 0;
-  int nresp = 0;
-  int i;
+  size_t nresp = 0;
+  size_t i;
 
   signal (SIGINT, sig_int);
 
@@ -487,7 +496,7 @@ ping_run (PING * ping, int (*finish) ())
 int
 send_echo (PING * ping)
 {
-  int off = 0;
+  size_t off = 0;
 
   if (PING_TIMING (data_length))
     {

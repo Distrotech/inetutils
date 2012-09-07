@@ -30,6 +30,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <xalloc.h>
+#include <unused-parameter.h>
 
 #include "ping_common.h"
 
@@ -59,9 +60,9 @@ ping_cvt_number (const char *optarg, size_t maxval, int allow_zero)
 }
 
 void
-init_data_buffer (unsigned char * pat, int len)
+init_data_buffer (unsigned char * pat, size_t len)
 {
-  int i = 0;
+  size_t i = 0;
   unsigned char *p;
 
   if (data_length == 0)
@@ -87,7 +88,7 @@ init_data_buffer (unsigned char * pat, int len)
 
 void
 decode_pattern (const char *text, int *pattern_len,
-		unsigned char *pattern_data)
+		unsigned char *pattern_data _GL_UNUSED_PARAMETER)
 {
   int i, c, off;
 

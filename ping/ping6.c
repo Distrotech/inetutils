@@ -48,6 +48,7 @@
 # include <idna.h>
 #endif
 
+#include <unused-parameter.h>
 #include <xalloc.h>
 #include "ping6.h"
 #include "libinetutils.h"
@@ -108,7 +109,7 @@ static struct argp_option argp_options[] = {
   {"quiet", 'q', NULL, 0, "quiet output", GRP+1},
   {"size", 's', "NUMBER", 0, "send NUMBER data octets", GRP+1},
 #undef GRP
-  {NULL}
+  {NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
@@ -193,7 +194,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 int
 main (int argc, char **argv)
@@ -202,6 +204,10 @@ main (int argc, char **argv)
   int status = 0;
 
   set_program_name (argv[0]);
+
+# ifdef HAVE_SETLOCALE
+  setlocale (LC_ALL, "");
+# endif
 
   if (getuid () == 0)
     is_root = true;
@@ -251,7 +257,7 @@ main (int argc, char **argv)
 static volatile int stop = 0;
 
 static void
-sig_int (int signal)
+sig_int (int signal _GL_UNUSED_PARAMETER)
 {
   stop = 1;
 }
@@ -265,8 +271,8 @@ ping_run (PING * ping, int (*finish) ())
   struct timeval last, intvl, now;
   struct timeval *t = NULL;
   int finishing = 0;
-  int nresp = 0;
-  int i;
+  size_t nresp = 0;
+  unsigned long i;
 
   signal (SIGINT, sig_int);
 
@@ -377,7 +383,7 @@ ping_run (PING * ping, int (*finish) ())
 static int
 send_echo (PING * ping)
 {
-  int off = 0;
+  size_t off = 0;
 
   if (PING_TIMING (data_length))
     {
@@ -459,7 +465,7 @@ ping_echo (char *hostname)
       error (EXIT_FAILURE, 0, "getnameinfo: %s", errmsg);
     }
 
-  printf ("PING %s (%s): %d data bytes",
+  printf ("PING %s (%s): %zu data bytes",
 	  ping->ping_hostname, buffer, data_length);
   if (options & OPT_VERBOSE)
     printf (", id 0x%04x = %u", ping->ping_ident, ping->ping_ident);
@@ -481,7 +487,8 @@ ping_reset (PING * p)
 
 static int
 print_echo (int dupflag, int hops, struct ping_stat *ping_stat,
-	    struct sockaddr_in6 *dest, struct sockaddr_in6 *from,
+	    struct sockaddr_in6 *dest _GL_UNUSED_PARAMETER,
+	    struct sockaddr_in6 *from,
 	    struct icmp6_hdr *icmp6, int datalen)
 {
   int err;
@@ -696,7 +703,7 @@ echo_finish (void)
 }
 
 static PING *
-ping_init (int type, int ident)
+ping_init (int type _GL_UNUSED_PARAMETER, int ident)
 {
   int fd, err;
   const int on = 1;
@@ -886,9 +893,6 @@ ping_set_dest (PING * ping, char *host)
   char *rhost;
 
 #ifdef HAVE_IDN
-# ifdef HAVE_SETLOCALE
-  setlocale (LC_ALL, "");
-# endif
   err = idna_to_ascii_lz (host, &rhost, 0);
   if (err)
     return 1;

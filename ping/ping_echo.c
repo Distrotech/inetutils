@@ -40,6 +40,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <unused-parameter.h>
 
 #include <ping.h>
 #include "ping_impl.h"
@@ -138,7 +139,7 @@ ping_echo (char *hostname)
 #endif /* IP_OPTIONS */
     }
 
-  printf ("PING %s (%s): %d data bytes",
+  printf ("PING %s (%s): %zu data bytes",
 	  ping->ping_hostname,
 	  inet_ntoa (ping->ping_dest.ping_sockaddr.sin_addr), data_length);
   if (options & OPT_VERBOSE)
@@ -172,7 +173,8 @@ handler (int code, void *closure,
 
 int
 print_echo (int dupflag, struct ping_stat *ping_stat,
-	    struct sockaddr_in *dest, struct sockaddr_in *from,
+	    struct sockaddr_in *dest _GL_UNUSED_PARAMETER,
+	    struct sockaddr_in *from,
 	    struct ip *ip, icmphdr_t * icmp, int datalen)
 {
   int hlen;
@@ -297,7 +299,7 @@ print_icmp_code (int type, int code, char *prefix)
 static void
 print_ip_header (struct ip *ip)
 {
-  int hlen;
+  size_t hlen;
   unsigned char *cp;
 
   hlen = ip->ip_hl << 2;
@@ -305,7 +307,7 @@ print_ip_header (struct ip *ip)
 
   if (options & OPT_VERBOSE)
     {
-      int j;
+      size_t j;
 
       printf ("IP Hdr Dump:\n ");
       for (j = 0; j < sizeof (*ip); ++j)
@@ -330,7 +332,7 @@ print_ip_header (struct ip *ip)
 }
 
 void
-print_ip_data (icmphdr_t * icmp, void *data)
+print_ip_data (icmphdr_t * icmp, void *data _GL_UNUSED_PARAMETER)
 {
   int hlen;
   unsigned char *cp;
@@ -377,21 +379,21 @@ print_parameterprob (icmphdr_t * icmp, void *data)
 }
 
 struct icmp_diag icmp_diag[] = {
-  {ICMP_ECHOREPLY, "Echo Reply", NULL},
+  {ICMP_ECHOREPLY, "Echo Reply", NULL, NULL},
   {ICMP_DEST_UNREACH, NULL, print_icmp, "Dest Unreachable"},
-  {ICMP_SOURCE_QUENCH, "Source Quench", print_ip_data},
+  {ICMP_SOURCE_QUENCH, "Source Quench", print_ip_data, NULL},
   {ICMP_REDIRECT, NULL, print_icmp, "Redirect"},
-  {ICMP_ECHO, "Echo Request", NULL},
-  {ICMP_ROUTERADV, "Router Advertisment", NULL},
-  {ICMP_ROUTERDISCOVERY, "Router Discovery", NULL},
+  {ICMP_ECHO, "Echo Request", NULL, NULL},
+  {ICMP_ROUTERADV, "Router Advertisment", NULL, NULL},
+  {ICMP_ROUTERDISCOVERY, "Router Discovery", NULL, NULL},
   {ICMP_TIME_EXCEEDED, NULL, print_icmp, "Time exceeded"},
-  {ICMP_PARAMETERPROB, NULL, print_parameterprob},
-  {ICMP_TIMESTAMP, "Timestamp", NULL},
-  {ICMP_TIMESTAMPREPLY, "Timestamp Reply", NULL},
-  {ICMP_INFO_REQUEST, "Information Request", NULL},
-  {ICMP_INFO_REPLY, "Information Reply", NULL},
-  {ICMP_ADDRESS, "Address Mask Request", NULL},
-  {ICMP_ADDRESSREPLY, "Address Mask Reply", NULL},
+  {ICMP_PARAMETERPROB, NULL, print_parameterprob, NULL},
+  {ICMP_TIMESTAMP, "Timestamp", NULL, NULL},
+  {ICMP_TIMESTAMPREPLY, "Timestamp Reply", NULL, NULL},
+  {ICMP_INFO_REQUEST, "Information Request", NULL, NULL},
+  {ICMP_INFO_REPLY, "Information Reply", NULL, NULL},
+  {ICMP_ADDRESS, "Address Mask Request", NULL, NULL},
+  {ICMP_ADDRESSREPLY, "Address Mask Reply", NULL, NULL},
 };
 
 void

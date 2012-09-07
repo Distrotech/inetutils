@@ -1010,7 +1010,8 @@ ${talk_BUILD:+$LIBCURSES}
     telnet         ${enable_telnet}  \
 ${telnet_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }$LIBTERMCAP}
     tftp           ${enable_tftp}
-    traceroute     ${enable_traceroute}
+    traceroute     ${enable_traceroute}  \
+${traceroute_BUILD:+$LIBIDN}
     whois          ${enable_whois}
 
   Servers:

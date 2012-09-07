@@ -33,9 +33,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#ifdef HAVE_LOCALE_H
-# include <locale.h>
-#endif
 #ifdef HAVE_IDNA_H
 # include <idna.h>
 #endif
@@ -284,9 +281,6 @@ ping_set_dest (PING * ping, char *host)
       char *p;
       int rc;
 
-# ifdef HAVE_SETLOCALE
-      setlocale(LC_ALL, "");
-# endif
       rc = idna_to_ascii_lz (host, &p, 0);
       if (rc)
 	return 1;

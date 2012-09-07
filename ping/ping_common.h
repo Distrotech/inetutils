@@ -154,7 +154,7 @@ size_t ping_cvt_number (const char *optarg, size_t maxval, int allow_zero);
 int is_normed_time (n_time t);
 const char * ping_cvt_time (char *buf, size_t buflen, n_time t);
 
-void init_data_buffer (unsigned char *pat, int len);
+void init_data_buffer (unsigned char *pat, size_t len);
 
 void decode_pattern (const char *text, int *pattern_len,
 		     unsigned char *pattern_data);

@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
+#include <unused-parameter.h>
 
 #include <ping.h>
 #include <ping_impl.h>
@@ -89,9 +90,11 @@ recv_address (int code, void *closure,
 }
 
 void
-print_address (int dupflag, void *closure,
-	       struct sockaddr_in *dest, struct sockaddr_in *from,
-	       struct ip *ip, icmphdr_t * icmp, int datalen)
+print_address (int dupflag, void *closure _GL_UNUSED_PARAMETER,
+	       struct sockaddr_in *dest _GL_UNUSED_PARAMETER,
+	       struct sockaddr_in *from,
+	       struct ip *ip _GL_UNUSED_PARAMETER,
+	       icmphdr_t * icmp, int datalen)
 {
   struct in_addr addr;
 

@@ -65,7 +65,7 @@ EXTRA_PROGRAMS += tftp
 
 bin_PROGRAMS += $(traceroute_BUILD)
 traceroute_SOURCES = traceroute.c
-traceroute_LDADD = $(top_builddir)/libicmp/libicmp.a $(LDADD)
+traceroute_LDADD = $(top_builddir)/libicmp/libicmp.a $(LDADD) $(LIBIDN)
 EXTRA_PROGRAMS += traceroute
 
 inetdaemon_PROGRAMS += $(inetd_BUILD)
@@ -100,7 +100,7 @@ uucpd_SOURCES = uucpd.c
 uucpd_LDADD = $(LDADD) $(LIBCRYPT)
 EXTRA_PROGRAMS += uucpd
 
-INCLUDES = $(iu_INCLUDES) $(INCAUTH) -I$(top_srcdir)/libicmp
+INCLUDES = $(iu_INCLUDES) $(INCAUTH) -I$(top_srcdir)/libicmp $(INCIDN)
 
 AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_CONSOLE) $(PATHDEF_CP) $(PATHDEF_DEFPATH) $(PATHDEF_DEV) $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) $(PATHDEF_INETDPID) $(PATHDEF_KLOG) $(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGIN) $(PATHDEF_LOGPID) $(PATHDEF_NOLOGIN) $(PATHDEF_RLOGIN) $(PATHDEF_RSH) $(PATHDEF_TTY) $(PATHDEF_UTMP) $(PATHDEF_UTMPX) $(PATHDEF_UUCICO)
 

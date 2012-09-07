@@ -156,7 +156,7 @@ int nsock, maxsock;
 fd_set allsock;
 int options;
 int timingout;
-int toomany = TOOMANY;
+unsigned toomany = TOOMANY;
 char **Argv;
 char *LastArg;
 
@@ -197,11 +197,12 @@ static struct argp_option argp_options[] = {
    "resolve IP addresses when setting environment variables "
    "(see --environment)", GRP+1},
 #undef GRP
-  {NULL}
+  {NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int key, char *arg,
+	   struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   char *p;
   int number;
@@ -243,7 +244,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 
 struct servtab
@@ -270,7 +272,7 @@ struct servtab
   struct sockaddr_storage se_ctrladdr;	/* bound address */
   socklen_t se_addrlen;		/* exact address length in use */
   unsigned se_refcnt;
-  int se_count;			/* number started since se_time */
+  unsigned se_count;			/* number started since se_time */
   struct timeval se_time;	/* start of se_count */
   struct servtab *se_next;
 } *servtab;
@@ -711,7 +713,7 @@ enter (struct servtab *cp)
 {
   struct servtab *sep;
   SIGSTATUS sigstatus;
-  int i;
+  size_t i;
 
   /* Checking/Removing duplicates */
   for (sep = servtab; sep; sep = sep->se_next)
@@ -1493,7 +1495,7 @@ echo_stream (int s, struct servtab *sep)
 
 /* Echo service -- echo data back */
 void
-echo_dg (int s, struct servtab *sep)
+echo_dg (int s, struct servtab *sep _GL_UNUSED_PARAMETER)
 {
   char buffer[BUFSIZE];
   int i;
@@ -1531,7 +1533,7 @@ discard_stream (int s, struct servtab *sep)
 
 void
 /* Discard service -- ignore data */
-discard_dg (int s, struct servtab *sep)
+discard_dg (int s, struct servtab *sep _GL_UNUSED_PARAMETER)
 {
   char buffer[BUFSIZE];
 
@@ -1592,7 +1594,7 @@ chargen_stream (int s, struct servtab *sep)
 
 /* Character generator */
 void
-chargen_dg (int s, struct servtab *sep)
+chargen_dg (int s, struct servtab *sep _GL_UNUSED_PARAMETER)
 {
 #ifdef IPV6
   struct sockaddr_storage sa;
@@ -1654,7 +1656,7 @@ machtime (void)
 }
 
 void
-machtime_stream (int s, struct servtab *sep)
+machtime_stream (int s, struct servtab *sep _GL_UNUSED_PARAMETER)
 {
   long result;
 
@@ -1663,7 +1665,7 @@ machtime_stream (int s, struct servtab *sep)
 }
 
 void
-machtime_dg (int s, struct servtab *sep)
+machtime_dg (int s, struct servtab *sep _GL_UNUSED_PARAMETER)
 {
   long result;
 #ifdef IPV6
@@ -1684,7 +1686,7 @@ machtime_dg (int s, struct servtab *sep)
 
 void
 /* Return human-readable time of day */
-daytime_stream (int s, struct servtab *sep)
+daytime_stream (int s, struct servtab *sep _GL_UNUSED_PARAMETER)
 {
   char buffer[256];
   time_t lclock;
@@ -1697,7 +1699,7 @@ daytime_stream (int s, struct servtab *sep)
 
 /* Return human-readable time of day */
 void
-daytime_dg (int s, struct servtab *sep)
+daytime_dg (int s, struct servtab *sep _GL_UNUSED_PARAMETER)
 {
   char buffer[256];
   time_t lclock;

@@ -1,5 +1,70 @@
 2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	traceroute: Support IDN named hosts.
+
+	* configure.ac: Check traceroute_BUILD and LIBIDN in
+	summary message.
+	* src/Makefile.am (traceroute_LDADD): Add $(LIBIDN).
+	(INCLUDES): Add $(INCIDN).
+
+	* src/traceroute.c: Include <unused_parameter.h>
+	[HAVE_LOCALE_H]: Include <locale.h>.
+	[HAVE_IDNA_H]: Include <idna.h>.
+	(argp_options, argp): Add missing fields.
+	(main): New variables RC and RHOST.  Let getaddrinfo()
+	resolve RHOST.
+	[HAVE_SETLOCALE]: Call setlocale().
+	[HAVE_IDN]: Call idna_to_ascii_lz().
+	(do_try): Add _GL_UNUSED_PARAMETER.
+
+	ping, ping6: Use setlocale() independently of IDN.
+	Attend to some compiler warnings.
+
+	* ping/libping.c: Remove inclusion of <locale.h>.
+	(ping_set_dest): Remove call to setlocale().
+	* ping/ping.c: Include <unused-parameter.h>.
+	[HAVE_LOCALE_H]: Include <locale.h>.
+	(argp_options, argp): Add missing fields.
+	(main) [HAVE_SETLOCALE]: Call setlocale().
+	(sig_int): Add _GL_UNUSED_PARAMETER.
+	(ping_run): Declare NRESP and I as size_t.
+	(send_echo): Declare OFF as size_t.
+	* ping/ping6.c: Include <unused-parameter.h>.
+	(argp_options, argp): Add missing fields.
+	(main) [HAVE_SETLOCALE]: Call setlocale().
+	(sig_int, print_echo, ping_init): Add _GL_UNUSED_PARAMETER.
+	(ping_run): Declare NRESP size_t and I as `unsigned long'.
+	(send_echo): Declare OFF as size_t.
+	(ping_echo): Replace format string "%d" by "%zd".
+	(ping_set_dest): Remove call setlocale().
+	* ping/ping_address.c: Include <unused-address.h>.
+	(print_address): Add _GL_UNUSED_PARAMETER.
+	* ping/ping_common.c: Include <unused-address.h>.
+	(init_data_buffer): Use `size_t len' as second parameter.
+	Declare I as size_t.
+	(decode_pattern): Add _GL_UNUSED_PARAMETER.
+	* ping/ping_common.h (init_data_buffer): Update prototype.
+	* ping/ping_echo.c: Include <unused-parameter.h>.
+	(ping_echo): Replace format string "%d" by "%zd".
+	(print_echo, print_ip_data): Add _GL_UNUSED_PARAMETER.
+	(print_icmp_code): Declare HLEN as size_t.
+	(print_ip_header): Declare J as size_t.
+	(icmp_diag): Add missing fields.
+	* ping/ping_timestamp.c: Include <unused-parameter.h>.
+	(print_timestamp): Add _GL_UNUSED_PARAMETER.
+
+	inetd: Attend to compiler warnings.
+
+	* src/inetd.c (toomany): Declare as unsigned.
+	(argp_options, argp): Add missing fields.
+	(struct servtab): Declare se_count as unsigned.
+	(enter): Declare I as size_t.
+	(parse_opt, echo_dg, discard_dg, chargen_dg)
+	(machtime_stream, machtime_dg, daytime_stream)
+	(daytime_dg): Add _GL_UNUSED_PARAMETER.
+
+2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	talk, talkd: Compiler warnings.
 
 	* talk/ctl.c (daemon_addr, ctl_addr, my_addr): Remove
