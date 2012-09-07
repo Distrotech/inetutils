@@ -1,5 +1,25 @@
 2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	talk, talkd: Compiler warnings.
+
+	* talk/ctl.c (daemon_addr, ctl_addr, my_addr): Remove
+	initial values, since they are incomplete.
+	(open_sockt): Set `my_addr.sin_family' and `my_addr.sin_len'.
+	(open_ctl): Likewise with `ctl_addr'.
+	* talk/ctl_transact.c (ctl_transact): Likewise with
+	`daemon_addr'.  Call htons() with `daemon_port'.
+	* talk/get_addrs.c (daemon_port): Use in host byte order,
+	calling ntohs() on `sp->s_port'.
+	* talk/invite.c: Include <unused-parameter.h>.
+	(re_invite): Add _GL_UNUSED_PARAMETER. Initialise `daemon_addr'.
+	* talk/msgs.c: Include <unused-parameter.h>.
+	(disp_msg): Add _GL_UNUSED_PARAMETER.
+	* talk/talk.c (argp): Fill in missing fields.
+	* talkd/talkd.c (argp_options, argp): Likewise.
+	(parse_opt): Add _GL_UNUSED_PARAMETER.
+
+2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	syslogd, tftp, tftpd, uucpd: Compiler warnings.
 
 	* src/syslogd.c (argp_options, parse_opt): Fill in

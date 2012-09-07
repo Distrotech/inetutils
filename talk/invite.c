@@ -61,6 +61,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <setjmp.h>
+#include <unused-parameter.h>
 #include "talk_ctl.h"
 #include "talk.h"
 
@@ -115,7 +116,7 @@ announce_invite (void)
  * Routine called on interupt to re-invite the callee
  */
 void
-re_invite (int sig)
+re_invite (int sig _GL_UNUSED_PARAMETER)
 {
 
   message ("Ringing your party again");
@@ -194,6 +195,10 @@ send_delete (void)
    * and don't wait for an answer
    */
   msg.id_num = htonl (remote_id);
+  daemon_addr.sin_family = AF_INET;
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+  daemon_addr.sin_len = sizeof (daemon_addr);
+#endif
   daemon_addr.sin_addr = his_machine_addr;
   if (sendto (ctl_sockt, (const char *) &msg, sizeof (msg), 0,
 	      (struct sockaddr *) &daemon_addr,

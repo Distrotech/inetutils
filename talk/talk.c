@@ -81,7 +81,7 @@ const char *program_authors[] =
 
 const char doc[] = "talk to another user";
 const char args_doc[] = "person [ttyname]";
-static struct argp argp = { NULL, NULL, args_doc, doc };
+static struct argp argp = { NULL, NULL, args_doc, doc, NULL, NULL, NULL};
 
 int
 main (int argc, char *argv[])
