@@ -1,5 +1,15 @@
 2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	talk, talkd: Portability issue.
+
+	* talk/look_up.c (check_local): New variable ADDR.
+	Call connect() with ADDR, built from `rp->addr'.
+
+	* talkd/talkd.c (talkd_run): New variable CTL_ADDR.
+	Call sendto() with CTL_ADDR, built from `msg.ctl_addr'.
+
+2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	traceroute: Support IDN named hosts.
 
 	* configure.ac: Check traceroute_BUILD and LIBIDN in

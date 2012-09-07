@@ -151,6 +151,8 @@ alarm_handler (int err _GL_UNUSED_PARAMETER)
 void
 talkd_run (int fd)
 {
+  struct sockaddr ctl_addr;
+
   signal (SIGALRM, alarm_handler);
   alarm (timeout);
   while (1)
@@ -173,9 +175,14 @@ talkd_run (int fd)
       last_msg_time = time (NULL);
       if (process_request (&msg, &sa_in, &resp) == 0)
 	{
+	  ctl_addr.sa_family = msg.ctl_addr.sa_family;
+#ifdef HAVE_STRUCT_SOCKADDR_SA_LEN
+	  ctl_addr.sa_len = sizeof (struct sockaddr_in);
+#endif
+	  memcpy (&ctl_addr.sa_data, &msg.ctl_addr.sa_data,
+		  sizeof (ctl_addr.sa_data));
 	  rc = sendto (fd, &resp, sizeof resp, 0,
-		       (struct sockaddr *) &msg.ctl_addr,
-		       sizeof (msg.ctl_addr));
+		       &ctl_addr, sizeof (ctl_addr));
 	  if (rc != sizeof resp && (logging || debug))
 	    syslog (LOG_NOTICE, "sendto: %m");
 	}
