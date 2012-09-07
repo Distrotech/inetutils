@@ -1,5 +1,26 @@
 2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	syslogd, tftp, tftpd, uucpd: Compiler warnings.
+
+	* src/syslogd.c (argp_options, parse_opt): Fill in
+	non-initialised fields.
+	* src/tftp.c: Include <unused-parameter.h>.
+	(cmdtab, argp_options, parse_opt): Fill in missing fields.
+	(setbinary, setascii, status, intr, quit, settrace)
+	(setverbose, timer): Add _GL_UNUSED_PARAMETER.
+	* src/tftpd.c: Include <unused-parameter.h>.
+	(options, argp, formats): Fill in missing fields.
+	(parse_opt, timeout, justquit): Add _GL_UNUSED_PARAMETER.
+	* src/uucpd.c (arpg): Fill in missing fields.
+
+	Upgrade TFTP test.
+
+	* tests/tftp.sh: Make mode `binary' explicit.  Add a case
+	with `ascii' transmission.
+	(ASCIIFILE, type): New variables.
+
+2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	talkd: Full ACL capability.
 
 	* talkd/acl.c (struct acl): New member `system'.

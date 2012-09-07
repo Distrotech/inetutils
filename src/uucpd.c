@@ -104,10 +104,9 @@ extern char **environ;
 
 static struct argp argp =
   {
-    NULL,
-    NULL,
-    NULL,
-    "TCP/IP server for uucico"
+    NULL, NULL, NULL,
+    "TCP/IP server for uucico",
+    NULL, NULL, NULL
   };
 
 int

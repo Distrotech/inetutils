@@ -278,6 +278,7 @@ test -d "$TMPDIR" && mkdir -p "$TMPDIR/tftp-test" \
     }
 
 # It is important to test data of differing sizes.
+# These are binary files.
 #
 # Input format:
 #
@@ -296,6 +297,14 @@ done
 
 FILELIST="`echo "$FILEDATA" | $SED 's/ .*//' | tr "\n" ' '`"
 
+# Add a file known to be ASCII encoded.
+#
+ASCIIFILE=asciifile.txt
+if test -r tools.sh; then
+    cp tools.sh "$TMPDIR/tftp-test/$ASCIIFILE"
+    FILELIST="$FILELIST $ASCIIFILE"
+fi
+
 SUCCESSES=0
 EFFORTS=0
 RESULT=0
@@ -306,9 +315,13 @@ for addr in $ADDRESSES; do
     $silence echo "trying address '$addr'..." >&2
 
     for name in $FILELIST; do
+	test -n "$name" || continue
 	EFFORTS=`expr $EFFORTS + 1`
-	rm -f $name
-	echo "get $name" | eval "$TFTP" ${VERBOSE:+-v} "$addr" $PORT $bucket
+	rm -f "$name"
+	test "$name" = $ASCIIFILE && type=ascii || type=binary
+	echo "$type
+get $name" | \
+	eval "$TFTP" ${VERBOSE:+-v} "$addr" $PORT $bucket
 
 	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?
@@ -355,7 +368,9 @@ if $do_conf_reload; then
     for addr in $ADDRESSES; do
 	EFFORTS=`expr $EFFORTS + 1`
 	test -f "$name" && rm "$name"
-	echo "get $name" | eval "$TFTP" ${VERBOSE:+-v} "$addr" $PORT $bucket
+	echo "binary
+get $name" | \
+	eval "$TFTP" ${VERBOSE:+-v} "$addr" $PORT $bucket
 	cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
 	result=$?
 	if test $result -ne 0; then

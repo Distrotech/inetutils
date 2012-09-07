@@ -82,6 +82,7 @@
 
 #include "tftpsubs.h"
 
+#include <unused-parameter.h>
 #include <argp.h>
 #include <progname.h>
 #include <libinetutils.h>
@@ -133,15 +134,16 @@ static const char *verifyhost (struct sockaddr_storage *, socklen_t);
 
 static struct argp_option options[] = {
   { "logging", 'l', NULL, 0,
-    "enable logging" },
+    "enable logging", 1},
   { "nonexistent", 'n', NULL, 0,
     "supress negative acknowledgement of requests for "
-    "nonexistent relative filenames" },
-  { NULL }
+    "nonexistent relative filenames", 1},
+  { NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int key, char *arg _GL_UNUSED_PARAMETER,
+	   struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   switch (key)
     {
@@ -165,7 +167,8 @@ static struct argp argp =
     options,
     parse_opt,
     "directory...",
-    "Trivial File Transfer Protocol server"
+    "Trivial File Transfer Protocol server",
+    NULL, NULL, NULL
   };
 
 
@@ -320,7 +323,7 @@ struct formats
   {
     {"netascii", validate_access, send_file, recvfile, 1},
     {"octet", validate_access, send_file, recvfile, 0},
-    {0}
+    {0, NULL, NULL, NULL, 0}
   };
 
 /*
@@ -525,7 +528,7 @@ int timeout;
 sigjmp_buf timeoutbuf;
 
 void
-timer (int sig)
+timer (int sig _GL_UNUSED_PARAMETER)
 {
 
   timeout += rexmtval;
@@ -605,7 +608,7 @@ abort:
 }
 
 void
-justquit (int sig)
+justquit (int sig _GL_UNUSED_PARAMETER)
 {
   exit (EXIT_SUCCESS);
 }

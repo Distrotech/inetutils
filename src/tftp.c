@@ -73,6 +73,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <argp.h>
+#include <unused-parameter.h>
 
 #include <libinetutils.h>
 
@@ -179,7 +180,7 @@ struct cmd cmdtab[] = {
   {"rexmt", xhelp, setrexmt},
   {"timeout", ihelp, settimeout},
   {"?", hhelp, help},
-  {0}
+  {NULL, NULL, NULL}
 };
 
 struct cmd *getcmd (register char *name);
@@ -190,8 +191,8 @@ const char args_doc[] = "[HOST [PORT]]";
 const char doc[] = "Trivial file transfer protocol client";
 
 static struct argp_option argp_options[] = {
-  {"verbose", 'v', NULL, 0, "verbose output"},
-  {NULL}
+  {"verbose", 'v', NULL, 0, "verbose output", 1},
+  {NULL, 0, NULL, 0, NULL, 0}
 };
 
 char *hostport_argv[3] = { "connect" };
@@ -253,7 +254,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 int
 main (int argc, char *argv[])
@@ -473,13 +475,13 @@ modecmd (int argc, char *argv[])
 }
 
 void
-setbinary (int argc, char *argv[])
+setbinary (int argc _GL_UNUSED_PARAMETER, char *argv[] _GL_UNUSED_PARAMETER)
 {
   settftpmode ("octet");
 }
 
 void
-setascii (int argc, char *argv[])
+setascii (int argc _GL_UNUSED_PARAMETER, char *argv[] _GL_UNUSED_PARAMETER)
 {
   settftpmode ("netascii");
 }
@@ -749,7 +751,7 @@ settimeout (int argc, char *argv[])
 }
 
 void
-status (int argc, char *argv[])
+status (int argc _GL_UNUSED_PARAMETER, char *argv[] _GL_UNUSED_PARAMETER)
 {
   if (connected)
     printf ("Connected to %s.\n", hostname);
@@ -762,7 +764,7 @@ status (int argc, char *argv[])
 }
 
 void
-intr (int signo)
+intr (int signo _GL_UNUSED_PARAMETER)
 {
   signal (SIGALRM, SIG_IGN);
   alarm (0);
@@ -886,7 +888,7 @@ makeargv (void)
 }
 
 void
-quit (int argc, char *argv[])
+quit (int argc _GL_UNUSED_PARAMETER, char *argv[] _GL_UNUSED_PARAMETER)
 {
   exit (EXIT_SUCCESS);
 }
@@ -923,14 +925,14 @@ help (int argc, char *argv[])
 }
 
 void
-settrace (int argc, char **argv)
+settrace (int argc _GL_UNUSED_PARAMETER, char *argv[] _GL_UNUSED_PARAMETER)
 {
   trace = !trace;
   printf ("Packet tracing %s.\n", trace ? "on" : "off");
 }
 
 void
-setverbose (int argc, char **argv)
+setverbose (int argc _GL_UNUSED_PARAMETER, char *argv[] _GL_UNUSED_PARAMETER)
 {
   verbose = !verbose;
   printf ("Verbose mode %s.\n", verbose ? "on" : "off");
@@ -1314,7 +1316,7 @@ printstats (const char *direction, unsigned long amount)
 }
 
 static void
-timer (int sig)
+timer (int sig _GL_UNUSED_PARAMETER)
 {
   timeout += rexmtval;
   if (timeout >= maxtimeout)
