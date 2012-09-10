@@ -404,10 +404,10 @@ ping_finish (void)
 {
   fflush (stdout);
   printf ("--- %s ping statistics ---\n", ping->ping_hostname);
-  printf ("%ld packets transmitted, ", ping->ping_num_xmit);
-  printf ("%ld packets received, ", ping->ping_num_recv);
+  printf ("%zu packets transmitted, ", ping->ping_num_xmit);
+  printf ("%zu packets received, ", ping->ping_num_recv);
   if (ping->ping_num_rept)
-    printf ("+%ld duplicates, ", ping->ping_num_rept);
+    printf ("+%zu duplicates, ", ping->ping_num_rept);
   if (ping->ping_num_xmit)
     {
       if (ping->ping_num_recv > ping->ping_num_xmit)

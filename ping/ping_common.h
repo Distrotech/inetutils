@@ -117,9 +117,9 @@ struct ping_data
 
   unsigned char *ping_buffer;         /* I/O buffer */
   union ping_address ping_from;
-  long ping_num_xmit;          /* Number of packets transmitted */
-  long ping_num_recv;          /* Number of packets received */
-  long ping_num_rept;          /* Number of duplicates received */
+  size_t ping_num_xmit;        /* Number of packets transmitted */
+  size_t ping_num_recv;        /* Number of packets received */
+  size_t ping_num_rept;        /* Number of duplicates received */
 };
 
 #define _C_BIT(p,bit)   (p)->ping_cktab[(bit)>>3]	/* byte in ck array */

@@ -1,3 +1,13 @@
+2012-09-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ping/ping.c (ping_finish): Replace format string "%ld"
+	by "%zu" for counter status.
+	* ping/ping6.c (ping_finish): Likewise.
+	* ping/ping_common.h (struct ping_data): Set type size_t
+	on fields ping_num_xmit, ping_num_recv and ping_num_rept.
+	* ping/ping_router.c: Include <unused-parameter.h>.
+	(ping_router): Add _GL_UNUSED_PARAMETER.
+
 2012-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	talk, talkd: Portability issue.
