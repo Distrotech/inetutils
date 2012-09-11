@@ -191,7 +191,7 @@ off_to_str (off_t off)
   if (sizeof (off) > sizeof (long))
     sprintf (*next_buf, "%lld", (long long int) off);
   else if (sizeof (off) == sizeof (long))
-    sprintf (*next_buf, "%ld", off);
+    sprintf (*next_buf, "%ld", (long) off);
   else
     sprintf (*next_buf, "%d", (int) off);
 
@@ -316,7 +316,7 @@ static struct argp_option options[] = {
     "",
     GRID+3 },
 #endif
-  { NULL }
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -441,7 +441,9 @@ main (int argc, char *argv[], char **envp)
 #ifdef HAVE_INITSETPROCTITLE
   /* Save start and extent of argv for setproctitle.  */
   initsetproctitle (argc, argv, envp);
-#endif /* HAVE_INITSETPROCTITLE */
+#else /* !HAVE_INITSETPROCTITLE */
+  (void) envp;		/* Silence warnings.  */
+#endif
 
   /* Parse the command line */
   iu_argp_init ("ftpd", default_program_authors);

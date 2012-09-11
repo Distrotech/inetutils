@@ -234,6 +234,8 @@ server_mode (const char *pidfile, struct sockaddr *phis_addr,
 
 #ifndef HAVE_FORK
   _exit (execvp (argv[0], argv));
+#else
+  (void) argv;		/* Silence warnings.  */
 #endif
 
   return fd;

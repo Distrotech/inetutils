@@ -1,3 +1,21 @@
+2012-09-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ftpd/ftpcmd.y (cmd): Add parantheses to separate
+	subordinate && from ||.
+	* ftpd/ftpd.c (off_to_str): Cast OFF as long.
+	(options): Fill in missing fields.
+	(main) [!HAVE_INITSETPROCTITLE]: Trivially use envp.
+	* ftpd/pam.c: Include <unused-parameter.h>.
+	(pam_pass): Cast passwd as `char *'.
+	(pam_end_login): Add _GL_UNUSED_PARAMETER.
+	* ftpd/popen.c (ls_main prototype) [WITH_LIBLS]:
+	Enclose within conditional WITH_LIBLS.
+	* ftpd/server_mode.c (server_mode) [HAVE_FORK]:
+	Trivially use argv.
+	* libls/fts.c: Include <unused-parameter.h>.
+	(fts_set): Add _GL_UNUSED_PARAMETER.
+	* libls/ls.c (display): Cast MAXSIZE as off_t.
+
 2012-09-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ping/ping.c (ping_finish): Replace format string "%ld"

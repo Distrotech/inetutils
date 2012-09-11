@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <syslog.h>
+#include <unused-parameter.h>
 #include "extern.h"
 
 #ifdef HAVE_SECURITY_PAM_APPL_H
@@ -255,7 +256,7 @@ pam_pass (const char *passwd, struct credentials *pcred)
   int error = PAM_AUTH_ERR;
   if (pamh)
     {
-      pcred->pass = passwd;
+      pcred->pass = (char *) passwd;
       error = pam_doit (pcred);
       pcred->pass = NULL;
     }
@@ -263,7 +264,7 @@ pam_pass (const char *passwd, struct credentials *pcred)
 }
 
 void
-pam_end_login (struct credentials * pcred)
+pam_end_login (struct credentials * pcred _GL_UNUSED_PARAMETER)
 {
   int error;
 

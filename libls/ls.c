@@ -494,7 +494,7 @@ display (FTSENT *p, FTSENT *list)
 	    maxinode = sp->st_ino;
 	  if (sp->st_nlink > maxnlink)
 	    maxnlink = sp->st_nlink;
-	  if (sp->st_size > maxsize)
+	  if (sp->st_size > (off_t) maxsize)
 	    maxsize = sp->st_size;
 
 	  btotal += sp->st_blocks;

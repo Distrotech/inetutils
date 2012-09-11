@@ -86,7 +86,9 @@ struct file_pid
 /* A linked list associating ftpd_popen'd FILEs with pids.  */
 struct file_pid *file_pids = 0;
 
+#ifdef WITH_LIBLS
 extern int ls_main (int argc, char *argv[]);
+#endif
 
 FILE *
 ftpd_popen (char *program, const char *type)

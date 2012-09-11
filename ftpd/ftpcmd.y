@@ -197,19 +197,19 @@ cmd
 		{
 			if ($2) {
 				if ($4
-				    && (his_addr.ss_family == AF_INET
+				    && ((his_addr.ss_family == AF_INET
 					&& memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
 						   &((struct sockaddr_in *) &data_dest)->sin_addr,
 						   sizeof (struct in_addr)) == 0
 					&& ntohs (((struct sockaddr_in *) &data_dest)->sin_port)
-					   > IPPORT_RESERVED
+					   > IPPORT_RESERVED)
 					||
-					his_addr.ss_family == AF_INET6
+					(his_addr.ss_family == AF_INET6
 					&& memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
 						   &((struct sockaddr_in6 *) &data_dest)->sin6_addr,
 						   sizeof (struct in6_addr)) == 0
 					&& ntohs (((struct sockaddr_in6 *) &data_dest)->sin6_port)
-					   > IPPORT_RESERVED
+					   > IPPORT_RESERVED)
 				       )
 				   )
 				{
@@ -730,19 +730,19 @@ cmd
 			if ($2)
 			  {
 			    if ($4 &&
-				( his_addr.ss_family == AF_INET
+				((his_addr.ss_family == AF_INET
 				  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
 					     &((struct sockaddr_in *) &data_dest)->sin_addr,
 					     sizeof (struct in_addr)) == 0
 				  && ntohs (((struct sockaddr_in *) &data_dest)->sin_port)
-					> IPPORT_RESERVED
-				  ||
-				  his_addr.ss_family == AF_INET6
+					> IPPORT_RESERVED)
+				 ||
+				 (his_addr.ss_family == AF_INET6
 				  && memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
 					     &((struct sockaddr_in6 *) &data_dest)->sin6_addr,
 					     sizeof (struct in6_addr)) == 0
 				  && ntohs (((struct sockaddr_in6 *) &data_dest)->sin6_port)
-					> IPPORT_RESERVED
+					> IPPORT_RESERVED)
 				)
 			       )
 			      {

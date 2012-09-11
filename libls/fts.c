@@ -55,6 +55,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <unused-parameter.h>
 
 #include "fts.h"
 
@@ -512,7 +513,7 @@ next:tmp = p;
  * reasons.
  */
 int
-fts_set (FTS *sp, FTSENT *p, int instr)
+fts_set (FTS *sp _GL_UNUSED_PARAMETER, FTSENT *p, int instr)
 {
   if (instr && instr != FTS_AGAIN && instr != FTS_FOLLOW &&
       instr != FTS_NOINSTR && instr != FTS_SKIP)
