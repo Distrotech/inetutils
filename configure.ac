@@ -87,9 +87,13 @@ AC_ARG_WITH([pam],
             AC_HELP_STRING([--with-pam],
                            [Add support for PAM]))
 AC_ARG_WITH([idn],
-  AC_HELP_STRING([--with-idn],
+  AC_HELP_STRING([--with-idn[[=DIR]]],
 		 [Use IDN support, with optional inclusion directory]), ,
 		 [with_idn=no])
+AC_ARG_WITH([libidn-prefix],
+  AC_HELP_STRING([--with-libidn-prefix[[=DIR]]],
+		 [Base directory, probes DIR/include and DIR/lib]), ,
+		 [with_libidn_prefix=no])
 
 IU_ENABLE_SERVER(ftpd)
 IU_ENABLE_SERVER(inetd)
@@ -150,9 +154,9 @@ AC_ARG_VAR(NETSTAT, [Location of 'netstat'.])
 gl_INIT
 
 ### Checks for libraries.
-AC_CHECK_LIB(nsl, inet_ntoa)
-AC_CHECK_LIB(resolv, gethostname)
-AC_CHECK_LIB(socket, getpeername)
+AC_SEARCH_LIBS([inet_ntoa], [nsl])
+AC_SEARCH_LIBS([gethostname], [resolv])
+AC_SEARCH_LIBS([getpeername], [socket])
 
 # See if a termcap library is available (under one of several names)
 IU_LIB_TERMCAP
@@ -196,7 +200,7 @@ fi
 
 # See if we have libpam.a.  Investigate PAM versus Linux-PAM.
 if test "$with_pam" = yes ; then
-  AC_CHECK_LIB(dl, dlopen)
+  AC_CHECK_LIB(dl, dlopen, LIBDL=-ldl)
   AC_CHECK_LIB(pam, pam_authenticate, LIBPAM=-lpam)
   if test "$ac_cv_lib_pam_pam_authenticate" = yes ; then
     AC_DEFINE([WITH_PAM], 1, [Define to one if you have -lpam.])
@@ -208,6 +212,7 @@ if test "$with_pam" = yes ; then
     fi
   fi
 fi
+AC_SUBST(LIBDL)
 AC_SUBST(LIBPAM)
 AC_SUBST(FTPD_LIBPAM)
 
@@ -564,10 +569,15 @@ AC_SUBST(LIBWRAP)
 ### Check for GNU Libidn
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_FUNCS([setlocale])
+
 if test x"$with_idn" != xno \
     && test "$ac_cv_header_locale_h" = yes \
     && test "$ac_cv_func_setlocale" = yes; then
-  AC_MSG_CHECKING([if GNU libidn is available])
+  if test x"$with_libidn_prefix" != xno \
+      && test x"$with_libidn_prefix" != xyes; then
+    INCIDN=-I$with_libidn_prefix/include
+    LIBIDN=-L$with_libidn_prefix/lib
+  fi
   if test x"$with_idn" != xyes; then
     INCIDN=-I$with_idn
   fi
@@ -575,12 +585,15 @@ if test x"$with_idn" != xno \
   CPPFLAGS="$CPPFLAGS $INCIDN"
   AC_CHECK_HEADERS([idna.h])
   if test "$ac_cv_header_idna_h" = yes; then
-    AC_CHECK_LIB(idn, idna_to_ascii_lz, [LIBIDN=-lidn], [INCIDN=])
+    AC_CHECK_LIB(idn, idna_to_ascii_lz,
+		 [LIBIDN="$LIBIDN -lidn"], [INCIDN= LIBIDN=],
+		 [$LIBIDN])
+    AC_MSG_CHECKING([if GNU libidn is available])
     if test "$ac_cv_lib_idn_idna_to_ascii_lz" = yes; then
       AC_DEFINE(HAVE_IDN, 1, [Define to 1 for use of GNU Libidn.])
     fi
+    AC_MSG_RESULT($ac_cv_lib_idn_idna_to_ascii_lz)
   fi
-  AC_MSG_RESULT($ac_cv_lib_idna_to_ascii_lz)
   CPPFLAGS=$save_CPPFLAGS
 fi
 AC_SUBST([LIBIDN])
@@ -995,9 +1008,9 @@ ${ftp_BUILD:+${LIBREADLINE:+$LIBREADLINE }$LIBTERMCAP}
     ifconfig       ${enable_ifconfig}
     logger         ${enable_logger}
     ping           ${enable_ping}  \
-${ping_BUILD:+$LIBIDN}
+${ping_BUILD:+${LIBIDN:+-libidn}}
     ping6          ${enable_ping6}  \
-${ping6_BUILD:+$LIBIDN}
+${ping6_BUILD:+${LIBIDN:+-libidn}}
     rcp            ${enable_rcp}  \
 ${rcp_BUILD:+$KERBEROS_VERSION}
     rexec          ${enable_rexec}
@@ -1011,7 +1024,7 @@ ${talk_BUILD:+$LIBCURSES}
 ${telnet_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }$LIBTERMCAP}
     tftp           ${enable_tftp}
     traceroute     ${enable_traceroute}  \
-${traceroute_BUILD:+$LIBIDN}
+${traceroute_BUILD:+${LIBIDN:+-libidn}}
     whois          ${enable_whois}
 
   Servers:

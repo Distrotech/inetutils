@@ -1,5 +1,30 @@
 2012-09-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Use libdl only when needed, i.e., with libpam.
+
+	* configure.ac (LIBDL): New variable.  Publish it
+	using AC_SUBST.  When calling AC_CHECK_LIB for
+	dlopen in libdl, add the action `LIBDL=-ldl' which
+	avoids a global change of LIBS.
+	* ftpd/Makefile.am (LDADD): Add $(LIBDL).
+	* src/Makefile.am (rexecd_LDADD, rshd_LDADD): Likewise.
+
+	Link libnsl, libresolv or libsocket only if needed.
+
+	* configure.ac: Use AC_SEARCH_LIBS instead of AC_CHECK_LIB
+	when sensing for libnsl, libresolv, and libsocket.
+
+	Refine libidn detection and specification.
+
+	* configure.ac <--with-libidn-prefix>: New option.
+	<libidn detection>: Call AC_MSG_CHECKING after other
+	checks, and call AC_MSG_RESULT with correct variable.
+	Preload INCIDN and LIBIDN from $with_libidn_prefix.
+	In call to AC_CHECKLIB(idn, ...), use preset LIBIDN.
+	In summary message, print `-lidn' instead of LIBIDN.
+
+2012-09-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* ifconfig/changeif.c (herror prototype)
 	[!HAVE_DECL_GETADDRINFO]: Conditional use of prototype.
 	(set_address) [HAVE_DECL_GETADDRINFO]: New variables RC,
