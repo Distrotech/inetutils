@@ -33,11 +33,12 @@
 #include <netdb.h>
 
 /* Return the name of the localhost.  This is just a wrapper for gethostname,
-   which takes care of allocating a big enough buffer, and caches the result
+   taking care of allocating a big enough buffer, and caching the result
    after the first call (so the result should be copied before modification).
-   If something goes wrong, 0 is returned, and errno set.  */
-/* We know longer use static buffers, is to dangerous and
-   cause subtile bugs.  */
+   If something goes wrong, 0 is returned, and errno is set.
+ */
+/* We no longer use static buffers, as it is too dangerous and
+   it causes subtile bugs.  */
 char *
 localhost (void)
 {
@@ -75,8 +76,31 @@ localhost (void)
       buf = 0;
     }
   else
-    /* Determine FQDN */
+    /* Determine FQDN.  */
     {
+#ifdef HAVE_DECL_GETADDRINFO
+      int rc;
+      struct addrinfo hints, *res;
+      char fqdn[NI_MAXHOST];
+
+      memset (&hints, 0, sizeof (hints));
+      hints.ai_family = AF_INET;
+
+      rc = getaddrinfo (buf, NULL, &hints, &res);
+      if (!rc)
+	{
+	  /* Back resolving as official host name.  */
+	  rc = getnameinfo (res->ai_addr, res->ai_addrlen,
+			    fqdn, sizeof (fqdn), NULL, 0,
+			    NI_NAMEREQD);
+	  if (!rc)
+	    {
+	      free (buf);
+	      buf = strdup (fqdn);
+	    }
+	  freeaddrinfo (res);
+	}
+#else /* !HAVE_DECL_GETADDRINFO */
       struct hostent *hp = gethostbyname (buf);
 
       if (hp)
@@ -90,6 +114,7 @@ localhost (void)
 	      buf = strdup (hp->h_name);
 	    }
 	}
+#endif /* !HAVE_DECL_GETADDRINFO */
     }
   return buf;
 }

@@ -1,3 +1,17 @@
+2012-09-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ifconfig/changeif.c (herror prototype)
+	[!HAVE_DECL_GETADDRINFO]: Conditional use of prototype.
+	(set_address) [HAVE_DECL_GETADDRINFO]: New variables RC,
+	ADDR, HINTS, AI, and RES.  New, alternate code for address
+	resolution using getaddrinfo() and getnameinfo().
+
+	* libinetutils/localhost.c (localhost) [HAVE_DECL_GETADDRINFO]:
+	New variables RC, HINTS, RES, and FQDN.  New, alternate code
+	for address resolution.
+
+	* tests/Makefile.am (TESTS): Add `localhost' as test case.
+
 2012-09-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ftpd/ftpcmd.y (cmd): Add parantheses to separate

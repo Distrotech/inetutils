@@ -52,7 +52,9 @@
       return -1;							\
     }
 
+#ifndef HAVE_DECL_GETADDRINFO
 extern void herror (const char *pfx);
+#endif
 
 /* Set address of interface in IFR. Destroys union in IFR, but leaves
    ifr_name intact.  ADDRESS may be an IP number or a hostname that
@@ -65,6 +67,41 @@ set_address (int sfd, struct ifreq *ifr, char *address)
 	   "don't know how to set an interface address on this system");
   return -1;
 #else
+# ifdef HAVE_DECL_GETADDRINFO
+  int rc;
+  char addr[INET_ADDRSTRLEN];
+  struct addrinfo hints, *ai, *res;
+
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_INET;
+
+  rc = getaddrinfo (address, NULL, &hints, &res);
+  if (rc)
+    {
+      error (0, 0, "cannot resolve `%s': %s", address, gai_strerror (rc));
+      return -1;
+    }
+  for (ai = res; ai; ai = ai->ai_next)
+    if (ai->ai_family == AF_INET)
+      break;
+
+  if (ai == NULL)
+    {
+      error (0, 0, "`%s' refers to an unknown address type", address);
+      freeaddrinfo (res);
+      return -1;
+    }
+
+  rc = getnameinfo (ai->ai_addr, ai->ai_addrlen,
+		    addr, sizeof (addr), NULL, 0,
+		    NI_NUMERICHOST);
+  freeaddrinfo (res);
+  if (rc)
+    {
+      error (0, 0, "cannot resolve `%s': %s", address, gai_strerror (rc));
+      return -1;
+    }
+# else /* !HAVE_DECL_GETADDRINFO */
   char *addr;
   struct hostent *host = gethostbyname (address);
 
@@ -80,9 +117,11 @@ set_address (int sfd, struct ifreq *ifr, char *address)
     }
 
   addr = inet_ntoa (*((struct in_addr *) host->h_addr));
+# endif /* !HAVE_DECL_GETADDRINFO */
 
   {
-    SIOCSIF (ADDR, addr) if (verbose)
+    SIOCSIF (ADDR, addr)
+    if (verbose)
       printf ("Set interface address of `%s' to %s.\n",
 	      ifr->ifr_name, inet_ntoa (sin->sin_addr));
   }

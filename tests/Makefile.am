@@ -68,7 +68,7 @@ if ENABLE_dnsdomainname
 dist_check_SCRIPTS += dnsdomainname.sh
 endif
 
-TESTS = $(dist_check_SCRIPTS)
+TESTS = localhost $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
 
