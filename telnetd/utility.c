@@ -302,7 +302,7 @@ pty_output_byte (int c)
 void
 pty_output_datalen (const void *data, size_t len)
 {
-  if ((&ptyobuf[BUFSIZ] - pfrontp) > len)
+  if ((size_t) (&ptyobuf[BUFSIZ] - pfrontp) > len)
     ptyflush ();
   memcpy (pfrontp, data, len);
   pfrontp += len;
@@ -362,7 +362,7 @@ pty_get_char (int peek)
 int
 pty_input_putback (const char *str, size_t len)
 {
-  if (len > &ptyibuf[BUFSIZ] - ptyip)
+  if (len > (size_t) (&ptyibuf[BUFSIZ] - ptyip))
     len = &ptyibuf[BUFSIZ] - ptyip;
   strncpy (ptyip, str, len);
   pcc += len;
@@ -445,7 +445,7 @@ io_drain (void)
 int
 stilloob (int s)
 {
-  static struct timeval timeout = { 0 };
+  static struct timeval timeout = { 0, 0 };
   fd_set excepts;
   int value;
 
@@ -720,7 +720,9 @@ getterminaltype (char *user_name)
       if (his_state_is_will (TELOPT_AUTHENTICATION))
 	retval = auth_wait (user_name);
     }
-#endif /* AUTHENTICATION */
+#else /* !AUTHENTICATION */
+  (void) user_name;	/* Silence warning.  */
+#endif
 
 #ifdef	ENCRYPTION
   send_will (TELOPT_ENCRYPT, 1);
@@ -929,7 +931,7 @@ printsub (int direction, unsigned char *pointer, int length)
   register int i;
 
 #if defined AUTHENTICATION && defined ENCRYPTION
-  char buf[512];
+  unsigned char buf[512];
 #endif
 
   if (direction)
@@ -1447,7 +1449,7 @@ printsub (int direction, unsigned char *pointer, int length)
 	case TELQUAL_NAME:
 	  i = 2;
 	  debug_output_data (" NAME \"");
-	  debug_output_datalen (&pointer[i], length);
+	  debug_output_datalen ((char *) &pointer[i], length);
 	  i += length;
 	  debug_output_data ("\"");
 	  break;
@@ -1686,6 +1688,8 @@ _var_short_name (struct line_expander *exp)
 char *
 _var_long_name (struct line_expander *exp, char *start, int length)
 {
+  (void) start;		/* Silence warnings until implemented.  */
+  (void) length;
   exp->state = EXP_STATE_ERROR;
   return NULL;
 }

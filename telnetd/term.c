@@ -305,6 +305,8 @@ tty_setlinemode (int on)
     termbuf.c_lflag |= EXTPROC;
   else
     termbuf.c_lflag &= ~EXTPROC;
+#  else /* !EXTPROC */
+  (void) on;		/* Silence warnings.  */
 #  endif
 # endif	/* TIOCEXT */
 }

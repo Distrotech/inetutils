@@ -51,7 +51,10 @@ startslave (char *host, int autologin, char *autoname)
       fatal (net, "Authorization failed");
       exit (EXIT_FAILURE);
     }
+#else /* !AUTHENTICATION */
+  (void) autoname;	/* Silence warnings.  */
 #endif
+
   pid = forkpty (&master, line, NULL, NULL);
   if (pid < 0)
     {
@@ -111,6 +114,10 @@ start_login (char *host, int autologin, char *name)
   char *cmd;
   int argc;
   char **argv;
+
+  (void) host;		/* Silence warnings.  Diagnostic use?  */
+  (void) autologin;
+  (void) name;
 
   scrub_env ();
 

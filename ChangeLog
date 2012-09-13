@@ -1,3 +1,28 @@
+2012-09-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Compiler warnings.
+
+	* telnetd/pty.c (startslave) [!AUTHENTICATION]:
+	Trivially use autoname.
+	(start_login): Trivially use host, autologin, name.
+	* telnetd/telnetd.c: Include <unused-parameter.h>
+	(argp_options): Add missing fields.  Collect options
+	for authentication into a separate group.  New macro GRID.
+	(parse_opt): Add _GL_UNUSED_PARAMETER.
+	(argp): Add missing fields.
+	* telnetd/term.c (tty_setlinemode) [!TIOCEXT && !EXTPROC]:
+	Trivially use `on'.
+	* telnetd/utility.c (pty_output_datalen): Cast integer
+	difference as size_t.
+	(pty_get_char): Likewise.
+	(stilloob): Add missing field in TIMEOUT.
+	(getterminaltype) [!AUTHENTICATION]: Trivially use user_name.
+	(printsub) [AUTHENTICATION && ENCRYPTION]: Declare BUF as
+	array of unsigned char.
+	<case TELQUAL_NAME>: Cast array reference as `char *'
+	inside call to debug_output_datalen.
+	(_var_long_name): Trivially use start and length.
+
 2012-09-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Use libdl only when needed, i.e., with libpam.

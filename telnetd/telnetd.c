@@ -26,6 +26,7 @@
 #include <argp.h>
 #include <progname.h>
 #include <error.h>
+#include <unused-parameter.h>
 #include <libinetutils.h>
 
 #if defined AUTHENTICATION || defined ENCRYPTION
@@ -99,37 +100,39 @@ struct telnetd_clocks clocks;
 
 
 static struct argp_option argp_options[] = {
-#ifdef  AUTHENTICATION
-  { "authmode", 'a', "MODE", 0,
-    "specify what mode to use for authentication" },
-#endif
+#define GRID 10
   { "debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
-    "set debugging level" },
+    "set debugging level", GRID },
   { "exec-login", 'E', "STRING", 0,
-    "set program to be executed instead of " PATH_LOGIN },
+    "set program to be executed instead of " PATH_LOGIN, GRID },
   { "no-hostinfo", 'h', NULL, 0,
-    "do not print host information before login has been completed" },
+    "do not print host information before login has been completed", GRID },
   { "linemode", 'l', "MODE", OPTION_ARG_OPTIONAL,
-    "set line mode" },
+    "set line mode", GRID },
   { "no-keepalive", 'n', NULL, 0,
-    "disable TCP keep-alives" },
-#if defined AUTHENTICATION || defined ENCRYPTION
-  { "server-principal", 'S', "NAME", 0,
-    "set Kerberos principal name for this server instance, "
-    "with or without explicit realm" },
-#endif
+    "disable TCP keep-alives", GRID },
   { "reverse-lookup", 'U', NULL, 0,
     "refuse connections from addresses that "
-    "cannot be mapped back into a symbolic name" },
-#ifdef  AUTHENTICATION
+    "cannot be mapped back into a symbolic name", GRID },
+#undef GRID
+
+#ifdef AUTHENTICATION
+# define GRID 20
+  { NULL, 0, NULL, 0, "Authentication control:", GRID },
+  { "authmode", 'a', "MODE", 0,
+    "specify what mode to use for authentication", GRID },
+  { "server-principal", 'S', "NAME", 0,
+    "set Kerberos principal name for this server instance, "
+    "with or without explicit realm", GRID },
   { "disable-auth-type", 'X', "TYPE", 0,
-    "disable the use of given authentication option" },
-#endif
-  { NULL }
+    "disable the use of given authentication option", GRID },
+# undef GRID
+#endif /* AUTHENTICATION */
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   switch (key)
     {
@@ -187,7 +190,8 @@ static struct argp argp =
     argp_options,
     parse_opt,
     NULL,
-    "DARPA telnet protocol server"
+    "DARPA telnet protocol server",
+    NULL, NULL, NULL
   };
 
 
