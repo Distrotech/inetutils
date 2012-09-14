@@ -819,7 +819,7 @@ static struct togglelist Togglelist[] = {
    lclchars,
    &localchars,
    "recognize certain control characters"},
-  {" ", "", 0},			/* empty line */
+  {" ", "", 0, NULL, NULL},			/* empty line */
 #if defined unix && defined TN3270
   {"apitrace",
    "(debugging) toggle tracing of API transactions",
@@ -859,11 +859,11 @@ static struct togglelist Togglelist[] = {
    "print hexadecimal representation of terminal traffic"},
   {"?",
    0,
-   togglehelp},
+   togglehelp, NULL, NULL},
   {"help",
    0,
-   togglehelp},
-  {0}
+   togglehelp, NULL, NULL},
+  {NULL, NULL, 0, NULL, NULL}
 };
 
 static int
@@ -982,13 +982,13 @@ static struct setlist Setlist[] = {
   {"rlogin", "rlogin escape character", 0, &rlogin},
   {"tracefile", "file to write trace information to", SetNetTrace,
    (cc_t *) NetTraceFile},
-  {" ", ""},
+  {" ", "", 0, NULL},
   {" ", "The following need 'localchars' to be toggled true", 0, 0},
   {"flushoutput", "character to cause an Abort Output", 0, termFlushCharp},
   {"interrupt", "character to cause an Interrupt Process", 0, termIntCharp},
   {"quit", "character to cause an Abort process", 0, termQuitCharp},
   {"eof", "character to cause an EOF ", 0, termEofCharp},
-  {" ", ""},
+  {" ", "", 0, NULL},
   {" ", "The following are for local editing in linemode", 0, 0},
   {"erase", "character to use to erase a character", 0, termEraseCharp},
   {"kill", "character to use to erase a line", 0, termKillCharp},
@@ -1001,7 +1001,7 @@ static struct setlist Setlist[] = {
   {"forw1", "alternate end of line character", 0, termForw1Charp},
   {"forw2", "alternate end of line character", 0, termForw2Charp},
   {"ayt", "alternate AYT character", 0, termAytCharp},
-  {0}
+  {NULL, NULL, 0, NULL}
 };
 
 #if defined CRAY && !defined __STDC__
@@ -1314,16 +1314,16 @@ struct modelist
 extern int modehelp (void);
 
 static struct modelist ModeList[] = {
-  {"character", "Disable LINEMODE option", docharmode, 1},
+  {"character", "Disable LINEMODE option", docharmode, 1, 0},
 #ifdef	KLUDGELINEMODE
-  {"", "(or disable obsolete line-by-line mode)", 0},
+  {"", "(or disable obsolete line-by-line mode)", NULL, 0, 0},
 #endif
-  {"line", "Enable LINEMODE option", dolinemode, 1},
+  {"line", "Enable LINEMODE option", dolinemode, 1, 0},
 #ifdef	KLUDGELINEMODE
-  {"", "(or enable obsolete line-by-line mode)", 0},
+  {"", "(or enable obsolete line-by-line mode)", NULL, 0, 0},
 #endif
-  {"", "", 0},
-  {"", "These require the LINEMODE option to be enabled", 0},
+  {"", "", NULL, 0, 0},
+  {"", "These require the LINEMODE option to be enabled", NULL, 0, 0},
   {"isig", "Enable signal trapping", set_mode, 1, MODE_TRAPSIG},
   {"+isig", 0, set_mode, 1, MODE_TRAPSIG},
   {"-isig", "Disable signal trapping", clear_mode, 1, MODE_TRAPSIG},
@@ -1337,13 +1337,13 @@ static struct modelist ModeList[] = {
   {"+litecho", 0, set_mode, 1, MODE_LIT_ECHO},
   {"-litecho", "Disable literal character echo", clear_mode, 1,
    MODE_LIT_ECHO},
-  {"help", 0, modehelp, 0},
+  {"help", 0, modehelp, 0, 0},
 #ifdef	KLUDGELINEMODE
-  {"kludgeline", 0, dokludgemode, 1},
+  {"kludgeline", 0, dokludgemode, 1, 0},
 #endif
-  {"", "", 0},
-  {"?", "Print help information", modehelp, 0},
-  {0},
+  {"", "", NULL, 0, 0},
+  {"?", "Print help information", modehelp, 0, 0},
+  {NULL, NULL, NULL, 0, 0},
 };
 
 
@@ -1678,7 +1678,7 @@ struct slclist SlcList[] = {
    slc_mode_import, 0},
   {"help", 0, slc_help, 0},
   {"?", "Print help information", slc_help, 0},
-  {0},
+  {NULL, NULL, NULL, 0},
 };
 
 static void
@@ -1775,7 +1775,7 @@ struct envlist EnvList[] = {
 #endif
   {"help", 0, env_help, 0},
   {"?", "Print help information", env_help, 0},
-  {0},
+  {NULL, NULL, NULL, 0},
 };
 
 static void
@@ -2113,7 +2113,7 @@ struct authlist AuthList[] = {
    auth_enable, 1},
   {"help", 0, auth_help, 0},
   {"?", "Print help information", auth_help, 0},
-  {0},
+  {NULL, NULL, NULL, 0},
 };
 
 static int
@@ -2222,7 +2222,7 @@ struct encryptlist EncryptList[] = {
    EncryptStatus, 0, 0, 0},
   {"help", 0, EncryptHelp, 0, 0, 0},
   {"?", "Print help information", EncryptHelp, 0, 0, 0},
-  {0},
+  {NULL, NULL, NULL, 0, 0, 0},
 };
 
 static int
@@ -2831,7 +2831,7 @@ static Command cmdtab[] = {
 #endif
   {"environ", envhelp, env_cmd, 0},
   {"?", helphelp, help, 0},
-  {0}
+  {NULL, NULL, NULL, 0}
 };
 
 static char crmodhelp[] = "deprecated command -- use 'toggle crmod' instead";
@@ -2841,7 +2841,7 @@ static Command cmdtab2[] = {
   {"help", 0, help, 0},
   {"escape", escapehelp, setescape, 0},
   {"crmod", crmodhelp, togcrmod, 0},
-  {0}
+  {NULL, NULL, NULL, 0}
 };
 
 

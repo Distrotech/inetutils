@@ -277,37 +277,41 @@ const char *program_authors[] = {
 };
 
 static struct argp_option options[] = {
+#define GRP 10
   { "allow-root", 'o', NULL, 0,
-    "allow uid == 0 to login, disabled by default" },
+    "allow uid == 0 to login, disabled by default", GRP },
   { "verify-hostname", 'a', NULL, 0,
-    "ask hostname for verification" },
+    "ask hostname for verification", GRP },
   { "daemon", 'd', NULL, 0,
-    "daemon mode" },
+    "daemon mode", GRP },
 #ifdef HAVE___CHECK_RHOSTS_FILE
   { "no-rhosts", 'l', NULL, 0,
-    "ignore .rhosts file" },
+    "ignore .rhosts file", GRP },
 #endif
   { "no-keepalive", 'n', NULL, 0,
-    "do not set SO_KEEPALIVE" },
+    "do not set SO_KEEPALIVE", GRP },
   { "local-domain", 'L', "NAME", 0,
-    "set local domain name" },
-#if defined KERBEROS || defined SHISHI
-  { "kerberos", 'k', NULL, 0,
-    "use kerberos IV/V authentication" },
-  { "server-principal", 'S', "NAME", 0,
-    "set Kerberos server name, overriding canonical hostname" },
-#endif
-#if defined ENCRYPTION
-  { "encrypt", 'x', NULL, 0,
-    "use DES encryption" },
-#endif
+    "set local domain name", GRP },
   { "debug", 'D', "LEVEL", OPTION_ARG_OPTIONAL,
-    "set debug level" },
+    "set debug level", GRP },
   { "port", 'p', "PORT", 0,
-    "listen on given port (valid only in daemon mode)" },
+    "listen on given port (valid only in daemon mode)", GRP },
   { "reverse-required", 'r', NULL, 0,
-    "require reverse resolving of a remote host IP" },
-  { NULL }
+    "require reverse resolving of a remote host IP", GRP },
+#undef GRP
+#if defined KERBEROS || defined SHISHI
+# define GRP 20
+  { "kerberos", 'k', NULL, 0,
+    "use kerberos IV/V authentication", GRP },
+  { "server-principal", 'S', "NAME", 0,
+    "set Kerberos server name, overriding canonical hostname", GRP },
+# if defined ENCRYPTION
+  { "encrypt", 'x', NULL, 0,
+    "use DES encryption", GRP },
+# endif
+# undef GRP
+#endif
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -389,7 +393,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = { options, parse_opt, NULL, doc};
+static struct argp argp = { options, parse_opt, NULL, doc, NULL, NULL, NULL};
 
 
 

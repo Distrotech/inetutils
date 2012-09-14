@@ -137,32 +137,37 @@ const char args_doc[] = "[USER@]HOST [COMMAND [ARG...]]";
 const char doc[] = "remote shell";
 
 static struct argp_option options[] = {
+#define GRP 10
   { "debug", 'd', NULL, 0,
-    "turns on socket debugging (see setsockopt(2))" },
+    "turns on socket debugging (see setsockopt(2))", GRP },
   { "user", 'l', "USER", 0,
-    "run as USER on the remote system" },
+    "run as USER on the remote system", GRP },
   { "escape", 'e', "CHAR", 0,
-    "allows user specification of the escape character (``~'' by default)" },
+    "allows user specification of the escape "
+    "character (``~'' by default)", GRP },
   { "8-bit", '8', NULL, 0,
-    "allows an eight-bit input data path at all times" },
+    "allows an eight-bit input data path at all times", GRP },
   { "no-input", 'n', NULL, 0,
-    "use /dev/null as input" },
+    "use /dev/null as input", GRP },
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
+  { "ipv4", '4', NULL, 0, "use only IPv4", GRP },
+  { "ipv6", '6', NULL, 0, "use only IPv6", GRP },
+#endif
+#undef GRP
 #if defined KERBEROS || defined SHISHI
+# define GRP 20
   { "kerberos", 'K', NULL, 0,
-    "turns off all Kerberos authentication" },
+    "turns off all Kerberos authentication", GRP },
   { "realm", 'k', "REALM", 0,
     "obtain tickets for a remote host in REALM, "
-    "instead of the remote host's default realm" },
+    "instead of the remote host's default realm", GRP },
 # ifdef ENCRYPTION
   { "encrypt", 'x', NULL, 0,
-    "encrypt all data transfer" },
+    "encrypt all data transfer", GRP },
 # endif /* ENCRYPTION */
+# undef GRP
 #endif /* KERBEROS || SHISHI */
-#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
-  { "ipv4", '4', NULL, 0, "use only IPv4" },
-  { "ipv6", '6', NULL, 0, "use only IPv6" },
-#endif
-  { NULL }
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -222,7 +227,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = { options, parse_opt, args_doc, doc };
+static struct argp argp =
+  { options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
 
 int

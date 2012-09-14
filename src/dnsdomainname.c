@@ -40,7 +40,7 @@ const char *program_authors[] = {
   NULL
 };
 
-static struct argp argp = { NULL, NULL, NULL, doc };
+static struct argp argp = { NULL, NULL, NULL, doc, NULL, NULL, NULL };
 
 void
 dnsdomainname (void)

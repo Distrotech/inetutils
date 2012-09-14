@@ -330,7 +330,7 @@ struct types
     {"image", "I", TYPE_I, 0},
     {"ebcdic", "E", TYPE_E, 0},
     {"tenex", "L", TYPE_L, bytename},
-    {NULL}
+    {NULL, NULL, 0, NULL}
   };
 
 /*

@@ -59,16 +59,18 @@ const char *program_authors[] =
   };
 
 static struct argp_option options[] = {
-  {"user",  'u', "user", 0, "Specify the user"},
-  {"host",  'h', "host", 0, "Specify the host"},
-  {"password",  'p', "password", 0, "Specify the password"},
-  {"port",  'P', "port", 0, "Specify the port to connect to"},
-  {"noerr", 'n', NULL, 0, "Disable the stderr stream"},
-  {"error",  'e', "error", 0, "Specify a TCP port to use for stderr"},
-  {"ipv4",  '4', NULL, 0, "Use IPv4 address space."},
-  {"ipv6",  '6', NULL, 0, "Use IPv6 address space."},
-  {"ipany",  'a', NULL, 0, "Allow any address family. (default)"},
-  { 0 }
+#define GRP 10
+  {"user",  'u', "user", 0, "Specify the user", GRP},
+  {"host",  'h', "host", 0, "Specify the host", GRP},
+  {"password",  'p', "password", 0, "Specify the password", GRP},
+  {"port",  'P', "port", 0, "Specify the port to connect to", GRP},
+  {"noerr", 'n', NULL, 0, "Disable the stderr stream", GRP},
+  {"error",  'e', "error", 0, "Specify a TCP port to use for stderr", GRP},
+  {"ipv4",  '4', NULL, 0, "Use IPv4 address space.", GRP},
+  {"ipv6",  '6', NULL, 0, "Use IPv6 address space.", GRP},
+  {"ipany",  'a', NULL, 0, "Allow any address family. (default)", GRP},
+#undef GRP
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 struct arguments
@@ -125,7 +127,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 static void do_rexec (struct arguments *arguments);
 

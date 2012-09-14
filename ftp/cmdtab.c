@@ -207,7 +207,7 @@ static struct cmd cmdtab[] = {
   {"umask", umaskhelp, 0, 1, 1, do_umask},
   {"verbose", verbosehelp, 0, 0, 0, setverbose},
   {"?", helphelp, 0, 0, 1, help},
-  {0},
+  {NULL, NULL, 0, 0, 0, NULL},
 };
 
 #define NCMDS (sizeof (cmdtab) / sizeof (cmdtab[0]) - 1)

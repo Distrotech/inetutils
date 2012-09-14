@@ -207,27 +207,31 @@ char *servername = NULL;
 #endif /* KERBEROS || SHISHI */
 
 static struct argp_option options[] = {
+#define GRP 10
   { "verify-hostname", 'a', NULL, 0,
-    "ask hostname for verification" },
+    "ask hostname for verification", GRP },
 #ifdef HAVE___CHECK_RHOSTS_FILE
   { "no-rhosts", 'l', NULL, 0,
-    "ignore .rhosts file" },
+    "ignore .rhosts file", GRP },
 #endif
   { "no-keepalive", 'n', NULL, 0,
-    "do not set SO_KEEPALIVE" },
+    "do not set SO_KEEPALIVE", GRP },
   { "log-sessions", 'L', NULL, 0,
-    "log successful logins" },
+    "log successful logins", GRP },
+#undef GRP
 #if defined KERBEROS || defined SHISHI
+# define GRP 20
   /* FIXME: The option semantics does not match that of other r* utilities */
   { "kerberos", 'k', NULL, 0,
-    "use kerberos authentication" },
+    "use kerberos authentication", GRP },
   /* FIXME: Option name is misleading */
   { "vacuous", 'v', NULL, 0,
-    "fail for non-Kerberos authentication" },
+    "fail for non-Kerberos authentication", GRP },
   { "server-principal", 'S', "NAME", 0,
-    "set Kerberos server name, overriding canonical hostname" },
+    "set Kerberos server name, overriding canonical hostname", GRP },
+# undef GRP
 #endif /* KERBEROS */
-  { NULL }
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 #ifdef HAVE___CHECK_RHOSTS_FILE
@@ -298,7 +302,7 @@ const char doc[] =
 #else /* !WITH_PAM */
 		   "Remote shell server.";
 #endif
-static struct argp argp = { options, parse_opt, NULL, doc};
+static struct argp argp = { options, parse_opt, NULL, doc, NULL, NULL, NULL};
 
 
 /* Remote shell server. We're invoked by the rcmd(3) function. */

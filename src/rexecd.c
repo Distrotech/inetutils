@@ -130,8 +130,8 @@ static struct pam_conv pam_conv = { rexec_conv, NULL };
 static int logging = 0;
 
 static struct argp_option options[] = {
-  { "logging", 'l', NULL, 0, "logging of requests and errors" },
-  { NULL }
+  { "logging", 'l', NULL, 0, "logging of requests and errors", 1 },
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t

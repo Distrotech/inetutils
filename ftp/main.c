@@ -108,7 +108,7 @@ static struct argp_option argp_options[] = {
   {"ipv4", '4', NULL, 0, "contact IPv4 hosts", GRP+1},
   {"ipv6", '6', NULL, 0, "contact IPv6 hosts", GRP+1},
 #undef GRP
-  {NULL}
+  {NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
@@ -168,7 +168,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 
 int

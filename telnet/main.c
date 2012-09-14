@@ -190,7 +190,7 @@ static struct argp_option argp_options[] = {
   { "noasyncnet", OPTION_NOASYNCNET, NULL, 0, "", GRID+1 },
 # undef GRID
 #endif
-  { NULL }
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -319,7 +319,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
 const char args_doc[] = "[HOST [PORT]]";
 const char doc[] = "Login to remote system HOST "
                    "(optionally, on service port PORT)";
-static struct argp argp = { argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  { argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL };
 
 
 

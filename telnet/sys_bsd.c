@@ -1068,7 +1068,7 @@ process_rings (int netin, int netout, int netex, int ttyin, int ttyout,
    * time (TN3270 mode only).
    */
   int returnValue = 0;
-  static struct timeval TimeValue = { 0 };
+  static struct timeval TimeValue = { 0, 0 };
   int nfds = 0;
 
   if (netout)

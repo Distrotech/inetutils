@@ -383,23 +383,25 @@ const char args_doc[] = "[MESSAGE]";
 const char doc[] = "Send messages to syslog";
 
 static struct argp_option argp_options[] = {
-  {"ipv4", '4', NULL, 0, "use IPv4 for logging to host" },
-  {"ipv6", '6', NULL, 0, "use IPv6 with a host target" },
+#define GRP 10
+  {"ipv4", '4', NULL, 0, "use IPv4 for logging to host", GRP },
+  {"ipv6", '6', NULL, 0, "use IPv6 with a host target", GRP },
   { "host", 'h', "HOST", 0,
-    "log to HOST instead of to the default " PATH_LOG },
+    "log to HOST instead of to the default " PATH_LOG, GRP },
   { "unix", 'u', "SOCK", 0,
-    "log to UNIX socket SOCK instead of " PATH_LOG },
+    "log to UNIX socket SOCK instead of " PATH_LOG, GRP },
   { "source", 'S', "IP", 0,
-    "set source IP address" },
+    "set source IP address", GRP },
   { "id", 'i', "PID", OPTION_ARG_OPTIONAL,
-    "log the process id with every line" },
+    "log the process id with every line", GRP },
 #ifdef LOG_PERROR
-  { "stderr", 's', NULL, 0, "copy the message to stderr" },
+  { "stderr", 's', NULL, 0, "copy the message to stderr", GRP },
 #endif
-  { "file", 'f', "FILE", 0, "log the content of FILE" },
-  { "priority", 'p', "PRI", 0, "log with priority PRI" },
-  { "tag", 't', "TAG", 0, "prepend every line with TAG" },
-  {NULL}
+  { "file", 'f', "FILE", 0, "log the content of FILE", GRP },
+  { "priority", 'p', "PRI", 0, "log with priority PRI", GRP },
+  { "tag", 't', "TAG", 0, "prepend every line with TAG", GRP },
+#undef GRP
+  {NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -476,7 +478,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 const char *program_authors[] = {
   "Sergey Poznyakoff",

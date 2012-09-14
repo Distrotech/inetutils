@@ -161,19 +161,6 @@ static struct argp_option options[] = {
     "attempt to preserve (duplicate) in its copies the"
     " modification times and modes of the source files",
     GRID+1 },
-#if defined KERBEROS || defined SHISHI
-  { "kerberos", 'K', NULL, 0,
-    "turns off all Kerberos authentication",
-    GRID+1 },
-  { "realm", 'k', "REALM", 0,
-    "obtain tickets for a remote host in REALM instead of the remote host's realm",
-    GRID+1 },
-#endif
-#ifdef ENCRYPTION
-  { "encrypt", 'x', NULL, 0,
-    "encrypt all data transfer",
-    GRID+1 },
-#endif
   { "target-directory", 'd', "DIRECTORY", 0,
     "copy all SOURCE arguments into DIRECTORY",
     GRID+1 },
@@ -191,7 +178,23 @@ static struct argp_option options[] = {
     "use only IPv6",
     GRID+1 },
 #endif /* WITH_ORCMD_AF || WITH_RCMD_AF || SHISHI */
-  { NULL }
+#undef GRID
+#if defined KERBEROS || defined SHISHI
+# define GRID 10
+  { "kerberos", 'K', NULL, 0,
+    "turns off all Kerberos authentication",
+    GRID+1 },
+  { "realm", 'k', "REALM", 0,
+    "obtain tickets for a remote host in REALM instead of the remote host's realm",
+    GRID+1 },
+# ifdef ENCRYPTION
+  { "encrypt", 'x', NULL, 0,
+    "encrypt all data transfer",
+    GRID+1 },
+# endif
+# undef GRID
+#endif
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t

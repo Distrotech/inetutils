@@ -1,3 +1,41 @@
+2012-09-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Add missing values in option lists, and in similar
+	lists.  All were detected as compiler warnings.
+
+	* ftp/cmds.c (types): Add missing values.
+	* ftp/cmdtab.c (cmdtab): Likewise.
+	* ftp/main.c (argp, argp_options): Likewise.
+
+	* src/dnsdomainname.c (argp): Likewise.
+	* src/hostname.c (argp, argp_options): Likewise.
+	* src/logger.c (arpg): Likewise
+	(argp_options): Likewise.  New macro GRP.
+
+	Collect Kerberos options into a group where relevant.
+
+	* src/rcp.c (options): Add missing values.
+	* src/rexec.c (argp): Likewise
+	(options): Likewise.  New macro GRP.
+	* src/rexecd.c (options): Likewise
+	* src/rlogin.c (argp, argp_options): Likewise.
+	* src/rlogind.c (argp): Likewise.
+	(options): Likewise.  New macro GRP.
+	* src/rsh.c (argp, options): Likewise
+	* src/rshd.c (argp, options): Likewise
+
+	* telnet/commands.c (Togglelist, Setlist, ModeList)
+	(SlcList, EnvList, AuthList, EncryptList, cmdtab)
+	(cmdtab2): Add missing values.
+	* telnet/main.c (argp, argp_options): Likewise.
+	* telnet/network.c (timeout): Likewise.
+	* telnet/sys_bsd.c (TimeValue): Likewise.
+
+	* whois/whois.c (gwhois_argp, gwhois_argp_children)
+	(ripe_argp): Add missing values.
+	(gwhois_arpg_options, ripe_argp_options): Likewise.
+	New macro GRP.
+
 2012-09-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libinetutils: Compiler warnings.

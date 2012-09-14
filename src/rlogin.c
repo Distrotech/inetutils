@@ -236,7 +236,13 @@ static struct argp_option argp_options[] = {
   {"no-escape", 'E', NULL, 0, "stops any character from being recognized as "
    "an escape character", GRP+1},
   {"user", 'l', "USER", 0, "run as USER on the remote system", GRP+1},
+#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
+  { "ipv4", '4', NULL, 0, "use only IPv4", GRP+1 },
+  { "ipv6", '6', NULL, 0, "use only IPv6", GRP+1 },
+#endif
+#undef GRP
 #if defined KERBEROS || defined SHISHI
+# define GRP 10
 # ifdef ENCRYPTION
   {"encrypt", 'x', NULL, 0, "turns on encryption for all data passed via "
    "the rlogin session", GRP+1},
@@ -244,13 +250,9 @@ static struct argp_option argp_options[] = {
   {"kerberos", 'K', NULL, 0, "turns off all Kerberos authentication", GRP+1},
   {"realm", 'k', "REALM", 0, "obtain tickets for the remote host in REALM "
    "realm instead of the remote's realm", GRP+1},
+# undef GRP
 #endif /* KERBEROS || SHISHI */
-#if defined WITH_ORCMD_AF || defined WITH_RCMD_AF || defined SHISHI
-  { "ipv4", '4', NULL, 0, "use only IPv4" },
-  { "ipv6", '6', NULL, 0, "use only IPv6" },
-#endif
-#undef GRP
-  {NULL}
+  {NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
@@ -325,7 +327,8 @@ parse_opt (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = {argp_options, parse_opt, args_doc, doc};
+static struct argp argp =
+  {argp_options, parse_opt, args_doc, doc, NULL, NULL, NULL};
 
 int
 main (int argc, char *argv[])

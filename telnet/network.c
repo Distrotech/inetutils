@@ -95,7 +95,7 @@ init_network (void)
 int
 stilloob (void)
 {
-  static struct timeval timeout = { 0 };
+  static struct timeval timeout = { 0, 0 };
   fd_set excepts;
   int value;
 

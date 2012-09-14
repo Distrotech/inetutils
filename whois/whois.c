@@ -61,40 +61,42 @@ const char *port = NULL;
 int nopar = 0;
 
 static struct argp_option ripe_argp_options[] = {
+#define GRP 10
   { NULL, 'a', NULL, 0,
-    "search all databases" },
+    "search all databases", GRP },
   { NULL, 'F', NULL, 0,
-    "fast raw output (implies -r)" },
+    "fast raw output (implies -r)", GRP },
   { NULL, 'g', "SOURCE:FIRST-LAST", 0,
-    "find updates from SOURCE from serial FIRST to LAST" },
+    "find updates from SOURCE from serial FIRST to LAST", GRP },
   { NULL, 'i', "ATTR[,ATTR]...", 0,
-    "do an inverse lookup for specified ATTRibutes" },
+    "do an inverse lookup for specified ATTRibutes", GRP },
   { NULL, 'l', NULL, 0,
-    "one level less specific lookup (RPSL only)" },
+    "one level less specific lookup (RPSL only)", GRP },
   { NULL, 'L', NULL, 0,
-    "find all Less specific matches" },
+    "find all Less specific matches", GRP },
   { NULL, 'M', NULL, 0,
-    "find all More specific matches" },
+    "find all More specific matches", GRP },
   { NULL, 'm', NULL, 0,
-    "find first level more specific matches" },
+    "find first level more specific matches", GRP },
   { NULL, 'r', NULL, 0,
-    "turn off recursive lookups" },
+    "turn off recursive lookups", GRP },
   { NULL, 'R', NULL, 0,
     "force to show local copy of the domain object even "
-    "if it contains referral" },
+    "if it contains referral", GRP },
   { NULL, 'S', NULL, 0,
-    "tell server to leave out syntactic sugar" },
+    "tell server to leave out syntactic sugar", GRP },
   { NULL, 's', "SOURCE[,SOURCE]...", 0,
-    "search the database from SOURCE" },
+    "search the database from SOURCE", GRP },
   { NULL, 'T', "TYPE[,TYPE]...", 0,
-    "only look for objects of TYPE" },
+    "only look for objects of TYPE", GRP },
   { NULL, 'q', "version|sources", 0,
-    "query specified server info (RPSL only)" },
+    "query specified server info (RPSL only)", GRP },
   { NULL, 't', "TYPE", 0,
-    "requests template for object of TYPE ('all' for a list)" },
+    "requests template for object of TYPE ('all' for a list)", GRP },
   { NULL, 'x', NULL, 0,
-    "exact match only (RPSL only)" },
-  { NULL }
+    "exact match only (RPSL only)", GRP },
+#undef GRP
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -117,18 +119,21 @@ ripe_argp_parser (int key, char *arg, struct argp_state *state)
   return ARGP_ERR_UNKNOWN;
 }
 
-static struct argp ripe_argp = { ripe_argp_options, ripe_argp_parser };
+static struct argp ripe_argp =
+  { ripe_argp_options, ripe_argp_parser, NULL, NULL, NULL, NULL, NULL };
 
 static struct argp_option gwhois_argp_options[] = {
+#define GRP 10
   { "verbose", 'V', NULL, 0,
-    "explain what is being done" },
+    "explain what is being done", GRP },
   { "server", 'h', "HOST", 0,
-    "connect to server HOST"},
+    "connect to server HOST", GRP},
   { "port", 'p', "PORT", 0,
-    "connect to PORT" },
+    "connect to PORT", GRP },
   { NULL, 'H', NULL, 0,
-    "hide legal disclaimers" },
-  { NULL }
+    "hide legal disclaimers", GRP },
+#undef GRP
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -170,7 +175,7 @@ struct argp_child gwhois_argp_children[] = {
     "RIPE-specific options",
     0
     },
-  { NULL }
+  { NULL, 0, NULL, 0 }
 };
 
 static struct argp gwhois_argp = {
@@ -178,7 +183,9 @@ static struct argp gwhois_argp = {
   gwhois_argp_parser,
   "OBJECT...",
   "client for the whois directory service",
-  gwhois_argp_children
+  gwhois_argp_children,
+  NULL,
+  NULL
 };
 
 const char *program_authors[] =
