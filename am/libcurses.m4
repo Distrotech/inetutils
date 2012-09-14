@@ -91,20 +91,42 @@ AC_DEFUN([IU_LIB_TERMCAP], [
   if test "$LIBNCURSES"; then
     LIBTERMCAP="$LIBNCURSES"
   else
+    dnl Must check declaration in different settings,
+    dnl so caching in AC_CHECK_DECL is too distructive.
+    dnl
+    _IU_SAVE_LIBS=$LIBS
     AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
-    AC_CHECK_DECLS([tgetent], , , [[#include <termcap.h>]])
+    AC_MSG_CHECKING([where tgetent is declared])
+    location_tgetent=none
+    LIBS="$LIBS $LIBTERMCAP"
+    AC_LINK_IFELSE(
+      [AC_LANG_PROGRAM([[#include <termcap.h>]],
+	[[(void) tgetent((char *) 0, (char *) 0);]])],
+      [AC_DEFINE([HAVE_TERMCAP_TGETENT], 1,
+	[Define to 1 if tgetent() exists in <termcap.h>.])
+       ac_cv_have_decl_tgetent=yes
+       location_tgetent=termcap.h],
+      [AC_LINK_IFELSE(
+	[AC_LANG_PROGRAM([[#include <curses.h>
+#include <term.h>]],
+	  [[(void) tgetent((char *) 0, (char *) 0);]])],
+	[AC_DEFINE([HAVE_CURSES_TGETENT], 1,
+	  [Define to 1 if tgetent() exists in <term.h>.])
+	 ac_cv_have_decl_tgetent=yes
+	 location_tgetent=term.h])
+      ])
+    LIBS=$_IU_SAVE_LIBS
+
     if test "$ac_cv_lib_termcap_tgetent" = yes \
 	&& test "$ac_cv_have_decl_tgetent" = yes; then
-      AC_DEFINE([HAVE_TERMCAP_TGETENT], 1,
-		[Define to 1 if tgetent() exists in <termcap.h>.])
+      AC_MSG_RESULT($location_tgetent)
     else
       AC_CHECK_LIB(curses, tgetent, LIBTERMCAP=-lcurses)
       AC_CHECK_DECLS([tgetent], , , [[#include <curses.h>
 #include <term.h>]])
       if test "$ac_cv_lib_curses_tgetent" = yes \
 	  && test "$ac_cv_have_decl_tgetent" = yes; then
-	AC_DEFINE([HAVE_CURSES_TGETENT], 1,
-		  [Define to 1 if tgetent() exists in <curses.h>.])
+	AC_DEFINE([HAVE_CURSES_TGETENT], 1)
       fi
     fi
     if test "$ac_cv_lib_curses_tgetent" = no \

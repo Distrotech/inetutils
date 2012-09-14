@@ -1,5 +1,15 @@
 2012-09-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	telnetd: More compiler warnings.
+
+	* am/libcurses.m4 (IU_LIB_TERMCAP): Use AC_LINK_IFELSE
+	instead of AC_CHECK_DECLS to find declaration of tgetent.
+	* telnetd/term.c (copy_termbuf) [TIOCPKT_IOCTL]: Declare
+	LEN as size_t.  Increment LEN in loop.
+	* telnetd/utility.c (printdata): Cast *PTR as int.
+
+2012-09-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	telnetd: Compiler warnings.
 
 	* telnetd/pty.c (startslave) [!AUTHENTICATION]:

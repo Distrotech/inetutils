@@ -506,11 +506,12 @@ init_termbuf (void)
 }
 
 #if defined TIOCPKT_IOCTL
-/*FIXME: Hardly needed*/
+/*FIXME: Hardly needed?
+ * Built by OpenSolaris and BSD, though.  */
 void
 copy_termbuf ()
 {
-  int len = 0;
+  size_t len = 0;
   char *cp = (char *) &termbuf;
 
   while (pty_input_level () > 0)
@@ -518,6 +519,7 @@ copy_termbuf ()
       if (len >= sizeof (termbuf))
 	break;
       *cp++ = pty_get_char (0);
+      len++;
     }
   termbuf2 = termbuf;
 }

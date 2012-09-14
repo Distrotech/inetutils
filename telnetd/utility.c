@@ -928,7 +928,7 @@ printoption (register char *fmt, register int option)
 void
 printsub (int direction, unsigned char *pointer, int length)
 {
-  register int i;
+  register int i = 0;
 
 #if defined AUTHENTICATION && defined ENCRYPTION
   unsigned char buf[512];
@@ -1565,7 +1565,7 @@ printdata (register char *tag, register char *ptr, register int cnt)
       for (i = 0; i < 20 && cnt; i++)
 	{
 	  debug_output_data ("%02x", *ptr);
-	  xbuf[i] = isprint (*ptr) ? *ptr : '.';
+	  xbuf[i] = isprint ((int) *ptr) ? *ptr : '.';
 
 	  if (i % 2)
 	    debug_output_data (" ");
