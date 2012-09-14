@@ -52,8 +52,11 @@
 # endif
 # include <utmpx.h>
 #else /* !HAVE_UTMPX_H */
-# if HAVE_UTIL_H
+# ifdef HAVE_UTIL_H
 #  include <util.h>
+# endif
+# ifdef HAVE_LIBUTIL_H
+#  include <libutil.h>
 # endif
 # include <utmp.h>
 #endif
@@ -113,7 +116,9 @@ utmp_logout (char *line)
 
 #else /* !HAVE_UTMPX_H */
   struct utmp utx;
+# ifdef HAVE_PUTUTLINE
   struct utmp *ut;
+# endif
 
   strncpy (utx.ut_line, line, sizeof (utx.ut_line));
 

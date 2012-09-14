@@ -373,7 +373,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	}
       listen (s2, 1);
       sprintf (num, "%d", lport);
-      if (write (s, num, strlen (num) + 1) != strlen (num) + 1)
+      if (write (s, num, strlen (num) + 1) != (ssize_t) strlen (num) + 1)
 	{
 	  perror ("kcmd(write): setting up stderr");
 	  close (s2);
@@ -395,7 +395,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	     : ntohs (((struct sockaddr_in *) &from)->sin_port);
 
       if (port >= IPPORT_RESERVED
-          || from.ss_family != AF_INET && from.ss_family != AF_INET6)
+          || (from.ss_family != AF_INET && from.ss_family != AF_INET6))
 	{
 	  fprintf (stderr,
 		   "kcmd(socket): protocol failure in circuit setup.\n");
@@ -437,7 +437,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # elif defined(SHISHI)
   if (authopts & SHISHI_APOPTIONS_MUTUAL_REQUIRED)
     {
-      int sin_len;
+      socklen_t sin_len;
 
       *faddr = sin;
 
@@ -449,6 +449,8 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  goto bad2;
 	}
     }
+
+  (void) service;	/* Silence warning.  XXX: Implicit use?  */
 
   if ((status =
        shishi_auth (h, 0, remuser, *ahost, s, cmd, rport, key,

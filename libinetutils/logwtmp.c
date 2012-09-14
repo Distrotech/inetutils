@@ -39,9 +39,10 @@
 #  define __USE_GNU 1
 # endif
 # include <utmpx.h>
+# define OUR_WTMP PATH_WTMPX
 #elif defined HAVE_UTMP_H
 # include <utmp.h>
-# define PATH_WTMPX PATH_WTMP	/* Simplifies file referencing.  */
+# define OUR_WTMP PATH_WTMP
 #endif
 #include <string.h>
 
@@ -61,9 +62,9 @@ _logwtmp (struct utmp *ut)
   static int fd = -1;
 
   if (fd < 0)
-    fd = open (PATH_WTMPX, O_WRONLY | O_APPEND, 0);
+    fd = open (OUR_WTMP, O_WRONLY | O_APPEND, 0);
 #else
-  int fd = open (PATH_WTMPX, O_WRONLY | O_APPEND, 0);
+  int fd = open (OUR_WTMP, O_WRONLY | O_APPEND, 0);
 #endif
 
   if (fd >= 0)

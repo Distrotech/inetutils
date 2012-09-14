@@ -98,7 +98,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
       errormsg[0] = '\0';
       n = read (sock, errormsg, sizeof (errormsg) - 1);
 
-      if (n >= 0 && n < sizeof (errormsg))
+      if (n >= 0 && n < (ssize_t) sizeof (errormsg))
 	errormsg[n] = '\0';
       else
 	errormsg[sizeof (errormsg) -1] = '\0';
@@ -136,7 +136,7 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
   if (!realm)
     {
       if (!p)
-	p = sname;
+	p = (char *) sname;
       else if (*p == '/')
 	++p;
 
@@ -260,12 +260,16 @@ shishi_auth (Shishi ** handle, int verbose, char **cname,
 
 }
 
+/*
+ * XXX: Is this ever needed?
+ *
 static void
 senderror (int s, char type, char *buf)
 {
   write (s, &type, sizeof (char));
   write (s, buf, strlen (buf));
 }
+*/
 
 /* shishi authentication, server side */
 int
@@ -280,14 +284,12 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   int buflen;
   int len;
   int rc;
-  int i;
   int error;
   /* KERBEROS 5 SENDAUTH MESSAGE */
   char krb5sendauth[] = "KRB5_SENDAUTH_V1.0";
   /* PROTOCOL VERSION */
   char krb5kcmd1[] = "KCMDV0.1";
   char krb5kcmd2[] = "KCMDV0.2";
-  int auth_correct = 0;
   char *servername, *server, *realm;
 
   *err_msg = NULL;
@@ -526,7 +528,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	}
 
       rc = write (infd, out, ntohl (len));
-      if (rc != ntohl (len))
+      if (rc != (int) ntohl (len))
 	{
 	  *err_msg = "Error sending AP-REP";
 	  free (out);

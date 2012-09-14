@@ -1,5 +1,34 @@
 2012-09-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	libinetutils: Compiler warnings.
+
+	* libinetutils/argcv.c (argcv_get): Cast element as int.
+	* libinetutils/cleansess.c [HAVE_UTMP_H && HAVE_LIBUTIL_H]:
+	Include <libutil.h>.
+	* libinetutils/daemon.c: Include <unused-parameter.h>.
+	(waitdaemon_timeout): Add _GL_UNUSED_PARAMETER.
+	* libinetutils/kcmd.c (kcmd): Cast strlen() as ssize_t.
+	Add parantheses in logical expression.
+	[SHISHI]: Declare SIN_LEN as socklen_t.  Trivial use of
+	parameter service.
+	* libinetutils/logwtmp.c (OUR_WTMP): New macro.
+	(_logwtmp): Call open() with OUR_WTMP.
+	* libinetutils/shishi.c (shishi_auth): Cast sizeof() as
+	ssize_t.  Cast sname as `char *' in assignment of P.
+	(senderror): Remove function, keeping as comment.
+	(gat_auth): Remove variables I and AUTH_CORRECT.  Cast
+	size expression as int.
+	* libinetutils/utmp_init.c [HAVE_UTMP_H && HAVE_LIBUTIL_H]:
+	Include <libutil.h>.
+	(utmp_init) [!HAVE_UTMPX_H && !HAVE_PUTUTLINE && HAVE_LOGIN]:
+	Trivially use parameter id.
+	* libinetutils/utmp_logout.c [HAVE_UTMP_H && HAVE_LIBUTIL_H]:
+	Include <libutil.h>.
+	(utmp_logout) [!HAVE_UTMPX_H && HAVE_PUTUTLINE]: Protect
+	declaration of UT.
+
+2012-09-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	telnetd: More compiler warnings.
 
 	* am/libcurses.m4 (IU_LIB_TERMCAP): Use AC_LINK_IFELSE

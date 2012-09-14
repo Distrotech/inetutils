@@ -55,6 +55,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unused-parameter.h>
 
 /*
   According to Unix-FAQ maintained by Andrew Gierth:
@@ -103,7 +104,7 @@
 #define MAXFD 64
 
 void
-waitdaemon_timeout (int signo)
+waitdaemon_timeout (int signo _GL_UNUSED_PARAMETER)
 {
   int left;
 
@@ -147,8 +148,10 @@ waitdaemon (int nochdir, int noclose, int maxwait)
   if (setsid () == -1)
     return -1;
 
-  /* SIGHUP is ignore because when the session leader terminates
-     all process in the session (the second child) are sent the SIGHUP.  */
+  /* SIGHUP must be ignored, because when the session leader terminates,
+     then SIGHUP is sent to all process belonging to the same session,
+     i.e., also to the second child.
+   */
   signal (SIGHUP, SIG_IGN);
 
   switch (fork ())

@@ -27,8 +27,11 @@
 #include <sys/time.h>
 #include <time.h>
 #ifdef HAVE_UTMP_H
-# if HAVE_UTIL_H
+# ifdef HAVE_UTIL_H
 #  include <util.h>
+# endif
+# ifdef HAVE_LIBUTIL_H
+#  include <libutil.h>
 # endif
 # include <utmp.h>
 #else

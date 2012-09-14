@@ -78,7 +78,7 @@ argcv_get (const char *command, const char *delim, int *argc, char ***argv)
   *argc = 0;
   *argv = NULL;
 
-  while (len > 0 && isspace (command[len - 1]))
+  while (len > 0 && isspace ((int) command[len - 1]))
     len--;
   if (len < 1)
     return 1;

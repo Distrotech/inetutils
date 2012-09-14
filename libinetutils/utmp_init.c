@@ -53,8 +53,11 @@
 # endif
 # include <utmpx.h>
 #else /* !HAVE_UTMPX_H */
-# if HAVE_UTIL_H
+# ifdef HAVE_UTIL_H
 #  include <util.h>
+# endif
+# ifdef HAVE_LIBUTIL_H
+#  include <libutil.h>
 # endif
 # include <utmp.h>
 #endif
@@ -148,6 +151,7 @@ utmp_init (char *line, char *user, char *id, char *host)
 #  endif /* wtmp updating */
   endutent ();
 # elif defined HAVE_LOGIN /* !HAVE_PUTUTLINE */
+  (void) id;		/* Silence warnings.  */
   login (&utx);
 # endif /* HAVE_LOGIN && !HAVE_PUTUTLINE */
 #endif /* !HAVE_UTMPX_H */
