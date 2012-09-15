@@ -315,7 +315,8 @@ static struct argp_option options[] = {
 };
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int key, char *arg,
+	   struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   switch (key)
     {
@@ -1249,7 +1250,6 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   if (encrypt_io)
     {
       int i;
-      char *iv;
 
       ad->ivtab[0] = &ad->iv1;
       ad->ivtab[1] = &ad->iv2;

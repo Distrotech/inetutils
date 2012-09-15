@@ -111,6 +111,7 @@
 #include <progname.h>
 #include <argp.h>
 #include <error.h>
+#include <unused-parameter.h>
 #include "libinetutils.h"
 
 void die (int code, const char *fmt, ...);
@@ -135,7 +136,8 @@ static struct argp_option options[] = {
 };
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int key, char *arg _GL_UNUSED_PARAMETER,
+	   struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   switch (key)
     {

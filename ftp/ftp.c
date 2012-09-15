@@ -522,7 +522,7 @@ empty (fd_set *mask, int sec)
 jmp_buf sendabort;
 
 void
-abortsend (int sig)
+abortsend (int sig _GL_UNUSED_PARAMETER)
 {
 
   mflag = 0;
@@ -825,7 +825,7 @@ abort:
 jmp_buf recvabort;
 
 void
-abortrecv (int sig)
+abortrecv (int sig _GL_UNUSED_PARAMETER)
 {
 
   mflag = 0;
@@ -1550,7 +1550,7 @@ tvsub (struct timeval *tdiff, struct timeval *t1, struct timeval *t0)
 }
 
 void
-psabort (int sig)
+psabort (int sig _GL_UNUSED_PARAMETER)
 {
 
   abrtflag++;
@@ -1663,7 +1663,7 @@ pswitch (int flag)
 }
 
 void
-abortpt (int sig)
+abortpt (int sig _GL_UNUSED_PARAMETER)
 {
 
   printf ("\n");
@@ -1805,7 +1805,7 @@ abort:
 }
 
 void
-reset (int argc, char **argv)
+reset (int argc _GL_UNUSED_PARAMETER, char **argv _GL_UNUSED_PARAMETER)
 {
   fd_set mask;
   int nfnd = 1;

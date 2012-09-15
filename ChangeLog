@@ -1,5 +1,43 @@
 2012-09-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Mark unused parameters as such.
+
+	* ftp/cmds.c (setbinary, setascii, settenex, setftmode)
+	(setform, setstruct, status, setbell, settrace, sethash)
+	(setverbose, setipany, setipv4, setipv6, setepsv4, setport)
+	(setprompt, setglob, shell, pwd, quit, disconnect, proxabort)
+	(setcase, setcr, setpassive, setsunique, setrunique, cdup)
+	(syst): Add _GL_UNUSED_PARAMETER.
+	* ftp/ftp.c (abortsend, abortrecv, psabort, abortpt, reset):
+	Likewise.
+	* ftp/main.c (parse_opt): Likewise.
+
+	Header file and parse_opt() are common treatments.
+
+	* src/logger.c: Include <unused-parameter.h>.
+	(parse_opt): Add _GL_UNUSED_PARAMETER.
+	* src/rcp.c: Likewise.
+	(lostconn): Likewise
+	* src/rexecd.c: Likewise.
+	* src/rlogind.c (parse_opt): Likewise
+	(do_shishi_login): Remove variable IV.
+	* src/rshd.c: Likewise.
+
+	* telnet/commands.c: Include <unused-parameter.h>.
+	(shell): Add _GL_UNUSED_PARAMETER.
+	* telnet/main.c: Likewise.
+	(parse_opt): Likewise.
+	* telnet/sys_bsd.c: Likewise.
+	(deadpeer, intr, intr2, susp, sendwin): Likewise.
+
+	* tests/localhost.c: Likewise.
+	(main): Likewise.
+
+	* whois/whois.c: Likewise.
+	(ripe_argp_parser, gwhois_argp_parser): Likewise.
+
+2012-09-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Add missing values in option lists, and in similar
 	lists.  All were detected as compiler warnings.
 

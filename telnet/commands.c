@@ -73,6 +73,7 @@
 #include <arpa/inet.h>
 #include <arpa/telnet.h>
 
+#include <unused-parameter.h>
 #include <libinetutils.h>
 
 #include "general.h"
@@ -1554,7 +1555,7 @@ suspend (void)
 
 #if !defined TN3270
 int
-shell (int argc, char *argv[])
+shell (int argc, char *argv[] _GL_UNUSED_PARAMETER)
 {
   long oldrows, oldcols, newrows, newcols, err;
 

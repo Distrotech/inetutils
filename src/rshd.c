@@ -142,6 +142,7 @@
 #include <error.h>
 #include <progname.h>
 #include <argp.h>
+#include <unused-parameter.h>
 #include <libinetutils.h>
 #include "xalloc.h"
 
@@ -246,7 +247,7 @@ extern int iruserok (uint32_t raddr, int superuser,
 #endif /* WITH_PAM */
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   switch (key)
     {
