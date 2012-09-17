@@ -3762,7 +3762,11 @@ length, or as an explicit address mask.
 
 The actual evaluation is run separately for the site-wide ACL,
 and the requested local user ACL contained in the private file
-@file{.talkrc} of this user.
+@file{.talkrc} of this user.  This latter file must be a regular
+file and must be owned by the very same user, have his primary
+group ownership, and not be group or world writeable.  Should
+any of these prerequisites be violated, the user's ACL is replaced
+by a single deny-all rule.
 
 All rules in each set are evaluated, in the sense that whenever
 an expression @code{net-exp} matches the incoming IPv4 address,

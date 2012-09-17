@@ -128,8 +128,6 @@ init_display (void)
   line_win = newwin (1, COLS, my_win.x_nlines, 0);
   box (line_win, '-', '-');
   wrefresh (line_win);
-  /* let them know we are working on it */
-  current_state = "No connection yet";
 
   return 0;
 }

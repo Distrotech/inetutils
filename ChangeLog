@@ -1,3 +1,28 @@
+2012-09-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	talk: Delay start of curses interface until
+	the other party has established a connection.
+
+	* talk/init_disp.c (init_display): Remove assignment
+	of `current_state'.
+	* talk/io.h (p_error): Execute curses function calls
+	only if `curses_initialized' is true.  Otherwise call
+	perror().
+	(message): Likewise, placing a call to printf() for
+	non-empty message strings only.
+	* talk/talk.c (main): Delay call to init_display() until
+	after end_msgs().  New messages set in `current_state'.
+
+	talkd: Enforce access rights on `~/.talkrc'.
+
+	* talkd/acl.c (read_acl): Site-wide file uses `system > 0'.
+	New code block for the parameter case `system < 0', pushing
+	a single, deny-all rule.
+	(open_users_acl): New variables LEVEL, RC and ST.  Check
+	properties of ACL file using stat().  Enforce a deny rule
+	if they are too permissive.
+	* doc/inetutils.texi <talkd invocation>: Updated.
+
 2012-09-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Mark unused parameters as such.

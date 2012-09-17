@@ -79,7 +79,7 @@ const char *program_authors[] =
     NULL
   };
 
-const char doc[] = "talk to another user";
+const char doc[] = "Talk to another user.";
 const char args_doc[] = "person [ttyname]";
 static struct argp argp = { NULL, NULL, args_doc, doc, NULL, NULL, NULL};
 
@@ -102,19 +102,28 @@ main (int argc, char *argv[])
     }
   if (!isatty (0))
     {
-      printf ("Standard input must be a tty, not a pipe or a file\n");
+      printf ("Standard input must be a tty, not a pipe, nor a file.\n");
       exit (-1);
     }
 
   get_names (argc, argv);
-  init_display ();
+
+  /* Let them know we are working on connections.  */
+  current_state = "No connection yet.";
+
   open_ctl ();
   open_sockt ();
+  current_state = "Service connection established.";
+
   start_msgs ();
   if (!check_local ())
     invite_remote ();
   end_msgs ();
+
+  /* Our party is responding.  Upgrade user interface.  */
+  init_display ();
   set_edit_chars ();
+
   talk ();
 }
 
@@ -129,5 +138,5 @@ static const char usage_str[] =
 void
 usage (void)
 {
-  printf ("%s\n" "Send bug reports to <%s>\n", usage_str, PACKAGE_BUGREPORT);
+  printf ("%s\n" "Send bug reports to <%s>.\n", usage_str, PACKAGE_BUGREPORT);
 }

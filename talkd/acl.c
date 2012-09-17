@@ -136,13 +136,13 @@ read_acl (char *config_file, int system)
   char buf[128];
   char *ptr;
 
-  if (!config_file)
+  if (!config_file || !config_file[0])
     return;
 
   fp = fopen (config_file, "r");
   if (!fp)
     {
-      if (system)
+      if (system > 0)
 	{
 	  /* A missing, yet specified, site-wide ACL is a serious error.
 	   * Abort execution whenever this happens.
@@ -151,6 +151,53 @@ read_acl (char *config_file, int system)
 	  exit (EXIT_FAILURE);
 	}
       return;	/* User setting may fail to exist.  Just ignore.  */
+    }
+
+  if (system < 0)
+    {
+      /* Alarmed state, violating file access policy.
+       * Insert a single, general denial equivalent to
+       * a rule reading `deny .* any'.
+       */
+      const char any_user[] = "^.*$";
+      char any_host[] = "any";
+      acl_t *acl;
+      regex_t re;
+      netdef_t *cur;
+
+      fclose (fp);
+      acl = malloc (sizeof *acl);
+
+      if (!acl)
+	{
+	  syslog (LOG_ERR, "Out of memory");
+	  exit (EXIT_FAILURE);
+	}
+      if (regcomp (&re, any_user, 0) != 0)
+	{
+	  syslog (LOG_ERR, "Bad regexp '%s'.", any_user);
+	  exit (EXIT_FAILURE);
+	}
+      cur = netdef_parse (any_host);
+      if (!cur)
+	{
+	  syslog (LOG_ERR, "Cannot parse netdef '%s'.", any_host);
+	  exit (EXIT_FAILURE);
+	}
+
+      acl->next = NULL;
+      acl->action = ACL_DENY;
+      acl->system = 0;
+      acl->re = re;
+      acl->netlist = cur;
+
+      if (!acl_tail)
+	acl_head = acl;
+      else
+	acl_tail->next = acl;
+      acl_tail = acl;
+
+      return;
     }
 
   line = 0;
@@ -244,8 +291,11 @@ read_acl (char *config_file, int system)
 static acl_t *
 open_users_acl (char *name)
 {
+  int level = 0;	/* Private file, not mandatory.  */
+  int rc;
   char *filename;
   struct passwd *pw;
+  struct stat st;
   acl_t *mark;
 
   pw = getpwnam (name);
@@ -263,8 +313,27 @@ open_users_acl (char *name)
 
   sprintf (filename, "%s/%s", pw->pw_dir, USER_ACL_NAME);
 
+  /* The location must be a file, and must be owned by the
+   * indicated user and his corresponding group.  No write
+   * access by group or world.  Record a syslog warning,
+   * should either of these not be true.
+   */
+  rc = stat (filename, &st);
+  if (rc < 0)
+    return NULL;
+  if (!S_ISREG(st.st_mode)
+      || st.st_uid != pw->pw_uid
+      || st.st_gid != pw->pw_gid
+      || st.st_mode & S_IWGRP
+      || st.st_mode & S_IWOTH)
+    {
+      if (logging || debug)
+	syslog (LOG_WARNING, "Discarding '%s': insecure access.", filename);
+      level = -1;	/* Enforce a deny rule.  */
+    }
+
   mark = acl_tail;
-  read_acl (filename, 0);	/* Private file, not mandatory.  */
+  read_acl (filename, level);
   free (filename);
 
   return mark;
