@@ -426,7 +426,7 @@ run_service (int ctrl, struct servtab *sep)
   else
     {
       if (debug)
-	fprintf (stderr, "%d execl %s\n", getpid (), sep->se_server);
+	fprintf (stderr, "%d execl %s\n", (int) getpid (), sep->se_server);
       dup2 (ctrl, 0);
       close (ctrl);
       dup2 (0, 1);
@@ -505,7 +505,7 @@ reapchild (int signo _GL_UNUSED_PARAMETER)
       if (pid <= 0)
 	break;
       if (debug)
-	fprintf (stderr, "%d reaped, status %#x\n", pid, status);
+	fprintf (stderr, "%d reaped, status %#x\n", (int) pid, status);
       for (sep = servtab; sep; sep = sep->se_next)
 	if (sep->se_wait == pid)
 	  {
@@ -564,13 +564,15 @@ void
 print_service (const char *action, struct servtab *sep)
 {
   fprintf (stderr,
-	   "%s:%d: %s: %s:%s proto=%s, wait=%d, max=%u, user=%s group=%s builtin=%s server=%s\n",
+	   "%s:%d: %s: %s:%s proto=%s, wait=%d, max=%u, "
+	   "user=%s group=%s builtin=%s server=%s\n",
 	   sep->se_file, sep->se_line,
 	   action,
 	   ISMUX (sep) ? (ISMUXPLUS (sep) ? "tcpmuxplus" : "tcpmux")
 		      : (sep->se_node ? sep->se_node : "*"),
 	   sep->se_service, sep->se_proto,
-	   sep->se_wait, sep->se_max, sep->se_user, sep->se_group,
+	   (int) sep->se_wait, sep->se_max,
+	   sep->se_user, sep->se_group,
 	   sep->se_bi ? sep->se_bi->bi_service : "no",
 	   sep->se_server);
 }
@@ -1947,7 +1949,7 @@ main (int argc, char *argv[], char *envp[])
       {
 	if (debug)
 	  fprintf(stderr, "Using pid-file at \"%s\".\n", pid_file);
-	fprintf (fp, "%d\n", getpid ());
+	fprintf (fp, "%d\n", (int) getpid ());
 	fclose (fp);
       }
     else

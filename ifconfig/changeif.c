@@ -52,7 +52,7 @@
       return -1;							\
     }
 
-#ifndef HAVE_DECL_GETADDRINFO
+#if !HAVE_DECL_GETADDRINFO
 extern void herror (const char *pfx);
 #endif
 
@@ -67,7 +67,7 @@ set_address (int sfd, struct ifreq *ifr, char *address)
 	   "don't know how to set an interface address on this system");
   return -1;
 #else
-# ifdef HAVE_DECL_GETADDRINFO
+# if HAVE_DECL_GETADDRINFO
   int rc;
   char addr[INET_ADDRSTRLEN];
   struct addrinfo hints, *ai, *res;

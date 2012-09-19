@@ -554,7 +554,7 @@ rlogin_daemon (int maxchildren, int port)
 int
 rlogind_auth (int fd, struct auth_data *ap)
 {
-#if defined HAVE_DECL_GETNAMEINFO && defined HAVE_DECL_GETADDRINFO
+#if HAVE_DECL_GETNAMEINFO && HAVE_DECL_GETADDRINFO
   int rc;
   char hoststr[NI_MAXHOST];
 #else
@@ -584,7 +584,7 @@ rlogind_auth (int fd, struct auth_data *ap)
   confirmed = 0;
 
   /* Check the remote host name */
-#ifdef HAVE_DECL_GETNAMEINFO
+#if HAVE_DECL_GETNAMEINFO
   rc = getnameinfo ((struct sockaddr *) &ap->from, ap->fromlen,
 		    hoststr, sizeof (hoststr), NULL, 0, NI_NAMEREQD);
   if (!rc)
@@ -617,7 +617,7 @@ rlogind_auth (int fd, struct auth_data *ap)
   if (verify_hostname || in_local_domain (ap->hostname))
     {
       int match = 0;
-#if defined HAVE_DECL_GETADDRINFO && defined HAVE_DECL_GETNAMEINFO
+#if HAVE_DECL_GETADDRINFO && HAVE_DECL_GETNAMEINFO
       struct addrinfo hints, *ai, *res;
       char astr[INET6_ADDRSTRLEN];
 

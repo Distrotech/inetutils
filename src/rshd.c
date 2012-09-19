@@ -408,7 +408,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   int cc, nfd, pv[2], pid, s = sockfd;
   int rc, one = 1;
   char portstr[8], addrstr[INET6_ADDRSTRLEN];
-#ifdef HAVE_DECL_GETNAMEINFO
+#if HAVE_DECL_GETNAMEINFO
   char addrname[NI_MAXHOST];
 #else /* !HAVE_DECL_GETNAMEINFO */
   struct hostent *hp;
@@ -462,7 +462,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   }
 #endif
 
-#ifdef HAVE_DECL_GETNAMEINFO
+#if HAVE_DECL_GETNAMEINFO
   rc = getnameinfo (fromp, fromlen,
 		    addrstr, sizeof (addrstr),
 		    portstr, sizeof (portstr),
@@ -661,7 +661,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
    * used for the authentication below.
    */
   errorstr = NULL;
-#ifdef HAVE_DECL_GETNAMEINFO
+#if HAVE_DECL_GETNAMEINFO
   rc = getnameinfo (fromp, fromlen, addrname, sizeof (addrname),
 		    NULL, 0, NI_NAMEREQD);
   if (rc == 0)

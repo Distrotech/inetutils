@@ -54,6 +54,10 @@ static void reapchild (int);
 
 #ifdef WITH_WRAP
 
+# if !HAVE_DECL_HOSTS_CTL
+extern int hosts_ctl (char *, char *, char *, char *);
+# endif
+
 int allow_severity = LOG_INFO;
 int deny_severity = LOG_NOTICE;
 
@@ -204,7 +208,7 @@ server_mode (const char *pidfile, struct sockaddr *phis_addr,
       syslog (LOG_ERR, "can't open %s: %m", PATH_FTPDPID);
     else
       {
-	fprintf (pid_fp, "%d\n", getpid ());
+	fprintf (pid_fp, "%d\n", (int) getpid ());
 	fchmod (fileno (pid_fp), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	fclose (pid_fp);
       }

@@ -1,3 +1,25 @@
+2012-09-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac <libwrap check>: Call AC_CHECK_DECLS
+	with hosts_ctl.
+	* ftpd/server_mode.c (hosts_ctl)
+	[WITH_WRAP && !HAVE_DECL_HOSTS_CTL]: Add external
+	prototype whenever undeclared.
+
+	* ftpd/ftpd.c (complete_login): Cast pid_t as int
+	in formatted print.
+	* src/inetd.c (run_service, readchild, print_service)
+	(main): Likewise.
+	* src/syslogd.c (main): Likewise.
+	* src/uucpd.c (dologout, dologin): Likewise.
+	(dologout) [PATH_LASTLOG && HAVE_STRUCT_LASTLOG]:
+	Declare F conditionally.
+
+	* ifconfig/changeif.c: Access `HAVE_DECL_*' using `#if',
+	not using `#ifdef' constructs.
+	* libinetutils/kcmd.c, libinetutils/localhost.c: Likewise.
+	* src/rlogind.c, src/rshd.c: Likewise.
+
 2012-09-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	talk: Delay start of curses interface until

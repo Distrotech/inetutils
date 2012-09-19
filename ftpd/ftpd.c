@@ -656,7 +656,7 @@ complete_login (struct credentials *pcred)
 #endif
 
   /* open wtmp before chroot */
-  snprintf (ttyline, sizeof (ttyline), "ftp%d", getpid ());
+  snprintf (ttyline, sizeof (ttyline), "ftp%d", (int) getpid ());
   logwtmp_keep_open (ttyline, pcred->name, pcred->remotehost);
 
   if (pcred->guest)

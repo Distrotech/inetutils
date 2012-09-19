@@ -78,7 +78,7 @@ localhost (void)
   else
     /* Determine FQDN.  */
     {
-#ifdef HAVE_DECL_GETADDRINFO
+#if HAVE_DECL_GETADDRINFO
       int rc;
       struct addrinfo hints, *res;
       char fqdn[NI_MAXHOST];

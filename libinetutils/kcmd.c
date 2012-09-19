@@ -120,7 +120,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # else
   int lport = START_PORT;
 # endif
-# ifdef HAVE_DECL_GETADDRINFO
+# if HAVE_DECL_GETADDRINFO
   struct addrinfo hints, *ai, *res;
   char portstr[8], fqdn[NI_MAXHOST];
 # else /* !HAVE_DECL_GETADDRINFO */
@@ -143,7 +143,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   else
     host = *ahost;
 
-# ifdef HAVE_DECL_GETADDRINFO
+# if HAVE_DECL_GETADDRINFO
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = af;
   hints.ai_socktype = SOCK_STREAM;
@@ -227,7 +227,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # endif /* !HAVE_SIGACTION */
   for (;;)
     {
-# ifdef HAVE_DECL_GETADDRINFO
+# if HAVE_DECL_GETADDRINFO
       s = getport (&lport, ai->ai_family);
 # else /* !HAVE_DECL_GETADDRINFO */
       s = getport (&lport, hp->h_addrtype);
@@ -247,7 +247,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	}
       fcntl (s, F_SETOWN, pid);
 
-# ifdef HAVE_DECL_GETADDRINFO
+# if HAVE_DECL_GETADDRINFO
       len = ai->ai_addrlen;
       memcpy (&sin, ai->ai_addr, ai->ai_addrlen);
 # else /* !HAVE_DECL_GETADDRINFO */
@@ -293,7 +293,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  continue;
 	}
 # if ! defined ultrix || defined sun
-#  ifdef HAVE_DECL_GETADDRINFO
+#  if HAVE_DECL_GETADDRINFO
       if (ai->ai_next)
 #  else /* !HAVE_DECL_GETADDRINFO */
       if (hp->h_addr_list[1] != NULL)
@@ -302,7 +302,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  int oerrno = errno;
 	  char addrstr[INET6_ADDRSTRLEN];
 
-#  ifdef HAVE_DECL_GETADDRINFO
+#  if HAVE_DECL_GETADDRINFO
 	  getnameinfo (ai->ai_addr, ai->ai_addrlen,
 		       addrstr, sizeof (addrstr), NULL, 0,
 		       NI_NUMERICHOST);
@@ -328,7 +328,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 	  continue;
 	}
 # endif	/* !(defined(ultrix) || defined(sun)) */
-# ifdef HAVE_DECL_GETADDRINFO
+# if HAVE_DECL_GETADDRINFO
       if (errno != ECONNREFUSED)
 	perror (res->ai_canonname);
 
@@ -347,7 +347,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
       return (-1);
     }
-# ifdef HAVE_DECL_GETADDRINFO
+# if HAVE_DECL_GETADDRINFO
   if (res)
     freeaddrinfo (res);
 #endif

@@ -632,7 +632,7 @@ main (int argc, char *argv[])
   fp = fopen (PidFile, "w");
   if (fp != NULL)
     {
-      fprintf (fp, "%d\n", getpid ());
+      fprintf (fp, "%d\n", (int) getpid ());
       fclose (fp);
     }
 

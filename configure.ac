@@ -550,6 +550,7 @@ if test "$with_wrap" = yes; then
 # for the wrap lib you have to define some global variables.
 #AC_CHECK_LIB(wrap, hosts_ctl, LIBWRAP=-lwrap)
   AC_CHECK_HEADERS([tcpd.h])
+  AC_CHECK_DECLS([hosts_ctl], , , [#include <tcpd.h>])
   AC_MSG_CHECKING(hosts_ctl in -lwrap);
   save_LIBS=$LIBS
   LIBS="$save_LIBS -lwrap"

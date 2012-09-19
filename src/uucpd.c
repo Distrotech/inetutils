@@ -229,7 +229,7 @@ dologout (void)
 #endif /* HAVE_WAITPID */
     {
       char line[100];
-      sprintf (line, "uucp%.4d", pid);
+      sprintf (line, "uucp%.4d", (int) pid);
 #ifdef HAVE_LOGWTMPX
       logwtmpx (line, "", "", 0, DEAD_PROCESS);
 #elif defined HAVE_LOGWTMP
@@ -265,7 +265,9 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
 {
   char line[32];
   char remotehost[32];
+#if defined PATH_LASTLOG && defined HAVE_STRUCT_LASTLOG
   int f;
+#endif
   struct hostent *hp = gethostbyaddr ((char *) &sin->sin_addr,
 				      sizeof (struct in_addr), AF_INET);
 
@@ -277,7 +279,7 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
   else
     strncpy (remotehost, inet_ntoa (sin->sin_addr), sizeof (remotehost));
 
-  sprintf (line, "uucp%.4d", getpid ());
+  sprintf (line, "uucp%.4d", (int) getpid ());
 
 #ifdef HAVE_LOGWTMPX
   logwtmpx (line, pw->pw_name, remotehost, 0, USER_PROCESS);
