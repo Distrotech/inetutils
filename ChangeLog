@@ -1,3 +1,11 @@
+2012-09-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Disable incompatible utmpx implementation.
+
+	* configure.ac <*-freebsd9* || *-freebsd10*>:
+	Disable building of ftpd, rlogind, syslogd,
+	talkd, telnetd, and uucpd.
+
 2012-09-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac <libwrap check>: Call AC_CHECK_DECLS

@@ -963,6 +963,17 @@ AH_BOTTOM(
 # entry in utmpx.  Also for some OS they are better handled with
 # STREAMS.
 case "$host" in
+*-freebsd9* | *-freebsd10*)
+  # FreeBSD 9.0 has implemented a non-standard and singular
+  # UTMPX interface.  We do not support it, nor does the
+  # readutmp module from GNUlib.
+  enable_ftpd=no  ftpd_BUILD=''
+  enable_rlogind=no  rlogind_BUILD=''
+  enable_syslogd=no  syslogd_BUILD=''
+  enable_talkd=no  talkd_BUILD=''
+  enable_telnetd=no  telnetd_BUILD=''
+  enable_uucpd=no  uucpd_BUILD=''
+  ;;
 *olaris*)
   AC_DEFINE([SOLARIS], 1, [FIXME])
   AC_DEFINE([HAVE_STREAMSPTY], 1, [FIXME])
