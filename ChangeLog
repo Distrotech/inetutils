@@ -1,3 +1,36 @@
+2012-09-27  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogin, rlogind: Signal dispositions.
+	Use a more portable signal API.
+
+	* libinetutils/libinetutils.h: Include <signal.h>.
+	(setsig): New prototype, exposing old function.
+
+	rlogin: Old signal API is inconsistent, even between
+	libc6 versions.
+
+	* src/rlogin.c (setsig): Remove external prototype.
+	(main): New variable SA.  Use STDIN_FILENO, not 0.
+	Call sigaction() with SIGURG, SIGUSR1, not setsig().
+	Pass `&osmask' to doit(), needed for window sizing.
+	(doit): Rename parameter as `osmask' for clarity.
+	New variable SA.  Call sigaction for SIGINT, SIGCHLD.
+	(setsignal): Fully reworked implementation.
+	(writeroob): New variable SA.  Use sigaction().
+	(oob): Use STDOUT_FILENO, not 1.  Offer ioctl TCIOFLUSH
+	for systems lacking TIOCFLUSH.
+	(reader): Rename parameter as `osmask'.  New variable SA.
+	Assume that contemporary getpid() returns positive values.
+	Call fcntl(F_SETOWN) as early as possible.  Use sigaction()
+	for SIGTTOU, SIGURG.
+	(lostpeer): Use input parameter in setsig().
+	(copytochild): Likewise for kill().
+
+	* src/rlogind.c (rlogind_sigchld): Rename parameter.
+	Replace signal() by setsig().
+	(main, rlogin_daemon, rlogind_mainloop, protocol):
+	Replace signal().
+
 2012-09-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Disable incompatible utmpx implementation.

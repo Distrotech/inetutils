@@ -22,7 +22,9 @@
 #endif
 
 #include "argp-version-etc.h"
+#include <signal.h>
 
+sighandler_t setsig (int sig, sighandler_t handler);
 void utmp_init (char *line, char *user, char *id, char *host);
 char *utmp_ptsid (char *line, char *tag);
 void utmp_logout (char *line);

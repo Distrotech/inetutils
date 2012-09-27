@@ -222,14 +222,14 @@ int do_shishi_login (int infd, struct auth_data *ad, const char **err_msg);
 #endif
 
 void
-rlogind_sigchld (int sig)
+rlogind_sigchld (int signo)
 {
   pid_t pid;
   int status;
 
   while ((pid = waitpid (-1, &status, WNOHANG)) > 0)
     --numchildren;
-  signal (sig, rlogind_sigchld);
+  setsig (signo, rlogind_sigchld);
 }
 
 #if defined KERBEROS && defined ENCRYPTION
@@ -417,7 +417,7 @@ main (int argc, char *argv[])
       exit (EXIT_FAILURE);
     }
 
-  signal (SIGHUP, SIG_IGN);
+  setsig (SIGHUP, SIG_IGN);
 
   if (!local_domain_name)
     {
@@ -479,7 +479,7 @@ rlogin_daemon (int maxchildren, int port)
       fatal (fileno (stderr), "fork failed, exiting", 0);
     }
 
-  signal (SIGCHLD, rlogind_sigchld);
+  setsig (SIGCHLD, rlogind_sigchld);
 
   listenfd = socket (AF_INET, SOCK_STREAM, 0);
 
@@ -921,9 +921,9 @@ rlogind_mainloop (int infd, int outfd)
   ioctl (master, FIONBIO, &true);
   ioctl (master, TIOCPKT, &true);
   netf = infd;			/* Needed for cleanup() */
-  signal (SIGCHLD, cleanup);
+  setsig (SIGCHLD, cleanup);
   protocol (infd, master, &auth_data);
-  signal (SIGCHLD, SIG_IGN);
+  setsig (SIGCHLD, SIG_IGN);
   cleanup (0);
 
 #ifdef SHISHI
@@ -1458,7 +1458,7 @@ protocol (int f, int p, struct auth_data *ap)
    * when we try and set slave pty's window shape
    * (our controlling tty is the master pty).
    */
-  signal (SIGTTOU, SIG_IGN);
+  setsig (SIGTTOU, SIG_IGN);
 #ifdef SHISHI
   if (kerberos && (ap->protocol == 2))
     {

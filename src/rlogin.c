@@ -193,7 +193,7 @@ struct winsize
 };
 
 int get_window_size (int, struct winsize *);
-#else
+#else /* !OLDSUN */
 # define get_window_size(fd, wp)	ioctl (fd, TIOCGWINSZ, wp)
 #endif
 struct winsize winsize;
@@ -220,8 +220,6 @@ void writeroob (int);
 #if defined KERBEROS || defined SHISHI
 void warning (const char *, ...);
 #endif
-
-extern sighandler_t setsig (int, sighandler_t);
 
 const char args_doc[] = "HOST";
 const char doc[] = "Starts a terminal session on a remote host.";
@@ -335,6 +333,7 @@ main (int argc, char *argv[])
 {
   struct passwd *pw;
   struct servent *sp;
+  struct sigaction sa;
   sigset_t smask, osmask;
   uid_t uid;
   int index;
@@ -416,7 +415,7 @@ main (int argc, char *argv[])
      terminal's speed.  The name and the speed are passed to the server
      as the argument "cmd" of the rcmd() function.  This is something like
      "vt100/9600".  */
-  term_speed = speed (0);
+  term_speed = speed (STDIN_FILENO);
   if (term_speed == SPEED_NOTATTY)
     {
       char *p;
@@ -429,13 +428,21 @@ main (int argc, char *argv[])
       snprintf (term, sizeof term, "%s/%d",
 		((p = getenv ("TERM")) ? p : "network"), term_speed);
     }
-  get_window_size (0, &winsize);
+  get_window_size (STDIN_FILENO, &winsize);
 
-  setsig (SIGPIPE, lostpeer);
+  setsig (SIGPIPE, lostpeer);	/* XXX: Replace setsig()?  */
 
-  /* Block SIGURG and SIGUSR1 signals.  These will be handled by the
-     parent and the child after the fork.  */
-  /* Will be using SIGUSR1 for window size hack, so hold it off.  */
+  /*
+   * Block SIGURG and SIGUSR1 signals during connection setup.
+   * These signals will be handled distinctly by parent and child
+   * after completion of process forking.
+   *
+   * SIGUSR1 will be be raise by the child for the parent process,
+   * in order that the client's finding of window size be transmitted
+   * to the remote machine.
+   *
+   * osmask will be passed along as the desired runtime signal mask.
+   */
   sigemptyset (&smask);
   sigemptyset (&osmask);
   sigaddset (&smask, SIGURG);
@@ -443,13 +450,17 @@ main (int argc, char *argv[])
   sigprocmask (SIG_SETMASK, &smask, &osmask);
 
   /*
-   * We set SIGURG and SIGUSR1 below so that an
+   * We set disposition for SIGURG and SIGUSR1 so that an
    * incoming signal will be held pending rather than being
    * discarded. Note that these routines will be ready to get
-   * a signal by the time that they are unblocked below.
+   * a signal by the time that they are unblocked later on.
    */
-  setsig (SIGURG, copytochild);
-  setsig (SIGUSR1, writeroob);
+  sigemptyset (&sa.sa_mask);
+  sa.sa_flags = 0;
+  sa.sa_handler = copytochild;
+  (void) sigaction (SIGURG, &sa, NULL);
+  sa.sa_handler = writeroob;
+  (void) sigaction (SIGUSR1, &sa, NULL);
 
 #if defined KERBEROS || defined SHISHI
 try_connect:
@@ -635,7 +646,7 @@ try_connect:
   seteuid (uid);
   setuid (uid);
 
-  doit (&smask);
+  doit (&osmask);	/* The old mask will activate SIGURG and SIGUSR1!  */
 
   return 0;
 }
@@ -747,9 +758,10 @@ struct termios ixon_state;
 struct termios nott;
 
 void
-doit (sigset_t * smask)
+doit (sigset_t * osmask)
 {
   int i;
+  struct sigaction sa;
 
   for (i = 0; i < NCCS; i++)
     nott.c_cc[i] = _POSIX_VDISABLE;
@@ -757,7 +769,11 @@ doit (sigset_t * smask)
   nott.c_cc[VSTART] = deftt.c_cc[VSTART];
   nott.c_cc[VSTOP] = deftt.c_cc[VSTOP];
 
-  setsig (SIGINT, SIG_IGN);
+  sigemptyset (&sa.sa_mask);
+  sa.sa_flags = SA_RESTART;
+  sa.sa_handler = SIG_IGN;
+  (void) sigaction (SIGINT, &sa, NULL);
+
   setsignal (SIGHUP);
   setsignal (SIGQUIT);
 
@@ -770,7 +786,7 @@ doit (sigset_t * smask)
   if (child == 0)
     {
       mode (1);
-      if (reader (smask) == 0)
+      if (reader (osmask) == 0)
 	{
 	  /* If the reader returns zero, the socket to the server returned
 	     an EOF, meaning the client logged out of the remote system.
@@ -811,9 +827,10 @@ doit (sigset_t * smask)
    * that were set above.
    */
   /* Reenable SIGURG and SIGUSR1.  */
-  sigprocmask (SIG_SETMASK, smask, (sigset_t *) 0);
+  sigprocmask (SIG_SETMASK, osmask, (sigset_t *) 0);
 
-  setsig (SIGCHLD, catch_child);
+  sa.sa_handler = catch_child;
+  (void) sigaction (SIGCHLD, &sa, NULL);
 
   writer ();
 
@@ -843,24 +860,28 @@ doit (sigset_t * smask)
   done (0);
 }
 
-/* Enable a signal handler, unless the signal is already being ignored.
-   This function is called before the fork (), for SIGHUP and SIGQUIT.  */
+/*
+ * Install an exit handler, unless the signal is already being ignored.
+   This function is called before fork () for SIGHUP and SIGQUIT.  */
 void
 setsignal (int sig)
 {
-  sighandler_t handler;
-  sigset_t sigs, osigs;
+  int rc;
+  struct sigaction sa;
 
-  sigemptyset (&sigs);
-  sigemptyset (&osigs);
-  sigaddset (&sigs, sig);
-  sigprocmask (SIG_BLOCK, &sigs, &osigs);
+  /* Query the present disposition of SIG.
+   * This achieves minimal manipulation.  */
+  sa.sa_flags = 0;
+  sa.sa_handler = NULL;
+  sigemptyset (&sa.sa_mask);
+  rc = sigaction (sig, NULL, &sa);
 
-  handler = setsig (sig, exit);
-  if (handler == SIG_IGN)
-    setsig (sig, handler);
-
-  sigprocmask (SIG_SETMASK, &osigs, (sigset_t *) 0);
+  /* Set action to exit, unless the signal is ignored.  */
+  if (!rc && sa.sa_handler != SIG_IGN)
+    {
+      sa.sa_handler = _exit;
+      (void) sigaction (sig, &sa, NULL);
+    }
 }
 
 /* This function is called by the parent:
@@ -880,7 +901,7 @@ done (int status)
   if (child > 0)
     {
       /* make sure catch_child does not snap it up */
-      setsig (SIGCHLD, SIG_DFL);
+      setsig (SIGCHLD, SIG_DFL);		/* XXX: Replace setsig()?  */
       if (kill (child, SIGKILL) >= 0)
 	while ((w = waitpid (-1, &wstatus, WNOHANG)) > 0 && w != child)
 	  continue;
@@ -894,6 +915,8 @@ int dosigwinch;
  * This is called when the reader process gets the out-of-band (urgent)
  * request to turn on the window-changing protocol.
  *
+ * Input signal is SIGUSR1, but SIGWINCH is being activated.
+ *
  * FIXME: Race condition due to sendwindow() in signal handler?
  */
 void
@@ -901,8 +924,14 @@ writeroob (int signo _GL_UNUSED_PARAMETER)
 {
   if (dosigwinch == 0)
     {
+      struct sigaction sa;
+
       sendwindow ();
-      setsig (SIGWINCH, sigwinch);
+
+      sa.sa_flags = SA_RESTART;
+      sa.sa_handler = sigwinch;
+      sigemptyset (&sa.sa_mask);
+      (void) sigaction (SIGWINCH, &sa, NULL);
     }
   dosigwinch = 1;
 }
@@ -1067,7 +1096,7 @@ void
 stop (char cmdc)
 {
   mode (0);
-  setsig (SIGCHLD, SIG_IGN);
+  setsig (SIGCHLD, SIG_IGN);		/* XXX: Replace setsig()?  */
   kill (cmdc == deftt.c_cc[VSUSP] ? 0 : getpid (), SIGTSTP);
   setsig (SIGCHLD, catch_child);
   mode (1);
@@ -1197,8 +1226,11 @@ oob (int signo _GL_UNUSED_PARAMETER)
     }
   if (mark & TIOCPKT_FLUSHWRITE)
     {
-#ifdef TIOCFLUSH
-      ioctl (1, TIOCFLUSH, (char *) &out);
+#ifdef TIOCFLUSH		/* BSD and Solaris.  */
+      ioctl (STDOUT_FILENO, TIOCFLUSH, (char *) &out);
+#elif defined TCIOFLUSH		/* Glibc, BSD, and Solaris.  */
+      out = TCIOFLUSH;
+      ioctl (STDOUT_FILENO, TCIOFLUSH, &out);
 #endif
       for (;;)
 	{
@@ -1236,25 +1268,27 @@ oob (int signo _GL_UNUSED_PARAMETER)
 
 /* reader: read from remote: line -> 1 */
 int
-reader (sigset_t * smask)
+reader (sigset_t * osmask)
 {
   pid_t pid;
   int n, remaining;
   char *bufp;
+  struct sigaction sa;
 
-#if BSD >= 43 || defined SUNOS4
-  pid = getpid ();		/* modern systems use positives for pid */
-#else
-  pid = -getpid ();		/* old broken systems use negatives */
-#endif
-
-  setsig (SIGTTOU, SIG_IGN);
-  setsig (SIGURG, oob);
-
+  pid = getpid ();	/* Modern systems use positive values for pid.  */
   ppid = getppid ();
-  fcntl (rem, F_SETOWN, pid);
+
+  fcntl (rem, F_SETOWN, pid);		/* Get ownership early.  */
+
+  sa.sa_flags = SA_RESTART;
+  sa.sa_handler = SIG_IGN;
+  sigemptyset (&sa.sa_mask);
+  (void) sigaction (SIGTTOU, &sa, NULL);
+  sa.sa_handler = oob;
+  (void) sigaction (SIGURG, &sa, NULL);
+
   setjmp (rcvtop);
-  sigprocmask (SIG_SETMASK, smask, (sigset_t *) 0);
+  sigprocmask (SIG_SETMASK, osmask, (sigset_t *) 0);
   bufp = rcvbuf;
 
   for (;;)
@@ -1349,18 +1383,18 @@ mode (int f)
 /* FIXME: Race condition due to done() in signal handler?
  */
 void
-lostpeer (int signo _GL_UNUSED_PARAMETER)
+lostpeer (int signo)
 {
-  setsig (SIGPIPE, SIG_IGN);
+  setsig (signo, SIG_IGN);	/* Used with SIGPIPE only.  */
   error (0, 0, "\007Connection to %s lost.\r", host);
   done (1);
 }
 
 /* copy SIGURGs to the child process. */
 void
-copytochild (int signo _GL_UNUSED_PARAMETER)
+copytochild (int signo)
 {
-  kill (child, SIGURG);
+  kill (child, signo);
 }
 
 #if defined KERBEROS || defined SHISHI
