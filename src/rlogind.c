@@ -169,6 +169,7 @@ struct auth_data
 #define MODE_DAEMON 1
 int mode = MODE_INETD;
 
+int use_af = AF_UNSPEC;
 int port = 0;
 int maxchildren = DEFMAXCHILDREN;
 int allow_root = 0;
@@ -222,14 +223,13 @@ int do_shishi_login (int infd, struct auth_data *ad, const char **err_msg);
 #endif
 
 void
-rlogind_sigchld (int signo)
+rlogind_sigchld (int signo _GL_UNUSED_PARAMETER)
 {
   pid_t pid;
   int status;
 
   while ((pid = waitpid (-1, &status, WNOHANG)) > 0)
     --numchildren;
-  setsig (signo, rlogind_sigchld);
 }
 
 #if defined KERBEROS && defined ENCRYPTION
@@ -278,12 +278,18 @@ const char *program_authors[] = {
 
 static struct argp_option options[] = {
 #define GRP 10
+  { "ipv4", '4', NULL, 0,
+    "daemon mode only accepts IPv4", GRP },
+#ifdef IPV6
+  { "ipv6", '6', NULL, 0,
+    "only IPv6 in daemon mode", GRP },
+#endif
   { "allow-root", 'o', NULL, 0,
-    "allow uid == 0 to login, disabled by default", GRP },
+    "allow uid 0 to login, disabled by default", GRP },
   { "verify-hostname", 'a', NULL, 0,
     "ask hostname for verification", GRP },
-  { "daemon", 'd', NULL, 0,
-    "daemon mode", GRP },
+  { "daemon", 'd', "MAX", OPTION_ARG_OPTIONAL,
+    "daemon mode, with instance limit", GRP },
 #ifdef HAVE___CHECK_RHOSTS_FILE
   { "no-rhosts", 'l', NULL, 0,
     "ignore .rhosts file", GRP },
@@ -320,6 +326,16 @@ parse_opt (int key, char *arg,
 {
   switch (key)
     {
+    case '4':
+      use_af = AF_INET;
+      break;
+
+#ifdef IPV6
+    case '6':
+      use_af = AF_INET6;
+      break;
+#endif
+
     case 'a':
       verify_hostname = 1;
       break;
@@ -449,15 +465,102 @@ main (int argc, char *argv[])
   return 0;
 }
 
-/* FIXME: Migrate to IPv6 supported listener.  */
+/* Create a listening socket for the indicated
+ * address family and port.  Then bind a wildcard
+ * address to it.
+ */
+int
+find_listenfd (int family, int port)
+{
+  int fd, on = 1;
+  socklen_t size;
+#if HAVE_DECL_GETADDRINFO
+  int rc;
+  struct sockaddr_storage saddr;
+  struct addrinfo hints, *ai, *res;
+  char portstr[16];
+#else /* !HAVE_DECL_GETADDRINFO */
+  struct sockaddr_in saddr;
+
+  /* Enforce IPv4, lacking getaddrinfo().  */
+  if (family != AF_INET)
+    return -1;
+#endif
+
+#if HAVE_DECL_GETADDRINFO
+  memset (&hints, 0, sizeof hints);
+  hints.ai_family = family;
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_socktype = SOCK_STREAM;
+  snprintf (portstr, sizeof portstr, "%u", port);
+
+  rc = getaddrinfo (NULL, portstr, &hints, &res);
+  if (rc)
+    {
+      syslog (LOG_ERR, "getaddrinfo: %s", gai_strerror (rc));
+      return -1;
+    }
+
+  /* Passive socket, so grab the first relevant answer.  */
+  for (ai = res; ai; ai = ai->ai_next)
+    if (ai->ai_family == family)
+      break;
+
+  if (ai == NULL)
+    {
+      syslog (LOG_ERR, "address family not available");
+      freeaddrinfo (res);
+      return -1;
+    }
+
+  size = ai->ai_addrlen;
+  memcpy (&saddr, ai->ai_addr, ai->ai_addrlen);
+  freeaddrinfo (res);
+
+#else /* !HAVE_DECL_GETADDRINFO */
+  size = sizeof saddr;
+  memset (&saddr, 0, size);
+  saddr.sin_family = family;
+# ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+  saddr.sin_len = sizeof (struct sockaddr_in);
+# endif
+  saddr.sin_addr.s_addr = htonl (INADDR_ANY);
+  saddr.sin_port = htons (port);
+#endif
+
+  fd = socket (family, SOCK_STREAM, 0);
+  if (fd < 0)
+    return -1;
+
+  (void) setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof on);
+
+#ifdef IPV6
+  /* Make it a single ended socket.  */
+  if (family == AF_INET6)
+    (void) setsockopt (fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof on);
+#endif
+
+  if (bind (fd, (struct sockaddr *) &saddr, size) == -1)
+    {
+      syslog (LOG_ERR, "bind: %s", strerror (errno));
+      close (fd);
+      return -1;
+    }
+
+  if (listen (fd, 128) == -1)
+    {
+      syslog (LOG_ERR, "listen: %s", strerror (errno));
+      close (fd);
+      return -1;
+    }
+
+  return fd;
+}
 
 void
 rlogin_daemon (int maxchildren, int port)
 {
-  pid_t pid;
-  socklen_t size;
-  struct sockaddr_in saddr;
-  int listenfd, fd;
+  int listenfd[2], fd, numfd, maxfd;
 
   if (port == 0)
     {
@@ -470,9 +573,9 @@ rlogin_daemon (int maxchildren, int port)
 	port = DEFPORT;
     }
 
-  /* Become a daemon. Take care to close inherited fds and to hold
-     first three one, lest master/slave ptys clash with standard
-     in,out,err   */
+  /* Become a daemon. Take care to close inherited fds and reserve
+     the first three, lest master/slave ptys may clash with standard
+     input, output, or error.  */
   if (daemon (0, 0) < 0)
     {
       syslog (LOG_ERR, "failed to become a daemon %s", strerror (errno));
@@ -481,44 +584,39 @@ rlogin_daemon (int maxchildren, int port)
 
   setsig (SIGCHLD, rlogind_sigchld);
 
-  listenfd = socket (AF_INET, SOCK_STREAM, 0);
+  numfd = maxfd = 0;
 
-  if (listenfd == -1)
+  if ((use_af == AF_UNSPEC) || (use_af == AF_INET))
     {
-      syslog (LOG_ERR, "socket: %s", strerror (errno));
-      exit (EXIT_FAILURE);
+      fd = find_listenfd (AF_INET, port);
+      if (fd >= 0)
+	listenfd[numfd++] = maxfd = fd;
     }
 
-  {
-    int on = 1;
-
-    setsockopt (listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof on);
-  }
-
-  size = sizeof saddr;
-  memset (&saddr, 0, size);
-  saddr.sin_family = AF_INET;
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
-  saddr.sin_len = sizeof (struct sockaddr_in);
+#ifdef IPV6
+  if ((use_af == AF_UNSPEC) || (use_af == AF_INET6))
+    {
+      fd = find_listenfd (AF_INET6, port);
+      if (fd >= 0)
+	{
+	  listenfd[numfd++] = fd;
+	  if (fd > maxfd)
+	    maxfd = fd;
+	}
+    }
 #endif
-  saddr.sin_addr.s_addr = htonl (INADDR_ANY);
-  saddr.sin_port = htons (port);
 
-  size = sizeof saddr;
-  if (bind (listenfd, (struct sockaddr *) &saddr, size) == -1)
+  if (numfd == 0)
     {
-      syslog (LOG_ERR, "bind: %s", strerror (errno));
-      exit (EXIT_FAILURE);
-    }
-
-  if (listen (listenfd, 128) == -1)
-    {
-      syslog (LOG_ERR, "listen: %s", strerror (errno));
+      syslog (LOG_ERR, "socket creation failed");
       exit (EXIT_FAILURE);
     }
 
   while (1)
     {
+      int n, j;
+      fd_set lfdset;
+
       if (numchildren > maxchildren)
 	{
 	  syslog (LOG_ERR, "too many children (%d)", numchildren);
@@ -526,28 +624,53 @@ rlogin_daemon (int maxchildren, int port)
 	  continue;
 	}
 
-      size = sizeof saddr;
-      fd = accept (listenfd, (struct sockaddr *) &saddr, &size);
+      FD_ZERO (&lfdset);
+      FD_SET (listenfd[0], &lfdset);
+      if (numfd > 1)
+	FD_SET (listenfd[1], &lfdset);
 
-      if (fd == -1)
+      n = select (maxfd + 1, &lfdset, NULL, NULL, NULL);
+      if (n <= 0)
+	continue;
+
+      for (j = 0; j < numfd; j++)
 	{
-	  if (errno == EINTR)
+	  pid_t pid;
+	  socklen_t size;
+#if HAVE_DECL_GETADDRINFO
+	  struct sockaddr_storage saddr;
+#else /* !HAVE_DECL_GETADDRINFO */
+	  struct sockaddr_in saddr;
+#endif
+
+	  if (!FD_ISSET (listenfd[j], &lfdset))
 	    continue;
-	  syslog (LOG_ERR, "accept: %s", strerror (errno));
-	  exit (EXIT_FAILURE);
-	}
 
-      pid = fork ();
-      if (pid == -1)
-	syslog (LOG_ERR, "fork: %s", strerror (errno));
-      else if (pid == 0)	/* child */
-	{
-	  close (listenfd);
-	  exit (rlogind_mainloop (fd, fd));
+	  size = sizeof (saddr);
+	  fd = accept (listenfd[j], (struct sockaddr *) &saddr, &size);
+
+	  if (fd < 0)
+	    {
+	      if (errno == EINTR)
+		continue;
+	      syslog (LOG_ERR, "accept: %s", strerror (errno));
+	      continue;
+	    }
+
+	  pid = fork ();
+	  if (pid == -1)
+	    syslog (LOG_ERR, "fork: %s", strerror (errno));
+	  else if (pid == 0)	/* child */
+	    {
+	      close (listenfd[0]);
+	      if (numfd > 1)
+		close (listenfd[1]);
+	      exit (rlogind_mainloop (fd, fd));
+	    }
+	  /* parent only */
+	  numchildren++;
+	  close (fd);
 	}
-      else
-	numchildren++;
-      close (fd);
     }
 }
 

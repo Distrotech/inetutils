@@ -1,3 +1,28 @@
+2012-09-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogind: Daemon mode update.
+
+	Reinstalling an identical signal action was needed
+	on legacy systems.  Made obsolete by setsig().
+
+	* src/rlogind.c (rlogind_sigchld): Remove call to
+	setsig() for reactivation.  Use _GL_UNUSED_PARAMETER.
+
+	Make daemon mode able to do IPv4 and IPv6, but only
+	if getaddrinfo() is available.  Use two sockets for
+	better portability.
+
+	* src/rlogind.c (use_af): New variable.
+	(options): New switches `-4/--ipv4' and `-6/--ipv6'.
+	Expose optional argument for `-d/--daemon'.
+	(parse_opt) <'4', '6'>: New cases.
+	(find_listenfd): New function, generating sockets
+	for rlogin_daemon().
+	(rlogin_daemon): Use select() on at most two
+	listening sockets.  Let `use_af' determine IPv4
+	and/or IPv6.  New variables LISTENFD[2], NUMFD,
+	MAXFD, LFDSET.
+
 2012-09-27  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogin, rlogind: Signal dispositions.
@@ -21,8 +46,8 @@
 	for systems lacking TIOCFLUSH.
 	(reader): Rename parameter as `osmask'.  New variable SA.
 	Assume that contemporary getpid() returns positive values.
-	Call fcntl(F_SETOWN) as early as possible.  Use sigaction()
-	for SIGTTOU, SIGURG.
+	Call fcntl(F_SETOWN) as early as possible, and set owner
+	using PID, not PPID.  Use sigaction() for SIGTTOU, SIGURG.
 	(lostpeer): Use input parameter in setsig().
 	(copytochild): Likewise for kill().
 
