@@ -1,3 +1,17 @@
+2012-10-01  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	uucpd: Restore inetd code.
+
+	Code necessary for inetd mode was accidentally
+	removed on 2009-10-26.  Replace daemon mode code.
+	* src/uucpd.c: Include <grp.h>.
+	(hisaddrlen): Type is socklen_t.
+	(myctladdr): Removed.
+	(main): Remove variables S and SP.  Remove broken,
+	partial code for daemon mode operation.  New calls
+	to dup2(), getpeername(), doit(), and dologout().
+	(doit): New calls to initgroups() and execl().
+
 2012-09-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Daemon mode update.

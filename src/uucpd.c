@@ -51,7 +51,7 @@
    Adams. */
 
 /*
- * 4.2BSD TCP/IP server for uucico
+ * TCP/IP server for uucico.
  * uucico's TCP channel causes this server to be run at the remote end.
  */
 
@@ -68,6 +68,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <pwd.h>
+#include <grp.h>
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>
@@ -89,10 +90,12 @@
 #include <libinetutils.h>
 
 void dologin (struct passwd *pw, struct sockaddr_in *sin);
+void dologout (void);
+void doit (struct sockaddr_in *sinp);
 
 struct sockaddr_in hisctladdr;
-int hisaddrlen = sizeof hisctladdr;
-struct sockaddr_in myctladdr;
+socklen_t hisaddrlen = sizeof (hisctladdr);
+
 int mypid;
 
 char Username[64];
@@ -100,44 +103,43 @@ char *nenv[] = {
   Username,
   NULL,
 };
+
 extern char **environ;
 
 static struct argp argp =
   {
     NULL, NULL, NULL,
-    "TCP/IP server for uucico",
+    "TCP/IP server for uucico.",
     NULL, NULL, NULL
   };
 
 int
 main (int argc, char **argv)
 {
-  register int s;
-  struct servent *sp;
-  void dologout (void);
-
   set_program_name (argv[0]);
   iu_argp_init ("uucpd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
+  /* Minimal environment, containing only USER.  */
   environ = nenv;
-  sp = getservbyname ("uucp", "tcp");
-  if (sp == NULL)
+
+  /* Circumvent all descriptor trickery.  */
+  dup2 (STDIN_FILENO, STDOUT_FILENO);
+  dup2 (STDIN_FILENO, STDERR_FILENO);
+
+  hisaddrlen = sizeof (hisctladdr);
+  if (getpeername (STDIN_FILENO, &hisctladdr, &hisaddrlen) < 0)
     {
-      perror ("uucpd: getservbyname");
-      exit (EXIT_FAILURE);
-    }
-  if (fork ())
-    exit (EXIT_SUCCESS);
-  if ((s = open (PATH_TTY, O_RDWR)) >= 0)
-    {
-      ioctl (s, TIOCNOTTY, (char *) 0);
-      close (s);
+      fprintf (stderr, "%s: ", argv[0]);
+      perror ("getpeername");
+      _exit (EXIT_FAILURE);
     }
 
-  memset (&myctladdr, 0, sizeof (myctladdr));
-  myctladdr.sin_family = AF_INET;
-  myctladdr.sin_port = sp->s_port;
+  if (fork () == 0)
+    doit (&hisctladdr);
+
+  dologout ();
+  exit (EXIT_FAILURE);
 }
 
 static int
@@ -163,14 +165,14 @@ readline (register char *p, register int n)
 void
 doit (struct sockaddr_in *sinp)
 {
-  struct passwd *pw, *getpwnam (const char *);
+  struct passwd *pw;
   char user[64], passwd[64];
   char *xpasswd;
 
   alarm (60);
   printf ("login: ");
   fflush (stdout);
-  if (readline (user, sizeof user) < 0)
+  if (readline (user, sizeof (user)) < 0)
     {
       fprintf (stderr, "user read\n");
       return;
@@ -183,6 +185,7 @@ doit (struct sockaddr_in *sinp)
       fprintf (stderr, "user unknown\n");
       return;
     }
+  /* XXX: Compare only shell base name to "uucico"?  */
   if (strcmp (pw->pw_shell, PATH_UUCICO))
     {
       fprintf (stderr, "Login incorrect.");
@@ -192,7 +195,7 @@ doit (struct sockaddr_in *sinp)
     {
       printf ("Password: ");
       fflush (stdout);
-      if (readline (passwd, sizeof passwd) < 0)
+      if (readline (passwd, sizeof (passwd)) < 0)
 	{
 	  fprintf (stderr, "passwd read\n");
 	  return;
@@ -208,8 +211,10 @@ doit (struct sockaddr_in *sinp)
   sprintf (Username, "USER=%s", user);
   dologin (pw, sinp);
   setgid (pw->pw_gid);
+  initgroups (pw->pw_name, pw->pw_gid);
   chdir (pw->pw_dir);
   setuid (pw->pw_uid);
+  execl (pw->pw_shell, "uucico", NULL);
   perror ("uucico server: execl");
 }
 
@@ -320,7 +325,7 @@ dologin (struct passwd *pw, struct sockaddr_in *sin)
       strcpy (line, remotehost);
       SCPYN (ll.ll_line, line);
       SCPYN (ll.ll_host, remotehost);
-      write (f, (char *) &ll, sizeof ll);
+      write (f, (char *) &ll, sizeof (ll));
       close (f);
     }
 #endif
