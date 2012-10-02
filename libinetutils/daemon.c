@@ -142,7 +142,7 @@ waitdaemon (int nochdir, int noclose, int maxwait)
 	  alarm (maxwait);
 	  pause ();
 	}
-      _exit (0);
+      _exit (EXIT_SUCCESS);
     }
 
   if (setsid () == -1)
@@ -163,7 +163,7 @@ waitdaemon (int nochdir, int noclose, int maxwait)
       return -1;
 
     default:
-      _exit (0);
+      _exit (EXIT_SUCCESS);
     }
 
   if (!nochdir)

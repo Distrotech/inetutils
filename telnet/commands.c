@@ -1590,7 +1590,7 @@ shell (int argc, char *argv[] _GL_UNUSED_PARAMETER)
 	else
 	  execl (shellp, shellname, NULL);
 	perror ("Execl");
-	_exit (1);
+	_exit (EXIT_FAILURE);
       }
     default:
       wait ((int *) 0);		/* Wait for the shell to complete */

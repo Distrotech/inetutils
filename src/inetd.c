@@ -438,7 +438,7 @@ run_service (int ctrl, struct servtab *sep)
 		  sep->se_service, sep->se_proto, sep->se_user);
 	  if (sep->se_socktype != SOCK_STREAM)
 	    recv (0, buf, sizeof buf, 0);
-	  _exit (1);
+	  _exit (EXIT_FAILURE);
 	}
       if (sep->se_group && *sep->se_group)
 	{
@@ -449,7 +449,7 @@ run_service (int ctrl, struct servtab *sep)
 		      sep->se_service, sep->se_proto, sep->se_group);
 	      if (sep->se_socktype != SOCK_STREAM)
 		recv (0, buf, sizeof buf, 0);
-	      _exit (1);
+	      _exit (EXIT_FAILURE);
 	    }
 	}
       if (pwd->pw_uid)
@@ -460,14 +460,14 @@ run_service (int ctrl, struct servtab *sep)
 		{
 		  syslog (LOG_ERR, "%s: can't set gid %d: %m",
 			  sep->se_service, grp->gr_gid);
-		  _exit (1);
+		  _exit (EXIT_FAILURE);
 		}
 	    }
 	  else if (setgid (pwd->pw_gid) < 0)
 	    {
 	      syslog (LOG_ERR, "%s: can't set gid %d: %m",
 		      sep->se_service, pwd->pw_gid);
-	      _exit (1);
+	      _exit (EXIT_FAILURE);
 	    }
 #ifdef HAVE_INITGROUPS
 	  initgroups (pwd->pw_name,
@@ -477,14 +477,14 @@ run_service (int ctrl, struct servtab *sep)
 	    {
 	      syslog (LOG_ERR, "%s: can't set uid %d: %m",
 		      sep->se_service, pwd->pw_uid);
-	      _exit (1);
+	      _exit (EXIT_FAILURE);
 	    }
 	}
       execv (sep->se_server, sep->se_argv);
       if (sep->se_socktype != SOCK_STREAM)
 	recv (0, buf, sizeof buf, 0);
       syslog (LOG_ERR, "cannot execute %s: %m", sep->se_server);
-      _exit (1);
+      _exit (EXIT_FAILURE);
     }
 }
 
@@ -1768,7 +1768,7 @@ tcpmux (int s, struct servtab *sep)
   if (len < 0)
     {
       strwrite (s, "-Error reading service name\r\n");
-      _exit (1);
+      _exit (EXIT_FAILURE);
     }
   service[len] = '\0';
 
@@ -1788,7 +1788,7 @@ tcpmux (int s, struct servtab *sep)
 	  write (s, sep->se_service, strlen (sep->se_service));
 	  strwrite (s, "\r\n");
 	}
-      _exit (1);
+      _exit (EXIT_FAILURE);
     }
 
   /* Try matching a service in inetd.conf with the request */

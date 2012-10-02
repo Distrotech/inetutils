@@ -1676,7 +1676,7 @@ logerror (const char *type)
 void
 doexit (int signo _GL_UNUSED_PARAMETER)
 {
-  _exit (0);
+  _exit (EXIT_SUCCESS);
 }
 
 void

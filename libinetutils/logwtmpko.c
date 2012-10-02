@@ -54,7 +54,13 @@ logwtmp (char *line, char *name, char *host)
 #ifdef HAVE_STRUCT_UTMPX_UT_HOST
   strncpy (ut.ut_host, host, sizeof ut.ut_host);
 # ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN
-  ut.ut_syslen = strlen (host) + 1;	/* Including NUL.  */
+  if (strlen (host) < sizeof (ut.ut_host))
+    ut.ut_syslen = strlen (host) + 1;
+  else
+    {
+      ut.ut_host[sizeof (ut.ut_host) - 1] = '\0';
+      ut.ut_syslen = sizeof (ut.ut_host);
+    }
 # endif /* UT_SYSLEN */
 #endif
 #ifdef HAVE_STRUCT_UTMPX_UT_PID

@@ -1,5 +1,18 @@
 2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* libinetutils/logwtmp.c [HAVE_STRUCT_UTMPX_UT_SYSLEN]:
+	Take care of overlong host name when storing length
+	in `ut.ut_syslen'.
+	* libinetutils/logwtmpko.c, libinetutils/utmp_init.c:
+	Likewise.
+
+	* ftpd/popen.c, libinetutils/daemon.c,
+	libinetutils/ttymsg.c, src/inetd.c, src/rshd.c,
+	src/syslogd.c, telnet/commands.c: Call _exit()
+	with EXIT_SUCCESS or EXIT_FAILURE, not 0 or 1.
+
+2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	uucpd: Upgrade, including IPv6.
 
 	* src/uucpd.c: Include <unused-parameter.h>.

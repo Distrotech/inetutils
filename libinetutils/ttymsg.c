@@ -152,7 +152,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 	  if (forked)
 	    {
 	      close (fd);
-	      _exit (1);
+	      _exit (EXIT_FAILURE);
 	    }
 	  cpid = fork2 ();
 	  if (cpid < 0)
@@ -194,7 +194,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
 	break;
       close (fd);
       if (forked)
-	_exit (1);
+	_exit (EXIT_FAILURE);
       snprintf (errbuf, sizeof (errbuf), "%s: %s", device, strerror (errno));
       free (device);
       return (errbuf);
@@ -203,7 +203,7 @@ ttymsg (struct iovec *iov, int iovcnt, char *line, int tmout)
   free (device);
   close (fd);
   if (forked)
-    _exit (0);
+    _exit (EXIT_SUCCESS);
   return (NULL);
 }
 
@@ -232,7 +232,7 @@ fork2 (void)
 	case -1:
 	  _exit (errno);	/* Assumes all errnos are <256 */
 	default:		/* Parent.  */
-	  _exit (0);
+	  _exit (EXIT_SUCCESS);
 	}
     }
 

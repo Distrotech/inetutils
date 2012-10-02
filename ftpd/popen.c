@@ -183,7 +183,7 @@ ftpd_popen (char *program, const char *type)
 #endif
 
       execv (gargv[0], gargv);
-      _exit (1);
+      _exit (EXIT_FAILURE);
     }
   /* parent; assume fdopen can't fail...  */
   if (*type == 'r')

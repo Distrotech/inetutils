@@ -362,7 +362,7 @@ main (int argc, char *argv[])
   if (getpeername (sockfd, (struct sockaddr *) &from, &fromlen) < 0)
     {
       syslog (LOG_ERR, "getpeername: %m");
-      _exit (1);
+      _exit (EXIT_FAILURE);
     }
 
   /* Set the socket options: SO_KEEPALIVE and SO_LINGER */

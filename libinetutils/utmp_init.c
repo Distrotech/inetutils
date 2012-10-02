@@ -91,7 +91,13 @@ utmp_init (char *line, char *user, char *id, char *host)
 #if defined HAVE_STRUCT_UTMP_UT_HOST || defined HAVE_STRUCT_UTMPX_UT_HOST
   strncpy (utx.ut_host, host, sizeof (utx.ut_host));
 # ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN	/* Only utmpx.  */
-  utx.ut_syslen = strlen (host) + 1;
+  if (strlen (host) < sizeof (utx.ut_host))
+    utx.ut_syslen = strlen (host) + 1;
+  else
+    {
+      utx.ut_host[sizeof (utx.ut_host) - 1] = '\0';
+      utx.ut_syslen = sizeof (utx.ut_host);
+    }
 # endif
 #endif /* UT_HOST */
 #if defined HAVE_STRUCT_UTMP_UT_LINE || defined HAVE_STRUCT_UTMPX_UT_LINE

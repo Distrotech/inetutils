@@ -136,7 +136,13 @@ logwtmp (char *line, char *name, char *host)
 #if defined HAVE_STRUCT_UTMP_UT_HOST || defined HAVE_STRUCT_UTMPX_UT_HOST
   strncpy (ut.ut_host, host, sizeof ut.ut_host);
 # ifdef HAVE_STRUCT_UTMPX_UT_SYSLEN	/* Only utmpx.  */
-  ut.ut_syslen = strlen (host) + 1;	/* Including NUL.  */
+  if (strlen (host) < sizeof (ut.ut_host))
+    ut.ut_syslen = strlen (host) + 1;	/* Including NUL.  */
+  else
+    {
+      ut.ut_host[sizeof (ut.ut_host) - 1] = '\0';
+      ut.ut_syslen = sizeof (ut.ut_host);
+    }
 # endif /* UT_SYSLEN */
 #endif /* UT_HOST */
 
