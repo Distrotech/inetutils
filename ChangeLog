@@ -1,3 +1,30 @@
+2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	uucpd: Upgrade, including IPv6.
+
+	* src/uucpd.c: Include <unused-parameter.h>.
+	(hisctladdr, hisaddrlen): Remove variables.
+	(uucico_location, Logname): New variables.
+	(nenv): Add `Logname'.
+	(argp_options): New variable.
+	(parse_opt): New function.
+	(argp): Add `argp_options' and `parse_opt'.
+	(main): New variables HISCTLADDR, HISADDRLEN.
+	(readline): Read from STDIN_FILENO.
+	(doit): New signature `(struct sockaddr *, socklen_t)'.
+	Remove truncation of USER.  Ask password for non-existent
+	user, then fail.  Check user shell after password check,
+	and compare to `uucico_location'.  Set LOGNAME in `nenv'
+	for portability.  Call execl() with `uucico_location'.
+	[HAVE_INITGROUPS]: Guard call to initgroups().
+	(dologin): New signature
+	`(struct passwd *, struct sockaddr *, socklen_t)'
+	[HAVE_DECL_GETNAMEINFO]: Use getnameinfo() as resolver.
+	[!HAVE_DECL_GETNAMEINFO]: Extend code with gethostbyaddr()
+	to accept IPv6.  Replace inet_ntoa() by inet_ntop().
+	(dologin) [HAVE_STRUCT_UTMPX_UT_SYSLEN]: Correctly set
+	the used length of `ut.ut_host'.
+
 2012-10-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	uucpd: Restore inetd code.
