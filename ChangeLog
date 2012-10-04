@@ -1,3 +1,15 @@
+2012-10-04  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ping/libping.c (ping_set_dest) [HAVE_DECL_GETADDRINFO]:
+	Alternative and preferred resolver using getaddrinfo().
+	* ping/ping6.c (print_echo) [NI_IDN]: Add flag NI_IDN
+	to getnameinfo() if option OPT_NUMERIC is not set.
+	(ping_set_dest) [AI_IDN]: Add flag AI_IDN to HINTS.
+	* ping/ping_common.c (ipaddr2str) [NI_IDN]: Add flag
+	NI_IDN to getnameinfo().
+	* src/traceroute.c (main) [AI_IDN]: Add flag AI_IDN to HINTS.
+	[AI_IDN && AI_CANONIDN]: Add flag AI_CANONIDN to HINTS.
+
 2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* libinetutils/logwtmp.c [HAVE_STRUCT_UTMPX_UT_SYSLEN]:

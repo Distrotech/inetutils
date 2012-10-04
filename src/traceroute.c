@@ -227,6 +227,12 @@ main (int argc, char **argv)
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = AF_INET;
   hints.ai_flags = AI_CANONNAME;
+#ifdef AI_IDN
+  hints.ai_flags |= AI_IDN;
+# ifdef AI_CANONIDN
+  hints.ai_flags |= AI_CANONIDN;
+# endif
+#endif
 
 #ifdef HAVE_IDN
   rc = idna_to_ascii_lz (hostname, &rhost, 0);

@@ -531,7 +531,13 @@ print_echo (int dupflag, int hops, struct ping_stat *ping_stat,
 
   err = getnameinfo ((struct sockaddr *) from, sizeof (*from),
 		     buf, sizeof (buf), NULL, 0,
-		     (options & OPT_NUMERIC) ? NI_NUMERICHOST : 0);
+		     (options & OPT_NUMERIC) ? NI_NUMERICHOST
+#ifdef NI_IDN
+		     : NI_IDN
+#else
+		     : 0
+#endif
+		     );
   if (err)
     {
       const char *errmsg;
@@ -902,6 +908,9 @@ ping_set_dest (PING * ping, char *host)
 
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = AF_INET6;
+#ifdef AI_IDN
+  hints.ai_flags = AI_IDN;
+#endif
 
   err = getaddrinfo (rhost, NULL, &hints, &result);
 #if HAVE_IDN

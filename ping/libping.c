@@ -267,17 +267,55 @@ ping_set_packetsize (PING * ping, size_t size)
 int
 ping_set_dest (PING * ping, char *host)
 {
+#if HAVE_DECL_GETADDRINFO
+  int rc;
+  struct addrinfo hints, *res;
+  char *p;
+
+# ifdef HAVE_IDN
+  rc = idna_to_ascii_lz (host, &p, 0);	/* P is allocated.  */
+  if (rc)
+    return 1;
+# else /* !HAVE_IDN */
+  p = host;
+# endif
+
+  memset (&hints, 0, sizeof (hints));
+  hints.ai_family = AF_INET;
+  hints.ai_flags = AI_CANONNAME;
+# ifdef AI_IDN
+  hints.ai_flags |= AI_IDN;
+#  ifdef AI_CANONIDN
+  hints.ai_flags |= AI_CANONIDN;
+#  endif
+# endif
+
+  rc = getaddrinfo (p, NULL, &hints, &res);
+# ifdef HAVE_IDN
+  free (p);
+# endif
+
+  if (rc)
+    return 1;
+
+  memcpy (&ping->ping_dest.ping_sockaddr, res->ai_addr, res->ai_addrlen);
+  ping->ping_hostname = strdup (res->ai_canonname);
+  freeaddrinfo (res);
+
+  return 0;
+#else /* !HAVE_DECL_GETADDRINFO */
+
   struct sockaddr_in *s_in = &ping->ping_dest.ping_sockaddr;
   s_in->sin_family = AF_INET;
-#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+# ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
   s_in->sin_len = sizeof (*s_in);
-#endif
+# endif
   if (inet_aton (host, &s_in->sin_addr))
     ping->ping_hostname = strdup (host);
   else
     {
       struct hostent *hp;
-#ifdef HAVE_IDN
+# ifdef HAVE_IDN
       char *p;
       int rc;
 
@@ -286,9 +324,9 @@ ping_set_dest (PING * ping, char *host)
 	return 1;
       hp = gethostbyname (p);
       free (p);
-#else /* !HAVE_IDN */
+# else /* !HAVE_IDN */
       hp = gethostbyname (host);
-#endif
+# endif
       if (!hp)
 	return 1;
 
@@ -300,4 +338,5 @@ ping_set_dest (PING * ping, char *host)
       ping->ping_hostname = strdup (hp->h_name);
     }
   return 0;
+#endif /* !HAVE_DECL_GETADDRINFO */
 }

@@ -281,7 +281,13 @@ ipaddr2str (struct sockaddr *from, socklen_t fromlen)
     return xstrdup (ipstr);
 
   err = getnameinfo (from, fromlen, hoststr, sizeof (hoststr),
-		     NULL, 0, NI_NAMEREQD);
+		     NULL, 0,
+#ifdef NI_IDN
+		     NI_IDN | NI_NAMEREQD
+#else
+		     NI_NAMEREQD
+#endif
+		     );
   if (err)
     return xstrdup (ipstr);
 
