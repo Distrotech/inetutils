@@ -1,3 +1,13 @@
+2012-10-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnet: Reliability fix caused by OpenSolaris,
+	where SIGWINCH regularly got lost.
+
+	* telnet/sys_bsd.c (sys_telnet_init): New variable SA.
+	[SIGWINCH]: Install handler with sigaction().
+	[SIGTSTP]: Likewise.
+	[SIGINFO]: Likewise.
+
 2012-10-04  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ping/libping.c (ping_set_dest) [HAVE_DECL_GETADDRINFO]:

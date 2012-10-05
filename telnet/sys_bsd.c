@@ -1013,17 +1013,25 @@ ayt (int sig)
 void
 sys_telnet_init (void)
 {
+  struct sigaction sa;
+
+  sa.sa_flags = SA_RESTART;
+  sigemptyset (&sa.sa_mask);
+
   signal (SIGINT, intr);
   signal (SIGQUIT, intr2);
   signal (SIGPIPE, deadpeer);
 #ifdef	SIGWINCH
-  signal (SIGWINCH, sendwin);
+  sa.sa_handler = sendwin;
+  (void) sigaction (SIGWINCH, &sa, NULL);
 #endif
 #ifdef	SIGTSTP
-  signal (SIGTSTP, susp);
+  sa.sa_handler = susp;
+  (void) sigaction (SIGTSTP, &sa, NULL);
 #endif
 #ifdef	SIGINFO
-  signal (SIGINFO, ayt);
+  sa.sa_handler = ayt;
+  (void) sigaction (SIGINFO, &sa, NULL);
 #endif
 
   setconnmode (0);
