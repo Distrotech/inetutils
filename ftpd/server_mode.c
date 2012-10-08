@@ -78,7 +78,7 @@ check_host (struct sockaddr *sa, socklen_t len)
     {
       if (!hosts_ctl ("ftpd", name, addr, STRING_UNKNOWN))
 	{
-	  syslog (LOG_NOTICE, "tcpwrappers rejected: %s [%s]",
+	  syslog (deny_severity, "tcpwrappers rejected: %s [%s]",
 		  name, addr);
 	  return 0;
 	}
@@ -87,7 +87,7 @@ check_host (struct sockaddr *sa, socklen_t len)
     {
       if (!hosts_ctl ("ftpd", STRING_UNKNOWN, addr, STRING_UNKNOWN))
 	{
-	  syslog (LOG_NOTICE, "tcpwrappers rejected: [%s]", addr);
+	  syslog (deny_severity, "tcpwrappers rejected: [%s]", addr);
 	  return 0;
 	}
     }

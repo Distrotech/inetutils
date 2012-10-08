@@ -1,3 +1,21 @@
+2012-10-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogind: Support libwrap in daemon mode.
+
+	* configure.ac <rlogind summary>: Print $LIBWRAP.
+	* src/Makefile.am (rlogind_LDADD): Add $(LIBWRAP).
+	* src/rlogind.c [HAVE_TCPD_H]: Include <tcpd.h>.
+	[WITH_WRAP && !HAVE_DECL_HOSTS_CTL]: New prototype
+	for missing hosts_ctl() declaration.
+	(allow_severity, deny_severity) [WITH_WRAP]:
+	New variables.
+	(check_host) [WITH_WRAP]: New function.
+	(rlogin_daemon) [WITH_WRAP]: Call check_host().
+	(protocol) [!SHISHI]: Trivial use of AP.
+
+	* ftpd/server_mode.c (check_host): Use severity
+	`deny_severity' to syslog() at rejects.
+
 2012-10-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnet: Reliability fix caused by OpenSolaris,

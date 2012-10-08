@@ -67,6 +67,10 @@
 
 #include <pty.h>
 
+#ifdef HAVE_TCPD_H
+# include <tcpd.h>
+#endif
+
 #include <progname.h>
 #include <argp.h>
 #include <libinetutils.h>
@@ -161,9 +165,9 @@ struct auth_data
   krb5_ccache ccache;
   krb5_keytab keytab;
 #  endif
-# endif
+# endif /* KERBEROS */
 };
-#endif
+#endif /* !SHISHI */
 
 #define MODE_INETD 0
 #define MODE_DAEMON 1
@@ -196,6 +200,15 @@ char *local_domain_name;
 int local_dot_count;
 
 struct winsize win = { 0, 0, 0, 0 };
+
+#ifdef WITH_WRAP
+int allow_severity = LOG_INFO;
+int deny_severity = LOG_NOTICE;
+
+# if !HAVE_DECL_HOSTS_CTL
+extern int hosts_ctl (char *, char *, char *, char *);
+# endif
+#endif /* WITH_WRAP */
 
 #if defined __GLIBC__ && defined WITH_IRUSEROK
 extern int iruserok (uint32_t raddr, int superuser,
@@ -231,6 +244,76 @@ rlogind_sigchld (int signo _GL_UNUSED_PARAMETER)
   while ((pid = waitpid (-1, &status, WNOHANG)) > 0)
     --numchildren;
 }
+
+#ifdef WITH_WRAP
+static int
+check_host (struct sockaddr *sa, socklen_t len)
+{
+  int rc;
+  char addr[INET6_ADDRSTRLEN];
+# if HAVE_DECL_GETNAMEINFO
+  char name[NI_MAXHOST];
+# else
+  struct hostent *hp;
+  void *addrp;
+  char *name;
+# endif /* !HAVE_DECL_NAMEINFO */
+
+  if (sa->sa_family != AF_INET
+# ifdef IPV6
+      && sa->sa_family != AF_INET6)
+# endif
+    return 1;
+
+# if HAVE_DECL_GETNAMEINFO
+  (void) getnameinfo(sa, len, addr, sizeof (addr), NULL, 0, NI_NUMERICHOST);
+  rc = getnameinfo(sa, len, name, sizeof (name), NULL, 0, NI_NAMEREQD);
+# else /* !HAVE_DECL_GETNAMEINFO */
+
+  (void) len;		/* Silence warning.  */
+
+  switch (sa->sa_family)
+    {
+#  ifdef IPV6
+    case AF_INET6:
+      addrp = (void *) &((struct sockaddr_in6 *) sa)->sin6_addr;
+      hp = gethostbyaddr (addrp, sizeof (struct in6_addr),
+			  sa->sa_family);
+      break;
+#  endif
+    case AF_INET:
+    default:
+      addrp = (void *) &((struct sockaddr_in *) sa)->sin_addr;
+      hp = gethostbyaddr (addrp, sizeof (struct in_addr),
+			  sa->sa_family);
+    }
+
+  (void) inet_ntop (sa->sa_family, addrp, addr, sizeof (addr));
+  if (hp)
+    name = hp->h_name;
+  rc = (hp == NULL);		/* Translate to getnameinfo style.  */
+# endif /* !HAVE_DECL_GETNAMEINFO */
+
+  if (!rc)
+    {
+      if (!hosts_ctl ("rlogind", name, addr, STRING_UNKNOWN))
+	{
+	  syslog (deny_severity, "tcpd rejects %s [%s]",
+		  name, addr);
+	  return 0;
+	}
+    }
+  else
+    {
+      if (!hosts_ctl ("rlogind", STRING_UNKNOWN, addr, STRING_UNKNOWN))
+	{
+	  syslog (deny_severity, "tcpd rejects [%s]", addr);
+	  return 0;
+	}
+    }
+  return 1;
+}
+#endif /* WITH_WRAP */
 
 #if defined KERBEROS && defined ENCRYPTION
 # define ENCRYPT_IO encrypt_io
@@ -665,6 +748,10 @@ rlogin_daemon (int maxchildren, int port)
 	      close (listenfd[0]);
 	      if (numfd > 1)
 		close (listenfd[1]);
+#ifdef WITH_WRAP
+	      if (!check_host ((struct sockaddr *) &saddr, size))
+		exit (EXIT_FAILURE);
+#endif
 	      exit (rlogind_mainloop (fd, fd));
 	    }
 	  /* parent only */
@@ -1576,6 +1663,9 @@ protocol (int f, int p, struct auth_data *ap)
   int cc, nfd, n;
   char cntl;
 
+#ifndef SHISHI
+  (void) ap;		/* Silence warning.  */
+#endif
   /*
    * Must ignore SIGTTOU, otherwise we'll stop
    * when we try and set slave pty's window shape
