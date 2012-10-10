@@ -171,6 +171,7 @@ many more.
 
 @node Common options
 @chapter Common options
+@cindex common options
 
 Certain options are available in all these programs.  Rather than
 writing identical descriptions for each of the programs, they are
@@ -335,16 +336,12 @@ Both options are most influencial when the target host is named using
 a symbolic name, but numerical addresses for host or source must also
 match if either of @option{--ipv4} or @option{--ipv6} is stated.
 
-@item -i[@var{pid}]
-@itemx --id=[@var{pid}]
-@opindex -i
-@opindex --id
-Add process ID to each message.  If @var{pid} is not supplied, use the
-process ID of the logger process with each line.  Notice, that
-@var{pid} is an optional argument.  When supplied to the @option{-i}
-option, it must follow the @samp{i} letter immediately, without any
-separating whitespace.  When supplied to the @option{--id} form, it
-must be separated from it by exactly one equals sign.
+@item -f @var{file}
+@itemx --file=@var{file}
+@opindex -f
+@opindex --file
+Log the content of the specified file.  If @var{file} is @samp{-} then
+standard input is assumed.
 
 @item -h @var{host}
 @itemx --host=@var{host}
@@ -366,35 +363,16 @@ the port number corresponding to the @samp{syslog} service is used.
 If a numerical IPv6 address is given without a port specification,
 then the address must be enclosed within brackets (like [::1]).
 
-@item -u @var{socket}
-@itemx --unix=@var{socket}
-@opindex -h
-@opindex --host
-Send messages to the given local UNIX socket.  The @var{socket} argument
-can be either an absolute path (starting with a slash @samp{/}), or a relative
-path understood relative to the current working directory.
-
-@item -S @var{addr}
-@itemx --source=@var{addr}
-@opindex -S
-@opindex --source
-Supply the source IP address for INET connections.  This option is
-useful in conjunction with @option{--host} (see above).  The kind of
-address specified here (IPv4 or IPv6) will propagate to influence
-the resolution of the host address, if it is a symbolic name.
-
-@item -s
-@itemx --stderr
-@opindex -s
-@opindex --stderr
-Log the message to standard error, as well as the system log.
-
-@item -f @var{file}
-@itemx --file=@var{file}
-@opindex -f
-@opindex --file
-Log the content of the specified file.  If @var{file} is @samp{-} the
-standard input is assumed.
+@item -i[@var{pid}]
+@itemx --id=[@var{pid}]
+@opindex -i
+@opindex --id
+Add process ID to each message.  If @var{pid} is not supplied, use the
+process ID of the logger process with each line.  Notice, that
+@var{pid} is an optional argument.  When supplied to the @option{-i}
+option, it must follow the @samp{i} letter immediately, without any
+separating whitespace.  When supplied to the @option{--id} form, it
+must be separated from it by exactly one equals sign.
 
 @item -p @var{priority}
 @itemx --priority=@var{priority}
@@ -408,11 +386,34 @@ level in the @samp{local3} facility.  The default is
 
 The actual list of supported facilities and levels is system specific.
 
+@item -s
+@itemx --stderr
+@opindex -s
+@opindex --stderr
+Log the message to standard error, as well as to the system log.
+
+@item -S @var{addr}
+@itemx --source=@var{addr}
+@opindex -S
+@opindex --source
+Supply the source IP address for INET connections.  This option is
+useful in conjunction with @option{--host} (see above).  The kind of
+address specified here (IPv4 or IPv6) will propagate to influence
+the resolution of the host address, if it is a symbolic name.
+
 @item -t @var{tag}
 @itemx --tag=@var{tag}
 @opindex -t
 @opindex --tag
 Mark every line in the log with the specified tag.
+
+@item -u @var{socket}
+@itemx --unix=@var{socket}
+@opindex -h
+@opindex --host
+Send messages to the given local UNIX socket.  The @var{socket} argument
+can be either an absolute path (starting with a slash @samp{/}), or a relative
+path understood relative to the current working directory.
 @end table
 
 The options are followed by the message which should be written to the
@@ -461,7 +462,7 @@ warnings
 datagram to elicit an ICMP @code{ECHO_RESPONSE} from a host or
 gateway.  @code{ECHO_REQUEST} datagrams (@dfn{pings}) have an IP and
 ICMP header, followed by a @dfn{struct timeval} and then an arbitrary
-number of @dfn{pad} bytes used to fill out the packet.  Synopsis:
+number of @dfn{pad} bytes used to fill out the packet.
 
 @example
 ping [@var{option}@dots{}] @var{host}@dots{}
@@ -473,6 +474,11 @@ ping [@var{option}@dots{}] @var{host}@dots{}
 @c       --mask                 Same as --address
 @c       --timestamp            Send ICMP_TIMESTAMP packets
 @c   -t, --type=TYPE            Send TYPE packets
+
+Sending echo requests is the standard use of @command{ping},
+but not the only use case.  Selection of packet type is handled
+with these few options:
+
 @table @option
 @item --address
 @opindex --address
@@ -514,6 +520,8 @@ Send @var{type} packets.  Accepted values are @samp{address},
 @c   -r, --ignore-routing       Send directly to a host on an attached network
 @c   -T, --tos=NUM              Set type-of-service to NUM
 @c       --ttl=NUMBER           Set specified time-to-live on packet
+
+The following options are available for all packet types:
 
 @table @option
 @item -c @var{n}
@@ -563,17 +571,41 @@ Set type-of-service, TOS, to NUM on transmitted packets.
 @opindex --ttl
 Set the specified number @var{n} as value of time-to-live when
 transmitting packets.  Acceptable values are 1 to 255, inclusive.
+
+@item -v
+@itemx --verbose
+@opindex -v
+@opindex --verbose
+Produce more verbose output, giving more statistics.
+
+@item -w @var{n}
+@itemx --timeout=@var{n}
+@opindex -w
+@opindex --timeout
+Stop after @var{n} seconds.
+
+@item -W @var{n}
+@itemx --linger=@var{n}
+@opindex -W
+@opindex --linger
+Maximum number of seconds @var{n} to wait for a response.
 @end table
 
 @c Options valid for --echo requests:
 @c   -f, --flood                Flood ping (root only)
 @c       --ip-timestamp=FLAG    Timestamp IP option of types tsonly,
-@                               tsaddr, or (not yet implemented) prespec.
+@c                              tsaddr, or (not yet implemented) prespec.
 @c   -l, --preload=NUMBER       Send NUMBER packets as fast as possible before
 @c                              falling into normal mode of behavior (root only)
 @c   -p, --pattern=PATTERN      Fill ICMP packet with given pattern (hex)
+@c   -q, --quiet                no packet message
 @c   -R, --route                Record route IP option
 @c   -s, --size=NUMBER          Send NUMBER data octets
+
+Finally, these last options are relevant only for sending echo requests,
+allowing many variations in order to detect various peculiarities of
+the targeted host, or the intermediary routers for that matter.
+
 @table @option
 @item -f
 @itemx --flood
@@ -609,6 +641,11 @@ This is useful for diagnosing data-dependent problems in a network.
 For example, @option{-p ff} will cause the sent packet to be filled
 with all ones.
 
+@item -q
+@itemx --quiet
+@opindex -q
+@opindex --quiet
+Do not print timing for each transmitted packet.
 @item -R
 @itemx --route
 @opindex -R
@@ -625,18 +662,6 @@ Many hosts ignore or discard this option.
 Specifies the number of data bytes to be sent.  The default is 56,
 which translates into 64 ICMP data bytes when combined with the 8
 bytes of ICMP header data.
-
-@item -w @var{n}
-@itemx --timeout=@var{n}
-@opindex -w
-@opindex --timeout
-Stop after @var{n} seconds.
-
-@item -W @var{n}
-@itemx --linger=@var{n}
-@opindex -W
-@opindex --linger
-Maximum number of seconds @var{n} to wait for a response.
 @end table
 
 @section Using ping for network fault isolation
@@ -755,7 +780,7 @@ conditions.
 
 @node traceroute invocation
 @chapter @command{traceroute}: Trace the route to a host
-@pindex traceroute
+@cindex traceroute
 
 @command{traceroute} traces the route packets take to a host.
 Synopsis:
@@ -797,6 +822,7 @@ Set type-of-service, TOS, to NUM on transmitted packets.
 
 @node whois invocation
 @chapter @command{whois}: Whois user interface
+@cindex whois
 
 Synopsis:
 
@@ -1689,26 +1715,31 @@ and therefore difficult to document here.
 @chapter @command{rsh}: Remote shell
 @cindex rsh
 
-@command{rsh} executes command on host and copies its standard input
-to the remote command, the standard output of the remote command to
-its standard output, and the standard error of the remote command to
-its standard error.  Interrupt, quit and terminate signals are
-propagated to the remote command; @command{rsh} normally terminates
-when the remote command does.
+@command{rsh} executes commands on a remote host and copies its local
+standard input to that of the remote command, as well as the remote
+standard output to the local standard output, and the remote standard
+error to the local standard error.  Locally raised interrupt, quit and
+terminate signals are all propagated to the remote command. Normally
+@command{rsh} terminates when the remote command does so.
 
-When using the @command{rsh} command, you can create a link to your
-path using a host name as the link name.  For example:
+When using the @command{rsh} command, you can for convenience create
+a link in your path, using a host name as name of the link.  For example:
 
 @example
 # ln -s /usr/bin/rsh @var{hostname}
 # @var{hostname} ls
 @end example
 
-@var{hostname} will be passed to @command{rsh} as the default host.
+@noindent
+Afterwards, @var{hostname} will be passed to @command{rsh} as host name
+whenever the command @var{hostname} is issued.
 
 @command{rsh} allows access to the remote host without the use of a
-passwd.  For details, @xref{rcmd, , rcmd, libc, The GNU C Library
-Reference Manual}.
+password.  The prerequisite is a suitable specification in @file{~/.rhosts}.
+For details, @xref{rcmd, , rcmd, libc, The GNU C Library Reference Manual}.
+
+If no command is specified for @command{rsh} ar argument following the
+host name, then you will be logged in on the remote host using @command{rlogin}.
 
 @section Invoking
 
@@ -1733,19 +1764,6 @@ Use only IPv6.
 @opindex --debug
 Turns on socket debugging used for communication with the remote host.
 
-@item -k @var{realm}
-@itemx --realm=@var{realm}
-@opindex -k
-@opindex --realm
-The option requests rsh to obtain tickets for the remote host in
-realm @var{realm} instead of the remote host's realm.
-
-@item -K
-@itemx --kerberos
-@opindex -K
-@opindex --kerberos
-Turns off all Kerberos authentication.
-
 @item -l @var{user}
 @itemx --user=@var{user}
 @opindex -l
@@ -1762,6 +1780,25 @@ whenever available, and authorization is determined as in @command{rlogin}
 @opindex --no-input
 Use @file{/dev/null} for all input, and use no separate @samp{stderr}
 at remote end.  This option is void together with encryption.
+@end table
+
+@noindent
+The next three options are available only if the program
+has been compiled with support for Kerberos authentication.
+
+@table @option
+@item -k @var{realm}
+@itemx --realm=@var{realm}
+@opindex -k
+@opindex --realm
+The option requests rsh to obtain tickets for the remote host in
+realm @var{realm} instead of the remote host's realm.
+
+@item -K
+@itemx --kerberos
+@opindex -K
+@opindex --kerberos
+Turns off all Kerberos authentication.
 
 @item -x
 @itemx --encrypt
@@ -1772,48 +1809,78 @@ may impact response time and CPU utilization, but provides increased
 security.
 @end table
 
-If no command is specified, you will be logged in on the remote host
-using @command{rlogin}.
+@noindent
+Finally, some compatibility options are present:
 
-@c FIXME: I do not follow the example, what is OTHER_REMOTEFILE?
+@table @option
+@itemx -8
+@itemx --8-bit
+@itemx -e @var{char}
+@itemx --escape=@var{char}
+@itemx -E
+@itemx --no-escape
+Ignored during normal operation, but passed on to @command{rlogin}
+when @command{rsh} is invoked without a command argument.
+@end table
 
-Shell metacharacters which are not quoted are interpreted on the local
+@section Note on stream redirections
+
+Beware that non-quoted shell metacharacters are interpreted on the local
 machine, while quoted metacharacters are interpreted on the remote
 machine.  For example:
 
 @example
-rsh otherhost cat remotefile >> localfile
-rsh otherhost cat remotefile ">> "localfile
+rsh otherhost  cat remotefile >> localfile
+rsh otherhost  cat remotefile ">>" otherfile
 @end example
 
-The first command appends the remote file file @file{remotefile} to
-the local file @file{localfile}, while the later command appends
-@file{remotefile} to @file{other_remotefile}.
+@noindent
+The first command appends the contents of @file{remotefile}, as found
+on the remote host, to the file @file{localfile} on the local host,
+since the local shell will intercept the redirection and will thus
+receive whatever the remote process directs to stdout.
+
+In contrast, the second command will append the contents of the same
+file @file{remotefile} to a file named @file{otherfile} again, but this
+time the file is located on the remote host.  The effect of quoting
+the redirection operator is to execute the command
+
+@smallexample
+cat remotefile >> localfile
+@end smallexample
+
+@noindent
+entirely on the remote most, whence stdout at the remote host will
+have nothing to transmit to the listening local host!.
 
 @node rlogin invocation
 @chapter @command{rlogin}: Remote login
 @cindex rlogin
 
-@command{rlogin} command logs into a specified remote host and
-connects your local terminal to the remote host.  The remote terminal
-type is the same as that given in the @env{TERM} local environment
-variable.  The terminal or window size is also the same, if the remote
-host supports them, and any changes in size are transferred.
+The @command{rlogin} command starts a terminal session on the
+specified remote host, provided the required authentication
+is successful.  The remote terminal type is the same as that
+given in the @env{TERM} local environment variable.
+The terminal and the window size stay the same, if the remote
+host supports them, and any changes in size are transferred
+as need may be.
 
-When using the @command{rlogin} command, you can create a link to your
-path using a host name as the link name.  For example:
+When using the @command{rlogin} command, you can create a link
+in your path, using a host name as the link name.  For example:
 
 @example
 # ln -s /usr/bin/rlogin @var{hostname}
 # @var{hostname} -8
 @end example
 
-Using @var{hostname} automatically uses the @command{rlogin} to log in
-to the remote host named @var{hostname}.
+@noindent
+Afterwards, the use of @var{hostname} will automatically invoke
+@command{rlogin} to direct a log in request to the remote host
+named @var{hostname}.
 
 @command{rlogin} allows access to the remote host without the use of a
-passwd.  For details, @xref{rcmd, , rcmd, libc, The GNU C Library
-Reference Manual}.
+password.  The prerequisite is a suitable specification in @file{~/.rhosts}.
+For details, @xref{rcmd, , rcmd, libc, The GNU C Library Reference Manual}.
 
 @section Invoking
 
@@ -1863,6 +1930,20 @@ Stops any character from being recognized as an escape character.
 When used with the @option{-8} option, this provides a completely
 transparent connection.
 
+@item -l @var{user}
+@itemx --user=@var{user}
+@opindex -l
+@opindex --user
+By default, the remote username is the same as the local username.
+This option, and the @samp{user@@host} format, allow the remote
+user name to be made explicit, or changed.
+@end table
+
+@noindent
+The next three options are available only if the program
+has been compiled with support for Kerberos authentication.
+
+@table @option
 @item -k @var{realm}
 @itemx --realm=@var{realm}
 @opindex -k
@@ -1876,14 +1957,6 @@ realm @var{realm} instead of the remote host's realm.
 @opindex --kerberos
 Turns off all Kerberos authentication.
 
-@item -l @var{user}
-@itemx --user=@var{user}
-@opindex -l
-@opindex --user
-By default, the remote username is the same as the local username.
-This option, and the @samp{user@@host} format, allow the remote
-user name to be made explicit, or changed.
-
 @item -x
 @itemx --encrypt
 @opindex -x
@@ -1893,24 +1966,61 @@ This may impact response time and CPU utilization, but provides
 increased security.
 @end table
 
-A line of the form @kbd{@var{escape-char}.} disconnects from the
-remote host.  Similarly, the line @kbd{@var{escape-char}C-Z} will
-suspend the rlogin session, and
-@kbd{@var{escape-char}@var{delayed-suspend-char}} suspends the send
-portion of the @command{rlogin}, but allows output from the remote
-system.  By default, the tilde (@samp{~) character} is the
-@var{escape-char}, and normally @kbd{C-Y} is the
-@var{delayed-suspend-char}.
+@section Escape characters and flow control
 
-All echoing takes place at the remote site, so that (except for
-delays) the @command{rlogin} is transparent.  Flow control via
-@kbd{C-S}/@kbd{C-Q}, if supported, stop and start the flow of
-information, flushing of input and output on interrupts are handled
-properly.
+As long as the connection stands, the client program @command{rsh}
+is observing the input stream in order to detect so called
+escape sequences, allowing the user to execute some local
+actions without having to tear down the remote connection.
+
+The sequences consist of two characters, the first of which
+always is the distinguished character @var{escape-char}.
+The following sequences are supported:
+
+@c An input line of the form of the two-character sequence
+@itemize @bullet
+@item
+@kbd{@var{escape-char} .} disconnects from the remote host.
+
+@item
+@kbd{@var{escape-char} C-d} does the same.
+(Termios character @samp{VEOF}.)
+
+@item
+@kbd{@var{escape-char} C-z} suspends the session, halting the
+remote process, but keeping it ready for resumed processing.
+The user is given access to a local shell.
+(Termios character @samp{VSUSP}.)
+
+@item
+@kbd{@var{escape-char} @var{delayed-suspend-char}} implements
+a half-way suspend, in the sense of stopping local input from
+reaching the remote side, but still displaying all output from
+the remote host on the local terminal.  The remote process is
+still running, but the local user is given a local shell until
+the resuming the original command.
+Normally, only BSD systems offer this mode.
+(Termios character @samp{VDSUSP}.)
+@end itemize
+
+@noindent
+By default, the character tilde @samp{~} is assigned to @var{escape-char},
+but it can be changed using the option @option{--escape}.
+The processing of escape sequences can even be disable using
+the option @option{--no-escape}.
+On BSD systems, @var{delayed-suspend-char} is usually set to @kbd{C-Y}.
+It displays as @samp{dsusp} using @command{stty}.
+
+All echoing takes place at the remote site, so that the @command{rlogin}
+is transparent except possibly for transmission delays.
+Flow control via @kbd{C-S} and @kbd{C-Q}, if at all supported,
+will stop and start the flow of data on the local terminal.
+Flushing of input and output on interrupts is also
+handled properly.
 
 On the server side the @code{iruserok} and @code{ruserok} functions
-are used to authenticate, see the appropriate man page for more
-information, if supported.
+are used to authenticate the connection request, unless Kerberised
+mode is in effect.  See the appropriate man pages for more information.
 
 @section Kerberos Authentication
 
@@ -2161,6 +2271,7 @@ previous state.
 
 @node telnet invocation
 @chapter @command{telnet}: User interface to TELNET
+@cindex telnet
 
 Login to a remote system HOST, optionally using a (non-standard)
 service port PORT:
@@ -2317,38 +2428,47 @@ however, support several command line options.  These are:
 Turns on debugging.  With this option, @command{inetd} stays in
 foreground and prints additional debugging information of stderr.
 
+@item --environment
+@opindex --environment
+Pass local and remote socket information in environment variables.
+@xref{Inetd Environment}.
+
+@item -p[@var{file}]
+@itemx --pidfile[=@var{file}]
+@opindex -p
+@opindex --pidfile
+Use @var{file} as location to store process ID of the running server
+process, thus overriding the default location.  Setting an empty
+argument will disable the use of a file for storing the process ID.
+
+@item --resolve
+@opindex --resolve
+Resolve IP addresses when setting environment variables.
+@xref{Inetd Environment}.
+
 @item -R @var{rate}
 @itemx --rate=@var{rate}
 @opindex --r
 @opindex --rate
-Specifies the maximum number of times a service can be invoked in one
+Specify the maximum number of times a service can be invoked in one
 minute; the default is 1000.
-
-@opindex --environment
-@item --environment
-Pass local and remote socket information in environment variables.
-@xref{Inetd Environment}.
-
-@opindex --resolve
-@item --resolve
-Resolve IP addresses when setting environment variables.  @xref{Inetd
-Environment}.
 @end table
 
 @node Configuration file
 @section Configuration file
 
-Upon execution, inetd reads its configuration information from a
-configuration pathnames on the command line, by default,
-@file{/etc/inetd.conf} and @file{/etc/initd.d}.  If the configuration
-pathname is a directory, all the files in the directory are read like
-a configuration file.  All of the configuration files are read and
-merged.  There must be an entry for each field in the configuration
-file, with entries for each field separated by a tab or a space.
-Comments are denoted by a ``#'' at the beginning of a line.  There
-must be an entry for each field.  The fields of the configuration file
-are summarized in the table below (optional parts are enclosed in
-square brackets:
+Upon execution, inetd reads its configuration information from
+configuration files and directories named on the command line.
+By default these are @file{/etc/inetd.conf} and @file{/etc/initd.d}.
+If the configuration pathname is a directory, all files in the
+directory are read and interpreted like a configuration file.
+All of the configuration files are read and the results are merged.
+
+There must be an entry for each field in the configuration file,
+with entries for each field separated by a tab or a space.
+Comments are denoted by a ``#'' at the beginning of a line.
+The available fields of the configuration file are summarized
+in the table below (optional parts are enclosed in square brackets):
 
 @table @asis
 @item [service node:]service name
@@ -2361,7 +2481,7 @@ representation thereof.  For TCPMUX services, the value of the
 followed by a slash and the locally-chosen service name
 (@pxref{TCPMUX}).
 
-Optional @samp{service node} prefix is allowed for internet services.
+An optional @samp{service node} prefix is allowed for internet services.
 When present, it supplies the local addresses @command{inetd} should
 use when listening for that service.  @samp{Service node} consists of
 a comma-separated list of addresses.  Both symbolic host names and
@@ -2382,8 +2502,8 @@ further lines lacking an explicit host specifier.  Such a default
 address remains in effect until another such line or end of the
 configuration is encountered, whichever occurs first.
 
-A special hostname @samp{*} stands for @code{INADDR_ANY}.  When used
-in a normal configuration line, it causes the default address
+A special hostname @samp{*} stands for the wildcard address.
+When used in a normal configuration line, it causes the default address
 specifier to be ignored for that line.  When used in a default address
 specification, e.g.:
 
@@ -3375,75 +3495,57 @@ useful in an ``open'' environment.
 @chapter @command{rlogind}: Remote login server
 @cindex rlogind
 
-@command{rlogind} is the server for the @command{rlogin} program
+@command{rlogind} is the server for the @command{rlogin} client program
 (@pxref{rlogin invocation}).  The server provides a remote login
 facility with authentication based on privileged port numbers from
-trusted hosts.
+trusted hosts, or using authentication according to a Kerberos
+protocol.
 
-@command{rlogind} listens for service requests at the port indicated
-in the @samp{login} service specification.  When a service request is
-received the following protocol is initiated:
-@enumerate
+@command{rlogind} in daemon mode listens for service requests at the
+port indicated in the @samp{login} service specification.  A common
+alternative is to have the super-server @command{inetd} listen at
+the same port, which then invokes @command{rlogind} as demand arises.
+In Kerberised mode, the port is either @samp{eklogin}, or
+@samp{klogin}, depending on preset encryption, or none.
 
-@item
-The server checks the client's source port.  If the port is not in the
-range 512-1023, the server aborts the connection.
-
-@item
-The server checks the client's source address and requests the
-corresponding host name.  If the hostname cannot be determined, the
-dot-notation representation of the host address is used.  If the
-hostname is in the same domain as the server (according to the last
-two components of the domain name), or if the @option{-a} option is
-given, the addresses for the hostname are requested, verifying that
-the name and address correspond.  Normal authentication is bypassed if
-the address verification fails.
-@end enumerate
-
-Once the source port and address have been checked, rlogind proceeds
-with the authentication process described @ref{rshd invocation}.  It
-then allocates a pseudo terminal, and manipulates file descriptors so
-that the slave half of the pseudo terminal becomes the stdin, stdout,
-and stderr for a login process.  The login process is an instance of
-the @command{login} program, invoked with the @option{-f} option if
-authentication has succeeded.  If automatic authentication fails, the
-user is prompted to log in as if on a standard terminal line.
-
-The parent of the login process manipulates the master side of the
-pseudo terminal, operating as an intermediary between the login
-process and the client instance of the rlogin program.  In normal
-operation, the packet protocol described in @samp{PTY} is invoked to
-provide @kbd{C-S}/@kbd{C-Q} type facilities and propagate interrupt
-signals to the remote programs.  The login process propagates the
-client terminal's baud rate and terminal type, as found in the
-environment variable, @env{TERM}.  The screen or window size of the
-terminal is requested from the client, and window size changes from
-the client are propagated to the pseudo terminal.
-
-Transport-level keepalive messages are enabled unless the @option{-n}
-option is client instance of the @code{rlogin} program.  The use of
-keepalive messages allows sessions to be timed out if the client
-crashes or becomes unreachable.
-
-@xref{ruserok, , ruserok, libc, The GNU C Library Reference Manual},
-for details.
+The standard authentication procedure assumes the integrity of each
+client machine and of the connecting medium.  This is insecure, since
+it transmits credentials in clear text, but is useful in an ``open''
+environment.  This weakness is reduced when running the service
+in Kerberised version, at the price of a larger complexity of the
+supporting infrastructure.  Using an encrypting Kerberised service
+even avoids all clear text processing.
 
 @section Invoking
 
-The options are as follows:
+The available options are as follows:
 
 @table @option
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Accept only IPv4 connections in daemon mode.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Only IPv6 connections in daemon mode.
+
 @item -a
 @itemx --verify-hostname
 @opindex -a
 @opindex --verify-hostname
 Ask hostname for verification.
 
-@item -d
-@itemx --daemon
+@item -d[@var{max}]
+@itemx --daemon[=@var{max}]
 @opindex -d
 @opindex --daemon
-Daemon mode.
+Run in background daemon mode, optionally setting the maximal
+number of simultaneously running client sessions.  The default
+limit is 10.
 
 @item -D[@var{level}]
 @itemx --debug[=@var{level}]
@@ -3451,79 +3553,162 @@ Daemon mode.
 @opindex -debug
 Set debug level, not implemented.
 
-@item -k
-@itemx --kerberos
-@opindex -k
-@opindex --kerberos
-Use Kerberos authentication.
-
 @item -l
 @itemx --no-rhosts
 @opindex -l
 @opindex --no-rhosts
-Ignore @file{.rhosts} file.
+Ignore client's @file{.rhosts} file.
 
 @item -L @var{name}
 @itemx --local-domain=@var{name}
 @opindex -L
 @opindex --local-domain
-Set local domain name.
+Set local domain name, to which the server host belongs.  By default
+the domain is recovered from the canonical name of the host.
 
 @item -n
 @itemx --no-keepalive
 @opindex -n
 @opindex --no-keepalive
-Do not set SO_KEEPALIVE.
+Do not set SO_KEEPALIVE on sockets.  This decreases the ability
+to close lost connections to once active clients.
 
 @item -o
 @itemx --allow-root
 @opindex -o
 @opindex --allow-root
-Allow the root user to login. This is disallowed by default.
+Allow the root user to login, which is disallowed by default.
 
 @item -p @var{port}
 @itemx --port=@var{port}
 @opindex -p
 @opindex --port
-Listen on given port. (Applicable only in daemon mode.)
+Listen on given port.  Applicable only in daemon mode.
 
 @item -r
 @itemx --reverse-required
 @opindex -r
 @opindex --reverse-required
-Require reverse resolving of remote host's numerical IP.
+Require reverse resolvability of remote host's numerical IP.
+@end table
+
+For sites requiring improved authentication, Kerberos
+authentication is a viable decision, and possibly even
+with encryption for enhanced integrity.  Three additional
+options are available for an executable @command{rlogind}
+compiled with Kerberos support.
+
+@table @option
+@item -k
+@itemx --kerberos
+@opindex -k
+@opindex --kerberos
+Activate Kerberos authentication on all incoming requests.
 
 @item -S @var{name}
-@itemx --servername=@var{name}
+@itemx --server-principal=@var{name}
 @opindex -S
-@opindex --servername
+@opindex --server-principal
 Set Kerberos server name, overriding canonical hostname.
 
 @item -x
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on encryption for all data passed via the @command{rlogind} session.
+Activate encryption of all data passed via the @command{rlogind} session.
 This may impact response time and CPU utilization, but provides
-increased security.
-
+increased security.  Only for Kerberised mode of operation.
 @end table
+
+@section Kerberos specific details
+
+The option @option{-k} is mandatory for Kerberised operation mode,
+while addition of the option @option{-x} will also demand encryption
+of every request to this particular server.
+
+@command{rlogind} will, in Kerberised operation mode, as default
+instantiate itself using the principal name
+@samp{host/canonical_name@@DEFAULT_REALM}, a compound arranged
+from the running host's canonical name, and from the default realm
+configured for the system.  Either of these can be overridden
+using the option @option{--server-principal}, as follows:
+
+@example
+rlogind -k -S alias.server.our
+rlogind --kerberos --server-principal=@@NEW.REALM
+rlogind -k -x -S rlogin/backup.ex.org@@OUR.REALM
+@end example
+
+When overriding only the realm, with the option @option{-S},
+an initial at-sign is mandatory.
+
+@section Protocol details
+
+When a service request is received, in non-Kerberised mode,
+the following protocol is initiated:
+
+@enumerate
+@item
+The server checks the client's source port.  If the port is not in the
+range 512-1023, the server aborts the connection.
+
+@item
+The server next checks the client's source address and requests the
+corresponding host name.  If the hostname cannot be determined, the
+numerical representation of the host address is used.  If the
+hostname is in the same domain as the server (according to the last
+two components of the domain name), or if the option @option{-a} is
+in effect, the address for the hostname is requested, verifying that
+the name and address correspond.  Normal authentication is considered
+as failed, should this address verification fail.
+@end enumerate
+
+Once the source port and address have been checked, @command{rlogind}
+proceeds
+with the authentication process as described in @ref{rshd invocation}.
+The server
+then allocates a pseudo terminal, and manipulates file descriptors so
+that the slave half of the pseudo terminal becomes the stdin, stdout,
+and stderr for a login process.  The login process is an instance of
+the @command{login} program, invoked with the option @option{-f} if
+authentication had succeeded.  If automatic authentication had failed,
+the user is prompted to log in as if on a standard terminal line.
+
+The parent of the login process manipulates the master side of the
+pseudo terminal, operating as an intermediary between the login
+process and the client instance of the rlogin program.  In normal
+operation, the packet protocol described in @samp{PTY} is invoked to
+provide flow control using @kbd{C-S}/@kbd{C-Q}, and to propagate interrupt
+signals to the remote program.  The login process transmits the
+client terminal's baud rate, and its terminal type, as found in the
+environment variable @env{TERM}.  The screen or window size of the
+terminal is requested from the client, and any later window size changes
+at the client's side are propagated to the pseudo terminal as well.
+
+Transport-level keepalive messages are enabled unless the
+option @option{-n} was in effect when starting @code{rlogind}.
+The use of keepalive messages allows sessions to be timed out,
+should the client crash, or otherwise become unreachable.
+
+@xref{ruserok, , ruserok, libc, The GNU C Library Reference Manual},
+for details.
 
 @section Diagnostics
 
-All initial diagnostic messages are indicated by a leading byte with a
-value of 1, after which any network connections are closed.  If there
-are no errors before login is invoked, a null byte is returned as in
-indication of success.
+The exchange protocol states that a negotiation reaches a successful
+completion as soon as the server @command{rlogind} transmits back to
+the client a single null byte, marking the completion of all
+information exchange.
+
+Error conditions are instead transmitted back to the client as
+a message containing an initial byte value 1, followed by a C-string
+indicating the cause of failure. All network connections are closed
+at the server side after this message.  Some common messages follow:
 
 @table @samp
 @item Try again.
 A fork by the server failed.
 @end table
-
-The authentication procedure used here assumes the integrity of each
-client machine and the connecting medium.  This is insecure, but is
-useful in an ``open'' environment.
 
 @node rexecd invocation
 @chapter @command{rexecd}: server for @code{rexec}
@@ -3871,13 +4056,44 @@ is to be disabled.  Standard choices are @samp{null},
 @end table
 
 @node uucpd invocation
-@chapter @command{uucpd}: Unix to Unix Copy
+@chapter @command{uucpd}: Unix to Unix Copy relay daemon.
+@cindex uucpd
 
-Synopsis:
+@command{uucpd} is a relay daemon responsible for accepting
+TCP transported connections for @command{uucico}.  It is started
+by @command{inetd}, conducts any authentication, and then hands
+acceptable requests over to @command{uucico}.
 
 @example
 uucpd [@var{option}]...
 @end example
+
+@section Options
+
+There is a single, specific option available:
+
+@table @option
+@item -u @var{location}
+@itemx --uucico=@var{location}
+@opindex -u
+@opindex --uucico
+Replace the hard coded location of @command{uucico} with the
+value specified as @var{location}.
+@end table
+
+@section Authentication steps.
+
+Invocation is expected to be conducted by a protocol described
+exchange of user name and password; unfortunately in clear text.
+If those agree with existing local entries, then @command{uucpd}
+verifies that the stated user also has user shell location
+identical to the full file system location of @command{uucico}.
+Should that not be the case, the request is declined.
+
+For this latter check, the option @option{--uucico} is useful
+when setting the configuration for @command{inetd}. It is
+recommended to wrap the invocation line of @command{uucpd}
+within a call to @command{tcpd} in the standard fashion.
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
