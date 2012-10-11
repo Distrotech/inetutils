@@ -1,5 +1,13 @@
 2012-10-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* src/rlogind.c (rlogin_daemon)
+	[(KERBEROS || SHISHI) && ENCRYPTION]: Protect
+	encrypted port pre-selection.
+	[(KERBEROS || SHISHI) && !ENCRYPTION]: Protect
+	standard Kerberos port pre-selection.
+
+2012-10-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	telnetd: Set local name correctly for libshishi.
 	Improve selectivity of intended server host key.
 

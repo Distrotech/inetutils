@@ -656,21 +656,26 @@ rlogin_daemon (int maxchildren, int port)
       char *service;
       struct servent *svp;
 
+#if defined KERBEROS || defined SHISHI
+# ifdef ENCRYPTION
       if (kerberos && encrypt_io)
 	{
 	  service = "eklogin";
 	  port = DEFPORT_EKLOGIN;
 	}
-      else if (kerberos)
-	{
-	  service = "klogin";
-	  port = DEFPORT_KLOGIN;
-	}
       else
-	{
-	  service = "login";
-	  port = DEFPORT;
-	}
+# endif /* ENCRYPTION */
+	if (kerberos)
+	  {
+	    service = "klogin";
+	    port = DEFPORT_KLOGIN;
+	  }
+	else
+#endif /* KERBEROS || SHISHI */
+	  {
+	    service = "login";
+	    port = DEFPORT;
+	  }
 
       svp = getservbyname (service, "tcp");
       if (svp != NULL)
