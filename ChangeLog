@@ -1,5 +1,28 @@
 2012-10-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rlogind: Server and realm detection.
+
+	* libinetutils/shishi.c (get_auth): Parse server
+	name input using shishi_parse_name(), but only if
+	`srvname' has some content.  Retrieve default
+	realm by calling shishi_realm_default(), and
+	pass it to shishi_hostkeys_for_serverrealm().
+
+	rlogin: Handle urgent data for non-encrypted Kerberos.
+	This enables window sizing and buffer flushing.
+
+	* src/rlogin.c (main): Set sigaction flag SA_RESTART
+	when installing SIGURG and SIGUSR1; a portability fix.
+	(oob) [SHISHI]: Assign urgent data `rcvbuf[4]' to MARK
+	whenever `use_kerberos' is true.  This is then compared
+	to different TIOCPKT_*.
+
+	* src/rlogind.c (fatal): Replace an empty format
+	input by the string "unspecified error", in order
+	to protect against segfaults in vsnprintf().
+
+2012-10-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rlogin: Read urgent data also when Kerberos has
 	been disabled.  Needed for window sizing.
 

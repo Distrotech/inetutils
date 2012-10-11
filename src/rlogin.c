@@ -456,7 +456,7 @@ main (int argc, char *argv[])
    * a signal by the time that they are unblocked later on.
    */
   sigemptyset (&sa.sa_mask);
-  sa.sa_flags = 0;
+  sa.sa_flags = SA_RESTART;
   sa.sa_handler = copytochild;
   (void) sigaction (SIGURG, &sa, NULL);
   sa.sa_handler = writeroob;
@@ -1177,7 +1177,9 @@ oob (int signo _GL_UNUSED_PARAMETER)
   rcvd = 0;
 
 #ifdef SHISHI
-  if (!use_kerberos)
+  if (use_kerberos)
+    mark = rcvbuf[4];		/* Payload in fifth byte.  */
+  else
 #endif
     while (recv (rem, &mark, 1, MSG_OOB) < 0)
       {

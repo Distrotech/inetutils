@@ -290,7 +290,7 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   /* PROTOCOL VERSION */
   char krb5kcmd1[] = "KCMDV0.1";
   char krb5kcmd2[] = "KCMDV0.2";
-  char *servername, *server, *realm;
+  char *servername, *server = NULL, *realm = NULL;
 
   *err_msg = NULL;
   /* Get key for the server. */
@@ -306,11 +306,14 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
   if (rc != SHISHI_OK)
     return rc;
 
-  rc = shishi_parse_name (*handle, srvname, &server, &realm);
-  if (rc != SHISHI_OK)
+  if (srvname && *srvname)
     {
-      *err_msg = shishi_strerror (rc);
-      return rc;
+      rc = shishi_parse_name (*handle, srvname, &server, &realm);
+      if (rc != SHISHI_OK)
+	{
+	  *err_msg = shishi_strerror (rc);
+	  return rc;
+	}
     }
 
   if (server && *server)
@@ -351,7 +354,8 @@ get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 	}
     }
 
-  key = shishi_hostkeys_for_server (*handle, servername);
+  key = shishi_hostkeys_for_serverrealm (*handle, servername,
+					 shishi_realm_default (*handle));
   free (servername);
   if (!key)
     {

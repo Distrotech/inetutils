@@ -1976,6 +1976,6 @@ rlogind_error (int f, int syserr, const char *msg, ...)
 void
 fatal (int f, const char *msg, int syserr)
 {
-  rlogind_error (f, syserr, msg);
+  rlogind_error (f, syserr, (msg && *msg) ? msg : "unspecified error");
   exit (EXIT_FAILURE);
 }
