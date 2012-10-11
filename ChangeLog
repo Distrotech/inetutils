@@ -1,3 +1,26 @@
+2012-10-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Set local name correctly for libshishi.
+	Improve selectivity of intended server host key.
+
+	* libtelnet/shishi.h (krb5shishi_is_auth): Replace call
+	to shishi_hostkeys_for_server(), with a variant where
+	default realm is made explicit with shishi_realm_default().
+
+	* telnetd/telnetd.c (telnetd_setup)
+	[AUTHENTICATION || ENCRYPTION]: Exchange places of
+	`local_hostname' and `remote_hostname' in call to
+	auth_encrypt_init().
+
+	rlogind: Enable Kerberised daemon mode listener.
+
+	* src/rlogind.c (DEFPORT_KLOGIN, DEFPORT_EKLOGIN): New macros.
+	(rlogin_daemon): New variable SERVICE.  Use service port
+	`login', `klogin', or `eklogin' according to set options.
+
+	* src/rlogin.c (main) <rcmd failure>: Print a NL, finishing
+	an unfinished error massage emitted by Glibc.
+
 2012-10-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Support libwrap in daemon mode.

@@ -617,7 +617,10 @@ try_connect:
 #endif /* KERBEROS */
 
   if (rem < 0)
-    exit (EXIT_FAILURE);
+    {
+      puts ("");	/* Glibc does not close all error strings in rcmd().  */
+      exit (EXIT_FAILURE);
+    }
 
   {
     int one = 1;

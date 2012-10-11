@@ -141,6 +141,12 @@
 #ifndef DEFPORT
 # define DEFPORT 513
 #endif
+#ifndef DEFPORT_KLOGIN
+# define DEFPORT_KLOGIN 543
+#endif
+#ifndef DEFPORT_EKLOGIN
+# define DEFPORT_EKLOGIN 2105
+#endif
 
 #ifdef HAVE___CHECK_RHOSTS_FILE
 extern int __check_rhosts_file;
@@ -391,12 +397,12 @@ static struct argp_option options[] = {
 #if defined KERBEROS || defined SHISHI
 # define GRP 20
   { "kerberos", 'k', NULL, 0,
-    "use kerberos IV/V authentication", GRP },
+    "use Kerberos V authentication", GRP },
   { "server-principal", 'S', "NAME", 0,
     "set Kerberos server name, overriding canonical hostname", GRP },
 # if defined ENCRYPTION
   { "encrypt", 'x', NULL, 0,
-    "use DES encryption", GRP },
+    "use encryption", GRP },
 # endif
 # undef GRP
 #endif
@@ -647,13 +653,28 @@ rlogin_daemon (int maxchildren, int port)
 
   if (port == 0)
     {
+      char *service;
       struct servent *svp;
 
-      svp = getservbyname ("login", "tcp");
+      if (kerberos && encrypt_io)
+	{
+	  service = "eklogin";
+	  port = DEFPORT_EKLOGIN;
+	}
+      else if (kerberos)
+	{
+	  service = "klogin";
+	  port = DEFPORT_KLOGIN;
+	}
+      else
+	{
+	  service = "login";
+	  port = DEFPORT;
+	}
+
+      svp = getservbyname (service, "tcp");
       if (svp != NULL)
 	port = ntohs (svp->s_port);
-      else
-	port = DEFPORT;
     }
 
   /* Become a daemon. Take care to close inherited fds and reserve

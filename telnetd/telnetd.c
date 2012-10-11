@@ -466,7 +466,7 @@ telnetd_setup (int fd)
 
   local_hostname = localhost ();
 #if defined AUTHENTICATION || defined ENCRYPTION
-  auth_encrypt_init (remote_hostname, local_hostname, principal,
+  auth_encrypt_init (local_hostname, remote_hostname, principal,
 		     "TELNETD", 1);
 #endif
 

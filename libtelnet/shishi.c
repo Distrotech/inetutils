@@ -501,7 +501,9 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 	key = shishi_hostkeys_for_serverrealm (shishi_handle,
 					       server, realm);
       else
-	key = shishi_hostkeys_for_server (shishi_handle, server);
+	/* Enforce a search with the known default realm.  */
+	key = shishi_hostkeys_for_serverrealm (shishi_handle,
+			server, shishi_realm_default (shishi_handle));
 
       free (server);
     }
