@@ -1111,7 +1111,7 @@ sigwinch (int signo _GL_UNUSED_PARAMETER)
 {
   struct winsize ws;
 
-  if (dosigwinch && get_window_size (0, &ws) == 0
+  if (dosigwinch && get_window_size (STDIN_FILENO, &ws) == 0
       && memcmp (&ws, &winsize, sizeof ws))
     {
       winsize = ws;
@@ -1176,36 +1176,38 @@ oob (int signo _GL_UNUSED_PARAMETER)
   out = O_RDWR;
   rcvd = 0;
 
-#ifndef SHISHI
-  while (recv (rem, &mark, 1, MSG_OOB) < 0)
-    {
-      switch (errno)
-	{
-	case EWOULDBLOCK:
-	  /*
-	   * Urgent data not here yet.  It may not be possible
-	   * to send it yet if we are blocked for output and
-	   * our input buffer is full.
-	   */
-	  if ((size_t) rcvcnt < sizeof rcvbuf)
-	    {
-	      n = read (rem, rcvbuf + rcvcnt, sizeof (rcvbuf) - rcvcnt);
-	      if (n <= 0)
-		return;
-	      rcvd += n;
-	    }
-	  else
-	    {
-	      n = read (rem, waste, sizeof waste);
-	      if (n <= 0)
-		return;
-	    }
-	  continue;
-	default:
-	  return;
-	}
-    }
+#ifdef SHISHI
+  if (!use_kerberos)
 #endif
+    while (recv (rem, &mark, 1, MSG_OOB) < 0)
+      {
+	switch (errno)
+	  {
+	  case EWOULDBLOCK:
+	    /*
+	     * Urgent data not here yet.  It may not be possible
+	     * to send it yet if we are blocked for output and
+	     * our input buffer is full.
+	     */
+	    if ((size_t) rcvcnt < sizeof rcvbuf)
+	      {
+		n = read (rem, rcvbuf + rcvcnt, sizeof (rcvbuf) - rcvcnt);
+		if (n <= 0)
+		  return;
+		rcvd += n;
+	      }
+	    else
+	      {
+		n = read (rem, waste, sizeof waste);
+		if (n <= 0)
+		  return;
+	      }
+	    continue;
+	  default:
+	    return;
+	  }
+      }
+
   if (mark & TIOCPKT_WINDOW)
     {
       /* Let server know about window size changes */
@@ -1346,6 +1348,7 @@ reader (sigset_t * osmask)
 	}
     }
 }
+
 void
 mode (int f)
 {
