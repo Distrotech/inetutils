@@ -98,6 +98,7 @@
 #include <glob.h>
 #include <argp.h>
 #include <error.h>
+#include <xgetcwd.h>
 
 #include <progname.h>
 #include <libinetutils.h>
@@ -556,13 +557,13 @@ main (int argc, char *argv[], char **envp)
       exit (EXIT_SUCCESS);
     }
 
-  /* Display a Welcome message if exists,
-     N.B. reply(220,) must follow.  */
-  display_file (PATH_FTPWELCOME, 220);
-
   hostname = localhost ();
   if (!hostname)
     perror_reply (550, "Local resource failure: malloc");
+
+  /* Display a Welcome message if it exists.
+     N.B. a reply(220,) must follow as continuation.  */
+  display_file (PATH_FTPWELCOME, 220);
 
   /* Tell them we're ready to roll.  */
   if (!no_version)
@@ -584,7 +585,7 @@ static char *
 curdir (void)
 {
   static char *path = 0;
-  extern char *xgetcwd (void);
+
   free (path);
   path = xgetcwd ();
   if (!path)
@@ -645,6 +646,8 @@ sgetsave (const char *s)
 static void
 complete_login (struct credentials *pcred)
 {
+  char *cwd;
+
   if (setegid ((gid_t) pcred->gid) < 0)
     {
       reply (550, "Can't set gid.");
@@ -677,18 +680,6 @@ complete_login (struct credentials *pcred)
 	  reply (550, "Can't change root.");
 	  goto bad;
 	}
-      setenv ("HOME", pcred->homedir, 1);
-    }
-  else if (chdir (pcred->rootdir) < 0)
-    {
-      if (chdir ("/") < 0)
-	{
-	  reply (530, "User %s: can't change directory to %s.",
-		 pcred->name, pcred->homedir);
-	  goto bad;
-	}
-      else
-	lreply (230, "No directory! Logging in with home=/");
     }
 
   if (seteuid ((uid_t) pcred->uid) < 0)
@@ -697,8 +688,30 @@ complete_login (struct credentials *pcred)
       goto bad;
     }
 
+  if (!pcred->guest && !pcred->dochroot)	/* Remaining case.  */
+    {
+      if (chdir (pcred->rootdir) < 0)
+	{
+	  if (chdir ("/") < 0)
+	    {
+	      reply (530, "User %s: can't change directory to %s.",
+		     pcred->name, pcred->homedir);
+	      goto bad;
+	    }
+
+	  lreply (230, "No directory! Logging in with home=/");
+	}
+    }
+
+  cwd = xgetcwd ();
+  if (cwd)
+    {
+      setenv ("HOME", cwd, 1);
+      free (cwd);
+    }
+
   /* Display a login message, if it exists.
-     N.B. reply(230,) must follow the message.  */
+     N.B. a reply(230,) must follow after this message.  */
   display_file (PATH_FTPLOGINMESG, 230);
 
   if (pcred->guest)
@@ -832,6 +845,7 @@ end_login (struct credentials *pcred)
   memset (pcred, 0, sizeof (*pcred));
   pcred->remotehost = remotehost;
   pcred->auth_type = atype;
+  pcred->logged_in = 0;
 }
 
 void
@@ -1091,7 +1105,8 @@ getdatasock (const char *mode)
 	goto bad;
       sleep (tries);
     }
-  seteuid ((uid_t) cred.uid);
+  if (seteuid ((uid_t) cred.uid) != 0)
+    _exit (EXIT_FAILURE);
 
 #if defined IP_TOS && defined IPTOS_THROUGHPUT && defined IPPROTO_IP
   if (ctrl_addr.ss_family == AF_INET)
@@ -1106,7 +1121,8 @@ getdatasock (const char *mode)
 bad:
   /* Return the real value of errno (close may change it) */
   t = errno;
-  seteuid ((uid_t) cred.uid);
+  if (seteuid ((uid_t) cred.uid) != 0)
+    _exit (EXIT_FAILURE);;
   close (s);
   errno = t;
   return NULL;
@@ -1675,8 +1691,6 @@ cwd (const char *path)
 void
 makedir (const char *name)
 {
-  extern char *xgetcwd (void);
-
   LOGCMD ("mkdir", name);
   if (mkdir (name, 0777) < 0)
     perror_reply (550, name);
@@ -1712,8 +1726,8 @@ removedir (const char *name)
 void
 pwd (void)
 {
-  extern char *xgetcwd (void);
   char *path = xgetcwd ();
+
   if (path)
     {
       reply (257, "\"%s\" is current directory.", path);
@@ -1850,10 +1864,12 @@ passive (int epsv, int af)
   seteuid ((uid_t) 0);
   if (bind (pdata, (struct sockaddr *) &pasv_addr, pasv_addrlen) < 0)
     {
-      seteuid ((uid_t) cred.uid);
+      if (seteuid ((uid_t) cred.uid))
+	_exit (EXIT_FAILURE);
       goto pasv_error;
     }
-  seteuid ((uid_t) cred.uid);
+  if (seteuid ((uid_t) cred.uid))
+    _exit (EXIT_FAILURE);
   pasv_addrlen = sizeof (pasv_addr);
   if (getsockname (pdata, (struct sockaddr *) &pasv_addr, &pasv_addrlen) < 0)
     goto pasv_error;

@@ -450,10 +450,10 @@ getreply (int expecteof)
 		  fflush (stdout);
 		}
 	      code = 421;
-	      return (4);
+	      return (TRANSIENT);
 	    }
 	  if (c != '\r' && (verbose > 0 ||
-			    (verbose > -1 && n == '5' && dig > 4)))
+			    (verbose > -1 && n == ERROR && dig > 4)))
 	    {
 	      if (proxflag && (dig == 1 || (dig == 5 && verbose == 0)))
 		printf ("%s:", hostname);
@@ -482,11 +482,11 @@ getreply (int expecteof)
 	      continuation++;
 	    }
 	  if (n == 0)
-	    n = c;
+	    n = c - '0';	/* Extract ARPA's reply code.  */
 	  if (cp < &reply_string[sizeof (reply_string) - 1])
 	    *cp++ = c;
 	}
-      if (verbose > 0 || (verbose > -1 && n == '5'))
+      if (verbose > 0 || (verbose > -1 && n == ERROR))
 	{
 	  putchar (c);
 	  fflush (stdout);
@@ -498,14 +498,14 @@ getreply (int expecteof)
 	  continue;
 	}
       *cp = '\0';
-      if (n != '1')
+      if (n != PRELIM)
 	cpend = 0;
       signal (SIGINT, oldintr);
       if (code == 421 || originalcode == 421)
 	lostpeer (0);
       if (abrtflag && oldintr != cmdabort && oldintr != SIG_IGN)
 	(*oldintr) (SIGINT);
-      return (n - '0');
+      return n;
     }
 }
 

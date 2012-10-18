@@ -47,25 +47,31 @@
 int
 auth_user (const char *name, struct credentials *pcred)
 {
+  int err = 0;		/* Never remove initialisation!  */
+
   pcred->guest = 0;
 
   switch (pcred->auth_type)
     {
 #ifdef WITH_LINUX_PAM
     case AUTH_TYPE_PAM:
-      return pam_user (name, pcred);
+      err = pam_user (name, pcred);
+      break;
 #endif
 #ifdef WITH_KERBEROS
     case AUTH_TYPE_KERBEROS:
-      return -1;
+      err = -1;
+      break;
 #endif
 #ifdef WITH_KERBEROS5
     case AUTH_TYPE_KERBEROS5:
-      return -1;
+      err = -1;
+      break;
 #endif
 #ifdef WITH_OPIE
     case AUTH_TYPE_OPIE:
-      return -1;
+      err = -1;
+      break;
 #endif
     case AUTH_TYPE_PASSWD:
     default:
@@ -80,7 +86,6 @@ auth_user (const char *name, struct credentials *pcred)
 	/* check for anonymous logging */
 	if (strcmp (name, "ftp") == 0 || strcmp (name, "anonymous") == 0)
 	  {
-	    int err = 0;
 	    if (checkuser (PATH_FTPUSERS, "ftp")
 		|| checkuser (PATH_FTPUSERS, "anonymous"))
 	      {
@@ -120,7 +125,7 @@ auth_user (const char *name, struct credentials *pcred)
 	    if (cp == NULL || checkuser (PATH_FTPUSERS, name))
 	      {
 		sprintf (pcred->message, "User %s access denied.", name);
-		return 1;
+		err = 1;
 	      }
 	  }
 	else
@@ -129,13 +134,16 @@ auth_user (const char *name, struct credentials *pcred)
 	    pcred->message = NULL;
 	    return 1;
 	  }
-	pcred->dochroot = checkuser (PATH_FTPCHROOT, pcred->name);
 	snprintf (pcred->message, len,
 		  "Password required for %s.", pcred->name);
-	return 0;
+	err = 0;
       }
     }
-  return -1;
+
+  if (err == 0)
+    pcred->dochroot = checkuser (PATH_FTPCHROOT, pcred->name);
+
+  return err;
 }
 
 int

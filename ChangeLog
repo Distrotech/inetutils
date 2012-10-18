@@ -1,3 +1,29 @@
+2012-10-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Security audit.
+
+	* ftpd/auth.c (auth_user): Declare ERR at top.
+	Replace most `return` inside switch block by `break`.
+	Put call checkuser(PATH_FTPCHROOT) at function end
+	whenever authentication succeeded, thus making it
+	reachable for all authentication modes.
+
+	* ftpd/ftpd.c: Include <xgetcwd.h>.
+	(curdir, makedir, removedir): Remove prototype xgetcwd().
+	(main): Call localhost() before sending welcome msg.
+	(complete_login): New variable CWD.  Set EUID before
+	calling chdir() for real users.  Call xgetcwd() and
+	set HOME in environment for all kinds of user.
+	(end_login): Reset `pcred->logged_in`.
+	(getdatasock, passive): Call _exit() at failure of
+	seteuid(cred.uid).
+
+	ftp: Self documentating code.
+
+	* ftp/ftp.c (getreply): Make ARPA's reply codes
+	explicit.  Let N carry these codes, not an ASCII
+	character value.
+
 2012-10-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Server and realm detection.
