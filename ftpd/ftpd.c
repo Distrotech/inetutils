@@ -1784,17 +1784,13 @@ dolog (struct sockaddr *sa, socklen_t salen, struct credentials *pcred)
 void
 dologout (int status)
 {
-  /* Racing condition with SIGURG: If SIGURG is receive
-     here, it will jump back has root in the main loop
+  /* Race condition with SIGURG: If SIGURG is received
+     here, it will jump back has root in the main loop.
      David Greenman:dg@root.com.  */
   transflag = 0;
+  end_login (&cred);
 
-  if (cred.logged_in)
-    {
-      seteuid ((uid_t) 0);
-      logwtmp_keep_open (ttyline, "", "");
-    }
-  /* beware of flushing buffers after a SIGPIPE */
+  /* Beware of flushing buffers after a SIGPIPE.  */
   _exit (status);
 }
 

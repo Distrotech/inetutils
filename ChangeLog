@@ -1,5 +1,13 @@
 2012-10-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ftpd: Properly close a user session.
+
+	* ftpd/ftpd.c (dologout): Call end_login().
+	* ftpd/pam.c (pam_doit): Call finishing pam_end()
+	only if ERROR is not PAM_SUCCESS.
+
+2012-10-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftpd: Security audit.
 
 	* ftpd/auth.c (auth_user): Declare ERR at top.

@@ -208,8 +208,11 @@ pam_doit (struct credentials *pcred)
 	    }
 	}
     }
-  pam_end (pamh, error);
-  pamh = 0;
+  if (error != PAM_SUCCESS)
+    {
+      pam_end (pamh, error);
+      pamh = NULL;
+    }
 
   return (error != PAM_SUCCESS);
 }
@@ -220,10 +223,10 @@ pam_user (const char *username, struct credentials *pcred)
 {
   int error;
 
-  if (pamh != 0)
+  if (pamh != NULL)
     {
       pam_end (pamh, PAM_ABORT);
-      pamh = 0;
+      pamh = NULL;
     }
 
   free (pcred->name);
