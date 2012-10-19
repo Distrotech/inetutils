@@ -186,7 +186,7 @@ find_user (char *name, char *tty)
   status = NOT_HERE;
   strcpy (ftty, PATH_DEV);
 
-  read_utmp (PATH_UTMP, &utmp_count, &utmpbuf,
+  read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
 	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
 
   for (uptr = utmpbuf; uptr < utmpbuf + utmp_count; uptr++)

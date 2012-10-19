@@ -1,3 +1,15 @@
+2012-10-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd: Portability of utmp.  Disclosed by Solaris 11.
+
+	* src/syslogd.c (wallmsg): Call read_utmp() with the
+	file argument UTMP_FILE, not PATH_UTMP.
+	* talkd/process.c (find_user): Likewise.
+
+	* tests/syslogd.sh (USER): New variable.
+	<verbose mode>: Add a stanza to the configuration file
+	for passing all messages also to user $USER.
+
 2012-10-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Properly close a user session.

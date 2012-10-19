@@ -64,6 +64,7 @@ fi
 
 # Portability fix for SVR4
 PWD="${PWD:-`pwd`}"
+USER="${USER:-`id -u -n`}"
 
 $need_mktemp || exit_no_mktemp
 $need_netstat || exit_no_netstat
@@ -313,6 +314,9 @@ cat > "$CONF" <<-EOT
 	*.*
 	*.	/dev/null
 EOT
+
+# Add a user recipient in verbose mode.
+$silence false || echo "*.*	$USER" >> "$CONF"
 
 # Set REMOTE_LOGHOST to activate forwarding
 #
