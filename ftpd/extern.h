@@ -66,6 +66,7 @@ extern FILE *ftpd_popen (char *, const char *);
 extern char *getusershell (void);
 #endif
 extern void lreply (int, const char *, ...);
+extern void lreply_multiline (int n, const char *text);
 extern void makedir (const char *);
 extern void nack (const char *);
 extern void pass (const char *);

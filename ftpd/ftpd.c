@@ -795,7 +795,20 @@ user (const char *name)
 
   if (cred.message)
     {
-      reply (331, "%s", cred.message);
+      /* Stacked PAM modules for authentication may have
+       * produced a multiline message at this point.
+       * The FTP protocol does not cope well with this,
+       * so we transfer only the very last line, which
+       * should reflect the active authentication mechanism.
+       */
+      char *msg = strrchr (cred.message, '\n');
+
+      if (msg)
+	msg++;		/* Step over separator.  */
+      else
+	msg = cred.message;
+
+      reply (331, "%s", msg);
       free (cred.message);
       cred.message = NULL;
     }
@@ -882,6 +895,15 @@ pass (const char *passwd)
 	      exit (EXIT_SUCCESS);
 	    }
 	  return;
+	}
+      if (cred.message)
+	{
+	  /* At least PAM might have committed additional messages.
+	   * Reply code 230 is used, since at this point the client
+	   * has been accepted.  */
+	  lreply_multiline (230, cred.message);
+	  free (cred.message);
+	  cred.message = NULL;
 	}
     }
   cred.logged_in = 1;		/* Everything seems to be allright.  */
@@ -1635,6 +1657,42 @@ lreply (int n, const char *fmt, ...)
       va_start (ap, fmt);
       vsyslog (LOG_DEBUG, fmt, ap);
       va_end (ap);
+    }
+}
+
+/* Send a possibly multiline reply as individual
+ * lines of message with identical status code.
+ * No format string input!
+ */
+void
+lreply_multiline (int n, const char *text)
+{
+  char *line;
+
+  line = strdup (text);
+  if (line == NULL)
+    return;
+  else
+    {
+      int stop = 0;
+      char *p1 = line, *p2;
+
+      do
+	{
+	  p2 = strchrnul (p1, '\n');
+	  stop = (*p2 == '\0');		/* End of input string?  */
+	  *p2 = '\0';
+	  printf ("%d- ", n);
+	  printf ("%s\r\n", p1);
+	  if (debug)
+	    {
+	      syslog (LOG_DEBUG, "<--- %d- ", n);
+	      syslog (LOG_DEBUG, "%s", p1);
+	    }
+	  p1 = ++p2;			/* P1 is used within bounds.  */
+	}
+      while (!stop);
+      free (line);
     }
 }
 

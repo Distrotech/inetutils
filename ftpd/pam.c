@@ -113,11 +113,18 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	     in the ftpd.c:user() or ftpd.c:pass() check for it and send
 	     a lreply().  But I'm not sure the RFCs allow mutilines replies
 	     for a passwd challenge.  Many clients will simply break.  */
+	  /* XXX: Attempted solution; collect all messages, appended
+	   * one after the other, separated by "\n".  Then print all
+	   * of them in one single run.  This will circumvent the hard
+	   * coded protocol convention of not allowing continuation
+	   * massage to carry a deviating reply code relative to the
+	   * final message.
+	   */
 	  if (pcred->message)	/* XXX: make sure we split newlines correctly */
 	    {
 	      size_t len = strlen (pcred->message);
 	      char *s = realloc (pcred->message, len
-				 + strlen (msg[count]->msg) + 1);
+				 + strlen (msg[count]->msg) + 2);
 	      if (s == NULL)
 		{
 		  free (pcred->message);
@@ -126,6 +133,7 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	      else
 		{
 		  pcred->message = s;
+		  strcat (pcred->message, "\n");
 		  strcat (pcred->message, msg[count]->msg);
 		}
 	    }
@@ -137,10 +145,9 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	  else
 	    {
 	      char *sp;
-	      /* FIXME:  What's this for ? */
-	      /* Remove trailing `: ' */
+	      /* Remove trailing space only.  */
 	      sp = pcred->message + strlen (pcred->message);
-	      while (sp > pcred->message && strchr (" \t\n:", *--sp))
+	      while (sp > pcred->message && strchr (" \t\n", *--sp))
 		*sp = '\0';
 	    }
 	}
@@ -180,7 +187,7 @@ pam_doit (struct credentials *pcred)
     {
       /* Avoid overly terse passwd messages and let the people
          upstairs do something sane.  */
-      if (pcred->message && !strcasecmp (pcred->message, "password"))
+      if (pcred->message && !strcasecmp (pcred->message, "password:"))
 	{
 	  free (pcred->message);
 	  pcred->message = NULL;

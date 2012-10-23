@@ -1,3 +1,21 @@
+2012-10-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: PAM robustness.  Fine tune message passing,
+	since the finite state automata of FTP can choke
+	on some multiline messages.
+
+	* ftpd/extern.h (lreply_multiline): New prototype.
+	* ftpd/ftpd.c (user): Transmit a reply containing
+	only a single line, cutting at the last newline.
+	(pass): If the credential of an authenticated user
+	contains a message, reply using lreply_multiline().
+	(lreply_multiline): New function.
+	* ftpd/pam.c (PAM_conv): Insert a newline character
+	between concatenated message strings.  Remove only
+	trailing whitespace, leaving any colon untouched.
+	(pam_doit): Compare message string to `password:',
+	including a colon.
+
 2012-10-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Portability of utmp.  Disclosed by Solaris 11.
