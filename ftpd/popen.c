@@ -131,8 +131,8 @@ ftpd_popen (char *program, const char *type)
       memset (&gl, 0, sizeof (gl));
       if (glob (argv[argc], flags, NULL, &gl))
 	gargv[gargc++] = strdup (argv[argc]);
-      else
-	for (pop = gl.gl_pathv; *pop; pop++)
+      else if (gl.gl_pathc > 0)
+	for (pop = gl.gl_pathv; *pop && (gargc < MAX_GARGC - 1); pop++)
 	  gargv[gargc++] = strdup (*pop);
       globfree (&gl);
     }
