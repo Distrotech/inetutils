@@ -140,9 +140,10 @@ char *mapout = 0;
 int
 another (int *pargc, char ***pargv, const char *prompt)
 {
-  char *arg;
+  char *arg = NULL;
   char *buffer;
-  int len = strlen (line), ret;
+  size_t size = 0, len = strlen (line);
+  int ret;
 
   buffer = (char *) malloc (sizeof (char) * (strlen (prompt) + 4));
   if (!buffer)
@@ -150,10 +151,30 @@ another (int *pargc, char ***pargv, const char *prompt)
 
   sprintf (buffer, "(%s) ", prompt);
 
-  arg = readline (buffer);
+  if (usereadline)
+    arg = readline (buffer);
+  else
+    {
+      char *nl;
+
+      fprintf (stdout, "%s", buffer);
+      fflush (stdout);
+
+      if (getline (&arg, &size, stdin) <= 0)
+	{
+	  free (buffer);
+	  free (arg);
+	  intr (0);
+	}
+
+      nl = strchr (arg, '\n');
+      if (nl)
+	*nl = '\0';
+    }
+
   free (buffer);
 
-  if (fromatty && arg && *arg)
+  if (usereadline && arg && *arg)
     add_history (arg);
 
   if (!arg)
@@ -2080,7 +2101,7 @@ dotrans (char *name)
 {
   char *new = xmalloc (strlen (name) + 1);
   char *cp1, *cp2 = new;
-  int i, ostop, found;
+  size_t i, ostop, found;
 
   for (ostop = 0; *(ntout + ostop) && ostop < sizeof (ntout) - 1; ostop++)
     continue;

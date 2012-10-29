@@ -82,7 +82,7 @@
 
 
 #define DEFAULT_PROMPT "ftp> "
-static char *prompt = 0;
+static char *prompt = NULL;
 
 const char args_doc[] = "[HOST [PORT]]";
 const char doc[] = "Remote file transfer.";
@@ -94,13 +94,15 @@ enum {
 static struct argp_option argp_options[] = {
 #define GRP 0
   {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
+  {"no-edit", 'e', NULL, 0, "disable command line editing", GRP+1},
   {"no-glob", 'g', NULL, 0, "turn off file name globbing", GRP+1},
   {"no-prompt", 'i', NULL, 0, "do not prompt during multiple file transfers",
    GRP+1},
   {"no-login", 'n', NULL, 0, "do not automatically login to the remote system",
    GRP+1},
   {"trace", 't', NULL, 0, "enable packet tracing", GRP+1},
-  {"passive", 'p', NULL, 0, "enable passive mode transfer", GRP+1},
+  {"passive", 'p', NULL, 0,
+   "enable passive mode transfer, default for `pftp'", GRP+1},
   {"active", 'A', NULL, 0, "enable active mode transfer", GRP+1},
   {"prompt", OPT_PROMPT, "PROMPT", OPTION_ARG_OPTIONAL, "print a command line PROMPT "
    "(optionally), even if not on a tty", GRP+1},
@@ -119,6 +121,10 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
     case 'd':		/* Enable debug mode.  */
       options |= SO_DEBUG;
       debug++;
+      break;
+
+    case 'e':
+      usereadline = 0;	/* No editing.  */
       break;
 
     case 'g':		/* No glob.  */
@@ -188,6 +194,16 @@ main (int argc, char *argv[])
   passivemode = 0;		/* passive mode not active */
   doepsv4 = 0;			/* use EPRT/EPSV for IPv4 */
   usefamily = AF_UNSPEC;	/* allow any address family */
+  usereadline = 1;		/* normally using readline */
+
+  /* Invoked as `pftp'?  Then set passive mode.  */
+  cp = strrchr (argv[0], '/');
+  if (cp)
+    cp++;
+  else
+    cp = argv[0];
+  if (!strcmp ("pftp", cp))
+    passivemode = 1;
 
   /* Parse command line */
   iu_argp_init ("ftp", default_program_authors);
@@ -203,6 +219,8 @@ main (int argc, char *argv[])
       if (!prompt)
 	prompt = DEFAULT_PROMPT;
     }
+  else
+    usereadline = 0;
 
   cpend = 0;			/* no pending replies */
   proxy = 0;			/* proxy not active */
@@ -319,7 +337,8 @@ void
 cmdscanner (int top)
 {
   struct cmd *c;
-  int l;
+  ssize_t l;
+  size_t len;
 
   if (!top)
     putchar ('\n');
@@ -329,10 +348,40 @@ cmdscanner (int top)
 	{
 	  free (line);
 	  line = NULL;
+	  len = 0;
 	}
-      line = readline (prompt);
+
+      if (usereadline)
+	line = readline (prompt);
+      else
+	{
+	  if (prompt)
+	    {
+	      fprintf (stdout, "%s", prompt);
+	      fflush (stdout);
+	    }
+
+	  l = getline (&line, &len, stdin);
+	  if ((l > 0) && line)
+	    {
+	      char *nl = strchr (line, '\n');
+
+	      if (nl)
+		*nl = '\0';
+	    }
+	  else
+	    {
+	      free (line);	/* EOF, et cetera */
+	      line = NULL;
+	    }
+
+	  if (!fromatty && prompt)
+	    fprintf (stdout, "%s\n", line ? line : "");
+	}
+
       if (!line)
 	quit (0, 0);
+
       l = strlen (line);
       if (l >= MAXLINE)
 	{
@@ -340,7 +389,7 @@ cmdscanner (int top)
 	  break;
 	}
 
-      if (fromatty && line && *line)
+      if (usereadline && line && *line)
 	add_history (line);
 
       if (l == 0)

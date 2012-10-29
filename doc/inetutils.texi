@@ -903,7 +903,13 @@ network site.  Synopsis:
 
 @example
 ftp [@var{option}@dots{}] [@var{host} [@var{port}]]
+pftp [@var{option}@dots{}] [@var{host} [@var{port}]]
 @end example
+
+@noindent
+The alternate name @command{pftp} is starting in passive mode,
+but is otherwise identical to @command{ftp}.
+The available command line options are as follows:
 
 @table @option
 @item -4
@@ -922,19 +928,27 @@ Initially set addressing to IPv6 only.
 @itemx --active
 @opindex -A
 @opindex --active
-Enable active mode transfer.
+Enable active mode transfer.  Default mode for @command{ftp}.
 
 @item -p
 @itemx --passive
 @opindex -p
 @opindex --passive
-Enable passive mode transfer.
+Enable passive mode transfer.  Default mode when invoked
+as @command{pftp}.
 
 @item -d
 @itemx --debug
 @opindex -d
 @opindex --debug
-Enables debugging.
+Enables socket debugging.
+
+@item -e
+@itemx --no-edit
+@opindex -e
+@opindex --no-edit
+Disables the editing of commands.  This is default setting
+for batch mode, without a TTY.
 
 @item -g
 @itemx --no-glob
@@ -968,10 +982,17 @@ supplied, its value is used instead of the default @samp{ftp> }.
 Notice, that the argument is optional.
 
 @item -t
-@item --trace
+@itemx --trace
 @opindex -t
 @opindex --trace
 Enable packet tracing.
+
+@item -v
+@itemx --verbose
+@opindex -v
+@opindex --verbose
+Start in verbose mode, printing informational messages.
+This is default for interactive mode.
 @end table
 
 @menu

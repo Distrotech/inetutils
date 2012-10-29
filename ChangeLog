@@ -1,3 +1,22 @@
+2012-10-29  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Increase universality by recognizing the alias
+	name `pftp' and the option `-e'.
+
+	* ftp/cmds.c (another): New variable SIZE.  Use LEN
+	typed as size_t.  Condition readline() on `usereadline'
+	not `fromatty', otherwise read input based on getline().
+	Likewise, condition add_history() on `usereadline'.
+	(dotrans): Use type size_t for I, OSTOP, FOUND.
+	* ftp/ftp_var.h (usereadline): New variable.
+	* ftp/main.c (argp_options): New option `-e/--no-edit'.
+	(parse_opt) <'e'>: New case.
+	(main): Check if invoked as `pftp', setting passive mode.
+	Clear `usereadline' without a TTY.
+	(cmdscanner): Change L to ssize_t.  New variable LEN.
+	Condition readline() and add_history() on `usereadline',
+	else use a getline() block for input.
+
 2012-10-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ftpd/popen.c (ftpd_popen): Prevent null deference
