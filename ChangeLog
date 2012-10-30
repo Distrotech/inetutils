@@ -1,3 +1,11 @@
+2012-10-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/readutmp.c: New file.
+	* tests/utmp.sh: New file.
+	* tests/Makefile.am (check_PROGRAMS): Add readutmp.
+	(dist_check_SCRIPTS): Add utmp.sh.
+	* tests/.gitignore: Add readutmp to list.
+
 2012-10-29  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Increase universality by recognizing the alias

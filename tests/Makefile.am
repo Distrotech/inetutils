@@ -21,12 +21,12 @@ AM_CPPFLAGS = $(iu_INCLUDES)
 
 LDADD = $(iu_LIBRARIES)
 
-check_PROGRAMS = localhost
+check_PROGRAMS = localhost readutmp
 if ENABLE_inetd
 check_PROGRAMS += addrpeek
 endif
 
-dist_check_SCRIPTS =
+dist_check_SCRIPTS = utmp.sh
 if ENABLE_ping
 dist_check_SCRIPTS += ping-localhost.sh
 endif
