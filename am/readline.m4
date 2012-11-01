@@ -14,6 +14,12 @@ AC_DEFUN([gl_FUNC_READLINE],
   AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
   AC_REQUIRE([AC_LIB_RPATH])
 
+  dnl Allow disabling the use of libreadline.
+  AC_ARG_ENABLE([readline],
+    AC_HELP_STRING([--disable-readline],
+		   [do not build against libreadline]), ,
+    [enable_readline=yes])
+
   dnl Search for libreadline and define LIBREADLINE, LTLIBREADLINE and
   dnl INCREADLINE accordingly.
   AC_LIB_LINKFLAGS_BODY([readline])
@@ -68,7 +74,8 @@ AC_DEFUN([gl_FUNC_READLINE],
     LIBREADLINE=-ledit
   fi
 
-  if test "$gl_cv_lib_readline" != no; then
+  if test "$enable_readline" = "yes" \
+     && test "$gl_cv_lib_readline" != no; then
     AC_DEFINE([HAVE_READLINE], [1], [Define if you have the readline library.])
     extra_lib=`echo "$gl_cv_lib_readline" | sed -n -e 's/yes, requires //p'`
     if test -n "$extra_lib"; then

@@ -77,8 +77,12 @@
 #include "libinetutils.h"
 #include "unused-parameter.h"
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#ifdef HAVE_READLINE_READLINE_H
+# include <readline/readline.h>
+#endif
+#ifdef HAVE_READLINE_HISTORY_H
+# include <readline/history.h>
+#endif
 
 
 #define DEFAULT_PROMPT "ftp> "
@@ -94,7 +98,13 @@ enum {
 static struct argp_option argp_options[] = {
 #define GRP 0
   {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
-  {"no-edit", 'e', NULL, 0, "disable command line editing", GRP+1},
+  {"no-edit", 'e', NULL, 0,
+#if HAVE_READLINE
+	  "disable command line editing",
+#else /* !HAVE_READLINE */
+	  "(ignored)",
+#endif /* !HAVE_READLINE */
+	  GRP+1},
   {"no-glob", 'g', NULL, 0, "turn off file name globbing", GRP+1},
   {"no-prompt", 'i', NULL, 0, "do not prompt during multiple file transfers",
    GRP+1},
@@ -351,9 +361,11 @@ cmdscanner (int top)
 	  len = 0;
 	}
 
+#if HAVE_READLINE
       if (usereadline)
 	line = readline (prompt);
       else
+#endif /* HAVE_READLINE */
 	{
 	  if (prompt)
 	    {
@@ -389,8 +401,10 @@ cmdscanner (int top)
 	  break;
 	}
 
+#if HAVE_READLINE
       if (usereadline && line && *line)
 	add_history (line);
+#endif /* HAVE_READLINE */
 
       if (l == 0)
 	break;

@@ -1,3 +1,25 @@
+2012-10-01  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Build without readline support.
+
+	* configure.ac <enable_ftp>: Remove test for disabling
+	FTP client based on `$gl_cv_lib_readline = no'.
+	* am/readline.m4 (gl_FUNC_READLINE): Create option
+	`--disable-readline' using AC_ARG_ENABLE([readline]).
+	(HAVE_READLINE): Demand also `$enable_readline = yes`.
+	* ftp/cmds.c [HAVE_READLINE_READLINE_H]: Inclusion guard
+	for <readline/readline.h>.
+	[HAVE_READLINE_HISTORY_H]: Guard <readline/history.h>.
+	(another) [HAVE_READLINE]: Conditional use of readline()
+	and of add_history().
+	* ftp/main.c [HAVE_READLINE_READLINE_H]: Inclusion guard
+	for <readline/readline.h>.
+	[HAVE_READLINE_HISTORY_H]: Guard <readline/history.h>.
+	(argp_options) [!HAVE_READLINE]: Alternate description
+	for `-e/--no-edit'.
+	(cmdscanner) [HAVE_READLINE]: Conditional use of readline()
+	and of add_history().
+
 2012-10-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/readutmp.c: New file.

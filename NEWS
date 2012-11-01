@@ -7,6 +7,12 @@ Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
 * New tool 'dnsdomainname'.
 
+* ftp
+
+Called as `pftp', passive mode is preset.  New switch `-e/--no-edit'
+for compatibility with other implementations.  Can now be built
+without readline ability: configure using `--disable-readline'.
+
 
 January 6, 2012
 Version 1.9.1:

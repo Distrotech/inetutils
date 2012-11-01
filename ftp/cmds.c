@@ -78,8 +78,12 @@
    system headers on some platforms. */
 #include <glob.h>
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#ifdef HAVE_READLINE_READLINE_H
+# include <readline/readline.h>
+#endif
+#ifdef HAVE_READLINE_HISTORY_H
+# include <readline/history.h>
+#endif
 
 #include "ftp_var.h"
 #include "unused-parameter.h"
@@ -151,9 +155,11 @@ another (int *pargc, char ***pargv, const char *prompt)
 
   sprintf (buffer, "(%s) ", prompt);
 
+#if HAVE_READLINE
   if (usereadline)
     arg = readline (buffer);
   else
+#endif /* HAVE_READLINE */
     {
       char *nl;
 
@@ -174,8 +180,10 @@ another (int *pargc, char ***pargv, const char *prompt)
 
   free (buffer);
 
+#if HAVE_READLINE
   if (usereadline && arg && *arg)
     add_history (arg);
+#endif /* HAVE_READLINE */
 
   if (!arg)
     intr (0);
