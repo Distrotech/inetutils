@@ -2544,6 +2544,25 @@ tn (int argc, char *argv[])
 	}
       else
 	telnetport = 0;
+      if (*portp >= '0' && *portp <= '9')
+	{
+	  long long int val;
+	  char *endp;
+
+	  val = strtoll (portp, &endp, 10);
+
+	  if ((errno == ERANGE && (val == LLONG_MAX || val == LLONG_MIN))
+	      || (*endp == '\0' && (val < 1 || val > 65535)))
+	    {
+	      printf ("Port number %s is out of range.\n", portp);
+	      return 0;
+	    }
+	  else if (*endp)
+	    {
+	      printf ("Invalid port name '%s'.\n", portp);
+	      return 0;
+	    }
+	}
     }
 
   free (hostname);

@@ -1,3 +1,8 @@
+2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* telnet/commands.c (tn): New block with sanity check of
+	numerical port, being out of range, or mixed with letters.
+
 2012-10-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Build without readline support.
