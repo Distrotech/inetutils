@@ -69,6 +69,7 @@
 #include <errno.h>
 
 #include <stdlib.h>
+#include <limits.h>	/* LLONG_MAX for Solaris. */
 
 #include <arpa/inet.h>
 #include <arpa/telnet.h>

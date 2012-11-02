@@ -1,5 +1,10 @@
 2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* telnet/commands.c: Include <limits.h>.  Needed
+	by Solaris to have LLONG_MAX.
+
+2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* telnet/commands.c (tn): New block with sanity check of
 	numerical port, being out of range, or mixed with letters.
 
