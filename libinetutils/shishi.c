@@ -684,7 +684,7 @@ readenc (Shishi * h, int sock, char *buf, int *len, shishi_ivector * iv,
       val = sizeof (int);
     }
 
-  memset (buf, 0, BUFLEN);
+  memset (buf, 0, SHISHI_ENCRYPT_BUFLEN);
 
   /* copy decrypted data to output */
   memcpy (buf, out + val, outlen - val);

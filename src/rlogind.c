@@ -1574,7 +1574,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
       fatal (infd, "Can't get sockname", 1);
     }
 
-  snprintf (cksumdata, 100, "%u:%s%s",
+  snprintf (cksumdata, sizeof (cksumdata), "%u:%s%s",
 	    (sock.ss_family == AF_INET6)
 	      ? ntohs (((struct sockaddr_in6 *) &sock)->sin6_port)
 	      : ntohs (((struct sockaddr_in *) &sock)->sin_port),
@@ -1607,7 +1607,8 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
     }
 
   syslog (LOG_INFO | LOG_AUTH,
-	  "Kerberos V login from %s on %s as `%s'.\n",
+	  "Kerberos V %slogin from %s on %s as `%s'.\n",
+	  encrypt_io ? "encrypted " : "",
 	  ad->rusername, ad->hostname, ad->lusername);
 
   shishi_ap_done (ad->ap);
@@ -1681,10 +1682,17 @@ char oobdata[] = { TIOCPKT_WINDOW };	/* May be modified by protocol/control */
 char oobdata_new[] = { 0377, 0377, 'o', 'o', TIOCPKT_WINDOW };
 #endif
 
+#ifdef SHISHI_ENCRYPT_BUFLEN
+# undef BUFLEN
+# define BUFLEN SHISHI_ENCRYPT_BUFLEN
+#elif !defined BUFLEN
+# define BUFLEN 1024
+#endif
+
 void
 protocol (int f, int p, struct auth_data *ap)
 {
-  char fibuf[1024], *pbp = NULL, *fbp = NULL;
+  char fibuf[BUFLEN], *pbp = NULL, *fbp = NULL;
   int pcc = 0, fcc = 0;
   int cc, nfd, n;
   char cntl;
@@ -1821,7 +1829,7 @@ protocol (int f, int p, struct auth_data *ap)
 
       if (FD_ISSET (p, &ibits))
 	{
-	  char dbuf[1024 + 1];
+	  char dbuf[BUFLEN + 1];
 
 	  pcc = read (p, dbuf, sizeof dbuf);
 

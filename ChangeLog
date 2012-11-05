@@ -1,3 +1,20 @@
+2012-10-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogind: Buffer overflow, causing stalled and
+	incomplete login for encrypted connections.
+
+	* libinetutils/shishi_def.h (SHISHI_ENCRYPT_BUFLEN):
+	Rename from previous BUFLEN.
+	* libinetutils/shishi.c (readenc): Likewise, used
+	in calling memset() on `buf'.
+	* src/rlogind.c (do_shishi_login): Replace 100 by
+	sizeof(cksumdata) when calling snprintf().  Insert
+	`encrypted' in syslog message for encrypted exchange.
+	(BUFLEN): Define as SHISHI_ENCRYPT_BUFLEN, if possible,
+	otherwise fall back to existing value, or to 1024.
+	(protocol): Declare FIBUF of length BUFLEN, and DBUF
+	of length BUFLEN+1.
+
 2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* telnet/commands.c: Include <limits.h>.  Needed

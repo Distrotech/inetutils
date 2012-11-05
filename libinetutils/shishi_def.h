@@ -22,7 +22,7 @@
 # include <netinet/in.h>
 
 # define SERVICE "host"
-# define BUFLEN 1040
+# define SHISHI_ENCRYPT_BUFLEN 1040
 
 struct shishi_iv
 {
