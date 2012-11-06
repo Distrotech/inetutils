@@ -1,3 +1,25 @@
+2012-10-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rshd: Allow enforced encryption with libshishi,
+	rejecting other Kerberized sessions.
+
+	* src/rshd.c (uses_encryption) [SHISHI]: New variable.
+	(options) [(KERBEROS || SHISHI) && ENCRYPTION]:
+	Expose option `-x/--encrypt'.
+	(doit) [SHISHI] <client encrypts>: Set `uses_encryption'
+	instead of `doencrypt'.  Fail connection request if
+	`doencrypt && !uses_encryption', otherwise proceed.
+	[SHISHI] <logging>: Refine message to indicate whether
+	encryption is in use.
+
+	* src/rlogind.c (do_krb_login) [SHISHI]: Initialize RC
+	as SHISHI_VERIFY_FAILED.
+	[KERBEROS]: Initialize RC as 1.
+
+	* src/rlogind.c (setup_utmp): Calculate offset
+	from PATH_DEV.
+	* telnetd/pty.c (setup_utmp): Likewise.
+
 2012-10-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Buffer overflow, causing stalled and

@@ -198,7 +198,7 @@ Shishi_ap *ap;
 Shishi_key *enckey;
 shishi_ivector iv1, iv2, iv3, iv4;
 shishi_ivector *ivtab[4];
-int protocol;
+int protocol, uses_encryption = 0;
 # endif /* SHISHI */
 # define VERSION_SIZE	9
 # define SECURE_MESSAGE  "This rsh session is using DES encryption for all transmissions.\r\n"
@@ -230,6 +230,10 @@ static struct argp_option options[] = {
     "fail for non-Kerberos authentication", GRP },
   { "server-principal", 'S', "NAME", 0,
     "set Kerberos server name, overriding canonical hostname", GRP },
+# if defined ENCRYPTION
+  { "encrypt", 'x', NULL, 0,
+    "fail for non-encrypted, Kerberized sessions", GRP },
+# endif
 # undef GRP
 #endif /* KERBEROS */
   { NULL, 0, NULL, 0, NULL, 0 }
@@ -866,7 +870,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	  {
 	    int i;
 
-	    doencrypt = 1;
+	    uses_encryption = 1;
 
 	    ivtab[0] = &iv1;
 	    ivtab[1] = &iv2;
@@ -960,6 +964,17 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	rshd_error ("Authentication exchange failed.\n");
 	exit (EXIT_FAILURE);
       }
+
+    if (doencrypt && !uses_encryption)
+      {
+	syslog (LOG_INFO, "non-encrypted session denied");
+	free (compcksum);
+	shishi_ap_done (ap);
+	rshd_error ("Only encrypted sessions are allowed.\n");
+	exit (EXIT_FAILURE);
+      }
+    else
+      doencrypt = uses_encryption;
 
     rc = shishi_authorized_p (h, shishi_ap_tkt (ap), locuser);
     if (!rc)
@@ -1615,7 +1630,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	syslog (LOG_INFO | LOG_AUTH,
 		"%s%s@%s as %s: cmd='%.80s'",
 #ifdef SHISHI
-		use_kerberos ? "Kerberized " : "",
+		!use_kerberos ? ""
+		  : !doencrypt ? "Kerberized "
+		    : "Kerberized and encrypted ",
 #else
 		"",
 #endif

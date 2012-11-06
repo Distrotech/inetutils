@@ -1027,7 +1027,7 @@ setup_utmp (char *line, char *host)
 {
   char *ut_id = utmp_ptsid (line, "rl");
 
-  utmp_init (line + sizeof ("/dev/") - 1, ".rlogin", ut_id, host);
+  utmp_init (line + sizeof (PATH_DEV) - 1, ".rlogin", ut_id, host);
 }
 
 void
@@ -1258,14 +1258,18 @@ do_rlogin (int infd, struct auth_data *ap)
 int
 do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
 {
-  int rc;
+# if defined SHISHI
+  int rc = SHISHI_VERIFY_FAILED;
+# else /* KERBEROS */
+  int rc = 1;
+# endif
 
   *err_msg = NULL;
 # if defined KRB5
   if (kerberos == AUTH_KERBEROS_5)
     rc = do_krb5_login (infd, ap, err_msg);
   else
-# elif defined(SHISHI)
+# elif defined SHISHI
   if (kerberos == AUTH_KERBEROS_SHISHI)
     rc = do_shishi_login (infd, ap, err_msg);
   else

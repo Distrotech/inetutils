@@ -32,7 +32,7 @@ void
 setup_utmp (char *line, char *host)
 {
   char *ut_id = utmp_ptsid (line, "tn");
-  utmp_init (line + sizeof ("/dev/") - 1, ".telnet", ut_id, host);
+  utmp_init (line + sizeof (PATH_DEV) - 1, ".telnet", ut_id, host);
 }
 
 
