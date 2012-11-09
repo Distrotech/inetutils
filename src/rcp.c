@@ -311,7 +311,7 @@ main (int argc, char *argv[])
     {
 # if defined ENCRYPTION && defined KERBEROS
       shell = doencrypt ? "ekshell" : "kshell";
-# else
+# else /* SHISHI */
       shell = "kshell";		/* Libshishi uses a single service.  */
 # endif
       if ((sp = getservbyname (shell, "tcp")) == NULL)
@@ -452,8 +452,16 @@ toremote (char *targ, int argc, char *argv[])
 	      else if (!okname (suser))
 		continue;
 	      if (asprintf (&bp,
-			    "%s %s -l %s -n %s %s '%s%s%s:%s'",
-			    PATH_RSH, host, suser, command, src,
+#if defined ENCRYPTION && (defined KERBEROS || defined SHISHI)
+			    "%s%s -l %s -n %s %s %s '%s%s%s:%s'",
+#else
+			    "%s -l %s -n %s %s %s '%s%s%s:%s'",
+#endif
+			    PATH_RSH,
+#if ENCRYPTION && (defined KERBEROS || defined SHISHI)
+			    doencrypt ? " -x" : "",
+#endif
+			    suser, host, command, src,
 			    tuser ? tuser : "", tuser ? "@" : "",
 			    thost, targ) < 0)
 		xalloc_die ();
@@ -461,8 +469,16 @@ toremote (char *targ, int argc, char *argv[])
 	  else
 	    {
 	      if (asprintf (&bp,
-			    "exec %s %s -n %s %s '%s%s%s:%s'",
-			    PATH_RSH, argv[i], command, src,
+#if defined ENCRYPTION && (defined KERBEROS || defined SHISHI)
+			    "exec %s%s -n %s %s %s '%s%s%s:%s'",
+#else
+			    "exec %s -n %s %s %s '%s%s%s:%s'",
+#endif
+			    PATH_RSH,
+#if ENCRYPTION && (defined KERBEROS || defined SHISHI)
+			    doencrypt ? " -x" : "",
+#endif
+			    argv[i], command, src,
 			    tuser ? tuser : "", tuser ? "@" : "",
 			    thost, targ) < 0)
 		xalloc_die ();
@@ -520,8 +536,21 @@ toremote (char *targ, int argc, char *argv[])
 	  rem = -1;
 #ifdef SHISHI
 	  if (use_kerberos)
-	    shishi_done (h);
-#endif
+	    {
+	      shishi_done (h);
+# ifdef ENCRYPTION
+	      if (doencrypt)
+		{
+		  shishi_key_done (enckey);
+		  for (i = 0; i < 4; i++)
+		    {
+		      shishi_crypto_close (ivtab[i]->ctx);
+		      free (ivtab[i]->iv);
+		    }
+		}
+# endif /* ENCRYPTION */
+	    }
+#endif /* SHISHI */
 	}
     }
 }
@@ -544,7 +573,7 @@ tolocal (int argc, char *argv[])
 	    strlen (argv[argc - 1]) + 20;
 	  if (asprintf (&bp, "exec %s%s%s %s %s",
 			PATH_CP,
-			iamrecursive ? " -r" : "",
+			iamrecursive ? " -R" : "",
 			preserve_option ? " -p" : "",
 			argv[i], argv[argc - 1]) < 0)
 	    xalloc_die ();
@@ -610,7 +639,20 @@ tolocal (int argc, char *argv[])
 #ifdef SHISHI
       if (use_kerberos)
 	shishi_done (h);
-#endif
+	{
+# ifdef ENCRYPTION
+	  if (doencrypt)
+	    {
+	      shishi_key_done (enckey);
+	      for (i = 0; i < 4; i++)
+		{
+		  shishi_crypto_close (ivtab[i]->ctx);
+		  free (ivtab[i]->iv);
+		}
+	    }
+# endif /* ENCRYPTION */
+	}
+#endif /* SHISHI */
     }
 }
 
@@ -1124,12 +1166,69 @@ again:
 #  ifdef KERBEROS
 	  rem = krcmd_mutual (host, port, user, bp, 0, dest_realm,
 			      &cred, schedule) :
-#  elif defined SHISHI
-	  /* Not yet supported.  */
-	  rem = -1; /* krcmd_mutual () */
-	  errno = ENOENT;
-#  endif
 	  krb_errno = errno;
+#  elif defined SHISHI
+	  int i;
+	  char *xbp = NULL;
+
+	  xbp = xmalloc (strlen (bp) + sizeof ("-x "));
+	  sprintf (xbp, "%s%s", "-x ", bp);
+	  rem = krcmd_mutual (&h, host, port, &user, xbp, NULL,
+			      dest_realm, &enckey, family);
+	  krb_errno = errno;
+	  if (rem > 0)
+	    {
+	      keytype = shishi_key_type (enckey);
+	      keylen = shishi_cipher_blocksize (keytype);
+
+	      ivtab[0] = &iv1;
+	      ivtab[1] = &iv2;
+	      ivtab[2] = &iv3;
+	      ivtab[3] = &iv4;
+
+	      for (i = 0; i < 4; i++)
+		{
+		  ivtab[i]->ivlen = keylen;
+
+		  switch (keytype)
+		    {
+		    case SHISHI_DES_CBC_CRC:
+		    case SHISHI_DES_CBC_MD4:
+		    case SHISHI_DES_CBC_MD5:
+		    case SHISHI_DES_CBC_NONE:
+		    case SHISHI_DES3_CBC_HMAC_SHA1_KD:
+		      ivtab[i]->keyusage = SHISHI_KEYUSAGE_KCMD_DES;
+		      ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
+		      memset (ivtab[i]->iv,
+			      2 * i + 1 * (i < 2) - 4 * (i >= 2),
+			      ivtab[i]->ivlen);
+		      ivtab[i]->ctx =
+			shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				       shishi_key_type (enckey), ivtab[i]->iv,
+				       ivtab[i]->ivlen);
+		      break;
+		    case SHISHI_ARCFOUR_HMAC:
+		    case SHISHI_ARCFOUR_HMAC_EXP:
+		      ivtab[i]->keyusage =
+			SHISHI_KEYUSAGE_KCMD_DES + 2 + 4 * i;
+		      ivtab[i]->ctx =
+			shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				       shishi_key_type (enckey), NULL, 0);
+		      break;
+		    default:
+		      ivtab[i]->keyusage =
+			SHISHI_KEYUSAGE_KCMD_DES + 2 + 4 * i;
+		      ivtab[i]->iv = xmalloc (ivtab[i]->ivlen);
+		      memset (ivtab[i]->iv, 0, ivtab[i]->ivlen);
+		      ivtab[i]->ctx =
+			shishi_crypto (h, enckey, ivtab[i]->keyusage,
+				       shishi_key_type (enckey), ivtab[i]->iv,
+				       ivtab[i]->ivlen);
+		    }
+		}
+	    }
+	  free (xbp);
+#  endif
 	}
       else
 # endif /* ENCRYPTION */

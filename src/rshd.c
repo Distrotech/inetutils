@@ -967,7 +967,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 
     if (doencrypt && !uses_encryption)
       {
-	syslog (LOG_INFO, "non-encrypted session denied");
+	syslog (LOG_INFO, "non-encrypted session denied from %s", hostname);
 	free (compcksum);
 	shishi_ap_done (ap);
 	rshd_error ("Only encrypted sessions are allowed.\n");

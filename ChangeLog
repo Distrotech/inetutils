@@ -1,3 +1,21 @@
+2012-10-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp: Support encrypted libshishi sessions.
+
+	* src/rcp.c (toremote) <remote-to-remote>: In format strings,
+	put options to PATH_RSH before the host argument.
+	[(KERBEROS || SHISHI) && ENCRYPTION] <doencrypt>:
+	Add option `-x' in format strings.
+	[SHISHI && ENCRYPTION]: Close encryption handle and data.
+	(tolocal): In format string, portability needs `-R' as
+	option to PATH_CP, not `-r'.
+	[SHISHI && ENCRYPTION]: Close encryption handle and data.
+	(kerberos) [SHISHI && ENCRYPTION]: New variables I and XBP.
+	Call krcmd_mutual() and initialize encryption data.
+
+	* src/rshd.c (doit) <denied non-encryption>: Include host name
+	in syslog message.
+
 2012-10-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: Allow enforced encryption with libshishi,
