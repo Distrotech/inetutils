@@ -20,7 +20,7 @@
 
 # This file describes how to set various paths used by programs in inetutils.
 #
-# The rules that determine what a given PATH_FOO define expands to are:
+# The rules determining what a given PATH_FOO expands to, are these:
 #  (1) If the user specifies --with-path-foo, that value is used.
 #  (2) If _PATH_FOO is defined in <paths.h>, that value is used.
 #  (3) The lines below are consulted.  They are whitespace-separated
@@ -30,22 +30,22 @@
 #		   it to VALUE.	 If VALUE begins with a make-variable of the
 #		   form `$(NAME)' and a corresponding shell-variable $NAME
 #		   exists at configure time, the value of $NAME is substituted
-#		   for the $(NAME) for testing (but not subsitution) purposes.
-#	test:T	-- Use `test -T' to test for file existance
+#		   for the $(NAME) for testing (but not substitution) purposes.
+#	test:T	-- Use `test -T' to test for file existance.
 #	x	-- The same as test:x
-#       d       -- The same as test:d
+#	d       -- The same as test:d
 #	c	-- The same as test:c
 #	b	-- The same as test:b
 #	<ach.h>:SYMBOL
-#		-- If SYMBOL is defined in <ack.h>, use SYM
+#		-- If SYMBOL is defined in <ack.h>, use SYMBOL.
 #       <ack.h> -- The same as <ack.h>:_PATH_FOO
 #       search:NAME:PATH
 #		-- Search for NAME in the colon-separated path PATH, and use
 #		   the first thing found; if the `:PATH' is omitted, it
-#		   uses the environment variable $PATH
-#	no	-- Set the default to `no' (even if there's already a default).
-#       FILE	-- The same as "FILE" (the quoted syntax only need be used if
-#		   the contents could match one of the special syntaxes)
+#		   uses the environment variable $PATH.
+#	no	-- Set the default to `no' (even if there already is a default).
+#	FILE	-- The same as "FILE" (the quoted syntax only need be used if
+#		   the contents could match one of the special syntaxes).
 #
 #      If cross-compiling then every file-existance test is made to fail
 #      (regardless of what exists on the compilation system), forcing
@@ -58,13 +58,13 @@
 #      the value `no', but that's probably not a severe problem).
 #
 #  (4) If the resulting value is the string `no', then PATH_FOO is never
-#      defined by any method (programs that use it should check that it's
-#      defined before using it).
+#      defined by any method. (Programs that use it should check that the
+#      symbol is defined before using it).
 #
 # Programs wanting to use a particular path PATH_FOO should:
-#  (1) Add the make variable $(PATHDEF_FOO) to CPPFLAGS while compiling (this
-#      expands either into either -D... for the path variable, or nothing).
-#  (2) Include any appropriate headers to match <header.h> entries below
+#  (1) Add the make variable $(PATHDEF_FOO) to CPPFLAGS while compiling. (This
+#      expands either into either -D... for the path variable, or nothing.)
+#  (2) Include any appropriate headers to match <header.h> entries below.
 #
 
 PATH_BSHELL	x $(bindir)/sh search:sh

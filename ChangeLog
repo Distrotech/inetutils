@@ -1,4 +1,18 @@
-2012-10-09  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-11-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Consistent use of device prefix.
+
+	* srs/rlogind.c (setup_utmp, cleanup): Use PATH_TTY_PFX,
+	not PATH_DEV.
+	* talkd/announce.c (announce): Likewise.
+	* talkd/process.c (find_user): Likewise.
+	* telnetd/pty.c (setup_utmp, cleanup): Likewise.
+
+	* src/rexecd.c (doit) [DEBUG]: Use PATH_TTY, not _PATH_TTY.
+
+	* doc/inetutils.texi: Refer to `.k5login', not `.klogin'.
+
+2012-11-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rcp: Support encrypted libshishi sessions.
 
@@ -16,7 +30,7 @@
 	* src/rshd.c (doit) <denied non-encryption>: Include host name
 	in syslog message.
 
-2012-10-06  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-11-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: Allow enforced encryption with libshishi,
 	rejecting other Kerberized sessions.
@@ -38,7 +52,7 @@
 	from PATH_DEV.
 	* telnetd/pty.c (setup_utmp): Likewise.
 
-2012-10-05  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-11-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Buffer overflow, causing stalled and
 	incomplete login for encrypted connections.
@@ -55,17 +69,17 @@
 	(protocol): Declare FIBUF of length BUFLEN, and DBUF
 	of length BUFLEN+1.
 
-2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-11-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* telnet/commands.c: Include <limits.h>.  Needed
 	by Solaris to have LLONG_MAX.
 
-2012-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-11-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* telnet/commands.c (tn): New block with sanity check of
 	numerical port, being out of range, or mixed with letters.
 
-2012-10-01  Mats Erik Andersson  <gnu@gisladisker.se>
+2012-11-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Build without readline support.
 

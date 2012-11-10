@@ -177,14 +177,14 @@ find_user (char *name, char *tty)
   size_t utmp_count;
   int status;
   struct stat statb;
-  char ftty[sizeof (PATH_DEV) + sizeof (uptr->ut_line)];
+  char ftty[sizeof (PATH_TTY_PFX) + sizeof (uptr->ut_line)];
   time_t last_time = 0;
   int notty;
 
   notty = (*tty == '\0');
 
   status = NOT_HERE;
-  strcpy (ftty, PATH_DEV);
+  strcpy (ftty, PATH_TTY_PFX);
 
   read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
 	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
@@ -196,8 +196,9 @@ find_user (char *name, char *tty)
 	  if (notty)
 	    {
 	      /* no particular tty was requested */
-	      strncpy (ftty + sizeof (PATH_DEV) - 1,
-		       uptr->ut_line, sizeof (ftty) - sizeof (PATH_DEV) - 1);
+	      strncpy (ftty + sizeof (PATH_TTY_PFX) - 1,
+		       uptr->ut_line,
+		       sizeof (ftty) - sizeof (PATH_TTY_PFX) - 1);
 	      ftty[sizeof (ftty) - 1] = 0;
 
 	      if (stat (ftty, &statb) == 0)

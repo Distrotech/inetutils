@@ -1027,7 +1027,7 @@ setup_utmp (char *line, char *host)
 {
   char *ut_id = utmp_ptsid (line, "rl");
 
-  utmp_init (line + sizeof (PATH_DEV) - 1, ".rlogin", ut_id, host);
+  utmp_init (line + sizeof (PATH_TTY_PFX) - 1, ".rlogin", ut_id, host);
 }
 
 void
@@ -1915,7 +1915,7 @@ cleanup (int signo _GL_UNUSED_PARAMETER)
 {
   char *p;
 
-  p = line + sizeof (PATH_DEV) - 1;
+  p = line + sizeof (PATH_TTY_PFX) - 1;
 #if !defined HAVE_LOGOUT || !defined HAVE_LOGWTMP
   utmp_logout (p);
   chmod (line, 0644);

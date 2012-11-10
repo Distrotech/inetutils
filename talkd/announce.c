@@ -132,14 +132,14 @@ announce (CTL_MSG * request, char *remote_machine)
   struct stat st;
   int rc;
 
-  len = sizeof (PATH_DEV) + strlen (request->r_tty) + 2;
+  len = sizeof (PATH_TTY_PFX) + strlen (request->r_tty) + 2;
   ttypath = malloc (len);
   if (!ttypath)
     {
       syslog (LOG_ERR, "Out of memory");
       exit (EXIT_FAILURE);
     }
-  sprintf (ttypath, "%s/%s", PATH_DEV, request->r_tty);
+  sprintf (ttypath, "%s/%s", PATH_TTY_PFX, request->r_tty);
   rc = stat (ttypath, &st);
   free (ttypath);
   if (rc < 0 || (st.st_mode & S_IWGRP) == 0)

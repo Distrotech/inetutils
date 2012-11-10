@@ -32,7 +32,7 @@ void
 setup_utmp (char *line, char *host)
 {
   char *ut_id = utmp_ptsid (line, "tn");
-  utmp_init (line + sizeof (PATH_DEV) - 1, ".telnet", ut_id, host);
+  utmp_init (line + sizeof (PATH_TTY_PFX) - 1, ".telnet", ut_id, host);
 }
 
 
@@ -149,7 +149,7 @@ cleanup (int sig)
 	      (long) pid, WEXITSTATUS (status));
     }
 
-  p = line + sizeof (PATH_DEV) - 1;
+  p = line + sizeof (PATH_TTY_PFX) - 1;
   utmp_logout (p);
   chmod (line, 0644);
   chown (line, 0, 0);

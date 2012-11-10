@@ -2047,15 +2047,15 @@ mode is in effect.  See the appropriate man pages for more information.
 
 If @command{rlogin} was compiled with kerberos support, options
 @option{-x}, @option{-k}, @option{-K} are available.  Each user may
-have a private authorization list in the file @file{.klogin} in their
+have a private authorization list in the file @file{.k5login} in their
 home directory.  Each line in this file should contain a Kerberos
-principal name of the form @samp{principal.instance@@realm}.  If the
+principal name of the form @samp{principal/instance@@realm}.  If the
 originating user is authenticated to one of the principals named in
-@file{.klogin}, access is granted to the account.  The principal
-@samp{accountname.@@localrealm} is granted access if there is no
-@file{.klogin} file.  Otherwise a login and password will be prompted
+@file{.k5login}, access is granted to the account.  The principal
+@samp{accountname@@localrealm} is granted access if there is no
+@file{.k5login} file.  Otherwise a login and password will be prompted
 for on the remote machine as in @command{login}.  To avoid certain
-security problems, the @file{.klogin} file must be owned by the remote
+security problems, the @file{.k5login} file must be owned by the remote
 user.  If Kerberos authentication fails, a warning message is printed
 and the standard Berkeley rlogin is used instead.
 

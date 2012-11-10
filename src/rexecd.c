@@ -266,7 +266,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
   signal (SIGTERM, SIG_DFL);
 #ifdef DEBUG
   {
-    int t = open (_PATH_TTY, O_RDWR);
+    int t = open (PATH_TTY, O_RDWR);
     if (t >= 0)
       {
 	ioctl (t, TIOCNOTTY, (char *) 0);
