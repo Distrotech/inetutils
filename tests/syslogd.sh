@@ -43,6 +43,9 @@ IU_TESTDIR	If set, use this as testing dir.  Unless
 		NOCLEAN is also set, any created \$IU_TESTDIR
 		will be erased after the test.  A non-existing
 		directory must be named as a template for mktemp(1).
+OBSCURE		If set, make additional tests that are prone to
+		false negatives in some setups lacking full
+		connectivity.
 REMOTE_LOGHOST	Add this host as a receiving loghost.
 TARGET		Receiving IPv4 address.
 TARGET6		Receiving IPv6 address.
@@ -307,8 +310,6 @@ fi
 #
 cat > "$CONF" <<-EOT
 	*.*	$OUT
-	# Test incorrect forwarding.
-	*.*	@not.in.existence
 	# Recover from missing action field and short selector.
 	12345
 	*.*
@@ -317,6 +318,18 @@ EOT
 
 # Add a user recipient in verbose mode.
 $silence false || echo "*.*	$USER" >> "$CONF"
+
+# Testing a remote log host known not to exist,
+# will introduce sizable timeout.  We avoid it
+# unless told to include this test, based on
+# OBSCURE in our environment.
+if [ -n "$OBSCURE" ]; then
+    # Append an invalid recipient.
+    cat >> "$CONF" <<-EOT
+	# Test incorrect forwarding.
+	*.*	@not.in.existence
+	EOT
+fi
 
 # Set REMOTE_LOGHOST to activate forwarding
 #
@@ -435,6 +448,7 @@ TAG2="syslogd-reload-test"
 
 # Load the new configuration
 kill -HUP `cat "$PID"`
+sleep 1
 
 if $do_unix_socket; then
     # Two messages, but absence is also awarded credit.

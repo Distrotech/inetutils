@@ -34,25 +34,35 @@ if test -n "$VERBOSE"; then
     set -x
 fi
 
-# Execute READUTMP once without argument, and once with
-# ourself as argument.  Both should succeed, but if either
-# fails report only a skipped test, giving some complimentary
-# explanations.
-
 errno=0
 
-$READUTMP || errno=77
+if who >/dev/null 2>&1; then
+    # Check that readutmp agrees with who(1),
+    # limiting ourselves to at most three users.
+    for nn in `who | sed 's/ .*//; 3q;'`; do
+	$READUTMP $nn || errno=1
+    done
+else
+    # Execute READUTMP once without argument, and once with
+    # ourself as argument.  Both should succeed, but are reported
+    # as skipped test in case of failure.  They are known to be
+    # produce false positives in some circumstances.
+    $READUTMP || errno=77
+    $READUTMP `func_id_user` || errno=77
+fi
 
-$READUTMP `func_id_user` || errno=77
-
-if test $errno -ne 0; then
+if test $errno -eq 77; then
     cat >&2 <<-EOT
 	NOTICE: read_utmp() from Gnulib just failed.  This can be
 	due to running this test in sudo mode, or using a role.
 	Should this script fail while running it as a logged in
 	user, then read_utmp() is indeed broken on this system.
-	Then the present syslog and talkd are not fully functional.
-	You are then welcome to report this failure.
+	Then the present executables syslogd and talkd are not
+	fully functional.
+	EOT
+elif test $errno -eq 1; then
+    cat >&2 <<-EOT
+	User messaging is broken in syslogd and talkd.
 	EOT
 fi
 

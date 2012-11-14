@@ -21,7 +21,7 @@ AM_CPPFLAGS = $(iu_INCLUDES)
 
 LDADD = $(iu_LIBRARIES)
 
-check_PROGRAMS = localhost readutmp
+check_PROGRAMS = localhost readutmp waitdaemon
 if ENABLE_inetd
 check_PROGRAMS += addrpeek
 endif
@@ -68,7 +68,7 @@ if ENABLE_dnsdomainname
 dist_check_SCRIPTS += dnsdomainname.sh
 endif
 
-TESTS = localhost $(dist_check_SCRIPTS)
+TESTS = localhost waitdaemon $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
 

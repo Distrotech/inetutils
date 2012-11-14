@@ -34,10 +34,10 @@ INCLUDES = $(iu_INCLUDES)
 LDADD = $(iu_LIBRARIES)
 
 as_del.h: $(srcdir)/as_del_list $(srcdir)/make_as_del.pl
-	perl $(srcdir)/make_as_del.pl < $(srcdir)/as_del_list > as_del.h
+	LANG=C perl $(srcdir)/make_as_del.pl < $(srcdir)/as_del_list > as_del.h
 
 ip_del.h: $(srcdir)/ip_del_list $(srcdir)/make_ip_del.pl
-	perl $(srcdir)/make_ip_del.pl < $(srcdir)/ip_del_list > ip_del.h
+	LANG=C perl $(srcdir)/make_ip_del.pl < $(srcdir)/ip_del_list > ip_del.h
 
 tld_serv.h: $(srcdir)/tld_serv_list $(srcdir)/make_tld_serv.pl
-	perl $(srcdir)/make_tld_serv.pl < $(srcdir)/tld_serv_list > tld_serv.h
+	LANG=C perl $(srcdir)/make_tld_serv.pl < $(srcdir)/tld_serv_list > tld_serv.h

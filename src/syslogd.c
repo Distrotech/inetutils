@@ -506,7 +506,8 @@ main (int argc, char *argv[])
     }
   else
     {
-      dbg_output = 1;
+      if (Debug)
+	dbg_output = 1;
       setvbuf (stdout, 0, _IOLBF, 0);
     }
 
@@ -554,10 +555,10 @@ main (int argc, char *argv[])
   consfile.f_un.f_fname = strdup (ctty);
 
   signal (SIGTERM, die);
-  signal (SIGINT, Debug ? die : SIG_IGN);
-  signal (SIGQUIT, Debug ? die : SIG_IGN);
+  signal (SIGINT, NoDetach ? die : SIG_IGN);
+  signal (SIGQUIT, NoDetach ? die : SIG_IGN);
   signal (SIGALRM, domark);
-  signal (SIGUSR1, Debug ? dbg_toggle : SIG_IGN);
+  signal (SIGUSR1, NoDetach ? dbg_toggle : SIG_IGN);
   alarm (TIMERINTVL);
 
   /* We add  3 = 1(klog) + 2(inet,inet6), even if they may stay unused.  */
@@ -640,8 +641,9 @@ main (int argc, char *argv[])
 
   signal (SIGHUP, trigger_restart);
 
-  if (Debug)
+  if (NoDetach)
     {
+      dbg_output = 1;
       dbg_printf ("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
       dbg_output = 0;
     }
@@ -2134,7 +2136,8 @@ cfline (const char *line, struct filed *f)
 
     case '|':
       f->f_un.f_fname = strdup (p);
-      if ((f->f_file = open (++p, O_RDWR | O_NONBLOCK)) < 0)
+      f->f_file = open (++p, O_RDWR | O_NONBLOCK);
+      if (f->f_file < 0)
 	{
 	  f->f_type = F_UNUSED;
 	  logerror (p);
@@ -2152,7 +2155,8 @@ cfline (const char *line, struct filed *f)
 
     case '/':
       f->f_un.f_fname = strdup (p);
-      if ((f->f_file = open (p, O_WRONLY | O_APPEND | O_CREAT, 0644)) < 0)
+      f->f_file = open (p, O_WRONLY | O_APPEND | O_CREAT, 0644);
+      if (f->f_file < 0)
 	{
 	  f->f_type = F_UNUSED;
 	  logerror (p);
@@ -2231,7 +2235,7 @@ dbg_printf (const char *fmt, ...)
 {
   va_list ap;
 
-  if (!(Debug && dbg_output))
+  if (!(NoDetach && dbg_output))
     return;
 
   va_start (ap, fmt);

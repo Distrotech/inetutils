@@ -1,3 +1,36 @@
+2012-11-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* libinetutils/daemon.c (waitdaemon) [_SC_OPEN_MAX]:
+	Remove HAVE_SYSCONF from preprocessor conditional.
+
+	* src/syslogd.c (main): Install `die' for SIGINT, SIGQUIT,
+	and SIGUSR1 based on NoDetach.  Initially set `dpg_output = 1'
+	only in debug mode.  Print a notice also in non-detached mode.
+	(cfline): Move assignment to `f->f_file' outside of
+	if-statement.
+	(dbg_printf): Test `!(NoDetach && dbg_output)' for output.
+
+	* tests/waitdaemon.c: New source file.
+	* tests/Makefile.am (check_PROGRAMS): Add waitdaemon.
+	(TESTS): Likewise.
+	* tests/.gitignore: Likewise.
+
+	* tests/syslogd.sh: Add a sleep period after `kill -HUP'.
+	(OBSCURE): New environment variable.  Conduct configuration
+	test for non-existent log host only if OBSCURE is set.
+
+	* tests/utmp.sh: Use who(1), if possible, to improve
+	reliability of test, checking known users only.
+	* configure.ac <*-freebsd9* || *-freebsd10*>:
+	Do not disable syslogd and talkd, as the updated test script
+	`utmp.sh' will catch the failure as long as it remains.
+
+	* src/Makefile.am (AM_CPPFLAGS): Add $(PATHDEF_TTY_PFX).
+	* talkd/Makefile.am (AM_CPPFLAGS): Likewise.
+	* telnetd/Makefile.am (AM_CPPFLAGS): Likewise.
+
+	* whois/Makefile.am: Set `LANG=C' when invoking perl.
+
 2012-11-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Consistent use of device prefix.

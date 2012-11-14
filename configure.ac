@@ -966,8 +966,6 @@ case "$host" in
   # readutmp module from GNUlib.
   enable_ftpd=no  ftpd_BUILD=''
   enable_rlogind=no  rlogind_BUILD=''
-  enable_syslogd=no  syslogd_BUILD=''
-  enable_talkd=no  talkd_BUILD=''
   enable_telnetd=no  telnetd_BUILD=''
   enable_uucpd=no  uucpd_BUILD=''
   ;;
