@@ -1,3 +1,12 @@
+2012-11-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Disable targets robustly.
+
+	* am/enable.m4 (IU_DISABLE_TARGET): New macro.
+	* configure.ac <ftpd, rlogind, rshd, talk, talkd, telnetd>
+	<uucpd>: Use IU_DISABLE_TARGET to disable unbuildable targets,
+	avoiding the incomplete manipulations used so far.
+
 2012-11-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* libinetutils/daemon.c (waitdaemon) [_SC_OPEN_MAX]:

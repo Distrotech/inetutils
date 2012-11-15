@@ -232,10 +232,8 @@ AC_CHECK_HEADER(protocols/talkd.h, , ,
 
 if test "$ac_cv_header_protocols_talkd_h" = no; then
   AC_MSG_WARN([protocols/talkd.h is not available, not building talk, nor talkd])
-  enable_talk=no
-  talk_BUILD=''
-  enable_talkd=no
-  talkd_BUILD=''
+  IU_DISABLE_TARGET(talk)
+  IU_DISABLE_TARGET(talkd)
 fi
 
 # Only talk uses curses, so only check for it if we want that
@@ -248,8 +246,7 @@ else
   if test "$enable_talk" = yes; then
     AC_MSG_WARN([curses is not available, so not building talk])
   fi
-  enable_talk=no
-  talk_BUILD=''
+  IU_DISABLE_TARGET(talk)
 fi
 
 # NetBSD offers orcmd() and orcmd_af() for getting
@@ -302,10 +299,8 @@ else
     fi
   else
     AC_MSG_WARN([Disabling rlogind and rshd, since no iruserok and no ruserok.])
-    enable_rlogind=no
-    rlogind_BUILD=''
-    enable_rshd=no
-    rshd_BUILD=''
+    IU_DISABLE_TARGET(rlogind)
+    IU_DISABLE_TARGET(rshd)
   fi
 fi
 
@@ -964,10 +959,10 @@ case "$host" in
   # FreeBSD 9.0 has implemented a non-standard and singular
   # UTMPX interface.  We do not support it, nor does the
   # readutmp module from GNUlib.
-  enable_ftpd=no  ftpd_BUILD=''
-  enable_rlogind=no  rlogind_BUILD=''
-  enable_telnetd=no  telnetd_BUILD=''
-  enable_uucpd=no  uucpd_BUILD=''
+  IU_DISABLE_TARGET(ftpd)
+  IU_DISABLE_TARGET(rlogind)
+  IU_DISABLE_TARGET(telnetd)
+  IU_DISABLE_TARGET(uucpd)
   ;;
 *olaris*)
   AC_DEFINE([SOLARIS], 1, [FIXME])

@@ -37,3 +37,8 @@ fi;]
 
 AC_DEFUN([IU_ENABLE_CLIENT], [IU_ENABLE_FOO($1, clients)])
 AC_DEFUN([IU_ENABLE_SERVER], [IU_ENABLE_FOO($1, servers)])
+
+AC_DEFUN([IU_DISABLE_TARGET],
+  [enable_$1=no $1_BUILD='' $1_INSTALL_HOOK=''
+  AM_CONDITIONAL([ENABLE_$1], test "$enable_$1" != no)
+])
