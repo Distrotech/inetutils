@@ -1511,14 +1511,17 @@ fprintlog (struct filed *f, const char *from, int flags, const char *msg)
     f->f_prevcount = 0;
 }
 
-/* Write the specified message to either the entire world, or a list
-   of approved users.  */
+/* Write the specified message to either the entire world,
+ * or to a list of approved users.  */
 void
 wallmsg (struct filed *f, struct iovec *iov)
 {
-  static int reenter;		/* avoid calling ourselves */
-  STRUCT_UTMP *utmpbuf, *utp;
+  static int reenter;		/* Avoid calling ourselves.  */
+  STRUCT_UTMP *utp;
+#ifdef UTMP_NAME_FUNCTION	/* From module readutmp.  */
+  STRUCT_UTMP *utmpbuf;
   size_t utmp_count;
+#endif /* UTMP_NAME_FUNCTION */
   int i;
   char *p;
   char line[sizeof (utp->ut_line) + 1];
@@ -1526,10 +1529,16 @@ wallmsg (struct filed *f, struct iovec *iov)
   if (reenter++)
     return;
 
+#ifndef UTMP_NAME_FUNCTION
+  setutxent ();
+
+  while ((utp = getutxent ()))
+#else /* UTMP_NAME_FUNCTION */
   read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
 	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
 
   for (utp = utmpbuf; utp < utmpbuf + utmp_count; utp++)
+#endif /* UTMP_NAME_FUNCTION */
     {
       strncpy (line, utp->ut_line, sizeof (utp->ut_line));
       line[sizeof (utp->ut_line)] = '\0';
@@ -1560,7 +1569,11 @@ wallmsg (struct filed *f, struct iovec *iov)
 	    break;
 	  }
     }
+#ifdef UTMP_NAME_FUNCTION
   free (utmpbuf);
+#else /* !UTMP_NAME_FUNCTION */
+  endutxent ();
+#endif
   reenter = 0;
 }
 

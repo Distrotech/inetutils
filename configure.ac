@@ -737,7 +737,7 @@ AC_FUNC_MMAP
 
 AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                fork fpathconf ftruncate \
-               getcwd getmsg getpwuid_r getspnam \
+               getcwd getmsg getpwuid_r getspnam getutxuser \
                initgroups initsetproctitle killpg \
                ptsname pututline pututxline \
                setegid seteuid setpgid \
@@ -957,8 +957,9 @@ AH_BOTTOM(
 case "$host" in
 *-freebsd9* | *-freebsd10*)
   # FreeBSD 9.0 has implemented a non-standard and singular
-  # UTMPX interface.  We do not support it, nor does the
-  # readutmp module from GNUlib.
+  # UTMPX interface.  The readutmp module from GNUlib does
+  # not support it, but we can fall back to getutxuser() for
+  # use in syslogd and talkd.
   IU_DISABLE_TARGET(ftpd)
   IU_DISABLE_TARGET(rlogind)
   IU_DISABLE_TARGET(telnetd)

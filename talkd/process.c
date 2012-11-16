@@ -169,12 +169,15 @@ do_announce (CTL_MSG * mp, CTL_RESPONSE * rp)
     }
 }
 
-/* Search utmp for the local user */
+/* Search utmp for the local user.  */
 int
 find_user (char *name, char *tty)
 {
-  STRUCT_UTMP *utmpbuf, *uptr;
+  STRUCT_UTMP *uptr;
+#ifndef HAVE_GETUTXUSER
+  STRUCT_UTMP *utmpbuf;
   size_t utmp_count;
+#endif /* HAVE_GETUTXUSER */
   int status;
   struct stat statb;
   char ftty[sizeof (PATH_TTY_PFX) + sizeof (uptr->ut_line)];
@@ -186,12 +189,18 @@ find_user (char *name, char *tty)
   status = NOT_HERE;
   strcpy (ftty, PATH_TTY_PFX);
 
+#ifdef HAVE_GETUTXUSER
+  setutxent ();
+
+  while ((uptr = getutxuser (name)))
+#else /* !HAVE_GETUTXUSER */
   read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
 	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
 
   for (uptr = utmpbuf; uptr < utmpbuf + utmp_count; uptr++)
     {
       if (!strncmp (UT_USER (uptr), name, sizeof (UT_USER (uptr))))
+#endif /* !HAVE_GETUTXUSER */
 	{
 	  if (notty)
 	    {
@@ -224,8 +233,12 @@ find_user (char *name, char *tty)
 	      break;
 	    }
 	}
+#ifndef HAVE_GETUTXUSER
     }
-
   free (utmpbuf);
+#else /* HAVE_GETUTXUSER */
+  endutxent ();
+#endif
+
   return status;
 }

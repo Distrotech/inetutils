@@ -47,10 +47,12 @@
 int
 main (int argc, char *argv[])
 {
+#ifndef HAVE_GETUTXUSER
   STRUCT_UTMP *utmpp, *uptr;
+  size_t count;
+#endif
   struct passwd *pw;
   char *name;
-  size_t count;
   int found = 0;
 
   set_program_name (argv[0]);
@@ -69,9 +71,14 @@ main (int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
+#ifdef HAVE_GETUTXUSER
+  setutxent ();
+  found = (getutxuser (name) != 0);
+  endutxent ();
+#else /* !HAVE_GETUTXUSER */
   if (read_utmp (UTMP_FILE, &count, &utmpp, READ_UTMP_USER_PROCESS))
     {
-      perror ("read_utmp:");
+      perror ("read_utmp");
       return EXIT_FAILURE;
     }
 
@@ -81,6 +88,9 @@ main (int argc, char *argv[])
 	found = 1;
 	break;
       }
+
+  free (utmpp);
+#endif /* HAVE_GETUTXUSER */
 
   if (found)
     return EXIT_SUCCESS;

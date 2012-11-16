@@ -1,3 +1,19 @@
+2012-11-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd, talkd: Alternative utmp access.
+
+	* configure.ac: Check for getutxuser.
+	* src/syslogd.c (wallmsg) [!UTMP_NAME_FUNCTION]:
+	Remove UTMPBUF and COUNT.  Call setutxent(),
+	getutxent(), and endutxent().
+	* talkd/process.c (find_user) [HAVE_GETUTXUSER]:
+	Remove UTMPBUF and UTMP_COUNT.  Call setutxent(),
+	getutxuser(), and endutxent().
+	* tests/readutmp.c (main) [HAVE_GETUTXUSER]: Remove
+	UTMPP, UPTR, and COUNT.  Call setutxent(), getutxuser(),
+	and endutxent().
+	[!HAVE_GETUTXUSER]: Free UTMPP.
+
 2012-11-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Disable targets robustly.
