@@ -122,7 +122,7 @@
 #include <error.h>
 #include <progname.h>
 #include <libinetutils.h>
-#include <readutmp.h>
+#include <readutmp.h>		/* May define UTMP_NAME_FUNCTION.  */
 #include "unused-parameter.h"
 #include "xalloc.h"
 
@@ -1518,10 +1518,10 @@ wallmsg (struct filed *f, struct iovec *iov)
 {
   static int reenter;		/* Avoid calling ourselves.  */
   STRUCT_UTMP *utp;
-#ifdef UTMP_NAME_FUNCTION	/* From module readutmp.  */
+#if defined UTMP_NAME_FUNCTION || !defined HAVE_GETUTXENT
   STRUCT_UTMP *utmpbuf;
   size_t utmp_count;
-#endif /* UTMP_NAME_FUNCTION */
+#endif /* UTMP_NAME_FUNCTION || !HAVE_GETUTXENT */
   int i;
   char *p;
   char line[sizeof (utp->ut_line) + 1];
@@ -1529,16 +1529,16 @@ wallmsg (struct filed *f, struct iovec *iov)
   if (reenter++)
     return;
 
-#ifndef UTMP_NAME_FUNCTION
+#if !defined UTMP_NAME_FUNCTION && defined HAVE_GETUTXENT
   setutxent ();
 
   while ((utp = getutxent ()))
-#else /* UTMP_NAME_FUNCTION */
+#else /* UTMP_NAME_FUNCTION || !HAVE_GETUTXENT */
   read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
 	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
 
   for (utp = utmpbuf; utp < utmpbuf + utmp_count; utp++)
-#endif /* UTMP_NAME_FUNCTION */
+#endif /* UTMP_NAME_FUNCTION || !HAVE_GETUTXENT */
     {
       strncpy (line, utp->ut_line, sizeof (utp->ut_line));
       line[sizeof (utp->ut_line)] = '\0';
@@ -1569,9 +1569,9 @@ wallmsg (struct filed *f, struct iovec *iov)
 	    break;
 	  }
     }
-#ifdef UTMP_NAME_FUNCTION
+#if defined UTMP_NAME_FUNCTION || !defined HAVE_GETUTXENT
   free (utmpbuf);
-#else /* !UTMP_NAME_FUNCTION */
+#else /* !UTMP_NAME_FUNCTION && HAVE_GETUTXENT */
   endutxent ();
 #endif
   reenter = 0;
