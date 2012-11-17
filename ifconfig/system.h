@@ -91,10 +91,13 @@ extern struct if_nameindex* (*system_if_nameindex) (void);
 
 # if defined __linux__
 #  include "system/linux.h"
-# elif defined(__sun__)
+# elif defined __sun__
 #  include "system/solaris.h"
-# elif defined(__QNX__)
+# elif defined __QNX__
 #  include "system/qnx.h"
+# elif defined __DragonFly__ || defined __FreeBSD__ || \
+       defined __NetBSD__ || defined __OpenBSD__
+#  include "system/bsd.h"
 # else
 #  include "system/generic.h"
 # endif

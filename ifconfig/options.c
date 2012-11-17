@@ -140,6 +140,7 @@ struct format formats[] = {
    "${format}{check-existence}"
    "${ifdisplay?}{"
    "${name}: flags=${flags}{number}{%hx}<${flags}{string}{,}>"
+   "${metric?}{ metric ${metric}}"
    "${mtu?}{ mtu ${mtu}}${\\n}"
    "${addr?}{${\\t}inet ${addr}"
    " netmask ${netmask}{0}{%#02x}${netmask}{1}{%02x}"

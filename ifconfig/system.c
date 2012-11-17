@@ -21,10 +21,13 @@
 
 #if defined __linux__
 # include "system/linux.c"
-#elif defined(__sun__)
+#elif defined __sun__
 # include "system/solaris.c"
-#elif defined(__QNX__)
+#elif defined __QNX__
 # include "system/qnx.c"
+# elif defined __DragonFly__ || defined __FreeBSD__ || \
+       defined __NetBSD__ || defined __OpenBSD__
+#  include "system/bsd.c"
 #else
 # include "system/generic.c"
 #endif

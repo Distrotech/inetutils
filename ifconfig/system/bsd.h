@@ -17,10 +17,11 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
-/* Written by Marcus Brinkmann.  */
-
-#ifndef IFCONFIG_SYSTEM_GENERIC_H
-# define IFCONFIG_SYSTEM_GENERIC_H
+#ifndef IFCONFIG_SYSTEM_BSD_H
+# define IFCONFIG_SYSTEM_BSD_H
+# include "../printif.h"
+# include "../options.h"
+# include <sys/sockio.h>
 
 
 /* Option support.  */
@@ -44,10 +45,17 @@ struct system_ifconfig
    { "newline", system_fh_newline },
    Define some architecture symbol like "foobar", so it can be tested
    for in generic format strings with ${exists?}{foobar?}.  */
-# undef SYSTEM_FORMAT_HANDLER
+# define SYSTEM_FORMAT_HANDLER	\
+  {"bsd", fh_nothing},		\
+  {"dragonflybsd", fh_nothing},	\
+  {"freebsd", fh_nothing},	\
+  {"netbsd", fh_nothing},	\
+  {"openbsd", fh_nothing},	\
+  {"metric", system_fh_metric},
 
 /* Prototype system_fh_* functions here.
    void system_fh_newline (format_data_t, int, char **);
 */
+void system_fh_metric (format_data_t form, int argc, char *argv[]);
 
 #endif

@@ -1,3 +1,16 @@
+2012-11-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Implement stub for BSD systems.
+
+	* ifconfig/options.c (formats) <unix format>:
+	Add metric to printout.
+	* ifconfig/system.c [__DragonFly__ || __FreeBSD__ ||
+	__NetBSD__ || __OpenBSD__]: Include "system/bsd.c".
+	* ifconfig/system.h [__DragonFly__ || __FreeBSD__ ||
+	__NetBSD__ || __OpenBSD__]: Include "system/bsd.h".
+	* ifconfig/system/bsd.c, ifconfig/system/bsd.h:
+	New source files.
+
 2012-11-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Adapt to legacy utmp.
