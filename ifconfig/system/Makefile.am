@@ -21,10 +21,11 @@
 # but I'm too tired to figure out the right way right now. -jb
 
 noinst_HEADERS = \
+	bsd.h \
 	generic.h \
 	linux.h \
-	solaris.h \
 	qnx.h \
+	bsd.c \
 	generic.c \
 	linux.c \
 	solaris.c \

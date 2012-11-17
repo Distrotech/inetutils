@@ -1,5 +1,10 @@
 2012-11-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* ifconfig/system/Makefile.am (noinst_HEADERS):
+	Add `bsd.h' and `bsd.c' for distribution.
+
+2012-11-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ifconfig: Implement stub for BSD systems.
 
 	* ifconfig/options.c (formats) <unix format>:
