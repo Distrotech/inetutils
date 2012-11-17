@@ -24,6 +24,7 @@ noinst_HEADERS = \
 	bsd.h \
 	generic.h \
 	linux.h \
+	solaris.h \
 	qnx.h \
 	bsd.c \
 	generic.c \
