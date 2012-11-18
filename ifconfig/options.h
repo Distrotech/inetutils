@@ -69,6 +69,9 @@ extern int ifs_cmdline;
 extern struct ifconfig *ifs;
 extern int nifs;
 
+/* List available interfaces.  */
+extern int list_mode;
+
 /* Be verbose about what we do.  */
 extern int verbose;
 

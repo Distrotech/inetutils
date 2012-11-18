@@ -65,10 +65,27 @@ main (int argc, char *argv[])
 
   for (ifp = ifs; ifp < ifs + nifs; ifp++)
     {
+      if (list_mode)
+	{
+	  /* Protect against mistakes in use of `-i'.  */
+	  if (!if_nametoindex (ifp->name))
+	    continue;
+
+	  /* Use ERR as a marker of previous output.
+	   * It will never mix with a call to configure_if().  */
+	  if (err++)
+	    putchar (' ');
+	  printf ("%s", ifp->name);
+	  continue;
+	}
+
       err = configure_if (sfd, ifp);
       if (err)
 	break;
     }
+
+  if (list_mode && err)
+    putchar ('\n');
 
   close (sfd);
   return err;

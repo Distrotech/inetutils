@@ -39,6 +39,9 @@
 #include <net/if.h>
 #include "ifconfig.h"
 
+/* List available interfaces.  */
+int list_mode;
+
 /* Be verbose about actions.  */
 int verbose;
 
@@ -228,6 +231,8 @@ static struct argp_option argp_options[] = {
     "shut the interface down" },
   { "flags", 'F', "FLAG[,FLAG...]", 0,
     "set interface flags" },
+  { "list", 'l', NULL, 0,
+    "list available or selected interfaces" },
   { "short", 's', NULL, 0,
     "short output format" },
   { NULL }
@@ -493,6 +498,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 's':
       parse_opt_set_default_format ("netstat");
+      break;
+
+    case 'l':
+      list_mode++;
       break;
 
     case 'v':

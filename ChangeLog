@@ -1,3 +1,12 @@
+2012-11-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ifconfig/ifconfig.c (main): New independent code
+	to be executed when `list_mode' is true.
+	* ifconfig/options.c (list_mode): New variable.
+	(argp_options): New option `-l/--list'.
+	(parse_opt) <'l'>: New case.
+	* ifconfig/options.h (list_mode): New variable.
+
 2012-11-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ifconfig/system/Makefile.am (noinst_HEADERS):
