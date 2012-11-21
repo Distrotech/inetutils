@@ -146,6 +146,7 @@ struct format formats[] = {
    "${metric?}{ metric ${metric}}"
    "${mtu?}{ mtu ${mtu}}${\\n}"
    "${addr?}{${\\t}inet ${addr}"
+   "${dstaddr?}{ --> ${dstaddr}}"
    " netmask ${netmask}{0}{%#02x}${netmask}{1}{%02x}"
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
    "${brdaddr?}{ broadcast ${brdaddr}}${\\n}}"

@@ -1,3 +1,14 @@
+2012-11-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Make address changes possible on BSD.
+
+	* ifconfig/changeif.c (SET_SIN_LEN): New macro.
+	(SIOCSIF): Add SET_SIN_LEN, which is needed by
+	every BSD system.
+
+	* ifconfig/options.c (formats) <unix format>:
+	Add `dstaddr?' stanza for tunnel interfaces.
+
 2012-11-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ifconfig/ifconfig.c (main): New independent code

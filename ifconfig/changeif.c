@@ -34,6 +34,13 @@
 #include <netdb.h>
 #include "ifconfig.h"
 
+/* Necessary for BSD systems.  */
+#ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+# define SET_SIN_LEN	sin->sin_len = sizeof (struct sockaddr_in);
+#else /* !HAVE_STRUCT_SOCKADDR_IN_SIN_LEN */
+# define SET_SIN_LEN
+#endif
+
 #define SIOCSIF(type, addr)						\
   int err = 0;								\
   struct sockaddr_in *sin = (struct sockaddr_in *) &ifr->ifr_addr;	\
@@ -45,6 +52,7 @@
       error (0, 0, "`%s' is not a valid address", addr);		\
       return -1;							\
     }									\
+  SET_SIN_LEN								\
   err = ioctl (sfd, SIOCSIF##type, ifr);				\
   if (err < 0)								\
     {									\
@@ -137,7 +145,8 @@ set_netmask (int sfd, struct ifreq *ifr, char *netmask)
   return -1;
 #else
 
-  SIOCSIF (NETMASK, netmask) if (verbose)
+  SIOCSIF (NETMASK, netmask)
+  if (verbose)
     printf ("Set interface netmask of `%s' to %s.\n",
 	    ifr->ifr_name, inet_ntoa (sin->sin_addr));
   return 0;
@@ -152,7 +161,8 @@ set_dstaddr (int sfd, struct ifreq *ifr, char *dstaddr)
          "don't know how to set an interface peer address on this system");
   return -1;
 #else
-  SIOCSIF (DSTADDR, dstaddr) if (verbose)
+  SIOCSIF (DSTADDR, dstaddr)
+  if (verbose)
     printf ("Set interface peer address of `%s' to %s.\n",
 	    ifr->ifr_name, inet_ntoa (sin->sin_addr));
   return 0;
@@ -167,7 +177,8 @@ set_brdaddr (int sfd, struct ifreq *ifr, char *brdaddr)
          "don't know how to set an interface broadcast address on this system");
   return -1;
 #else
-  SIOCSIF (BRDADDR, brdaddr) if (verbose)
+  SIOCSIF (BRDADDR, brdaddr)
+  if (verbose)
     printf ("Set interface broadcast address of `%s' to %s.\n",
 	    ifr->ifr_name, inet_ntoa (sin->sin_addr));
   return 0;
