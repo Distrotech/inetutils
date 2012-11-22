@@ -139,19 +139,21 @@ struct format formats[] = {
   /* Resembles the output of ifconfig shipped with unix systems like
      Solaris 2.7 or HPUX 10.20.  */
   {"unix",
-   "Traditional UNIX interface listing.  Default for Solaris and HPUX.",
+   "Traditional UNIX interface listing.  Default for Solaris, BSD and HPUX.",
    "${format}{check-existence}"
    "${ifdisplay?}{"
    "${name}: flags=${flags}{number}{%hx}<${flags}{string}{,}>"
    "${metric?}{ metric ${metric}}"
    "${mtu?}{ mtu ${mtu}}${\\n}"
+   /* Print only if hwtype emits something.  */
+   "${exists?}{hwtype?}{"
+     "${hwtype?}{${\\t}${hwtype}${exists?}{hwaddr?}{"
+       "${hwaddr?}{ ${hwaddr}}}${\\n}}}"
    "${addr?}{${\\t}inet ${addr}"
    "${dstaddr?}{ --> ${dstaddr}}"
    " netmask ${netmask}{0}{%#02x}${netmask}{1}{%02x}"
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
    "${brdaddr?}{ broadcast ${brdaddr}}${\\n}}"
-   "${exists?}{hwtype?}{${hwtype?}{${\\t}${hwtype}"
-   "}${exists?}{hwaddr?}{${hwaddr?}{ ${hwaddr}}}${\\n}}"
    "}"
   },
   /* Resembles the output of ifconfig shipped with OSF 4.0g.  */
@@ -225,7 +227,7 @@ static struct argp_option argp_options[] = {
   { "metric", METRIC_OPTION, "N", 0,
     "set metric of interface to N" },
   { "format", FORMAT_OPTION, "FORMAT", 0,
-    "select output format (or set back to default)" },
+    "select output format; set to `help' for info" },
   { "up", UP_OPTION, NULL, 0,
     "activate the interface (default if address is given)" },
   { "down", DOWN_OPTION, NULL, 0,

@@ -1,3 +1,27 @@
+2012-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Initial hwaddr support for BSD.
+
+	* ifconfig/options.c (formats) <unix format>:
+	Place hwtype/hwaddr stanza before addr stanza,
+	and emit text only if hwtype evaluates to true.
+	(argp_options): Mention `--format=help' in usage.
+	* ifconfig/system/bsd.c: Multiple inclusions.
+	(ifp): New variable.
+	(ESTABLISH_IFADDRS): New macro.
+	(system_fh_hwaddr_query, system_fh_hwaddr)
+	(system_fh_hwtype_query, system_fh_hwtype):
+	New functions.
+	* ifconfig/system/bsd.h (IU_BSD_TYPE, ETHERNAME):
+	New macros.
+	(SYSTEM_FORMAT_HANDLER): Replace keys "dragonflybsd",
+	"freebsd", "netbsd", and "openbsd" by the single
+	IU_BSD_TYPE, encoding the only relevant system type.
+	Add keys "hwaddr?", "hwaddr", "hwtype?", and "hwtype".
+	(system_fh_hwaddr_query, system_fh_hwaddr)
+	(system_fh_hwtype_query, system_fh_hwtype):
+	New prototypes.
+
 2012-11-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Make address changes possible on BSD.

@@ -22,6 +22,24 @@
 # include "../printif.h"
 # include "../options.h"
 # include <sys/sockio.h>
+
+/* BSD variant chooser.  */
+# if defined __DragonFly__
+#  define IU_BSD_TYPE "dragonfly"
+# elif defined __FreeBSD__
+#  define IU_BSD_TYPE "freebsd"
+# elif defined __NetBSD__
+#  define IU_BSD_TYPE "netbsd"
+# elif defined __OpenBSD__
+#  define IU_BSD_TYPE "openbsd"
+#  define ETHERNAME "lladdr"
+# else /* Exotic BSD versions.  */
+#  define IU_BSD_TYPE "unknownbsd"
+# endif
+
+# ifndef ETHERNAME
+#  define ETHERNAME "ether"
+# endif
 
 
 /* Option support.  */
@@ -37,25 +55,19 @@ struct system_ifconfig
 
 /* Output format support.  */
 
-/* Set this to a comma seperated, comma terminated list of struct
-   format_handler entries.  They are inserted at the beginning of the
-   default list, so they override generic implementations if they have
-   the same name.  For example:
-   #define SYSTEM_FORMAT_HANDLER { "foobar", system_fh_nothing }, \
-   { "newline", system_fh_newline },
-   Define some architecture symbol like "foobar", so it can be tested
-   for in generic format strings with ${exists?}{foobar?}.  */
 # define SYSTEM_FORMAT_HANDLER	\
   {"bsd", fh_nothing},		\
-  {"dragonflybsd", fh_nothing},	\
-  {"freebsd", fh_nothing},	\
-  {"netbsd", fh_nothing},	\
-  {"openbsd", fh_nothing},	\
+  {IU_BSD_TYPE, fh_nothing},	\
+  {"hwaddr?", system_fh_hwaddr_query}, \
+  {"hwaddr", system_fh_hwaddr}, \
+  {"hwtype?", system_fh_hwtype_query}, \
+  {"hwtype", system_fh_hwtype}, \
   {"metric", system_fh_metric},
 
-/* Prototype system_fh_* functions here.
-   void system_fh_newline (format_data_t, int, char **);
-*/
+void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[]);
+void system_fh_hwaddr (format_data_t form, int argc, char *argv[]);
+void system_fh_hwtype_query (format_data_t form, int argc, char *argv[]);
+void system_fh_hwtype (format_data_t form, int argc, char *argv[]);
 void system_fh_metric (format_data_t form, int argc, char *argv[]);
 
-#endif
+#endif /* IFCONFIG_SYSTEM_BSD_H */

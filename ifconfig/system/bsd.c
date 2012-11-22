@@ -21,6 +21,13 @@
 
 #include <unistd.h>
 #include "../ifconfig.h"
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <net/if_types.h>
+#include <net/if_dl.h>
+#include <netinet/if_ether.h>
+#include <ifaddrs.h>
 
 
 /* Output format stuff.  */
@@ -55,8 +62,113 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
 
 
 /* System hooks. */
+static struct ifaddrs *ifp = NULL;
+
+#define ESTABLISH_IFADDRS \
+  if (!ifp) \
+    getifaddrs (&ifp);
 
 struct if_nameindex* (*system_if_nameindex) (void) = if_nameindex;
+
+void
+system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])
+{
+  ESTABLISH_IFADDRS
+  if (!ifp)
+    select_arg (form, argc, argv, 1);
+  else
+    {
+      int missing = 1;
+      struct ifaddrs *fp;
+
+      for (fp = ifp; fp; fp = fp->ifa_next)
+	{
+	  struct sockaddr_dl *dl;
+
+	  if (fp->ifa_addr->sa_family != AF_LINK ||
+	      strcmp (fp->ifa_name, form->ifr->ifr_name))
+	    continue;
+
+	  dl = (struct sockaddr_dl *) fp->ifa_addr;
+	  if (dl && (dl->sdl_len > 0) &&
+	      dl->sdl_type == IFT_ETHER)	/* XXX: More cases?  */
+	    missing = 0;
+	  break;
+	}
+      select_arg (form, argc, argv, missing);
+    }
+}
+
+void
+system_fh_hwaddr (format_data_t form, int argc, char *argv[])
+{
+  ESTABLISH_IFADDRS
+  if (!ifp)
+    put_string (form, "(hwaddr unknown)");
+  else
+    {
+      int missing = 1;
+      struct ifaddrs *fp;
+
+      for (fp = ifp; fp; fp = fp->ifa_next)
+	{
+	  struct sockaddr_dl *dl;
+
+	  if (fp->ifa_addr->sa_family != AF_LINK ||
+	      strcmp (fp->ifa_name, form->ifr->ifr_name))
+	    continue;
+
+	  dl = (struct sockaddr_dl *) fp->ifa_addr;
+	  if (dl && (dl->sdl_len > 0) &&
+	      dl->sdl_type == IFT_ETHER)	/* XXX: More cases?  */
+	    {
+	      missing = 0;
+	      put_string (form, ether_ntoa ((struct ether_addr *) LLADDR (dl)));
+	    }
+	  break;
+	}
+      if (missing)
+	put_string (form, "(hwaddr unknown)");
+    }
+}
+
+void
+system_fh_hwtype_query (format_data_t form, int argc, char *argv[])
+{
+  system_fh_hwaddr_query (form, argc, argv);
+}
+
+void
+system_fh_hwtype (format_data_t form, int argc, char *argv[])
+{
+  ESTABLISH_IFADDRS
+  if (!ifp)
+    put_string (form, "(hwtype unknown)");
+  else
+    {
+      int found = 0;
+      struct ifaddrs *fp;
+      struct sockaddr_dl *dl = NULL;
+
+      for (fp = ifp; fp; fp = fp->ifa_next)
+	{
+	  if (fp->ifa_addr->sa_family != AF_LINK ||
+	      strcmp (fp->ifa_name, form->ifr->ifr_name))
+	    continue;
+
+	  dl = (struct sockaddr_dl *) fp->ifa_addr;
+	  if (dl && (dl->sdl_len > 0) &&
+	      dl->sdl_type == IFT_ETHER)	/* XXX: More cases?  */
+	    {
+	      found = 1;
+	      put_string (form, ETHERNAME);
+	    }
+	  break;
+	}
+      if (!found)
+	put_string (form, "(unknown hwtype)");
+    }
+}
 
 void
 system_fh_metric (format_data_t form, int argc, char *argv[])
