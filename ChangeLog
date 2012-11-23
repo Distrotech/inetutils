@@ -1,5 +1,13 @@
 2012-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	syslogd: Reusable IP sockets.
+	Automated test systems seemingly fail here.
+
+	* src/syslogd.c (create_inet_socket): Set socket
+	option SO_REUSEADDR on IP sockets.
+
+2012-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ifconfig: Output formatting.
 
 	* ifconfig/options.c (formats) <gnu format>:
