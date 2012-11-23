@@ -65,7 +65,8 @@ struct format formats[] = {
   /* This is the standard GNU output.  */
   {"gnu",
    "Standard GNU output format.",
-   "${first?}{}{${\\n}}${format}{gnu-one-entry}"},
+   "${ifdisplay?}{${first?}{}{${\\n}}${format}{gnu-one-entry}}"
+  },
   {"gnu-one-entry",
    "Same as GNU, but without additional newlines between the entries.",
    "${format}{check-existence}"
@@ -111,7 +112,6 @@ struct format formats[] = {
    "${newline}"
    "          RX bytes:${rxbytes}  TX bytes:${txbytes}"
    "}}{"
-   "${newline}"
    "${exists?}{txqlen?}{${txqlen?}{ ${tab}{10}txqueuelen:${txqlen}}${\\n}}}"
    "${newline}"
    "${exists?}{map?}{${map?}{${irq?}{"
@@ -129,10 +129,12 @@ struct format formats[] = {
    "${first?}{Iface    MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg${newline}}"
    "${format}{check-existence}"
    "${name}${tab}{6}${mtu}{%6d} ${metric}{%3d}"
+   /* Insert blanks without ifstat.  */
+   "${exists?}{ifstat?}{"
    "${ifstat?}{"
    " ${rxpackets}{%8lu} ${rxerrors}{%6lu} ${rxdropped}{%6lu} ${rxfifoerr}{%6lu}"
    " ${txpackets}{%8lu} ${txerrors}{%6lu} ${txdropped}{%6lu} ${txfifoerr}{%6lu}"
-   "}{   - no statistics available -}"
+   "}{   - no statistics available -}}"
    "${tab}{76} ${flags?}{${flags}{short}}{[NO FLAGS]}"
    "${newline}"
   },

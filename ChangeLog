@@ -1,5 +1,16 @@
 2012-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ifconfig: Output formatting.
+
+	* ifconfig/options.c (formats) <gnu format>:
+	Test with `ifdisplay?' to suppress empty lines
+	for dormant interfaces.
+	<net-tools format>: Remove a newline for txqlen.
+	<netstat format>: Use `exists?' on `ifstat?',
+	leaving statistics empty if `ifstat?' fails.
+
+2012-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ifconfig: Initial hwaddr support for BSD.
 
 	* ifconfig/options.c (formats) <unix format>:
