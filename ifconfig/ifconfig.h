@@ -23,7 +23,6 @@
 # define IFCONFIG_IFCONFIG_H
 
 # include "flags.h"
-# include "if_index.h"
 # include "options.h"
 # include "printif.h"
 # include "system.h"

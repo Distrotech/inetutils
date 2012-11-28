@@ -36,8 +36,6 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 
-#include <ifconfig.h>
-
 #ifndef HAVE_STRUCT_IF_NAMEINDEX
 unsigned int
 if_nametoindex (const char *ifname)

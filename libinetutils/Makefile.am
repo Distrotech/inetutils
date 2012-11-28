@@ -30,6 +30,7 @@ libinetutils_a_SOURCES = \
  daemon.c\
  defauthors.c\
  des_rw.c\
+ if_index.c \
  kcmd.c\
  krcmd.c\
  localhost.c\

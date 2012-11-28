@@ -129,7 +129,6 @@ Ability to ping multiple host in one go.
 * ifconfig
 
 ** Implement flags support in changeif.c and options.c
-** Fix and move if_index.c to libinetutils.
 ** Port to BSD.
 ** Make sure it is a drop in replacement at least for the most
    common options on Linux and BSD.

@@ -23,8 +23,6 @@
 # define IFCONFIG_SYSTEM_H
 
 
-# include <if_index.h>
-
 /* Option parsing.  */
 
 extern struct argp_child system_argp_child;

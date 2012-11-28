@@ -1,3 +1,30 @@
+2012-11-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libinetutils.a: Build if_nametoindex(), if_nameindex(),
+	and if_freenameindex() into library, if they are missing
+	in the system library.
+
+	* libinetutils/Makefile.am (libinetutils_a_SOURCES):
+	Add if_index.c.
+	* libinetutils/if_index.c: Moved from old location at
+	`ifconfig/if_index.c'.  Do not include <ifconfig.h>.
+	* libinetutils/libinetutils.h (if_nameindex)
+	[!HAVE_STRUCT_IF_NAMEINDEX): New structure declaration.
+	(if_nametoindex, if_nameindex, if_freenameindex)
+	[!HAVE_STRUCT_IF_NAMEINDEX): New function declarations.
+
+	* ifconfig/Makefile.am (ifconfig_SOURCES): Remove if_index.c.
+	(noinst_HEADERS): Remove if_index.h.
+	* ifconfig/if_index.c, ifconfig/if_index.h: Deleted files.
+	* ifconfig/ifconfig.h: Do not include "if_index.h".
+	* ifconfig/system.h: Do not include <if_index.h>.
+
+	Test script for ifconfig utility.
+
+	* tests/ifconfig.sh: New file.
+	* tests/Makefile.am (dist_check_SCRIPTS) [ENABLE_ifconfig]:
+	Add ifconfig.sh.
+
 2012-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Reusable IP sockets.

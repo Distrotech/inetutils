@@ -68,6 +68,10 @@ if ENABLE_dnsdomainname
 dist_check_SCRIPTS += dnsdomainname.sh
 endif
 
+if ENABLE_ifconfig
+dist_check_SCRIPTS += ifconfig.sh
+endif
+
 TESTS = localhost waitdaemon $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
