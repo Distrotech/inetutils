@@ -360,7 +360,8 @@ parse_opt_flag_list (struct ifconfig *ifp, const char *name)
 	len = strlen (name);
 
       if ((mask = if_nametoflag (name, len, &rev)) == 0)
-	error (EXIT_FAILURE, 0, "unknown flag %*.*s", len, len, name);
+	error (EXIT_FAILURE, 0, "unknown flag %*.*s",
+	       (int) len, (int) len, name);
       parse_opt_set_flag (ifp, mask, rev);
 
       name += len;

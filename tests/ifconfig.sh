@@ -70,8 +70,15 @@ fi
 
 # Locate the loopback interface.
 #
+# Avoid cases where `lo' is a substring
+# of another interface name, like for
+# `pflog0' of OpenBSD.
+#
 IF_LIST=`$IFCONFIG -l`
-LO=`expr "$IF_LIST" : '.*\(lo0\{0,\}\).*'`
+for nn in $IF_LIST; do
+    LO=`expr $nn : '\(lo0\{0,\}\).*'`
+    test -z "$LO" || break
+done
 
 if test -z "$LO"; then
     echo >&2 'Unable to locate loopback interface.  Failing.'

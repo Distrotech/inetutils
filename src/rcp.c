@@ -731,7 +731,7 @@ source (int argc, char *argv[])
 #define RCP_MODEMASK	(S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO)
       snprintf (buf, sizeof buf,
 		(sizeof (stb.st_size) > sizeof (long)
-		 ? "C%04o %lld %s\n"
+		 ? "C%04o %zd %s\n"
 		 : "C%04o %ld %s\n"),
 		stb.st_mode & RCP_MODEMASK, stb.st_size, last);
       write (rem, buf, strlen (buf));

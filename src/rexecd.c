@@ -455,7 +455,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 # ifdef WITH_PAM
       pam_rc = PAM_ABORT;
 # endif
-      syslog (LOG_DEBUG | LOG_AUTH, "initgroups(%s, %s): %m",
+      syslog (LOG_DEBUG | LOG_AUTH, "initgroups(%s, %d): %m",
 	      pwd->pw_name, pwd->pw_gid);
       die (EXIT_FAILURE, "Failed group protections.");
     }

@@ -2427,8 +2427,9 @@ int
 ayt_status ()
 {
   call (status, "status", "notmuch", 0);
+  return 1;	/* not used */
 }
-#endif
+#endif /* SIGINFO */
 
 static void cmdrc (char *m1, char *m2);
 
@@ -3004,7 +3005,7 @@ help (int argc, char *argv[])
       for (c = cmdtab; c->name; c++)
 	if (c->help)
 	  {
-	    printf ("%-*s\t%s\n", HELPINDENT, c->name, c->help);
+	    printf ("%-*s\t%s\n", (int) HELPINDENT, c->name, c->help);
 	  }
       return 0;
     }
