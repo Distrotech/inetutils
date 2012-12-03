@@ -1,5 +1,28 @@
 2012-12-03  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ifconfig: Audit displaying of metrics.
+	The portable display is to supress metric naught.
+
+	* ifconfig/printif.c (fh_metric_query) [SIOCGIFMETRIC]:
+	Add the further condition `form->ifr->ifr_metric > 0'
+	(fh_metric) [SIOCGIFMETRIC]: Do not report value 0 of
+	`form->ifr->ifr_metric' as 1.
+	* ifconfig/system/bsd.c (system_fh_metric): Remove.
+	* ifconfig/system/bsd.h (SYSTEM_FORMAT_HANDLER):
+	Delete key "metric".
+	(system_fh_metric): Remove prototype.
+
+	Implement exceptional handler for GNU/Linux.
+
+	* ifconfig/system/linux.c (system_fh_metric_query)
+	(system_fh_metric): New functions.
+	* ifconfig/system/linux.h (SYSTEM_FORMAT_HANDLER):
+	Add new keys "metric?" and "metric".
+	(system_fh_metric_query, system_fh_metric):
+	New prototypes.
+
+2012-12-03  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ifconfig.sh: Avoid substring matches.
 
 	* tests/ifconfig.sh (LO): Assign inside a loop,

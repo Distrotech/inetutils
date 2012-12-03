@@ -61,13 +61,11 @@ struct system_ifconfig
   {"hwaddr?", system_fh_hwaddr_query}, \
   {"hwaddr", system_fh_hwaddr}, \
   {"hwtype?", system_fh_hwtype_query}, \
-  {"hwtype", system_fh_hwtype}, \
-  {"metric", system_fh_metric},
+  {"hwtype", system_fh_hwtype},
 
 void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwaddr (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype (format_data_t form, int argc, char *argv[]);
-void system_fh_metric (format_data_t form, int argc, char *argv[]);
 
 #endif /* IFCONFIG_SYSTEM_BSD_H */

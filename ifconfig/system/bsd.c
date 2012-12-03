@@ -169,19 +169,3 @@ system_fh_hwtype (format_data_t form, int argc, char *argv[])
 	put_string (form, "(unknown hwtype)");
     }
 }
-
-void
-system_fh_metric (format_data_t form, int argc, char *argv[])
-{
-#ifdef SIOCGIFMETRIC
-  if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) < 0)
-    error (EXIT_FAILURE, errno,
-	   "SIOCGIFMETRIC failed for interface `%s'",
-	   form->ifr->ifr_name);
-  else
-    put_int (form, argc, argv, form->ifr->ifr_metric);
-#else
-  *column += printf ("(not available)");
-  had_output = 1;
-#endif
-}

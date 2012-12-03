@@ -788,11 +788,15 @@ fh_mtu (format_data_t form, int argc, char *argv[])
 #endif
 }
 
+/* The portable behaviour is to display strictly positive
+ * metrics, but to supress the default value naught.
+ */
 void
 fh_metric_query (format_data_t form, int argc, char *argv[])
 {
 #ifdef SIOCGIFMETRIC
-  if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) >= 0)
+  if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) >= 0
+      && form->ifr->ifr_metric > 0)
     select_arg (form, argc, argv, 0);
   else
 #endif
@@ -808,8 +812,7 @@ fh_metric (format_data_t form, int argc, char *argv[])
 	   "SIOCGIFMETRIC failed for interface `%s'",
 	   form->ifr->ifr_name);
   else
-    put_int (form, argc, argv,
-	     form->ifr->ifr_metric ? form->ifr->ifr_metric : 1);
+    put_int (form, argc, argv, form->ifr->ifr_metric);
 #else
   *column += printf ("(not available)");
   had_output = 1;

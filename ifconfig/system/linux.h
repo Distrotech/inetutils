@@ -51,6 +51,8 @@ struct system_ifconfig
   {"hwaddr", system_fh_hwaddr}, \
   {"hwtype?", system_fh_hwtype_query}, \
   {"hwtype", system_fh_hwtype}, \
+  {"metric?", system_fh_metric_query}, \
+  {"metric", system_fh_metric}, \
   {"txqlen?", system_fh_txqlen_query}, \
   {"txqlen", system_fh_txqlen}, \
   {"ifstat?", system_fh_ifstat_query}, \
@@ -82,6 +84,8 @@ void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwaddr (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype (format_data_t form, int argc, char *argv[]);
+void system_fh_metric_query (format_data_t form, int argc, char *argv[]);
+void system_fh_metric (format_data_t form, int argc, char *argv[]);
 void system_fh_txqlen_query (format_data_t form, int argc, char *argv[]);
 void system_fh_txqlen (format_data_t form, int argc, char *argv[]);
 

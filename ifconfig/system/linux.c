@@ -594,6 +594,38 @@ system_fh_hwtype (format_data_t form, int argc, char *argv[])
 #endif
 }
 
+/* Accept every value of metric as printable.  The net-tools'
+ * implementation of ifconfig displays metric 0 as `1', so we
+ * aim at the same thing, even though all other unices disagree.
+ */
+void
+system_fh_metric_query (format_data_t form, int argc, char *argv[])
+{
+#ifdef SIOCGIFMETRIC
+  if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) >= 0)
+    select_arg (form, argc, argv, 0);
+  else
+#endif
+    select_arg (form, argc, argv, 1);
+}
+
+void
+system_fh_metric (format_data_t form, int argc, char *argv[])
+{
+#ifdef SIOCGIFMETRIC
+  if (ioctl (form->sfd, SIOCGIFMETRIC, form->ifr) < 0)
+    error (EXIT_FAILURE, errno,
+	   "SIOCGIFMETRIC failed for interface `%s'",
+	   form->ifr->ifr_name);
+  else
+    put_int (form, argc, argv,
+	     form->ifr->ifr_metric ? form->ifr->ifr_metric : 1);
+#else
+  *column += printf ("(not available)");
+  had_output = 1;
+#endif
+}
+
 void
 system_fh_txqlen_query (format_data_t form, int argc, char *argv[])
 {
