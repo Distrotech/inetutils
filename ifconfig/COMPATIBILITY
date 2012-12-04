@@ -27,6 +27,7 @@ hpux10.20
 
 
 sparc-sun-solaris-2.7
+OpenSolaris
 
 	Uses the output format `unix'.
 
@@ -34,3 +35,9 @@ sparc-sun-solaris-2.7
 alphaev56-dec-osf4.0g
 
 	Uses the output format `osf'.
+
+
+*BSD
+
+	Uses output format `unix'.  Basic functionality for
+	DragonflyBSD, FreeBSD, NetBSD, and OpenBSD.

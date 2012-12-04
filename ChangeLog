@@ -1,3 +1,13 @@
+2012-12-04  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ifconfig/system/bsd.c (system_help): Update.
+	(system_parse_opt_rest): Populate function with
+	parser and actions for command line arguments.
+
+	* ifconfig/system/solaris.c (system_help): Update.
+	(system_parse_opt_rest): Implement actions for the
+	arguments "up" and "down" of an interface.
+
 2012-12-03  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Audit displaying of metrics.

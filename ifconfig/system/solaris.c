@@ -56,7 +56,8 @@ const char *system_default_format = "unix";
 /* Argument parsing stuff.  */
 
 const char *system_help = "\
-NAME [ADDR [DSTADDR]] [broadcast BRDADDR] [netmask MASK] [metric N] [mtu N]";
+NAME [ADDR [DSTADDR]] [broadcast BRDADDR] [netmask MASK] "
+"[metric N] [mtu N] [up|down]";
 
 struct argp_child system_argp_child;
 
@@ -115,10 +116,13 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	expect = EXPECT_METRIC;
       else if (!strcmp (argv[i], "mtu"))
 	expect = EXPECT_MTU;
+      else if (!strcmp (argv[i], "up"))
+	parse_opt_set_flag (*ifp, IFF_UP | IFF_RUNNING, 0);
+      else if (!strcmp (argv[i], "down"))
+	parse_opt_set_flag (*ifp, IFF_UP, 1);
       else
 	{
 	  /* Recognize AF here.  */
-	  /* Recognize up/down.  */
 	  /* Also auto-revarp, trailers, -trailers,
 	     private, -private, arp, -arp, plumb, unplumb.  */
 	  if (!((*ifp)->valid & IF_VALID_ADDR))
