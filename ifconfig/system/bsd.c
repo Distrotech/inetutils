@@ -28,6 +28,8 @@
 #include <net/if_dl.h>
 #include <netinet/if_ether.h>
 #include <ifaddrs.h>
+
+#include <unused-parameter.h>
 
 
 /* Output format stuff.  */
@@ -44,7 +46,9 @@ NAME [ADDR [DSTADDR]] [broadcast BRDADDR] [netmask MASK] "
 struct argp_child system_argp_child;
 
 int
-system_parse_opt (struct ifconfig **ifp, char option, char *optarg)
+system_parse_opt (struct ifconfig **ifp _GL_UNUSED_PARAMETER,
+		  char option _GL_UNUSED_PARAMETER,
+		  char *optarg _GL_UNUSED_PARAMETER)
 {
   return 0;
 }
@@ -139,7 +143,9 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 }
 
 int
-system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
+system_configure (int sfd _GL_UNUSED_PARAMETER,
+		  struct ifreq *ifr _GL_UNUSED_PARAMETER,
+		  struct system_ifconfig *ifs _GL_UNUSED_PARAMETER)
 {
   return 0;
 }
@@ -184,7 +190,8 @@ system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])
 }
 
 void
-system_fh_hwaddr (format_data_t form, int argc, char *argv[])
+system_fh_hwaddr (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+		  char *argv[] _GL_UNUSED_PARAMETER)
 {
   ESTABLISH_IFADDRS
   if (!ifp)
@@ -223,7 +230,8 @@ system_fh_hwtype_query (format_data_t form, int argc, char *argv[])
 }
 
 void
-system_fh_hwtype (format_data_t form, int argc, char *argv[])
+system_fh_hwtype (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+		  char *argv[] _GL_UNUSED_PARAMETER)
 {
   ESTABLISH_IFADDRS
   if (!ifp)

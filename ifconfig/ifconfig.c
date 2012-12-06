@@ -72,7 +72,7 @@ main (int argc, char *argv[])
 	    continue;
 
 	  /* Use ERR as a marker of previous output.
-	   * It will never mix with a call to configure_if().  */
+	   * It will never interfere with a call to configure_if().  */
 	  if (err++)
 	    putchar (' ');
 	  printf ("%s", ifp->name);

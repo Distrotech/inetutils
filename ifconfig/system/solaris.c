@@ -45,6 +45,8 @@
 #include <net/if_arp.h>
 #include <netinet/if_ether.h>
 
+#include <unused-parameter.h>
+
 #include "../ifconfig.h"
 
 
@@ -62,7 +64,9 @@ NAME [ADDR [DSTADDR]] [broadcast BRDADDR] [netmask MASK] "
 struct argp_child system_argp_child;
 
 int
-system_parse_opt (struct ifconfig **ifp, char option, char *optarg)
+system_parse_opt (struct ifconfig **ifp _GL_UNUSED_PARAMETER,
+		  char option _GL_UNUSED_PARAMETER,
+		  char *optarg _GL_UNUSED_PARAMETER)
 {
   return 0;
 }
@@ -165,7 +169,7 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
 # ifndef SIOCSIFTXQLEN
       error (0, 0, "don't know how to set the txqlen on this system");
       return -1;
-# else
+# else /* SIOCSIFTXQLEN */
       int err = 0;
 
       ifr->ifr_qlen = ifs->txqlen;
@@ -175,10 +179,14 @@ system_configure (int sfd, struct ifreq *ifr, struct system_ifconfig *ifs)
       if (verbose)
 	printf ("Set txqlen value of `%s' to `%i'.\n",
 		ifr->ifr_name, ifr->ifr_qlen);
-# endif
+# endif /* SIOCSIFTXQLEN */
     }
+#else /* !IF_VALID_TXQLEN */
+  (void) sfd;
+  (void) ifr;
+  (void) ifs;
+#endif /* !IF_VALID_TXQLEN */
   return 0;
-#endif
 }
 
 

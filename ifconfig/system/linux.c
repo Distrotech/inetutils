@@ -45,6 +45,7 @@
 #include <linux/if_ether.h>
 
 #include <read-file.h>
+#include <unused-parameter.h>
 
 #include "../ifconfig.h"
 
@@ -52,22 +53,28 @@
 /* ARPHRD stuff.  */
 
 static void
-print_hwaddr_ether (format_data_t form, unsigned char *data)
+print_hwaddr_ether (format_data_t form _GL_UNUSED_PARAMETER,
+		    unsigned char *data)
 {
   *column += printf ("%02X:%02X:%02X:%02X:%02X:%02X",
 		     data[0], data[1], data[2], data[3], data[4], data[5]);
+  had_output = 1;
 }
 
 static void
-print_hwaddr_arcnet (format_data_t form, unsigned char *data)
+print_hwaddr_arcnet (format_data_t form _GL_UNUSED_PARAMETER,
+		     unsigned char *data)
 {
   *column += printf ("%02X", data[0]);
+  had_output = 1;
 }
 
 static void
-print_hwaddr_dlci (format_data_t form, unsigned char *data)
+print_hwaddr_dlci (format_data_t form _GL_UNUSED_PARAMETER,
+		   unsigned char *data)
 {
   *column += printf ("%i", *((short *) data));
+  had_output = 1;
 }
 
 static void
@@ -81,22 +88,29 @@ print_hwaddr_ax25 (format_data_t form, unsigned char *data)
     }
   i = (data[6] & 0x1E) >> 1;
   if (i)
-    *column += printf ("-%i", i);
+    {
+      *column += printf ("-%i", i);
+      had_output = 1;
+    }
 #undef mangle
 }
 
 static void
-print_hwaddr_irda (format_data_t form, unsigned char *data)
+print_hwaddr_irda (format_data_t form _GL_UNUSED_PARAMETER,
+		   unsigned char *data)
 {
   *column += printf ("%02X:%02X:%02X:%02X",
 		     data[3], data[2], data[1], data[0]);
+  had_output = 1;
 }
 
 static void
-print_hwaddr_rose (format_data_t form, unsigned char *data)
+print_hwaddr_rose (format_data_t form _GL_UNUSED_PARAMETER,
+		   unsigned char *data)
 {
   *column += printf ("%02X%02X%02X%02X%02X",
 		     data[0], data[1], data[2], data[3], data[4]);
+  had_output = 1;
 }
 
 struct arphrd_symbol
@@ -535,7 +549,8 @@ system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])
 }
 
 void
-system_fh_hwaddr (format_data_t form, int argc, char *argv[])
+system_fh_hwaddr (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+		  char *argv[] _GL_UNUSED_PARAMETER)
 {
 #ifdef SIOCGIFHWADDR
   if (ioctl (form->sfd, SIOCGIFHWADDR, form->ifr) < 0)
@@ -571,7 +586,8 @@ system_fh_hwtype_query (format_data_t form, int argc, char *argv[])
 }
 
 void
-system_fh_hwtype (format_data_t form, int argc, char *argv[])
+system_fh_hwtype (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+		  char *argv[] _GL_UNUSED_PARAMETER)
 {
 #ifdef SIOCGIFHWADDR
   if (ioctl (form->sfd, SIOCGIFHWADDR, form->ifr) < 0)
@@ -693,8 +709,8 @@ system_parse_opt_set_txqlen (struct ifconfig *ifp, char *arg)
 
 static struct argp_option linux_argp_options[] = {
   { "txqlen", 'T', "N", 0,
-    "set transmit queue length to N" },
-  { NULL }
+    "set transmit queue length to N", 0 },
+  { NULL, 0, NULL, 0, NULL, 0 }
 };
 
 static error_t
@@ -713,7 +729,8 @@ linux_argp_parser (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp linux_argp = { linux_argp_options, linux_argp_parser };
+static struct argp linux_argp =
+  { linux_argp_options, linux_argp_parser, NULL, NULL, NULL, NULL, NULL };
 
 struct argp_child system_argp_child = {
   &linux_argp,

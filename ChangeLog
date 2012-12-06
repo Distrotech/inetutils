@@ -1,3 +1,69 @@
+2012-12-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Allow `--up', `--down' to be used before
+	interface selection.  Applies to all flags.
+
+	* ifconfig/options.c (pending_setflags, pending_clrflags):
+	New variables.
+	(parse_opt_set_flag): Use parameters to manipulate only
+	pending_setflags and pending_clrflags, not `ifp->*flags',
+	since the latter need not be allocated.
+	(parse_opt_finalize): Assign values to `ifp->setflags'
+	and `ifp->clrflags' using `pending_*flags'.
+	* ifconfig/options.h (pending_setflags, pending_clrflags):
+	New external declarations.
+
+	Detect member `struct ifreq.ifr_mtu'.
+
+	* configure.ac (HAVE_STRUCT_IFREQ_IFR_MTU): Check for
+	member ifr_mtu in `struct ifreq'.
+	* ifconfig/system/solaris.h (ifr_mtu)
+	[!HAVE_STRUCT_IFREQ_IFR_MTU]: Protect macro definition.
+
+	ifconfig: Attend to many compiler warnings.
+
+	* ifconfig/flags.c (if_flags): Set member `rev' to 0,
+	whenever it was missing.  Remove duplicate elements
+	"OACTIVE" and "D2".  End array with full element.
+	(flag_char_tab): End array with full stop element.
+	* ifconfig/options.c: Include <unused-parameter.h>.
+	(ifconfig_initializer): Initialize all members.
+	(formats): End array with full stop element.
+	(argp_options): New local macro GRP.  Add GRP to every
+	element.  Add description to `peer' and `brdaddr'.
+	End array with full stop element.
+	(parse_opt_set_flag): Mark ifp as unused.
+	(default_help_filter): Mark input as unused.
+	(argp): Add NULL as missing, last element.
+	* ifconfig/printif.c: Include <unused-parameter.h>.
+	(put_char, put_int, put_ulong): Mark form as unused.
+	(put_flags_short): Mark argc and argv as unused.
+	(fh_nothing): Mark all parameters as unused.
+	(fh_newline, fh_tabulator, fh_progname, fh_name)
+	(fh_index): Mark argc and argv as unused.
+	(fh_exit): Mark form as unused.
+
+	* ifconfig/system/bsd.c: Include <unused-parameter.h>.
+	(system_parse_opt, system_configure): Mark all parameters
+	as unused.
+	(system_fh_hwaddr, system_fh_hwtype): Mark argc and argv
+	as unused.
+
+	* ifconfig/system/linux.c: Include <unused-parameter.h>.
+	(print_hwaddr_ether, print_hwaddr_arcnet, print_hwaddr_dlci)
+	(print_hwaddr_irda, print_hwaddr_rose): Mark form as unused.
+	Set had_output.
+	(print_hwaddr_ax25): Set had_output.
+	(system_fh_hwaddr, system_hw_type): Mark argc and argv as unused.
+	(linux_argp_options): Add group member to element "txqlen".
+	End array with full stop element.
+	(linux_argp): Fill missing members with NULL.
+
+	* ifconfig/system/solaris.c: Include <unused-parameter.h>.
+	(system_parse_opt): Mark all parameters as unused.
+	(system_configure) [!IF_VALID_TXQLEN]: Trivially use
+	paramaters sfd, ifr, and ifs.
+
 2012-12-04  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ifconfig/system/bsd.c (system_help): Update.

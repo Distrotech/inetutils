@@ -694,12 +694,13 @@ if test "$ac_cv_header_utmpx_h" = yes; then
 fi
 
 IU_CHECK_MEMBERS([struct ifreq.ifr_index,
-                  struct ifreq.ifr_netmask,
-                  struct ifreq.ifr_broadaddr,
+		  struct ifreq.ifr_netmask,
+		  struct ifreq.ifr_broadaddr,
+		  struct ifreq.ifr_mtu,
 		  struct ifreq.ifr_map], , ,
-                 [#include <sys/types.h>
-                  #include <sys/socket.h>
-                  #include <net/if.h>])
+		 [#include <sys/types.h>
+		  #include <sys/socket.h>
+		  #include <net/if.h>])
 
 IU_CHECK_MEMBERS([struct sockaddr.sa_len], , ,
                  [#include <sys/types.h>

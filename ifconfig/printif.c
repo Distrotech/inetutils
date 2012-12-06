@@ -47,6 +47,7 @@
 #include <arpa/inet.h>
 #include "ifconfig.h"
 #include "xalloc.h"
+#include <unused-parameter.h>
 
 FILE *ostream;			/* Either stdout or stderror.  */
 int column_stdout;		/* The column position of the cursor on stdout.  */
@@ -114,7 +115,7 @@ struct format_handle format_handles[] = {
 /* Various helper functions to get the job done.  */
 
 void
-put_char (format_data_t form, char c)
+put_char (format_data_t form _GL_UNUSED_PARAMETER, char c)
 {
   switch (c)
     {
@@ -142,7 +143,8 @@ put_string (format_data_t form, const char *s)
 }
 
 void
-put_int (format_data_t form, int argc, char *argv[], int nr)
+put_int (format_data_t form _GL_UNUSED_PARAMETER,
+	 int argc, char *argv[], int nr)
 {
   char *fmt;
   if (argc > 0)
@@ -198,7 +200,8 @@ put_int (format_data_t form, int argc, char *argv[], int nr)
 }
 
 void
-put_ulong (format_data_t form, int argc, char *argv[], unsigned long value)
+put_ulong (format_data_t form _GL_UNUSED_PARAMETER,
+	   int argc, char *argv[], unsigned long value)
 {
   char *fmt;
   if (argc > 0)
@@ -337,7 +340,8 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
 }
 
 void
-put_flags_short (format_data_t form, int argc, char *argv[], short flags)
+put_flags_short (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+		 char *argv[] _GL_UNUSED_PARAMETER, short flags)
 {
   char buf[IF_FORMAT_FLAGS_BUFSIZE];
   if_format_flags (flags, buf, sizeof buf);
@@ -368,7 +372,9 @@ format_handler (const char *name, format_data_t form, int argc, char *argv[])
 }
 
 void
-fh_nothing (format_data_t form, int argc, char *argv[])
+fh_nothing (format_data_t form _GL_UNUSED_PARAMETER,
+	    int argc _GL_UNUSED_PARAMETER,
+	    char *argv[] _GL_UNUSED_PARAMETER)
 {
 }
 
@@ -427,13 +433,15 @@ fh_foreachformat (format_data_t form, int argc, char *argv[])
 }
 
 void
-fh_newline (format_data_t form, int argc, char *argv[])
+fh_newline (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+	    char *argv[] _GL_UNUSED_PARAMETER)
 {
   put_char (form, '\n');
 }
 
 void
-fh_tabulator (format_data_t form, int argc, char *argv[])
+fh_tabulator (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+	      char *argv[] _GL_UNUSED_PARAMETER)
 {
   put_char (form, '\t');
 }
@@ -588,13 +596,15 @@ fh_error (format_data_t form, int argc, char *argv[])
 }
 
 void
-fh_progname (format_data_t form, int argc, char *argv[])
+fh_progname (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+	     char *argv[] _GL_UNUSED_PARAMETER)
 {
   put_string (form, program_name);
 }
 
 void
-fh_exit (format_data_t form, int argc, char *argv[])
+fh_exit (format_data_t form _GL_UNUSED_PARAMETER,
+	 int argc, char *argv[])
 {
   int err = 0;
 
@@ -605,7 +615,8 @@ fh_exit (format_data_t form, int argc, char *argv[])
 }
 
 void
-fh_name (format_data_t form, int argc, char *argv[])
+fh_name (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+	 char *argv[] _GL_UNUSED_PARAMETER)
 {
   put_string (form, form->name);
 }
@@ -617,7 +628,8 @@ fh_index_query (format_data_t form, int argc, char *argv[])
 }
 
 void
-fh_index (format_data_t form, int argc, char *argv[])
+fh_index (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+	  char *argv[] _GL_UNUSED_PARAMETER)
 {
   int indx = if_nametoindex (form->name);
 

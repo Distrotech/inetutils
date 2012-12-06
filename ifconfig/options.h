@@ -65,6 +65,9 @@ extern struct format formats[];
 extern int all_option;
 extern int ifs_cmdline;
 
+extern int pending_setflags;
+extern int pending_clrflags;
+
 /* Array of interfaces mentioned on the command line.  */
 extern struct ifconfig *ifs;
 extern int nifs;

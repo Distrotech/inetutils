@@ -28,9 +28,12 @@
 
 
 /* XXX: Gross. Have autoconf check and put in system.h or so.
-   The correctness is documented in Solaris 2.7, if_tcp(7p).  */
+   The correctness is documented in Solaris 2.7, if_tcp(7p).
+   At least OpenSolaris and later systems do provide ifr_mtu.  */
 
-# define ifr_mtu ifr_metric
+# ifndef HAVE_STRUCT_IFREQ_IFR_MTU
+#  define ifr_mtu ifr_metric
+# endif /* !HAVE_STRUCT_IFREQ_IFR_MTU */
 
 
 /* Option support.  */
