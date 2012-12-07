@@ -284,7 +284,7 @@ help (int argc, char *argv[])
 		}
 	      else if (c->c_name)
 		{
-		  for (k = 0; k < strlen (c->c_name); k++)
+		  for (k = 0; k < (int) strlen (c->c_name); k++)
 		    putchar (' ');
 		}
 	      if (c + lines >= &cmdtab[NCMDS])

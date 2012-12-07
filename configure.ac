@@ -960,11 +960,11 @@ case "$host" in
   # FreeBSD 9.0 has implemented a non-standard and singular
   # UTMPX interface.  The readutmp module from GNUlib does
   # not support it, but we can fall back to getutxuser() for
-  # use in syslogd and talkd.
-  IU_DISABLE_TARGET(ftpd)
-  IU_DISABLE_TARGET(rlogind)
-  IU_DISABLE_TARGET(telnetd)
-  IU_DISABLE_TARGET(uucpd)
+  # use in syslogd and talkd.  For ftpd, rlogind, telnetd,
+  # and uucpd the use of pututxent() should suffice, but
+  # this needs continued observations.
+  #
+  # Other issues?
   ;;
 *olaris*)
   AC_DEFINE([SOLARIS], 1, [FIXME])

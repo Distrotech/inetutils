@@ -1,5 +1,27 @@
 2012-12-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Activate servers in FreeBSD 9 and 10.  They work
+	sufficiently well with the previous adaptions.
+
+	* configure.ac <*-freebsd9* || *-freebsd10*>:
+	Delete inhibition of ftpd, rlogind, telnetd, and uucpd.
+
+	Mixed compilation warnings.
+
+	* ftp/cmdtab.c (help): Cast strlen() as int.
+	* libls/ls.c (display): MAXBLOCK is portably `long'.
+	* src/rlogind.c (protocol): Make NFD an unsigned int.
+	* telnet/sys_bsd.c (ayt) [SIGINFO]: Mark `sig' as unused.
+	* telnet/telnet.c (init_term): Declare static.  Delete
+	unused parameter `fd'.  Rewrite numerical end of TERMBUF.
+	(gettermname): Update call to init_term().
+	(lm_will, lm_do, lm_mode, slc_import): Cast sizeof()
+	as int when comparing to NETROOM.
+	(telnet) [!AUTHENTICATION && !ENCRYPTION]: Trivially
+	use parameter `user'.
+
+2012-12-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Keep track of allocations.  Was an unlimited use of malloc()!
 
 	* src/rcp.c (sink): Change CURSIZE to size_t.  Initialize

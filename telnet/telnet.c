@@ -736,8 +736,8 @@ mklist (char *buf, char *name)
 
 char termbuf[1024];
 
-int
-init_term (char *tname, int fd, int *errp)
+static int
+init_term (char *tname, int *errp)
 {
   int err = -1;
 #ifdef HAVE_TGETENT
@@ -745,7 +745,7 @@ init_term (char *tname, int fd, int *errp)
 #endif
   if (err == 1)
     {
-      termbuf[1023] = '\0';
+      termbuf[sizeof (termbuf) - 1] = '\0';
       if (errp)
 	*errp = 1;
       return (0);
@@ -771,7 +771,7 @@ gettermname (void)
       if (tnamep && tnamep != unknown)
 	free (tnamep);
       if ((tname = (char *) env_getvalue ("TERM")) &&
-	  (init_term (tname, 1, &err) == 0))
+	  (init_term (tname, &err) == 0))
 	{
 	  tnamep = mklist (termbuf, tname);
 	}
@@ -1108,7 +1108,7 @@ lm_will (unsigned char *cmd, int len)
     default:
       str_lm[3] = DONT;
       str_lm[4] = cmd[0];
-      if (NETROOM () > sizeof (str_lm))
+      if (NETROOM () > (int) sizeof (str_lm))
 	{
 	  ring_supply_data (&netoring, str_lm, sizeof (str_lm));
 	  printsub ('>', &str_lm[2], sizeof (str_lm) - 2);
@@ -1153,7 +1153,7 @@ lm_do (unsigned char *cmd, int len)
     default:
       str_lm[3] = WONT;
       str_lm[4] = cmd[0];
-      if (NETROOM () > sizeof (str_lm))
+      if (NETROOM () > (int) sizeof (str_lm))
 	{
 	  ring_supply_data (&netoring, str_lm, sizeof (str_lm));
 	  printsub ('>', &str_lm[2], sizeof (str_lm) - 2);
@@ -1200,7 +1200,7 @@ lm_mode (unsigned char *cmd, int len, int init)
   str_lm_mode[4] = linemode;
   if (!init)
     str_lm_mode[4] |= MODE_ACK;
-  if (NETROOM () > sizeof (str_lm_mode))
+  if (NETROOM () > (int) sizeof (str_lm_mode))
     {
       ring_supply_data (&netoring, str_lm_mode, sizeof (str_lm_mode));
       printsub ('>', &str_lm_mode[2], sizeof (str_lm_mode) - 2);
@@ -1328,7 +1328,7 @@ unsigned char slc_import_def[] = {
 void
 slc_import (int def)
 {
-  if (NETROOM () > sizeof (slc_import_val))
+  if (NETROOM () > (int) sizeof (slc_import_val))
     {
       if (def)
 	{
@@ -2415,7 +2415,9 @@ telnet (char *user)
     auth_encrypt_init (local_host, hostname, NULL, "TELNET", 0);
     auth_encrypt_user (user);
   }
-#endif /* defined(AUTHENTICATION) || defined(ENCRYPTION)  */
+#else /* !defined(AUTHENTICATION) && !defined(ENCRYPTION)  */
+  (void) user;
+#endif
 #if !defined TN3270
   if (telnetport)
     {

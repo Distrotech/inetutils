@@ -1000,7 +1000,7 @@ sendwin (int sig _GL_UNUSED_PARAMETER)
 
 #ifdef	SIGINFO
 void
-ayt (int sig)
+ayt (int sig _GL_UNUSED_PARAMETER)
 {
   if (connected)
     sendayt ();

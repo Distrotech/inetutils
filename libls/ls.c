@@ -426,7 +426,8 @@ display (FTSENT *p, FTSENT *list)
   FTSENT *cur;
   NAMES *np;
   unsigned long long maxsize;
-  unsigned long btotal, maxblock, maxinode, maxlen, maxnlink;
+  unsigned long btotal, maxinode, maxlen, maxnlink;
+  long maxblock;
   int bcfile, flen, glen, ulen, maxflags, maxgroup, maxuser;
   int entries, needstats;
   char *user = NULL, *group = NULL, buf[INT_BUFSIZE_BOUND (uintmax_t)];

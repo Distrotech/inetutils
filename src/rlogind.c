@@ -1698,7 +1698,8 @@ protocol (int f, int p, struct auth_data *ap)
 {
   char fibuf[BUFLEN], *pbp = NULL, *fbp = NULL;
   int pcc = 0, fcc = 0;
-  int cc, nfd, n;
+  int cc, n;
+  unsigned int nfd;
   char cntl;
 
 #ifndef SHISHI
