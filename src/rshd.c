@@ -1695,6 +1695,7 @@ getstr (const char *err)
     {
       /* Oh this is efficient, oh yes.  [But what can be done?] */
       int rd = read (STDIN_FILENO, end, 1);
+
       if (rd <= 0)
 	{
 	  if (rd == 0)
@@ -1705,7 +1706,7 @@ getstr (const char *err)
 	}
 
       end += rd;
-      if ((buf + buf_len - end) < (buf_len >> 3))
+      if ((buf + buf_len - end) < (ssize_t) (buf_len >> 3))
 	{
 	  /* Not very much room left in our buffer, grow it. */
 	  size_t end_offs = end - buf;

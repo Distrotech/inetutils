@@ -71,6 +71,12 @@ static int host_family = AF_INET;
 
 
 
+#ifdef LOG_NFACILITIES
+# define IU_MAX_FAC LOG_NFACILITIES
+#else
+# define IU_MAX_FAC 32
+#endif
+
 int
 decode (char *name, CODE *codetab, const char *what)
 {
@@ -79,12 +85,12 @@ decode (char *name, CODE *codetab, const char *what)
   if (isdigit (*name))
     {
       char *p;
-      int c;
       unsigned long n = strtoul (name, &p, 0);
 
-      if (*p || (c = n) != n)
+      if (*p || n >= IU_MAX_FAC)	/* Includes range errors.  */
 	error (EXIT_FAILURE, 0, "%s: invalid %s number", what, name);
-      return c;
+
+      return n;
     }
 
   for (cp = codetab; cp->c_name; cp++)
@@ -374,7 +380,7 @@ send_to_syslog (const char *msg)
   free (pbuf);
   if (rc == -1)
     error (0, errno, "send failed");
-  else if (rc != len)
+  else if (rc != (ssize_t) len)
     error (0, errno, "sent less bytes than expected (%lu vs. %lu)",
 	   (unsigned long) rc, (unsigned long) len);
 }

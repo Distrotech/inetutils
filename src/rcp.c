@@ -972,17 +972,25 @@ sink (int argc, char *argv[])
 	SCREWUP ("size not delimited");
       if (targisdir)
 	{
-	  static char *namebuf;
-	  static int cursize;
+	  static char *namebuf = NULL;
+	  static size_t cursize = 0;
 	  size_t need;
 
 	  need = strlen (targ) + strlen (cp) + 250;
 	  if (need > cursize)
 	    {
-	      if (!(namebuf = malloc (need)))
-		run_err ("%s", strerror (errno));
+	      free (namebuf);
+	      namebuf = malloc (need);
+	      if (namebuf)
+		cursize = need;
+	      else
+		{
+		  run_err ("%s", strerror (errno));
+		  cursize = 0;
+		  continue;
+		}
 	    }
-	  snprintf (namebuf, need, "%s%s%s", targ, *targ ? "/" : "", cp);
+	  snprintf (namebuf, cursize, "%s%s%s", targ, *targ ? "/" : "", cp);
 	  np = namebuf;
 	}
       else
@@ -1457,7 +1465,7 @@ allocbuf (BUF * bp, int fd, int blksize)
   size = roundup (BUFSIZ, blksize);
   if (size == 0)
     size = blksize;
-  if (bp->cnt >= size)
+  if ((size_t) bp->cnt >= size)
     return (bp);
   if ((bp->buf = realloc (bp->buf, size)) == NULL)
     {

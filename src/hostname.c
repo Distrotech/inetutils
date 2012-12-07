@@ -372,7 +372,7 @@ parse_file (const char *const file_name)
   char *buffer = NULL;
   char *name;
   FILE *file;
-  size_t nread;
+  ssize_t nread;
   size_t size = 0;
 
   file = fopen (file_name, "r");

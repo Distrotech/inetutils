@@ -652,10 +652,10 @@ die (int code, const char *fmt, ...)
   int n;
 
   va_start (ap, fmt);
-  buf[0] = 1;
+  buf[0] = 1;		/* Error condition.  */
   n = vsnprintf (buf + 1, sizeof buf - 1, fmt, ap);
   va_end (ap);
-  if (n > sizeof buf - 1)
+  if (n + 1 > (int) sizeof buf)
     n = sizeof buf - 1;
   buf[n++] = '\n';
   write (STDERR_FILENO, buf, n);
@@ -688,7 +688,7 @@ getstr (const char *err)
 	}
 
       end += rd;
-      if ((buf + buf_len - end) < (buf_len >> 3))
+      if ((buf + buf_len - end) < (ssize_t) (buf_len >> 3))
 	{
 	  /* Not very much room left in our buffer, grow it. */
 	  size_t end_offs = end - buf;
