@@ -129,12 +129,8 @@ Ability to ping multiple host in one go.
 * ifconfig
 
 ** Implement flags support in changeif.c and options.c
-** Port to BSD.
 ** Make sure it is a drop in replacement at least for the most
    common options on Linux and BSD.
-
-** Parse options before taking actions: `ifconfig --down -i gif0'
-   segfaults, but `ifconfig -i gif0 --down' does not.
 
 ** Some systems can provide more interfaces than
   SIOCGIFCONF/if_nameindex, interfaces which are usually not UP but
