@@ -482,7 +482,7 @@ logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1  \
 @c of ping.  A user doesn't need to know that we are using TIMEVAL, or
 @c how things are padded.
 
-@command{ping} uses @acronym{ICMP} datagrams to provoke a response
+@command{ping} uses ICMP datagrams to provoke a response
 from the chosen destination host, mainly intending to probe
 whether it is alive.
 
@@ -492,11 +492,11 @@ By a suitable choice of payload, different host or router properties
 are detectable, as the emitted datagram travels to its destination.
 
 @ignore %* Too detailed for end user.
-@command{ping} uses the @acronym{ICMP} protocol's mandatory
-@code{ECHO_REQUEST} datagram to elicit an ICMP @code{ECHO_RESPONSE}
-from a host or gateway.
-@code{ECHO_REQUEST} datagrams (@dfn{pings}) have an @acronym{IP} and
-an @acronym{ICMP} header, followed by a @dfn{struct timeval} and then
+@command{ping} uses the ICMP protocol's mandatory
+@code{ECHO_REQUEST} datagram to elicit an ICMP type @code{ECHO_REPLY}
+packet from a host or gateway.
+@code{ECHO_REQUEST} datagrams (@dfn{pings}) have an IP and
+an ICMP header, followed by a @dfn{struct timeval} and then
 an arbitrary number of @dfn{padding} bytes used to fill out the packet.
 @end ignore
 
@@ -555,7 +555,7 @@ from the targetted host.
 
 In successful cases three time values are returned.
 All are expected to state the number of milliseconds since
-midnight@tie{}@acronym{UTC}.
+midnight@tie{}UTC.
 The first of these, @samp{icmp_otime}, contains the original
 time of sending the request.
 Then comes @samp{icmp_rtime}, the time of reception by the target,
@@ -625,7 +625,7 @@ interface was dropped by @command{routed}).
 @itemx --tos=@var{num}
 @opindex -T
 @opindex --tos
-Set type-of-service, @acronym{TOS} field, to @var{num} on
+Set type-of-service, TOS field, to @var{num} on
 transmitted packets.
 
 @item --ttl=@var{n}
@@ -682,9 +682,9 @@ This can be very hard on a network and should be used with caution.
 
 @item --ip-timestamp=@var{flag}
 @opindex --ip-timestamp
-Include @acronym{IP} option Timestamp in transmitted packets.
+Include IP option Timestamp in transmitted packets.
 The value @var{flag} is either @samp{tsonly}, which only records up
-to nine time stamps, or @samp{tsaddr}, which records @acronym{IP}
+to nine time stamps, or @samp{tsaddr}, which records IP
 addresses as well as time stamps, but for at most four hosts.
 
 @item -l @var{n}
@@ -714,7 +714,7 @@ Do not print timing for each transmitted packet.
 @opindex --route
 Record route.  Includes the @code{RECORD_ROUTE} field in the
 ECHO_REQUEST packet and displays the route buffer on returned packets.
-Note that the @acronym{IP} header is only large enough for nine
+Note that the IP header is only large enough for nine
 such routes.
 Many hosts ignore or discard this option.
 
@@ -723,8 +723,8 @@ Many hosts ignore or discard this option.
 @opindex -s
 @opindex --size
 Specifies the number of data bytes to be sent.  The default is 56,
-which translates into 64@tie{}@acronym{ICMP} data bytes, taking
-the 8@tie{}bytes of @acronym{ICMP} header data into account.
+which translates into 64@tie{}ICMP data bytes, taking
+the 8@tie{}bytes of ICMP header data into account.
 @end table
 
 @node Fault isolation
@@ -748,15 +748,15 @@ unwise to use ping during normal operations or from automated scripts.
 @ignore
 @section ICMP Packet Details
 
-An @acronym{IP} header without options consists of 20 bytes.
-An @acronym{ICMP} ECHO_REQUEST packet contains an additional
-8 bytes worth of @acronym{ICMP} header followed by an arbitrary
+An IP header without options consists of 20 bytes.
+An ICMP type ECHO_REQUEST packet contains an additional
+8 bytes worth of ICMP header followed by an arbitrary
 amount of data.
 When a packet size is stated, that indicates
 the size of the extra piece of data (the default is 56).
-Thus the amount of data received as an @acronym{IP} packet
-of type @acronym{ICMP} ECHO_REPLY, will always be 8 bytes larger
-than the requested data space (the @acronym{ICMP} header).
+Thus the amount of data received as an IP packet
+with an ICMP type ECHO_REPLY, will always be 8 bytes larger
+than the requested data space (the ICMP header).
 
 If the data space is at least eight bytes large, ping uses the first
 eight bytes of this space to include a timestamp which it uses in the
@@ -802,44 +802,44 @@ using the @option{-p} option of ping.
 @node TTL details
 @section TTL details
 
-The @acronym{TTL} field, @dfn{Time To Live}, of an @acronym{IP}
-packet represents the maximum number of @acronym{IP} routers
+The TTL field, @dfn{Time To Live}, of an IP
+packet represents the maximum number of IP routers
 that the packet can go through before being discarded.
 In current practice you can expect each router on the
-Internet to decrement the @acronym{TTL} field by exactly one.
+Internet to decrement the TTL field by exactly one.
 
-The TCP/IP specification states that the @acronym{TTL} field
-of a new @acronym{TCP} packet should be set to 60,
-but many systems use smaller values (4.3BSD uses 30
+The TCP/IP specification states that the TTL field
+of a new TCP packet should be set to 60,
+but many systems use smaller values (4.3BSD used 30
 and 4.2BSD used 15).
 
 The maximum possible value of this field is 255, and most UNIX systems
-set the @acronym{TTL} field of @acronym{ICMP} (type @code{ECHO_REQUEST})
+set the TTL field of ICMP (type @code{ECHO_REQUEST})
 packets to 255.  This is why you will find you can ping some hosts,
 but not reach them with @command{telnet} or @command{ftp}.
 
-During normal operation, @command{ping} prints the @acronym{TTL} value
+During normal operation, @command{ping} prints the TTL value
 for every packet it receives.
-When a remote system receives an @acronym{ICMP} packet,
-it can do one of three things to the @acronym{TTL} field
+When a remote system receives an ICMP packet,
+it can do one of three things to the TTL field
 in its response packet:
 
 @itemize @bullet
 @item
 Not to change it.  This is what Berkeley UNIX systems did before the
-4.3BSD-Tahoe release.  In this case the @acronym{TTL} value in the
+4.3BSD-Tahoe release.  In this case the TTL value in the
 received packet will be 255 minus the number of routers in the
 round-trip path.
 
 @item
 Set it to 255.  This is what current Berkeley UNIX systems do.  In this
-case the @acronym{TTL} value in the received packet will be 255 minus the
+case the TTL value in the received packet will be 255 minus the
 number of routers in the path from the remote system to the pinging
 host.
 
 @item
 Set it to some other value.  Some machines use the same value for
-@acronym{ICMP} packets that they use for @acronym{TCP} packets,
+ICMP packets that they use for TCP packets,
 for example either 30 or 60.
 Others may use completely arbitrary values.
 
@@ -848,7 +848,7 @@ Others may use completely arbitrary values.
 @node Further remarks
 @section Further observations
 Many hosts and gateways ignore the @code{RECORD_ROUTE} field, since
-the maximum @acronym{IP} header length is far to small to hold all
+the maximum IP header length is far to small to hold all
 the routes.
 There is not much that can be done about this.
 
@@ -857,34 +857,16 @@ broadcast address should only be done under very controlled
 conditions.
 
 Some BSD variants offer a kernel setting to inhibit all replies
-to ICMP_MASKREQ packets.
-This setting can detected using
-
-@example
-$ sysctl net.inet.icmp.maskrepl
-net.inet.icmp.maskrepl: 0
-@end example
-
-@noindent
-where a value 1 would be needed for sending a reply, and where 0
-means that any request is simply dropped.
-FreeBSD goes even further by providing a faked netmask:
-
-@example
-# sysctl -w net.inet.icmp.maskfake=`expr 255 + 252 \* 256`
-net.inet.icmp.maskfake: 0 -> 64767
-@end example
-
-@noindent
-thus setting the netmask to @samp{255.252.0.0} on a little
-endian architecture.
+to ICMP_MASKREQ packets, but in general, Unices are designed either
+to answer the request with a valid netmask, or to drop the request,
+causing @command{ping} to wait for a timeout condition.
 
 @node traceroute invocation
 @chapter @command{traceroute}: Trace the route to a host
 @cindex traceroute
 
 @command{traceroute} prints a trace of the route
-@acronym{IP}@tie{}packets are travelling to a remote host.
+IP@tie{}packets are travelling to a remote host.
 
 @noindent
 Synopsis:
@@ -925,7 +907,7 @@ Attempt to resolve all addresses as hostnames.
 @itemx --tos=@var{num}
 @opindex -t
 @opindex --tos
-Set type-of-service, @acronym{TOS} field, to @var{num} on
+Set type-of-service, TOS field, to @var{num} on
 transmitted packets.
 @end table
 
@@ -989,7 +971,7 @@ Use a comma separated list for multiple attributes.
 @item -l
 @opindex -l
 One level less specific lookup.
-Applies to @acronym{RPSL} only.
+Applies to RPSL only.
 
 @item -L
 @opindex -L
@@ -1010,7 +992,7 @@ Connect to server port @var{port}.
 @item -q @{version|sources@}
 @opindex -q
 Query specified server info.
-Applies to @acronym{RPSL} only.
+Applies to RPSL only.
 
 @item -r
 @opindex -r
@@ -1049,7 +1031,7 @@ Verbosely explain all actions taken.
 @item -x
 @opindex -x
 Search only for exact matches.
-Applicable only to @acronym{RPSL}.
+Applicable only to RPSL.
 @end table
 
 
@@ -1057,7 +1039,7 @@ Applicable only to @acronym{RPSL}.
 @chapter @command{ftp}: FTP client
 @cindex ftp
 
-@command{ftp} is the user interface to @acronym{FTP},
+@command{ftp} is the user interface to FTP,
 the File Transfer Protocol.
 The program allows a user to transfer files to and from a remote
 network site.
@@ -1077,7 +1059,7 @@ but is otherwise identical to @command{ftp}.
 The client host with which @command{ftp} is to communicate may be
 specified on the command line.
 If this is done, @command{ftp} will immediately attempt to establish
-a connection to the @acronym{FTP} server running on that host.
+a connection to the FTP server running on that host.
 Otherwise, the program will start a command interpreter and will await
 further instructions from the user.
 Commands can either be entered interactively,
@@ -1262,7 +1244,7 @@ sytem to @var{mode}.
 
 @item close
 @itemx disconnect
-Terminate the @acronym{FTP} session with the remote server,
+Terminate the FTP session with the remote server,
 and return to the command interpreter.
 Any defined macros are erased.
 
@@ -1324,7 +1306,7 @@ For @code{mdelete} and
 remote machine and the lists are not merged.  Expansion of a directory
 name is likely to be different from expansion of the name of an
 ordinary file: the exact result depends on the remote operating
-system and on the @acronym{FTP} server, and can be previewed by
+system and on the FTP server, and can be previewed by
 issuing @samp{mls remote-files -}.
 
 Note: @code{mget} and @code{mput} are not meant to transfer entire
@@ -1469,7 +1451,7 @@ filenames (which may have already been processed according to the
 Variable templating is accomplished
 by including the sequences @samp{$1}, @samp{$2}, @dots{}, @samp{$9} in
 @var{inpattern}.  Use @samp{\} to prevent this special treatment of
-the character @kbd{$}.  All other characters are treated literally,
+the character @samp{$}.  All other characters are treated literally,
 and must be matched in a file name for @var{inpattern}
 to bind substrings to variables.
 
@@ -1501,8 +1483,8 @@ Spaces may be included in @var{outpattern}, but are easily removed:
 nmap $1 |sed "s/ *$//" > $1
 @end smallexample
 
-Use a backslash @kbd{\} to escape the characters
-@kbd{$}, @kbd{[}, @kbd{]}, and @kbd{,}.
+Use a backslash @samp{\} to escape the characters
+@samp{$}, @samp{[}, @samp{]}, and @samp{,}.
 
 @item ntrans [@var{inchars} [@var{outchars}]]
 Set or unset the filename character translation mechanism.  If no
@@ -1522,10 +1504,10 @@ character's position in @var{inchars} is longer than the length of
 @var{outchars}, the character is deleted from the file name.
 
 @item open @var{host} [@var{port}]
-Establish a connection to the specified @acronym{FTP} server
+Establish a connection to the specified FTP server
 at @var{host}.  An optional port number may be supplied,
 in which case, @command{ftp} will attempt to contact the server
-at that specific @acronym{TCP} port.  If the @code{autologin} option
+at that specific TCP port.  If the @code{autologin} option
 is on (is so by default), @command{ftp} will also attempt to
 automatically log the user in to the FTP server.
 
@@ -1595,14 +1577,14 @@ command is useful when transferring very large files over networks
 that are prone to dropping connections.
 
 @item rhelp [@var{command-name}]
-Request help from the remote @acronym{FTP} server.
+Request help from the remote FTP server.
 If @var{command-name} is specified it is passed to the server as well.
 
 @item rstatus [@var{file-name}]
 With no arguments, show status of remote machine.  If filename is
 specified, show status of @var{file-name} on remote machine.
 
-@item rename [@var{from}] [@var{to}]]
+@item rename [@var{from}] [@var{to}]
 Rename the file @var{from} on the remote machine as @var{to}.
 Name mapping takes effect without @var{to}.
 
@@ -1701,14 +1683,14 @@ transfer are reported.  By default, verbose is on.
 @end table
 
 Command arguments which have embedded spaces may be inclosed within
-citation characters @kbd{"}.
+citation characters @samp{"}.
 
 @node Aborting a file transfer
 @section Aborting a file transfer
 
 To abort a file transfer, use the terminal interrupt key (usually
 @kbd{C-c}).  Sending transfers will be immediately halted.
-Receiving transfers will be halted by sending a @acronym{FTP}
+Receiving transfers will be halted by sending a FTP
 protocol command @code{ABOR} to the remote server,
 discarding any further data received.  The speed at
 which this is accomplished depends upon the remote server's support
@@ -1720,7 +1702,7 @@ The terminal interrupt key sequence will be ignored when @command{ftp}
 has completed any local processing and is awaiting a reply from the
 remote server.  A long delay in this mode may result from the
 @code{ABOR} processing described above, or from unexpected behavior by
-the remote server, including violations of the @acronym{FTP} protocol.
+the remote server, including violations of the FTP protocol.
 If the
 delay results from unexpected remote server behavior, the local
 @command{ftp} program must be killed by hand.
@@ -1737,7 +1719,7 @@ If the file name @samp{-} is specified, standard input (for reading)
 or standard output (for writing) is used.
 
 @item
-If the first character of the file name is @kbd{|}, the remainder of
+If the first character of the file name is @samp{|}, the remainder of
 the argument is interpreted as a shell command.  @command{ftp} then
 forks a shell, using @code{popen} with the argument supplied, and
 reads/writes from standard input/output.  If the shell command
@@ -1777,7 +1759,7 @@ The resulting file name may also be modified by the remote server if
 @node File transfer parameters
 @section File transfer parameters
 
-The @acronym{FTP} specification includes many parameters which may affect a
+The FTP specification includes many parameters which may affect a
 file transfer.  The type may be one of @samp{ascii}, @samp{image}
 (binary), @samp{ebcdic}, and @samp{local} byte size (for PDP-10's and
 PDP-20's mostly).  @command{ftp} supports the @samp{ascii} and
