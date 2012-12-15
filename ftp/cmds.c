@@ -569,8 +569,11 @@ put (int argc, char **argv)
   if (loc && mapflag)
     {
       char *new = domap (remote);
-      free (remote);
-      remote = new;
+      if (new != remote)
+	{
+	  free (remote);
+	  remote = new;
+	}
     }
   sendrequest (cmd, local, remote,
 	       strcmp (argv[1], local) != 0 || strcmp (argv[2], remote) != 0);
@@ -625,9 +628,12 @@ mput (int argc, char **argv)
 	      if (mapflag)
 		{
 		  char *new = domap (tp);
-		  if (tp != cp)
-		    free (tp);
-		  tp = new;
+		  if (new != tp)
+		    {
+		      if (tp != cp)
+			free (tp);
+		      tp = new;
+		    }
 		}
 	      sendrequest ((sunique) ? "STOU" : "STOR",
 			   cp, tp, cp != tp || !interactive);
@@ -668,9 +674,12 @@ mput (int argc, char **argv)
 	      if (mapflag)
 		{
 		  char *new = domap (tp);
-		  if (tp != argv[i])
-		    free (tp);
-		  tp = new;
+		  if (new != tp)
+		    {
+		      if (tp != argv[i])
+			free (tp);
+		      tp = new;
+		    }
 		}
 	      sendrequest ((sunique) ? "STOU" : "STOR",
 			   argv[i], tp, tp != argv[i] || !interactive);
@@ -717,9 +726,12 @@ mput (int argc, char **argv)
 	      if (mapflag)
 		{
 		  char *new = domap (tp);
-		  if (tp != *cpp)
-		    free (tp);
-		  tp = new;
+		  if (new != tp)
+		    {
+		      if (tp != *cpp)
+			free (tp);
+		      tp = new;
+		    }
 		}
 	      sendrequest ((sunique) ? "STOU" : "STOR",
 			   *cpp, tp, *cpp != tp || !interactive);
@@ -799,8 +811,11 @@ getit (int argc, char **argv, int restartit, char *mode)
   if (loc && mapflag)
     {
       char *new = domap (local);
-      free (local);
-      local = new;
+      if (new != local)
+	{
+	  free (local);
+	  local = new;
+	}
     }
   if (restartit)
     {
@@ -937,9 +952,12 @@ mget (int argc, char **argv)
 	  if (mapflag)
 	    {
 	      char *new = domap (tp);
-	      if (tp != cp)
-		free (tp);
-	      tp = new;
+	      if (new != tp)
+		{
+		  if (tp != cp)
+		    free (tp);
+		  tp = new;
+		}
 	    }
 	  recvrequest ("RETR", tp, cp, "w", tp != cp || !interactive);
 	  if (!mflag && fromatty)
@@ -2104,6 +2122,9 @@ setntrans (int argc, char **argv)
   ntout[sizeof (ntout) - 1] = '\0';
 }
 
+/* NOTE: dotrans() always returns a newly allocated string.
+ */
+
 char *
 dotrans (char *name)
 {
@@ -2218,6 +2239,10 @@ cp_subst (char **from_p, char **to_p, int *toks, char **tp, char **te, char *tok
   return 1;
 }
 
+/* NOTE: domap() can return a newly allocated string,
+ * but need not do so every time.
+ */
+
 char *
 domap (char *name)
 {
@@ -2291,7 +2316,10 @@ domap (char *name)
 	case '[':
 	LOOP:
 	  if (*++cp2 == '$' && isdigit (*(cp2 + 1)))
-	    cp_subst (&cp2, &cp1, toks, tp, te, name, &buf, &buf_len);
+	    {
+	      if (cp_subst (&cp2, &cp1, toks, tp, te, name, &buf, &buf_len))
+		match = 1;
+	    }
 	  else
 	    {
 	      while (*cp2 && *cp2 != ',' && *cp2 != ']')

@@ -1,3 +1,11 @@
+2012-12-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ftp/cmds.c (put, mput, getit, mget): Check if
+	domap() has allocated new memory, and only then
+	update string pointer and free old memory.
+	(domap) <'[', LOOP>: If cp_subst() substituted
+	something, set MATCH to 1.
+
 2012-12-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Activate servers in FreeBSD 9 and 10.  They work
