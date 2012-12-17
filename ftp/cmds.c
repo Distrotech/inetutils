@@ -2211,7 +2211,7 @@ cp_subst (char **from_p, char **to_p, int *toks, char **tp, char **te, char *tok
 {
   int toknum;
   char *src;
-  int src_len;
+  size_t src_len;
 
   if (*++(*from_p) == '0')
     {
@@ -2226,13 +2226,19 @@ cp_subst (char **from_p, char **to_p, int *toks, char **tp, char **te, char *tok
   else
     return 0;
 
-  if (src_len > 2)
+  if (src_len > strlen ("$2"))
     {
-      /* This subst will be longer than the original, so make room
-         for it.  */
-      *buf_len_p += src_len - 2;
+      /* This substitution will be longer than the original text.
+       * Allocate a larger buffer and update the cursor, pointing
+       * within the new memory area.
+       */
+      size_t offset = *to_p - *buf_p;
+
+      *buf_len_p += src_len - strlen ("$2");
       *buf_p = realloc (*buf_p, *buf_len_p);
+      *to_p = *buf_p + offset;
     }
+
   while (src_len--)
     *(*to_p)++ = *src++;
 
@@ -2246,7 +2252,12 @@ cp_subst (char **from_p, char **to_p, int *toks, char **tp, char **te, char *tok
 char *
 domap (char *name)
 {
-  int buf_len = strlen (name) + 1;
+  /* The string `mapout' will have its tokens expanded,
+   * but is essentially the minimal output string.
+   * Some brackets and some alternate strings might
+   * need to be suppressed.
+   */
+  int buf_len = strlen (mapout) + 1;
   char *buf = xmalloc (buf_len);
   char *cp1 = name, *cp2 = mapin;
   char *tp[9], *te[9];
@@ -2256,6 +2267,9 @@ domap (char *name)
     {
       toks[i] = 0;
     }
+
+  /* Tokenize the input pattern against incoming file name.
+   */
   while (match && *cp1 && *cp2)
     {
       switch (*cp2)
@@ -2269,16 +2283,18 @@ domap (char *name)
 	case '$':
 	  if (*(cp2 + 1) >= '1' && (*cp2 + 1) <= '9')
 	    {
-	      if (*cp1 != *(++cp2 + 1))
+	      if (*cp1 != *(++cp2 + 1))	/* Break at delimiter.  */
 		{
 		  toks[toknum = *cp2 - '1']++;
 		  tp[toknum] = cp1;
-		  while (*++cp1 && *(cp2 + 1) != *cp1);
+		  while (*++cp1 && *(cp2 + 1) != *cp1)
+		    ;
 		  te[toknum] = cp1;
 		}
 	      cp2++;
 	      break;
 	    }
+	  /* Fall through, as '$' must be used verbatim.  */
 	default:
 	  if (*cp2 != *cp1)
 	    {
@@ -2299,6 +2315,11 @@ domap (char *name)
     {
       toks[toknum] = 0;
     }
+
+  /* Back substitute tokens into output template
+   * string `mapout'.  All fixed characters were
+   * already accounted for in presetting BUF_LEN.
+   */
   cp1 = buf;
   *cp1 = '\0';
   cp2 = mapout;
@@ -2333,9 +2354,9 @@ domap (char *name)
                       if (cp_subst (&cp2,
                                     &cp1, toks, tp, te, name, &buf, &buf_len))
                         match = 1;
-                      else if (*cp2)
-			*cp1++ = *cp2++;
                     }
+                  else if (*cp2)
+		    *cp1++ = *cp2++;
 		}
 	      if (!*cp2)
 		{
@@ -2347,6 +2368,7 @@ domap (char *name)
 	    }
 	  if (match)
 	    {
+	      /* Skip over all alternate text.  */
 	      while (*++cp2 && *cp2 != ']')
 		{
 		  if (*cp2 == '\\' && *(cp2 + 1))
@@ -2379,7 +2401,7 @@ domap (char *name)
 		match = 1;
 	      break;
 	    }
-	  /* intentional drop through */
+	  /* intentional fall through */
 	default:
 	  *cp1++ = *cp2;
 	  break;

@@ -1,3 +1,12 @@
+2012-12-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ftp/cmds.c (cp_subst): Change SRC_LEN to size_t.
+	New variable OFFSET.  Update `*to_p' after realloc(),
+	making the cursor a valid pointer.
+	(domap): Calculate BUF_LEN from `mapout', not `name'.
+	<LOOP, subcase `no token'>: Move character copying
+	to outer if-block, thus breaking an infinite loop.
+
 2012-12-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ftp/cmds.c (put, mput, getit, mget): Check if
