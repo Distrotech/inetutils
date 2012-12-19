@@ -3286,7 +3286,7 @@ Daemon uses only IPv6 addressing.  Ignored in inetd mode.
 Only anonymous login is allowed.
 
 @item -a @var{auth}
-@item --auth=@var{auth}
+@itemx --auth=@var{auth}
 @opindex -a
 @opindex --auth
 Specify what authentication mechanism to use for incoming connections.
@@ -3297,8 +3297,8 @@ Anonymous logins will continue to work when this option is used.
 
 @item  -D
 @itemx --daemon
-@opindex --daemon
 @opindex -D
+@opindex --daemon
 @command{ftpd} enters daemon-mode.  That allows @command{ftpd} to be
 run without @command{inetd}.
 
@@ -3320,20 +3320,20 @@ directory, remove directory and rename operations and their filename
 arguments are also logged.
 
 @item -p @var{pidfile}
-@item --pidfile=@var{pidfile}
+@itemx --pidfile=@var{pidfile}
 @opindex -p
 @opindex --pidfile
 Change default location of @var{pidfile}.
 
 @item -q
-@item --no-version
+@itemx --no-version
 @opindex -q
 @opindex --no-version
 Quiet mode.  No information about the version of the @command{ftpd} is
 given to the client.
 
 @item -T
-@item --max-timeout
+@itemx --max-timeout
 @opindex -T
 @opindex --max-timeout
 A client may also request a different timeout period; the maximum
@@ -3341,17 +3341,17 @@ period allowed may be set to timeout seconds with the @option{-T}
 option.  The default limit is 2 hours.
 
 @item -t @var{timeout}
-@item --timeout=@var{timeout}
+@itemx --timeout=@var{timeout}
 @opindex -t
 @opindex --timeout
 The inactivity timeout period is set to timeout seconds (the default
 is 15 minutes).
 
 @item -u @var{umask}
-@item --umask=@var{umask}
+@itemx --umask=@var{umask}
 @opindex -u
 @opindex --umask
-Set default umask(base 8).
+Set default umask, expressed in base 8.
 @end table
 
 The file @file{/etc/nologin} can be used to disable FTP access.  If
@@ -3437,7 +3437,7 @@ transfer status will be returned.
 conventions used by @command{csh}.  This allows users to utilize the
 metacharacters @samp{*?[]@{@}~}.
 
-@command{ftpd} authenticates users according to three rules.
+@command{ftpd} authenticates users according to four rules.
 
 @enumerate
 @item
@@ -3467,10 +3467,10 @@ constructed with care, following these rules:
 
 @table @file
 @item ~ftp
-Make the home directory owned by @samp{root} and unwritable by anyone.
+Make the home directory owned by @samp{root} and not writable by anyone.
 
 @item ~ftp/bin
-Make this directory owned by @samp{root} and unwritable by anyone
+Make this directory owned by @samp{root} and not writable by anyone
 (mode 555).  The program @command{ls} must be present to support the
 list command.  This program should be mode 111.
 
@@ -3492,17 +3492,24 @@ this directory.
 @section Configuration files
 
 @table @samp
+@item @file{/etc/ftpchroot}
+List of users to enclose in a chrooted directory.
+The anonymous user @samp{ftp} is always considered
+to be a member of this list, explicit or not.
+
 @item @file{/etc/ftpusers}
 List of unwelcome/restricted users.
 
 @item @file{/etc/ftpwelcome}
-Welcome notice.
+Welcome notice printed before server identification
+and any authentication exchange.
 
 @item @file{/etc/motd}
-Welcome notice after login.
+Welcome notice presented after completed login.
 
 @item @file{/etc/nologin}
-Displayed and access refused.
+If present, the contents are displayed and all further
+access is refused.
 @end table
 
 @node tftpd invocation

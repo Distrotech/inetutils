@@ -64,10 +64,6 @@ TARGET46=${TARGET46:-::ffff:127.0.0.1}
 do_transfer=false
 test "${TRANSFERTEST+yes}" = "yes" && do_transfer=true
 
-# Files used in transmission tests.
-GETME=getme.$$
-PUTME=putme.$$
-
 # Portability fix for SVR4
 PWD="${PWD:-`pwd`}"
 
@@ -153,6 +149,26 @@ else
     exit 77
 fi
 
+# Try common subdirectories for writability.
+# Result is in DLDIR, usable in chrooted setting.
+# Assigns an empty value when no writable candidate
+# was found.
+
+if test -z "$DLDIR"; then
+    for DLDIR in /pub /download /downloads /dl / ; do
+	test -d $FTPHOME$DLDIR || continue
+	set -- `ls -ld $FTPHOME$DLDIR`
+	# Check owner.
+	test "$3" = $FTPUSER || continue
+	# Check for write access.
+	test `expr $1 : 'drwx'` -eq 4 && break
+	DLDIR=	# Reset failed value
+    done
+
+    test -z "$DLDIR" && do_transfer=false
+    test x"$DLDIR" = x"/" && DLDIR=
+fi
+
 # Note that inetd changes directory to / when --debug is not given so
 # all paths must be absolute for things to work.
 
@@ -169,7 +185,7 @@ posttesting () {
 	     || kill -9 "`cat $TMPDIR/inetd.pid`"; }
     test -n "$TMPDIR" && test -d "$TMPDIR" && rm -rf "$TMPDIR"
     $do_transfer && test -n "$FTPHOME" \
-	&& test -f "$FTPHOME/$PUTME" && rm -f "$FTPHOME/$PUTME" \
+	&& test -f "$FTPHOME$DLDIR/$PUTME" && rm -f "$FTPHOME$DLDIR/$PUTME" \
 	|| true
 }
 
@@ -187,6 +203,13 @@ locate_port () {
 	$GREP "^$2[46]\{0,2\}.*[^0-9]$1[^0-9]" >/dev/null 2>&1
     fi
 }
+
+# Files used in transmission tests.
+GETME=`$MKTEMP $TMPDIR/file.XXXXXXXX` || do_transfer=false
+
+test -n "$GETME" && GETME=`expr "$GETME" : "$TMPDIR/\(.*\)"`
+
+PUTME=putme.$GETME
 
 # Find an available port number.  There will be some
 # room left for a race condition, but we try to be
@@ -294,6 +317,8 @@ echo "PASV to $TARGET (IPv4) using inetd."
 cat <<STOP |
 rstatus
 dir
+`$do_transfer && test -n "$DLDIR" && echo "\
+cd $DLDIR"`
 `$do_transfer && echo "\
 lcd $TMPDIR
 image
@@ -304,7 +329,7 @@ HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 test_report $? "$TMPDIR/ftp.stdout" "PASV/$TARGET"
 
 $do_transfer && \
-    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
 	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
 	date "+%s" >> "$TMPDIR/$GETME"
     else
@@ -318,6 +343,8 @@ echo "PORT to $TARGET (IPv4) using inetd."
 cat <<STOP |
 rstatus
 dir
+`$do_transfer && test -n "$DLDIR" && echo "\
+cd $DLDIR"`
 `$do_transfer && echo "\
 lcd $TMPDIR
 image
@@ -328,7 +355,7 @@ HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -t >$TMPDIR/ftp.stdout 2>&1
 test_report $? "$TMPDIR/ftp.stdout" "PORT/$TARGET"
 
 $do_transfer && \
-    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
 	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
 	date "+%s" >> "$TMPDIR/$GETME"
     else
@@ -355,6 +382,8 @@ cat <<STOP |
 rstatus
 epsv4
 dir
+`$do_transfer && test -n "$DLDIR" && echo "\
+cd $DLDIR"`
 `$do_transfer && echo "\
 lcd $TMPDIR
 image
@@ -365,7 +394,7 @@ HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -t >$TMPDIR/ftp.stdout 2>&1
 test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET"
 
 $do_transfer && \
-    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
 	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
 	date "+%s" >> "$TMPDIR/$GETME"
     else
@@ -390,6 +419,8 @@ echo "EPRT to $TARGET6 (IPv6) using inetd."
 cat <<STOP |
 rstatus
 dir
+`$do_transfer && test -n "$DLDIR" && echo "\
+cd $DLDIR"`
 `$do_transfer && echo "\
 lcd $TMPDIR
 image
@@ -400,7 +431,7 @@ HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -t >$TMPDIR/ftp.stdout 2>&1
 test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET6"
 
 $do_transfer && \
-    if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
 	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
 	date "+%s" >> "$TMPDIR/$GETME"
     else
@@ -468,6 +499,8 @@ if $have_address_mapping && test -n "$TARGET46" ; then
     cat <<-STOP |
 	rstatus
 	dir
+	`$do_transfer && test -n "$DLDIR" && echo "\
+cd $DLDIR"`
 	`$do_transfer && echo "\
 lcd $TMPDIR
 image
@@ -478,7 +511,7 @@ put $GETME $PUTME"`
     test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET46"
 
     $do_transfer && \
-	if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
 	    test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
 	    date "+%s" >> "$TMPDIR/$GETME"
 	else
@@ -492,6 +525,8 @@ put $GETME $PUTME"`
     cat <<-STOP |
 	rstatus
 	dir
+	`$do_transfer && test -n "$DLDIR" && echo "\
+cd $DLDIR"`
 	`$do_transfer && echo "\
 lcd $TMPDIR
 image
@@ -502,7 +537,7 @@ put $GETME $PUTME"`
     test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET46"
 
     $do_transfer && \
-	if cmp -s "$TMPDIR/$GETME" "$FTPHOME/$PUTME"; then
+	if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
 	    test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
 	else
 	    echo >&2 'Binary transfer failed.'
@@ -511,6 +546,46 @@ put $GETME $PUTME"`
 else
     # The IPv4-as-IPv6 tests were not performed.
     echo 'Skipping two tests of IPv4 mapped as IPv6.'
+fi
+
+# Test name mapping with PASV and IPv4.
+# Needs a writable destination!
+#
+if $do_transfer; then
+    echo "Name mapping test at $TARGET (IPv4) using inetd."
+
+    cat <<-STOP |
+	`test -z "$DLDIR" || echo "cd $DLDIR"`
+	lcd $TMPDIR
+	image
+	nmap \$1.\$2 \$2.\$1
+	put $GETME
+	nmap \$1.\$2.\$3 [\$3,copy].\$1.\$2
+	put $GETME
+	STOP
+    HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -p -t >$TMPDIR/ftp.stdout 2>&1
+
+    sIFS=$IFS
+    IFS=.
+    set -- $GETME
+    IFS=$sIFS
+
+    # Are the expected file copies present?
+
+    if test -s $FTPHOME$DLDIR/$2.$1 && \
+	test -s $FTPHOME$DLDIR/copy.$GETME
+    then
+	test "${VERBOSE+yes}" && echo >&2 'Name mapping succeeded.'
+	rm -f $FTPHOME$DLDIR/$2.$1 $FTPHOME$DLDIR/copy.$GETME
+    else
+	echo >&2 'Binary transfer failed.'
+	test -s $FTPHOME$DLDIR/$2.$1 || \
+	    echo >&2 'Mapping "nmap $1.$2 $2.$1" failed.'
+	test -s $FTPHOME$DLDIR/copy.$GETME || \
+	    echo >&2 'Mapping "nmap $1.$2.$3 [$3,copy].$1.$2" failed.'
+	rm -f $FTPHOME$DLDIR/$2.$1 $FTPHOME$DLDIR/copy.$GETME
+	exit 1
+    fi
 fi
 
 exit 0
