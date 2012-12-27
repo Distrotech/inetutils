@@ -1,3 +1,22 @@
+2012-12-27  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	traceroute: Conform to standard application set-up.
+
+	* src/traceroute.c (opt_type): Default to TRACE_UDP.
+	(opt_port): Set to TRACE_UDP_PORT.
+	(opt_ttl, opt_wait): New variables.
+	(argp_options): New options `-f/--first-hop', `-I/--icmp',
+	and `-w/--wait'.
+	(parse_opt) <`p', `t'> : Use strtol() for better sanitation.
+	<`f', `I', `w'>: New cases.
+	(main): Free RHOST after use.
+	[HAVE_IDN]: Free `hostname'.
+	(do_try): Set timer from `opt_wait'.
+	(trace_init): Set `t->ttl' from `opt_ttl'.
+
+	* doc/inetutils.texi <traceroute invocation>: Update
+	with new options.  Add a section on diagnostics.
+
 2012-12-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Detect a writable directory for better coverage.

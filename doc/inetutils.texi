@@ -879,12 +879,29 @@ traceroute [@var{option}@dots{}] @var{host}
 @anchor{traceroute options}
 
 @table @option
+@item -f @var{num}
+@itemx --first-hop=@var{num}
+@opindex -f
+@opindex --first-hop
+Set the initial hop distance to @var{num}, instead of the default 1.
+This immediately allows probing packets to sense routing
+properties closer to the target host, skipping routers close
+to the local host.  Quicker analysis of problems known to lie
+at some routing distance is the outcome.
+
+@item -I
+@itemx --icmp
+@opindex -I
+@opindex --icmp
+Use ICMP ECHO datagrams for probing the remote host.
+
 @item -M @var{method}
 @itemx --type=@var{method}
 @opindex -M
 @opindex --type
 Use @var{method} as carrier packets for traceroute operations.
-Supported choices are @samp{icmp} and @samp{udp}.
+Supported choices are @samp{icmp} and @samp{udp}, where @samp{udp}
+is the default type.
 
 @item -p @var{port}
 @itemx --port=@var{port}
@@ -909,6 +926,60 @@ Attempt to resolve all addresses as hostnames.
 @opindex --tos
 Set type-of-service, TOS field, to @var{num} on
 transmitted packets.
+
+@item -w @var{num}
+@itemx --wait=@var{num}
+@opindex -w
+@opindex --wait
+Set timeout in seconds, within which a returning response
+packet is accepted as such.
+Default waiting time is three seconds.
+@end table
+
+@section Diagnostic tokens
+@anchor{traceroute printing}
+
+During execution, @command{traceroute} sends three datagrams
+for each value for the TTL field, printing a diagnostic line
+of output for these.  The TTL field is then steadily increased
+until the intended host responds, or some intermediary gateway
+returns a datagram to the effect that the target cannot be
+reached due to one reason or another.
+
+Each line of output displays a sequence number, followed by
+diagnostic annotation.  Any responding host has its address
+printed without repetition, together with a measured timing.
+In case there is no response within a time period of three seconds,
+an asterisque @samp{*} is printed.
+
+When an intermediate router responds with an exceptional state,
+the time elapsed since emitting the original datagram is printed,
+followed by an additional short hand hint of the reason:
+
+@table @samp
+@item !F
+Fragmentation needed by gateway.
+
+@item !H
+Host not reachable from gateway.
+
+@item !N
+Network not reachable from gateway.
+
+@item !P
+Protocol not usable at host, or within network.
+
+@item !S
+Source routing failed at gateway.
+
+@item !T
+Host or network not reachable for stated type of service, TOS.
+
+@item !U
+Isolated host, not reachable.
+
+@item !X
+Forbidden by remote administration.
 @end table
 
 @node whois invocation

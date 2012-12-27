@@ -106,12 +106,14 @@ struct sockaddr_in dest;
  */
 const char unreach_sign[NR_ICMP_UNREACH + 2] = "NHPPFS**U**TTXXX";
 
-static enum trace_type opt_type = TRACE_ICMP;
-int opt_port = 33434;
+static enum trace_type opt_type = TRACE_UDP;
+int opt_port = TRACE_UDP_PORT;
 int opt_max_hops = 64;
 static int opt_max_tries = 3;
 int opt_resolve_hostnames = 0;
 int opt_tos = -1;	/* Triggers with non-negative values.  */
+int opt_ttl = TRACE_TTL;
+int opt_wait = TIME_INTERVAL;
 
 const char args_doc[] = "HOST";
 const char doc[] = "Print the route packets trace to network host.";
@@ -127,6 +129,9 @@ enum {
 
 static struct argp_option argp_options[] = {
 #define GRP 0
+  {"first-hop", 'f', "NUM", 0, "set initial hop distance, i.e., time-to-live",
+   GRP+1},
+  {"icmp", 'I', NULL, 0, "use ICMP ECHO as probe", GRP+1},
   {"port", 'p', "PORT", 0, "use destination PORT port (default: 33434)",
    GRP+1},
   {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "resolve hostnames", GRP+1},
@@ -134,7 +139,9 @@ static struct argp_option argp_options[] = {
   {"tries", 'q', "NUM", 0, "send NUM probe packets per hop (default: 3)",
    GRP+1},
   {"type", 'M', "METHOD", 0, "use METHOD (`icmp' or `udp') for traceroute "
-   "operations", GRP+1},
+   "operations, defaulting to `udp'", GRP+1},
+  {"wait", 'w', "NUM", 0, "wait NUM seconds for response (default: 3)",
+   GRP+1},
 #undef GRP
   {NULL, 0, NULL, 0, NULL, 0}
 };
@@ -147,9 +154,19 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
   switch (key)
     {
+    case 'f':
+      opt_ttl = strtol (arg, &p, 0);
+      if (*p || opt_ttl <= 0 || opt_ttl > 255)
+        error (EXIT_FAILURE, 0, "impossible distance `%s'", arg);
+      break;
+
+    case 'I':
+      opt_type = TRACE_ICMP;
+      break;
+
     case 'p':
-      opt_port = strtoul (arg, &p, 0);
-      if (*p || opt_port == 0 || opt_port > 65536)
+      opt_port = strtol (arg, &p, 0);
+      if (*p || opt_port <= 0 || opt_port > 65536)
         error (EXIT_FAILURE, 0, "invalid port number `%s'", arg);
       break;
 
@@ -162,7 +179,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
 
     case 't':
-      opt_tos = strtoul (arg, &p, 0);
+      opt_tos = strtol (arg, &p, 0);
       if (*p || opt_tos < 0 || opt_tos > 255)
 	error (EXIT_FAILURE, 0, "invalid TOS value `%s'", arg);
       break;
@@ -174,6 +191,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
         opt_type = TRACE_UDP;
       else
         argp_error (state, "invalid method");
+      break;
+
+    case 'w':
+      opt_wait = strtol (arg, &p, 0);
+      if (*p || opt_wait < 0 || opt_wait > 60)
+	error (EXIT_FAILURE, 0, "ridiculous waiting time `%s'", arg);
       break;
 
     case OPT_RESOLVE:
@@ -236,6 +259,8 @@ main (int argc, char **argv)
 
 #ifdef HAVE_IDN
   rc = idna_to_ascii_lz (hostname, &rhost, 0);
+  free (hostname);
+
   if (rc)
     error (EXIT_FAILURE, 0, "unknown host");
 #else /* !HAVE_IDN */
@@ -243,6 +268,8 @@ main (int argc, char **argv)
 #endif
 
   rc = getaddrinfo (rhost, NULL, &hints, &res);
+  free (rhost);
+
   if (rc)
     error (EXIT_FAILURE, 0, "unknown host");
 
@@ -297,7 +324,7 @@ do_try (trace_t * trace, const int hop,
       FD_SET (fd, &readset);
 
       memset (&time, 0, sizeof (time));		/* 64-bit issue.  */
-      time.tv_sec = TIME_INTERVAL;
+      time.tv_sec = opt_wait;
       time.tv_usec = 0;
 
       if (!readonly)
@@ -401,7 +428,7 @@ trace_init (trace_t * t, const struct sockaddr_in to,
 
   t->type = type;
   t->to = to;
-  t->ttl = TRACE_TTL;
+  t->ttl = opt_ttl;
 
   if (t->type == TRACE_UDP)
     {
