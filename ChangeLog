@@ -1,3 +1,25 @@
+2013-01-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	tftpd: Chrooted mode.
+
+	* src/tftpd.c: Include <grp.h>, <pwd.h>, <xalloc.h>.
+	(chrootdir, group, user): New variables.
+	(DEFAULT_GROUP, DEFAULT_USER): New macros.
+	(options): New options `-g/--group', `-s/--secure-dir',
+	and `-u/--user'.  Put new options in separate group.
+	(parse_opt): Parameter `arg' is now in use.
+	<`g', `s', `u'>: New cases.
+	(main): Assign default values to `group', `user'.
+	If chrooted mode was specified, execute chroot(),
+	setgid(), and setuid().
+	* tests/tftp.sh (do_secure_setting): New variable.
+	Set to true only for the super-user, then activating
+	two further read tests.
+	(REDIRECT): Set also for empty VERBOSE.
+
+	* doc/inetutils.texi <tftpd invocation>: Fill with
+	sensible content for old and new capabilities.
+
 2012-12-27  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	traceroute: Conform to standard application set-up.

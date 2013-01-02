@@ -3587,21 +3587,156 @@ access is refused.
 @chapter @command{tftpd}: TFTP server
 @cindex tftpd
 
+@command{tftpd} is intended to be invoked via @command{inetd}
+at all times.
+
 @noindent
 Synopsis:
 
 @example
-tftpd [@var{OPTIONS}]@dots{}
+tftpd [@var{options}] [@var{directory} @dots{}]
 @end example
 
 @table @option
+@item -g @var{group}
+@itemx --group=@var{group}
+@opindex -g
+@opindex --group
+Specify group membership of the process owner.
+This is used only along with the option @option{-s}.
+The default choice is @samp{nogroup}.
+
 @item -l
+@itemx --logging
+@opindex -l
+@opindex --logging
 Enable logging.
 
 @item -n
+@itemx --nonexistent
+@opindex -n
+@opindex --nonexistent
 Supress negative acknowledgement of requests for nonexistent relative
 filenames.
+
+@item -s @var{dir}
+@itemx --secure-dir=@var{dir}
+@opindex -s
+@opindex --secure-dir
+Let the serving process change its root directory to @var{dir}
+before attending to any requests.
+This directory is not observable by any client, but improves
+server isolation, since servable contents must be located
+below this chrooted directory @var{dir}.
+
+@item -u @var{user}
+@itemx --user=@var{user}
+@opindex -u
+@opindex --user
+Specify the process owner for serving requests.
+Only relevant along with the option @option{-s}.
+The default name is @samp{nobody}.
 @end table
+
+@section Directory prefixes
+@anchor{tftpd validation}
+
+In addition to options, an invocation of @command{tftpd} can
+specify an optional list of directory prefixes.
+These are approved of according to two principles:
+
+@itemize @bullet
+@item
+Relative pathnames are ignored.
+
+@item
+At most twenty prefixes are approved, the rest is discarded.
+@end itemize
+
+@noindent
+A request for a file is decided upon as a consequence
+of evaluating these criteria:
+
+@itemize @bullet
+@item
+Every file request containing the substring @samp{/../} is denied,
+as is a file name beginning with @samp{../}.
+
+@item
+Write requests must specify absolute locations.
+
+@item
+A file request, if specified as an @emph{absolute} pathname,
+must begin with one of the approved directory prefixes,
+should at least one such prefix have been accepted.
+
+@item
+In the absence of a prefix collection, any absolute pathname is
+accepted, should the corresponding file exist.
+
+@item
+A file request, if specified as a @emph{relative} name,
+will only be searched for below the acceptable prefixes,
+should at least one such prefix have been approved.
+
+@item
+A request for a relatively named file, is denied in the absence
+of approved directory prefixes.
+
+@item
+The resulting file must be world readable, or world writable,
+for a read request, or a write request, to succeed.
+@end itemize
+
+@section Use cases
+@anchor{tftpd setup cases}
+
+The standard use case is an entry in @file{/etc/inetd.conf} like
+
+@example
+tftp dgram tcp4 wait root nobody /usr/sbin/tftpd \
+@verb{        } tftpd /tftpboot /altboot
+@end example
+
+@noindent
+This would allow the TFTP client to use any of
+
+@smallexample
+get kernel
+get /tftpboot/kernel
+get kernel.alt
+get /altboot/kernel.alt
+get /etc/motd
+@end smallexample
+
+@noindent
+given that @file{/tftpboot/kernel} and @file{/altboot/kernel.alt} exist.
+Observe that also @file{/etc/motd} is accessible, inspite there being
+no explicit mention of standard file locations.
+
+A stronger mode of running a TFTP server is to use the `secure mode',
+meaning that the serving process is running in a chrooted mode.
+Then a suitable configuration could be
+
+@example
+tftp dgram tcp4 wait root nobody /usr/sbin/tftpd \
+@verb{        } tftpd --secure-dir=/srv/tftp-root  /tftpboot /altboot
+@end example
+
+@noindent
+Supposing that the files @file{/srv/tftp-root/tftpboot/kernel}
+and @file{/srv/tftp-root/altboot/kernel.alt} were available,
+all the previously suggested client requests for a kernel would
+still be granted, but now any request for @file{/etc/motd}
+would be declined, and would get a reply `File not found' back.
+
+The chrooted setting is denying access outside of
+@file{/srv/tftp-root}, yet is not indicating this lock-in
+to the client, and is thus improving server isolation.
+Since neither of @option{-u} and @option{-g} were specified,
+the configuration reproduced above will in fact have the
+transmitting server process running with the default
+owner set to @samp{nobody:nogroup}.
 
 @node rshd invocation
 @chapter @command{rshd}: Remote shell server

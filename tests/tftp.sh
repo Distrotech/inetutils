@@ -30,6 +30,20 @@
 #
 #    OpenBSD uses /etc/services directly, not via /etc/nsswitch.conf.
 
+#
+# Currently implemented tests (10 or 12 in total):
+#
+#  * Read three files in binary mode, from 127.0.0.1 and ::1,
+#    needing one, two, and multiple data packets, respectively.
+#
+#  * Read one moderate size ascii file from 127.0.0.1 and ::1.
+#
+#  * Reload configuration and read a small binary file twice.
+#
+#  * (root only) Reload configuration for chrooted mode.
+#    Read one binary file with a relative name, and one ascii
+#    file with absolute location.
+
 . ./tools.sh
 
 $need_dd || exit_no_dd
@@ -95,6 +109,10 @@ USER=`func_id_user`
 
 # Late supplimentary subtest.
 do_conf_reload=true
+do_secure_setting=true
+
+# Disable chrooted mode for non-root invocation.
+test `func_id_uid` -eq 0 || do_secure_setting=false
 
 # Random base directory at testing time.
 TMPDIR=`$MKTEMP -d $PWD/tmp.XXXXXXXXXX` ||
@@ -195,7 +213,7 @@ write_conf ||
 # would like to suppress the verbose output.  The variable
 # REDIRECT is set to '2>/dev/null' in non-verbose mode.
 #
-test -n "${VERBOSE+yes}" || REDIRECT='2>/dev/null'
+test -n "$VERBOSE" || REDIRECT='2>/dev/null'
 
 eval "$INETD -d -p'$INETD_PID' '$INETD_CONF' $REDIRECT &"
 
@@ -383,6 +401,53 @@ get $name" | \
     done
 else
     $silence echo >&2 'Informational: Inhibiting config reload test.'
+fi
+
+if $do_secure_setting; then
+    # Allow an underprivileged process owner to read files.
+    chmod g=rx,o=rx $TMPDIR
+
+    cat > "$INETD_CONF" <<-EOF
+	$PORT dgram ${PROTO}4 wait $USER $TFTPD   tftpd -l -s $TMPDIR /tftp-test
+	$PORT dgram ${PROTO}6 wait $USER $TFTPD   tftpd -l -s $TMPDIR /tftp-test
+	EOF
+
+    # Let inetd reload configuration.
+    kill -HUP $inetd_pid
+
+    # Test two files: file-small and asciifile.txt
+    #
+    addr=`echo "$ADDRESSES" | $SED 's/ .*//'`
+    name=`echo "$FILELIST" | $SED 's/ .*//'`
+    rm -f "$name" "$ASCIIFILE"
+    EFFORTS=`expr $EFFORTS + 2`
+
+    echo "binary
+get $name
+ascii
+get /tftp-test/$ASCIIFILE" | \
+    eval "$TFTP" ${VERBOSE:+-v} "$addr" $PORT $bucket
+
+    cmp "$TMPDIR/tftp-test/$name" "$name" 2>/dev/null
+    result=$?
+    if test $? -ne 0; then
+	$silence echo >&2 "Failed chrooted access to $name."
+	RESULT=$result
+    else
+	$silence echo >&2 "Success with chrooted access to $name."
+	SUCCESSES=`expr $SUCCESSES + 1`
+    fi
+    cmp "$TMPDIR/tftp-test/$ASCIIFILE" "$ASCIIFILE" 2>/dev/null
+    result=$?
+    if test $? -ne 0; then
+	$silence echo >&2 "Failed chrooted access to /tftp-test/$ASCIIFILE."
+	RESULT=$result
+    else
+	$silence echo >&2 "Success with chrooted /tftp-test/$ASCIIFILE."
+	SUCCESSES=`expr $SUCCESSES + 1`
+    fi
+else
+    $silence echo >&2 'Informational: Inhibiting chroot test.'
 fi
 
 # Minimal clean up. Main work in posttesting().

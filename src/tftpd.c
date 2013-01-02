@@ -79,10 +79,13 @@
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <grp.h>
+#include <pwd.h>
 
 #include "tftpsubs.h"
 
 #include <unused-parameter.h>
+#include <xalloc.h>
 #include <argp.h>
 #include <progname.h>
 #include <libinetutils.h>
@@ -98,6 +101,17 @@ void usage (void);
 static int peer;
 static int rexmtval = TIMEOUT;
 static int maxtimeout = 5 * TIMEOUT;
+static char *chrootdir = NULL;
+static char *group;
+static char *user;
+
+#ifndef DEFAULT_GROUP
+# define DEFAULT_GROUP	"nogroup"
+#endif
+
+#ifndef DEFAULT_USER
+# define DEFAULT_USER	"nobody"
+#endif
 
 /* Some systems define PKTSIZE in <arpa/tftp.h>.  */
 #ifndef PKTSIZE
@@ -133,16 +147,30 @@ static const char *verifyhost (struct sockaddr_storage *, socklen_t);
 
 
 static struct argp_option options[] = {
+#define GRP 0
   { "logging", 'l', NULL, 0,
-    "enable logging", 1},
+    "enable logging", GRP+1},
   { "nonexistent", 'n', NULL, 0,
     "supress negative acknowledgement of requests for "
-    "nonexistent relative filenames", 1},
+    "nonexistent relative filenames", GRP+1},
+#undef GRP
+#define GRP 10
+  { NULL, 0, NULL, 0, "", GRP},
+  { "group", 'g', "GRP", 0,
+    "set group of process owner, used with '-s' and "
+    "defaults to 'nogroup'", GRP+1},
+  { "secure-dir", 's', "DIR", 0,
+    "change root directory to DIR before searching and "
+    "serving content", GRP+1},
+  { "user", 'u', "USR", 0,
+    "set name of process owner, used with '-s' and "
+    "defaults to 'nobody'", GRP+1},
+#undef GRP
   { NULL, 0, NULL, 0, NULL, 0}
 };
 
 static error_t
-parse_opt (int key, char *arg _GL_UNUSED_PARAMETER,
+parse_opt (int key, char *arg,
 	   struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   switch (key)
@@ -151,8 +179,22 @@ parse_opt (int key, char *arg _GL_UNUSED_PARAMETER,
       logging = 1;
       break;
 
+    case 'g':
+      free (group);
+      group = xstrdup (arg);
+      break;
+
     case 'n':
       suppress_naks = 1;
+      break;
+
+    case 's':
+      chrootdir = xstrdup (arg);
+      break;
+
+    case 'u':
+      free (user);
+      user = xstrdup (arg);
       break;
 
     default:
@@ -180,6 +222,9 @@ main (int argc, char *argv[])
   int on, n;
   struct sockaddr_storage sin;
 
+  group = xstrdup (DEFAULT_GROUP);
+  user = xstrdup (DEFAULT_USER);
+
   set_program_name (argv[0]);
   iu_argp_init ("tftpd", default_program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
@@ -202,12 +247,52 @@ main (int argc, char *argv[])
 	}
     }
 
+  if (chrootdir && *chrootdir)
+    {
+      struct passwd *pwd = NULL;
+      struct group *grp = NULL;
+
+      /* Ignore user and group setting for non-root invokations.  */
+      if (!getuid())
+	{
+	  pwd = getpwnam (user);
+	  if (!pwd)
+	    {
+	      syslog (LOG_ERR, "getpwnam('%s'): %m", user);
+	      exit (EXIT_FAILURE);
+	    }
+
+	  grp = getgrnam (group);
+	  if (!grp)
+	    {
+	      syslog (LOG_ERR, "getgrnam('%s'): %m", group);
+	      exit (EXIT_FAILURE);
+	    }
+	}
+
+      if (chroot (chrootdir) || chdir ("/"))
+	{
+	  syslog (LOG_ERR, "chroot('%s'): %m", chrootdir);
+	  exit (EXIT_FAILURE);
+	}
+
+      if (pwd && grp)
+	{
+	  if (setgid (grp->gr_gid) || setuid (pwd->pw_uid))
+	    {
+	      syslog (LOG_ERR, "setgid/setuid: %m");
+	      exit (EXIT_FAILURE);
+	    }
+	}
+    }
+
   on = 1;
   if (ioctl (0, FIONBIO, &on) < 0)
     {
-      syslog (LOG_ERR, "ioctl(FIONBIO): %m\n");
+      syslog (LOG_ERR, "ioctl(FIONBIO): %m");
       exit (EXIT_FAILURE);
     }
+
   fromlen = sizeof (from);
   n = recvfrom (0, buf, sizeof (buf), 0, (struct sockaddr *) &from, &fromlen);
   if (n < 0)
