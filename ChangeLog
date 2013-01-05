@@ -1,3 +1,16 @@
+2013-01-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	tftpd: Group setting.
+	A group named `nogroup' is not portable enough,
+	so tidy the chrooting code for robustness.
+
+	* src/tftpd.c (DEFAULT_GROUP): Remove macro.
+	(main): Do not initialize `group'.  Delay code
+	block for chroot set-up until after forking and
+	socket binding.  Separate setgid() from setuid(),
+	and inherit group membership from owner, should
+	no group have been specified.
+
 2013-01-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	tftpd: Chrooted mode.

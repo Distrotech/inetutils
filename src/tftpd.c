@@ -102,12 +102,8 @@ static int peer;
 static int rexmtval = TIMEOUT;
 static int maxtimeout = 5 * TIMEOUT;
 static char *chrootdir = NULL;
-static char *group;
+static char *group = NULL;
 static char *user;
-
-#ifndef DEFAULT_GROUP
-# define DEFAULT_GROUP	"nogroup"
-#endif
 
 #ifndef DEFAULT_USER
 # define DEFAULT_USER	"nobody"
@@ -157,8 +153,7 @@ static struct argp_option options[] = {
 #define GRP 10
   { NULL, 0, NULL, 0, "", GRP},
   { "group", 'g', "GRP", 0,
-    "set group of process owner, used with '-s' and "
-    "defaults to 'nogroup'", GRP+1},
+    "set explicit group of process owner, used with '-s'", GRP+1},
   { "secure-dir", 's', "DIR", 0,
     "change root directory to DIR before searching and "
     "serving content", GRP+1},
@@ -222,7 +217,6 @@ main (int argc, char *argv[])
   int on, n;
   struct sockaddr_storage sin;
 
-  group = xstrdup (DEFAULT_GROUP);
   user = xstrdup (DEFAULT_USER);
 
   set_program_name (argv[0]);
@@ -243,45 +237,6 @@ main (int argc, char *argv[])
 	      dirp->name = argv[index];
 	      dirp->len = strlen (dirp->name);
 	      dirp++;
-	    }
-	}
-    }
-
-  if (chrootdir && *chrootdir)
-    {
-      struct passwd *pwd = NULL;
-      struct group *grp = NULL;
-
-      /* Ignore user and group setting for non-root invokations.  */
-      if (!getuid())
-	{
-	  pwd = getpwnam (user);
-	  if (!pwd)
-	    {
-	      syslog (LOG_ERR, "getpwnam('%s'): %m", user);
-	      exit (EXIT_FAILURE);
-	    }
-
-	  grp = getgrnam (group);
-	  if (!grp)
-	    {
-	      syslog (LOG_ERR, "getgrnam('%s'): %m", group);
-	      exit (EXIT_FAILURE);
-	    }
-	}
-
-      if (chroot (chrootdir) || chdir ("/"))
-	{
-	  syslog (LOG_ERR, "chroot('%s'): %m", chrootdir);
-	  exit (EXIT_FAILURE);
-	}
-
-      if (pwd && grp)
-	{
-	  if (setgid (grp->gr_gid) || setuid (pwd->pw_uid))
-	    {
-	      syslog (LOG_ERR, "setgid/setuid: %m");
-	      exit (EXIT_FAILURE);
 	    }
 	}
     }
@@ -383,6 +338,69 @@ main (int argc, char *argv[])
     {
       syslog (LOG_ERR, "bind: %m\n");
       exit (EXIT_FAILURE);
+    }
+
+  if (chrootdir && *chrootdir)
+    {
+      struct passwd *pwd = NULL;
+      struct group *grp = NULL;
+
+      /* Ignore user and group setting for non-root invocations.  */
+      if (!getuid())
+	{
+	  pwd = getpwnam (user);
+	  if (!pwd)
+	    {
+	      syslog (LOG_ERR, "getpwnam('%s'): %m", user);
+	      exit (EXIT_FAILURE);
+	    }
+
+	  /* Group names are not portable enough to allow
+	   * for a preset value.  The server inherits
+	   * group membership from owner, in other cases.
+	   */
+	  if (group && *group)
+	    {
+	      grp = getgrnam (group);
+	      if (!grp)
+		{
+		  syslog (LOG_ERR, "getgrnam('%s'): %m", group);
+		  exit (EXIT_FAILURE);
+		}
+	    }
+	}
+
+      if (chroot (chrootdir) || chdir ("/"))
+	{
+	  syslog (LOG_ERR, "chroot('%s'): %m", chrootdir);
+	  exit (EXIT_FAILURE);
+	}
+
+      if (pwd)
+	{
+	  if (grp)
+	    {
+	      if (setgid (grp->gr_gid))
+		{
+		  syslog (LOG_ERR, "setgid: %m");
+		  exit (EXIT_FAILURE);
+		}
+	    }
+	  else
+	    {
+	      if (setgid (pwd->pw_gid))
+		{
+		  syslog (LOG_ERR, "setgid: %m");
+		  exit (EXIT_FAILURE);
+		}
+	    }
+
+	  if (setuid (pwd->pw_uid))
+	    {
+	      syslog (LOG_ERR, "setuid: %m");
+	      exit (EXIT_FAILURE);
+	    }
+	}
     }
 
   tp = (struct tftphdr *) buf;
