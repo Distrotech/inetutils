@@ -1,3 +1,15 @@
+2013-01-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	tftpd: Error handling.
+	Send NAK on error conditions in chrooted mode,
+	preventing the client from hanging indefinitely.
+
+	* src/tftpd.c (main): Send NAK with ENOUSER as
+	response, should chrooted mode specify non-existent
+	user or group.  Likewise when setgid() or setuid()
+	fails.  Send NAK with EACCESS, should chroot() fail.
+	(usage_str, usage): Remove unused constructs.
+
 2013-01-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	tftpd: Group setting.

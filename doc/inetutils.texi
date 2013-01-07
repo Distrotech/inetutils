@@ -3695,7 +3695,7 @@ for a read request, or a write request, to succeed.
 The standard use case is an entry in @file{/etc/inetd.conf} like
 
 @example
-tftp dgram udp4 wait root nobody /usr/sbin/tftpd \
+tftp dgram udp4 wait root /usr/sbin/tftpd \
 @verb{        } tftpd /tftpboot /altboot
 @end example
 
@@ -3720,7 +3720,7 @@ meaning that the serving process is running in a chrooted mode.
 Then a suitable configuration could be
 
 @example
-tftp dgram udp4 wait root nobody /usr/sbin/tftpd \
+tftp dgram udp4 wait root /usr/sbin/tftpd \
 @verb{        } tftpd --secure-dir=/srv/tftp-root  /tftpboot /altboot
 @end example
 

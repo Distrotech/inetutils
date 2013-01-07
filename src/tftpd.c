@@ -90,8 +90,6 @@
 #include <progname.h>
 #include <libinetutils.h>
 
-void usage (void);
-
 #define TIMEOUT		5
 
 #ifndef LOG_FTP
@@ -352,6 +350,7 @@ main (int argc, char *argv[])
 	  if (!pwd)
 	    {
 	      syslog (LOG_ERR, "getpwnam('%s'): %m", user);
+	      nak (ENOUSER);
 	      exit (EXIT_FAILURE);
 	    }
 
@@ -365,6 +364,7 @@ main (int argc, char *argv[])
 	      if (!grp)
 		{
 		  syslog (LOG_ERR, "getgrnam('%s'): %m", group);
+		  nak (ENOUSER);
 		  exit (EXIT_FAILURE);
 		}
 	    }
@@ -373,6 +373,7 @@ main (int argc, char *argv[])
       if (chroot (chrootdir) || chdir ("/"))
 	{
 	  syslog (LOG_ERR, "chroot('%s'): %m", chrootdir);
+	  nak (EACCESS);
 	  exit (EXIT_FAILURE);
 	}
 
@@ -383,6 +384,7 @@ main (int argc, char *argv[])
 	      if (setgid (grp->gr_gid))
 		{
 		  syslog (LOG_ERR, "setgid: %m");
+		  nak (ENOUSER);
 		  exit (EXIT_FAILURE);
 		}
 	    }
@@ -391,6 +393,7 @@ main (int argc, char *argv[])
 	      if (setgid (pwd->pw_gid))
 		{
 		  syslog (LOG_ERR, "setgid: %m");
+		  nak (ENOUSER);
 		  exit (EXIT_FAILURE);
 		}
 	    }
@@ -398,6 +401,7 @@ main (int argc, char *argv[])
 	  if (setuid (pwd->pw_uid))
 	    {
 	      syslog (LOG_ERR, "setuid: %m");
+	      nak (ENOUSER);
 	      exit (EXIT_FAILURE);
 	    }
 	}
@@ -883,20 +887,4 @@ verifyhost (struct sockaddr_storage *fromp, socklen_t frlen)
       syslog (LOG_ERR, "getnameinfo: %s\n", gai_strerror(rc));
       return "0.0.0.0";
     }
-}
-
-static const char usage_str[] =
-  "Usage: tftpd [OPTIONS...]\n"
-  "\n"
-  "Options are:\n"
-  "   -l                      Enable logging\n"
-  "   -n                      Supress negative acknowledgement of\n"
-  "                           requests for nonexistent relative filenames\n"
-  "       --help              Display usage instructions\n"
-  "       --version           Display program version\n";
-
-void
-usage (void)
-{
-  printf ("%s\n" "Send bug reports to <%s>\n", usage_str, PACKAGE_BUGREPORT);
 }
