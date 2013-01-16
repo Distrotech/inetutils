@@ -1,3 +1,9 @@
+2013-01-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ping/ping_echo.c (print_ip_header): Empirically test
+	`ip->ip_len' to decide whether ntohs() is needed.
+	(print_icmp): Call print_ip_data() only in verbose mode.
+
 2013-01-16  Guillem Jover  <guillem@hadrons.org>
 
 	* ping/libping.c (ping_xmit): Do not call perror().

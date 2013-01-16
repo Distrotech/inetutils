@@ -318,8 +318,14 @@ print_ip_header (struct ip *ip)
 
   printf
     ("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src\tDst\tData\n");
-  printf (" %1x  %1x  %02x %04x %04x", ip->ip_v, ip->ip_hl, ip->ip_tos,
-	  ntohs (ip->ip_len), ntohs (ip->ip_id));
+  printf (" %1x  %1x  %02x", ip->ip_v, ip->ip_hl, ip->ip_tos);
+  /*
+   * The member `ip_len' is not portably reported in any byte order.
+   * Use a simple heuristic to print a reasonable value.
+   */
+  printf (" %04x %04x",
+	  (ip->ip_len > 0x2000) ? ntohs (ip->ip_len) : ip->ip_len,
+	  ntohs (ip->ip_id));
   printf ("   %1x %04x", (ntohs (ip->ip_off) & 0xe000) >> 13,
 	  ntohs (ip->ip_off) & 0x1fff);
   printf ("  %02x  %02x %04x", ip->ip_ttl, ip->ip_p, ntohs (ip->ip_sum));
@@ -367,7 +373,8 @@ static void
 print_icmp (icmphdr_t * icmp, void *data)
 {
   print_icmp_code (icmp->icmp_type, icmp->icmp_code, data);
-  print_ip_data (icmp, NULL);
+  if (options && OPT_VERBOSE)
+    print_ip_data (icmp, NULL);
 }
 
 static void
