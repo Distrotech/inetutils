@@ -13,6 +13,80 @@ Called as `pftp', passive mode is preset.  New switch `-e/--no-edit'
 for compatibility with other implementations.  Can now be built
 without readline ability: configure using `--disable-readline'.
 
+* ifconfig
+
+Provides new support for BSD and improved support for Solaris.
+Argument handling has been corrected to avoid some segfaults.
+
+* ping
+
+New switches `--ip-timestamp', `--mask', `-T/--tos' and `--ttl'.
+
+* ping6
+
+New switches `--hoplimit' and `-v/--verbose'.
+
+* rcp
+
+Supports IPv6 and Shishi.  New switches `-4/--ipv4', `-6/--ipv6',
+`-k/--realm', `-K/--kerberos', and `-x/--encrypt'.
+
+* rexec
+
+Supports IPv6.  New switches `-4/--ipv4', `-6/--ipv6', `-a/--ipany'
+
+* rlogin, rsh
+
+Support IPv6.  New switches `-4/--ipv4', `-6/--ipv6'.
+
+* telnet
+
+New switch `-k/--realm'.
+
+* traceroute
+
+Default mode is now UDP, for better conformity with Unices.
+New switches `-f/--first-hop', `-I/--icmp', `-t/--tos', and
+`-w/--wait'.
+
+* ftpd
+
+Full IPv6 support.  PAM support is restricted to Linux-PAM,
+since `pam_ftp.so' exists only there and our code depends on
+its response for handling anonymous users.  Server now accepts
+commands LPRT and LPSV.
+
+* inetd
+
+Service configuration now allows setting also the group.
+
+* rexecd
+
+Can be built with PAM support.  New option `-l/--logging'.
+
+* rlogind
+
+Support for IPv6.  New switches `-4/--ipv4', `-6/--ipv6',
+and `-S/--server-principal'.
+
+* rshd
+
+Now has support for IPv6, PAM, and Shishi.  New switches
+`-k/--kerberos', `-S/--server-principal', `-v/--vacuous',
+and `-x/--encrypt'.
+
+* telnetd
+
+New switch `-S/--server-principal'.
+
+* tftpd
+
+New switches `-g/--group', `-s/--secure-dir', and `-u/--user'.
+
+* uucpd
+
+New switch `-u/--uucico'.
+
 
 January 6, 2012
 Version 1.9.1:
