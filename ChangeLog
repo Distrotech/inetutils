@@ -1,3 +1,12 @@
+2013-01-16  Guillem Jover  <guillem@hadrons.org>
+
+	* ping/libping.c (ping_xmit): Do not call perror().
+	Instead return a negative status.
+	* ping/ping.c (send_echo): New variable RC.
+	Abort with a message on any error condition.
+	* ping/ping6.c (ping_xmit): Likewise.
+	(send_echo): Likewise.
+
 2013-01-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	tftpd: Error handling.

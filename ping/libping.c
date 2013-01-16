@@ -152,7 +152,7 @@ ping_xmit (PING * p)
   i = sendto (p->ping_fd, (char *) p->ping_buffer, buflen, 0,
 	      (struct sockaddr *) &p->ping_dest.ping_sockaddr, sizeof (struct sockaddr_in));
   if (i < 0)
-    perror ("ping: sendto");
+    return -1;
   else
     {
       p->ping_num_xmit++;

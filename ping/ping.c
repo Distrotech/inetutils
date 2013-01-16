@@ -497,6 +497,7 @@ int
 send_echo (PING * ping)
 {
   size_t off = 0;
+  int rc;
 
   if (PING_TIMING (data_length))
     {
@@ -509,7 +510,12 @@ send_echo (PING * ping)
     ping_set_data (ping, data_buffer, off,
 		   data_length > off ? data_length - off : data_length,
 		   USE_IPV6);
-  return ping_xmit (ping);
+
+  rc = ping_xmit (ping);
+  if (rc < 0)
+    error (EXIT_FAILURE, errno, "sending packet");
+
+  return rc;
 }
 
 int
