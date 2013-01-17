@@ -373,7 +373,7 @@ static void
 print_icmp (icmphdr_t * icmp, void *data)
 {
   print_icmp_code (icmp->icmp_type, icmp->icmp_code, data);
-  if (options && OPT_VERBOSE)
+  if (options & OPT_VERBOSE)
     print_ip_data (icmp, NULL);
 }
 

@@ -1,3 +1,12 @@
+2013-01-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ping/ping6.c: Include <arpa/inet.h>.
+	(print_ip_data): New function.
+	(print_icmp_error): In verbose mode, let print_ip_data()
+	display information on returned packet.
+
+	* ping/ping_echo.c (print_icmp): Use bitwise-and in test.
+
 2013-01-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ping/ping_echo.c (print_ip_header): Empirically test

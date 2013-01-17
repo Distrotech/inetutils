@@ -31,6 +31,7 @@
 #include <netinet/in.h>
 #include <netinet/ip6.h>
 #include <netinet/icmp6.h>
+#include <arpa/inet.h>
 
 #include <netdb.h>
 #include <unistd.h>
@@ -662,6 +663,58 @@ print_param_prob (struct icmp6_hdr *icmp6)
   printf ("Unknown code %d\n", icmp6->icmp6_code);
 }
 
+void
+print_ip_data (struct icmp6_hdr *icmp6)
+{
+  size_t j;
+  struct ip6_hdr *ip = (struct ip6_hdr *) ((char *) icmp6 + sizeof (*icmp6));
+  char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
+
+  (void) inet_ntop (AF_INET6, &ip->ip6_dst, dst, sizeof (dst));
+  (void) inet_ntop (AF_INET6, &ip->ip6_src, src, sizeof (src));
+
+  printf ("IP Header Dump:\n ");
+  for (j = 0; j < sizeof (*ip) - sizeof (ip->ip6_src) - sizeof (ip->ip6_dst); ++j)
+    printf ("%02x%s", *((unsigned char *) ip + j),
+	    (j % 2) ? " " : "");	/* Group bytes two by two.  */
+  printf ("(src) (dst)\n");
+
+  printf ("Vr TC Flow Plen Nxt Hop Src\t\t  Dst\n");
+  printf (" %1x %02x %04x %4hu %3hhu %3hhu %s %s\n",
+	  ntohl (ip->ip6_flow) >> 28,
+	  (ntohl (ip->ip6_flow) & 0x0fffffff) >> 20,
+	  ntohl (ip->ip6_flow) & 0x0fffff,
+	  ntohs (ip->ip6_plen), ip->ip6_nxt, ip->ip6_hlim,
+	  src, dst);
+
+  switch (ip->ip6_nxt)
+    {
+    case IPPROTO_ICMPV6:
+      {
+	struct icmp6_hdr *hdr =
+	  (struct icmp6_hdr *) ((unsigned char *) ip + sizeof (*ip));
+
+	printf ("ICMP: type %hhu, code %hhu, size %hu",
+		hdr->icmp6_type, hdr->icmp6_code, ntohs (ip->ip6_plen));
+	switch (hdr->icmp6_type)
+	  {
+	  case ICMP6_ECHO_REQUEST:
+	  case ICMP6_ECHO_REPLY:
+	    printf (", id 0x%04x, seq 0x%04x",
+		    ntohs (hdr->icmp6_id), ntohs (hdr->icmp6_seq));
+	    break;
+	  default:
+	    break;
+	  }
+      }
+      break;
+    default:
+      break;
+    }
+
+  printf ("\n");
+};
+
 static struct icmp_diag
 {
   int type;
@@ -688,6 +741,9 @@ print_icmp_error (struct sockaddr_in6 *from, struct icmp6_hdr *icmp6, int len)
       if (p->type == icmp6->icmp6_type)
 	{
 	  p->func (icmp6);
+	  if (options & OPT_VERBOSE)
+	    print_ip_data (icmp6);
+
 	  return;
 	}
     }
