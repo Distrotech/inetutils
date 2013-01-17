@@ -36,6 +36,8 @@
 #define OPT_RROUTE      0x010
 #define OPT_VERBOSE     0x020
 #define OPT_IPTIMESTAMP 0x040
+#define OPT_FLOWINFO    0x080
+#define OPT_TCLASS      0x100
 
 #define SOPT_TSONLY     0x001
 #define SOPT_TSADDR     0x002

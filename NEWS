@@ -24,7 +24,7 @@ New switches `--ip-timestamp', `--mask', `-T/--tos' and `--ttl'.
 
 * ping6
 
-New switches `--hoplimit' and `-v/--verbose'.
+New switches `--hoplimit/--ttl', `-T/--tos' and `-v/--verbose'.
 
 * rcp
 

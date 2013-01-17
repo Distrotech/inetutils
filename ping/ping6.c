@@ -68,6 +68,12 @@ int timeout = -1;
 int hoplimit = 0;
 unsigned int options;
 static unsigned long preload = 0;
+#ifdef IPV6_TCLASS
+int tclass = -1;	/* Kernel sets default: -1, RFC 3542.  */
+#endif
+#ifdef IPV6_FLOWINFO
+int flowinfo;
+#endif
 
 static int ping_echo (char *hostname);
 static void ping_reset (PING * p);
@@ -91,13 +97,20 @@ static struct argp_option argp_options[] = {
   {NULL, 0, NULL, 0, "Options valid for all request types:", GRP},
   {"count", 'c', "NUMBER", 0, "stop after sending NUMBER packets", GRP+1},
   {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
+#ifdef IPV6_FLOWINFO
+  {"flowinfo", 'F', "N", 0, "set N as flow identifier", GRP+1},
+#endif
   {"hoplimit", ARG_HOPLIMIT, "N", 0, "specify N as hop-limit", GRP+1},
   {"interval", 'i', "NUMBER", 0, "wait NUMBER seconds between sending each "
    "packet", GRP+1},
   {"numeric", 'n', NULL, 0, "do not resolve host addresses", GRP+1},
   {"ignore-routing", 'r', NULL, 0, "send directly to a host on an attached "
    "network", GRP+1},
+#ifdef IPV6_TCLASS
+  {"tos", 'T', "N", 0, "set traffic class to N", GRP+1},
+#endif
   {"timeout", 'w', "N", 0, "stop after N seconds", GRP+1},
+  {"ttl", ARG_HOPLIMIT, "N", 0, "synonym for --hoplimit", GRP+1},
   {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
 #undef GRP
 #define GRP 10
@@ -137,6 +150,13 @@ parse_opt (int key, char *arg, struct argp_state *state)
       setbuf (stdout, (char *) NULL);
       break;
 
+#ifdef IPV6_FLOWINFO
+    case 'F':
+      options |= OPT_FLOWINFO;
+      flowinfo = ping_cvt_number (arg, 0, 0) & IPV6_FLOWINFO_FLOWLABEL;
+      break;
+#endif
+
     case 'i':
       options |= OPT_INTERVAL;
       interval = ping_cvt_number (arg, 0, 0);
@@ -172,6 +192,13 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 's':
       data_length = ping_cvt_number (arg, PING_MAX_DATALEN, 1);
       break;
+
+#ifdef IPV6_TCLASS
+    case 'T':
+      options |= OPT_TCLASS;
+      tclass = ping_cvt_number (arg, 0, 0);
+      break;
+#endif
 
     case 'v':
       options |= OPT_VERBOSE;
@@ -243,6 +270,20 @@ main (int argc, char **argv)
     if (setsockopt (ping->ping_fd, IPPROTO_IPV6, IPV6_UNICAST_HOPS,
 		    &hoplimit, sizeof (hoplimit)) < 0)
       error (0, errno, "setsockopt(IPV6_HOPLIMIT)");
+
+#ifdef IPV6_TCLASS
+  if (options & OPT_TCLASS)
+    if (setsockopt (ping->ping_fd, IPPROTO_IPV6, IPV6_TCLASS,
+		    &tclass, sizeof (tclass)) < 0)
+      error (EXIT_FAILURE, errno, "setsockopt(IPV6_TCLASS)");
+#endif
+
+#ifdef IPV6_FLOWINFO
+  if (options & OPT_FLOWINFO)
+    if (setsockopt (ping->ping_fd, IPPROTO_IPV6, IPV6_FLOWINFO,
+		    &flowinfo, sizeof (flowinfo)) < 0)
+      error (EXIT_FAILURE, errno, "setsockopt(IPV6_FLOWINFO)");
+#endif
 
   init_data_buffer (patptr, pattern_len);
 
