@@ -499,7 +499,7 @@ print_ip_opt (struct ip *ip, int hlen)
 	  i = j;
 	i -= IPOPT_MINOFF;
 	if (i <= 0)
-	  continue;
+	  break;
 	if (i == old_rrlen
 	    && cp == (unsigned char *) (ip + 1) + 2
 	    && !memcmp ((char *) cp, old_rr, i) && !(options & OPT_FLOOD))
@@ -560,6 +560,10 @@ print_ip_opt (struct ip *ip, int hlen)
 	hlen -= 2;
 	if (i > j)
 	  i = j;
+
+	/* Check minimal sizing.  */
+	if (j <= (int) (IPOPT_MINOFF + sizeof (n_time)))
+	  break;
 
 	k = *++cp;	/* OV, FL */
 	++cp;		/* Points at first content.  */

@@ -1,5 +1,13 @@
 2013-01-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	CVE-2010-2529: Infinite loop.
+
+	* ping/ping_echo.c (print_ip_opt) <IPOPT_RR>: Break loop
+	if option is truncated or exhausted.
+	<IPOPT_TS>: Break loop if option is truncated.
+
+2013-01-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* ping/ping6.c: Include <arpa/inet.h>.
 	(print_ip_data): New function.
 	(print_icmp_error): In verbose mode, let print_ip_data()
