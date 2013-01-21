@@ -19,6 +19,15 @@
 
 SUBDIRS = system
 
+@PATHDEFS_MAKE@
+
+AM_CPPFLAGS = \
+	$(iu_INCLUDES) \
+	$(PATHDEF_PROCNET_DEV)
+
+LDADD = \
+	$(iu_LIBRARIES)
+
 bin_PROGRAMS = $(ifconfig_BUILD)
 
 EXTRA_PROGRAMS = ifconfig
@@ -26,8 +35,3 @@ EXTRA_PROGRAMS = ifconfig
 ifconfig_SOURCES = ifconfig.c flags.c changeif.c options.c printif.c system.c
 
 noinst_HEADERS = ifconfig.h flags.h options.h printif.h system.h
-
-@PATHDEFS_MAKE@
-AM_CPPFLAGS = $(PATHDEF_PROCNET_DEV)
-INCLUDES = $(iu_INCLUDES)
-LDADD = $(iu_LIBRARIES)

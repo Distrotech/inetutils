@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+AM_CPPFLAGS = $(iu_INCLUDES)
+
+LDADD = $(iu_LIBRARIES)
+
 bin_PROGRAMS = $(whois_BUILD)
 
 EXTRA_PROGRAMS = whois
@@ -28,10 +32,8 @@ EXTRA_DIST = as_del_list ip_del_list tld_serv_list \
   as_del.h ip_del.h tld_serv.h
 
 noinst_HEADERS = data.h as_del.h ip_del.h tld_serv.h whois.h
-BUILT_SOURCES = as_del.h ip_del.h tld_serv.h
 
-INCLUDES = $(iu_INCLUDES)
-LDADD = $(iu_LIBRARIES)
+BUILT_SOURCES = as_del.h ip_del.h tld_serv.h
 
 as_del.h: $(srcdir)/as_del_list $(srcdir)/make_as_del.pl
 	LANG=C perl $(srcdir)/make_as_del.pl < $(srcdir)/as_del_list > as_del.h

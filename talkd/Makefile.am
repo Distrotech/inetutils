@@ -18,6 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+@PATHDEFS_MAKE@
+
+AM_CPPFLAGS = \
+	$(iu_INCLUDES) \
+	$(PATHDEF_DEV) \
+	$(PATHDEF_TTY_PFX) $(PATHDEF_UTMP) $(PATHDEF_UTMPX)
+
+LDADD = $(iu_LIBRARIES)
+
 inetdaemondir = @inetdaemondir@
 
 inetdaemon_PROGRAMS = $(talkd_BUILD)
@@ -32,9 +41,3 @@ talkd_SOURCES = \
  table.c\
  talkd.c\
  intalkd.h
-
-@PATHDEFS_MAKE@
-
-AM_CPPFLAGS = $(PATHDEF_DEV) $(PATHDEF_TTY_PFX) $(PATHDEF_UTMP) $(PATHDEF_UTMPX)
-INCLUDES = $(iu_INCLUDES)
-LDADD = $(iu_LIBRARIES)

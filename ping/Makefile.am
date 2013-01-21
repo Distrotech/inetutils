@@ -18,13 +18,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+AM_CPPFLAGS = \
+	$(iu_INCLUDES) \
+	-I$(top_srcdir)/libicmp \
+	$(INCIDN)
+
+LDADD = \
+	$(iu_LIBRARIES) \
+	$(LIBIDN)
+
 bin_PROGRAMS = $(ping_BUILD) $(ping6_BUILD)
 
 EXTRA_PROGRAMS = ping ping6
 
-ping_LDADD = $(iu_LIBRARIES) $(top_builddir)/libicmp/libicmp.a $(LIBIDN)
-ping6_LDADD = $(iu_LIBRARIES) $(LIBIDN)
-INCLUDES = $(iu_INCLUDES) -I$(top_srcdir)/libicmp $(INCIDN)
+ping_LDADD = $(top_builddir)/libicmp/libicmp.a $(LDADD)
 
 ping_SOURCES = ping.c ping_common.c ping_echo.c ping_address.c \
   ping_router.c ping_timestamp.c ping_common.h  ping_impl.h ping.h libping.c

@@ -18,15 +18,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
-inetdaemondir = @inetdaemondir@
+@PATHDEFS_MAKE@
 
 # Initialise variables.
-LDADD = $(iu_LIBRARIES) $(LIBUTIL)
+AM_CPPFLAGS = \
+	$(iu_INCLUDES) $(INCAUTH) $(INCIDN) \
+	-I$(top_srcdir)/libicmp \
+	$(PATHDEF_BSHELL) $(PATHDEF_CONSOLE) $(PATHDEF_CP) \
+	$(PATHDEF_DEFPATH) $(PATHDEF_DEV) $(PATHDEF_INETDCONF) \
+	$(PATHDEF_INETDDIR) $(PATHDEF_INETDPID) $(PATHDEF_KLOG) \
+	$(PATHDEF_LOG) $(PATHDEF_LOGCONF) \
+	$(PATHDEF_LOGIN) $(PATHDEF_LOGPID) $(PATHDEF_NOLOGIN) \
+	$(PATHDEF_RLOGIN) $(PATHDEF_RSH) $(PATHDEF_TTY) $(PATHDEF_TTY_PFX) \
+	$(PATHDEF_UTMP) $(PATHDEF_UTMPX) $(PATHDEF_UUCICO)
+
+LDADD = \
+	$(iu_LIBRARIES) \
+	$(LIBUTIL)
+
+inetdaemondir = @inetdaemondir@
 
 inetdaemon_PROGRAMS =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
-
 
 bin_PROGRAMS += $(hostname_BUILD)
 hostname_SOURCES = hostname.c
@@ -100,10 +114,6 @@ uucpd_SOURCES = uucpd.c
 uucpd_LDADD = $(LDADD) $(LIBCRYPT)
 EXTRA_PROGRAMS += uucpd
 
-INCLUDES = $(iu_INCLUDES) $(INCAUTH) -I$(top_srcdir)/libicmp $(INCIDN)
-
-AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_CONSOLE) $(PATHDEF_CP) $(PATHDEF_DEFPATH) $(PATHDEF_DEV) $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) $(PATHDEF_INETDPID) $(PATHDEF_KLOG) $(PATHDEF_LOG) $(PATHDEF_LOGCONF) $(PATHDEF_LOGIN) $(PATHDEF_LOGPID) $(PATHDEF_NOLOGIN) $(PATHDEF_RLOGIN) $(PATHDEF_RSH) $(PATHDEF_TTY) $(PATHDEF_TTY_PFX) $(PATHDEF_UTMP) $(PATHDEF_UTMPX) $(PATHDEF_UUCICO)
-
 SUIDMODE = -o root -m 4775
 
 install-exec-hook: $(traceroute_INSTALL_HOOK) $(rsh_INSTALL_HOOK) $(rlogin_INSTALL_HOOK) $(rcp_INSTALL_HOOK)
@@ -135,5 +145,3 @@ install-rcp-hook:
 	  echo "WARNING: insufficient access; not installing rcp"; \
 	  echo "NOTE: To install rcp run 'make install' as root"; \
 	fi
-
-@PATHDEFS_MAKE@

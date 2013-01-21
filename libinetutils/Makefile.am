@@ -18,6 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+@PATHDEFS_MAKE@
+
+AM_CPPFLAGS = \
+	$(iu_INCLUDES) $(INCAUTH) \
+	$(PATHDEF_WTMPX) $(PATHDEF_TTY_PFX) $(PATHDEF_DEVNULL) \
+	$(PATHDEF_HEQUIV)
+
 noinst_LIBRARIES = libinetutils.a
 
 noinst_HEADERS = argcv.h libinetutils.h tftpsubs.h shishi_def.h
@@ -41,9 +48,3 @@ libinetutils_a_SOURCES = \
  ttymsg.c\
  utmp_init.c\
  utmp_logout.c
-
-@PATHDEFS_MAKE@
-
-AM_CPPFLAGS = $(PATHDEF_WTMPX) $(PATHDEF_TTY_PFX) $(PATHDEF_DEVNULL) $(PATHDEF_HEQUIV)
-
-INCLUDES = $(iu_INCLUDES) $(INCAUTH)

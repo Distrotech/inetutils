@@ -18,6 +18,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+@PATHDEFS_MAKE@
+
+AM_CPPFLAGS = \
+	$(iu_INCLUDES) \
+	$(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
+	$(PATHDEF_FTPLOGINMESG) $(PATHDEF_FTPCHROOT) $(PATHDEF_FTPDPID) \
+	$(PATHDEF_DEVNULL) $(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)
+
+LDADD = \
+	$(LIBLS) \
+	$(iu_LIBRARIES) \
+	$(LIBCRYPT) $(LIBWRAP) $(FTPD_LIBPAM) $(LIBDL)
+
 inetdaemondir = @inetdaemondir@
 
 inetdaemon_PROGRAMS = $(ftpd_BUILD)
@@ -28,14 +41,5 @@ ftpd_SOURCES = ftpcmd.y ftpd.c popen.c pam.c auth.c \
                conf.c server_mode.c
 
 noinst_HEADERS = extern.h
-
-@PATHDEFS_MAKE@
-
-INCLUDES = $(iu_INCLUDES)
-AM_CPPFLAGS = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
-           $(PATHDEF_FTPLOGINMESG) $(PATHDEF_FTPCHROOT) $(PATHDEF_FTPDPID) \
-           $(PATHDEF_DEVNULL)  $(PATHDEF_NOLOGIN) $(PATHDEF_BSHELL)
-
-LDADD = $(LIBLS) $(LIBCRYPT) $(LIBWRAP) $(FTPD_LIBPAM) $(LIBDL) $(iu_LIBRARIES)
 
 EXTRA_DIST = ftpcmd.c

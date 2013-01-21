@@ -1,3 +1,23 @@
+2013-01-21  Guillem Jover  <guillem@hadrons.org>
+
+	Cleanup automake variables.
+
+	* ftp/Makefile.am (AM_CPPFLAGS): Consume depreciated
+	macro INCLUDES.
+	* ftpd/Makefile.am, ifconfig/Makefile.am,
+	libinetutils/Makefile.am: Likewise.
+	* libls/Makefile.am (AM_CPPFLAGS): Rename INCLUDES.
+	* libtelnet/Makefile.am: Likewise.
+	* ping/Makefile.am (AM_CPPFLAGS): Likewise.
+	(LDADD): New macro.
+	(ping_LDADD): Simplify using LDADD.
+	(ping6_LDADD): Remove.
+	* src/Makefile.am (AM_CPPFLAGS): Consume INCLUDES.
+	* talkd/Makefile.am, telnet/Makefile.am,
+	telnetd/Makefile.am: Likewise.
+	* talk/Makefile.am (AM_CPPFLAGS): Rename INCLUDES.
+	* whois/Makefile.am: Likewise.
+
 2013-01-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac (AM_C_PROTOTYPES): Remove obsolete macro.
