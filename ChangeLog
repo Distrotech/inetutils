@@ -1,3 +1,8 @@
+2013-01-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac (AM_C_PROTOTYPES): Remove obsolete macro.
+	Not supported by automake-1.13.
+
 2013-01-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ping6: Setting of tclass and flowinfo.

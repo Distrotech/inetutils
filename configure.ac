@@ -718,8 +718,6 @@ IU_CHECK_MEMBERS([struct tftphdr.th_u], , ,
 		  #include <arpa/tftp.h>])
 
 ### Checks for compiler characteristics.
-AM_C_PROTOTYPES # FIXME: Does inetutils even compile on pre-ANSI
-		# compilers?
 AC_C_CONST
 
 # See if `weak refs' are possible; these make it possible (with shared
