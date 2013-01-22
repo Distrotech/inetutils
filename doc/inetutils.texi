@@ -889,11 +889,31 @@ properties closer to the target host, skipping routers close
 to the local host.  Quicker analysis of problems known to lie
 at some routing distance is the outcome.
 
+@item -g @var{gates}
+@itemx --gateways=@var{gates}
+@opindex -g
+@opindex --gateways
+Set intermediary hosts used in loose source routing.
+The argument @var{gates} is a list of gateways,
+using spaces, commata, or semicola as separators.
+These hosts must be traversed in the given order
+before the intended host receives any datagram.
+At most eight host names or addresses may be specified.
+
 @item -I
 @itemx --icmp
 @opindex -I
 @opindex --icmp
 Use ICMP ECHO datagrams for probing the remote host.
+
+@item -m @var{num}
+@itemx --max-hop=@var{num}
+@opindex -m
+@opindex --max-hop
+Set the maximum time-to-live allowed for probing.
+In other words, stop probing when the hop distance
+is in excess of @var{num}.
+The default limit is 64.
 
 @item -M @var{method}
 @itemx --type=@var{method}

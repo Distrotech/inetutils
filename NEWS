@@ -46,8 +46,8 @@ New switch `-k/--realm'.
 * traceroute
 
 Default mode is now UDP, for better conformity with Unices.
-New switches `-f/--first-hop', `-I/--icmp', `-t/--tos', and
-`-w/--wait'.
+New switches `-f/--first-hop', `-g/--gateways', `-I/--icmp',
+`-m/--max-hop', `-t/--tos', and `-w/--wait'.
 
 * ftpd
 

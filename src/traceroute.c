@@ -31,6 +31,9 @@
 #include <netinet/ip.h>
 /* #include <netinet/ip_icmp.h> -- Deliberately not including this
    since the definitions in use are being pulled in by libicmp. */
+#ifdef HAVE_NETINET_IP_VAR_H
+# include <netinet/ip_var.h>
+#endif
 
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -79,6 +82,7 @@ typedef struct trace
 
 void trace_init (trace_t * t, const struct sockaddr_in to,
 		 const enum trace_type type);
+void trace_ip_opts (struct sockaddr_in *to);
 void trace_inc_ttl (trace_t * t);
 void trace_inc_port (trace_t * t);
 void trace_port (trace_t * t, const unsigned short port);
@@ -101,6 +105,11 @@ static char *hostname = NULL;
 char addrstr[INET6_ADDRSTRLEN];
 struct sockaddr_in dest;
 
+#ifdef IP_OPTIONS
+size_t len_ip_opts = 0;
+char ip_opts[MAX_IPOPTLEN];
+#endif /* IP_OPTIONS */
+
 /* Cause for destination unreachable reply,
  * encoded as a single character.
  */
@@ -114,6 +123,9 @@ int opt_resolve_hostnames = 0;
 int opt_tos = -1;	/* Triggers with non-negative values.  */
 int opt_ttl = TRACE_TTL;
 int opt_wait = TIME_INTERVAL;
+#ifdef IP_OPTIONS
+char *opt_gateways = NULL;
+#endif
 
 const char args_doc[] = "HOST";
 const char doc[] = "Print the route packets trace to network host.";
@@ -131,7 +143,12 @@ static struct argp_option argp_options[] = {
 #define GRP 0
   {"first-hop", 'f', "NUM", 0, "set initial hop distance, i.e., time-to-live",
    GRP+1},
+#ifdef IP_OPTIONS
+  {"gateways", 'g', "GATES", 0, "list of gateways for loose source routing",
+   GRP+1},
+#endif
   {"icmp", 'I', NULL, 0, "use ICMP ECHO as probe", GRP+1},
+  {"max-hop", 'm', "NUM", 0, "set maximal hop count (default: 64)", GRP+1},
   {"port", 'p', "PORT", 0, "use destination PORT port (default: 33434)",
    GRP+1},
   {"resolve-hostnames", OPT_RESOLVE, NULL, 0, "resolve hostnames", GRP+1},
@@ -160,8 +177,20 @@ parse_opt (int key, char *arg, struct argp_state *state)
         error (EXIT_FAILURE, 0, "impossible distance `%s'", arg);
       break;
 
+#ifdef IP_OPTIONS
+    case 'g':
+      opt_gateways = xstrdup (arg);
+      break;
+#endif /* IP_OPTIONS */
+
     case 'I':
       opt_type = TRACE_ICMP;
+      break;
+
+    case 'm':
+      opt_max_hops = strtol (arg, &p, 0);
+      if (*p || opt_max_hops <= 0 || opt_max_hops > 255)
+	error (EXIT_FAILURE, 0, "invalid hops value `%s'", arg);
       break;
 
     case 'p':
@@ -284,6 +313,8 @@ main (int argc, char **argv)
 
   freeaddrinfo (res);
 
+  trace_ip_opts (&dest);
+
   trace_init (&trace, dest, opt_type);
 
   hop = 1;
@@ -292,7 +323,7 @@ main (int argc, char **argv)
   while (!stop)
     {
       if (hop > opt_max_hops)
-	exit (EXIT_SUCCESS);
+	exit (EXIT_FAILURE);
       do_try (&trace, hop, opt_max_hops, opt_max_tries);
       trace_inc_ttl (&trace);
       trace_inc_port (&trace);
@@ -474,6 +505,13 @@ trace_init (trace_t * t, const struct sockaddr_in to,
     if (setsockopt (fd, IPPROTO_IP, IP_TOS,
 		    &opt_tos, sizeof (opt_tos)) < 0)
       error (0, errno, "setsockopt(IP_TOS)");
+
+#ifdef IP_OPTIONS
+  if (len_ip_opts)
+    if (setsockopt (fd, IPPROTO_IP, IP_OPTIONS,
+		    &ip_opts, len_ip_opts) < 0)
+      error (0, errno, "setsockopt(IPOPT_LSRR)");
+#endif /* IP_OPTIONS */
 }
 
 void
@@ -697,4 +735,81 @@ trace_inc_port (trace_t * t)
   assert (t);
   if (t->type == TRACE_UDP)
     t->to.sin_port = htons (ntohs (t->to.sin_port) + 1);
+}
+
+void
+trace_ip_opts (struct sockaddr_in *to)
+{
+#ifdef IP_OPTIONS
+  if (opt_gateways && *opt_gateways)
+    {
+      char *gateway, *optbase;
+      struct addrinfo hints, *res;
+
+      memset (&hints, 0, sizeof (hints));
+      hints.ai_family = AF_INET;
+      hints.ai_socktype = SOCK_DGRAM;
+
+      memset (&ip_opts, 0, sizeof (ip_opts));
+      optbase = ip_opts;
+
+      /* Set up any desired options.  Keep
+       * `optbase' updated, pointing to the
+       * part presently under construction.
+       */
+
+      /* 1. Loose source routing.  */
+      gateway = opt_gateways;
+      optbase[IPOPT_OPTVAL] = IPOPT_LSRR;
+      optbase[IPOPT_OLEN] = IPOPT_MINOFF - 1;	/* No payload yet.  */
+      optbase[IPOPT_OFFSET] = IPOPT_MINOFF;	/* Empty payload.  */
+
+      /* Traverse the gateway list, inserting
+       * addresses in the stated order.  Take
+       * care not to overflow available space.
+       */
+      while (gateway && *gateway
+	     && optbase[IPOPT_OFFSET]
+		< (int) (MAX_IPOPTLEN - sizeof (struct in_addr)))
+	{
+	  int rc;
+	  char *p;
+
+	  p = strpbrk (gateway, " ,;:");
+	  if (p)
+	    *p++ = '\0';
+
+	  rc = getaddrinfo (gateway, NULL, &hints, &res);
+	  if (rc)
+	    error (EXIT_FAILURE, errno, "gateway `%s' %s",
+		   gateway, gai_strerror(rc));
+
+	  /* Put target into next unused slot.  */
+	  memcpy (optbase + optbase[IPOPT_OLEN],
+		  &((struct sockaddr_in *) res->ai_addr)->sin_addr,
+		  sizeof (struct in_addr));
+
+	  freeaddrinfo (res);
+
+	  /* Option gained in length.  */
+	  optbase[IPOPT_OLEN] += sizeof (struct in_addr);
+
+	  gateway = p;
+	}
+
+      if (gateway && *gateway)
+	error (EXIT_FAILURE, 0, "too many gateways specified");
+
+      /* Append the final destination.  */
+      memcpy (optbase + optbase[IPOPT_OLEN],
+	      &to->sin_addr, sizeof (to->sin_addr));
+      optbase[IPOPT_OLEN] += sizeof (to->sin_addr);
+
+      /* 2. There is an implicit IPOPT_EOL after
+       * IPOPT_LSRR, ensured by the call to memset().
+       * Use it!
+       */
+      len_ip_opts = optbase[IPOPT_OLEN] + 1;
+    }
+#endif /* IP_OPTIONS */
 }

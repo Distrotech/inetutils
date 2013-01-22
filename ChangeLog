@@ -1,3 +1,24 @@
+2013-01-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	traceroute: Loose source routing.
+
+	* src/traceroute.c [HAVE_NETINET_IP_VAR_H]:
+	Include <netinet/ip_var.h>.
+	(len_ip_opts, ip_opts, opt_gateways) [IP_OPTIONS]:
+	New variables.
+	(argp_options) [IP_OPTIONS]: New option `-g/--gateways'.
+	(parse_opt) [IP_OPTIONS] <'g'>: New case.
+	(main): Call trace_ip_opts().
+	(trace_init) [IP_OPTIONS]: If `len_ip_opts' is positive,
+	call setsockopt(IP_OPTIONS).
+	(trace_ip_opts): New function.
+
+	traceroute: Settable maximal hop count.
+
+	* src/traceroute.c (argp_options): New option `-m/--max-hop'.
+	(parse_opt) <'m'>: New case.
+	(main): Exit with EXIT_FAILURE if HOP exceeds `opt_max_hops'.
+
 2013-01-21  Guillem Jover  <guillem@hadrons.org>
 
 	Cleanup automake variables.
