@@ -76,6 +76,11 @@ Now has support for IPv6, PAM, and Shishi.  New switches
 `-k/--kerberos', `-S/--server-principal', `-v/--vacuous',
 and `-x/--encrypt'.
 
+* talkd
+
+Has seen reworked ACL-mechanisms, believed to be functional!
+New switches `-l/--logging', and `-S/--strict-policy'.
+
 * telnetd
 
 New switch `-S/--server-principal'.

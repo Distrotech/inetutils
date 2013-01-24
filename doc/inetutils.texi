@@ -2556,23 +2556,32 @@ Specify the user with whom to log into the server.
 @command{talk} is a visual communication program which copies lines
 from your terminal to that of another user.
 
+@noindent
+Synopsis:
+
+@example
+talk @var{person} [@var{ttyname}]
+@end example
+
 @section Invoking
 
 The command line arguments are as follows:
 
 @table @var
 @item person
-If you wish to talk to someone on your own machine, then person is
-just the person's login name.  If you wish to talk to a user on
-another host, then person is of the form @samp{user@@host}.
+If you wish to talk to someone on your own machine, then @var{person}
+is just the other person's login name.
+If you wish to talk to a user on another host,
+then @var{person} is of the form @samp{user@@host}.
 
 @item ttyname
-If you wish to talk to a user who is logged in more than once, the
-@var{ttyname} argument may be used to indicate the appropriate
+If you wish to talk to a local user who is logged in more than once,
+the argument @var{ttyname} may be used to indicate the appropriate
 terminal name, where @var{ttyname} is of the form @samp{ttyXX}.
 @end table
 
-When first called, talk sends the message:
+When first called, @command{talk} sends a message to
+the addressed user:
 
 @example
 Message from TalkDaemon@@his_machine@dots{}
@@ -2580,8 +2589,9 @@ talk: connection requested by your_name@@your_machine.
 talk: respond with: talk your_name@@your_machine
 @end example
 
-to the user you wish to talk to.  At this point, the recipient of the
-message should reply by typing:
+@noindent
+At this point, the recipient of the message could elect
+to accept the call and to establish a connection by typing:
 
 @example
 talk @var{your_name}@@@var{your_machine}
@@ -2591,19 +2601,16 @@ It doesn't matter from which machine the recipient replies, as long as
 his login-name is the same.  Once communication is established, the
 two parties may type simultaneously, with their output appearing in
 separate windows.  Typing @kbd{C-L} will cause the screen to be
-reprinted, while your erase, kill, and word kill characters will
-behave normally.  To exit, just type your interrupt character; talk
-then moves the cursor to the bottom of the screen and restores the
-terminal to its previous state.
+reprinted, while erase, kill, and word kill characters will
+behave normally.  To exit, just type an interrupt character;
+@command{talk} then moves the cursor to the bottom of the screen
+and restores the terminal to its previous state.
 
-Permission to talk may be denied or granted by use of the
-@command{mesg} command.  At the outset talking is allowed.  Certain
-commands, in particular @command{nroff} and @command{pr}, disallow
-messages in order to prevent messy output.
-
-To exit, just type your interrupt character; talk then moves the
-cursor to the bottom of the screen and restores the terminal to its
-previous state.
+The ability to talk may be enabled or disabled by use of the
+@command{mesg} command.  It is system dependent whether
+this message passing is enabled at the outset of a terminal session.
+Certain commands, in particular @command{nroff} and @command{pr},
+disable messages in order to prevent messy output.
 
 @node telnet invocation
 @chapter @command{telnet}: User interface to TELNET
@@ -2613,7 +2620,7 @@ Login to a remote system HOST, optionally using a (non-standard)
 service port PORT.
 
 @noindent
-Synpsis:
+Synopsis:
 
 @example
 telnet [@var{OPTION}...] [@var{HOST} [@var{PORT}]]
@@ -4315,15 +4322,30 @@ probe a system for users with null passwords.
 @chapter @command{talkd}: a server for communication between users
 @cindex talkd
 
-@command{talkd} is the server that notifies a user that someone else
+@command{talkd} is a server that notifies users that someone else
 wants to initiate a conversation.  It acts as a repository of
 invitations, responding to requests by clients wishing to rendezvous
-in order to hold a conversation.
+for a conversation.
+
+This implementation uses the newer protocol @samp{ntalk/udp},
+and is intended to be invoked by a super-server
+@command{inetd} at that datagram port.
+Bear in mind that this service is usable with IPv4 only,
+since the exchange protocol was conceived to handle only
+one address family.
+This fact is independent of @command{inetd}.
+
+Observe that the server @command{talkd} is dependent
+on the name claimed by @command{hostname}, for establishing
+connections between interested parties.  Multi-homed hosts
+are not well behaved together with @command{talkd}.
+
+The present implementation offers ACL-mechanisms for fine
+grained access control.
 
 @section Invoking
-This implementation uses the newer protocol specification @samp{ntalk},
-and is intended to be invoked by a super-server @command{inetd} at that
-datagram port.  The following switches and options are available.
+
+The following switches and options are available.
 
 @table @option
 @item -a @var{file}
