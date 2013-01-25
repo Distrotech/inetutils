@@ -1,3 +1,16 @@
+2013-01-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libls: Use __opendir2() if present.
+
+	* configure.ac: Check for __opendir2, not opendir2.
+
+	* libls/fts.c (fts_build) [HAVE___OPENDIR2]:
+	Change conditional test for declaration of OFLAG.
+	Initialise OFLAG only with DTF_NODUP, and add
+	DTF_REWIND and DTF_HIDEW conditionally.
+	Remove macro opendir2.  Assign DIRP from either
+	__opendir2() or opendir().  Then test DIRP.
+
 2013-01-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	traceroute: Loose source routing.

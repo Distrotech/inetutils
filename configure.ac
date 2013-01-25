@@ -743,7 +743,7 @@ AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
                utime uname \
-               updwtmp updwtmpx vhangup wait3 wait4 opendir2 \
+               updwtmp updwtmpx vhangup wait3 wait4 __opendir2 \
 	       __rcmd_errstr __check_rhosts_file )
 
 # Variant functions for user accounting.

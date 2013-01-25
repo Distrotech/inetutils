@@ -619,7 +619,7 @@ fts_build (register FTS *sp, int type)
   void *adjaddr;
   int cderrno, descend, len, level, maxlen, nlinks, saved_errno;
   char *cp = NULL;
-#ifdef DTF_HIDEW
+#ifdef HAVE___OPENDIR2
   int oflag;
 #endif
 
@@ -630,15 +630,24 @@ fts_build (register FTS *sp, int type)
    * Open the directory for reading.  If this fails, we're done.
    * If being called from fts_read, set the fts_info field.
    */
-#if defined HAVE_OPENDIR2 && defined DTF_HIDEW
-  if (ISSET (FTS_WHITEOUT))
-    oflag = DTF_NODUP | DTF_REWIND;
-  else
-    oflag = DTF_HIDEW | DTF_NODUP | DTF_REWIND;
-#else
-# define opendir2(path, flag) opendir(path)
-#endif
-  if ((dirp = opendir2 (cur->fts_accpath, oflag)) == NULL)
+#if defined HAVE___OPENDIR2
+  oflag = DTF_NODUP;
+
+# ifdef DTF_REWIND
+  oflag |= DTF_REWIND;
+# endif
+
+# ifdef DTF_HIDEW
+  if (!ISSET (FTS_WHITEOUT))
+    oflag |= DTF_HIDEW;
+# endif /* DTF_HIDEW */
+
+  dirp = __opendir2 (cur->fts_accpath, oflag);
+#else /* !HAVE___OPENDIR2 */
+  dirp = opendir (cur->fts_accpath);
+#endif /* !HAVE___OPENDIR2 */
+
+  if (dirp == NULL)
     {
       if (type == BREAD)
 	{
