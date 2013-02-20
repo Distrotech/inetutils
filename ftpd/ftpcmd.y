@@ -184,326 +184,342 @@ cmd_list
 cmd
 	: USER SP username CRLF
 		{
-			user($3);
-			free($3);
+			user ($3);
+			free ($3);
 		}
 	| PASS SP password CRLF
 		{
-			pass($3);
+			pass ($3);
 			memset ($3, 0, strlen ($3));
-			free($3);
+			free ($3);
 		}
 	| PORT check_login SP host_port CRLF
 		{
-			if ($2) {
-				if ($4
-				    && ((his_addr.ss_family == AF_INET
-					&& memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
-						   &((struct sockaddr_in *) &data_dest)->sin_addr,
-						   sizeof (struct in_addr)) == 0
-					&& ntohs (((struct sockaddr_in *) &data_dest)->sin_port)
-					   > IPPORT_RESERVED)
-					||
-					(his_addr.ss_family == AF_INET6
-					&& memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
-						   &((struct sockaddr_in6 *) &data_dest)->sin6_addr,
-						   sizeof (struct in6_addr)) == 0
-					&& ntohs (((struct sockaddr_in6 *) &data_dest)->sin6_port)
-					   > IPPORT_RESERVED)
-				       )
+			if ($2)
+			  {
+			    if ($4
+				&& ((his_addr.ss_family == AF_INET
+				     && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+						&((struct sockaddr_in *) &data_dest)->sin_addr,
+						sizeof (struct in_addr))
+					== 0
+				     && ntohs (((struct sockaddr_in *) &data_dest)->sin_port)
+					> IPPORT_RESERVED)
+				    ||
+				    (his_addr.ss_family == AF_INET6
+				     && memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
+						&((struct sockaddr_in6 *) &data_dest)->sin6_addr,
+						sizeof (struct in6_addr))
+					== 0
+				     && ntohs (((struct sockaddr_in6 *) &data_dest)->sin6_port)
+					> IPPORT_RESERVED)
 				   )
-				{
-					usedefault = 0;
-					if (pdata >= 0) {
-						close(pdata);
-						pdata = -1;
-					}
-					reply (200, "PORT command successful.");
-				}
-				else {
-					usedefault = 1;
-					memset (&data_dest, 0,
-						sizeof (data_dest));
-					reply(500, "Illegal PORT Command");
-				}
-			}
+			       )
+			      {
+				usedefault = 0;
+				if (pdata >= 0)
+				  {
+				    close (pdata);
+				    pdata = -1;
+				  }
+				reply (200, "PORT command successful.");
+			      }
+			    else
+			      {
+				usedefault = 1;
+				memset (&data_dest, 0, sizeof (data_dest));
+				reply (500, "Illegal PORT Command");
+			      }
+			  }
 		}
 	| PASV check_login CRLF
 		{
 			if ($2)
-				passive(PASSIVE_PASV, AF_INET);
+			  passive (PASSIVE_PASV, AF_INET);
 		}
 	| TYPE SP type_code CRLF
 		{
-			switch (cmd_type) {
-
-			case TYPE_A:
-				if (cmd_form == FORM_N) {
-					reply(200, "Type set to A.");
-					type = cmd_type;
-					form = cmd_form;
-				} else
-					reply(504, "Form must be N.");
-				break;
-
-			case TYPE_E:
-				reply(504, "Type E not implemented.");
-				break;
-
-			case TYPE_I:
-				reply(200, "Type set to I.");
+			switch (cmd_type)
+			  {
+			  case TYPE_A:
+			    if (cmd_form == FORM_N)
+			      {
+				reply (200, "Type set to A.");
 				type = cmd_type;
-				break;
+				form = cmd_form;
+			      }
+			    else
+			      reply (504, "Form must be N.");
+			    break;
 
-			case TYPE_L:
+			  case TYPE_E:
+			    reply (504, "Type E not implemented.");
+			    break;
+
+			  case TYPE_I:
+			    reply (200, "Type set to I.");
+			    type = cmd_type;
+			    break;
+
+			  case TYPE_L:
 #if defined NBBY && NBBY == 8
-				if (cmd_bytesz == 8) {
-					reply(200,
-					    "Type set to L (byte size 8).");
-					type = cmd_type;
-				} else
-					reply(504, "Byte size must be 8.");
+			    if (cmd_bytesz == 8)
+			      {
+				reply (200, "Type set to L (byte size 8).");
+				type = cmd_type;
+			      }
+			    else
+			      reply (504, "Byte size must be 8.");
 #else /* NBBY == 8 */
-				UNIMPLEMENTED for NBBY != 8
+			  UNIMPLEMENTED for NBBY != 8
 #endif /* NBBY == 8 */
-			}
+			  }
 		}
 	| STRU SP struct_code CRLF
 		{
-			switch ($3) {
+			switch ($3)
+			  {
+			  case STRU_F:
+			    reply (200, "STRU F ok.");
+			    break;
 
-			case STRU_F:
-				reply(200, "STRU F ok.");
-				break;
-
-			default:
-				reply(504, "Unimplemented STRU type.");
-			}
+			  default:
+			    reply (504, "Unimplemented STRU type.");
+			  }
 		}
 	| MODE SP mode_code CRLF
 		{
-			switch ($3) {
+			switch ($3)
+			  {
+			  case MODE_S:
+			    reply (200, "MODE S ok.");
+			    break;
 
-			case MODE_S:
-				reply(200, "MODE S ok.");
-				break;
-
-			default:
-				reply(502, "Unimplemented MODE type.");
-			}
+			  default:
+			    reply (502, "Unimplemented MODE type.");
+			  }
 		}
 	| ALLO SP NUMBER CRLF
 		{
-			reply(202, "ALLO command ignored.");
+			reply (202, "ALLO command ignored.");
 		}
 	| ALLO SP NUMBER SP R SP NUMBER CRLF
 		{
-			reply(202, "ALLO command ignored.");
+			reply (202, "ALLO command ignored.");
 		}
 	| RETR check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				retrieve((char *) 0, $4);
-			free($4);
+			  retrieve ((char *) 0, $4);
+			free ($4);
 		}
 	| STOR check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				store($4, "w", 0);
-			free($4);
+			  store ($4, "w", 0);
+			free ($4);
 		}
 	| APPE check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				store($4, "a", 0);
-			free($4);
+			  store ($4, "a", 0);
+			free ($4);
 		}
 	| NLST check_login CRLF
 		{
 			if ($2)
-				send_file_list(".");
+			  send_file_list (".");
 		}
 	| NLST check_login SP STRING CRLF
 		{
 			if ($2 && $4 != NULL)
-				send_file_list($4);
-			free($4);
+			  send_file_list ($4);
+			free ($4);
 		}
 	| LIST check_login CRLF
 		{
 			if ($2)
-				retrieve("/bin/ls -lgA", "");
+			  retrieve ("/bin/ls -lgA", "");
 		}
 	| LIST check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				retrieve("/bin/ls -lgA %s", $4);
-			free($4);
+			  retrieve ("/bin/ls -lgA %s", $4);
+			free ($4);
 		}
 	| STAT check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				statfilecmd($4);
-			free($4);
+			  statfilecmd ($4);
+			free ($4);
 		}
 	| STAT CRLF
 		{
-			statcmd();
+			statcmd ();
 		}
 	| DELE check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				delete($4);
-			free($4);
+			  delete ($4);
+			free ($4);
 		}
 	| RNTO check_login SP pathname CRLF
 		{
-		    if ($2) {
-			if (fromname) {
-				renamecmd(fromname, $4);
-				free(fromname);
+			if ($2)
+			  {
+			    if (fromname)
+			      {
+				renamecmd (fromname, $4);
+				free (fromname);
 				fromname = (char *) 0;
-			} else {
-				reply(503, "Bad sequence of commands.");
-			}
-		    }
-		    free ($4);
+			      }
+			    else
+			      reply (503, "Bad sequence of commands.");
+			  }
+			free ($4);
 		}
 	| ABOR CRLF
 		{
-			reply(225, "ABOR command successful.");
+			reply (225, "ABOR command successful.");
 		}
 	| CWD check_login CRLF
 		{
 			if ($2)
-				cwd(cred.homedir);
+			  cwd (cred.homedir);
 		}
 	| CWD check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				cwd($4);
-			free($4);
+			  cwd ($4);
+			free ($4);
 		}
 	| HELP CRLF
 		{
-			help(cmdtab, (char *) 0);
+			help (cmdtab, (char *) 0);
 		}
 	| HELP SP STRING CRLF
 		{
 			char *cp = $3;
 
-			if (strncasecmp(cp, "SITE", 4) == 0) {
-				cp = $3 + 4;
-				if (*cp == ' ')
-					cp++;
-				if (*cp)
-					help(sitetab, cp);
-				else
-					help(sitetab, (char *) 0);
-			} else
-				help(cmdtab, $3);
-		    free ($3);
+			if (strncasecmp (cp, "SITE", 4) == 0)
+			  {
+			    cp = $3 + 4;
+			    if (*cp == ' ')
+			      cp++;
+			    if (*cp)
+			      help (sitetab, cp);
+			    else
+			      help (sitetab, (char *) 0);
+			  }
+			else
+			  help (cmdtab, $3);
+			free ($3);
 		}
 	| NOOP CRLF
 		{
-			reply(200, "NOOP command successful.");
+			reply (200, "NOOP command successful.");
 		}
 	| MKD check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				makedir($4);
-			free($4);
+			  makedir ($4);
+			free ($4);
 		}
 	| RMD check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				removedir($4);
-			free($4);
+			  removedir ($4);
+			free ($4);
 		}
 	| PWD check_login CRLF
 		{
 			if ($2)
-				pwd();
+			  pwd ();
 		}
 	| CDUP check_login CRLF
 		{
 			if ($2)
-				cwd("..");
+			  cwd ("..");
 		}
 	| SITE SP HELP CRLF
 		{
-			help(sitetab, (char *) 0);
+			help (sitetab, (char *) 0);
 		}
 	| SITE SP HELP SP STRING CRLF
 		{
-			help(sitetab, $5);
+			help (sitetab, $5);
 			free ($5);
 		}
 	| SITE SP UMASK check_login CRLF
 		{
 			int oldmask;
 
-			if ($4) {
-				oldmask = umask(0);
-				 umask(oldmask);
-				reply(200, "Current UMASK is %03o", oldmask);
-			}
+			if ($4)
+			  {
+			    oldmask = umask (0);
+			    umask (oldmask);
+			    reply (200, "Current UMASK is %03o", oldmask);
+			  }
 		}
 	| SITE SP UMASK check_login SP octal_number CRLF
 		{
 			int oldmask;
 
-			if ($4) {
-				if (($6 == -1) || ($6 > 0777)) {
-					reply(501, "Bad UMASK value");
-				} else {
-					oldmask = umask($6);
-					reply(200,
-					    "UMASK set to %03o (was %03o)",
-					    $6, oldmask);
-				}
-			}
+			if ($4)
+			  {
+			    if (($6 == -1) || ($6 > 0777))
+			      reply (501, "Bad UMASK value");
+			    else
+			      {
+				oldmask = umask ($6);
+				reply (200, "UMASK set to %03o (was %03o)",
+				      $6, oldmask);
+			      }
+			  }
 		}
 	| SITE SP CHMOD check_login SP octal_number SP pathname CRLF
 		{
-			if ($4 && ($8 != NULL)) {
-				if ($6 > 0777)
-					reply(501,
-				"CHMOD: Mode value must be between 0 and 0777");
-				else if (chmod($8, $6) < 0)
-					perror_reply(550, $8);
-				else
-					reply(200, "CHMOD command successful.");
-			}
-			free($8);
+			if ($4 && ($8 != NULL))
+			  {
+			    if ($6 > 0777)
+			      reply (501,
+				     "CHMOD: Mode value must be between 0 and 0777");
+			    else if (chmod ($8, $6) < 0)
+			      perror_reply (550, $8);
+			    else
+			      reply (200, "CHMOD command successful.");
+			  }
+			free ($8);
 		}
 	| SITE SP IDLE CRLF
 		{
-			reply(200,
-			    "Current IDLE time limit is %d seconds; max %d",
-				timeout, maxtimeout);
+			reply (200,
+			       "Current IDLE time limit is %d seconds; max %d",
+			       timeout, maxtimeout);
 		}
 	| SITE SP check_login IDLE SP NUMBER CRLF
 		{
-			if ($3) {
-			    if ($6 < 30 || $6 > maxtimeout) {
-				reply (501,
-			"Maximum IDLE time must be between 30 and %d seconds",
-					maxtimeout);
-			    } else {
+			if ($3)
+			  {
+			    if ($6 < 30 || $6 > maxtimeout)
+			      reply (501,
+				     "Maximum IDLE time must be between 30 and %d seconds",
+				     maxtimeout);
+			    else
+			      {
 				timeout = $6;
-				 alarm((unsigned) timeout);
-				reply(200,
-					"Maximum IDLE time set to %d seconds",
-					timeout);
-			    }
-			}
+				alarm ((unsigned) timeout);
+				reply (200,
+				       "Maximum IDLE time set to %d seconds",
+				       timeout);
+			      }
+			  }
 		}
 	| STOU check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				store($4, "w", 1);
-			free($4);
+			  store ($4, "w", 1);
+			free ($4);
 		}
 	| SYST CRLF
 		{
@@ -512,19 +528,19 @@ cmd
 
 #ifdef HAVE_UNAME
 			struct utsname u;
-			if (uname (&u) == 0) {
-				version =
-				  malloc (strlen (u.sysname)
-					  + 1 + strlen (u.release) + 1);
-				if (version)
-					sprintf (version, "%s %s",
-						 u.sysname, u.release);
-		        }
-#else
-#ifdef BSD
+
+			if (uname (&u) == 0)
+			  {
+			    version = malloc (strlen (u.sysname) + 1
+					      + strlen (u.release) + 1);
+			    if (version)
+			      sprintf (version, "%s %s", u.sysname, u.release);
+			  }
+#else /* !HAVE_UNAME */
+# ifdef BSD
 			version = "BSD";
-#endif
-#endif
+# endif /* BSD */
+#endif /* !HAVE_UNAME */
 
 #if defined unix || defined __unix__
 			sys_type = "UNIX";
@@ -533,10 +549,10 @@ cmd
 #endif
 
 			if (version)
-				reply(215, "%s Type: L%d Version: %s",
-				      sys_type, NBBY, version);
+			  reply (215, "%s Type: L%d Version: %s",
+				 sys_type, NBBY, version);
 			else
-				reply(215, "%s Type: L%d", sys_type, NBBY);
+			  reply (215, "%s Type: L%d", sys_type, NBBY);
 
 #ifdef HAVE_UNAME
 			free (version);
@@ -552,8 +568,8 @@ cmd
 	| SIZE check_login SP pathname CRLF
 		{
 			if ($2 && $4 != NULL)
-				sizecmd($4);
-			free($4);
+			  sizecmd ($4);
+			free ($4);
 		}
 
 		/*
@@ -566,24 +582,27 @@ cmd
 		 */
 	| MDTM check_login SP pathname CRLF
 		{
-			if ($2 && $4 != NULL) {
-				struct stat stbuf;
-				if (stat($4, &stbuf) < 0)
-					reply(550, "%s: %s",
-					    $4, strerror(errno));
-				else if (!S_ISREG(stbuf.st_mode)) {
-					reply(550, "%s: not a plain file.", $4);
-				} else {
-					struct tm *t;
-					t = gmtime(&stbuf.st_mtime);
-					reply(213,
-					    "%04d%02d%02d%02d%02d%02d",
-					    1900 + t->tm_year, t->tm_mon+1,
-					    t->tm_mday, t->tm_hour, t->tm_min,
-					    t->tm_sec);
-				}
-			}
-			free($4);
+			if ($2 && $4 != NULL)
+			  {
+			    struct stat stbuf;
+
+			    if (stat ($4, &stbuf) < 0)
+			      reply (550, "%s: %s", $4, strerror (errno));
+			    else if (!S_ISREG (stbuf.st_mode))
+			      reply (550, "%s: not a plain file.", $4);
+			    else
+			      {
+				struct tm *t;
+
+				t = gmtime (&stbuf.st_mtime);
+				reply (213,
+				       "%04d%02d%02d%02d%02d%02d",
+				       1900 + t->tm_year, t->tm_mon+1,
+				       t->tm_mday, t->tm_hour,
+				       t->tm_min, t->tm_sec);
+			      }
+			  }
+			free ($4);
 		}
 
 		/*
@@ -592,116 +611,149 @@ cmd
 	| EPRT check_login SP CHAR net_proto CHAR net_addr CHAR tcp_port CHAR CRLF
 		{
 			usedefault = 0;
-			if (pdata >= 0) {
-				close(pdata);
-				pdata = -1;
-			}
+			if (pdata >= 0)
+			  {
+			    close (pdata);
+			    pdata = -1;
+			  }
 			/* A first sanity check.  */
 			if ($2				/* valid login */
 			    && ($5 > 0)			/* valid protocols */
 			    && ($4 > 32 && $4 < 127)	/* legal first delimiter */
 							/* identical delimiters */
 			    && ($4 == $6 && $4 == $8 && $4 == $10))
-			{
-				/* We only accept connections using
-				 * the same address family as is
-				 * currently in use, unless we
-				 * detect IPv4-mapped-to-IPv6.  */
-				if (his_addr.ss_family == $5
-				    || ($5 == AF_INET6 && his_addr.ss_family == AF_INET)
-				    || ($5 == AF_INET && his_addr.ss_family == AF_INET6)
-				    ) {
-					int err;
-					char p[8];
-					struct addrinfo hints, *res;
+			  {
+			    /* We only accept connections using
+			     * the same address family as is
+			     * currently in use, unless we
+			     * detect IPv4-mapped-to-IPv6.
+			     */
+			    if (his_addr.ss_family == $5
+				|| ($5 == AF_INET6
+				    && his_addr.ss_family == AF_INET)
+				|| ($5 == AF_INET
+				    && his_addr.ss_family == AF_INET6))
+			      {
+				int err;
+				char p[8];
+				struct addrinfo hints, *res;
 
-					memset (&hints, 0, sizeof (hints));
-					snprintf (p, sizeof (p), "%jd", $9 & 0xffffLL);
-					hints.ai_family = $5;
-					hints.ai_socktype = SOCK_STREAM;
-					hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
+				memset (&hints, 0, sizeof (hints));
+				snprintf (p, sizeof (p), "%jd", $9 & 0xffffLL);
+				hints.ai_family = $5;
+				hints.ai_socktype = SOCK_STREAM;
+				hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
 
-					err = getaddrinfo ($7, p, &hints, &res);
-					if (err)
-						reply (500, "Illegal EPRT Command");
-					else if (/* sanity check */
-						 (his_addr.ss_family == AF_INET
-						  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
-							     &((struct sockaddr_in *) res->ai_addr)->sin_addr,
-							     sizeof (struct in_addr)) == 0
-						  && ntohs (((struct sockaddr_in *) res->ai_addr)->sin_port) > IPPORT_RESERVED
-						 )
-						 ||
-						 (his_addr.ss_family == AF_INET6
-						  && memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
-							     &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr,
-							     sizeof (struct in6_addr)) == 0
-						  && ntohs (((struct sockaddr_in6 *) res->ai_addr)->sin6_port) > IPPORT_RESERVED
-						 )
-						 ||
-						 (his_addr.ss_family == AF_INET && res->ai_family == AF_INET6
-						  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) res->ai_addr)->sin6_addr)
-						  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
-							     &((struct in_addr *) &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr)[3],
-							     sizeof (struct in_addr)) == 0
-						  && ntohs (((struct sockaddr_in6 *) res->ai_addr)->sin6_port) > IPPORT_RESERVED
-						 )
-						 ||
-						 (his_addr.ss_family == AF_INET6 && res->ai_family == AF_INET
-						  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) &his_addr)->sin6_addr)
-						  && memcmp (&((struct in_addr *) &((struct sockaddr_in6 *) &his_addr)->sin6_addr)[3],
-							     &((struct sockaddr_in *) res->ai_addr)->sin_addr,
-							     sizeof (struct in_addr)) == 0
-						  && ntohs (((struct sockaddr_in *) res->ai_addr)->sin_port) > IPPORT_RESERVED
-						 )
-						)
-					{
-						/* In the case of IPv4 mapped as IPv6,
-						 * the addresses were proven to coincide,
-						 * only the extraction remains.  Since
-						 * non-mapped is the standard, test that
-						 * situation first.
-						 */
-						if (his_addr.ss_family == res->ai_family)
-						{
-						memcpy (&data_dest, res->ai_addr, res->ai_addrlen);
-						data_dest_len = res->ai_addrlen;
-						}
-						else if (his_addr.ss_family == AF_INET && res->ai_family == AF_INET6)
-						{
-						/* `his_addr' contains the reduced IPv4 address.  */
-						memcpy (&data_dest, &his_addr, sizeof (struct sockaddr_in));
-						data_dest_len = sizeof (struct sockaddr_in);
-						((struct sockaddr_in *) &data_dest)->sin_port = ((struct sockaddr_in6 *) res->ai_addr)->sin6_port;
-						} else
-						{
-						/* `res->ai_addr' contains the reduced IPv4 address,
-						 * but the connection stands on `his_addr' which is
-						 * an IPv4-mapped-IPv6 address.  */
-						memcpy (&data_dest, &his_addr, sizeof (struct sockaddr_in6));
-						data_dest_len = sizeof (struct sockaddr_in6);
-						((struct sockaddr_in6 *) &data_dest)->sin6_port = ((struct sockaddr_in *) res->ai_addr)->sin_port;
-						}
-						freeaddrinfo (res);
-						reply (200, "EPRT command successful.");
-					} else {
-						/* failed identity check */
-						if (res)
-							freeaddrinfo (res);
-						reply (500, "Illegal EPRT Command");
-					}
-				} else {
-					/* Not fit for established connection.  */
-					reply (522, "Network protocol not supported, use (%d)",
-						($5 == 1) ? 2 : 1);
-				}
-			} else if ($2 && ($5 <= 0)) {
-				reply (522, "Network protocol not supported, use (1,2)");
-			} else if ($2) {
-				/* Incorrect delimiters detected,
-				 * the other conditions are true. */
-				reply (500, "Illegal EPRT Command");
-			}
+				err = getaddrinfo ($7, p, &hints, &res);
+				if (err)
+				  reply (500, "Illegal EPRT Command");
+				else if (/* sanity check */
+					 (his_addr.ss_family == AF_INET
+					  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+						     &((struct sockaddr_in *) res->ai_addr)->sin_addr,
+						     sizeof (struct in_addr))
+					     == 0
+					  && ntohs (((struct sockaddr_in *) res->ai_addr)->sin_port)
+					     > IPPORT_RESERVED
+					 )
+					 ||
+					 (his_addr.ss_family == AF_INET6
+					  && memcmp (&((struct sockaddr_in6 *) &his_addr)->sin6_addr,
+						     &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr,
+						     sizeof (struct in6_addr))
+					     == 0
+					  && ntohs (((struct sockaddr_in6 *) res->ai_addr)->sin6_port)
+					     > IPPORT_RESERVED
+					 )
+					 ||
+					 (his_addr.ss_family == AF_INET
+					  && res->ai_family == AF_INET6
+					  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) res->ai_addr)->sin6_addr)
+					  && memcmp (&((struct sockaddr_in *) &his_addr)->sin_addr,
+						     &((struct in_addr *) &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr)[3],
+						     sizeof (struct in_addr))
+					     == 0
+					  && ntohs (((struct sockaddr_in6 *) res->ai_addr)->sin6_port)
+					     > IPPORT_RESERVED
+					 )
+					 ||
+					 (his_addr.ss_family == AF_INET6
+					  && res->ai_family == AF_INET
+					  && IN6_IS_ADDR_V4MAPPED (&((struct sockaddr_in6 *) &his_addr)->sin6_addr)
+					  && memcmp (&((struct in_addr *) &((struct sockaddr_in6 *) &his_addr)->sin6_addr)[3],
+						     &((struct sockaddr_in *) res->ai_addr)->sin_addr,
+						     sizeof (struct in_addr))
+					     == 0
+					  && ntohs (((struct sockaddr_in *) res->ai_addr)->sin_port)
+					     > IPPORT_RESERVED
+					 )
+					)
+				  {
+				    /* In the case of IPv4 mapped as IPv6,
+				     * the addresses were proven to coincide,
+				     * only the extraction remains.
+				     * Since non-mapped is the standard,
+				     * test that situation first.
+				     */
+				    if (his_addr.ss_family == res->ai_family)
+				      {
+					memcpy (&data_dest, res->ai_addr,
+						res->ai_addrlen);
+					data_dest_len = res->ai_addrlen;
+				      }
+				    else if (his_addr.ss_family == AF_INET
+					     && res->ai_family == AF_INET6)
+				      {
+					/* `his_addr' contains the reduced
+					 * IPv4 address.
+					 */
+					memcpy (&data_dest, &his_addr,
+						sizeof (struct sockaddr_in));
+					data_dest_len =
+					  sizeof (struct sockaddr_in);
+					((struct sockaddr_in *) &data_dest)->sin_port =
+					  ((struct sockaddr_in6 *) res->ai_addr)->sin6_port;
+				      }
+				    else
+				      {
+					/* `res->ai_addr' contains the reduced
+					 * IPv4 address, but the connection
+					 * stands on `his_addr', which is
+					 * an IPv4-to-IPv6-mapped address.
+					 */
+					memcpy (&data_dest, &his_addr,
+						sizeof (struct sockaddr_in6));
+					data_dest_len =
+					  sizeof (struct sockaddr_in6);
+					((struct sockaddr_in6 *) &data_dest)->sin6_port =
+					  ((struct sockaddr_in *) res->ai_addr)->sin_port;
+				      }
+
+				    freeaddrinfo (res);
+				    reply (200, "EPRT command successful.");
+				  }
+				else
+				  {
+				    /* failed identity check */
+				    if (res)
+				      freeaddrinfo (res);
+				    reply (500, "Illegal EPRT Command");
+				  }
+			      }
+			    else
+			      /* Not fit for established connection.  */
+			      reply (522,
+				     "Network protocol not supported, use (%d)",
+				     ($5 == 1) ? 2 : 1);
+			  }
+			else if ($2 && ($5 <= 0))
+			    reply (522,
+				   "Network protocol not supported, use (1,2)");
+			else if ($2)
+			  /* Incorrect delimiters detected,
+			   * the other conditions are met.
+			   */
+			  reply (500, "Illegal EPRT Command");
 		}
 
 		/*
@@ -710,16 +762,18 @@ cmd
 	| EPSV check_login CRLF
 		{
 			if ($2)
-				passive(PASSIVE_EPSV, AF_UNSPEC);
+			  passive (PASSIVE_EPSV, AF_UNSPEC);
 		}
 	| EPSV check_login SP net_proto CRLF
 		{
-			if ($2) {
-				if ($4 > 0)
-					passive(PASSIVE_EPSV, $4);
-				else
-					reply (522, "Network protocol not supported, use (1,2)");
-			}
+			if ($2)
+			  {
+			    if ($4 > 0)
+			      passive (PASSIVE_EPSV, $4);
+			    else
+			      reply (522,
+				     "Network protocol not supported, use (1,2)");
+			  }
 		}
 
 		/*
@@ -749,7 +803,7 @@ cmd
 				usedefault = 0;
 				if (pdata >= 0)
 				  {
-				    close(pdata);
+				    close (pdata);
 				    pdata = -1;
 				  }
 				  reply (200, "LPRT command successful.");
@@ -757,9 +811,8 @@ cmd
 			    else
 			      {
 				usedefault = 1;
-				memset (&data_dest, 0,
-					sizeof (data_dest));
-				reply(500, "Illegal LPRT Command");
+				memset (&data_dest, 0, sizeof (data_dest));
+				reply (500, "Illegal LPRT Command");
 			      }
 			  } /* check_login */
 		}
@@ -770,13 +823,13 @@ cmd
 	| LPSV check_login CRLF
 		{
 			if ($2)
-				passive(PASSIVE_LPSV, 0 /* not used */);
+			  passive (PASSIVE_LPSV, 0 /* not used */);
 		}
 
 	| QUIT CRLF
 		{
-			reply(221, "Goodbye.");
-			dologout(0);
+			reply (221, "Goodbye.");
+			dologout (0);
 		}
 	| error CRLF
 		{
@@ -787,12 +840,13 @@ rcmd
 	: RNFR check_login SP pathname CRLF
 		{
 			restart_point = (off_t) 0;
-			if ($2 && $4) {
+			if ($2 && $4)
+			  {
 			    free (fromname);
-			    fromname = renamefrom($4);
-			}
+			    fromname = renamefrom ($4);
+			  }
 			if (fromname == (char *) 0 && $4)
-			    free($4);
+			  free ($4);
 		}
 
 		/*
@@ -803,9 +857,9 @@ rcmd
 		        free (fromname);
 			fromname = (char *) 0;
 			restart_point = $3;
-			reply(350, "Restarting at %jd. %s",
-			    (intmax_t) restart_point,
-			    "Send STORE or RETRIEVE to initiate transfer.");
+			reply (350, "Restarting at %jd. %s",
+			       (intmax_t) restart_point,
+			       "Send STORE or RETRIEVE to initiate transfer.");
 		}
 	;
 
@@ -816,7 +870,7 @@ username
 password
 	: /* empty */
 		{
-			$$ = (char *)calloc(1, sizeof(char));
+			$$ = (char *) calloc (1, sizeof (char));
 		}
 	| STRING
 	;
@@ -827,14 +881,14 @@ byte_size
 
 net_proto
 	: NUMBER
-		{	/* Rewrite as valid address family.  */
+		{
+			/* Rewrite as valid address family.  */
 			if ($1 == 1)
-				$$ = AF_INET;
+			  $$ = AF_INET;
 			else if ($1 == 2)
-				$$ = AF_INET6;
+			  $$ = AF_INET6;
 			else
-				$$ = -1;	/* Invalid protocol.  */
-
+			  $$ = -1;	/* Invalid protocol.  */
 		}
 	;
 
@@ -855,7 +909,8 @@ host_port
 			struct addrinfo hints, *res;
 
 			snprintf (a, sizeof (a), "%jd.%jd.%jd.%jd",
-				  $1 & 0xffLL, $3 & 0xffLL, $5 & 0xffLL, $7 & 0xffLL);
+				  $1 & 0xffLL, $3 & 0xffLL,
+				  $5 & 0xffLL, $7 & 0xffLL);
 			snprintf (p, sizeof (p), "%jd",
 				  (($9 & 0xffLL) << 8) + ($11 & 0xffLL));
 			memset (&hints, 0, sizeof (hints));
@@ -863,18 +918,22 @@ host_port
 			hints.ai_socktype = SOCK_STREAM;
 			hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
 
-			if (his_addr.ss_family == AF_INET6) {
+			if (his_addr.ss_family == AF_INET6)
+			  {
 			    /* IPv4 mapped to IPv6.  */
 			    hints.ai_family = AF_INET6;
 #ifdef AI_V4MAPPED
 			    hints.ai_flags |= AI_V4MAPPED;
 #endif
-			    snprintf (a, sizeof (a), "::ffff:%jd.%jd.%jd.%jd",
-				      $1 & 0xffLL, $3 & 0xffLL, $5 & 0xffLL, $7 & 0xffLL);
-			}
+			    snprintf (a, sizeof (a),
+				      "::ffff:%jd.%jd.%jd.%jd",
+				      $1 & 0xffLL, $3 & 0xffLL,
+				      $5 & 0xffLL, $7 & 0xffLL);
+			  }
 
 			err = getaddrinfo (a, p, &hints, &res);
-			if (err) {
+			if (err)
+			  {
 			    reply (550, "Address failure: %s,%s", a, p);
 			    memset (&data_dest, 0, sizeof (data_dest));
 			    data_dest_len = 0;
@@ -915,8 +974,7 @@ long_host_port
 			  {
 			    snprintf (a, sizeof (a), "%jd.%jd.%jd.%jd",
 				      $5, $7, $9, $11);
-			    snprintf (p, sizeof (p), "%jd",
-				      ($15 << 8) + $17);
+			    snprintf (p, sizeof (p), "%jd", ($15 << 8) + $17);
 
 			    memset (&hints, 0, sizeof (hints));
 			    hints.ai_family = his_addr.ss_family;
@@ -1118,32 +1176,36 @@ pathname
 			 * processing, but only gives a 550 error reply.
 			 * This is a valid reply in some cases but not in others.
 			 */
-			if (cred.logged_in && $1 && *$1 == '~') {
-				glob_t gl;
-				int flags = GLOB_NOCHECK;
+			if (cred.logged_in && $1 && *$1 == '~')
+			  {
+			    glob_t gl;
+			    int flags = GLOB_NOCHECK;
 
 #ifdef GLOB_BRACE
-				flags |= GLOB_BRACE;
+			    flags |= GLOB_BRACE;
 #endif
 #ifdef GLOB_QUOTE
-				flags |= GLOB_QUOTE;
+			    flags |= GLOB_QUOTE;
 #endif
 #ifdef GLOB_TILDE
-				flags |= GLOB_TILDE;
+			    flags |= GLOB_TILDE;
 #endif
 
-				memset(&gl, 0, sizeof(gl));
-				if (glob($1, flags, NULL, &gl) ||
-				    gl.gl_pathc == 0) {
-					reply(550, "not found");
-					$$ = NULL;
-				} else {
-					$$ = strdup(gl.gl_pathv[0]);
-				}
-				globfree(&gl);
-				free($1);
-			} else
-				$$ = $1;
+			    memset (&gl, 0, sizeof (gl));
+			    if (glob ($1, flags, NULL, &gl)
+				|| gl.gl_pathc == 0)
+			      {
+				reply (550, "not found");
+				$$ = NULL;
+			      }
+			    else
+			      $$ = strdup (gl.gl_pathv[0]);
+
+			    globfree (&gl);
+			    free ($1);
+			  }
+			else
+			  $$ = $1;
 		}
 	;
 
@@ -1163,16 +1225,18 @@ octal_number
 			dec = $1;
 			multby = 1;
 			ret = 0;
-			while (dec) {
-				digit = dec%10;
-				if (digit > 7) {
-					ret = -1;
-					break;
-				}
-				ret += digit * multby;
-				multby *= 8;
-				dec /= 10;
-			}
+			while (dec)
+			  {
+			    digit = dec % 10;
+			    if (digit > 7)
+			      {
+				ret = -1;
+				break;
+			      }
+			    ret += digit * multby;
+			    multby *= 8;
+			    dec /= 10;
+			  }
 			$$ = ret;
 		}
 	;
@@ -1181,11 +1245,12 @@ check_login
 	: /* empty */
 		{
 			if (cred.logged_in)
-				$$ = 1;
-			else {
-				reply(530, "Please login with USER and PASS.");
-				$$ = 0;
-			}
+			  $$ = 1;
+			else
+			  {
+			    reply (530, "Please login with USER and PASS.");
+			    $$ = 0;
+			  }
 		}
 	;
 
@@ -1203,76 +1268,75 @@ check_login
 #define	DLIST	9	/* SP and delimited list for EPRT/EPSV */
 
 struct tab cmdtab[] = {		/* In order defined in RFC 765 */
-	{ "USER", USER, STR1, 1,	"<sp> username" },
-	{ "PASS", PASS, ZSTR1, 1,	"<sp> password" },
-	{ "ACCT", ACCT, STR1, 0,	"(specify account)" },
-	{ "SMNT", SMNT, ARGS, 0,	"(structure mount)" },
-	{ "REIN", REIN, ARGS, 0,	"(reinitialize server state)" },
-	{ "QUIT", QUIT, ARGS, 1,	"(terminate service)", },
-	{ "PORT", PORT, ARGS, 1,	"<sp> b0, b1, b2, b3, b4" },
-	{ "PASV", PASV, ARGS, 1,	"(set server in passive mode)" },
-	{ "TYPE", TYPE, ARGS, 1,	"<sp> [ A | E | I | L ]" },
-	{ "STRU", STRU, ARGS, 1,	"(specify file structure)" },
-	{ "MODE", MODE, ARGS, 1,	"(specify transfer mode)" },
-	{ "RETR", RETR, STR1, 1,	"<sp> file-name" },
-	{ "STOR", STOR, STR1, 1,	"<sp> file-name" },
-	{ "APPE", APPE, STR1, 1,	"<sp> file-name" },
-	{ "MLFL", MLFL, OSTR, 0,	"(mail file)" },
-	{ "MAIL", MAIL, OSTR, 0,	"(mail to user)" },
-	{ "MSND", MSND, OSTR, 0,	"(mail send to terminal)" },
-	{ "MSOM", MSOM, OSTR, 0,	"(mail send to terminal or mailbox)" },
-	{ "MSAM", MSAM, OSTR, 0,	"(mail send to terminal and mailbox)" },
-	{ "MRSQ", MRSQ, OSTR, 0,	"(mail recipient scheme question)" },
-	{ "MRCP", MRCP, STR1, 0,	"(mail recipient)" },
-	{ "ALLO", ALLO, ARGS, 1,	"allocate storage (vacuously)" },
-	{ "REST", REST, ARGS, 1,	"<sp> offset (restart command)" },
-	{ "RNFR", RNFR, STR1, 1,	"<sp> file-name" },
-	{ "RNTO", RNTO, STR1, 1,	"<sp> file-name" },
-	{ "ABOR", ABOR, ARGS, 1,	"(abort operation)" },
-	{ "DELE", DELE, STR1, 1,	"<sp> file-name" },
-	{ "CWD",  CWD,  OSTR, 1,	"[ <sp> directory-name ]" },
-	{ "XCWD", CWD,	OSTR, 1,	"[ <sp> directory-name ]" },
-	{ "LIST", LIST, OSTR, 1,	"[ <sp> path-name ]" },
-	{ "NLST", NLST, OSTR, 1,	"[ <sp> path-name ]" },
-	{ "SITE", SITE, SITECMD, 1,	"site-cmd [ <sp> arguments ]" },
-	{ "SYST", SYST, ARGS, 1,	"(get type of operating system)" },
-	{ "STAT", STAT, OSTR, 1,	"[ <sp> path-name ]" },
-	{ "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
-	{ "NOOP", NOOP, ARGS, 1,	"" },
-	{ "MKD",  MKD,  STR1, 1,	"<sp> path-name" },
-	{ "XMKD", MKD,  STR1, 1,	"<sp> path-name" },
-	{ "RMD",  RMD,  STR1, 1,	"<sp> path-name" },
-	{ "XRMD", RMD,  STR1, 1,	"<sp> path-name" },
-	{ "PWD",  PWD,  ARGS, 1,	"(return current directory)" },
-	{ "XPWD", PWD,  ARGS, 1,	"(return current directory)" },
-	{ "CDUP", CDUP, ARGS, 1,	"(change to parent directory)" },
-	{ "XCUP", CDUP, ARGS, 1,	"(change to parent directory)" },
-	{ "STOU", STOU, STR1, 1,	"<sp> file-name" },
-	{ "SIZE", SIZE, OSTR, 1,	"<sp> path-name" },
-	{ "MDTM", MDTM, OSTR, 1,	"<sp> path-name" },
-	{ "EPRT", EPRT, DLIST, 1,	"<sp> <d> proto <d> addr <d> port <d>" },
-	{ "EPSV", EPSV, ARGS, 1,	"[ <sp> af ]" },
-	{ "LPRT", LPRT, ARGS, 1,	"<sp> af,hal,h0..hn,2,p0,p1" },
-	{ "LPSV", LPSV, ARGS, 1,	"(set server in long passive mode)" },
-	{ NULL,   0,    0,    0,	0 }
+  { "USER", USER, STR1, 1,	"<sp> username" },
+  { "PASS", PASS, ZSTR1, 1,	"<sp> password" },
+  { "ACCT", ACCT, STR1, 0,	"(specify account)" },
+  { "SMNT", SMNT, ARGS, 0,	"(structure mount)" },
+  { "REIN", REIN, ARGS, 0,	"(reinitialize server state)" },
+  { "QUIT", QUIT, ARGS, 1,	"(terminate service)", },
+  { "PORT", PORT, ARGS, 1,	"<sp> b0, b1, b2, b3, b4" },
+  { "PASV", PASV, ARGS, 1,	"(set server in passive mode)" },
+  { "TYPE", TYPE, ARGS, 1,	"<sp> [ A | E | I | L ]" },
+  { "STRU", STRU, ARGS, 1,	"(specify file structure)" },
+  { "MODE", MODE, ARGS, 1,	"(specify transfer mode)" },
+  { "RETR", RETR, STR1, 1,	"<sp> file-name" },
+  { "STOR", STOR, STR1, 1,	"<sp> file-name" },
+  { "APPE", APPE, STR1, 1,	"<sp> file-name" },
+  { "MLFL", MLFL, OSTR, 0,	"(mail file)" },
+  { "MAIL", MAIL, OSTR, 0,	"(mail to user)" },
+  { "MSND", MSND, OSTR, 0,	"(mail send to terminal)" },
+  { "MSOM", MSOM, OSTR, 0,	"(mail send to terminal or mailbox)" },
+  { "MSAM", MSAM, OSTR, 0,	"(mail send to terminal and mailbox)" },
+  { "MRSQ", MRSQ, OSTR, 0,	"(mail recipient scheme question)" },
+  { "MRCP", MRCP, STR1, 0,	"(mail recipient)" },
+  { "ALLO", ALLO, ARGS, 1,	"allocate storage (vacuously)" },
+  { "REST", REST, ARGS, 1,	"<sp> offset (restart command)" },
+  { "RNFR", RNFR, STR1, 1,	"<sp> file-name" },
+  { "RNTO", RNTO, STR1, 1,	"<sp> file-name" },
+  { "ABOR", ABOR, ARGS, 1,	"(abort operation)" },
+  { "DELE", DELE, STR1, 1,	"<sp> file-name" },
+  { "CWD",  CWD,  OSTR, 1,	"[ <sp> directory-name ]" },
+  { "XCWD", CWD,	OSTR, 1,	"[ <sp> directory-name ]" },
+  { "LIST", LIST, OSTR, 1,	"[ <sp> path-name ]" },
+  { "NLST", NLST, OSTR, 1,	"[ <sp> path-name ]" },
+  { "SITE", SITE, SITECMD, 1,	"site-cmd [ <sp> arguments ]" },
+  { "SYST", SYST, ARGS, 1,	"(get type of operating system)" },
+  { "STAT", STAT, OSTR, 1,	"[ <sp> path-name ]" },
+  { "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
+  { "NOOP", NOOP, ARGS, 1,	"" },
+  { "MKD",  MKD,  STR1, 1,	"<sp> path-name" },
+  { "XMKD", MKD,  STR1, 1,	"<sp> path-name" },
+  { "RMD",  RMD,  STR1, 1,	"<sp> path-name" },
+  { "XRMD", RMD,  STR1, 1,	"<sp> path-name" },
+  { "PWD",  PWD,  ARGS, 1,	"(return current directory)" },
+  { "XPWD", PWD,  ARGS, 1,	"(return current directory)" },
+  { "CDUP", CDUP, ARGS, 1,	"(change to parent directory)" },
+  { "XCUP", CDUP, ARGS, 1,	"(change to parent directory)" },
+  { "STOU", STOU, STR1, 1,	"<sp> file-name" },
+  { "SIZE", SIZE, OSTR, 1,	"<sp> path-name" },
+  { "MDTM", MDTM, OSTR, 1,	"<sp> path-name" },
+  { "EPRT", EPRT, DLIST, 1,	"<sp> <d> proto <d> addr <d> port <d>" },
+  { "EPSV", EPSV, ARGS, 1,	"[ <sp> af ]" },
+  { "LPRT", LPRT, ARGS, 1,	"<sp> af,hal,h0..hn,2,p0,p1" },
+  { "LPSV", LPSV, ARGS, 1,	"(set server in long passive mode)" },
+  { NULL,   0,    0,    0,	0 }
 };
 
 struct tab sitetab[] = {
-	{ "UMASK", UMASK, ARGS, 1,	"[ <sp> umask ]" },
-	{ "IDLE", IDLE, ARGS, 1,	"[ <sp> maximum-idle-time ]" },
-	{ "CHMOD", CHMOD, NSTR, 1,	"<sp> mode <sp> file-name" },
-	{ "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
-	{ NULL,   0,    0,    0,	0 }
+  { "UMASK", UMASK, ARGS, 1,	"[ <sp> umask ]" },
+  { "IDLE", IDLE, ARGS, 1,	"[ <sp> maximum-idle-time ]" },
+  { "CHMOD", CHMOD, NSTR, 1,	"<sp> mode <sp> file-name" },
+  { "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
+  { NULL,   0,    0,    0,	0 }
 };
 
 static struct tab *
-lookup(struct tab *p, char *cmd)
+lookup (struct tab *p, char *cmd)
 {
-
-	for (; p->name != NULL; p++)
-		if (strcmp(cmd, p->name) == 0)
-			return (p);
-	return (0);
+  for (; p->name != NULL; p++)
+    if (strcmp (cmd, p->name) == 0)
+      return (p);
+  return (0);
 }
 
 #include <arpa/telnet.h>
@@ -1281,490 +1345,584 @@ lookup(struct tab *p, char *cmd)
  * getline - a hacked up version of fgets to ignore TELNET escape codes.
  */
 char *
-telnet_fgets(char *s, int n, FILE *iop)
+telnet_fgets (char *s, int n, FILE *iop)
 {
-	int c;
-	register char *cs;
+  int c;
+  register char *cs;
 
-	cs = s;
+  cs = s;
 /* tmpline may contain saved command from urgent mode interruption */
-	for (c = 0; tmpline[c] != '\0' && --n > 0; ++c) {
-		*cs++ = tmpline[c];
-		if (tmpline[c] == '\n') {
-			*cs++ = '\0';
-			if (debug)
-				syslog(LOG_DEBUG, "command: %s", s);
-			tmpline[0] = '\0';
-			return(s);
-		}
-		if (c == 0)
-			tmpline[0] = '\0';
+  for (c = 0; tmpline[c] != '\0' && --n > 0; ++c)
+    {
+      *cs++ = tmpline[c];
+      if (tmpline[c] == '\n')
+	{
+	  *cs++ = '\0';
+	  if (debug)
+	    syslog (LOG_DEBUG, "command: %s", s);
+	  tmpline[0] = '\0';
+	  return (s);
 	}
-	while ((c = getc(iop)) != EOF) {
-		c &= 0377;
-		if (c == IAC) {
-		    if ((c = getc(iop)) != EOF) {
-			c &= 0377;
-			switch (c) {
-			case WILL:
-			case WONT:
-				c = getc(iop);
-				printf("%c%c%c", IAC, DONT, 0377&c);
-				 fflush(stdout);
-				continue;
-			case DO:
-			case DONT:
-				c = getc(iop);
-				printf("%c%c%c", IAC, WONT, 0377&c);
-				 fflush(stdout);
-				continue;
-			case IAC:
-				break;
-			default:
-				continue;	/* ignore command */
-			}
-		    }
-		}
-		*cs++ = c;
-		if (--n <= 0 || c == '\n')
-			break;
-	}
-	if (c == EOF && cs == s)
-	    return (NULL);
-	*cs++ = '\0';
-	if (debug) {
-		if (!cred.guest && strncasecmp("pass ", s, 5) == 0) {
-			/* Don't syslog passwords */
-			syslog(LOG_DEBUG, "command: %.5s ???", s);
-		} else {
-			register char *cp;
-			register int len;
 
-			/* Don't syslog trailing CR-LF */
-			len = strlen(s);
-			cp = s + len - 1;
-			while (cp >= s && (*cp == '\n' || *cp == '\r')) {
-				--cp;
-				--len;
-			}
-			syslog(LOG_DEBUG, "command: %.*s", len, s);
+      if (c == 0)
+	tmpline[0] = '\0';
+    }
+
+  while ((c = getc (iop)) != EOF)
+    {
+      c &= 0377;
+      if (c == IAC)
+	{
+	  c = getc (iop);
+	  if (c != EOF)
+	    {
+	      c &= 0377;
+	      switch (c)
+		{
+		case WILL:
+		case WONT:
+		  c = getc (iop);
+		  printf ("%c%c%c", IAC, DONT, 0377 & c);
+		  fflush (stdout);
+		  continue;
+
+		case DO:
+		case DONT:
+		  c = getc (iop);
+		  printf ("%c%c%c", IAC, WONT, 0377 & c);
+		  fflush (stdout);
+		  continue;
+
+		case IAC:
+		  break;
+
+		default:
+		  continue;	/* ignore command */
 		}
+	    }
 	}
-	return (s);
+
+      *cs++ = c;
+      if (--n <= 0 || c == '\n')
+	break;
+    }
+
+  if (c == EOF && cs == s)
+    return (NULL);
+
+  *cs++ = '\0';
+
+  if (debug)
+    {
+      if (!cred.guest && strncasecmp ("pass ", s, 5) == 0)
+	{
+	  /* Don't syslog passwords.  */
+	  syslog (LOG_DEBUG, "command: %.5s ???", s);
+	}
+      else
+	{
+	  register char *cp;
+	  register int len;
+
+	  /* Don't syslog trailing CR-LF.  */
+	  len = strlen (s);
+	  cp = s + len - 1;
+
+	  while (cp >= s && (*cp == '\n' || *cp == '\r'))
+	    {
+	      --cp;
+	      --len;
+	    }
+
+	  syslog (LOG_DEBUG, "command: %.*s", len, s);
+	}
+    }
+  return (s);
 }
 
 void
-toolong(int signo)
+toolong (int signo)
 {
-	(void)signo;
-	reply(421,
-	    "Timeout (%d seconds): closing control connection.", timeout);
-	if (logging)
-		syslog(LOG_INFO, "User %s timed out after %d seconds",
-		    (cred.name ? cred.name : "unknown"), timeout);
-	dologout(1);
+  (void) signo;
+  reply (421, "Timeout (%d seconds): closing control connection.",
+	 timeout);
+  if (logging)
+    syslog (LOG_INFO, "User %s timed out after %d seconds",
+	    (cred.name ? cred.name : "unknown"), timeout);
+  dologout (1);
 }
 
 static int
-yylex(void)
+yylex (void)
 {
-	static int cpos, state;
-	char *cp, *cp2;
-	struct tab *p;
-	int n;
-	char c;
+  static int cpos, state;
+  char *cp, *cp2;
+  struct tab *p;
+  int n;
+  char c;
 
-	for (;;) {
-		switch (state) {
+  for (;;)
+    {
+      switch (state)
+	{
+	case CMD:
+	  signal (SIGALRM, toolong);
+	  alarm ((unsigned) timeout);
+	  if (telnet_fgets (cbuf, sizeof (cbuf)-1, stdin) == NULL)
+	    {
+	      reply (221, "You could at least say goodbye.");
+	      dologout (0);
+	    }
+	  alarm (0);
 
-		case CMD:
-			 signal(SIGALRM, toolong);
-			 alarm((unsigned) timeout);
-			if (telnet_fgets(cbuf, sizeof(cbuf)-1, stdin) == NULL) {
-				reply(221, "You could at least say goodbye.");
-				dologout(0);
-			}
-			 alarm(0);
 #ifdef HAVE_SETPROCTITLE
-			if (strncasecmp(cbuf, "PASS", 4) != 0)
-				setproctitle("%s: %s", proctitle, cbuf);
+	  if (strncasecmp (cbuf, "PASS", 4) != 0)
+	    setproctitle ("%s: %s", proctitle, cbuf);
 #endif /* HAVE_SETPROCTITLE */
-			if ((cp = strchr(cbuf, '\r'))) {
-				*cp++ = '\n';
-				*cp = '\0';
-			}
-			if ((cp = strpbrk(cbuf, " \n")))
-				cpos = cp - cbuf;
-			if (cpos == 0)
-				cpos = 4;
-			c = cbuf[cpos];
-			cbuf[cpos] = '\0';
-			upper(cbuf);
-			p = lookup(cmdtab, cbuf);
-			cbuf[cpos] = c;
-			if (p != 0) {
-				if (p->implemented == 0) {
-					nack(p->name);
-					longjmp(errcatch,0);
-					/* NOTREACHED */
-				}
-				state = p->state;
-				yylval.s = (char*) p->name;
-				return (p->token);
-			}
-			break;
 
-		case SITECMD:
-			if (cbuf[cpos] == ' ') {
-				cpos++;
-				return (SP);
-			}
-			cp = &cbuf[cpos];
-			if ((cp2 = strpbrk(cp, " \n")))
-				cpos = cp2 - cbuf;
-			c = cbuf[cpos];
-			cbuf[cpos] = '\0';
-			upper(cp);
-			p = lookup(sitetab, cp);
-			cbuf[cpos] = c;
-			if (p != 0) {
-				if (p->implemented == 0) {
-					state = CMD;
-					nack(p->name);
-					longjmp(errcatch,0);
-					/* NOTREACHED */
-				}
-				state = p->state;
-				yylval.s = (char*)p->name;
-				return (p->token);
-			}
-			state = CMD;
-			break;
+	  cp = strchr (cbuf, '\r');
+	  if (cp)
+	    {
+	      *cp++ = '\n';
+	      *cp = '\0';
+	    }
 
-		case OSTR:
-			if (cbuf[cpos] == '\n') {
-				state = CMD;
-				return (CRLF);
-			}
+	  cp = strpbrk (cbuf, " \n");
+	  if (cp)
+	    cpos = cp - cbuf;
 
-		case STR1:
-		case ZSTR1:
-		dostr1:
-			if (cbuf[cpos] == ' ') {
-				cpos++;
-                                if (state == OSTR)
-                                  state = STR2;
-                                else
-                                  ++state;
-				return (SP);
-			}
-			break;
+	  if (cpos == 0)
+	    cpos = 4;
 
-		case ZSTR2:
-			if (cbuf[cpos] == '\n') {
-				state = CMD;
-				return (CRLF);
-			}
+	  c = cbuf[cpos];
+	  cbuf[cpos] = '\0';
+	  upper (cbuf);
+	  p = lookup (cmdtab, cbuf);
+	  cbuf[cpos] = c;
 
-		case STR2:
-			cp = &cbuf[cpos];
-			n = strlen(cp);
-			cpos += n - 1;
-			/*
-			 * Make sure the string is nonempty and \n terminated.
-			 */
-			if (n > 1 && cbuf[cpos] == '\n') {
-				cbuf[cpos] = '\0';
-				yylval.s = copy(cp);
-				cbuf[cpos] = '\n';
-				state = ARGS;
-				return (STRING);
-			}
-			break;
-
-		case NSTR:
-			if (cbuf[cpos] == ' ') {
-				cpos++;
-				return (SP);
-			}
-			if (isdigit(cbuf[cpos])) {
-				cp = &cbuf[cpos];
-				while (isdigit(cbuf[++cpos]))
-					;
-				c = cbuf[cpos];
-				cbuf[cpos] = '\0';
-				yylval.i = atoi(cp);
-				cbuf[cpos] = c;
-				state = STR1;
-				return (NUMBER);
-			}
-			state = STR1;
-			goto dostr1;
-
-		case DLIST:
-			/* Either numerical strings or
-			 * address strings for IPv4 and IPv6.
-			 * The consist of hexadecimal chars,
-			 * colon and periods.  A period can
-			 * not begin a valid address.  */
-			if (isxdigit(cbuf[cpos]) || cbuf[cpos] == ':') {
-				int is_num = 1;	/* Only to turn off.  */
-
-				cp = &cbuf[cpos];
-				while (isxdigit(cbuf[cpos])
-						|| cbuf[cpos] == ':'
-						|| cbuf[cpos] == '.') {
-					if (!isdigit(cbuf[cpos]))
-						is_num = 0;
-					cpos++;
-				}
-				c = cbuf[cpos];
-				cbuf[cpos] = '\0';
-				if (is_num) {
-					yylval.i = atoi(cp);
-					cbuf[cpos] = c;
-					return (NUMBER);
-				} else {
-					yylval.s = copy(cp);
-					cbuf[cpos] = c;
-					return (STRING);
-				}
-			}
-
-			switch (c = cbuf[cpos++]) {
-
-			case ' ':
-				return (SP);
-
-			case '\n':
-				state = CMD;
-				return (CRLF);
-
-			default:
-				yylval.i = c;
-				return (CHAR);
-			}
-			break;
-
-		case ARGS:
-			if (isdigit(cbuf[cpos])) {
-				cp = &cbuf[cpos];
-				while (isdigit(cbuf[++cpos]))
-					;
-				c = cbuf[cpos];
-				cbuf[cpos] = '\0';
-				yylval.i = strtoimax (cp, NULL, 10);	/* off_t */
-				cbuf[cpos] = c;
-				return (NUMBER);
-			}
-			switch (cbuf[cpos++]) {
-
-			case '\n':
-				state = CMD;
-				return (CRLF);
-
-			case ' ':
-				return (SP);
-
-			case ',':
-				return (COMMA);
-
-			case 'A':
-			case 'a':
-				return (A);
-
-			case 'B':
-			case 'b':
-				return (B);
-
-			case 'C':
-			case 'c':
-				return (C);
-
-			case 'E':
-			case 'e':
-				return (E);
-
-			case 'F':
-			case 'f':
-				return (F);
-
-			case 'I':
-			case 'i':
-				return (I);
-
-			case 'L':
-			case 'l':
-				return (L);
-
-			case 'N':
-			case 'n':
-				return (N);
-
-			case 'P':
-			case 'p':
-				return (P);
-
-			case 'R':
-			case 'r':
-				return (R);
-
-			case 'S':
-			case 's':
-				return (S);
-
-			case 'T':
-			case 't':
-				return (T);
-
-			}
-			break;
-
-		default:
-			fatal("Unknown state in scanner.");
+	  if (p != 0)
+	    {
+	      if (p->implemented == 0)
+		{
+		  nack (p->name);
+		  longjmp (errcatch, 0);
+		  /* NOTREACHED */
 		}
-		yyerror((char *) 0);
-		state = CMD;
-		longjmp(errcatch,0);
+	      state = p->state;
+	      yylval.s = (char*) p->name;
+	      return (p->token);
+	    }
+	  break;
+
+	case SITECMD:
+	  if (cbuf[cpos] == ' ')
+	    {
+	      cpos++;
+	      return (SP);
+	    }
+	  cp = &cbuf[cpos];
+
+	  cp2 = strpbrk (cp, " \n");
+	  if (cp2)
+	    cpos = cp2 - cbuf;
+
+	  c = cbuf[cpos];
+	  cbuf[cpos] = '\0';
+	  upper (cp);
+	  p = lookup (sitetab, cp);
+	  cbuf[cpos] = c;
+
+	  if (p != 0)
+	    {
+	      if (p->implemented == 0)
+		{
+		  state = CMD;
+		  nack (p->name);
+		  longjmp (errcatch, 0);
+		  /* NOTREACHED */
+		}
+
+	      state = p->state;
+	      yylval.s = (char*) p->name;
+	      return (p->token);
+	    }
+	  state = CMD;
+	  break;
+
+	case OSTR:
+	  if (cbuf[cpos] == '\n')
+	    {
+	      state = CMD;
+	      return (CRLF);
+	    }
+
+	case STR1:
+	case ZSTR1:
+	dostr1:
+	  if (cbuf[cpos] == ' ')
+	    {
+	      cpos++;
+	      if (state == OSTR)
+		state = STR2;
+	      else
+		++state;
+
+	      return (SP);
+	    }
+	  break;
+
+	case ZSTR2:
+	  if (cbuf[cpos] == '\n')
+	    {
+	      state = CMD;
+	      return (CRLF);
+	    }
+
+	case STR2:
+	  cp = &cbuf[cpos];
+	  n = strlen (cp);
+	  cpos += n - 1;
+	  /*
+	   * Make sure the string is nonempty and newline terminated.
+	   */
+	  if (n > 1 && cbuf[cpos] == '\n')
+	    {
+	      cbuf[cpos] = '\0';
+	      yylval.s = copy (cp);
+	      cbuf[cpos] = '\n';
+	      state = ARGS;
+	      return (STRING);
+	    }
+	  break;
+
+	case NSTR:
+	  if (cbuf[cpos] == ' ')
+	    {
+	      cpos++;
+	      return (SP);
+	    }
+	  if (isdigit (cbuf[cpos]))
+	    {
+	      cp = &cbuf[cpos];
+	      while (isdigit (cbuf[++cpos]))
+		;
+
+	      c = cbuf[cpos];
+	      cbuf[cpos] = '\0';
+	      yylval.i = atoi (cp);
+	      cbuf[cpos] = c;
+	      state = STR1;
+	      return (NUMBER);
+	    }
+	  state = STR1;
+	  goto dostr1;
+
+	case DLIST:
+	  /* Either numerical strings or
+	   * address strings for IPv4 and IPv6.
+	   * The consist of hexadecimal chars,
+	   * colon and periods.  A period can
+	   * not begin a valid address.  */
+	  if (isxdigit (cbuf[cpos]) || cbuf[cpos] == ':')
+	    {
+	      int is_num = 1;	/* Only to turn off.  */
+
+	      cp = &cbuf[cpos];
+	      while (isxdigit (cbuf[cpos])
+		     || cbuf[cpos] == ':'
+		     || cbuf[cpos] == '.')
+		{
+		  if (!isdigit (cbuf[cpos]))
+		    is_num = 0;
+		  cpos++;
+		}
+
+	      c = cbuf[cpos];
+	      cbuf[cpos] = '\0';
+	      if (is_num)
+		{
+		  yylval.i = atoi (cp);
+		  cbuf[cpos] = c;
+		  return (NUMBER);
+		}
+	      else
+		{
+		  yylval.s = copy (cp);
+		  cbuf[cpos] = c;
+		  return (STRING);
+		}
+	    }
+
+	  c = cbuf[cpos++];
+	  switch (c)
+	    {
+	    case ' ':
+	      return (SP);
+
+	    case '\n':
+	      state = CMD;
+	      return (CRLF);
+
+	    default:
+	      yylval.i = c;
+	      return (CHAR);
+	    }
+	  break;
+
+	case ARGS:
+	  if (isdigit (cbuf[cpos]))
+	    {
+	      cp = &cbuf[cpos];
+	      while (isdigit (cbuf[++cpos]))
+		;
+
+	      c = cbuf[cpos];
+	      cbuf[cpos] = '\0';
+	      yylval.i = strtoimax (cp, NULL, 10);	/* off_t */
+	      cbuf[cpos] = c;
+	      return (NUMBER);
+	    }
+
+	  switch (cbuf[cpos++])
+	    {
+	    case '\n':
+	      state = CMD;
+	      return (CRLF);
+
+	    case ' ':
+	      return (SP);
+
+	    case ',':
+	      return (COMMA);
+
+	    case 'A':
+	    case 'a':
+	      return (A);
+
+	    case 'B':
+	    case 'b':
+	      return (B);
+
+	    case 'C':
+	    case 'c':
+	      return (C);
+
+	    case 'E':
+	    case 'e':
+	      return (E);
+
+	    case 'F':
+	    case 'f':
+	      return (F);
+
+	    case 'I':
+	    case 'i':
+	      return (I);
+
+	    case 'L':
+	    case 'l':
+	      return (L);
+
+	    case 'N':
+	    case 'n':
+	      return (N);
+
+	    case 'P':
+	    case 'p':
+	      return (P);
+
+	    case 'R':
+	    case 'r':
+	      return (R);
+
+	    case 'S':
+	    case 's':
+	      return (S);
+
+	    case 'T':
+	    case 't':
+	      return (T);
+	    }
+	  break;
+
+	default:
+	  fatal ("Unknown state in scanner.");
 	}
+
+      yyerror ((char *) 0);
+      state = CMD;
+      longjmp (errcatch, 0);
+    } /* for (;;) */
 }
 
 void
-upper(char *s)
+upper (char *s)
 {
-	while (*s != '\0') {
-		if (islower(*s))
-			*s = toupper(*s);
-		s++;
-	}
+  while (*s != '\0')
+    {
+      if (islower (*s))
+	*s = toupper (*s);
+      s++;
+    }
 }
 
 static char *
-copy(char *s)
+copy (char *s)
 {
-	char *p;
+  char *p;
 
-	p = malloc((unsigned) strlen(s) + 1);
-	if (p == NULL)
-		fatal("Ran out of memory.");
-	 strcpy(p, s);
-	return (p);
+  p = malloc (strlen (s) + 1);
+  if (p == NULL)
+    fatal ("Ran out of memory.");
+
+  strcpy (p, s);
+  return (p);
 }
 
 static void
-help(struct tab *ctab, char *s)
+help (struct tab *ctab, char *s)
 {
-	struct tab *c;
-	int width, NCMDS;
-	const char *help_type;
+  struct tab *c;
+  int width, NCMDS;
+  const char *help_type;
 
-	if (ctab == sitetab)
-		help_type = "SITE ";
+  if (ctab == sitetab)
+    help_type = "SITE ";
+  else
+    help_type = "";
+
+  width = 0, NCMDS = 0;
+  for (c = ctab; c->name != NULL; c++)
+    {
+      int len = strlen (c->name);
+
+      if (len > width)
+	width = len;
+
+      NCMDS++;
+    }
+
+  width = (width + 8) &~ 7;
+
+  if (s == 0)
+    {
+      int i, j, w;
+      int columns, lines;
+
+      lreply (214, "The following %scommands are recognized %s.",
+	      help_type, "(* =>'s unimplemented)");
+
+      columns = 76 / width;
+      if (columns == 0)
+	columns = 1;
+
+      lines = (NCMDS + columns - 1) / columns;
+
+      for (i = 0; i < lines; i++)
+	{
+	  printf ("   ");
+	  for (j = 0; j < columns; j++)
+	    {
+	      c = ctab + j * lines + i;
+	      printf ("%s%c", c->name, c->implemented ? ' ' : '*');
+
+	      if (c + lines >= &ctab[NCMDS])
+		break;
+
+	      w = strlen (c->name) + 1;
+	      while (w < width)
+		{
+		  putchar (' ');
+		  w++;
+		}
+	    }
+	  printf ("\r\n");
+	}
+      fflush (stdout);
+      reply (214, "Direct comments to ftp-bugs@%s.", hostname);
+      return;
+    }
+
+  upper (s);
+
+  c = lookup (ctab, s);
+  if (c == (struct tab *) 0)
+    {
+      reply (502, "Unknown command %s.", s);
+      return;
+    }
+
+  if (c->implemented)
+    reply (214, "Syntax: %s%s %s", help_type, c->name, c->help);
+  else
+    reply (214, "%s%-*s\t%s; unimplemented.", help_type,
+	   width, c->name, c->help);
+}
+
+static void
+sizecmd (char *filename)
+{
+  switch (type)
+    {
+    case TYPE_L:
+    case TYPE_I:
+      {
+	struct stat stbuf;
+
+	if (stat (filename, &stbuf) < 0 || !S_ISREG (stbuf.st_mode))
+	  reply (550, "%s: not a plain file.", filename);
 	else
-		help_type = "";
-	width = 0, NCMDS = 0;
-	for (c = ctab; c->name != NULL; c++) {
-		int len = strlen(c->name);
+	  reply (213, "%ju", (uintmax_t) stbuf.st_size);
+	break;
+      }
 
-		if (len > width)
-			width = len;
-		NCMDS++;
-	}
-	width = (width + 8) &~ 7;
-	if (s == 0) {
-		int i, j, w;
-		int columns, lines;
+    case TYPE_A:
+      {
+	FILE *fin;
+	int c;
+	off_t count;
+	struct stat stbuf;
 
-		lreply(214, "The following %scommands are recognized %s.",
-		    help_type, "(* =>'s unimplemented)");
-		columns = 76 / width;
-		if (columns == 0)
-			columns = 1;
-		lines = (NCMDS + columns - 1) / columns;
-		for (i = 0; i < lines; i++) {
-			printf("   ");
-			for (j = 0; j < columns; j++) {
-				c = ctab + j * lines + i;
-				printf("%s%c", c->name,
-					c->implemented ? ' ' : '*');
-				if (c + lines >= &ctab[NCMDS])
-					break;
-				w = strlen(c->name) + 1;
-				while (w < width) {
-					putchar(' ');
-					w++;
-				}
-			}
-			printf("\r\n");
-		}
-		 fflush(stdout);
-		reply(214, "Direct comments to ftp-bugs@%s.", hostname);
-		return;
-	}
-	upper(s);
-	c = lookup(ctab, s);
-	if (c == (struct tab *)0) {
-		reply(502, "Unknown command %s.", s);
-		return;
-	}
-	if (c->implemented)
-		reply(214, "Syntax: %s%s %s", help_type, c->name, c->help);
-	else
-		reply(214, "%s%-*s\t%s; unimplemented.", help_type, width,
-		    c->name, c->help);
+	fin = fopen (filename, "r");
+	if (fin == NULL)
+	  {
+	    perror_reply (550, filename);
+	    return;
+	  }
+
+	if (fstat (fileno (fin), &stbuf) < 0 || !S_ISREG (stbuf.st_mode))
+	  {
+	    reply (550, "%s: not a plain file.", filename);
+	    fclose (fin);
+	    return;
+	  }
+
+	count = 0;
+	while ((c = getc (fin)) != EOF)
+	  {
+	    if (c == '\n')	/* will get expanded to \r\n */
+	      count++;
+	    count++;
+	  }
+	fclose (fin);
+
+	reply (213, "%jd", (intmax_t) count);
+	break;
+      }
+
+    default:
+      reply (504, "SIZE not implemented for Type %c.", "?AEIL"[type]);
+    }
 }
 
 static void
-sizecmd(char *filename)
-{
-	switch (type) {
-	case TYPE_L:
-	case TYPE_I: {
-		struct stat stbuf;
-		if (stat(filename, &stbuf) < 0 || !S_ISREG(stbuf.st_mode))
-			reply(550, "%s: not a plain file.", filename);
-		else
-			reply(213, "%ju", (uintmax_t) stbuf.st_size);
-		break; }
-	case TYPE_A: {
-		FILE *fin;
-		int c;
-		off_t count;
-		struct stat stbuf;
-		fin = fopen(filename, "r");
-		if (fin == NULL) {
-			perror_reply(550, filename);
-			return;
-		}
-		if (fstat(fileno(fin), &stbuf) < 0 || !S_ISREG(stbuf.st_mode)) {
-			reply(550, "%s: not a plain file.", filename);
-			 fclose(fin);
-			return;
-		}
-
-		count = 0;
-		while((c=getc(fin)) != EOF) {
-			if (c == '\n')	/* will get expanded to \r\n */
-				count++;
-			count++;
-		}
-		 fclose(fin);
-
-		reply(213, "%jd", (intmax_t) count);
-		break; }
-	default:
-		reply(504, "SIZE not implemented for Type %c.", "?AEIL"[type]);
-	}
-}
-
-static void
-yyerror(const char *s)
+yyerror (const char *s)
 {
   char *cp;
 
-  (void)s;
-  cp = strchr(cbuf,'\n');
+  (void) s;
+  cp = strchr (cbuf, '\n');
   if (cp != NULL)
     *cp = '\0';
-  reply(500, "'%s': command not understood.", cbuf);
+  reply (500, "'%s': command not understood.", cbuf);
 }
