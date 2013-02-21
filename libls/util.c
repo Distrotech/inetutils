@@ -72,9 +72,9 @@ putname (char *name)
   return len;
 }
 
-void
+int
 usage (void)
 {
   fprintf (stderr, "usage: ls [-1ACFLRSTWacdfiklmnopqrstux] [file ...]\n");
-  exit (EXIT_FAILURE);
+  return (EXIT_FAILURE);
 }

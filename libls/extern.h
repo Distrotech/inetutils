@@ -64,4 +64,4 @@ void printacol (DISPLAY *);
 void printlong (DISPLAY *);
 void printscol (DISPLAY *);
 void printstream (DISPLAY *);
-void usage (void);
+int usage (void);

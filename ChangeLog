@@ -1,3 +1,23 @@
+2013-02-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libls: Allow repeated invokations.  Remove exit()
+	in this library.  Repair numerical stats.
+
+	* libls/ls.c (ls_main): Clear `output', all option
+	flags `f_*', and `optind' to handle correctly repeated
+	invokations.  Replace exit() with return().
+	<case 'l'>: Do not reset `f_numericonly'.
+	<default case>: Return with value from usage().
+	(travers): Replace exit() by return() and set `rval'.
+	(display): Initialise USER and GROUP to NULL.
+	Replace exit() with return().
+	* libls/util.c (usage): Return type `int'.
+	Replace exit() with return().
+	* libls/extern.h (usage): Update.
+
+	* libls/ls.c (ls_main, traverse, display):
+	Pull variable assignment out of if-statement.
+
 2013-01-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libls: Use __opendir2() if present.

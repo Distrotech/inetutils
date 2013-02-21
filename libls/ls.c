@@ -85,6 +85,8 @@ long blocksize;			/* block size units */
 int termwidth = 80;		/* default terminal width */
 int sortkey = BY_NAME;
 
+static int output;		/* If anything was output. */
+
 /* flags */
 int f_accesstime;		/* use time of last access */
 int f_column;			/* columnated format */
@@ -121,10 +123,23 @@ ls_main (int argc, char **argv)
   int kflag = 0;
   char *p;
 
+  /*
+   * Clear all settings made in any previous call.
+   */
+  output = 0;
+
+  f_accesstime = f_column = f_columnacross = f_flags = f_inode = 0;
+  f_listdir = f_listdot = f_longform = f_newline = 0;
+  f_nonprint = f_nosort = f_numericonly = 0;
+  f_recursive = f_reversesort = f_sectime = f_singlecol = 0;
+  f_size = f_statustime = f_stream = f_dirname = 0;
+  f_type = f_typedir = f_whiteout = 0;
+
   /* Terminal defaults to -Cq, non-terminal defaults to -1. */
   if (isatty (STDOUT_FILENO))
     {
-      if ((p = getenv ("COLUMNS")) != NULL)
+      p = getenv ("COLUMNS");
+      if (p != NULL)
 	termwidth = atoi (p);
       else if (ioctl (STDOUT_FILENO, TIOCGWINSZ, &win) == 0 && win.ws_col > 0)
 	termwidth = win.ws_col;
@@ -136,6 +151,8 @@ ls_main (int argc, char **argv)
   /* Root is -A automatically. */
   if (!getuid ())
     f_listdot = 1;
+
+  optind = 1;	/* Reset for reentrant scanning.  */
 
   fts_options = FTS_PHYSICAL;
   while ((ch = getopt (argc, argv, "1ACFLRSTWacdfgiklmnopqrstux")) != -1)
@@ -156,7 +173,6 @@ ls_main (int argc, char **argv)
 	  break;
 	case 'l':
 	  f_longform = 1;
-	  f_numericonly = 0;
 	  f_column = f_columnacross = f_singlecol = f_stream = 0;
 	  break;
 	case 'm':
@@ -242,7 +258,7 @@ ls_main (int argc, char **argv)
 	  f_whiteout = 1;
 	  break;
 	default:
-	  usage ();
+	  return usage ();
 	}
     }
   argc -= optind;
@@ -336,10 +352,8 @@ ls_main (int argc, char **argv)
     traverse (argc, argv, fts_options);
   else
     traverse (1, dotav, fts_options);
-  exit (rval);
+  return (rval);
 }
-
-static int output;		/* If anything output. */
 
 /*
  * Traverse() walks the logical directory structure specified by the argv list
@@ -354,10 +368,12 @@ traverse (int argc, char **argv, int options)
   FTSENT *p, *chp;
   int ch_options;
 
-  if ((ftsp = fts_open (argv, options, f_nosort ? NULL : mastercmp)) == NULL)
+  ftsp = fts_open (argv, options, f_nosort ? NULL : mastercmp);
+  if (ftsp == NULL)
     {
       fprintf (stderr, "%s: fts_open: %s", argv[0], strerror (errno));
-      exit (EXIT_FAILURE);
+      rval = EXIT_FAILURE;
+      return;
     }
 
   display (NULL, fts_children (ftsp, 0));
@@ -409,7 +425,8 @@ traverse (int argc, char **argv, int options)
   if (errno)
     {
       fprintf (stderr, "fts_read: %s", strerror (errno));
-      exit (EXIT_FAILURE);
+      rval = EXIT_FAILURE;
+      return;
     }
 }
 
@@ -503,6 +520,9 @@ display (FTSENT *p, FTSENT *list)
 	    {
 	      struct passwd *pwd;
 	      struct group *grp;
+
+	      user = group = NULL;
+
 	      if (!f_numericonly)
 		{
 		  pwd = getpwuid (sp->st_uid);
@@ -516,24 +536,30 @@ display (FTSENT *p, FTSENT *list)
 		user = umaxtostr (sp->st_uid, nuser);
 	      if (!group)
 		group = umaxtostr (sp->st_gid, ngroup);
-	      if ((ulen = strlen (user)) > maxuser)
+
+	      ulen = strlen (user);
+	      if (ulen > maxuser)
 		maxuser = ulen;
-	      if ((glen = strlen (group)) > maxgroup)
+	      glen = strlen (group);
+	      if (glen > maxgroup)
 		maxgroup = glen;
+
 	      if (f_flags)
 		{
 		  flags = "-";
-		  if ((flen = strlen (flags)) > maxflags)
+		  flen = strlen (flags);
+		  if (flen > maxflags)
 		    maxflags = flen;
 		}
 	      else
 		flen = 0;
 
-	      if ((np = malloc (sizeof (NAMES) +
-				ulen + glen + flen + 3)) == NULL)
+	      np = malloc (sizeof (NAMES) + ulen + glen + flen + 3);
+	      if (np == NULL)
 		{
 		  fprintf (stderr, "malloc: %s", strerror (errno));
-		  exit (EXIT_FAILURE);
+		  rval = EXIT_FAILURE;
+		  return;
 		}
 
 	      np->user = &np->data[0];
