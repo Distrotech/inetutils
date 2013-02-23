@@ -1,3 +1,19 @@
+2013-02-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd: Portably restart signals.  Necessary
+	for Solaris.
+
+	* src/syslogd.c (main) [HAVE_SIGACTION]:
+	New variable SA.  Use sigaction() to install
+	dispositions for SIGALRM, SIGUSR1, and SIGHUP.
+	(domark) [!HAVE_SIGACTION]: Reactivate SIGALRM.
+	(dbg_toggle) [!HAVE_SIGACTION]: Reactivate SIGUSR1.
+	(trigger_restart) [!HAVE_SIGACTION]:
+	Reactivate SIGHUP.
+
+	* src/syslogd.c (printline): Use an else-block to
+	prevent duplicate messages when `force_sync' is set.
+
 2013-02-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libls: Allow repeated invokations.  Remove exit()

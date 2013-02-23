@@ -475,6 +475,9 @@ main (int argc, char *argv[])
   pid_t ppid = 0;		/* We run in debug mode and didn't fork.  */
   struct pollfd *fdarray;
   unsigned long nfds = 0;
+#ifdef HAVE_SIGACTION
+  struct sigaction sa;
+#endif
 
   set_program_name (argv[0]);
 
@@ -557,8 +560,22 @@ main (int argc, char *argv[])
   signal (SIGTERM, die);
   signal (SIGINT, NoDetach ? die : SIG_IGN);
   signal (SIGQUIT, NoDetach ? die : SIG_IGN);
+
+#ifdef HAVE_SIGACTION
+  /* Register repeatable actions portably!  */
+  sa.sa_flags = SA_RESTART;
+  sigemptyset (&sa.sa_mask);
+
+  sa.sa_handler = domark;
+  (void) sigaction (SIGALRM, &sa, NULL);
+
+  sa.sa_handler = NoDetach ? dbg_toggle : SIG_IGN;
+  (void) sigaction (SIGUSR1, &sa, NULL);
+#else /* !HAVE_SIGACTION */
   signal (SIGALRM, domark);
   signal (SIGUSR1, NoDetach ? dbg_toggle : SIG_IGN);
+#endif
+
   alarm (TIMERINTVL);
 
   /* We add  3 = 1(klog) + 2(inet,inet6), even if they may stay unused.  */
@@ -639,7 +656,13 @@ main (int argc, char *argv[])
 
   dbg_printf ("off & running....\n");
 
+#ifdef HAVE_SIGACTION
+  /* `sa' has been cleared already.  */
+  sa.sa_handler = trigger_restart;
+  (void) sigaction (SIGHUP, &sa, NULL);
+#else /* !HAVE_SIGACTION */
   signal (SIGHUP, trigger_restart);
+#endif
 
   if (NoDetach)
     {
@@ -1045,7 +1068,8 @@ printline (const char *hname, const char *msg)
      sync on every line.  */
   if (force_sync)
     logmsg (pri, line, hname, SYNC_FILE);
-  logmsg (pri, line, hname, 0);
+  else
+    logmsg (pri, line, hname, 0);
 }
 
 /* Take a raw input line from /dev/klog, split and format similar to
@@ -1676,6 +1700,10 @@ domark (int signo _GL_UNUSED_PARAMETER)
 	  BACKOFF (f);
 	}
     }
+
+#ifndef HAVE_SIGACTION
+  signal (SIGALRM, domark);
+#endif
   alarm (TIMERINTVL);
 }
 
@@ -2246,6 +2274,10 @@ dbg_toggle (int signo _GL_UNUSED_PARAMETER)
   dbg_printf ("Switching dbg_output to %s.\n",
 	      dbg_save == 0 ? "true" : "false");
   dbg_output = (dbg_save == 0) ? 1 : 0;
+
+#ifndef HAVE_SIGACTION
+  signal (SIGUSR1, dbg_toggle);
+#endif
 }
 
 /* Ansi2knr will always change ... to va_list va_dcl */
@@ -2273,6 +2305,9 @@ void
 trigger_restart (int signo _GL_UNUSED_PARAMETER)
 {
   restart = 1;
+#ifndef HAVE_SIGACTION
+  signal (SIGHUP, trigger_restart);
+#endif
 }
 
 /* Override default port with a non-NULL argument.
