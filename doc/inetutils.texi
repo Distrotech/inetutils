@@ -3223,12 +3223,27 @@ types of messages and priorities to which the line applies, and an
 @dfn{action} field which specifies the action to be taken if a message
 @command{syslogd} receives matches the selection criteria.  The
 selector field is separated from the action field by one or more tab
-or space characters.  A rule can be splitted in several lines if all
+or space characters.  A rule can be split in several lines if all
 lines except the last are terminated with a backslash @samp{\}.
 
-The Selectors function are encoded as a facility, a period (@samp{.}),
-and a level, with no intervening white-space.  Both the facility and
-the level are case insensitive.
+There are two exceptional forms of line content.
+The first is the @dfn{tagged selector}, and the second is a comment.
+The latter begins with an octothorp (@samp{#}), also called hash,
+and continues until end-of-line.
+
+A tagged selector commences with an exclamation mark,
+as in @samp{!name}, or with a shebang, like @samp{#! name},
+and continues with a program name, a @dfn{tag} in the sense
+used by @command{logger}.
+It has the effect of applying the following configuration rules
+only to messages submitted with the specified tag.
+This selection remains in effect until another tag is selected,
+or until it is reset by means of stating the program name as
+an asterisque @samp{*}.
+
+The selector fields are encoded as a facility, followed by
+a period (@samp{.}), and a level, with no intervening white-space.
+The facility as well as the level are case insensitive.
 
 The facility describes the part of the system generating the message,
 and is one of the following keywords: @samp{auth}, @samp{authpriv},
@@ -3341,6 +3356,17 @@ mail.*                                  /var/log/maillog
 
 # Root and Eric get alert and higher messages.
 *.alert                                 root,eric
+
+# Simplify security auditing, by collecting sudo uses.
+! sudo
+*.info                                  /var/log/sudo
+
+# Collect time server reports.
+#! ntpd
+*.*                                     /var/log/ntpd
+
+# Stop selecting on message tags.
+!*
 
 # Save mail and news errors of level err and higher in a
 # special file.

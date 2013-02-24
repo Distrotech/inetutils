@@ -1,3 +1,20 @@
+2013-02-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd: Log selectively on program name.
+
+	* src/syslogd.c (selector): New variable.
+	(struct filed): New members `f_progname' and
+	`f_prognlen'.
+	(logmsg): Filter on committing program name if
+	`f->f_progname' has been set for this file.
+	(init): Free `f->f_progname' and `selector'.
+	Capture program name selector while parsing.
+	(cfline): If `selector' is set, indicate its value
+	in debug printing, and copy it to `f->f_progname',
+	also setting `f->f_prognlen'.
+
+	* doc/inetutils.texi (syslogd invocation): Update.
+
 2013-02-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Portably restart signals.  Necessary

@@ -134,6 +134,8 @@
  */
 int facilities_seen;
 
+char *selector;			/* Program origin to select.  */
+
 const char *ConfFile = PATH_LOGCONF;	/* Default Configuration file.  */
 const char *PidFile = PATH_LOGPID;	/* Default path to tuck pid.  */
 char ctty[] = PATH_CONSOLE;	/* Default console to send message info.  */
@@ -187,6 +189,8 @@ struct filed
   char f_prevline[MAXSVLINE];	/* Last message logged.  */
   char f_lasttime[16];		/* Time of last occurrence.  */
   char *f_prevhost;		/* Host from which recd.  */
+  char *f_progname;		/* Submitting program.  */
+  int f_prognlen;		/* Length of the same.  */
   int f_prevpri;		/* Pri of f_prevline.  */
   int f_prevlen;		/* Length of f_prevline.  */
   int f_prevcount;		/* Repetition cnt of prevline.  */
@@ -1208,6 +1212,25 @@ logmsg (int pri, const char *msg, const char *from, int flags)
       if ((flags & MARK) && (now - f->f_time) < MarkInterval / 2)
 	continue;
 
+      if (f->f_progname)
+	{
+	  /* The usual, and desirable, formattings are:
+	   *
+	   *   prg: message text
+	   *   prg[PIDNO]: message text
+	   */
+
+	  /* Skip on selector mismatch.  */
+	  if (strncmp (msg, f->f_progname, f->f_prognlen))
+	    continue;
+
+	  /* Avoid matching on prefixes.  */
+	  if (isalnum (msg[f->f_prognlen])
+	      || msg[f->f_prognlen] == '-'
+	      || msg[f->f_prognlen] == '_')
+	    continue;
+	}
+
       /* Suppress duplicate lines to this file.  */
       if ((flags & MARK) == 0 && msglen == f->f_prevlen && f->f_prevhost
 	  && !strcmp (msg, f->f_prevline) && !strcmp (from, f->f_prevhost))
@@ -1819,6 +1842,7 @@ init (int signo _GL_UNUSED_PARAMETER)
 	  free (f->f_un.f_user.f_unames);
 	  break;
 	}
+      free (f->f_progname);
       free (f->f_prevhost);
       next = f->f_next;
       free (f);
@@ -1854,6 +1878,10 @@ init (int signo _GL_UNUSED_PARAMETER)
       return;
     }
   cline = cbuf;
+
+  /* Reset selecting program.  */
+  free (selector);
+  selector = NULL;
 
   /* Line parsing :
      - skip comments,
@@ -1906,6 +1934,52 @@ init (int signo _GL_UNUSED_PARAMETER)
       /* Glob the leading spaces.  */
       for (p = cline; isspace (*p); ++p)
 	;
+
+      /* Record program selector.
+       *
+       * Acceptable formats are typically:
+       *
+       *   !name
+       *   #! name
+       *   ! *
+       *
+       * The latter is clearing the previous setting.
+       */
+      if (*p == '!' || (*p == '#' && *(p + 1) == '!'))
+	{
+	  if (*++p == '!')
+	    ++p;
+	  while (isspace (*p))
+	    ++p;
+	  if (*p == '\0')
+	    continue;
+
+	  /* Reset previous setting.  */
+	  free (selector);
+	  selector = NULL;
+
+	  if (*p != '*')
+	    {
+	      char *sep;
+
+	      /* BSD systems allow multiple selectors
+	       * separated by commata.  Strip away any
+	       * additional names since at this time
+	       * we only support a single name.
+	       */
+	      sep = strchr (p, ',');
+	      if (sep)
+		*sep = '\0';
+
+	      /* Remove trailing whitespace.  */
+	      sep = strpbrk (p, " \t\n\r");
+	      if (sep)
+		*sep = '\0';
+
+	      selector = strdup (p);
+	    }
+	  continue;
+	}
 
       /* Skip comments and empty line.  */
       if (*p == '\0' || *p == '#')
@@ -1997,7 +2071,9 @@ cfline (const char *line, struct filed *f)
   const char *p, *q;
   char buf[MAXLINE], ebuf[200];
 
-  dbg_printf ("cfline(%s)\n", line);
+  dbg_printf ("cfline(%s)%s%s\n", line,
+	      selector ? " tagged " : "",
+	      selector ? selector : "");
 
   errno = 0;			/* keep strerror() stuff out of logerror messages */
 
@@ -2247,6 +2323,15 @@ cfline (const char *line, struct filed *f)
       f->f_type = F_USERS;
       break;
     }
+
+    /* Set program selector.  */
+    if (selector)
+      {
+	f->f_progname = strdup (selector);
+	f->f_prognlen = strlen (selector);
+      }
+    else
+      f->f_progname = NULL;
 }
 
 /* Decode a symbolic name to a numeric value.  */

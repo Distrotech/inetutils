@@ -39,6 +39,12 @@ Supports IPv6.  New switches `-4/--ipv4', `-6/--ipv6', `-a/--ipany'
 
 Support IPv6.  New switches `-4/--ipv4', `-6/--ipv6'.
 
+* syslogd
+
+Messages can be logged to specific files according to the name
+of the submitting program, on the tag attached to the message.
+The mechanism is patterned on an established BSD feature.
+
 * telnet
 
 New switch `-k/--realm'.
