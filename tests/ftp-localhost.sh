@@ -155,18 +155,36 @@ fi
 # was found.
 
 if test -z "$DLDIR"; then
-    for DLDIR in /pub /download /downloads /dl / ; do
+    # We depend on detection of a usable subdirectory,
+    # so reactivate this sub-test only with DLDIR known
+    # to be functional.
+
+    do_transfer=false
+
+    for DLDIR in /pub /download /downloads /dl /tmp / ; do
 	test -d $FTPHOME$DLDIR || continue
 	set -- `ls -ld $FTPHOME$DLDIR`
 	# Check owner.
 	test "$3" = $FTPUSER || continue
 	# Check for write access.
-	test `expr $1 : 'drwx'` -eq 4 && break
+	test `expr $1 : 'drwx'` -eq 4 && do_transfer=true && break
 	DLDIR=	# Reset failed value
     done
 
-    test -z "$DLDIR" && do_transfer=false
     test x"$DLDIR" = x"/" && DLDIR=
+fi
+
+# Exit with a hard error, should transfer test be requested,
+# but a suitable subdirectory be missing.
+
+if test "${TRANSFERTEST+yes}" = "yes" && \
+    test $do_transfer = false
+then
+    cat >&2 <<-END
+	There is no writable subdirectory for transfer test.
+	Aborting FTP test completely.
+	END
+    exit 99
 fi
 
 # Note that inetd changes directory to / when --debug is not given so

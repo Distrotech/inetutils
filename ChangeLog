@@ -1,3 +1,14 @@
+2013-03-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Make the FTP transfer test somewhat robuster.
+
+	* tests/ftp-localhost.sh <set-up of DLDIR>:
+	Reset do_transfer as `false' before probing.
+	Add `/tmp' as a candidate subdirectory.
+	Set do_transfer to `true' only with a confirmed
+	writable directory.  Exit with status 99, should
+	TRANSFERTEST be set, but directory search fails.
+
 2013-02-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Log selectively on program name.
