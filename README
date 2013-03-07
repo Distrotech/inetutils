@@ -5,7 +5,7 @@ clients and servers of the GNU Operating System.
 
 The individual utilities were originally derived from the 4.4BSDLite2
 distribution.  Many features were integrated from NetBSD, OpenBSD,
-FreeBSD and GNU/Linux
+FreeBSD and GNU/Linux.
 
 The file `paths' contains a list of all paths used by programs in this
 distribution, and rules to find values for them.  To change a path
@@ -32,19 +32,28 @@ address.
 
 Notes:
 
-1) All of the r* commands clients, rcp, rlogin, rsh, need to be
-   install setuid root to work correctly because they use privileged
-   ports for communication.
+1) All of the r* client commands, 'rcp', 'rlogin', 'rsh', used to
+   need to be installed as setuid root to work correctly, since
+   they use privileged ports for communication.  However, some
+   modern operating systems now offer capabilities that avoid
+   the need for setuid settings, and this is accounted for in
+   our present code.  CAP_NET_BIND_SERVICE and PRIV_NET_PRIVADDR
+   are relevant for the above three programs.
+
+2) Similarly, 'ping', 'ping6', and 'traceroute', used to depend
+   on setuid installation, but also these are now content with
+   capabilities like CAP_NET_RAW, PRIV_NET_ICMPACCESS, and
+   PRIV_NET_RAWACCESS.
 
 Some known deficiencies:
 
  - Non-Shishi Kerberos support does not build.  Patches welcome.
 
- - Shishi Kerberos support is only implemented for 'rlogin',
+ - Shishi Kerberos support is only implemented for 'rcp', 'rlogin',
    'rlogind', 'rsh', 'rshd', 'telnet', and 'telnetd'.
 
  - Not all utilities are Kerberized even when built with Kerberos
-   libraries, including 'rcp'.
+   libraries, including 'rcp' for non-Shishi Kerberos.
 
  - InetUtils does not build on HP-UX 11.00, Cygwin, Minix, MinGW,
    MSCV, BeOS, Haiki (and probably other systems as well).  Patches

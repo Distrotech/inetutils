@@ -72,7 +72,7 @@ ping_init (int type, int ident)
   if (fd < 0)
     {
       if (errno == EPERM || errno == EACCES)
-	fprintf (stderr, "ping: ping must run as root\n");
+	fprintf (stderr, "ping: Lacking privilege for raw socket.\n");
       return NULL;
     }
 

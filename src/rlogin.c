@@ -365,16 +365,10 @@ main (int argc, char *argv[])
 
   argc -= index;
 
-#if defined KERBEROS || defined SHISHI
-  if (!use_kerberos && geteuid ())
-#else
-  /* We must be uid root to access rcmd().  */
-  if (geteuid ())
-#endif
-    error (EXIT_FAILURE, 0, "must be setuid root.");
-
   /* Get the name of the user invoking us: the client-user-name.  */
-  if (!(pw = getpwuid (uid = getuid ())))
+  uid = getuid ();
+  pw = getpwuid (uid);
+  if (!pw)
     error (EXIT_FAILURE, 0, "unknown user id.");
 
   /* Accept user1@host format, though "-l user2" overrides user1 */
@@ -619,6 +613,13 @@ try_connect:
   if (rem < 0)
     {
       puts ("");	/* Glibc does not close all error strings in rcmd().  */
+      /* rcmd() provides its own error messages,
+       * but we add a vital addition, caused by
+       * insufficient capabilites.
+       */
+      if (errno == EACCES)
+	error (EXIT_FAILURE, 0, "No access to privileged ports.");
+
       exit (EXIT_FAILURE);
     }
 
@@ -1430,8 +1431,10 @@ get_window_size (int fd, struct winsize *wp)
   struct ttysize ts;
   int error;
 
-  if ((error = ioctl (0, TIOCGSIZE, &ts)) != 0)
+  error = ioctl (0, TIOCGSIZE, &ts);
+  if (error != 0)
     return error;
+
   wp->ws_row = ts.ts_lines;
   wp->ws_col = ts.ts_cols;
   wp->ws_xpixel = 0;
@@ -1446,8 +1449,10 @@ getescape (register char *p)
   long val;
   int len;
 
-  if ((len = strlen (p)) == 1)	/* use any single char, including '\'.  */
+  len = strlen (p);
+  if (len == 1)		/* use any single char, including '\'.  */
     return ((u_int) * p);
+
   /* otherwise, \nnn */
   if (*p == '\\' && len >= 2 && len <= 4)
     {

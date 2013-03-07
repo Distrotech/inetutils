@@ -928,7 +928,8 @@ rlogind_auth (int fd, struct auth_data *ap)
 	int ipproto;
 	struct protoent *ip;
 
-	if ((ip = getprotobyname ("ip")) != NULL)
+	ip = getprotobyname ("ip");
+	if (ip != NULL)
 	  ipproto = ip->p_proto;
 	else
 	  ipproto = IPPROTO_IP;
@@ -1377,7 +1378,8 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   struct passwd *pwd;
   char *name;
 
-  if (status = krb5_init_context (&ap->context))
+  status = krb5_init_context (&ap->context);
+  if (status)
     {
       syslog (LOG_ERR, "Error initializing krb5: %s",
 	      error_message (status));
@@ -1422,8 +1424,9 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   if (status)
     return status;
 
-  if ((status = krb5_auth_con_getauthenticator (ap->context, auth_ctx,
-						&authenticator)))
+  status = krb5_auth_con_getauthenticator (ap->context, auth_ctx,
+					   &authenticator);
+  if (status)
     return status;
 
   getstr (infd, &ap->lusername, NULL);
@@ -1439,8 +1442,9 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
 
   getstr (infd, &ap->rusername, NULL);
 
-  if ((status = krb5_copy_principal (ap->context,
-				     ticket->enc_part2->client, &ap->client)))
+  status = krb5_copy_principal (ap->context, ticket->enc_part2->client,
+				&ap->client);
+  if (status)
     return status;
 
   /*OK:: */
@@ -1759,7 +1763,8 @@ protocol (int f, int p, struct auth_data *ap)
 
       FD_SET (p, &ebits);
 
-      if ((n = select (nfd, &ibits, omask, &ebits, 0)) < 0)
+      n = select (nfd, &ibits, omask, &ebits, 0);
+      if (n < 0)
 	{
 	  if (errno == EINTR)
 	    continue;

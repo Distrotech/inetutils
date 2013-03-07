@@ -273,7 +273,7 @@ static struct argp argp = {
 
 struct passwd *pwd;
 unsigned short port;
-uid_t userid;
+uid_t userid, effuid;
 int errs, rem;
 
 char *command;
@@ -314,7 +314,9 @@ main (int argc, char *argv[])
 # else /* SHISHI */
       shell = "kshell";		/* Libshishi uses a single service.  */
 # endif
-      if ((sp = getservbyname (shell, "tcp")) == NULL)
+
+      sp = getservbyname (shell, "tcp");
+      if (sp == NULL)
 	{
 	  use_kerberos = 0;
 	  oldw ("can't get entry for %s/tcp service", shell);
@@ -330,7 +332,10 @@ main (int argc, char *argv[])
     error (EXIT_FAILURE, 0, "%s/tcp: unknown service", shell);
   port = sp->s_port;
 
-  if ((pwd = getpwuid (userid = getuid ())) == NULL)
+  effuid = geteuid ();
+  userid = getuid ();
+  pwd = getpwuid (userid);
+  if (pwd == NULL)
     error (EXIT_FAILURE, 0, "unknown user %d", (int) userid);
 
   rem = STDIN_FILENO;		/* XXX */
@@ -360,14 +365,6 @@ main (int argc, char *argv[])
   if (doencrypt && !use_kerberos)
     error (EXIT_FAILURE, 0, "encryption must use Kerberos");
 #endif
-
-#if defined KERBEROS || defined SHISHI
-  if (!use_kerberos && geteuid ())
-#else
-  /* We must be setuid root.  */
-  if (geteuid ())
-#endif
-    error (EXIT_FAILURE, 0, "must be setuid root.");
 
   /* Command to be executed on remote system using "rsh". */
 #if defined KERBEROS || defined SHISHI
@@ -515,7 +512,17 @@ toremote (char *targ, int argc, char *argv[])
 			    tuser ? tuser : pwd->pw_name, bp, 0);
 #endif
 	      if (rem < 0)
-		exit (EXIT_FAILURE);
+		{
+		  /* rcmd() provides its own error messages,
+		   * but we add a vital addition, caused by
+		   * insufficient capabilites.
+		   */
+		  if (errno == EACCES)
+		    error (EXIT_FAILURE, 0,
+			   "No access to privileged ports.");
+
+		  exit (EXIT_FAILURE);
+		}
 #if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
 	      sslen = sizeof (ss);
 	      (void) getpeername (rem, (struct sockaddr *) &ss, &sslen);
@@ -567,7 +574,8 @@ tolocal (int argc, char *argv[])
 
   for (i = 0; i < argc - 1; i++)
     {
-      if (!(src = colon (argv[i])))
+      src = colon (argv[i]);
+      if (!src)
 	{			/* Local to local. */
 	  len = strlen (PATH_CP) + strlen (argv[i]) +
 	    strlen (argv[argc - 1]) + 20;
@@ -585,7 +593,9 @@ tolocal (int argc, char *argv[])
       *src++ = 0;
       if (*src == 0)
 	src = ".";
-      if ((host = strchr (argv[i], '@')) == NULL)
+
+      host = strchr (argv[i], '@');
+      if (host == NULL)
 	{
 	  host = argv[i];
 	  suser = pwd->pw_name;
@@ -633,7 +643,7 @@ tolocal (int argc, char *argv[])
 	  error (0, errno, "TOS (ignored)");
 #endif
       sink (1, argv + argc - 1);
-      seteuid (0);
+      seteuid (effuid);
       close (rem);
       rem = -1;
 #ifdef SHISHI
@@ -695,7 +705,8 @@ source (int argc, char *argv[])
   for (indx = 0; indx < argc; ++indx)
     {
       name = argv[indx];
-      if ((fd = open (name, O_RDONLY, 0)) < 0)
+      fd = open (name, O_RDONLY, 0);
+      if (fd < 0)
 	goto syserr;
       if (fstat (fd, &stb))
 	{
@@ -718,7 +729,8 @@ source (int argc, char *argv[])
 	  run_err ("%s: not a regular file", name);
 	  goto next;
 	}
-      if ((last = strrchr (name, '/')) == NULL)
+      last = strrchr (name, '/');
+      if (last == NULL)
 	last = name;
       else
 	++last;
@@ -737,7 +749,9 @@ source (int argc, char *argv[])
       write (rem, buf, strlen (buf));
       if (response () < 0)
 	goto next;
-      if ((bp = allocbuf (&buffer, fd, BUFSIZ)) == NULL)
+
+      bp = allocbuf (&buffer, fd, BUFSIZ);
+      if (bp == NULL)
 	{
 	next:
 	  close (fd);
@@ -784,7 +798,8 @@ rsource (char *name, struct stat *statp)
   char *buf;
   int buf_len;
 
-  if (!(dirp = opendir (name)))
+  dirp = opendir (name);
+  if (!dirp)
     {
       run_err ("%s: %s", name, strerror (errno));
       return;
@@ -1039,14 +1054,16 @@ sink (int argc, char *argv[])
 	}
       omode = mode;
       mode |= S_IWRITE;
-      if ((ofd = open (np, O_WRONLY | O_CREAT, mode)) < 0)
+      ofd = open (np, O_WRONLY | O_CREAT, mode);
+      if (ofd < 0)
 	{
 	bad:
 	  run_err ("%s: %s", np, strerror (errno));
 	  continue;
 	}
       write (rem, "", 1);
-      if ((bp = allocbuf (&buffer, ofd, BUFSIZ)) == NULL)
+      bp = allocbuf (&buffer, ofd, BUFSIZ);
+      if (bp == NULL)
 	{
 	  close (ofd);
 	  continue;
@@ -1467,7 +1484,9 @@ allocbuf (BUF * bp, int fd, int blksize)
     size = blksize;
   if ((size_t) bp->cnt >= size)
     return (bp);
-  if ((bp->buf = realloc (bp->buf, size)) == NULL)
+
+  bp->buf = realloc (bp->buf, size);
+  if (bp->buf == NULL)
     {
       bp->cnt = 0;
       run_err ("%s", strerror (errno));

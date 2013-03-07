@@ -289,15 +289,9 @@ main (int argc, char **argv)
   argc -= index;
   argv += index;
 
-#if defined KERBEROS || defined SHISHI
-  if (!use_kerberos && geteuid ())
-#else
-  /* We must be setuid root.  */
-  if (geteuid ())
-#endif
-    error (EXIT_FAILURE, 0, "must be setuid root.");
-
-  if (!(pw = getpwuid (uid = getuid ())))
+  uid = getuid ();
+  pw = getpwuid (uid);
+  if (!pw)
     error (EXIT_FAILURE, 0, "unknown user id");
 
   /* Accept user1@host format, though "-l user2" overrides user1 */
@@ -512,7 +506,16 @@ try_connect:
 #endif /* !KERBEROS && !SHISHI */
 
   if (rem < 0)
-    exit (EXIT_FAILURE);
+    {
+      /* rcmd() provides its own error messages,
+       * but we add a vital addition, caused by
+       * insufficient capabilites.
+       */
+      if (errno == EACCES)
+	error (EXIT_FAILURE, 0, "No access to privileged ports.");
+
+      exit (EXIT_FAILURE);
+    }
 
   if (rfd2 < 0)
     error (EXIT_FAILURE, 0, "can't establish stderr");
@@ -605,7 +608,8 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 
     reread:
       errno = 0;
-      if ((cc = read (STDIN_FILENO, buf, sizeof buf)) <= 0)
+      cc = read (STDIN_FILENO, buf, sizeof buf);
+      if (cc <= 0)
 	goto done;
       bp = buf;
 
@@ -766,7 +770,8 @@ copyargs (char **argv)
   cc = 0;
   for (ap = argv; *ap; ++ap)
     cc += strlen (*ap) + 1;
-  if (!(args = malloc ((u_int) cc)))
+  args = malloc ((u_int) cc);
+  if (!args)
     error (EXIT_FAILURE, errno, "copyargs");
   for (p = args, ap = argv; *ap; ++ap)
     {

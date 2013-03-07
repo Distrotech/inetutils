@@ -501,7 +501,8 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
     int ipproto;
     struct protoent *ip;
 
-    if ((ip = getprotobyname ("ip")) != NULL)
+    ip = getprotobyname ("ip");
+    if (ip != NULL)
       ipproto = ip->p_proto;
     else
       ipproto = IPPROTO_IP;
@@ -581,7 +582,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   for (;;)
     {
       char c;
-      if ((cc = read (sockfd, &c, 1)) != 1)
+
+      cc = read (sockfd, &c, 1);
+      if (cc != 1)
 	{
 	  if (cc < 0)
 	    syslog (LOG_NOTICE, "read: %m");

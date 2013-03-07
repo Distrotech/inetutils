@@ -1,3 +1,33 @@
+2013-03-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Relax setuid demands.
+
+	* src/rcp.c (effuid): New variable.
+	(main): Set `effuid' by calling geteuid().
+	Remove test on non-zero geteuid().
+	(toremote): If `rem < 0' and `errno == EACCES',
+	then report failure to access privileged port.
+	(tolocal): Use argument `effuid' for seteuid().
+	* src/rlogin.c (main): Remove test on non-zero
+	geteuid().  If `rem < 0' and `errno == EACCES',
+	then report failure to access privileged port.
+	* src/rsh.c (main): Likewise.
+
+	* ping/libping.c (ping_init): Let error message
+	mention privileges, instead of non-root access.
+
+	Avoid assignment inside if-clauses, as per GCS.
+
+	* src/rcp.c (main, tolocal, source, rsource, sink)
+	(allocbuf): Assign to variables first, then test
+	their values in an if-clause.
+	* src/rlogin.c (main, get_window_size, getescape):
+	Likewise.
+	* src/rlogind.c (rlogind_auth, do_krb5_login)
+	(protocol): Likewise.
+	* src/rsh.c (main, talk, copyargs): Likewise.
+	* src/rshd.c (doit): Likewise.
+
 2013-03-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Make the FTP transfer test somewhat robuster.
