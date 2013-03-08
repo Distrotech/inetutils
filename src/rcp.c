@@ -75,6 +75,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdint.h>		/* intmax_t */
 #include <string.h>
 #include <string.h>
 #include <unistd.h>
@@ -162,7 +163,7 @@ static struct argp_option options[] = {
     "attempt to preserve (duplicate) in its copies the"
     " modification times and modes of the source files",
     GRID+1 },
-  { "target-directory", 'd', "DIRECTORY", 0,
+  { "target-directory", 'd', "DIRECTORY", OPTION_ARG_OPTIONAL,
     "copy all SOURCE arguments into DIRECTORY",
     GRID+1 },
   { "from", 'f', NULL, 0,
@@ -741,11 +742,8 @@ source (int argc, char *argv[])
 	    goto next;
 	}
 #define RCP_MODEMASK	(S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO)
-      snprintf (buf, sizeof buf,
-		(sizeof (stb.st_size) > sizeof (long)
-		 ? "C%04o %zd %s\n"
-		 : "C%04o %ld %s\n"),
-		stb.st_mode & RCP_MODEMASK, stb.st_size, last);
+      snprintf (buf, sizeof buf, "C%04o %jd %s\n",
+		stb.st_mode & RCP_MODEMASK, (intmax_t) stb.st_size, last);
       write (rem, buf, strlen (buf));
       if (response () < 0)
 	goto next;

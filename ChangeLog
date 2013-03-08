@@ -1,3 +1,14 @@
+2013-03-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp: Portability fixes.
+
+	* src/rcp.c: Include <stdint.h>.
+	(options): Make argument to `-d' optional, since
+	the remote server need that form of invocation.
+	(source): Use format "%jd" and cast as intmax_t
+	to work around buggy library modes, which otherwise
+	are missing the last string argument.
+
 2013-03-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* bootstrap: Updated from gnulib.
