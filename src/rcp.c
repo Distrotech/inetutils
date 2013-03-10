@@ -145,6 +145,7 @@ const char arg_doc[] = "SOURCE DEST\n"
                        "SOURCE... DIRECTORY\n"
                        "--target-directory=DIRECTORY SOURCE...";
 
+char *target = NULL;
 int preserve_option;
 int from_option, to_option;
 int iamremote, iamrecursive, targetshouldbedirectory;
@@ -243,6 +244,8 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
       /* Server options. */
     case 'd':
       targetshouldbedirectory = 1;
+      if (arg && strlen (arg))
+	target = xstrdup (arg);	/* Client side use.  */
       break;
 
     case 'f':		/* "from" */
@@ -356,7 +359,7 @@ main (int argc, char *argv[])
       exit (errs);
     }
 
-  if (argc < 2)
+  if (argc < 1 || (argc < 2 && !(target && strlen (target))))
     error (EXIT_FAILURE, 0, "not enough arguments");
 
   if (argc > 2)
@@ -388,14 +391,23 @@ main (int argc, char *argv[])
   rem = -1;
   signal (SIGPIPE, lostconn);
 
-  targ = colon (argv[argc - 1]);
+  /* Without a specified target, the last argument
+   * is extracted to serve as target.
+   */
+  if (!target || !strlen (target))
+    {
+      target = xstrdup (argv[argc - 1]);
+      argc--;			/* Do not count target directory.  */
+    }
+
+  targ = colon (target);
   if (targ)			/* Dest is remote host. */
     toremote (targ, argc, argv);
   else
     {
       tolocal (argc, argv);	/* Dest is local host. */
       if (targetshouldbedirectory)
-	verifydir (argv[argc - 1]);
+	verifydir (target);
     }
   exit (errs);
 }
@@ -414,12 +426,12 @@ toremote (char *targ, int argc, char *argv[])
   if (*targ == 0)
     targ = ".";
 
-  thost = strchr (argv[argc - 1], '@');
+  thost = strchr (target, '@');
   if (thost)
     {
       /* user@host */
       *thost++ = 0;
-      tuser = argv[argc - 1];
+      tuser = target;
       if (*tuser == '\0')
 	tuser = NULL;
       else if (!okname (tuser))
@@ -427,11 +439,11 @@ toremote (char *targ, int argc, char *argv[])
     }
   else
     {
-      thost = argv[argc - 1];
+      thost = target;
       tuser = NULL;
     }
 
-  for (i = 0; i < argc - 1; i++)
+  for (i = 0; i < argc; i++)
     {
       src = colon (argv[i]);
       if (src)
@@ -567,24 +579,24 @@ void
 tolocal (int argc, char *argv[])
 {
   int i, len, tos;
-  char *bp, *host, *src, *suser;
+  char *bp, *host, *src, *suser, *vect[1];
 #if defined IP_TOS && defined IPPROTO_IP && defined IPTOS_THROUGHPUT
   struct sockaddr_storage ss;
   socklen_t sslen;
 #endif
 
-  for (i = 0; i < argc - 1; i++)
+  for (i = 0; i < argc; i++)
     {
       src = colon (argv[i]);
       if (!src)
 	{			/* Local to local. */
 	  len = strlen (PATH_CP) + strlen (argv[i]) +
-	    strlen (argv[argc - 1]) + 20;
+		strlen (target) + 20;
 	  if (asprintf (&bp, "exec %s%s%s %s %s",
 			PATH_CP,
 			iamrecursive ? " -R" : "",
 			preserve_option ? " -p" : "",
-			argv[i], argv[argc - 1]) < 0)
+			argv[i], target) < 0)
 	    xalloc_die ();
 	  if (susystem (bp, userid))
 	    ++errs;
@@ -643,7 +655,8 @@ tolocal (int argc, char *argv[])
 	if (errno != ENOPROTOOPT)
 	  error (0, errno, "TOS (ignored)");
 #endif
-      sink (1, argv + argc - 1);
+      vect[0] = target;
+      sink (1, vect);
       seteuid (effuid);
       close (rem);
       rem = -1;

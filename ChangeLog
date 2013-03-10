@@ -1,3 +1,24 @@
+2013-03-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp: Functional option `--target-directory'.
+	Implement the missing case where `-d' is given
+	an argument.
+
+	* src/rcp.c (target): New variable.
+	(parse_opt) <'d'>: If `arg' has contents, copy it
+	to `target'.
+	(main): Only one command line argument is needed for
+	calls with set `target'.  If `target' is not set,
+	extract it from the very last command line argument,
+	and decrease `argc' to reflect this action.  Apply
+	colon() and verify() to `target'.
+	(toremote): Extract host and user name from `target'.
+	Let I loop until `argc', since `argc' no longer includes
+	the target directory.
+	(tolocal): New variable VECT.  Loop I until `argc'.
+	Exchange `target' for `argv[argc - 1]'.  Fix VECT to
+	be a short array with `target', and apply it to sink().
+
 2013-03-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rcp: Portability fixes.
