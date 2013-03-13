@@ -93,7 +93,7 @@ EXTRA_PROGRAMS += rexecd
 
 inetdaemon_PROGRAMS += $(rlogind_BUILD)
 rlogind_SOURCES = rlogind.c
-rlogind_LDADD = $(LDADD) $(LIBAUTH) $(LIBWRAP)
+rlogind_LDADD = $(LDADD) $(LIBAUTH) $(LIBPAM) $(LIBDL) $(LIBWRAP)
 EXTRA_PROGRAMS += rlogind
 
 inetdaemon_PROGRAMS += $(rshd_BUILD)

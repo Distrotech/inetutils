@@ -1037,7 +1037,7 @@ ${ftpd_BUILD:+${FTPD_LIBPAM:+PAM }$LIBWRAP}
     rexecd         ${enable_rexecd}  \
 ${rexecd_BUILD:+${LIBPAM:+PAM}}
     rlogind        ${enable_rlogind}  \
-${rlogind_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }$LIBWRAP}
+${rlogind_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }${LIBPAM:+PAM }$LIBWRAP}
     rshd           ${enable_rshd}  \
 ${rshd_BUILD:+${KERBEROS_VERSION:+$KERBEROS_VERSION }${LIBPAM:+PAM}}
     syslogd        ${enable_syslogd}

@@ -1,3 +1,25 @@
+2013-03-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogind: Initial PAM support.
+	New code for plain authentication only.
+
+	* configure.ac <rlogind summary>: Report PAM.
+	* src/Makefile.am (rlogind_LDADD): Add $(LIBPAM)
+	and $(LIBDL).
+	* src/rlogind.c [HAVE_SECURITY_PAM_APPL_H]:
+	Include <security/pam_appl.h>.
+	(pam_rc, pam_handle, pam_conv) [WITH_PAM]:
+	New variables.
+	(rlogin_conv) [WITH_PAM]: New function.
+	(doc) [WITH_PAM]: Add info to string.
+	(do_rlogin) [WITH_PAM]: New variable USER.
+	New code block.
+	(fatal) [WITH_PAM]: Call pam_end().
+
+	* src/rlogind.c (rlogind_auth)
+	[!HAVE_DECL_GETADDRINFO || !HAVE_DECL_NAMEINFO]:
+	Use ADDRP only within this condition.
+
 2013-03-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rcp: Functional option `--target-directory'.

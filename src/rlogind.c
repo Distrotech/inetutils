@@ -18,6 +18,47 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see `http://www.gnu.org/licenses/'. */
 
+/*
+ * PAM implementation by Mats Erik Andersson.
+ *
+ * The service name `rlogin' is regitered, and two modules
+ * `auth' and `account' are called for confirmation.
+ * These two modules suffice, since further verification
+ * is completed by login(1), which continues where `rlogind'
+ * hands off execution.
+ *
+ * Sample settings:
+ *
+ *   GNU/Linux, et cetera:
+ *
+ *     auth    required  pam_nologin.so
+ *     auth    required  pam_rhosts.so
+ *
+ *     account required  pam_nologin.so
+ *     account required  pam_unix.so
+ *
+ *   BSD:
+ *
+ *     auth    required  pam_nologin.so   # NetBSD
+ *     auth    required  pam_rhosts.so
+ *
+ *     account required  pam_nologin.so   # FreeBSD
+ *     account required  pam_unix.so
+ *
+ *   OpenSolaris:
+ *
+ *     auth    required  pam_rhosts_auth.so
+ *     auth    required  pam_unix_auth.so
+ *
+ *     account required  pam_unix_roles.so
+ *     account required  pam_unix_account.so
+ *
+ */
+
+/*
+ * TODO: Implement PAM also for Shishi/Kerberos.
+ */
+
 #include <config.h>
 
 #include <signal.h>
@@ -69,6 +110,10 @@
 
 #ifdef HAVE_TCPD_H
 # include <tcpd.h>
+#endif
+
+#ifdef HAVE_SECURITY_PAM_APPL_H
+# include <security/pam_appl.h>
 #endif
 
 #include <progname.h>
@@ -185,6 +230,14 @@ int maxchildren = DEFMAXCHILDREN;
 int allow_root = 0;
 int verify_hostname = 0;
 int keepalive = 1;
+
+#ifdef WITH_PAM
+static int pam_rc = PAM_AUTH_ERR;
+static pam_handle_t *pam_handle = NULL;
+static int rlogin_conv (int, const struct pam_message **,
+		       struct pam_response **, void *);
+static struct pam_conv pam_conv = { rlogin_conv, NULL };
+#endif /* WITH_PAM */
 
 #if defined KERBEROS || defined SHISHI
 int kerberos = 0;
@@ -358,7 +411,12 @@ check_host (struct sockaddr *sa, socklen_t len)
 #endif
 
 
-const char doc[] = "Remote login server";
+const char doc[] =
+#ifdef WITH_PAM
+  "Remote login server, using PAM service 'rlogin'.";
+#else /* !WITH_PAM */
+  "Remote login server";
+#endif
 const char *program_authors[] = {
   "Alain Magloire",
   "Sergey Poznyakoff",
@@ -795,10 +853,10 @@ rlogind_auth (int fd, struct auth_data *ap)
   char hoststr[NI_MAXHOST];
 #else
   struct hostent *hp;
+  void *addrp;
 #endif
   char *hostname;
   int authenticated = 0;
-  void * addrp;
   int port;
 
 #ifdef SHISHI
@@ -808,12 +866,16 @@ rlogind_auth (int fd, struct auth_data *ap)
   switch (ap->from.ss_family)
     {
     case AF_INET6:
+#if !HAVE_DECL_GETADDRINFO || !HAVE_DECL_GETNAMEINFO
       addrp = (void *) &((struct sockaddr_in6 *) &ap->from)->sin6_addr;
+#endif
       port = ntohs (((struct sockaddr_in6 *) &ap->from)->sin6_port);
       break;
     case AF_INET:
     default:
+#if !HAVE_DECL_GETADDRINFO || !HAVE_DECL_GETNAMEINFO
       addrp = (void *) &((struct sockaddr_in *) &ap->from)->sin_addr;
+#endif
       port = ntohs (((struct sockaddr_in *) &ap->from)->sin_port);
     }
 
@@ -1192,6 +1254,9 @@ do_rlogin (int infd, struct auth_data *ap)
 {
   struct passwd *pwd;
   int rc;
+#ifdef WITH_PAM
+  char *user;
+#endif
 #if defined WITH_IRUSEROK_AF || defined WITH_IRUSEROK
   void *addrp;
 
@@ -1221,6 +1286,118 @@ do_rlogin (int infd, struct auth_data *ap)
       syslog (LOG_ERR | LOG_AUTH, "root logins not permitted");
       fatal (infd, "Permission denied", 0);
     }
+
+#ifdef WITH_PAM
+  pam_rc = pam_start ("rlogin", ap->lusername, &pam_conv, &pam_handle);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_RHOST, ap->hostname);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_RUSER, ap->rusername);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_TTY, "rlogin");
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &user);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      if (pam_handle)
+	pam_end (pam_handle, pam_rc);
+
+      /* Failed set-up is deemed serious.  Abort!  */
+      syslog (LOG_ERR | LOG_AUTH, "PAM set-up failed.");
+      fatal (infd, "Permission denied", 0);
+    }
+
+  pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_ABORT:
+	  /* Serious enough to merit immediate abortion.  */
+	  pam_end (pam_handle, pam_rc);
+	  syslog (LOG_ERR | LOG_AUTH, "PAM authentication said PAM_ABORT.");
+	  exit (EXIT_FAILURE);
+
+	case PAM_NEW_AUTHTOK_REQD:
+	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+	  if (pam_rc == PAM_SUCCESS)
+	    pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
+	  break;
+
+	default:
+	  break;			/* Non-zero status.  */
+	}
+    }
+
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_NOTICE | LOG_AUTH,
+	      "PAM authentication of '%s' from %s(%s): %s",
+	      user, ap->hostname, ap->hostaddr,
+	      pam_strerror (pam_handle, pam_rc));
+      pam_end (pam_handle, pam_rc);
+
+      return pam_rc;
+    }
+
+  pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_NEW_AUTHTOK_REQD:
+	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+	  if (pam_rc == PAM_SUCCESS)
+	    pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
+	  break;
+
+	case PAM_ACCT_EXPIRED:
+	case PAM_AUTH_ERR:
+	case PAM_PERM_DENIED:
+	case PAM_USER_UNKNOWN:
+	default:
+	  break;			/* Non-zero status.  */
+	}
+    }
+
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_INFO | LOG_AUTH,
+	      "PAM accounting of '%s' from %s(%s): %s",
+	      user, ap->hostname, ap->hostaddr,
+	      pam_strerror (pam_handle, pam_rc));
+      pam_end (pam_handle, pam_rc);
+
+      return pam_rc;
+    }
+
+  /* Renew client information, since the PAM stack may have
+   * mapped the request onto another identity.
+   */
+  pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &user);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_NOTICE | LOG_AUTH, "pam_get_item(PAM_USER): %s",
+	      pam_strerror (pam_handle, pam_rc));
+      user = "<invalid>";
+    }
+
+  pwd = getpwnam (user);
+  free (ap->lusername);
+  ap->lusername = xstrdup (user);
+
+  if (pwd == NULL)
+    {
+      syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: unknown login.",
+	      ap->rusername, ap->hostname, ap->lusername);
+      pam_rc = PAM_AUTH_ERR;		/* Non-zero status.  */
+    }
+
+  pam_end (pam_handle, pam_rc);		/* PAM access is complete.  */
+
+  if (pam_rc != PAM_SUCCESS)
+    return pam_rc;
+#endif /* WITH_PAM */
 
 #if defined WITH_IRUSEROK_SA || defined WITH_IRUSEROK_AF \
     || defined WITH_IRUSEROK
@@ -1995,5 +2172,58 @@ void
 fatal (int f, const char *msg, int syserr)
 {
   rlogind_error (f, syserr, (msg && *msg) ? msg : "unspecified error");
+#ifdef WITH_PAM
+  if (pam_handle)
+    pam_end (pam_handle, pam_rc);
+#endif
+
   exit (EXIT_FAILURE);
 }
+
+#ifdef WITH_PAM
+/* Call back function for passing user's information
+ * to any PAM module requesting this information.
+ */
+static int
+rlogin_conv (int num, const struct pam_message **pam_msg,
+	     struct pam_response **pam_resp,
+	     void *data _GL_UNUSED_PARAMETER)
+{
+  struct pam_response *resp;
+
+  /* Reject composite calls at the time being.  */
+  if (num <= 0 || num > 1)
+    return PAM_CONV_ERR;
+
+  /* Ensure an empty response.  */
+  *pam_resp = NULL;
+
+  switch ((*pam_msg)->msg_style)
+    {
+    case PAM_PROMPT_ECHO_OFF:
+      /* Return an empty password.  */
+      resp = (struct pam_response *) malloc (sizeof (*resp));
+      if (!resp)
+	return PAM_BUF_ERR;
+      resp->resp_retcode = 0;
+      resp->resp = strdup ("");
+      if (!resp->resp)
+	{
+	  free (resp);
+	  return PAM_BUF_ERR;
+	}
+      syslog (LOG_NOTICE | LOG_AUTH, "PAM message \"%s\".",
+	      (*pam_msg)->msg);
+      *pam_resp = resp;
+      return PAM_SUCCESS;
+      break;
+
+    case PAM_TEXT_INFO:		/* Would break protocol.  */
+    case PAM_ERROR_MSG:		/* Likewise.  */
+    case PAM_PROMPT_ECHO_ON:	/* Interactivity is not supported.  */
+    default:
+      return PAM_CONV_ERR;
+    }
+  return PAM_CONV_ERR;		/* Never reached.  */
+}
+#endif /* WITH_PAM */
