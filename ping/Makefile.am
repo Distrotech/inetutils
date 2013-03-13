@@ -37,7 +37,7 @@ ping_SOURCES = ping.c ping_common.c ping_echo.c ping_address.c \
   ping_router.c ping_timestamp.c ping_common.h  ping_impl.h ping.h libping.c
 ping6_SOURCES = ping6.c ping_common.c ping_common.h ping6.h
 
-SUIDMODE = -o root -m 4775
+SUIDMODE = -o root -m 4755
 
 install-ping-hook:
 	-@for x in $(bin_PROGRAMS); do \

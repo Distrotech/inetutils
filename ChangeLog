@@ -1,3 +1,10 @@
+2013-03-13  Guillem Jover  <guillem@hadrons.org>
+
+	Use standard suid-mode for install.
+
+	* ping/Makefile.am (SUIDMODE): Change mode to `4755'.
+	* src/Makefile.am (SUIDMODE): Likewise.
+
 2013-03-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Initial PAM support.

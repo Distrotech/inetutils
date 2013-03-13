@@ -114,7 +114,7 @@ uucpd_SOURCES = uucpd.c
 uucpd_LDADD = $(LDADD) $(LIBCRYPT)
 EXTRA_PROGRAMS += uucpd
 
-SUIDMODE = -o root -m 4775
+SUIDMODE = -o root -m 4755
 
 install-exec-hook: $(traceroute_INSTALL_HOOK) $(rsh_INSTALL_HOOK) $(rlogin_INSTALL_HOOK) $(rcp_INSTALL_HOOK)
 
