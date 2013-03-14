@@ -1,5 +1,19 @@
 2013-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rlogind: PAM support with libshishi.
+
+	* src/rlogind.c (doc) [WITH_PAM && SHISHI]:
+	Mention `krlogin' in description.
+	(do_pam_check) [WITH_PAM]: New function,
+	refactored from previous code in do_rlogin().
+	(do_rlogin) [WITH_PAM]: Remove variable USER.
+	Replace code block by a call to do_pam_check()
+	for service `rlogin'.
+	(do_shishi_login) [SHISHI && WITH_PAM]:
+	Call do_pam_check() for service `krlogin'.
+
+2013-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* src/rlogind.c (do_shishi_login) [SHISHI]:
 	Do not free the static pointer PWD!
 	Call getpwnam() for verification that local

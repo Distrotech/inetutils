@@ -21,9 +21,10 @@
 /*
  * PAM implementation by Mats Erik Andersson.
  *
- * The service name `rlogin' is regitered, and two modules
- * `auth' and `account' are called for confirmation.
- * These two modules suffice, since further verification
+ * The service names `rlogin' and `krlogin' are registered,
+ * the latter when Shishi support is included, and two
+ * facilities `auth' and `account' are used for confirmation.
+ * These two facilities suffice, since further verification
  * is completed by login(1), which continues where `rlogind'
  * hands off execution.
  *
@@ -53,10 +54,6 @@
  *     account required  pam_unix_roles.so
  *     account required  pam_unix_account.so
  *
- */
-
-/*
- * TODO: Implement PAM also for Shishi/Kerberos.
  */
 
 #include <config.h>
@@ -294,6 +291,10 @@ char *topdomain (char *name, int max_dots);
 int do_shishi_login (int infd, struct auth_data *ad, const char **err_msg);
 #endif
 
+#ifdef WITH_PAM
+int do_pam_check (int infd, struct auth_data *ap, const char *service);
+#endif
+
 void
 rlogind_sigchld (int signo _GL_UNUSED_PARAMETER)
 {
@@ -413,7 +414,11 @@ check_host (struct sockaddr *sa, socklen_t len)
 
 const char doc[] =
 #ifdef WITH_PAM
+# ifdef SHISHI
+  "Remote login server, using PAM service 'rlogin' and 'krlogin'.";
+# else /* !SHISHI */
   "Remote login server, using PAM service 'rlogin'.";
+# endif
 #else /* !WITH_PAM */
   "Remote login server";
 #endif
@@ -1254,9 +1259,6 @@ do_rlogin (int infd, struct auth_data *ap)
 {
   struct passwd *pwd;
   int rc;
-#ifdef WITH_PAM
-  char *user;
-#endif
 #if defined WITH_IRUSEROK_AF || defined WITH_IRUSEROK
   void *addrp;
 
@@ -1288,115 +1290,9 @@ do_rlogin (int infd, struct auth_data *ap)
     }
 
 #ifdef WITH_PAM
-  pam_rc = pam_start ("rlogin", ap->lusername, &pam_conv, &pam_handle);
-  if (pam_rc == PAM_SUCCESS)
-    pam_rc = pam_set_item (pam_handle, PAM_RHOST, ap->hostname);
-  if (pam_rc == PAM_SUCCESS)
-    pam_rc = pam_set_item (pam_handle, PAM_RUSER, ap->rusername);
-  if (pam_rc == PAM_SUCCESS)
-    pam_rc = pam_set_item (pam_handle, PAM_TTY, "rlogin");
-  if (pam_rc == PAM_SUCCESS)
-    pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &user);
-  if (pam_rc != PAM_SUCCESS)
-    {
-      if (pam_handle)
-	pam_end (pam_handle, pam_rc);
-
-      /* Failed set-up is deemed serious.  Abort!  */
-      syslog (LOG_ERR | LOG_AUTH, "PAM set-up failed.");
-      fatal (infd, "Permission denied", 0);
-    }
-
-  pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
-  if (pam_rc != PAM_SUCCESS)
-    {
-      switch (pam_rc)
-	{
-	case PAM_ABORT:
-	  /* Serious enough to merit immediate abortion.  */
-	  pam_end (pam_handle, pam_rc);
-	  syslog (LOG_ERR | LOG_AUTH, "PAM authentication said PAM_ABORT.");
-	  exit (EXIT_FAILURE);
-
-	case PAM_NEW_AUTHTOK_REQD:
-	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
-	  if (pam_rc == PAM_SUCCESS)
-	    pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
-	  break;
-
-	default:
-	  break;			/* Non-zero status.  */
-	}
-    }
-
-  if (pam_rc != PAM_SUCCESS)
-    {
-      syslog (LOG_NOTICE | LOG_AUTH,
-	      "PAM authentication of '%s' from %s(%s): %s",
-	      user, ap->hostname, ap->hostaddr,
-	      pam_strerror (pam_handle, pam_rc));
-      pam_end (pam_handle, pam_rc);
-
-      return pam_rc;
-    }
-
-  pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
-  if (pam_rc != PAM_SUCCESS)
-    {
-      switch (pam_rc)
-	{
-	case PAM_NEW_AUTHTOK_REQD:
-	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
-	  if (pam_rc == PAM_SUCCESS)
-	    pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
-	  break;
-
-	case PAM_ACCT_EXPIRED:
-	case PAM_AUTH_ERR:
-	case PAM_PERM_DENIED:
-	case PAM_USER_UNKNOWN:
-	default:
-	  break;			/* Non-zero status.  */
-	}
-    }
-
-  if (pam_rc != PAM_SUCCESS)
-    {
-      syslog (LOG_INFO | LOG_AUTH,
-	      "PAM accounting of '%s' from %s(%s): %s",
-	      user, ap->hostname, ap->hostaddr,
-	      pam_strerror (pam_handle, pam_rc));
-      pam_end (pam_handle, pam_rc);
-
-      return pam_rc;
-    }
-
-  /* Renew client information, since the PAM stack may have
-   * mapped the request onto another identity.
-   */
-  pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &user);
-  if (pam_rc != PAM_SUCCESS)
-    {
-      syslog (LOG_NOTICE | LOG_AUTH, "pam_get_item(PAM_USER): %s",
-	      pam_strerror (pam_handle, pam_rc));
-      user = "<invalid>";
-    }
-
-  pwd = getpwnam (user);
-  free (ap->lusername);
-  ap->lusername = xstrdup (user);
-
-  if (pwd == NULL)
-    {
-      syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: unknown login.",
-	      ap->rusername, ap->hostname, ap->lusername);
-      pam_rc = PAM_AUTH_ERR;		/* Non-zero status.  */
-    }
-
-  pam_end (pam_handle, pam_rc);		/* PAM access is complete.  */
-
-  if (pam_rc != PAM_SUCCESS)
-    return pam_rc;
+  rc = do_pam_check (infd, ap, "rlogin");
+  if (rc != PAM_SUCCESS)
+    return rc;
 #endif /* WITH_PAM */
 
 #if defined WITH_IRUSEROK_SA || defined WITH_IRUSEROK_AF \
@@ -1716,7 +1612,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 	    }
 	}
     }
-#  endif
+#  endif /* ENCRYPTION */
 
   getstr (infd, &ad->lusername, NULL);		/* Acting user.  */
   getstr (infd, &ad->term, "TERM=");
@@ -1786,6 +1682,12 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
     }
 
   shishi_ap_done (ad->ap);
+
+#  ifdef WITH_PAM
+  rc = do_pam_check (infd, ad, "krlogin");
+  if (rc != PAM_SUCCESS)
+    return rc;
+#  endif /* WITH_PAM */
 
   syslog (LOG_INFO | LOG_AUTH,
 	  "Kerberos V %slogin from %s on %s as `%s'.\n",
@@ -2175,6 +2077,128 @@ fatal (int f, const char *msg, int syserr)
 }
 
 #ifdef WITH_PAM
+int
+do_pam_check (int infd, struct auth_data *ap, const char *service)
+{
+  char *user;
+  struct passwd *pwd;
+
+  pam_rc = pam_start (service, ap->lusername, &pam_conv, &pam_handle);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_RHOST, ap->hostname);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_RUSER, ap->rusername);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_set_item (pam_handle, PAM_TTY, service);
+  if (pam_rc == PAM_SUCCESS)
+    pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &user);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      if (pam_handle)
+	{
+	  pam_end (pam_handle, pam_rc);
+	  pam_handle = NULL;
+	}
+
+      /* Failed set-up is deemed serious.  Abort!  */
+      syslog (LOG_ERR | LOG_AUTH, "PAM set-up failed.");
+      fatal (infd, "Permission denied", 0);
+    }
+
+  pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_ABORT:
+	  /* Serious enough to merit immediate abortion.  */
+	  pam_end (pam_handle, pam_rc);
+	  syslog (LOG_ERR | LOG_AUTH, "PAM authentication said PAM_ABORT.");
+	  exit (EXIT_FAILURE);
+
+	case PAM_NEW_AUTHTOK_REQD:
+	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+	  if (pam_rc == PAM_SUCCESS)
+	    pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
+	  break;
+
+	default:
+	  break;			/* Non-zero status.  */
+	}
+    }
+
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_NOTICE | LOG_AUTH,
+	      "PAM authentication of '%s' from %s(%s): %s",
+	      user, ap->hostname, ap->hostaddr,
+	      pam_strerror (pam_handle, pam_rc));
+      pam_end (pam_handle, pam_rc);
+      pam_handle = NULL;
+
+      return pam_rc;
+    }
+
+  pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      switch (pam_rc)
+	{
+	case PAM_NEW_AUTHTOK_REQD:
+	  pam_rc = pam_chauthtok (pam_handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+	  if (pam_rc == PAM_SUCCESS)
+	    pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
+	  break;
+
+	case PAM_ACCT_EXPIRED:
+	case PAM_AUTH_ERR:
+	case PAM_PERM_DENIED:
+	case PAM_USER_UNKNOWN:
+	default:
+	  break;			/* Non-zero status.  */
+	}
+    }
+
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_INFO | LOG_AUTH,
+	      "PAM accounting of '%s' from %s(%s): %s",
+	      user, ap->hostname, ap->hostaddr,
+	      pam_strerror (pam_handle, pam_rc));
+      pam_end (pam_handle, pam_rc);
+      pam_handle = NULL;
+
+      return pam_rc;
+    }
+
+  /* Renew client information, since the PAM stack may have
+   * mapped the request onto another identity.
+   */
+  pam_rc = pam_get_item (pam_handle, PAM_USER, (const void **) &user);
+  if (pam_rc != PAM_SUCCESS)
+    {
+      syslog (LOG_NOTICE | LOG_AUTH, "pam_get_item(PAM_USER): %s",
+	      pam_strerror (pam_handle, pam_rc));
+      user = "<invalid>";
+    }
+
+  pwd = getpwnam (user);
+  free (ap->lusername);
+  ap->lusername = xstrdup (user);
+
+  if (pwd == NULL)
+    {
+      syslog (LOG_INFO | LOG_AUTH, "%s@%s as %s: unknown login.",
+	      ap->rusername, ap->hostname, ap->lusername);
+      pam_rc = PAM_AUTH_ERR;		/* Non-zero status.  */
+    }
+
+  pam_end (pam_handle, pam_rc);		/* PAM access is complete.  */
+  pam_handle = NULL;
+
+  return pam_rc;
+}
+
 /* Call back function for passing user's information
  * to any PAM module requesting this information.
  */
