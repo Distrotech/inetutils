@@ -1283,7 +1283,7 @@ do_rlogin (int infd, struct auth_data *ap)
     }
   if (!allow_root && pwd->pw_uid == 0)
     {
-      syslog (LOG_ERR | LOG_AUTH, "root logins not permitted");
+      syslog (LOG_ERR | LOG_AUTH, "root logins are not permitted");
       fatal (infd, "Permission denied", 0);
     }
 
@@ -1726,30 +1726,23 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   if ((rc != sizeof (int)) || error)
     {
       *err_msg = "Authentication exchange failed.";
-      free (pwd);
       free (cksum);
       return EXIT_FAILURE;
     }
 
-  /*
-     getpwnam crash !!!!
-
-     pwd = getpwnam (ad->lusername);
-     if (pwd == NULL)
-     {
-     *err_msg = "getpwnam failed";
-     syslog (LOG_ERR | LOG_AUTH, "getpwnam failed: %m");
-     return 1;
-     }
-
-     syslog (LOG_INFO | LOG_AUTH,
-     "%sKerberos V login from %s on %s\n",
-     (pwd->pw_uid == 0) ? "ROOT " : "",
-     ad->lusername, ad->hostname);
-
-   */
-
-  free (pwd);
+  pwd = getpwnam (ad->lusername);
+  if (pwd == NULL)
+    {
+      *err_msg = "getpwnam failed";
+      free (cksum);
+      syslog (LOG_ERR | LOG_AUTH, "getpwnam failed: %m");
+      return 1;
+    }
+  if (!allow_root && pwd->pw_uid == 0)
+    {
+      syslog (LOG_ERR | LOG_AUTH, "root logins are not permitted");
+      fatal (infd, "Permission denied", 0);
+    }
 
   /* verify checksum */
 
@@ -1767,7 +1760,8 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   rc = shishi_checksum (ad->h, ad->enckey, 0, cksumtype, cksumdata,
 			strlen (cksumdata), &compcksum, &compcksumlen);
   if (rc != SHISHI_OK
-      || compcksumlen != cksumlen || memcmp (compcksum, cksum, cksumlen) != 0)
+      || compcksumlen != cksumlen
+      || memcmp (compcksum, cksum, cksumlen) != 0)
     {
       *err_msg = "Authentication exchange failed.";
       syslog (LOG_ERR, "checksum verify failed: %s", shishi_error (ad->h));
@@ -1777,7 +1771,6 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
     }
 
   free (cksum);
-
   free (compcksum);
 
   rc = shishi_authorized_p (ad->h, shishi_ap_tkt (ad->ap), ad->lusername);
@@ -1787,16 +1780,17 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 	      "User %s@%s is not authorized to log in as: %s.",
 	      ad->rusername, ad->hostname, ad->lusername);
       shishi_ap_done (ad->ap);
-      rlogind_error (infd, 0, "Failed to get authorized as `%s'.\n", ad->lusername);
+      rlogind_error (infd, 0, "Failed to get authorized as `%s'.\n",
+		     ad->lusername);
       return rc;
     }
+
+  shishi_ap_done (ad->ap);
 
   syslog (LOG_INFO | LOG_AUTH,
 	  "Kerberos V %slogin from %s on %s as `%s'.\n",
 	  encrypt_io ? "encrypted " : "",
 	  ad->rusername, ad->hostname, ad->lusername);
-
-  shishi_ap_done (ad->ap);
 
   return SHISHI_OK;
 }

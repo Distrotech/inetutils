@@ -1,3 +1,12 @@
+2013-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/rlogind.c (do_shishi_login) [SHISHI]:
+	Do not free the static pointer PWD!
+	Call getpwnam() for verification that local
+	user exists.  Add check to prevent root access
+	unless the flag `allow_root' is set.
+	Call shishi_ap_done() before sending a log report.
+
 2013-03-13  Guillem Jover  <guillem@hadrons.org>
 
 	Use standard suid-mode for install.
