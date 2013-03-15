@@ -1,5 +1,18 @@
 2013-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rlogind: Incomplete source route security.
+	The protection against IPOPT_LSRR was not
+	enforced during Kerberised execution.
+
+	* src/rlogind.c (prevent_routing) [IP_OPTIONS]:
+	New function, broken out of old code.  Replace
+	socket number 0 by a parameter `fd', which makes
+	certain that daemon-mode is examined correctly.
+	(rlogind_auth) [IP_OPTIONS]: Call prevent_routing()
+	early on, before code path separation for Kerberos.
+
+2013-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rshd: Differentiate PAM services.
 
 	* src/rshd.c (service) [WITH_PAM]: New variable.

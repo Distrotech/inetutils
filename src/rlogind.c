@@ -295,6 +295,10 @@ int do_shishi_login (int infd, struct auth_data *ad, const char **err_msg);
 int do_pam_check (int infd, struct auth_data *ap, const char *service);
 #endif
 
+#ifdef IP_OPTIONS
+void prevent_routing (int fd, struct auth_data *ap);
+#endif
+
 void
 rlogind_sigchld (int signo _GL_UNUSED_PARAMETER)
 {
@@ -960,6 +964,10 @@ rlogind_auth (int fd, struct auth_data *ap)
 	}
     }
 
+#ifdef IP_OPTIONS
+  prevent_routing (fd, ap);
+#endif
+
 #if defined KERBEROS || defined SHISHI
   if (kerberos)
     {
@@ -987,59 +995,7 @@ rlogind_auth (int fd, struct auth_data *ap)
 		  ap->hostaddr, port);
 	  fatal (fd, "Permission denied", 0);
 	}
-#ifdef IP_OPTIONS
-      {
-	unsigned char optbuf[BUFSIZ / 3], *cp;
-	char lbuf[BUFSIZ], *lp;
-	socklen_t optsize = sizeof (optbuf);
-	int ipproto;
-	struct protoent *ip;
 
-	ip = getprotobyname ("ip");
-	if (ip != NULL)
-	  ipproto = ip->p_proto;
-	else
-	  ipproto = IPPROTO_IP;
-	if (getsockopt (0, ipproto, IP_OPTIONS, (char *) optbuf,
-			&optsize) == 0 && optsize != 0)
-	  {
-	    lp = lbuf;
-	    for (cp = optbuf; optsize > 0; )
-	      {
-		sprintf (lp, " %2.2x", *cp);
-		lp += 3;
-
-		/* These two open an attack vector.  */
-		if (*cp == IPOPT_SSRR || *cp == IPOPT_LSRR)
-		  {
-		    syslog (LOG_NOTICE,
-			    "Discarding connection from %s with set source routing",
-			    ap->hostaddr);
-		    exit (EXIT_FAILURE);
-		  }
-		if (*cp == IPOPT_EOL)
-		  break;
-		if (*cp == IPOPT_NOP)
-		  cp++, optsize--;
-		else
-		  {
-		    /* Options using a length octet, see RFC 791.  */
-		    int inc = cp[1];
-
-		    optsize -= inc;
-		    cp += inc;
-		  }
-	      }
-
-	    syslog (LOG_NOTICE, "Ignoring IP options: %s", lbuf);
-	    if (setsockopt (0, ipproto, IP_OPTIONS, (char *) NULL, optsize))
-	      {
-		syslog (LOG_ERR, "setsockopt IP_OPTIONS NULL: %m");
-		exit (EXIT_FAILURE);
-	      }
-	  }
-      }
-#endif /* IP_OPTIONS */
       if (do_rlogin (fd, ap) == 0)
 	authenticated++;
     }
@@ -1059,6 +1015,66 @@ rlogind_auth (int fd, struct auth_data *ap)
 #endif
   return authenticated;
 }
+
+#ifdef IP_OPTIONS
+void
+prevent_routing (int fd, struct auth_data *ap)
+{
+  unsigned char optbuf[BUFSIZ / 3], *cp;
+  char lbuf[BUFSIZ], *lp;
+  socklen_t optsize = sizeof (optbuf);
+  int ipproto;
+  struct protoent *ip;
+
+  ip = getprotobyname ("ip");
+  if (ip != NULL)
+    ipproto = ip->p_proto;
+  else
+    ipproto = IPPROTO_IP;
+
+  if (getsockopt (fd, ipproto, IP_OPTIONS, (char *) optbuf, &optsize) == 0
+      && optsize != 0)
+    {
+      lp = lbuf;
+      for (cp = optbuf; optsize > 0; )
+	{
+	  sprintf (lp, " %2.2x", *cp);
+	  lp += 3;
+
+	  /* These two open an attack vector.  */
+	  if (*cp == IPOPT_SSRR || *cp == IPOPT_LSRR)
+	    {
+	      syslog (LOG_NOTICE,
+		      "Discarding connection from %s with set source routing",
+		      ap->hostaddr);
+	      exit (EXIT_FAILURE);
+	    }
+
+	  if (*cp == IPOPT_EOL)
+	    break;
+
+	  if (*cp == IPOPT_NOP)
+	    cp++, optsize--;
+	  else
+	    {
+	      /* Options using a length octet, see RFC 791.  */
+	      int inc = cp[1];
+
+	      optsize -= inc;
+	      cp += inc;
+	    }
+	}
+
+      syslog (LOG_NOTICE, "Ignoring IP options: %s", lbuf);
+
+      if (setsockopt (fd, ipproto, IP_OPTIONS, (char *) NULL, optsize))
+	{
+	  syslog (LOG_ERR, "setsockopt IP_OPTIONS NULL: %m");
+	  exit (EXIT_FAILURE);
+	}
+    }
+}
+#endif /* IP_OPTIONS */
 
 void
 setup_tty (int fd, struct auth_data *ap)
