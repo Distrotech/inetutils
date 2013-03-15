@@ -303,9 +303,13 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
 
 const char doc[] =
 #ifdef WITH_PAM
-		   "Remote shell server, using PAM service 'rsh'.";
+# if defined KERBEROS || defined SHISHI
+  "Remote shell server, using PAM services 'rsh' and 'krsh'.";
+# else
+  "Remote shell server, using PAM service 'rsh'.";
+# endif
 #else /* !WITH_PAM */
-		   "Remote shell server.";
+  "Remote shell server.";
 #endif
 static struct argp argp = { options, parse_opt, NULL, doc, NULL, NULL, NULL};
 
@@ -422,6 +426,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   char *cmdbuf, *locuser, *remuser;
 #if defined WITH_IRUSEROK_AF && !defined WITH_PAM
   void * fromaddrp;	/* Pointer to remote address.  */
+#endif
+#ifdef WITH_PAM
+  char *service;
 #endif
 
 #ifdef	KERBEROS
@@ -1017,13 +1024,20 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
     }
 
 #ifdef WITH_PAM
-  pam_rc = pam_start ("rsh", locuser, &pam_conv, &pam_handle);
+# if defined KERBEROS || defined SHISHI
+  if (use_kerberos)
+    service = "krsh";
+  else
+# endif
+    service = "rsh";
+
+  pam_rc = pam_start (service, locuser, &pam_conv, &pam_handle);
   if (pam_rc == PAM_SUCCESS)
     pam_rc = pam_set_item (pam_handle, PAM_RHOST, hostname);
   if (pam_rc == PAM_SUCCESS)
     pam_rc = pam_set_item (pam_handle, PAM_RUSER, remuser);
   if (pam_rc == PAM_SUCCESS)
-    pam_rc = pam_set_item (pam_handle, PAM_TTY, "rsh");
+    pam_rc = pam_set_item (pam_handle, PAM_TTY, service);
   if (pam_rc != PAM_SUCCESS)
     {
       errorstr = "Try again.\n";
@@ -1782,7 +1796,8 @@ topdomain (const char *h)
  */
 static int
 rsh_conv (int num, const struct pam_message **pam_msg,
-	    struct pam_response **pam_resp, void *data)
+	    struct pam_response **pam_resp,
+	    void *data _GL_UNUSED_PARAMETER)
 {
   struct pam_response *resp;
 

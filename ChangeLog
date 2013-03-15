@@ -1,3 +1,18 @@
+2013-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rshd: Differentiate PAM services.
+
+	* src/rshd.c (service) [WITH_PAM]: New variable.
+	(doc) [WITH_PAM && (KERBEROS || SHISHI)]:
+	Mention `krsh' in description.
+	(doit) [WITH_PAM && (KERBEROS || SHISHI)]:
+	Set PAM service type to "krsh" for kerberised action,
+	and "rsh" otherwise.
+	[WITH_PAM]: Pass `service' to pam_start() and to
+	pam_set_item(PAM_TTY).
+	(rsh_conv) [WITH_PAM]: Add _GL_UNUSED_PARAMETER to the
+	function parameter `data'.
+
 2013-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: PAM support with libshishi.
