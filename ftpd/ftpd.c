@@ -253,7 +253,12 @@ static int receive_data (FILE *, FILE *, off_t);
 static void send_data (FILE *, FILE *, off_t);
 static void sigquit (int);
 
-const char doc[] = "File Transfer Protocol Daemon";
+const char doc[] =
+#ifdef WITH_PAM
+  "File Transfer Protocol daemon, offering PAM service 'ftp'.";
+#else
+  "File Transfer Protocol daemon.";
+#endif
 
 static struct argp_option options[] = {
 #define GRID 0
@@ -297,9 +302,9 @@ static struct argp_option options[] = {
   { "  default", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
     "passwd authentication",
     GRID+3 },
-#ifdef WITH_LINUX_PAM
+#ifdef WITH_PAM
   { "  pam", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
-    "using pam 'ftp' module",
+    "using PAM service 'ftp'",
     GRID+3 },
 #endif
 #ifdef WITH_KERBEROS
@@ -308,7 +313,7 @@ static struct argp_option options[] = {
     GRID+3 },
 #endif
 #ifdef WITH_KERBEROS5
-  { "  kderberos5", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
+  { "  kerberos5", 0, NULL, OPTION_DOC|OPTION_NO_TRANS,
     "",
     GRID+3 },
 #endif
@@ -343,7 +348,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'a':
       if (strcasecmp (arg, "default") == 0)
 	cred.auth_type = AUTH_TYPE_PASSWD;
-#ifdef WITH_LINUX_PAM
+#ifdef WITH_PAM
       else if (strcasecmp (arg, "pam") == 0)
 	cred.auth_type = AUTH_TYPE_PAM;
 #endif
@@ -835,7 +840,7 @@ end_login (struct credentials *pcred)
   if (pcred->logged_in)
     {
       logwtmp_keep_open (ttyline, "", "");
-#ifdef WITH_LINUX_PAM
+#ifdef WITH_PAM
       pam_end_login (pcred);
 #endif
     }

@@ -83,7 +83,13 @@ auth_user (const char *name, struct credentials *pcred)
 	if (pcred->message == NULL)
 	  return -1;
 
-	/* check for anonymous logging */
+	/* Check for anonymous log in.
+	 *
+	 * This code simulates part of `pam_ftp.so'
+	 * for PAM variants that are not Linux-PAM,
+	 * in addition to perform the original
+	 * default authentication checks.
+	 */
 	if (strcmp (name, "ftp") == 0 || strcmp (name, "anonymous") == 0)
 	  {
 	    if (checkuser (PATH_FTPUSERS, "ftp")
@@ -141,7 +147,14 @@ auth_user (const char *name, struct credentials *pcred)
     }
 
   if (err == 0)
-    pcred->dochroot = checkuser (PATH_FTPCHROOT, pcred->name);
+    {
+      pcred->dochroot = checkuser (PATH_FTPCHROOT, pcred->name);
+
+#if defined WITH_PAM && !defined WITH_LINUX_PAM
+      if (pcred->auth_type == AUTH_TYPE_PAM)
+	err = pam_user (name, pcred);
+#endif /* WITH_PAM && !WITH_LINUX_PAM */
+    }
 
   return err;
 }
@@ -151,7 +164,7 @@ auth_pass (const char *passwd, struct credentials *pcred)
 {
   switch (pcred->auth_type)
     {
-#ifdef WITH_LINUX_PAM
+#ifdef WITH_PAM
     case AUTH_TYPE_PAM:
       return pam_pass (passwd, pcred);
 #endif

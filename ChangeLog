@@ -1,3 +1,32 @@
+2013-03-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Support PAM beyond Linux-PAM.
+
+	* configure.ac (FTPD_LIBPAM): Set to $LIBPAM
+	for all PAM implementations.
+	* ftpd/auth.c (auth_user) <default case>
+	[WITH_PAM && !WITH_LINUX_PAM]: Call pam_user()
+	if preceding tests were passed and if `auth_type'
+	is AUTH_TYPE_PAM.
+	(auth_pass) [WITH_PAM] <AUTH_TYPE_PAM>: Relax old
+	conditioning on WITH_LINUX_PAM.
+	* ftpd/extern.h (pam_user, pam_pass, pam_end_login)
+	[WITH_PAM]: Likewise.
+	* ftpd/ftpd.c (options) [WITH_PAM] <pam>: Likewise.
+	(parse_opt) <pam> [WITH_PAM]: Likewise.
+	(end_login) [WITH_PAM]: Likewise, use of pam_end_login().
+	* ftpd/pam.c [WITH_PAM]: Likewise, entire file.
+	(PAM_conv) <PAM_PROMPT_ECHO_OFF> [!WITH_LINUX_PAM]:
+	Return PAM_CRED_INSUFFICIENT.
+	(pam_doit) <failed pam_authenticate> [!WITH_LINUX_PAM]:
+	Check for status PAM_CRED_INSUFFICIENT with empty
+	password.
+
+	* ftpd/ftpd.c (doc) [WITH_PAM]: Mention PAM service
+	name 'ftp' in text.
+	(options) [WITH_KERBEROS5] <kerberos5>: Correct
+	misspelled authentication name.
+
 2013-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Incomplete source route security.

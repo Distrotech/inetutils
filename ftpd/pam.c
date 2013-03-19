@@ -30,6 +30,23 @@
 # include <security/pam_appl.h>
 #endif
 
+/*
+ * Mechanisms and prerequisites.
+ *
+ * The original code was tailored to rely on the side-effects
+ * of the Linux-PAM module `pam_ftp.so', with its peculiarities:
+ *
+ *  1. If PAM_USER is `ftp' or `anonymous', fetch PAM_AUTHTOK
+ *     and split it at `@' into PAM_RUSER and PAM_RHOST.
+ *     Return with success and set PAM_USER to `ftp'.
+ *
+ *  2. For other values of PAM_USER, keep the gotten PAM_AUTHTOK
+ *     unchanged, and fail.
+ *
+ * This module `pam_ftp.so' does not exist in OpenPAM, nor in
+ * Solaris-PAM.  Thus portability requires some care.
+ */
+
 /* June 3rd, 2012:
  * The draft of A.G Morgan on behalf of the the Open-PAM
  * working group has clearly not been able to get the
@@ -39,15 +56,15 @@
  * by preprocessor conditionals for the time being.
  */
 
-#ifdef WITH_LINUX_PAM
+#ifdef WITH_PAM
+
+/* PAM authentication, now using the PAM's async feature.  */
+static pam_handle_t *pamh;
 
 static int PAM_conv (int num_msg, const struct pam_message **msg,
 		     struct pam_response **resp, void *appdata_ptr);
 
 static struct pam_conv PAM_conversation = { &PAM_conv, NULL };
-
-/* PAM authentication, now using the PAM's async feature.  */
-static pam_handle_t *pamh;
 
 static int
 PAM_conv (int num_msg, const struct pam_message **msg,
@@ -83,8 +100,15 @@ PAM_conv (int num_msg, const struct pam_message **msg,
 	    {
 	      savemsg = 1;
 # ifdef PAM_CONV_AGAIN
-	      retval = PAM_CONV_AGAIN;
-# else /* !PAM_CONV_AGAIN */
+	      retval = PAM_CONV_AGAIN;		/* Linux-PAM */
+# elif !defined WITH_LINUX_PAM
+	      /*
+	       * Simulate PAM_CONV_AGAIN.
+	       * The alternate value PAM_TRY_AGAIN is not
+	       * an expected return value here, so it will
+	       * leave an audit trail.  */
+	      retval = PAM_CRED_INSUFFICIENT;
+# else /* !PAM_CONV_AGAIN && !WITH_LINUX_PAM */
 	      retval = PAM_CONV_ERR;
 # endif
 	    }
@@ -166,7 +190,7 @@ PAM_conv (int num_msg, const struct pam_message **msg,
   return PAM_SUCCESS;
 }
 
-/* Non-zero means failure. */
+/* Non-zero return status means failure. */
 static int
 pam_doit (struct credentials *pcred)
 {
@@ -175,7 +199,7 @@ pam_doit (struct credentials *pcred)
 
   error = pam_authenticate (pamh, 0);
 
-  /* Probably being called for the passwd.  */
+  /* Probably being called with empty passwd.  */
   if (0
 # ifdef PAM_CONV_AGAIN
       || error == PAM_CONV_AGAIN
@@ -183,6 +207,13 @@ pam_doit (struct credentials *pcred)
 # ifdef PAM_INCOMPLETE
       || error == PAM_INCOMPLETE
 # endif
+# ifndef WITH_LINUX_PAM
+      /*
+       * In absence of `pam_ftp.so', catch the simulated,
+       * incomplete state reported by our PAM_conv().
+       */
+      || (error == PAM_CRED_INSUFFICIENT && pcred->pass == NULL)
+# endif /* !WITH_LINUX_PAM */
      )
     {
       /* Avoid overly terse passwd messages and let the people
@@ -295,4 +326,4 @@ pam_end_login (struct credentials * pcred _GL_UNUSED_PARAMETER)
       pamh = NULL;
     }
 }
-#endif /* WITH_LINUX_PAM */
+#endif /* WITH_PAM */
