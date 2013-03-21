@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <syslog.h>
 #include <unused-parameter.h>
 #include "extern.h"
@@ -255,11 +256,14 @@ pam_doit (struct credentials *pcred)
   return (error != PAM_SUCCESS);
 }
 
+#define TTY_FORMAT "/dev/ftp%d"
+
 /* Non-zero return means failure. */
 int
 pam_user (const char *username, struct credentials *pcred)
 {
   int error;
+  char tty_name[strlen (TTY_FORMAT) + strlen ("9999999")];
 
   if (pamh != NULL)
     {
@@ -272,12 +276,16 @@ pam_user (const char *username, struct credentials *pcred)
   free (pcred->message);
   pcred->message = NULL;
 
+  (void) snprintf (tty_name, sizeof (tty_name), TTY_FORMAT, (int) getpid());
+
   /* Arrange our creditive.  */
   PAM_conversation.appdata_ptr = (void *) pcred;
 
   error = pam_start ("ftp", pcred->name, &PAM_conversation, &pamh);
   if (error == PAM_SUCCESS)
     error = pam_set_item (pamh, PAM_RHOST, pcred->remotehost);
+  if (error == PAM_SUCCESS)
+    error = pam_set_item (pamh, PAM_TTY, tty_name);
   if (error != PAM_SUCCESS)
     {
       pam_end (pamh, error);

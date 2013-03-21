@@ -1,3 +1,12 @@
+2013-03-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Portability of PAM to Solaris.
+
+	* ftpd/pam.c: Include <unistd.h>.
+	(TTY_FORMAT): New macro.
+	(pam_user): New variable TTY_NAME.  Set PAM_TTY by calling
+	pam_set_item() with a value constructed from getpid().
+
 2013-03-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Support PAM beyond Linux-PAM.
