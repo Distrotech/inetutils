@@ -3414,10 +3414,11 @@ Only anonymous login is allowed.
 @opindex -a
 @opindex --auth
 Specify what authentication mechanism to use for incoming connections.
-Possible values are: @samp{kerberos}, @samp{kerberos5}, @samp{opie}
-and @samp{default}.
+Possible values are: @samp{kerberos}, @samp{kerberos5}, @samp{opie},
+@samp{pam}, and @samp{default}.
 
-Anonymous logins will continue to work when this option is used.
+Anonymous logins will continue to work when this option is used,
+unless the user @samp{ftp} is removed from the system.
 
 @item  -D
 @itemx --daemon
@@ -3484,8 +3485,20 @@ the file exists, @command{ftpd} displays it and exits.  If the file
 the @samp{ready} message.  If the file @file{/etc/motd} exists,
 @command{ftpd} prints it after a successful login.
 
-The FTP server currently supports the following FTP requests.  The
-case of the requests is ignored.
+If this server was compiled with PAM support, then any non-anonymous
+connection request will also be checked for settings pertaining to
+the PAM service @samp{ftp}, before finally being accepted.
+
+Linux-PAM is particular in that it also provides a module
+@samp{pam_ftp.so} influencing even anonymous access.
+By convention the present server relies on the functionality
+in that module when built on relevant systems.
+However, the module is known to be partially broken since
+ten years back, when one compares the claims in its manual page,
+so not all claimed trickery is available!
+
+The FTP server currently supports the following FTP requests.
+The letter case of any request is ignored.
 
 @multitable @columnfractions 0.3 0.7
 @headitem Request  @tab  Description
@@ -3964,6 +3977,11 @@ Fail any call asking for non-Kerberos authentication.
 @c Required  Require reverse resolving of a remote host IP.
 @end table
 
+Should @command{rshd} have been built with PAM support,
+it reads any setting specified for a service named either
+@samp{rsh} or @samp{krsh}, the latter name for clients
+seeking Kerberised authentication.
+
 @section Diagnostics
 
 Except for the last one listed below, all diagnostic messages are
@@ -4138,6 +4156,11 @@ Activate encryption of all data passed via the @command{rlogind} session.
 This may impact response time and CPU utilization, but provides
 increased security.  Only for Kerberised mode of operation.
 @end table
+
+Should @command{rlogind} have been built with PAM support,
+it reads any setting specified for a service named either
+@samp{rlogin} or @samp{krlogin}, the latter name for clients
+using Kerberised authentication.
 
 @section Kerberos specific details
 

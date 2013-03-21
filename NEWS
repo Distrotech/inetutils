@@ -21,15 +21,19 @@ Argument handling has been corrected to avoid some segfaults.
 * ping
 
 New switches `--ip-timestamp', `--mask', `-T/--tos' and `--ttl'.
+Can use file capabilities instead of suid-setting.
 
 * ping6
 
 New switches `--hoplimit/--ttl', `-T/--tos' and `-v/--verbose'.
+File capabilities are sufficient.
 
 * rcp
 
 Supports IPv6 and Shishi.  New switches `-4/--ipv4', `-6/--ipv6',
 `-k/--realm', `-K/--kerberos', and `-x/--encrypt'.
+A file capability like `cap_net_bind_service' can be applied
+instead of setuid installing the binary.
 
 * rexec
 
@@ -38,6 +42,8 @@ Supports IPv6.  New switches `-4/--ipv4', `-6/--ipv6', `-a/--ipany'
 * rlogin, rsh
 
 Support IPv6.  New switches `-4/--ipv4', `-6/--ipv6'.
+A file capability like `cap_net_bind_service' can be applied
+instead of setuid installing the binary.
 
 * syslogd
 
@@ -53,14 +59,17 @@ New switch `-k/--realm'.
 
 Default mode is now UDP, for better conformity with Unices.
 New switches `-f/--first-hop', `-g/--gateways', `-I/--icmp',
-`-m/--max-hop', `-t/--tos', and `-w/--wait'.
+`-m/--max-hop', `-t/--tos', and `-w/--wait'.  File capabilities
+suffice.
 
 * ftpd
 
-Full IPv6 support.  PAM support is restricted to Linux-PAM,
-since `pam_ftp.so' exists only there and our code depends on
-its response for handling anonymous users.  Server now accepts
-commands LPRT and LPSV.
+Full IPv6 support.  PAM support for Linux-PAM, OpenPAM,
+and Sun-PAM as service `ftp'.  Observe that the latter
+two implementations only affect non-anonymous access,
+since `pam_ftp.so' exists for Linux-PAM only, so the
+standard checks are enforced on `ftp/anonymous' as usual.
+Server now accepts commands LPRT and LPSV.
 
 * inetd
 
@@ -68,19 +77,21 @@ Service configuration now allows setting also the group.
 
 * rexecd
 
-Can be built with PAM support.  New option `-l/--logging'.
+Can be built with PAM support as service `rexec'.
+New option `-l/--logging'.
 
 * rlogind
 
-Support for IPv6.  Buildable with libwrap support for use in
-stand-alone daemon mode.  New switches `-4/--ipv4', `-6/--ipv6',
-and `-S/--server-principal'.
+Support for IPv6 and PAM as services `rlogin' and `krlogin'.
+Buildable with libwrap support for use in stand-alone daemon
+mode.  New switches `-4/--ipv4', `-6/--ipv6', and
+`-S/--server-principal'.
 
 * rshd
 
-Now has support for IPv6, PAM, and Shishi.  New switches
-`-k/--kerberos', `-S/--server-principal', `-v/--vacuous',
-and `-x/--encrypt'.
+Now has support for IPv6, PAM, and Shishi, with PAM services
+`rsh' and `krsh'.  New switches `-k/--kerberos',
+`-S/--server-principal', `-v/--vacuous', and `-x/--encrypt'.
 
 * talkd
 
