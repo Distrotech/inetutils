@@ -346,7 +346,7 @@ printsub (char direction, unsigned char *pointer, int length)
   register int i;
   extern int want_status_response;
 
-#if defined AUTHENTICATION && defined ENCRYPTION
+#if defined AUTHENTICATION || defined ENCRYPTION
   char buf[512];
 #endif
 

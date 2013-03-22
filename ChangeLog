@@ -1,3 +1,14 @@
+2013-03-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Detection of Kerberos5.
+
+	* configure.ac: Only search for Kerberos headers
+	if they were explicitly requested.
+	* telnet/utilities.c (printsub)
+	[AUTHENTICATION || ENCRYPTION]: Define BUF if
+	either macro is defined.
+	* telnetd/utility.c (printsub): Likewise.
+
 2013-03-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Portability of PAM to Solaris.

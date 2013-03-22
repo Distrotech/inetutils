@@ -339,6 +339,9 @@ if test "$enable_encryption" = yes \
       test "$enable_encryption" = yes \
       && test "$ac_cv_lib_des_des_key_sched" = yes \
       && AC_DEFINE([DES_ENCRYPTION])
+
+      AC_CHECK_HEADERS([com_err.h des.h kerberosIV/des.h \
+			kerberosIV/krb.h krb.h])
     fi
     ;;
   krb5)
@@ -348,6 +351,12 @@ if test "$enable_encryption" = yes \
     if test ".$LIBAUTH" != . ;then
       AC_DEFINE([KERBEROS])
       AC_DEFINE([KRB5])
+      save_CPPFLAGS=$CPPFLAGS
+      CPPFLAGS="$CPPFLAGS $INCAUTH"
+      AC_CHECK_HEADERS([com_err.h kerberosV/krb5.h krb5.h \
+			krb5/asn1.h krb5/crc-32.h krb5/ext-proto.h \
+			krb5/krb5.h krb5/los-proto.h])
+      CPPFLAGS=$save_CPPFLAGS
     fi
     ;;
   *)
@@ -599,16 +608,13 @@ AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
 
-AC_CHECK_HEADERS([arpa/nameser.h com_err.h des.h errno.h fcntl.h features.h \
-		  glob.h kerberosIV/des.h kerberosIV/krb.h kerberosV/krb5.h \
-		  krb.h krb5.h krb5/asn1.h krb5/crc-32.h krb5/ext-proto.h \
-		  krb5/krb5.h krb5/los-proto.h \
-		  memory.h netinet/in_systm.h netinet/ip.h \
-                  netinet/ip_icmp.h netinet/ip_var.h \
-		  security/pam_appl.h \
-                  shadow.h stdarg.h stdlib.h string.h stropts.h sys/tty.h \
-                  sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \
-                  sys/ioctl_compat.h sys/cdefs.h sys/stream.h sys/mkdev.h \
+AC_CHECK_HEADERS([arpa/nameser.h errno.h fcntl.h features.h \
+		  glob.h memory.h netinet/in_systm.h netinet/ip.h \
+		  netinet/ip_icmp.h netinet/ip_var.h \
+		  security/pam_appl.h shadow.h \
+		  stdarg.h stdlib.h string.h stropts.h sys/tty.h \
+		  sys/utsname.h sys/ptyvar.h sys/msgbuf.h sys/filio.h \
+		  sys/ioctl_compat.h sys/cdefs.h sys/stream.h sys/mkdev.h \
 		  sys/sockio.h sys/sysmacros.h sys/param.h sys/file.h \
 		  sys/proc.h sys/select.h sys/time.h sys/wait.h \
                   sys/resource.h \
