@@ -1,5 +1,18 @@
 2013-03-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Let Telnet client override Kerberos5 realm.
+
+	* libtelnet/kerberos5.c (dest_realm): Rename from
+	previous `telnet_krb5_realm'.
+	* telnet/main.c (dest_realm) [KERBEROS || SHISHI]:
+	Expand scope from KRB4 to KERBEROS.
+	(argp_options) [KERBEROS || SHISHI] <-k/--realm>:
+	Likewise.
+	(parse_opt) [AUTHENTICATION && (KERBEROS || SHISHI)]
+	<case 'k'>: Likewise.
+
+2013-03-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Partial adaptions to Kerberos5, sufficient
 	to do some build and runtime testing, but
 	without encryption.

@@ -76,7 +76,7 @@ static krb5_ticket *ticket = NULL;	/* telnet matches the AP_REQ and
 
 krb5_keyblock *session_key = 0;
 char *telnet_srvtab = NULL;
-char *telnet_krb5_realm = NULL;
+char *dest_realm = NULL;
 
 # define DEBUG(c) if (auth_debug_mode) printf c
 
@@ -224,18 +224,18 @@ kerberos5_send (TN_Authenticator * ap)
       return 0;
     }
 
-  if (telnet_krb5_realm)
+  if (dest_realm)
     {
       krb5_data rdata;
 
-      rdata.length = strlen (telnet_krb5_realm);
+      rdata.length = strlen (dest_realm);
       rdata.data = malloc (rdata.length + 1);
       if (rdata.data == NULL)
 	{
 	  DEBUG (("telnet: Kerberos V5: could not allocate memory\r\n"));
 	  return 0;
 	}
-      strcpy (rdata.data, telnet_krb5_realm);
+      strcpy (rdata.data, dest_realm);
       krb5_princ_set_realm (telnet_context, creds.server, &rdata);
     }
 

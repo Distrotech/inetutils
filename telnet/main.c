@@ -112,7 +112,7 @@ enum {
   OPTION_NOASYNCNET
 };
 
-#if defined KRB4 || defined SHISHI
+#if defined KERBEROS || defined SHISHI
 extern char *dest_realm;
 #endif
 
@@ -165,7 +165,7 @@ static struct argp_option argp_options[] = {
     "Authentication and Kerberos options:", GRID },
   { "disable-auth", 'X', "ATYPE", 0,
     "disable type ATYPE authentication", GRID+1 },
-# if defined KRB4 || defined SHISHI
+# if defined KERBEROS || defined SHISHI
   { "realm", 'k', "REALM", 0,
     "obtain tickets for the remote host in REALM "
     "instead of the remote host's realm", GRID+1 },
@@ -263,7 +263,7 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
 #endif
 
 #if defined AUTHENTICATION && \
-      ( defined KRB4 || defined SHISHI )
+      ( defined KERBEROS || defined SHISHI )
     case 'k':
       dest_realm = arg;
       break;
