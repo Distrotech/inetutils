@@ -357,6 +357,11 @@ if test "$enable_encryption" = yes \
 			krb5/asn1.h krb5/crc-32.h krb5/ext-proto.h \
 			krb5/krb5.h krb5/los-proto.h])
       CPPFLAGS=$save_CPPFLAGS
+      # We have no support for krcmd() with Kerberos5.
+      # Encryption must be sorted out as a first step.
+      IU_DISABLE_TARGET(rcp)
+      IU_DISABLE_TARGET(rlogin)
+      IU_DISABLE_TARGET(rsh)
     fi
     ;;
   *)
@@ -1026,7 +1031,7 @@ ${rcp_BUILD:+$KERBEROS_VERSION}
     rlogin         ${enable_rlogin}  \
 ${rlogin_BUILD:+$KERBEROS_VERSION}
     rsh            ${enable_rsh}  \
-${rshd_BUILD:+$KERBEROS_VERSION}
+${rsh_BUILD:+$KERBEROS_VERSION}
     talk           ${enable_talk}  \
 ${talk_BUILD:+$LIBCURSES}
     telnet         ${enable_telnet}  \

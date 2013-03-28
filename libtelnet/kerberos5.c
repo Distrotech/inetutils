@@ -154,7 +154,7 @@ encryption_init (krb5_creds * creds)
 {
   krb5_keyblock *newkey = 0;
 
-  krb5_auth_con_getlocalsubkey (telnet_context, auth_context, &newkey);
+  krb5_auth_con_getsendsubkey (telnet_context, auth_context, &newkey);
   if (session_key)
     {
       krb5_free_keyblock (telnet_context, session_key);
@@ -547,6 +547,7 @@ kerberos5_is_auth (TN_Authenticator * ap, unsigned char *data, int cnt,
       char type_check[2];
       krb5_checksum *cksum = authenticator->checksum;
       krb5_keyblock *key;
+      krb5_boolean valid;
 
       type_check[0] = ap->type;
       type_check[1] = ap->way;
@@ -559,9 +560,12 @@ kerberos5_is_auth (TN_Authenticator * ap, unsigned char *data, int cnt,
 	  return 1;
 	}
 
+#  if 1
+      /* XXX: Obsolete interface.  Remove after investigation.  */
       r = krb5_verify_checksum (telnet_context,
 				cksum->checksum_type, cksum,
 				&type_check, 2, key->contents, key->length);
+      krb5_free_keyblock (telnet_context, key);
 
       if (r)
 	{
@@ -569,7 +573,24 @@ kerberos5_is_auth (TN_Authenticator * ap, unsigned char *data, int cnt,
 		    "checksum verification failed: %s", error_message (r));
 	  return 1;
 	}
+#else
+      /* Incomplete call!
+       *
+       * XXX: Establish replacement for the preceding call.
+       *      It is no longer present in all implementations.
+       */
+      r = krb5_c_verify_checksum (telnet_context, key,
+				  /* usage */, /* data */,
+				  cksum, &valid);
       krb5_free_keyblock (telnet_context, key);
+
+      if (r || !valid)
+	{
+	  snprintf (errbuf, errbuflen,
+		    "checksum verification failed: %s", error_message (r));
+	  return 1;
+	}
+#endif
     }
 
   krb5_free_authenticator (telnet_context, authenticator);
@@ -594,7 +615,7 @@ kerberos5_is_auth (TN_Authenticator * ap, unsigned char *data, int cnt,
   auth_finished (ap, AUTH_USER);
 
   free (name);
-  krb5_auth_con_getremotesubkey (telnet_context, auth_context, &newkey);
+  krb5_auth_con_getrecvsubkey (telnet_context, auth_context, &newkey);
 
   if (session_key)
     {

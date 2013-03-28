@@ -149,14 +149,22 @@
 #ifdef HAVE_SECURITY_PAM_APPL_H
 # include <security/pam_appl.h>
 #endif
-#ifdef KERBEROS
+
+#ifdef KRB4
 # ifdef HAVE_KERBEROSIV_DES_H
 #  include <kerberosIV/des.h>
 # endif
 # ifdef HAVE_KERBEROSIV_KRB_H
 #  include <kerberosIV/krb.h>
 # endif
-#endif /* KERBEROS */
+#elif defined KRB5	/* !KRB4 */
+# ifdef HAVE_KRB5_H
+#  include <krb5.h>
+# endif
+# ifdef HAVE_COM_ERR_H
+#  include <com_err.h>
+# endif
+#endif /* KRB4 || KRB5 */
 
 #ifdef SHISHI
 # include <shishi.h>
@@ -188,10 +196,11 @@ static struct pam_conv pam_conv = { rsh_conv, NULL };
 #endif /* WITH_PAM */
 
 #if defined KERBEROS || defined SHISHI
-# ifdef KERBEROS
+# ifdef KRB4
 Key_schedule schedule;
 char authbuf[sizeof (AUTH_DAT)];
 char tickbuf[sizeof (KTEXT_ST)];
+# elif defined KRB5
 # elif defined(SHISHI)
 Shishi *h;
 Shishi_ap *ap;
@@ -235,7 +244,7 @@ static struct argp_option options[] = {
     "fail for non-encrypted, Kerberized sessions", GRP },
 # endif
 # undef GRP
-#endif /* KERBEROS */
+#endif /* KERBEROS || SHISHI */
   { NULL, 0, NULL, 0, NULL, 0 }
 };
 
@@ -432,15 +441,23 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 #endif
 
 #ifdef	KERBEROS
+# ifdef KRB4
   AUTH_DAT *kdata = (AUTH_DAT *) NULL;
   KTEXT ticket = (KTEXT) NULL;
   char instance[INST_SZ], version[VERSION_SIZE];
+# elif defined KRB5	/* !KRB4 */
+  krb5_context context;
+  krb5_auth_context auth_ctx;
+  krb5_authenticator *author;
+  krb5_principal client;
+  krb5_rcache rcache;
+  krb5_keytab keytab;
+  krb5_ticket *ticket;
+# endif /* KRB4 || KRB5 */
   struct sockaddr_in fromaddr;
   long authopts;
   int pv1[2], pv2[2];
   fd_set wready, writeto;
-
-  fromaddr = *fromp;
 #elif defined SHISHI /* !KERBEROS */
   int n;
   int pv1[2], pv2[2];
@@ -450,6 +467,10 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   size_t cksumlen;
   char *cksum = NULL;
 #endif /* KERBEROS || SHISHI */
+
+#ifdef KERBEROS
+  memcpy (&fromaddr, fromp, sizeof (fromaddr));
+#endif
 
 #ifdef HAVE_GETPWNAM_R
   pwbuflen = sysconf (_SC_GETPW_R_SIZE_MAX);
@@ -800,7 +821,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   else
     errorhost = hostname = addrstr;
 
-#ifdef	KERBEROS
+#ifdef KRB4
   if (use_kerberos)
     {
       kdata = (AUTH_DAT *) authbuf;
@@ -840,7 +861,82 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	}
     }
   else
-#elif defined (SHISHI) /* !KERBEROS */
+#elif defined KRB5
+  if (use_kerberos)
+    {
+      /* Set up context data.  */
+      rc = krb5_init_context (&context);
+      if (!rc)
+        rc = krb5_auth_con_init (context, &auth_ctx);
+      if (!rc)
+	rc = krb5_auth_con_genaddrs (context, auth_ctx, sockfd,
+			KRB5_AUTH_CONTEXT_GENERATE_REMOTE_FULL_ADDR);
+      if (!rc)
+	rc = krb5_auth_con_getrcache (context, auth_ctx, &rcache);
+
+      if (!rc && !rcache)
+	{
+	  krb5_principal server;
+
+	  rc = krb5_sname_to_principal (context, 0, 0,
+					KRB5_NT_SRV_HST, &server);
+	  if (!rc)
+	    {
+	      krb5_data *pdata;
+
+	      pdata = krb5_princ_component (context, server, 0);
+
+	      rc = krb5_get_server_rcache (context, pdata, &rcache);
+	      krb5_free_principal (context, server);
+
+	      if (!rc)
+		rc = krb5_auth_con_setrcache (context, auth_ctx, rcache);
+	    }
+	}
+
+      if (rc)
+	{
+	  syslog (LOG_ERR, "Error initializing krb5: %s",
+		  error_message (rc));
+	  rshd_error ("Permission denied.\n");
+	  exit (EXIT_FAILURE);
+	}
+
+# ifdef ENCRYPTION
+      if (doencrypt)
+	{
+	  struct sockaddr_in local_addr;
+	  rc = sizeof local_addr;
+	  if (getsockname (STDIN_FILENO,
+			   (struct sockaddr *) &local_addr, &rc) < 0)
+	    {
+	      syslog (LOG_ERR, "getsockname: %m");
+	      rshd_error ("rlogind: getsockname: %s", strerror (errno));
+	      exit (EXIT_FAILURE);
+	    }
+	  authopts = KOPT_DO_MUTUAL;
+	  rc = krb_recvauth (authopts, 0, ticket,
+			     "rcmd", instance, &fromaddr,
+			     &local_addr, kdata, "", schedule, version);
+	  des_set_key (kdata->session, schedule);
+	}
+      else
+# endif /* ENCRYPTION */
+	rc = krb5_recvauth (context, &auth_ctx, &sockfd, "rcmd",
+			    0, 0, keytab, &ticket);
+
+      if (!rc)
+	rc = krb5_auth_con_getauthenticator (context, auth_ctx, &author);
+
+      if (!rc)
+	{
+	  rshd_error ("Kerberos authentication failure: %s\n",
+		      error_message(rc));
+	  exit (EXIT_FAILURE);
+	}
+    }
+  else
+#elif defined (SHISHI)	/* !KRB4 && !KRB5 */
   if (use_kerberos)
     {
       int rc;
@@ -1002,7 +1098,16 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
     shishi_ap_done (ap);
 
   }
-#endif /* SHISHI */
+#elif defined KRB5	/* !SHISHI */
+  if (use_kerberos)
+    {
+      remuser = getstr ("remuser");	/* The requesting user!  */
+
+      rc = krb5_copy_principal (context, ticket->enc_part2->client,
+				&client);
+
+    }
+#endif /* KRB5 || SHISHI */
 
   /* Look up locuser in the passwd file.  The locuser has to be a
    * valid account on this system.
@@ -1132,7 +1237,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       }
 #endif
 
-#ifdef	KERBEROS
+#ifdef KRB4
   if (use_kerberos)
     {
       if (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0')
@@ -1141,6 +1246,21 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	    {
 	      syslog (LOG_INFO | LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
 		      kdata->pname, kdata->pinst, kdata->prealm);
+	      rshd_error ("Permission denied.\n");
+	      exit (EXIT_FAILURE);
+	    }
+	}
+    }
+  else
+#elif defined KRB5	/* !KRB4 */
+  if (use_kerberos)
+    {
+      if (pwd->pw_passwd != 0 && *pwd->pw_passwd != '\0' && client)
+	{
+	  if (krb5_kuserok (context, client, locuser) != 0)
+	    {
+	      syslog (LOG_INFO | LOG_AUTH, "Kerberos rsh denied to %s.%s@%s",
+		      "kdata->pname", "kdata->pinst", "kdata->prealm");
 	      rshd_error ("Permission denied.\n");
 	      exit (EXIT_FAILURE);
 	    }
@@ -1487,8 +1607,8 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	{
 	  close (pv1[0]);
 	  close (pv2[0]);
-	  dup2 (pv1[1], 1);
-	  dup2 (pv2[1], 0);
+	  dup2 (pv1[1], STDOUT_FILENO);
+	  dup2 (pv2[1], STDIN_FILENO);
 	  close (pv1[1]);
 	  close (pv2[1]);
 	}
@@ -1636,14 +1756,14 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   endpwent ();
   if (log_success || pwd->pw_uid == 0)
     {
-#ifdef	KERBEROS
+#ifdef KRB4
       if (use_kerberos)
 	syslog (LOG_INFO | LOG_AUTH,
 		"Kerberos shell from %s.%s@%s on %s as %s, cmd='%.80s'",
 		kdata->pname, kdata->pinst, kdata->prealm,
 		hostname, locuser, cmdbuf);
       else
-#endif /* KERBEROS */
+#endif /* KRB4 */
 	syslog (LOG_INFO | LOG_AUTH,
 		"%s%s@%s as %s: cmd='%.80s'",
 #ifdef SHISHI

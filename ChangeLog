@@ -1,3 +1,40 @@
+2013-03-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Partial adaptions to Kerberos5, sufficient
+	to do some build and runtime testing, but
+	without encryption.
+
+	* configure.ac <KERBEROS_VERSION == krb5>:
+	Disable `rcp', `rlogin', and `rsh'.
+	* libinetutils/des_rw.c [ENCRYPTION && KRB4]:
+	Replace KERBEROS by KRB4 in guard.
+	* libinetutils/kcmd.c, libinetutils/krcmd.c:
+	Likewise.
+	* src/rlogind.c [KRB5 && HAVE_COM_ERR_H]:
+	Include <com_err.h>.
+	(do_krb5_login) [KRB5]: Insert prototype.
+	* src/rshd.c [KRB4]: Replace previous KERBEROS
+	by KRB4 throughout.
+	[KRB5 && HAVE_KRB5_H]: Include <krb5.h>.
+	[KRB5 && HAVE_COM_ERR_H]: Include <com_err.h>.
+	(doit) [KRB5]: New partial template code and
+	related variables for later refinement.
+	[KERBEROS]: Set FROMADDR using memcpy().
+	[ENCRYPTION && (KERBEROS || SHISHI)]: Call dup2()
+	with macros STDIN_FILENO and STDOUT_FILENO.
+
+	Replace obsolete interfaces.
+
+	* libtelnet/kerberos5.c (encryption_init)
+	[ENCRYPTION]: Call krb5_auth_con_getsendsubkey().
+	(kerberos5_is_auth): New variable VALID.
+	Call krb5_auth_con_getrecvsubkey().
+
+	* src/rlogind.c (do_shishi_login) [SHISHI]:
+	Test macro ENCRYPT_IO when calling syslog().
+
+	* configure.ac <rsh summary>: Use $rsh_BUILD.
+
 2013-03-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Detection of Kerberos5.

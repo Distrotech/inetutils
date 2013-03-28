@@ -50,7 +50,7 @@
 #include <config.h>
 
 #ifdef ENCRYPTION
-# ifdef KERBEROS
+# ifdef KRB4
 #  include <sys/param.h>
 
 #  ifdef HAVE_KERBEROSIV_DES_H
@@ -208,5 +208,5 @@ des_write (fd, buf, len)
   write (fd, des_outbuf, roundup (len, 8));
   return (len);
 }
-# endif	/* KERBEROS */
+# endif	/* KRB4 */
 #endif /* CRYPT */

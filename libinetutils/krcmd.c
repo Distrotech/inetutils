@@ -49,7 +49,7 @@
 
 #include <config.h>
 
-#if defined KERBEROS || defined SHISHI
+#if defined KRB4 || defined SHISHI
 # include <sys/types.h>
 # ifdef ENCRYPTION
 #  include <sys/socket.h>

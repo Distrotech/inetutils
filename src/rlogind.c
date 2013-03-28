@@ -163,6 +163,9 @@
 #  ifdef HAVE_KRB5_H
 #   include <krb5.h>
 #  endif
+#  ifdef HAVE_COM_ERR_H
+#   include <com_err.h>
+#  endif
 #  ifdef HAVE_KERBEROSIV_KRB_H
 #   include <kerberosIV/krb.h>
 #  endif
@@ -243,10 +246,10 @@ char *servername = NULL;
 # ifdef ENCRYPTION
 int encrypt_io = 0;
 # endif	/* ENCRYPTION */
-#endif /* KERBEROS */
+#endif /* KERBEROS || SHISHI */
+
 int reverse_required = 0;
 int debug_level = 0;
-
 int numchildren;
 int netf;
 char line[1024];		/* FIXME */
@@ -286,6 +289,10 @@ void fatal (int f, const char *msg, int syserr);
 void rlogind_error (int f, int syserr, const char *msg, ...);
 int in_local_domain (char *hostname);
 char *topdomain (char *name, int max_dots);
+
+#ifdef KRB5
+int do_krb5_login (int infd, struct auth_data *ap, const char **err_msg);
+#endif
 
 #ifdef SHISHI
 int do_shishi_login (int infd, struct auth_data *ad, const char **err_msg);
@@ -1707,7 +1714,7 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 
   syslog (LOG_INFO | LOG_AUTH,
 	  "Kerberos V %slogin from %s on %s as `%s'.\n",
-	  encrypt_io ? "encrypted " : "",
+	  ENCRYPT_IO ? "encrypted " : "",
 	  ad->rusername, ad->hostname, ad->lusername);
 
   return SHISHI_OK;
