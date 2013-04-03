@@ -285,9 +285,9 @@ ping_set_dest (PING * ping, char *host)
   hints.ai_flags = AI_CANONNAME;
 # ifdef AI_IDN
   hints.ai_flags |= AI_IDN;
-#  ifdef AI_CANONIDN
+# endif
+# ifdef AI_CANONIDN
   hints.ai_flags |= AI_CANONIDN;
-#  endif
 # endif
 
   rc = getaddrinfo (p, NULL, &hints, &res);

@@ -1040,7 +1040,11 @@ rlogind_PROPS="${rlogind_PROPS:+$rlogind_PROPS }$LIBWRAP"
 
 # Support for libidn.
 
+ftp_PROPS="${ftp_PROPS:+$ftp_PROPS }${LIBIDN:+-libidn}"
 ping_PROPS="${ping_PROPS:+$ping_PROPS }${LIBIDN:+-libidn}"
+talk_PROPS="${talk_PROPS:+$talk_PROPS }${LIBIDN:+-libidn}"
+telnet_PROPS="${telnet_PROPS:+$telnet_PROPS }${LIBIDN:+-libidn}"
+tftp_PROPS="${tftp_PROPS:+$tftp_PROPS }${LIBIDN:+-libidn}"
 traceroute_PROPS="${traceroute_PROPS:+$traceroute_PROPS }${LIBIDN:+-libidn}"
 
 # Termcap variants.

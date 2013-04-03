@@ -1,3 +1,58 @@
+2013-04-04  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	More IDN support for clients.
+
+	* configure.ac <summary>: Uppdate ftp_PROPS,
+	talk_PROPS, telnet_PROPS, and tftp_PROPS using
+	LIBIDN.
+	* ftp/Makefile.am (AM_CPPFLAGS): Add $(INCIDN).
+	(LDADD): Add $(LIBIDN).
+	* talk/Makefile.am, telnet/Makefile.am
+	(AM_CPPFLAGS, LDADD): Likewise.
+	* src/Makefile.am (tftp_LDADD): Add $(LIBIDN).
+
+	* ftp/ftp.c [HAVE_IDNA_H]: Include <idna.h>.
+	(hookup): New variable RHOST.  Use RHOST in
+	getaddrinfo().
+	[HAVE_IDN]: Call idna_to_ascii_lz().
+	[!HAVE_IDN]: Strdup `host' as RHOST.
+	[AI_IDN]: Add to `hints.ai_flags'.
+	[AI_CANONIDN]: Likewise.
+	* ftp/main.c [HAVE_LOCALE_H]: Include <locale.h>.
+	(main) [HAVE_SETLOCALE]: Call setlocale().
+
+	* ping/libping.c (ping_set_dest) [AI_CANONIDN]:
+	Add to `hints.ai_flags' independently if AI_IDN.
+	* ping/ping6.c (ping_set_dest): Set AI_CANONNAME
+	on `hints.ai_flags'.  Strdup `result->ai_canonname'
+	to `ping->ping_hostname'.
+	[AI_CANONIDN]: Add to `hints.ai_flags'.
+
+	* src/tftp.c [HAVE_LOCALE_H]: Include <locale.h>.
+	[HAVE_IDNA_H]: Include <idna.h>.
+	(main) [HAVE_SETLOCALE): Call setlocale().
+	(resolve_name): New variable RNAME.  Use RNAME
+	with getaddrinfo().
+	[HAVE_IDN]: Call idna_to_ascii_lz().
+	[AI_IDN]: Add to `hints.ai_flags'.
+	[AI_CANONIDN]: Add to `hints.ai_flags'.
+
+	* talk/get_addrs.c [HAVE_IDNA_H]: Include <idna.h>.
+	(get_addrs): New variables LHOST, RHOST.  Use these
+	for address resolution with gethostbyname().
+	[HAVE_IDN]: Call idna_to_ascii_lz() twice.
+	* talk/talk.c [HAVE_LOCALE_H]: Include <locale.h>.
+	(main) [HAVE_SETLOCALE]: Call setlocale().
+
+	* telnet/commands.c [HAVE_IDNA_H]: Include <idna.h>.
+	(tn): New variable HOSTTMP.
+	[HAVE_IDN]: Call idna_to_ascii_lz() and let HOSTP
+	be identical to HOSTTMP if the call was successful.
+	Free HOSTTMP after use.
+	[IPV6 && AI_IDN]: Set `hints.ai_flags' to AI_IDN.
+	* telnet/main.c [HAVE_LOCALE_H]: Include <locale.h>.
+	(main) [HAVE_SETLOCALE]: Call setlocale().
+
 2013-03-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac <summary>: New variables `*_PROPS'

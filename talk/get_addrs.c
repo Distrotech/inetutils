@@ -59,20 +59,48 @@
 #include <netdb.h>
 #include <stdio.h>
 #include <unistd.h>
+#ifdef HAVE_IDNA_H
+# include <idna.h>
+#endif
+
 #include "talk_ctl.h"
 
 int
 get_addrs (char *my_machine_name, char *his_machine_name)
 {
+  char *lhost, *rhost;
   struct hostent *hp;
   struct servent *sp;
 
+#ifdef HAVE_IDN
+  int err;
+
+  err = idna_to_ascii_lz (my_machine_name, &lhost, 0);
+  if (err)
+    {
+      fprintf (stderr, "talk: %s: %s\n",
+	       my_machine_name, idna_strerror (err));
+      exit (-1);
+    }
+
+  err = idna_to_ascii_lz (his_machine_name, &rhost, 0);
+  if (err)
+    {
+      fprintf (stderr, "talk: %s: %s\n",
+	       his_machine_name, idna_strerror (err));
+      exit (-1);
+    }
+#else /* !HAVE_IDN */
+  lhost = my_machine_name;
+  rhost = his_machine_name;
+#endif
+
   msg.pid = htonl (getpid ());
   /* look up the address of the local host */
-  hp = gethostbyname (my_machine_name);
+  hp = gethostbyname (lhost);
   if (hp == NULL)
     {
-      fprintf (stderr, "talk: %s: ", my_machine_name);
+      fprintf (stderr, "talk: %s(%s): ", lhost, my_machine_name);
       herror ((char *) NULL);
       exit (-1);
     }
@@ -81,12 +109,12 @@ get_addrs (char *my_machine_name, char *his_machine_name)
    * If the callee is on-machine, just copy the
    * network address, otherwise do a lookup...
    */
-  if (strcmp (his_machine_name, my_machine_name))
+  if (strcmp (rhost, lhost))
     {
-      hp = gethostbyname (his_machine_name);
+      hp = gethostbyname (rhost);
       if (hp == NULL)
 	{
-	  fprintf (stderr, "talk: %s: ", his_machine_name);
+	  fprintf (stderr, "talk: %s(%s): ", rhost, his_machine_name);
 	  herror ((char *) NULL);
 	  exit (-1);
 	}
@@ -103,6 +131,11 @@ get_addrs (char *my_machine_name, char *his_machine_name)
       exit (-1);
     }
   daemon_port = ntohs (sp->s_port);
+
+#ifdef HAVE_IDN
+  free (lhost);
+  free (rhost);
+#endif
 
   return 0;
 }

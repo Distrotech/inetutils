@@ -1011,8 +1011,12 @@ ping_set_dest (PING * ping, char *host)
 
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = AF_INET6;
+  hints.ai_flags = AI_CANONNAME;
 #ifdef AI_IDN
-  hints.ai_flags = AI_IDN;
+  hints.ai_flags |= AI_IDN;
+#endif
+#ifdef AI_CANONIDN
+  hints.ai_flags |= AI_CANONIDN;
 #endif
 
   err = getaddrinfo (rhost, NULL, &hints, &result);
@@ -1024,9 +1028,9 @@ ping_set_dest (PING * ping, char *host)
 
   memcpy (&ping->ping_dest.ping_sockaddr6, result->ai_addr, result->ai_addrlen);
 
+  ping->ping_hostname = strdup (result->ai_canonname);
   freeaddrinfo (result);
 
-  ping->ping_hostname = strdup (host);
   if (!ping->ping_hostname)
     return 1;
 

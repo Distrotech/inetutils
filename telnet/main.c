@@ -52,6 +52,9 @@
 #include <sys/types.h>
 
 #include <stdlib.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
 
 #include "ring.h"
 #include "defines.h"
@@ -334,6 +337,10 @@ main (int argc, char *argv[])
   int index;
 
   set_program_name (argv[0]);
+
+#ifdef HAVE_SETLOCALE
+  setlocale (LC_ALL, "");
+#endif
 
   tninit ();			/* Clear out things */
 #if defined CRAY && !defined __STDC__

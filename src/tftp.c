@@ -72,6 +72,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
+#ifdef HAVE_IDNA_H
+# include <idna.h>
+#endif
+
 #include <argp.h>
 #include <unused-parameter.h>
 
@@ -263,6 +270,9 @@ main (int argc, char *argv[])
   struct servent *sp;
 
   set_program_name (argv[0]);
+#ifdef HAVE_SETLOCALE
+  setlocale (LC_ALL, "");
+#endif
   iu_argp_init ("tftp", default_program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
@@ -301,20 +311,42 @@ static int
 resolve_name (char *name)
 {
   int err;
+  char *rname;
   struct sockaddr_storage ss;
   struct addrinfo hints, *ai, *aiptr;
+
+#ifdef HAVE_IDN
+  err = idna_to_ascii_lz (name, &rname, 0);
+  if (err)
+    {
+      fprintf (stderr, "tftp: %s: %s\n", name, idna_strerror (err));
+      return RESOLVE_FAIL;
+    }
+#else /* !HAVE_IDN */
+  rname = name;
+#endif
 
   memset (&hints, 0, sizeof (hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = AI_CANONNAME;
+#ifdef AI_IDN
+  hints.ai_flags |= AI_IDN;
+#endif
+#ifdef AI_CANONIDN
+  hints.ai_flags |= AI_CANONIDN;
+#endif
 
-  err = getaddrinfo (name, "tftp", &hints, &aiptr);
+  err = getaddrinfo (rname, "tftp", &hints, &aiptr);
   if (err)
     {
-      fprintf (stderr, "tftp: %s: %s\n", name, gai_strerror (err));
+      fprintf (stderr, "tftp: %s: %s\n", rname, gai_strerror (err));
       return RESOLVE_FAIL;
     }
+
+#ifdef HAVE_IDN
+  free (rname);
+#endif
 
   if (f >= 0)
     {

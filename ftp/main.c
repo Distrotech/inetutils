@@ -69,6 +69,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
 
 /* Define macro to nothing so declarations in ftp_var.h become definitions. */
 #define FTP_EXTERN
@@ -197,6 +200,10 @@ main (int argc, char *argv[])
   char *cp;
 
   set_program_name (argv[0]);
+
+#ifdef HAVE_SETLOCALE
+  setlocale (LC_ALL, "");
+#endif
 
   doglob = 1;
   interactive = 1;

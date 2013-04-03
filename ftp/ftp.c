@@ -83,6 +83,10 @@
 #include <stdarg.h>
 #include <sys/select.h>
 
+#ifdef HAVE_IDNA_H
+# include <idna.h>
+#endif
+
 #include "ftp_var.h"
 #include "unused-parameter.h"
 
@@ -129,6 +133,19 @@ hookup (char *host, int port)
   int s, tos;
   socklen_t len;
   static char hostnamebuf[80];
+  char *rhost;
+
+#ifdef HAVE_IDN
+  status = idna_to_ascii_lz (host, &rhost, 0);
+  if (status)
+    {
+      error (0, 0, "%s: %s", host, idna_strerror (status));
+      code = -1;
+      return ((char *) 0);
+    }
+#else /* !HAVE_IDN */
+  rhost = strdup (host);
+#endif
 
   snprintf (portstr, sizeof (portstr) - 1, "%u", port);
   memset (&hisctladdr, 0, sizeof (hisctladdr));
@@ -137,14 +154,22 @@ hookup (char *host, int port)
   hints.ai_family = usefamily;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_CANONNAME;
+#ifdef AI_IDN
+  hints.ai_flags |= AI_IDN;
+#endif
+#ifdef AI_CANONIDN
+  hints.ai_flags |= AI_CANONIDN;
+#endif
 
-  status = getaddrinfo (host, portstr, &hints, &res);
+  status = getaddrinfo (rhost, portstr, &hints, &res);
   if (status)
     {
-      error (0, 0, "%s: %s", host, gai_strerror (status));
+      error (0, 0, "%s: %s", rhost, gai_strerror (status));
       code = -1;
+      free (rhost);
       return ((char *) 0);
     }
+  free (rhost);
   strncpy (hostnamebuf, res->ai_canonname, sizeof (hostnamebuf));
   hostname = hostnamebuf;
 

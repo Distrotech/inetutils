@@ -22,12 +22,12 @@ AM_CPPFLAGS = \
 	-DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK \
 	$(iu_INCLUDES) \
 	-I$(top_srcdir) \
-	$(NCURSES_INCLUDE)
+	$(NCURSES_INCLUDE) $(INCIDN)
 
 LDADD = \
 	$(top_builddir)/libtelnet/libtelnet.a \
 	$(iu_LIBRARIES) \
-	$(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH)
+	$(LIBTERMCAP) $(LIBCRYPT) $(LIBAUTH) $(LIBIDN)
 
 bin_PROGRAMS = $(telnet_BUILD)
 

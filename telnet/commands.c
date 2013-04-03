@@ -74,6 +74,10 @@
 #include <arpa/inet.h>
 #include <arpa/telnet.h>
 
+#ifdef HAVE_IDNA_H
+# include <idna.h>
+#endif
+
 #include <unused-parameter.h>
 #include <libinetutils.h>
 
@@ -2446,7 +2450,7 @@ tn (int argc, char *argv[])
 #endif
   const int on = 1;
   int err;
-  char *cmd, *hostp = 0, *portp = 0, *user = 0;
+  char *cmd, *hostp = 0, *hosttmp = 0, *portp = 0, *user = 0;
 
 #ifdef IPV6
   memset (&hints, 0, sizeof (hints));
@@ -2589,8 +2593,22 @@ tn (int argc, char *argv[])
   }
 #endif /* AUTHENTICATION || ENCRYPTION */
 
+#ifdef HAVE_IDN
+  err = idna_to_ascii_lz (hostp, &hosttmp, 0);
+  if (err)
+    {
+      printf ("Server lookup failure:  %s:%s, %s\n",
+	      hostp, portp, idna_strerror (err));
+      return 0;
+    }
+  hostp = hosttmp;
+#endif /* !HAVE_IDN */
+
 #ifdef IPV6
   hints.ai_socktype = SOCK_STREAM;
+# ifdef AI_IDN
+  hints.ai_flags = AI_IDN;
+# endif
 
   err = getaddrinfo (hostp, portp, &hints, &result);
   if (err)
@@ -2757,7 +2775,13 @@ tn (int argc, char *argv[])
     }
   while (connected == 0);
 #endif /* !IPV6 */
+
   cmdrc (hostp, hostname);
+#ifdef HAVE_IDN
+  /* Last use of HOSTP, alias HOSTTMP.  */
+  free (hosttmp);
+#endif
+
   if (autologin && user == NULL)
     {
       struct passwd *pw;

@@ -49,10 +49,13 @@
 
 #include <config.h>
 #include <stdlib.h>
+#include <unistd.h>
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
 
 #include "talk.h"
 #include <argp.h>
-#include <unistd.h>
 #include <libinetutils.h>
 
 void usage (void);
@@ -89,6 +92,9 @@ main (int argc, char *argv[])
   int index;
 
   set_program_name (argv[0]);
+#ifdef HAVE_SETLOCALE
+  setlocale (LC_ALL, "");
+#endif
   iu_argp_init ("talk", program_authors);
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 

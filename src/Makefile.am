@@ -75,6 +75,7 @@ EXTRA_PROGRAMS += rsh
 
 bin_PROGRAMS += $(tftp_BUILD)
 tftp_SOURCES = tftp.c
+tftp_LDADD = $(LDADD) $(LIBIDN)
 EXTRA_PROGRAMS += tftp
 
 bin_PROGRAMS += $(traceroute_BUILD)
