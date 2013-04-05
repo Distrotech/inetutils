@@ -68,13 +68,18 @@
 int
 get_addrs (char *my_machine_name, char *his_machine_name)
 {
+#if HAVE_DECL_GETADDRINFO || defined HAVE_IDN
+  int err;
+#endif
   char *lhost, *rhost;
+#if HAVE_DECL_GETADDRINFO
+  struct addrinfo hints, *res, *ai;
+#else /* !HAVE_DECL_GETADDRINFO */
   struct hostent *hp;
+#endif
   struct servent *sp;
 
 #ifdef HAVE_IDN
-  int err;
-
   err = idna_to_ascii_lz (my_machine_name, &lhost, 0);
   if (err)
     {
@@ -96,7 +101,66 @@ get_addrs (char *my_machine_name, char *his_machine_name)
 #endif
 
   msg.pid = htonl (getpid ());
-  /* look up the address of the local host */
+
+  /* Look up the address of the local host.  */
+
+#if HAVE_DECL_GETADDRINFO
+  memset (&hints, 0, sizeof (hints));
+
+  /* The talk-protocol is IPv4 only!  */
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_DGRAM;
+# ifdef AI_IDN
+  hints.ai_flags |= AI_IDN;
+# endif
+
+  err = getaddrinfo (lhost, NULL, &hints, &res);
+  if (err)
+    {
+      fprintf (stderr, "talk: %s: %s\n", lhost, gai_strerror (err));
+      exit (-1);
+    }
+
+  /* Perform all sanity checks available.
+   * Reduction of tests?
+   */
+  for (ai = res; ai; ai = ai->ai_next)
+    {
+      int f;
+
+      if (ai->ai_family != AF_INET)
+	continue;
+
+      f = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+      if (f < 0)
+	continue;
+
+      /* Attempt binding to this local address.  */
+      if (bind (f, ai->ai_addr, ai->ai_addrlen))
+        {
+	  close (f);
+	  f = -1;
+	  continue;
+	}
+
+      /* We have a usable address.  */
+      close (f);
+      break;
+    }
+
+  if (ai)
+    memcpy (&my_machine_addr,
+	    &((struct sockaddr_in *) ai->ai_addr)->sin_addr,
+	    sizeof (my_machine_addr));
+
+  freeaddrinfo (res);
+  if (!ai)
+    {
+      fprintf (stderr, "talk: %s: %s\n", lhost, "address not found");
+      exit (-1);
+    }
+
+#else /* !HAVE_DECL_GETADDRINFO */
   hp = gethostbyname (lhost);
   if (hp == NULL)
     {
@@ -105,12 +169,52 @@ get_addrs (char *my_machine_name, char *his_machine_name)
       exit (-1);
     }
   memmove (&my_machine_addr, hp->h_addr, hp->h_length);
+#endif /* !HAVE_DECL_GETADDRINFO */
+
   /*
    * If the callee is on-machine, just copy the
    * network address, otherwise do a lookup...
    */
   if (strcmp (rhost, lhost))
     {
+#if HAVE_DECL_GETADDRINFO
+      err = getaddrinfo (rhost, NULL, &hints, &res);
+      if (err)
+	{
+	  fprintf (stderr, "talk: %s: %s\n", rhost, gai_strerror (err));
+	  exit (-1);
+	}
+
+      /* Perform all sanity checks available.  */
+      for (ai = res; ai; ai = ai->ai_next)
+	{
+	  int f;
+
+	  if (ai->ai_family != AF_INET)
+	    continue;
+
+	  f = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+	  if (f < 0)
+	    continue;
+
+	  /* We have a usable address family!  */
+	  close (f);
+	  break;
+	}
+
+      if (ai)
+	memcpy (&his_machine_addr,
+		&((struct sockaddr_in *) ai->ai_addr)->sin_addr,
+		sizeof (his_machine_addr));
+
+      freeaddrinfo (res);
+      if (!ai)
+	{
+	  fprintf (stderr, "talk: %s: %s\n", rhost, "address not found");
+	  exit (-1);
+	}
+
+#else /* !HAVE_DECL_GETADDRINFO */
       hp = gethostbyname (rhost);
       if (hp == NULL)
 	{
@@ -119,10 +223,12 @@ get_addrs (char *my_machine_name, char *his_machine_name)
 	  exit (-1);
 	}
       memmove (&his_machine_addr, hp->h_addr, hp->h_length);
+#endif /* !HAVE_DECL_GETADDRINFO */
     }
   else
     his_machine_addr = my_machine_addr;
-  /* find the server's port */
+
+  /* Find the server's port.  */
   sp = getservbyname ("ntalk", "udp");
   if (sp == 0)
     {

@@ -1,3 +1,16 @@
+2013-04-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	talk: Address resolution.
+
+	* talk/get_addrs.c (get_addrs): Implement resolver
+	using getaddrinfo().  This is now the preferred method.
+	[HAVE_DECL_GETADDRINFO || defined HAVE_IDN]:
+	Declare ERR with larger scope.
+	[HAVE_DECL_GETADDRINFO]: New variables HINTS, RES, AI.
+	Call getaddrinfo() for LHOST and RHOST.
+	[HAVE_DECL_GETADDRINFO && AI_IDN]: Add AI_IDN to
+	`hints.ai_flags'.
+
 2013-04-04  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	More IDN support for clients.

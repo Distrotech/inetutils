@@ -5,6 +5,15 @@ See the end of this file for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+* IDN -- International Domain Names
+
+The clients `ftp', `ping', `ping6', `talk', `telnet', `tftp',
+and `traceroute' are now capable of using libidn in resolving
+domain names with character sets richer than ASCII.
+
+Systems using Glibc achieve this ability by other means in the
+present code, so they do not need to link against libidn at all.
+
 * New tool 'dnsdomainname'.
 
 * ftp
