@@ -54,6 +54,7 @@
 
 #include <config.h>
 
+#include <ctype.h>
 #include "talk.h"
 
 xwin_t my_win;
@@ -202,7 +203,18 @@ display (register xwin_t * win, register char *text, int size)
 	  /* check for wraparound */
 	  xscroll (win, 0);
 	}
-      if (*text < ' ' && *text != '\t')
+
+      /*
+       * Printable characters, SP, and TAB are printed
+       * verbatim.  Characters beyond the ASCII table
+       * must be handled.  Beware of sign extension!
+       *
+       * The locale setting is in effect when testing
+       * printability of any input character.
+       */
+      if (isprint (*text & 0xff) || *text == '\t')
+	waddch (win->x_win, *text & 0xff);
+      else
 	{
 	  waddch (win->x_win, '^');
 	  getyx (win->x_win, win->x_line, win->x_col);
@@ -211,8 +223,7 @@ display (register xwin_t * win, register char *text, int size)
 	  cch = (*text & 63) + 64;
 	  waddch (win->x_win, cch);
 	}
-      else
-	waddch (win->x_win, *text);
+
       getyx (win->x_win, win->x_line, win->x_col);
       text++;
     }

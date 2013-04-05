@@ -1,5 +1,13 @@
 2013-04-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	talk: Non-ASCII characters.
+
+	* talk/display.c: Include <ctype.h>.
+	(display): Check printability with isprint().
+	Prevent sign extension of char as integer.
+
+2013-04-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	talk: Address resolution.
 
 	* talk/get_addrs.c (get_addrs): Implement resolver
