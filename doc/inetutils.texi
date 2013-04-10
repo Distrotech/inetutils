@@ -36,6 +36,7 @@
 * inetd: (inetutils)inetd invocation.             Internet super-server.
 * logger: (inetutils)logger invocation.           Send messages to the system log.
 * ping: (inetutils)ping invocation.               Packets to network hosts.
+* ping6: (inetutils)ping6 invocation.             Packets to IPv6 network hosts.
 * rcp: (inetutils)rcp invocation.                 Remote copy
 * rexec: (inetutils)rexec invocation.             Remote execution client.
 * rexecd: (inetutils)rexecd invocation.           Remote execution server.
@@ -99,35 +100,36 @@ Documentation License''.
 
 Diagnostic programs
 
-* hostname invocation::                Show or set system host name.
 * dnsdomainname invocation::           Show DNS domain name.
+* hostname invocation::                Show or set system host name.
 * logger invocation::                  Send messages to system log.
 * ping invocation::                    Packets to network hosts.
+* ping6 invocation::                   Packets to IPv6 network hosts.
 * traceroute invocation::              Trace the route to a host.
 * whois invocation::                   Whois user interface.
 
 Clients
 
 * ftp invocation::                     FTP client.
-* tftp invocation::                    TFTP client.
-* rsh invocation::                     Remote shell.
-* rlogin invocation::                  Remote login.
 * rcp invocation::                     Remote copy
 * rexec invocation::                   Remote execution client.
+* rlogin invocation::                  Remote login.
+* rsh invocation::                     Remote shell.
 * talk invocation::                    Talk client.
 * telnet invocation::                  User interface to TELNET.
+* tftp invocation::                    TFTP client.
 
 Daemons
 
-* inetd invocation::                   Internet super-server.
-* syslogd invocation::                 Syslog server.
 * ftpd invocation::                    FTP Daemon.
-* tftpd invocation::                   TFTP server.
-* rshd invocation::                    Remote shell server.
-* rlogind invocation::                 Remote login server.
+* inetd invocation::                   Internet super-server.
 * rexecd invocation::                  Remote execution server.
+* rlogind invocation::                 Remote login server.
+* rshd invocation::                    Remote shell server.
+* syslogd invocation::                 Syslog server.
 * talkd invocation::                   Talk server.
 * telnetd invocation::                 Telnet server.
+* tftpd invocation::                   TFTP server.
 * uucpd invocation::                   Unix to Unix Copy.
 
 * GNU Free Documentation License::     The license for this manual.
@@ -504,7 +506,7 @@ an arbitrary number of @dfn{padding} bytes used to fill out the packet.
 Synopsis:
 
 @example
-ping [@var{option}@dots{}] @var{host}@dots{}
+ping [@var{option}@dots{}] @var{host}
 @end example
 
 @noindent
@@ -591,7 +593,7 @@ Stop after sending and receiving answers to a total of
 @var{n} packets.
 
 @item -d
-@itemx -debug
+@itemx --debug
 @opindex -d
 @opindex --debug
 Set the SO_DEBUG option on the socket being used.
@@ -860,6 +862,164 @@ Some BSD variants offer a kernel setting to inhibit all replies
 to ICMP_MASKREQ packets, but in general, Unices are designed either
 to answer the request with a valid netmask, or to drop the request,
 causing @command{ping} to wait for a timeout condition.
+
+@node ping6 invocation
+@chapter @command{ping6}: Packets to IPv6 network hosts
+@cindex ping6
+
+@command{ping6} uses ICMPv6 datagrams to get a response
+from the chosen destination host.
+The most common use is to probe whether the remote
+system is responsive.
+Observe that this program only uses IPv6 datagrams.
+
+Each datagram, of type @code{ECHO_REQUEST}, carries some header
+information and some additional payload, usually a time stamp.
+Making a suitable choice of payload, it is possible to probe
+different host or router properties on the way as the emitted
+datagram travels to its destination.
+
+@noindent
+Synopsis:
+
+@example
+ping6 [@var{option}@dots{}] @var{host}
+@end example
+
+@noindent
+Sending simple, timed echo requests is the standard use
+of @command{ping6}, but is by far not the only use case.
+
+This command is a close parallel to @command{ping},
+except that it handles IPv6 and is thus not able
+to handle peculiarities of IPv4.
+
+@section Command line options
+@anchor{ping6 options}
+
+@table @option
+@item -c @var{n}
+@itemx --count=@var{n}
+@opindex -c
+@opindex --count
+Stop after sending and receiving answers to a total of
+@var{n} packets.
+
+@item -d
+@itemx --debug
+@opindex -d
+@opindex --debug
+Set the SO_DEBUG option on the socket being used.
+
+@item -f
+@itemx --flood
+@opindex -f
+@opindex --flood
+Flood ping.
+Outputs packets as fast as they come back,
+or one hundred times per second, whichever is more.
+For every ECHO_REQUEST packet sent, a period @samp{.} is printed,
+while for every ECHO_REPLY received in reply, a backspace is printed.
+
+This provides a rapid display of how many packets are being dropped.
+Only the super-user may use this option.
+This mode can be very hard on a network.
+It should be used with caution!
+
+@item --hoplimit=@var{n}
+@opindex --hoplimit
+Limit maximal distance to @var{n}.
+Acceptable values are 1 to 255, inclusive.
+
+@item -i @var{n}
+@itemx --interval=@var{n}
+@opindex -i
+@opindex --interval
+Wait @var{n} seconds until sending next packet.
+The default is to wait for one second between packets.
+This option is incompatible with the option @option{-f}.
+
+@item -l @var{n}
+@itemx --preload=@var{n}
+@opindex -l
+@opindex --preload
+Sends @var{n} packets as fast as possible before falling
+back to the normal mode of operation.
+
+@item -n
+@itemx --numeric
+@opindex -n
+@opindex --numeric
+Numeric output only.
+No attempt will be made to resolve symbolic names for host addresses.
+
+@item -p @var{pattern}
+@itemx --pattern=@var{pattern}
+@opindex -p
+@opindex --pattern
+Up to 16 hexadecimal pad bytes are given as @var{pattern}.
+These are use for filling out the packets you send.
+This option is useful for diagnosing data-dependent problems
+within a network.
+As an example, @option{-p ff} will cause the sent packets
+to have payloads with every bit set to one.
+
+@item -q
+@itemx --quiet
+@opindex -q
+@opindex --quiet
+Do not print timing result of each transmitted packet.
+
+@item -r
+@itemx --ignore-routing
+@opindex -r
+@opindex --ignore-routing-log
+Bypass the normal routing tables and send directly
+to a host on an attached network.
+If the host is not on a directly attached network,
+an error is returned.
+This option can be used to ping a local host
+through an interface, for which there is no
+assigned route, such as when the interface
+was dropped by @command{routed}.
+
+@item -s @var{n}
+@itemx --size=@var{n}
+@opindex -s
+@opindex --size
+Specifies the number of data bytes to be sent.  The default is 56,
+which translates into 64@tie{}ICMP data bytes, taking
+the 8@tie{}bytes of ICMP header data into account.
+
+@item -T @var{num}
+@itemx --tos=@var{num}
+@opindex -T
+@opindex --tos
+Set the traffic class to @var{num} on transmitted packets.
+
+@item --ttl=@var{n}
+@opindex --ttl
+Synonym for @option{--hoplimit}.
+
+@item -v
+@itemx --verbose
+@opindex -v
+@opindex --verbose
+Produce more verbose output, giving more statistics.
+
+@item -w @var{n}
+@itemx --timeout=@var{n}
+@opindex -w
+@opindex --timeout
+Stop after @var{n} seconds.
+@end table
+
+The documentation of @command{ping} provides several
+pieces of information, and discussions, relevant to
+the use of @command{ping6}.
+Keep in mind, though, that the differing address family
+causes some discrepancy.
+@xref{ping invocation}.
 
 @node traceroute invocation
 @chapter @command{traceroute}: Trace the route to a host

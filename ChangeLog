@@ -1,3 +1,9 @@
+2013-04-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* doc/inetutils.texi <main menu>: Order invocation
+	nodes in lexicographical order.
+	<ping6 invocation>: New node.
+
 2013-04-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnet, telnetd: Termcap buffer length recommendation.
