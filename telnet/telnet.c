@@ -604,7 +604,7 @@ is_unique (register char *name, register char **as, register char **ae)
 
 /*
  * Given a buffer returned by tgetent(), this routine will turn
- * the pipe seperated list of names in the buffer into an array
+ * the pipe separated list of names in the buffer into an array
  * of pointers to null terminated names.  We toss out any bad,
  * duplicate, or verbose names (names with spaces).
  */
@@ -642,7 +642,7 @@ mklist (char *buf, char *name)
 	n++;
     }
   /*
-   * Allocate an array to put the name pointers into
+   * Allocate an array to put the name pointers into.
    */
   argv = (char **) malloc ((n + 3) * sizeof (char *));
   if (argv == 0)
@@ -733,16 +733,20 @@ mklist (char *buf, char *name)
     return (unknown);
 }
 
-
-char termbuf[1024];
+/* Mostly ignored by contemorary implementations,
+ * but still used by NetBSD.
+ * mklist will examine this buffer, so erase it
+ * to cover corner cases.
+ */
+char termbuf[2048] = { 0 };
 
 static int
 init_term (char *tname, int *errp)
 {
   int err = -1;
+
 #ifdef HAVE_TGETENT
   err = tgetent (termbuf, tname);
-#endif
   if (err == 1)
     {
       termbuf[sizeof (termbuf) - 1] = '\0';
@@ -750,6 +754,7 @@ init_term (char *tname, int *errp)
 	*errp = 1;
       return (0);
     }
+#endif /* HAVE_TGETENT */
   if (errp)
     *errp = 0;
   return (-1);

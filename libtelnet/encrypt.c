@@ -265,10 +265,10 @@ EncryptDisable (char *type, char *mode)
       printf ("Usage: encrypt disable <type> [input|output]\n");
       encrypt_list_types ();
     }
-  else if ((ep = (Encryptions *) genget (type, encryptions,
+  else if ((ep = (Encryptions *) genget (type, (char **) encryptions,
 					 sizeof (Encryptions))) == 0)
     printf ("%s: invalid encryption type\n", type);
-  else if (Ambiguous (ep))
+  else if (Ambiguous ((char *) ep))
     printf ("Ambiguous type '%s'\n", type);
   else
     {
@@ -303,10 +303,10 @@ EncryptType (char *type, char *mode)
       printf ("Usage: encrypt type <type> [input|output]\n");
       encrypt_list_types ();
     }
-  else if ((ep = (Encryptions *) genget (type, encryptions,
+  else if ((ep = (Encryptions *) genget (type, (char **) encryptions,
 					 sizeof (Encryptions))) == 0)
     printf ("%s: invalid encryption type\n", type);
-  else if (Ambiguous (ep))
+  else if (Ambiguous ((char *) ep))
     printf ("Ambiguous type '%s'\n", type);
   else
     {

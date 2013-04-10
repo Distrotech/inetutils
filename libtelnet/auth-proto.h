@@ -78,7 +78,7 @@ void auth_send_retry (void);
 void auth_is (unsigned char *, int);
 void auth_reply (unsigned char *, int);
 void auth_finished (TN_Authenticator *, int);
-int auth_wait (char *);
+int auth_wait (char *, size_t);
 void auth_name (unsigned char *, int);
 void auth_disable_name (char *);
 void auth_printsub (unsigned char *, int, unsigned char *, int);
@@ -89,7 +89,7 @@ int kerberos4_init (TN_Authenticator *, int);
 int kerberos4_send (TN_Authenticator *);
 void kerberos4_is (TN_Authenticator *, unsigned char *, int);
 void kerberos4_reply (TN_Authenticator *, unsigned char *, int);
-int kerberos4_status (TN_Authenticator *, char *, int);
+int kerberos4_status (TN_Authenticator *, char *, size_t, int);
 void kerberos4_printsub (unsigned char *, int, unsigned char *, int);
 # endif
 
@@ -98,7 +98,7 @@ int kerberos5_init (TN_Authenticator *, int);
 int kerberos5_send (TN_Authenticator *);
 void kerberos5_is (TN_Authenticator *, unsigned char *, int);
 void kerberos5_reply (TN_Authenticator *, unsigned char *, int);
-int kerberos5_status (TN_Authenticator *, char *, int);
+int kerberos5_status (TN_Authenticator *, char *, size_t, int);
 void kerberos5_printsub (unsigned char *, int, unsigned char *, int);
 # endif
 
@@ -107,7 +107,7 @@ int krb5shishi_init (TN_Authenticator *, int);
 int krb5shishi_send (TN_Authenticator *);
 void krb5shishi_is (TN_Authenticator *, unsigned char *, int);
 void krb5shishi_reply (TN_Authenticator *, unsigned char *, int);
-int krb5shishi_status (TN_Authenticator *, char *, int);
+int krb5shishi_status (TN_Authenticator *, char *, size_t, int);
 void krb5shishi_printsub (unsigned char *, int, unsigned char *, int);
 void krb5shishi_cleanup (TN_Authenticator *);
 # endif

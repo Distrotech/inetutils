@@ -96,7 +96,7 @@ typedef struct
 {
   Block _;
 } Schedule[16];
-#  endif /* HAVE_ARPA_TELNET_H_SCHEDULE */
+#  endif /* !HAVE_ARPA_TELNET_H_SCHEDULE */
 
 #  ifndef VALIDKEY
 #   define VALIDKEY(key)	( key[0] | key[1] | key[2] | key[3] | \
@@ -110,9 +110,9 @@ typedef struct
 {
   short type;
   int length;
-  unsigned char *data;
+  const unsigned char *data;
 } Session_Key;
-#  endif /* HAVE_ARPA_TELNET_H_SESSION_KEY */
+#  endif /* !HAVE_ARPA_TELNET_H_SESSION_KEY */
 
 typedef struct
 {

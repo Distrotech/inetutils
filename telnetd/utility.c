@@ -688,11 +688,11 @@ _gettermname (void)
   ttloop (sequenceIs (ttypesubopt, baseline));
 }
 
-/* FIXME: should be getterminaltype (char *user_name, size_t size)
-   Changes terminaltype.
+/*
+ * Changes terminaltype.
  */
 int
-getterminaltype (char *user_name)
+getterminaltype (char *user_name, size_t len)
 {
   int retval = -1;
 
@@ -718,7 +718,7 @@ getterminaltype (char *user_name)
       ttloop (his_will_wont_is_changing (TELOPT_AUTHENTICATION));
 
       if (his_state_is_will (TELOPT_AUTHENTICATION))
-	retval = auth_wait (user_name);
+	retval = auth_wait (user_name, len);
     }
 #else /* !AUTHENTICATION */
   (void) user_name;	/* Silence warning.  */
@@ -844,18 +844,24 @@ getterminaltype (char *user_name)
   return retval;
 }
 
+/*
+ * Exit status:
+ *
+ *  1   Accepted terminal type, or inconclusive,
+ *  0   Explicitly unsupported type.
+ */
 int
 terminaltypeok (char *s)
 {
+#ifdef HAVE_TGETENT
   char buf[2048];
 
   if (terminaltype == NULL)
     return 1;
 
-#ifdef HAVE_TGETENT
   if (tgetent (buf, s) == 0)
-#endif
     return 0;
+#endif /* HAVE_TGETENT */
 
   return 1;
 }

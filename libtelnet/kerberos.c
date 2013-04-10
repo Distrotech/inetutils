@@ -475,9 +475,10 @@ kerberos4_reply (ap, data, cnt)
 }
 
 int
-kerberos4_status (ap, name, level)
+kerberos4_status (ap, name, len, level)
      TN_Authenticator *ap;
      char *name;
+     size_t len;
      int level;
 {
   if (level < AUTH_USER)
@@ -485,7 +486,7 @@ kerberos4_status (ap, name, level)
 
   if (UserNameRequested && !kuserok (&adat, UserNameRequested))
     {
-      strcpy (name, UserNameRequested);
+      strncpy (name, UserNameRequested, len);
       return (AUTH_VALID);
     }
   else

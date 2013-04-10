@@ -392,7 +392,8 @@ krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 }
 
 int
-krb5shishi_status (TN_Authenticator * ap, char *name, int level)
+krb5shishi_status (TN_Authenticator * ap, char *name, size_t len,
+		   int level)
 {
   int rc;
   int status;
@@ -406,7 +407,7 @@ krb5shishi_status (TN_Authenticator * ap, char *name, int level)
 			      UserNameRequested))
     {
       /* FIXME: Check buffer length */
-      strcpy (name, UserNameRequested);
+      strncpy (name, UserNameRequested, len);
       status = AUTH_VALID;
     }
   else
@@ -422,7 +423,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
   Shishi_key *key, *key2;
   int rc;
   char *cnamerealm, *server = NULL, *realm = NULL;
-  int cnamerealmlen;
+  size_t cnamerealmlen;
 # ifdef ENCRYPTION
   Session_Key skey;
 # endif

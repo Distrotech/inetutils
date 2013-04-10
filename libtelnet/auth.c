@@ -664,7 +664,7 @@ auth_intr (int sig _GL_UNUSED_PARAMETER)
 }
 
 int
-auth_wait (char *name)
+auth_wait (char *name, size_t len)
 {
   if (auth_debug_mode)
     printf (">>>%s: in auth_wait.\r\n", Name);
@@ -690,7 +690,8 @@ auth_wait (char *name)
     validuser = AUTH_USER;
 
   if (authenticated->status)
-    validuser = (*authenticated->status) (authenticated, name, validuser);
+    validuser = (*authenticated->status) (authenticated, name, len,
+					  validuser);
   return (validuser);
 }
 

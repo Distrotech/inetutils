@@ -95,7 +95,7 @@ typedef struct XauthP
   int (*send) (struct XauthP *);
   void (*is) (struct XauthP *, unsigned char *, int);
   void (*reply) (struct XauthP *, unsigned char *, int);
-  int (*status) (struct XauthP *, char *, int);
+  int (*status) (struct XauthP *, char *, size_t, int);
   void (*printsub) (unsigned char *, int, unsigned char *, int);
   void (*cleanup) (struct XauthP *);
 } TN_Authenticator;

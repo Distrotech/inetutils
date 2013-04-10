@@ -474,7 +474,7 @@ telnetd_setup (int fd)
 
   /* get terminal type. */
   uname[0] = 0;
-  level = getterminaltype (uname);
+  level = getterminaltype (uname, sizeof (uname));
   setenv ("TERM", terminaltype ? terminaltype : "network", 1);
   if (uname[0])
     user_name = xstrdup (uname);

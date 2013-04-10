@@ -369,7 +369,7 @@ extern int (*decrypt_input) (int);
 #endif /* ENCRYPTION */
 
 extern int startslave (char *host, int autologin, char *autoname);
-extern int getterminaltype (char *user_name);
+extern int getterminaltype (char *user_name, size_t len);
 extern int net_input_level (void);
 extern int net_output_level (void);
 extern int net_read (void);

@@ -1,3 +1,47 @@
+2013-04-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnet, telnetd: Termcap buffer length recommendation.
+
+	* telnet/telnet.c (termbuf): Increase length to 2048,
+	and initialize to zero.
+	(init_term) [HAVE_TGETENT]: Handle case `err == 1',
+	since it can only happen here.
+	* telnetd/utility.c (terminaltypeok) [HAVE_TGETENT]:
+	Declare BUF.  Call tgetent() to decide return status.
+	[!HAVE_GETENT]: Always return 1, lacking the knowledge
+	to make any other decision relvant for return status.
+
+	telnetd, libtelnet: Buffer overflow prevention.
+
+	* telnetd/telnetd.h (getterminaltype): New signature.
+	* telnetd/telnetd.c (telnetd_setup): Add buffer
+	length in call getterminaltype().
+	* telnetd/utility.c (getterminaltype): New second
+	argument `size_t len'.  Pass `len' to auth_wait().
+	* libtelnet/auth-proto.h (auth_wait): New signature.
+	(kerberos4_status) [KRB4]: Likewise.
+	(kerberos5_status) [KRB5]: Likewise.
+	(krb5shishi_status) [SHISHI]: Likewise.
+	* libtelnet/auth.h (typedef TN_Authenticator):
+	New signature of member `*status'.
+	* libtelnet/auth.c (auth_wait): New parameter `len'.
+	Pass `len' in the call *authenticated->status().
+	* libtelnet/kerberos.c (kerberos4_status): New third
+	argument `size_t len'.  Call strncpy().
+	* libtelnet/kerberos5.c (kerberos5_status): Likewise.
+	* libtelnet/shishi.c (krb5shishi_status): Likewise.
+	(krb5shishi_is_auth): Type CNAMEREALMLEN as size_t.
+
+	libtelnet: Minor warnings for casts.
+
+	* libtelnet/encrypt.h (typedef Session_Key)
+	[!HAVE_ARPA_TELNET_H_SESSION_KEY]: Make `data' a
+	const char pointer.
+	* libtelnet/encrypt.c (EncryptDisable): Cast second
+	argument in genget() as `char **'.  Cast argument
+	to Ambiguous() as `char *'.
+	(EncryptType): Likewise.
+
 2013-04-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	talk: Non-ASCII characters.

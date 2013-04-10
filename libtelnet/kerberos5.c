@@ -426,7 +426,8 @@ kerberos5_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 }
 
 int
-kerberos5_status (TN_Authenticator * ap, char *name, int level)
+kerberos5_status (TN_Authenticator * ap, char *name, size_t len,
+		  int level)
 {
   if (level < AUTH_USER)
     return level;
@@ -436,7 +437,7 @@ kerberos5_status (TN_Authenticator * ap, char *name, int level)
 		       UserNameRequested))
     {
       /* FIXME: Check buffer length */
-      strcpy (name, UserNameRequested);
+      strncpy (name, UserNameRequested, len);
       return AUTH_VALID;
     }
   return AUTH_USER;
