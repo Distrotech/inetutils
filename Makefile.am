@@ -27,10 +27,11 @@ SUBDIRS = lib \
 	tests
 
 DISTCLEANFILES = pathdefs.make paths.defs \
+	$(top_builddir)/.version \
 	$(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION).tar.xz
 
-BUILT_SOURCES = $(top_srcdir)/.version
-$(top_srcdir)/.version:
+BUILT_SOURCES = $(top_builddir)/.version
+$(top_builddir)/.version:
 	echo $(VERSION) > $@-t && mv $@-t $@
 dist-hook:
 	echo $(VERSION) > $(distdir)/.tarball-version

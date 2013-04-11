@@ -1,5 +1,14 @@
 2013-04-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Working distcheck target.
+
+	* Makefile.am (BUILT_SOURCES): Replace $(top_srcdir)
+	by $(top_builddir).
+	(DISTCLEANFILES): Add `$(top_builddir)/.version' to list.
+	($(top_builddir)/.version): Move target to build directory.
+
+2013-04-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Summary printout is a config.status command.
 
 	* configure.ac (AC_CONFIG_FILES): Add summary.sh to list.
