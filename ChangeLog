@@ -1,3 +1,16 @@
+2013-04-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Summary printout is a config.status command.
+
+	* configure.ac (AC_CONFIG_FILES): Add summary.sh to list.
+	(AC_CONFIG_COMMANDS): New command `summary'.
+	(AC_MSG_NOTICE) <summary>: Removed.
+	* .gitignore: Add summary.sh to list.
+	* Makefile.am (EXTRA_DIST): Add summary.sh.in.
+	* summary.sh.in: New file.
+	* am/enable.m4 (IU_ENABLE_FOO): Publish `$1_PROPS'
+	and `enable_$1' via AC_SUBST.
+
 2013-04-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* doc/inetutils.texi <main menu>: Order invocation

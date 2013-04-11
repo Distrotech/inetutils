@@ -32,6 +32,8 @@ else
 fi;]
   AC_SUBST([$1_BUILD])
   AC_SUBST([$1_INSTALL_HOOK])
+  AC_SUBST([$1_PROPS])
+  AC_SUBST([enable_$1])
   AM_CONDITIONAL([ENABLE_$1], test "$enable_$1" = yes)
 ])
 

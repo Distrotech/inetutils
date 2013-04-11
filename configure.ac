@@ -987,6 +987,7 @@ esac
 
 AC_CONFIG_FILES([
 Makefile
+summary.sh
 lib/Makefile
 libinetutils/Makefile
 libtelnet/Makefile
@@ -1008,7 +1009,8 @@ man/Makefile
 tests/Makefile
 confpaths.h:confpaths.h.in
 ])
-AC_OUTPUT
+
+AC_CONFIG_COMMANDS([summary], [sh ./summary.sh])
 
 # Collect printable information on each
 # available (i.e., reportable) target.
@@ -1061,39 +1063,4 @@ ftp_PROPS="${ftp_PROPS:+$ftp_PROPS }$LIBREADLINE"
 
 talk_PROPS="${talk_PROPS:+$talk_PROPS }$LIBCURSES"
 
-# Collect informational status.
-AC_MSG_NOTICE([summary of build decisions:
-
-  Clients:
-
-    dnsdomainname  ${enable_dnsdomainname}
-    ftp            ${enable_ftp}${ftp_BUILD:+  $ftp_PROPS}
-    hostname       ${enable_hostname}
-    ifconfig       ${enable_ifconfig}
-    logger         ${enable_logger}
-    ping           ${enable_ping}${ping_BUILD:+  $ping_PROPS}
-    ping6          ${enable_ping6}${ping6_BUILD:+  $ping_PROPS}
-    rcp            ${enable_rcp}${rcp_BUILD:+  $rcp_PROPS}
-    rexec          ${enable_rexec}
-    rlogin         ${enable_rlogin}${rlogin_BUILD:+  $rlogin_PROPS}
-    rsh            ${enable_rsh}${rsh_BUILD:+  $rsh_PROPS}
-    talk           ${enable_talk}${talk_BUILD:+  $talk_PROPS}
-    telnet         ${enable_telnet}${telnet_BUILD:+  $telnet_PROPS}
-    tftp           ${enable_tftp}
-    traceroute     ${enable_traceroute}\
-${traceroute_BUILD:+  $traceroute_PROPS}
-    whois          ${enable_whois}
-
-  Servers:
-
-    ftpd           ${enable_ftpd}${ftpd_BUILD:+  $ftpd_PROPS}
-    inetd          ${enable_inetd}
-    rexecd         ${enable_rexecd}${rexecd_BUILD:+  $rexecd_PROPS}
-    rlogind        ${enable_rlogind}${rlogind_BUILD:+  $rlogind_PROPS}
-    rshd           ${enable_rshd}${rshd_BUILD:+  $rshd_PROPS}
-    syslogd        ${enable_syslogd}
-    talkd          ${enable_talkd}
-    telnetd        ${enable_telnetd}${telnetd_BUILD:+  $telnetd_PROPS}
-    tftpd          ${enable_tftpd}
-    uucpd          ${enable_uucpd}
-])
+AC_OUTPUT

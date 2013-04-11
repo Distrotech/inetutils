@@ -50,4 +50,5 @@ pathdefs.make
 paths.defs
 stamp-h.in
 stamp-h1
+summary.sh
 !lib/Makefile.am
