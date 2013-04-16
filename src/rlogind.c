@@ -532,15 +532,7 @@ parse_opt (int key, char *arg,
 
 #if defined KERBEROS || defined SHISHI
     case 'k':
-      if (arg)
-	{
-	  if (*arg == '4')
-	    kerberos = AUTH_KERBEROS_4;
-	  else if (*arg == '5')
-	    kerberos = AUTH_KERBEROS_5;
-	}
-      else
-	kerberos = AUTH_KERBEROS_DEFAULT;
+      kerberos = AUTH_KERBEROS_DEFAULT;
       break;
 
     case 'S':
@@ -1365,11 +1357,9 @@ do_krb_login (int infd, struct auth_data *ap, const char **err_msg)
 # if defined KRB5
   if (kerberos == AUTH_KERBEROS_5)
     rc = do_krb5_login (infd, ap, err_msg);
-  else
 # elif defined SHISHI
   if (kerberos == AUTH_KERBEROS_SHISHI)
     rc = do_shishi_login (infd, ap, err_msg);
-  else
 # else
   rc = do_krb4_login (infd, ap, err_msg);
 # endif

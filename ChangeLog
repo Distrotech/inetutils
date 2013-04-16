@@ -1,3 +1,11 @@
+2013-04-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/rlogind.c (parse_opt) [KERBEROS || SHISHI]
+	<'k'>: Remove unused code checking `arg'.
+	(do_krb_login) [KRB5]: Remove `else', which prevents
+	later error message extraction.
+	[SHISHI]: Likewise.
+
 2013-04-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Working distcheck target.
