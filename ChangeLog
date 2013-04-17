@@ -1,3 +1,12 @@
+2013-04-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogind, rshd: Set realm with Kerberos5.
+
+	* src/rlogind.c (do_krb5_login) [KRB5}: Declare SERVER
+	with larger scope.  If `servername' has content, then
+	call krb5_set_default_realm() with supporting code.
+	* src/rshd.c (doit) [KRB5] <use_kerberos>: Likewise.
+
 2013-04-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* src/rlogind.c (parse_opt) [KERBEROS || SHISHI]

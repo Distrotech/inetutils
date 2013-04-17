@@ -864,8 +864,27 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 #elif defined KRB5
   if (use_kerberos)
     {
+      krb5_principal server;
+
       /* Set up context data.  */
       rc = krb5_init_context (&context);
+
+      if (!rc && servername && *servername)
+	{
+	  rc = krb5_parse_name (context, servername, &server);
+
+	  /* A realm name missing in `servername' has been augmented
+	   * by krb5_parse_name(), so setting it again is harmless.
+	   */
+	  if (!rc)
+	    {
+	      rc = krb5_set_default_realm (context,
+					   krb5_princ_realm
+						(context, server)->data);
+	      krb5_free_principal (context, server);
+	    }
+	}
+
       if (!rc)
         rc = krb5_auth_con_init (context, &auth_ctx);
       if (!rc)
@@ -876,8 +895,6 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 
       if (!rc && !rcache)
 	{
-	  krb5_principal server;
-
 	  rc = krb5_sname_to_principal (context, 0, 0,
 					KRB5_NT_SRV_HST, &server);
 	  if (!rc)

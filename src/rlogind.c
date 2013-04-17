@@ -1456,6 +1456,7 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   krb5_data inbuf;
   krb5_data version;
   krb5_authenticator *authenticator;
+  krb5_principal server;
   krb5_rcache rcache;
   krb5_keyblock *key;
   krb5_ticket *ticket;
@@ -1472,6 +1473,31 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
       return status;
     }
 
+  if (servername && *servername)
+    {
+      status = krb5_parse_name (ap->context, servername, &server);
+      if (status)
+	{
+	  syslog (LOG_ERR, "Invalid principal '%s': %s",
+		  servername, error_message (status));
+	  return status;
+	}
+
+      /* A realm name missing in `servername' has been augmented
+       * by krb5_parse_name(), so setting it is always harmless.
+       */
+      status = krb5_set_default_realm (ap->context,
+				       krb5_princ_realm (ap->context,
+							 server)->data);
+      krb5_free_principal (ap->context, server);
+      if (status)
+	{
+	  syslog (LOG_ERR, "Setting krb5 realm: %s",
+		  error_message (status));
+	  return status;
+	}
+    }
+
   if ((status = krb5_auth_con_init (ap->context, &auth_ctx))
       || (status = krb5_auth_con_genaddrs (ap->context, auth_ctx, infd,
 					   KRB5_AUTH_CONTEXT_GENERATE_REMOTE_FULL_ADDR))
@@ -1480,8 +1506,6 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
 
   if (!rcache)
     {
-      krb5_principal server;
-
       status = krb5_sname_to_principal (ap->context, 0, 0, KRB5_NT_SRV_HST,
 					&server);
       if (status)
