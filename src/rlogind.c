@@ -1723,7 +1723,10 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
 #  ifdef WITH_PAM
   rc = do_pam_check (infd, ad, "krlogin");
   if (rc != PAM_SUCCESS)
-    return rc;
+    {
+      *err_msg = "Permission denied";
+      return rc;
+    }
 #  endif /* WITH_PAM */
 
   syslog (LOG_INFO | LOG_AUTH,
@@ -2095,7 +2098,7 @@ rlogind_error (int f, int syserr, const char *msg, ...)
     snprintf (bp, sizeof buf - (bp - buf),
 	      "rlogind: %s: %s.\r\n", buf2, strerror (errno));
   else
-    snprintf (bp, sizeof buf - (bp - buf), "rlogind: %s.\r\n", buf2);
+    snprintf (bp, sizeof buf - (bp - buf), "rlogind: %s\r\n", buf2);
 
   len = strlen (bp);
   write (f, buf, bp + len - buf);

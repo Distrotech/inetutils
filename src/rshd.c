@@ -987,9 +987,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       struct sockaddr_storage sock;
       socklen_t socklen;
 
-# ifdef ENCRYPTION
       if (strlen (cmdbuf) >= 3)
 	if (!strncmp (cmdbuf, "-x ", 3))
+# ifdef ENCRYPTION
 	  {
 	    int i;
 
@@ -1045,6 +1045,12 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 				       ivtab[i]->iv, ivtab[i]->ivlen);
 		  }
 	      }
+	  }
+# else /* !ENCRYPTION */
+	  {
+	    shishi_ap_done (ap);
+	    rshd_error ("Encrypted sessions are not supported.\n");
+	    exit (EXIT_FAILURE);
 	  }
 # endif /* ENCRYPTION */
 

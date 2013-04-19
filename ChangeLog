@@ -1,3 +1,13 @@
+2013-04-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogind, rshd: Diagnostics with libshishi.
+
+	* src/rlogind.c (do_shishi_login) [SHISHI && WITH_PAM]:
+	Assign an error message when do_pam_check() fails.
+	* src/rshd.c (doit) [SHISHI && !ENCRYPTION]:
+	Abort with an error message when encryption was requested
+	by the client, but is not present in the server.
+
 2013-04-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind, rshd: Set realm with Kerberos5.
