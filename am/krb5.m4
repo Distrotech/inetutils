@@ -21,17 +21,21 @@ dnl along with this program.  If not, see `http://www.gnu.org/licenses/'.
 dnl Written by Miles Bader.
 
 dnl IU_CHECK_KRB5(VERSION,PREFIX)
-dnl Search for a Kerberos implementation in the standard locations plus PREFIX,
-dnl if it is set and not "yes".
-dnl VERSION should be either 4 or 5
+dnl Search for a Kerberos implementation in the standard locations
+dnl plus PREFIX, if it is set and is not "yes".
+dnl VERSION should be either 4 or 5.
+dnl
 dnl Defines KRB5_CFLAGS and KRB5_LIBS if found.
-dnl Defines KRB_IMPL to "Heimdal", "MIT", or "OldMIT", or "none" if not found
+dnl Defines KRB5_IMPL to "krb5-config", "Heimdal", "MIT",
+dnl "OpenBSD-Heimdal", or "OldMIT", if found, and to "none"
+dnl otherwise.
+
 AC_DEFUN([IU_CHECK_KRB5],
 [
  if test "x$iu_cv_lib_krb5_libs" = x; then
   cache=""
   ## Make sure we have res_query
-  AC_CHECK_LIB(resolv, res_query)
+  AC_SEARCH_LIBS([res_query], [resolv])
   KRB5_PREFIX=[$2]
   KRB5_IMPL="none"
   # First try krb5-config
@@ -44,7 +48,7 @@ AC_DEFUN([IU_CHECK_KRB5],
   if test "$KRB5CFGPATH" != "none"; then
     KRB5_CFLAGS="$CPPFLAGS `$KRB5CFGPATH --cflags krb$1`"
     KRB5_LIBS="$LDFLAGS `$KRB5CFGPATH --libs krb$1`"
-    KRB5_IMPL="Heimdal"
+    KRB5_IMPL="krb5-config"
   else
     ## OK, try the old code
     saved_CPPFLAGS="$CPPFLAGS"
@@ -53,23 +57,26 @@ AC_DEFUN([IU_CHECK_KRB5],
     if test "$KRB5_PREFIX" != "yes"; then
       KRB5_CFLAGS="-I$KRB5_PREFIX/include"
       KRB5_LDFLAGS="-L$KRB5_PREFIX/lib"
-      CPPFLAGS="$CPPFLAGS $KRB5_CFLAGS"
       LDFLAGS="$LDFLAGS $KRB5_LDFLAGS"
+    else
+      ## A very common location in recent times.
+      KRB5_CFLAGS="-I/usr/include/krb5"
     fi
+    CPPFLAGS="$CPPFLAGS $KRB5_CFLAGS"
     KRB4_LIBS="-lkrb4 -ldes425"
 
     ## Check for new MIT kerberos V support
     LIBS="$saved_LIBS -lkrb5 -lk5crypto -lcom_err"
     AC_TRY_LINK([], [return krb5_init_context((void *) 0); ],
       [KRB5_IMPL="MIT"
-       KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -lk5crypto -lcom_err"], )
+       KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -lk5crypto -lcom_err"], )
 
     ## Heimdal kerberos V support
     if test "$KRB5_IMPL" = "none"; then
       LIBS="$saved_LIBS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"
       AC_TRY_LINK([], [return krb5_init_context((void *) 0); ],
         [KRB5_IMPL="Heimdal"
-         KRB5_LIBS="$KRB5_LDFLAGS $KRB4_LIBS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"]
+         KRB5_LIBS="$KRB5_LDFLAGS -lkrb5 -ldes -lasn1 -lroken -lcrypt -lcom_err"]
          , )
     fi
 

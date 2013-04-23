@@ -578,34 +578,7 @@ AC_SUBST(LIBWRAP)
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_FUNCS([setlocale])
 
-if test x"$with_idn" != xno \
-    && test "$ac_cv_header_locale_h" = yes \
-    && test "$ac_cv_func_setlocale" = yes; then
-  if test x"$with_libidn_prefix" != xno \
-      && test x"$with_libidn_prefix" != xyes; then
-    INCIDN=-I$with_libidn_prefix/include
-    LIBIDN=-L$with_libidn_prefix/lib
-  fi
-  if test x"$with_idn" != xyes; then
-    INCIDN=-I$with_idn
-  fi
-  save_CPPFLAGS=$CPPFLAGS
-  CPPFLAGS="$CPPFLAGS $INCIDN"
-  AC_CHECK_HEADERS([idna.h])
-  if test "$ac_cv_header_idna_h" = yes; then
-    AC_CHECK_LIB(idn, idna_to_ascii_lz,
-		 [LIBIDN="$LIBIDN -lidn"], [INCIDN= LIBIDN=],
-		 [$LIBIDN])
-    AC_MSG_CHECKING([if GNU libidn is available])
-    if test "$ac_cv_lib_idn_idna_to_ascii_lz" = yes; then
-      AC_DEFINE(HAVE_IDN, 1, [Define to 1 for use of GNU Libidn.])
-    fi
-    AC_MSG_RESULT($ac_cv_lib_idn_idna_to_ascii_lz)
-  fi
-  CPPFLAGS=$save_CPPFLAGS
-fi
-AC_SUBST([LIBIDN])
-AC_SUBST([INCIDN])
+IU_CHECK_LIBIDN([$with_libidn_prefix], [$with_idn])
 
 ### Checks for header files.
 
@@ -1042,12 +1015,12 @@ rlogind_PROPS="${rlogind_PROPS:+$rlogind_PROPS }$LIBWRAP"
 
 # Support for libidn.
 
-ftp_PROPS="${ftp_PROPS:+$ftp_PROPS }${LIBIDN:+-libidn}"
-ping_PROPS="${ping_PROPS:+$ping_PROPS }${LIBIDN:+-libidn}"
-talk_PROPS="${talk_PROPS:+$talk_PROPS }${LIBIDN:+-libidn}"
-telnet_PROPS="${telnet_PROPS:+$telnet_PROPS }${LIBIDN:+-libidn}"
-tftp_PROPS="${tftp_PROPS:+$tftp_PROPS }${LIBIDN:+-libidn}"
-traceroute_PROPS="${traceroute_PROPS:+$traceroute_PROPS }${LIBIDN:+-libidn}"
+ftp_PROPS="${ftp_PROPS:+$ftp_PROPS }${LIBIDN:+-lidn}"
+ping_PROPS="${ping_PROPS:+$ping_PROPS }${LIBIDN:+-lidn}"
+talk_PROPS="${talk_PROPS:+$talk_PROPS }${LIBIDN:+-lidn}"
+telnet_PROPS="${telnet_PROPS:+$telnet_PROPS }${LIBIDN:+-lidn}"
+tftp_PROPS="${tftp_PROPS:+$tftp_PROPS }${LIBIDN:+-lidn}"
+traceroute_PROPS="${traceroute_PROPS:+$traceroute_PROPS }${LIBIDN:+-lidn}"
 
 # Termcap variants.
 

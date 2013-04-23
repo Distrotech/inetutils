@@ -1,3 +1,18 @@
+2013-04-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac <libidn detection>: Replace by a call
+	to IU_CHECK_LIBIDN.
+	* am/libidn.m4 (IU_CHECK_LIBIDN): New file, new macro.
+
+	* am/krb5.m4 (IU_CHECK_KRB5): Detect res_query using
+	AC_SEARCH_LIBS for better portability to BSD.
+	Set KRB5_IMPL to `krb5-config' if krb5-config is
+	available to provide compiler flags.  If KRB5_PREFIX
+	is `yes' and krb5-config does not exist, use the
+	location `-I/usr/include/krb5' for KRB5_CFLAGS.
+	Do not add $KRB4_LIBS to KRB5_LIBS when detecting
+	either `MIT' or `Heimdal'.
+
 2013-04-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind, rshd: Diagnostics with libshishi.
