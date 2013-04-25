@@ -1,3 +1,12 @@
+2013-04-26  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rcp: Make encryption portable.
+
+	* src/rcp.c (main) [KERBEROS || SHISHI]: The encryption
+	switch `-x' does not belong in the remote command string.
+	It is must only be passed to `rsh'.  Remove the special
+	command string claimed for all Kerberos variants.
+
 2013-04-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Attempt to mend recurring test failures.

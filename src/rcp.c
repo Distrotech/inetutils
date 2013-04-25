@@ -371,20 +371,10 @@ main (int argc, char *argv[])
 #endif
 
   /* Command to be executed on remote system using "rsh". */
-#if defined KERBEROS || defined SHISHI
-  rc = asprintf (&command, "rcp%s%s%s%s", iamrecursive ? " -r" : "",
-# ifdef ENCRYPTION
-		 (doencrypt && use_kerberos ? " -x" : ""),
-# else /* No encryption */
-		 "",
-# endif
-		 preserve_option ? " -p" : "",
-		 targetshouldbedirectory ? " -d" : "");
-#else /* !KERBEROS && !SHISHI */
   rc = asprintf (&command, "rcp%s%s%s",
 		 iamrecursive ? " -r" : "", preserve_option ? " -p" : "",
 		 targetshouldbedirectory ? " -d" : "");
-#endif
+
   if (rc < 0)
     xalloc_die ();
 
