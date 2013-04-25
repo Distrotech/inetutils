@@ -1,3 +1,16 @@
+2013-04-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd: Attempt to mend recurring test failures.
+	The autobuilder Hydra is fairly often reporting
+	failures for `tests/syslogd.sh' on GNU/Linux,
+	appearing after configuration reload and then
+	blocking INET socket messages.
+
+	* src/syslogd.c (create_inet_socket): Set SO_REUSEADDR
+	before IPV6_V6ONLY.
+	* tests/syslogd.sh <reloaded configuration>: Remove
+	blocker `user.none' on file `$OUT'.
+
 2013-04-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac <libidn detection>: Replace by a call

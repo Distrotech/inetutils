@@ -438,7 +438,7 @@ OUT_DEBUG="$IU_TESTDIR"/debug.log
 : > "$OUT_DEBUG"
 
 cat > "$CONF" <<-EOT
-	*.*;user.none	$OUT
+	*.*		$OUT
 	user.info	$OUT_USER
 	*.=debug	$OUT_DEBUG
 EOT

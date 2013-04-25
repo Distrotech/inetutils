@@ -920,15 +920,16 @@ create_inet_socket (int af, int fd46[2])
       fd = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
       if (fd < 0)
 	continue;
+
+      err = setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof (yes));
+      if (err < 0)
+	logerror ("failed to set SO_REUSEADDR");
+
       if (ai->ai_family == AF_INET6)
 	{
 	  /* Avoid dual stacked sockets.  Better to use distinct sockets.  */
 	  (void) setsockopt (fd, IPPROTO_IPV6, IPV6_V6ONLY, &yes, sizeof (yes));
 	}
-
-      err = setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof (yes));
-      if (err < 0)
-	logerror ("failed to set SO_REUSEADDR");
 
       if (bind (fd, ai->ai_addr, ai->ai_addrlen) < 0)
 	{
