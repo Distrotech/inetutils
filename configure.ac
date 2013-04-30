@@ -653,6 +653,11 @@ IU_CHECK_MEMBERS([struct sockaddr_storage.ss_len], , ,
       #include <sys/socket.h>
       #include <netinet/in.h> ])
 
+IU_CHECK_MEMBERS([struct passwd.pw_expire, struct passwd.pw_change],
+    [], [],
+    [ #include <sys/types.h>
+      #include <pwd.h>])
+
 if test "$ac_cv_header_utmp_h" = yes; then
   AC_CHECK_TYPES(struct lastlog, , , [#include <utmp.h>])
   IU_CHECK_MEMBERS([struct utmp.ut_type, struct utmp.ut_pid,

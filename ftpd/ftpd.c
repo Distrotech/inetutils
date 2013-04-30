@@ -854,7 +854,7 @@ end_login (struct credentials *pcred)
   free (pcred->homedir);
   free (pcred->rootdir);
   free (pcred->shell);
-  if (pcred->pass)		/* ??? */
+  if (pcred->pass)		/* Properly erase old password.  */
     {
       memset (pcred->pass, 0, strlen (pcred->pass));
       free (pcred->pass);
@@ -881,15 +881,20 @@ pass (const char *passwd)
       /* Try to authenticate the user.  Failed if != 0.  */
       if (auth_pass (passwd, &cred) != 0)
 	{
-	  /* Any particular reasons.  */
+	  /* Any particular reason?  */
 	  if (cred.message)
 	    {
 	      reply (530, "%s", cred.message);
 	      free (cred.message);
 	      cred.message = NULL;
 	    }
+	  else if (cred.expired & AUTH_EXPIRED_ACCT)
+	    reply (530, "Account is expired.");
+	  else if (cred.expired & AUTH_EXPIRED_PASS)
+	    reply (530, "Password has expired.");
 	  else
 	    reply (530, "Login incorrect.");
+
 	  if (logging)
 	    syslog (LOG_NOTICE, "FTP LOGIN FAILED FROM %s, %s",
 		    cred.remotehost, curname);

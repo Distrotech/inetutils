@@ -50,6 +50,7 @@ auth_user (const char *name, struct credentials *pcred)
   int err = 0;		/* Never remove initialisation!  */
 
   pcred->guest = 0;
+  pcred->expired = AUTH_EXPIRED_NOT;
 
   switch (pcred->auth_type)
     {
@@ -223,19 +224,55 @@ sgetcred (const char *name, struct credentials *pcred)
 	  long today;
 	  now = time ((time_t *) 0);
 	  today = now / (60 * 60 * 24);
-	  if ((spw->sp_expire > 0 && spw->sp_expire < today)
-	      || (spw->sp_max > 0 && spw->sp_lstchg > 0
-		  && (spw->sp_lstchg + spw->sp_max < today)))
+
+	  if (spw->sp_expire > 0 && spw->sp_expire < today)
 	    {
-	      /*reply (530, "Login expired."); */
 	      p->pw_passwd = NULL;
+	      pcred->expired |= AUTH_EXPIRED_ACCT;
 	    }
-	  else
+	  if (spw->sp_max > 0 && spw->sp_lstchg > 0
+		   && (spw->sp_lstchg + spw->sp_max < today))
+	    {
+	      p->pw_passwd = NULL;
+	      pcred->expired |= AUTH_EXPIRED_PASS;
+	    }
+
+	  if (pcred->expired == AUTH_EXPIRED_NOT)
 	    p->pw_passwd = spw->sp_pwdp;
 	}
       endspent ();
     }
-#endif
+#elif defined HAVE_STRUCT_PASSWD_PW_EXPIRE	/* !HAVE_SHADOW_H */
+  /* BSD systems provide pw_expire as epoch time,
+   * and the password is exposed in pw_passwd for
+   * a caller with euid 0.
+   *
+   * NetBSD allows -1 for 'pw_change', meaning that immediate
+   * change is required.  Let us deny access in that case..
+   */
+  if (p->pw_expire > 0
+# ifdef HAVE_STRUCT_PASSWD_PW_CHANGE
+      || p->pw_change
+# endif
+     )
+    {
+      time_t now = time ((time_t *) 0);
+
+      if (p->pw_expire > 0 && difftime (p->pw_expire, now) < 0)
+	{
+	  p->pw_passwd = NULL;
+	  pcred->expired |= AUTH_EXPIRED_ACCT;
+	}
+# ifdef HAVE_STRUCT_PASSWD_PW_CHANGE
+      if (p->pw_change && difftime (p->pw_change, now) < 0)
+	{
+	  p->pw_passwd = NULL;
+	  pcred->expired |= AUTH_EXPIRED_PASS;
+	}
+# endif
+    }
+#endif /* !HAVE_STRUCT_PASSWD_PW_EXPIRE */
+
   pcred->uid = p->pw_uid;
   pcred->gid = p->pw_gid;
   pcred->name = sgetsave (p->pw_name);

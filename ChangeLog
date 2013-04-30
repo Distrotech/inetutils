@@ -1,3 +1,25 @@
+2013-04-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Account expiration.
+	Better explanation, make it work also for BSD.
+
+	* configure.ac (HAVE_STRUCT_PASSWD_PW_EXPIRE)
+	(HAVE_STRUCT_PASSWD_PW_CHANGE): Check if `struct passwd'
+	has members pw_expire and pw_change.
+
+	* ftpd/extern.h (struct credentials): New member `expired'.
+	(AUTH_EXPIRED_NOT, AUTH_EXPIRED_ACCT, AUTH_EXPIRED_PASS):
+	New macros.
+	* ftpd/ftpd.c (pass) <failed authentication>:
+	If `cred.message' is empty, check `cred.expired' for
+	further reasons of failure.
+	* ftpd/auth.c (auth_user): Reset `pcred->expired'.
+	(sgetcred): [HAVE_GETSPNAM && HAVE_SHADOW_H]:
+	Separate account and password expiration into distinct
+	checks, updating `pcred->expired'.  Use shadow password
+	only in absence of all expiration.
+	[HAVE_STRUCT_PASSWD_PW_EXPIRE]: New code block.
+
 2013-04-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rcp: Make encryption portable.

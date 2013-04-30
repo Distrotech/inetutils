@@ -140,6 +140,10 @@ struct credentials
   int guest;
   int dochroot;
   int logged_in;
+#define AUTH_EXPIRED_NOT    0
+#define AUTH_EXPIRED_ACCT   1
+#define AUTH_EXPIRED_PASS   2
+  int expired;
 #define AUTH_TYPE_PASSWD    0
 #define AUTH_TYPE_PAM       1
 #define AUTH_TYPE_KERBEROS  2
@@ -148,7 +152,10 @@ struct credentials
   int auth_type;
 };
 
+/* Exported from ftpd.c */
 extern struct credentials cred;
+
+/* Exported from auth.c */
 extern int sgetcred (const char *, struct credentials *);
 extern int auth_user (const char *, struct credentials *);
 extern int auth_pass (const char *, struct credentials *);
