@@ -1,3 +1,17 @@
+2013-05-01  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* libtelnet/enc_des.c: Convert K&R style declarations
+	to ISO C89.  Do assignments before return statements.
+	(fb64_stream_iv, fb64_init, fb64_is, fb64_reply)
+	(fb64_stream_key, fb64_keyid): Declare as static.
+	(shishi_des_ecb_encrypt) [SHISHI]: Declare as static.
+	Declare all three string arguments using `unsigned char'.
+	When calling shishi_des(), cast third and sixth arguments
+	as `const char *'.
+	(fb64_start): Remove variable B.  Change X to size_t.
+	(fb64_is): Remove B and X.
+	(fb64_reply): Remove B, P, and X.
+
 2013-04-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Account expiration.
