@@ -16,7 +16,7 @@ AC_DEFUN([gl_FUNC_READLINE],
 
   dnl Allow disabling the use of libreadline.
   AC_ARG_ENABLE([readline],
-    AC_HELP_STRING([--disable-readline],
+    AS_HELP_STRING([--disable-readline],
 		   [do not build against libreadline]), ,
     [enable_readline=yes])
 

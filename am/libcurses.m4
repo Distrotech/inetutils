@@ -29,7 +29,7 @@ dnl -I flag to get access to ncurses include files.
 dnl
 AC_DEFUN([IU_LIB_NCURSES], [
   AC_ARG_ENABLE([ncurses],
-                AC_HELP_STRING([--disable-ncurses],
+                AS_HELP_STRING([--disable-ncurses],
                                [don't prefer -lncurses over -lcurses]),
               , [enable_ncurses=yes])
   if test "$enable_ncurses" = yes; then
@@ -39,7 +39,7 @@ AC_DEFUN([IU_LIB_NCURSES], [
       # is there a better way of doing this, that avoids looking in specific
       # directories?
       AC_ARG_WITH([ncurses-include-dir],
-                  AC_HELP_STRING([--with-ncurses-include-dir=DIR],
+                  AS_HELP_STRING([--with-ncurses-include-dir=DIR],
                                  [Set directory containing the include files for
                           use with -lncurses, when it isn't installed as
                           the default curses library.  If DIR is "none",

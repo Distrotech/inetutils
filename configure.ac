@@ -26,10 +26,10 @@ AC_INIT([GNU inetutils],
 
 AC_CONFIG_SRCDIR([src/inetd.c])
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_HEADER([config.h:config.hin])
+AC_CONFIG_HEADERS([config.h:config.hin])
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE([1.11.1 dist-xz])
+AM_INIT_AUTOMAKE([1.11.1 dist-xz -Wall -Werror])
 
 # For now, we always use libexecdir; later we may want to vary where
 # the daemons go.
@@ -37,40 +37,40 @@ inetdaemondir='$(libexecdir)'
 AC_SUBST(inetdaemondir)
 
 AC_ARG_WITH([krb4],
-            AC_HELP_STRING([--with-krb4[[=PATH]]],
+            AS_HELP_STRING([--with-krb4[[=PATH]]],
                            [Compile with Kerberos IV]),
             [KERBEROS_VERSION=krb4
              KERBEROS_DIR=$withval])
 AC_ARG_WITH([krb5],
-            AC_HELP_STRING([--with-krb5[[=PATH]]],
+            AS_HELP_STRING([--with-krb5[[=PATH]]],
                            [Compile with Kerberos V]),
             [KERBEROS_VERSION=krb5
              KERBEROS_DIR=$withval])
 AC_ARG_WITH([shishi],
-            AC_HELP_STRING([--with-shishi[[=PATH]]],
+            AS_HELP_STRING([--with-shishi[[=PATH]]],
 		           [Compile with Shishi (Kerberos 5)]),
             [KERBEROS_VERSION=Shishi
              KERBEROS_DIR=$withval])
 
 AC_ARG_ENABLE([servers],
-              AC_HELP_STRING([--disable-servers],
+              AS_HELP_STRING([--disable-servers],
                              [Do not compile servers]),
 	      , [enable_servers=yes])
 AC_ARG_ENABLE([clients],
-              AC_HELP_STRING([--disable-clients],
+              AS_HELP_STRING([--disable-clients],
                              [Do not compile clients]),
 	      , [enable_clients=yes])
 AC_ARG_ENABLE([libls],
-              AC_HELP_STRING([--disable-libls],
+              AS_HELP_STRING([--disable-libls],
                              [Disable support for libls ]),
               , [enable_libls=yes])
 AC_ARG_ENABLE([encryption],
-              AC_HELP_STRING([--enable-encryption],
+              AS_HELP_STRING([--enable-encryption],
                              [Enable encryption]),
               [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-encryption is given, but a Kerberos version is not provided])],
               [test -z "$KERBEROS_VERSION" && enable_encryption=no])
 AC_ARG_ENABLE([authentication],
-              AC_HELP_STRING([--enable-authentication],
+              AS_HELP_STRING([--enable-authentication],
                              [Enable connection authentication]),
               [test -z "$KERBEROS_VERSION" && AC_MSG_ERROR([--enable-authentication is given, but a Kerberos version is not provided])],
 	      [test -z "$KERBEROS_VERSION" && enable_authentication=no])
@@ -81,17 +81,17 @@ if test -n "$KERBEROS_VERSION"; then
 fi
 
 AC_ARG_WITH([wrap],
-            AC_HELP_STRING([--with-wrap],
+            AS_HELP_STRING([--with-wrap],
                            [Add tcp wrapper support]))
 AC_ARG_WITH([pam],
-            AC_HELP_STRING([--with-pam],
+            AS_HELP_STRING([--with-pam],
                            [Add support for PAM]))
 AC_ARG_WITH([idn],
-  AC_HELP_STRING([--with-idn[[=DIR]]],
+  AS_HELP_STRING([--with-idn[[=DIR]]],
 		 [Use IDN support, with optional inclusion directory]), ,
 		 [with_idn=no])
 AC_ARG_WITH([libidn-prefix],
-  AC_HELP_STRING([--with-libidn-prefix[[=DIR]]],
+  AS_HELP_STRING([--with-libidn-prefix[[=DIR]]],
 		 [Base directory, probes DIR/include and DIR/lib]), ,
 		 [with_libidn_prefix=no])
 
@@ -123,8 +123,6 @@ IU_ENABLE_CLIENT(whois)
 IU_ENABLE_CLIENT(ifconfig)
 IU_ENABLE_CLIENT(traceroute)
 
-AM_INIT_AUTOMAKE
-
 AM_SILENT_RULES([yes])
 
 AC_ISC_POSIX
@@ -132,6 +130,7 @@ AC_ISC_POSIX
 ### Checks for programs.
 AC_PROG_CC
 gl_EARLY
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_CHECK_TOOL(AR, ar)
 AC_PATH_PROG(DD, dd, dd)
 AC_PATH_PROG(MKTEMP, mktemp, mktemp)

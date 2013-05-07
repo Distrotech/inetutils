@@ -47,7 +47,7 @@ AC_DEFUN([IU_CONFIG_PATHS], [
   dnl We actually look for `with_' variables corresponding to each path
   dnl configured.
   AC_ARG_WITH([PATHVAR],
-              AC_HELP_STRING([--with-PATHVAR=PATH],
+              AS_HELP_STRING([--with-PATHVAR=PATH],
                              [Set the value of PATHVAR to PATH
                           PATHVAR is the name of a \`PATH_FOO' variable,
                           downcased, with \`_' changed to \`-']))

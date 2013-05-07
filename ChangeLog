@@ -1,3 +1,17 @@
+2013-05-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	configure.ac: Minor clean-up.
+
+	* am/config_paths.m4 (IU_CONFIG_PATHS):
+	Replace obsolete AC_HELP_STRING by AS_HELP_STRING.
+	* am/libcurses.m4 (IU_LIB_NCURSES): Likewise.
+	* am/readline.m4 (gl_FUNC_READLINE): Likewise.
+	* configure.ac: Likewise.  Use AC_CONFIG_HEADERS
+	instead of AC_CONFIG_HEADER.  Call AM_PROG_AR,
+	but protect its use by means of m4_ifdef.
+	(AM_INIT_AUTOMAKE): Add `-Wall' and `-Werror'.
+	Remove second call to the same macro.
+
 2013-05-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* libtelnet/enc_des.c: Convert K&R style declarations
