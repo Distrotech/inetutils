@@ -51,7 +51,7 @@
 
 #ifdef	ENCRYPTION
 # ifdef	AUTHENTICATION
-# if defined DES_ENCRYPTION || defined SHISHI
+#  if defined DES_ENCRYPTION || defined SHISHI
 #   ifdef SHISHI
 #    include <shishi.h>
 extern Shishi *shishi_handle;
@@ -143,17 +143,19 @@ static int fb64_reply (unsigned char *, int, struct fb *);
 static void fb64_session (Session_Key *, int, struct fb *);
 static void fb64_stream_key (Block, struct stinfo *);
 static int fb64_keyid (int, unsigned char *, int *, struct fb *);
+static int des_check_parity (Block b);
+static int des_set_parity (Block b);
 
 #   ifdef SHISHI
 static void
-shishi_des_ecb_encrypt (Shishi * h, const unsigned char key[8],
+shishi_des_ecb_encrypt (Shishi * h, const unsigned char key[sizeof (Block)],
 			const unsigned char *in, unsigned char *out)
 {
   char *tmp;
 
   shishi_des (h, 0, (const char *) key, NULL, NULL,
-	      (const char *) in, 8, &tmp);
-  memcpy (out, tmp, 8);
+	      (const char *) in, sizeof (Block), &tmp);
+  memcpy (out, tmp, sizeof (Block));
   free (tmp);
 }
 #   endif
@@ -251,7 +253,8 @@ fb64_start (struct fb *fbp, int dir, int server)
        * Create a random feed and send it over.
        */
 #   ifdef SHISHI
-      if (shishi_randomize (shishi_handle, 0, fbp->temp_feed, 8) != SHISHI_OK)
+      if (shishi_randomize (shishi_handle, 0,
+			    fbp->temp_feed, sizeof (Block)) != SHISHI_OK)
 	return (FAILED);
 
 #   else
@@ -316,13 +319,13 @@ fb64_is (unsigned char *data, int cnt, struct fb *fbp)
       if (cnt != sizeof (Block))
 	{
 	  if (encrypt_debug_mode)
-	    printf ("CFB64: initial vector failed on size\r\n");
+	    printf ("FB64: initial vector failed on size\r\n");
 	  state = FAILED;
 	  goto failure;
 	}
 
       if (encrypt_debug_mode)
-	printf ("CFB64: initial vector received\r\n");
+	printf ("FB64: initial vector received\r\n");
 
       if (encrypt_debug_mode)
 	printf ("Initializing Decrypt stream\r\n");
@@ -452,20 +455,53 @@ ofb64_session (Session_Key *key, int server)
 static void
 fb64_session (Session_Key *key, int server, struct fb *fbp)
 {
+  size_t offset;
+  unsigned char *derived_key;
 
   if (!key || key->type != SK_DES)
     {
       /* FIXME: Support RFC 2952 approach instead of giving up here. */
       if (encrypt_debug_mode)
-	printf ("Can't set krbdes's session key (%d != %d)\r\n",
+	printf ("Received non-DES session key (%d != %d)\r\n",
 		key ? key->type : -1, SK_DES);
-      return;	/* XXX: Causes a segfault.  */
+      if (!key)
+	return;	/* XXX: Causes a segfault, since *key is NULL.  */
+
+      /* Follow RFC 2952 in using the authentication key
+       * to derived one or more DES-keys, after adjusting
+       * the parity in each eight byte block.
+       */
     }
 
-  memmove ((void *) fbp->krbdes_key, (void *) key->data, sizeof (Block));
+  /* Make a copy of the authentication key,
+   * since the parity might need mending.  */
+  derived_key = malloc (key->length);
+  if (!derived_key)
+    return;	/* Still destructive, but no alternate method in sight.  */
 
+  memmove ((void *) derived_key, (void *) key->data, key->length);
+
+  /* Check parity of each DES block, correct it whenever needed.  */
+  for (offset = 0; offset < key->length; offset += sizeof (Block))
+    (void) des_set_parity (derived_key + offset);
+
+  /* XXX: A single key block is in use for now,
+   *      but all block are of correct parity.
+   *      krbdes_key should be an array of block,
+   *      which each encryption method may use at
+   *      it own discretion.  This is the content
+   *      if RFC 2946 and 2952, etcetera.
+   */
+  memmove ((void *) fbp->krbdes_key, (void *) derived_key, sizeof (Block));
+
+  /* XXX: These should at least be split according
+   *      to direction and role, i.e., client or server.
+   */
   fb64_stream_key (fbp->krbdes_key, &fbp->streams[DIR_ENCRYPT - 1]);
   fb64_stream_key (fbp->krbdes_key, &fbp->streams[DIR_DECRYPT - 1]);
+
+  /* Erase sensitive key material.  */
+  memset (derived_key, 0, key->length);
 
   if (fbp->once == 0)
     {
@@ -789,6 +825,51 @@ ofb64_decrypt (int data)
   return (data ^ stp->str_feed[index]);
 }
 #   endif /* ENCTYPE_DES_OFB64 */
-#  endif /* DES_ENCRYPTION */
+
+static int
+des_parity (Block b, int adjust)
+{
+  size_t index;
+  int adj = 0;
+
+  for (index = 0; index < sizeof (Block); index++)
+    {
+      unsigned char c = b[index];
+
+      c ^= (c >> 4);
+      c ^= (c >> 2);
+      c ^= (c >> 1);
+
+      if (!(c & 1))
+	{
+	  /* Even parity.  */
+	  adj++;
+	  if (adjust)
+	    *(&b[index]) ^= 0x01;
+	}
+    }
+
+  return adj;
+}
+
+/*
+ * Returns:
+ *	 0: Correct parity in full key block.
+ *	 n: Count of corrected bytes.
+ */
+
+static int
+des_check_parity (Block b)
+{
+  return des_parity (b, 0);
+}
+
+static int
+des_set_parity (Block b)
+{
+  return des_parity (b, 1);
+}
+
+#  endif /* DES_ENCRYPTION || SHISHI */
 # endif	/* AUTHENTICATION */
 #endif /* ENCRYPTION */

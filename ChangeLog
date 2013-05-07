@@ -1,3 +1,23 @@
+2013-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libtelnet: Parity adjust non-DES key.
+
+	* libtelnet/enc_des.c (des_parity, des_check_parity)
+	(des_set_parity) [AUTHENTICATION && ENCRYPTION]
+	[DES_ENCRYPTION || SHISHI]: New static functions.
+	(fb64_session) [AUTHENTICATION && ENCRYPTION]:
+	New variables OFFSET and DERIVED_KEY.  Accept keys
+	of type SK_OTHER and adjust parity in a partitioned
+	copy of the authentication key, as RFC 2952 suggests.
+
+	Self-documenting array length.
+
+	* libtelnet/enc_des.c (shishi_des_ecb_encrypt)
+	[AUTHENTICATION && ENCRYPTION && SHISHI]:
+	Use sizeof(Block) as array size.
+	(fb64_start) [AUTHENTICATION && ENCRYPTION && SHISHI]:
+	Likewise.
+
 2013-05-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	configure.ac: Minor clean-up.
