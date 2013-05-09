@@ -1,3 +1,9 @@
+2013-05-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/logger.c (parse_level): Rename PRI to PRIO,
+	so as not to shadow the global variable.  Initiate
+	value to LOG_NOTICE, not to LOG_EMERG.
+
 2013-05-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libtelnet: Parity adjust non-DES key.

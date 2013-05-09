@@ -52,7 +52,7 @@
 
 static char *tag = NULL;
 static int logflags = 0;
-static int pri = MAKE_PRI (LOG_USER, LOG_NOTICE);
+static int pri = MAKE_PRI (LOG_USER, LOG_NOTICE);  /* Cf. parse_level */
 /* Only one of `host' and `unixsock' will be non-NULL
  * once option parsing has been completed. */
 static char *host = PATH_LOG;
@@ -106,7 +106,7 @@ int
 parse_level (char *str)
 {
   char *p;
-  int fac, pri = 0;
+  int fac, prio = LOG_NOTICE;	/* Default priority!  */
 
   p = strchr (str, '.');
   if (p)
@@ -114,8 +114,9 @@ parse_level (char *str)
 
   fac = decode (str, facilitynames, "facility");
   if (p)
-    pri = decode (p, prioritynames, "priority");
-  return MAKE_PRI (fac, pri);
+    prio = decode (p, prioritynames, "priority");
+
+  return MAKE_PRI (fac, prio);
 }
 
 
