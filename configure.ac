@@ -943,7 +943,7 @@ AH_BOTTOM(
 # entry in utmpx.  Also for some OS they are better handled with
 # STREAMS.
 case "$host" in
-*-freebsd9* | *-freebsd10*)
+*-freebsd9* | *-freebsd10* )
   # FreeBSD 9.0 has implemented a non-standard and singular
   # UTMPX interface.  The readutmp module from GNUlib does
   # not support it, but we can fall back to getutxuser() for
@@ -953,7 +953,15 @@ case "$host" in
   #
   # Other issues?
   ;;
-*olaris*)
+*olaris* )
+  case "$host" in
+  *olaris*11 )
+    AC_DEFINE([SOLARIS11], 1, [OpenSolaris and newer Solaris.])
+    ;;
+  * )
+    # Older Solaris variants.
+    ;;
+  esac
   AC_DEFINE([SOLARIS], 1, [FIXME])
   AC_DEFINE([HAVE_STREAMSPTY], 1, [FIXME])
   ;;

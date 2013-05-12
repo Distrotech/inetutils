@@ -46,9 +46,11 @@ static void print_hostinfo (void);
 /* Template command line for invoking login program */
 
 char *login_invocation =
-#ifdef SOLARIS
+#ifdef SOLARIS11
+  PATH_LOGIN " -p -h %h %?T{-t %T} %?u{-u %u}"
+#elif defined SOLARIS
   PATH_LOGIN " -h %h %?T{-t %T} %?u{-u %u}"
-#else
+#else /* !SOLARIS */
   PATH_LOGIN " -p -h %h %?u{-f %u}"
 #endif
   ;

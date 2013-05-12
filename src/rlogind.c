@@ -1119,7 +1119,7 @@ exec_login (int authenticated, struct auth_data *ap)
   if (authenticated)
     {
 #ifdef SOLARIS
-      execle (path_login, "login", "-p", "-s", "rlogin",
+      execle (path_login, "login", "-p", "-s", "krlogin",
 	      "-r", ap->hostname, "-U", ap->rusername,
 	      ap->lusername, NULL, ap->env);
 #else

@@ -1,3 +1,15 @@
+2013-05-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac <*olaris*>: New test for subcase
+	`*olaris*11'.  Define SOLARIS11 for matches.
+
+	* telnetd/telnetd.c (login_invocation)
+	[SOLARIS && SOLARIS11]: Add `-p' to old value.
+
+	* src/rlogind.c (exec_login) <authenticated>
+	[SOLARIS]: Change service to `-s krlogin' in
+	argument list to execle().
+
 2013-05-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* src/logger.c (parse_level): Rename PRI to PRIO,
