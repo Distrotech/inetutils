@@ -71,7 +71,7 @@
 
 #ifdef	ENCRYPTION
 
-# define ENCRYPT_NAMES
+# undef ENCRYPT_NAMES		/* Ignore enctype_names[].  */
 # include <arpa/telnet.h>
 
 # include "encrypt.h"
@@ -82,6 +82,13 @@
 
 # include <stdio.h>
 # include "genget.h"
+
+/* String representation of our capabilities.
+ * Solaris will gain DES_OFB64!
+ */
+char *enctype_names[] = {
+  "ANY", "DES_CFB64", "DES_OFB64", 0,
+};
 
 /* Callback from consumer.  */
 extern void printsub (char, unsigned char *, int);
@@ -565,7 +572,7 @@ encrypt_is (unsigned char *data, int cnt)
       if (encrypt_debug_mode)
 	printf (">>>%s: Can't find type %s (%d) for initial negotiation\r\n",
 		Name,
-		ENCTYPE_NAME_OK (type)
+		ENCTYPE_NAME_OK (type) && ENCTYPE_NAME (type)
 		? ENCTYPE_NAME (type) : "(unknown)", type);
       return;
     }
@@ -574,7 +581,7 @@ encrypt_is (unsigned char *data, int cnt)
       if (encrypt_debug_mode)
 	printf (">>>%s: No initial negotiation needed for type %s (%d)\r\n",
 		Name,
-		ENCTYPE_NAME_OK (type)
+		ENCTYPE_NAME_OK (type) && ENCTYPE_NAME (type)
 		? ENCTYPE_NAME (type) : "(unknown)", type);
       ret = 0;
     }
@@ -610,7 +617,7 @@ encrypt_reply (unsigned char *data, int cnt)
       if (encrypt_debug_mode)
 	printf (">>>%s: Can't find type %s (%d) for initial negotiation\r\n",
 		Name,
-		ENCTYPE_NAME_OK (type)
+		ENCTYPE_NAME_OK (type) && ENCTYPE_NAME (type)
 		? ENCTYPE_NAME (type) : "(unknown)", type);
       return;
     }
@@ -619,7 +626,7 @@ encrypt_reply (unsigned char *data, int cnt)
       if (encrypt_debug_mode)
 	printf (">>>%s: No initial negotiation needed for type %s (%d)\r\n",
 		Name,
-		ENCTYPE_NAME_OK (type)
+		ENCTYPE_NAME_OK (type) && ENCTYPE_NAME (type)
 		? ENCTYPE_NAME (type) : "(unknown)", type);
       ret = 0;
     }
@@ -679,7 +686,7 @@ encrypt_start (unsigned char *data, int cnt)
     {
       printf ("%s: Warning, Cannot decrypt type %s (%d)!!!\r\n",
 	      Name,
-	      ENCTYPE_NAME_OK (decrypt_mode)
+	      ENCTYPE_NAME_OK (decrypt_mode) && ENCTYPE_NAME (decrypt_mode)
 	      ? ENCTYPE_NAME (decrypt_mode) : "(unknown)", decrypt_mode);
       encrypt_send_request_end ();
     }
@@ -861,7 +868,7 @@ encrypt_start_output (int type)
 	{
 	  printf (">>>%s: Can't encrypt with type %s (%d)\r\n",
 		  Name,
-		  ENCTYPE_NAME_OK (type)
+		  ENCTYPE_NAME_OK (type) && ENCTYPE_NAME (type)
 		  ? ENCTYPE_NAME (type) : "(unknown)", type);
 	}
       return;

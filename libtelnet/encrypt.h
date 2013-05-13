@@ -88,6 +88,22 @@
 #   define ENCTYPE_CNT TELOPT_ENCTYPE_CNT
 #  endif
 
+/*
+ * Our capabilities are restricted to the encryption types
+ * DES_CFB64 and DES_OFB64.  The latter type is sometimes
+ * missing in <arpa/telnet.h>.  On the other hand, the same
+ * header file may indicate more encryption types than are
+ * supported by the present code.
+ */
+#  ifndef ENCTYPE_DES_OFB64
+#   define ENCTYPE_DES_OFB64	2	/* RFC 2953 */
+#  endif
+#  undef ENCTYPE_CNT
+#  define ENCTYPE_CNT	3		/* Up to DES_OFB64.  */
+
+#  undef ENCTYPE_NAME_OK
+#  define ENCTYPE_NAME_OK(x)	((unsigned int)(x) < ENCTYPE_CNT)
+
 typedef unsigned char Block[8];
 typedef unsigned char *BlockT;
 

@@ -1503,7 +1503,7 @@ printsub (int direction, unsigned char *pointer, int length)
 	      debug_output_data (" (partial suboption??\?)");
 	      break;
 	    }
-	  if (ENCTYPE_NAME_OK (pointer[2]))
+	  if (ENCTYPE_NAME_OK (pointer[2]) && ENCTYPE_NAME (pointer[2]))
 	    debug_output_data ("%s ", ENCTYPE_NAME (pointer[2]));
 	  else
 	    debug_output_data (" %d (unknown)", pointer[2]);
@@ -1517,7 +1517,7 @@ printsub (int direction, unsigned char *pointer, int length)
 	  debug_output_data (" SUPPORT ");
 	  while (i < length)
 	    {
-	      if (ENCTYPE_NAME_OK (pointer[i]))
+	      if (ENCTYPE_NAME_OK (pointer[i]) && ENCTYPE_NAME (pointer[i]))
 		debug_output_data ("%s ", ENCTYPE_NAME (pointer[i]));
 	      else
 		debug_output_data ("%d ", pointer[i]);

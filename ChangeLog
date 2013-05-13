@@ -1,5 +1,25 @@
 2013-05-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	libtelnet: Make availibility of DES_OFB64 in addition
+	to DES_CFB64 independent of host system.
+
+	* libtelnet/encryption.h (ENCTYPE_DES_OFB64)
+	[ENCRYPTION]: Define if missing.
+	(ENCTYPE_CNT, ENCTYPE_NAME_OK) [ENCRYPTION]:
+	Always redefine.
+
+	* libtelnet/encryption.c [ENCRYPTION]: Undefine
+	ENCRYPT_NAMES before including <arpa/telnet.h>.
+	(enctype_names) [ENCRYPTION]: New array variable.
+	(encrypt_is, encrypt_reply, encrypt_start) [ENCRYPTION]:
+	Before printing encryption type, check that ENCTYPE_NAME()
+	is non-null in addition to checking only ENCTYPE_NAME_OK().
+
+	* telnet/utilities.c (printsub) [ENCRYPTION]: Likewise.
+	* telnetd/utility.c (printsub) [ENCRYPTION]: Likewise.
+
+2013-05-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* configure.ac <*olaris*>: New test for subcase
 	`*olaris*11'.  Define SOLARIS11 for matches.
 

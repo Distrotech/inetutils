@@ -597,7 +597,7 @@ printsub (char direction, unsigned char *pointer, int length)
 		  fprintf (NetTrace, " (partial suboption??\?)");
 		  break;
 		}
-	      if (ENCTYPE_NAME_OK (pointer[2]))
+	      if (ENCTYPE_NAME_OK (pointer[2]) && ENCTYPE_NAME (pointer[2]))
 		fprintf (NetTrace, "%s ", ENCTYPE_NAME (pointer[2]));
 	      else
 		fprintf (NetTrace, " %d (unknown)", pointer[2]);
@@ -611,7 +611,7 @@ printsub (char direction, unsigned char *pointer, int length)
 	      fprintf (NetTrace, " SUPPORT ");
 	      while (i < length)
 		{
-		  if (ENCTYPE_NAME_OK (pointer[i]))
+		  if (ENCTYPE_NAME_OK (pointer[i]) && ENCTYPE_NAME (pointer[i]))
 		    fprintf (NetTrace, "%s ", ENCTYPE_NAME (pointer[i]));
 		  else
 		    fprintf (NetTrace, "%d ", pointer[i]);
