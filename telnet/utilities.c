@@ -504,7 +504,7 @@ printsub (char direction, unsigned char *pointer, int length)
 	    case TELQUAL_IS:
 	      fprintf (NetTrace, " %s ",
 		       (pointer[1] == TELQUAL_IS) ? "IS" : "REPLY");
-	      if (AUTHTYPE_NAME_OK (pointer[2]))
+	      if (AUTHTYPE_NAME_OK (pointer[2]) && AUTHTYPE_NAME (pointer[2]))
 		fprintf (NetTrace, "%s ", AUTHTYPE_NAME (pointer[2]));
 	      else
 		fprintf (NetTrace, "%d ", pointer[2]);
@@ -528,7 +528,8 @@ printsub (char direction, unsigned char *pointer, int length)
 	      fprintf (NetTrace, " SEND ");
 	      while (i < length)
 		{
-		  if (AUTHTYPE_NAME_OK (pointer[i]))
+		  if (AUTHTYPE_NAME_OK (pointer[i])
+		      && AUTHTYPE_NAME (pointer[i]))
 		    fprintf (NetTrace, "%s ", AUTHTYPE_NAME (pointer[i]));
 		  else
 		    fprintf (NetTrace, "%d ", pointer[i]);

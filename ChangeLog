@@ -1,3 +1,19 @@
+2013-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libtelnet: The list of authentication names is
+	allowed to contain NULL entries.  Prevent access
+	to such entries.
+
+	* libtelnet/auth.c: Position some assignments before
+	the corresponding if-statement.
+	(auth_init) [AUTHENTICATION]: Check that AUTHTYPE_NAME()
+	is non-NULL before referencing it.
+	(auth_disable_name, getauthmask, auth_onoff, auth_send)
+	[AUTHENTICATION]: Likewise.
+
+	* telnet/utilities.c (printsub) [AUTHENTICATION]: Likewise.
+	* telnetd/utility.c (printsub) [AUTHENTICATION]: Likewise.
+
 2013-05-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libtelnet: Make availibility of DES_OFB64 in addition

@@ -1410,7 +1410,7 @@ printsub (int direction, unsigned char *pointer, int length)
 	case TELQUAL_IS:
 	  debug_output_data (" %s ", (pointer[1] == TELQUAL_IS) ?
 			     "IS" : "REPLY");
-	  if (AUTHTYPE_NAME_OK (pointer[2]))
+	  if (AUTHTYPE_NAME_OK (pointer[2]) && AUTHTYPE_NAME (pointer[2]))
 	    debug_output_data ("%s ", AUTHTYPE_NAME (pointer[2]));
 	  else
 	    debug_output_data ("%d ", pointer[2]);
@@ -1434,7 +1434,8 @@ printsub (int direction, unsigned char *pointer, int length)
 	  debug_output_data (" SEND ");
 	  while (i < length)
 	    {
-	      if (AUTHTYPE_NAME_OK (pointer[i]))
+	      if (AUTHTYPE_NAME_OK (pointer[i])
+		  && AUTHTYPE_NAME (pointer[i]))
 		debug_output_data ("%s ", AUTHTYPE_NAME (pointer[i]));
 	      else
 		debug_output_data ("%d ", pointer[i]);
