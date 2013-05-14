@@ -940,6 +940,14 @@ printsub (int direction, unsigned char *pointer, int length)
   unsigned char buf[512];
 #endif
 
+  /* Silence unwanted debugging to '/tmp/telnet.debug'.
+   *
+   * XXX: Better location?
+   */
+  if ((pointer[0] == TELOPT_AUTHENTICATION && debug_level[debug_auth] < 1)
+      || (pointer[0] == TELOPT_ENCRYPT && debug_level[debug_encr] < 1))
+    return;
+
   if (direction)
     {
       debug_output_data ("td: %s suboption ",

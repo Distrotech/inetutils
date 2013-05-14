@@ -73,6 +73,7 @@ typedef enum debug_mode
   debug_net_data,
   debug_pty_data,
   debug_auth,
+  debug_encr,
   debug_max_mode
 } debug_mode_t;
 

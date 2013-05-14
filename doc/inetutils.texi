@@ -4706,17 +4706,18 @@ Specify what mode to use for authentication.  Allowed values are:
 @opindex --debug
 Set the debugging level.  The argument is a comma separated list of
 these categories: @samp{options}, @samp{report}, @samp{netdata},
-@samp{ptydata}, and @samp{auth}.  All these may be used in the form
-@samp{name[=level]}.  Omission of @samp{level} implies the maximal
-possible debugging for that particular category.
+@samp{ptydata}, @samp{auth}, and @samp{encr}.
+All these may be used in the form @samp{name[=level]}.
+Omission of @samp{level} implies the maximal
+possible debugging level for that particular category.
 
-There is one additional category @samp{tcp}, that does not allow
-the additional level indicator, but is instead equivalent to
+There is one additional category @samp{tcp}, which does not take
+an additional level indicator, but is instead equivalent to
 setting the socket option @samp{SO_DEBUG} for debugging the
 complete traffic.
 
-The outcome is the file @file{/tmp/telnet.debug}, to which
-data is incrementally added as time passes.
+The output is written to the file @file{/tmp/telnet.debug},
+and any new data is incrementally added as time passes.
 
 @item -E @var{string}
 @itemx --exec-login=@var{string}

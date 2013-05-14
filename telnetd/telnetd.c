@@ -205,12 +205,14 @@ main (int argc, char **argv)
 
   set_program_name (argv[0]);
   iu_argp_init ("telnetd", default_program_authors);
+
+  openlog ("telnetd", LOG_PID | LOG_ODELAY, LOG_DAEMON);
+
   argp_parse (&argp, argc, argv, 0, &index, NULL);
 
   if (argc != index)
     error (EXIT_FAILURE, 0, "junk arguments in the command line");
 
-  openlog ("telnetd", LOG_PID | LOG_ODELAY, LOG_DAEMON);
   telnetd_setup (0);
   return telnetd_run ();
 }
@@ -223,7 +225,7 @@ parse_linemode (char *str)
   else if (strcmp (str, "nokludge") == 0)
     lmodetype = NO_AUTOKLUDGE;
   else
-    fprintf (stderr, "telnetd: invalid argument to --linemode\n");
+    syslog (LOG_NOTICE, "invalid argument to --linemode: %s", str);
 }
 
 #ifdef  AUTHENTICATION
@@ -241,7 +243,7 @@ parse_authmode (char *str)
   else if (strcasecmp (str, "off") == 0)
     auth_level = -1;
   else
-    fprintf (stderr, "telnetd: unknown authorization level for -a\n");
+    syslog (LOG_NOTICE, "unknown authorization level for -a: %s", str);
 }
 #endif /* AUTHENTICATION */
 
@@ -255,7 +257,9 @@ static struct
   {"report", debug_report},
   {"netdata", debug_net_data},
   {"ptydata", debug_pty_data},
-  {"auth", debug_auth},};
+  {"auth", debug_auth},
+  {"encr", debug_encr},
+};
 
 void
 parse_debug_level (char *str)
@@ -301,7 +305,7 @@ parse_debug_level (char *str)
 	  }
 
       if (i == debug_max_mode)
-	fprintf (stderr, "telnetd: unknown debug mode: %s", tok);
+	syslog (LOG_NOTICE, "unknown debug mode: %s", tok);
     }
 }
 

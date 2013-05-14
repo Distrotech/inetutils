@@ -1,5 +1,24 @@
 2013-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	telnetd: Silence unwanted debugging.
+
+	* telnetd/telnetd.h (enum debug_mode): Add `debug_encr'.
+	* telnetd/telnetd.c (debug_mode): Add member `encr'.
+	* telnetd/utility.c (printsub): Return immediately if
+	the option is TELOPT_AUTHENTICATION or TELOPT_ENCRYPT
+	and the corresponding debug level is unset.
+
+	telnetd: Logging of failed command line options.
+
+	* telnetd/telnetd.c (main): Call openlog() before
+	argp_parse().  Facility is now correct!
+	(parse_linemode): Send a log notice
+	about parsing failure; the client receives stderr!
+	(parse_authmode) [AUTHENTICATION]: Likewise.
+	(parse_debug_level): Likewise.
+
+2013-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	libtelnet: The list of authentication names is
 	allowed to contain NULL entries.  Prevent access
 	to such entries.
