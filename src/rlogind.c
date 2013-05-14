@@ -1118,24 +1118,39 @@ exec_login (int authenticated, struct auth_data *ap)
 {
   if (authenticated)
     {
-#ifdef SOLARIS
+#ifdef SOLARIS10
+      /* TODO: Add `-u' with Kerberos principal name of user.
+       */
       execle (path_login, "login", "-p", "-s", "krlogin",
 	      "-r", ap->hostname, "-U", ap->rusername,
 	      ap->lusername, NULL, ap->env);
+#elif defined SOLARIS
+      execle (path_login, "login", "-p", "-r", ap->hostname,
+	      ap->lusername, NULL, ap->env);
 #else
-      execle (path_login, "login", "-p",
-	      "-h", ap->hostname, "-f", ap->lusername, NULL, ap->env);
+      /* Some GNU/Linux systems, but not all,  provide `-r'
+       * for use instead of `-h'.  Some BSD systems provide `-u'.
+       */
+      execle (path_login, "login", "-p", "-h", ap->hostname, "-f",
+	      ap->lusername, NULL, ap->env);
 #endif
     }
   else
     {
-#ifdef SOLARIS
+#ifdef SOLARIS10
+      /* `-U' in not strictly needed, but is harmless.  */
       execle (path_login, "login", "-p", "-s", "rlogin",
 	      "-r", ap->hostname, "-U", ap->rusername,
 	      ap->lusername, NULL, ap->env);
+#elif defined SOLARIS
+      execle (path_login, "login", "-p", "-r", ap->hostname,
+	      ap->lusername, NULL, ap->env);
 #else
-      execle (path_login, "login", "-p",
-	      "-h", ap->hostname, ap->lusername, NULL, ap->env);
+      /* Some GNU/Linux systems, but not all,  provide `-r'
+       * for use instead of `-h'.  Some BSD systems provide `-u'.
+       */
+      execle (path_login, "login", "-p", "-h", ap->hostname,
+	      ap->lusername, NULL, ap->env);
 #endif
     }
   syslog (LOG_ERR, "can't exec login: %m");

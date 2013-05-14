@@ -43,13 +43,20 @@ static void telnetd_setup (int fd);
 static int telnetd_run (void);
 static void print_hostinfo (void);
 
-/* Template command line for invoking login program */
+/* Template command line for invoking login program.  */
 
 char *login_invocation =
-#ifdef SOLARIS11
+#ifdef SOLARIS10
+  /* TODO: `-s telnet' or `-s ktelnet'.
+   *       `-u' takes the Kerberos principal name
+   *       of the authenticating, remote user.
+   */
   PATH_LOGIN " -p -h %h %?T{-t %T} %?u{-u %u}"
+
 #elif defined SOLARIS
-  PATH_LOGIN " -h %h %?T{-t %T} %?u{-u %u}"
+  /* At least for SunOS 5.8.  */
+  PATH_LOGIN " -h %h %?T{%T} %?u{-- %u}"
+
 #else /* !SOLARIS */
   PATH_LOGIN " -p -h %h %?u{-f %u}"
 #endif

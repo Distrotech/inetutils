@@ -955,8 +955,8 @@ case "$host" in
   ;;
 *olaris* )
   case "$host" in
-  *olaris*11 )
-    AC_DEFINE([SOLARIS11], 1, [OpenSolaris and newer Solaris.])
+  *olaris*10 | *olaris*11 )
+    AC_DEFINE([SOLARIS10], 1, [Solaris 10 and newer variants.])
     ;;
   * )
     # Older Solaris variants.

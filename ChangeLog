@@ -1,3 +1,15 @@
+2013-05-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Audit of login options.
+
+	* configure.ac (SOLARIS10): Replace previous
+	macro SOLARIS11.
+	* src/rlogind.c (exec_login) [SOLARIS10]:
+	Use previous Solaris settings.
+	[SOLARIS]: Simplified setting.
+	* telnetd/telnetd.c (login_invocation)
+	[SOLARIS10 || SOLARIS]: Likewise, as two cases!
+
 2013-05-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnetd: Silence unwanted debugging.
