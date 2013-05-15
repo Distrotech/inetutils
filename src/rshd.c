@@ -433,6 +433,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   const char *hostname, *errorstr, *errorhost = NULL;
   char *cp, sig, buf[BUFSIZ];
   char *cmdbuf, *locuser, *remuser;
+  char *rprincipal = NULL;
 #if defined WITH_IRUSEROK_AF && !defined WITH_PAM
   void * fromaddrp;	/* Pointer to remote address.  */
 #endif
@@ -1118,6 +1119,12 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 
     free (compcksum);
 
+    rc = shishi_encticketpart_clientrealm (h,
+			shishi_tkt_encticketpart (shishi_ap_tkt (ap)),
+			&rprincipal, NULL);
+    if (rc != SHISHI_OK)
+      rprincipal = NULL;
+
     shishi_ap_done (ap);
 
   }
@@ -1128,7 +1135,14 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 
       rc = krb5_copy_principal (context, ticket->enc_part2->client,
 				&client);
+      if (rc)
+	goto fail;	/* FIXME: Temporary handler.  */
 
+      if (client && !krb5_kuserok (context, client, locuser))
+	goto fail;	/* FIXME: Temporary handler.  */
+
+      rprincipal = NULL;
+      krb5_unparse_name (context, client, &rprincipal);
     }
 #endif /* KRB5 || SHISHI */
 
@@ -1788,7 +1802,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       else
 #endif /* KRB4 */
 	syslog (LOG_INFO | LOG_AUTH,
-		"%s%s@%s as %s: cmd='%.80s'",
+		"%s%s from %s as '%s': cmd='%.80s'",
 #ifdef SHISHI
 		!use_kerberos ? ""
 		  : !doencrypt ? "Kerberized "
@@ -1796,7 +1810,8 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 #else
 		"",
 #endif
-		remuser, hostname, locuser, cmdbuf);
+		rprincipal ? rprincipal : remuser,
+		hostname, locuser, cmdbuf);
     }
 #ifdef SHISHI
   if (doencrypt)

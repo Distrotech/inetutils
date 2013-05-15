@@ -1,5 +1,16 @@
 2013-05-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rshd: Report client's principal name.
+
+	* src/rshd.c (rprincipal): New variable.
+	(doit) [SHISHI] <use_kerberos>: Set `rprincipal'
+	using shishi_encticketpart_clientrealm().
+	[KRB5] <use_kerberos>: New calls to krb5_kuserok()
+	and krb5_unparse_name().
+	(doit): Report success to syslog using `rprincipal'.
+
+2013-05-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rlogind: Report client's principal name.
 
 	* libinetutils/shishi_def.h (struct auth_data):
