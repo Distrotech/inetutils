@@ -42,6 +42,7 @@ struct auth_data
   char *hostname;
   char *lusername;
   char *rusername;
+  char *rprincipal;
   char *term;
   char *env[2];
   int kerberos_version;

@@ -1,5 +1,28 @@
 2013-05-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rlogind: Report client's principal name.
+
+	* libinetutils/shishi_def.h (struct auth_data):
+	New member `rprincipal'.
+	* src/rlogind.c (struct auth_data) [!SHISHI]:
+	Likewise.
+	(do_krb5_login) [KRB5]: Delete NAME.  Assign value
+	to `ap->rprincipal' using previous krb5_unparse_name().
+	(do_shishi_login) [SHISHI]:
+	Call shishi_encticketpart_clientrealm() to set
+	`ad->rprincipal'.  Let the syslog message mention
+	the client's principal name, instead of remote name.
+
+	rlogind: Login options for Solaris again!
+
+	* src/rlogind.c (exec_login) [SOLARIS10 || SOLARIS]:
+	Make option orders roughly similar.  Add option `-d'.
+	<authenticated> [KERBEROS || SHISHI]: Add option `-u'
+	with remote client's principal name.  Depending on
+	`kerberos', let `-s' take argument `krlogin' or `rlogin'.
+
+2013-05-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Audit of login options.
 
 	* configure.ac (SOLARIS10): Replace previous

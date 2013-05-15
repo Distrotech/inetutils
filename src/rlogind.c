@@ -206,6 +206,7 @@ struct auth_data
   char *hostname;
   char *lusername;
   char *rusername;
+  char *rprincipal;
   char *term;
   char *env[2];
 # ifdef KERBEROS
@@ -1119,15 +1120,21 @@ exec_login (int authenticated, struct auth_data *ap)
   if (authenticated)
     {
 #ifdef SOLARIS10
-      /* TODO: Add `-u' with Kerberos principal name of user.
-       */
-      execle (path_login, "login", "-p", "-s", "krlogin",
-	      "-r", ap->hostname, "-U", ap->rusername,
-	      ap->lusername, NULL, ap->env);
-#elif defined SOLARIS
       execle (path_login, "login", "-p", "-r", ap->hostname,
+	      "-d", line, "-U", ap->rusername,
+# if defined KERBEROS || defined SHISHI
+	      "-s", (kerberos ? "krlogin" : "rlogin"),
+	      "-u", (ap->rprincipal ? ap->rprincipal : ap->rusername),
+# else /* !KERBEROS && !SHISHI */
+	      "-s", "rlogin",
+# endif
 	      ap->lusername, NULL, ap->env);
-#else
+
+#elif defined SOLARIS	/* !SOLARIS10 */
+      execle (path_login, "login", "-p", "-r", ap->hostname,
+	      "-d", line, ap->lusername, NULL, ap->env);
+
+#else /* !SOLARIS */
       /* Some GNU/Linux systems, but not all,  provide `-r'
        * for use instead of `-h'.  Some BSD systems provide `-u'.
        */
@@ -1138,13 +1145,13 @@ exec_login (int authenticated, struct auth_data *ap)
   else
     {
 #ifdef SOLARIS10
-      /* `-U' in not strictly needed, but is harmless.  */
-      execle (path_login, "login", "-p", "-s", "rlogin",
-	      "-r", ap->hostname, "-U", ap->rusername,
+      /* `-U' in not strictly needed, but is probably harmless.  */
+      execle (path_login, "login", "-p", "-r", ap->hostname,
+	      "-d", line, "-s", "rlogin", "-U", ap->rusername,
 	      ap->lusername, NULL, ap->env);
 #elif defined SOLARIS
       execle (path_login, "login", "-p", "-r", ap->hostname,
-	      ap->lusername, NULL, ap->env);
+	      "-d", line, ap->lusername, NULL, ap->env);
 #else
       /* Some GNU/Linux systems, but not all,  provide `-r'
        * for use instead of `-h'.  Some BSD systems provide `-u'.
@@ -1478,7 +1485,6 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   struct sockaddr_in laddr;
   int len;
   struct passwd *pwd;
-  char *name;
 
   status = krb5_init_context (&ap->context);
   if (status)
@@ -1576,12 +1582,15 @@ do_krb5_login (int infd, struct auth_data *ap, const char **err_msg)
   if (ap->client && !krb5_kuserok (ap->context, ap->client, ap->lusername))
     return 1;
 
-  krb5_unparse_name (ap->context, ap->client, &name);
+  ap->rprincipal = NULL;
+
+  krb5_unparse_name (ap->context, ap->client, &ap->rprincipal);
 
   syslog (LOG_INFO | LOG_AUTH,
 	  "%sKerberos V login from %s on %s\n",
-	  (pwd->pw_uid == 0) ? "ROOT " : "", name, ap->hostname);
-  free (name);
+	  (pwd->pw_uid == 0) ? "ROOT " : "",
+	  ap->rprincipal ? ap->rprincipal : ap->rusername,
+	  ap->hostname);
 
   return 0;
 }
@@ -1733,6 +1742,12 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
       return rc;
     }
 
+  rc = shishi_encticketpart_clientrealm (ad->h,
+			shishi_tkt_encticketpart (shishi_ap_tkt (ad->ap)),
+			&ad->rprincipal, NULL);
+  if (rc != SHISHI_OK)
+    ad->rprincipal = NULL;
+
   shishi_ap_done (ad->ap);
 
 #  ifdef WITH_PAM
@@ -1747,7 +1762,9 @@ do_shishi_login (int infd, struct auth_data *ad, const char **err_msg)
   syslog (LOG_INFO | LOG_AUTH,
 	  "Kerberos V %slogin from %s on %s as `%s'.\n",
 	  ENCRYPT_IO ? "encrypted " : "",
-	  ad->rusername, ad->hostname, ad->lusername);
+	  ad->rprincipal ? ad->rprincipal : ad->rusername,
+	  ad->hostname,
+	  ad->lusername);
 
   return SHISHI_OK;
 }
