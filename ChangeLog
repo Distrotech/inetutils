@@ -1,3 +1,33 @@
+2013-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libtelnet: Let input to printsub functions remain
+	typed as `unsigned char *', but use `char *' for all
+	printable output.
+
+	* libtelnet/auth-proto.h (auth_printsub, auth_sendname)
+	(kerberos4_printsub, kerberos5_printsub)
+	krb5shishi_printsub): Update signatures.
+	* libtelnet/auth.h (TN_Authenticator): Update `*printsub'.
+	* libtelnet/enc-proto.h (encrypt_printsub, krbdes_printsub)
+	(cfb64_printsub, ofb64_printsub): Update signatures.
+	* libtelnet/encrypt.h (Encryptions): Update `*printsub'.
+
+	* libtelnet/auth.c (auth_sendname): Rename first argument
+	and change to `char *'.  New variable CP.
+	(auth_gen_printsub): Change third argument and variables
+	CP and TBUF to `char *'.
+	(auth_printsub): Change third argument to `char *'.
+	* libtelnet/enc_des.c (fb64_printsub, cfb64_printsub)
+	(ofb64_printsub): Likewise.
+	* libtelnet/encrypt.c (encrypt_gen_printsub)
+	(encrypt_printsub): Likewise.
+	* libtelnet/kerberos.c (kerberos4_printsub): Likewise.
+	* libtelnet/kerberos5.c (kerberos5_printsub): Likewise.
+	* libtelnet/shishi.c (krb5shisih_printsub): Likewise.
+
+	* telnetd/utility.c (printsub) [AUTHENTICATION || ENCRYPTION]:
+	Change BUF to `char *'.
+
 2013-05-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: Report client's principal name.

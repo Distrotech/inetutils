@@ -566,7 +566,7 @@ fb64_keyid (int dir, unsigned char *kp, int *lenp, struct fb *fbp)
 
 static void
 fb64_printsub (unsigned char *data, int cnt,
-	       unsigned char *buf, int buflen,
+	       char *buf, int buflen,
 	       const char *type)
 {
   char lbuf[32];
@@ -611,7 +611,7 @@ fb64_printsub (unsigned char *data, int cnt,
 
 void
 cfb64_printsub (unsigned char *data, int cnt,
-		unsigned char *buf, int buflen)
+		char *buf, int buflen)
 {
   fb64_printsub (data, cnt, buf, buflen, "CFB64");
 }
@@ -619,7 +619,7 @@ cfb64_printsub (unsigned char *data, int cnt,
 #   ifdef ENCTYPE_DES_OFB64
 void
 ofb64_printsub (unsigned char *data, int cnt,
-		unsigned char *buf, int buflen)
+		char *buf, int buflen)
 {
   fb64_printsub (data, cnt, buf, buflen, "OFB64");
 }

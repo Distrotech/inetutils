@@ -629,12 +629,13 @@ auth_name (unsigned char *data, int cnt)
 }
 
 int
-auth_sendname (unsigned char *cp, int len)
+auth_sendname (char *name, int len)
 {
   static unsigned char str_request[256 + 6]
     = { IAC, SB, TELOPT_AUTHENTICATION, TELQUAL_NAME, };
   register unsigned char *e = str_request + 4;
   register unsigned char *ee = &str_request[sizeof (str_request) - 2];
+  unsigned char *cp = (unsigned char *) name;
 
   while (--len >= 0)
     {
@@ -708,11 +709,11 @@ auth_debug (int mode)
 }
 
 static void
-auth_gen_printsub (unsigned char *data, int cnt, unsigned char *buf,
+auth_gen_printsub (unsigned char *data, int cnt, char *buf,
 		   int buflen)
 {
-  register unsigned char *cp;
-  unsigned char tbuf[16];
+  register char *cp;
+  char tbuf[16];
 
   cnt -= 3;
   data += 3;
@@ -721,7 +722,7 @@ auth_gen_printsub (unsigned char *data, int cnt, unsigned char *buf,
   buflen -= 2;
   for (; cnt > 0; cnt--, data++)
     {
-      sprintf ((char *) tbuf, " %d", *data);
+      sprintf (tbuf, " %d", *data);
       for (cp = tbuf; *cp && buflen > 0; --buflen)
 	*buf++ = *cp++;
       if (buflen <= 0)
@@ -731,7 +732,7 @@ auth_gen_printsub (unsigned char *data, int cnt, unsigned char *buf,
 }
 
 void
-auth_printsub (unsigned char *data, int cnt, unsigned char *buf, int buflen)
+auth_printsub (unsigned char *data, int cnt, char *buf, int buflen)
 {
   TN_Authenticator *ap;
 

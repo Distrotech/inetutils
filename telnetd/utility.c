@@ -937,7 +937,7 @@ printsub (int direction, unsigned char *pointer, int length)
   register int i = 0;
 
 #if defined AUTHENTICATION || defined ENCRYPTION
-  unsigned char buf[512];
+  char buf[512];
 #endif
 
   /* Silence unwanted debugging to '/tmp/telnet.debug'.

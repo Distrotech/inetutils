@@ -142,7 +142,7 @@ typedef struct
   int (*reply) (unsigned char *, int);
   void (*session) (Session_Key *, int);
   int (*keyid) (int, unsigned char *, int *);
-  void (*printsub) (unsigned char *, int, unsigned char *, int);
+  void (*printsub) (unsigned char *, int, char *, int);
 } Encryptions;
 
 #  define SK_DES		1	/* Matched Kerberos v5 KEYTYPE_DES */

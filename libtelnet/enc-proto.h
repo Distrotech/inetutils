@@ -102,7 +102,7 @@ void encrypt_send_support (void);
 void encrypt_dec_keyid (unsigned char *, int);
 void encrypt_enc_keyid (unsigned char *, int);
 void encrypt_send_keyid (int, unsigned char *, int, int);
-void encrypt_printsub (unsigned char *, int, unsigned char *, int);
+void encrypt_printsub (unsigned char *, int, char *, int);
 int net_write (unsigned char *, int);
 
 # ifdef	TELNETD
@@ -119,7 +119,7 @@ int krbdes_reply (unsigned char *, int);
 void krbdes_init (int);
 int krbdes_start (int, int);
 void krbdes_session (Session_Key *, int);
-void krbdes_printsub (unsigned char *, int, unsigned char *, int);
+void krbdes_printsub (unsigned char *, int, char *, int);
 
 void cfb64_encrypt (unsigned char *, int);
 int cfb64_decrypt (int);
@@ -129,7 +129,7 @@ int cfb64_is (unsigned char *, int);
 int cfb64_reply (unsigned char *, int);
 void cfb64_session (Session_Key *, int);
 int cfb64_keyid (int, unsigned char *, int *);
-void cfb64_printsub (unsigned char *, int, unsigned char *, int);
+void cfb64_printsub (unsigned char *, int, char *, int);
 
 void ofb64_encrypt (unsigned char *, int);
 int ofb64_decrypt (int);
@@ -139,7 +139,7 @@ int ofb64_is (unsigned char *, int);
 int ofb64_reply (unsigned char *, int);
 void ofb64_session (Session_Key *, int);
 int ofb64_keyid (int, unsigned char *, int *);
-void ofb64_printsub (unsigned char *, int, unsigned char *, int);
+void ofb64_printsub (unsigned char *, int, char *, int);
 
 int des_new_random_key (Block);
 void des_set_random_generator_seed (Block);

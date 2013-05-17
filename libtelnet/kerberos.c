@@ -498,7 +498,8 @@ kerberos4_status (ap, name, len, level)
 
 void
 kerberos4_printsub (data, cnt, buf, buflen)
-     unsigned char *data, *buf;
+     unsigned char *data;
+     char *buf;
      int cnt, buflen;
 {
   char lbuf[32];

@@ -988,7 +988,7 @@ encrypt_debug (int mode)
 
 static void
 encrypt_gen_printsub (unsigned char *data, int cnt,
-		      unsigned char *buf, int buflen)
+		      char *buf, int buflen)
 {
   char tbuf[16], *cp;
 
@@ -1010,7 +1010,7 @@ encrypt_gen_printsub (unsigned char *data, int cnt,
 
 void
 encrypt_printsub (unsigned char *data, int cnt,
-		  unsigned char *buf, int buflen)
+		  char *buf, int buflen)
 {
   Encryptions *ep;
   int type = data[1];

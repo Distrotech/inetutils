@@ -745,7 +745,7 @@ req_type_str (int type)
 
 void
 kerberos5_printsub (unsigned char *data, int cnt,
-		    unsigned char *buf, int buflen)
+		    char *buf, int buflen)
 {
   char *p;
   int i;
