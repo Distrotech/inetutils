@@ -1,5 +1,17 @@
 2013-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ftp, telnet: Erase passwords after use.
+
+	* ftp/cmds.c (user): Erase password string after getpass().
+	(account): Likewise, for account password.
+	* ftp/ftp.c (login): Erase passwords after last use.
+	(command): Print fake account password as debug text.
+
+	* telnet/authenc.c (telnet_gets): Do assignment before
+	if-statement.  Erase string found by getpass().
+
+2013-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	libtelnet: Let input to printsub functions remain
 	typed as `unsigned char *', but use `char *' for all
 	printable output.

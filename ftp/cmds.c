@@ -1676,6 +1676,8 @@ user (int argc, char **argv)
       if (argc < 3)
 	argv[2] = getpass ("Password: "), argc++;
       n = command ("PASS %s", argv[2]);
+      if (argv[2])
+	memset (argv[2], 0, strlen (argv[2]));
     }
   if (n == CONTINUE)
     {
@@ -1994,6 +1996,8 @@ account (int argc, char **argv)
       ap = getpass ("Account:");
     }
   command ("ACCT %s", ap);
+  if (ap)
+    memset (ap, 0, strlen (ap));
 }
 
 jmp_buf abortprox;

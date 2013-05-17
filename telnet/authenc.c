@@ -114,10 +114,15 @@ telnet_gets (char *prompt, char *result, int length, int echo)
       printf ("%s", prompt);
       res = fgets (result, length, stdin);
     }
-  else if (res = getpass (prompt))
+  else
     {
-      strncpy (result, res, length);
-      res = result;
+      res = getpass (prompt);
+      if (res)
+	{
+	  strncpy (result, res, length);
+	  memset (res, 0, strlen (res));
+	  res = result;
+	}
     }
   TerminalNewMode (om);
   return (res);

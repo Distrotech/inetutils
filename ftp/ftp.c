@@ -330,12 +330,16 @@ login (char *host)
       if (pass == NULL)
 	pass = getpass ("Password:");
       n = command ("PASS %s", pass);
+      if (pass)
+	memset (pass, 0, strlen (pass));
     }
   if (n == CONTINUE)
     {
       aflag++;
       acct = getpass ("Account:");
       n = command ("ACCT %s", acct);
+      if (acct)
+	memset (acct, 0, strlen (acct));
     }
   if (n != COMPLETE)
     {
@@ -343,7 +347,10 @@ login (char *host)
       return (0);
     }
   if (!aflag && acct != NULL)
-    command ("ACCT %s", acct);
+    {
+      command ("ACCT %s", acct);
+      memset (acct, 0, strlen (acct));
+    }
   if (proxy)
     return (1);
   for (n = 0; n < macnum; ++n)
@@ -389,6 +396,8 @@ command (const char *fmt, ...)
       va_start (ap, fmt);
       if (strncmp ("PASS ", fmt, 5) == 0)
 	printf ("PASS XXXX");
+      if (strncmp ("ACCT ", fmt, 5) == 0)
+	printf ("ACCT XXXX");
       else
 	vfprintf (stdout, fmt, ap);
       va_end (ap);
