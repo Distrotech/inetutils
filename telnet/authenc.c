@@ -95,7 +95,7 @@ telnet_spin ()
 char *
 telnet_getenv (char *val)
 {
-  return ((char *) env_getvalue ((unsigned char *) val));
+  return ((char *) env_getvalue (val));
 }
 
 char *

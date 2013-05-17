@@ -567,7 +567,9 @@ encrypt_is (unsigned char *data, int cnt)
   type = *data++;
   if (type < ENCTYPE_CNT)
     remote_supports_encrypt |= typemask (type);
-  if (!(ep = finddecryption (type)))
+
+  ep = finddecryption (type);
+  if (!ep)
     {
       if (encrypt_debug_mode)
 	printf (">>>%s: Can't find type %s (%d) for initial negotiation\r\n",
@@ -589,9 +591,11 @@ encrypt_is (unsigned char *data, int cnt)
     {
       ret = (*ep->is) (data, cnt);
       if (encrypt_debug_mode)
-	printf ("(*ep->is)(%x, %d) returned %s(%d)\n", data, cnt,
-		(ret < 0) ? "FAIL " :
-		(ret == 0) ? "SUCCESS " : "MORE_TO_DO ", ret);
+	printf ("(*ep->is)(%p, %d) returned %s (%d).\r\n",
+		data, cnt,
+		(ret < 0) ? "FAIL "
+			  : ((ret == 0) ? "SUCCESS " : "MORE_TO_DO "),
+		ret);
     }
   if (ret < 0)
     autodecrypt = 0;
@@ -612,7 +616,9 @@ encrypt_reply (unsigned char *data, int cnt)
   if (--cnt < 0)
     return;
   type = *data++;
-  if (!(ep = findencryption (type)))
+
+  ep = findencryption (type);
+  if (!ep)
     {
       if (encrypt_debug_mode)
 	printf (">>>%s: Can't find type %s (%d) for initial negotiation\r\n",
@@ -634,10 +640,11 @@ encrypt_reply (unsigned char *data, int cnt)
     {
       ret = (*ep->reply) (data, cnt);
       if (encrypt_debug_mode)
-	printf ("(*ep->reply)(%x, %d) returned %s(%d)\n",
+	printf ("(*ep->reply)(%p, %d) returned %s (%d).\r\n",
 		data, cnt,
-		(ret < 0) ? "FAIL " :
-		(ret == 0) ? "SUCCESS " : "MORE_TO_DO ", ret);
+		(ret < 0) ? "FAIL "
+			  : ((ret == 0) ? "SUCCESS " : "MORE_TO_DO "),
+		ret);
     }
   if (encrypt_debug_mode)
     printf (">>>%s: encrypt_reply returned %d\n", Name, ret);
@@ -672,7 +679,8 @@ encrypt_start (unsigned char *data, int cnt)
       return;
     }
 
-  if (ep = finddecryption (decrypt_mode))
+  ep = finddecryption (decrypt_mode);
+  if (ep)
     {
       decrypt_input = ep->input;
       if (encrypt_verbose)
@@ -754,14 +762,14 @@ static void
 encrypt_keyid (struct key_info *kp, unsigned char *keyid, int len)
 {
   Encryptions *ep;
-  unsigned char *strp, *cp;
   int dir = kp->dir;
   int ret = 0;
 
   if (len > MAXKEYLEN)
     len = MAXKEYLEN;
 
-  if (!(ep = (*kp->getcrypt) (*kp->modep)))
+  ep = (*kp->getcrypt) (*kp->modep);
+  if (!ep)
     {
       if (len == 0)
 	return;
@@ -862,7 +870,8 @@ encrypt_start_output (int type)
   unsigned char *p;
   int i;
 
-  if (!(ep = findencryption (type)))
+  ep = findencryption (type);
+  if (!ep)
     {
       if (encrypt_debug_mode)
 	{
@@ -970,7 +979,6 @@ encrypt_send_request_end (void)
 void
 encrypt_wait (void)
 {
-  int encrypt, decrypt;
   if (encrypt_debug_mode)
     printf (">>>%s: in encrypt_wait\r\n", Name);
   if (!havesessionkey || !(I_SUPPORT_ENCRYPT & remote_supports_decrypt))

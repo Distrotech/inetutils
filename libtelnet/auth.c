@@ -470,8 +470,8 @@ auth_send (unsigned char *data, int cnt)
   if (data < _auth_send_data ||
       data > _auth_send_data + sizeof (_auth_send_data))
     {
-      auth_send_cnt = cnt > sizeof (_auth_send_data)
-	? sizeof (_auth_send_data) : cnt;
+      auth_send_cnt = (cnt > (int) sizeof (_auth_send_data))
+		      ? (int) sizeof (_auth_send_data) : cnt;
       memmove ((void *) _auth_send_data, (void *) data, auth_send_cnt);
       auth_send_data = _auth_send_data;
     }
@@ -605,8 +605,7 @@ auth_reply (unsigned char *data, int cnt)
 void
 auth_name (unsigned char *data, int cnt)
 {
-  TN_Authenticator *ap;
-  unsigned char savename[256];
+  char savename[256];
 
   if (cnt < 1)
     {
@@ -614,10 +613,10 @@ auth_name (unsigned char *data, int cnt)
 	printf (">>>%s: Empty name in NAME\r\n", Name);
       return;
     }
-  if (cnt > sizeof (savename) - 1)
+  if (cnt + 1 > (int) sizeof (savename))
     {
       if (auth_debug_mode)
-	printf (">>>%s: Name in NAME (%d) exceeds %d length\r\n",
+	printf (">>>%s: Name in NAME (len %d) overflows buffer (len %zu).\r\n",
 		Name, cnt, sizeof (savename) - 1);
       return;
     }

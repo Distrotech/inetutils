@@ -62,13 +62,14 @@ Shishi_ap *auth_handle;
 extern void printsub (char, unsigned char *, int);
 
 static int
-Data (TN_Authenticator * ap, int type, unsigned char *d, int c)
+Data (TN_Authenticator * ap, int type, void * d, int c)
 {
   unsigned char *p = str_data + 4;
   unsigned char *cd = (unsigned char *) d;
 
+  /* Submitted as test data.  */
   if (c == -1)
-    c = strlen (cd);
+    c = strlen ((char *) cd);
 
   if (auth_debug_mode)
     {
@@ -293,18 +294,18 @@ krb5shishi_send (TN_Authenticator * ap)
 }
 
 # ifdef ENCRYPTION
-void
+static void
 shishi_init_key (Session_Key * skey, int type)
 {
   int32_t etype = shishi_key_type (enckey);
 
-  if (etype == SHISHI_DES_CBC_CRC ||
-      etype == SHISHI_DES_CBC_MD4 || etype == SHISHI_DES_CBC_MD5)
+  if (etype == SHISHI_DES_CBC_CRC || etype == SHISHI_DES_CBC_MD4
+      || etype == SHISHI_DES_CBC_MD5)
     skey->type = SK_DES;
   else
     skey->type = SK_OTHER;
   skey->length = shishi_key_length (enckey);
-  skey->data = shishi_key_value (enckey);
+  skey->data = (unsigned char *) shishi_key_value (enckey);
 
   encrypt_session_key (skey, type);
 }
@@ -363,7 +364,8 @@ krb5shishi_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
     case KRB_RESPONSE:
       if ((ap->way & AUTH_HOW_MASK) == AUTH_HOW_MUTUAL)
 	{
-	  if (shishi_ap_rep_verify_der (auth_handle, data, cnt) != SHISHI_OK)
+	  if (shishi_ap_rep_verify_der (auth_handle, (char *) data, cnt)
+	      != SHISHI_OK)
 	    {
 	      printf ("[ Mutual authentication failed ]\r\n");
 	      auth_send_retry ();
@@ -395,7 +397,6 @@ int
 krb5shishi_status (TN_Authenticator * ap, char *name, size_t len,
 		   int level)
 {
-  int rc;
   int status;
 
   if (level < AUTH_USER)
@@ -416,11 +417,11 @@ krb5shishi_status (TN_Authenticator * ap, char *name, size_t len,
   return status;
 }
 
-int
+static int
 krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
 		    char *errbuf, int errbuflen)
 {
-  Shishi_key *key, *key2;
+  Shishi_key *key;
   int rc;
   char *cnamerealm, *server = NULL, *realm = NULL;
   size_t cnamerealmlen;
@@ -530,7 +531,7 @@ krb5shishi_is_auth (TN_Authenticator * a, unsigned char *data, int cnt,
       return 1;
     }
 
-  rc = shishi_ap_req_der_set (auth_handle, data, cnt);
+  rc = shishi_ap_req_der_set (auth_handle, (char *) data, cnt);
   if (rc != SHISHI_OK)
     {
       snprintf (errbuf, errbuflen,

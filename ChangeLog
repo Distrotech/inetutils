@@ -1,5 +1,38 @@
 2013-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	libtelnet: Selected compiler warnings.
+
+	* libtelnet/auth.c (auth_send): Cast sizeof() as int.
+	(auth_name): Remove AP.  Make SAVENAME a char array.
+	Cast sizeof() as int.  Rewrite debug message for
+	overflowing name.
+	* libtelnet/enc_des.c (FB64_IV, FB64_IV_OK)
+	(FB64_IV_BAD): Make definitions conditional.
+	(fb64_session): Cast `key->length' as size_t.
+	* libtelnet/encrypt.c (encrypt_is): Do assignment
+	before if-statament.  Use format `%p' with pointer.
+	(encrypt_reply): Likewise.
+	(encrypt_start): Use separate assigment.
+	(encrypt_keyid): Likewise.  Delete STRP and CP.
+	(encrypt_start_output): Use separate assignment.
+	(encrypt_send_request_end): Remove ENCRYPT and DECRYPT.
+
+	* libtelnet/kerberos5.c (kerberos5_is_auth): Make static.
+	(kerberos5_is_forward) [FORWARD]: Likewise.
+	* libtelnet/shishi.c (Data): Third argument is `void *'.
+	Cast as `char *' for strlen().
+	(shishi_init_key) [ENCRYPTION]: Make static.  Cast result
+	from shishi_key_value() as `unsigned char *'.
+	(krb5shishi_reply): shishi_ap_rep_verify_der() needs a cast
+	as `char *'.
+	(krb5shishi_status): Delete RC.
+	(krb5shishi_is_auth): Make static.  Delete KEY2.
+	shishi_ap_req_der_set() needs cast as `char *'.
+
+	* telnet/authenc.c (telnet_getenv): Do not cast `val'.
+
+2013-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftp, telnet: Erase passwords after use.
 
 	* ftp/cmds.c (user): Erase password string after getpass().

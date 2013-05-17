@@ -127,9 +127,15 @@ struct keyidlist
 
 #   define SHIFT_VAL(a,b)	(KEYFLAG_SHIFT*((a)+((b)*2)))
 
-#   define FB64_IV	1
-#   define FB64_IV_OK	2
-#   define FB64_IV_BAD	3
+#   ifndef FB64_IV
+#    define FB64_IV	1
+#   endif
+#   ifndef FB64_IV_OK
+#    define FB64_IV_OK	2
+#   endif
+#   ifndef FB64_IV_BAD
+#    define FB64_IV_BAD	3
+#   endif
 
 
 /* Callback from consumer.  */
@@ -482,7 +488,7 @@ fb64_session (Session_Key *key, int server, struct fb *fbp)
   memmove ((void *) derived_key, (void *) key->data, key->length);
 
   /* Check parity of each DES block, correct it whenever needed.  */
-  for (offset = 0; offset < key->length; offset += sizeof (Block))
+  for (offset = 0; offset < (size_t) key->length; offset += sizeof (Block))
     (void) des_set_parity (derived_key + offset);
 
   /* XXX: A single key block is in use for now,

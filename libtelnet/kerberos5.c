@@ -443,7 +443,7 @@ kerberos5_status (TN_Authenticator * ap, char *name, size_t len,
   return AUTH_USER;
 }
 
-int
+static int
 kerberos5_is_auth (TN_Authenticator * ap, unsigned char *data, int cnt,
 		   char *errbuf, int errbuflen)
 {
@@ -639,7 +639,7 @@ kerberos5_is_auth (TN_Authenticator * ap, unsigned char *data, int cnt,
 }
 
 # ifdef FORWARD
-int
+static int
 kerberos5_is_forward (TN_Authenticator * ap, unsigned char *data, int cnt,
 		      char *errbuf, int errbuflen)
 {
