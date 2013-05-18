@@ -827,6 +827,19 @@ AC_CHECK_TYPE(Session_Key,
 	    [Define to 1 if <arpa/telnet.h> defines a type Session_Key.]), ,
   [#include <arpa/telnet.h>])
 
+# At least NetBSD demands `const char []'.
+AC_MSG_CHECKING([whether enctype_names is const char])
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM(
+     [[#include <arpa/telnet.h>
+       const char *enctype_names[] = { "ANY", "CFB64", 0 };]],
+     [[ return 0;]])],
+  [AC_DEFINE([HAVE_CONST_CHAR_ENCTYPE_NAMES], 1,
+	     [Define to 1 if enctype_names[] must be const char.])
+   ac_iu_const_enctype_names=yes],
+  [ac_iu_const_enctype_names=no])
+AC_MSG_RESULT([$ac_iu_const_enctype_names])
+
 ## Checks for function declarations.
 
 AC_DECL_SYS_SIGLIST

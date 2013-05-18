@@ -1,3 +1,14 @@
+2013-05-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libtelnet: Portability of enctype_names.
+
+	* configure.ac (HAVE_CONST_CHAR_ENCTYPE_NAMES):
+	Check if <arpa/telnet.h> declares enctype_names
+	as `const char []'.
+	* libtelnet/encrypt.c (enctype_names)
+	[HAVE_CONST_CHAR_ENCTYPE_NAMES]: Declare as
+	constant array.
+
 2013-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libtelnet: Selected compiler warnings.

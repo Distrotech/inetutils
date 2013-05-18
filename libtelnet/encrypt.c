@@ -86,7 +86,12 @@
 /* String representation of our capabilities.
  * Solaris will gain DES_OFB64!
  */
-char *enctype_names[] = {
+# ifdef HAVE_CONST_CHAR_ENCTYPE_NAMES
+const char *enctype_names[] =
+# else
+char *enctype_names[] =
+# endif
+{
   "ANY", "DES_CFB64", "DES_OFB64", 0,
 };
 
