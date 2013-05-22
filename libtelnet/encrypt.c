@@ -81,6 +81,7 @@
 # include <string.h>
 
 # include <stdio.h>
+# include <unused-parameter.h>
 # include "genget.h"
 
 /* String representation of our capabilities.
@@ -667,7 +668,8 @@ encrypt_reply (unsigned char *data, int cnt)
  * Called when a ENCRYPT START command is received.
  */
 void
-encrypt_start (unsigned char *data, int cnt)
+encrypt_start (unsigned char *data _GL_UNUSED_PARAMETER,
+	       int cnt _GL_UNUSED_PARAMETER)
 {
   Encryptions *ep;
 
@@ -749,7 +751,8 @@ encrypt_request_end (void)
  * can.
  */
 void
-encrypt_request_start (unsigned char *data, int cnt)
+encrypt_request_start (unsigned char *data _GL_UNUSED_PARAMETER,
+		       int cnt _GL_UNUSED_PARAMETER)
 {
   if (encrypt_mode == 0)
     {

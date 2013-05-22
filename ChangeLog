@@ -1,3 +1,14 @@
+2013-05-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* libtelnet/encrypt.c: Include <unused-parameter.h>.
+	(encrypt_start, encrypt_request_start): Mark all
+	parameters with _GL_UNUSED_PARAMETER.
+	* libtelnet/kerberos5.c: Include <unused-parameter.h>.
+	(kerberos5_init, kerberos5_status): Param `ap' is unused.
+	* libtelnet/shishi.c: Include <unused-parameter.h>.
+	(krb5shishi_init, krb5shishi_status): `ap' is unused.
+	(krb5shishi_cleanup): Likewise.  Delete variable SUBKEY.
+
 2013-05-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libtelnet: Portability of enctype_names.

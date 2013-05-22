@@ -36,6 +36,7 @@
 # include <ctype.h>
 # include <syslog.h>
 # include <string.h>
+# include <unused-parameter.h>
 
 # include "auth.h"
 # include "misc.h"
@@ -119,7 +120,7 @@ Data (TN_Authenticator * ap, int type, krb5_pointer d, int c)
 
 /* FIXME: Reverse return code! */
 int
-kerberos5_init (TN_Authenticator * ap, int server)
+kerberos5_init (TN_Authenticator * ap _GL_UNUSED_PARAMETER, int server)
 {
   str_data[3] = server ? TELQUAL_REPLY : TELQUAL_IS;
   if (telnet_context == 0 && krb5_init_context (&telnet_context))
@@ -426,8 +427,8 @@ kerberos5_reply (TN_Authenticator * ap, unsigned char *data, int cnt)
 }
 
 int
-kerberos5_status (TN_Authenticator * ap, char *name, size_t len,
-		  int level)
+kerberos5_status (TN_Authenticator * ap _GL_UNUSED_PARAMETER,
+		  char *name, size_t len, int level)
 {
   if (level < AUTH_USER)
     return level;
