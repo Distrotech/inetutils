@@ -958,7 +958,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
   if (use_kerberos)
     {
       int rc;
-      char *err_msg;
+      const char *err_msg;
 
       rc = get_auth (STDIN_FILENO, &h, &ap, &enckey, &err_msg, &protocol,
 		     &cksumtype, &cksum, &cksumlen, servername);

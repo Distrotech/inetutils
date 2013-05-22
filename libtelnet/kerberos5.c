@@ -91,7 +91,7 @@ Data (TN_Authenticator * ap, int type, krb5_pointer d, int c)
   unsigned char *cd = (unsigned char *) d;
 
   if (c == -1)
-    c = strlen (cd);
+    c = strlen ((char *) cd);
 
   if (auth_debug_mode)
     {

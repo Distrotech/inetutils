@@ -639,7 +639,7 @@ cmd
 				struct addrinfo hints, *res;
 
 				memset (&hints, 0, sizeof (hints));
-				snprintf (p, sizeof (p), "%jd", $9 & 0xffffLL);
+				snprintf (p, sizeof (p), "%jd", $9 & 0xffff);
 				hints.ai_family = $5;
 				hints.ai_socktype = SOCK_STREAM;
 				hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV;
@@ -909,10 +909,10 @@ host_port
 			struct addrinfo hints, *res;
 
 			snprintf (a, sizeof (a), "%jd.%jd.%jd.%jd",
-				  $1 & 0xffLL, $3 & 0xffLL,
-				  $5 & 0xffLL, $7 & 0xffLL);
+				  $1 & 0xff, $3 & 0xff,
+				  $5 & 0xff, $7 & 0xff);
 			snprintf (p, sizeof (p), "%jd",
-				  (($9 & 0xffLL) << 8) + ($11 & 0xffLL));
+				  (($9 & 0xff) << 8) + ($11 & 0xff));
 			memset (&hints, 0, sizeof (hints));
 			hints.ai_family = his_addr.ss_family;
 			hints.ai_socktype = SOCK_STREAM;
@@ -927,8 +927,8 @@ host_port
 #endif
 			    snprintf (a, sizeof (a),
 				      "::ffff:%jd.%jd.%jd.%jd",
-				      $1 & 0xffLL, $3 & 0xffLL,
-				      $5 & 0xffLL, $7 & 0xffLL);
+				      $1 & 0xff, $3 & 0xff,
+				      $5 & 0xff, $7 & 0xff);
 			  }
 
 			err = getaddrinfo (a, p, &hints, &res);

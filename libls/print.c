@@ -132,8 +132,9 @@ printlong (DISPLAY *dp)
 		dp->s_block, (long long) howmany (sp->st_blocks, blocksize));
       strmode (sp->st_mode, buf);
       np = p->fts_pointer;
-      printf ("%s %*u %-*s  %-*s  ", buf, dp->s_nlink,
-	      sp->st_nlink, dp->s_user, np->user, dp->s_group, np->group);
+      printf ("%s %*d %-*s  %-*s  ",
+	      buf, dp->s_nlink, (int) sp->st_nlink,
+	      dp->s_user, np->user, dp->s_group, np->group);
       if (f_flags)
 	printf ("%-*s ", dp->s_flags, np->flags);
       if (S_ISCHR (sp->st_mode) || S_ISBLK (sp->st_mode))

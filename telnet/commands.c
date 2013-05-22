@@ -2450,7 +2450,10 @@ tn (int argc, char *argv[])
 #endif
   const int on = 1;
   int err;
-  char *cmd, *hostp = 0, *hosttmp = 0, *portp = 0, *user = 0;
+  char *cmd, *hostp = 0, *portp = 0, *user = 0;
+#ifdef HAVE_IDN
+  char *hosttmp = 0;
+#endif
 
 #ifdef IPV6
   memset (&hints, 0, sizeof (hints));

@@ -49,7 +49,7 @@
 
 #include <config.h>
 
-#if defined KRB4 || defined SHISHI
+#if defined KERBEROS || defined SHISHI
 
 # include <sys/param.h>
 # include <sys/file.h>
@@ -208,7 +208,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
        * and concatenate the host's canonical name, but
        * preceeded by a slash.
        */
-      sprintf (p, "%.*s/%s", host - *ahost - 1, *ahost, host_save);
+      sprintf (p, "%.*s/%s", (int) (host - *ahost - 1), *ahost, host_save);
       *ahost = p;
     }
 
@@ -569,4 +569,4 @@ getport (int *alport, int af)
     }
 }
 
-#endif /* KERBEROS */
+#endif /* KERBEROS || SHISHI */

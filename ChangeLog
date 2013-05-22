@@ -1,5 +1,41 @@
 2013-05-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	libinetutils: Clarify Kerberos dependency.
+
+	* libinetutils/kcmd.c [KERBEROS || SHISHI]:
+	Condition file content on KERBEROS, not KRB4.
+
+
+	Mixed compiler warnings.
+
+	* ftpd/ftpcmd.y (cmd) <EPRT>: Remove the suffix `LL'
+	on constants, which enforces an unwanted cast.
+	(host_port): Likewise.
+
+	* libinetutils/kcmd.c (kcmd): Cast a string length
+	computation as int, used for format precision.
+
+	* libls/print.c (printlong): Cast nlink_t as int.
+
+	* libtelnet/kerberos5.c (Data): Cast CD as `char *'
+	for use by strlen().
+
+	* src/rexecd.c (get_user_password) [!WITH_PAM]:
+	Declare only in absence of WITH_PAM.
+	(doit) [!WITH_PAM]: Declare NAMEP and PW_PASSWORD.
+	(rexec_conv) [WITH_PAM]: Identify `data' as unused.
+	* src/rlogin.c (writer) <!escapechar>: Disambiguate
+	conditional statements inside a braced block.
+	* src/rsh.c: Include <unused-parameter.h>.  Remove
+	inclusion of "xalloc.h".
+	(parse_opt): Identify `state' as unused.
+	* src/rshd.c (doit) [SHISHI]: Declare ERR_MSG as a
+	constant array.
+
+	* telnet/commands.c (tn) [HAVE_IDN]: Declare HOSTTMP.
+
+2013-05-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* libtelnet/encrypt.c: Include <unused-parameter.h>.
 	(encrypt_start, encrypt_request_start): Mark all
 	parameters with _GL_UNUSED_PARAMETER.

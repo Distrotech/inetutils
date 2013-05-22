@@ -1020,19 +1020,21 @@ writer (void)
 	      continue;
 	    }
 	  if (c != escapechar)
+	    {
 #ifdef ENCRYPTION
 # ifdef KERBEROS
-	    if (doencrypt)
-	      des_write (rem, (char *) &escapechar, 1);
-	    else
+	      if (doencrypt)
+		des_write (rem, (char *) &escapechar, 1);
+	      else
 # elif defined(SHISHI)
-	    if (doencrypt)
-	      writeenc (handle, rem, (char *) &escapechar, 1, &wlen, &iv2,
-			key, 2);
-	    else
-# endif
-#endif
-	      write (rem, &escapechar, 1);
+	      if (doencrypt)
+		writeenc (handle, rem, (char *) &escapechar, 1, &wlen,
+			  &iv2, key, 2);
+	      else
+# endif /* SHISHI */
+#endif /* ENCRYPTION */
+		write (rem, &escapechar, 1);
+	    }
 	}
 
 #ifdef ENCRYPTION

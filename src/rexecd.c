@@ -221,6 +221,7 @@ extern char **environ;
 
 char *getstr (const char *);
 
+#ifndef WITH_PAM
 static char *
 get_user_password (struct passwd *pwd)
 {
@@ -232,12 +233,16 @@ get_user_password (struct passwd *pwd)
 #endif
   return pw_text;
 }
+#endif /* !WITH_PAM */
 
 int
 doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 {
-  char *cmdbuf, *cp, *namep;
-  char *user, *pass, *pw_password;
+  char *cmdbuf, *cp;
+  char *user, *pass;
+#ifndef WITH_PAM
+  char *namep, *pw_password;
+#endif
 #ifdef HAVE_GETPWNAM_R
   char *pwbuf;
   int pwbuflen;
@@ -365,7 +370,7 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 
   endpwent ();
 
-#if !WITH_PAM
+#ifndef WITH_PAM
   /* Last need of elevated privilege.  */
   pw_password = get_user_password (pwd);
   if (*pw_password != '\0')
@@ -710,7 +715,8 @@ getstr (const char *err)
  */
 static int
 rexec_conv (int num, const struct pam_message **pam_msg,
-	    struct pam_response **pam_resp, void *data)
+	    struct pam_response **pam_resp,
+	    void *data _GL_UNUSED_PARAMETER)
 {
   struct pam_response *resp;
 

@@ -77,7 +77,7 @@
 #include <xalloc.h>
 #include <argp.h>
 #include <libinetutils.h>
-#include "xalloc.h"
+#include <unused-parameter.h>
 
 #ifdef KERBEROS
 # ifdef HAVE_KERBEROSIV_DES_H
@@ -171,7 +171,8 @@ static struct argp_option options[] = {
 };
 
 static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
+parse_opt (int key, char *arg,
+	   struct argp_state *state _GL_UNUSED_PARAMETER)
 {
   switch (key)
     {
