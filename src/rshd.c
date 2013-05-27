@@ -129,6 +129,9 @@
 # include <sys/filio.h>
 #endif
 #include <pwd.h>
+#ifdef HAVE_SHADOW_H
+# include <shadow.h>
+#endif
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -173,6 +176,10 @@
 
 #ifndef MAX
 # define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef DAY
+# define DAY (24 * 60 * 60)
 #endif
 
 int keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
@@ -718,9 +725,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	    rc = getaddrinfo (hostname, NULL, &hints, &res);
 	    if (rc != 0)
 	      {
-		syslog (LOG_INFO, "Could not resolve address for %s",
+		syslog (LOG_INFO, "Could not resolve address for %s.",
 			hostname);
-		errorstr = "Could not resolve address for your host (%s)\n";
+		errorstr = "Could not resolve address for your host (%s).\n";
 		hostname = addrstr;
 	      }
 	    else
@@ -743,9 +750,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 		if (ai == NULL)
 		  {
 		    syslog (LOG_NOTICE,
-			    "Host addr %s not listed for host %s",
+			    "Host addr %s not listed for host %s.",
 			    addrstr, hostname);
-		    errorstr = "Host address mismatch for %s\n";
+		    errorstr = "Host address mismatch for %s.\n";
 		    hostname = addrstr;
 		  }
 	      }
@@ -779,7 +786,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	  {
 	    char *remotehost = alloca (strlen (hostname) + 1);
 	    if (!remotehost)
-	      errorstr = "Out of memory\n";
+	      errorstr = "Out of memory.\n";
 	    else
 	      {
 		strcpy (remotehost, hostname);
@@ -788,9 +795,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 		if (hp == NULL)
 		  {
 		    syslog (LOG_INFO,
-			    "Couldn't look up address for %s", remotehost);
+			    "Couldn't look up address for %s.", remotehost);
 		    errorstr =
-		      "Couldn't look up address for your host (%s)\n";
+		      "Couldn't look up address for your host (%s).\n";
 		    hostname = addrstr;
 		  }
 		else
@@ -799,9 +806,9 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 		      if (hp->h_addr_list[0] == NULL)
 			{
 			  syslog (LOG_NOTICE,
-				  "Host addr %s not listed for host %s",
+				  "Host addr %s not listed for host %s.",
 				  addrstr, hp->h_name);
-			  errorstr = "Host address mismatch for %s\n";
+			  errorstr = "Host address mismatch for %s.\n";
 			  hostname = addrstr;
 			  break;
 			}
@@ -1186,6 +1193,8 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       goto fail;
     }
 
+  /* Checks existence of account, and more.
+   */
   pam_rc = pam_authenticate (pam_handle, PAM_SILENT);
   if (pam_rc != PAM_SUCCESS)
     {
@@ -1208,6 +1217,8 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	}
     }
 
+  /* Checks expiration of account, and more.
+   */
   pam_rc = pam_acct_mgmt (pam_handle, PAM_SILENT);
   if (pam_rc != PAM_SUCCESS)
     {
@@ -1229,7 +1240,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	case PAM_PERM_DENIED:
 	case PAM_USER_UNKNOWN:
 	default:
-	  errorstr = "Permission denied.";
+	  errorstr = "Permission denied.\n";
 	  goto fail;
 	  break;
 	}
@@ -1260,19 +1271,115 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
       errorstr = "Login incorrect.\n";
       goto fail;
     }
-#endif /* WITH_PAM */
+#else /* !WITH_PAM */
+  /*
+   * The account exists by a previous call to getpwnam().
+   * Is the account locked, or has it expired?
+   */
+  {
+    time_t now;
 
-#if defined WITH_IRUSEROK_AF && !defined WITH_PAM
-    switch (fromp->sa_family)
+# ifdef HAVE_GETSPNAM
+    struct spwd *spwd;
+
+    /*
+     * GNU/Linux, Solaris
+     *
+     * Locked account?
+     */
+    spwd = getspnam (pwd->pw_name);
+    if (!spwd)
       {
-      case AF_INET6:
-	fromaddrp = (void *) &((struct sockaddr_in6 *) fromp)->sin6_addr;
-	break;
-      case AF_INET:
-      default:
-	fromaddrp = (void *) &((struct sockaddr_in *) fromp)->sin_addr;
+	syslog (LOG_ERR | LOG_AUTH, "No access to encrypted password.");
+	if (errorstr == NULL)
+	  errorstr = "Login incorrect.\n";
+	goto fail;
       }
-#endif
+    else
+      {
+	/* Locked accounts have their passwords prefixed with a blocker.  */
+	if (!strncmp ("!", spwd->sp_pwdp, strlen ("!"))
+	    || !strncmp ("*LK*", spwd->sp_pwdp, strlen ("*OK*")))
+	  {
+	    syslog (LOG_INFO | LOG_AUTH,
+		    "%s@%s as %s: account is locked. cmd='%.80s'",
+		    remuser, hostname, locuser, cmdbuf);
+	    if (errorstr == NULL)
+	      errorstr = "Permission denied.\n";
+	    goto fail;
+	  }
+      }
+
+    /*
+     * Expired account?
+     */
+    time (&now);
+    if (spwd->sp_expire > 0)
+      {
+	time_t end_acct = DAY * spwd->sp_expire;
+
+	if (difftime (now, end_acct) > 0)
+	  {
+	    syslog (LOG_INFO | LOG_AUTH,
+		    "%s@%s as %s: account is expired. cmd='%.80s'",
+		    remuser, hostname, locuser, cmdbuf);
+	    if (errorstr == NULL)
+	      errorstr = "Permission denied.\n";
+	    goto fail;
+	  }
+      }
+# else /* !HAVE_GETSPNAM */
+    /*
+     * BSD systems.
+     *
+     * Locked account?
+     */
+    if (!strncmp ("*LOCKED*", pwd->pw_passwd, strlen ("*LOCKED*")))
+      {
+	syslog (LOG_INFO | LOG_AUTH,
+		"%s@%s as %s: account is locked. cmd='%.80s'",
+		remuser, hostname, locuser, cmdbuf);
+	if (errorstr == NULL)
+	  errorstr = "Permission denied.\n";
+	goto fail;
+      }
+
+    /*
+     * Expired account?
+     */
+#  ifdef HAVE_STRUCT_PASSWD_PW_EXPIRE
+    time (&now);
+
+    /*
+     * Negative `pw_expire' indicates on NetBSD
+     * an immediate need for change of password.
+     */
+    if (((pwd->pw_expire > 0) && (difftime (now, pwd->pw_expire) > 0))
+	|| (pwd->pw_expire < 0))
+      {
+	syslog (LOG_INFO | LOG_AUTH,
+		"%s@%s as %s: account is expired. cmd='%.80s'",
+		remuser, hostname, locuser, cmdbuf);
+	if (errorstr == NULL)
+	  errorstr = "Permission denied.\n";
+	goto fail;
+      }
+#  endif /* HAVE_STRUCT_PASSWD_PW_EXPIRE */
+# endif /* !HAVE_GETSPNAM */
+  }
+
+#if defined WITH_IRUSEROK_AF
+  switch (fromp->sa_family)
+    {
+    case AF_INET6:
+      fromaddrp = (void *) &((struct sockaddr_in6 *) fromp)->sin6_addr;
+      break;
+    case AF_INET:
+    default:
+      fromaddrp = (void *) &((struct sockaddr_in *) fromp)->sin_addr;
+    }
+# endif /* !WITH_IRUSEROK_AF */
+#endif /* !WITH_PAM */
 
 #ifdef KRB4
   if (use_kerberos)

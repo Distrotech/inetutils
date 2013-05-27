@@ -1,3 +1,14 @@
+2013-05-27  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rshd: Check account locking and expiration.
+
+	* src/rshd.c [HAVE_SHADOW_H]: Include <shadow.h>.
+	(DAY) [!DAY]: New macro.
+	(doit): Multiple, minor changes to error strings.
+	[!WITH_PAM]: New checks of account being either
+	locked, or expired.  The code tests HAVE_GETSPNAM
+	and HAVE_STRUCT_PASSWD_PW_EXPIRE for system quirks.
+
 2013-05-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libinetutils: Clarify Kerberos dependency.
