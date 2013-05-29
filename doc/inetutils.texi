@@ -3274,6 +3274,12 @@ syslogd [@var{options}]@dots{}
 @opindex --rcfile
 Override configuration (the default file is @file{/etc/syslog.conf}).
 
+@item -D @var{dir}
+@itemx --rcdir=@var{dir}
+@opindex -D
+@opindex --rcdir
+Override configuration directory (the default is @file{/etc/syslog.d}).
+
 @item --pidfile=@var{file}
 @opindex --pidfile
 Override pidfile (the default file is @file{/var/run/syslogd.pid}).

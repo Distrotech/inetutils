@@ -1,5 +1,22 @@
 2013-05-29  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	syslogd: Load configuration from directory.
+	Code suggested by Guillem Jover <guillem@hadrons.org>
+	<http://lists.gnu.org/archive/html/bug-inetutils/2009-12/msg00054.html>.
+	Minor changes with failure tracking.
+
+	* paths (PATH_LOGCONFD): New variable.
+	* src/Makefile.am (AM_CPPFLAGS): Add $(PATHDEF_LOGCONFD).
+	* src/syslogd.c: Include <dirent.h>.
+	(ConfDir): New variable.
+	(argp_options): New option `-D/--rcdir'.
+	(parse_opt) <'D'>: New case.
+	(load_confdir): New function.
+	(init): New variable RET.  Call load_confdir(),
+	making sure that failures are reported.
+
+2013-05-29  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	syslogd: Refactor loading of configuration file.
 	Code outlined by Guillem Jover <guillem@hadrons.org>
 	<http://lists.gnu.org/archive/html/bug-inetutils/2009-12/msg00053.html>.

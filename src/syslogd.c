@@ -105,6 +105,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include <unistd.h>
 
 #include <stdarg.h>
@@ -137,6 +138,7 @@ int facilities_seen;
 char *selector;			/* Program origin to select.  */
 
 const char *ConfFile = PATH_LOGCONF;	/* Default Configuration file.  */
+const char *ConfDir = PATH_LOGCONFD;	/* Default Configuration directory.  */
 const char *PidFile = PATH_LOGPID;	/* Default path to tuck pid.  */
 char ctty[] = PATH_CONSOLE;	/* Default console to send message info.  */
 
@@ -259,6 +261,7 @@ void domark (int);
 void find_inet_port (const char *);
 void fprintlog (struct filed *, const char *, int, const char *);
 static int load_conffile (const char *, struct filed **);
+static int load_confdir (const char *, struct filed **);
 void init (int);
 void logerror (const char *);
 void logmsg (int, const char *, const char *, int);
@@ -358,6 +361,8 @@ static struct argp_option argp_options[] = {
   {"rcfile", 'f', "FILE", 0, "override configuration file (default: "
    PATH_LOGCONF ")",
    GRP+1},
+  {"rcdir", 'D', "DIR", 0, "override configuration directory (default: "
+   PATH_LOGCONFD ")", GRP+1},
   {"socket", 'p', "FILE", 0, "override default unix domain socket " PATH_LOG,
    GRP+1},
   {"sync", 'S', NULL, 0, "force a file sync on every line", GRP+1},
@@ -447,6 +452,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'f':
       ConfFile = arg;
+      break;
+
+    case 'D':
+      ConfDir = arg;
       break;
 
     case 'p':
@@ -1797,6 +1806,9 @@ die (int signo)
   exit (EXIT_SUCCESS);
 }
 
+/*
+ * Return zero on error.
+ */
 static int
 load_conffile (const char *filename, struct filed **nextp)
 {
@@ -1989,11 +2001,62 @@ load_conffile (const char *filename, struct filed **nextp)
   return 1;
 }
 
+/*
+ * Return zero on error.
+ */
+static int
+load_confdir (const char *dirname, struct filed **nextp)
+{
+  int rc = 0, found = 0;
+  struct dirent *dent;
+  DIR *dir;
+
+  dir = opendir (dirname);
+  if (dir == NULL)
+    {
+      dbg_printf ("cannot open %s\n", dirname);
+      return 1;		/* Acceptable deviation.  */
+    }
+
+  while ((dent = readdir (dir)) != NULL)
+    {
+      struct stat st;
+      char *file;
+
+      if (asprintf (&file, "%s/%s", dirname, dent->d_name) < 0)
+	{
+	  dbg_printf ("cannot allocate space for configuration filename\n");
+	  return 0;
+	}
+
+      if (stat (file, &st) != 0)
+	{
+	  dbg_printf ("cannot stat file configuration file\n");
+	  continue;
+	}
+
+
+      if (S_ISREG(st.st_mode))
+	{
+	  found++;
+	  rc += load_conffile (file, nextp);
+	}
+
+      free (file);
+    }
+
+  closedir (dir);
+
+  /* An empty directory is acceptable.
+   */
+  return (found ? rc : 1);
+}
+
 /* INIT -- Initialize syslogd from configuration table.  */
 void
 init (int signo _GL_UNUSED_PARAMETER)
 {
-  int rc;
+  int rc, ret;
   struct filed *f, *next, **nextp;
 
   dbg_printf ("init\n");
@@ -2039,6 +2102,10 @@ init (int signo _GL_UNUSED_PARAMETER)
   facilities_seen = 0;
 
   rc = load_conffile (ConfFile, nextp);
+
+  ret = load_confdir (ConfDir, nextp);
+  if (!ret)
+    rc = 0;		/* Some allocation errors were found.  */
 
   Initialized = 1;
 
