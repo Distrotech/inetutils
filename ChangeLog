@@ -1,5 +1,17 @@
 2013-05-29  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	tests: Directory loading in syslogd.
+
+	* tests/syslogd.sh (CONFD): New variable.
+	(IU_OPTIONS): Add directory setting `--rcdir'.
+	<reloaded configuration>: Move directive for
+	severity `debug' to a file in $CONFD.
+
+	* src/syslogd.c (main) <NoDetach>: Mention the
+	process ID when telling about debug signal USR1.
+
+2013-05-29  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	syslogd: Load configuration from directory.
 	Code suggested by Guillem Jover <guillem@hadrons.org>
 	<http://lists.gnu.org/archive/html/bug-inetutils/2009-12/msg00054.html>.

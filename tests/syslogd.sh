@@ -139,12 +139,15 @@ elif expr X"$IU_TESTDIR" : X"\.\{1,2\}/\{0,1\}$" >/dev/null; then
     exit 77
 fi
 
-# The SYSLOG daemon uses four files.
+# The SYSLOG daemon uses four files and one directory.
 #
 CONF="$IU_TESTDIR"/syslog.conf
+CONFD="$IU_TESTDIR"/syslog.d
 PID="$IU_TESTDIR"/syslogd.pid
 OUT="$IU_TESTDIR"/messages
 : ${SOCKET:=$IU_TESTDIR/log}
+
+mkdir -p "$CONFD"
 
 # Are we able to write in IU_TESTDIR?
 # This could happen with preset IU_TESTDIR.
@@ -345,7 +348,7 @@ fi
 # building the desired option list.
 #
 ## Base configuration.
-IU_OPTIONS="--rcfile='$CONF' --pidfile='$PID'"
+IU_OPTIONS="--rcfile='$CONF' --rcdir='$CONFD' --pidfile='$PID'"
 if $do_unix_socket; then
     IU_OPTIONS="$IU_OPTIONS --socket='$SOCKET'"
 else
@@ -440,6 +443,9 @@ OUT_DEBUG="$IU_TESTDIR"/debug.log
 cat > "$CONF" <<-EOT
 	*.*		$OUT
 	user.info	$OUT_USER
+EOT
+
+cat > "$CONFD/debug" <<-EOT
 	*.=debug	$OUT_DEBUG
 EOT
 

@@ -681,7 +681,8 @@ main (int argc, char *argv[])
   if (NoDetach)
     {
       dbg_output = 1;
-      dbg_printf ("Debugging disabled, send SIGUSR1 to turn on debugging.\n");
+      dbg_printf ("Debugging is disabled. Send SIGUSR1 to PID=%d "
+		  "to turn on debugging.\n", (int) getpid ());
       dbg_output = 0;
     }
 

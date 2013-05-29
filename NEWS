@@ -60,6 +60,9 @@ Messages can be logged to specific files according to the name
 of the submitting program, on the tag attached to the message.
 The mechanism is patterned on an established BSD feature.
 
+Support loading of multiple configuration files located in a
+single directory.  New switches `-D/--rcdir'.
+
 * telnet
 
 New switch `-k/--realm'.
