@@ -258,6 +258,7 @@ void doexit (int);
 void domark (int);
 void find_inet_port (const char *);
 void fprintlog (struct filed *, const char *, int, const char *);
+static int load_conffile (const char *, struct filed **);
 void init (int);
 void logerror (const char *);
 void logmsg (int, const char *, const char *, int);
@@ -1796,12 +1797,11 @@ die (int signo)
   exit (EXIT_SUCCESS);
 }
 
-/* INIT -- Initialize syslogd from configuration table.  */
-void
-init (int signo _GL_UNUSED_PARAMETER)
+static int
+load_conffile (const char *filename, struct filed **nextp)
 {
   FILE *cf;
-  struct filed *f, *next, **nextp;
+  struct filed *f;
   char *p;
 #ifndef LINE_MAX
 # define LINE_MAX 2048
@@ -1811,63 +1811,31 @@ init (int signo _GL_UNUSED_PARAMETER)
   char *cline;
   int cont_line = 0;
 
-  dbg_printf ("init\n");
-
-  /* Close all open log files.  */
-  Initialized = 0;
-  for (f = Files; f != NULL; f = next)
-    {
-      int j;
-
-      /* Flush any pending output.  */
-      if (f->f_prevcount)
-	fprintlog (f, LocalHostName, 0, (char *) NULL);
-
-      switch (f->f_type)
-	{
-	case F_FILE:
-	case F_TTY:
-	case F_CONSOLE:
-	case F_PIPE:
-	  free (f->f_un.f_fname);
-	  close (f->f_file);
-	  break;
-	case F_FORW:
-	case F_FORW_SUSP:
-	case F_FORW_UNKN:
-	  free (f->f_un.f_forw.f_hname);
-	  break;
-	case F_USERS:
-	  for (j = 0; j < f->f_un.f_user.f_nusers; ++j)
-	    free (f->f_un.f_user.f_unames[j]);
-	  free (f->f_un.f_user.f_unames);
-	  break;
-	}
-      free (f->f_progname);
-      free (f->f_prevhost);
-      next = f->f_next;
-      free (f);
-    }
-  Files = NULL;
-  nextp = &Files;
-
-  facilities_seen = 0;
+  /* Beware: Do not assume *nextp to be NULL.  */
 
   /* Open the configuration file.  */
-  cf = fopen (ConfFile, "r");
+  cf = fopen (filename, "r");
   if (cf == NULL)
     {
-      dbg_printf ("cannot open %s\n", ConfFile);
-      *nextp = (struct filed *) calloc (1, sizeof (*f));
-      cfline ("*.ERR\t" PATH_CONSOLE, *nextp);
-      (*nextp)->f_next = (struct filed *) calloc (1, sizeof (*f));
-      cfline ("*.PANIC\t*", (*nextp)->f_next);
-      Initialized = 1;
-      return;
-    }
+      dbg_printf ("cannot open %s\n", filename);
 
-  /* Foreach line in the conf table, open that file.  */
-  f = NULL;
+      /* Add emergency logging if everything else was missing.  */
+      if (*nextp == NULL)
+	{
+	  /* Send LOG_ERR to the system console.  */
+	  f = (struct filed *) calloc (1, sizeof (*f));
+	  cfline ("*.ERR\t" PATH_CONSOLE, f);		/* Erases *f!  */
+
+	  /* Below that, send LOG_EMERG to all users.  */
+	  f->f_next = (struct filed *) calloc (1, sizeof (*f));
+	  cfline ("*.PANIC\t*", f->f_next);	/* Erases *(f->f_next)!  */
+
+	  *nextp = f;	/* Return this minimal table to the caller.  */
+	}
+
+      Initialized = 1;
+      return 1;
+    }
 
   /* Allocate a buffer for line parsing.  */
   cbuf = malloc (line_max);
@@ -1876,7 +1844,7 @@ init (int signo _GL_UNUSED_PARAMETER)
       /* There is no graceful recovery here.  */
       dbg_printf ("cannot allocate space for configuration\n");
       fclose (cf);
-      return;
+      return 0;
     }
   cline = cbuf;
 
@@ -1921,7 +1889,7 @@ init (int signo _GL_UNUSED_PARAMETER)
 	      dbg_printf ("cannot allocate space configuration\n");
 	      fclose (cf);
 	      free (cbuf);
-	      return;
+	      return 0;
 	    }
 	  else
 	    cbuf = tmp;
@@ -2003,16 +1971,74 @@ init (int signo _GL_UNUSED_PARAMETER)
 
       *++p = '\0';
 
-      /* Send the line for more parsing.  */
+      /* Send the line for more parsing.
+       * Then generate the new entry,
+       * inserting it at the head of
+       * the already existing table.
+       */
       f = (struct filed *) calloc (1, sizeof (*f));
+      cfline (cbuf, f);			/* Erases *f!  */
+      f->f_next = *nextp;
       *nextp = f;
-      nextp = &f->f_next;
-      cfline (cbuf, f);
     }
 
   /* Close the configuration file.  */
   fclose (cf);
   free (cbuf);
+
+  return 1;
+}
+
+/* INIT -- Initialize syslogd from configuration table.  */
+void
+init (int signo _GL_UNUSED_PARAMETER)
+{
+  int rc;
+  struct filed *f, *next, **nextp;
+
+  dbg_printf ("init\n");
+
+  /* Close all open log files.  */
+  Initialized = 0;
+  for (f = Files; f != NULL; f = next)
+    {
+      int j;
+
+      /* Flush any pending output.  */
+      if (f->f_prevcount)
+	fprintlog (f, LocalHostName, 0, (char *) NULL);
+
+      switch (f->f_type)
+	{
+	case F_FILE:
+	case F_TTY:
+	case F_CONSOLE:
+	case F_PIPE:
+	  free (f->f_un.f_fname);
+	  close (f->f_file);
+	  break;
+	case F_FORW:
+	case F_FORW_SUSP:
+	case F_FORW_UNKN:
+	  free (f->f_un.f_forw.f_hname);
+	  break;
+	case F_USERS:
+	  for (j = 0; j < f->f_un.f_user.f_nusers; ++j)
+	    free (f->f_un.f_user.f_unames[j]);
+	  free (f->f_un.f_user.f_unames);
+	  break;
+	}
+      free (f->f_progname);
+      free (f->f_prevhost);
+      next = f->f_next;
+      free (f);
+    }
+
+  Files = NULL;		/* Empty the table.  */
+  nextp = &Files;
+  facilities_seen = 0;
+
+  rc = load_conffile (ConfFile, nextp);
 
   Initialized = 1;
 
@@ -2058,6 +2084,11 @@ init (int signo _GL_UNUSED_PARAMETER)
   else
     logmsg (LOG_SYSLOG | LOG_INFO, "syslogd (" PACKAGE_NAME
 	    " " PACKAGE_VERSION "): restart", LocalHostName, ADDDATE);
+
+  if (!rc)
+    logmsg (LOG_SYSLOG | LOG_ERR, "syslogd: Incomplete configuration.",
+	    LocalHostName, ADDDATE);
+
   dbg_printf ("syslogd: restarted\n");
 }
 

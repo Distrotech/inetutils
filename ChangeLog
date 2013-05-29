@@ -1,3 +1,21 @@
+2013-05-29  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd: Refactor loading of configuration file.
+	Code outlined by Guillem Jover <guillem@hadrons.org>
+	<http://lists.gnu.org/archive/html/bug-inetutils/2009-12/msg00053.html>.
+	Added an important correction to the legacy code
+	for building linked lists of logging files.
+
+	* src/syslogd.c (load_conffile): New function.
+	First build a new structure `struct filed' from
+	input line, then incorporate it into `*nextp'.
+	(init): Refactor code for loading a configuration
+	file, moving it to load_conffile().
+	New variable RC.  Remove CF, P, LINE_MAX, CBUF,
+	CLINE, and CONT_LINE.
+	Register an additional error message, should loading
+	have been incomplete.
+
 2013-05-27  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: Check account locking and expiration.
