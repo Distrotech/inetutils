@@ -145,7 +145,7 @@ open_socket (void)
 
   /* A UNIX socket name can be specified in two ways.
    * Zero length of `unixsock' is handled automatically.  */
-  if ((host != NULL && host[0] == '/') || unixsock != NULL)
+  if ((host != NULL && strchr (host, '/')) || unixsock != NULL)
     {
       size_t len;
 

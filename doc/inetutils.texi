@@ -374,8 +374,8 @@ standard input is assumed.
 @opindex -h
 @opindex --host
 Send messages to the given host or socket.  The @var{host} argument
-can be either a local UNIX socket name (starting with a slash @samp{/}),
-or:
+can be either a local UNIX socket name (containing a slash @samp{/}),
+or be of the form
 
 @smallexample
 @var{host}[:@var{port}]

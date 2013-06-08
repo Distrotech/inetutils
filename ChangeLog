@@ -1,3 +1,11 @@
+2013-06-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	logger: Flexibel UNIX socket name.
+
+	* src/logger.c (open_socket): Call strchr()
+	to check if `host' contains a slash anywhere.
+	Then it names a UNIX socket.
+
 2013-05-29  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	tests: Directory loading in syslogd.
