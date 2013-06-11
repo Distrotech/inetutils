@@ -3664,6 +3664,9 @@ However, the module is known to be partially broken since
 ten years back, when one compares the claims in its manual page,
 so not all claimed trickery is available!
 
+@section Standards
+@anchor{ftpd standards}
+
 The FTP server currently supports the following FTP requests.
 The letter case of any request is ignored.
 
@@ -3741,13 +3744,16 @@ transfer status will be returned.
 conventions used by @command{csh}.  This allows users to utilize the
 metacharacters @samp{*?[]@{@}~}.
 
+@section Authentication
+@anchor{ftpd authentication}
+
 @command{ftpd} authenticates users according to four rules.
 
 @enumerate
 @item
 The login name must be in the password data base, @file{/etc/passwd},
-and not have a null password.  In this case a password must be
-provided by the client before any file operations may be performed.
+and must not have a null password.  In this case a password must be
+provided by the client before any file operations can be performed.
 
 @item
 The login name must not appear in the file @file{/etc/ftpusers}.
@@ -3763,10 +3769,17 @@ convention an email address for the user should be used as the
 password).
 @end enumerate
 
-In the last case, @command{ftpd} takes special measures to restrict
-the client's access privileges.  The server performs a chroot to the
-home directory of the @samp{ftp} user.  In order that system security
-is not breached, it is recommended that the @samp{ftp} subtree be
+A further access mechanism is provided by the file
+@file{/etc/ftpchroot}.
+A user mentioned therein will have all access confined to the subtree
+rooted at the home directory specified in @file{/etc/passwd}.
+
+In the case of anonymous access, @command{ftpd} takes special measures
+to restrict the client's access privileges.  The server always performs
+a chroot to the home directory of the @samp{ftp} user.
+
+In order that system security is not breached,
+it is recommended that the @samp{ftp} subtree be
 constructed with care, following these rules:
 
 @table @file
@@ -3776,10 +3789,11 @@ Make the home directory owned by @samp{root} and not writable by anyone.
 @item ~ftp/bin
 Make this directory owned by @samp{root} and not writable by anyone
 (mode 555).  The program @command{ls} must be present to support the
-list command.  This program should be mode 111.
+list command, unless the server was compiled with libls support.
+This program should be mode 111.
 
 @item ~ftp/etc
-Make this directory owned by @samp{root} and unwritable by anyone
+Make this directory owned by @samp{root} and not writable by anyone
 (mode 555).  The files @file{passwd} and @file{group} must be present
 for the @command{ls} command to be able to produce owner names rather
 than numbers.  The password field in @file{passwd} is not used, and
@@ -3794,6 +3808,7 @@ this directory.
 @end table
 
 @section Configuration files
+@anchor{ftpd files}
 
 @table @samp
 @item @file{/etc/ftpchroot}
@@ -3802,7 +3817,7 @@ The anonymous user @samp{ftp} is always considered
 to be a member of this list, explicit or not.
 
 @item @file{/etc/ftpusers}
-List of unwelcome/restricted users.
+List of unwelcome/restricted users, always to be denied access.
 
 @item @file{/etc/ftpwelcome}
 Welcome notice printed before server identification

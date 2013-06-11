@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 #include "extern.h"
 
 #ifndef LINE_MAX
@@ -48,8 +49,11 @@ display_file (const char *name, int code)
   return errno;
 }
 
-/* Check if a user is in the file PATH_FTPUSERS
-   return 1 if yes 0 otherwise.  */
+/*
+ * Check if a user is in the file `filename',
+ * typically PATH_FTPUSERS or PATH_FTPCHROOT.
+ * Return 1 if yes, 0 otherwise.
+ */
 int
 checkuser (const char *filename, const char *name)
 {
@@ -62,17 +66,27 @@ checkuser (const char *filename, const char *name)
     {
       while (fgets (line, sizeof (line), fp) != NULL)
 	{
-	  if (line[0] == '#')
-	    continue;
+	  /* Properly terminate input.  */
 	  p = strchr (line, '\n');
 	  if (p != NULL)
+	    *p = '\0';
+
+	  /* Disregard initial blank characters.  */
+	  p = line;
+	  while (isblank (*p))
+	    p++;
+
+	  /* Skip comments, and empty lines.  */
+	  if (*p == '#' || *p == 0)
+	    continue;
+
+	  /* User name ends at the first blank character.  */
+	  if (strncmp (p, name, strlen (name)) == 0
+	      && (p[strlen (name)] == 0
+		  || isblank (p[strlen (name)])))
 	    {
-	      *p = '\0';
-	      if (strcmp (line, name) == 0)
-		{
-		  found = 1;
-		  break;
-		}
+	      found = 1;
+	      break;
 	    }
 	}
       fclose (fp);

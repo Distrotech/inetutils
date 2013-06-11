@@ -1,3 +1,25 @@
+2013-06-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Erroneous access check.
+	The result of a user name match in PATH_FTPUSERS
+	is never applied.
+
+	* ftpd/auth.c (auth_user): Immediately return with
+	an error when a user is denied access based on an
+	entry in PATH_FTPUSERS.
+
+
+	ftpd: Better name matching mechanism.
+
+	* ftpd/conf.c: Include <ctype.h>.
+	(checkuser): Accept an input line without final
+	newline.  Allow initial blanks on input line.
+	For better portability, allow trailing text
+	separated from user name by blanks.
+
+	* doc/inetutils.texi <ftpd invocation>: Better
+	exposure of ftpchroot effects.
+
 2013-06-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	logger: Flexibel UNIX socket name.

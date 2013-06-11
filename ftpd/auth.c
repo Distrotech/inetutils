@@ -132,7 +132,7 @@ auth_user (const char *name, struct credentials *pcred)
 	    if (cp == NULL || checkuser (PATH_FTPUSERS, name))
 	      {
 		sprintf (pcred->message, "User %s access denied.", name);
-		err = 1;
+		return 1;
 	      }
 	  }
 	else
