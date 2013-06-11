@@ -94,7 +94,7 @@ PATH_LOGCONF	$(sysconfdir)/syslog.conf
 PATH_LOGCONFD	$(sysconfdir)/syslog.d
 PATH_LOGIN	x $(bindir)/login search:login
 PATH_LOGPID	$(localstatedir)/run/syslog.pid
-PATH_NOLOGIN	$(sysconfdir)/nologin
+PATH_NOLOGIN	/etc/nologin
 PATH_RLOGIN	x $(bindir)/rlogin
 PATH_RSH	x $(bindir)/rsh
 PATH_TMP	d /tmp/

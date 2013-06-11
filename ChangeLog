@@ -1,5 +1,12 @@
 2013-06-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* paths (PATH_NOLOGIN): Change default value to
+	`/etc/nologin' for best portability.
+	* README: Add some observations on hard-coded
+	file locations.
+
+2013-06-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftpd: Erroneous access check.
 	The result of a user name match in PATH_FTPUSERS
 	is never applied.
