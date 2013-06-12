@@ -1,3 +1,19 @@
+2013-06-12  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Group name matching.
+	Support group membership matching in the files
+	`/etc/ftpusers' and `/etc/ftpchroot'.
+
+	* bootstrap.conf (gnulib_modules): Add mgetgroups.
+	* ftpd/conf.c: Include <stdlib.h>, <pwd.h>, <grp.h>,
+	and <mgetgroups.h>.
+	(checkuser): New variables NGROUPS, GROUPS, PWD.
+	New code blocks for extracting and matching against
+	group names given on input line.
+
+	* doc/inetutils.texi <ftpd invocation>:
+	New section on the file format of `/etc/ftpusers'.
+
 2013-06-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* paths (PATH_NOLOGIN): Change default value to

@@ -81,7 +81,15 @@ and Sun-PAM as service `ftp'.  Observe that the latter
 two implementations only affect non-anonymous access,
 since `pam_ftp.so' exists for Linux-PAM only, so the
 standard checks are enforced on `ftp/anonymous' as usual.
-Server now accepts commands LPRT and LPSV.
+The server now accepts the commands LPRT and LPSV.
+
+The parsing of `/etc/ftpusers' and `/etc/ftpchroot' now
+allows the specification of group names, simply by
+preceding the identifier with an at-sign `@'.
+An isolated `@' acts as a wildcard and matches every
+user name.  In addition, the parser is more forgiving
+of spaces and tabs, thus achieving better portability
+of these two files when compared with other systems.
 
 * inetd
 

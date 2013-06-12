@@ -3831,6 +3831,42 @@ If present, the contents are displayed and all further
 access is refused.
 @end table
 
+@section File format of ftpusers and ftpchroot.
+@anchor{ftpusers file format}
+
+The files @file{/etc/ftpusers} and @file{/etc/ftpchroot}
+share a common file format.
+For better conformity with other implementations,
+each line is understood as consisting of fields separated
+by spaces, or by horizontal tabulators.
+Only the first non-empty field is examined at present.
+Both files are used for matching against a user name,
+desiring to use the FTP service.
+
+Whenever the first printable character is a hash @samp{#},
+the input line is taken as a comment, and is ignored.
+Lines lacking non-empty fields are likewise ignored.
+
+A field consisting of a single at-sign @samp{@@},
+is treated as a wildcard and matches every input.
+
+A field commencing with an at-sign @samp{@@} and then
+continuing with an identifier, is understood as giving
+the name of a group.
+Should this name exist in @file{/etc/groups}, and the
+user name be a member of this same group, then the user
+name matches.
+
+In all other cases, the field is taken as the identifier
+of a user, with which the requesting user is compared
+for verbatim match.
+
+It is worthwhile to observe from the above cases,
+that a single @samp{@@} on a line by itself in
+@file{/etc/ftpchroot}, will enforce chrooting
+upon every user allowed to access the FTP service.
+This gives a Draconian, protective configuration.
+
 @node tftpd invocation
 @chapter @command{tftpd}: TFTP server
 @cindex tftpd
