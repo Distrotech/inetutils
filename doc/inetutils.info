@@ -1,0 +1,3864 @@
+This is inetutils.info, produced by makeinfo version 4.13 from
+inetutils.texi.
+
+INFO-DIR-SECTION Basics
+START-INFO-DIR-ENTRY
+* Inetutils: (inetutils).       GNU networking utilities.
+* Common options: (inetutils)Common options.      Common options.
+END-INFO-DIR-ENTRY
+
+INFO-DIR-SECTION Individual utilities
+START-INFO-DIR-ENTRY
+* ftp: (inetutils)ftp invocation.                 FTP client.
+* ftpd: (inetutils)ftpd invocation.               FTP Daemon.
+* hostname: (inetutils)hostname invocation.       Show or set system host name.
+* inetd: (inetutils)inetd invocation.             Interner super-server.
+* logger: (inetutils)logger invocation.           Send messages to the system log.
+* ping: (inetutils)ping invocation.               Packets to network hosts.
+* rcp: (inetutils)rcp invocation.                 Remote copy
+* rexec: (inetutils)rexec invocation.             Remote execution client.
+* rexecd: (inetutils)rexecd invocation.           Remote execution server.
+* rlogin: (inetutils)rlogin invocation.           Remote login.
+* rlogind: (inetutils)rlogind invocation.         Remote login server.
+* rsh: (inetutils)rsh invocation.                 Remote shell.
+* rshd: (inetutils)rshd invocation.               Remote shell server.
+* syslogd: (inetutils)syslogd invocation.         Syslog server.
+* talk: (inetutils)talk invocation.               Talk client.
+* talkd: (inetutils)talkd invocation.             Talk server.
+* telnet: (inetutils)telnet invocation.           User interface to TELNET.
+* telnetd: (inetutils)telnetd invocation.         Telnet server.
+* tftp: (inetutils)tftp invocation.               TFTP client.
+* tftpd: (inetutils)tftpd invocation.             TFTP server.
+* traceroute: (inetutils)traceroute invocation.   Trace the route to a host.
+* uucpd: (inetutils)uucpd invocation.             Unix to Unix Copy.
+* whois: (inetutils)whois invocation.             Whois user interface.
+END-INFO-DIR-ENTRY
+
+   This manual documents version 1.9.1 of the GNU networking utilities.
+
+   Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+2009, 2010, 2011, 2012 Free Software Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover Texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled "GNU Free Documentation License".
+
+
+File: inetutils.info,  Node: Top,  Next: Introduction,  Up: (dir)
+
+GNU Inetutils
+*************
+
+This manual documents version 1.9.1 of the GNU networking utilities.
+
+   Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+2009, 2010, 2011, 2012 Free Software Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, no Front-Cover Texts, and
+     no Back-Cover Texts.  A copy of the license is included in the
+     section entitled "GNU Free Documentation License".
+
+* Menu:
+
+* Introduction::                       Caveats, overview, and authors.
+* Common options::                     Common options.
+
+Diagnostic programs
+
+* hostname invocation::                Show or set system host name.
+* logger invocation::                  Send messages to system log.
+* ping invocation::                    Packets to network hosts.
+* traceroute invocation::              Trace the route to a host.
+* whois invocation::                   Whois user interface.
+
+Clients
+
+* ftp invocation::                     FTP client.
+* tftp invocation::                    TFTP client.
+* rsh invocation::                     Remote shell.
+* rlogin invocation::                  Remote login.
+* rexec invocation::                   Remote execution client.
+* rcp invocation::                     Remote copy
+* talk invocation::                    Talk client.
+* telnet invocation::                  User interface to TELNET.
+
+Daemons
+
+* inetd invocation::                   Interner super-server.
+* syslogd invocation::                 Syslog server.
+* ftpd invocation::                    FTP Daemon.
+* tftpd invocation::                   TFTP server.
+* rshd invocation::                    Remote shell server.
+* rlogind invocation::                 Remote login server.
+* rexecd invocation::                  Remote execution server.
+* talkd invocation::                   Talk server.
+* telnetd invocation::                 Telnet server.
+* uucpd invocation::                   Unix to Unix Copy.
+
+* GNU Free Documentation License::     The license for this manual.
+* Index::                              Index of manual.
+
+
+File: inetutils.info,  Node: Introduction,  Next: Common options,  Prev: Top,  Up: Top
+
+1 Introduction
+**************
+
+The GNU Network Utilities is a distribution of common networking
+utilities and servers, including for example ping, traceroute and ftp.
+
+   This manual is a work in progress: many sections make no attempt to
+explain basic concepts in a way suitable for novices.  Thus, if you are
+interested, please get involved in improving this manual.  The entire
+GNU community will benefit.
+
+   Please report bugs to <bug-inetutils@gnu.org>.  Remember to include
+the version number, machine architecture, input files, and any other
+information needed to reproduce the bug: your input, what you expected,
+what you got, and why it is wrong.  Diffs are welcome, but please
+include a description of the problem as well, since this is sometimes
+difficult to infer.
+
+   The individual utilities were originally derived from the 4.4BSDLite2
+distribution, although some of them have more or less been rewritten.
+What you are reading now is the authoritative and complete
+documentation for these utilities; the man pages are now automatically
+generated.
+
+   Many features were integrated from NetBSD, OpenBSD, FreeBSD and
+GNU/Linux, the merges were done by a group of dedicated hackers (in no
+particular order): Jeff Bailey, Marcus Brinkmann, Michael Vogt,
+Bernhard Rosenkraenzer, Kaveh R. Ghazi, NIIBE Yutaka, Nathan Neulinger,
+Jeff Smith, Dan Stromberg, David O'Shea, Frederic Goudal, Gerald Combs,
+Joachim Gabler, Marco D'Itri, Sergey Poznyakoff, and many more.
+
+
+File: inetutils.info,  Node: Common options,  Next: hostname invocation,  Prev: Introduction,  Up: Top
+
+2 Common options
+****************
+
+Certain options are available in all these programs.  Rather than
+writing identical descriptions for each of the programs, they are
+described here.  (In fact, every GNU program accepts, or should accept,
+these options.)
+
+   Many of these programs take arbitrary strings as arguments.  In those
+cases, `--help' and `--version' are taken as these options only if
+there is one and exactly one command line argument.
+
+`--help'
+     Print a usage message, listing all available options, then exit
+     successfully.
+
+`--usage'
+     Print a condensed usage message, displaying all available options
+     formatted like a command line call, then exit successfully.
+
+`--version'
+     Print the version number, then exit successfully.
+
+`--'
+     Delimit the option list.  Later arguments, if any, are treated as
+     operands even if they begin with `-'.
+
+* Menu:
+
+* Exit status::                 Indicating program success or failure.
+
+
+File: inetutils.info,  Node: Exit status,  Up: Common options
+
+2.1 Exit status
+===============
+
+Nearly every command invocation yields an integral "exit status" that
+can be used to change how other commands work.  For the vast majority
+of commands, an exit status of zero indicates success.  Failure is
+indicated by a nonzero value -- typically `1', though it may differ on
+unusual platforms, as POSIX requires only that it be nonzero.
+
+
+File: inetutils.info,  Node: hostname invocation,  Next: logger invocation,  Prev: Common options,  Up: Top
+
+3 `hostname': Show or set system host name.
+*******************************************
+
+`hostname' is a program to show or set the name of host system.
+
+     hostname [OPTION...] [NAME]
+
+`-a'
+`--aliases'
+     Get alias names.
+
+`-d'
+`--domain'
+     Get DNS domain name.
+
+`-f'
+`--fqdn'
+`--long'
+     Get DNS host name or Fully Qualified Domain Name.
+
+`-F'
+`--file'
+     Set host name or NIS domain name from FILE.
+
+`-i'
+`--ip-addresses'
+     Get addresses for the host name.
+
+`-s'
+`--short'
+     Get short host name.
+
+`-y'
+`--yp'
+`--nis'
+     Get NIS/YP domain name.
+
+
+File: inetutils.info,  Node: logger invocation,  Next: ping invocation,  Prev: hostname invocation,  Up: Top
+
+4 `logger': Send messages to system log
+***************************************
+
+`logger' is a program to send entries to system log.  It provides a
+shell command interface similar to the system log module.  *Note
+Syslog: (libc)Syslog, for details.
+
+     logger [OPTION...] [MESSAGE]
+
+`-4'
+`--ipv4'
+     Use IPv4 as transport when logging to a host.  The default
+     behaviour is to use whatever IP version that matches the host.
+
+`-6'
+`--ipv6'
+     Use IPv6 as transport when logging to a host.  The option is
+     present also on systems without support for IPv6, but will then
+     issue a warning and then fall back to IPv4 when delivering the
+     message.
+
+     Both options are most influencial when the target host is named
+     using a symbolic name, but numerical addresses for host or source
+     must also match if either of `--ipv4' or `--ipv6' is stated.
+
+`-i[PID]'
+`--id=[PID]'
+     Add process ID to each message.  If PID is not supplied, use the
+     process ID of the logger process with each line.  Notice, that PID
+     is an optional argument.  When supplied to the `-i' option, it
+     must follow the `i' letter immediately, without any separating
+     whitespace.  When supplied to the `--id' form, it must be
+     separated from it by exactly one equals sign.
+
+`-h HOST'
+`--host=HOST'
+     Send messages to the given host or socket.  The HOST argument can
+     be either a local UNIX socket name (starting with a dash `/'), or:
+
+          HOST[:PORT]
+
+     where HOST is the remote host name or IP address, and the optional
+     PORT is a decimal port number or symbolic service name from
+     `/etc/services'.  If PORT is not specified, the port number
+     corresponding to the `syslog' service is used.  If a numerical
+     IPv6 address is given without a port specification, then the
+     address must be enclosed within brackets (like [::1]).
+
+`-S ADDR'
+`--source=ADDR'
+     Supply the source IP address for INET connections.  This option is
+     useful in conjunction with `--host' (see above).  The kind of
+     address specified here (IPv4 or IPv6) will propagate to influence
+     the resolution of the host address, if it is a symbolic name.
+
+`-s'
+`--stderr'
+     Log the message to standard error, as well as the system log.
+
+`-f FILE'
+`--file=FILE'
+     Log the content of the specified file.  If FILE is `-' the
+     standard input is assumed.
+
+`-p PRIORITY'
+`--priority=PRIORITY'
+     Enter the message with the specified priority.  The priority may be
+     specified numerically or as a `facility.level' pair.  For example,
+     `-p local3.info' logs the message at the informational level in
+     the `local3' facility.  The default is `user.notice'.
+
+     The actual list of supported facilities and levels is system
+     specific.
+
+`-t TAG'
+`--tag=TAG'
+     Mark every line in the log with the specified tag.
+
+   The options are followed by the message which should be written to
+the log.  If not specified, and the `-f' flag is not provided, standard
+input is logged.
+
+   The logger utility exits 0 on success, and >0 if an error occurs.
+
+   The following examples illustrate the usage of the `logger' command:
+
+  1. Log the message `System rebooted' to the local syslog.  Use
+     default facility and priority:
+
+          logger System rebooted
+
+  2. Run command and send its error output to the channel `local0.err'.
+     Mark each message with tag `cmd':
+
+          command 2>&1 | logger -p local0.notice -t cmd
+
+  3. Log each line from file `warnings' to channel `daemon.warn' on
+     host `logger.runasimi.org', using the source IP `10.10.10.1':
+
+          logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1 --file
+          warnings
+
+
+File: inetutils.info,  Node: ping invocation,  Next: traceroute invocation,  Prev: logger invocation,  Up: Top
+
+5 `ping': Packets to network hosts
+**********************************
+
+`ping' uses the ICMP protocol's mandatory `ECHO_REQUEST' datagram to
+elicit an ICMP `ECHO_RESPONSE' from a host or gateway.  `ECHO_REQUEST'
+datagrams ("pings") have an IP and ICMP header, followed by a "struct
+timeval" and then an arbitrary number of "pad" bytes used to fill out
+the packet.  Synopsis:
+
+     ping [OPTION...] HOST...
+
+`--address'
+     Send ICMP_ADDRESS packets.
+
+`--echo'
+     Send ICMP_ECHO requests (default).
+
+`--timestamp'
+     Send ICMP_TIMESTAMP packets.
+
+`-t TYPE'
+`--type=TYPE'
+     Send TYPE packets.
+
+`-c N'
+
+`--count=N'
+     Stop after sending (and receiving) N ECHO_RESPONSE packets.
+
+`-d'
+`-debug'
+     Set the SO_DEBUG option on the socket being used.
+
+`-i N'
+`--interval=N'
+     Wait N seconds between sending each packet.  The default is to
+     wait for one second between each packet.  This option is
+     incompatible with the `-f' option.
+
+`-n'
+`--numeric'
+     Numeric output only.  No attempt will be made to lookup symbolic
+     names for host addresses.
+
+`-r'
+`--ignore-routing'
+     Bypass the normal routing tables and send directly to a host on an
+     attached network.  If the host is not on a directly-attached
+     network, an error is returned.  This option can be used to ping a
+     local host through an interface that has no route through it
+     (e.g., after the interface was dropped by `routed').
+
+`-f'
+`--flood'
+     Flood ping.  Outputs packets as fast as they come back or one
+     hundred times per second, whichever is more.  For every
+     ECHO_REQUEST sent a period `.' is printed, while for every
+     ECHO_REPLY received a backspace is printed.  This provides a rapid
+     display of how many packets are being dropped.  Only the
+     super-user may use this option.  This can be very hard on a
+     network and should be used with caution.
+
+`-l N'
+
+`--preload=N'
+     If N is specified, ping sends that many packets as fast as
+     possible before falling into its normal mode of behavior.
+
+`-p PAT'
+`--pattern=PAT'
+     You may specify up to 16 pad bytes to fill out the packet you send.
+     This is useful for diagnosing data-dependent problems in a network.
+     For example, `-p ff' will cause the sent packet to be filled with
+     all ones.
+
+`-R'
+`--route'
+     Record route.  Includes the `RECORD_ROUTE' field in the
+     ECHO_REQUEST packet and displays the route buffer on returned
+     packets.  Note that the IP header is only large enough for nine
+     such routes.  Many hosts ignore or discard this option.
+
+`-s N'
+`--size=N'
+     Specifies the number of data bytes to be sent.  The default is 56,
+     which translates into 64 ICMP data bytes when combined with the 8
+     bytes of ICMP header data.
+
+`-w N'
+`--timeout=N'
+     Stop after N seconds.
+
+`-W N'
+`--linger=N'
+     Maximum number of seconds N to wait for a response.
+
+5.1 Using ping for network fault isolation
+==========================================
+
+When using `ping' for fault isolation, it should first be run on the
+local host, to verify that the local network interface is up and
+running.  Then, hosts and gateways further and further away should be
+pinged.  Round-trip times and packet loss statistics are computed.  If
+duplicate packets are received, they are not included in the packet
+loss calculation, although the round trip time of these packets is used
+in calculating the minimum/average/maximum round-trip time numbers.
+When the specified number of packets have been sent (and received) or
+if the program is terminated with a `SIGINT', a brief summary is
+displayed.
+
+   This program is intended for use in network testing, measurement and
+management.  Because of the load it can impose on the network, it is
+unwise to use ping during normal operations or from automated scripts.
+
+5.2 Duplicate And Damaged Packets
+=================================
+
+Ping will report duplicate and damaged packets.  Duplicate packets
+should never occur, and seem to be caused by inappropriate link-level
+retransmissions.  Duplicates may occur in many situations and are
+rarely (if ever) a good sign, although the presence of low levels of
+duplicates may not always be cause for alarm.
+
+   Damaged packets are obviously serious cause for alarm and often
+indicate broken hardware somewhere in the ping packet's path (in the
+network or in the hosts).
+
+5.3 Trying Different Data Patterns
+==================================
+
+The (inter)network layer should never treat packets differently
+depending on the data contained in the data portion.  Unfortunately,
+data-dependent problems have been known to sneak into networks and
+remain undetected for long periods of time.  In many cases the
+particular pattern that will have problems is something that doesn't
+have sufficient "transitions", such as all ones or all zeros, or a
+pattern right at the edge, such as almost all zeros.  It isn't
+necessarily enough to specify a data pattern of all zeros (for example)
+on the command line because the pattern that is of interest is at the
+data link level, and the relationship between what you type and what
+the controllers transmit can be complicated.
+
+   This means that if you have a data-dependent problem you will
+probably have to do a lot of testing to find it.  If you are lucky, you
+may manage to find a file that either can't be sent across your network
+or that takes much longer to transfer than other similar length files.
+You can then examine this file for repeated patterns that you can test
+using the `-p' option of ping.
+
+5.4 TTL Details
+===============
+
+The TTL, Time To Live value of an IP packet represents the maximum
+number of IP routers that the packet can go through before being thrown
+away.  In current practice you can expect each router in the Internet
+to decrement the TTL field by exactly one.
+
+   The TCP/IP specification states that the TTL field for TCP packets
+should be set to 60, but many systems use smaller values (4.3 BSD uses
+30, 4.2 used 15).
+
+   The maximum possible value of this field is 255, and most UNIX
+systems set the TTL field of ICMP (`ECHO_REQUEST') packets to 255.  This
+is why you will find you can ping some hosts, but not reach them with
+`telnet' or `ftp'.
+
+   In normal operation `ping' prints the TTL value from the packet it
+receives.  When a remote system receives a ICMP packet, it can do one
+of three things with the TTL field in its response:
+
+*
+     Not change it; this is what Berkeley UNIX systems did before the
+     4.3BSD-Tahoe release.  In this case the TTL value in the received
+     packet will be 255 minus the number of routers in the round-trip
+     path.
+
+*
+     Set it to 255; this is what current Berkeley UNIX systems do.  In
+     this case the `TTL' value in the received packet will be 255 minus
+     the number of routers in the path from the remote system to the
+     pinging host.
+
+*
+     Set it to some other value.  Some machines use the same value for
+     ICMP packets that they use for TCP packets, for example either 30
+     or 60.  Others may use completely wild values.
+
+
+   Many hosts and gateways ignore the `RECORD_ROUTE' field, since the
+maximum IP header length is far to small to hold all the routes.
+There's not much that can be done about this.
+
+   Flood pinging is not recommended in general, and flood pinging the
+broadcast address should only be done under very controlled conditions.
+
+
+File: inetutils.info,  Node: traceroute invocation,  Next: whois invocation,  Prev: ping invocation,  Up: Top
+
+6 `traceroute': Trace the route to a host
+*****************************************
+
+`traceroute' traces the route packets take to a host.  Synopsis:
+
+     traceroute [OPTION...] HOST
+
+`-M METHOD'
+`--type=METHOD'
+     Use METHOD (`icmp' or `udp') for traceroute operations.
+
+`-p PORT'
+`--port=PORT'
+     Use destination PORT (default: 33434).
+
+`-q NUM'
+`--tries=NUM'
+     Send NUM probe packets per hop (default: 3).
+
+`--resolve-hostnames'
+     Resolve hostnames.
+
+
+File: inetutils.info,  Node: whois invocation,  Next: ftp invocation,  Prev: traceroute invocation,  Up: Top
+
+7 `whois': Whois user interface
+*******************************
+
+Synopsis:
+
+     whois [OPTION]... OBJECT...
+
+`-a'
+     Search all databases.
+
+`-F'
+     Fast raw output (implies -r).
+
+`-g SOURCE:FIRST-LAST'
+     Find updates from SOURCE from serial FIRST to LAST.
+
+`-h HOST'
+     Connect to server HOST.
+
+`-H'
+     Hide legal disclaimers.
+
+`-i ATTR[,ATTR]...'
+     Do an inverse lookup for specified attributes.
+
+`-l'
+     One level less specific lookup (RPSL only).
+
+`-L'
+     Find all Less specific matches.
+
+`-M'
+     Find all More specific matches.
+
+`-m'
+     Find first level more specific matches.
+
+`-r'
+     Turn off recursive lookups.
+
+`-p PORT'
+     Connect to PORT.
+
+`-R'
+     Force to show local copy of the domain object even if it contains
+     referral.
+
+`-S'
+     Tell server to leave out syntactic sugar.
+
+`-s SOURCE[,SOURCE]...'
+     Search the database from SOURCE.
+
+`-T TYPE[,TYPE]...'
+     Only look for objects of TYPE.
+
+`-q [version|sources]'
+     Query specified server info (RPSL only).
+
+`-t TYPE'
+     Requests template for object of TYPE ('all' for a list).
+
+`-v TYPE'
+     Requests verbose template for object of TYPE.
+
+`-x'
+     Exact match only (RPSL only).
+   
+
+
+File: inetutils.info,  Node: ftp invocation,  Next: tftp invocation,  Prev: whois invocation,  Up: Top
+
+8 `ftp': FTP client
+*******************
+
+`ftp' is the user interface for FTP, File Transfer Protocol.  The
+program allows a user to transfer files to and from a remote network
+site.  Synopsis:
+
+     ftp [OPTION...] [HOST [PORT]]
+
+`-4'
+`--ipv4'
+     Initially set addressing to IPv4 only.
+
+`-6'
+`--ipv6'
+     Initially set addressing to IPv6 only.
+
+`-A'
+`--active'
+     Enable active mode transfer.
+
+`-p'
+`--passive'
+     Enable passive mode transfer.
+
+`-d'
+`--debug'
+     Enables debugging.
+
+`-g'
+`--no-glob'
+     Disables file name globbing.
+
+`-i'
+`--no-prompt'
+     Turns off interactive prompting during multiple file transfers.
+
+`-n'
+`--no-login'
+     Restrains `ftp' from attempting "auto-login" upon initial
+     connection.  If auto-login is enabled, `ftp' will check the
+     `.netrc' (*note The .netrc File::) file in the user's home
+     directory for an entry describing an account on the remote machine.
+     If no entry exists, `ftp' will prompt for the remote machine login
+     name (default is the user identity on the local machine), and, if
+     necessary, prompt for a password and an account with which to
+     login.
+
+`--prompt[=PROMPT]'
+     Print a command-line prompt, even if not on a tty.  If PROMPT is
+     supplied, its value is used instead of the default `ftp> '.
+     Notice, that the argument is optional.
+
+`-t'
+
+`--trace'
+     Enable packet tracing.
+
+* Menu:
+
+* Commands::
+* Aborting A File Transfer::
+* File Naming Conventions::
+* File Transfer Parameters::
+* The .netrc File::
+
+
+File: inetutils.info,  Node: Commands,  Next: Aborting A File Transfer,  Up: ftp invocation
+
+8.1 Commands
+============
+
+The client host with which `ftp' is to communicate may be specified on
+the command line.  If this is done, `ftp' will immediately attempt to
+establish a connection to an FTP server on that host; otherwise, it
+will enter its command interpreter and await instructions from the
+user.  When `ftp' is awaiting commands from the user the prompt `ftp>'
+is provided to the user.  The following commands are recognized by
+`ftp':
+
+`! [COMMAND [ARGS]]'
+     Invoke an interactive shell on the local machine.  If there are
+     arguments, the first is taken to be a command to execute directly,
+     with the rest of the arguments as its arguments.
+
+`$ MACRO-NAME [ARGS]'
+     Execute the macro MACRO-NAME that was defined with the macdef
+     command.  Arguments are passed to the macro unglobbed.
+
+`account [PASSWD]'
+     Supply a supplemental password required by a remote system for
+     access to resources once a login has been successfully completed.
+     If no argument is included, the user will be prompted for an
+     account password in a non-echoing input mode.
+
+`append LOCAL-FILE [REMOTE-FILE]'
+     Append a local file to a file on the remote machine.  If
+     REMOTE-FILE is left unspecified, the local file name is used in
+     naming the remote file after being altered by any `ntrans' or
+     `nmap' setting.  File transfer uses the current settings for type,
+     format, mode, and structure.
+
+`ascii'
+     Set the file transfer type to network ASCII.  This is the default
+     type.
+
+`bell'
+     Arrange that a bell be sounded after each file transfer command is
+     completed.
+
+`binary'
+     Set the file transfer type to support binary image transfer.
+
+`bye'
+`quit'
+     Terminate the FTP session with the remote server and exit `ftp'.
+     An end of file will also terminate the session and exit.
+
+`case'
+     Toggle remote computer file name case mapping during `mget'
+     commands.  When case is on (default is off), remote computer file
+     names with all letters in upper case are written in the local
+     directory with the letters mapped to lower case.
+
+`cd REMOTE-DIRECTORY'
+     Change the working directory on the remote machine to
+     remote-directory.
+
+`cdup'
+     Change the remote machine working directory to the parent of the
+     current remote machine working directory.
+
+`chmod MODE FILE-NAME'
+     Change the permission modes of the file FILE-NAME on the remote
+     sytem to MODE.
+
+`close'
+`disconnect'
+     Terminate the FTP session with the remote server, and return to the
+     command interpreter.  Any defined macros are erased.
+
+`cr'
+     Toggle carriage return stripping during ASCII type file retrieval.
+     Records are denoted by a carriage return/linefeed sequence during
+     ASCII type file transfer.  When `cr' is on (the default), carriage
+     returns are stripped from this sequence to conform with the UNIX
+     single linefeed record delimiter.  Records on non-UNIX remote
+     systems may contain single linefeeds; when an ASCII type transfer
+     is made, these linefeeds may be distinguished from a record
+     delimiter only when cr is off.
+
+`delete REMOTE-FILE'
+     Delete the file REMOTE-FILE on the remote machine.
+
+`debug [DEBUG-VALUE]'
+     Toggle debugging mode.  If an optional DEBUG-VALUE is specified it
+     is used to set the debugging level.  When debugging is on, `ftp'
+     prints each command sent to the remote machine, preceded by the
+     string `-->'.
+
+`dir [REMOTE-DIRECTORY] [LOCAL-FILE]'
+     Print a listing of the directory contents in the directory,
+     REMOTE-DIRECTORY, and, optionally, placing the output in
+     LOCAL-FILE.  If interactive prompting is on, `ftp' will prompt the
+     user to verify that the last argument is indeed the target local
+     file for receiving dir output.  If no directory is specified, the
+     current working directory on the remote machine is used.  If no
+     local file is specified, or LOCAL-FILE is `-', output comes to the
+     terminal.
+
+`epsv4'
+     Toggle the use of EPSV/EPRT for IPv4 addressing.  Default is off.
+
+`form FORMAT'
+     Set the file transfer form to FORMAT.  The default format is
+     `file'.
+
+`get REMOTE-FILE [LOCAL-FILE]'
+`recv REMOTE-FILE [LOCAL-FILE]'
+     Retrieve the REMOTE-FILE and store it on the local machine.  If
+     the local file name is not specified, it is given the same name it
+     has on the remote machine, subject to alteration by the current
+     `case', `ntrans', and `nmap' settings.  The current settings for
+     type, form, mode, and structure are used while transferring the
+     file.
+
+`glob'
+     Toggle filename expansion for `mdelete', `mget' and `mput'.  If
+     globbing is turned off with `glob', the file name arguments are
+     taken literally and not expanded.  Globbing for `mput' is done as
+     in `csh'.  For `mdelete' and `mget', each remote file name is
+     expanded separately on the remote machine and the lists are not
+     merged.  Expansion of a directory name is likely to be different
+     from expansion of the name of an ordinary file: the exact result
+     depends on the foreign operating system and FTP server, and can be
+     previewed by doing `mls remote-files -'.
+
+     Note: `mget' and `mput' are not meant to transfer entire directory
+     subtrees of files.  That can be done by transferring a `tar'
+     archive of the subtree (in binary mode).
+
+`hash [SIZE]'
+     Toggle hash-sign (`#') printing for each data block transferred.
+     The size of a data block can optionally be specified.  If not
+     given, it defaults to 1024 bytes.
+
+`help [COMMAND]'
+`? [COMMAND]'
+     Print an informative message about the meaning of command.  If no
+     argument is given, `ftp' prints a list of the known commands.
+
+`idle [SECONDS]'
+     Set the inactivity timer on the remote server to SECONDS seconds.
+     If seconds is omitted, the current inactivity timer is printed.
+
+`ipv4'
+     Select IPv4 as the only addressing scheme.
+
+`ipv6'
+     Select IPv6 as the only addressing scheme.
+
+`ipany'
+     Allow IPv4 as well as IPv6 addressing.
+
+`lcd [DIRECTORY]'
+     Change the working directory on the local machine.  If no
+     directory is specified, the user's home directory is used.
+
+`ls [REMOTE-DIRECTORY] [LOCAL-FILE]'
+     Print a listing of the contents of a directory on the remote
+     machine.  The listing includes any system-dependent information
+     that the server chooses to include; for example, most UNIX systems
+     will produce output from the command `ls -l'. If REMOTE-directory
+     is left unspecified, the current working directory is used.  If
+     interactive prompting is on, `ftp' will prompt the user to verify
+     that the last argument is indeed the target local file for
+     receiving ls output.  If no local file is specified, or if
+     LOCAL-FILE is `-', the output is sent to the terminal.
+
+`macdef MACRO-NAME'
+     Define a macro called MACRO-NAME, with subsequent lines as the
+     macro definition; a null line (consecutive newline characters in a
+     file or carriage returns from the terminal) terminates macro input
+     mode.  There is a limit of 16 macros and 4096 total characters in
+     all defined macros.  Macros remain defined until a close command is
+     executed.  The macro processor interprets `$' and `\' as special
+     characters.  A `$' followed by a number (or numbers) is replaced
+     by the corresponding argument on the macro invocation command
+     line.  A `$' followed by an `i' signals that macro processor that
+     the executing macro is to be looped.  On the first pass `$i' is
+     replaced by the first argument on the macro invocation command
+     line, on the second pass it is replaced by the second argument,
+     and so on.  A `\' followed by any character is replaced by that
+     character.  Use the `\' to prevent special treatment of the `$'.
+
+`mdelete [REMOTE-FILES]'
+     Delete the remote-files on the remote machine.
+
+`mdir REMOTE-FILES LOCAL-FILE'
+     Like `dir', except multiple remote files may be specified.  If
+     interactive prompting is on, `ftp' will prompt the user to verify
+     that the last argument is indeed the target local file for
+     receiving `mdir' output.
+
+`mget REMOTE-FILES'
+     Expand the REMOTE-FILES on the remote machine and do a get for
+     each file name thus produced.  Resulting file names will then be
+     processed according to `case', `ntrans', and `nmap' settings.
+     Files are transferred into the local working directory, which can
+     be changed with `lcd directory'; new local directories can be
+     created with `! mkdir directory'.
+
+`mkdir DIRECTORY-NAME'
+     Make a directory on the remote machine.
+
+`mls REMOTE-FILES LOCAL-FILE'
+     Like `nlist', except multiple remote files may be specified, and
+     the LOCAL-FILE must be specified.  If interactive prompting is on,
+     `ftp' will prompt the user to verify that the last argument is
+     indeed the target local file for receiving `mls' output.
+
+`mode [MODE-NAME]'
+     Set the file transfer mode to MODE-NAME.  The default mode is
+     `stream'.
+
+`modtime FILE-NAME'
+     Show the last modification time of the file on the remote machine.
+
+`mput LOCAL-FILES'
+     Expand wild cards in the list of local files given as arguments
+     and do a put for each file in the resulting list.  Resulting file
+     names will then be processed according to `ntrans' and `nmap'
+     settings.
+
+`newer FILE-NAME'
+     Get the file only if the modification time of the remote file is
+     more recent that the file on the current system.  If the file does
+     not exist on the current system, the remote file is considered
+     newer.  Otherwise, this command is identical to get.
+
+`nlist [REMOTE-DIRECTORY] [LOCAL-FILE]'
+     Print a list of the files in a directory on the remote machine.  If
+     REMOTE-DIRECTORY is left unspecified, the current working
+     directory is used.  If interactive prompting is on, `ftp' will
+     prompt the user to verify that the last argument is indeed the
+     target local file for receiving nlist output.  If no local file is
+     specified, or if LOCAL-FILE is `-', the output is sent to the
+     terminal.
+
+`nmap [INPATTERN OUTPATTERN]'
+     Set or unset the filename mapping mechanism.  If no arguments are
+     specified, the filename mapping mechanism is unset.  If arguments
+     are specified, remote filenames are mapped during `mput' commands
+     and `put' commands issued without a specified remote target
+     filename.  If arguments are specified, local filenames are mapped
+     during `mget' commands and `get' commands issued without a
+     specified local target filename.  This command is useful when
+     connecting to a non-UNIX remote computer with different file naming
+     conventions or practices.
+
+     The mapping follows the pattern set by INPATTERN and OUTPATTERN.
+     The template INPATTERN is used for incoming filenames (which may
+     have already been processed according to the `ntrans' and case
+     settings).  Variable templating is accomplished by including the
+     sequences `$1', `$2', ..., `$9' in INPATTERN.  Use `\' to prevent
+     this special treatment of the `$' character.  All other characters
+     are treated literally, and are used to determine the `nmap'
+     INPATTERN variable values.
+
+     For example, given inpattern `$1.$2' and the remote file name
+     `mydata.data', `$1' would have the value `mydata', and `$2' would
+     have the value `data'.  The OUTPATTERN determines the resulting
+     mapped filename.  The sequences `$1', `$2', ...., `$9' are
+     replaced by any value resulting from the INPATTERN template.  The
+     sequence `$0' is replaced by the original filename.  Additionally,
+     the sequence `[SEQ1, SEQ2]' is replaced by SEQ1 if SEQ1 is not a
+     null string; otherwise it is replaced by SEQ2.  For example, the
+     command
+
+          nmap $1.$2.$3 [$1,$2].[$2,file]
+
+     would yield the output filename `myfile.data' for input filenames
+     `myfile.data' and `myfile.data.old', `myfile.file' for the input
+     filename `myfile', and `myfile.myfile' for the input filename
+     `.myfile'.
+
+     Spaces may be included in OUTPATTERN, as in the example: `nmap $1
+     sed "s/ *$//" > $1'.  Use the `\' character to prevent special
+     treatment of the `$', `[', `]', and `,' characters.
+
+`ntrans [INCHARS [OUTCHARS]]'
+     Set or unset the filename character translation mechanism.  If no
+     arguments are specified, the filename character translation
+     mechanism is unset.  If arguments are specified, characters in
+     remote filenames are translated during `mput' commands and `put'
+     commands issued without a specified remote target filename.  If
+     arguments are specified, characters in local filenames are
+     translated during `mget' commands and `get' commands issued
+     without a specified local target filename.  This command is useful
+     when connecting to a non-UNIX remote computer with different file
+     naming conventions or practices.
+
+     Characters in a filename matching a character in INCHARS are
+     replaced with the corresponding character in OUTCHARS.  If the
+     character's position in INCHARS is longer than the length of
+     OUTCHARS, the character is deleted from the file name.
+
+`open HOST [PORT]'
+     Establish a connection to the specified host FTP server.  An
+     optional port number may be supplied, in which case, `ftp' will
+     attempt to contact an FTP server at that port.  If the `autologin'
+     option is on (default), `ftp' will also attempt to automatically
+     log the user in to the FTP server.
+
+`passive'
+     Toggle passive mode.  If passive mode is turned on (default is
+     off), the `ftp' client will send a `PASV' command for all data
+     connections instead of the usual `PORT' command.  The `PASV'
+     command requests that the remote server open a port for the data
+     connection and return the address of that port.  The remote server
+     listens on that port and the client connects to it.  When using the
+     more traditional `PORT' command, the client listens on a port and
+     sends that address to the remote server, who connects back to it.
+     Passive mode is useful when using `ftp' through a gateway router
+     or host that controls the directionality of traffic.  (Note that
+     though `ftp' servers are required to support the `PASV' command by
+     RFC 1123, some do not.)  If `epsv4' has been set to on, the client
+     will attempt `EPSV' before `PASV' for IPv4.  As a last resort
+     `LPSV' is attempted.  With IPv6 only `EPSV' and `LPSV' are
+     possible.
+
+`prompt'
+     Toggle interactive prompting.  Interactive prompting occurs during
+     multiple file transfers to allow the user to selectively retrieve
+     or store files.  If prompting is turned off (default is on), any
+     `mget' or `mput' will transfer all files, and any `mdelete' will
+     delete all files.
+
+`proxy FTP-COMMAND'
+     Execute an `ftp' command on a secondary control connection.  This
+     command allows simultaneous connection to two remote FTP servers
+     for transferring files between the two servers.  The first proxy
+     command should be an open, to establish the secondary control
+     connection.  Enter the command `proxy ?' to see other ftp commands
+     executable on the secondary connection.  The following commands
+     behave differently when prefaced by `proxy': `open' will not
+     define new macros during the auto-login process, `close' will not
+     erase existing macro definitions, `get' and `mget' transfer files
+     from the host on the primary control connection to the host on the
+     secondary control connection, and `put', `mput', and `append'
+     transfer files from the host on the secondary control connection
+     to the host on the primary control connection.  Third party file
+     transfers depend upon support of the FTP protocol `PASV' command
+     by the server on the secondary control connection.
+
+`put LOCAL-FILE [REMOTE-FILE]'
+`send LOCAL-FILE [REMOTE-FILE]'
+     Store a local file on the remote machine.  If REMOTE-FILE is left
+     unspecified, the local file name is used after processing
+     according to any `ntrans' or `nmap' settings in naming the remote
+     file.  File transfer uses the current settings for type, format,
+     mode, and structure.
+
+`pwd'
+     Print the name of the current working directory on the remote
+     machine.
+
+`quote ARG...'
+     The arguments specified are sent, verbatim, to the remote FTP
+     server.
+
+`reget REMOTE-FILE [LOCAL-FILE]'
+     `Reget' acts like `get', except that if LOCAL-FILE exists and is
+     smaller than REMOTE-FILE, LOCAL-FILE is presumed to be a partially
+     transferred copy of REMOTE-FILE and the transfer is continued from
+     the apparent point of failure.  This command is useful when
+     transferring very large files over networks that are prone to
+     dropping connections.
+
+`remotehelp [COMMAND-NAME]'
+     Request help from the remote FTP server.  If a command-name is
+     specified it is supplied to the server as well.
+
+`remotestatus [FILE-NAME]'
+     With no arguments, show status of remote machine.  If filename is
+     specified, show status of FILE-NAME on remote machine.
+
+`rename [FROM] [TO]'
+     Rename the file from on the remote machine, to the file to.
+
+`reset'
+     Clear reply queue.  This command re-synchronizes command/reply
+     sequencing with the remote FTP server.  Resynchronization may be
+     necessary following a violation of the FTP protocol by the remote
+     server.
+
+`restart MARKER'
+     Restart the immediately following `get' or `put' at the indicated
+     marker.  On UNIX systems, marker is usually a byte offset into the
+     file.
+
+`rmdir DIRECTORY-NAME'
+     Delete a directory on the remote machine.
+
+`runique'
+     Toggle storing of files on the local system with unique filenames.
+     If a file already exists with a name equal to the target local
+     filename for a `get' or `mget' command, a `.1' is appended to the
+     name.  If the resulting name matches another existing file, a `.2'
+     is appended to the original name.  If this process continues up to
+     `.99', an error message is printed, and the transfer does not take
+     place.  The generated unique filename will be reported.  Note that
+     `runique' will not affect local files generated from a shell
+     command.  The default value is off.
+
+`sendport'
+     Toggle the use of `PORT' commands.  By default, `ftp' will attempt
+     to use a `PORT' command when establishing a connection for each
+     data transfer.  The use of `PORT' commands can prevent delays when
+     performing multiple file transfers.  If the `PORT' command fails,
+     `ftp' will use the default data port.  When the use of `PORT'
+     commands is disabled, no attempt will be made to use `PORT'
+     commands for each data transfer.  This is useful for certain FTP
+     implementations which do ignore `PORT' commands but, incorrectly,
+     indicate they've been accepted.
+
+`site ARG...'
+     The arguments specified are sent, verbatim, to the remote FTP
+     server as a `SITE' command.
+
+`size FILE-NAME'
+     Return size of FILE-NAME on remote machine.
+
+`status'
+     Show the current status of `ftp'.
+
+`struct [STRUCT-NAME]'
+     Set the file transfer structure to STRUCT-NAME.  By default
+     `stream' structure is used.
+
+`sunique'
+     Toggle storing of files on remote machine under unique file names.
+     Remote FTP server must support FTP protocol `STOU' command for
+     successful completion.  The remote server will report unique name.
+     Default value is off.
+
+`system'
+     Show the type of operating system running on the remote machine.
+
+`tenex'
+     Set the file transfer type to that needed to talk to TENEX
+     machines.
+
+`trace'
+     Toggle packet tracing.
+
+`type [TYPE-NAME]'
+     Set the file transfer type to TYPE-NAME.  If no type is specified,
+     the current type is printed.  The default type is network ASCII.
+
+`umask [NEWMASK]'
+     Set the default umask on the remote server to NEWMASK.  If NEWMASK
+     is omitted, the current umask is printed.
+
+`user USER-NAME [PASSWORD] [ACCOUNT]'
+     Identify yourself to the remote FTP server.  If the password is not
+     specified and the server requires it, `ftp' will prompt the user
+     for it (after disabling local echo).  If an account field is not
+     specified, and the FTP server requires it, the user will be
+     prompted for it.  If an account field is specified, an account
+     command will be relayed to the remote server after the login
+     sequence is completed if the remote server did not require it for
+     logging in.  Unless `ftp' is invoked with `auto-login' disabled,
+     this process is done automatically on initial connection to the
+     FTP server.
+
+`verbose'
+     Toggle verbose mode.  In verbose mode, all responses from the FTP
+     server are displayed to the user.  In addition, if verbose is on,
+     when a file transfer completes, statistics regarding the
+     efficiency of the transfer are reported.  By default, verbose is
+     on.
+
+   Command arguments which have embedded spaces may be quoted with quote
+`"' marks.
+
+
+File: inetutils.info,  Node: Aborting A File Transfer,  Next: File Naming Conventions,  Prev: Commands,  Up: ftp invocation
+
+8.2 Aborting A File Transfer
+============================
+
+To abort a file transfer, use the terminal interrupt key (usually
+`C-c').  Sending transfers will be immediately halted.  Receiving
+transfers will be halted by sending a FTP protocol ABOR command to the
+remote server, and discarding any further data received.  The speed at
+which this is accomplished depends upon the remote server's support for
+`ABOR' processing.  If the remote server does not support the `ABOR'
+command, an `ftp>' prompt will not appear until the remote server has
+completed sending the requested file.
+
+   The terminal interrupt key sequence will be ignored when `ftp' has
+completed any local processing and is awaiting a reply from the remote
+server.  A long delay in this mode may result from the `ABOR'
+processing described above, or from unexpected behavior by the remote
+server, including violations of the FTP protocol.  If the delay results
+from unexpected remote server behavior, the local `ftp' program must be
+killed by hand.
+
+
+File: inetutils.info,  Node: File Naming Conventions,  Next: File Transfer Parameters,  Prev: Aborting A File Transfer,  Up: ftp invocation
+
+8.3 File Naming Conventions
+===========================
+
+Files specified as arguments to `ftp' commands are processed according
+to the following rules.
+
+  1. If the file name `-' is specified, standard input (for reading) or
+     standard output (for writing) is used.
+
+  2. If the first character of the file name is `|', the remainder of
+     the argument is interpreted as a shell command.  `ftp' then forks
+     a shell, using `popen' with the argument supplied, and
+     reads/writes from standard input/output.  If the shell command
+     includes spaces, the argument must be quoted; e.g.  `"ls -lt"'.  A
+     particularly useful example of this mechanism is `dir more'.
+
+  3. Failing the above checks, if "globbing" is enabled, local file
+     names are expanded according to the rules used in the `csh'; c.f.
+     the `glob' command.  If the `ftp' command expects a single local
+     file (e.g.  `put'), only the first filename generated by the
+     globbing operation is used.
+
+  4. For `mget' commands and `get' commands with unspecified local file
+     names, the local filename is the remote filename, which may be
+     altered by a `case', `ntrans', or `nmap' setting.  The resulting
+     filename may then be altered if `runique' is on.
+
+  5. For `mput' commands and `put' commands with unspecified remote
+     file names, the remote filename is the local filename, which may
+     be altered by a `ntrans' or `nmap' setting.  The resulting
+     filename may then be altered by the remote server if `sunique' is
+     on.
+
+
+File: inetutils.info,  Node: File Transfer Parameters,  Next: The .netrc File,  Prev: File Naming Conventions,  Up: ftp invocation
+
+8.4 File Transfer Parameters
+============================
+
+The FTP specification specifies many parameters which may affect a file
+transfer.  The type may be one of `ascii', `image' (binary), `ebcdic',
+and `local' byte size (for PDP-10's and PDP-20's mostly).  `ftp'
+supports the `ascii' and `image' types of file transfer, plus local
+byte size 8 for tenex mode transfers.
+
+   `ftp' supports only the default values for the remaining file
+transfer parameters: `mode', `form', and `struct'.
+
+
+File: inetutils.info,  Node: The .netrc File,  Prev: File Transfer Parameters,  Up: ftp invocation
+
+8.5 The `.netrc' File
+=====================
+
+The `.netrc' file contains login and initialization information used by
+the auto-login process.  It resides in the user's home directory.  The
+following tokens are recognized; they may be separated by spaces, tabs,
+or new-lines:
+
+`machine name'
+     Identify a remote machine name.  The auto-login process searches
+     the `.netrc' file for a machine token that matches the remote
+     machine specified on the `ftp' command line or as an open command
+     argument.  Once a match is made, the subsequent `.netrc' tokens
+     are processed, stopping when the end of file is reached or another
+     machine or a default token is encountered.
+
+`default'
+     This is the same as machine name except that default matches any
+     name.  There can be only one default token, and it must be after
+     all machine tokens.  This is normally used as:
+
+          default login anonymous password user@site
+
+     thereby giving the user automatic anonymous ftp login to machines
+     not specified in `.netrc'.  This can be overridden by using the
+     `-n' flag to disable auto-login.
+
+`login name'
+     Identify a user on the remote machine.  If this token is present,
+     the auto-login process will initiate a login using the specified
+     name.
+
+`password string'
+     Supply a password.  If this token is present, the auto-login
+     process will supply the specified string if the remote server
+     requires a password as part of the login process.  Note that if
+     this token is present in the `.netrc' file for any user other than
+     anonymous, `ftp' will abort the auto-login process if the `.netrc'
+     is readable by anyone besides the user.
+
+`account string'
+     Supply an additional account password.  If this token is present,
+     the auto-login process will supply the specified string if the
+     remote server requires an additional account password, or the
+     auto-login process will initiate an `ACCT' command if it does not.
+
+`macdef name'
+     Define a macro.  This token functions like the `ftp' `macdef'
+     command functions.  A macro is defined with the specified name;
+     its contents begin with the next `.netrc' line and continue until
+     a null line (consecutive new-line characters) is encountered.  If
+     a macro named init is defined, it is automatically executed as the
+     last step in the auto-login process.
+
+   `ftp' utilizes the following environment variables.
+
+`HOME'
+     For default location of a `.netrc' file, if one exists.
+
+`SHELL'
+     For default shell.
+
+   Correct execution of many commands depends upon proper behavior by
+the remote server.
+
+   An error in the treatment of carriage returns in the 4.2BSD
+ascii-mode transfer code has been corrected.  This correction may
+result in incorrect transfers of binary files to and from 4.2BSD
+servers using the ascii type.  Avoid this problem by using the binary
+image type.
+
+
+File: inetutils.info,  Node: tftp invocation,  Next: rsh invocation,  Prev: ftp invocation,  Up: Top
+
+9 `tftp': TFTP client
+*********************
+
+`tftp' is the user interface to the Internet TFTP, Trivial File
+Transfer Protocol, which allows users to transfer files to and from a
+remote machine.  The remote host may be specified on the command line,
+in which case `tftp' uses host as the default host for future transfers.
+
+     tftp [OPTION]... HOST
+
+9.1 Commands
+============
+
+Once `tftp' is running, it issues the prompt and recognizes the
+following commands:
+
+`? COMMAND-NAME'
+     Print help information.
+
+`ascii'
+     Shorthand for `mode ascii'
+
+`binary'
+     Shorthand for `mode binary'
+
+`connect HOST-NAME [PORT]'
+     Set the host (and optionally port) for transfers.  Note that the
+     TFTP protocol, unlike the FTP protocol, does not maintain
+     connections between transfers; thus, the connect command does not
+     actually create a connection, but merely remembers what host is to
+     be used for transfers.  You do not have to use the connect
+     command; the remote host can be specified as part of the get or
+     put commands.
+
+`get FILE-NAME'
+`get REMOTENAME LOCALNAME'
+`get FILE...'
+     Get a file, or a set of files, from the specified sources.  The
+     source can be in one of two forms: a file name on the remote host,
+     if the host has already been specified, or a string of the form
+     `host:filename' to specify both a host and file name at the same
+     time.  If the latter form is used, the last hostname specified
+     becomes the default for future transfers.  When specifying a
+     numeric IPv6 address as host part, then this address must be
+     enclosed between square brackets, since it contains colons and
+     would interfere with the delimiter before the file name.  Brackets
+     are optional for IPv4 addresses.
+
+          tftp> get [2001:1234::12]:issue
+
+`mode TRANSFER-MODE'
+     Set the mode for transfers; TRANSFER-MODE may be one of `ascii' or
+     `binary'.  The default is `ascii'.
+
+`put FILE'
+`put LOCALFILE REMOTEFILE'
+`put FILE... REMOTE-DIRECTORY'
+     Put a file or set of files to the specified remote file or
+     directory.  The destination can be in one of two forms: a filename
+     on the remote host, if the host has already been specified, or a
+     string of the form `host:filename' to specify both a host and
+     filename at the same time.  If the latter form is used, the
+     hostname specified becomes the default for future transfers.  If
+     the `remote-directory' form is used, the remote host is assumed to
+     be a UNIX machine.  The same use of square brackets for enclosing
+     numeric IPv6 addresses applies here, as was mentioned for the
+     command `get'.
+
+`quit'
+     Exit `tftp'.  An end of file also exits.
+
+`rexmt RETRANSMISSION-TIMEOUT'
+     Set the per-packet retransmission timeout, in seconds.
+
+`status'
+     Show current status.
+
+`timeout TOTAL-TRANSMISSION-TIMEOUT'
+     Set the total transmission timeout, in seconds.
+
+`trace'
+     Toggle packet tracing.
+
+`verbose'
+     Toggle verbose mode.
+
+   Because there is no user-login or validation within the `tftp'
+protocol, the remote site will probably have some sort of file-access
+restrictions in place.  The exact methods are specific to each site and
+therefore difficult to document here.
+
+
+File: inetutils.info,  Node: rsh invocation,  Next: rlogin invocation,  Prev: tftp invocation,  Up: Top
+
+10 `rsh': Remote shell
+**********************
+
+`rsh' executes command on host and copies its standard input to the
+remote command, the standard output of the remote command to its
+standard output, and the standard error of the remote command to its
+standard error.  Interrupt, quit and terminate signals are propagated
+to the remote command; `rsh' normally terminates when the remote
+command does.
+
+   When using the `rsh' command, you can create a link to your path
+using a host name as the link name.  For example:
+
+     # ln -s /usr/bin/rsh HOSTNAME
+     # HOSTNAME ls
+
+   HOSTNAME will be passed to `rsh' as the default host.
+
+   `rsh' allows access to the remote host without the use of a passwd.
+For details, *Note rcmd: (libc)rcmd.
+
+10.1 Invoking
+=============
+
+The options are as follows :
+
+`-K'
+`--kerberos'
+     Turns off all Kerberos authentication.
+
+`-d'
+`--debug'
+     Turns on socket debugging used for communication with the remote
+     host.
+
+`-k REALM'
+`--realm=REALM'
+     The option requests rsh to obtain tickets for the remote host in
+     REALM realm instead of the remote host's realm.
+
+`-x'
+`--encrypt'
+     Turns on DES encryption for all data passed via the rsh session.
+     This may impact response time and CPU utilization, but provides
+     increased security.
+
+`-l'
+`--user'
+     By default, the remote username is the same as the local username.
+     The `-l' option or the `username@host' format allow the remote
+     name to be specified.  Kerberos authentication is used, and
+     authorization is determined as in `rlogin' (*note rlogin
+     invocation::).
+
+
+   If no command is specified, you will be logged in on the remote host
+using `rlogin'.
+
+   Shell metacharacters which are not quoted are interpreted on the
+local machine, while quoted metacharacters are interpreted on the remote
+machine.  For example:
+
+     rsh otherhost cat remotefile >> localfile
+     rsh otherhost cat remotefile ">> "localfile
+
+   The first command appends the remote file file `remotefile' to the
+local file `localfile', while the later command appends `remotefile' to
+`other_remotefile'.
+
+
+File: inetutils.info,  Node: rlogin invocation,  Next: rexec invocation,  Prev: rsh invocation,  Up: Top
+
+11 `rlogin': Remote login
+*************************
+
+`rlogin' command logs into a specified remote host and connects your
+local terminal to the remote host.  The remote terminal type is the
+same as that given in the `TERM' local environment variable.  The
+terminal or window size is also the same, if the remote host supports
+them, and any changes in size are transferred.
+
+   When using the `rlogin' command, you can create a link to your path
+using a host name as the link name.  For example:
+
+     # ln -s /usr/bin/rlogin HOSTNAME
+     # HOSTNAME -8
+
+   Using HOSTNAME automatically uses the `rlogin' to log in to the
+remote host named HOSTNAME.
+
+   `rlogin' allows access to the remote host without the use of a
+passwd.  For details, *Note rcmd: (libc)rcmd.
+
+11.1 Invoking
+=============
+
+The options are as follows :
+
+`-8'
+`--8-bit'
+     Allows an eight-bit input data path at all times; otherwise parity
+     bits are stripped except when the remote side's stop and start
+     characters are other than `C-S'/`C-Q'.
+
+`-E'
+
+`--no-escape'
+`--no-escape'
+     Stops any character from being recognized as an escape character.
+     When used with the `-8' option, this provides a completely
+     transparent connection.
+
+`-K'
+`--kerberos'
+     Turns off all Kerberos authentication.
+
+`-d'
+`--debug'
+     Turns on socket debugging on the TCP sockets used for communication
+     with the remote host.
+
+`-e'
+`--escape=CHAR'
+     Allows user specification of the escape character, which is `~' by
+     default.  This specification may be as a literal character, or as
+     an octal value in the form `\nnn'.
+
+`-k'
+`--realm=REALM'
+     The option requests rlogin to obtain tickets for the remote host in
+     REALM realm instead of the remote host's realm.
+
+`-x'
+`--encrypt'
+     Turns on DES encryption for all data passed via the rlogin session.
+     This may impact response time and CPU utilization, but provides
+     increased security.
+
+   A line of the form `ESCAPE-CHAR.' disconnects from the remote host.
+Similarly, the line `ESCAPE-CHARC-Z' will suspend the rlogin session,
+and `ESCAPE-CHARDELAYED-SUSPEND-CHAR' suspends the send portion of the
+`rlogin', but allows output from the remote system.  By default, the
+tilde (`~) character' is the ESCAPE-CHAR, and normally `C-Y' is the
+DELAYED-SUSPEND-CHAR.
+
+   All echoing takes place at the remote site, so that (except for
+delays) the `rlogin' is transparent.  Flow control via `C-S'/`C-Q', if
+supported, stop and start the flow of information, flushing of input
+and output on interrupts are handled properly.
+
+   On the server side the `iruserok' and `ruserok' functions are used
+to authenticate, see the appropriate man page for more information, if
+supported.
+
+11.2 Kerberos Authentication
+============================
+
+If `rlogin' was compiled with kerberos support, options `-x', `-k',
+`-K' are available.  Each user may have a private authorization list in
+the file `.klogin' in their home directory.  Each line in this file
+should contain a Kerberos principal name of the form
+`principal.instance@realm'.  If the originating user is authenticated
+to one of the principals named in `.klogin', access is granted to the
+account.  The principal `accountname.@localrealm' is granted access if
+there is no `.klogin' file.  Otherwise a login and password will be
+prompted for on the remote machine as in `login'.  To avoid certain
+security problems, the `.klogin' file must be owned by the remote user.
+If Kerberos authentication fails, a warning message is printed and the
+standard Berkeley rlogin is used instead.
+
+
+File: inetutils.info,  Node: rcp invocation,  Next: talk invocation,  Prev: rexec invocation,  Up: Top
+
+12 `rcp': Copy files between machines
+*************************************
+
+`rcp' copies files between machines.  Each file or directory argument
+is either a remote file name of the form `rname@rhost:path', or a local
+file name (containing no `:' characters, or a `/' before any `:'s).
+
+     rcp [OPTION]... OLD-FILE NEW-FILE
+     rcp [OPTION]... FILES... DIRECTORY
+
+`-K'
+`--kerberos'
+     Turns off all Kerberos authentication.
+
+`-k'
+`--realm=REALM'
+     The option requests rcp to obtain tickets for the remote host in
+     REALM realm instead of the remote host's realm.
+
+`-p'
+`--preserve'
+     Causes `rcp' to attempt to preserve (duplicate) in its copies the
+     modification times and modes of the source files, ignoring the
+     umask.  By default, the mode and owner of file are preserved if it
+     already existed; otherwise the mode of the source file modified by
+     the `umask' function on the destination host is used.
+
+`-r'
+`--recursive'
+     If any of the source files are directories, `rcp' copies each
+     subtree rooted at that name; in this case the destination must be a
+     directory.
+
+`-x'
+`--encrypt'
+     Turns on DES encryption for all data passed via the rcp session.
+     This may impact response time and CPU utilization, but provides
+     increased security.
+
+
+   `rcp' doesn't detect all cases where the target of a copy might be a
+file in cases where only a directory should be legal.
+
+   `rcp' can be confused by any output generated by commands in a
+`.login', `.profile', or `.cshrc' file on the remote host.
+
+   The destination user and hostname may have to be specified as
+`rhost.rname' when the destination machine is running the 4.2BSD
+version of `rcp'.
+
+
+File: inetutils.info,  Node: rexec invocation,  Next: rcp invocation,  Prev: rlogin invocation,  Up: Top
+
+13 `rexec': a remote execution program
+**************************************
+
+`rexec' is a program that executes a program on another host.
+
+     rexec --user=LOGIN --password=PASS --host=HOST  \
+           [OPTION] COMMAND
+
+   The command line arguments are as follows:
+
+-ERROR
+     Specify the TCP port to use for stderr redirection, in case it is
+     not specified a random port will be used.
+
+-HOST
+     Specify the host where connect to.
+
+-NOERR
+     If specified, an error stream will not be created.
+
+-PASSWORD
+     Specify the password for logging-in.
+
+-PORT
+     Specify to which port connect to, if it is not specified by default
+     use 512.
+
+-USER
+     Specify the user to log into the server.
+
+
+File: inetutils.info,  Node: talk invocation,  Next: telnet invocation,  Prev: rcp invocation,  Up: Top
+
+14 `talk': a communication program
+**********************************
+
+`talk' is a visual communication program which copies lines from your
+terminal to that of another user.
+
+14.1 Invoking
+=============
+
+The command line arguments are as follows:
+
+PERSON
+     If you wish to talk to someone on your own machine, then person is
+     just the person's login name.  If you wish to talk to a user on
+     another host, then person is of the form `user@host'.
+
+TTYNAME
+     If you wish to talk to a user who is logged in more than once, the
+     TTYNAME argument may be used to indicate the appropriate terminal
+     name, where TTYNAME is of the form `ttyXX'.
+
+   When first called, talk sends the message:
+
+     Message from TalkDaemon@his_machine...
+     talk: connection requested by your_name@your_machine.
+     talk: respond with: talk your_name@your_machine
+
+   to the user you wish to talk to.  At this point, the recipient of the
+message should reply by typing:
+
+     talk YOUR_NAME@YOUR_MACHINE
+
+   It doesn't matter from which machine the recipient replies, as long
+as his login-name is the same.  Once communication is established, the
+two parties may type simultaneously, with their output appearing in
+separate windows.  Typing `C-L' will cause the screen to be reprinted,
+while your erase, kill, and word kill characters will behave normally.
+To exit, just type your interrupt character; talk then moves the cursor
+to the bottom of the screen and restores the terminal to its previous
+state.
+
+   Permission to talk may be denied or granted by use of the `mesg'
+command.  At the outset talking is allowed.  Certain commands, in
+particular `nroff' and `pr', disallow messages in order to prevent
+messy output.
+
+   To exit, just type your interrupt character; talk then moves the
+cursor to the bottom of the screen and restores the terminal to its
+previous state.
+
+
+File: inetutils.info,  Node: telnet invocation,  Next: inetd invocation,  Prev: talk invocation,  Up: Top
+
+15 `telnet': User interface to TELNET
+*************************************
+
+Login to a remote system HOST, optionally using a (non-standard)
+service port PORT:
+
+     telnet [OPTION...] [HOST [PORT]]
+
+`-4'
+`--ipv4'
+     Use only IPv4.
+
+`-6'
+`--ipv6'
+     Use only IPv6.
+
+`-8'
+`--binary'
+     Use an 8-bit data path.
+
+`-a'
+`--login'
+     Attempt automatic login.
+
+`-c'
+`--no-rc'
+     Do not read the user's file `$HOME/.telnetrc'.
+
+`-d'
+`--debug'
+     Turn on debugging.
+
+`-e CHAR'
+`--escape=CHAR'
+     Use CHAR as escape character.
+
+`-E'
+`--no-escape'
+     Use no escape character.
+
+`-K'
+`--no-login'
+     Do not automatically login to the remote system.
+
+`-l USER'
+`--user=USER'
+     Attempt automatic login as USER.
+
+`-L'
+`--binary-output'
+     Use an 8-bit data path for output only.
+
+`-n FILE'
+`--trace=FILE'
+     Record trace information into FILE.
+
+`-r'
+`--rlogin'
+     Display a user-interface similar to that of `rlogin'.
+
+`-x'
+`--encrypt'
+     If possible, encrypt the data stream.
+
+`-X ATYPE'
+`--disable-auth=ATYPE'
+     Disable authentication of type ATYPE.  Use this option multiple
+     times if more than one type is to be disabled.  Standard choices
+     are `null', `kerberos_v4', and `kerberos_v5'.
+
+
+File: inetutils.info,  Node: inetd invocation,  Next: syslogd invocation,  Prev: telnet invocation,  Up: Top
+
+16 `inetd': Interner super-server
+*********************************
+
+`inetd' program should be run at boot time by /etc/rc.  It then listens
+for connections on certain internet sockets.  When a connection is
+found on one of its sockets, it decides what service the socket
+corresponds to, and invokes a program to service the request.  The
+server program is invoked with the service socket as its standard
+input, output and error descriptors.  After the program is finished,
+inetd continues to listen on the socket (except in some cases which
+will be described below).  Essentially, inetd allows running one daemon
+to invoke several others, reducing load on the system.
+
+   There are two types of services that inetd can start: standard and
+TCPMUX.  A standard service has a well-known port assigned to it; it
+may be a service that implements an official Internet standard or is a
+BSD-specific service.  As described in RFC 1078, TCPMUX services are
+nonstandard services that do not have a well-known port assigned to
+them.  They are invoked from inetd when a program connects to the
+"tcpmux" well-known port and specifies the service name.  This feature
+is useful for adding locally-developed servers.
+
+* Menu:
+
+* Invocation::
+* Configuration file::
+* Built-in services::
+* TCPMUX::
+* Inetd Environment::
+* Error Messages::
+
+
+File: inetutils.info,  Node: Invocation,  Next: Configuration file,  Up: inetd invocation
+
+16.1 Invocation
+===============
+
+Normally, `inetd' is invoked without any arguments.  It does, however,
+support several command line options.  These are:
+
+`-d'
+`--debug'
+     Turns on debugging.  With this option, `inetd' stays in foreground
+     and prints additional debugging information of stderr.
+
+`-R RATE'
+`--rate=RATE'
+     Specifies the maximum number of times a service can be invoked in
+     one minute; the default is 1000.
+
+`--environment'
+     Pass local and remote socket information in environment variables.
+     *Note Inetd Environment::.
+
+`--resolve'
+     Resolve IP addresses when setting environment variables.  *Note
+     Inetd Environment::.
+
+
+File: inetutils.info,  Node: Configuration file,  Next: Built-in services,  Prev: Invocation,  Up: inetd invocation
+
+16.2 Configuration file
+=======================
+
+Upon execution, inetd reads its configuration information from a
+configuration pathnames on the command line, by default,
+`/etc/inetd.conf' and `/etc/initd.d'.  If the configuration pathname is
+a directory, all the files in the directory are read like a
+configuration file.  All of the configuration files are read and
+merged.  There must be an entry for each field in the configuration
+file, with entries for each field separated by a tab or a space.
+Comments are denoted by a "#" at the beginning of a line.  There must
+be an entry for each field.  The fields of the configuration file are
+summarized in the table below (optional parts are enclosed in square
+brackets:
+
+[service node:]service name
+     The service-name entry is the name of a valid service in the file
+     `/etc/services'.  For "internal" services (*note Built-in
+     services::), the service name must be the official name of the
+     service (that is, the first entry in `/etc/services'), or a numeric
+     representation thereof.  For TCPMUX services, the value of the
+     `service name' field consists of the string `tcpmux' followed by a
+     slash and the locally-chosen service name (*note TCPMUX::).
+
+     Optional `service node' prefix is allowed for internet services.
+     When present, it supplies the local addresses `inetd' should use
+     when listening for that service.  `Service node' consists of a
+     comma-separated list of addresses.  Both symbolic host names and
+     numeric IP addresses are allowed.  Symbolic hostnames are looked
+     up in DNS service.  If a hostname has multiple address mappings,
+     `inetd' creates a socket to listen on each address.
+
+     To avoid repeating an address that occurs frequently, a line with a
+     host address specifier and colon, but no further fields is allowed,
+     e.g.:
+
+          127.0.0.1,192.168.0.5:
+
+     The address specifier from such a line is remembered and used for
+     all further lines lacking an explicit host specifier.  Such a
+     default address remains in effect until another such line or end
+     of the configuration is encountered, whichever occurs first.
+
+     A special hostname `*' stands for `INADDR_ANY'.  When used in a
+     normal configuration line, it causes the default address specifier
+     to be ignored for that line.  When used in a default address
+     specification, e.g.:
+
+          *:
+
+     it causes any previous default address specifier to be forgotten.
+
+socket type
+     The socket type should be one of `stream', `dgram', `raw', `rdm',
+     or `seqpacket', depending on whether the socket is a stream,
+     datagram, raw, reliably delivered message, or sequenced packet
+     socket.  TCPMUX services must use `stream'.
+
+protocol
+     The protocol must be a valid protocol as given in
+     `/etc/protocols'.  Examples might be `tcp' or `udp'.  TCPMUX
+     services must use `tcp'.  If IPv6 support is enabled the sockets
+     will accept both IPv4 and IPv6 connections if that is supported by
+     the OS.  If inetd should only accept IPv4 or IPv6 connections, add
+     `4' or `6' to the protocol name.  For example `tcp4' will only
+     accept IPv4 tcp connections and `udp6' will only accept IPv6 udp
+     connections.
+
+wait/nowait[.max]
+     The `wait/nowait' entry specifies whether the server that is
+     invoked by `inetd' will take over the socket associated with the
+     service access point, and thus whether inetd should wait for the
+     server to exit before listening for new service requests.  Datagram
+     servers must use `wait', as they are always invoked with the
+     original datagram socket bound to the specified service address.
+     These servers must read at least one datagram from the socket
+     before exiting.  If a datagram server connects to its peer,
+     freeing the socket so inetd can received further messages on the
+     socket, it is said to be a "multi-threaded" server; it should read
+     one datagram from the socket and create a new socket connected to
+     the peer.  It should fork, and the parent should then exit to
+     allow inetd to check for new service requests to spawn new
+     servers.  Datagram servers which process all incoming datagrams on
+     a socket and eventually time out are said to be "single-threaded".
+     `comsat' and talkd are both examples of the latter type of
+     datagram server.  `tftpd' is an example of a multi-threaded
+     datagram server.
+
+     Servers using stream sockets generally are multi-threaded and use
+     the `nowait' entry.  Connection requests for these services are
+     accepted by inetd, and the server is given only the newly-accepted
+     socket connected to a client of the service.  Most stream-based
+     services and all TCPMUX services operate in this manner.  For such
+     services, the number of running instances of the server can be
+     limitied by specifying optional `max' suffix (a decimal number),
+     e.g.: `nowait.15'.
+
+     Stream-based servers that use `wait' are started with the
+     listening service socket, and must accept at least one connection
+     request before exiting.  Such a server would normally accept and
+     process incoming connection requests until a timeout.  services
+     must use `nowait'.
+
+user
+     The user entry should contain the user name of the user as whom the
+     server should run.  This allows for servers to be given less
+     permission than root.
+
+server program
+     The server-program entry should contain the pathname of the program
+     which is to be executed by inetd when a request is found on its
+     socket.  If inetd provides this service internally, this entry
+     should be `internal'.
+
+     It is common usage to specify `/usr/sbin/tcpd' in this field.
+
+server program arguments
+     The server program arguments should be just as arguments normally
+     are, starting with `argv[0]', which is the name of the program.  If
+     the service is provided internally, this entry must contain the
+     word `internal', or be empty.
+
+
+File: inetutils.info,  Node: Built-in services,  Next: TCPMUX,  Prev: Configuration file,  Up: inetd invocation
+
+16.3 Built-in services
+======================
+
+The `inetd' program provides several "trivial" services internally by
+use of routines within itself.  All these services can operate both in
+`stream' and in `dgram' mode.  They are:
+
+echo
+     Send back to the originating source any data received from it.
+     This is a debugging and measurement tool.
+
+discard
+     Silently throw away any data received.
+
+chargen
+     This is a character generator service.  It can be operated as both
+     stream or dgram service.  When operating in `stream' mode, once a
+     connection is established a stream of data is sent out the
+     connection (and any data received is thrown away).  This continues
+     until the calling user terminates the connection.  When operating
+     in `dgram' mode, `inetd' listens for UDP datagrams, and for each
+     received datagram, answers with a datagram containing a random
+     number (between 0 and 512) of characters.  Any data in the received
+     datagram are ignored.
+
+daytime
+     Send back the current date and time in a human readable form.  Any
+     input is discarded.
+
+time
+     Send back the current date and time as a 32-bit integer number,
+     nrepresenting the number of seconds since midnight, January 1,
+     1900.
+
+
+File: inetutils.info,  Node: TCPMUX,  Next: Inetd Environment,  Prev: Built-in services,  Up: inetd invocation
+
+16.4 TCPMUX
+===========
+
+The TCPMUX protocol.
+
+     A TCP client connects to a foreign host on TCP port 1.  It sends
+     the service name followed by a carriage-return line-feed <CRLF>.
+     The service name is never case sensitive.  The server replies with
+     a single character indicating positive (+) or negative (-)
+     acknowledgment, immediately followed by an optional message of
+     explanation, terminated with a <CRLF>.  If the reply was positive,
+     the selected protocol begins; otherwise the connection is closed."
+     The program is passed the TCP connection as file descriptors 0 and
+     1.
+
+   If the TCPMUX service name begins with a "+", `inetd' returns the
+positive reply for the program.  This allows you to invoke programs
+that use stdin/stdout without putting any special server code in them.
+
+   The special service name `help' causes inetd to list TCPMUX services
+in `inetd.conf'.
+
+   To define TCPMUX services, the configuration file must contain a
+`tcpmux internal' definition.
+
+   Here are several example service entries for the various types of
+services:
+
+     ftp           stream  tcp   nowait root  /usr/libexec/ftpd       ftpd -l
+     ntalk         dgram   udp   wait   root  /usr/libexec/ntalkd     ntalkd
+     tcpmux        stream  tcp   nowait root  internal
+     tcpmux/+date  stream  tcp   nowait guest /bin/date               date
+     tcpmux/phonebook stream tcp nowait guest /usr/bin/phonebook      phonebook
+
+
+File: inetutils.info,  Node: Inetd Environment,  Next: Error Messages,  Prev: TCPMUX,  Up: inetd invocation
+
+16.5 Inetd Environment
+======================
+
+If a connection is made with a streaming protocol (`stream') and if
+`--environment' option has been given, `inetd' will set the following
+environment variables before starting the program:
+
+`PROTO'
+     Always `TCP'.
+
+`TCPLOCALIP'
+     Local IP address of the interface which accepted the connection.
+
+`TCPLOCALPORT'
+     Port number on which the TCP connection was established.
+
+`TCPREMOTEIP'
+     IP address of the remote client.
+
+`TCPREMOTEPORT'
+     Port number on the client side of the TCP connection.
+
+   Additionally, if given the `--remote' option, `inetd' sets the
+following environment variables:
+
+`TCPLOCALHOST'
+     DNS name of `TCPLOCALIP'.
+
+`TCPREMOTEHOST'
+     DNS name of `TCPREMOTEIP'.
+
+
+File: inetutils.info,  Node: Error Messages,  Prev: Inetd Environment,  Up: inetd invocation
+
+16.6 Error Messages
+===================
+
+The inetd server logs error messages using syslog.  Important error
+messages and their explanations are:
+
+`service/protocol server failing (looping), service terminated.'
+     The number of requests for the specified service in the past minute
+     exceeded the limit.  The limit exists to prevent a broken program
+     or a malicious user from swamping the system.  This message may
+     occur for several reasons:
+
+       1. there are lots of hosts requesting the service within a short
+          time period,
+
+       2. a "broken" client program is requesting the service too
+          frequently,
+
+       3. a malicious user is running a program to invoke the service
+          in a "denial of service" attack,
+
+       4. the invoked service program has an error that causes clients
+          to retry quickly.
+
+     Use the `-R' option, as described above, to change the rate limit.
+     Once the limit is reached, the service will be reenabled
+     automatically in 10 minutes.
+
+`service/protocol: No such user 'user', service ignored'
+`service/protocol: getpwnam: user: No such user'
+     No entry for user exists in the passwd file.  The first message
+     occurs when inetd (re)reads the configuration file.  The second
+     message occurs when the service is invoked.
+
+`service/protocol: No such user 'user', service ignored'
+`service/protocol: getpwnam: user: No such user'
+     No entry for user exists in the passwd file.  The first message
+     occurs when inetd (re)reads the configuration file.  The second
+     message occurs when the service is invoked.
+
+`service: can't set uid number'
+`service: can't set gid number'
+     The user or group ID for the entry's user is invalid.
+
+
+File: inetutils.info,  Node: syslogd invocation,  Next: ftpd invocation,  Prev: inetd invocation,  Up: Top
+
+17 `syslogd': system service logging faclity
+********************************************
+
+`syslogd' is a system service that provides error logging facility.
+Messages are read from the UNIX domain socket `/dev/log', from an
+Internet domain socket specified in `/etc/services', and from the
+special device `/dev/klog' (to read kernel messages).
+
+   `syslogd' creates the file `/var/run/syslog.pid', and stores its
+process id there.  This can be used to kill or reconfigure `syslogd'.
+
+   The message sent to `syslogd' should consist of a single line.  The
+message can contain a priority code, which should be a preceding
+decimal number in angle braces, for example, `<5>'.  This priority code
+should map into the priorities defined in the include file
+`sys/syslog.h'.
+
+     syslogd [OPTIONS]...
+
+`-f FILE'
+`--rcfile=FILE'
+     Override configuration (the default file is `/etc/syslog.conf').
+
+`--pidfile=FILE'
+     Override pidfile (the default file is `/var/run/syslogd.pid').
+
+`-n'
+`--no-detach'
+     Do not enter daemon mode.
+
+`-d'
+`--debug'
+     Print debug information (implies `-n').
+
+`-p FILE'
+`--socket=FILE'
+     Override default UNIX domain socket `/dev/log'.
+
+`-a SOCKET'
+     Add UNIX socket to listen.  An unlimited number of sockets is
+     allowed.
+
+`-r'
+`--inet'
+     Receive remote messages via Internet domain socket.  Without this
+     option no remote massages are received, since there is no
+     listening socket. Yet sockets for forwarding are created on the
+     fly as needed, which might cause performance issues on busy
+     systems.
+
+`-b ADDRESS'
+`--bind=ADDRESS'
+     Restrict the listening Internet domain socket to a single address.
+     The default (given the use of `-r') is a wildcard address,
+     implying that the server listens at every available address.  Any
+     name will be resolved, and the lookup result will depend on the
+     options `-4', `-6', and `--ipany'.
+
+`--no-unixaf'
+     Do not listen on UNIX domain sockets (overrides `-a' and `-p').
+
+`--no-klog'
+     Do not listen to the kernel log device `/dev/klog'.
+
+`--ipany'
+     Allow both address families: IPv4 and IPv6.
+
+`-4'
+`--ipv4'
+     Use only IPv4 for Internet domain sockets.
+
+`-6'
+`--ipv6'
+     Use only IPv6 for Internet domain sockets.
+
+`--no-forward'
+     Do not forward any messages (overrides `-h').  This disables even
+     temporary creation of forwarding sockets, an ability which is
+     otherwise active when the option `-r' is left out.
+
+`-h'
+`--hop'
+     Forward messages from remote hosts.
+
+`-m INTERVAL'
+`--mark=INTERVAL'
+     Specify timestamp interval in logs (0 for no timestamps).
+
+`-l HOSTLIST'
+     Log hosts in HOSTLIST by their hostname.  Multiple lists are
+     allowed.
+
+`-s DOMAINLIST'
+     List of domains which should be stripped from the FQDN of hosts
+     before logging their name.  Multiple lists are allowed.
+
+17.1 Configuration file
+=======================
+
+`syslogd' reads its configuration file when it starts up and whenever
+it receives a hangup signal.  The `syslog.conf' file is the
+configuration file for the `syslogd' program.  It consists of lines
+with two fields: the "selector" field which specifies the types of
+messages and priorities to which the line applies, and an "action"
+field which specifies the action to be taken if a message `syslogd'
+receives matches the selection criteria.  The selector field is
+separated from the action field by one or more tab or space characters.
+A rule can be splitted in several lines if all lines except the last
+are terminated with a backslash `\'.
+
+   The Selectors function are encoded as a facility, a period (`.'),
+and a level, with no intervening white-space.  Both the facility and
+the level are case insensitive.
+
+   The facility describes the part of the system generating the message,
+and is one of the following keywords: `auth', `authpriv', `cron',
+`daemon', `kern', `lpr', `mail', `mark', `news', `syslog', `user',
+`uucp' and `local0' through `local7'.  These keywords (with the
+exception of `mark') correspond to the similar `LOG_' values specified
+to the `openlog' and `syslog' library routines.  *Note Syslog:
+(libc)Syslog, for details.
+
+   The level describes the severity of the message, and is a keyword
+from the following ordered list (higher to lower): `emerg', `alert',
+`crit', `err, warning', `notice' and `debug'.  These keywords
+correspond to the similar `LOG_' values specified to the syslog library
+routine.
+
+   *Note syslog and vsyslog: (libc)syslog; vsyslog, for a further
+descriptions of both the facility and level keywords and their
+significance.
+
+   If a received message matches the specified facility and is of the
+specified level (or a higher level), the action specified in the action
+field will be taken.
+
+   Multiple selectors may be specified for a single action by separating
+them with semicolon (`;') characters.  It is important to note,
+however, that each selector can modify the ones preceding it.
+
+   Multiple facilities may be specified for a single level by separating
+them with comma (`,') characters.
+
+   An asterisk (`*') can be used to specify all facilities or all
+levels.  Two asterisks (`**') specifie all facilities not named
+previously in the configuration file.
+
+   By default, a level applies to all messages with the same or higher
+level.  The equal (`=') character can be prepended to a level to
+restrict this line of the configuration file to messages with the very
+same level.
+
+   An exclamation mark (`!') prepended to a level or the asterisk means
+that this line of the configuration file does not apply to the
+specified level (and higher ones).  In conjunction with the equal sign,
+you can exclude single levels as well.
+
+   The special facility `mark' receives a message at priority `info'
+every 20 minutes.  This is not enabled by a facility field containing
+an asterisk.
+
+   The special level `none' disables a particular facility.
+
+   The action field of each line specifies the action to be taken when
+the selector field selects a message.  There are five forms:
+
+   * A pathname (beginning with a leading slash).  Selected messages are
+     appended to the file.
+
+     You may prepend a minus (`-') to the path to omit syncing the file
+     after each message log.  This can cause data loss at system
+     crashes, but increases performance for programs which use logging
+     extensively.
+
+   * A named pipe, beginning with a vertical bar (`|') followed by a
+     pathname.  The pipe must be created with `mkfifo' before `syslogd'
+     reads its configuration file.  This feature is especially useful
+     for debugging.
+
+   * A hostname (preceded by an at (`@') sign).  Selected messages are
+     forwarded to `syslogd' on the named host.
+
+   * A comma separated list of users.  Selected messages are written to
+     those users if they are logged in.
+
+   * An asterisk.  Selected messages are written to all logged-in users.
+
+     Blank lines and lines whose first non-blank character is a hash
+     (`#') character are ignored.
+
+   A configuration file might appear as follows:
+
+     # Log all kernel messages, authentication messages of
+     # level notice or higher and anything of level err or
+     # higher to the console.
+     # Don't log private authentication messages!
+     *.err;kern.*;auth.notice;authpriv.none  /dev/console
+
+     # Log anything (except mail) of level info or higher.
+     # Don't log private authentication messages!
+     *.info;mail.none;authpriv.none          /var/log/messages
+
+     # The authpriv file has restricted access.
+     authpriv.*                              /var/log/secure
+
+     # Log all the mail messages in one place.
+     mail.*                                  /var/log/maillog
+
+     # Everybody gets emergency messages, plus log them on another
+     # machine.
+     *.emerg                                 *
+     *.emerg                                 @arpa.berkeley.edu
+
+     # Root and Eric get alert and higher messages.
+     *.alert                                 root,eric
+
+     # Save mail and news errors of level err and higher in a
+     # special file.
+     uucp,news.crit                          /var/log/spoolerr
+
+   The effects of multiple selectors are sometimes not intuitive.  For
+example `mail.crit,*.err' will select the `mail' facility messages at
+the level of `err' or higher, not at the level of `crit' or higher.
+
+
+File: inetutils.info,  Node: ftpd invocation,  Next: tftpd invocation,  Prev: syslogd invocation,  Up: Top
+
+18 `ftpd': FTP daemon
+*********************
+
+`ftpd' is the Internet File Transfer Protocol server process.  The
+server uses the TCP protocol and listens at the port specified in the
+`ftp' service specification.
+
+     ftpd [OPTION]...
+
+`-A'
+`--anonymous-only'
+     Only anonymous login is allowed.
+
+`-a AUTH'
+
+`--auth=AUTH'
+     Specify what authentication mechanism to use for incoming
+     connections.  Possible values are: `kerberos', `kerberos5', `opie'
+     and `default'.
+
+     Anonymous logins will continue to work when this option is used.
+
+`-D'
+`--daemon'
+     `ftpd' enters daemon-mode.  That allows `ftpd' to be run without
+     `inetd'.
+
+`-d'
+`--debug'
+     Debugging information is written to the `syslog' using facility
+     `LOG_FTP'.
+
+`-l'
+`--logging'
+     Each successful and failed ftp session is logged using `syslog'
+     with a facility of `LOG_FTP'.  If this option is specified twice,
+     the retrieve (`get'), store (`put'), append, delete, make
+     directory, remove directory and rename operations and their
+     filename arguments are also logged.
+
+`-p PIDFILE'
+
+`--pidfile=PIDFILE'
+     Change default location of PIDFILE.
+
+`-q'
+
+`--no-version'
+     Quiet mode.  No information about the version of the `ftpd' is
+     given to the client.
+
+`-T'
+
+`--max-timeout'
+     A client may also request a different timeout period; the maximum
+     period allowed may be set to timeout seconds with the `-T' option.
+     The default limit is 2 hours.
+
+`-t TIMEOUT'
+
+`--timeout=TIMEOUT'
+     The inactivity timeout period is set to timeout seconds (the
+     default is 15 minutes).
+
+`-u UMASK'
+
+`--umask=UMASK'
+     Set default umask(base 8).
+
+   The file `/etc/nologin' can be used to disable ftp access.  If the
+file exists,` ftpd' displays it and exits.  If the file
+`/etc/ftpwelcome' exists, `ftpd' prints it before issuing the `ready'
+message.  If the file `/etc/motd' exists, `ftpd' prints it after a
+successful login.
+
+   The FTP server currently supports the following FTP requests.  The
+case of the requests is ignored.
+
+Request                Description
+-------------------------------------------------------------------------- 
+ABOR                   abort previous command
+ACCT                   specify account (ignored)
+ALLO                   allocate storage (vacuously)
+APPE                   append to a file
+CDUP                   change to parent of current working directory
+CWD                    change working directory
+DELE                   delete a file
+HELP                   give help information
+LIST                   give list files in a directory ("ls -lgA")
+MKD                    make a directory
+MDTM                   show last modification time of file
+MODE                   specify data transfer mode
+NLST                   give name list of files in directory
+NOOP                   do nothing
+PASS                   specify password
+PASV                   prepare for server-to-server transfer
+PORT                   specify data connection port
+PWD                    print the current working directory
+QUIT                   terminate session
+REST                   restart incomplete transfer
+RETR                   retrieve a file
+RMD                    remove a directory
+RNFR                   specify rename-from file name
+RNTO                   specify rename-to file name
+SITE                   non-standard commands
+SIZE                   return size of file
+STAT                   return status of server
+STOR                   store a file
+STOU                   store a file with a unique name
+STRU                   specify data transfer structure
+SYST                   show operating system type of server system
+TYPE                   specify data transfer type
+USER                   specify user name
+XCUP                   change to parent of current working directory
+                       (deprecated)
+XCWD                   change working directory (deprecated)
+XMKD                   make a directory (deprecated)
+XPWD                   print the current working directory (deprecated)
+XRMD                   remove a directory (deprecated)
+
+   The following non-standard or UNIX specific commands are supported by
+the `SITE' request.
+
+Request                Description
+UMASK                  change umask, e.g.  `SITE UMASK 002'
+IDLE                   set idle-timer, e.g.  `SITE IDLE 60'
+CHMOD                  change mode of a file, e.g.  `SITE CHMOD0 0CHMOD1
+                       1CHMOD2'
+HELP                   give help information.
+
+   The remaining FTP requests specified in RFC 959 are recognized, but
+not implemented.  `MDTM' and `SIZE' are not specified in RFC 959, but
+will appear in the next updated FTP RFC.
+
+   The ftp server will abort an active file transfer only when the
+`ABOR' command is preceded by a Telnet `Interrupt Process' (IP) signal
+and a Telnet `Synch' signal in the command Telnet stream, as described
+in Internet RFC 959.  If a `STAT' command is received during a data
+transfer, preceded by a Telnet IP and Synch, transfer status will be
+returned.
+
+   `ftpd' interprets file names according to the globbing conventions
+used by `csh'.  This allows users to utilize the metacharacters
+`*?[]{}~'.
+
+   `ftpd' authenticates users according to three rules.
+
+  1. The login name must be in the password data base, `/etc/passwd',
+     and not have a null password.  In this case a password must be
+     provided by the client before any file operations may be performed.
+
+  2. The login name must not appear in the file `/etc/ftpusers'.
+
+  3. The user must have a standard shell.
+
+  4. If the user name is `anonymous' or `ftp', an anonymous ftp account
+     must be present in the password file (user `ftp').  In this case
+     the user is allowed to log in by specifying any password (by
+     convention an email address for the user should be used as the
+     password).
+
+   In the last case, `ftpd' takes special measures to restrict the
+client's access privileges.  The server performs a chroot to the home
+directory of the `ftp' user.  In order that system security is not
+breached, it is recommended that the `ftp' subtree be constructed with
+care, following these rules:
+
+`~ftp'
+     Make the home directory owned by `root' and unwritable by anyone.
+
+`~ftp/bin'
+     Make this directory owned by `root' and unwritable by anyone (mode
+     555).  The program `ls' must be present to support the list
+     command.  This program should be mode 111.
+
+`~ftp/etc'
+     Make this directory owned by `root' and unwritable by anyone (mode
+     555).  The files `passwd' and `group' must be present for the `ls'
+     command to be able to produce owner names rather than numbers.
+     The password field in `passwd' is not used, and should not contain
+     real passwords.  The file `motd', if present, will be printed
+     after a successful login.  These files should be mode 444.
+
+`~ftp/pub'
+     Make this directory mode 777 and owned by `ftp'.  Guests can then
+     place files which are to be accessible via the anonymous account in
+     this directory.
+
+18.1 Configuration files
+========================
+
+``/etc/ftpusers''
+     List of unwelcome/restricted users.
+
+``/etc/ftpwelcome''
+     Welcome notice.
+
+``/etc/motd''
+     Welcome notice after login.
+
+``/etc/nologin''
+     Displayed and access refused.
+
+
+File: inetutils.info,  Node: tftpd invocation,  Next: rshd invocation,  Prev: ftpd invocation,  Up: Top
+
+19 `tftpd': TFTP server
+***********************
+
+Synopsis:
+
+     tftpd [OPTIONS]...
+
+`-l'
+     Enable logging.
+
+`-n'
+     Supress negative acknowledgement of requests for nonexistent
+     relative filenames.
+
+
+File: inetutils.info,  Node: rshd invocation,  Next: rlogind invocation,  Prev: tftpd invocation,  Up: Top
+
+20 `rshd': Remote shell server
+******************************
+
+The `rshd' server is the server for the `rcmd' routine and,
+consequently, for the `rsh' (*note rsh invocation::) program.  The
+server provides remote execution facilities with authentication based
+on privileged port numbers from trusted hosts.  The `rshd' server
+listens for service requests at the port indicated in the `cmd' service
+specification.  When a service request is received the following
+protocol is initiated:
+
+  1. The server checks the client's source port.  If the port is not in
+     the range 512-1023, the server aborts the connection.
+
+  2. The server reads characters from the socket up to a NUL (`\0')
+     byte.  The resultant string is interpreted as an ASCII number, base
+     10.
+
+  3. If the number received in step 2 is non-zero, it is interpreted as
+     the port number of a secondary stream to be used for the stderr.
+     A second connection is then created to the specified port on the
+     client's machine.  The source port of this second connection is
+     also in the range 512-1023.
+
+  4. The server checks the client's source address and requests the
+     corresponding host name.  If the hostname cannot be determined, the
+     dot-notation representation of the host address is used.  If the
+     hostname is in the same domain as the server (according to the last
+     two components of the domain name), or if the `-a' option is
+     given, the addresses for the hostname are requested, verifying that
+     the name and address correspond.  If address verification fails,
+     the connection is aborted with the message, `Host address
+     mismatch.'
+
+  5. A null terminated user name of at most 16 characters is retrieved
+     on the initial socket.  This user name is interpreted as the user
+     identity on the client's machine.
+
+  6. A null terminated user name of at most 16 characters is retrieved
+     on the initial socket.  This user name is interpreted as a user
+     identity to use on the server's machine.
+
+  7. A null terminated command to be passed to a shell is retrieved on
+     the initial socket.  The length of the command is limited by the
+     upper bound on the size of the system's argument list.
+
+  8. Rshd then validates the user using `ruserok', which uses the file
+     `/etc/hosts.equiv' and the `.rhosts' file found in the user's home
+     directory.  The `-l' option prevents `ruserok' from doing any
+     validation based on the user's `.rhosts' file, unless the user is
+     the superuser.
+
+  9. If the file `/etc/nologin' exists and the user is not the
+     superuser, the connection is closed.
+
+ 10. A null byte is returned on the initial socket and the command line
+     is passed to the normal login shell of the user.  The shell
+     inherits the network connections established by `rshd'.
+
+ 11. Transport-level keepalive messages are enabled unless the `-n'
+     option is present.  The use of keepalive messages allows sessions
+     to be timed out if the client crashes or becomes unreachable.
+
+ 12. The `-L' option causes all successful accesses to be logged to
+     `syslogd' (*note syslogd invocation::) as `auth.info' messages.
+
+   *Note ruserok: (libc)ruserok, for details.
+
+20.1 Invoking
+=============
+
+The options are as follows:
+
+`-a'
+`--verify-hostname'
+     Ask hostname for verification.
+
+`-l'
+`--no-rhosts'
+     Ignore `.rhosts' file.
+
+`-L NAME'
+`--local-domain=NAME'
+     Set local domain name.
+
+`-n'
+`--no-keepalive'
+     Do not set SO_KEEPALIVE.
+
+`-k'
+`--kerberos'
+     Use kerberos IV authentication.
+
+`-x'
+`--encrypt'
+     Turns on DES encryption for all data passed via the `rshd'
+     session.  This may impact response time and CPU utilization, but
+     provides increased security.
+
+`-D[LEVEL]'
+`--debug[=LEVEL]'
+     Set debug level, not implemented.
+
+
+20.2 Diagnostics
+================
+
+Except for the last one listed below, all diagnostic messages are
+returned on the initial socket, after which any network connections are
+closed.  An error is indicated by a leading byte with a value of 1 (0
+is returned in step 10 above upon successful completion of all the
+steps prior to the execution of the login shell).
+
+`Locuser too long'
+     The name of the user on the client's machine is longer than 16
+     characters.
+
+`Ruser too long'
+     The name of the user on the remote machine is longer than 16
+     characters.
+
+`Command too long'
+     The command line passed exceeds the size of the argument list (as
+     configured into the system).
+
+`Login incorrect'
+     No password file entry for the user name existed.
+
+`Remote directory'
+     The chdir command to the home directory failed.
+
+`Permission denied'
+     The authentication procedure described above failed.
+
+`Can't make pipe.'
+     The pipe needed for the stderr, wasn't created.
+
+`Can't fork; try again.'
+     A fork by the server failed.
+
+`<shellname>: ...'
+     The user's login shell could not be started.  This message is
+     returned on the connection associated with the stderr, and is not
+     preceded by a flag byte.
+
+   The authentication procedure used here assumes the integrity of each
+client machine and the connecting medium.  This is insecure, but is
+useful in an "open" environment.
+
+
+File: inetutils.info,  Node: rlogind invocation,  Next: rexecd invocation,  Prev: rshd invocation,  Up: Top
+
+21 `rlogind': Remote login server
+*********************************
+
+`rlogind' is the server for the `rlogin' program (*note rlogin
+invocation::).  The server provides a remote login facility with
+authentication based on privileged port numbers from trusted hosts.
+
+   `rlogind' listens for service requests at the port indicated in the
+`login' service specification.  When a service request is received the
+following protocol is initiated:
+  1. The server checks the client's source port.  If the port is not in
+     the range 512-1023, the server aborts the connection.
+
+  2. The server checks the client's source address and requests the
+     corresponding host name.  If the hostname cannot be determined, the
+     dot-notation representation of the host address is used.  If the
+     hostname is in the same domain as the server (according to the last
+     two components of the domain name), or if the `-a' option is
+     given, the addresses for the hostname are requested, verifying that
+     the name and address correspond.  Normal authentication is
+     bypassed if the address verification fails.
+
+   Once the source port and address have been checked, rlogind proceeds
+with the authentication process described *note rshd invocation::.  It
+then allocates a pseudo terminal, and manipulates file descriptors so
+that the slave half of the pseudo terminal becomes the stdin, stdout,
+and stderr for a login process.  The login process is an instance of
+the `login' program, invoked with the `-f' option if authentication has
+succeeded.  If automatic authentication fails, the user is prompted to
+log in as if on a standard terminal line.
+
+   The parent of the login process manipulates the master side of the
+pseudo terminal, operating as an intermediary between the login process
+and the client instance of the rlogin program.  In normal operation,
+the packet protocol described in `PTY' is invoked to provide
+`C-S'/`C-Q' type facilities and propagate interrupt signals to the
+remote programs.  The login process propagates the client terminal's
+baud rate and terminal type, as found in the environment variable,
+`TERM'.  The screen or window size of the terminal is requested from
+the client, and window size changes from the client are propagated to
+the pseudo terminal.
+
+   Transport-level keepalive messages are enabled unless the `-n'
+option is client instance of the `rlogin' program.  The use of
+keepalive messages allows sessions to be timed out if the client
+crashes or becomes unreachable.
+
+   *Note ruserok: (libc)ruserok, for details.
+
+21.1 Invoking
+=============
+
+The options are as follows:
+
+`-a'
+`--verify-hostname'
+     Ask hostname for verification.
+
+`-d'
+`--daemon'
+     Daemon mode.
+
+`-l'
+`--no-rhosts'
+     Ignore `.rhosts' file.
+
+`-L NAME'
+`--local-domain=NAME'
+     Set local domain name.
+
+`-n'
+`--no-keepalive'
+     Do not set SO_KEEPALIVE.
+
+`-k'
+`--kerberos'
+     Use kerberos IV authentication.
+
+`-x'
+`--encrypt'
+     Turns on DES encryption for all data passed via the rlogind
+     session.  This may impact response time and CPU utilization, but
+     provides increased security.
+
+`-D[LEVEL]'
+`--debug[=LEVEL]'
+     Set debug level, not implemented.
+
+`-o'
+`--allow-root'
+     Allow the root user to login, disabled by default.
+
+`-p PORT'
+`--port=PORT'
+     Listen on given port (valid only in daemon mode).
+
+`-r'
+`--reverse-required'
+     Require reverse resolving of a remote host IP.
+
+
+21.2 Diagnostics
+================
+
+All initial diagnostic messages are indicated by a leading byte with a
+value of 1, after which any network connections are closed.  If there
+are no errors before login is invoked, a null byte is returned as in
+indication of success.
+
+`Try again.'
+     A fork by the server failed.
+
+   The authentication procedure used here assumes the integrity of each
+client machine and the connecting medium.  This is insecure, but is
+useful in an "open" environment.
+
+
+File: inetutils.info,  Node: rexecd invocation,  Next: talkd invocation,  Prev: rlogind invocation,  Up: Top
+
+22 `rexecd': server for `rexec'
+*******************************
+
+`rexecd' is the server for the `Rexec' routine.  The server provides
+remote execution facilities with authentication based on user names and
+passwords.
+
+     rexecd [OPTION]...
+
+   `rexecd' listens for service requests at the port indicated in the
+`exec' service specification.  When a service request is received the
+following protocol is initiated:
+
+  1. The server reads characters from the socket up to a NUL (`\0')
+     byte.  The resultant string is interpreted as an ASCII number, base
+     10.
+
+  2. If the number received in step 1 is non-zero, it is interpreted as
+     the port number of a secondary stream to be used for the stderr.
+     A second connection is then created to the specified port on the
+     client's machine.
+
+  3. A NUL terminated user name of at most 16 characters is retrieved on
+     the initial socket.
+
+  4. A NUL terminated, unencrypted password of at most 16 characters is
+     retrieved on the initial socket.
+
+  5. A NUL terminated command to be passed to a shell is retrieved on
+     the initial socket.  The length of the command is limited by the
+     upper bound on the size of the system's argument list.
+
+  6. `rexecd' then validates the user as is done at login time and, if
+     the authentication was successful, changes to the user's home
+     directory, and establishes the user and group protections of the
+     user.  If any of these steps fail the connection is aborted with a
+     diagnostic message returned.
+
+  7. A NUL byte is returned on the initial socket and the command line
+     is passed to the normal login shell of the user.  The shell
+     inherits the network connections established by rexecd.
+
+22.1 Diagnostics
+================
+
+Except for the last one listed below, all diagnostic messages are
+returned on the initial socket, after which any network connections are
+closed.  An error is indicated by a leading byte with a value of 1 (0
+is returned in step 7 above upon successful completion of all the steps
+prior to the command execution).
+
+`username too long'
+     The name is longer than 16 characters.
+
+`password too long'
+     The password is longer than 16 characters.
+
+`command too long'
+     The command line passed exceeds the size of the argument list (as
+     configured into the system).
+
+`Login incorrect.'
+     No password file entry for the user name existed.
+
+`Password incorrect.'
+     The wrong password was supplied.
+
+`No remote directory.'
+     The chdir command to the home directory failed.
+
+`Try again.'
+     A fork by the server failed.
+
+`<shellname>: ...'
+     The user's login shell could not be started.  This message is
+     returned on the connection associated with the stderr, and is not
+     ...
+
+   _Note_, that indicating `Login incorrect' as opposed to `Password
+incorrect' is a security breach which allows people to probe a system
+for users with null passwords.
+
+
+File: inetutils.info,  Node: talkd invocation,  Next: telnetd invocation,  Prev: rexecd invocation,  Up: Top
+
+23 `talkd': a server for communication between users
+****************************************************
+
+`talkd' is the server that notifies a user that someone else wants to
+initiate a conversation.  It acts as a repository of invitations,
+responding to requests by clients wishing to rendezvous to hold a
+conversation.
+
+     talkd [OPTION]...
+
+`-a FILE'
+`--acl=FILE'
+     Read site-wide ACLs from FILE.
+
+`-d'
+
+`--debug'
+     Enable debugging.
+
+`-i SECONDS'
+`--idle-timeout=SECONDS'
+     Set idle timeout value.
+
+`-r SECONDS'
+`--request-ttl=SECONDS'
+     Set request time-to-live value.
+
+`-t SECONDS'
+
+`--timeout=SECONDS'
+     Set timeout value.
+
+   In normal operation, a client, the caller, initiates a rendezvous by
+sending a `CTL_MSG' to the server of type `LOOK_UP' (see
+`protocols/talkd.h').  This causes the server to search its invitation
+tables to check if an invitation currently exists for the caller (to
+speak to the callee specified in the message).  If the lookup fails,
+the caller then sends an `ANNOUNCE' message causing the server to
+broadcast an announcement on the callee's login ports requesting
+contact.  When the callee responds, the local server uses the recorded
+invitation to respond with the appropriate rendezvous address and the
+caller and callee client programs establish a stream connection through
+which the conversation takes place.
+
+
+File: inetutils.info,  Node: telnetd invocation,  Next: uucpd invocation,  Prev: talkd invocation,  Up: Top
+
+24 `telnetd': Telnet server
+***************************
+
+     telnetd [OPTION]...
+
+`-a AUTHMODE'
+`--authmode=AUTHMODE'
+     Specify what mode to use for authentication.  Allowed values are:
+     `none', `other', `user', `valid', and `off'.
+
+`-D[LEVEL]'
+`--debug=[LEVEL]'
+     Set the debugging level.  The argument is a comma separated list of
+     the categories: `options', `report', `netdata', `ptydata', and
+     `auth'.  All these may be used in the form `name[=level]'.
+     Omission of `level' implies the maximal possible debugging for
+     that particular category.
+
+     There is one additional category `tcp', that does not allow the
+     additional level indicator, but is instead equivalent to setting
+     the socket option `SO_DEBUG' for debugging the complete traffic.
+
+     The outcome is the file `/tmp/telnet.debug', to which data is
+     incrementally added as time passes.
+
+`-E STRING'
+`--exec-login=STRING'
+     Set program to be executed instead of `/bin/login'.
+
+`-h'
+`--no-hostinfo'
+     Do not print host information before login has been completed.
+
+`-l[MODE]'
+`--linemode=[MODE]'
+     Set line mode.  An empty argument will force line mode at all
+     times.  The only recognised value is otherwise `nokludge'.
+
+`-n'
+`--no-keepalive'
+     Disable TCP keep-alives.
+
+`-U'
+`--reverse-lookup'
+     Refuse connections from addresses that cannot be mapped back into a
+     symbolic name.
+
+`-X AUTHTYPE'
+`--disable-auth-type=AUTHTYPE'
+     Disable the use of the given authentication type.  Use this option
+     multiple times if more than one type is to be disabled.  Standard
+     choices are `null', `kerberos_v4', and `kerberos_v5'.
+
+
+File: inetutils.info,  Node: uucpd invocation,  Next: GNU Free Documentation License,  Prev: telnetd invocation,  Up: Top
+
+25 `uucpd': Unix to Unix Copy
+*****************************
+
+Synopsis:
+
+     uucpd [OPTION]...
+
+
+File: inetutils.info,  Node: GNU Free Documentation License,  Next: Index,  Prev: uucpd invocation,  Up: Top
+
+Appendix A GNU Free Documentation License
+*****************************************
+
+                     Version 1.3, 3 November 2008
+
+     Copyright (C) 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
+     `http://fsf.org/'
+
+     Everyone is permitted to copy and distribute verbatim copies
+     of this license document, but changing it is not allowed.
+
+  0. PREAMBLE
+
+     The purpose of this License is to make a manual, textbook, or other
+     functional and useful document "free" in the sense of freedom: to
+     assure everyone the effective freedom to copy and redistribute it,
+     with or without modifying it, either commercially or
+     noncommercially.  Secondarily, this License preserves for the
+     author and publisher a way to get credit for their work, while not
+     being considered responsible for modifications made by others.
+
+     This License is a kind of "copyleft", which means that derivative
+     works of the document must themselves be free in the same sense.
+     It complements the GNU General Public License, which is a copyleft
+     license designed for free software.
+
+     We have designed this License in order to use it for manuals for
+     free software, because free software needs free documentation: a
+     free program should come with manuals providing the same freedoms
+     that the software does.  But this License is not limited to
+     software manuals; it can be used for any textual work, regardless
+     of subject matter or whether it is published as a printed book.
+     We recommend this License principally for works whose purpose is
+     instruction or reference.
+
+  1. APPLICABILITY AND DEFINITIONS
+
+     This License applies to any manual or other work, in any medium,
+     that contains a notice placed by the copyright holder saying it
+     can be distributed under the terms of this License.  Such a notice
+     grants a world-wide, royalty-free license, unlimited in duration,
+     to use that work under the conditions stated herein.  The
+     "Document", below, refers to any such manual or work.  Any member
+     of the public is a licensee, and is addressed as "you".  You
+     accept the license if you copy, modify or distribute the work in a
+     way requiring permission under copyright law.
+
+     A "Modified Version" of the Document means any work containing the
+     Document or a portion of it, either copied verbatim, or with
+     modifications and/or translated into another language.
+
+     A "Secondary Section" is a named appendix or a front-matter section
+     of the Document that deals exclusively with the relationship of the
+     publishers or authors of the Document to the Document's overall
+     subject (or to related matters) and contains nothing that could
+     fall directly within that overall subject.  (Thus, if the Document
+     is in part a textbook of mathematics, a Secondary Section may not
+     explain any mathematics.)  The relationship could be a matter of
+     historical connection with the subject or with related matters, or
+     of legal, commercial, philosophical, ethical or political position
+     regarding them.
+
+     The "Invariant Sections" are certain Secondary Sections whose
+     titles are designated, as being those of Invariant Sections, in
+     the notice that says that the Document is released under this
+     License.  If a section does not fit the above definition of
+     Secondary then it is not allowed to be designated as Invariant.
+     The Document may contain zero Invariant Sections.  If the Document
+     does not identify any Invariant Sections then there are none.
+
+     The "Cover Texts" are certain short passages of text that are
+     listed, as Front-Cover Texts or Back-Cover Texts, in the notice
+     that says that the Document is released under this License.  A
+     Front-Cover Text may be at most 5 words, and a Back-Cover Text may
+     be at most 25 words.
+
+     A "Transparent" copy of the Document means a machine-readable copy,
+     represented in a format whose specification is available to the
+     general public, that is suitable for revising the document
+     straightforwardly with generic text editors or (for images
+     composed of pixels) generic paint programs or (for drawings) some
+     widely available drawing editor, and that is suitable for input to
+     text formatters or for automatic translation to a variety of
+     formats suitable for input to text formatters.  A copy made in an
+     otherwise Transparent file format whose markup, or absence of
+     markup, has been arranged to thwart or discourage subsequent
+     modification by readers is not Transparent.  An image format is
+     not Transparent if used for any substantial amount of text.  A
+     copy that is not "Transparent" is called "Opaque".
+
+     Examples of suitable formats for Transparent copies include plain
+     ASCII without markup, Texinfo input format, LaTeX input format,
+     SGML or XML using a publicly available DTD, and
+     standard-conforming simple HTML, PostScript or PDF designed for
+     human modification.  Examples of transparent image formats include
+     PNG, XCF and JPG.  Opaque formats include proprietary formats that
+     can be read and edited only by proprietary word processors, SGML or
+     XML for which the DTD and/or processing tools are not generally
+     available, and the machine-generated HTML, PostScript or PDF
+     produced by some word processors for output purposes only.
+
+     The "Title Page" means, for a printed book, the title page itself,
+     plus such following pages as are needed to hold, legibly, the
+     material this License requires to appear in the title page.  For
+     works in formats which do not have any title page as such, "Title
+     Page" means the text near the most prominent appearance of the
+     work's title, preceding the beginning of the body of the text.
+
+     The "publisher" means any person or entity that distributes copies
+     of the Document to the public.
+
+     A section "Entitled XYZ" means a named subunit of the Document
+     whose title either is precisely XYZ or contains XYZ in parentheses
+     following text that translates XYZ in another language.  (Here XYZ
+     stands for a specific section name mentioned below, such as
+     "Acknowledgements", "Dedications", "Endorsements", or "History".)
+     To "Preserve the Title" of such a section when you modify the
+     Document means that it remains a section "Entitled XYZ" according
+     to this definition.
+
+     The Document may include Warranty Disclaimers next to the notice
+     which states that this License applies to the Document.  These
+     Warranty Disclaimers are considered to be included by reference in
+     this License, but only as regards disclaiming warranties: any other
+     implication that these Warranty Disclaimers may have is void and
+     has no effect on the meaning of this License.
+
+  2. VERBATIM COPYING
+
+     You may copy and distribute the Document in any medium, either
+     commercially or noncommercially, provided that this License, the
+     copyright notices, and the license notice saying this License
+     applies to the Document are reproduced in all copies, and that you
+     add no other conditions whatsoever to those of this License.  You
+     may not use technical measures to obstruct or control the reading
+     or further copying of the copies you make or distribute.  However,
+     you may accept compensation in exchange for copies.  If you
+     distribute a large enough number of copies you must also follow
+     the conditions in section 3.
+
+     You may also lend copies, under the same conditions stated above,
+     and you may publicly display copies.
+
+  3. COPYING IN QUANTITY
+
+     If you publish printed copies (or copies in media that commonly
+     have printed covers) of the Document, numbering more than 100, and
+     the Document's license notice requires Cover Texts, you must
+     enclose the copies in covers that carry, clearly and legibly, all
+     these Cover Texts: Front-Cover Texts on the front cover, and
+     Back-Cover Texts on the back cover.  Both covers must also clearly
+     and legibly identify you as the publisher of these copies.  The
+     front cover must present the full title with all words of the
+     title equally prominent and visible.  You may add other material
+     on the covers in addition.  Copying with changes limited to the
+     covers, as long as they preserve the title of the Document and
+     satisfy these conditions, can be treated as verbatim copying in
+     other respects.
+
+     If the required texts for either cover are too voluminous to fit
+     legibly, you should put the first ones listed (as many as fit
+     reasonably) on the actual cover, and continue the rest onto
+     adjacent pages.
+
+     If you publish or distribute Opaque copies of the Document
+     numbering more than 100, you must either include a
+     machine-readable Transparent copy along with each Opaque copy, or
+     state in or with each Opaque copy a computer-network location from
+     which the general network-using public has access to download
+     using public-standard network protocols a complete Transparent
+     copy of the Document, free of added material.  If you use the
+     latter option, you must take reasonably prudent steps, when you
+     begin distribution of Opaque copies in quantity, to ensure that
+     this Transparent copy will remain thus accessible at the stated
+     location until at least one year after the last time you
+     distribute an Opaque copy (directly or through your agents or
+     retailers) of that edition to the public.
+
+     It is requested, but not required, that you contact the authors of
+     the Document well before redistributing any large number of
+     copies, to give them a chance to provide you with an updated
+     version of the Document.
+
+  4. MODIFICATIONS
+
+     You may copy and distribute a Modified Version of the Document
+     under the conditions of sections 2 and 3 above, provided that you
+     release the Modified Version under precisely this License, with
+     the Modified Version filling the role of the Document, thus
+     licensing distribution and modification of the Modified Version to
+     whoever possesses a copy of it.  In addition, you must do these
+     things in the Modified Version:
+
+       A. Use in the Title Page (and on the covers, if any) a title
+          distinct from that of the Document, and from those of
+          previous versions (which should, if there were any, be listed
+          in the History section of the Document).  You may use the
+          same title as a previous version if the original publisher of
+          that version gives permission.
+
+       B. List on the Title Page, as authors, one or more persons or
+          entities responsible for authorship of the modifications in
+          the Modified Version, together with at least five of the
+          principal authors of the Document (all of its principal
+          authors, if it has fewer than five), unless they release you
+          from this requirement.
+
+       C. State on the Title page the name of the publisher of the
+          Modified Version, as the publisher.
+
+       D. Preserve all the copyright notices of the Document.
+
+       E. Add an appropriate copyright notice for your modifications
+          adjacent to the other copyright notices.
+
+       F. Include, immediately after the copyright notices, a license
+          notice giving the public permission to use the Modified
+          Version under the terms of this License, in the form shown in
+          the Addendum below.
+
+       G. Preserve in that license notice the full lists of Invariant
+          Sections and required Cover Texts given in the Document's
+          license notice.
+
+       H. Include an unaltered copy of this License.
+
+       I. Preserve the section Entitled "History", Preserve its Title,
+          and add to it an item stating at least the title, year, new
+          authors, and publisher of the Modified Version as given on
+          the Title Page.  If there is no section Entitled "History" in
+          the Document, create one stating the title, year, authors,
+          and publisher of the Document as given on its Title Page,
+          then add an item describing the Modified Version as stated in
+          the previous sentence.
+
+       J. Preserve the network location, if any, given in the Document
+          for public access to a Transparent copy of the Document, and
+          likewise the network locations given in the Document for
+          previous versions it was based on.  These may be placed in
+          the "History" section.  You may omit a network location for a
+          work that was published at least four years before the
+          Document itself, or if the original publisher of the version
+          it refers to gives permission.
+
+       K. For any section Entitled "Acknowledgements" or "Dedications",
+          Preserve the Title of the section, and preserve in the
+          section all the substance and tone of each of the contributor
+          acknowledgements and/or dedications given therein.
+
+       L. Preserve all the Invariant Sections of the Document,
+          unaltered in their text and in their titles.  Section numbers
+          or the equivalent are not considered part of the section
+          titles.
+
+       M. Delete any section Entitled "Endorsements".  Such a section
+          may not be included in the Modified Version.
+
+       N. Do not retitle any existing section to be Entitled
+          "Endorsements" or to conflict in title with any Invariant
+          Section.
+
+       O. Preserve any Warranty Disclaimers.
+
+     If the Modified Version includes new front-matter sections or
+     appendices that qualify as Secondary Sections and contain no
+     material copied from the Document, you may at your option
+     designate some or all of these sections as invariant.  To do this,
+     add their titles to the list of Invariant Sections in the Modified
+     Version's license notice.  These titles must be distinct from any
+     other section titles.
+
+     You may add a section Entitled "Endorsements", provided it contains
+     nothing but endorsements of your Modified Version by various
+     parties--for example, statements of peer review or that the text
+     has been approved by an organization as the authoritative
+     definition of a standard.
+
+     You may add a passage of up to five words as a Front-Cover Text,
+     and a passage of up to 25 words as a Back-Cover Text, to the end
+     of the list of Cover Texts in the Modified Version.  Only one
+     passage of Front-Cover Text and one of Back-Cover Text may be
+     added by (or through arrangements made by) any one entity.  If the
+     Document already includes a cover text for the same cover,
+     previously added by you or by arrangement made by the same entity
+     you are acting on behalf of, you may not add another; but you may
+     replace the old one, on explicit permission from the previous
+     publisher that added the old one.
+
+     The author(s) and publisher(s) of the Document do not by this
+     License give permission to use their names for publicity for or to
+     assert or imply endorsement of any Modified Version.
+
+  5. COMBINING DOCUMENTS
+
+     You may combine the Document with other documents released under
+     this License, under the terms defined in section 4 above for
+     modified versions, provided that you include in the combination
+     all of the Invariant Sections of all of the original documents,
+     unmodified, and list them all as Invariant Sections of your
+     combined work in its license notice, and that you preserve all
+     their Warranty Disclaimers.
+
+     The combined work need only contain one copy of this License, and
+     multiple identical Invariant Sections may be replaced with a single
+     copy.  If there are multiple Invariant Sections with the same name
+     but different contents, make the title of each such section unique
+     by adding at the end of it, in parentheses, the name of the
+     original author or publisher of that section if known, or else a
+     unique number.  Make the same adjustment to the section titles in
+     the list of Invariant Sections in the license notice of the
+     combined work.
+
+     In the combination, you must combine any sections Entitled
+     "History" in the various original documents, forming one section
+     Entitled "History"; likewise combine any sections Entitled
+     "Acknowledgements", and any sections Entitled "Dedications".  You
+     must delete all sections Entitled "Endorsements."
+
+  6. COLLECTIONS OF DOCUMENTS
+
+     You may make a collection consisting of the Document and other
+     documents released under this License, and replace the individual
+     copies of this License in the various documents with a single copy
+     that is included in the collection, provided that you follow the
+     rules of this License for verbatim copying of each of the
+     documents in all other respects.
+
+     You may extract a single document from such a collection, and
+     distribute it individually under this License, provided you insert
+     a copy of this License into the extracted document, and follow
+     this License in all other respects regarding verbatim copying of
+     that document.
+
+  7. AGGREGATION WITH INDEPENDENT WORKS
+
+     A compilation of the Document or its derivatives with other
+     separate and independent documents or works, in or on a volume of
+     a storage or distribution medium, is called an "aggregate" if the
+     copyright resulting from the compilation is not used to limit the
+     legal rights of the compilation's users beyond what the individual
+     works permit.  When the Document is included in an aggregate, this
+     License does not apply to the other works in the aggregate which
+     are not themselves derivative works of the Document.
+
+     If the Cover Text requirement of section 3 is applicable to these
+     copies of the Document, then if the Document is less than one half
+     of the entire aggregate, the Document's Cover Texts may be placed
+     on covers that bracket the Document within the aggregate, or the
+     electronic equivalent of covers if the Document is in electronic
+     form.  Otherwise they must appear on printed covers that bracket
+     the whole aggregate.
+
+  8. TRANSLATION
+
+     Translation is considered a kind of modification, so you may
+     distribute translations of the Document under the terms of section
+     4.  Replacing Invariant Sections with translations requires special
+     permission from their copyright holders, but you may include
+     translations of some or all Invariant Sections in addition to the
+     original versions of these Invariant Sections.  You may include a
+     translation of this License, and all the license notices in the
+     Document, and any Warranty Disclaimers, provided that you also
+     include the original English version of this License and the
+     original versions of those notices and disclaimers.  In case of a
+     disagreement between the translation and the original version of
+     this License or a notice or disclaimer, the original version will
+     prevail.
+
+     If a section in the Document is Entitled "Acknowledgements",
+     "Dedications", or "History", the requirement (section 4) to
+     Preserve its Title (section 1) will typically require changing the
+     actual title.
+
+  9. TERMINATION
+
+     You may not copy, modify, sublicense, or distribute the Document
+     except as expressly provided under this License.  Any attempt
+     otherwise to copy, modify, sublicense, or distribute it is void,
+     and will automatically terminate your rights under this License.
+
+     However, if you cease all violation of this License, then your
+     license from a particular copyright holder is reinstated (a)
+     provisionally, unless and until the copyright holder explicitly
+     and finally terminates your license, and (b) permanently, if the
+     copyright holder fails to notify you of the violation by some
+     reasonable means prior to 60 days after the cessation.
+
+     Moreover, your license from a particular copyright holder is
+     reinstated permanently if the copyright holder notifies you of the
+     violation by some reasonable means, this is the first time you have
+     received notice of violation of this License (for any work) from
+     that copyright holder, and you cure the violation prior to 30 days
+     after your receipt of the notice.
+
+     Termination of your rights under this section does not terminate
+     the licenses of parties who have received copies or rights from
+     you under this License.  If your rights have been terminated and
+     not permanently reinstated, receipt of a copy of some or all of
+     the same material does not give you any rights to use it.
+
+ 10. FUTURE REVISIONS OF THIS LICENSE
+
+     The Free Software Foundation may publish new, revised versions of
+     the GNU Free Documentation License from time to time.  Such new
+     versions will be similar in spirit to the present version, but may
+     differ in detail to address new problems or concerns.  See
+     `http://www.gnu.org/copyleft/'.
+
+     Each version of the License is given a distinguishing version
+     number.  If the Document specifies that a particular numbered
+     version of this License "or any later version" applies to it, you
+     have the option of following the terms and conditions either of
+     that specified version or of any later version that has been
+     published (not as a draft) by the Free Software Foundation.  If
+     the Document does not specify a version number of this License,
+     you may choose any version ever published (not as a draft) by the
+     Free Software Foundation.  If the Document specifies that a proxy
+     can decide which future versions of this License can be used, that
+     proxy's public statement of acceptance of a version permanently
+     authorizes you to choose that version for the Document.
+
+ 11. RELICENSING
+
+     "Massive Multiauthor Collaboration Site" (or "MMC Site") means any
+     World Wide Web server that publishes copyrightable works and also
+     provides prominent facilities for anybody to edit those works.  A
+     public wiki that anybody can edit is an example of such a server.
+     A "Massive Multiauthor Collaboration" (or "MMC") contained in the
+     site means any set of copyrightable works thus published on the MMC
+     site.
+
+     "CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0
+     license published by Creative Commons Corporation, a not-for-profit
+     corporation with a principal place of business in San Francisco,
+     California, as well as future copyleft versions of that license
+     published by that same organization.
+
+     "Incorporate" means to publish or republish a Document, in whole or
+     in part, as part of another Document.
+
+     An MMC is "eligible for relicensing" if it is licensed under this
+     License, and if all works that were first published under this
+     License somewhere other than this MMC, and subsequently
+     incorporated in whole or in part into the MMC, (1) had no cover
+     texts or invariant sections, and (2) were thus incorporated prior
+     to November 1, 2008.
+
+     The operator of an MMC Site may republish an MMC contained in the
+     site under CC-BY-SA on the same site at any time before August 1,
+     2009, provided the MMC is eligible for relicensing.
+
+
+ADDENDUM: How to use this License for your documents
+====================================================
+
+To use this License in a document you have written, include a copy of
+the License in the document and put the following copyright and license
+notices just after the title page:
+
+       Copyright (C)  YEAR  YOUR NAME.
+       Permission is granted to copy, distribute and/or modify this document
+       under the terms of the GNU Free Documentation License, Version 1.3
+       or any later version published by the Free Software Foundation;
+       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+       Texts.  A copy of the license is included in the section entitled ``GNU
+       Free Documentation License''.
+
+   If you have Invariant Sections, Front-Cover Texts and Back-Cover
+Texts, replace the "with...Texts." line with this:
+
+         with the Invariant Sections being LIST THEIR TITLES, with
+         the Front-Cover Texts being LIST, and with the Back-Cover Texts
+         being LIST.
+
+   If you have Invariant Sections without Cover Texts, or some other
+combination of the three, merge those two alternatives to suit the
+situation.
+
+   If your document contains nontrivial examples of program code, we
+recommend releasing these examples in parallel under your choice of
+free software license, such as the GNU General Public License, to
+permit their use in free software.
+
+
+File: inetutils.info,  Node: Index,  Prev: GNU Free Documentation License,  Up: Top
+
+Index
+*****
+
+ [index ]
+* Menu:
+
+* --:                                    Common options.      (line  27)
+* --8-bit:                               rlogin invocation.   (line  31)
+* --acl:                                 talkd invocation.    (line  15)
+* --active:                              ftp invocation.      (line  22)
+* --address:                             ping invocation.     (line  15)
+* --aliases:                             hostname invocation. (line  12)
+* --allow-root:                          rlogind invocation.  (line  93)
+* --anonymous-only:                      ftpd invocation.     (line  14)
+* --auth:                                ftpd invocation.     (line  19)
+* --bind:                                syslogd invocation.  (line  55)
+* --count:                               ping invocation.     (line  30)
+* --d:                                   talkd invocation.    (line  20)
+* --daemon <1>:                          rlogind invocation.  (line  63)
+* --daemon:                              ftpd invocation.     (line  27)
+* --debug <1>:                           talkd invocation.    (line  20)
+* --debug <2>:                           ftpd invocation.     (line  32)
+* --debug <3>:                           syslogd invocation.  (line  35)
+* --debug <4>:                           Invocation.          (line   9)
+* --debug <5>:                           rlogin invocation.   (line  49)
+* --debug <6>:                           rsh invocation.      (line  35)
+* --debug <7>:                           ftp invocation.      (line  30)
+* --debug:                               ping invocation.     (line  34)
+* --domain:                              hostname invocation. (line  16)
+* --echo:                                ping invocation.     (line  18)
+* --encrypt <1>:                         rlogind invocation.  (line  83)
+* --encrypt <2>:                         rshd invocation.     (line  98)
+* --encrypt <3>:                         rcp invocation.      (line  38)
+* --encrypt <4>:                         rlogin invocation.   (line  65)
+* --encrypt:                             rsh invocation.      (line  45)
+* --environment:                         Invocation.          (line  19)
+* --escape:                              rlogin invocation.   (line  54)
+* --file <1>:                            logger invocation.   (line  64)
+* --file:                                hostname invocation. (line  25)
+* --flood:                               ping invocation.     (line  57)
+* --fqdn:                                hostname invocation. (line  21)
+* --help:                                Common options.      (line  16)
+* --hop:                                 syslogd invocation.  (line  85)
+* --host:                                logger invocation.   (line  39)
+* --id:                                  logger invocation.   (line  30)
+* --idle-timeout:                        talkd invocation.    (line  24)
+* --ignore-routing-log:                  ping invocation.     (line  49)
+* --inet:                                syslogd invocation.  (line  47)
+* --interval:                            ping invocation.     (line  38)
+* --ip-addresses:                        hostname invocation. (line  29)
+* --ipany:                               syslogd invocation.  (line  68)
+* --ipv4 <1>:                            syslogd invocation.  (line  72)
+* --ipv4 <2>:                            ftp invocation.      (line  14)
+* --ipv4:                                logger invocation.   (line  14)
+* --ipv6 <1>:                            syslogd invocation.  (line  76)
+* --ipv6 <2>:                            ftp invocation.      (line  18)
+* --ipv6:                                logger invocation.   (line  19)
+* --kerberos <1>:                        rlogind invocation.  (line  79)
+* --kerberos <2>:                        rshd invocation.     (line  94)
+* --kerberos <3>:                        rcp invocation.      (line  15)
+* --kerberos <4>:                        rlogin invocation.   (line  45)
+* --kerberos:                            rsh invocation.      (line  31)
+* --linger:                              ping invocation.     (line  97)
+* --local-domain <1>:                    rlogind invocation.  (line  71)
+* --local-domain:                        rshd invocation.     (line  86)
+* --logging:                             ftpd invocation.     (line  37)
+* --long:                                hostname invocation. (line  21)
+* --mark:                                syslogd invocation.  (line  89)
+* --max-timeout:                         ftpd invocation.     (line  57)
+* --nis:                                 hostname invocation. (line  38)
+* --no-detach:                           syslogd invocation.  (line  31)
+* --no-escape:                           rlogin invocation.   (line  39)
+* --no-forward:                          syslogd invocation.  (line  79)
+* --no-glob:                             ftp invocation.      (line  34)
+* --no-keepalive <1>:                    rlogind invocation.  (line  75)
+* --no-keepalive:                        rshd invocation.     (line  90)
+* --no-klog:                             syslogd invocation.  (line  65)
+* --no-login:                            ftp invocation.      (line  42)
+* --no-prompt:                           ftp invocation.      (line  38)
+* --no-rhosts <1>:                       rlogind invocation.  (line  67)
+* --no-rhosts:                           rshd invocation.     (line  82)
+* --no-unixaf:                           syslogd invocation.  (line  62)
+* --no-version:                          ftpd invocation.     (line  51)
+* --numeric:                             ping invocation.     (line  44)
+* --passive:                             ftp invocation.      (line  26)
+* --pattern:                             ping invocation.     (line  73)
+* --pidfile <1>:                         ftpd invocation.     (line  46)
+* --pidfile:                             syslogd invocation.  (line  27)
+* --port <1>:                            rlogind invocation.  (line  97)
+* --port:                                traceroute invocation.
+                                                              (line  16)
+* --preload:                             ping invocation.     (line  68)
+* --preserve:                            rcp invocation.      (line  24)
+* --priority:                            logger invocation.   (line  69)
+* --prompt:                              ftp invocation.      (line  52)
+* --r:                                   Invocation.          (line  16)
+* --rate:                                Invocation.          (line  16)
+* --rcfile:                              syslogd invocation.  (line  24)
+* --realm <1>:                           rcp invocation.      (line  19)
+* --realm <2>:                           rlogin invocation.   (line  60)
+* --realm:                               rsh invocation.      (line  40)
+* --recursive:                           rcp invocation.      (line  32)
+* --request-ttl:                         talkd invocation.    (line  28)
+* --resolve:                             Invocation.          (line  23)
+* --resolve-hostnames:                   traceroute invocation.
+                                                              (line  23)
+* --reverse-required:                    rlogind invocation.  (line 101)
+* --route:                               ping invocation.     (line  80)
+* --short:                               hostname invocation. (line  33)
+* --size:                                ping invocation.     (line  87)
+* --socket:                              syslogd invocation.  (line  39)
+* --source:                              logger invocation.   (line  53)
+* --stderr:                              logger invocation.   (line  60)
+* --tag:                                 logger invocation.   (line  79)
+* --timeout <1>:                         talkd invocation.    (line  33)
+* --timeout <2>:                         ftpd invocation.     (line  64)
+* --timeout:                             ping invocation.     (line  93)
+* --timestamp:                           ping invocation.     (line  21)
+* --trace:                               ftp invocation.      (line  59)
+* --tries:                               traceroute invocation.
+                                                              (line  20)
+* --type <1>:                            traceroute invocation.
+                                                              (line  12)
+* --type:                                ping invocation.     (line  25)
+* --umask:                               ftpd invocation.     (line  70)
+* --usage:                               Common options.      (line  20)
+* --user:                                rsh invocation.      (line  51)
+* --verify-hostname <1>:                 rlogind invocation.  (line  59)
+* --verify-hostname:                     rshd invocation.     (line  78)
+* --version:                             Common options.      (line  24)
+* --yp:                                  hostname invocation. (line  38)
+* -4 <1>:                                syslogd invocation.  (line  72)
+* -4 <2>:                                ftp invocation.      (line  14)
+* -4:                                    logger invocation.   (line  14)
+* -6 <1>:                                syslogd invocation.  (line  76)
+* -6 <2>:                                ftp invocation.      (line  18)
+* -6:                                    logger invocation.   (line  19)
+* -8:                                    rlogin invocation.   (line  31)
+* -a <1>:                                talkd invocation.    (line  15)
+* -a <2>:                                rlogind invocation.  (line  59)
+* -a <3>:                                rshd invocation.     (line  78)
+* -a:                                    ftpd invocation.     (line  19)
+* -A <1>:                                ftpd invocation.     (line  14)
+* -A:                                    ftp invocation.      (line  22)
+* -a:                                    hostname invocation. (line  12)
+* -b:                                    syslogd invocation.  (line  55)
+* -c:                                    ping invocation.     (line  30)
+* -D:                                    rlogind invocation.  (line  89)
+* -d:                                    rlogind invocation.  (line  63)
+* -D:                                    rshd invocation.     (line 104)
+* -d:                                    ftpd invocation.     (line  32)
+* -D:                                    ftpd invocation.     (line  27)
+* -d <1>:                                syslogd invocation.  (line  35)
+* -d <2>:                                Invocation.          (line   9)
+* -d <3>:                                rlogin invocation.   (line  49)
+* -d <4>:                                rsh invocation.      (line  35)
+* -d <5>:                                ftp invocation.      (line  30)
+* -d <6>:                                ping invocation.     (line  34)
+* -d:                                    hostname invocation. (line  16)
+* -debug <1>:                            rlogind invocation.  (line  89)
+* -debug:                                rshd invocation.     (line 104)
+* -e:                                    rlogin invocation.   (line  54)
+* -E:                                    rlogin invocation.   (line  39)
+* -f <1>:                                syslogd invocation.  (line  24)
+* -f <2>:                                ping invocation.     (line  57)
+* -f:                                    logger invocation.   (line  64)
+* -F:                                    hostname invocation. (line  25)
+* -f:                                    hostname invocation. (line  21)
+* -g:                                    ftp invocation.      (line  34)
+* -h <1>:                                syslogd invocation.  (line  85)
+* -h:                                    logger invocation.   (line  39)
+* -i <1>:                                talkd invocation.    (line  24)
+* -i <2>:                                ftp invocation.      (line  38)
+* -i <3>:                                ping invocation.     (line  38)
+* -i <4>:                                logger invocation.   (line  30)
+* -i:                                    hostname invocation. (line  29)
+* -k <1>:                                rlogind invocation.  (line  79)
+* -k <2>:                                rshd invocation.     (line  94)
+* -k:                                    rcp invocation.      (line  19)
+* -K:                                    rcp invocation.      (line  15)
+* -k:                                    rlogin invocation.   (line  60)
+* -K:                                    rlogin invocation.   (line  45)
+* -k:                                    rsh invocation.      (line  40)
+* -K:                                    rsh invocation.      (line  31)
+* -L:                                    rlogind invocation.  (line  71)
+* -l:                                    rlogind invocation.  (line  67)
+* -L:                                    rshd invocation.     (line  86)
+* -l <1>:                                rshd invocation.     (line  82)
+* -l <2>:                                ftpd invocation.     (line  37)
+* -l <3>:                                syslogd invocation.  (line  92)
+* -l <4>:                                rsh invocation.      (line  51)
+* -l:                                    ping invocation.     (line  68)
+* -m:                                    syslogd invocation.  (line  89)
+* -M:                                    traceroute invocation.
+                                                              (line  12)
+* -n <1>:                                rlogind invocation.  (line  75)
+* -n <2>:                                rshd invocation.     (line  90)
+* -n <3>:                                syslogd invocation.  (line  31)
+* -n <4>:                                ftp invocation.      (line  42)
+* -n:                                    ping invocation.     (line  44)
+* -o:                                    rlogind invocation.  (line  93)
+* -p <1>:                                rlogind invocation.  (line  97)
+* -p <2>:                                ftpd invocation.     (line  46)
+* -p <3>:                                syslogd invocation.  (line  39)
+* -p <4>:                                rcp invocation.      (line  24)
+* -p <5>:                                ftp invocation.      (line  26)
+* -p <6>:                                traceroute invocation.
+                                                              (line  16)
+* -p <7>:                                ping invocation.     (line  73)
+* -p:                                    logger invocation.   (line  69)
+* -q <1>:                                ftpd invocation.     (line  51)
+* -q:                                    traceroute invocation.
+                                                              (line  20)
+* -r <1>:                                talkd invocation.    (line  28)
+* -r <2>:                                rlogind invocation.  (line 101)
+* -r <3>:                                syslogd invocation.  (line  47)
+* -r:                                    rcp invocation.      (line  32)
+* -R:                                    ping invocation.     (line  80)
+* -r:                                    ping invocation.     (line  49)
+* -s <1>:                                syslogd invocation.  (line  96)
+* -s <2>:                                ping invocation.     (line  87)
+* -s:                                    logger invocation.   (line  60)
+* -S:                                    logger invocation.   (line  53)
+* -s:                                    hostname invocation. (line  33)
+* -t <1>:                                talkd invocation.    (line  33)
+* -t:                                    ftpd invocation.     (line  64)
+* -T:                                    ftpd invocation.     (line  57)
+* -t <1>:                                ftp invocation.      (line  59)
+* -t <2>:                                ping invocation.     (line  25)
+* -t:                                    logger invocation.   (line  79)
+* -u:                                    ftpd invocation.     (line  70)
+* -W:                                    ping invocation.     (line  97)
+* -w:                                    ping invocation.     (line  93)
+* -x <1>:                                rlogind invocation.  (line  83)
+* -x <2>:                                rshd invocation.     (line  98)
+* -x <3>:                                rcp invocation.      (line  38)
+* -x <4>:                                rlogin invocation.   (line  65)
+* -x:                                    rsh invocation.      (line  45)
+* -y:                                    hostname invocation. (line  38)
+* bug, reporting:                        Introduction.        (line  14)
+* ftp:                                   ftp invocation.      (line   6)
+* ftpd:                                  ftpd invocation.     (line   6)
+* help, online:                          Common options.      (line  16)
+* hostname:                              hostname invocation. (line   6)
+* inetd:                                 inetd invocation.    (line   6)
+* introduction:                          Introduction.        (line   6)
+* logger:                                logger invocation.   (line   6)
+* networking utilities:                  Top.                 (line  18)
+* option delimiter:                      Common options.      (line  27)
+* ping:                                  ping invocation.     (line   6)
+* rcp:                                   rcp invocation.      (line   6)
+* rexec:                                 rexec invocation.    (line   6)
+* rexecd:                                rexecd invocation.   (line   6)
+* rlogin:                                rlogin invocation.   (line   6)
+* rlogind:                               rlogind invocation.  (line   6)
+* rsh:                                   rsh invocation.      (line   6)
+* rshd:                                  rshd invocation.     (line   6)
+* syslogd:                               syslogd invocation.  (line   6)
+* talk:                                  talk invocation.     (line   6)
+* talkd:                                 talkd invocation.    (line   6)
+* telnetd:                               telnetd invocation.  (line   6)
+* tftp:                                  tftp invocation.     (line   6)
+* tftpd:                                 tftpd invocation.    (line   6)
+* traceroute:                            traceroute invocation.
+                                                              (line   6)
+* usage, online:                         Common options.      (line  20)
+* version number, finding:               Common options.      (line  24)
+
+
+
+Tag Table:
+Node: Top2541
+Node: Introduction4875
+Node: Common options6440
+Node: Exit status7509
+Node: hostname invocation7948
+Node: logger invocation8626
+Node: ping invocation12432
+Node: traceroute invocation19931
+Node: whois invocation20509
+Node: ftp invocation21814
+Node: Commands23433
+Node: Aborting A File Transfer44734
+Node: File Naming Conventions45878
+Node: File Transfer Parameters47556
+Node: The .netrc File48181
+Node: tftp invocation51211
+Node: rsh invocation54561
+Node: rlogin invocation56777
+Node: rcp invocation60456
+Node: rexec invocation62260
+Node: talk invocation63078
+Node: telnet invocation65058
+Node: inetd invocation66384
+Node: Invocation67821
+Node: Configuration file68580
+Node: Built-in services74746
+Node: TCPMUX76122
+Node: Inetd Environment77696
+Node: Error Messages78559
+Node: syslogd invocation80393
+Node: ftpd invocation88861
+Node: tftpd invocation96298
+Node: rshd invocation96614
+Node: rlogind invocation101960
+Node: rexecd invocation105987
+Node: talkd invocation109034
+Node: telnetd invocation110515
+Node: uucpd invocation112285
+Node: GNU Free Documentation License112506
+Node: Index137679
+
+End Tag Table
