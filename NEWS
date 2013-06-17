@@ -5,6 +5,10 @@ Foundation, Inc.  See the end of this file for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+An advisory file CHECKLIST containing testing and verification
+advice has been added, pointing administrators to important
+properties and settings for built executables.
+
 * IDN -- International Domain Names
 
 The clients `ftp', `ping', `ping6', `talk', `telnet', `tftp',
