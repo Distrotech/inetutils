@@ -76,8 +76,8 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	COPYING ChangeLog INSTALL NEWS THANKS TODO \
 	build-aux/config.guess build-aux/config.rpath \
 	build-aux/config.sub build-aux/depcomp build-aux/install-sh \
-	build-aux/mdate-sh build-aux/missing build-aux/texinfo.tex \
-	build-aux/ylwrap
+	build-aux/ltmain.sh build-aux/mdate-sh build-aux/missing \
+	build-aux/texinfo.tex build-aux/ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/am/check_macro.m4 \
 	$(top_srcdir)/am/check_member.m4 \
