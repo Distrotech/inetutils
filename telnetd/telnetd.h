@@ -120,7 +120,7 @@ typedef struct
 #ifdef HAVE_UNAME
    /* Prefix and suffix if the IM string can be generated from uname.  */
 # define UNAME_IM_PREFIX "\r\n"
-# define UNAME_IM_SUFFIX " (%h) (%t)\r\n\n"
+# define UNAME_IM_SUFFIX " (%l) (%t)\r\n\r\n"
 #else /* ! HAVE_UNAME */
 # define UNAME_IM_PREFIX "\r\n"
 # define UNAME_IM_SUFFIX "\r\n"

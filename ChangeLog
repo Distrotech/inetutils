@@ -1,3 +1,12 @@
+2013-06-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Portability of banner.
+
+	* telnetd/telnetd.c (print_hostinfo): Use NVT
+	conformant substring for second newline "\r\n".
+	* telnetd/telnet.h (UNAME_IM_SUFFIX) [HAVE_UNAME]:
+	Likewise.  Use place holder `%l' for name of server.
+
 2013-06-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Portable use of uname().  POSIX states non-negative
