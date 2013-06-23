@@ -716,7 +716,7 @@ print_hostinfo (void)
 #ifdef HAVE_UNAME
   struct utsname u;
 
-  if (uname (&u) == 0)
+  if (uname (&u) >= 0)
     {
       im = malloc (strlen (UNAME_IM_PREFIX)
 		   + strlen (u.sysname)

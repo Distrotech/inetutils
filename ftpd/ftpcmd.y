@@ -529,7 +529,7 @@ cmd
 #ifdef HAVE_UNAME
 			struct utsname u;
 
-			if (uname (&u) == 0)
+			if (uname (&u) >= 0)
 			  {
 			    version = malloc (strlen (u.sysname) + 1
 					      + strlen (u.release) + 1);
@@ -548,7 +548,7 @@ cmd
 			sys_type = "UNKNOWN";
 #endif
 
-			if (version)
+			if (!no_version && version)
 			  reply (215, "%s Type: L%d Version: %s",
 				 sys_type, NBBY, version);
 			else

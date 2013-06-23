@@ -99,6 +99,7 @@ extern int logged_in;
 extern struct passwd *pw;
 extern int guest;
 extern int logging;
+extern int no_version;
 extern int type;
 extern int form;
 extern int debug;

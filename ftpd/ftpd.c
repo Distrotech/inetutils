@@ -128,6 +128,7 @@ socklen_t data_dest_len;
 struct sockaddr_storage his_addr;	/* Peer address.  */
 socklen_t his_addrlen;
 int logging;			/* Enable log to syslog.  */
+int no_version;			/* Don't print version to client.  */
 int type = TYPE_A;		/* Default TYPE_A.  */
 int form = FORM_N;		/* Default FORM_N.  */
 int debug;			/* Enable debug mode if 1.  */
@@ -156,7 +157,6 @@ static jmp_buf urgcatch;
 static int stru = STRU_F;	/* Avoid C keyword.  */
 static int stru_mode = MODE_S;	/* Default STRU mode stru_mode = MODE_S.  */
 static int anon_only;		/* Allow only anonymous login.  */
-static int no_version;		/* Don't print version to client.  */
 static int daemon_mode;		/* Start in daemon mode.  */
 static off_t file_size;
 static off_t byte_count;

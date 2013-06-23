@@ -1,3 +1,22 @@
+2013-06-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Portable use of uname().  POSIX states non-negative
+	status on success.  Solaris returns positive value.
+
+	* ftpd/ftpcmd.y <cmd> [HAVE_UNAME]: Set string
+	value if uname() returns a non-negative value.
+	* telnetd/telnetd.c (print_hostinfo) [HAVE_UNAME]:
+	Likewise.
+
+
+	ftpd: Prevent disclosure of system version.
+
+	* ftpd/extern.h (no_version): New declaration.
+	* ftpd/ftpcmd <cmd>: Display system name and
+	release identifier only if `!no_version' is true.
+	* ftpd.c (no_version): Declare as global,
+	not static.
+
 2013-06-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* CHECKLIST: New documentation file.
