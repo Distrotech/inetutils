@@ -1,5 +1,17 @@
 2013-06-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	telnetd: Reverse resolution of client.
+
+	* telnetd/telnetd.c (telnetd_setup) [IPV6]
+	<reverse_lookup>: The comparison of a full
+	`struct sockaddr' always fails.  Thus compare
+	only `struct in_addr', or `struct in6_addr'.
+	Short-circuit test for differing families.
+	In case of failure, call fatal(), not exit().
+	[!IPV6] <reverse_lookup>: Call fatal(), not exit().
+
+2013-06-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	telnetd: Portability of banner.
 
 	* telnetd/telnetd.c (print_hostinfo): Use NVT

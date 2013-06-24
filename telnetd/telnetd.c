@@ -397,14 +397,30 @@ telnetd_setup (int fd)
 	}
 
       for (aip = result; aip; aip = aip->ai_next)
-	if (!memcmp (aip->ai_addr, &saddr, aip->ai_addrlen))
-	  break;
+	{
+	  if (aip->ai_family != saddr.ss_family)
+	    continue;
+
+	  /* Must compare the address part only.
+	   * The ports are almost surely different!
+	   */
+	  if (aip->ai_family == AF_INET
+	      && !memcmp (&((struct sockaddr_in *) aip->ai_addr)->sin_addr,
+			  &((struct sockaddr_in *) &saddr)->sin_addr,
+			  sizeof (struct in_addr)))
+	    break;
+	  if (aip->ai_family == AF_INET6
+	      && !memcmp (&((struct sockaddr_in6 *) aip->ai_addr)->sin6_addr,
+			  &((struct sockaddr_in6 *) &saddr)->sin6_addr,
+			  sizeof (struct in6_addr)))
+	    break;
+	}
 
       if (aip == NULL)
 	{
 	  syslog (LOG_AUTH | LOG_NOTICE,
-		  "None of addresses of %s matched %s", remote_hostname, buf);
-	  exit (EXIT_SUCCESS);
+		  "No address of %s matched %s", remote_hostname, buf);
+	  fatal (fd, "Cannot resolve address.");
 	}
 
       freeaddrinfo (result);
@@ -449,9 +465,9 @@ telnetd_setup (int fd)
       if (ap == NULL)
 	{
 	  syslog (LOG_AUTH | LOG_NOTICE,
-		  "None of addresses of %s matched %s",
+		  "No address of %s matched %s",
 		  remote_hostname, inet_ntoa (saddr.sin_addr));
-	  exit (EXIT_SUCCESS);
+	  fatal (fd, "Cannot resolve address.");
 	}
     }
   else
