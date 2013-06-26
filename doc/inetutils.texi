@@ -4466,6 +4466,11 @@ indicating the cause of failure. All network connections are closed
 at the server side after this message.  Some common messages follow:
 
 @table @samp
+@item Permission denied.
+The client presented insufficient credentials,
+or the client's address is not sufficiently resolvable
+to pass the checks induced by options @option{-a} or @option{-r}.
+
 @item Try again.
 A fork by the server failed.
 @end table
@@ -4820,6 +4825,9 @@ default settings in part only, like @samp{srv.local},
 @opindex --reverse-lookup
 Refuse connections from addresses that cannot be mapped back into a
 symbolic name.
+A client is accepted only if the IP address can be resolved as
+a host name, and the same name is resolvable to addresses among
+which the clients's address is included.
 
 @item -X @var{authtype}
 @itemx --disable-auth-type=@var{authtype}

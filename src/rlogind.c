@@ -911,10 +911,11 @@ rlogind_auth (int fd, struct auth_data *ap)
   if (hp)
     hostname = hp->h_name;
 #endif /* !HAVE_DECL_GETNAMEINFO */
+
   else if (reverse_required)
     {
-      syslog (LOG_CRIT, "can't resolve remote IP address");
-      exit (EXIT_FAILURE);
+      syslog (LOG_NOTICE, "can't resolve remote IP address");
+      fatal (fd, "Permission denied", 0);
     }
   else
     hostname = ap->hostaddr;
@@ -1219,7 +1220,7 @@ rlogind_mainloop (int infd, int outfd)
   /* Read the null byte */
   if (read (infd, &c, 1) != 1 || c != 0)
     {
-      syslog (LOG_CRIT, "protocol error: expected 0 byte");
+      syslog (LOG_ERR, "protocol error: expected 0 byte");
       exit (EXIT_FAILURE);
     }
 
