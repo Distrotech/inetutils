@@ -185,6 +185,7 @@
 int keepalive = 1;		/* flag for SO_KEEPALIVE scoket option */
 int check_all;
 int log_success;		/* If TRUE, log all successful accesses */
+int reverse_required = 0;	/* Demand IP to host name resolution.  */
 int sent_null;
 
 void doit (int, struct sockaddr *, socklen_t);
@@ -225,6 +226,8 @@ char *servername = NULL;
 
 static struct argp_option options[] = {
 #define GRP 10
+  { "reverse-required", 'r', NULL, 0,
+    "require reverse resolving of remote host IP", GRP },
   { "verify-hostname", 'a', NULL, 0,
     "ask hostname for verification", GRP },
 #ifdef HAVE___CHECK_RHOSTS_FILE
@@ -283,6 +286,10 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
 
     case 'n':
       keepalive = 0;	/* don't enable SO_KEEPALIVE */
+      break;
+
+    case 'r':
+      reverse_required = 1;
       break;
 
 #if defined KERBEROS || defined SHISHI
@@ -826,6 +833,14 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	  }
     }
 #endif /* !HAVE_DECL_GETNAMEINFO */
+
+  else if (reverse_required)
+    {
+      syslog (LOG_NOTICE,
+	      "Could not resolve remote %s.", addrstr);
+      rshd_error ("Permission denied.\n");
+      exit (EXIT_FAILURE);
+    }
   else
     errorhost = hostname = addrstr;
 
@@ -846,7 +861,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 			   (struct sockaddr *) &local_addr, &rc) < 0)
 	    {
 	      syslog (LOG_ERR, "getsockname: %m");
-	      rshd_error ("rlogind: getsockname: %s", strerror (errno));
+	      rshd_error ("rshd: getsockname: %s", strerror (errno));
 	      exit (EXIT_FAILURE);
 	    }
 	  authopts = KOPT_DO_MUTUAL;
@@ -936,7 +951,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 			   (struct sockaddr *) &local_addr, &rc) < 0)
 	    {
 	      syslog (LOG_ERR, "getsockname: %m");
-	      rshd_error ("rlogind: getsockname: %s", strerror (errno));
+	      rshd_error ("rshd: getsockname: %s", strerror (errno));
 	      exit (EXIT_FAILURE);
 	    }
 	  authopts = KOPT_DO_MUTUAL;

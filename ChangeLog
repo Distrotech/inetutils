@@ -1,3 +1,13 @@
+2013-06-27  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rshd: Require host name.
+
+	* src/rshd.c (reverse_required): New variable.
+	(options): New option `-r/--reverse-required'.
+	(parse_opt) <'r'>: New case.
+	(doit) <reverse_required>: New exit path for
+	clients whose IP addresses have no host name.
+
 2013-06-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind: Error handling.

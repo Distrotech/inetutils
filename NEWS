@@ -115,7 +115,8 @@ mode.  New switches `-4/--ipv4', `-6/--ipv6', and
 
 Now has support for IPv6, PAM, and Shishi, with PAM services
 `rsh' and `krsh'.  New switches `-k/--kerberos',
-`-S/--server-principal', `-v/--vacuous', and `-x/--encrypt'.
+`-r/--reverse-required', `-S/--server-principal',
+`-v/--vacuous', and `-x/--encrypt'.
 
 * talkd
 

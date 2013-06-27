@@ -4188,11 +4188,12 @@ Fail any call asking for non-Kerberos authentication.
 @c @opindex --port
 @c Listen on given port (valid only in daemon mode).
 
-@c @item -r
-@c @itemx --reverse-required
-@c @opindex -r
-@c @opindex --reverse-required
-@c Required  Require reverse resolving of a remote host IP.
+@item -r
+@itemx --reverse-required
+@opindex -r
+@opindex --reverse-required
+Demand that the client's IP address be resolvable
+as a host name.
 @end table
 
 Should @command{rshd} have been built with PAM support,
@@ -4228,7 +4229,8 @@ No password file entry for the user name existed.
 The chdir command to the home directory failed.
 
 @item Permission denied
-The authentication procedure described above failed.
+The authentication procedure described above failed,
+or address resolution was insufficient.
 
 @item Can't make pipe.
 The pipe needed for the stderr, wasn't created.
