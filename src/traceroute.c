@@ -266,7 +266,7 @@ main (int argc, char **argv)
   setlocale (LC_ALL, "");
 #endif
 
-  pid = getpid();
+  pid = getpid() & 0xffff;
 
   /* Parse command line */
   iu_argp_init ("traceroute", program_authors);

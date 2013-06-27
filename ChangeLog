@@ -1,3 +1,12 @@
+2013-06-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	traceroute: Portability of PID range.
+	FreeBSD uses process ID beyond 65535.
+
+	* src/traceroute.c (main): Only keep lower
+	16 bits of getpid().  A larger identity span
+	cannot be accommodated into the payload.
+
 2013-06-27  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rshd: Require host name.
