@@ -1,3 +1,13 @@
+2013-07-04  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	traceroute: Gateway selection.
+	Make `-g' additive in repeated use to better
+	conform with other implementations.
+
+	* src/traceroute.c (parse_opt) [IP_OPTIONS] <'g'>:
+	Append `arg' to `opt_gateways' if the latter has
+	already been assigned a value.
+
 2013-06-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	traceroute: Portability of PID range.

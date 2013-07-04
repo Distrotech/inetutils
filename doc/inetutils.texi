@@ -1060,6 +1060,7 @@ using spaces, commata, or semicola as separators.
 These hosts must be traversed in the given order
 before the intended host receives any datagram.
 At most eight host names or addresses may be specified.
+Multiple uses of @option{-g} produce a concatenated list.
 
 @item -I
 @itemx --icmp

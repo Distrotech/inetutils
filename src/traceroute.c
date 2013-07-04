@@ -179,7 +179,22 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
 #ifdef IP_OPTIONS
     case 'g':
-      opt_gateways = xstrdup (arg);
+      if (opt_gateways)
+	{
+	  size_t len = 0;
+
+	  len = strlen (opt_gateways);
+	  opt_gateways = xrealloc (opt_gateways, len + strlen (arg) + 3);
+
+	  /* Append new gateways to old list,
+	   * separating the two parts by a comma.
+	   */
+	  opt_gateways[len] = ',';
+	  opt_gateways[len + 1] = '\0';
+	  strcat (opt_gateways, arg);
+	}
+      else
+	opt_gateways = xstrdup (arg);
       break;
 #endif /* IP_OPTIONS */
 
