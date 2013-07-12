@@ -1,3 +1,16 @@
+2013-07-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	talk, talkd: Convenience changes.
+
+	* talk/display.c (display) <'^D'>: Clear both
+	local windows, but render the character as
+	notification on the remote terminal.
+
+	* talkd/process.c (process_request) <ANNOUNCE>:
+	If logging is set and reply is successful, make
+	a syslog note about the participants.
+	<LOOK_UP>: Likewise.
+
 2013-07-04  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	traceroute: Gateway selection.

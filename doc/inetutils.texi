@@ -2761,10 +2761,19 @@ talk @var{your_name}@@@var{your_machine}
 
 It doesn't matter from which machine the recipient replies, as long as
 his login-name is the same.  Once communication is established, the
-two parties may type simultaneously, with their output appearing in
-separate windows.  Typing @kbd{C-L} will cause the screen to be
+two parties may type text simultaneously, with their output appearing
+in separate windows.
+Typing @kbd{C-L} will cause the screen to be
 reprinted, while erase, kill, and word kill characters will
-behave normally.  To exit, just type an interrupt character;
+behave normally.
+In addition, @kbd{C-D} will cause both windows to be
+locally cleared of all text.
+This keystroke will appear as a simple @samp{^D} on the remote
+terminal, though.
+It signals to the other party that you yourself have just
+cleared your terminal of all text.
+
+To exit, just type an interrupt character @kbd{C-C};
 @command{talk} then moves the cursor to the bottom of the screen
 and restores the terminal to its previous state.
 
@@ -3162,7 +3171,7 @@ services:
 
 @example
 ftp           stream  tcp   nowait root  /usr/libexec/ftpd       ftpd -l
-ntalk         dgram   udp   wait   root  /usr/libexec/ntalkd     ntalkd
+ntalk         dgram   udp   wait   nobody:tty  /usr/libexec/talkd  talkd
 tcpmux        stream  tcp   nowait root  internal
 tcpmux/+date  stream  tcp   nowait guest /bin/date               date
 tcpmux/phonebook stream tcp nowait guest /usr/bin/phonebook      phonebook
@@ -4605,15 +4614,20 @@ for a conversation.
 This implementation uses the newer protocol @samp{ntalk/udp},
 and is intended to be invoked by a super-server
 @command{inetd} at that datagram port.
+It is recommended that @command{inetd} launch @command{talkd}
+with ownership @samp{nobody:tty}, or with @samp{tty:tty}.
+
 Bear in mind that this service is usable with IPv4 only,
 since the exchange protocol was conceived to handle only
-one address family.
-This fact is independent of @command{inetd}.
+this particular address family.
+This fact is independent of the abilities of @command{inetd}.
 
-Observe that the server @command{talkd} is dependent
+Observe also that the server @command{talkd} is dependent
 on the name claimed by @command{hostname}, for establishing
-connections between interested parties.  Multi-homed hosts
-are not well behaved together with @command{talkd}.
+connections between interested parties.
+The server @command{talkd} running on a multi-homed host
+is not able to respond to invitations for a valid host name
+that differs from the name reported by @command{hostname}.
 
 The present implementation offers ACL-mechanisms for fine
 grained access control.

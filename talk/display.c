@@ -191,10 +191,25 @@ display (register xwin_t * win, register char *text, int size)
 	  text++;
 	  continue;
 	}
+      /* Refresh screen with input ^L, Ctrl-L.
+       * Local trigger only.
+       */
       if (*text == '\f')
 	{
 	  if (win == &my_win)
 	    wrefresh (curscr);
+	  text++;
+	  continue;
+	}
+      /* Clear both windows with input ^D, Ctrl-D.
+       * Local trigger only.
+       */
+      if (*text == '\04' && win == &my_win)
+	{
+	  wclear (my_win.x_win);
+	  wclear (his_win.x_win);
+	  wrefresh (my_win.x_win);
+	  wrefresh (his_win.x_win);
 	  text++;
 	  continue;
 	}

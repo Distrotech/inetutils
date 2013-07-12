@@ -42,6 +42,11 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
       return 0;
     }
 
+  /* Convert the machine independent represention
+   * of the talk protocol to the present architecture.
+   * In particular, `msg->addr.sa_family' will be
+   * valid for socket initialization.
+   */
   msg->id_num = ntohl (msg->id_num);
   msg->addr.sa_family = ntohs (msg->addr.sa_family);
   if (msg->addr.sa_family != AF_INET)
@@ -51,6 +56,7 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
       rp->answer = BADADDR;
       return 0;
     }
+  /* Convert to valid socket address for this architecture.  */
   msg->ctl_addr.sa_family = ntohs (msg->ctl_addr.sa_family);
   if (msg->ctl_addr.sa_family != AF_INET)
     {
@@ -67,8 +73,10 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
       if (logging || debug)
 	syslog (LOG_NOTICE, "dropping request: %s@%s",
 		msg->l_name, inet_ntoa (sa_in->sin_addr));
-      /* Answer FAILED to minimise information leakage,
-       * since ACL has denied access.  */
+
+      /* The answer FAILED is returned to minimize the amount
+       * of information disclosure, since ACL has denied access.
+       */
       rp->answer = FAILED;
       return 0;
     }
@@ -84,6 +92,14 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
     {
     case ANNOUNCE:
       do_announce (msg, rp);
+      if (logging && rp->answer == SUCCESS)
+	syslog (LOG_INFO, "%s@%s called by %s@%s",
+		msg->r_name,
+		(msg->r_tty[0]
+		  ? msg->r_tty
+		  : inet_ntoa (sa_in->sin_addr)),
+		msg->l_name,
+		inet_ntoa (os2sin_addr (msg->addr)));
       break;
 
     case LEAVE_INVITE:
@@ -105,6 +121,9 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
 	  rp->addr = ptr->addr;
 	  rp->addr.sa_family = htons (ptr->addr.sa_family);
 	  rp->answer = SUCCESS;
+	  if (logging)
+	    syslog (LOG_INFO, "%s talks to %s@%s",
+		msg->r_name, msg->l_name, inet_ntoa (sa_in->sin_addr));
 	}
       else
 	rp->answer = NOT_HERE;
