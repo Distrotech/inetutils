@@ -70,7 +70,11 @@ process_request (CTL_MSG * msg, struct sockaddr_in *sa_in, CTL_RESPONSE * rp)
 
   if (acl_match (msg, sa_in) == ACL_DENY)
     {
-      if (logging || debug)
+      /* This denial happens for each of LOOK_UP,
+       * ANNOUNCE, and DELETE, in this order.
+       * Make a syslog note only for the first of them.
+       */
+      if ((logging || debug) && msg->type == LOOK_UP)
 	syslog (LOG_NOTICE, "dropping request: %s@%s",
 		msg->l_name, inet_ntoa (sa_in->sin_addr));
 
