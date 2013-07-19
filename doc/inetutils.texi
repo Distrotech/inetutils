@@ -2739,7 +2739,8 @@ then @var{person} is of the form @samp{user@@host}.
 @item ttyname
 If you wish to talk to a local user who is logged in more than once,
 the argument @var{ttyname} may be used to indicate the appropriate
-terminal name, where @var{ttyname} is of the form @samp{ttyXX}.
+terminal name, where @var{ttyname} typically is of the form @samp{ttyXX},
+or @samp{pts/X}.
 @end table
 
 When first called, @command{talk} sends a message to
@@ -4617,15 +4618,15 @@ and is intended to be invoked by a super-server
 It is recommended that @command{inetd} launch @command{talkd}
 with ownership @samp{nobody:tty}, or with @samp{tty:tty}.
 
-Bear in mind that this service is usable with IPv4 only,
+Keep in mind that this service is usable with IPv4 only,
 since the exchange protocol was conceived to handle only
 this particular address family.
 This fact is independent of the abilities of @command{inetd}.
 
-Observe also that the server @command{talkd} is dependent
-on the name claimed by @command{hostname}, for establishing
+Observe also that the server @command{talkd} depends
+on the name returned by @command{hostname}, for establishing
 connections between interested parties.
-The server @command{talkd} running on a multi-homed host
+A server @command{talkd} running on a multi-homed host
 is not able to respond to invitations for a valid host name
 that differs from the name reported by @command{hostname}.
 
@@ -4660,6 +4661,7 @@ Set idle timeout length
 @opindex -i
 @opindex --logging
 Enable a somewhat enhanced logging verbosity, reporting
+attempted and dropped connections, as well as
 some more unexpected events that might arise.
 
 @item -r @var{seconds}
@@ -4697,54 +4699,70 @@ the recorded invitation to respond with the appropriate rendezvous
 address and the caller and callee client programs establish a stream
 connection through which the conversation takes place.
 
-This implementation inserts an additional preparation where a site-wide
-access control list can be used to limit service access in general, and
-for any local user, i.e., present on the server's system, a further user
-owned file @file{.talkrc} is parsed if at all present, in order to even
+This implementation offers an additional mechanism, whereby a site-wide
+access control list can be used to limit service access in general.
+For any local user, i.e., present on the server's system, a further user
+owned file @file{.talkrc} is parsed, if at all present, in order to even
 further fine tune access to this particular user.
 
 @section Access control in talkd
 
 The server can be run in a mode with additional access control,
-beyond the legacy capabilities of @command{ntalkd}.  This is done
+beyond the legacy capabilities of @command{ntalkd}.  This is activated
 using the option @option{-a}, or equivalently @option{--acl}.
-The format of this access control is shared with the user specific
+
+The format of this access control list is shared with the user specific
 file @file{.talkrc}.  Normally the site-wide setting operates with
 a default value @samp{allow}, but specifying the option @option{-S},
-or @option{--strict-policy}, changes this to @samp{deny}.
-In addition, strict policy disables the possibility that an
-allowing outcome from the user specific ACL would be able to override
-a denial resulting from the system-wide ACL.
+or @option{--strict-policy}, changes this default action to @samp{deny}.
+In addition, the strict policy disables the possibility that an
+allowing action from the user specific ACL be able to override
+a denial resulting from the system-wide ACL setting.
 
 As is usual, indentation, empty lines, and lines whose first printable
-character is the hash character, are all ignored.  Each active line
-must contain at least two fields, an @code{action} and a @code{user-exp},
-where the only acceptable action types are @samp{allow} and @samp{deny}.
-The second field @code{user-exp} is a POSIX regular expression crafted
-to match user names.
-
-In a site-wide ACL the expression is matched against the requested
-local user name, whereas in a user specific ACL the matching is done
-against the remote caller's name of obvious reasons.  Remember that
-the regular expression would need anchors in order to test not only
-substrings.
+character is the hash character, are all ignored.
+The general line format is
 
 @example
 action user-exp [net-exp @dots{}]
 @end example
 
+@noindent
+Each active line must contain at least two fields:
+an @code{action} and a @code{user-exp}.
+
+The first field, @code{action}, must be either of @samp{allow} and @samp{deny}.
+Any other value will lead to the line being ignored,
+but reported in the system log.
+Of course, the two values represent admitting and rejecting
+interpretations for the resulting rule.
+
+The second field, @code{user-exp}, is a POSIX regular expression
+crafted to match user names.
+Remember that the regular expression would need anchors in order
+to test not only substrings.
+
+It is important to note that in a site-wide ACL, the file selected
+by the switch @option{-a}, the expression @code{user-exp} is matched
+against the requested local user name, that of the callee.
+
+While checking the callee's private ACL-file @file{.talkrc},
+the matching of @code{user-exp} is done against the remote
+caller's name.  Any other interpretation is plainly futile.
+
 Each line may be augmented by a net list, containing one or more
 expressions @code{net-exp}. Each of these is either the simple
-word @samp{any}, a full IPv4 address, or a full IPv4 address with
+word @samp{any}, a numeric IPv4 address, or a full IPv4 address with
 an appended netmask.  The effect is to restrict the applicability
-of the rule to the specified address ranges, or to set an explicit
-wildcard match.  The absence of a net list is equivalent to specifying
+of the rule to the specified address range, or to set an explicit
+wildcard match @samp{any}.
+The absence of a net list is equivalent to specifying
 a single @samp{any}.  The netmask can be specified as a CIDR mask
 length, or as an explicit address mask.
 
-The actual evaluation is run separately for the site-wide ACL,
-and the requested local user ACL contained in the private file
-@file{.talkrc} of this user.  This latter file must be a regular
+The actual evaluation is made separately for the site-wide ACL,
+and for the requested local user ACL, contained in the callee's
+private file @file{.talkrc}.  This latter file must be a regular
 file and must be owned by the very same user, have his primary
 group ownership, and not be group or world writeable.  Should
 any of these prerequisites be violated, the user's ACL is replaced
@@ -4754,14 +4772,21 @@ All rules in each set are evaluated, in the sense that whenever
 an expression @code{net-exp} matches the incoming IPv4 address,
 then the regular expression @code{user-exp} is tested for a match.
 That being the case, the corresponding action is recorded.  The last
-match in each set determines the outcome.
+match in each set determines the outcome in its category.
 
-In the most common case, a system wide @samp{deny} can be overridden
-if the local user has specified valid access rules. In the contrary
-case where no valid user rule could be established at all, then a
-@samp{deny} from a system wide ACL will be used as the final action.
-This final ruling, without any possibility of user intervention,
-is always enforced whenever the server is being run in strict policy mode.
+In the most common case, a system wide @samp{deny} is overridden
+if the local user has specified at least one valid and applicable rule,
+admitting access.
+In the contrary case, where no admitting user rule could be established
+at all, then a resulting @samp{deny}, from a system wide ACL,
+will be used as the final action.
+
+In strict policy mode, a site-wide @samp{deny} is always final,
+ignoring any user's desire.
+The administrator must explicitly arrange some admitting rule,
+with an action @samp{allow}, and some suitable net list.
+Still, the individual user can arrange his private file
+for an even narrower selection of friends.
 
 
 @node telnetd invocation
