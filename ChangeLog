@@ -1,3 +1,18 @@
+2013-07-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	talkd: Small audit of ACL.
+
+	* talkd/acl.c (struct netdef): Let `ipaddr' and
+	`netmask' be of type in_addr_t for better
+	architecture independence.
+	(netdef_parse): Likewise for IPADDR, NETMASK.
+	(acl_match): Likewise for IP.  When checking
+	address matches, make a bitwise AND of
+	`net->ipaddr' with `net->netmask'.
+
+	* talkd/talkd.c (main): Call openlog() before read_acl().
+	(talkd_init): Delete call to openlog().
+
 2013-07-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	talkd: Less ACL-logging.

@@ -117,6 +117,7 @@ main (int argc, char *argv[])
   iu_argp_init ("talkd", program_authors);
   argp_parse (&argp, argc, argv, 0, NULL, NULL);
 
+  openlog ("talkd", LOG_PID, LOG_FACILITY);
   read_acl (acl_file, 1);	/* System wide ACL.  Can abort.  */
   talkd_init ();
   talkd_run (STDIN_FILENO);
@@ -126,7 +127,6 @@ main (int argc, char *argv[])
 void
 talkd_init (void)
 {
-  openlog ("talkd", LOG_PID, LOG_FACILITY);
   hostname = localhost ();
   if (!hostname)
     {

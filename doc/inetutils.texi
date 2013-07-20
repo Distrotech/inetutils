@@ -4617,6 +4617,10 @@ and is intended to be invoked by a super-server
 @command{inetd} at that datagram port.
 It is recommended that @command{inetd} launch @command{talkd}
 with ownership @samp{nobody:tty}, or with @samp{tty:tty}.
+However, this works with ACL only if @file{.talkrc} can be assumed
+to be world readable for all users.
+This failing, the process ownership will need to be @samp{root:tty}
+if the ACL-mechanism is to be usable and trustworthy.
 
 Keep in mind that this service is usable with IPv4 only,
 since the exchange protocol was conceived to handle only

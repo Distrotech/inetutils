@@ -30,8 +30,8 @@ typedef struct netdef netdef_t;
 struct netdef
 {
   netdef_t *next;
-  unsigned int ipaddr;
-  unsigned int netmask;
+  in_addr_t ipaddr;
+  in_addr_t netmask;
 };
 
 typedef struct acl acl_t;
@@ -76,7 +76,7 @@ read_address (char **line_ptr, char *ptr)
 static netdef_t *
 netdef_parse (char *str)
 {
-  unsigned int ipaddr, netmask;
+  in_addr_t ipaddr, netmask;
   netdef_t *netdef;
   char ipbuf[DOTTED_QUAD_LEN + 1];
 
@@ -384,7 +384,7 @@ int
 acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in)
 {
   acl_t *acl, *mark;
-  unsigned int ip;
+  in_addr_t ip;
   int system_action = ACL_ALLOW, user_action = ACL_ALLOW;
   int found_user_acl = 0;
 
@@ -402,7 +402,14 @@ acl_match (CTL_MSG * msg, struct sockaddr_in *sa_in)
 
       for (net = acl->netlist; net; net = net->next)
 	{
-	  if (net->ipaddr == (ip & net->netmask))
+	  /* Help the administrator and his users
+	   * to simplify net list syntax:
+	   *
+	   *   mask the address `net->ipaddr' with
+	   *   `net->netmask' for less computations
+	   *   within the ACL specification.
+	   */
+	  if ((net->ipaddr & net->netmask) == (ip & net->netmask))
 	    {
 	      /*
 	       * Site-wide ACLs concern user's name on this machine,
