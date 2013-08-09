@@ -3378,7 +3378,7 @@ Forward messages from remote hosts.
 @itemx --mark=@var{interval}
 @opindex -m
 @opindex --mark
-Specify timestamp interval in logs (0 for no timestamps).
+Specify timestamp interval expressed in minutes (0 for no timestamping).
 
 @item -l @var{hostlist}
 @opindex -l
@@ -3395,8 +3395,14 @@ logging their name.  Multiple lists are allowed.
 
 @command{syslogd} reads its configuration file when it starts up and
 whenever it receives a hangup signal.  The @file{syslog.conf} file is
-the configuration file for the @command{syslogd} program.  It consists
-of lines with two fields: the @dfn{selector} field which specifies the
+the main configuration file for the @command{syslogd} program.
+In addition, the server looks below the directory @file{syslog.d/}
+for further configuration files, making it easy to arrange a common
+set of logging conventions in @file{syslog.conf}, augmented by
+system and service specific drop-in configuration in @file{syslog.d/}.
+
+Each configuration file consists of lines with two fields:
+a @dfn{selector} field which specifies the
 types of messages and priorities to which the line applies, and an
 @dfn{action} field which specifies the action to be taken if a message
 @command{syslogd} receives matches the selection criteria.  The

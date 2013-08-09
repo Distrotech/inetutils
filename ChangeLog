@@ -1,3 +1,9 @@
+2013-08-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* src/syslogd.c (argp_options): Improve `mark' text.
+	(logmsg) [INTERNAL_MARK]: Compute facility from
+	macro INTERNAL_MARK for better consistency.
+
 2013-07-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	talkd: Small audit of ACL.

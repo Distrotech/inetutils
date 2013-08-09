@@ -345,8 +345,8 @@ static struct argp_option argp_options[] = {
   {"ipany", OPT_IPANY, NULL, 0, "allow transport with IPv4 and IPv6", GRP+1},
   {"bind", 'b', "ADDR", 0, "bind listener to this address/name", GRP+1},
   {"bind-port", 'B', "PORT", 0, "bind listener to this port", GRP+1},
-  {"mark", 'm', "INTVL", 0, "specify timestamp interval in logs (0 for no "
-   "timestamps)", GRP+1},
+  {"mark", 'm', "INTVL", 0, "specify timestamp interval in minutes"
+   " (0 for no timestamping)", GRP+1},
   {"no-detach", 'n', NULL, 0, "do not enter daemon mode", GRP+1},
   {"no-forward", OPT_NO_FORWARD, NULL, 0, "do not forward any messages "
    "(overrides --hop)", GRP+1},
@@ -1188,7 +1188,11 @@ logmsg (int pri, const char *msg, const char *from, int flags)
 
   /* Extract facility and priority level.  */
   if (flags & MARK)
+#ifdef INTERNAL_MARK
+    fac = LOG_FAC (INTERNAL_MARK);
+#else
     fac = LOG_NFACILITIES;
+#endif
   else
     fac = LOG_FAC (pri);
   prilev = LOG_PRI (pri);
