@@ -56,7 +56,7 @@ endif
 
 if ENABLE_inetd
 if ENABLE_telnet
-dist_check_SCRIPTS += telnet-localhost.sh
+dist_check_SCRIPTS += inetd.sh telnet-localhost.sh
 endif
 endif
 

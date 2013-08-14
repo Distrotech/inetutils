@@ -132,8 +132,8 @@ trap posttesting EXIT HUP INT QUIT TERM
 PORT=`expr 4973 + ${RANDOM:-$$} % 973`
 
 cat > "$INETD_CONF" <<-EOF ||
-	$PORT stream tcp4 nowait $USER $ADDRPEEK addrpeek addr
-	$PORT stream tcp6 nowait $USER $ADDRPEEK addrpeek addr
+	$TARGET:$PORT stream tcp4 nowait $USER $ADDRPEEK addrpeek addr
+	$TARGET6:$PORT stream tcp6 nowait $USER $ADDRPEEK addrpeek addr
 EOF
     {
 	echo 'Could not create configuration file for Inetd.  Aborting.' >&2

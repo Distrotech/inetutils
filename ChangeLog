@@ -1,3 +1,14 @@
+2013-08-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/inetd.sh: New file.
+	* tests/Makefile.am (dist_check_SCRIPTS)
+	[ENABLE_inetd && ENABLE_telnet]: Add inetd.sh.
+
+	* tests/telnet-localhost.sh: Set service node
+	to $TARGET and $TARGET6 in inetd configuration.
+
+	* tests/utmp.sh: Call $SED, not `sed'.
+
 2013-08-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* src/syslogd.c (argp_options): Improve `mark' text.

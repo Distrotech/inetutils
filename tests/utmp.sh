@@ -39,7 +39,7 @@ errno=0
 if who >/dev/null 2>&1; then
     # Check that readutmp agrees with who(1),
     # limiting ourselves to at most three users.
-    for nn in `who | sed 's/ .*//; 3q;'`; do
+    for nn in `who | $SED 's/ .*//; 3q;'`; do
 	$READUTMP $nn || errno=1
     done
 else
