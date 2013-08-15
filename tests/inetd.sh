@@ -115,7 +115,7 @@ clean_testdir () {
 # Write a fresh configuration file.  Port is input parameter.
 write_conf () {
     # First argument is port number.  Node is fixed as localhost.
-    echo "localhost:$1 stream tcp4 nowait $USER $ADDRPEEK addrpeek addr" \
+    echo "127.0.0.1:$1 stream tcp4 nowait $USER $ADDRPEEK addrpeek addr" \
 	> $CONF
 }
 

@@ -1,3 +1,8 @@
+2013-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/inetd.sh (write_conf): Use numerical address
+	for localhost.  This avoids dependency on system set-up.
+
 2013-08-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/inetd.sh: New file.
