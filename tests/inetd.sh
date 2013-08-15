@@ -67,6 +67,14 @@ if test -n "$VERBOSE"; then
     $INETD --version | $SED '1q'
 fi
 
+# The use of telnet is portable only with a connected TTY.
+if tty >/dev/null; then
+    :
+else
+    echo >&2 'No TTY is assigned to this process.  Skipping test.'
+    exit 77
+fi
+
 # For file creation below IU_TESTDIR.
 umask 0077
 

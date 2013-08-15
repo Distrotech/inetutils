@@ -1,5 +1,10 @@
 2013-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* tests/inetd.sh: Skip test in absence of assigned TTY.
+	This is needed due to the use of a built `telnet'.
+
+2013-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* tests/inetd.sh (write_conf): Use numerical address
 	for localhost.  This avoids dependency on system set-up.
 
