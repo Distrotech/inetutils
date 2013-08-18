@@ -1,3 +1,14 @@
+2013-08-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/Makefile.am (check_PROGRAMS) [ENABLE_inetd]:
+	Add tcpget.
+	* tests/inetd.sh (TARGET, TCPGET): New variables.
+	(TELNET): Remove variable.
+	Remove check for tty.  Use TARGET for host addressing.
+	Use `tcpget' instead of `telnet', which allows the
+	test to be performed by build robots.
+	* tests/tcpget.c: New file.
+
 2013-08-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/inetd.sh: Skip test in absence of assigned TTY.

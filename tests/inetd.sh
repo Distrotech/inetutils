@@ -41,11 +41,14 @@ $need_mktemp || exit_no_mktemp
 #
 do_cleandir=false
 
+# Select numerical target address, only IPv4.
+TARGET=${TARGET:-127.0.0.1}
+
 # Executable under test and helper functionality.
 #
 INETD=${INETD:-../src/inetd$EXEEXT}
-TELNET=${TELNET:-../telnet/telnet$EXEEXT}
 ADDRPEEK=${ADDRPEEK:-$PWD/addrpeek$EXEEXT}
+TCPGET=${TCPGET:-$PWD/tcpget$EXEEXT}
 
 if test ! -x $ADDRPEEK; then
     echo >&2 "No executable '$ADDRPEEK' present.  Skipping test."
@@ -57,22 +60,14 @@ if [ ! -x $INETD ]; then
     exit 77
 fi
 
-if [ ! -x $TELNET ]; then
-    echo "Missing executable '$TELNET'.  Skipping test." >&2
+if test ! -x $TCPGET; then
+    echo >&2 "No executable '$TCPGET' present.  Skipping test."
     exit 77
 fi
 
 if test -n "$VERBOSE"; then
     set -x
     $INETD --version | $SED '1q'
-fi
-
-# The use of telnet is portable only with a connected TTY.
-if tty >/dev/null; then
-    :
-else
-    echo >&2 'No TTY is assigned to this process.  Skipping test.'
-    exit 77
 fi
 
 # For file creation below IU_TESTDIR.
@@ -122,8 +117,8 @@ clean_testdir () {
 
 # Write a fresh configuration file.  Port is input parameter.
 write_conf () {
-    # First argument is port number.  Node is fixed as localhost.
-    echo "127.0.0.1:$1 stream tcp4 nowait $USER $ADDRPEEK addrpeek addr" \
+    # First argument is port number.  Node is fixed.
+    echo "$TARGET:$1 stream tcp4 nowait $USER $ADDRPEEK addrpeek addr" \
 	> $CONF
 }
 
@@ -147,8 +142,8 @@ else
     # Repeated SIGHUP testing, with modified port.
     for nn in 1 2 3 4 5; do
 	# Check for response at chosen port.
-	$TELNET -c -E -K -4 localhost $PORT 2>/dev/null |
-	    grep 'Your address is 127.0.0.1.' >/dev/null 2>&1 || errno=1
+	$TCPGET $TARGET $PORT 2>/dev/null |
+	    grep "Your address is $TARGET." >/dev/null 2>&1 || errno=1
 
 	test $errno -eq 0 ||
 	    { echo >&2 "Repetition $nn failed."; break; }

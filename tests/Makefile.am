@@ -23,7 +23,7 @@ LDADD = $(iu_LIBRARIES)
 
 check_PROGRAMS = localhost readutmp waitdaemon
 if ENABLE_inetd
-check_PROGRAMS += addrpeek
+check_PROGRAMS += addrpeek tcpget
 endif
 
 dist_check_SCRIPTS = utmp.sh
