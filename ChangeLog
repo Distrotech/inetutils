@@ -1,3 +1,11 @@
+2013-08-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	False negative while testing syslogd.
+
+	* tests/syslogd.sh (iu_socklen_max): Do not accept
+	`GNU/kFreeBSD' as a system supporting unix sockets
+	of length 108.
+
 2013-08-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/Makefile.am (check_PROGRAMS) [ENABLE_inetd]:

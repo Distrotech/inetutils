@@ -91,8 +91,7 @@ do_standard_port=true
 iu_socklen_max=104	# BSD flavour!
 
 IU_OS=`uname -s`
-if test "$IU_OS" = "Linux" || test "$IU_OS" = "GNU/kFreeBSD" ||
-	test "$IU_OS" = "SunOS"; then
+if test "$IU_OS" = "Linux" || test "$IU_OS" = "SunOS"; then
     # Aim at the boundary of 108 characters.
     iu_socklen_max=108
 fi
