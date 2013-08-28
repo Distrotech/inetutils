@@ -66,14 +66,14 @@
 # include "../sys_curses/telextrn.h"
 # include "../ctlr/externs.h"
 
-# if defined unix
+# if defined unix || defined __unix || defined __unix__
 int HaveInput,			/* There is input available to scan */
   cursesdata,			/* Do we dump curses data? */
   sigiocount;			/* Number of times we got a SIGIO */
 
 char tline[200];
 char *transcom = 0;		/* transparent mode command (default: none) */
-# endif	/* defined(unix) */
+# endif	/* unix || __unix || __unix__ */
 
 char Ibuf[8 * BUFSIZ], *Ifrontp, *Ibackp;
 
@@ -94,10 +94,10 @@ void
 init_3270 (void)
 {
 #if defined TN3270
-# if defined unix
+# if defined unix || defined __unix || defined __unix__
   HaveInput = 0;
   sigiocount = 0;
-# endif	/* defined(unix) */
+# endif	/* unix || __unix || __unix__ */
   Sent3270TerminalType = 0;
   Ifrontp = Ibackp = Ibuf;
   init_ctlr ();			/* Initialize some things */
@@ -184,14 +184,14 @@ DataToNetwork (register char *buffer, register int count, int done)
 }
 
 
-# if defined unix
+# if defined unix || defined __unix || defined __unix__
 void
 inputAvailable (int signo)
 {
   HaveInput = 1;
   sigiocount++;
 }
-# endif	/* defined(unix) */
+# endif	/* unix || __unix || __unix__ */
 
 void
 outputPurge ()
@@ -226,19 +226,19 @@ DataToTerminal (register char *buffer, register int count)
     {
       if (TTYROOM () == 0)
 	{
-# if defined unix
+# if defined unix || defined __unix || defined __unix__
 	  fd_set o;
 
 	  FD_ZERO (&o);
-# endif	/* defined(unix) */
+# endif	/* unix || __unix || __unix__ */
 	  ttyflush (0);
 	  while (TTYROOM () == 0)
 	    {
-# if defined unix
+# if defined unix || defined __unix || defined __unix__
 	      FD_SET (tout, &o);
 	      select (tout + 1, (fd_set *) 0, &o, (fd_set *) 0,
 		      (struct timeval *) 0);
-# endif	/* defined(unix) */
+# endif	/* unix || __unix || __unix__ */
 	      ttyflush (0);
 	    }
 	}
@@ -294,9 +294,9 @@ Finish3270 ()
 {
   while (Push3270 () || !DoTerminalOutput ())
     {
-# if defined unix
+# if defined unix || defined __unix || defined __unix__
       HaveInput = 0;
-# endif	/* defined(unix) */
+# endif	/* unix || __unix || __unix__ */
       ;
     }
 }
@@ -431,7 +431,7 @@ tn3270_ttype ()
     }
 }
 
-# if defined unix
+# if defined unix || defined __unix || defined __unix__
 int
 settranscom (int argc, char *argv[])
 {
@@ -454,6 +454,6 @@ settranscom (int argc, char *argv[])
     }
   return 1;
 }
-# endif	/* defined(unix) */
+# endif	/* unix || __unix || __unix__ */
 
 #endif /* defined(TN3270) */

@@ -51,13 +51,13 @@
 
 #include <sys/types.h>
 
-#if defined unix
+#if defined unix || defined __unix || defined __unix__
 # include <signal.h>
 /* By the way, we need to include curses.h before telnet.h since,
  * among other things, telnet.h #defines 'DO', which is a variable
  * declared in curses.h.
  */
-#endif /* defined(unix) */
+#endif /* unix || __unix || __unix__ */
 
 #include <arpa/telnet.h>
 
@@ -2353,13 +2353,13 @@ Scheduler (int block)
   netex = !SYNCHing;
 
   /* If we have seen a signal recently, reset things */
-#if defined TN3270 && defined unix
+#if defined TN3270 && (defined unix || defined __unix || defined __unix__)
   if (HaveInput)
     {
       HaveInput = 0;
       signal (SIGIO, inputAvailable);
     }
-#endif /* defined(TN3270) && defined(unix) */
+#endif /* TN3270 && (unix || __unix || __unix__) */
 
   /* Call to system code to process rings */
 

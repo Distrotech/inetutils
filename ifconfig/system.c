@@ -21,7 +21,7 @@
 
 #if defined __linux__
 # include "system/linux.c"
-#elif defined __sun__
+#elif defined __sun
 # include "system/solaris.c"
 #elif defined __QNX__
 # include "system/qnx.c"

@@ -19,9 +19,9 @@
 
 #include <config.h>
 
-#ifdef __sun__
+#ifdef __sun
 #  define _XPG4_2	1	/* OpenSolaris: msg_control */
-#endif /* __sun__ */
+#endif /* __sun */
 
 #include <sys/socket.h>
 #include <sys/time.h>

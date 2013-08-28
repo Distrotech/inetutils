@@ -21,7 +21,11 @@ AM_CPPFLAGS = $(iu_INCLUDES)
 
 LDADD = $(iu_LIBRARIES)
 
+noinst_PROGRAMS = identify
+identify_LDADD =
+
 check_PROGRAMS = localhost readutmp waitdaemon
+
 if ENABLE_inetd
 check_PROGRAMS += addrpeek tcpget
 endif

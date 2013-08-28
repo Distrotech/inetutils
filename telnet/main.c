@@ -183,7 +183,7 @@ static struct argp_option argp_options[] = {
 # undef GRID
 #endif
 
-#if defined TN3270 && defined unix
+#if defined TN3270 && (defined unix || defined __unix || defined __unix__)
 # define GRID 40
   { NULL, 0, NULL, 0,
     "TN3270 support:", GRID },
@@ -193,7 +193,7 @@ static struct argp_option argp_options[] = {
   { "noasynctty", OPTION_NOASYNCTTY, NULL, 0, "", GRID+1 },
   { "noasyncnet", OPTION_NOASYNCNET, NULL, 0, "", GRID+1 },
 # undef GRID
-#endif
+#endif /* TN3270 && (unix || __unix || __unix__) */
   { NULL, 0, NULL, 0, NULL, 0 }
 };
 
@@ -285,7 +285,7 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
       rlogin = '~';
       break;
 
-#if defined TN3270 && defined unix
+#if defined TN3270 && (defined unix || defined __unix || defined __unix__)
     case 't':
       /* FIXME: Buffer!!! */
       transcom = tline;
@@ -303,7 +303,7 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
     case OPTION_NOASYNCNET:
       noasynchnet = 1;
       break;
-#endif
+#endif /* TN3270 && (unix || __unix || __unix__) */
 
 #ifdef	ENCRYPTION
     case 'x':

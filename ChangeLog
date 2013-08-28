@@ -1,5 +1,61 @@
 2013-08-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Identification of unices.  Check `__unix' and
+	`__unix__' in addition to `unix'.  This is needed
+	for `ftp' with GCC on NetBSD, OpenBSD.  Both macros
+	are necessary to distinguish AIX and HP-UX!
+
+	* ftp/cmds.c (setpeer)
+	[(unix || __unix || __unix__) && (NBBY==8)]: Add
+	macros __unix and __unix__ in conditional; this
+	sends initial SYST request from NetBSD and OpenBSD.
+
+	* ftpd/ftpcmd.y (cmd) [unix || __unix || __unix__]:
+	Likewise; announce system as UNIX.
+
+	* telnet/commands.c (Togglelist, filestuff)
+	[(unix || __unix || __unix__) && TN3270]: Likewise.
+	(status, transcomhelp)
+	[(unix || __unix || __unix__) && TN3270]: Likewise.
+	(zhelp) [unix || __unix || __unix__]: Likewise.
+	(cmdtab) [unix || __unix || __unix__]
+	<cases "transcom", "z">: Likewise.
+	(command) [unix || __unix || __unix__] <!top>:
+	Likewise; ignore SIGINT and SIGQUIT.
+	* telnet/main.c (argp_options)
+	[(unix || __unix || __unix__) && TN3270]: Likewise.
+	(parse_opt) [(unix || __unix || __unix__) && TN3270]
+	<case 't'>: Likewise.
+	* telnet/telnet.c [unix || __unix || __unix__]:
+	Likewise; include <signal.h>.
+	(Scheduler) [(unix || __unix || __unix__) && TN3270]:
+	Likewise.
+	* telnet/tn3270.c (HaveInput, cursesdata, sigiocount)
+	(tline, transcom) [(unix || __unix || __unix__) && TN3270]:
+	Likewise.
+	(init_3270, inputAvailable, DataToTerminal, Finish3270)
+	(settranscom) [(unix || __unix || __unix__) && TN3270]:
+	Likewise.
+	* telnet/utilities.c (EmptyTerminal)
+	[unix || __unix || __unix__]: Likewise; handle fdset.
+
+	Check macro `__sun' to detect Solaris.  Possibly
+	the code is portable also to Solaris Studio.
+
+	* ifconfig/system.c [!__linux__]: Check macro  __sun,
+	not the less portable __sun__.
+	* ifconfig/system.h [!__linux__]: Likewise.
+	* ping/ping6.c: Likewise.
+
+
+	Helper program for identifying build environments.
+
+	* tests/identify.c: New file.
+	* tests/Makefile.am (noinst_PROGRAMS, identify_LDADD):
+	New variables.
+
+2013-08-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftp: Secrecy in debug mode.
 
 	* ftp/ftp.c (command) <debug>: Insert a missing `else'.

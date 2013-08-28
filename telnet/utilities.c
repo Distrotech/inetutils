@@ -994,28 +994,28 @@ printsub (char direction, unsigned char *pointer, int length)
 void
 EmptyTerminal (void)
 {
-#if defined unix
+#if defined unix || defined __unix || defined __unix__
   fd_set o;
 
   FD_ZERO (&o);
-#endif /* defined(unix) */
+#endif /* unix || __unix || __unix__ */
 
   if (TTYBYTES () == 0)
     {
-#if defined unix
+#if defined unix || defined __unix || defined __unix__
       FD_SET (tout, &o);
       select (tout + 1, (fd_set *) 0, &o, (fd_set *) 0, (struct timeval *) 0);	/* wait for TTLOWAT */
-#endif /* defined(unix) */
+#endif /* unix || __unix || __unix__ */
     }
   else
     {
       while (TTYBYTES ())
 	{
 	  ttyflush (0);
-#if defined unix
+#if defined unix || defined __unix || defined __unix__
 	  FD_SET (tout, &o);
 	  select (tout + 1, (fd_set *) 0, &o, (fd_set *) 0, (struct timeval *) 0);	/* wait for TTLOWAT */
-#endif /* defined(unix) */
+#endif /* unix || __unix || __unix__ */
 	}
     }
 }

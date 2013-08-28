@@ -542,7 +542,7 @@ cmd
 # endif /* BSD */
 #endif /* !HAVE_UNAME */
 
-#if defined unix || defined __unix__
+#if defined unix || defined __unix || defined __unix__
 			sys_type = "UNIX";
 #else
 			sys_type = "UNKNOWN";

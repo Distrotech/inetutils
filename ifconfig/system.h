@@ -89,7 +89,7 @@ extern struct if_nameindex* (*system_if_nameindex) (void);
 
 # if defined __linux__
 #  include "system/linux.h"
-# elif defined __sun__
+# elif defined __sun
 #  include "system/solaris.h"
 # elif defined __QNX__
 #  include "system/qnx.h"
