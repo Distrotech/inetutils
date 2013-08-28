@@ -88,6 +88,7 @@
 #include "ftp_var.h"
 #include "unused-parameter.h"
 #include "xalloc.h"
+#include "xgetcwd.h"
 
 #ifndef DEFPORT
 # ifdef IPPORT_FTP
@@ -1360,7 +1361,6 @@ void
 lcd (int argc, char **argv)
 {
   char *dir;
-  extern char *xgetcwd ();
 
   if (argc < 2)
     argc++, argv[1] = home;
@@ -1722,6 +1722,25 @@ pwd (int argc _GL_UNUSED_PARAMETER, char **argv _GL_UNUSED_PARAMETER)
       command ("XPWD");
     }
   verbose = oldverbose;
+}
+
+/*
+ * Print local working directory.
+ */
+void
+lpwd (int argc _GL_UNUSED_PARAMETER, char **argv _GL_UNUSED_PARAMETER)
+{
+  char *dir = xgetcwd ();
+
+  if (dir)
+    {
+      printf ("Local directory is %s\n", dir);
+      free (dir);
+    }
+  else
+    error (0, errno, "getcwd");
+
+  code = 0;
 }
 
 /*

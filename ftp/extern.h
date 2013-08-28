@@ -88,6 +88,7 @@ void intr (int sig);
 void lcd (int, char **);
 int login (char *);
 void lostpeer (int sig);
+void lpwd (int, char **);
 void ls (int, char **);
 void mabort (int);
 void macdef (int, char **);

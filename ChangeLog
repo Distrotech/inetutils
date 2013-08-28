@@ -1,5 +1,19 @@
 2013-08-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ftp: New command `lpwd'.
+
+	* ftp/cmds.c: Include "xgetcwd.h".
+	(lcd): Remove external prototype of xgetcwd().
+	(lpwd): New function.
+	* ftp/cmdtab.c (lpwdhelp): New variable.
+	(cmdtab): Add entry for `lpwd'.
+	* ftp/extern.h (lpwd): New prototype.
+
+	* ftp/main.c (argp_options) <-d/--debug>:
+	Improve relevance of help message.
+
+2013-08-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Identification of unices.  Check `__unix' and
 	`__unix__' in addition to `unix'.  This is needed
 	for `ftp' with GCC on NetBSD, OpenBSD.  Both macros

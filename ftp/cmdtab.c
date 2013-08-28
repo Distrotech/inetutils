@@ -84,6 +84,7 @@ char ipanyhelp[] = "allow all address families";
 char ipv4help[] = "select only IPv4 addresses";
 char ipv6help[] = "select only IPv6 addresses";
 char lcdhelp[] = "change local working directory";
+char lpwdhelp[] = "print local working directory";
 char lshelp[] = "list contents of remote directory";
 char macdefhelp[] = "define a macro";
 char mdeletehelp[] = "delete multiple files";
@@ -161,6 +162,7 @@ static struct cmd cmdtab[] = {
   {"ipv4", ipv4help, 0, 0, 0, setipv4},
   {"ipv6", ipv6help, 0, 0, 0, setipv6},
   {"lcd", lcdhelp, 0, 0, 0, lcd},
+  {"lpwd", lpwdhelp, 0, 0, 0, lpwd},
   {"ls", lshelp, 1, 1, 1, ls},
   {"macdef", macdefhelp, 0, 0, 0, macdef},
   {"mdelete", mdeletehelp, 1, 1, 1, mdelete},

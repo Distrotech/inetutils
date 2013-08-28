@@ -100,7 +100,7 @@ enum {
 
 static struct argp_option argp_options[] = {
 #define GRP 0
-  {"debug", 'd', NULL, 0, "set the SO_DEBUG option", GRP+1},
+  {"debug", 'd', NULL, 0, "enable debugging output", GRP+1},
   {"no-edit", 'e', NULL, 0,
 #if HAVE_READLINE
 	  "disable command line editing",
