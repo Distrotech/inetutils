@@ -1,3 +1,11 @@
+2013-08-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Secrecy in debug mode.
+
+	* ftp/ftp.c (command) <debug>: Insert a missing `else'.
+	This avoids displaying the password in clear text.
+	Problem introduced in a change made 2013-05-17.
+
 2013-08-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	False negative while testing syslogd.

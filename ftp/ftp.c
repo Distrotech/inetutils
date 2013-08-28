@@ -396,7 +396,7 @@ command (const char *fmt, ...)
       va_start (ap, fmt);
       if (strncmp ("PASS ", fmt, 5) == 0)
 	printf ("PASS XXXX");
-      if (strncmp ("ACCT ", fmt, 5) == 0)
+      else if (strncmp ("ACCT ", fmt, 5) == 0)
 	printf ("ACCT XXXX");
       else
 	vfprintf (stdout, fmt, ap);
