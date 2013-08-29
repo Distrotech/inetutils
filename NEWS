@@ -25,6 +25,7 @@ present code, so they do not need to link against libidn at all.
 Called as `pftp', passive mode is preset.  New switch `-e/--no-edit'
 for compatibility with other implementations.  Can now be built
 without readline ability: configure using `--disable-readline'.
+New command `lpwd' avoids a shell call for a common task.
 
 * ifconfig
 

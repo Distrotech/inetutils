@@ -1356,18 +1356,11 @@ Initially set addressing to IPv6 only.
 @opindex --active
 Enable active mode transfer.  Default mode for @command{ftp}.
 
-@item -p
-@itemx --passive
-@opindex -p
-@opindex --passive
-Enable passive mode transfer.  Default mode when invoked
-as @command{pftp}.
-
 @item -d
 @itemx --debug
 @opindex -d
 @opindex --debug
-Enables socket debugging.
+Enable debugging output and possibly also socket debugging.
 
 @item -e
 @itemx --no-edit
@@ -1401,6 +1394,13 @@ login name (default is the user identity on the local machine), and,
 if necessary, prompt for a password and an account with which to
 login.
 
+@item -p
+@itemx --passive
+@opindex -p
+@opindex --passive
+Enable passive mode transfer.  Default mode when invoked
+as @command{pftp}.
+
 @item --prompt[=@var{prompt}]
 @opindex --prompt
 Print a command-line prompt, even if not on a tty.  If @var{prompt} is
@@ -1411,7 +1411,7 @@ Notice, that the argument is optional.
 @itemx --trace
 @opindex -t
 @opindex --trace
-Enable packet tracing.
+Enable packet tracing (not implemented).
 
 @item -v
 @itemx --verbose
@@ -1427,12 +1427,14 @@ This is default for interactive mode.
 When @command{ftp} is awaiting commands from the user,
 a prompt is displayed.
 The default string is @samp{ftp>}, but it can been
-changed in a command line option, perhaps to enhance
-uniqueness for recording a session.
+changed with a command line option, perhaps to enhance
+uniqueness while recording a session.
 
-Be aware that correct execution of many commands depends upon the
-proper behavior of the remote server.
-The following commands are recognized by @command{ftp} itself, though:
+Be aware that correct execution of many commands depends upon
+a proper behavior of the remote server.
+The following commands are recognized by @command{ftp} itself.
+Command names can be abbreviated to the shortest unique
+string with identical beginning.
 
 @table @code
 @item ! [@var{command} [@var{args}]]
@@ -1446,9 +1448,9 @@ command.  Arguments are passed to the macro unglobbed.
 
 @item account [@var{passwd}]
 Supply a supplemental password required by a remote system for access
-to resources once a login has been successfully completed.  If no
+to resources, once a login has been successfully completed.  If no
 argument is included, the user will be prompted for an account
-password in a non-echoing input mode.
+password in non-echoing input mode.
 
 @item append @var{local-file} [@var{remote-file}]
 Append a local file to a file on the remote machine.  If
@@ -1459,7 +1461,7 @@ type, format, mode, and structure.
 
 @item ascii
 Set the file transfer type to network ASCII.  This is the default
-type.
+type, except when two unices are communicating.
 
 @item bell
 Arrange that a bell be sounded after each file transfer command is
@@ -1467,6 +1469,9 @@ completed.
 
 @item binary
 Set the file transfer type to support binary image transfer.
+This transfer type is selected during initial handshake, should
+the client on a Unix system recognize that the server is also
+running on a Unix system.
 
 @item bye
 @itemx quit
@@ -1493,11 +1498,11 @@ current working directory.
 
 @item chmod @var{mode} @var{file-name}
 Change the access permission of the file @var{file-name} on the remote
-sytem to @var{mode}.
+system to @var{mode}.
 
 @item close
 @itemx disconnect
-Terminate the FTP session with the remote server,
+Terminate the FTP session with the present remote server,
 and return to the command interpreter.
 Any defined macros are erased.
 
@@ -1521,33 +1526,30 @@ it is used to set the debugging level.  When debugging is on,
 by the string @samp{-->}.
 
 @item dir [@var{remote-directory}] [@var{local-file}]
-Print a listing of the directory contents in the directory,
-@var{remote-directory}, and, optionally, placing the output in
-@var{local-file}.  If interactive prompting is on, @command{ftp} will
-prompt the user to verify that the last argument is indeed the target
-local file for receiving dir output.  If no directory is specified,
+Print a listing of the contents in the directory
+@var{remote-directory}, and, optionally, place the output in
+@var{local-file}.  If interactive prompting is set, @command{ftp} will
+prompt the user to verify that the last argument is the intended
+local file to receive output.  If no directory is specified,
 the current working directory on the remote machine is used.  If no
-local file is specified, or @var{local-file} is a dash @samp{-},
-output goes to the terminal.
+local file is specified, or if @var{local-file} is a dash @samp{-},
+then output is displayed on the terminal.
 
 @item epsv4
 Toggle the use of EPSV/EPRT for IPv4 addressing.  Default is off.
 
 @item form @var{format}
-Set the file transfer form to @var{format}.  The default format is
-@samp{file}.
-
-@c FIXME: List all avaiable FORMATS's.
+Set the file transfer form to @var{format}.  The only supported
+format is @samp{non-print}.
 
 @item get @var{remote-file} [@var{local-file}]
 @itemx recv @var{remote-file} [@var{local-file}]
-Retrieve the @var{remote-file} and store it on the local machine.  If
-the local file name is not specified, it is given the same name it has
-on the remote machine, subject to alteration by the current
-@code{case}, @code{ntrans}, and @code{nmap} settings.  The current
-settings for @code{type}, @code{form}, @code{mode},
-and @code{structure} are used while
-transferring the file.
+Retrieve the @var{remote-file} and store it on the local machine.
+If a local file name is not specified, the local copy is given the
+same name as is stated for the remote original, subject to alteration
+by the current @code{case}, @code{ntrans}, and @code{nmap} settings.
+The current settings for @code{type}, @code{form}, @code{mode},
+and @code{structure} are effective during file transfer.
 
 @item glob
 Toggle file name expansion for @code{mdelete}, @code{mget}, and
@@ -1594,6 +1596,9 @@ Allow IPv4 as well as IPv6 addressing.
 @item lcd [@var{directory}]
 Change the working directory on the local machine.  If no directory is
 specified, the user's home directory is used.
+
+@item lpwd
+Print the name of the current working directory on the local machine.
 
 @item ls [@var{remote-directory}] [@var{local-file}]
 Print a listing of the contents of a directory on the remote machine.
@@ -1660,7 +1665,7 @@ A dash @samp{-} is accepted as last argument without check!
 
 @item mode [@var{mode-name}]
 Set the file transfer mode to @var{mode-name}.  The default mode is
-@samp{stream}.
+@samp{stream}, and it is also the only implemented mode.
 
 @item modtime @var{file-name}
 Show the last modification time of the file on the remote machine.
@@ -1906,12 +1911,14 @@ Show the type of operating system running on the remote machine.
 Set the file transfer type to that needed to talk to TENEX machines.
 
 @item trace
-Toggle packet tracing.
+Toggle packet tracing (feature is not implemented).
 
 @item type [@var{type-name}]
 Set the file transfer type to @var{type-name}.  If no type is
-specified, the current type is printed.  The default type is network
-ASCII.
+specified, the current type is printed.
+The recognized type names are @samp{ascii}, @samp{binary},
+@samp{ebcdic}, @samp{image}, and @samp{tenex}.
+The default type is network ASCII.
 
 @item umask [@var{newmask}]
 Set the default umask on the remote server to @var{newmask}.  If
