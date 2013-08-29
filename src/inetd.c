@@ -622,7 +622,8 @@ setup (struct servtab *sep)
   if (strncmp (sep->se_proto, "tcp", 3) == 0 && (options & SO_DEBUG))
     {
       if (setsockopt (sep->se_fd, SOL_SOCKET, SO_DEBUG,
-		      (char *) &on, sizeof (on)) < 0)
+		      (char *) &on, sizeof (on)) < 0
+	  && errno != EACCES)	/* Ignore insufficient permission.  */
 	syslog (LOG_ERR, "setsockopt (SO_DEBUG): %m");
     }
 

@@ -1205,7 +1205,8 @@ initconn (void)
       if ((options & SO_DEBUG) &&
 	  setsockopt (data, SOL_SOCKET, SO_DEBUG, (char *) &on,
 		      sizeof (on)) < 0)
-	perror ("ftp: setsockopt (ignored)");
+	if (errno != EACCES)	/* Ignore insufficient permission.  */
+	  error (0, errno, "setsockopt DEBUG (ignored)");
 
       /* Be contemporary:
        *   first try EPSV,
@@ -1419,9 +1420,11 @@ noport:
       error (0, errno, "bind");
       goto bad;
     }
-  if (options & SO_DEBUG &&
-      setsockopt (data, SOL_SOCKET, SO_DEBUG, (char *) &on, sizeof (on)) < 0)
-    error (0, errno, "setsockopt (ignored)");
+  if (options & SO_DEBUG
+      && setsockopt (data, SOL_SOCKET, SO_DEBUG,
+		     (char *) &on, sizeof (on)) < 0)
+    if (errno != EACCES)	/* Ignore insufficient permission.  */
+      error (0, errno, "setsockopt DEBUG (ignored)");
   len = sizeof (data_addr);
   if (getsockname (data, (struct sockaddr *) &data_addr, &len) < 0)
     {

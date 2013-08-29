@@ -526,10 +526,10 @@ try_connect:
       int one = 1;
       if (setsockopt (rem, SOL_SOCKET, SO_DEBUG, (char *) &one,
 		      sizeof one) < 0)
-	error (0, errno, "setsockopt");
+	error (0, errno, "setsockopt DEBUG (ignored)");
       if (setsockopt (rfd2, SOL_SOCKET, SO_DEBUG, (char *) &one,
 		      sizeof one) < 0)
-	error (0, errno, "setsockopt");
+	error (0, errno, "setsockopt DEBUG (ignored)");
     }
 
   seteuid (uid);

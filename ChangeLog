@@ -1,3 +1,18 @@
+2013-08-29  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Handle socket debugging.
+
+	* ftp/ftp.c (initconn) <passivemode>: Suppress error
+	message for errno EACCES while setting SO_DEBUG.  This is
+	a minor part of debug mode, and denial is system dependent.
+	Else report using error(), not perror().  Add DEBUG to text.
+	<label noport>: Likewise.
+
+	* src/inetd.c (setup): Likewise.
+
+	* src/rsh.c (main) <try_connect && debug_option>:
+	Improve error message to mention DEBUG.
+
 2013-08-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: New command `lpwd'.
