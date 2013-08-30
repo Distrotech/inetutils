@@ -20,6 +20,11 @@ AC_DEFUN([gl_FUNC_READLINE],
 		   [do not build against libreadline]), ,
     [enable_readline=yes])
 
+  dnl Readline libraries come in a handful flavours.
+  dnl Detect the ones we do offer support for.
+  AC_CHECK_HEADERS([readline/readline.h readline/history.h \
+		    editline/readline.h editline/history.h])
+
   dnl Search for libreadline and define LIBREADLINE, LTLIBREADLINE and
   dnl INCREADLINE accordingly.
   AC_LIB_LINKFLAGS_BODY([readline])
@@ -45,7 +50,11 @@ AC_DEFUN([gl_FUNC_READLINE],
         LIBS="$LIBS -l$extra_lib"
       fi
       AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>
-#include <readline/readline.h>]],
+#ifdef HAVE_READLINE_READLINE_H
+# include <readline/readline.h>
+#elif defined HAVE_EDITLINE_READLINE_H
+# include <editline/readline.h>
+#endif]],
           [[readline((char*)0);]])],
         [if test -n "$extra_lib"; then
            gl_cv_lib_readline="yes, requires -l$extra_lib"
@@ -67,7 +76,11 @@ AC_DEFUN([gl_FUNC_READLINE],
     am_save_LIBS="$LIBS"
     LIBS="$am_save_LIBS -ledit"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>
-#include <readline/readline.h>]],
+#ifdef HAVE_READLINE_READLINE_H
+# include <readline/readline.h>
+#elif defined HAVE_EDITLINE_READLINE_H
+# include <editline/readline.h>
+#endif]],
         [[readline((char*)0);]])],
       [gl_cv_lib_readline="yes"])
     LIBS="$am_save_LIBS"
@@ -93,8 +106,6 @@ AC_DEFUN([gl_FUNC_READLINE],
   fi
   AC_SUBST([LIBREADLINE])
   AC_SUBST([LTLIBREADLINE])
-
-  AC_CHECK_HEADERS([readline/readline.h readline/history.h])
 ])
 
 # Prerequisites of lib/readline.c.

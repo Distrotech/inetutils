@@ -1,3 +1,20 @@
+2013-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Support BSD libedit.  (Used on GNU/kFreeBSD.)
+
+	* am/readline.m4 (gl_FUNC_READLINE): Check for headers
+	before library linkage.  Check for header file variants
+	<editline/readline.h> and <editline/history.h>.
+	While testing linking against libreadline and libedit,
+	conditionally use HAVE_*_READLINE_H to include the
+	correct header file.
+
+	* ftp/cmds.c, ftp/main.c
+	[!HAVE_READLINE_READLINE_H && HAVE_EDITLINE_READLINE_H]:
+	Include <editline/readline.h>
+	[!HAVE_READLINE_HISTORY_H && HAVE_EDITLINE_HISTORY_H]:
+	Include <editline/history.h>
+
 2013-08-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* bootstrap: Updated from gnulib.
