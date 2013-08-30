@@ -1,3 +1,7 @@
+2013-08-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* bootstrap: Updated from gnulib.
+
 2013-08-29  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Handle socket debugging.
