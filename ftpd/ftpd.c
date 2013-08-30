@@ -1573,6 +1573,7 @@ statcmd (void)
   if (!isdigit (cred.remotehost[0]))
     printf (" (%s)", addrstr);
   printf ("\r\n");
+  printf ("     Session timeout is %d seconds\r\n", timeout);
   if (cred.logged_in)
     {
       if (cred.guest)

@@ -1,5 +1,9 @@
 2013-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* ftpd/ftpd.c (statcmd): Report session timeout.
+
+2013-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Support BSD libedit.  (Used on GNU/kFreeBSD.)
 
 	* am/readline.m4 (gl_FUNC_READLINE): Check for headers
