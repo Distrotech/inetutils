@@ -453,10 +453,11 @@ TAG2="syslogd-reload-test"
 
 # Load the new configuration
 kill -HUP `cat "$PID"`
-sleep 1
+sleep 2
 
 if $do_unix_socket; then
-    # Two messages, but absence is also awarded credit.
+    # Two messages of weight 2, ensuring that missing
+    # and misplaced messages are not yielding negatives.
     TESTCASES=`expr $TESTCASES + 4`
     $LOGGER -h "$SOCKET" -p user.info -t "$TAG2" \
 	"user.info as BSD message. (pid $$)"
@@ -465,10 +466,11 @@ if $do_unix_socket; then
 fi
 
 if $do_inet_socket; then
-    # Two messages, but absence is also awarded credit.
+    # Two messages of weight 2, ensuring that missing
+    # and misplaced messages are not yielding negatives.
     TESTCASES=`expr $TESTCASES + 4`
     $LOGGER -4 -h "$TARGET:$PORT" -p user.info -t "$TAG2" \
-	"user.info IPv4 message. (pid $$)"
+	"user.info as IPv4 message. (pid $$)"
     $LOGGER -4 -h "$TARGET:$PORT" -p user.debug -t "$TAG2" \
 	"user.debug as IPv4 message. (pid $$)"
 fi
@@ -496,6 +498,7 @@ if $do_standard_port; then
     # Only INET socket, no UNIX socket.
     $SYSLOGD --rcfile="$CONF" --pidfile="$PID" --socket='' \
 	--inet --ipany $OPTIONS
+    sleep 1
     $LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
 	"IPv4 to standard port. (pid $$)"
     $LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
@@ -503,16 +506,25 @@ if $do_standard_port; then
 fi
 
 # Delay detection due to observed race condition.
-sleep 1
+sleep 3
 
 # Detection of registered messages.
 #
+# Initial message logging.
 COUNT=`$GREP -c "$TAG" "$OUT"`
+
+# Second set-up after SIGHUP.
 COUNT2=`$GREP -c "$TAG2" "$OUT_USER"`
-COUNT2_debug=`$GREP -c "$TAG2.*user.debug" "$OUT_USER"`
 COUNT3=`$GREP -c "$TAG2" "$OUT_DEBUG"`
+
+# No debug message should enter with selector 'user.info'.
+COUNT2_debug=`$GREP -c "$TAG2.*user.debug" "$OUT_USER"`
+
+# No info message should enter with selector '*.=debug'.
 COUNT3_info=`$GREP -c "$TAG2.*user.info" "$OUT_DEBUG"`
-SUCCESSES=`expr $SUCCESSES + $COUNT + 2 \* $COUNT2 - $COUNT2_debug \
+
+SUCCESSES=`expr $SUCCESSES + $COUNT \
+		+ 2 \* $COUNT2 - $COUNT2_debug \
 		+ 2 \* $COUNT3 - $COUNT3_info`
 
 if [ -n "${VERBOSE+yes}" ]; then
@@ -543,7 +555,45 @@ if [ "$SUCCESSES" -eq "$TESTCASES" ]; then
     $silence echo "Successful testing."
     EXITCODE=0
 else
-    $silence echo "Failing some tests."
+    echo "Failing some tests."
+    # Tell about the symptoms.
+
+    # local socket transport
+    if $do_unix_socket; then
+	if grep "$TAG2.*info.*BSD" "$OUT_USER" >/dev/null 2>&1; then
+	    :
+	else
+	    echo >&2 '** UDP socket did not convey info msg after HUP.'
+	fi
+	if grep "$TAG2.*debug.*BSD" "$OUT_DEBUG" >/dev/null 2>&1; then
+	    :
+	else
+	    echo >&2 '** UDP socket did not convey debug msg after HUP.'
+	fi
+    fi # do_unix_socket
+
+    # UDP transport
+    if $do_inet_socket; then
+	if grep "$TAG2.*info.*IPv" "$OUT_USER" >/dev/null 2>&1; then
+	    :
+	else
+	    echo >&2 '** IP socket did not convey info msg after HUP.'
+	fi
+	if grep "$TAG2.*debug.*IPv" "$OUT_DEBUG" >/dev/null 2>&1; then
+	    :
+	else
+	    echo >&2 '** IP socket did not convey debug msg after HUP.'
+	fi
+    fi # do_inet_socket
+
+    # Automated build robots fail regularly at registering
+    # any messages in the debug file.
+    if test ! -s "$OUT_USER"; then
+	echo >&2 '**** The file "user.log" was empty. Investigate! ****'
+    fi
+    if test ! -s "$OUT_DEBUG"; then
+	echo >&2 '**** The file "debug.log" was empty. Investigate! ****'
+    fi
 fi
 
 # Remove the daemon process.

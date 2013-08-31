@@ -1,5 +1,10 @@
 2013-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* tests/syslogd.sh: Lengthen sleeping periods.
+	Add better diagnostics when some test case fails.
+
+2013-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* ftpd/ftpd.c (statcmd): Report session timeout.
 
 2013-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
