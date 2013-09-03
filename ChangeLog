@@ -1,3 +1,17 @@
+2013-09-03  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Avoid numeric size of char array.
+
+	* ftp/cmds.c (macdef): Use sizeof() to avoid size
+	knowledge about arrays `struct macel.mac_name'
+	or `macbuf'.
+	* ftp/domacro.c (domacro): Likewise.
+	* ftp/ruserpass.c (remote_userpass): Likewise.
+	Change type of I to size_t.
+
+	* doc/inetutils.texi <ftp invocation>: Mention
+	restriction on macro naming.
+
 2013-08-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/syslogd.sh: Lengthen sleeping periods.

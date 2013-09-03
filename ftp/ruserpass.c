@@ -115,7 +115,8 @@ remote_userpass (char *host, char **aname, char **apass, char **aacct)
 {
   char *hdir, buf[BUFSIZ], *tmp;
   char *myname = 0, *mydomain;
-  int t, i, c, usedefault = 0;
+  int t, c, usedefault = 0;
+  size_t i;
   struct stat stb;
 
   hdir = getenv ("HOME");
@@ -238,7 +239,8 @@ remote_userpass (char *host, char **aname, char **apass, char **aacct)
 		}
 	      tmp = macros[macnum].mac_name;
 	      *tmp++ = c;
-	      for (i = 0; i < 8 && (c = getc (cfile)) != EOF && !isspace (c);
+	      for (i = 0; i < (sizeof (macros[macnum].mac_name) - 1)
+			  && (c = getc (cfile)) != EOF && !isspace (c);
 		   ++i)
 		{
 		  *tmp++ = c;
@@ -267,7 +269,7 @@ remote_userpass (char *host, char **aname, char **apass, char **aacct)
 		  macros[macnum].mac_start = macros[macnum - 1].mac_end + 1;
 		}
 	      tmp = macros[macnum].mac_start;
-	      while (tmp != macbuf + 4096)
+	      while (tmp < macbuf + sizeof (macbuf))
 		{
 		  if ((c = getc (cfile)) == EOF)
 		    {
@@ -287,7 +289,7 @@ remote_userpass (char *host, char **aname, char **apass, char **aacct)
 		    }
 		  tmp++;
 		}
-	      if (tmp == macbuf + 4096)
+	      if (tmp == macbuf + sizeof (macbuf))
 		{
 		  printf ("4K macro buffer exceeded\n");
 		  goto bad;

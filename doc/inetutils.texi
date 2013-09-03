@@ -1617,23 +1617,27 @@ dash@tie{}@samp{-}, then output is sent to the terminal.
 @item macdef @var{macro-name}
 Define a macro called @var{macro-name}, with subsequent lines as the
 macro definition. A null line (consecutive newline characters in a
-file, or carriage returns from the terminal) terminates macro input
+file, or carriage returns at a terminal) terminates macro input
 mode.  There is a limit of 16 macros and a total of 4096 characters
-in all defined macros.
+shared by all defined macros.  Only the first eight characters in
+@var{macro-name} are significant when determining which
+macro to execute.
 Macros remain defined until a close command is executed.
 
 The macro processor interprets @samp{$} and @samp{\} as
-special characters.  A @samp{$} followed by a number (or numbers) is
-replaced by the corresponding argument on the macro invocation command
-line.
+special characters.  A @samp{$} followed by a number (one or more
+digits) is replaced by the corresponding argument on the macro's
+invocation command line.
 A @samp{$} followed by the letter @samp{i} tells the macro processor
 that the macro is to perform a loop.
-On the first pass @samp{$i}
-is replaced by the first argument on the macro invocation command
-line, on the second pass it is replaced by the second argument, and so
-on.  A @samp{\} followed by any character is replaced by that
-character.  Use the @samp{\} to prevent special treatment of the
-@samp{$}.
+On the first pass, @samp{$i} is replaced by the first argument on
+the macro's invocation command line, while on the second pass it is
+replaced by the second argument, and so forth.
+Iteration proceeds until all arguments have been consumed.
+
+A backslash @samp{\} followed by any character is replaced by that
+character.  Use the backslash @samp{\} to prevent special treatment
+of the dollar sign @samp{$}, as was just explained.
 
 @item mdelete [@var{remote-files}]
 Delete all @var{remote-files} on the remote machine.

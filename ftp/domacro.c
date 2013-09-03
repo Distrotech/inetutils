@@ -70,7 +70,8 @@ domacro (int argc, char *argv[])
     }
   for (i = 0; i < macnum; ++i)
     {
-      if (!strncmp (argv[1], macros[i].mac_name, 9))
+      if (!strncmp (argv[1], macros[i].mac_name,
+		    sizeof (macros[i].mac_name)))
 	{
 	  break;
 	}

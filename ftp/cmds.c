@@ -2519,7 +2519,8 @@ macdef (int argc, char **argv)
     {
       printf ("Enter macro line by line, terminating it with a null line\n");
     }
-  strncpy (macros[macnum].mac_name, argv[1], 8);
+  strncpy (macros[macnum].mac_name, argv[1],
+	   sizeof (macros[macnum].mac_name) - 1);
   if (macnum == 0)
     {
       macros[macnum].mac_start = macbuf;
@@ -2529,7 +2530,7 @@ macdef (int argc, char **argv)
       macros[macnum].mac_start = macros[macnum - 1].mac_end + 1;
     }
   tmp = macros[macnum].mac_start;
-  while (tmp != macbuf + 4096)
+  while (tmp < macbuf + sizeof (macbuf))
     {
       if ((c = getchar ()) == EOF)
 	{
