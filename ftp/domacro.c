@@ -142,18 +142,24 @@ domacro (int argc, char *argv[])
 
 	  if (c == (struct cmd *) -1)
 	    {
-	      printf ("?Ambiguous command\n");
+	      printf ("?Ambiguous command: '%s'.\n", margv[0]);
 	      code = -1;
+	      loopflg = 0;
+	      break;
 	    }
 	  else if (c == 0)
 	    {
-	      printf ("?Invalid command\n");
+	      printf ("?Invalid command: '%s'.\n", margv[0]);
 	      code = -1;
+	      loopflg = 0;
+	      break;
 	    }
 	  else if (c->c_conn && !connected)
 	    {
-	      printf ("Not connected.\n");
+	      printf ("Not connected, needed for '%s'.\n", margv[0]);
 	      code = -1;
+	      loopflg = 0;
+	      break;
 	    }
 	  else
 	    {

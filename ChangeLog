@@ -1,3 +1,15 @@
+2013-09-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Macro execution segfaults.
+	Abort macro execution when command is ambiguous,
+	is invalid, or if the control connection has been
+	lost.  Otherwise segmentation faults can happen
+	when the macro includes further commands.
+
+	* ftp/domacro.c (domacro) <ambiguous, invalid>
+	<not connected>: Reset LOOPFLG and break loop.
+	Error message gives name of offending command.
+
 2013-09-03  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Avoid numeric size of char array.
