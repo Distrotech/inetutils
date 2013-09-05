@@ -358,10 +358,12 @@ login (char *host)
       if (!strcmp ("init", macros[n].mac_name))
 	{
 	  free (line);
-	  line = calloc (200, sizeof (*line));
+	  line = calloc (MAXLINE, sizeof (*line));
+	  linelen = MAXLINE;
 	  if (!line)
 	    quit (0, 0);
 
+	  /* Simulate input of the macro 'init'.  */
 	  strcpy (line, "$init");
 	  makeargv ();
 	  domacro (margc, margv);

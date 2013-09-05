@@ -73,7 +73,9 @@
 # include <locale.h>
 #endif
 
-/* Define macro to nothing so declarations in ftp_var.h become definitions. */
+/* Define macro to nothing so declarations
+ * in "ftp_var.h" become definitions.
+ */
 #define FTP_EXTERN
 #include "ftp_var.h"
 
@@ -217,6 +219,9 @@ main (int argc, char *argv[])
   usefamily = AF_UNSPEC;	/* allow any address family */
   usereadline = 1;		/* normally using readline */
 
+  line = NULL;			/* reset global input */
+  linelen = 0;
+
   /* Invoked as `pftp'?  Then set passive mode.  */
   cp = strrchr (argv[0], '/');
   if (cp)
@@ -359,7 +364,6 @@ cmdscanner (int top)
 {
   struct cmd *c;
   ssize_t l;
-  size_t len;
 
   if (!top)
     putchar ('\n');
@@ -369,12 +373,12 @@ cmdscanner (int top)
 	{
 	  free (line);
 	  line = NULL;
-	  len = 0;
 	}
+      linelen = 0;
 
 #if HAVE_READLINE
       if (usereadline)
-	line = readline (prompt);
+	line = readline (prompt);	/* malloc'd, no NL */
       else
 #endif /* HAVE_READLINE */
 	{
@@ -384,7 +388,8 @@ cmdscanner (int top)
 	      fflush (stdout);
 	    }
 
-	  l = getline (&line, &len, stdin);
+	  /* `linelen' is updated to allocated amount.  */
+	  l = getline (&line, &linelen, stdin);	/* includes NL */
 	  if ((l > 0) && line)
 	    {
 	      char *nl = strchr (line, '\n');
@@ -394,31 +399,33 @@ cmdscanner (int top)
 	    }
 	  else
 	    {
+	      /* Allocation takes place even without input.  */
 	      free (line);	/* EOF, et cetera */
 	      line = NULL;
+	      linelen = 0;
 	    }
 
 	  if (!fromatty && prompt)
 	    fprintf (stdout, "%s\n", line ? line : "");
-	}
+	} /* !usereadline ends */
 
       if (!line)
 	quit (0, 0);
 
       l = strlen (line);
-      if (l >= MAXLINE)
+      if (l >= MAXLINE)			/* XXX: Relax.  */
 	{
 	  printf ("Line too long.\n");
 	  break;
 	}
 
+      if (l == 0)
+	break;
+
 #if HAVE_READLINE
       if (usereadline && line && *line)
 	add_history (line);
 #endif /* HAVE_READLINE */
-
-      if (l == 0)
-	break;
 
       makeargv ();
       if (margc == 0)
@@ -440,7 +447,10 @@ cmdscanner (int top)
 	  printf ("Not connected.\n");
 	  continue;
 	}
+
+      /* Perform the requested action.  */
       (*c->c_handler) (margc, margv);
+
       if (bell && c->c_bell)
 	putchar ('\007');
       if (c->c_handler != help)
@@ -463,8 +473,8 @@ makeargv (void)
 
   margc = 0;
   argp = margv;
-  stringbase = line;		/* scan from first of buffer */
-  argbase = argbuf;		/* store from first of buffer */
+  stringbase = line;		/* scan from beginning of buffer */
+  argbase = argbuf;		/* store at beginning of buffer */
   slrflag = 0;
   while ((*argp++ = slurpstring ()))
     margc++;

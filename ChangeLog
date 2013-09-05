@@ -1,5 +1,28 @@
 2013-09-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ftp: Minor allocation issues.
+	Fix issues related to the global variable `line'.
+
+	* ftp/cmds.c (another): New variable NEW.  Assign
+	outcome of realloc() to NEW, to better avoid memory
+	leakage.  Determine new size with `linelen'.
+	(confirm): Rename LINE to INPUT, which does not
+	shadow the global variable `line'.
+
+	* ftp/domacro.c: Include <stdlib.h>.
+	(domacro): Change LINE2 to a string pointer.
+	Assign LINE2 using strdup(), freeing it later.
+
+	* ftp/ftp.c (login) <execution of macro `init'>:
+	Allocate MAXLINE bytes; set `linelen'.
+
+	* ftp/ftp_var.h (linelen): New variable.
+
+	* ftp/main.c (main): Reset `line', `linelen'.
+	(cmdscanner): Remove LEN, using `linelen' instead.
+
+2013-09-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftp: Macro execution segfaults.
 	Abort macro execution when command is ambiguous,
 	is invalid, or if the control connection has been

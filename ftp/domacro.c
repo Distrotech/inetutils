@@ -51,6 +51,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "ftp_var.h"
@@ -59,7 +60,8 @@ void
 domacro (int argc, char *argv[])
 {
   int i, j, count = 2, loopflg = 0;
-  char *cp1, *cp2, line2[200];
+  char *cp1, *cp2;
+  char *line2;		/* Allocated copy of `line'.  */
   struct cmd *c;
 
   if (argc < 2 && !another (&argc, &argv, "macro name"))
@@ -82,28 +84,42 @@ domacro (int argc, char *argv[])
       code = -1;
       return;
     }
-  strcpy (line2, line);
+
+  line2 = strdup (line);
+  if (!line2)
+    {
+      printf ("System refused resources for macro '%s'.\n", argv[1]);
+      code = -1;
+      return;
+    }
 
   do
     {
       cp1 = macros[i].mac_start;
       while (cp1 != macros[i].mac_end)
 	{
+	  /* Skip initial white space on each line of input.  */
 	  while (isspace (*cp1))
 	    {
 	      cp1++;
 	    }
+	  /* Translate a line of text from macro definition
+	   * and put it in `line'.  This global variable is
+	   * referenced by some parsing functions, so the
+	   * translation target cannot be changed easily.
+	   */
 	  cp2 = line;
 	  while (*cp1 != '\0')
 	    {
 	      switch (*cp1)
 		{
-		case '\\':
+		case '\\':		/* Escaping character.  */
 		  *cp2++ = *++cp1;
 		  break;
-		case '$':
+		case '$':		/* Substitution.  */
 		  if (isdigit (*(cp1 + 1)))
 		    {
+		      /* Argument expansion.  */
 		      j = 0;
 		      while (isdigit (*++cp1))
 			j = 10 * j + *cp1 - '0';
@@ -117,8 +133,9 @@ domacro (int argc, char *argv[])
 		    }
 		  if (*(cp1 + 1) == 'i')
 		    {
+		      /* The loop counter "$i" was detected.  */
 		      loopflg = 1;
-		      cp1++;
+		      cp1++;		/* Back to last used char.  */
 		      if (count < argc)
 			{
 			  strcpy (cp2, argv[count]);
@@ -126,11 +143,15 @@ domacro (int argc, char *argv[])
 			}
 		      break;
 		    }
-		  /* intentional drop through */
+		  /* Intentional fall through, since no acceptable
+		   * use of '$' was detected.  Present input is the
+		   * dollar sign.
+		   */
 		default:
-		  *cp2++ = *cp1;
+		  *cp2++ = *cp1;	/* Copy present character.  */
 		  break;
 		}
+	      /* Advance to next usable character.  */
 	      if (*cp1 != '\0')
 		cp1++;
 	    }
@@ -168,8 +189,13 @@ domacro (int argc, char *argv[])
 	      (*c->c_handler) (margc, margv);
 	      if (bell && c->c_bell)
 		putchar ('\007');
-	      strcpy (line, line2);
-	      makeargv ();
+
+	      /* The arguments set at the time of invoking
+	       * the macro must be recovered, to be used
+	       * in parsing next line of macro definition.
+	       */
+	      strcpy (line, line2);	/* Known to fit.  */
+	      makeargv ();		/* Get the arguments.  */
 	      argc = margc;
 	      argv = margv;
 	    }
@@ -178,4 +204,6 @@ domacro (int argc, char *argv[])
 	}
     }
   while (loopflg && ++count < argc);
+
+  free (line2);
 }

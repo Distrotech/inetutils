@@ -150,7 +150,7 @@ int
 another (int *pargc, char ***pargv, const char *prompt)
 {
   char *arg = NULL;
-  char *buffer;
+  char *buffer, *new;
   size_t size = 0, len = strlen (line);
   int ret;
 
@@ -198,13 +198,17 @@ another (int *pargc, char ***pargv, const char *prompt)
       return 0;
     }
 
-  line = realloc (line, sizeof (char) * (len + strlen (arg) + 2));
-  if (!line)
+  new = realloc (line, sizeof (char) *
+		       ((linelen ? linelen : len) + strlen (arg) + 2));
+  if (!new)
     {
       free (arg);
       intr (0);
     }
 
+  line = new;
+  linelen = sizeof (char) *
+	    ((linelen ? linelen : len) + strlen (arg) + 2);
   line[len++] = ' ';
   strcpy (&line[len], arg);
   free (arg);
@@ -1943,15 +1947,15 @@ disconnect (int argc _GL_UNUSED_PARAMETER, char **argv _GL_UNUSED_PARAMETER)
 int
 confirm (char *cmd, char *file)
 {
-  char line[BUFSIZ];
+  char input[BUFSIZ];
 
   if (!interactive)
     return (1);
   printf ("%s %s? ", cmd, file);
   fflush (stdout);
-  if (fgets (line, sizeof line, stdin) == NULL)
+  if (fgets (input, sizeof input, stdin) == NULL)
     return (0);
-  return (*line != 'n' && *line != 'N');
+  return (*input != 'n' && *input != 'N');
 }
 
 void

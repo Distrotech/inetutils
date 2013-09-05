@@ -113,7 +113,8 @@ FTP_EXTERN int unix_proxy;	/* proxy is unix, can use binary for ascii */
 
 FTP_EXTERN jmp_buf toplevel;	/* non-local goto stuff for cmd scanner */
 
-FTP_EXTERN char *line;
+FTP_EXTERN char *line;		/* input produced by readline or getline */
+FTP_EXTERN size_t linelen;	/* allocated length of the same, if known */
 
 FTP_EXTERN char *stringbase;	/* current scan point in line buffer */
 FTP_EXTERN char argbuf[MAXLINE];	/* argument storage buffer */
