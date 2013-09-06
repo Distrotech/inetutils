@@ -56,12 +56,43 @@
 
 #include "ftp_var.h"
 
+/* Increase allocated length of `*startl' with `add'
+ * beyond `*track',  should present length not suffice.
+ * `*track' points to last character in use.  All of
+ * the values `*start', `*track', * and `*size' are
+ * updated during a successful reallocation.
+ * Return zero on success.
+ */
+static int
+lengthen (char **start, char **track, size_t *size, size_t add)
+{
+  char *new;
+  size_t offset = (size_t) (*track - *start);
+
+  if (*track < *start)
+    return EXIT_FAILURE;	/* Sanity check.  */
+
+  if (offset + add < *size)
+    return EXIT_SUCCESS;	/* Sufficient allocation.  */
+
+  new = realloc (*start, *size + add);
+  if (!new)
+    return EXIT_FAILURE;	/* Parameters are unchanged here.  */
+
+  *start = new;
+  *size += add;
+  *track = *start + offset;
+
+  return EXIT_SUCCESS;
+}
+
 void
 domacro (int argc, char *argv[])
 {
-  int i, j, count = 2, loopflg = 0;
+  int i, j, count = 2, loopflg = 0, allocflg = 0;
   char *cp1, *cp2;
-  char *line2;		/* Allocated copy of `line'.  */
+  char *line2;		/* Saved original of `line'.  */
+  size_t line2len;	/* Its allocated length.  */
   struct cmd *c;
 
   if (argc < 2 && !another (&argc, &argv, "macro name"))
@@ -85,13 +116,32 @@ domacro (int argc, char *argv[])
       return;
     }
 
-  line2 = strdup (line);
-  if (!line2)
+  line2 = line;
+  line2len = linelen;
+
+  /* Generate a replacement for `line' to be used during
+   * macro evaluation.  There might appear some intr(),
+   * so care must be taken before changing `line'.
+   * The original is available as LINE2.
+   *
+   * Initially allocate an amount sufficient for
+   * storing a copy of the original `line', which
+   * is repeatedly reused once for each text line
+   * of the stored macro definition.
+   */
+  cp2 = malloc (strlen (line2) + 2);
+  if (!cp2)
     {
       printf ("System refused resources for macro '%s'.\n", argv[1]);
+      line = line2;
+      linelen = line2len;
       code = -1;
       return;
     }
+
+  linelen = strlen (line2) + 2;
+  line = cp2;
+  *line = '\0';
 
   do
     {
@@ -111,6 +161,14 @@ domacro (int argc, char *argv[])
 	  cp2 = line;
 	  while (*cp1 != '\0')
 	    {
+	      /* Usually two characters suffice.
+	       * This covers the default case below.
+	       */
+	      if (lengthen (&line, &cp2, &linelen, 2))
+		{
+		  allocflg = 1;
+		  goto end_exec;
+		}
 	      switch (*cp1)
 		{
 		case '\\':		/* Escaping character.  */
@@ -126,6 +184,12 @@ domacro (int argc, char *argv[])
 		      cp1--;
 		      if (argc - 2 >= j)
 			{
+			  if (lengthen (&line, &cp2, &linelen,
+					strlen (argv[j + 1]) + 2))
+			    {
+			      allocflg = 1;
+			      goto end_exec;
+			    }
 			  strcpy (cp2, argv[j + 1]);
 			  cp2 += strlen (argv[j + 1]);
 			}
@@ -138,6 +202,12 @@ domacro (int argc, char *argv[])
 		      cp1++;		/* Back to last used char.  */
 		      if (count < argc)
 			{
+			  if (lengthen (&line, &cp2, &linelen,
+					strlen (argv[count]) + 2))
+			    {
+			      allocflg = 1;
+			      goto end_exec;
+			    }
 			  strcpy (cp2, argv[count]);
 			  cp2 += strlen (argv[count]);
 			}
@@ -205,5 +275,13 @@ domacro (int argc, char *argv[])
     }
   while (loopflg && ++count < argc);
 
-  free (line2);
+end_exec:
+  if (allocflg)
+    {
+      printf ("Memory allocation failed for macro '%s'.\n", argv[1]);
+      code = -1;
+    }
+  free (line);
+  line = line2;
+  linelen = line2len;
 }

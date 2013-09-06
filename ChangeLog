@@ -1,3 +1,20 @@
+2013-09-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Macro execution and allocation.
+	During macro execution, string parsing and
+	substitution is rewritten to use dynamically
+	allocated memory.
+
+	* ftp/domacro.c (lengthen): New static function.
+	(domacro): New variables ALLOCFLG, LINE2LEN.
+	New label END_EXEC.  The variable LINE2 is no
+	longer allocated, instead it stores the previous
+	global `line' for repeated access.  A temporary
+	string pointer `line' is dynamically allocated
+	and is adjusted using lengthen().  Recovery from
+	allocation failures jump to END_EXEC.  `line' is
+	restored from LINE2 before exiting.
+
 2013-09-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Minor allocation issues.
