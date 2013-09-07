@@ -94,6 +94,8 @@
 #endif
 
 
+static char *slurpstring (void);
+
 #define DEFAULT_PROMPT "ftp> "
 static char *prompt = NULL;
 
@@ -221,6 +223,7 @@ main (int argc, char *argv[])
 
   line = NULL;			/* reset global input */
   linelen = 0;
+  argbuf = NULL;
 
   /* Invoked as `pftp'?  Then set passive mode.  */
   cp = strrchr (argv[0], '/');
@@ -413,12 +416,6 @@ cmdscanner (int top)
 	quit (0, 0);
 
       l = strlen (line);
-      if (l >= MAXLINE)			/* XXX: Relax.  */
-	{
-	  printf ("Line too long.\n");
-	  break;
-	}
-
       if (l == 0)
 	break;
 
@@ -464,19 +461,33 @@ cmdscanner (int top)
  * Slice a string up into argc/argv.
  */
 
-int slrflag;
+static int slrflag;
 
 void
 makeargv (void)
 {
   char **argp;
 
-  margc = 0;
+  margc = 0;			/* No content as of yet.  */
+
+  /* Make sure that `argbuf' is large enough
+   * to contain `line'.  As soon as `line' is
+   * invalidated, so will `argbuf' be.
+   **/
+  free (argbuf);		/* Get rid of previous content.  */
+  argbuf = malloc (strlen (line) + 4);
+  if (!argbuf)
+    {
+      /* `margc' is naught, which hopefully will cover our back.  */
+      printf ("Allocation failure.  Serious error.\n");
+      return;
+    }
+
   argp = margv;
   stringbase = line;		/* scan from beginning of buffer */
   argbase = argbuf;		/* store at beginning of buffer */
   slrflag = 0;
-  while ((*argp++ = slurpstring ()))
+  while ((margc < MAXMARGV) && (*argp++ = slurpstring ()))
     margc++;
 }
 
@@ -485,7 +496,7 @@ makeargv (void)
  * implemented with FSM to
  * handle quoting and strings
  */
-char *
+static char *
 slurpstring (void)
 {
   int got_one = 0;

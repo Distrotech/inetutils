@@ -152,7 +152,6 @@ void setverbose (int, char **);
 void shell (int, char **);
 void site (int, char **);
 void sizecmd (int, char **);
-char *slurpstring (void);
 void status (int, char **);
 void syst (int, char **);
 void tvsub (struct timeval *, struct timeval *, struct timeval *);

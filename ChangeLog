@@ -1,3 +1,27 @@
+2013-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Remove line length limit.
+	Once the argument parsing routine is rewritten
+	to work with dynamic memory, the length limit
+	on input lines can be removed in its entirety.
+
+	* ftp/extern.h (slurpstring): Remove declaration.
+	* ftp/ftp_var.h (argbuf): Change to string pointer.
+	(MAXMARGV) [!MAXMARGV]: New macro.
+	(margv): Change array length to MAXMARGV.
+
+	* ftp/main.c (slurpstring): Declare as static.
+	(main): Initalize `argbuf' to NULL.
+	(cmdscanner): Remove check whether `line' exceeds
+	MAXLINE in length.
+	(slrflag): Declare as static.
+	(makeargv): Free and allocate `argbuf' at entry.
+	Insert a condition to ensure that at most MAXMARGV
+	arguments are located, thus avoiding an overflow.
+
+	* ftp/ruserpass.c (tokval): Change array length
+	to BUFSIZ.
+
 2013-09-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Macro execution and allocation.

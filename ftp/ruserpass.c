@@ -84,7 +84,7 @@ static FILE *cfile;
 #undef	MACHINE
 #define MACHINE	11
 
-static char tokval[100];
+static char tokval[BUFSIZ];
 
 static struct toktab
 {

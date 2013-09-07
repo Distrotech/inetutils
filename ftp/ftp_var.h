@@ -117,10 +117,15 @@ FTP_EXTERN char *line;		/* input produced by readline or getline */
 FTP_EXTERN size_t linelen;	/* allocated length of the same, if known */
 
 FTP_EXTERN char *stringbase;	/* current scan point in line buffer */
-FTP_EXTERN char argbuf[MAXLINE];	/* argument storage buffer */
+FTP_EXTERN char *argbuf;	/* allocated argument storage buffer */
 FTP_EXTERN char *argbase;	/* current storage point in arg buffer */
+
+#ifndef MAXMARGV
+# define MAXMARGV 20
+#endif
+
 FTP_EXTERN int margc;		/* count of arguments on input line */
-FTP_EXTERN char *margv[20];	/* args parsed from input line */
+FTP_EXTERN char *margv[MAXMARGV]; /* args parsed from input line */
 FTP_EXTERN int cpend;		/* flag: if != 0, then pending server reply */
 FTP_EXTERN int mflag;		/* flag: if != 0, then active multi command */
 
