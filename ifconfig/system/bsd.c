@@ -26,6 +26,9 @@
 #include <net/if.h>
 #include <net/if_types.h>
 #include <net/if_dl.h>
+#ifdef HAVE_NETINET_ETHER_H
+# include <netinet/ether.h>
+#endif
 #include <netinet/if_ether.h>
 #include <ifaddrs.h>
 

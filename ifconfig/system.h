@@ -94,6 +94,7 @@ extern struct if_nameindex* (*system_if_nameindex) (void);
 # elif defined __QNX__
 #  include "system/qnx.h"
 # elif defined __DragonFly__ || defined __FreeBSD__ || \
+       defined __FreeBSD_kernel__ || \
        defined __NetBSD__ || defined __OpenBSD__
 #  include "system/bsd.h"
 # else

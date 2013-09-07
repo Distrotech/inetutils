@@ -1,3 +1,23 @@
+2013-09-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Legacy use with GNU/kFreeBSD.
+
+	* configure.ac: Check for header <netinet/ether.h>.
+
+	* ifconfig/system.c [__DragonFly || __FreeBSD__ ||
+	__FreeBSD_kernel__ || __NetBSD__ || __OpenBSD__]:
+	Add __FreeBSD_kernel__ to conditional.
+	* ifconfig/system.h [__DragonFly || __FreeBSD__ ||
+	__FreeBSD_kernel__ || __NetBSD__ || __OpenBSD__]:
+	Likewise.
+	* ifconfig/system/bsd.c [HAVE_NETINET_ETHER_H]:
+	Include <netinet/ether.h>.
+	* ifconfig/system/bsd.h (IU_BSD_TYPE)
+	[__FreeBSD_kernel__]: Assign value to macro.
+
+	* tests/ifconfig.sh: Add an informational check
+	whether the legacy form `ifconfig lo0' works.
+
 2013-09-07  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Remove line length limit.

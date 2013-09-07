@@ -97,6 +97,18 @@ for fmt in ${FORMAT:-gnu gnu-one-entry net-tools osf unix}; do
     find_lo_addr $fmt || { errno=1; echo >&2 "Failed with format '$fmt'."; }
 done
 
+# Informational check whether the legacy form use
+# is implemented.  No error produced, only message.
+
+if $IFCONFIG $LO >/dev/null 2>&1; then
+    :
+else
+    cat <<-EOT
+	Hint: This system does not yet support the legacy use
+	      which does without switches:  ifconfig $LO
+EOT
+fi
+
 test $errno -ne 0 || $silence echo "Successful testing".
 
 exit $errno
