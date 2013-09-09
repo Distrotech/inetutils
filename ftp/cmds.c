@@ -1623,9 +1623,11 @@ shell (int argc, char **argv _GL_UNUSED_PARAMETER)
 	shell = PATH_BSHELL;
       namep = strrchr (shell, '/');
       if (namep == NULL)
-	namep = shell;
+	namep = shell;		/* No slash in this name.  */
+      else
+	namep++;		/* Skip the slash character.  */
       strcpy (shellnam, "-");
-      strcat (shellnam, ++namep);
+      strncat (shellnam, namep, sizeof (shellnam) - 2);
       if (strcmp (namep, "sh") != 0)
 	shellnam[0] = '+';
       if (debug)

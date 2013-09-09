@@ -26,6 +26,9 @@ Called as `pftp', passive mode is preset.  New switch `-e/--no-edit'
 for compatibility with other implementations.  Can now be built
 without readline ability: configure using `--disable-readline'.
 New command `lpwd' avoids a shell call for a common task.
+The legacy limit for lengths of input lines (previously 200)
+has been removed.  Now it is system dependent and is in common
+with most other tools.
 
 * ifconfig
 

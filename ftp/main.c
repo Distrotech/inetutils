@@ -96,6 +96,10 @@
 
 static char *slurpstring (void);
 
+static char *argbase;		/* current pointer into arg buffer */
+static char *argbuf;		/* allocated argument storage buffer */
+static char *stringbase;	/* current scan point in line buffer */
+
 #define DEFAULT_PROMPT "ftp> "
 static char *prompt = NULL;
 

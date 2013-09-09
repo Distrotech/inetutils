@@ -314,11 +314,14 @@ login (char *host)
 	printf ("Name (%s): ", host);
       if (fgets (tmp, sizeof (tmp) - 1, stdin))
 	{
-	  /* If they press Ctrl-d immediately, it's empty.  */
+	  /* If the user presses return immediately, we get "\n".
+	   * In all other cases, the assignment is a no-op,
+	   * and is always well defined thanks to fgets().
+	   */
 	  tmp[strlen (tmp) - 1] = '\0';
 	}
       else
-	*tmp = '\0';
+	*tmp = '\0';		/* Ctrl-D received.  */
       if (*tmp == '\0')
 	user = myname;
       else
@@ -1614,8 +1617,8 @@ pswitch (int flag)
     int runqe;
     int mcse;
     int ntflg;
-    char nti[17];
-    char nto[17];
+    char nti[sizeof (ntin)];
+    char nto[sizeof (ntout)];
     int mapflg;
     char *mi;
     char *mo;

@@ -1585,8 +1585,9 @@ shell (int argc, char *argv[] _GL_UNUSED_PARAMETER)
 
 	shellp = getenv ("SHELL");
 	if (shellp == NULL)
-	  shellp = "/bin/sh";
-	if ((shellname = strrchr (shellp, '/')) == 0)
+	  shellp = PATH_BSHELL;
+	shellname = strrchr (shellp, '/');
+	if (shellname == NULL)
 	  shellname = shellp;
 	else
 	  shellname++;

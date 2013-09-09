@@ -18,8 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+@PATHDEFS_MAKE@
+
 AM_CPPFLAGS = \
 	-DTERMCAP -DLINEMODE -DKLUDGELINEMODE -DENV_HACK \
+	$(PATHDEF_BSHELL) \
 	$(iu_INCLUDES) \
 	-I$(top_srcdir) \
 	$(NCURSES_INCLUDE) $(INCIDN)

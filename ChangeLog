@@ -1,5 +1,31 @@
 2013-09-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ftp: Guard buffer size.
+	An evil SHELL in environment would overflow a buffer.
+
+	* ftp/cmds.c (shell): Step over a slash in NAMEP
+	only if one was found.  Use strncat() with correct
+	length parameter, instead of strcat().
+
+
+	Minor coding issues.
+
+	* ftp/ftp.c (pswitch) <struct comvars>: Declare array
+	sizes for `nti[]' and `nto[]' to be identical to those
+	of `ntin[]' and `ntout[]'.
+
+	* ftp/ftp_var.h (stringbase, argbuf, argbase):
+	Remove declarations.
+	* ftp/main.c (argbase, argbuf, atringbase):
+	New static string variables.
+
+	* telnet/Makefile.am: Add @PATHDEFS_MAKE@.
+	(AM_CPPFLAGS): Add $(PATHDEF_BSHELL).
+	* telnet/commands.c (shell): Use PATH_BSHELL as default
+	shell.  Put assignment before if-clause.
+
+2013-09-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ifconfig: Legacy use with GNU/kFreeBSD.
 
 	* configure.ac: Check for header <netinet/ether.h>.
