@@ -1,3 +1,13 @@
+2013-09-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Rare memory leak.
+
+	* ftp/ruserpass.c (remote_userpass) <missing domain>:
+	Assign empty string to MYDOMAIN, do not allocate.
+	The standard use is to set MYDOMAIN pointing into
+	MYNAME without allocation.  Do assignment of TMP
+	before if-clause.
+
 2013-09-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Guard buffer size.

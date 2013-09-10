@@ -114,7 +114,7 @@ int
 remote_userpass (char *host, char **aname, char **apass, char **aacct)
 {
   char *hdir, buf[BUFSIZ], *tmp;
-  char *myname = 0, *mydomain;
+  char *myname, *mydomain;
   int t, c, usedefault = 0;
   size_t i;
   struct stat stb;
@@ -137,7 +137,8 @@ remote_userpass (char *host, char **aname, char **apass, char **aacct)
 
   mydomain = strchr (myname, '.');
   if (mydomain == NULL)
-    mydomain = xstrdup ("");
+    mydomain = "";
+
  next:
   while ((t = token ()))
     switch (t)
@@ -159,12 +160,14 @@ remote_userpass (char *host, char **aname, char **apass, char **aacct)
 	      goto match;
 	    if (strcasecmp (hostname, tokval) == 0)
 	      goto match;
-	    if ((tmp = strchr (hostname, '.')) != NULL
+	    tmp = strchr (hostname, '.');
+	    if (tmp != NULL
 		&& strcasecmp (tmp, mydomain) == 0
 		&& strncasecmp (hostname, tokval, tmp - hostname) == 0
 		&& tokval[tmp - hostname] == '\0')
 	      goto match;
-	    if ((tmp = strchr (host, '.')) != NULL
+	    tmp = strchr (host, '.');
+	    if (tmp != NULL
 		&& strcasecmp (tmp, mydomain) == 0
 		&& strncasecmp (host, tokval, tmp - host) == 0
 		&& tokval[tmp - host] == '\0')
