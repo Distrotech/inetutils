@@ -31,7 +31,7 @@ AC_DEFUN([IU_RESULT_ACTIONS], [
 [if test "$$1" = yes; then
   ]ifelse([$3], ,
           [AC_DEFINE(HAVE_]translit($2, [a-z ./<>], [A-Z___])[, 1,
-	             [FIXME])],
+             [Define to 1 if ]translit($2, [a-z ./<>], [A-Z___])[ exists])],
           [$3])[
 else
   ]ifelse([$4], , [:], [$4])[

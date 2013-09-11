@@ -314,7 +314,7 @@ if test "$enable_encryption" = yes \
   AH_TEMPLATE(KRB4, [Define to one if you have Kerberos IV])
   AH_TEMPLATE(KRB5, [Define to one if you have Kerberos V])
   AH_TEMPLATE(SHISHI, [Define to 1 if you have Shishi])
-  AH_TEMPLATE(DES_ENCRYPTION, [FIXME])
+  AH_TEMPLATE(DES_ENCRYPTION, [Define to 1 if you have DES encryption])
 
   case $KERBEROS_VERSION in
   krb4)
@@ -618,10 +618,10 @@ AC_CHECK_HEADERS([arpa/nameser.h errno.h fcntl.h features.h \
 AC_TYPE_SIGNAL
 
 AC_CHECK_TYPE(socklen_t, ,
-              [AC_DEFINE([socklen_t], int,
-                         [Define to int if <sys/types.h> does not define])],
-              [IU_FLUSHLEFT([#include <sys/types.h>
-	                     #include <sys/socket.h>])])
+  [AC_DEFINE([socklen_t], int,
+    [Define to int if <sys/types.h> does not define])],
+  [IU_FLUSHLEFT([#include <sys/types.h>
+                 #include <sys/socket.h>])])
 
 AC_CHECK_TYPES(struct if_nameindex, , ,
   [IU_FLUSHLEFT([#include <sys/types.h>
@@ -629,13 +629,17 @@ AC_CHECK_TYPES(struct if_nameindex, , ,
                  #include <net/if.h>])])
 
 # sigset_t is a set of signals (4.4BSD)
-AC_CHECK_TYPE(sigset_t, , AC_DEFINE([sigset_t], unsigned long, [FIXME]),
+AC_CHECK_TYPE(sigset_t, ,
+  [AC_DEFINE([sigset_t], unsigned long,
+    [Define to `unsigned long' if not defined in <signal.h>])],
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
 # I'm not sure what this is, but netbsd has it; just use int if
 # necessary.
-AC_CHECK_TYPE(sig_atomic_t, , AC_DEFINE([sig_atomic_t], int, [FIXME]),
+AC_CHECK_TYPE(sig_atomic_t, ,
+  [AC_DEFINE([sig_atomic_t], int,
+    [Define to `int' if not defined in <signal.h>])],
   [IU_FLUSHLEFT([#include <sys/types.h>
                  #include <signal.h> ])])
 
@@ -848,7 +852,9 @@ AC_CHECK_DECLS(crypt, , , [#include <unistd.h>])
 
 # EWOULDBLOCK is more or less the BSD version of posix EAGAIN.
 IU_CHECK_MACRO(EWOULDBLOCK, [#include <errno.h>], , ,
-  AC_DEFINE([EWOULDBLOCK], EAGAIN, 1, [FIXME]))
+  [AC_DEFINE([EWOULDBLOCK], EAGAIN, 1,
+     [Define to EAGAIN if system does not provide EWOULDBLOCK])])
+
 AC_CHECK_DECLS(errno, , , [#include <errno.h>])
 
 # See whether <syslog.h> will declare special internal stuff if we
@@ -864,7 +870,8 @@ IU_CHECK_MACRO(syslog internal macros,
   [LOG_PRI LOG_FAC],
   AC_CHECK_TYPE(CODE,
     AC_CHECK_DECL(prioritynames,
-      AC_DEFINE([HAVE_SYSLOG_INTERNAL], 1, [FIXME]),,
+      [§AC_DEFINE([HAVE_SYSLOG_INTERNAL], 1,
+        [Define to 1 if <syslog.h> defines prioritynames])], ,
       iu_syslog_includes), , iu_syslog_includes),)
 undefine([iu_syslog_includes])
 
@@ -911,21 +918,21 @@ IU_CHECK_MACRO(SEEK_ macros,
   :,
   IU_CHECK_MACRO(L_ seek macros,
     [#include <unistd.h>], L_SET L_INCR L_XTND,
-    AC_DEFINE([SEEK_SET], L_SET, [FIXME])
-    AC_DEFINE([SEEK_CUR], L_INCR, [FIXME])
-    AC_DEFINE([SEEK_END], L_XTND, [FIXME]),
-    AC_DEFINE([SEEK_SET], 0, [FIXME])
-    AC_DEFINE([SEEK_CUR], 1, [FIXME])
-    AC_DEFINE([SEEK_END], 2, [FIXME])))
+    AC_DEFINE([SEEK_SET], L_SET, [Define to L_SET as replacement])
+    AC_DEFINE([SEEK_CUR], L_INCR, [Define to L_INCR as replacement])
+    AC_DEFINE([SEEK_END], L_XTND, [Define to L_XTND as replacement]),
+    AC_DEFINE([SEEK_SET], 0, [Define to 0 if missing])
+    AC_DEFINE([SEEK_CUR], 1, [Define to 1 if missing])
+    AC_DEFINE([SEEK_END], 2, [Define to 2 if missing])))
 
 # Look for the posix _FILENO macros; if not found, use the classic
 # unix values.
 IU_CHECK_MACRO(_FILENO macros,
   [#include <unistd.h>], STDIN_FILENO STDOUT_FILENO STDERR_FILENO,
   :,
-  AC_DEFINE([STDIN_FILENO], 0, [FIXME])
-  AC_DEFINE([STDOUT_FILENO], 1, [FIXME])
-  AC_DEFINE([STDERR_FILENO], 2, [FIXME]))
+  AC_DEFINE([STDIN_FILENO], 0, [Define to 0 if missing])
+  AC_DEFINE([STDOUT_FILENO], 1, [Define to 1 if missing])
+  AC_DEFINE([STDERR_FILENO], 2, [Define to 2 if missing]))
 
 # See where to find fd_set (bit-vectors for select) manipulation
 # macros.
@@ -975,11 +982,12 @@ case "$host" in
     # Older Solaris variants.
     ;;
   esac
-  AC_DEFINE([SOLARIS], 1, [FIXME])
-  AC_DEFINE([HAVE_STREAMSPTY], 1, [FIXME])
+  AC_DEFINE([SOLARIS], 1, [Define to 1 for any Solaris system])
+  AC_DEFINE([HAVE_STREAMSPTY], 1,
+    [Define to 1 for a system using streams for ptys])
   ;;
 *irix* | *hpux* )
-  # Known and needed workarounds?
+  # Known and needed work-arounds?
   ;;
 esac
 

@@ -1,3 +1,11 @@
+2013-09-12  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac: Add a relevant comment where AC_DEFINE
+	and AH_TEMPLATE offered only the text `FIXME'.
+
+	* am/result.m4 (IU_RESULT_ACTIONS): Build a relevant
+	comment better than `FIXME'.
+
 2013-09-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Rare memory leak.

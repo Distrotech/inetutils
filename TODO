@@ -164,6 +164,14 @@ prefixes.  Will anybody contribute it?
 
 Add Exodus rwhois server (e.g. 216.35.0.0/16).
 
+* rlogind, telnetd
+
+The Kerberized authentication is not passed on to login(1)
+on Solaris correctly, since its command line arguments are
+not understood properly from the manual page alone.  Do an
+analysis of the source code of login(1) from OpenSolaris to
+remedy this shortcoming.
+
 Local Variables:
 mode: outline
 End:
