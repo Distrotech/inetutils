@@ -633,30 +633,41 @@ mklist (char *buf, char *name)
     }
   else
     unknown[0] = name_unknown;
+
   /*
-   * Count up the number of names.
+   * An empty capability buffer finishes the analysis.
+   */
+  if (!buf || !*buf)
+    return (unknown);
+
+  /*
+   * Count the number of alias names.
+   * Stop at the first field separator, a colon.
    */
   for (n = 1, cp = buf; *cp && *cp != ':'; cp++)
     {
       if (*cp == '|')
 	n++;
     }
+
   /*
-   * Allocate an array to put the name pointers into.
+   * Allocate an array to hold the name pointers.
    */
   argv = (char **) malloc ((n + 3) * sizeof (char *));
   if (argv == 0)
     return (unknown);
 
   /*
-   * Fill up the array of pointers to names.
+   * Fill the array of pointers with the established aliases.
+   * Reserve the first slot for the preferred name.
    */
-  *argv = 0;
   argvp = argv + 1;
-  n = 0;
+  *argv = *argvp = 0;
+  n = 0;		/* Positive: name uses white space.  */
+
   for (cp = cp2 = buf; (c = *cp); cp++)
     {
-      if (c == '|' || c == ':')
+      if (c == '|' || c == ':')		/* Delimiters */
 	{
 	  *cp++ = '\0';
 	  /*
@@ -667,21 +678,28 @@ mklist (char *buf, char *name)
 	   * insensitive) add it to the list.
 	   */
 	  if (n || (cp - cp2 > 41))
-	    ;
+	    ;			/* Ignore the just scanned name.  */
 	  else if (name && (strncasecmp (name, cp2, cp - cp2) == 0))
-	    *argv = cp2;
+	    *argv = cp2;	/* Preferred name, exact match.  */
 	  else if (is_unique (cp2, argv + 1, argvp))
-	    *argvp++ = cp2;
+	    {
+	      *argvp++ = cp2;
+	      *argvp = 0;	/* Prevent looking forward.  */
+	    }
+
+	  /* Abort parsing at first field delimiter.  */
 	  if (c == ':')
 	    break;
+
 	  /*
-	   * Skip multiple delimiters. Reset cp2 to
-	   * the beginning of the next name. Reset n,
+	   * Skip multiple delimiters. Reset CP2 to
+	   * the beginning of the next name. Reset N,
 	   * the flag for names with spaces.
 	   */
 	  while ((c = *cp) == '|')
 	    cp++;
-	  cp2 = cp;
+
+	  cp2 = cp;		/* Proceed to next alias name.  */
 	  n = 0;
 	}
       /*
@@ -733,8 +751,8 @@ mklist (char *buf, char *name)
     return (unknown);
 }
 
-/* Mostly ignored by contemorary implementations,
- * but still used by NetBSD.
+/* Claimed to be ignored by contemporary implementations,
+ * but still modified by FreeBSD and NetBSD.
  * mklist will examine this buffer, so erase it
  * to cover corner cases.
  */

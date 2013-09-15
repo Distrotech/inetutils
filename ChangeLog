@@ -1,3 +1,20 @@
+2013-09-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnet: Uninitialized array of pointers.
+	Contemporary tgetent() emulations are known to ignore
+	the scratch buffer, as well as fill it in (contrary to
+	claim in manual page).  Account for this.
+
+	* telnet/telnet.c (mklist): Return quickly in case of
+	an empty first parameter `buf'.  Carefully initialize
+	`*ARGVP' to NULL at every stage.
+
+
+	Harmless memory leak in test program.
+
+	* tests/localhost.c: Include <stdlib.h>.
+	(main): Remove `const' on P, and it free after use.
+
 2013-09-12  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac: Add a relevant comment where AC_DEFINE

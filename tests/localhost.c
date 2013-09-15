@@ -22,18 +22,20 @@
 #include "libinetutils.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unused-parameter.h>
 #include <progname.h>
 
 int
 main (int argc _GL_UNUSED_PARAMETER, char **argv)
 {
-  const char *p = localhost ();
+  char *p = localhost ();
   set_program_name (argv[0]);
   if (!p)
     return 1;
 
   printf ("localhost: %s\n", p);
+  free (p);
 
   return 0;
 }
