@@ -5,6 +5,9 @@ Foundation, Inc.  See the end of this file for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+September 18, 2013
+Version 1.9.1.100:
+
 An advisory file CHECKLIST containing testing and verification
 advice has been added, pointing administrators to important
 properties and settings for built executables.
