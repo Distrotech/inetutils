@@ -23,6 +23,18 @@ _makefile_at_at_check_exceptions = ' && !/PATHDEFS_MAKE/'
 _build-aux = build-aux
 
 local-checks-to-skip = \
+	sc_cast_of_x_alloc_return_value \
+	sc_copyright_check \
+	sc_program_name \
+	sc_prohibit_always_true_header_tests \
+	sc_prohibit_assert_without_use \
+	sc_prohibit_doubled_word \
+	sc_prohibit_error_without_use \
+	sc_prohibit_have_config_h \
+	sc_prohibit_magic_number_exit \
+	sc_prohibit_strncpy \
+	sc_prohibit_undesirable_word_seq \
+	sc_prohibit_xalloc_without_use \
 	sc_error_message_period \
 	sc_error_message_uppercase \
 	sc_immutable_NEWS \

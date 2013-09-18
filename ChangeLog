@@ -1,3 +1,14 @@
+2013-09-18  Alfred M. Szmidt  <ams@gnu.org>
+
+	* cfg.mk (local-checks-to-skip): Added the
+	sc_cast_of_x_alloc_return_value, sc_copyright_check,
+	sc_program_name, sc_prohibit_always_true_header_tests,
+	sc_prohibit_assert_without_use, sc_prohibit_doubled_word,
+	sc_prohibit_error_without_use, sc_prohibit_have_config_h,
+	sc_prohibit_magic_number_exit, sc_prohibit_strncpy,
+	sc_prohibit_undesirable_word_seq, sc_prohibit_xalloc_without_use
+	to list.
+
 2013-09-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnet: Uninitialized array of pointers.
