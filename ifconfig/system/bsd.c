@@ -26,6 +26,7 @@
 #include <net/if.h>
 #include <net/if_types.h>
 #include <net/if_dl.h>
+#include <net/if_media.h>
 #ifdef HAVE_NETINET_ETHER_H
 # include <netinet/ether.h>
 #endif
@@ -157,6 +158,10 @@ system_configure (int sfd _GL_UNUSED_PARAMETER,
 /* System hooks. */
 static struct ifaddrs *ifp = NULL;
 
+#ifdef SIOCGIFMEDIA
+struct ifmediareq ifm;
+#endif /* SIOCGIFMEDIA */
+
 #define ESTABLISH_IFADDRS \
   if (!ifp) \
     getifaddrs (&ifp);
@@ -263,4 +268,183 @@ system_fh_hwtype (format_data_t form, int argc _GL_UNUSED_PARAMETER,
       if (!found)
 	put_string (form, "(unknown hwtype)");
     }
+}
+
+/* Lookup structures provided by the system, each decoding
+ * to clear text the meaning of media and status flags.
+ *
+ * The naming is different in NetBSD and in FreeBSD.
+ */
+static const struct ifmedia_description media_descr[] =
+			IFM_TYPE_DESCRIPTIONS;
+
+#ifdef IFM_SUBTYPE_DESCRIPTIONS
+static const struct ifmedia_description subtype_descr[] =
+			IFM_SUBTYPE_DESCRIPTIONS;
+#endif
+
+#ifdef IFM_SUBTYPE_ETHERNET_DESCRIPTIONS
+static const struct ifmedia_description ethernet_descr[] =
+			IFM_SUBTYPE_ETHERNET_DESCRIPTIONS;
+#endif
+
+#ifdef IFM_SUBTYPE_SHARED_DESCRIPTIONS
+static const struct ifmedia_description subtype_shared_descr[] =
+			IFM_SUBTYPE_SHARED_DESCRIPTIONS;
+#endif
+
+static const struct ifmedia_description option_descr[] =
+#ifdef IFM_OPTION_DESCRIPTIONS
+			IFM_OPTION_DESCRIPTIONS;
+#elif defined IFM_SHARED_OPTION_DESCRIPTIONS
+			IFM_SHARED_OPTION_DESCRIPTIONS;
+#else
+			{ { 0, NULL }, };
+#endif
+
+
+#ifdef IFM_STATUS_DESCRIPTIONS
+static const struct ifmedia_status_description status_descr[] =
+			IFM_STATUS_DESCRIPTIONS;
+#endif
+
+void
+system_fh_media_query (format_data_t form, int argc, char *argv[])
+{
+#ifdef SIOCGIFMEDIA
+  memset (&ifm, 0, sizeof (ifm));
+  strncpy (ifm.ifm_name, form->ifr->ifr_name, sizeof (ifm.ifm_name));
+
+  if (ioctl (form->sfd, SIOCGIFMEDIA, &ifm) >= 0)
+    select_arg (form, argc, argv, 0);
+  else
+#endif /* SIOCGIFMEDIA */
+    select_arg (form, argc, argv, 1);
+}
+
+void
+system_fh_media (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+		 char *argv[] _GL_UNUSED_PARAMETER)
+{
+#ifdef SIOCGIFMEDIA
+  memset (&ifm, 0, sizeof (ifm));
+  strncpy (ifm.ifm_name, form->ifr->ifr_name, sizeof (ifm.ifm_name));
+  if (ioctl (form->sfd, SIOCGIFMEDIA, &ifm) >= 0)
+    {
+      const char *medium = NULL, *options = NULL;
+      const char *subtype = NULL, *active_subtype = NULL;
+      const struct ifmedia_description *item;
+
+      /* Determine media type of adapter.  */
+      for (item = media_descr; item->ifmt_word; item++)
+	if (item->ifmt_word == IFM_TYPE (ifm.ifm_current))
+	  {
+	    medium = item->ifmt_string;
+	    break;
+	  }
+
+#ifdef IFM_SUBTYPE_DESCRIPTIONS
+      for (item = subtype_descr; item->ifmt_word || item->ifmt_string; item++)
+	{
+	  if (item->ifmt_word == IFM_SUBTYPE (ifm.ifm_current) && !subtype)
+	    subtype = item->ifmt_string;
+
+	  if (item->ifmt_word == (ifm.ifm_active & (IFM_NMASK | IFM_TMASK))
+	      && !active_subtype)
+	    active_subtype = item->ifmt_string;
+	}
+#else /* !IFM_SUBTYPE_DESCRIPTIONS */
+      /* Systems like FreeBSD with sub-types split
+       * into shared and media specific structures.
+       *
+       * Sub-type specific media labels.
+       */
+      switch (IFM_TYPE (ifm.ifm_current))
+	{
+	case IFM_ETHER:
+	  for (item = ethernet_descr; item->ifmt_word; item++)
+	    {
+	      /* Configured sub-type.  */
+	      if (item->ifmt_word == IFM_SUBTYPE (ifm.ifm_current))
+		subtype = item->ifmt_string;
+
+	      /* Active subtype.  */
+	      if (item->ifmt_word == IFM_SUBTYPE (ifm.ifm_active))
+		active_subtype = item->ifmt_string;
+	    }
+	  ;;
+	default:
+	  ;;
+	}
+
+      /* Shared media sub-types.  Only works if the previous
+       * loops did not assign any string value.
+       *
+       * One valid instance of 'ifmt_word' is naught,
+       * so loop condition needs care.
+       */
+      for (item = subtype_shared_descr; item->ifmt_word || item->ifmt_string; item++)
+	{
+	  if (item->ifmt_word == IFM_SUBTYPE (ifm.ifm_current))
+	    subtype = item->ifmt_string;
+
+	  if (item->ifmt_word == IFM_SUBTYPE (ifm.ifm_active))
+	    active_subtype = item->ifmt_string;
+	}
+#endif /* !IFM_SUBTYPE_DESCRIPTIONS */
+
+      /* Negotiated mode of operation.  */
+      for (item = option_descr; item->ifmt_word; item++)
+	if (item->ifmt_word == (ifm.ifm_active & IFM_GMASK) && !options)
+	  options = item->ifmt_string;
+
+      /* Print the gathered information.  */
+      if (options)
+        printf ("%s %s (%s <%s>)", medium, subtype, active_subtype, options);
+      else
+        printf ("%s %s (%s)", medium, subtype,
+		active_subtype ? active_subtype : "none");
+
+      had_output++;
+    }
+  else
+#endif /* SIOCGIFMEDIA */
+    put_string (form, "(not known)");
+}
+
+void
+system_fh_status_query (format_data_t form, int argc, char *argv[])
+{
+  system_fh_media_query (form, argc, argv);
+}
+
+void
+system_fh_status (format_data_t form, int argc, char *argv[])
+{
+#ifdef SIOCGIFMEDIA
+  memset (&ifm, 0, sizeof (ifm));
+  strncpy (ifm.ifm_name, form->ifr->ifr_name, sizeof (ifm.ifm_name));
+  if (ioctl (form->sfd, SIOCGIFMEDIA, &ifm) >= 0)
+    {
+#ifdef IFM_STATUS_DESCRIPTIONS
+      const struct ifmedia_status_description *item;
+
+      for (item = status_descr; item->ifms_type; item++)
+	if (item->ifms_type == IFM_TYPE (ifm.ifm_current))
+	  break;
+
+      if (item->ifms_type)
+	put_string (form, IFM_STATUS_DESC (item, ifm.ifm_status));
+      else
+	put_int (form, argc, argv, ifm.ifm_status);
+#else /* !IFM_STATUS_DESCRIPTIONS */
+      if (ifm.ifm_status & IFM_ACTIVE)
+	put_string (form, "active");
+      else
+	put_string (form, "no carrier");
+#endif /* IFM_STATUS_DESCRIPTIONS */
+    }
+  else
+#endif /* SIOCGIFMEDIA */
+    put_string (form, "(not known)");
 }

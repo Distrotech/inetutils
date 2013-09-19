@@ -1,3 +1,34 @@
+2013-09-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Status and medium reports on BSD.
+
+	* ifconfig/options.c (formats) <gnu, net-tools, unix>:
+	Add medium and status to printout.
+	* ifconfig/printif.c (format_handles): Add keys
+	`media?', `media', `status?', and `status'.
+	(fh_media_query, fh_media, fh_status_query, fh_status):
+	New functions.
+	* ifconfig/printif.h (fh_media_query, fh_media)
+	(fh_status_query, fh_status): New declarations.
+
+	* ifconfig/system/bsd.c: Include <net/if_media.h>.
+	(ifm) [SIOCGIFMEDIA]: New variable.
+	(media_descr): New variable.
+	(subtype_descr) [IFM_SUBTYPE_DESCRIPTIONS]: Likewise.
+	(ethernet_descr) [IFM_SUBTYPE_ETHERNET_DESCRIPTIONS]:
+	Likewise.
+	(subtype_shared_descr) [IFM_SUBTYPE_SHARED_DESCRIPTIONS]:
+	Likewise.
+	(option_descr): Likewise.
+	(status_descr) [IFM_STATUS_DESCRIPTION]: Likewise.
+	(system_fh_media_query, system_fh_media)
+	(system_fh_status_query, system_fh_status): New functions.
+	* ifconfig/system/bsd.h (SYSTEM_FORMAT_HANDLER):
+	Add keys `media?', `media', `status?', and `status'.
+	(system_fh_media_query)
+	(system_fh_media, system_fh_status_quey, system_fh_status):
+	New declarations.
+
 2013-09-18  Alfred M. Szmidt  <ams@gnu.org>
 
 	* cfg.mk (local-checks-to-skip): Added the

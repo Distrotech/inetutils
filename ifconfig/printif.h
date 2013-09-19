@@ -120,6 +120,10 @@ void fh_memend_query (format_data_t form, int argc, char *argv[]);
 void fh_memend (format_data_t form, int argc, char *argv[]);
 void fh_dma_query (format_data_t form, int argc, char *argv[]);
 void fh_dma (format_data_t form, int argc, char *argv[]);
+void fh_media_query (format_data_t form, int argc, char *argv[]);
+void fh_media (format_data_t form, int argc, char *argv[]);
+void fh_status_query (format_data_t form, int argc, char *argv[]);
+void fh_status (format_data_t form, int argc, char *argv[]);
 
 /* Used for recursion by format handlers.  */
 void print_interfaceX (format_data_t form, int quiet);

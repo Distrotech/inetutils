@@ -96,6 +96,10 @@ struct format_handle format_handles[] = {
   {"mtu", fh_mtu},
   {"metric?", fh_metric_query},
   {"metric", fh_metric},
+  {"media?", fh_media_query},
+  {"media", fh_media},
+  {"status?", fh_status_query},
+  {"status", fh_status},
 #ifdef HAVE_STRUCT_IFREQ_IFR_MAP
   {"map?", fh_map_query},
   {"irq?", fh_irq_query},
@@ -108,7 +112,7 @@ struct format_handle format_handles[] = {
   {"memend", fh_memend},
   {"dma?", fh_dma_query},
   {"dma", fh_dma},
-#endif
+#endif /* HAVE_STRUCT_IFREQ_IFR_MAP */
   {NULL, NULL}
 };
 
@@ -870,6 +874,40 @@ fh_flags (format_data_t form, int argc, char *argv[])
 #endif
 }
 
+void
+fh_media_query (format_data_t form, int argc, char *argv[])
+{
+  /* Must be overridden by a system dependent implementation.  */
+
+  /* Claim it to be absent.  */
+  select_arg (form, argc, argv, 1);
+}
+
+void
+fh_media (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+	  char *argv[] _GL_UNUSED_PARAMETER)
+{
+  /* Must be overridden by a system dependent implementation.  */
+  put_string (form, "(not known)");
+}
+
+void
+fh_status_query (format_data_t form, int argc, char *argv[])
+{
+  /* Must be overridden by a system dependent implementation.  */
+
+  /* Claim it to be absent.  */
+  select_arg (form, argc, argv, 1);
+}
+
+void
+fh_status (format_data_t form, int argc _GL_UNUSED_PARAMETER,
+	   char *argv[] _GL_UNUSED_PARAMETER)
+{
+  /* Must be overridden by a system dependent implementation.  */
+  put_string (form, "(not known)");
+}
+
 #ifdef HAVE_STRUCT_IFREQ_IFR_MAP
 
 void
@@ -969,7 +1007,8 @@ fh_dma (format_data_t form, int argc, char *argv[])
   else
     put_string (form, "(not available)");
 }
-#endif
+
+#endif /* HAVE_STRUCT_IFREQ_IFR_MAP */
 
 void
 print_interfaceX (format_data_t form, int quiet)

@@ -89,6 +89,8 @@ struct format formats[] = {
    "${metric?}{  metric ${tab}{16}${metric}${\\n}}"
    "${exists?}{hwtype?}{${hwtype?}{  link encap ${tab}{16}${hwtype}${\\n}}}"
    "${exists?}{hwaddr?}{${hwaddr?}{  hardware addr ${tab}{16}${hwaddr}${\\n}}}"
+   "${media?}{  link medium ${tab}{16}${media}${\\n}}"
+   "${status?}{  link status ${tab}{16}${status}${\\n}}"
    "${exists?}{txqlen?}{${txqlen?}{  tx queue len ${tab}{16}${txqlen}${\\n}}}"
    "}"
   },
@@ -106,6 +108,9 @@ struct format formats[] = {
    "${tab}{10}${flags}"
    "${mtu?}{  MTU:${mtu}}"
    "${metric?}{  Metric:${metric}}"
+   "${media?}{"
+   "${newline}${tab}{10}Media: ${media}"
+   "${status?}{, ${status}}}"
    "${exists?}{ifstat?}{"
    "${ifstat?}{"
    "${newline}          RX packets:${rxpackets}"
@@ -164,6 +169,8 @@ struct format formats[] = {
    " netmask ${netmask}{0}{%#02x}${netmask}{1}{%02x}"
    "${netmask}{2}{%02x}${netmask}{3}{%02x}"
    "${brdaddr?}{ broadcast ${brdaddr}}${\\n}}"
+   "${media?}{${\\t}media: ${media}${\\n}}"
+   "${status?}{${\\t}status: ${status}${\\n}}"
    "}"
   },
   /* Resembles the output of ifconfig shipped with OSF 4.0g.  */

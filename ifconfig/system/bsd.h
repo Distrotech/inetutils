@@ -63,11 +63,19 @@ struct system_ifconfig
   {"hwaddr?", system_fh_hwaddr_query}, \
   {"hwaddr", system_fh_hwaddr}, \
   {"hwtype?", system_fh_hwtype_query}, \
-  {"hwtype", system_fh_hwtype},
+  {"hwtype", system_fh_hwtype},	\
+  {"media?", system_fh_media_query}, \
+  {"media", system_fh_media},	\
+  {"status?", system_fh_status_query}, \
+  {"status", system_fh_status},
 
 void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwaddr (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype (format_data_t form, int argc, char *argv[]);
+void system_fh_media_query (format_data_t form, int argc, char *argv[]);
+void system_fh_media (format_data_t form, int argc, char *argv[]);
+void system_fh_status_query (format_data_t form, int argc, char *argv[]);
+void system_fh_status (format_data_t form, int argc, char *argv[]);
 
 #endif /* IFCONFIG_SYSTEM_BSD_H */
