@@ -1,3 +1,12 @@
+2013-09-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Setting of idle time.
+	The command to change idle time was broken.
+
+	* ftpd/ftpcmd.y (cmd) <SITE IDLE NUMBER>: The token IDLE
+	must go before `check_login' to avoid a lookahead syntax
+	error.  Adjust the parameter reference for `check_login'.
+
 2013-09-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Status and medium reports on BSD.

@@ -497,9 +497,9 @@ cmd
 			       "Current IDLE time limit is %d seconds; max %d",
 			       timeout, maxtimeout);
 		}
-	| SITE SP check_login IDLE SP NUMBER CRLF
+	| SITE SP IDLE check_login SP NUMBER CRLF
 		{
-			if ($3)
+			if ($4)
 			  {
 			    if ($6 < 30 || $6 > maxtimeout)
 			      reply (501,
