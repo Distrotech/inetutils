@@ -1,3 +1,26 @@
+2013-09-26  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Abort transfer in ascii mode.
+	If the local ascii file causes a seek failure,
+	then tell the server to abort transmission.
+
+	* ftp/ftp.c (sendrequest) <restart_point && (STOR || APPE)>:
+	Change RC to off_t.  On seek failure, send ABOR command,
+	and get the reply.
+	(recvrequest) <TYPE_A && restart_point>: Reset `errno'.
+	<label done>: Send ABOR command, get reply.  Produce correct
+	error message if stepping through the local file gave EOF.
+
+
+	ftpd: Error message after seek failure.
+	The standard RFC 1123 introduced a better error code 554
+	to be used when a restart command is not successful.
+
+	* ftpd/ftpd.c (retrieve) <restart_point && TYPE_A>: Reply
+	with error code 554 if EOF was reach while seeking in file.
+	<restart_point && !TYPE_I>: Likewise when lseek() gave EINVAL.
+	(store) <restart_point>: Likewise for both modes.
+
 2013-09-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Setting of idle time.

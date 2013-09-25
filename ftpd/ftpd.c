@@ -982,7 +982,10 @@ retrieve (const char *cmd, const char *name)
 	      c = getc (fin);
 	      if (c == EOF)
 		{
-		  perror_reply (550, name);
+		  /* Error code 554 was introduced in RFC 1123.  */
+		  reply (554,
+			 "Action not taken: invalid REST value %jd for %s.",
+			 restart_point, name);
 		  goto done;
 		}
 	      if (c == '\n')
@@ -991,7 +994,11 @@ retrieve (const char *cmd, const char *name)
 	}
       else if (lseek (fileno (fin), restart_point, SEEK_SET) < 0)
 	{
-	  perror_reply (550, name);
+	  if (errno == EINVAL)
+	    reply (554, "Action not taken: invalid REST value %jd for %s.",
+		   restart_point, name);
+	  else
+	    perror_reply (550, name);
 	  goto done;
 	}
     }
@@ -1053,7 +1060,10 @@ store (const char *name, const char *mode, int unique)
 	      c = getc (fout);
 	      if (c == EOF)
 		{
-		  perror_reply (550, name);
+		  /* Error code 554 was introduced in RFC 1123.  */
+		  reply (554,
+			 "Action not taken: invalid REST value %jd for %s.",
+			 restart_point, name);
 		  goto done;
 		}
 	      if (c == '\n')
@@ -1070,7 +1080,11 @@ store (const char *name, const char *mode, int unique)
 	}
       else if (lseek (fileno (fout), restart_point, SEEK_SET) < 0)
 	{
-	  perror_reply (550, name);
+	  if (errno == EINVAL)
+	    reply (554, "Action not taken: invalid REST value %jd for %s.",
+		   restart_point, name);
+	  else
+	    perror_reply (550, name);
 	  goto done;
 	}
     }

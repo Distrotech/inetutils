@@ -676,7 +676,7 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
   if (restart_point &&
       (strcmp (cmd, "STOR") == 0 || strcmp (cmd, "APPE") == 0))
     {
-      int rc;
+      off_t rc;
 
       switch (curtype)
 	{
@@ -690,6 +690,8 @@ sendrequest (char *cmd, char *local, char *remote, int printnames)
 	}
       if (rc < 0)
 	{
+	  (void) command ("ABOR");
+	  getreply (0);
 	  error (0, errno, "local: %s", local);
 	  restart_point = 0;
 	  if (closefunc != NULL)
@@ -1066,6 +1068,8 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
 	  off_t i, n;
 	  int ch;
 
+	  errno = 0;
+
 	  if (fseeko (fout, 0L, SEEK_SET) < 0)
 	    goto done;
 	  n = restart_point;
@@ -1079,7 +1083,17 @@ recvrequest (char *cmd, char *local, char *remote, char *lmode, int printnames)
 	  if (fseeko (fout, 0L, SEEK_CUR) < 0)
 	    {
 	    done:
-	      error (0, errno, "local: %s", local);
+	      /* Cancel server's action quickly.  */
+	      (void) command ("ABOR");
+	      getreply (0);
+
+	      /* Explain our failure.  */
+	      if (ch == EOF)
+		printf ("Action not taken: offset %jd is outside of %s.\n",
+		       restart_point, local);
+	      else
+		error (0, errno, "local: %s", local);
+
 	      if (closefunc != NULL)
 		(*closefunc) (fout);
 	      return;
