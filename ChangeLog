@@ -1,5 +1,19 @@
 2013-09-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ftpd: Implement FEAT and OPTS.
+	Add two commands in accordance with RFC 2389.
+
+	* ftpd/ftpcmd.y (cmdtab, sitetab): Change to static.
+	(extlist): New variable, listing command extensions.
+	(FEAT, OPTS): New tokens.
+	(cmd) <FEAT || FEAT STRING || OPTS || OPTS STRING>:
+	New cases.
+	(cmdtab): Put commands in the order of RFC 959.
+	Add FEAT and OPTS.
+	(sitetab): Use lexicographic order.
+
+2013-09-26  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ftp: Abort transfer in ascii mode.
 	If the local ascii file causes a seek failure,
 	then tell the server to abort transmission.

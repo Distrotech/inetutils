@@ -50,12 +50,10 @@
 /*
  * Grammar for FTP commands:
  *
- *   See RFC 959, RFC 1639, RFC 2428,
+ *   See RFC 959, RFC 1639, RFC 2389, RFC 2428,
  *   and RFC 3659 (MDTM, REST, SIZE).
  *
  * TODO: Update with RFC 3659 (MLST, MLSD).
- *
- * TODO: RFC 2389 (FEAT, OPTS).
  *
  * TODO: RFC 2428 (EPSV ALL).
  *
@@ -121,8 +119,9 @@ struct tab
   const char	*help;
 };
 
-extern struct tab cmdtab[];
-extern struct tab sitetab[];
+static struct tab cmdtab[];
+static struct tab sitetab[];
+static char *extlist[];
 static char *copy         (char *);
 static void help          (struct tab *, char *);
 static struct tab *lookup (struct tab *, char *);
@@ -150,6 +149,8 @@ static void yyerror       (const char *s);
 	ABOR	DELE	CWD	LIST	NLST	SITE
 	STAT	HELP	NOOP	MKD	RMD	PWD
 	CDUP	STOU	SMNT	SYST	SIZE	MDTM
+
+	FEAT	OPTS
 
 	EPRT	EPSV	LPRT	LPSV
 
@@ -440,6 +441,46 @@ cmd
 		{
 			if ($2)
 			  cwd ("..");
+		}
+	| FEAT check_login CRLF
+		{
+			if ($2)
+			  {
+			    char **name;
+
+			    lreply (211, "Supported extensions:");
+			    for (name = extlist; *name; name++)
+			      printf (" %s\r\n", *name);
+			    reply (211, "End");
+			  }
+		}
+	/* Catch all variants of the above FEAT, and reject them.  */
+	| FEAT check_login SP STRING CRLF
+		{
+			if ($2)
+			  {
+			    reply (501, "Not accepting arguments.");
+			    free ($4);
+			  }
+		}
+	/* Changable behaviour is yet to be implemented,
+	 * so OPTS is a no-op for the time being.  It is
+	 * mandatory by RFC 2389, since FEAT now exists.
+	 */
+	| OPTS check_login CRLF
+		{
+			if ($2)
+			  {
+			    reply (501, "Must have an argument.");
+			  }
+		}
+	| OPTS check_login SP STRING CRLF
+		{
+			if ($2)
+			  {
+			    reply (501, "No options are available.");
+			    free ($4);
+			  }
 		}
 	| SITE SP HELP CRLF
 		{
@@ -1267,36 +1308,37 @@ check_login
 #define	NSTR	8	/* Number followed by a string */
 #define	DLIST	9	/* SP and delimited list for EPRT/EPSV */
 
-struct tab cmdtab[] = {		/* In order defined in RFC 765 */
+static struct tab cmdtab[] = {
+  /* In the order defined by RFC 959.  See also RFC 1123.  */
+  /* Access control commands.  */
   { "USER", USER, STR1, 1,	"<sp> username" },
   { "PASS", PASS, ZSTR1, 1,	"<sp> password" },
   { "ACCT", ACCT, STR1, 0,	"(specify account)" },
+  { "CWD",  CWD,  OSTR, 1,	"[ <sp> directory-name ]" },
+  { "CDUP", CDUP, ARGS, 1,	"(change to parent directory)" },
   { "SMNT", SMNT, ARGS, 0,	"(structure mount)" },
   { "REIN", REIN, ARGS, 0,	"(reinitialize server state)" },
   { "QUIT", QUIT, ARGS, 1,	"(terminate service)", },
+  /* Transfer parameter commands.  */
   { "PORT", PORT, ARGS, 1,	"<sp> b0, b1, b2, b3, b4" },
   { "PASV", PASV, ARGS, 1,	"(set server in passive mode)" },
   { "TYPE", TYPE, ARGS, 1,	"<sp> [ A | E | I | L ]" },
   { "STRU", STRU, ARGS, 1,	"(specify file structure)" },
   { "MODE", MODE, ARGS, 1,	"(specify transfer mode)" },
+  /* FTP service commands.  */
   { "RETR", RETR, STR1, 1,	"<sp> file-name" },
   { "STOR", STOR, STR1, 1,	"<sp> file-name" },
+  { "STOU", STOU, STR1, 1,	"<sp> file-name" },
   { "APPE", APPE, STR1, 1,	"<sp> file-name" },
-  { "MLFL", MLFL, OSTR, 0,	"(mail file)" },
-  { "MAIL", MAIL, OSTR, 0,	"(mail to user)" },
-  { "MSND", MSND, OSTR, 0,	"(mail send to terminal)" },
-  { "MSOM", MSOM, OSTR, 0,	"(mail send to terminal or mailbox)" },
-  { "MSAM", MSAM, OSTR, 0,	"(mail send to terminal and mailbox)" },
-  { "MRSQ", MRSQ, OSTR, 0,	"(mail recipient scheme question)" },
-  { "MRCP", MRCP, STR1, 0,	"(mail recipient)" },
   { "ALLO", ALLO, ARGS, 1,	"allocate storage (vacuously)" },
   { "REST", REST, ARGS, 1,	"<sp> offset (restart command)" },
   { "RNFR", RNFR, STR1, 1,	"<sp> file-name" },
   { "RNTO", RNTO, STR1, 1,	"<sp> file-name" },
   { "ABOR", ABOR, ARGS, 1,	"(abort operation)" },
   { "DELE", DELE, STR1, 1,	"<sp> file-name" },
-  { "CWD",  CWD,  OSTR, 1,	"[ <sp> directory-name ]" },
-  { "XCWD", CWD,	OSTR, 1,	"[ <sp> directory-name ]" },
+  { "RMD",  RMD,  STR1, 1,	"<sp> path-name" },
+  { "MKD",  MKD,  STR1, 1,	"<sp> path-name" },
+  { "PWD",  PWD,  ARGS, 1,	"(return current directory)" },
   { "LIST", LIST, OSTR, 1,	"[ <sp> path-name ]" },
   { "NLST", NLST, OSTR, 1,	"[ <sp> path-name ]" },
   { "SITE", SITE, SITECMD, 1,	"site-cmd [ <sp> arguments ]" },
@@ -1304,31 +1346,49 @@ struct tab cmdtab[] = {		/* In order defined in RFC 765 */
   { "STAT", STAT, OSTR, 1,	"[ <sp> path-name ]" },
   { "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
   { "NOOP", NOOP, ARGS, 1,	"" },
-  { "MKD",  MKD,  STR1, 1,	"<sp> path-name" },
+  /* Experimental commands, as mentioned in RFC 1123.  Now obsolete.  */
   { "XMKD", MKD,  STR1, 1,	"<sp> path-name" },
-  { "RMD",  RMD,  STR1, 1,	"<sp> path-name" },
   { "XRMD", RMD,  STR1, 1,	"<sp> path-name" },
-  { "PWD",  PWD,  ARGS, 1,	"(return current directory)" },
   { "XPWD", PWD,  ARGS, 1,	"(return current directory)" },
-  { "CDUP", CDUP, ARGS, 1,	"(change to parent directory)" },
   { "XCUP", CDUP, ARGS, 1,	"(change to parent directory)" },
-  { "STOU", STOU, STR1, 1,	"<sp> file-name" },
+  { "XCWD", CWD,  OSTR, 1,	"[ <sp> directory-name ]" },
+  /* Commands in RFC 2389.  */
+  { "FEAT", FEAT, OSTR, 1,	"(display command extensions)" },
+  /* XXX: Replace OSTR once some functionality exists.  */
+  { "OPTS", OPTS, OSTR, 1,	"<sp> cmd-name [ <sp> options ]" },
+  /* Commands in RFC 3659.  */
   { "SIZE", SIZE, OSTR, 1,	"<sp> path-name" },
   { "MDTM", MDTM, OSTR, 1,	"<sp> path-name" },
+  /* Unimplemented, but reserved in RFC ???.  */
+  { "MLFL", MLFL, OSTR, 0,	"(mail file)" },
+  { "MAIL", MAIL, OSTR, 0,	"(mail to user)" },
+  { "MSND", MSND, OSTR, 0,	"(mail send to terminal)" },
+  { "MSOM", MSOM, OSTR, 0,	"(mail send to terminal or mailbox)" },
+  { "MSAM", MSAM, OSTR, 0,	"(mail send to terminal and mailbox)" },
+  { "MRSQ", MRSQ, OSTR, 0,	"(mail recipient scheme question)" },
+  { "MRCP", MRCP, STR1, 0,	"(mail recipient)" },
+  /* Extended addressing in RFC 2428.  */
   { "EPRT", EPRT, DLIST, 1,	"<sp> <d> proto <d> addr <d> port <d>" },
   { "EPSV", EPSV, ARGS, 1,	"[ <sp> af ]" },
+  /* Long addressing in RFC 1639.  Obsoleted in RFC 5797.  */
   { "LPRT", LPRT, ARGS, 1,	"<sp> af,hal,h0..hn,2,p0,p1" },
   { "LPSV", LPSV, ARGS, 1,	"(set server in long passive mode)" },
   { NULL,   0,    0,    0,	0 }
 };
 
-struct tab sitetab[] = {
-  { "UMASK", UMASK, ARGS, 1,	"[ <sp> umask ]" },
-  { "IDLE", IDLE, ARGS, 1,	"[ <sp> maximum-idle-time ]" },
+static struct tab sitetab[] = {
   { "CHMOD", CHMOD, NSTR, 1,	"<sp> mode <sp> file-name" },
   { "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
+  { "IDLE", IDLE, ARGS, 1,	"[ <sp> maximum-idle-time ]" },
+  { "UMASK", UMASK, ARGS, 1,	"[ <sp> umask ]" },
   { NULL,   0,    0,    0,	0 }
 };
+
+/* Extensions beyond RFC 959 and RFC 2389.  Ordered as implemented.  */
+static char *extlist[] = {
+  "MDTM", "SIZE", "REST STREAM",
+  "EPRT", "EPSV", "LPRT", "LPSV",
+  NULL };
 
 static struct tab *
 lookup (struct tab *p, char *cmd)
