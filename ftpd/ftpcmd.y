@@ -1300,10 +1300,10 @@ check_login
 #define	CMD	0	/* beginning of command */
 #define	ARGS	1	/* expect miscellaneous arguments */
 #define	STR1	2	/* expect SP followed by STRING */
-#define	STR2	3	/* expect STRING */
+#define	STR2	3	/* expect STRING (must be STR2 + 1)*/
 #define	OSTR	4	/* optional SP then STRING */
 #define	ZSTR1	5	/* SP then optional STRING */
-#define	ZSTR2	6	/* optional STRING after SP */
+#define	ZSTR2	6	/* optional STRING after SP (must be ZSTR1 + 1) */
 #define	SITECMD	7	/* SITE command */
 #define	NSTR	8	/* Number followed by a string */
 #define	DLIST	9	/* SP and delimited list for EPRT/EPSV */
@@ -1373,7 +1373,7 @@ static struct tab cmdtab[] = {
   /* Long addressing in RFC 1639.  Obsoleted in RFC 5797.  */
   { "LPRT", LPRT, ARGS, 1,	"<sp> af,hal,h0..hn,2,p0,p1" },
   { "LPSV", LPSV, ARGS, 1,	"(set server in long passive mode)" },
-  { NULL,   0,    0,    0,	0 }
+  { NULL,   0,    0,    0,	NULL }
 };
 
 static struct tab sitetab[] = {
@@ -1381,7 +1381,7 @@ static struct tab sitetab[] = {
   { "HELP", HELP, OSTR, 1,	"[ <sp> <string> ]" },
   { "IDLE", IDLE, ARGS, 1,	"[ <sp> maximum-idle-time ]" },
   { "UMASK", UMASK, ARGS, 1,	"[ <sp> umask ]" },
-  { NULL,   0,    0,    0,	0 }
+  { NULL,   0,    0,    0,	NULL }
 };
 
 /* Extensions beyond RFC 959 and RFC 2389.  Ordered as implemented.  */
@@ -1572,7 +1572,7 @@ yylex (void)
 	      yylval.s = (char*) p->name;
 	      return (p->token);
 	    }
-	  break;
+	  break;	/* Command not known.  */
 
 	case SITECMD:
 	  if (cbuf[cpos] == ' ')
@@ -1607,7 +1607,7 @@ yylex (void)
 	      return (p->token);
 	    }
 	  state = CMD;
-	  break;
+	  break;	/* Command not known.  */
 
 	case OSTR:
 	  if (cbuf[cpos] == '\n')
@@ -1629,7 +1629,7 @@ yylex (void)
 
 	      return (SP);
 	    }
-	  break;
+	  /* Intentional continuation.  */
 
 	case ZSTR2:
 	  if (cbuf[cpos] == '\n')
@@ -1653,7 +1653,7 @@ yylex (void)
 	      state = ARGS;
 	      return (STRING);
 	    }
-	  break;
+	  break;	/* Empty string, missing NL.  */
 
 	case NSTR:
 	  if (cbuf[cpos] == ' ')
@@ -1727,7 +1727,7 @@ yylex (void)
 	      yylval.i = c;
 	      return (CHAR);
 	    }
-	  break;
+	  break;	/* Not reachable.  */
 
 	case ARGS:
 	  if (isdigit (cbuf[cpos]))
@@ -1803,13 +1803,33 @@ yylex (void)
 	    case 't':
 	      return (T);
 	    }
-	  break;
+	  break;	/* No number, not in [\n ,aAbBcCeEfFiIlLnNpPrRsSttT] */
 
 	default:
 	  fatal ("Unknown state in scanner.");
 	}
 
-      yyerror ((char *) 0);
+      /*
+       * Analysis: Cases when this point is reached.
+       *
+       *  CMD:      command not known
+       *  SITECMD:  site command not known (state changed to CMD)
+       *
+       *  OSTR, STR1, ZSTR1, STR2, ZSTR2, NSTR:
+       *            empty string or string without NL
+       *
+       *  ARGS:     not a number, not a special character
+       */
+
+      /*
+       * Issue a new error message only if the parser has not
+       * yet reported a complaint.  Without this precaution
+       * two messages would be directed to the client, thus
+       * upsetting all following exchange.
+       */
+      if (!yynerrs)
+	yyerror ("command not recognized");
+
       state = CMD;
       longjmp (errcatch, 0);
     } /* for (;;) */
@@ -1980,9 +2000,9 @@ yyerror (const char *s)
 {
   char *cp;
 
-  (void) s;
   cp = strchr (cbuf, '\n');
   if (cp != NULL)
     *cp = '\0';
-  reply (500, "'%s': command not understood.", cbuf);
+
+  reply (500, "'%s': %s", cbuf, (s ? s : "command not understood."));
 }

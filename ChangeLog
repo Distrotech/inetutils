@@ -1,3 +1,22 @@
+2013-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Capture syntax errors.
+	Scanner and parser are insufficiently trimmed to
+	each other, producing duplicate and inconclusive
+	diagnostic messages.
+
+	* ftpd/ftpcmd.y (yylex) <STR1 || ZSTR1 || dostr1>:
+	Remove a break at the end, continue into ZSTR2.
+	This allows detection of syntax errors.  A test
+	case is `quote site chmod 0750' by a client.
+	(yylex): Call yyerror() only if `yynerrs' is zero.
+	Otherwise both scanner and parser would send error
+	messages to the client.  Specify an explicit message
+	in this call to yyerror().
+	(yyerror): Use parameter `s' in reply message, but
+	keep a default message in case `s' is empty.  This
+	passes on any diagnostic message from the parser.
+
 2013-09-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Implement FEAT and OPTS.
