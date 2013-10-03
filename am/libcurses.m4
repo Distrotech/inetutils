@@ -96,8 +96,8 @@ AC_DEFUN([IU_LIB_TERMCAP], [
     dnl
     _IU_SAVE_LIBS=$LIBS
     AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP=-ltermcap)
-    AC_MSG_CHECKING([where tgetent is declared])
-    location_tgetent=none
+    AC_MSG_CHECKING([whether tgetent needs support])
+    location_tgetent=no
     LIBS="$LIBS $LIBTERMCAP"
     AC_LINK_IFELSE(
       [AC_LANG_PROGRAM([[#include <termcap.h>]],
@@ -116,10 +116,11 @@ AC_DEFUN([IU_LIB_TERMCAP], [
 	 location_tgetent=term.h])
       ])
     LIBS=$_IU_SAVE_LIBS
+    AC_MSG_RESULT($location_tgetent)
 
     if test "$ac_cv_lib_termcap_tgetent" = yes \
 	&& test "$ac_cv_have_decl_tgetent" = yes; then
-      AC_MSG_RESULT($location_tgetent)
+      :
     else
       AC_CHECK_LIB(curses, tgetent, LIBTERMCAP=-lcurses)
       AC_CHECK_DECLS([tgetent], , , [[#include <curses.h>

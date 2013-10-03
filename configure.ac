@@ -870,7 +870,7 @@ IU_CHECK_MACRO(syslog internal macros,
   [LOG_PRI LOG_FAC],
   AC_CHECK_TYPE(CODE,
     AC_CHECK_DECL(prioritynames,
-      [§AC_DEFINE([HAVE_SYSLOG_INTERNAL], 1,
+      [AC_DEFINE([HAVE_SYSLOG_INTERNAL], 1,
         [Define to 1 if <syslog.h> defines prioritynames])], ,
       iu_syslog_includes), , iu_syslog_includes),)
 undefine([iu_syslog_includes])

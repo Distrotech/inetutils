@@ -1,3 +1,12 @@
+2013-10-03  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* configure.ac (HAVE_SYSLOG_INTERNAL): Remove
+	a misplaced character.
+
+	* am/libcurses.m4 (IU_LIB_TERMCAP): Rework the
+	message in AC_MSG_CHECKING() and always call
+	AC_MSG_RESULT().
+
 2013-10-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Capture syntax errors.
