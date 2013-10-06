@@ -2276,8 +2276,10 @@ whenever available, and authorization is determined as in @command{rlogin}
 @itemx --no-input
 @opindex -n
 @opindex --no-input
-Use @file{/dev/null} for all input, and use no separate @samp{stderr}
-at remote end.  This option is void together with encryption.
+Use @file{/dev/null} for all input, telling the server side that
+we send no material.  This can prevent the remote process from
+blocking, should it optionally accept more input.
+The option is void together with encryption.
 @end table
 
 @noindent

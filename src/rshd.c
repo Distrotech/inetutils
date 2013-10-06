@@ -631,7 +631,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	{
 	  if (cc < 0)
 	    syslog (LOG_NOTICE, "read: %m");
-	  shutdown (sockfd, 2);
+	  shutdown (sockfd, SHUT_RDWR);
 	  exit (EXIT_FAILURE);
 	}
       /* null byte terminates the string */
@@ -1085,7 +1085,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 
     /* verify checksum */
     {
-      unsigned short port;
+      unsigned short pport;
 
       socklen = sizeof (sock);
       if (getsockname (STDIN_FILENO, (struct sockaddr *)&sock, &socklen) < 0)
@@ -1094,11 +1094,11 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	  exit (EXIT_FAILURE);
 	}
 
-      port = (sock.ss_family == AF_INET6)
-	     ? ((struct sockaddr_in6 *) &sock)->sin6_port
-	     : ((struct sockaddr_in *) &sock)->sin_port;
+      pport = (sock.ss_family == AF_INET6)
+	      ? ((struct sockaddr_in6 *) &sock)->sin6_port
+	      : ((struct sockaddr_in *) &sock)->sin_port;
 
-      snprintf (cksumdata, 100, "%u:%s%s", ntohs (port), cmdbuf, locuser);
+      snprintf (cksumdata, 100, "%u:%s%s", ntohs (pport), cmdbuf, locuser);
     }
 
     rc = shishi_checksum (h, enckey, 0, cksumtype,
@@ -1665,7 +1665,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 		  cc = read (pv[0], buf, sizeof buf);
 		  if (cc <= 0)
 		    {
-		      shutdown (s, 1 + 1);
+		      shutdown (s, SHUT_RDWR);
 		      FD_CLR (pv[0], &readfrom);
 		    }
 		  else
@@ -1692,7 +1692,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 		  cc = read (pv1[0], buf, sizeof (buf));
 		  if (cc <= 0)
 		    {
-		      shutdown (pv1[0], 1 + 1);
+		      shutdown (pv1[0], SHUT_RDWR);
 		      FD_CLR (pv1[0], &readfrom);
 		    }
 		  else
@@ -1714,7 +1714,7 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 #  endif
 		  if (cc <= 0)
 		    {
-		      shutdown (pv2[0], 1 + 1);
+		      shutdown (pv2[0], SHUT_RDWR);
 		      FD_CLR (pv2[0], &writeto);
 		    }
 		  else
@@ -1749,15 +1749,8 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 #endif /* WITH_PAM */
 
 	  exit (EXIT_SUCCESS);
-	}
+	} /* Parent process ends.  */
 
-      /* Child process. Become a process group leader, so that
-       * the control process above can send signals to all the
-       * processes we may be the parent of.  The process group ID
-       * (the getpid() value below) equals the childpid value from
-       * the fork above.
-       */
-      setpgid (0, getpid ());
       close (s);		/* control process handles this fd */
       close (pv[0]);		/* close read end of pipe */
 #ifdef ENCRYPTION
@@ -1829,16 +1822,30 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
 	  pam_end (pam_handle, pam_rc);
 
 	  exit (WIFEXITED (status) ? WEXITSTATUS (status) : EXIT_FAILURE);
-	}
+	} /* Parent process ends.  */
     }
 #endif /* WITH_PAM */
 
-  if (*pwd->pw_shell == '\0')
-    pwd->pw_shell = PATH_BSHELL;
-#if BSD > 43
+  /* Child process, with and without handler for stderr.
+   * Become a process group leader, so that the control
+   * process above can send signals to all the processes
+   * we may be the parent of.  The process group ID
+   * (the getpid() value below) equals the childpid value
+   * from the fork above.
+   */
+#ifdef HAVE_SETLOGIN
+  /* Not sufficient to call setpgid() on BSD systems.  */
+  if (setsid () < 0)
+    syslog (LOG_ERR, "setsid() failed: %m");
+
   if (setlogin (pwd->pw_name) < 0)
     syslog (LOG_ERR, "setlogin() failed: %m");
+#else /* !HAVE_SETLOGIN */
+  setpgid (0, getpid ());
 #endif
+
+  if (*pwd->pw_shell == '\0')
+    pwd->pw_shell = PATH_BSHELL;
 
   /* Set the gid, then uid to become the user specified by "locuser" */
   setegid ((gid_t) pwd->pw_gid);

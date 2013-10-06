@@ -1,5 +1,30 @@
 2013-10-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	rsh: Detach input stream.
+	The option `-n/--no-input' was incomplete.
+
+	* src/rsh.c (main) <try_connect && null_input_option>:
+	Call shutdown(SHUT_WR) on socket REM.
+	(talk): Use symbolic macro SHUT_WR in shutdown().
+
+	* doc/inetutils.texi (rsh invocation) <option '-n'>:
+	Give an accurate description, forgetting about stderr.
+
+
+	rshd: Better adaption to BSD.
+
+	* src/rshd.c (doit): Use SHUT_RDWR in shutdown().
+	(doit) [SHISHI] <verify checksum>: Rename local PORT
+	to PPORT, since is shadows a variable of wider scope.
+	(doit): Delay the call of setpgid() to also execute
+	in the child process when PAM is supported.
+	(doit) [HAVE_SETLOGIN]: Call setsid() and setlogin().
+	Replace conditional `BSD > 43' with HAVE_SETLOGIN for
+	better precision.
+	[!HAVE_SETLOGIN]: Keep old call to setpgid().
+
+2013-10-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rexec: No echoing of passwords.
 
 	* src/rexec.c: Include <termios.h>.

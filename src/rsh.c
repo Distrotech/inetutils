@@ -551,7 +551,12 @@ try_connect:
   if (signal (SIGTERM, SIG_IGN) != SIG_IGN)
     signal (SIGTERM, sendsig);
 
-  if (!null_input_option)
+  if (null_input_option)
+    /* Nothing from stdin will be written to the socket,
+     * but we still expect response from the server.
+     */
+    shutdown (rem, SHUT_WR);
+  else
     {
       pid = fork ();
       if (pid < 0)
@@ -649,7 +654,7 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 	goto reread;
       goto rewrite;
     done:
-      shutdown (rem, 1);
+      shutdown (rem, SHUT_WR);
       exit (EXIT_SUCCESS);
     }
 
