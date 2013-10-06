@@ -1,3 +1,25 @@
+2013-10-06  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rexec: No echoing of passwords.
+
+	* src/rexec.c: Include <termios.h>.
+	(main) <password is '-'>: Call isatty().  If this
+	is a terminal, print `Password:' and disable echo
+	while reading password string.
+	(do_rexec) <FD_ISSET(STDIN_FD)>: Write input from
+	client to the outgoing socket SOCK.  This restores
+	the ability to transfer contents to the server.
+
+
+	rexecd: Better adaption to BSD.
+
+	* configure.ac: Check for function setlogin.
+	* src/rexecd.c (doit) [HAVE_SETLOGIN]: Before
+	setting underpriviledged user, call setlogin().
+	(doit) <with error port && child process>:
+	Close PV[1], which is duplicate of stderr.
+	[HAVE_SETLOGIN]: Call setsid(), not setpgid().
+
 2013-10-03  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* configure.ac (HAVE_SYSLOG_INTERNAL): Remove

@@ -439,6 +439,11 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
     }
 #endif /* WITH_PAM */
 
+#ifdef HAVE_SETLOGIN
+  if (setlogin (pwd->pw_name) < 0)
+    syslog (LOG_ERR, "setlogin() failed: %m");
+#endif
+
   /* Step down from superuser personality.
    *
    * The changing of group membership will seldomly
@@ -549,13 +554,20 @@ doit (int f, struct sockaddr *fromp, socklen_t fromlen)
 	    }
 	  while (FD_ISSET (pv[0], &readfrom) || FD_ISSET (s, &readfrom));
 	  exit (EXIT_SUCCESS);
-	}
-#ifdef HAVE_SETPGID
+	} /* Parent process.  */
+
+#ifdef HAVE_SETLOGIN
+      /* Not sufficient to call setpgid() on BSD systems.  */
+      if (setsid () < 0)
+	syslog (LOG_ERR, "setsid() failed: %m");
+#elif defined HAVE_SETPGID /* !HAVE_SETLOGIN */
       setpgid (0, getpid ());
 #endif
+
       close (s);
       close (pv[0]);
       dup2 (pv[1], STDERR_FILENO);
+      close (pv[1]);
     }
 
   if (f > 2)

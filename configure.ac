@@ -732,7 +732,7 @@ AC_CHECK_FUNCS(cfsetspeed cgetent dirfd fchdir flock \
                getcwd getmsg getpwuid_r getspnam getutxent getutxuser \
                initgroups initsetproctitle killpg \
                ptsname pututline pututxline \
-               setegid seteuid setpgid \
+               setegid seteuid setpgid setlogin \
                setsid setregid setreuid setresgid setresuid setutent_r \
                sigaction sigvec strchr setproctitle tcgetattr tzset utimes \
                utime uname \

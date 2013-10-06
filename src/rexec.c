@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include <sys/select.h>
 
@@ -188,7 +189,30 @@ main (int argc, char **argv)
       password[0] = '\0';
 
       alarm (15);
-      fgets (password, sizeof (password), stdin);
+
+      if (isatty (STDIN_FILENO))
+	{
+	  int changed = 0;
+	  struct termios tt, newtt;
+
+	  if (tcgetattr (STDIN_FILENO, &tt) >= 0)
+	    {
+	      memcpy (&newtt, &tt, sizeof (newtt));
+	      newtt.c_lflag &= ~ECHO;
+	      newtt.c_lflag |= ECHONL;
+	      if (tcsetattr (STDIN_FILENO, TCSANOW, &newtt))
+		error (0, errno, "failed to turn off echo");
+	      changed = 1;
+	    }
+
+	  printf ("Password: ");
+	  fgets (password, sizeof (password), stdin);
+
+	  if (changed && (tcsetattr (STDIN_FILENO, TCSANOW, &tt) < 0))
+	    error (0, errno, "failed to restore terminal");
+	}
+      else
+	fgets (password, sizeof (password), stdin);
       alarm (0);
 
       n = strlen (password);
@@ -391,7 +415,7 @@ do_rexec (struct arguments *arguments)
               continue;
             }
 
-          if (write (STDOUT_FILENO, buffer, err) < 0)
+          if (write (sock, buffer, err) < 0)
             error (EXIT_FAILURE, errno, "error writing");
         }
 
