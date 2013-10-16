@@ -217,8 +217,9 @@ find_user (char *name, char *tty)
 
   while ((uptr = getutxuser (name)))
 #else /* !HAVE_GETUTXUSER */
-  read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
-	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
+  if (read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
+		 READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS) < 0)
+    return FAILED;
 
   for (uptr = utmpbuf; uptr < utmpbuf + utmp_count; uptr++)
     {

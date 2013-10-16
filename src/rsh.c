@@ -718,7 +718,7 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 		FD_CLR (rfd2, &readfrom);
 	    }
 	  else
-	    write (2, buf, cc);
+	    write (STDERR_FILENO, buf, cc);
 	}
       if (FD_ISSET (rem, &ready))
 	{
@@ -741,7 +741,7 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 		FD_CLR (rem, &readfrom);
 	    }
 	  else
-	    write (1, buf, cc);
+	    write (STDOUT_FILENO, buf, cc);
 	}
     }
   while ((FD_ISSET (rfd2, &readfrom) || FD_ISSET (rem, &readfrom))

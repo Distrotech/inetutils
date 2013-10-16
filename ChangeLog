@@ -1,5 +1,20 @@
 2013-10-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	syslogd, talkd: Act on failed read_utmp.
+
+	* src/syslogd.c (wallmsg)
+	[UTMP_NAME_FUNCTION || !HAVE_GETUTXENT]: Check call
+	to read_utmp() for failure, filing an error massage.
+	* talkd/process.c (find_user) [!HAVE_GETUTXUSER]:
+	Likewise, then returning FAILED.
+
+	rsh: Symbolic descriptor name.
+
+	* src/rsh.d (talk): Use STDOUT_FILENO and STDERR_FILENO
+	as arguments to write().
+
+2013-10-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	rsh: Kill child process after SIGPIPE.
 	The default action for SIGPIPE will leave the
 	child process running.  This caused, until now

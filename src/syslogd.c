@@ -1603,8 +1603,12 @@ wallmsg (struct filed *f, struct iovec *iov)
 
   while ((utp = getutxent ()))
 #else /* UTMP_NAME_FUNCTION || !HAVE_GETUTXENT */
-  read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
-	     READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS);
+  if (read_utmp (UTMP_FILE, &utmp_count, &utmpbuf,
+		 READ_UTMP_USER_PROCESS | READ_UTMP_CHECK_PIDS) < 0)
+    {
+      logerror ("opening utmp file");
+      return;
+    }
 
   for (utp = utmpbuf; utp < utmpbuf + utmp_count; utp++)
 #endif /* UTMP_NAME_FUNCTION || !HAVE_GETUTXENT */
@@ -2179,7 +2183,7 @@ cfline (const char *line, struct filed *f)
 	      selector ? " tagged " : "",
 	      selector ? selector : "");
 
-  errno = 0;			/* keep strerror() stuff out of logerror messages */
+  errno = 0;	/* keep strerror() stuff out of logerror messages */
 
   /* Clear out file entry.  */
   memset (f, 0, sizeof (*f));
