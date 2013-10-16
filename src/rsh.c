@@ -126,9 +126,11 @@ int wlen;
  * rsh - remote shell
  */
 int rfd2;
+int end_of_pipe = 0;		/* Used by parent process.  */
 
 char *copyargs (char **);
 void sendsig (int);
+void sigpipe (int);
 void talk (int, sigset_t *, pid_t, int);
 void warning (const char *, ...);
 
@@ -607,6 +609,9 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
   int cc, wc;
   fd_set readfrom, ready, rembits;
   char *bp, buf[BUFSIZ];
+#ifdef HAVE_SIGACTION
+  struct sigaction sa;
+#endif
 
   if (!null_input_option && pid == 0)
     {
@@ -660,9 +665,23 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 
 #ifdef HAVE_SIGACTION
   sigprocmask (SIG_SETMASK, osigs, NULL);
-#else
+#else /* !HAVE_SIGACTION */
   sigsetmask (*osigs);
 #endif
+
+  /* The access to SIGPIPE is neeeded to kill the child process
+   * in an orderly fashion, for example when a command line
+   * pipe fails.  Otherwise the child lives on eternally.
+   */
+#ifdef HAVE_SIGACTION
+  sigemptyset (&sa.sa_mask);
+  sa.sa_flags = SA_RESTART;
+  sa.sa_handler = sigpipe;
+  (void) sigaction (SIGPIPE, &sa, NULL);
+#else /* !HAVE_SIGACTION */
+  signal (SIGPIPE, sigpipe);
+#endif
+
   FD_ZERO (&readfrom);
   FD_SET (rfd2, &readfrom);
   FD_SET (rem, &readfrom);
@@ -725,7 +744,8 @@ talk (int null_input_option, sigset_t * osigs, pid_t pid, int rem)
 	    write (1, buf, cc);
 	}
     }
-  while (FD_ISSET (rfd2, &readfrom) || FD_ISSET (rem, &readfrom));
+  while ((FD_ISSET (rfd2, &readfrom) || FD_ISSET (rem, &readfrom))
+	 && !end_of_pipe);
 }
 
 void
@@ -751,6 +771,12 @@ sendsig (int sig)
 #endif
 
     write (rfd2, &signo, 1);
+}
+
+void
+sigpipe (int sig _GL_UNUSED_PARAMETER)
+{
+  ++end_of_pipe;
 }
 
 #if defined KERBEROS || defined SHISHI

@@ -1,3 +1,20 @@
+2013-10-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rsh: Kill child process after SIGPIPE.
+	The default action for SIGPIPE will leave the
+	child process running.  This caused, until now
+	and including legacy implementations, blocking
+	of stdin, and to conditionally leave also the
+	remote server running.
+
+	* src/rsh.c (end_of_pipe): New variable.
+	(sigpipe): New function.
+	(talk) [HAVE_SIGACTION]: New variable SA.
+	<parent process>: Assign a signal handler to SIGPIPE.
+	Add `&& !end_of_pipe' to the loop condition, so that
+	talk() returns after SIGPIPE.  The child process will
+	then be killed at the end of main().
+
 2013-10-06  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rsh: Detach input stream.
