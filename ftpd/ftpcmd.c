@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.7.  */
+/* A Bison parser, made by GNU Bison 2.7.1-dirty.  */
 
 /* Bison implementation for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.7"
+#define YYBISON_VERSION "2.7.1-dirty"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -394,12 +394,21 @@ typedef short int yytype_int16;
 # endif
 #endif
 
+#ifndef __attribute__
+/* This feature is available in gcc versions 2.5 and later.  */
+# if (! defined __GNUC__ || __GNUC__ < 2 \
+      || (__GNUC__ == 2 && __GNUC_MINOR__ < 5))
+#  define __attribute__(Spec) /* empty */
+# endif
+#endif
+
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
 # define YYUSE(E) ((void) (E))
 #else
 # define YYUSE(E) /* empty */
 #endif
+
 
 /* Identity function, used to suppress warnings about constant conditions.  */
 #ifndef lint
@@ -1008,11 +1017,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
 # else
   YYUSE (yyoutput);
 # endif
-  switch (yytype)
-    {
-      default:
-        break;
-    }
+  YYUSE (yytype);
 }
 
 
@@ -1402,12 +1407,7 @@ yydestruct (yymsg, yytype, yyvaluep)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
 
-  switch (yytype)
-    {
-
-      default:
-        break;
-    }
+  YYUSE (yytype);
 }
 
 
@@ -1691,7 +1691,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 157 "ftpcmd.y"
     {
 			free (fromname);
@@ -1701,7 +1701,7 @@ yyreduce:
     break;
 
   case 5:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 167 "ftpcmd.y"
     {
 			user((yyvsp[(3) - (4)].s));
@@ -1710,7 +1710,7 @@ yyreduce:
     break;
 
   case 6:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 172 "ftpcmd.y"
     {
 			pass((yyvsp[(3) - (4)].s));
@@ -1720,7 +1720,7 @@ yyreduce:
     break;
 
   case 7:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 178 "ftpcmd.y"
     {
 			usedefault = 0;
@@ -1746,7 +1746,7 @@ yyreduce:
     break;
 
   case 8:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 200 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (3)].i))
@@ -1755,7 +1755,7 @@ yyreduce:
     break;
 
   case 9:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 205 "ftpcmd.y"
     {
 			switch (cmd_type) {
@@ -1794,7 +1794,7 @@ yyreduce:
     break;
 
   case 10:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 240 "ftpcmd.y"
     {
 			switch ((yyvsp[(3) - (4)].i)) {
@@ -1810,7 +1810,7 @@ yyreduce:
     break;
 
   case 11:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 252 "ftpcmd.y"
     {
 			switch ((yyvsp[(3) - (4)].i)) {
@@ -1826,7 +1826,7 @@ yyreduce:
     break;
 
   case 12:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 264 "ftpcmd.y"
     {
 			reply(202, "ALLO command ignored.");
@@ -1834,7 +1834,7 @@ yyreduce:
     break;
 
   case 13:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 268 "ftpcmd.y"
     {
 			reply(202, "ALLO command ignored.");
@@ -1842,7 +1842,7 @@ yyreduce:
     break;
 
   case 14:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 272 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1852,7 +1852,7 @@ yyreduce:
     break;
 
   case 15:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 278 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1862,7 +1862,7 @@ yyreduce:
     break;
 
   case 16:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 284 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1872,7 +1872,7 @@ yyreduce:
     break;
 
   case 17:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 290 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (3)].i))
@@ -1881,7 +1881,7 @@ yyreduce:
     break;
 
   case 18:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 295 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1891,7 +1891,7 @@ yyreduce:
     break;
 
   case 19:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 301 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (3)].i))
@@ -1900,7 +1900,7 @@ yyreduce:
     break;
 
   case 20:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 306 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1910,7 +1910,7 @@ yyreduce:
     break;
 
   case 21:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 312 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1920,7 +1920,7 @@ yyreduce:
     break;
 
   case 22:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 318 "ftpcmd.y"
     {
 			statcmd();
@@ -1928,7 +1928,7 @@ yyreduce:
     break;
 
   case 23:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 322 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1938,7 +1938,7 @@ yyreduce:
     break;
 
   case 24:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 328 "ftpcmd.y"
     {
 		    if ((yyvsp[(2) - (5)].i)) {
@@ -1955,7 +1955,7 @@ yyreduce:
     break;
 
   case 25:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 341 "ftpcmd.y"
     {
 			reply(225, "ABOR command successful.");
@@ -1963,7 +1963,7 @@ yyreduce:
     break;
 
   case 26:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 345 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (3)].i))
@@ -1972,7 +1972,7 @@ yyreduce:
     break;
 
   case 27:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 350 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -1982,7 +1982,7 @@ yyreduce:
     break;
 
   case 28:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 356 "ftpcmd.y"
     {
 			help(cmdtab, (char *) 0);
@@ -1990,7 +1990,7 @@ yyreduce:
     break;
 
   case 29:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 360 "ftpcmd.y"
     {
 			char *cp = (yyvsp[(3) - (4)].s);
@@ -2010,7 +2010,7 @@ yyreduce:
     break;
 
   case 30:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 376 "ftpcmd.y"
     {
 			reply(200, "NOOP command successful.");
@@ -2018,7 +2018,7 @@ yyreduce:
     break;
 
   case 31:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 380 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -2028,7 +2028,7 @@ yyreduce:
     break;
 
   case 32:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 386 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -2038,7 +2038,7 @@ yyreduce:
     break;
 
   case 33:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 392 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (3)].i))
@@ -2047,7 +2047,7 @@ yyreduce:
     break;
 
   case 34:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 397 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (3)].i))
@@ -2056,7 +2056,7 @@ yyreduce:
     break;
 
   case 35:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 402 "ftpcmd.y"
     {
 			help(sitetab, (char *) 0);
@@ -2064,7 +2064,7 @@ yyreduce:
     break;
 
   case 36:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 406 "ftpcmd.y"
     {
 			help(sitetab, (yyvsp[(5) - (6)].s));
@@ -2073,7 +2073,7 @@ yyreduce:
     break;
 
   case 37:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 411 "ftpcmd.y"
     {
 			int oldmask;
@@ -2087,7 +2087,7 @@ yyreduce:
     break;
 
   case 38:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 421 "ftpcmd.y"
     {
 			int oldmask;
@@ -2106,7 +2106,7 @@ yyreduce:
     break;
 
   case 39:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 436 "ftpcmd.y"
     {
 			if ((yyvsp[(4) - (9)].i) && ((yyvsp[(8) - (9)].s) != NULL)) {
@@ -2123,7 +2123,7 @@ yyreduce:
     break;
 
   case 40:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 449 "ftpcmd.y"
     {
 			reply(200,
@@ -2133,7 +2133,7 @@ yyreduce:
     break;
 
   case 41:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 455 "ftpcmd.y"
     {
 			if ((yyvsp[(3) - (7)].i)) {
@@ -2153,7 +2153,7 @@ yyreduce:
     break;
 
   case 42:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 471 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -2163,7 +2163,7 @@ yyreduce:
     break;
 
   case 43:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 477 "ftpcmd.y"
     {
 		        const char *sys_type; /* Official rfc-defined os type.  */
@@ -2204,7 +2204,7 @@ yyreduce:
     break;
 
   case 44:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 522 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL)
@@ -2214,7 +2214,7 @@ yyreduce:
     break;
 
   case 45:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 538 "ftpcmd.y"
     {
 			if ((yyvsp[(2) - (5)].i) && (yyvsp[(4) - (5)].s) != NULL) {
@@ -2239,7 +2239,7 @@ yyreduce:
     break;
 
   case 46:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 559 "ftpcmd.y"
     {
 			reply(221, "Goodbye.");
@@ -2248,7 +2248,7 @@ yyreduce:
     break;
 
   case 47:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 564 "ftpcmd.y"
     {
 			yyerrok;
@@ -2256,7 +2256,7 @@ yyreduce:
     break;
 
   case 48:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 570 "ftpcmd.y"
     {
 			restart_point = (off_t) 0;
@@ -2270,7 +2270,7 @@ yyreduce:
     break;
 
   case 49:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 580 "ftpcmd.y"
     {
 		        free (fromname);
@@ -2285,7 +2285,7 @@ yyreduce:
     break;
 
   case 51:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 598 "ftpcmd.y"
     {
 			(yyval.s) = (char *)calloc(1, sizeof(char));
@@ -2293,7 +2293,7 @@ yyreduce:
     break;
 
   case 54:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 611 "ftpcmd.y"
     {
 			int err;
@@ -2322,7 +2322,7 @@ yyreduce:
     break;
 
   case 55:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 639 "ftpcmd.y"
     {
 			(yyval.i) = FORM_N;
@@ -2330,7 +2330,7 @@ yyreduce:
     break;
 
   case 56:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 643 "ftpcmd.y"
     {
 			(yyval.i) = FORM_T;
@@ -2338,7 +2338,7 @@ yyreduce:
     break;
 
   case 57:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 647 "ftpcmd.y"
     {
 			(yyval.i) = FORM_C;
@@ -2346,7 +2346,7 @@ yyreduce:
     break;
 
   case 58:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 654 "ftpcmd.y"
     {
 			cmd_type = TYPE_A;
@@ -2355,7 +2355,7 @@ yyreduce:
     break;
 
   case 59:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 659 "ftpcmd.y"
     {
 			cmd_type = TYPE_A;
@@ -2364,7 +2364,7 @@ yyreduce:
     break;
 
   case 60:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 664 "ftpcmd.y"
     {
 			cmd_type = TYPE_E;
@@ -2373,7 +2373,7 @@ yyreduce:
     break;
 
   case 61:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 669 "ftpcmd.y"
     {
 			cmd_type = TYPE_E;
@@ -2382,7 +2382,7 @@ yyreduce:
     break;
 
   case 62:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 674 "ftpcmd.y"
     {
 			cmd_type = TYPE_I;
@@ -2390,7 +2390,7 @@ yyreduce:
     break;
 
   case 63:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 678 "ftpcmd.y"
     {
 			cmd_type = TYPE_L;
@@ -2399,7 +2399,7 @@ yyreduce:
     break;
 
   case 64:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 683 "ftpcmd.y"
     {
 			cmd_type = TYPE_L;
@@ -2408,7 +2408,7 @@ yyreduce:
     break;
 
   case 65:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 689 "ftpcmd.y"
     {
 			cmd_type = TYPE_L;
@@ -2417,7 +2417,7 @@ yyreduce:
     break;
 
   case 66:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 697 "ftpcmd.y"
     {
 			(yyval.i) = STRU_F;
@@ -2425,7 +2425,7 @@ yyreduce:
     break;
 
   case 67:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 701 "ftpcmd.y"
     {
 			(yyval.i) = STRU_R;
@@ -2433,7 +2433,7 @@ yyreduce:
     break;
 
   case 68:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 705 "ftpcmd.y"
     {
 			(yyval.i) = STRU_P;
@@ -2441,7 +2441,7 @@ yyreduce:
     break;
 
   case 69:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 712 "ftpcmd.y"
     {
 			(yyval.i) = MODE_S;
@@ -2449,7 +2449,7 @@ yyreduce:
     break;
 
   case 70:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 716 "ftpcmd.y"
     {
 			(yyval.i) = MODE_B;
@@ -2457,7 +2457,7 @@ yyreduce:
     break;
 
   case 71:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 720 "ftpcmd.y"
     {
 			(yyval.i) = MODE_C;
@@ -2465,7 +2465,7 @@ yyreduce:
     break;
 
   case 72:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 727 "ftpcmd.y"
     {
 			/*
@@ -2503,7 +2503,7 @@ yyreduce:
     break;
 
   case 74:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 768 "ftpcmd.y"
     {
 			int ret, dec, multby, digit;
@@ -2530,7 +2530,7 @@ yyreduce:
     break;
 
   case 75:
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 795 "ftpcmd.y"
     {
 			if (cred.logged_in)
@@ -2543,7 +2543,7 @@ yyreduce:
     break;
 
 
-/* Line 1792 of yacc.c  */
+/* Line 1787 of yacc.c  */
 #line 2548 "ftpcmd.c"
       default: break;
     }
@@ -2775,7 +2775,7 @@ yyreturn:
 }
 
 
-/* Line 2055 of yacc.c  */
+/* Line 2050 of yacc.c  */
 #line 805 "ftpcmd.y"
 
 

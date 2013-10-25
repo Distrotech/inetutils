@@ -38,6 +38,7 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([gl_PROG_AR_RANLIB])
+  AC_REQUIRE([AM_PROG_CC_C_O])
   # Code from module alloca:
   # Code from module alloca-opt:
   # Code from module argp:
@@ -83,9 +84,15 @@ AC_DEFUN([gl_EARLY],
   # Code from module fopen:
   # Code from module fopen-safer:
   # Code from module forkpty:
+  # Code from module fpieee:
+  AC_REQUIRE([gl_FP_IEEE])
+  # Code from module fpucw:
+  # Code from module frexp-nolibm:
+  # Code from module frexpl-nolibm:
   # Code from module fseek:
   # Code from module fseeko:
   AC_REQUIRE([AC_FUNC_FSEEKO])
+  # Code from module fseterr:
   # Code from module fstat:
   # Code from module fstatat:
   # Code from module ftell:
@@ -119,12 +126,16 @@ AC_DEFUN([gl_EARLY],
   # Code from module intprops:
   # Code from module inttostr:
   # Code from module ioctl:
+  # Code from module isnand-nolibm:
+  # Code from module isnanf-nolibm:
+  # Code from module isnanl-nolibm:
   # Code from module langinfo:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
   # Code from module localcharset:
   # Code from module locale:
   # Code from module localeconv:
+  # Code from module lock:
   # Code from module login_tty:
   # Code from module lseek:
   # Code from module lstat:
@@ -132,6 +143,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module malloc-gnu:
   # Code from module malloc-posix:
   # Code from module malloca:
+  # Code from module math:
   # Code from module mbrtowc:
   # Code from module mbsinit:
   # Code from module mbsrtowcs:
@@ -159,6 +171,9 @@ AC_DEFUN([gl_EARLY],
   # Code from module poll:
   # Code from module poll-h:
   # Code from module posix_openpt:
+  # Code from module printf-frexp:
+  # Code from module printf-frexpl:
+  # Code from module printf-safe:
   # Code from module progname:
   # Code from module pty:
   # Code from module rawmemchr:
@@ -176,6 +191,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module setenv:
   # Code from module signal:
   # Code from module signal-h:
+  # Code from module signbit:
   # Code from module size_max:
   # Code from module sleep:
   # Code from module snippet/_Noreturn:
@@ -222,6 +238,8 @@ AC_DEFUN([gl_EARLY],
   # Code from module sysexits:
   # Code from module tempname:
   # Code from module termios:
+  # Code from module threadlib:
+  gl_THREADLIB_EARLY
   # Code from module time:
   # Code from module unistd:
   # Code from module unistd-safer:
@@ -233,6 +251,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module verify:
   # Code from module version-etc:
   # Code from module version-etc-fsf:
+  # Code from module vfprintf-posix:
   # Code from module vsnprintf:
   # Code from module wchar:
   # Code from module wcrtomb:
@@ -370,6 +389,16 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([forkpty])
   fi
   gl_PTY_MODULE_INDICATOR([forkpty])
+  gl_FUNC_FREXP_NO_LIBM
+  if test $gl_func_frexp_no_libm != yes; then
+    AC_LIBOBJ([frexp])
+  fi
+  gl_MATH_MODULE_INDICATOR([frexp])
+  gl_FUNC_FREXPL_NO_LIBM
+  if test $HAVE_DECL_FREXPL = 0 || test $gl_func_frexpl_no_libm = no; then
+    AC_LIBOBJ([frexpl])
+  fi
+  gl_MATH_MODULE_INDICATOR([frexpl])
   gl_FUNC_FSEEK
   if test $REPLACE_FSEEK = 1; then
     AC_LIBOBJ([fseek])
@@ -381,6 +410,10 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_FSEEKO
   fi
   gl_STDIO_MODULE_INDICATOR([fseeko])
+  gl_FUNC_FSETERR
+  if test $ac_cv_func___fseterr = no; then
+    AC_LIBOBJ([fseterr])
+  fi
   gl_FUNC_FSTAT
   if test $REPLACE_FSTAT = 1; then
     AC_LIBOBJ([fstat])
@@ -436,7 +469,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_UNISTD_MODULE_INDICATOR([getdomainname])
   gl_FUNC_GETDTABLESIZE
-  if test $HAVE_GETDTABLESIZE = 0; then
+  if test $HAVE_GETDTABLESIZE = 0 || test $REPLACE_GETDTABLESIZE = 1; then
     AC_LIBOBJ([getdtablesize])
     gl_PREREQ_GETDTABLESIZE
   fi
@@ -526,6 +559,21 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([ioctl])
   fi
   gl_SYS_IOCTL_MODULE_INDICATOR([ioctl])
+  gl_FUNC_ISNAND_NO_LIBM
+  if test $gl_func_isnand_no_libm != yes; then
+    AC_LIBOBJ([isnand])
+    gl_PREREQ_ISNAND
+  fi
+  gl_FUNC_ISNANF_NO_LIBM
+  if test $gl_func_isnanf_no_libm != yes; then
+    AC_LIBOBJ([isnanf])
+    gl_PREREQ_ISNANF
+  fi
+  gl_FUNC_ISNANL_NO_LIBM
+  if test $gl_func_isnanl_no_libm != yes; then
+    AC_LIBOBJ([isnanl])
+    gl_PREREQ_ISNANL
+  fi
   gl_LANGINFO_H
   AC_REQUIRE([gl_LARGEFILE])
   gl_LOCALCHARSET
@@ -538,6 +586,8 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_LOCALECONV
   fi
   gl_LOCALE_MODULE_INDICATOR([localeconv])
+  gl_LOCK
+  gl_MODULE_INDICATOR([lock])
   gl_FUNC_LOGIN_TTY
   if test $ac_cv_func_login_tty = no; then
     AC_LIBOBJ([login_tty])
@@ -567,6 +617,7 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
   gl_MALLOCA
+  gl_MATH_H
   gl_FUNC_MBRTOWC
   if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
     AC_LIBOBJ([mbrtowc])
@@ -672,6 +723,9 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([posix_openpt])
   fi
   gl_STDLIB_MODULE_INDICATOR([posix_openpt])
+  gl_FUNC_PRINTF_FREXP
+  gl_FUNC_PRINTF_FREXPL
+  m4_divert_text([INIT_PREPARE], [gl_printf_safe=yes])
   AC_CHECK_DECLS([program_invocation_name], [], [], [#include <errno.h>])
   AC_CHECK_DECLS([program_invocation_short_name], [], [], [#include <errno.h>])
   gl_PTY_H
@@ -730,6 +784,13 @@ AC_DEFUN([gl_INIT],
   fi
   gl_STDLIB_MODULE_INDICATOR([setenv])
   gl_SIGNAL_H
+  gl_SIGNBIT
+  if test $REPLACE_SIGNBIT = 1; then
+    AC_LIBOBJ([signbitf])
+    AC_LIBOBJ([signbitd])
+    AC_LIBOBJ([signbitl])
+  fi
+  gl_MATH_MODULE_INDICATOR([signbit])
   gl_SIZE_MAX
   gl_FUNC_SLEEP
   if test $HAVE_SLEEP = 0 || test $REPLACE_SLEEP = 1; then
@@ -819,6 +880,7 @@ AC_DEFUN([gl_INIT],
   gl_SYSEXITS
   gl_FUNC_GEN_TEMPNAME
   gl_TERMIOS_H
+  gl_THREADLIB
   gl_HEADER_TIME_H
   gl_UNISTD_H
   gl_UNISTD_SAFER
@@ -829,6 +891,8 @@ AC_DEFUN([gl_INIT],
     [AM_][XGETTEXT_OPTION([--flag=asprintf:2:c-format])
      AM_][XGETTEXT_OPTION([--flag=vasprintf:2:c-format])])
   gl_VERSION_ETC
+  gl_FUNC_VFPRINTF_POSIX
+  gl_STDIO_MODULE_INDICATOR([vfprintf-posix])
   gl_FUNC_VSNPRINTF
   gl_STDIO_MODULE_INDICATOR([vsnprintf])
   gl_WCHAR_H
@@ -1065,8 +1129,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fopen-safer.c
   lib/fopen.c
   lib/forkpty.c
+  lib/fpucw.h
+  lib/frexp.c
+  lib/frexpl.c
   lib/fseek.c
   lib/fseeko.c
+  lib/fseterr.c
+  lib/fseterr.h
   lib/fstat.c
   lib/fstatat.c
   lib/ftell.c
@@ -1093,12 +1162,22 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/glob-libc.h
   lib/glob.c
   lib/glob.in.h
+  lib/glthread/lock.c
+  lib/glthread/lock.h
+  lib/glthread/threadlib.c
   lib/imaxtostr.c
   lib/inet_ntop.c
   lib/intprops.h
   lib/inttostr.c
   lib/inttostr.h
   lib/ioctl.c
+  lib/isnan.c
+  lib/isnand-nolibm.h
+  lib/isnand.c
+  lib/isnanf-nolibm.h
+  lib/isnanf.c
+  lib/isnanl-nolibm.h
+  lib/isnanl.c
   lib/itold.c
   lib/langinfo.in.h
   lib/localcharset.c
@@ -1112,6 +1191,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/malloca.c
   lib/malloca.h
   lib/malloca.valgrind
+  lib/math.c
+  lib/math.in.h
   lib/mbrtowc.c
   lib/mbsinit.c
   lib/mbsrtowcs-impl.h
@@ -1150,6 +1231,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/posix_openpt.c
   lib/printf-args.c
   lib/printf-args.h
+  lib/printf-frexp.c
+  lib/printf-frexp.h
+  lib/printf-frexpl.c
+  lib/printf-frexpl.h
   lib/printf-parse.c
   lib/printf-parse.h
   lib/progname.c
@@ -1178,6 +1263,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/select.c
   lib/setenv.c
   lib/signal.in.h
+  lib/signbitd.c
+  lib/signbitf.c
+  lib/signbitl.c
   lib/size_max.h
   lib/sleep.c
   lib/snprintf.c
@@ -1236,6 +1324,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/version-etc-fsf.c
   lib/version-etc.c
   lib/version-etc.h
+  lib/vfprintf.c
   lib/vsnprintf.c
   lib/w32sock.h
   lib/wchar.in.h
@@ -1281,6 +1370,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/errno_h.m4
   m4/error.m4
   m4/exponentd.m4
+  m4/exponentf.m4
+  m4/exponentl.m4
   m4/extensions.m4
   m4/extern-inline.m4
   m4/fchdir.m4
@@ -1293,8 +1384,12 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/float_h.m4
   m4/fnmatch.m4
   m4/fopen.m4
+  m4/fpieee.m4
+  m4/frexp.m4
+  m4/frexpl.m4
   m4/fseek.m4
   m4/fseeko.m4
+  m4/fseterr.m4
   m4/fstat.m4
   m4/fstatat.m4
   m4/ftell.m4
@@ -1332,9 +1427,13 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/inttypes-pri.m4
   m4/inttypes_h.m4
   m4/ioctl.m4
+  m4/isnand.m4
+  m4/isnanf.m4
+  m4/isnanl.m4
   m4/langinfo_h.m4
   m4/largefile.m4
   m4/lcmessage.m4
+  m4/ldexpl.m4
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
@@ -1381,6 +1480,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/poll.m4
   m4/poll_h.m4
   m4/posix_openpt.m4
+  m4/printf-frexp.m4
+  m4/printf-frexpl.m4
   m4/printf-posix.m4
   m4/printf.m4
   m4/progtest.m4
@@ -1399,6 +1500,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/servent.m4
   m4/setenv.m4
   m4/signal_h.m4
+  m4/signbit.m4
   m4/size_max.m4
   m4/sleep.m4
   m4/snprintf.m4
@@ -1443,6 +1545,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/vasnprintf.m4
   m4/vasprintf.m4
   m4/version-etc.m4
+  m4/vfprintf-posix.m4
   m4/visibility.m4
   m4/vsnprintf.m4
   m4/warn-on-use.m4

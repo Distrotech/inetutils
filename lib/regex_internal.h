@@ -72,8 +72,9 @@
 #else
 # define lock_define(name)
 # define lock_init(lock) 0
-# define lock_fini(lock) 0
-# define lock_lock(lock) ((void) 0)
+# define lock_fini(lock) ((void) 0)
+  /* The 'dfa' avoids an "unused variable 'dfa'" warning from GCC.  */
+# define lock_lock(lock) ((void) dfa)
 # define lock_unlock(lock) ((void) 0)
 #endif
 
@@ -109,7 +110,7 @@
 # define gettext_noop(String) String
 #endif
 
-#if (defined MB_CUR_MAX && HAVE_WCTYPE_H && HAVE_ISWCTYPE && HAVE_WCSCOLL) || _LIBC
+#if (defined MB_CUR_MAX && HAVE_WCTYPE_H && HAVE_ISWCTYPE) || _LIBC
 # define RE_ENABLE_I18N
 #endif
 

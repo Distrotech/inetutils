@@ -34,7 +34,8 @@ START-INFO-DIR-ENTRY
 * whois: (inetutils)whois invocation.             Whois user interface.
 END-INFO-DIR-ENTRY
 
-   This manual documents version 1.9.1 of the GNU networking utilities.
+   This manual documents version 1.9.1-dirty of the GNU networking
+utilities.
 
    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
@@ -52,7 +53,8 @@ File: inetutils.info,  Node: Top,  Next: Introduction,  Up: (dir)
 GNU Inetutils
 *************
 
-This manual documents version 1.9.1 of the GNU networking utilities.
+This manual documents version 1.9.1-dirty of the GNU networking
+utilities.
 
    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
 2009, 2010, 2011, 2012 Free Software Foundation, Inc.
@@ -3796,7 +3798,7 @@ Index
 * inetd:                                 inetd invocation.    (line   6)
 * introduction:                          Introduction.        (line   6)
 * logger:                                logger invocation.   (line   6)
-* networking utilities:                  Top.                 (line  18)
+* networking utilities:                  Top.                 (line  19)
 * option delimiter:                      Common options.      (line  27)
 * ping:                                  ping invocation.     (line   6)
 * rcp:                                   rcp invocation.      (line   6)
@@ -3820,45 +3822,45 @@ Index
 
 
 Tag Table:
-Node: Top2541
-Node: Introduction4875
-Node: Common options6440
-Node: Exit status7509
-Node: hostname invocation7948
-Node: logger invocation8626
-Node: ping invocation12432
-Node: traceroute invocation19931
-Node: whois invocation20509
-Node: ftp invocation21814
-Node: Commands23433
-Node: Aborting A File Transfer44734
-Node: File Naming Conventions45878
-Node: File Transfer Parameters47556
-Node: The .netrc File48181
-Node: tftp invocation51211
-Node: rsh invocation54561
-Node: rlogin invocation56777
-Node: rcp invocation60456
-Node: rexec invocation62260
-Node: talk invocation63078
-Node: telnet invocation65058
-Node: inetd invocation66384
-Node: Invocation67821
-Node: Configuration file68580
-Node: Built-in services74746
-Node: TCPMUX76122
-Node: Inetd Environment77696
-Node: Error Messages78559
-Node: syslogd invocation80393
-Node: ftpd invocation88861
-Node: tftpd invocation96298
-Node: rshd invocation96614
-Node: rlogind invocation101960
-Node: rexecd invocation105987
-Node: talkd invocation109034
-Node: telnetd invocation110515
-Node: uucpd invocation112285
-Node: GNU Free Documentation License112506
-Node: Index137679
+Node: Top2547
+Node: Introduction4887
+Node: Common options6452
+Node: Exit status7521
+Node: hostname invocation7960
+Node: logger invocation8638
+Node: ping invocation12444
+Node: traceroute invocation19943
+Node: whois invocation20521
+Node: ftp invocation21826
+Node: Commands23445
+Node: Aborting A File Transfer44746
+Node: File Naming Conventions45890
+Node: File Transfer Parameters47568
+Node: The .netrc File48193
+Node: tftp invocation51223
+Node: rsh invocation54573
+Node: rlogin invocation56789
+Node: rcp invocation60468
+Node: rexec invocation62272
+Node: talk invocation63090
+Node: telnet invocation65070
+Node: inetd invocation66396
+Node: Invocation67833
+Node: Configuration file68592
+Node: Built-in services74758
+Node: TCPMUX76134
+Node: Inetd Environment77708
+Node: Error Messages78571
+Node: syslogd invocation80405
+Node: ftpd invocation88873
+Node: tftpd invocation96310
+Node: rshd invocation96626
+Node: rlogind invocation101972
+Node: rexecd invocation105999
+Node: talkd invocation109046
+Node: telnetd invocation110527
+Node: uucpd invocation112297
+Node: GNU Free Documentation License112518
+Node: Index137691
 
 End Tag Table
