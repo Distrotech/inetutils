@@ -1,3 +1,20 @@
+2013-11-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Improve detection of readline.
+
+	* am/readline.m4 (gl_FUNC_READLINE): Check for libedit
+	with AC_LIB_LINKFLAGS_BODY and with AC_CACHE_CHECK.
+	<readline in libreadline>: Ignore <editline/readline.h>.
+	<readline in libedit>: Prefer <editline/readline.h>.
+	Define HAVE_READLINE if readline() was located in one of
+	the libraries, and if its use had not been disabled.
+	Define HAVE_LIBREADLINE and HAVE_LIBEDIT if it was found
+	in the corresponding library.
+	* ftp/Makefile.am (LDADD): Remove $(LIBGLOB), $(LIBTERMCAP).
+	The latter is handled by LIBREADLINE.
+
+	* configure.ac (ftp_PROPS): Do not add $LIBTERMCAP.
+
 2013-10-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd, talkd: Act on failed read_utmp.

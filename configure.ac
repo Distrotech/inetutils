@@ -1057,7 +1057,6 @@ traceroute_PROPS="${traceroute_PROPS:+$traceroute_PROPS }${LIBIDN:+-lidn}"
 
 # Termcap variants.
 
-ftp_PROPS="${ftp_PROPS:+$ftp_PROPS }$LIBTERMCAP"
 telnet_PROPS="${telnet_PROPS:+$telnet_PROPS }$LIBTERMCAP"
 telnetd_PROPS="${telnetd_PROPS:+$telnetd_PROPS }$LIBTERMCAP"
 
