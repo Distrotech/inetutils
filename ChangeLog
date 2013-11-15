@@ -1,3 +1,15 @@
+2013-11-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	tftp: Buffer size checking.
+	Hardened builds need a helping hand in interpreting
+	a bogus array length.
+
+	* src/tftp.c (makerequest): New variables ARGLEN, LEN.
+	Use them in calculating available space for file name.
+	[HAVE_STRUCT_TFTPHDR_TH_U]: Calculate CP using an offset
+	argument.  Needed to prevent false negatives from stack
+	allocation protectors.
+
 2013-11-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Improve detection of readline.

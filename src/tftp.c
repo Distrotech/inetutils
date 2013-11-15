@@ -1211,16 +1211,37 @@ makerequest (int request, const char *name, struct tftphdr *tp,
 	     const char *mode)
 {
   register char *cp;
+  size_t arglen, len;
 
   tp->th_opcode = htons ((unsigned short) request);
 #if HAVE_STRUCT_TFTPHDR_TH_U
-  cp = tp->th_stuff;
+  /*
+   * GNU and BSD essentially, i.e. modulo a macro, define
+   * 'tftphdr.th_stuff' as a character array of length
+   * naught with GNU, and one with BSD!
+   *
+   * When compiling with stack protectors, like during
+   * hardened builds in Debian, every useful file name
+   * will overflow that limit.  However, our code ensures
+   * '*tp' to be of length PKTSIZE.  Assigning CP via an
+   * offset calculation avoids this issue.
+   */
+  cp = (char *) tp + (tp->th_stuff - (char *) tp);
 #else
   cp = (char *) &(tp->th_stuff);
 #endif
-  strcpy (cp, name);
-  cp += strlen (name);
+
+  /* Available space for naming the target file.  */
+  len = PKTSIZE - sizeof (struct tftphdr) - sizeof ("netascii");
+  arglen = strlen (name);
+
+  strncpy (cp, name, len);
+
+  cp += (arglen < len) ? arglen : len;
   *cp++ = '\0';
+
+  /* Mode is either "netascii" or "octet", so is always fits
+   * based on our choice of LEN.  */
   strcpy (cp, mode);
   cp += strlen (mode);
   *cp++ = '\0';
