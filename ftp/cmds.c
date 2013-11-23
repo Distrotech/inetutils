@@ -1695,8 +1695,10 @@ user (int argc, char **argv)
 	{
 	  printf ("Account: ");
 	  fflush (stdout);
-	  fgets (acct, sizeof (acct) - 1, stdin);
-	  acct[strlen (acct) - 1] = '\0';
+	  if (fgets (acct, sizeof (acct) - 1, stdin))
+	    acct[strlen (acct) - 1] = '\0';	/* Erase newline.  */
+	  else
+	    acct[0] = '\0';			/* Set empty name.  */
 	  argv[3] = acct;
 	  argc++;
 	}

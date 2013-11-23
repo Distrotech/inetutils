@@ -1505,7 +1505,11 @@ setescape (int argc, char *argv[])
   else
     {
       printf ("new escape character: ");
-      fgets (buf, sizeof (buf), stdin);
+      if (fgets (buf, sizeof (buf), stdin) == NULL)
+	{
+	  buf[0] = '\0';
+	  printf ("\n");
+	}
       arg = buf;
     }
   if (arg[0] != '\0')
@@ -2472,10 +2476,15 @@ tn (int argc, char *argv[])
     {
       strcpy (line, "open ");
       printf ("(to) ");
-      fgets (&line[strlen (line)], sizeof (line) - strlen (line), stdin);
-      makeargv ();
-      argc = margc;
-      argv = margv;
+      if (fgets (&line[strlen (line)],
+		 sizeof (line) - strlen (line), stdin))
+	{
+	  makeargv ();
+	  argc = margc;
+	  argv = margv;
+	}
+      else
+	printf ("?Name of host was not understood.\n");
     }
   cmd = *argv;
   --argc;
@@ -2967,6 +2976,7 @@ command (int top, char *tbuf, int cnt)
 	    {
 	      if (feof (stdin) || ferror (stdin))
 		{
+		  printf ("\n");
 		  quit ();
 		}
 	      break;

@@ -206,13 +206,14 @@ main (int argc, char **argv)
 	    }
 
 	  printf ("Password: ");
-	  fgets (password, sizeof (password), stdin);
+	  if (fgets (password, sizeof (password), stdin) == NULL)
+	    password[0] = '\0';
 
 	  if (changed && (tcsetattr (STDIN_FILENO, TCSANOW, &tt) < 0))
 	    error (0, errno, "failed to restore terminal");
 	}
-      else
-	fgets (password, sizeof (password), stdin);
+      else if (fgets (password, sizeof (password), stdin) == NULL)
+	password[0] = '\0';
       alarm (0);
 
       n = strlen (password);

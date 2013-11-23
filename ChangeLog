@@ -1,3 +1,20 @@
+2013-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Check all returns from fgets.
+	Handle every failed fgets() with care.
+
+	* ftp/cmds.c (user): Set account string to empty when
+	fgets() fails.
+	* src/rexec.c (main): Likewise for password string.
+	* src/tftp.c (get_args): Call makeargv() only on successful
+	call to fgets().  Otherwise, instantiate a trivial command
+	list containing command name only.
+	* telnet/commands.c (setescape): Leave escape character
+	unchanged when fgets() fails.
+	(tn) <get host>: Call makeargv() only for successful fgets().
+	Otherwise, print a message and rely on later usage printout.
+	(command): Print a line feed at EOF on stream error.
+
 2013-11-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	tftp: Buffer size checking.

@@ -404,11 +404,17 @@ get_args (char *arg0, char *prompt, int *argc, char ***argv)
   strcat (line, " ");
 
   printf ("%s", prompt);
-  fgets (line + arg0_len + 1, sizeof line - arg0_len - 1, stdin);
-
-  makeargv ();
-  *argc = margc;
-  *argv = margv;
+  if (fgets (line + arg0_len + 1, sizeof line - arg0_len - 1, stdin))
+    {
+      makeargv ();
+      *argc = margc;
+      *argv = margv;
+    }
+  else
+    {
+      *argv[0] = arg0;
+      *argc = 1;		/* Will produce a usage printout.  */
+    }
 }
 
 void
