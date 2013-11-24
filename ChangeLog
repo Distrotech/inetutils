@@ -1,3 +1,20 @@
+2013-11-24  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	inetd: Ensure successful daemon mode.
+
+	* src/inetd.c (main) <!debug>: Abort with a syslog message,
+	should daemon() return unsuccessfully.
+	* libinetutils/damon.c (waitdaemon): Return with failure,
+	should chdir("/") fail.
+
+
+	Check all calls to chdir.
+
+	* src/rshd.c (doit): Make a syslog error message and abort
+	execution, should chdir("/") fail.
+	* src/uucpd.c (doit): Abort with a message to stderr,
+	should chdir("/") fail.
+
 2013-11-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Check all returns from fgets.

@@ -258,7 +258,11 @@ doit (struct sockaddr *sap, socklen_t salen)
 #ifdef HAVE_INITGROUPS
   initgroups (pw->pw_name, pw->pw_gid);
 #endif
-  chdir (pw->pw_dir);
+  if (chdir (pw->pw_dir) < 0)
+    {
+      fprintf (stderr, "Login incorrect.");
+      return;
+    }
   setuid (pw->pw_uid);
   execl (uucico_location, "uucico", NULL);
   perror ("uucico server: execl");

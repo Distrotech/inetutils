@@ -1880,11 +1880,18 @@ doit (int sockfd, struct sockaddr *fromp, socklen_t fromlen)
    */
   if (chdir (pwd->pw_dir) < 0)
     {
-      chdir ("/");
       syslog (LOG_INFO | LOG_AUTH,
 	      "%s@%s as %s: no home directory. cmd='%.80s'", remuser,
 	      hostname, locuser, cmdbuf);
       rshd_error ("No remote directory.\n");
+
+      if (chdir ("/") < 0)
+	{
+	  syslog (LOG_ERR | LOG_AUTH,
+		  "%s@%s as %s: access denied to '/'",
+		  remuser, hostname, locuser);
+	  exit (EXIT_FAILURE);
+	}
     }
 
   /* Set up an initial environment for the shell that we exec() */

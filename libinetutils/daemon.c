@@ -166,8 +166,8 @@ waitdaemon (int nochdir, int noclose, int maxwait)
       _exit (EXIT_SUCCESS);
     }
 
-  if (!nochdir)
-    chdir ("/");
+  if (!nochdir && chdir ("/") < 0)
+    return -1;			/* Unlikely failure, but check it.  */
 
   if (!noclose)
     {

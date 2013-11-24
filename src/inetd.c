@@ -1938,7 +1938,12 @@ main (int argc, char *argv[], char *envp[])
 
   if (!debug)
     {
-      daemon (0, 0);
+      if (daemon (0, 0) < 0)
+	{
+	  syslog (LOG_DAEMON | LOG_ERR,
+		  "%s: Unable to enter daemon mode, %m", argv[0]);
+	  exit (EXIT_FAILURE);
+	};
     }
 
   openlog ("inetd", LOG_PID | LOG_NOWAIT, LOG_DAEMON);
