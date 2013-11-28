@@ -2814,11 +2814,15 @@ tn (int argc, char *argv[])
       env_export ("USER");
     }
   call (status, "status", "notmuch", 0);
+  err = 0;
   if (setjmp (peerdied) == 0)
     telnet (user);
+  else
+    err = 1;
 
   close (net);
-  ExitString ("Connection closed by foreign host.\n", 1);
+  ExitString ("Connection closed by foreign host.\n", err);
+  /* NOT REACHED */
   return 0;
 }
 
@@ -2942,14 +2946,14 @@ command (int top, char *tbuf, int cnt)
   if (!top)
     {
       putchar ('\n');
-#if defined unix || defined __unix || defined __unix__
     }
+#if defined unix || defined __unix || defined __unix__
   else
     {
       signal (SIGINT, SIG_DFL);
       signal (SIGQUIT, SIG_DFL);
-#endif /* unix || __unix || __unix__ */
     }
+#endif /* unix || __unix || __unix__ */
   for (;;)
     {
       if (rlogin == _POSIX_VDISABLE)

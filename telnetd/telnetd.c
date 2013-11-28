@@ -221,7 +221,7 @@ main (int argc, char **argv)
     error (EXIT_FAILURE, 0, "junk arguments in the command line");
 
   telnetd_setup (0);
-  return telnetd_run ();
+  return telnetd_run ();	/* Never returning.  */
 }
 
 void
@@ -719,7 +719,9 @@ telnetd_run (void)
       if (FD_ISSET (pty, &obits) && pty_output_level () > 0)
 	ptyflush ();
     }
+
   cleanup (0);
+  /* NOT REACHED */
 
   return 0;
 }

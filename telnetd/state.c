@@ -1000,7 +1000,7 @@ dooption (int option)
 	  send_will (TELOPT_LOGOUT, 0);
 	  set_my_state_will (TELOPT_LOGOUT);
 	  netflush ();
-	  cleanup (0);
+	  cleanup (SIGHUP);
 	  /* NOT REACHED */
 	  break;
 

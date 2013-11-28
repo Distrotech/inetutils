@@ -274,6 +274,7 @@ net_read (void)
     {
       syslog (LOG_INFO, "telnetd:  peer died");
       cleanup (0);
+      /* NOT REACHED */
     }
   else if (ncc > 0)
     {
@@ -338,6 +339,7 @@ ptyflush (void)
       if (errno == EWOULDBLOCK || errno == EINTR)
 	return;
       cleanup (0);
+      /* NOT REACHED */
     }
 
   pbackp += n;
@@ -615,6 +617,7 @@ netflush (void)
       if (errno == EWOULDBLOCK || errno == EINTR)
 	return;
       cleanup (0);
+      /* NOT REACHED */
     }
 
   nbackp += n;

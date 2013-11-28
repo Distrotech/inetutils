@@ -1,10 +1,36 @@
+2013-11-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	rlogind, telnet, telnetd: Modify exit status.
+
+	* src/rlogind.c (rlogind_mainloop): Delay cleanup()
+	call until libshishi has torn down its structures.
+	(cleanup): New variable STATUS.  If `signo' is SIGCHLD,
+	call waitpid() to reap the waiting child process and
+	use its return status for the whole server's status.
+	Waiting for the child resolves a race condition when
+	tearing down the pseudo-terminal pair, since the slave
+	now is gone when the master side is being closed down.
+
+	* telnet/commands.c (tn): Use exit status 0 when setjmp()
+	manages to execute telnet().  Otherwise, keep 1.
+	(command) [unix || __unix || __unix__]: Enclose the
+	complete else-block within preprocessor conditionals.
+
+	* telnetd/pty.c (cleanup): Let STATUS have full scope
+	in this function, and use it for exit().  Execute waitpid()
+	only if `sig' is SIGCHLD, and update STATUS for later use.
+	On SIGHUP, set STATUS to success, which happens only at
+	reception of TELOPT_LOGOUT from client.
+	* telnetd/state.c (dooption) <TELOPT_LOGOUT>: Call cleanup()
+	with argument SIGHUP, since the client willingly leaves off.
+
 2013-11-24  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	inetd: Ensure successful daemon mode.
 
 	* src/inetd.c (main) <!debug>: Abort with a syslog message,
 	should daemon() return unsuccessfully.
-	* libinetutils/damon.c (waitdaemon): Return with failure,
+	* libinetutils/daemon.c (waitdaemon): Return with failure,
 	should chdir("/") fail.
 
 

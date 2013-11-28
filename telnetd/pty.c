@@ -136,23 +136,35 @@ start_login (char *host, int autologin, char *name)
   fatalperror (net, cmd);
 }
 
+/* SIG is generally naught every time the server itself
+ * decides to close the connection out of an error condition.
+ * In response to TELOPT_LOGOUT from the client, SIG is set
+ * to SIGHUP, so we consider the exit as a success.  In other
+ * cases, when the forked client process is caught exiting,
+ * then SIG will be SIGCHLD.  Then we deliver the clients's
+ * reported exit code.
+ */
 void
 cleanup (int sig)
 {
+  int status = EXIT_FAILURE;
   char *p;
 
-  if (sig)
+  if (sig == SIGCHLD)
     {
-      int status;
       pid_t pid = waitpid ((pid_t) - 1, &status, WNOHANG);
       syslog (LOG_INFO, "child process %ld exited: %d",
 	      (long) pid, WEXITSTATUS (status));
+
+      status = WEXITSTATUS (status);
     }
+  else if (sig == SIGHUP)
+    status = EXIT_SUCCESS;	/* Response to TELOPT_LOGOUT.  */
 
   p = line + sizeof (PATH_TTY_PFX) - 1;
   utmp_logout (p);
   chmod (line, 0644);
   chown (line, 0, 0);
   shutdown (net, 2);
-  exit (EXIT_FAILURE);
+  exit (status);
 }

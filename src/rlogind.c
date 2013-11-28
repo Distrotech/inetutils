@@ -618,7 +618,7 @@ main (int argc, char *argv[])
   else
     exit (rlogind_mainloop (fileno (stdin), fileno (stdout)));
 
-  return 0;
+  return 0;		/* Not reachable.  */
 }
 
 /* Create a listening socket for the indicated
@@ -852,6 +852,7 @@ rlogin_daemon (int maxchildren, int port)
 	  close (fd);
 	}
     }
+  /* NOT REACHED */
 }
 
 int
@@ -1266,7 +1267,6 @@ rlogind_mainloop (int infd, int outfd)
   setsig (SIGCHLD, cleanup);
   protocol (infd, master, &auth_data);
   setsig (SIGCHLD, SIG_IGN);
-  cleanup (0);
 
 #ifdef SHISHI
   if (kerberos)
@@ -1287,6 +1287,9 @@ rlogind_mainloop (int infd, int outfd)
 # endif
     }
 #endif /* SHISHI */
+
+  cleanup (0);
+  /* NOT REACHED */
 
   return 0;
 }
@@ -2063,9 +2066,17 @@ control (int pty, char *cp, size_t n)
 }
 
 void
-cleanup (int signo _GL_UNUSED_PARAMETER)
+cleanup (int signo)
 {
+  int status = EXIT_FAILURE;
   char *p;
+
+  if (signo == SIGCHLD)
+    {
+      (void) waitpid ((pid_t) -1, &status, WNOHANG);
+
+      status = WEXITSTATUS (status);
+    }
 
   p = line + sizeof (PATH_TTY_PFX) - 1;
 #if !defined HAVE_LOGOUT || !defined HAVE_LOGWTMP
@@ -2082,7 +2093,7 @@ cleanup (int signo _GL_UNUSED_PARAMETER)
   chown (line, 0, 0);
 #endif
   shutdown (netf, 2);
-  exit (EXIT_FAILURE);
+  exit (status);
 }
 
 int

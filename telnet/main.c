@@ -371,6 +371,8 @@ main (int argc, char *argv[])
 
   if (argc)
     {
+      /* The command line contains at least one argument.
+       */
       char *args[8], **argp = args;
 
       if (argc > 2)
@@ -393,11 +395,14 @@ main (int argc, char *argv[])
 
       if (setjmp (toplevel) != 0)
 	Exit (0);
-      if (tn (argp - args, args) == 1)
+      if (tn (argp - args, args) == 1)	/* Returns only on error.  */
 	return (0);
       else
 	return (1);
+      /* NOT REACHED */
     }
+
+  /* Built-in parser loop; sub-commands jump to `toplevel' mark.  */
   setjmp (toplevel);
   for (;;)
     {
@@ -408,4 +413,5 @@ main (int argc, char *argv[])
 #endif
 	command (1, 0, 0);
     }
+  /* NOT REACHED */
 }
