@@ -220,7 +220,7 @@ hookup (char *host, int port)
 
   if (ai == NULL)
     {
-      error (0, 0, "no respons from host");
+      error (0, 0, "no response from host");
       code = -1;
       goto bad;
     }

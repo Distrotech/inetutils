@@ -1,3 +1,17 @@
+2013-12-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	inetd: Logging of resolution and binding errors.
+
+	* src/inetd.c (setup): Alternate syslog format,
+	and debug message, when a service node has been set.
+	(expand_enter): Likewise, adding debug message.
+
+
+	ftp: Trivial misspelling.  Reported by Joe Steffee in
+	<http://lists.gnu.org/archive/html/bug-inetutils/2013-11/msg00000.html>.
+
+	* ftp/ftp.c (hookup): Spell `response' correctly.
+
 2013-11-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	rlogind, telnet, telnetd: Modify exit status.

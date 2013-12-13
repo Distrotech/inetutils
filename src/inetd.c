@@ -645,10 +645,22 @@ setup (struct servtab *sep)
 	  close (sep->se_fd);
 	  goto tryagain;
 	}
-      if (debug)
-	fprintf (stderr, "bind failed on %s/%s: %s\n",
-		 sep->se_service, sep->se_proto, strerror (errno));
-      syslog (LOG_ERR, "%s/%s: bind: %m", sep->se_service, sep->se_proto);
+      if (sep->se_node)
+	{
+	  if (debug)
+	    fprintf (stderr, "bind failed for %s %s/%s: %s\n",
+		     sep->se_node, sep->se_service, sep->se_proto,
+		     strerror (errno));
+	  syslog (LOG_ERR,"%s %s/%s: bind: %m",
+		  sep->se_node, sep->se_service, sep->se_proto);
+	}
+      else
+	{
+	  if (debug)
+	    fprintf (stderr, "bind failed for %s/%s: %s\n",
+		     sep->se_service, sep->se_proto, strerror (errno));
+	  syslog (LOG_ERR,"%s/%s: bind: %m", sep->se_service, sep->se_proto);
+	}
       close (sep->se_fd);
       sep->se_fd = -1;
       if (!timingout)
@@ -871,8 +883,22 @@ expand_enter (struct servtab *sep)
       else
 	errmsg = gai_strerror (err);
 
-      syslog (LOG_ERR, "%s/%s: getaddrinfo: %s",
-	      sep->se_service, sep->se_proto, errmsg);
+      if (sep->se_node)
+	{
+	  if (debug)
+	    fprintf (stderr, "resolution of %s %s/%s failed: %s\n",
+		     sep->se_node, sep->se_service, sep->se_proto, errmsg);
+	  syslog (LOG_ERR, "%s %s/%s: getaddrinfo: %s",
+		  sep->se_node, sep->se_service, sep->se_proto, errmsg);
+	}
+      else
+	{
+	  if (debug)
+	    fprintf (stderr, "resolution of %s/%s failed: %s\n",
+		     sep->se_service, sep->se_proto, errmsg);
+	  syslog (LOG_ERR, "%s/%s: getaddrinfo: %s",
+		  sep->se_service, sep->se_proto, errmsg);
+	}
       return 1;
     }
 
