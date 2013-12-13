@@ -102,6 +102,13 @@ user name.  In addition, the parser is more forgiving
 of spaces and tabs, thus achieving better portability
 of these two files when compared with other systems.
 
+The server will by default not disclose that the requested
+user name is invalid, but will instead proceed with a faked
+password dialogue.  This is in accordance with RFC 2577.
+The new option `--non-rfc2577' will now restore the legacy
+type responses, informing about non-existing users and also
+about expired accounts, or expired passwords.
+
 * inetd
 
 Service configuration now allows setting also the group.

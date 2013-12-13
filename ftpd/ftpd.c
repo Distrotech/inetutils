@@ -132,6 +132,7 @@ int no_version;			/* Don't print version to client.  */
 int type = TYPE_A;		/* Default TYPE_A.  */
 int form = FORM_N;		/* Default FORM_N.  */
 int debug;			/* Enable debug mode if 1.  */
+int rfc2577 = 1;		/* Follow suggestions in RFC 2577.  */
 int timeout = 900;		/* Timeout after 15 minutes of inactivity.  */
 int maxtimeout = 7200;		/* Don't allow idle time to be set
 				   beyond 2 hours.  */
@@ -260,6 +261,10 @@ const char doc[] =
   "File Transfer Protocol daemon.";
 #endif
 
+enum {
+  OPT_NONRFC2577 = CHAR_MAX + 1,
+};
+
 static struct argp_option options[] = {
 #define GRID 0
   { "anonymous-only", 'A', NULL, 0,
@@ -291,6 +296,9 @@ static struct argp_option options[] = {
     GRID+1 },
   { "max-timeout", 'T', NULL, 0,
     "reset maximum value of timeout allowed",
+    GRID+1 },
+  { "non-rfc2577", OPT_NONRFC2577, NULL, 0,
+    "neglect RFC 2577 by giving info on missing users",
     GRID+1 },
   { "umask", 'u', "VAL", 0,
     "set default umask",
@@ -415,6 +423,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 	  defumask = val;
 	break;
       }
+
+    case OPT_NONRFC2577:
+      rfc2577 = 0;
+      break;
 
     default:
       return ARGP_ERR_UNKNOWN;
@@ -756,6 +768,8 @@ bad:
 void
 user (const char *name)
 {
+  int ret;
+
   if (cred.logged_in)
     {
       if (cred.guest || cred.dochroot)
@@ -767,7 +781,8 @@ user (const char *name)
     }
 
   /* Non zero means failed.  */
-  if (auth_user (name, &cred) != 0)
+  ret = auth_user (name, &cred);
+  if (!rfc2577 && ret != 0)
     {
       /* If they gave us a reason.  */
       if (cred.message)
@@ -782,6 +797,17 @@ user (const char *name)
 	syslog (LOG_NOTICE, "FTP LOGIN REFUSED FROM %s, %s",
 		cred.remotehost, name);
       return;
+    }
+  else if (rfc2577 && ret != 0)
+    cred.delayed_reject = 1;
+  else
+    cred.delayed_reject = 0;
+
+  /* Only messages for anonymous guests are accepted.  */
+  if (rfc2577 && !cred.guest && cred.message)
+    {
+      free (cred.message);
+      cred.message = NULL;
     }
 
   /* If the server is set to serve anonymous service only
@@ -864,6 +890,7 @@ end_login (struct credentials *pcred)
   pcred->remotehost = remotehost;
   pcred->auth_type = atype;
   pcred->logged_in = 0;
+  pcred->delayed_reject = 0;
 }
 
 void
@@ -879,10 +906,19 @@ pass (const char *passwd)
   if (!cred.guest)		/* "ftp" is the only account allowed no password.  */
     {
       /* Try to authenticate the user.  Failed if != 0.  */
-      if (auth_pass (passwd, &cred) != 0)
+      if (auth_pass (passwd, &cred) != 0 || cred.delayed_reject)
 	{
 	  /* Any particular reason?  */
-	  if (cred.message)
+	  if (rfc2577)
+	    {
+	      if (cred.message)
+		{
+		  free (cred.message);
+		  cred.message = NULL;
+		}
+	      reply (530, "Login incorrect.");
+	    }
+	  else if (cred.message)
 	    {
 	      reply (530, "%s", cred.message);
 	      free (cred.message);
@@ -902,6 +938,8 @@ pass (const char *passwd)
 	    {
 	      syslog (LOG_NOTICE, "repeated login failures from %s",
 		      cred.remotehost);
+	      reply (421,
+		     "Service not available, closing control connection.");
 	      exit (EXIT_SUCCESS);
 	    }
 	  return;

@@ -95,7 +95,6 @@ extern struct sockaddr_storage data_dest;
 extern socklen_t data_dest_len;
 extern struct sockaddr_storage his_addr;
 extern socklen_t his_addrlen;
-extern int logged_in;
 extern struct passwd *pw;
 extern int guest;
 extern int logging;
@@ -103,6 +102,7 @@ extern int no_version;
 extern int type;
 extern int form;
 extern int debug;
+extern int rfc2577;
 extern int timeout;
 extern int maxtimeout;
 extern int pdata;
@@ -141,6 +141,7 @@ struct credentials
   int guest;
   int dochroot;
   int logged_in;
+  int delayed_reject;
 #define AUTH_EXPIRED_NOT    0
 #define AUTH_EXPIRED_ACCT   1
 #define AUTH_EXPIRED_PASS   2

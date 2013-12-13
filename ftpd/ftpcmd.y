@@ -53,6 +53,15 @@
  *   See RFC 959, RFC 1639, RFC 2389, RFC 2428,
  *   and RFC 3659 (MDTM, REST, SIZE).
  *
+ * Security related details:
+ *
+ *   PORT, EPRT, and LPRT are only allowed for
+ *   target ports greater than IPPORT_RESERVED.
+ *   In addition, the network address of the data
+ *   connection must be identical to the address
+ *   of the standing control connection.  These
+ *   have bearing on RFC 2577, sections 3 and 4.
+
  * TODO: Update with RFC 3659 (MLST, MLSD).
  *
  * TODO: RFC 2428 (EPSV ALL).

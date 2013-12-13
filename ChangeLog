@@ -1,3 +1,32 @@
+2013-12-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Follow RFC 2577 by default.
+	Prevent user name guessing as standard, but offer
+	an option to keep the more informational responses.
+
+	* ftpd/extern.h (logged_in): Remove unused variable.
+	(rfc2577): New variable.
+	(struct credentials): New component DELAYED_REJECT.
+	* ftpd/ftpd.c (rfc2577): New variable.
+	(OPT_NONRFC2577): New enum value.
+	(options): New option `--non-rfc2577'.
+	(parse_opt) <case OPT_NONRFC2577>: Reset `rfc2577'.
+	(user): New variable RET.  After auth_user(), display
+	messages in the old manner only if `rfc2577' is not set,
+	or if guest access is being requested.  Otherwise, update
+	`cred.delayed_reject' for later access.
+	(end_login): Reset `pcred->delayed_reject'.
+	(pass): On returning from auth_pass(), check also
+	`cred.delayed_reject' to minimize the amount of user
+	information returned to the client.
+
+
+	ftpd: The standard protocol in RFC 959 demands
+	that a client be informed before closing down.
+
+	* ftpd/ftpd.c (pass) <repeated login failures>:
+	Send a reply message 421 before closing connection.
+
 2013-12-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	inetd: Logging of resolution and binding errors.

@@ -3641,6 +3641,16 @@ the retrieve (@code{get}), store (@code{put}), append, delete, make
 directory, remove directory and rename operations and their filename
 arguments are also logged.
 
+@item --non-rfc2577
+@opindex --non-rfc2577
+Do not follow the suggestion of RFC 2577 to suppress messages
+that could help an attacker to conduct user name enumeration.
+This option allows the server to return with an error message
+immediately upon receipt of a user name.
+Such information includes non-existence claims and expiration claims.
+The ideal mode would otherwise be to fake the relevance of asking
+for a password, and only thereafter report an invalid login.
+
 @item -p @var{pidfile}
 @itemx --pidfile=@var{pidfile}
 @opindex -p
@@ -3773,6 +3783,10 @@ transfer status will be returned.
 @code{ftpd} interprets file names according to the globbing
 conventions used by @command{csh}.  This allows users to utilize the
 metacharacters @samp{*?[]@{@}~}.
+
+The server applies the suggestions in RFC 2577, but the legacy
+behaviour with informational content in denials can be restored
+using the option @option{--non-rfc2577}.
 
 @section Authentication
 @anchor{ftpd authentication}
