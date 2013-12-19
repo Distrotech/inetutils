@@ -1,3 +1,7 @@
+2013-12-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* bootstrap: Updated from gnulib.
+
 2013-12-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Follow RFC 2577 by default.
