@@ -8,18 +8,18 @@ Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 September 18, 2013
 Version 1.9.1.100:
 
-An advisory file CHECKLIST containing testing and verification
-advice has been added, pointing administrators to important
-properties and settings for built executables.
+An advisory file CHECKLIST containing testing and verification advice
+has been added, pointing administrators to important properties and
+settings for built executables.
 
 * IDN -- International Domain Names
 
-The clients `ftp', `ping', `ping6', `talk', `telnet', `tftp',
-and `traceroute' are now capable of using libidn in resolving
-domain names with character sets richer than ASCII.
+The clients `ftp', `ping', `ping6', `talk', `telnet', `tftp', and
+`traceroute' are now capable of using libidn when resolving domain
+names with character sets richer than ASCII.
 
-Systems using Glibc achieve this ability by other means in the
-present code, so they do not need to link against libidn at all.
+Systems using the GNU C library achieve this ability by other means in
+the present code, so they do not need to link against libidn at all.
 
 * New tool 'dnsdomainname'.
 
@@ -27,11 +27,10 @@ present code, so they do not need to link against libidn at all.
 
 Called as `pftp', passive mode is preset.  New switch `-e/--no-edit'
 for compatibility with other implementations.  Can now be built
-without readline ability: configure using `--disable-readline'.
-New command `lpwd' avoids a shell call for a common task.
-The legacy limit for lengths of input lines (previously 200)
-has been removed.  Now it is system dependent and is in common
-with most other tools.
+without readline by passing `--disable-readline' to configure.  New
+command `lpwd' avoids a shell call for a common task.  The legacy
+limit for lengths of input lines (previously 200) has been removed.
+Now it is system dependent and is common with most other tools.
 
 * ifconfig
 
@@ -40,20 +39,20 @@ Argument handling has been corrected to avoid some segfaults.
 
 * ping
 
-New switches `--ip-timestamp', `--mask', `-T/--tos' and `--ttl'.
-Can use file capabilities instead of suid-setting.
+New switches `--ip-timestamp', `--mask', `-T/--tos' and `--ttl'.  Can
+use file capabilities instead of suid-setting.
 
 * ping6
 
-New switches `--hoplimit/--ttl', `-T/--tos' and `-v/--verbose'.
-File capabilities are sufficient.
+New switches `--hoplimit/--ttl', `-T/--tos' and `-v/--verbose'.  File
+capabilities are sufficient.
 
 * rcp
 
 Supports IPv6 and Shishi.  New switches `-4/--ipv4', `-6/--ipv6',
-`-k/--realm', `-K/--kerberos', and `-x/--encrypt'.
-A file capability like `cap_net_bind_service' can be applied
-instead of setuid installing the binary.
+`-k/--realm', `-K/--kerberos', and `-x/--encrypt'.  A file capability
+like `cap_net_bind_service' can be applied instead of installing the
+binary setuid.
 
 * rexec
 
@@ -61,18 +60,18 @@ Supports IPv6.  New switches `-4/--ipv4', `-6/--ipv6', `-a/--ipany'
 
 * rlogin, rsh
 
-Support IPv6.  New switches `-4/--ipv4', `-6/--ipv6'.
-A file capability like `cap_net_bind_service' can be applied
-instead of setuid installing the binary.
+Support IPv6.  New switches `-4/--ipv4', `-6/--ipv6'.  A file
+capability like `cap_net_bind_service' can be applied instead of
+installing the binary setuid.
 
 * syslogd
 
-Messages can be logged to specific files according to the name
-of the submitting program, on the tag attached to the message.
-The mechanism is patterned on an established BSD feature.
+Messages can be logged to specific files according to the name of the
+submitting program, on the tag attached to the message.  The mechanism
+is patterned after same feature used in on BSD.
 
-Support loading of multiple configuration files located in a
-single directory.  New switches `-D/--rcdir'.
+Support loading of multiple configuration files located in a single
+directory.  New switches `-D/--rcdir'.
 
 * telnet
 
@@ -80,34 +79,32 @@ New switch `-k/--realm'.
 
 * traceroute
 
-Default mode is now UDP, for better conformity with Unices.
-New switches `-f/--first-hop', `-g/--gateways', `-I/--icmp',
+Default mode is now UDP, for better conformity with Unices.  New
+switches `-f/--first-hop', `-g/--gateways', `-I/--icmp',
 `-m/--max-hop', `-t/--tos', and `-w/--wait'.  File capabilities
 suffice.
 
 * ftpd
 
-Full IPv6 support.  PAM support for Linux-PAM, OpenPAM,
-and Sun-PAM as service `ftp'.  Observe that the latter
-two implementations only affect non-anonymous access,
-since `pam_ftp.so' exists for Linux-PAM only, so the
-standard checks are enforced on `ftp/anonymous' as usual.
+Full IPv6 support.  PAM support for Linux-PAM, OpenPAM, and Sun-PAM as
+service `ftp'.  Observe that the latter two implementations only
+affect non-anonymous access, since `pam_ftp.so' exists for Linux-PAM
+only, so the standard checks are enforced on `ftp/anonymous' as usual.
 The server now accepts the commands LPRT and LPSV.
 
-The parsing of `/etc/ftpusers' and `/etc/ftpchroot' now
-allows the specification of group names, simply by
-preceding the identifier with an at-sign `@'.
-An isolated `@' acts as a wildcard and matches every
-user name.  In addition, the parser is more forgiving
-of spaces and tabs, thus achieving better portability
-of these two files when compared with other systems.
+The parsing of `/etc/ftpusers' and `/etc/ftpchroot' now allows the
+specification of group names, simply by preceding the identifier with
+an at-sign `@'.  An isolated `@' acts as a wildcard and matches every
+user name.  In addition, the parser is more forgiving of spaces and
+tabs, thus achieving better portability of these two files when
+compared with other systems.
 
-The server will by default not disclose that the requested
-user name is invalid, but will instead proceed with a faked
-password dialogue.  This is in accordance with RFC 2577.
-The new option `--non-rfc2577' will now restore the legacy
-type responses, informing about non-existing users and also
-about expired accounts, or expired passwords.
+The server will by default not disclose that the requested user name
+is invalid, but will instead proceed with a faked password dialogue.
+This is in accordance with RFC 2577.  The new option `--non-rfc2577'
+will now restore the legacy type responses, informing about
+non-existing users and also about expired accounts, or expired
+passwords.
 
 * inetd
 
@@ -115,27 +112,25 @@ Service configuration now allows setting also the group.
 
 * rexecd
 
-Can be built with PAM support as service `rexec'.
-New option `-l/--logging'.
+Can be built with PAM support as service `rexec'.  New option
+`-l/--logging'.
 
 * rlogind
 
 Support for IPv6 and PAM as services `rlogin' and `krlogin'.
-Buildable with libwrap support for use in stand-alone daemon
-mode.  New switches `-4/--ipv4', `-6/--ipv6', and
-`-S/--server-principal'.
+Buildable with libwrap support for use in stand-alone daemon mode.
+New switches `-4/--ipv4', `-6/--ipv6', and `-S/--server-principal'.
 
 * rshd
 
-Now has support for IPv6, PAM, and Shishi, with PAM services
-`rsh' and `krsh'.  New switches `-k/--kerberos',
-`-r/--reverse-required', `-S/--server-principal',
-`-v/--vacuous', and `-x/--encrypt'.
+Now has support for IPv6, PAM, and Shishi, with PAM services `rsh' and
+`krsh'.  New switches `-k/--kerberos', `-r/--reverse-required',
+`-S/--server-principal', `-v/--vacuous', and `-x/--encrypt'.
 
 * talkd
 
-Has seen reworked ACL-mechanisms, believed to be functional!
-New switches `-l/--logging', and `-S/--strict-policy'.
+Has seen reworked ACL-mechanisms, believed to be functional!  New
+switches `-l/--logging', and `-S/--strict-policy'.
 
 * telnetd
 
@@ -148,13 +143,11 @@ New switches `-g/--group', `-s/--secure-dir', and `-u/--user'.
 * uucpd
 
 New switch `-u/--uucico'.
-
 
 January 6, 2012
 Version 1.9.1:
 
 * Don't install git-merge-changelog.
-
 
 December 31, 2011
 Version 1.9:
