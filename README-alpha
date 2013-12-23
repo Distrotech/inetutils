@@ -24,11 +24,11 @@ more messages we get regarding a particular problem the sooner it'll
 be fixed -- usually.  If you sent a complete patch and nobody applied
 it or got back to you, please let us know!
 
-The source `tests/identify.c' should compile in all interesting
-build environments, even without configuration.  The resulting
-executables display some features known to have produced malfunctions
-in portability.  Conveying some selected part of that output could
-help us in locating the cause of compiling errors, or of missing
+The source `tests/identify.c' should compile in all interesting build
+environments, even without configuration.  The resulting executables
+display some features known to have produced malfunctions in
+portability.  Conveying some selected part of that output could help
+us in locating the cause of compiling errors, or of missing
 functionality in the built programs.
 
 * Checking Out the Sources
