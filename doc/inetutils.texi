@@ -2313,7 +2313,7 @@ security.
 Finally, some compatibility options are present:
 
 @table @option
-@itemx -8
+@item -8
 @itemx --8-bit
 @itemx -e @var{char}
 @itemx --escape=@var{char}
