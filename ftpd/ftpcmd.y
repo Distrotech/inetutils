@@ -163,6 +163,9 @@ static void yyerror       (const char *s);
 
 	EPRT	EPSV	LPRT	LPSV
 
+	ADAT	AUTH	CCC	CONF	ENC	MIC
+	PBSZ	PROT
+
 	UMASK	IDLE	CHMOD
 
 	LEXERR
@@ -1382,6 +1385,16 @@ static struct tab cmdtab[] = {
   /* Long addressing in RFC 1639.  Obsoleted in RFC 5797.  */
   { "LPRT", LPRT, ARGS, 1,	"<sp> af,hal,h0..hn,2,p0,p1" },
   { "LPSV", LPSV, ARGS, 1,	"(set server in long passive mode)" },
+  /* Security extensions in RFC 2228.  */
+  { "ADAT", ADAT, OSTR, 0,	"<sp> security-data" },
+  { "AUTH", AUTH, OSTR, 0,	"<sp> mechanism" },
+  { "CCC", CCC, ARGS, 0,	"(clear command channel)" },
+  { "CONF", CONF, OSTR, 0, 	"<sp> confidential-msg" },
+  { "ENC", ENC, OSTR, 0,	"<sp> private-message" },
+  { "MIC", MIC, OSTR, 0,	"<sp> safe-message" },
+  { "PBSZ", PBSZ, OSTR, 0,	"<sp> buf-size" },
+  { "PROT", PROT, OSTR, 0,	"<sp> char" },
+  /* End of list.  */
   { NULL,   0,    0,    0,	NULL }
 };
 

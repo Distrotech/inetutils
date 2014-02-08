@@ -1,3 +1,13 @@
+2014-02-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftpd: Parse commands of RFC 2228.
+	Tokens are implemented, but no actions.
+
+	* ftpd/ftpcmd.y (ADAT, AUTH, CCC, CONF, ENC, MIC, PBSZ)
+	(PROT): New tokens.
+	(cmdtab): New entries `ADAT', `AUTH', `CCC', `CONF', `ENC',
+	`MIC', `PBSZ', and `PROT'.  All are marked as unimplemented.
+
 2013-12-23  Alfred M. Szmidt  <ams@gnu.org>
 
 	* doc/inetutils.texi (rsh invocation): Use @item for first entry
