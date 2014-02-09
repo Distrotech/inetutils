@@ -1683,8 +1683,20 @@ user (int argc, char **argv)
   n = command ("USER %s", argv[1]);
   if (n == CONTINUE)
     {
+      /* Is this a case of challenge-response?
+       * RFC 2228 stipulates code 336 for this.
+       * Suppress message in verbose mode, since
+       * it has already been displayed.
+       */
+      if (code == 336 && !verbose)
+	printf ("%s\n", reply_string + strlen ("336 "));
+      /* In addition, any password given on the
+       * command line is irrelevant, so ignore it.
+       */
+      if (argc < 3 || code == 336)
+	argv[2] = getpass ("Password: ");
       if (argc < 3)
-	argv[2] = getpass ("Password: "), argc++;
+	argc++;
       n = command ("PASS %s", argv[2]);
       if (argv[2])
 	memset (argv[2], 0, strlen (argv[2]));

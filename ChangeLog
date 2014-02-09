@@ -1,3 +1,14 @@
+2013-02-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Detect one-time passwords.
+	RFC 2228 reserves response code 336 for replies
+	used with challange-response authentication.
+
+	* ftp/cmds.c (user): React to response code 336 within
+	FTP command `USER', print its message, and possibly
+	discard an already supplied password.
+	* ftp/ftp.c (login): Likewise.
+
 2014-02-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftpd: Parse commands of RFC 2228.
