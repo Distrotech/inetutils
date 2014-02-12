@@ -185,6 +185,10 @@ struct format formats[] = {
    "${brdaddr?}{ broadcast ${brdaddr}}" "${mtu?}{ ipmtu ${mtu}}${\\n}}"
    "}"
   },
+  {"check",
+   "Shorthand for `check-existence'.",
+   "${format}{check-existence}"
+  },
   /* If interface does not exist, print error message and exit. */
   {"check-existence",
    "If interface does not exist, print error message and exit.",

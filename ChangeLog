@@ -1,4 +1,9 @@
-2013-02-09  Mats Erik Andersson  <gnu@gisladisker.se>
+2014-02-12  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ifconfig/options.c (formats): Add format `check'
+	as a synonym for `check-existence'.
+
+2014-02-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Detect one-time passwords.
 	RFC 2228 reserves response code 336 for replies
