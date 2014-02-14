@@ -1,5 +1,11 @@
 2014-02-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* ifconfig/flags.c (if_list_flags): Increment counter
+	only in the for-statement; update the insertion of list
+	delimiters.  Each second flag name was falsely scrubbed.
+
+2014-02-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Script for testing of ifconfig's modes.
 	Will document all tested features.
 

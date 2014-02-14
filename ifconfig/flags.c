@@ -257,7 +257,7 @@ if_list_flags (const char *prefix)
   fcount = i;
   qsort (fnames, fcount, sizeof (fnames[0]), cmpname);
 
-  len += 2 * fcount;
+  len += strlen (", ") * fcount;	/* Delimiters  */
 
   if (prefix)
     len += strlen (prefix);
@@ -276,13 +276,11 @@ if_list_flags (const char *prefix)
 	continue;
       strcpy (p, fnames[i]);
       p += strlen (fnames[i]);
-      if (++i < fcount)
+      if (i + 1 < fcount)
 	{
 	  *p++ = ',';
 	  *p++ = ' ';
 	}
-      else
-	break;
     }
   *p = 0;
   free (fnames);
