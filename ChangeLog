@@ -1,3 +1,12 @@
+2014-02-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Script for testing of ifconfig's modes.
+	Will document all tested features.
+
+	* tests/ifconfig_modes.sh: New file.  Intentionally
+	without execution bit, and not for automatic testing.
+	* tests/Makefile.am (EXTRA_DIST): Add `ifconfig_modes.sh`.
+
 2014-02-12  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ifconfig/options.c (formats): Add format `check'

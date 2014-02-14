@@ -80,7 +80,7 @@ TESTS = localhost waitdaemon $(dist_check_SCRIPTS)
 
 TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT)
 
-EXTRA_DIST = tools.sh.in
+EXTRA_DIST = tools.sh.in ifconfig_modes.sh
 
 BUILT_SOURCES = tools.sh
 
