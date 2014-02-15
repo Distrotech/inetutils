@@ -224,6 +224,7 @@ cmpname (const void *a, const void *b)
 char *
 if_list_flags (const char *prefix)
 {
+#define FLAGS_COMMENT "\nPrepend 'no' to negate the effect."
   size_t len = 0;
   struct if_flag *fp;
   char **fnames;
@@ -246,6 +247,9 @@ if_list_flags (const char *prefix)
       {
 	const char *q;
 
+	if (fp->mask & IU_IFF_CANTCHANGE)
+	  continue;
+
 	fnames[i++] = p;
 	q = fp->name;
 	if (strncmp (q, "NO", 2) == 0)
@@ -262,6 +266,8 @@ if_list_flags (const char *prefix)
   if (prefix)
     len += strlen (prefix);
 
+  len += strlen (FLAGS_COMMENT);
+
   str = xmalloc (len + 1);
   p = str;
   if (prefix)
@@ -272,7 +278,9 @@ if_list_flags (const char *prefix)
 
   for (i = 0; i < fcount; i++)
     {
-      if (i && strcmp (fnames[i - 1], fnames[i]) == 0)
+      /* Omit repeated, or alternate names, like "link2/altphys".  */
+      if (i && strncmp (fnames[i - 1], fnames[i],
+			strlen (fnames[i - 1])) == 0)
 	continue;
       strcpy (p, fnames[i]);
       p += strlen (fnames[i]);
@@ -282,6 +290,9 @@ if_list_flags (const char *prefix)
 	  *p++ = ' ';
 	}
     }
+  strcpy (p, FLAGS_COMMENT);
+  p += strlen (FLAGS_COMMENT);
+#undef FLAGS_COMMENT
   *p = 0;
   free (fnames);
   return str;

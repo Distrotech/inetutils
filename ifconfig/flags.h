@@ -36,6 +36,17 @@
 # define EXPECT_D2 ":D2/SNAP:SNAP:"
 # define EXPECT_SNAP ":D2/SNAP:D2:"
 
+/* Suppress flags that are not changeable by user.  */
+#ifndef IFF_CANTCHANGE
+# define IFF_CANTCHANGE 0
+#endif /* IFF_CANTCHANGE */
+
+/* Manually exclude flags that experience tell us be static.  */
+#define IU_IFF_CANTCHANGE \
+	(IFF_CANTCHANGE | IFF_LOOPBACK | IFF_POINTOPOINT | \
+	 IFF_ALLMULTI | IFF_BROADCAST | IFF_MULTICAST | \
+	 IFF_PROMISC | IFF_RUNNING)
+
 /* Return the name corresponding to the interface flag FLAG.
    If FLAG is unknown, return NULL.
    AVOID contains a ':' surrounded and seperated list of flag names

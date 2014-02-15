@@ -1,5 +1,25 @@
 2014-02-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ifconfig: No listing of unchangeable flags.
+
+	* ifconfig/flags.h [!IFF_CANTCHANGE]: Define it as naught.
+	(IU_IFF_CANTCHANGE): New macro.
+	* ifconfig/flags.c (if_list_flags): Do not list flags that
+	are known to give constant properties.  New macro FLAGS_COMMENT.
+	Add its contents to the end of the requested flags listing.
+	Skip a named flag if it matches IU_IFF_CANTCHANGE.  Also skip
+	flags named like 'link2/altphys', since their components
+	do appear in the listing.
+
+
+	Portability issues in test script.
+
+	* tests/ifconfig_modes.sh (MTU): Set to 1324 initially,
+	to get above 1280 needed for IPv6 compatibility.
+	The switch '-o' of uname is not portable.
+
+2014-02-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* tests/ifconfig_modes.sh: Add test case to explain
 	failures to automatically bring the interface up at
 	an address change.  GNU/Linux is affected by this.

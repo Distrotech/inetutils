@@ -107,7 +107,7 @@ NETMASK2=255.255.252.0
 NETMASK2_HEX=0xfffffc00
 NETMASK2_PATTERN='255\.255\.252\.0'
 METRIC=7
-MTU=1234
+MTU=1324
 
 get_gnu_output () {
   $IFCONFIG --interface=$IFACE --format=gnu
@@ -383,11 +383,11 @@ check_output "mtu           $MTU" \
 # Status summary
 #
 if test $STATUS -eq 0; then
-  $silence echo 'Successful testing: '`uname -o -r -s`
+  $silence echo 'Successful testing: '`uname -m -r -s`
 else
   PLURAL=
   test $STATUS -le 1 || PLURAL=s
-  echo 'There were '$STATUS' failure'$PLURAL': '`uname -o -r -s`
+  echo 'There were '$STATUS' failure'$PLURAL': '`uname -m -r -s`
 fi
 
 exit $STATUS
