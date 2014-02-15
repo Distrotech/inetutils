@@ -152,6 +152,23 @@ check_output () {
 }
 
 #
+# For consistency and repeatability, first bring the interface down.
+#
+$silence cat <<-HERE
+	** Bring interface down with a lone switch:
+	**   ifconfig -i $IFACE --down
+	HERE
+
+$IFCONFIG -i $IFACE --down >/dev/null
+OUTPUT=`get_gnu_output`
+
+echo "$OUTPUT" | grep flags |
+  grep -v "flags         UP" >/dev/null ||
+    { echo >&2 'Failed to bring interface down with switch.'
+      increase_status
+    }
+
+#
 # Check setting of address, netmask, and broadcast
 # address using switches.
 #
@@ -174,7 +191,46 @@ check_output	"netmask       $NETMASK_PATTERN" \
 		'Failed to set netmask with "--netmask".'
 
 check_output	"flags         UP" \
-		'Failed to bring interface up while setting address.'
+		'Failed to bring interface up with address/netmask/broadcast.'
+
+#
+# Diagnose a failure to implicitly bring the interface up.
+#
+echo "$OUTPUT" |
+  grep "flags         UP" >/dev/null 2>&1 ||
+    {
+      $silence cat <<-HERE
+	** Set only address and explicit 'up' switches:
+	**	--interface=$IFACE --address=$ADDRESS --up
+	HERE
+
+      $IFCONFIG --interface=$IFACE --address=$ADDRESS --up >/dev/null
+      OUTPUT=`get_gnu_output`
+
+      check_output	"flags         UP" \
+			'Failed to bring interface up with only address.'
+
+      # As a last resort, try a single imperative 'up'.
+      echo "$OUTPUT" |
+	grep "flags         UP" >/dev/null 2>&1 ||
+	  {
+	    $silence cat <<-HERE
+		** Apply a single switch:
+		**	--interface=$IFACE --up
+		HERE
+
+	    $IFCONFIG --interface=$IFACE --up >/dev/null
+	    OUTPUT=`get_gnu_output`
+
+	    if echo "$OUTPUT" | grep "flags         UP" >/dev/null 2>&1
+	    then
+	      echo >&2 '!!! This platform needs "--up" in splendid isolation.'
+	    else
+	      echo >&2 'Failed to bring interface up with a single "--up".'
+	      STATUS=`expr $STATUS + 1`
+	    fi
+	  }
+    }
 
 #
 # Assign metric and MTU using switches.
@@ -266,6 +322,45 @@ check_output	"netmask       $NETMASK_PATTERN" \
 
 check_output	"flags         UP" \
 		'Failed to bring interface up implicitly.'
+
+#
+# Diagnose this last failure.
+#
+echo "$OUTPUT" |
+  grep "flags         UP" >/dev/null 2>&1 ||
+    {
+      $silence cat <<-HERE
+	** Set only address and explicit 'up' switches:
+	**   ifconfig $IFACE $ADDRESS up
+	HERE
+
+      $IFCONFIG $IFACE $ADDRESS up >/dev/null
+      OUTPUT=`get_gnu_output`
+
+      check_output	"flags         UP" \
+			'Failed to bring interface up with only address.'
+
+      # As a last resort, try a single imperative 'up'.
+      echo "$OUTPUT" |
+	grep "flags         UP" >/dev/null 2>&1 ||
+	  {
+	    $silence cat <<-HERE
+		** Apply a single switch:
+		**   ifconfig $IFACE up
+		HERE
+
+	    $IFCONFIG $IFACE up >/dev/null
+	    OUTPUT=`get_gnu_output`
+
+	    if echo "$OUTPUT" | grep "flags         UP" >/dev/null 2>&1
+	    then
+	      echo >&2 '!!! This platform needs specific "ifconfig '$IFACE' up".'
+	    else
+	      echo >&2 'Failed to bring interface up with a "ifconfig '$IFACE' up".'
+	      STATUS=`expr $STATUS + 1`
+	    fi
+	  }
+    }
 
 #
 # Assign metric and MTU on command line.

@@ -1,3 +1,9 @@
+2014-02-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/ifconfig_modes.sh: Add test case to explain
+	failures to automatically bring the interface up at
+	an address change.  GNU/Linux is affected by this.
+
 2014-02-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ifconfig/flags.c (if_list_flags): Increment counter
