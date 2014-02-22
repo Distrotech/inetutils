@@ -247,7 +247,14 @@ set_flags (int sfd, struct ifreq *ifr, int setflags, int clrflags)
       error (0, errno, "SIOCGIFFLAGS failed");
       return -1;
     }
-  ifr->ifr_flags = (tifr.ifr_flags | setflags) & ~clrflags;
+  /* Some systems, notably FreeBSD, use two short integers.  */
+  ifr->ifr_flags = (tifr.ifr_flags | setflags) & ~clrflags & 0xffff;
+
+# ifdef ifr_flagshigh
+  ifr->ifr_flagshigh = (tifr.ifr_flagshigh | (setflags >> 16))
+		       & ~(clrflags >> 16);
+# endif /* ifr_flagshigh */
+
   if (ioctl (sfd, SIOCSIFFLAGS, ifr) < 0)
     {
       error (0, errno, "SIOCSIFFLAGS failed");

@@ -67,6 +67,12 @@ struct if_flag
     {"NOARP", IFF_NOARP, 0},
     {"ARP", IFF_NOARP, 1},
 #endif
+/* Keep IFF_PPROMISC prior to IFF_PROMISC
+ * for precedence in parsing.
+ */
+#ifdef IFF_PPROMISC		/* User accessible promiscuous mode.  */
+    {"PROMISC", IFF_PPROMISC, 0},
+#endif
 #ifdef IFF_PROMISC		/* Receive all packets.  */
     {"PROMISC", IFF_PROMISC, 0},
 #endif
@@ -211,6 +217,12 @@ struct if_flag
 #endif
 #ifdef IFF_SNAP			/* Ethernet driver outputs SNAP header.  */
     {"SNAP", IFF_SNAP, 0},
+#endif
+#ifdef IFF_MONITOR
+    {"MONITOR", IFF_MONITOR, 0},
+#endif
+#ifdef IFF_STATICARP
+    {"STATICARP", IFF_STATICARP, 0},
 #endif
     { NULL, 0, 0}
   };
@@ -423,10 +435,16 @@ static struct if_flag_char flag_char_tab[] = {
   { IFF_POINTOPOINT, 'P' },
 #endif
 #ifdef IFF_SLAVE
-  { IFF_SLAVE,       's' },
+  { IFF_SLAVE,       's' },	/* Linux */
+#endif
+#ifdef IFF_STATICARP
+  { IFF_STATICARP,   's' },	/* FreeBSD */
 #endif
 #ifdef IFF_MASTER
-  { IFF_MASTER,      'm' },
+  { IFF_MASTER,      'm' },	/* Linux */
+#endif
+#ifdef IFF_MONITOR
+  { IFF_MONITOR,     'm' },	/* FreeBSD */
 #endif
 #ifdef IFF_SIMPLEX
   { IFF_SIMPLEX,     'S' },

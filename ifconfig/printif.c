@@ -303,15 +303,16 @@ put_addr (format_data_t form, int argc, char *argv[], struct sockaddr *sa)
 }
 
 void
-put_flags (format_data_t form, int argc, char *argv[], short flags)
+put_flags (format_data_t form, int argc, char *argv[], int flags)
 {
-  unsigned short int f = 1;
+  unsigned int f = 1;
   const char *name;
   int first = 1;
+  unsigned int uflags = (unsigned int) flags;
 
-  while (flags && f)
+  while (uflags && f)
     {
-      if (f & flags)
+      if (f & uflags)
 	{
 	  name = if_flagtoname (f, NULL);
 	  if (name)
@@ -324,13 +325,13 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
 		    put_char (form, ' ');
 		}
 	      put_string (form, name);
-	      flags &= ~f;
+	      uflags &= ~f;
 	      first = 0;
 	    }
 	}
       f = f << 1;
     }
-  if (flags)
+  if (uflags)
     {
       if (!first)
 	{
@@ -339,13 +340,13 @@ put_flags (format_data_t form, int argc, char *argv[], short flags)
 	  else
 	    put_char (form, ' ');
 	}
-      put_int (form, argc - 1, &argv[1], flags);
+      put_int (form, argc - 1, &argv[1], uflags);
     }
 }
 
 void
 put_flags_short (format_data_t form, int argc _GL_UNUSED_PARAMETER,
-		 char *argv[] _GL_UNUSED_PARAMETER, short flags)
+		 char *argv[] _GL_UNUSED_PARAMETER, int flags)
 {
   char buf[IF_FORMAT_FLAGS_BUFSIZE];
   if_format_flags (flags, buf, sizeof buf);
@@ -482,11 +483,16 @@ fh_ifdisplay_query (format_data_t form, int argc, char *argv[])
 #ifdef SIOCGIFFLAGS
   int f;
   int rev;
+  unsigned int uflags = (unsigned short) form->ifr->ifr_flags;
+
+# ifdef ifr_flagshigh
+  uflags |= (unsigned short) form->ifr->ifr_flagshigh << 16;
+# endif /* ifr_flagshigh */
 
   n = !(all_option || ifs_cmdline
 	|| ((f = if_nameztoflag ("UP", &rev))
 	    && ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) == 0
-	    && (f & form->ifr->ifr_flags)));
+	    && (f & uflags)));
 #else
   n = 0;
 #endif
@@ -706,10 +712,15 @@ fh_brdaddr_query (format_data_t form, int argc, char *argv[])
 # ifdef SIOCGIFFLAGS
   int f;
   int rev;
+  unsigned int uflags = (unsigned short) form->ifr->ifr_flags;
+
+# ifdef ifr_flagshigh
+  uflags |= (unsigned short) form->ifr->ifr_flagshigh << 16;
+# endif /* ifr_flagshigh */
 
   if (0 == (f = if_nameztoflag ("BROADCAST", &rev))
       || (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
-      || ((f & form->ifr->ifr_flags) == 0))
+      || ((f & uflags) == 0))
     {
       select_arg (form, argc, argv, 1);
       return;
@@ -745,10 +756,15 @@ fh_dstaddr_query (format_data_t form, int argc, char *argv[])
 # ifdef SIOCGIFFLAGS
   int f;
   int rev;
+  unsigned int uflags = (unsigned short) form->ifr->ifr_flags;
+
+#  ifdef ifr_flagshigh
+  uflags |= (unsigned short) form->ifr->ifr_flagshigh << 16;
+#  endif /* ifr_flagshigh */
 
   if (0 == (f = if_nameztoflag ("POINTOPOINT", &rev))
       || (ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) < 0)
-      || ((f & form->ifr->ifr_flags) == 0))
+      || ((f & uflags) == 0))
     {
       select_arg (form, argc, argv, 1);
       return;
@@ -856,17 +872,23 @@ fh_flags (format_data_t form, int argc, char *argv[])
 	   form->ifr->ifr_name);
   else
     {
+      unsigned int uflags = (unsigned short) form->ifr->ifr_flags;
+
+# ifdef ifr_flagshigh
+      uflags |= (unsigned short) form->ifr->ifr_flagshigh << 16;
+# endif /* ifr_flagshigh */
+
       if (argc >= 1)
 	{
 	  if (!strcmp (argv[0], "number"))
-	    put_int (form, argc - 1, &argv[1], form->ifr->ifr_flags);
+	    put_int (form, argc - 1, &argv[1], uflags);
 	  else if (!strcmp (argv[0], "short"))
-	    put_flags_short (form, argc - 1, &argv[1], form->ifr->ifr_flags);
+	    put_flags_short (form, argc - 1, &argv[1], uflags);
 	  else if (!strcmp (argv[0], "string"))
-	    put_flags (form, argc - 1, &argv[1], form->ifr->ifr_flags);
+	    put_flags (form, argc - 1, &argv[1], uflags);
 	}
       else
-	put_flags (form, argc, argv, form->ifr->ifr_flags);
+	put_flags (form, argc, argv, uflags);
     }
 #else
   *column += printf ("(not available)");

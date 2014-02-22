@@ -157,7 +157,7 @@ struct format formats[] = {
    "Traditional UNIX interface listing.  Default for Solaris, BSD and HPUX.",
    "${format}{check-existence}"
    "${ifdisplay?}{"
-   "${name}: flags=${flags}{number}{%hx}<${flags}{string}{,}>"
+   "${name}: flags=${flags}{number}{%x}<${flags}{string}{,}>"
    "${metric?}{ metric ${metric}}"
    "${mtu?}{ mtu ${mtu}}${\\n}"
    /* Print only if hwtype emits something.  */

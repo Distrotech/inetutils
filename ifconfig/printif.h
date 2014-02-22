@@ -67,7 +67,7 @@ void put_ulong (format_data_t form, int argc, char *argv[], unsigned long val);
 void select_arg (format_data_t form, int argc, char *argv[], int nr);
 void put_addr (format_data_t form, int argc, char *argv[],
 	       struct sockaddr *sa);
-void put_flags (format_data_t form, int argc, char *argv[], short flags);
+void put_flags (format_data_t form, int argc, char *argv[], int flags);
 
 /* Format handler can mangle form->format, so update it after calling
    here.  */

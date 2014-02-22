@@ -1,3 +1,28 @@
+2014-02-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Allow flags richer than 16 bits.
+	Systems like GNU/kFreeBSD and FreeBSD use two `short int'
+	to represent interface flags.  Adapt to this fact.
+
+	* ifconfig/changeif.c (set_flags): Apply mask 0xffff to flags.
+	[ifr_flagshigh]: Calculate flag changes also on ifr_flagshigh.
+	* ifconfig/flags.c [IFF_PPROMISC] (if_flags): Add user land
+	setable flag "PROMISC".
+	[IFF_MONITOR] (if_flags): Add flag "MONITOR".
+	[IFF_STATICARP] (if_flags): Add flag "STATICARP".
+	[IFF_STATICARP] (flag_char_tab): Add short flag 's'.
+	[IFF_MONITOR] (flag_char_tab): Add short flag 'm'.
+	* ifconfig/options.c (formats) <unix>: Print flags numerically
+	using format string "%x".
+	* ifconfig/printif.c (put_flags): Change signature.  New type
+	of F is `unsigned int'.  New variable UFLAGS.  Work with UFLAGS,
+	not `flags'.
+	(put_flags_short): New signature.
+	[SIOCGIFFLAGS] (fh_ifdisplay_query, fh_brdaddr_query)
+	(fh_dstaddr_query, fh_flags): New variable UFLAGS, replacing
+	`form->ifr->ifr_flags'.
+	* ifconfig/printif.h (put_flags): Change prototype.
+
 2014-02-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: No listing of unchangeable flags.
