@@ -175,6 +175,7 @@ get_name (const hostname_arguments *const args)
 
   if (!sname)
     error (EXIT_FAILURE, errno, "cannot determine name");
+
   if (args->hostname_alias == 1)
     name = get_aliases (sname);
   else if (args->hostname_fqdn == 1)
@@ -182,11 +183,20 @@ get_name (const hostname_arguments *const args)
       name = get_fqdn (sname);
 
       if (args->hostname_dns_domain == 1 || args->hostname_short == 1)
-        {
-          free (sname);
-          sname = name;
-          name = NULL;
-        }
+	{
+	  /* Eliminate empty replies, as well as `(none)'.  */
+	  if (name && *name && *name != '(')
+	    {
+	      free (sname);
+	      sname = name;
+	      name = NULL;
+	    }
+	  else if (name && *name == '(')
+	    {
+	      free (name);
+	      name = NULL;
+	    }
+	}
 
       if (args->hostname_dns_domain == 1)
         name = get_dns_domain_name (sname);
@@ -222,6 +232,9 @@ set_name (const hostname_arguments *const args)
     hostname_new = args->hostname_new;
 
   size = strlen (hostname_new);
+  if (!size)
+    error (EXIT_FAILURE, 0, "Empty hostname");
+
   status = (*set_name_action) (hostname_new, size);
   if (status == -1)
     error (EXIT_FAILURE, errno, "sethostname");
@@ -370,7 +383,7 @@ static char *
 parse_file (const char *const file_name)
 {
   char *buffer = NULL;
-  char *name;
+  char *name = NULL;
   FILE *file;
   ssize_t nread;
   size_t size = 0;
@@ -379,17 +392,19 @@ parse_file (const char *const file_name)
   if (file == NULL)
     error (EXIT_FAILURE, errno, "fopen");
 
+  errno = 0;			/* Portability issue!  */
+
   do
     {
       nread = getline (&buffer, &size, file);
       if (nread == -1)
-	error (EXIT_FAILURE, errno, "getline");
+	error (EXIT_FAILURE, errno, "getline%s", errno ? "" : ": No text");
 
       if (buffer[0] != '#')
         {
-          name = xmalloc (sizeof (char) * nread);
-          sscanf (buffer, "%s", name);
-          break;
+	  name = (char *) xmalloc (sizeof (char) * nread);
+	  if (sscanf (buffer, "%s", name)  == 1)
+	    break;
         }
     }
   while (feof (file) == 0);

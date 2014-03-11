@@ -1,3 +1,14 @@
+2014-03-10  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	hostname: Sanity checks in corner cases.
+
+	* src/hostname.c (get_name): Use reply from get_fqdn()
+	only if it gave a host name, not the artificial "(none)".
+	(set_name): Reject an empty host name.
+	(parse_file): Initialize NAME.  Improve error message
+	when getline() claims empty input.  Break out of loop
+	only if sscanf() produced a printable string.
+
 2014-02-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Allow flags richer than 16 bits.
