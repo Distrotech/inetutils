@@ -230,15 +230,14 @@ open_socket (void)
 
 	  if (source)
 	    {
-	      /* Make the assumption that the source address
-	       * encodes a desired domain family and that it
-	       * be numeric.  */
+	      /* Resolver uses the same address family
+	       * as the already resolved target host.
+	       */
 	      int ret;
 	      struct addrinfo tips, *a;
 
 	      memset (&tips, 0, sizeof (tips));
 	      tips.ai_family = ai->ai_family;
-	      tips.ai_flags = AI_NUMERICHOST;
 
 	      ret = getaddrinfo(source, NULL, &tips, &a);
 	      if (ret)

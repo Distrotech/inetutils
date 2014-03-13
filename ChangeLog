@@ -1,3 +1,10 @@
+2014-03-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	logger: Source address resolution.
+
+	* src/logger.c (open_socket) [HAVE_DECL_GETADDRINFO]
+	<source is set>: Delete resolver hint for numeric address.
+
 2014-03-10  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	hostname: Sanity checks in corner cases.
