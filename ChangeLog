@@ -1,3 +1,12 @@
+2014-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Changeable flags on GNU/Linux.
+
+	* ifconfig/flags.h (IU_IFF_CANTCHANGE): Remove IFF_POINTOPOINT,
+	IFF_ALLMULTI, IFF_BROADCAST, IFF_MULTICAST, and IFF_PROMISC,
+	since they are changeable on GNU/Linux, and they are included
+	natively in IFF_CANTCHANGE on other systems.
+
 2014-03-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	logger: Source address resolution.
