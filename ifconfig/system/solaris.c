@@ -74,7 +74,7 @@ system_parse_opt (struct ifconfig **ifp _GL_UNUSED_PARAMETER,
 int
 system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 {
-  int i = 0;
+  int i = 0, mask, rev;
   enum
   {
     EXPECT_NOTHING,
@@ -124,11 +124,13 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	parse_opt_set_flag (*ifp, IFF_UP | IFF_RUNNING, 0);
       else if (!strcmp (argv[i], "down"))
 	parse_opt_set_flag (*ifp, IFF_UP, 1);
+      else if (((mask = if_nameztoflag (argv[i], &rev))
+		& ~IU_IFF_CANTCHANGE) != 0)
+	parse_opt_set_flag (*ifp, mask, rev);
       else
 	{
 	  /* Recognize AF here.  */
-	  /* Also auto-revarp, trailers, -trailers,
-	     private, -private, arp, -arp, plumb, unplumb.  */
+	  /* Also auto-revarp, plumb, unplumb.  */
 	  if (!((*ifp)->valid & IF_VALID_ADDR))
 	    parse_opt_set_address (*ifp, argv[i]);
 	  else if (!((*ifp)->valid & IF_VALID_DSTADDR))

@@ -833,7 +833,8 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	parse_opt_set_flag (*ifp, IFF_UP | IFF_RUNNING, 0);
       else if (!strcmp (argv[i], "down"))
 	parse_opt_set_flag (*ifp, IFF_UP, 1);
-      else if ((mask = if_nameztoflag (argv[i], &rev)) != 0)
+      else if (((mask = if_nameztoflag (argv[i], &rev))
+		& ~IU_IFF_CANTCHANGE) != 0)
 	parse_opt_set_flag (*ifp, mask, rev);
       else
 	parse_opt_set_address (*ifp, argv[i]);

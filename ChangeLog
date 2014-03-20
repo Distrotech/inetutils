@@ -1,3 +1,17 @@
+2014-03-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Command line parsing.
+	Implement flag parsing for BSD and Solaris.
+	Accept only changeable flags on GNU/Linux.
+
+	* ifconfig/system/linux.c (system_parse_opt_rest):
+	Accept only masks which correspond to changeable flags,
+	using IU_IFF_CANTCHANGE.
+	* ifconfig/system/bsd.c, ifconfig/system/solaris.c
+	(system_parse_opt_rest): New variables MASK and REV.
+	Check if the command line argument can be interpreted
+	as a changeable flag argument.
+
 2014-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Changeable flags on GNU/Linux.
