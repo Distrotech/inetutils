@@ -64,11 +64,13 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
   enum
   {
     EXPECT_NOTHING,
+    EXPECT_COMMAND,
+    EXPECT_AF,
     EXPECT_BROADCAST,
     EXPECT_NETMASK,
     EXPECT_METRIC,
     EXPECT_MTU
-  } expect = EXPECT_NOTHING;
+  } expect = EXPECT_COMMAND;
 
   *ifp = parse_opt_new_ifs (argv[0]);
 
@@ -92,8 +94,35 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	  parse_opt_set_metric (*ifp, argv[i]);
 	  break;
 
+	case EXPECT_COMMAND:
+	  expect = EXPECT_AF;		/* Applicable at creation.  */
+	  if (!strcmp (argv[i], "create"))
+	    {
+	      error (0, 0, "interface creation is not supported");
+	      return 0;
+	    }
+	  else if (!strcmp (argv[i], "destroy"))
+	    {
+	      error (0, 0, "interface destruction is not supported");
+	      return 0;
+	    }
+	  break;
+
+	case EXPECT_AF:
 	case EXPECT_NOTHING:
 	  break;
+	}
+
+      if (expect == EXPECT_AF)	/* Address selection is single shot.  */
+	{
+	  expect = EXPECT_NOTHING;
+	  if (!strcmp (argv[i], "inet"))
+	    continue;
+	  else if (!strcmp (argv[i], "inet6"))
+	    {
+	      error (0, 0, "%s is not a supported address family", argv[i]);
+	      return 0;
+	    }
 	}
 
       if (expect != EXPECT_NOTHING)
@@ -115,8 +144,7 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	parse_opt_set_flag (*ifp, mask, rev);
       else
 	{
-	  /* Recognize AF here.  */
-	  /* Also alias, -alias, create, destroy.  */
+	  /* Also alias, -alias.  */
 	  if (!((*ifp)->valid & IF_VALID_ADDR))
 	    parse_opt_set_address (*ifp, argv[i]);
 	  else if (!((*ifp)->valid & IF_VALID_DSTADDR))
@@ -142,10 +170,12 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
       error (0, 0, "option `mtu' requires an argument");
       break;
 
+    case EXPECT_AF:		/* dummy */
+    case EXPECT_COMMAND:	/* dummy */
     case EXPECT_NOTHING:
-      break;
+      return 1;
     }
-  return expect == EXPECT_NOTHING;
+  return 0;
 }
 
 int

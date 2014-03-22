@@ -78,11 +78,12 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
   enum
   {
     EXPECT_NOTHING,
+    EXPECT_AF,
     EXPECT_BROADCAST,
     EXPECT_NETMASK,
     EXPECT_METRIC,
     EXPECT_MTU
-  } expect = EXPECT_NOTHING;
+  } expect = EXPECT_AF;
 
   *ifp = parse_opt_new_ifs (argv[0]);
 
@@ -104,6 +105,17 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 
 	case EXPECT_METRIC:
 	  parse_opt_set_metric (*ifp, argv[i]);
+	  break;
+
+	case EXPECT_AF:
+	  expect = EXPECT_NOTHING;
+	  if (!strcmp (argv[i], "inet"))
+	    continue;
+	  else if (!strcmp (argv[i], "inet6"))
+	    {
+	      error (0, 0, "%s is not a supported address family", argv[i]);
+	      return 0;
+	    }
 	  break;
 
 	case EXPECT_NOTHING:
@@ -129,7 +141,6 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
 	parse_opt_set_flag (*ifp, mask, rev);
       else
 	{
-	  /* Recognize AF here.  */
 	  /* Also auto-revarp, plumb, unplumb.  */
 	  if (!((*ifp)->valid & IF_VALID_ADDR))
 	    parse_opt_set_address (*ifp, argv[i]);
@@ -156,10 +167,11 @@ system_parse_opt_rest (struct ifconfig **ifp, int argc, char *argv[])
       error (0, 0, "option `mtu' requires an argument");
       break;
 
+    case EXPECT_AF:
     case EXPECT_NOTHING:
-      break;
+      return 1;
     }
-  return expect == EXPECT_NOTHING;
+  return 0;
 }
 
 int

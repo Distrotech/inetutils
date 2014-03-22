@@ -1,3 +1,19 @@
+2014-03-23  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Parse address family.
+	Allow for address family argument on supported systems.
+
+	* ifconfig/system/bsd.c (system_parse_opt_rest): New enum
+	values EXPECT_COMMAND and EXPECT_AF.  Use the first to detect
+	`create' and `destroy', but claiming lack of support.  Accept
+	`inet' as family, but reject `inet6'.  Rewrite return status.
+	* ifconfig/system/linux.c (system_parse_opt_rest): Rename
+	enum value EXPECT_INET to EXPECT_AF.  Detect family `inet6',
+	but reject it.
+	* ifconfig/system/solaris.c (system_parse_opt_rest): New enum
+	value EXPECT_AF.  Accept `inet' as address family argument,
+	but reject `inet6'.  Rewrite return status.
+
 2014-03-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Command line parsing.
