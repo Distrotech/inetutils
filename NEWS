@@ -5,6 +5,16 @@ Foundation, Inc.  See the end of this file for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+Version 1.9.3:
+
+* syslogd
+
+A new switch `-T/--local-time' makes the service ignore a time
+stamp passed on by the remote host, instead recording the local
+time at the moment the message was recorded.
+As a short form of  `--pidfile', the switch `-P' is new.
+
+
 December 23, 2013
 Version 1.9.2:
 

@@ -3304,7 +3304,9 @@ Override configuration (the default file is @file{/etc/syslog.conf}).
 @opindex --rcdir
 Override configuration directory (the default is @file{/etc/syslog.d}).
 
-@item --pidfile=@var{file}
+@item -P @var{file}
+@itemx --pidfile=@var{file}
+@opindex -P
 @opindex --pidfile
 Override pidfile (the default file is @file{/var/run/syslogd.pid}).
 
@@ -3402,6 +3404,15 @@ allowed.
 @opindex -s
 List of domains which should be stripped from the FQDN of hosts before
 logging their name.  Multiple lists are allowed.
+
+@item -T
+@itemx --local-time
+@opindex -T
+@opindex --local-time
+Ignore any time contained in a received message.
+In its stead, record the time of reception on the local
+system.  This circumvents problems caused by remote hosts
+with skewed clocks.
 @end table
 
 @section Configuration file

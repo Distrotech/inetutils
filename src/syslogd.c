@@ -315,6 +315,7 @@ int NoForward;			/* Don't forward messages.  */
 time_t now;			/* Time use for mark and forward supending.  */
 int force_sync;			/* GNU/Linux behaviour to sync on every line.
 				   This off by default. Set to 1 to enable.  */
+int set_local_time = 0;		/* Record local time, not message time.  */
 
 const char args_doc[] = "";
 const char doc[] = "Log system messages.";
@@ -324,7 +325,6 @@ enum {
   OPT_NO_FORWARD = 256,
   OPT_NO_KLOG,
   OPT_NO_UNIXAF,
-  OPT_PIDFILE,
   OPT_IPANY
 };
 
@@ -356,7 +356,7 @@ static struct argp_option argp_options[] = {
 #endif
   {"no-unixaf", OPT_NO_UNIXAF, NULL, 0, "do not listen on unix domain "
    "sockets (overrides -a and -p)", GRP+1},
-  {"pidfile", OPT_PIDFILE, "FILE", 0, "override pidfile (default: "
+  {"pidfile", 'P', "FILE", 0, "override pidfile (default: "
    PATH_LOGPID ")", GRP+1},
   {"rcfile", 'f', "FILE", 0, "override configuration file (default: "
    PATH_LOGCONF ")",
@@ -366,6 +366,7 @@ static struct argp_option argp_options[] = {
   {"socket", 'p', "FILE", 0, "override default unix domain socket " PATH_LOG,
    GRP+1},
   {"sync", 'S', NULL, 0, "force a file sync on every line", GRP+1},
+  {"local-time", 'T', NULL, 0, "set local time on received messages", GRP+1},
 #undef GRP
   {NULL, 0, NULL, 0, NULL, 0}
 };
@@ -446,7 +447,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
       NoUnixAF = 1;
       break;
 
-    case OPT_PIDFILE:
+    case 'P':
       PidFile = arg;
       break;
 
@@ -465,6 +466,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     case 'S':
       force_sync = 1;
+      break;
+
+    case 'T':
+      set_local_time = 1;
       break;
 
     default:
@@ -1181,7 +1186,10 @@ logmsg (int pri, const char *msg, const char *from, int flags)
     timestamp = ctime (&now) + 4;
   else
     {
-      timestamp = msg;
+      if (set_local_time)
+	timestamp = ctime (&now) + 4;
+      else
+	timestamp = msg;
       msg += 16;
       msglen -= 16;
     }

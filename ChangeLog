@@ -1,3 +1,16 @@
+2014-03-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd: Local time option.
+
+	* src/syslogd.c (set_local_time): New variable.
+	(option enum): Remove OPT_PIDFILE.
+	(argp_options) <pidfile>: New alias 'P'.
+	<-T/--local-time>: New option.
+	(parse_opt) <case 'P'>: Replaces OPT_PIDFILE.
+	<case 'T'>: New case.
+	(logmsg): If `set_local_time' is set, use NOW to generate
+	a time stamp, not the initial portion of the message.
+
 2014-03-23  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Parse address family.
