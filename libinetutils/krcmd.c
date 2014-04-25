@@ -80,12 +80,12 @@
 
 # if defined SHISHI
 int kcmd (Shishi **, int *, char **, unsigned short, char *, char **,
-	  char *, int *, char *, char *, Shishi_key **,
+	  char *, int *, char *, const char *, Shishi_key **,
 	  struct sockaddr_storage *, struct sockaddr_storage *,
 	  long, int);
 # else
 int kcmd (int *, char **, unsigned short, char *, char *, char *, int *,
-	  KTEXT, char *, char *, CREDENTIALS *, Key_schedule,
+	  KTEXT, char *, const char *, CREDENTIALS *, Key_schedule,
 	  MSG_DAT *, struct sockaddr_in *, struct sockaddr_in *, long);
 # endif
 
@@ -104,7 +104,7 @@ static struct passwd pwstor, *pwd;
 
 int
 krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cmd,
-       int *fd2p, char *realm, int af)
+       int *fd2p, const char *realm, int af)
 {
   int sock = -1, err = 0;
   long authopts = 0L;
@@ -149,7 +149,7 @@ krcmd (Shishi ** h, char **ahost, unsigned short rport, char **remuser, char *cm
 # elif defined(KERBEROS)
 int
 krcmd (char **ahost, unsigned short rport, char *remuser, char *cmd, int *fd2p,
-       char *realm)
+       const char *realm)
 {
   int sock = -1, err = 0;
   KTEXT_ST ticket;
@@ -179,7 +179,7 @@ krcmd (char **ahost, unsigned short rport, char *remuser, char *cmd, int *fd2p,
 #  if defined SHISHI
 int
 krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
-	      char *cmd, int *fd2p, char *realm, Shishi_key ** key, int af)
+	      char *cmd, int *fd2p, const char *realm, Shishi_key ** key, int af)
 {
   int sock = -1, err = 0;
   struct sockaddr_storage laddr, faddr;
@@ -226,7 +226,7 @@ krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport, char **remuser,
 #  elif defined(KERBEROS)
 int
 krcmd_mutual (char **ahost, unsigned short rport, char *remuser, char *cmd,
-	      int *fd2p, char *realm, CREDENTIALS * cred, Key_schedule sched)
+	      int *fd2p, const char *realm, CREDENTIALS * cred, Key_schedule sched)
 {
   int sock, err;
   KTEXT_ST ticket;

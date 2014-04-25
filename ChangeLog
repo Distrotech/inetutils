@@ -1,3 +1,20 @@
+2014-04-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Silence warnings with libshishi.
+
+	* libinetutils/kcmd.c [KERBEROS || SHISHI] (kcmd):
+	Declare realm argument as `const char *'.
+	* libinetutils/krcmd.c [KERBEROS || SHISHI]
+	(kcmd, krcmd, krcmd_mutual): Likewise.
+	* libinetutils/shishi.c [SHISHI] (shishi_auth): Likewise.
+	* libinetutils/shishi_def.h [SHISHI] (shishi_auth, krcmd)
+	(krcmd_mutual): Likewise.
+	* src/rcp.c [KERBEROS || SHISHI] (dest_realm): Likewise.
+	* src/rlogin.c [KERBEROS || SHISHI] (dest_realm): Likewise.
+	* src/rsh.c [KERBEROS || SHISHI] (dest_realm): Likewise.
+
+	* src/rlogind.c (rlogind_auth): Initialize HOSTNAME.
+
 2014-03-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Local time option.

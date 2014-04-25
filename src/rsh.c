@@ -102,7 +102,7 @@ sa_family_t family = AF_UNSPEC;
 
 #if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
-char *dest_realm = NULL;
+const char *dest_realm = NULL;
 
 # ifdef KERBEROS
 CREDENTIALS cred;

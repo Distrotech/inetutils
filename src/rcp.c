@@ -118,7 +118,7 @@ void verifydir (char *);
 #endif /* KERBEROS */
 
 #if defined KERBEROS || defined SHISHI
-char *dest_realm = NULL;
+const char *dest_realm = NULL;
 int use_kerberos = 1;
 int doencrypt = 0;
 

@@ -94,13 +94,13 @@ int getport (int *, int);
 int
 kcmd (int *sock, char **ahost, unsigned short rport, char *locuser,
       char *remuser, char *cmd, int *fd2p, KTEXT ticket,
-      char *service, char *realm,
+      char *service, const char *realm,
       CREDENTIALS * cred, Key_schedule schedule, MSG_DAT * msg_data,
       struct sockaddr_in *laddr, struct sockaddr_in *faddr, long authopts)
 # elif defined(SHISHI)
 int
 kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
-      char **remuser, char *cmd, int *fd2p, char *service, char *realm,
+      char **remuser, char *cmd, int *fd2p, char *service, const char *realm,
       Shishi_key ** key, struct sockaddr_storage *laddr,
       struct sockaddr_storage *faddr, long authopts, int af)
 # endif

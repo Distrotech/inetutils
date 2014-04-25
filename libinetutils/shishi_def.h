@@ -58,7 +58,7 @@ struct auth_data
 extern int shishi_auth (Shishi ** handle, int verbose, char **cname,
 			const char *sname, int sock, char *cmd,
 			unsigned short port, Shishi_key ** enckey,
-			char *realm);
+			const char *realm);
 
 extern int get_auth (int infd, Shishi ** handle, Shishi_ap ** ap,
 		     Shishi_key ** enckey, const char **err_msg,
@@ -73,10 +73,10 @@ extern int writeenc (Shishi * h, int sock, char *buf, int wlen, int *len,
 
 extern int krcmd (Shishi ** h, char **ahost, unsigned short rport,
 		  char **remuser, char *cmd, int *fd2p,
-		  char *realm, int af);
+		  const char *realm, int af);
 
 extern int krcmd_mutual (Shishi ** h, char **ahost, unsigned short rport,
-			 char **remuser, char *cmd, int *fd2p, char *realm,
-			 Shishi_key ** key, int af);
+			 char **remuser, char *cmd, int *fd2p,
+			 const char *realm, Shishi_key ** key, int af);
 
 #endif

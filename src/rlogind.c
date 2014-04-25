@@ -865,7 +865,7 @@ rlogind_auth (int fd, struct auth_data *ap)
   struct hostent *hp;
   void *addrp;
 #endif
-  char *hostname;
+  char *hostname = "";
   int authenticated = 0;
   int port;
 

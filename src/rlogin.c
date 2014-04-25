@@ -123,12 +123,14 @@
 #if defined KERBEROS || defined SHISHI
 int use_kerberos = 1, doencrypt;
 # ifdef KERBEROS
-char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
+char dest_realm_buf[REALM_SZ];
+const char *dest_realm = NULL;
 CREDENTIALS cred;
 Key_schedule schedule;
 
 # elif defined(SHISHI)
-char dest_realm_buf[REALM_SZ], *dest_realm = NULL;
+char dest_realm_buf[REALM_SZ];
+const char *dest_realm = NULL;
 
 Shishi *handle;
 Shishi_key *key;

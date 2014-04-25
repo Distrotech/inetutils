@@ -32,7 +32,8 @@
 int
 shishi_auth (Shishi ** handle, int verbose, char **cname,
 	     const char *sname, int sock, char *cmd,
-	     unsigned short port, Shishi_key ** enckey, char *realm)
+	     unsigned short port, Shishi_key ** enckey,
+	     const char *realm)
 {
   Shishi_ap *ap;
   Shishi_tkt *tkt;
