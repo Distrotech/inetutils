@@ -1,5 +1,35 @@
 2014-04-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Begin support for Heimdal's Kerberos.
+	Very incomplete code for `rsh', but a needed start.
+
+	* libinetutils/kerberos5_def.h: New file.
+
+	* libinetutils/krcmd.c: Remove support for KRB4, replacing
+	most macros KERBEROS by KRB5.
+	[KRB5]: Include <krb5.h> and "kerberos5_def.h".
+	[KRB5] (kcmd, krcmd, krcmd_mutual): Update declarations,
+	and make small, obvious adaptions to Kerberos5.
+	[KRB5] (krcmd_mutual): Update value of AUTHOPTS.
+
+	* libinetutils/Makefile.am (noinst_HEADERS):
+	Add `kerberos5_def.h'.
+
+	* src/rsh.c: Replace macro KERBEROS by KRB5, temporarily
+	making an exception in some code related to encryption.
+	[KRB5]: Include <krb5.h> and "kerberos5_def.h".
+	[KRB5] (ctx, keyblock, server): New variables.
+	[KRB5 && ENCRYPTION] (parse_opt) <case 'x'>: Remove
+	call to des_set_key().
+	[KRB5 || SHISHI] (main): Refactor code for port lookup
+	and command string generation, since Kerberos5 and Shishi
+	have common traits.
+	[KRB5] (main): Adapt to new signatures of krcmd() and
+	krcmd_mutual().  Initialize `ctx', and reimplement realm
+	lookup using Kerberos5 API.
+
+2014-04-25  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Silence warnings with libshishi.
 
 	* libinetutils/kcmd.c [KERBEROS || SHISHI] (kcmd):
