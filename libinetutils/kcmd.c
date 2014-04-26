@@ -49,7 +49,7 @@
 
 #include <config.h>
 
-#if defined KERBEROS || defined SHISHI
+#if defined KRB5 || defined SHISHI
 
 # include <sys/param.h>
 # include <sys/file.h>
@@ -60,17 +60,15 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 
-# if defined KERBEROS
-#  ifdef HAVE_KERBEROSIV_DES_H
-#   include <kerberosIV/des.h>
+# if defined KRB5
+#  ifdef HAVE_KRB5_H
+#   include <krb5.h>
 #  endif
-#  ifdef HAVE_KERBEROSIV_KRB_H
-#   include <kerberosIV/krb.h>
-#  endif
-# elif defined(SHISHI)
+#  include "kerberos5_def.h"
+# elif defined(SHISHI) /* !KRB5 */
 #  include <shishi.h>
 #  include "shishi_def.h"
-# endif
+# endif /* SHISHI && !KRB5 */
 
 # include <ctype.h>
 # include <errno.h>
@@ -90,20 +88,21 @@
 
 int getport (int *, int);
 
-# if defined KERBEROS
+# if defined KRB5
 int
-kcmd (int *sock, char **ahost, unsigned short rport, char *locuser,
-      char *remuser, char *cmd, int *fd2p, KTEXT ticket,
-      char *service, const char *realm,
-      CREDENTIALS * cred, Key_schedule schedule, MSG_DAT * msg_data,
-      struct sockaddr_in *laddr, struct sockaddr_in *faddr, long authopts)
-# elif defined(SHISHI)
+kcmd (krb5_context *ctx, int *sock, char **ahost, unsigned short rport,
+      char *locuser, char **remuser, char *cmd, int *fd2p,
+      char *service, const char *realm, krb5_keyblock **key,
+      struct sockaddr_in *laddr, struct sockaddr_in *faddr,
+      long authopts)
+# elif defined(SHISHI) /* !KRB5 */
 int
-kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
-      char **remuser, char *cmd, int *fd2p, char *service, const char *realm,
-      Shishi_key ** key, struct sockaddr_storage *laddr,
-      struct sockaddr_storage *faddr, long authopts, int af)
-# endif
+kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport,
+      char *locuser, char **remuser, char *cmd, int *fd2p,
+      char *service, const char *realm, Shishi_key ** key,
+      struct sockaddr_storage *laddr, struct sockaddr_storage *faddr,
+      long authopts, int af)
+# endif /* SHISHI && !KRB5 */
 {
   int s, timo = 1, pid;
 # ifdef HAVE_SIGACTION
@@ -130,10 +129,6 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   char *host_save, *host;
   int status;
 
-# if defined SHISHI
-  int zero = 0;
-# endif
-
   pid = getpid ();
 
   /* Extract Kerberos instance name.  */
@@ -145,7 +140,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
 # if HAVE_DECL_GETADDRINFO
   memset (&hints, 0, sizeof (hints));
+#  ifdef KRB5
+  hints.ai_family = AF_INET;
+#  else /* SHISHI && !KRB5 */
   hints.ai_family = af;
+#  endif
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_CANONNAME;
   snprintf (portstr, sizeof (portstr), "%hu", ntohs (rport));
@@ -211,12 +210,6 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
       sprintf (p, "%.*s/%s", (int) (host - *ahost - 1), *ahost, host_save);
       *ahost = p;
     }
-
-# ifdef KERBEROS
-  /* If realm is null, look up from table */
-  if (realm == NULL || realm[0] == '\0')
-    realm = krb_realmofhost (host_save);
-# endif	/* KERBEROS */
 
 # ifdef HAVE_SIGACTION
   sigemptyset (&sigs);
@@ -350,7 +343,7 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 # if HAVE_DECL_GETADDRINFO
   if (res)
     freeaddrinfo (res);
-#endif
+# endif
 
   lport--;
   if (fd2p == 0)
@@ -411,35 +404,15 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   /* write(s, locuser, strlen(locuser)+1); */
 
   /* set up the needed stuff for mutual auth, but only if necessary */
-# ifdef KERBEROS
-  if (authopts & KOPT_DO_MUTUAL)
-    {
-      int sin_len;
-
-      *faddr = sin;
-
-      sin_len = sizeof (*laddr);
-      if (getsockname (s, (struct sockaddr *) laddr, &sin_len) < 0)
-	{
-	  perror ("kcmd(getsockname)");
-	  status = -1;
-	  goto bad2;
-	}
-    }
-
-  if ((status = krb_sendauth (authopts, s, ticket, service, *ahost,
-			      realm, (unsigned long) getpid (), msg_data,
-			      cred, schedule,
-			      laddr, faddr, "KCMDV0.1")) != KSUCCESS)
-    goto bad2;
-
-  write (s, remuser, strlen (remuser) + 1);
-# elif defined(SHISHI)
+# ifdef KRB5
+  if (authopts & AP_OPTS_MUTUAL_REQUIRED)
+# elif defined(SHISHI) /* !KRB5 */
   if (authopts & SHISHI_APOPTIONS_MUTUAL_REQUIRED)
+# endif
     {
       socklen_t sin_len;
 
-      *faddr = sin;
+      memcpy (faddr, &sin, sizeof(*faddr));
 
       sin_len = sizeof (*laddr);
       if (getsockname (s, (struct sockaddr *) laddr, &sin_len) < 0)
@@ -452,25 +425,37 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
 
   (void) service;	/* Silence warning.  XXX: Implicit use?  */
 
-  if ((status =
-       shishi_auth (h, 0, remuser, *ahost, s, cmd, rport, key,
-		    realm)) != SHISHI_OK)
+# ifdef KRB5
+  status = kerberos_auth (ctx, 0, remuser, *ahost, s,
+			  cmd, rport, key, realm);
+  if (status != 0)
     goto bad2;
 
+# elif defined(SHISHI) /* !KRB5 */
+  status = shishi_auth (h, 0, remuser, *ahost, s,
+			cmd, rport, key, realm);
+  if (status != SHISHI_OK)
+    goto bad2;
+
+# endif /* SHISHI && !KRB5 */
+
   write (s, *remuser, strlen (*remuser) + 1);
-# endif	/* SHISHI */
 
   write (s, cmd, strlen (cmd) + 1);
 
-# ifdef SHISHI
   if (locuser && locuser[0])
     write (s, locuser, strlen (locuser) + 1);
   else
     write (s, *remuser, strlen (*remuser) + 1);
-  write (s, &zero, sizeof (int));	/* XXX: not protocol */
-# endif
 
-  if ((rc = read (s, &c, 1)) != 1)
+  {
+    int zero = 0;	/* No forwarding of credentials.  */
+
+    write (s, &zero, sizeof (zero));
+  }
+
+  rc = read (s, &c, sizeof (c));
+  if (rc != sizeof (c))
     {
       if (rc == -1)
 	perror (*ahost);
@@ -497,11 +482,11 @@ kcmd (Shishi ** h, int *sock, char **ahost, unsigned short rport, char *locuser,
   sigsetmask (oldmask);
 # endif /* !HAVE_SIGACTION */
   *sock = s;
-# if defined KERBEROS
-  return (KSUCCESS);
-# elif defined(SHISHI)
+# if defined KRB5
+  return (0);
+# elif defined(SHISHI) /* !KRB5 */
   return (SHISHI_OK);
-# endif
+# endif /* SHISHI && !KRB5 */
 bad2:
   if (lport)
     close (*fd2p);
@@ -569,4 +554,4 @@ getport (int *alport, int af)
     }
 }
 
-#endif /* KERBEROS || SHISHI */
+#endif /* KRB5 || SHISHI */

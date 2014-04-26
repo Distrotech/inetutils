@@ -1,3 +1,25 @@
+2014-04-26  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libinetutils: Skeletal preparations for Heimdal.
+
+	* configure.ac <krb5>: Disable rlogind and rshd.
+	(KERBEROS_VERSION): Publish it using AC_SUBST.
+
+	* libinetutils/kerberos5.c: New file, mostly copied
+	in from `shishi.c' as a guide.
+
+	* libinetutils/Makefile.am (libinetutils_a_SOURCES):
+	Remove `des_rw.c', and add `kerberos5.c'.
+
+	* libinetutils/kcmd.c: Remove support for KRB4, replacing
+	all macros KERBEROS by KRB5.
+	[KRB5]: Include <krb5.h> and "kerberos5_def.h".
+	[KRB5] (kcmd): Update declarations, and make small,
+	obvious adaptions to Kerberos5.
+	(kcmd): Refactor steps common to SHISHI and KRB5, such as
+	protocol exchange and address resolution.  They differ at
+	the end, calling shishi_auth() or kerberos_auth().
+
 2014-04-25  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Begin support for Heimdal's Kerberos.

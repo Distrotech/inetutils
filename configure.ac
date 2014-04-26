@@ -356,11 +356,14 @@ if test "$enable_encryption" = yes \
 			krb5/asn1.h krb5/crc-32.h krb5/ext-proto.h \
 			krb5/krb5.h krb5/los-proto.h])
       CPPFLAGS=$save_CPPFLAGS
-      # We have no support for krcmd() with Kerberos5.
+      # We have limited support for krcmd() with Kerberos5.
       # Encryption must be sorted out as a first step.
       IU_DISABLE_TARGET(rcp)
       IU_DISABLE_TARGET(rlogin)
       IU_DISABLE_TARGET(rsh)
+      # Likewise, we need to migrate away from KRB4 and des_*()
+      IU_DISABLE_TARGET(rlogind)
+      IU_DISABLE_TARGET(rshd)
     fi
     ;;
   *)
@@ -390,6 +393,7 @@ if test "$enable_encryption" = yes \
 fi
 AC_SUBST(LIBAUTH)
 AC_SUBST(INCAUTH)
+AC_SUBST(KERBEROS_VERSION)
 
 # Define CPP macros that enable auth/encrypt code
 if test ".$LIBAUTH" != .; then

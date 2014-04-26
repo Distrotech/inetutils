@@ -37,9 +37,9 @@ libinetutils_a_SOURCES = \
  cleansess.c\
  daemon.c\
  defauthors.c\
- des_rw.c\
  if_index.c \
  kcmd.c\
+ kerberos5.c \
  krcmd.c\
  localhost.c\
  logwtmpko.c\
