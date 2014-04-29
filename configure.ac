@@ -154,7 +154,6 @@ gl_INIT
 
 ### Checks for libraries.
 AC_SEARCH_LIBS([inet_ntoa], [nsl])
-AC_SEARCH_LIBS([gethostname], [resolv])
 AC_SEARCH_LIBS([getpeername], [socket])
 
 # See if a termcap library is available (under one of several names)
@@ -795,7 +794,14 @@ if test "$ac_cv_func_strerror" = no; then
 fi
 
 # See if the system has hstrerror, and replace it if not
+save_LIBS=$LIBS
+
 AC_CHECK_FUNC(hstrerror)
+if test "$ac_cv_func_hstrerror" != yes; then
+  # Is hstrerror contained in a separate library?
+  AC_CHECK_LIB([resolv], [hstrerror], LIBRESOLV=-lresolv)
+  LIBS="$LIBRESOLV $LIBS"
+fi
 if test "$ac_cv_func_hstrerror" = yes; then
   AC_CHECK_DECL(hstrerror, , , [#include <netdb.h>])
 else
@@ -814,6 +820,8 @@ if test "$ac_cv_func_hstrerror" = yes \
   # `Host lookup error N'.
   AC_DEFINE([HAVE_HSTRERROR], 1, [Define to one if you have hstrerror.])
 fi
+LIBS=$save_LIBS
+AC_SUBST(LIBRESOLV)
 
 # OpenSolaris does not provide an external reference.
 AC_CHECK_DECLS(telcmds, , ,

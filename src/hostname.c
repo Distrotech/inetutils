@@ -212,7 +212,8 @@ get_name (const hostname_arguments *const args)
         error (EXIT_FAILURE, errno, "strdup");
     }
 
-  puts (name);
+  if (name && *name)
+    puts (name);
 
   free (name);
   free (sname);
@@ -257,7 +258,7 @@ get_aliases (const char *const host_name)
 
   ht = gethostbyname (host_name);
   if (ht == NULL)
-    strcpy (aliases, "(none)");
+    strcpy (aliases, "");	/* Be honest about missing aliases.  */
   else
     {
       for (i = 0; ht->h_aliases[i] != NULL; i++)
@@ -288,7 +289,7 @@ get_fqdn (const char *const host_name)
 
   ht = gethostbyname (host_name);
   if (ht == NULL)
-    fqdn = strdup ("(none)");
+    fqdn = strdup (host_name);	/* Fall back to system name.  */
   else
     fqdn = strdup (ht->h_name);
 
@@ -313,7 +314,11 @@ get_ip_addresses (const char *const host_name)
 
   ht = gethostbyname (host_name);
   if (ht == NULL)
+#if HAVE_HSTRERROR
+    error (EXIT_FAILURE, 0, "gethostbyname: %s", hstrerror (h_errno));
+#else
     strcpy (addresses, "(none)");
+#endif
   else
     {
       for (i = 0; ht->h_addr_list[i] != NULL; i++)

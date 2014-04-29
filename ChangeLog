@@ -1,3 +1,29 @@
+2014-04-29  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	hostname: Degenerate cases.
+	Better replies when name resolution fails.
+
+	* configure.ac: Remove check for gethostname in libresolv.
+	If hstrerror is missing, check for it in libresolv.
+	(LIBRESOLV): New variable published using AC_SUBST.
+
+	* src/Makefile.am (hostname_LDADD): New variable.
+
+	* src/hostname.c (get_name): Call puts() only if NAME
+	carries some content.  Will, most importantly, reply
+	with an empty string, not an empty line, when no aliases
+	are found.
+	(get_aliases): Return an empty string when the host's
+	name cannot be resolved.
+	(get_fqdn): Fall back to the system reported hostname
+	when name resolution fails.
+	[HAVE_HSTRERROR] (get_ip_addresses): Exit with an error
+	when name resolution fails.
+
+	* tests/hostname.sh: Check availability of mktemp.
+	(posttest): New function, used as trap.
+	<root execution>: New test case with switch '-F'.
+
 2014-04-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libinetutils: Skeletal preparations for Heimdal.

@@ -44,6 +44,7 @@ EXTRA_PROGRAMS =
 
 bin_PROGRAMS += $(hostname_BUILD)
 hostname_SOURCES = hostname.c
+hostname_LDADD = $(LDADD) $(LIBRESOLV)
 EXTRA_PROGRAMS += hostname
 
 bin_PROGRAMS += $(dnsdomainname_BUILD)
