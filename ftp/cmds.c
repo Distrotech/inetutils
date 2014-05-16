@@ -1198,12 +1198,39 @@ settrace (int argc _GL_UNUSED_PARAMETER, char **argv _GL_UNUSED_PARAMETER)
 
 /*
  * Toggle hash mark printing during transfers.
+ *
+ * Parse multipliers 'k', 'K', 'm', 'M', and
+ * 'g', 'G' to simplify the size step.
  */
 void
 sethash (int argc _GL_UNUSED_PARAMETER, char **argv)
 {
+  char *p = argv[1];
+
+  /* P is NULL when no argument was passed with `hash'.  */
+  while (p && isdigit (*p))
+    p++;
+
   if (argv[1] != NULL)
     sscanf (argv[1], "%d", &hashbytes);
+
+  /* Apply a multiplier only if a numerical part exixts.  */
+  if (argv[1] && isdigit (*argv[1]))
+    {
+      switch (*p)
+	{
+	case 'g':
+	case 'G':
+	  hashbytes *= 1024;	/* Cascaded multiplication!  */
+	case 'm':
+	case 'M':
+	  hashbytes *= 1024;
+	case 'k':
+	case 'K':
+	  hashbytes *= 1024;
+	}
+    }
+
   if (hashbytes <= 0)
     hashbytes = 1024;
   hash = !hash;

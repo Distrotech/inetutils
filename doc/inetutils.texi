@@ -1572,7 +1572,9 @@ subtree, then making certain that @command{ftp} uses binary mode.
 @item hash [@var{size}]
 Toggle hash-sign (@samp{#}) printing for each data block transferred.
 The size of a data block can optionally be specified.  If not given,
-it defaults to 1024 bytes.
+it defaults to 1024 bytes.  The size can be written with multipliers
+'k', 'K', 'm', 'M', and 'g', 'G', to specify kilobytes, megabytes,
+or gigabytes.
 
 @item help [@var{command}]
 @itemx ? [@var{command}]
