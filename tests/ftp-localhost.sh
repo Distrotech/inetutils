@@ -393,6 +393,37 @@ HOME=$TMPDIR $FTP "$TARGET" $PORT -4 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
 test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET"
 
+# Test a passive connection: EPSV and IPv4.
+#
+# Set NETRC in environment to regulate login.
+#
+echo "EPSV to $TARGET (IPv4) using inetd, setting NETRC."
+cat <<STOP |
+rstatus
+epsv4
+dir
+`$do_transfer && test -n "$DLDIR" && echo "\
+cd $DLDIR"`
+`$do_transfer && echo "\
+lcd $TMPDIR
+image
+put $GETME $PUTME"`
+STOP
+
+NETRC=$TMPDIR/.netrc \
+  $FTP "$TARGET" $PORT -4 -v -p -t >$TMPDIR/ftp.stdout 2>&1
+
+test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET with NETRC"
+
+$do_transfer && \
+    if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
+	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
+	date "+%s" >> "$TMPDIR/$GETME"
+    else
+	echo >&2 'Binary transfer failed.'
+	exit 1
+    fi
+
 # Test an active connection: EPRT and IPv4.
 #
 echo "EPRT to $TARGET (IPv4) using inetd."
@@ -419,6 +450,21 @@ $do_transfer && \
 	echo >&2 'Binary transfer failed.'
 	exit 1
     fi
+
+# Test an active connection: EPRT and IPv4.
+#
+# Use `-N' to set location of .netrc file.
+#
+echo "EPRT to $TARGET (IPv4) using inetd, apply the switch -N."
+cat <<STOP |
+rstatus
+epsv4
+dir
+STOP
+
+$FTP "$TARGET" $PORT -N"$TMPDIR/.netrc" -4 -v -t >$TMPDIR/ftp.stdout 2>&1
+
+test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET"
 
 # Test a passive connection: EPSV and IPv6.
 #

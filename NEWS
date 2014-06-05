@@ -7,6 +7,15 @@ Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
 Version 1.9.3:
 
+* ftp
+
+The internal command `hash' accepts a suffixed letter to the
+size argument, like `12k', instead of 12288. Also, the .netrc
+file can be overridden by the environment variable NETRC.
+Of even higher precedence is the new option `-N/--netrc'.
+The access to the resulting file, whatever method, is now
+denied unless it as a regular file.
+
 * syslogd
 
 A new switch `-T/--local-time' makes the service ignore a time

@@ -1381,6 +1381,15 @@ Disables file name globbing.
 @opindex --no-prompt
 Turns off interactive prompting during multiple file transfers.
 
+@item -N @var{netrc}
+@itemx --netrc=@var{netrc}
+@opindex -N
+@opindex --netrc
+Set a preferred location of the @file{.netrc} file,
+thus overriding any environment setting in @env{NETRC},
+as well as the default location @file{$HOME/.netrc},
+@pxref{The .netrc file}.
+
 @item -n
 @itemx --no-login
 @opindex -n
@@ -2046,8 +2055,13 @@ Avoid this problem by using the binary image type.
 @flindex .netrc
 
 The @file{.netrc} file contains login and initialization information
-used by the auto-login process.  It resides in the user's home
-directory.  The following tokens are recognized; they may be separated
+used by the auto-login process.  It generally resides in the user's
+home directory, but a location outside of the home directory
+can be set using the environment variable @env{NETRC}.
+Both locations are overridden by the command line option @option{-N}.
+The selected file must be a regular file, or access will be denied.
+
+The following tokens are recognized; they may be separated
 by spaces, tabs, or new-lines:
 
 @table @samp
@@ -2107,6 +2121,10 @@ executed as the last step in the auto-login process.
 @table @env
 @item HOME
 Used for locating a @file{.netrc} file, if one exists.
+
+@item NETRC
+Alternate location of the @file{.netrc} file,
+taking precedence over the standard location.
 
 @item SHELL
 For determining the default shell interpreter.

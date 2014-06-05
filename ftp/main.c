@@ -134,6 +134,8 @@ static struct argp_option argp_options[] = {
   {"verbose", 'v', NULL, 0, "verbose output", GRP+1},
   {"ipv4", '4', NULL, 0, "contact IPv4 hosts", GRP+1},
   {"ipv6", '6', NULL, 0, "contact IPv6 hosts", GRP+1},
+  {"netrc", 'N', "NETRC", 0, "select a specific initialization file",
+   GRP+1},
 #undef GRP
   {NULL, 0, NULL, 0, NULL, 0}
 };
@@ -192,6 +194,10 @@ parse_opt (int key, char *arg, struct argp_state *state _GL_UNUSED_PARAMETER)
       usefamily = AF_INET6;
       break;
 
+    case 'N':
+      netrc = arg;
+      break;
+
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -228,6 +234,7 @@ main (int argc, char *argv[])
   line = NULL;			/* reset global input */
   linelen = 0;
   argbuf = NULL;
+  netrc = NULL;
 
   /* Invoked as `pftp'?  Then set passive mode.  */
   cp = strrchr (argv[0], '/');

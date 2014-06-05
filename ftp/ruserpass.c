@@ -123,12 +123,42 @@ remote_userpass (char *host, char **aname, char **apass, char **aacct)
   if (hdir == NULL)
     hdir = ".";
   snprintf (buf, sizeof buf, "%s/.netrc", hdir);
+
+  /* The switch `-N/--netrc' would have set this.  */
+  if (!netrc)
+    netrc = getenv ("NETRC");
+
+  if (netrc && netrc[0])
+    snprintf (buf, sizeof buf, "%s", netrc);
+
   cfile = fopen (buf, "r");
   if (cfile == NULL)
     {
       if (errno != ENOENT)
 	error (0, errno, "%s", buf);
       return (0);
+    }
+
+  /* The .netrc is now opened and is thus fixed.
+   * Check that it is a regular file, and not a
+   * soft link in particular.
+   */
+  if (lstat (buf, &stb) < 0)
+    {
+      error (0, errno, "%s", buf);
+      fclose (cfile);
+      return (-1);
+    }
+
+  if (!S_ISREG (stb.st_mode))
+    {
+      if (S_ISLNK (stb.st_mode))
+	error (0, 0, "the .netrc file is symbolic link: %s", buf);
+      else
+	error (0, 0, "the .netrc file is no regular file: %s", buf);
+
+      fclose (cfile);
+      return (-1);
     }
 
   myname = localhost ();

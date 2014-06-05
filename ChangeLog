@@ -1,3 +1,20 @@
+2014-06-05  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Alternate selection of .netrc file.
+
+	* ftp/ftp_var.h (netrc): New variable.
+	* ftp/main.c (argp_options) <-N/--netrc>: New option.
+	(parse_opt) <'N'>: New case.
+	(main): Initialize `netrc'.
+	* ftp/ruserpass.c (remote_userpass): If `netrc' is NULL,
+	check NETRC in environment.  Whenever `netrc' has content,
+	us it instead of `~/.netrc'.  Once CFILE is valid, make
+	sure that the file location is a regular file, otherwise
+	returning to the interpreter.
+
+	* tests/ftp-localhost.sh: Two new test cases, checking the
+	functionality of NETRC in environment, and the option `-N'.
+
 2014-05-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Size multipliers for hash increments.

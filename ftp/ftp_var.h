@@ -108,6 +108,7 @@ FTP_EXTERN char bytename[32];	/* local byte size in ascii */
 FTP_EXTERN int bytesize;	/* local byte size in binary */
 
 FTP_EXTERN char *hostname;	/* name of host connected to */
+FTP_EXTERN char *netrc;		/* netrc file chosen on command line */
 FTP_EXTERN int unix_server;	/* server is unix, can use binary for ascii */
 FTP_EXTERN int unix_proxy;	/* proxy is unix, can use binary for ascii */
 
