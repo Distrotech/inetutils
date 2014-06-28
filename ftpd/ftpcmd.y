@@ -1389,7 +1389,7 @@ static struct tab cmdtab[] = {
   { "ADAT", ADAT, OSTR, 0,	"<sp> security-data" },
   { "AUTH", AUTH, OSTR, 0,	"<sp> mechanism" },
   { "CCC", CCC, ARGS, 0,	"(clear command channel)" },
-  { "CONF", CONF, OSTR, 0, 	"<sp> confidential-msg" },
+  { "CONF", CONF, OSTR, 0,	"<sp> confidential-msg" },
   { "ENC", ENC, OSTR, 0,	"<sp> private-message" },
   { "MIC", MIC, OSTR, 0,	"<sp> safe-message" },
   { "PBSZ", PBSZ, OSTR, 0,	"<sp> buf-size" },
