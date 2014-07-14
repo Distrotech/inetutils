@@ -9,12 +9,12 @@ Version 1.9.3:
 
 * ftp
 
-The internal command `hash' accepts a suffixed letter to the
-size argument, like `12k', instead of 12288. Also, the .netrc
-file can be overridden by the environment variable NETRC.
-Of even higher precedence is the new option `-N/--netrc'.
-The access to the resulting file, whatever method, is now
-denied unless it as a regular file.
+The internal command `hash' accepts a suffixed letter to the size
+argument, like `12k', instead of 12288.  Made a minor change to the
+semantics of the command itself.  Also, the .netrc file can be over-
+ridden by the environment variable NETRC.  Of even higher precedence
+is the new option `-N/--netrc'.  The access to the resulting file,
+whatever method, is now denied unless it is a regular file.
 
 * syslogd
 

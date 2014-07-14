@@ -1579,11 +1579,14 @@ an already created @command{tar} or @command{cpio} archive of the
 subtree, then making certain that @command{ftp} uses binary mode.
 
 @item hash [@var{size}]
-Toggle hash-sign (@samp{#}) printing for each data block transferred.
-The size of a data block can optionally be specified.  If not given,
-it defaults to 1024 bytes.  The size can be written with multipliers
-'k', 'K', 'm', 'M', and 'g', 'G', to specify kilobytes, megabytes,
-or gigabytes.
+In the absence of an argument, toggle the state of hash-sign (@samp{#})
+printing after each transferred data block.
+The optional argument selects the size of data blocks,
+and unconditionally activates printing.
+The default size is 1024 bytes.
+For convenience, the size can be written with postfix multipliers
+'k', 'K', 'm', 'M', and 'g', 'G', to specify kilobytes, Megabytes,
+and Gigabytes, respectively.
 
 @item help [@var{command}]
 @itemx ? [@var{command}]

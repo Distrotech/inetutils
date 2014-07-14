@@ -1201,6 +1201,10 @@ settrace (int argc _GL_UNUSED_PARAMETER, char **argv _GL_UNUSED_PARAMETER)
  *
  * Parse multipliers 'k', 'K', 'm', 'M', and
  * 'g', 'G' to simplify the size step.
+ *
+ * With a numerical argument, hash marking is
+ * made active, and the step size is updated.
+ * Toggle state only in absence of an argument.
  */
 void
 sethash (int argc _GL_UNUSED_PARAMETER, char **argv)
@@ -1214,9 +1218,11 @@ sethash (int argc _GL_UNUSED_PARAMETER, char **argv)
   if (argv[1] != NULL)
     sscanf (argv[1], "%d", &hashbytes);
 
-  /* Apply a multiplier only if a numerical part exixts.  */
+  /* Apply a multiplier only if a numerical part exists.  */
   if (argv[1] && isdigit (*argv[1]))
     {
+      hash = 1;			/* Enforce markers.  */
+
       switch (*p)
 	{
 	case 'g':
@@ -1233,12 +1239,16 @@ sethash (int argc _GL_UNUSED_PARAMETER, char **argv)
 
   if (hashbytes <= 0)
     hashbytes = 1024;
-  hash = !hash;
+
+  if (!argv[1])			/* Toggle when argument is absent.  */
+    hash = !hash;
+
   printf ("Hash mark printing %s", onoff (hash));
-  code = hash;
   if (hash)
     printf (" (%d bytes/hash mark)", hashbytes);
   printf (".\n");
+
+  code = hash;
 }
 
 /*

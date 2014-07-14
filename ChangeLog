@@ -1,3 +1,12 @@
+2014-07-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Hash command semantic.
+	Toggle hash state when argument is not set, only then.
+
+	* ftp/cmds.c (sethash): Activate marker when a numeric
+	argument is found; toggle when no argument is present.
+	A non-numeric argument leads to status reporting only.
+
 2014-06-05  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Alternate selection of .netrc file.
