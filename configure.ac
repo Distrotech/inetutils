@@ -703,7 +703,15 @@ IU_CHECK_MEMBERS([struct sockaddr.sa_len], , ,
                   #include <sys/socket.h>])
 IU_CHECK_MEMBERS([struct hostent.h_addr_list], , , [#include <netdb.h>])
 
-IU_CHECK_MEMBERS([struct stat.st_blksize])
+IU_CHECK_MEMBERS([struct stat.st_atim.tv_nsec,
+		  struct stat.st_atim.tv_usec,
+		  struct stat.st_blksize,
+		  struct stat.st_ctim.tv_nsec,
+		  struct stat.st_ctim.tv_usec,
+		  struct stat.st_mtim.tv_nsec,
+		  struct stat.st_mtim.tv_usec], , ,
+		 [#include <sys/types.h>
+		  #include <sys/stat.h>])
 
 # OpenSolaris does not use a union for `struct tftphdr.th_u'.  As a
 # consequence `struct tftphdr.th_stuff' is a macro resolving to a

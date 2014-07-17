@@ -677,18 +677,18 @@ write_stat_time (int fd, struct stat *stat)
   time_t a_sec, m_sec;
   long a_usec = 0, m_usec = 0;
 
-#ifdef HAVE_STAT_ST_MTIMESPEC
-  a_sec = stat->st_atimespec.ts_sec;
-  a_usec = stat->st_atimespec.ts_nsec / 1000;
-  m_sec = stat->st_mtimespec.ts_sec;
-  m_usec = stat->st_mtimespec.ts_nsec / 1000;
-#else
   a_sec = stat->st_atime;
+#ifdef HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC
+  a_usec = stat->st_atim.tv_nsec / 1000;
+#elif defined HAVE_STRUCT_STAT_ST_ATIM_TV_USEC
+  a_usec = stat->st_atim.tv_usec;
+#endif
+
   m_sec = stat->st_mtime;
-# ifdef HAVE_STAT_ST_MTIME_USEC
-  a_usec = stat->st_atime_usec;
-  m_usec = stat->st_mtime_usec;
-# endif
+#ifdef HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC
+  m_usec = stat->st_mtim.tv_nsec / 1000;
+#elif defined HAVE_STRUCT_STAT_ST_MTIM_TV_USEC
+  m_usec = stat->st_mtim.tv_usec;
 #endif
 
   snprintf (buf, sizeof (buf), "T%ld %ld %ld %ld\n",

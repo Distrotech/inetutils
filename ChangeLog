@@ -1,3 +1,29 @@
+2014-07-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Handle access timing in fractions of a second.
+
+	* configure.ac (HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC)
+	(HAVE_STRUCT_STAT_ST_ATIM_TV_USEC, HAVE_STRUCT_STAT_ST_CTIM_TV_NSEC)
+	(HAVE_STRUCT_STAT_ST_CTIM_TV_USEC, HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC)
+	(HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC): Check for existing time field
+	for sub-second timing in `struct stat'.
+	(HAVE_STRUCT_STAT_ST_BLKSTAT): Make the macro functional!
+
+	* libls/cmp.c (modcmp) [HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC]
+	[HAVE_STRUCT_STAT_ST_MTIM_TV_USEC]: Compare in sub-seconds.
+	(acccmp) [HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC]
+	[HAVE_STRUCT_STAT_ST_ATIM_TV_USEC]: Likewise.
+	(statmod) [HAVE_STRUCT_STAT_ST_CTIM_TV_NSEC]
+	[HAVE_STRUCT_STAT_CT_MTIM_TV_USEC]: Likewise
+	(revmodcmp, revaccmp, revstatmod, revsizecmp): Replace code
+	by a simple sign change of modcmp(), acccmp(), etcetera.
+
+	* src/rcp.c [HAVE_STAT_ST_MTIMESPEC || HAVE_STAT_ST_MTIME_USEC]
+	(write_stat_time): Remove unused and obsolete code.
+	[HAVE_STRUCT_STAT_ST_ATIM_NSEC || HAVE_STRUCT_STAT_ST_ATIM_USEC]
+	[HAVE_STRUCT_STAT_ST_MTIM_NSEC || HAVE_STRUCT_STAT_ST_MTIM_USEC]
+	(write_stat_time): Code portably for sub-second accuracy.
+
 2014-07-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Hash command semantic.

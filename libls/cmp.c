@@ -74,9 +74,39 @@ revnamecmp (const FTSENT *a, const FTSENT *b)
 int
 modcmp (const FTSENT *a, const FTSENT *b)
 {
-  if (b->fts_statp->st_mtime > a->fts_statp->st_mtime)
+  if (b->fts_statp->st_mtime > a->fts_statp->st_mtime
+      ||
+#ifdef HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC
+      ( b->fts_statp->st_mtime == a->fts_statp->st_mtime
+	&&
+	b->fts_statp->st_mtim.tv_nsec > a->fts_statp->st_mtim.tv_nsec
+      )
+#elif defined HAVE_STRUCT_STAT_ST_MTIM_TV_USEC
+      ( b->fts_statp->st_mtime == a->fts_statp->st_mtime
+	&&
+	b->fts_statp->st_mtim.tv_usec > a->fts_statp->st_mtim.tv_usec
+      )
+#else
+      0
+#endif
+     )
     return (1);
-  else if (b->fts_statp->st_mtime < a->fts_statp->st_mtime)
+  else if (b->fts_statp->st_mtime < a->fts_statp->st_mtime
+	   ||
+#ifdef HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC
+	   ( b->fts_statp->st_mtime == a->fts_statp->st_mtime
+	     &&
+	     b->fts_statp->st_mtim.tv_nsec < a->fts_statp->st_mtim.tv_nsec
+	   )
+#elif defined HAVE_STRUCT_STAT_ST_MTIM_TV_USEC
+	   ( b->fts_statp->st_mtime == a->fts_statp->st_mtime
+	     &&
+	     b->fts_statp->st_mtim.tv_usec < a->fts_statp->st_mtim.tv_usec
+	   )
+#else
+	   0
+#endif
+	  )
     return (-1);
   else
     return (namecmp (a, b));
@@ -85,20 +115,45 @@ modcmp (const FTSENT *a, const FTSENT *b)
 int
 revmodcmp (const FTSENT *a, const FTSENT *b)
 {
-  if (b->fts_statp->st_mtime > a->fts_statp->st_mtime)
-    return (-1);
-  else if (b->fts_statp->st_mtime < a->fts_statp->st_mtime)
-    return (1);
-  else
-    return (revnamecmp (a, b));
+  return (- modcmp (a, b));
 }
 
 int
 acccmp (const FTSENT *a, const FTSENT *b)
 {
-  if (b->fts_statp->st_atime > a->fts_statp->st_atime)
+  if (b->fts_statp->st_atime > a->fts_statp->st_atime
+      ||
+#ifdef HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC
+      ( b->fts_statp->st_atime == a->fts_statp->st_atime
+	&&
+	b->fts_statp->st_atim.tv_nsec > a->fts_statp->st_atim.tv_nsec
+      )
+#elif defined HAVE_STRUCT_STAT_ST_ATIM_TV_USEC
+      ( b->fts_statp->st_atime == a->fts_statp->st_atime
+	&&
+	b->fts_statp->st_atim.tv_usec > a->fts_statp->st_atim.tv_usec
+      )
+#else
+      0
+#endif
+     )
     return (1);
-  else if (b->fts_statp->st_atime < a->fts_statp->st_atime)
+  else if (b->fts_statp->st_atime < a->fts_statp->st_atime
+	   ||
+#ifdef HAVE_STRUCT_STAT_ST_ATIM_TV_NSEC
+	   ( b->fts_statp->st_atime == a->fts_statp->st_atime
+	     &&
+	     b->fts_statp->st_atim.tv_nsec < a->fts_statp->st_atim.tv_nsec
+	   )
+#elif defined HAVE_STRUCT_STAT_ST_ATIM_TV_USEC
+	   ( b->fts_statp->st_atime == a->fts_statp->st_atime
+	     &&
+	     b->fts_statp->st_atim.tv_usec < a->fts_statp->st_atim.tv_usec
+	   )
+#else
+	   0
+#endif
+	  )
     return (-1);
   else
     return (namecmp (a, b));
@@ -107,20 +162,45 @@ acccmp (const FTSENT *a, const FTSENT *b)
 int
 revacccmp (const FTSENT *a, const FTSENT *b)
 {
-  if (b->fts_statp->st_atime > a->fts_statp->st_atime)
-    return (-1);
-  else if (b->fts_statp->st_atime < a->fts_statp->st_atime)
-    return (1);
-  else
-    return (revnamecmp (a, b));
+  return (- acccmp (a, b));
 }
 
 int
 statcmp (const FTSENT *a, const FTSENT *b)
 {
-  if (b->fts_statp->st_ctime > a->fts_statp->st_ctime)
+  if (b->fts_statp->st_ctime > a->fts_statp->st_ctime
+      ||
+#ifdef HAVE_STRUCT_STAT_ST_CTIM_TV_NSEC
+      ( b->fts_statp->st_ctime == a->fts_statp->st_ctime
+	&&
+	b->fts_statp->st_ctim.tv_nsec > a->fts_statp->st_ctim.tv_nsec
+      )
+#elif defined HAVE_STRUCT_STAT_ST_CTIM_TV_USEC
+      ( b->fts_statp->st_ctime == a->fts_statp->st_ctime
+	&&
+	b->fts_statp->st_ctim.tv_usec > a->fts_statp->st_ctim.tv_usec
+      )
+#else
+      0
+#endif
+     )
     return (1);
-  else if (b->fts_statp->st_ctime < a->fts_statp->st_ctime)
+  else if (b->fts_statp->st_ctime < a->fts_statp->st_ctime
+	   ||
+#ifdef HAVE_STRUCT_STAT_ST_CTIM_TV_NSEC
+	   ( b->fts_statp->st_ctime == a->fts_statp->st_ctime
+	     &&
+	     b->fts_statp->st_ctim.tv_nsec < a->fts_statp->st_ctim.tv_nsec
+	   )
+#elif defined HAVE_STRUCT_STAT_ST_CTIM_TV_USEC
+	   ( b->fts_statp->st_ctime == a->fts_statp->st_ctime
+	     &&
+	     b->fts_statp->st_ctim.tv_usec < a->fts_statp->st_ctim.tv_usec
+	   )
+#else
+	   0
+#endif
+	  )
     return (-1);
   else
     return (namecmp (a, b));
@@ -129,12 +209,7 @@ statcmp (const FTSENT *a, const FTSENT *b)
 int
 revstatcmp (const FTSENT *a, const FTSENT *b)
 {
-  if (b->fts_statp->st_ctime > a->fts_statp->st_ctime)
-    return (-1);
-  else if (b->fts_statp->st_ctime < a->fts_statp->st_ctime)
-    return (1);
-  else
-    return (revnamecmp (a, b));
+  return (- statcmp (a, b));
 }
 
 int
@@ -151,10 +226,5 @@ sizecmp (const FTSENT *a, const FTSENT *b)
 int
 revsizecmp (const FTSENT *a, const FTSENT *b)
 {
-  if (b->fts_statp->st_size > a->fts_statp->st_size)
-    return (-1);
-  if (b->fts_statp->st_size < a->fts_statp->st_size)
-    return (1);
-  else
-    return (revnamecmp (a, b));
+  return (- sizecmp (a, b));
 }
