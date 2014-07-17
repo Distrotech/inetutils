@@ -1,3 +1,15 @@
+2014-07-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Portability of canonical host name.
+	In response to a numerical address, getaddrinfo()
+	does not populate `ai_canonname' by necessity.
+
+	* ftp/ftp.c (hookup): Copy `RES->ai_canonname' only
+	if set.  Copy from RHOST otherwise.
+	* ping/libping.c (ping_set_dest): Likewise; with P.
+	* ping/ping6.c (ping_set_dest): Likewise, with RHOST.
+	* src/traceroute.c (main): Likewise.
+
 2014-07-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Handle access timing in fractions of a second.

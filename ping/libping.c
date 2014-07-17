@@ -291,15 +291,19 @@ ping_set_dest (PING * ping, char *host)
 # endif
 
   rc = getaddrinfo (p, NULL, &hints, &res);
-# ifdef HAVE_IDN
-  free (p);
-# endif
 
   if (rc)
     return 1;
 
   memcpy (&ping->ping_dest.ping_sockaddr, res->ai_addr, res->ai_addrlen);
-  ping->ping_hostname = strdup (res->ai_canonname);
+  if (res->ai_canonname)
+    ping->ping_hostname = strdup (res->ai_canonname);
+  else
+    ping->ping_hostname = strdup (p);
+
+# ifdef HAVE_IDN
+  free (p);
+# endif
   freeaddrinfo (res);
 
   return 0;

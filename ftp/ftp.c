@@ -169,9 +169,14 @@ hookup (char *host, int port)
       free (rhost);
       return ((char *) 0);
     }
-  free (rhost);
-  strncpy (hostnamebuf, res->ai_canonname, sizeof (hostnamebuf));
+
+  if (res->ai_canonname)
+    strncpy (hostnamebuf, res->ai_canonname, sizeof (hostnamebuf));
+  else
+    strncpy (hostnamebuf, rhost, sizeof (hostnamebuf));
+
   hostname = hostnamebuf;
+  free (rhost);
 
   for (ai = res; ai != NULL; ai = ai->ai_next, ++again)
     {

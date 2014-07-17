@@ -1020,15 +1020,19 @@ ping_set_dest (PING * ping, char *host)
 #endif
 
   err = getaddrinfo (rhost, NULL, &hints, &result);
-#if HAVE_IDN
-  free (rhost);
-#endif
   if (err)
     return 1;
 
   memcpy (&ping->ping_dest.ping_sockaddr6, result->ai_addr, result->ai_addrlen);
 
-  ping->ping_hostname = strdup (result->ai_canonname);
+  if (result->ai_canonname)
+    ping->ping_hostname = strdup (result->ai_canonname);
+  else
+    ping->ping_hostname = strdup (rhost);
+
+#if HAVE_IDN
+  free (rhost);
+#endif
   freeaddrinfo (result);
 
   if (!ping->ping_hostname)

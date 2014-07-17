@@ -312,7 +312,6 @@ main (int argc, char **argv)
 #endif
 
   rc = getaddrinfo (rhost, NULL, &hints, &res);
-  free (rhost);
 
   if (rc)
     error (EXIT_FAILURE, 0, "unknown host");
@@ -321,11 +320,13 @@ main (int argc, char **argv)
   dest.sin_port = htons (opt_port);
 
   getnameinfo (res->ai_addr, res->ai_addrlen, addrstr, sizeof (addrstr),
-                  NULL, 0, NI_NUMERICHOST);
+	       NULL, 0, NI_NUMERICHOST);
 
   printf ("traceroute to %s (%s), %d hops max\n",
-	  res->ai_canonname, addrstr, opt_max_hops);
+	  res->ai_canonname ? res->ai_canonname : rhost,
+	  addrstr, opt_max_hops);
 
+  free (rhost);
   freeaddrinfo (res);
 
   trace_ip_opts (&dest);
@@ -398,7 +399,7 @@ do_try (trace_t * trace, const int hop,
 	      /* was interrupted */
 	      break;
 	    default:
-              error (EXIT_FAILURE, errno, "select failed");
+	      error (EXIT_FAILURE, errno, "select failed");
 	      break;
 	    }
 	}
@@ -494,16 +495,16 @@ trace_init (trace_t * t, const struct sockaddr_in to,
 	{
 	  t->icmpfd = socket (PF_INET, SOCK_RAW, protocol->p_proto);
 	  if (t->icmpfd < 0)
-            error (EXIT_FAILURE, errno, "socket");
+	    error (EXIT_FAILURE, errno, "socket");
 
 	  if (setsockopt (t->icmpfd, IPPROTO_IP, IP_TTL,
 			  ttlp, sizeof (*ttlp)) < 0)
-            error (EXIT_FAILURE, errno, "setsockopt");
+	    error (EXIT_FAILURE, errno, "setsockopt");
 	}
       else
 	{
 	  /* FIXME: Should we error out? */
-          error (EXIT_FAILURE, 0, "can't find supplied protocol 'icmp'");
+	  error (EXIT_FAILURE, 0, "can't find supplied protocol 'icmp'");
 	}
 
       /* free (protocol); ??? */
@@ -672,12 +673,12 @@ trace_write (trace_t * t)
 	      case ECONNRESET:
 		break;
 	      default:
-                error (EXIT_FAILURE, errno, "sendto");
+		error (EXIT_FAILURE, errno, "sendto");
 	      }
 	  }
 
 	if (gettimeofday (&t->tsent, NULL) < 0)
-          error (EXIT_FAILURE, errno, "gettimeofday");
+	  error (EXIT_FAILURE, errno, "gettimeofday");
       }
       break;
 
@@ -699,12 +700,12 @@ trace_write (trace_t * t)
 	      case ECONNRESET:
 		break;
 	      default:
-                error (EXIT_FAILURE, errno, "sendto");
+		error (EXIT_FAILURE, errno, "sendto");
 	      }
 	  }
 
 	if (gettimeofday (&t->tsent, NULL) < 0)
-          error (EXIT_FAILURE, errno, "gettimeofday");
+	  error (EXIT_FAILURE, errno, "gettimeofday");
       }
       break;
 
