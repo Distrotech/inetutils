@@ -220,9 +220,12 @@ if test "$enable_libls" = yes && test "$ac_cv_func_fchdir" = yes ; then
 else
   LIBLS=''
   libls_BUILD=''
+  enable_libls='no'
 fi
 AC_SUBST(LIBLS)
 AC_SUBST(libls_BUILD)
+AC_SUBST(enable_libls)
+AM_CONDITIONAL([ENABLE_libls], test "$enable_libls" = yes)
 
 # At least OpenSolaris is missing <protocols/talkd.h>.
 AC_CHECK_HEADER(protocols/talkd.h, , ,

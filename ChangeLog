@@ -1,3 +1,24 @@
+2014-07-22  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	libls: Inconsistent options.
+	The options '-l', '-m' and '-n' were not overruling each
+	other in the expected manner.  Build `ls' from `libls' for
+	testing purposes, but do not install it.
+
+	* configure.ac (enable_libls): Set to `no' when testing
+	against `ac_cv_func_fchdir' fails.  Publish with AC_SUBST.
+	[ENABLE_libls]: New variable.
+	* summary.sh.in (libls_BUILD, libls_PROPS, enable_libls):
+	Detect these; report whether `libls' is being built.
+
+	* libls/ls.c (ls_main) <'l' || 'm' || 'n'>: Reset missing
+	flags correctly, in order that '-l', '-m' and '-n' overrule
+	each other on the command line.
+
+	* tests/Makefile.am [ENABLE_libls] (noinst_PROGRAMS): Add `ls'.
+	[ENABLE_libls] (ls_LDADD): New variable.
+	* tests/ls.c: New file.
+
 2014-07-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Portability of canonical host name.

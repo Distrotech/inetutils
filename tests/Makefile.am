@@ -30,6 +30,11 @@ if ENABLE_inetd
 check_PROGRAMS += addrpeek tcpget
 endif
 
+if ENABLE_libls
+noinst_PROGRAMS += ls
+ls_LDADD = $(LIBLS) $(iu_LIBRARIES)
+endif
+
 dist_check_SCRIPTS = utmp.sh
 if ENABLE_ping
 dist_check_SCRIPTS += ping-localhost.sh

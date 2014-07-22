@@ -32,6 +32,9 @@ enable_ifconfig=@enable_ifconfig@
 ifconfig_BUILD=@ifconfig_BUILD@
 ifconfig_PROPS="@ifconfig_PROPS@"
 enable_logger=@enable_logger@
+libls_BUILD=@libls_BUILD@
+libls_PROPS="@libls_PROPS@"
+enable_libls=@enable_libls@
 logger_BUILD=@logger_BUILD@
 logger_PROPS="@logger_PROPS@"
 enable_ping=@enable_ping@
@@ -134,4 +137,8 @@ ${traceroute_BUILD:+  $traceroute_PROPS}
     telnetd        ${enable_telnetd}${telnetd_BUILD:+  $telnetd_PROPS}
     tftpd          ${enable_tftpd}
     uucpd          ${enable_uucpd}
+
+  Support:
+
+    libls          ${enable_libls}
 EOT

@@ -92,8 +92,8 @@ typedef struct _ftsent
   char *fts_path;		/* root path */
   int fts_errno;		/* errno for this node */
   int fts_symfd;		/* fd for symlink */
-  unsigned short fts_pathlen;		/* strlen(fts_path) */
-  unsigned short fts_namelen;		/* strlen(fts_name) */
+  unsigned short fts_pathlen;	/* strlen(fts_path) */
+  unsigned short fts_namelen;	/* strlen(fts_name) */
 
   ino_t fts_ino;		/* inode */
   dev_t fts_dev;		/* device */
@@ -106,10 +106,10 @@ typedef struct _ftsent
 # define FTS_D		 1	/* preorder directory */
 # define FTS_DC		 2	/* directory that causes cycles */
 # define FTS_DEFAULT	 3	/* none of the above */
-# define FTS_DNR		 4	/* unreadable directory */
-# define FTS_DOT		 5	/* dot or dot-dot */
+# define FTS_DNR	 4	/* unreadable directory */
+# define FTS_DOT	 5	/* dot or dot-dot */
 # define FTS_DP		 6	/* postorder directory */
-# define FTS_ERR		 7	/* error; errno is set */
+# define FTS_ERR	 7	/* error; errno is set */
 # define FTS_F		 8	/* regular file */
 # define FTS_INIT	 9	/* initialized only */
 # define FTS_NS		10	/* stat(2) failed */
@@ -117,17 +117,17 @@ typedef struct _ftsent
 # define FTS_SL		12	/* symbolic link */
 # define FTS_SLNONE	13	/* symbolic link without target */
 # define FTS_W		14	/* whiteout object */
-  unsigned short fts_info;		/* user flags for FTSENT structure */
+  unsigned short fts_info;	/* user flags for FTSENT structure */
 
 # define FTS_DONTCHDIR	 0x01	/* don't chdir .. to the parent */
 # define FTS_SYMFOLLOW	 0x02	/* followed a symlink to get here */
-  unsigned short fts_flags;		/* private flags for FTSENT structure */
+  unsigned short fts_flags;	/* private flags for FTSENT structure */
 
 # define FTS_AGAIN	 1	/* read node again */
 # define FTS_FOLLOW	 2	/* follow symbolic link */
 # define FTS_NOINSTR	 3	/* no instructions */
 # define FTS_SKIP	 4	/* discard node */
-  unsigned short fts_instr;		/* fts_set() instructions */
+  unsigned short fts_instr;	/* fts_set() instructions */
 
   struct stat *fts_statp;	/* stat(2) information */
   char fts_name[1];		/* file name */
