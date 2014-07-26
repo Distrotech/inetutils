@@ -1286,6 +1286,34 @@ Verbosely explain all actions taken.
 Search only for exact matches.
 Applicable only to RPSL.
 @end table
+
+@section Environment variables
+@anchor{whois environment}
+
+@command{whois} holds an internal list of information servers
+and their assigned data bases.
+Queries are examined against this list to select the most
+plausible server, but the hint can always be overruled on
+the command line by use of the option @option{-h}.
+If neither of these have a say, then the default server to ask
+is @samp{whois.internic.net}, but this name is in turn overruled
+by a server name in the environment variable @env{WHOIS_SERVER}.
+
+@table @env
+@item LANG
+When the server @samp{whois.nic.ad.jp} is queried, and only then,
+any non-Japanese locale in @env{LANG} will ask the server to reply
+with English text, not Japanese.
+
+@item WHOIS_HIDE
+When set, the effect on @command{whois} is as if the
+option @option{-H} had been given.
+
+@item WHOIS_SERVER
+Data base server to query when internal hinting is inconclusive.
+When unset, @samp{whois.internic.net} is used as default server.
+
+@end table
 
 
 @node ftp invocation

@@ -1,3 +1,20 @@
+2014-07-26  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	whois: Cooperate with misbehaving servers.
+	Some servers, like "whois.ripe.net", "whois.arin.net",
+	and "whois.eu", partially abort communication when the
+	socket is closed for writing.  Report by Alexander Zubkov:
+	<http://lists.gnu.org/archive/html/bug-inetutils/2014-07/msg00003.html>.
+
+	* whois/whois.c (gwhois_argp_options): Increase GRP
+	and insert a separating subheader.
+	(do_query): Remove call to shutdown().  The alternate
+	and much similar lookup call query_crsnic() did not
+	half-close the socket for writing.
+
+	* doc/inetutils.texi (whois invocation): Add a section
+	about environment variables accessed by `whois'.
+
 2014-07-22  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	libls: Inconsistent options.

@@ -126,7 +126,8 @@ static struct argp ripe_argp =
   { ripe_argp_options, ripe_argp_parser, NULL, NULL, NULL, NULL, NULL };
 
 static struct argp_option gwhois_argp_options[] = {
-#define GRP 10
+#define GRP 20
+  { NULL, 0, NULL, 0, "General options", GRP },
   { "verbose", 'V', NULL, 0,
     "explain what is being done", GRP },
   { "server", 'h', "HOST", 0,
@@ -470,8 +471,7 @@ do_query (const int sock, const char *query)
   fi = fdopen (sock, "r");
   if (write (sock, query, strlen (query)) < 0)
     err_sys ("write");
-  if (shutdown (sock, 1) < 0)
-    err_sys ("shutdown");
+
   while (fgets (buf, 200, fi))
     {				/* XXX errors? */
       if (hide == 1)
@@ -541,6 +541,7 @@ query_crsnic (const int sock, const char *query)
   fi = fdopen (sock, "r");
   if (write (sock, temp, strlen (temp)) < 0)
     err_sys ("write");
+
   while (fgets (buf, 100, fi))
     {
       /* If there are multiple matches only the server of the first record
