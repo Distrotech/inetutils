@@ -1,3 +1,7 @@
+2014-07-28  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* tests/ls.c: Include <config.h> not "config.h".
+
 2014-07-26  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	whois: Cooperate with misbehaving servers.
