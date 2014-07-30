@@ -1,3 +1,8 @@
+2014-07-30  Alfred M. Szmidt  <ams@gnu.org>
+
+	* telnetd/utility.c (nextitem, netclear, printoption, printsub)
+	(printdata): Remove register keyword usage.
+
 2014-07-28  Giuseppe Scrivano  <gscrivan@redhat.com>
 
 	* tests/ls.c: Include <config.h> not "config.h".

@@ -44,8 +44,8 @@
 # include <term.h>
 #endif
 
-#if defined HAVE_STREAMSPTY && defined HAVE_GETMSG \
-	&& defined HAVE_STROPTS_H
+#if defined HAVE_STREAMSPTY && defined HAVE_GETMSG	\
+  && defined HAVE_STROPTS_H
 # include <stropts.h>
 #endif
 
@@ -491,13 +491,13 @@ nextitem (char *current)
 
     case SB:			/* loop forever looking for the SE */
       {
-	register char *look = current + 2;
+	char *look = current + 2;
 
 	for (;;)
 	  if ((*look++ & 0xff) == IAC && (*look++ & 0xff) == SE)
 	    return look;
 
-    default:
+      default:
 	return current + 2;
       }
     }
@@ -520,15 +520,15 @@ nextitem (char *current)
  * caller should be setting the urgent data pointer AFTER calling
  * us in any case.
  */
-#define wewant(p) \
-  ((nfrontp > p) && ((*p&0xff) == IAC) && \
+#define wewant(p)					\
+  ((nfrontp > p) && ((*p&0xff) == IAC) &&		\
    ((*(p+1)&0xff) != EC) && ((*(p+1)&0xff) != EL))
 
 
 void
 netclear (void)
 {
-  register char *thisitem, *next;
+  char *thisitem, *next;
   char *good;
 
 #ifdef	ENCRYPTION
@@ -662,7 +662,7 @@ fatal (int f, char *msg)
 #endif /* ENCRYPTION */
   write (f, buf, (int) strlen (buf));
   sleep (1);
-   /*FIXME*/ exit (EXIT_FAILURE);
+  /*FIXME*/ exit (EXIT_FAILURE);
 }
 
 void
@@ -921,7 +921,7 @@ debug_output_data (const char *fmt, ...)
  * Print telnet options and commands in plain text, if possible.
  */
 void
-printoption (register char *fmt, register int option)
+printoption (char *fmt, int option)
 {
   if (TELOPT_OK (option))
     debug_output_data ("%s %s\r\n", fmt, TELOPT (option));
@@ -937,7 +937,7 @@ printoption (register char *fmt, register int option)
 void
 printsub (int direction, unsigned char *pointer, int length)
 {
-  register int i = 0;
+  int i = 0;
 
 #if defined AUTHENTICATION || defined ENCRYPTION
   char buf[512];
@@ -957,7 +957,7 @@ printsub (int direction, unsigned char *pointer, int length)
 			 direction == '<' ? "recv" : "send");
       if (length >= 3)
 	{
-	  register int j;
+	  int j;
 
 	  i = pointer[length - 2];
 	  j = pointer[length - 1];
@@ -1231,8 +1231,8 @@ printsub (int direction, unsigned char *pointer, int length)
 
     case TELOPT_STATUS:
       {
-	register char *cp;
-	register int j, k;
+	char *cp;
+	int j, k;
 
 	debug_output_data ("STATUS");
 
@@ -1356,7 +1356,7 @@ printsub (int direction, unsigned char *pointer, int length)
 
 	env_common:
 	  {
-	    register int noquote = 2;
+	    int noquote = 2;
 	    for (i = 2; i < length; i++)
 	      {
 		switch (pointer[i])
@@ -1571,9 +1571,9 @@ printsub (int direction, unsigned char *pointer, int length)
  * Dump a data buffer in hex and ascii to the output data stream.
  */
 void
-printdata (register char *tag, register char *ptr, register int cnt)
+printdata (char *tag, char *ptr, int cnt)
 {
-  register int i;
+  int i;
   char xbuf[30];
 
   while (cnt)
