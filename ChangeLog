@@ -3,6 +3,8 @@
 	* telnetd/utility.c (nextitem, netclear, printoption, printsub)
 	(printdata): Remove register keyword usage.
 
+	(printsub): Don't add integer to string to try and skip quote.
+
 2014-07-28  Giuseppe Scrivano  <gscrivan@redhat.com>
 
 	* tests/ls.c: Include <config.h> not "config.h".

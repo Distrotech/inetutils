@@ -1356,50 +1356,50 @@ printsub (int direction, unsigned char *pointer, int length)
 
 	env_common:
 	  {
-	    int noquote = 2;
+	    char *quote = "";
 	    for (i = 2; i < length; i++)
 	      {
 		switch (pointer[i])
 		  {
 		  case NEW_ENV_VAR:
-		    debug_output_data ("\" VAR " + noquote);
-		    noquote = 2;
+		    debug_output_data ("%sVAR ", quote);
+		    quote = "";
 		    break;
 
 		  case NEW_ENV_VALUE:
-		    debug_output_data ("\" VALUE " + noquote);
-		    noquote = 2;
+		    debug_output_data ("%sVALUE ", quote);
+		    quote = "";
 		    break;
 
 		  case ENV_ESC:
-		    debug_output_data ("\" ESC " + noquote);
-		    noquote = 2;
+		    debug_output_data ("%sESC ", quote);
+		    quote = "";
 		    break;
 
 		  case ENV_USERVAR:
-		    debug_output_data ("\" USERVAR " + noquote);
-		    noquote = 2;
+		    debug_output_data ("%sUSERVAR ", quote);
+		    quote = "";
 		    break;
 
 		  default:
 		    if (isprint (pointer[i]) && pointer[i] != '"')
 		      {
-                        if (noquote)
+                        if (strcmp (quote, "") == 0)
 			  {
 			    debug_output_data ("\"");
-			    noquote = 0;
+			    quote = "\" ";
 			  }
 			debug_output_datalen ((char*) &pointer[i], 1);
 		      }
 		    else
 		      {
-			debug_output_data ("\" %03o " + noquote, pointer[i]);
-			noquote = 2;
+			debug_output_data ("%s%03o ", quote, pointer[i]);
+			quote = "";
 		      }
 		    break;
 		  }
 	      }
-	    if (!noquote)
+	    if (strcmp (quote, "\" ") == 0)
 	      debug_output_data ("\"");
 	    break;
 	  }
