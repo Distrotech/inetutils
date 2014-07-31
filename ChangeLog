@@ -1,3 +1,9 @@
+2014-08-01  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ftp/ftp.c (ptransfer): Change BS to be of type float.
+	Improve readability by having speed estimates printed
+	as `Mbytes/s', `kbytes/s', or `bytes/s' as suitable.
+
 2014-07-30  Alfred M. Szmidt  <ams@gnu.org>
 
 	* telnetd/utility.c (nextitem, netclear, printoption, printsub)

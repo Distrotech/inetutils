@@ -1583,8 +1583,7 @@ ptransfer (char *direction, long long int bytes,
 	   struct timeval *t0, struct timeval *t1)
 {
   struct timeval td;
-  float s;
-  long long bs;
+  float s, bs;
 
   if (verbose)
     {
@@ -1592,8 +1591,15 @@ ptransfer (char *direction, long long int bytes,
       s = td.tv_sec + (td.tv_usec / 1000000.);
 #define nz(x)	((x) == 0 ? 1 : (x))
       bs = bytes / nz (s);
-      printf ("%lld bytes %s in %.3g seconds (%lld bytes/s)\n",
-	      bytes, direction, s, bs);
+
+      printf ("%lld bytes %s in %.3g seconds", bytes, direction, s);
+
+      if (bs > 1048576.0)
+	printf (" (%.3g Mbytes/s)\n", bs / 1048576.0);
+      else if (bs > 1024.0)
+	printf (" (%.3g kbytes/s)\n", bs / 1024.0);
+      else
+	printf (" (%.3g bytes/s)\n", bs);
     }
 }
 
