@@ -27,7 +27,8 @@
 
 #include <stdbool.h>
 
-#define MAXWAIT         10      /* max seconds to wait for response */
+#define MAXWAIT         10	/* Max seconds to wait for response.  */
+#define MAXPATTERN      16	/* Maximal length of pattern.  */
 
 #define OPT_FLOOD       0x001
 #define OPT_INTERVAL    0x002

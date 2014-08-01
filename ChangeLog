@@ -1,5 +1,22 @@
 2014-08-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	ping, ping6: Repair pattern production.
+	A pattern stated on the command line was never made
+	productive, instead only nulls were inserted to the
+	correct length.
+
+	* ping/ping.c, ping/ping6.c (pattern_len): Set to MAXPATTERN.
+	(parse_opt): Size of PATTERN is now MAXPATTERN.
+
+	* ping/ping_common.h (MAXPATTERN): New macro.
+	* ping/ping_common.c (init_data_buffer): Increment I before
+	checking for end of pattern.  This avoids an insertion of
+	the closing null character.
+	(decode_pattern): Remove _GL_UNUSED_PARAMETER on `pattern_data'.
+	Insert scanned data C into pattern buffer.
+
+2014-08-01  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	* ftp/ftp.c (ptransfer): Change BS to be of type float.
 	Improve readability by having speed estimates printed
 	as `Mbytes/s', `kbytes/s', or `bytes/s' as suitable.

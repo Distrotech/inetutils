@@ -62,7 +62,7 @@ PING *ping;
 bool is_root = false;
 unsigned char *data_buffer;
 unsigned char *patptr;
-int pattern_len = 16;
+int pattern_len = MAXPATTERN;
 int socket_type;
 size_t count = DEFAULT_PING_COUNT;
 size_t interval;
@@ -149,7 +149,7 @@ static error_t
 parse_opt (int key, char *arg, struct argp_state *state)
 {
   char *endptr;
-  static unsigned char pattern[16];
+  static unsigned char pattern[MAXPATTERN];
   double v;
 
   switch (key)
