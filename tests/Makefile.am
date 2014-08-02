@@ -26,6 +26,8 @@ identify_LDADD =
 
 check_PROGRAMS = localhost readutmp waitdaemon
 
+dist_check_SCRIPTS = utmp.sh
+
 if ENABLE_inetd
 check_PROGRAMS += addrpeek tcpget
 endif
@@ -33,9 +35,9 @@ endif
 if ENABLE_libls
 noinst_PROGRAMS += ls
 ls_LDADD = $(LIBLS) $(iu_LIBRARIES)
+dist_check_SCRIPTS += libls.sh
 endif
 
-dist_check_SCRIPTS = utmp.sh
 if ENABLE_ping
 dist_check_SCRIPTS += ping-localhost.sh
 endif
@@ -53,6 +55,10 @@ if ENABLE_logger
 if ENABLE_syslogd
 dist_check_SCRIPTS += syslogd.sh
 endif
+endif
+
+if ENABLE_ftp
+dist_check_SCRIPTS += ftp-parser.sh
 endif
 
 if ENABLE_inetd

@@ -195,6 +195,10 @@ struct format formats[] = {
    "${index?}{}"
    "{${error}{${progname}: error: interface `${name}' does not exist${\\n}}"
    "${exit}{1}}"},
+  {"?",
+   "Synonym for `help'.",
+   "${format}{help}"
+  },
   {"help",
    "Display this help output.",
    "${foreachformat}{"

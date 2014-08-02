@@ -1,3 +1,17 @@
+2014-08-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	More tests for better code coverage.
+
+	* tests/Makefile.am [ENABLE_libls] (dist_check_SCRIPTS):
+	Add `libls.sh'.
+	[ENABLE_ftp] (dist_check_SCRIPTS): Add `ftp-parser.sh'.
+	* tests/ftp-parser.sh: New script.
+	* tests/ifconfig.sh: Add more test cases.
+	* tests/libls.sh: New script.
+
+	* ifconfig/options.c (formats): Add format `?' as a synonym
+	for format `help'.
+
 2014-08-01  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ping, ping6: Repair pattern production.

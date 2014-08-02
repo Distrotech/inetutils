@@ -48,10 +48,9 @@ fi
 
 . ./tools.sh
 
-# Executable uder test.
+# Executable under test.
 #
 IFCONFIG=${IFCONFIG:-../ifconfig/ifconfig$EXEEXT}
-
 
 if test ! -x "$IFCONFIG"; then
     echo >&2 "Missing executable '$IFCONFIG'.  Skipping test."
@@ -92,14 +91,38 @@ find_lo_addr () {
 
 errno=0
 
+# Check for loopback address in all formats displaying the
+# standard address 127.0.0.1.
+#
 for fmt in ${FORMAT:-gnu gnu-one-entry net-tools osf unix}; do
     $silence echo "Checking format $fmt."
     find_lo_addr $fmt || { errno=1; echo >&2 "Failed with format '$fmt'."; }
 done
 
+# Check that all listed adapters are responding affirmatively
+# to all formats, but discard all output.
+#
+for fmt in check default gnu gnu-one-entry netstat net-tools osf unix
+do
+    for iface in $IF_LIST; do
+	$IFCONFIG --format=$fmt -i $iface >/dev/null ||
+	    { errno=1;
+	      echo >&2 "Failed with format '$fmt', adapter '$iface'."
+	    }
+    done
+done
+
+# Check that short format and full printout succeed; discard output.
+#
+$IFCONFIG --short >/dev/null ||
+    { errno=1; echo >&2 'Failed with short format.'; }
+
+$IFCONFIG --all >/dev/null ||
+    { errno=1; echo >&2 'Failed while listing all.'; }
+
 # Informational check whether the legacy form use
 # is implemented.  No error produced, only message.
-
+#
 if $IFCONFIG $LO >/dev/null 2>&1; then
     :
 else
