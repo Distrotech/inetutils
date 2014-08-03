@@ -1,3 +1,11 @@
+2014-08-03  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Support libshishi with Sun Studio.
+
+	* configure.ac <shishi>: Call AC_SEARCH_LIBS, not AC_CHECK_LIB,
+	when looking for libshishi.  This allows the C-compiler from
+	Sun Studio 12.1 to correctly detect and build shishi support.
+
 2014-08-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	More tests for better code coverage.

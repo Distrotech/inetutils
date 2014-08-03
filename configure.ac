@@ -384,7 +384,7 @@ if test "$enable_encryption" = yes \
       save_CPPFLAGS=$CPPFLAGS
       CPPFLAGS="$CPPFLAGS $INCAUTH"
       AC_CHECK_HEADER(shishi.h,
-	AC_CHECK_LIB(shishi, shishi_check_version,
+	AC_SEARCH_LIBS([shishi_check_version], [shishi],
 	  AC_DEFINE([SHISHI]),
 	  [INCAUTH= LIBAUTH= KERBEROS_VERSION=]),
 	[INCAUTH= LIBAUTH= KERBEROS_VERSION=])

@@ -754,7 +754,7 @@ print_ip_data (struct icmp6_hdr *icmp6)
     }
 
   printf ("\n");
-};
+}
 
 static struct icmp_diag
 {
