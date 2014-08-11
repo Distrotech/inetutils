@@ -66,10 +66,25 @@ REPLY_n=`$LS -n`
 REPLY_Ccts=`$LS -Ccts ..`
 REPLY_Cuts=`$LS -Cuts ..`
 
+# All the following failure causes are checked and possibly
+# brought to attention, independently of the other instances.
+#
 errno=0
 
 test $REPLY_a1 -eq `expr $REPLY_A1 + 2` ||
-  { errno=1; echo >&2 'Failed to suppress "." and "..".'; }
+  { errno=1; echo >&2 'Failed to tell switch -a apart from -A.'
+    # Attempt a diagnosis.
+    diff=`{ $LS -a1 && $LS -A1; } | sort | uniq -u`
+    if test -z "$diff"; then
+      echo >&2 'Flags -a and -A produce identical lists.'
+    else
+      cat >&2 <<-EOT
+	--- File list difference with '-a' and with '-A'. ---
+	`echo "$diff" | $SED -e 's,^,    ,'`
+	--- End of list ---
+	EOT
+    fi
+  }
 
 test x"$REPLY_C" != x"$REPLY_Cf" ||
   { errno=1; echo >&2 'Failed to disable sorting with "-f".'; }
