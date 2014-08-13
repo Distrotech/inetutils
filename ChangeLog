@@ -1,3 +1,10 @@
+2014-08-13  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/libls.sh <VERBOSE>: Execute `set -x'.
+	(REPLY_a1, REPLY_A1, diff): Changed.  Update the check
+	based on these, thus avoiding `sed -n '$='' which could
+	not be trusted on NixOS' build daemon.
+
 2014-08-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/libls.sh: Improve failure diagnostic when testing

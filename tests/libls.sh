@@ -42,11 +42,15 @@ if test -z "${VERBOSE+set}"; then
     bucket='>/dev/null'
 fi
 
+if test -n "${VERBOSE:+set}"; then
+    set -x
+fi
+
 # Several runs with different switches are compared by
 # a simple count of printed lines.
 #
-REPLY_a1=`$LS -a1 | $SED -n '$='`
-REPLY_A1=`$LS -A1 | $SED -n '$='`
+REPLY_a1=`$LS -a1`
+REPLY_A1=`$LS -A1`
 
 REPLY_C=`$LS -C`
 REPLY_Cf=`$LS -Cf`
@@ -71,10 +75,12 @@ REPLY_Cuts=`$LS -Cuts ..`
 #
 errno=0
 
-test $REPLY_a1 -eq `expr $REPLY_A1 + 2` ||
+diff=`{ echo "$REPLY_a1"; echo "$REPLY_A1"; } | sort | uniq -u`
+
+test `echo "$diff" | wc -l` -eq 2 &&
+test `echo "$diff" | grep -c -v -e '^\.\{1,2\}$'` -eq 0 ||
   { errno=1; echo >&2 'Failed to tell switch -a apart from -A.'
     # Attempt a diagnosis.
-    diff=`{ $LS -a1 && $LS -A1; } | sort | uniq -u`
     if test -z "$diff"; then
       echo >&2 'Flags -a and -A produce identical lists.'
     else
