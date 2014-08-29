@@ -1,3 +1,8 @@
+2014-08-29  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/libls.sh: Add a dummy execution of $LS in order
+	to avoid a false negative caused by code coverage runs.
+
 2014-08-13  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/libls.sh <VERBOSE>: Execute `set -x'.

@@ -46,6 +46,13 @@ if test -n "${VERBOSE:+set}"; then
     set -x
 fi
 
+# IMPORTANT: Execute an initial call to $LS, just to get going.
+# In case this is a coverage run, as NixOS does, this very first
+# call will create `ls.gcda', whose creation would interfere with
+# the counting after `$LS -a1' and `$LS -A1'.
+#
+$LS -alTt >/dev/null 2>&1
+
 # Several runs with different switches are compared by
 # a simple count of printed lines.
 #
