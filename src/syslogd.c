@@ -117,7 +117,7 @@
 #endif
 
 #ifndef LOG_MAKEPRI
-#  define LOG_MAKEPRI(fac, p)	(((fac) << 3) | (p))
+#  define LOG_MAKEPRI(fac, p)	((fac) | (p))
 #endif
 
 #include <error.h>
@@ -1060,11 +1060,17 @@ printline (const char *hname, const char *msg)
       if (*p == '>')
 	++p;
     }
+
+  /* This overrides large positive and overflowing negative values.  */
   if (pri & ~(LOG_FACMASK | LOG_PRIMASK))
     pri = DEFUPRI;
 
-  /* don't allow users to log kernel messages */
-  if (LOG_FAC (pri) == LOG_KERN)
+  /* Avoid undefined facilities.  */
+  if (LOG_FAC (pri) > LOG_NFACILITIES)
+    pri = DEFUPRI;
+
+  /* Do not allow users to log kernel messages.  */
+  if (LOG_FAC (pri) == (LOG_KERN >> 3))
     pri = LOG_MAKEPRI (LOG_USER, LOG_PRI (pri));
 
   q = line;
@@ -2242,7 +2248,7 @@ cfline (const char *line, struct filed *f)
       else
 	{
 	  pri = decode (bp, prioritynames);
-	  if (pri < 0)
+	  if (pri < 0 || (pri > LOG_PRIMASK && pri != INTERNAL_NOPRI))
 	    {
 	      snprintf (ebuf, sizeof (ebuf),
 			"unknown priority name \"%s\"", bp);
@@ -2288,9 +2294,8 @@ cfline (const char *line, struct filed *f)
 	  else
 	    {
 	      i = decode (buf, facilitynames);
-	      facilities_seen |= (1 << LOG_FAC (i));
 
-	      if (i < 0)
+	      if (i < 0 || i > (LOG_NFACILITIES << 3))
 		{
 		  snprintf (ebuf, sizeof (ebuf),
 			    "unknown facility name \"%s\"", buf);
@@ -2300,6 +2305,8 @@ cfline (const char *line, struct filed *f)
 
 	      f->f_pmask[LOG_FAC (i)] &= ~pri_clear;
 	      f->f_pmask[LOG_FAC (i)] |= pri_set;
+
+	      facilities_seen |= (1 << LOG_FAC (i));
 	    }
 	  while (*p == ',' || *p == ' ')
 	    p++;

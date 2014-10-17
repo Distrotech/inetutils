@@ -67,7 +67,7 @@ typedef struct _code {
 #endif
 
 #ifndef LOG_MAKEPRI
-#  define LOG_MAKEPRI(fac, p)	(((fac) << 3) | (p))
+#  define LOG_MAKEPRI(fac, p)	((fac) | (p))
 #endif
 
 #ifndef INTERNAL_NOPRI
@@ -75,7 +75,7 @@ typedef struct _code {
 #endif
 
 #ifndef INTERNAL_MARK	/* mark "facility", first unused value */
-#  define INTERNAL_MARK	LOG_MAKEPRI(LOG_NFACILITIES, 0)
+#  define INTERNAL_MARK	LOG_MAKEPRI(LOG_NFACILITIES << 3, 0)
 #endif
 
 #ifndef LOG_FACMASK

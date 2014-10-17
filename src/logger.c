@@ -72,12 +72,6 @@ static int host_family = AF_INET;
 
 
 
-#ifdef LOG_NFACILITIES
-# define IU_MAX_FAC LOG_NFACILITIES
-#else
-# define IU_MAX_FAC 32
-#endif
-
 int
 decode (char *name, CODE *codetab, const char *what)
 {
@@ -88,8 +82,16 @@ decode (char *name, CODE *codetab, const char *what)
       char *p;
       unsigned long n = strtoul (name, &p, 0);
 
-      if (*p || n >= IU_MAX_FAC)	/* Includes range errors.  */
-	error (EXIT_FAILURE, 0, "%s: invalid %s number", what, name);
+      /* For portability reasons, a numerical facility is entered
+       * as a decimal integer, shifted left by three binary bits.
+       * Any overflow check must adapt to this fact.
+       * For the purpose of remote logging from a local system,
+       * tests based on LOG_NFACILITIES are insufficient, as a
+       * remote system may well distinguish more facilities than
+       * the local system does!
+       */
+      if (*p || n > LOG_FACMASK)	/* Includes range errors.  */
+	error (EXIT_FAILURE, 0, "invalid %s number: %s", what, name);
 
       return n;
     }

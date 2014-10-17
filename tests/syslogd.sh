@@ -101,12 +101,6 @@ fi
 SYSLOGD=${SYSLOGD:-../src/syslogd$EXEEXT}
 LOGGER=${LOGGER:-../src/logger$EXEEXT}
 
-if [ $VERBOSE ]; then
-    set -x
-    $SYSLOGD --version | $SED '1q'
-    $LOGGER --version | $SED '1q'
-fi
-
 if [ ! -x $SYSLOGD ]; then
     echo "Missing executable '$SYSLOGD'.  Failing." >&2
     exit 77
@@ -115,6 +109,12 @@ fi
 if [ ! -x $LOGGER ]; then
     echo "Missing executable '$LOGGER'.  Failing." >&2
     exit 77
+fi
+
+if [ $VERBOSE ]; then
+    set -x
+    $SYSLOGD --version | $SED '1q'
+    $LOGGER --version | $SED '1q'
 fi
 
 # For file creation below IU_TESTDIR.
@@ -132,7 +132,7 @@ if [ ! -d "$IU_TESTDIR" ]; then
 	    echo 'Failed at creating test directory.  Aborting.' >&2
 	    exit 77
 	}
-elif expr X"$IU_TESTDIR" : X"\.\{1,2\}/\{0,1\}$" >/dev/null; then
+elif expr X"$IU_TESTDIR" : X'\.\{1,2\}/\{0,1\}$' >/dev/null; then
     # Eliminating directories: . ./ .. ../
     echo 'Dangerous input for test directory.  Aborting.' >&2
     exit 77
@@ -220,7 +220,7 @@ if test ! -d "$IU_TMPDIR"; then
 	EOT
 else
     # Append a slash if it is missing.
-    expr X"$IU_TMPDIR" : X".*/$" >/dev/null || IU_TMPDIR="$IU_TMPDIR/"
+    expr X"$IU_TMPDIR" : X'.*/$' >/dev/null || IU_TMPDIR="$IU_TMPDIR/"
 
     IU_TMPDIR="`$MKTEMP -d "${IU_TMPDIR}iu.XXXXXX" 2>/dev/null`" ||
 	{   # Directory creation failed.  Disable test.
@@ -308,14 +308,22 @@ if locate_port $PROTO $PORT; then
     do_inet_socket=false
 fi
 
-# A minimal, catch-all configuration.
+# A minimal, catch-all configuration, with some discarded oddities.
 #
 cat > "$CONF" <<-EOT
 	*.*	$OUT
-	# Recover from missing action field and short selector.
+	# Empty priority and action.
 	12345
+	# Missing action.
 	*.*
+	# Empty priority.
 	*.	/dev/null
+	# Priority out of range.
+	user.8	/dev/null
+	# Unknown facility.
+	bom.7	/dev/null
+	# Facility out of range for all known systems.
+	512.err	/dev/null
 EOT
 
 # Add a user recipient in verbose mode.
@@ -432,20 +440,29 @@ fi
 # discrimination of severity and facility.  This is made active
 # by sending SIGHUP to the server process.
 #
+OUT_UNOTICE="$IU_TESTDIR"/usernotice.log
 OUT_USER="$IU_TESTDIR"/user.log
 OUT_DEBUG="$IU_TESTDIR"/debug.log
+OUT_LOCAL0="$IU_TESTDIR"/local0.log
 
 # Create the new files to avoid false negatives.
+: > "$OUT_UNOTICE"
 : > "$OUT_USER"
 : > "$OUT_DEBUG"
+: > "$OUT_LOCAL0"
 
 cat > "$CONF" <<-EOT
 	*.*		$OUT
-	user.info	$OUT_USER
+	user.=info	$OUT_USER
+	user.=notice	$OUT_UNOTICE
 EOT
 
 cat > "$CONFD/debug" <<-EOT
 	*.=debug	$OUT_DEBUG
+EOT
+
+cat > "$CONFD/local0" <<-EOT
+	local0.=notice	$OUT_LOCAL0
 EOT
 
 # Use another tag for better discrimination.
@@ -463,6 +480,39 @@ if $do_unix_socket; then
 	"user.info as BSD message. (pid $$)"
     $LOGGER -h "$SOCKET" -p user.debug -t "$TAG2" \
 	"user.debug as BSD message. (pid $$)"
+
+    # Numerical priority:
+    #   user.info = (1 << 3).6 = 8.6
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -h "$SOCKET" -p 8.6 -t "$TAG2" \
+	"user.info using numerical priority. (pid $$)"
+
+    # Numerical facility and default priority:
+    #   local0.notice = (16 << 3).5 = 128.5
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -h "$SOCKET" -p 128 -t "$TAG2" \
+	"local0.notice using numerical facility. (pid $$)"
+
+    # Default facility and priority:
+    #   user.notice
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -h "$SOCKET" -t "$TAG2" \
+	"Default facility in BSD message. (pid $$)"
+
+    # A message of facility `kern' from a user process should
+    # be rewritten for `user' by SYSLOGD.
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -h "$SOCKET" -t "$TAG2" \
+	"Fake kern facility in BSD message. (pid $$)"
+
+    # An undefined facility should be rewritten for the default
+    # facility `user' by SYSLOGD.  Typically, LOG_NFACILITIES
+    # is 24, while LOG_FACMASK is 1016, so a value in excess
+    # of (24 << 8), i.e., 192 is sufficient.
+    # The priority `info' will be overwritten as `notice'.
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -h "$SOCKET" -p 512.info -t "$TAG2" \
+	"Illegal facility in BSD message. (pid $$)"
 fi
 
 if $do_inet_socket; then
@@ -516,6 +566,11 @@ COUNT=`$GREP -c "$TAG" "$OUT"`
 # Second set-up after SIGHUP.
 COUNT2=`$GREP -c "$TAG2" "$OUT_USER"`
 COUNT3=`$GREP -c "$TAG2" "$OUT_DEBUG"`
+COUNT4=`$GREP -c -e "$TAG2.*Default facility" \
+		 -e "$TAG2.*Fake kern facility" \
+		 -e "$TAG2.*Illegal facility" \
+	"$OUT_UNOTICE"`
+COUNT5=`$GREP -c "$TAG2" "$OUT_LOCAL0"`
 
 # No debug message should enter with selector 'user.info'.
 COUNT2_debug=`$GREP -c "$TAG2.*user.debug" "$OUT_USER"`
@@ -523,21 +578,39 @@ COUNT2_debug=`$GREP -c "$TAG2.*user.debug" "$OUT_USER"`
 # No info message should enter with selector '*.=debug'.
 COUNT3_info=`$GREP -c "$TAG2.*user.info" "$OUT_DEBUG"`
 
+# No info or debug message should enter with selector 'user.=notice'.
+COUNT4_notice=`$GREP -c -e "$TAG2.*user.info" -e "$TAG2.*user.debug" \
+		"$OUT_UNOTICE"`
+# Undefined facility should overwrite also the priority.
+COUNT4_illegal=`$GREP -c "$TAG2.*Illegal facility" "$OUT_USER"`
+
+# No user message should enter with selector 'local0', and conversely.
+COUNT5_user=`$GREP -c "$TAG2.*user" "$OUT_LOCAL0"`
+COUNT5_local=`cat "$OUT_USER" "$OUT_UNOTICE" "$OUT_DEBUG" | \
+	      $GREP -c "$TAG2.*local0"`
+
 SUCCESSES=`expr $SUCCESSES + $COUNT \
 		+ 2 \* $COUNT2 - $COUNT2_debug \
-		+ 2 \* $COUNT3 - $COUNT3_info`
+		+ 2 \* $COUNT3 - $COUNT3_info \
+		+ 2 \* $COUNT4 - $COUNT4_notice - $COUNT4_illegal \
+		+ 2 \* $COUNT5 - $COUNT5_user - $COUNT5_local`
 
 if [ -n "${VERBOSE+yes}" ]; then
     cat <<-EOT
 	---------- Successfully detected messages. ----------
 	`$GREP "$TAG" "$OUT"`
-	`$GREP -h "$TAG2" "$OUT_USER" "$OUT_DEBUG"`
+	`$GREP -h "$TAG2" "$OUT_UNOTICE" "$OUT_USER" "$OUT_DEBUG" \
+			  "$OUT_LOCAL0"`
 	---------- Full message log for syslogd. ------------
 	`cat "$OUT"`
-	---------- User message log. ------------------------
+	---------- User notice message log. -----------------
+	`cat "$OUT_UNOTICE"`
+	---------- User info message log. -------------------
 	`cat "$OUT_USER"`
 	---------- Debug message log. -----------------------
 	`cat "$OUT_DEBUG"`
+	---------- Local0 message log. ----------------------
+	`cat "$OUT_LOCAL0"`
 	-----------------------------------------------------
 	EOT
 fi

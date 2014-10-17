@@ -1,3 +1,36 @@
+2014-10-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd, logger: Incomplete range checking.
+
+	* src/logger.c (IU_MAX_FAC): Delete macro.
+	(decode): Use LOG_FACMASK in range checking.  The use of
+	numeric facilities was broken for the most part.
+
+	* src/logprio.h [!LOG_MAKEPRI] (LOG_MAKEPRI): Change to
+	a portable and correct definition.
+	[!INTERNAL_MARK] (INTERNAL_MARK): Adjust to the corrected
+	behaviour of LOG_MAKEPRI.
+
+	* src/syslogd.c [!LOG_MAKEPRI] (LOG_MAKEPRI): Change to
+	a portable and correct definition.
+	(printline): Reset `pri' to DEFUPRI whenever the facility
+	is non-existent.  This protects against CVE-2014-3684.
+	Make a three bit shift of LOG_KERN for code consistency.
+	(cfline): After decoding priority, check also upper limit.
+	Likewise for facility, and update `facilities_seen' only
+	after a completed range error check.
+
+	* tests/syslogd.sh (OUT_UNOTICE, OUT_LOCAL0): New variables.
+	(COUNT4, COUNT5, COUNT4_notice, COUNT4_illegal, COUNT5_user)
+	(COUNT5_local): Likewise.
+	Add three new configuration stanzas to initial setup, all with
+	invalid information.  In the second setup, capture facility
+	`info' exactly, and make a new `notice' also exact.  Add a
+	further file in the conf-directory, specifying capture of
+	`local0.=notice'.  Add five new test messages using Unix
+	socket, intending to detect more accurately the handling of
+	priorities, numerical as well as illegal or default values.
+
 2014-08-29  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/libls.sh: Add a dummy execution of $LS in order
