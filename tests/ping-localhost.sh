@@ -53,8 +53,9 @@ errno2=0
 $PING -n -c 1 $TARGET || errno=$?
 test $errno -eq 0 || echo "Failed at pinging $TARGET." >&2
 
-# Host might not have been built with IPv6 support..
-test -x $PING6 && $PING6 -n -c 1 $TARGET6 || errno2=$?
+# Host might not have been built with IPv6 support.
+test -x $PING6 && { $PING6 -n -c 1 $TARGET6 || errno2=$?; }
+
 test $errno2 -eq 0 || echo "Failed at pinging $TARGET6." >&2
 
 test $errno -eq 0 || exit $errno

@@ -1,3 +1,11 @@
+2014-11-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ping: Fix testing when ping6 is not built.
+	Reported by jb999 in bug-inetutils.
+
+	* tests/ping-localhost.sh: Bracket test clauses to
+	conform with intuitive logic and precedence rules.
+
 2014-10-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd, logger: Incomplete range checking.
