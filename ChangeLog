@@ -1,5 +1,9 @@
 2014-11-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	* bootstrap: Updated from gnulib.
+
+2014-11-11  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	ping: Fix testing when ping6 is not built.
 	Reported by jb999 in bug-inetutils.
 
