@@ -11,18 +11,44 @@ Version 1.9.3:
 
 The internal command `hash' accepts a suffixed letter to the size
 argument, like `12k', instead of 12288.  Made a minor change to the
-semantics of the command itself.  Also, the .netrc file can be over-
-ridden by the environment variable NETRC.  Of even higher precedence
-is the new option `-N/--netrc'.  The access to the resulting file,
-whatever method, is now denied unless it is a regular file.
+syntax of the command itself, allowing size changes independently
+of activation of hash markings.  After a transfer the summary gives
+the speed as `Mbytes/s', `kbytes/s', or `bytes/s'.
+
+The .netrc file can be overridden by the environment variable NETRC.
+Of even higher precedence is the new option `-N/--netrc'.  The access
+to the resulting file, whatever method, is now denied unless it is a
+regular file.
+
+* ifconfig
+
+Better command line parsing on BSD and Solaris systems.  Touch only
+changeable flags on all systems.
+
+* logger
+
+The ability to use numerical facilities is restored to full range.
+
+* ping, ping6
+
+The ability to specify a pattern as payload is corrected.
 
 * syslogd
 
 A new switch `-T/--local-time' makes the service ignore a time
-stamp passed on by the remote host, instead recording the local
-time at the moment the message was recorded.
-As a short form of  `--pidfile', the switch `-P' is new.
+stamp passed on by the remote host, recording instead the local
+time at the moment the message was received.  As a short form of
+`--pidfile', the switch `-P' is new.
 
+In common with other syslogd implementations, rsyslogd and sysklogd,
+there has for a long time existed an attack vector based on large
+facility numbers, made public in CVE-2014-3684.  This is now mended
+in our code base.
+
+* whois
+
+Improved cooperation with servers like `whois.arin.net', `whois.eu',
+and `whois.ripe.net'.
 
 December 23, 2013
 Version 1.9.2:

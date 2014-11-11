@@ -153,6 +153,14 @@ Ability to ping multiple host in one go.
 
 Implement libshishi support?
 
+* logger
+
+Solaris implements `/dev/log' as a character special device,
+communicating by the STREAMS protocol, not as a Unix socket.
+Consider supporting this variation.  Our local socket code
+is correct, but it cannot communicate with the native syslog
+service via `/dev/log', only via UDP.
+
 * whois
 
 What about rwhois?
