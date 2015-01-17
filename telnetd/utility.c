@@ -1559,7 +1559,7 @@ printsub (int direction, unsigned char *pointer, int length)
       if (TELOPT_OK (pointer[0]))
 	debug_output_data ("%s (unknown)", TELOPT (pointer[0]));
       else
-	debug_output_data ("%d (unknown)", pointer[i]);
+	debug_output_data ("%d (unknown)", pointer[0]);
       for (i = 1; i < length; i++)
 	debug_output_data (" %d", pointer[i]);
       break;

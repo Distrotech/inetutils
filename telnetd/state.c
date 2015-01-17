@@ -1015,9 +1015,7 @@ dooption (int option)
 	case TELOPT_TSPEED:
 	case TELOPT_LFLOW:
 	case TELOPT_XDISPLOC:
-#ifdef	TELOPT_ENVIRON
 	case TELOPT_NEW_ENVIRON:
-#endif
 	case TELOPT_OLD_ENVIRON:
 	default:
 	  break;
@@ -1317,9 +1315,7 @@ suboption (void)
 	break;
       }				/* end of case TELOPT_XDISPLOC */
 
-#ifdef	TELOPT_NEW_ENVIRON
     case TELOPT_NEW_ENVIRON:
-#endif
     case TELOPT_OLD_ENVIRON:
       {
 	register int c;
@@ -1338,7 +1334,6 @@ suboption (void)
 	else if (c != TELQUAL_INFO)
 	  return;
 
-#ifdef	TELOPT_NEW_ENVIRON
 	if (subchar == TELOPT_NEW_ENVIRON)
 	  {
 	    while (!SB_EOF ())
@@ -1349,7 +1344,6 @@ suboption (void)
 	      }
 	  }
 	else
-#endif
 	  {
 #ifdef	ENV_HACK
 	    /*
@@ -1702,7 +1696,9 @@ send_status (void)
   net_output_datalen (statusbuf, ncp - statusbuf);
   netflush ();			/* Send it on its way */
 
-  DEBUG (debug_options, 1, printsub ('>', statusbuf, ncp - statusbuf));
+  /* Step over the initial IAC+SB, into suboption payload.  */
+  DEBUG (debug_options, 1, printsub ('>', statusbuf + 2,
+				     ncp - statusbuf - 2));
   return;
 
 trunc:

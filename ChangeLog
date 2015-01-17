@@ -1,3 +1,14 @@
+2015-01-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* telnetd/state.c (dooption) : Remove outdated and misnamed
+	ifdef on TELOPT_ENVIRON.
+	(suboption): Remove outdated ifdef on TELOPT_NEW_ENVIRON.
+	(send_status) <DEBUG>: Pass only the suboption payload into
+	printsub(), by stepping over IAC+SB in the string buffer.
+	* telnetd/utility.c (printsub) <default>: When an unexpected
+	mode must be reported numerically, print the correct byte in
+	pointer[0], not some other pseudo-random value.
+
 2014-11-11  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* bootstrap: Updated from gnulib.
