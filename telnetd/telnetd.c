@@ -42,6 +42,7 @@ static void parse_debug_level (char *str);
 static void telnetd_setup (int fd);
 static int telnetd_run (void);
 static void print_hostinfo (void);
+static void chld_is_done (int sig);
 
 /* Template command line for invoking login program.  */
 
@@ -72,6 +73,8 @@ int hostinfo = 1;		/* Print the host-specific information before
 
 int debug_level[debug_max_mode];	/* Debugging levels */
 int debug_tcp = 0;		/* Should the SO_DEBUG be set? */
+
+int pending_sigchld = 0;	/* Needed to drain pty input.  */
 
 int net;			/* Network connection socket */
 int pty;			/* PTY master descriptor */
@@ -527,7 +530,8 @@ telnetd_setup (int fd)
   signal (SIGTTOU, SIG_IGN);
 #endif
 
-  signal (SIGCHLD, cleanup);
+  /* Activate SA_RESTART whenever available.  */
+  setsig (SIGCHLD, chld_is_done);
 }
 
 int
@@ -718,6 +722,18 @@ telnetd_run (void)
 
       if (FD_ISSET (pty, &obits) && pty_output_level () > 0)
 	ptyflush ();
+
+      /* Attending to the child must come last in the loop,
+       * so as to let pending data be flushed, mainly to the
+       * benefit of the remote and expecting client.
+       */
+      if (pending_sigchld) {
+	/* Check for pending output, independently of OBITS.  */
+	if (net_output_level () > 0)
+	  netflush ();
+
+	cleanup (SIGCHLD);	/* Not returning from this.  */
+      }
     }
 
   cleanup (0);
@@ -753,4 +769,10 @@ print_hostinfo (void)
   DEBUG (debug_pty_data, 1, debug_output_data ("sending %s", str));
   pty_input_putback (str, strlen (str));
   free (str);
+}
+
+static void
+chld_is_done (int sig _GL_UNUSED_PARAMETER)
+{
+  pending_sigchld = 1;
 }

@@ -384,8 +384,8 @@ pty_read (void)
     pcc = 0;
   ptyip = ptyibuf;
 
-  DEBUG (debug_report, 1, debug_output_data ("ptyread %d chars\r\n", pcc));
-  DEBUG (debug_pty_data, 1, printdata ("pty", ptyip, pcc));
+  DEBUG (debug_report, 1, debug_output_data ("td: ptyread %d chars\r\n", pcc));
+  DEBUG (debug_pty_data, 1, printdata ("pd", ptyip, pcc));
   return pcc;
 }
 
@@ -1582,7 +1582,7 @@ printdata (char *tag, char *ptr, int cnt)
       debug_output_data ("%s: ", tag);
       for (i = 0; i < 20 && cnt; i++)
 	{
-	  debug_output_data ("%02x", *ptr);
+	  debug_output_data ("%02x", (unsigned char) *ptr);
 	  xbuf[i] = isprint ((int) *ptr) ? *ptr : '.';
 
 	  if (i % 2)

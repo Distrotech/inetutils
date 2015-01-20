@@ -1,3 +1,24 @@
+2015-01-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Incomplete processing of PTY data.
+	The reception of SIGCHLD can make the transfer of data from
+	the PTY stream to the client side's network stream incomplete.
+	The problem was raised as Debian Bug #607415, but is applicable
+	also here, due to a common origin.  A setting with the option
+	`-E /some/script' displays this error irregularly.
+
+	* telnetd/telnetd.c (pending_sigchld): New variable.
+	(telnetd_setup): Call setsig() when assigning SIGCHLD.  Set the
+	action to chld_is_done().
+	(telnetd_run) <I/O-loop>: If pending_sigchld is set, flush the
+	network output buffer and exit the loop with cleanup(SIGCHLD).
+	(chld_is_done): New function, used as signal action.
+
+	* telnetd/utility.c (pty_read) <DEBUG>: Set consistent text
+	prefixes in output.
+	(printdata): Cast char array value as `unsigned char' to avoid
+	an implicit cast as integer, implied in the format string `%02x'.
+
 2015-01-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* telnetd/state.c (dooption) : Remove outdated and misnamed
