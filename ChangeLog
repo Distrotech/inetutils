@@ -1,3 +1,15 @@
+2015-01-31  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnet: Printing of uninitialized characters.
+	When preparing submodes of linemode for presentation, in case
+	no submode is set, the string to be printed might make use of
+	uninitialized string content, in an otherwise sane call to
+	fprintf().  This is in error already in the legacy code.
+
+	* telnet/utilities.c (printsub) <LM_MODE>: Test TBUF[0]
+	to calculate replacement string, since TBUF[1] is not
+	guaranteed to be initialized by the preceding sprintf().
+
 2015-01-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* bootstrap: Updated from gnulib.
