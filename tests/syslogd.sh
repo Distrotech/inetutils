@@ -429,11 +429,14 @@ if $do_socket_length; then
 fi
 
 if $do_inet_socket; then
-    TESTCASES=`expr $TESTCASES + 2`
+    TESTCASES=`expr $TESTCASES + 1`
     $LOGGER -4 -h "$TARGET:$PORT" -p user.info -t "$TAG" \
 	"Sending IPv4 message. (pid $$)"
-    $LOGGER -6 -h "$TARGET6:$PORT" -p user.info -t "$TAG" \
-	"Sending IPv6 message. (pid $$)"
+    if test "$TEST_IPV6" != "no"; then
+	TESTCASES=`expr $TESTCASES + 1`
+	$LOGGER -6 -h "$TARGET6:$PORT" -p user.info -t "$TAG" \
+	    "Sending IPv6 message. (pid $$)"
+    fi
 fi
 
 # Generate a more elaborate message routing, aimed at confirming
@@ -537,7 +540,6 @@ locate_port $PROTO 514 && do_standard_port=false
 
 if $do_standard_port; then
     echo 'Checking also standard port 514/udp.' >&2
-    TESTCASES=`expr $TESTCASES + 2`
 
     # New configuration, but continuing old message file.
     rm -f "$PID"
@@ -549,10 +551,16 @@ if $do_standard_port; then
     $SYSLOGD --rcfile="$CONF" --pidfile="$PID" --socket='' \
 	--inet --ipany $OPTIONS
     sleep 1
+
+    TESTCASES=`expr $TESTCASES + 1`
     $LOGGER -4 -h "$TARGET" -p user.info -t "$TAG" \
 	"IPv4 to standard port. (pid $$)"
-    $LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
-	"IPv6 to standard port. (pid $$)"
+
+    if test "$TEST_IPV6" != "no"; then
+	TESTCASES=`expr $TESTCASES + 1`
+	$LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
+	    "IPv6 to standard port. (pid $$)"
+    fi
 fi
 
 # Delay detection due to observed race condition.

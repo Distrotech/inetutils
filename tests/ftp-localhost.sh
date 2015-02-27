@@ -260,13 +260,18 @@ fi
 
 cat <<EOT > "$TMPDIR/.netrc"
 machine $TARGET login $FTPUSER password foobar
-machine $TARGET6 login $FTPUSER password foobar
-machine $TARGET46 login $FTPUSER password foobar
 EOT
 
 if test $? -ne 0; then
     echo 'Failed at writing access file ".netrc".  Skipping test.' >&2
     exit 77
+fi
+
+if test "$TEST_IPV6" != "no"; then
+    cat <<-EOT >> "$TMPDIR/.netrc"
+	machine $TARGET6 login $FTPUSER password foobar
+	machine $TARGET46 login $FTPUSER password foobar
+	EOT
 fi
 
 chmod 600 "$TMPDIR/.netrc"
@@ -466,35 +471,36 @@ $FTP "$TARGET" $PORT -N"$TMPDIR/.netrc" -4 -v -t >$TMPDIR/ftp.stdout 2>&1
 
 test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET"
 
-# Test a passive connection: EPSV and IPv6.
-#
-echo "EPSV to $TARGET6 (IPv6) using inetd."
-cat <<STOP |
-rstatus
-dir
-STOP
-HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -p -t >$TMPDIR/ftp.stdout 2>&1
+if test "$TEST_IPV6" != "no" && test -n "$TARGET6"; then
+    # Test a passive connection: EPSV and IPv6.
+    #
+    echo "EPSV to $TARGET6 (IPv6) using inetd."
+    cat <<-STOP |
+	rstatus
+	dir
+	STOP
+    HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -p -t >$TMPDIR/ftp.stdout 2>&1
 
-test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET6"
+    test_report $? "$TMPDIR/ftp.stdout" "EPSV/$TARGET6"
 
-# Test an active connection: EPRT and IPv6.
-#
-echo "EPRT to $TARGET6 (IPv6) using inetd."
-cat <<STOP |
-rstatus
-dir
-`$do_transfer && test -n "$DLDIR" && echo "\
+    # Test an active connection: EPRT and IPv6.
+    #
+    echo "EPRT to $TARGET6 (IPv6) using inetd."
+    cat <<-STOP |
+	rstatus
+	dir
+	`$do_transfer && test -n "$DLDIR" && echo "\
 cd $DLDIR"`
-`$do_transfer && echo "\
+	`$do_transfer && echo "\
 lcd $TMPDIR
 image
 put $GETME $PUTME"`
-STOP
-HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -t >$TMPDIR/ftp.stdout 2>&1
+	STOP
+    HOME=$TMPDIR $FTP "$TARGET6" $PORT -6 -v -t >$TMPDIR/ftp.stdout 2>&1
 
-test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET6"
+    test_report $? "$TMPDIR/ftp.stdout" "EPRT/$TARGET6"
 
-$do_transfer && \
+    $do_transfer && \
     if cmp -s "$TMPDIR/$GETME" "$FTPHOME$DLDIR/$PUTME"; then
 	test "${VERBOSE+yes}" && echo >&2 'Binary transfer succeeded.'
 	date "+%s" >> "$TMPDIR/$GETME"
@@ -502,6 +508,7 @@ $do_transfer && \
 	echo >&2 'Binary transfer failed.'
 	exit 1
     fi
+fi # TEST_IPV6
 
 # Availability of IPv4-mapped IPv6 addresses.
 #
@@ -556,7 +563,8 @@ fi
 
 # Test functionality of IPv4-mapped IPv6 addresses.
 #
-if $have_address_mapping && test -n "$TARGET46" ; then
+if $have_address_mapping && test -n "$TARGET46" &&
+   test "$TEST_IPV6" != "no"; then
     # Test a passive connection: EPSV and IPv4-mapped-IPv6.
     #
     echo "EPSV to $TARGET46 (IPv4-as-IPv6) using inetd."
@@ -610,7 +618,7 @@ put $GETME $PUTME"`
 else
     # The IPv4-as-IPv6 tests were not performed.
     echo 'Skipping two tests of IPv4 mapped as IPv6.'
-fi
+fi # have_address_mapping && TEST_IPV6
 
 # Test name mapping with PASV and IPv4.
 # Needs a writable destination!

@@ -420,6 +420,7 @@ AC_ARG_ENABLE([ipv6],
   esac],
   [ipv6=auto]
 )
+AC_SUBST(TEST_IPV6, [$ipv6])
 
 working_ipv6=yes
 if test ! "$ipv6" = "no" && test "$working_ipv6" = "yes"; then

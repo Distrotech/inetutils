@@ -43,6 +43,7 @@ The following environment variables are used:
 VERBOSE		Be verbose, if set.
 TARGET		Receiving IPv4 address.
 TARGET6		Receiving IPv6 address.
+TARGET46	Receiving IPv4-mapped-IPV6 address.
 
 HERE
     exit 0
@@ -61,7 +62,7 @@ ADDRPEEK=${ADDRPEEK:-./addrpeek$EXEEXT}
 # Selected targets.
 TARGET=${TARGET:-127.0.0.1}
 TARGET6=${TARGET6:-::1}
-TARGET46="::ffff:$TARGET"
+TARGET46=${TARGET46:-::ffff:$TARGET}
 
 # Step into `tests/', should the invokation
 # have been made outside of it.
@@ -133,12 +134,17 @@ PORT=`expr 4973 + ${RANDOM:-$$} % 973`
 
 cat > "$INETD_CONF" <<-EOF ||
 	$TARGET:$PORT stream tcp4 nowait $USER $ADDRPEEK addrpeek addr
-	$TARGET6:$PORT stream tcp6 nowait $USER $ADDRPEEK addrpeek addr
 EOF
     {
 	echo 'Could not create configuration file for Inetd.  Aborting.' >&2
 	exit 1
     }
+
+if test "$TEST_IPV6" != "no"; then
+    cat >> "$INETD_CONF" <<-EOF
+	$TARGET6:$PORT stream tcp6 nowait $USER $ADDRPEEK addrpeek addr
+EOF
+fi
 
 # Must use '-d' consistently to prevent daemonizing, but we
 # would like to suppress the verbose output.
@@ -183,7 +189,7 @@ if test -n "$TARGET"; then
     fi
 fi
 
-if test -n "$TARGET6"; then
+if test "$TEST_IPV6" != "no" && test -n "$TARGET6"; then
     output=`$TELNET $telnet_opts $TARGET6 $PORT 2>/dev/null`
     echo "$output" | eval "$GREP 'Your address is $TARGET6.' $display"
     if test $? -ne 0; then
@@ -192,7 +198,7 @@ if test -n "$TARGET6"; then
     fi
 fi
 
-if test -n "$TARGET46"; then
+if test "$TEST_IPV6" != "no" && test -n "$TARGET46"; then
     output=`$TELNET $telnet_opts $TARGET46 $PORT 2>/dev/null`
     echo "$output" | eval "$GREP 'Your address is .*$TARGET.' $display"
     if test $? -ne 0; then

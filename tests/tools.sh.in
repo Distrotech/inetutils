@@ -22,6 +22,7 @@ SED=${SED:-@SED@}
 DD=${DD:-@DD@}
 MKTEMP=${MKTEMP:-@MKTEMP@}
 NETSTAT=${NETSTAT:-@NETSTAT@}
+TEST_IPV6=${TEST_IPV6:-@TEST_IPV6@}
 
 # Variables for signalling presence of a utility:
 #

@@ -44,6 +44,12 @@
 #  * (root only) Reload configuration for chrooted mode.
 #    Read one binary file with a relative name, and one ascii
 #    file with absolute location.
+#
+# The values of TARGET and TARGET6 replace the loopback addresses
+# 127.0.0.1 and ::1, whenever the variables are set.  However,
+# Setting the variable ADDRESSES to a list of addresses takes
+# precedence over all other choices.  The particular value "sense"
+# tries to find all local addresses, then go ahead with these.
 
 . ./tools.sh
 
@@ -139,17 +145,21 @@ posttesting () {
 
 trap posttesting EXIT HUP INT QUIT TERM
 
-# Use only "127.0.0.1 ::1" as default address list.
+# Use only "127.0.0.1 ::1" as default address list,
+# but take account of TARGET and TARGET6.
 # Other configured addresses might be set under
 # strict filter policies, thus might block.
 #
 # Allow a setting "ADDRESSES=sense" to compute the
 # available addresses and then to test them all.
-ADDRESSES="${ADDRESSES:-127.0.0.1 ::1}"
+if test "$ADDRESSES" = "sense"; then
+    ADDRESSES=`$IFCONFIG -a | $SED -e "/$AF /!d" \
+	-e "s/^.*$AF \([:.0-9]\{1,\}\) .*$/\1/g"`
+fi
 
-if [ "$ADDRESSES" = "sense" ]; then
-    ADDRESSES="`$IFCONFIG | $SED -e "/$AF /!d" \
-	-e "s/^.*$AF \([:.0-9]\{1,\}\) .*$/\1/g"`"
+if test -z "$ADDRESSES"; then
+    ADDRESSES="${TARGET:-127.0.0.1}"
+    test "$TEST_IPV6" = "no" || ADDRESSES="$ADDRESSES ${TARGET6:-::1}"
 fi
 
 # Work around the peculiar output of netstat(1m,solaris).

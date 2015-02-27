@@ -1,3 +1,24 @@
+2015-02-27  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Allow testing without IPv6.
+	Configuration with `--disable-ipv6' as well as individual
+	tests with `TEST_IPV6=no' need to avoid mandatory IPv6.
+
+	* configure.ac (TEST_IPV6): New exported variable.
+	* tests/Makefile.am (tools_subst): Add substitution of TEST_IPV6.
+	* tests/tools.sh.in (TEST_IPV6): New variable.
+
+	* tests/ftp-localhost.sh: Check `$TEST_IPV6 != no' before adding
+	any test cases with IPv6 addressing.
+	* tests/syslogd.sh: Likewise.
+	* tests/telnet-localhost.sh: Likewise.
+	(TARGET46): New variable, defaulting to `::ffff:$TARGET'.
+
+	* tests/tftp.sh (TARGET, TARGET6): New variables.
+	<$ADDRESSES = sense>: Compute this case before building a default
+	address list.  Add switch `-a' when executing $IFCONFIG.
+	(ADDRESSES): Start with TARGET, add TARGET6 if `$TEST_IPV6 != no'.
+
 2015-01-31  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnet: Printing of uninitialized characters.
