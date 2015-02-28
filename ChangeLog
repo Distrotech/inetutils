@@ -1,10 +1,28 @@
+2015-02-28  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Fully configure testing without IPv6.
+	Pick up testing addresses for IP and IPv6 at configuration time.
+	Now a BSD jail can successfully test all network services.
+
+	* configure.ac (TARGET, TARGET6): New precious variables.  Set their
+	default values.
+	* tests/Makefile.am (tools_subst): Add TARGET and TARGET to substi-
+	tution rules.
+	* tests/tools.sh.in (TARGET, TARGET6): New variables.
+
+	* tests/ifconfig.sh (TARGET, target): New variables.
+	(find_lo_addr): Replace hardcoded `127.0.0.1' with `$target'.
+	* tests/ping-localhost.sh <ping6>: Add a test `$TEST_IPV6 != no'.
+	* tests/syslogd.sh (TARGET6): Remove surrounding brackets.
+	<$TEST_IPV6 != no>: Enclose `$TARGET6' in brackets for `$LOGGER'.
+
 2015-02-27  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Allow testing without IPv6.
 	Configuration with `--disable-ipv6' as well as individual
 	tests with `TEST_IPV6=no' need to avoid mandatory IPv6.
 
-	* configure.ac (TEST_IPV6): New exported variable.
+	* configure.ac (TEST_IPV6): New precious variable.
 	* tests/Makefile.am (tools_subst): Add substitution of TEST_IPV6.
 	* tests/tools.sh.in (TEST_IPV6): New variable.
 

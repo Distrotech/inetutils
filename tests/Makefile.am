@@ -102,6 +102,8 @@ tools_subst = sed -e 's,[@]GREP[@],$(GREP),g' \
 	      -e 's,[@]DD[@],$(DD),g' \
 	      -e 's,[@]MKTEMP[@],$(MKTEMP),g' \
 	      -e 's,[@]NETSTAT[@],$(NETSTAT),g'\
+	      -e 's,[@]TARGET[@],$(TARGET),g'\
+	      -e 's,[@]TARGET6[@],$(TARGET6),g'\
 	      -e 's,[@]TEST_IPV6[@],$(TEST_IPV6),g'
 
 tools.sh: tools.sh.in Makefile

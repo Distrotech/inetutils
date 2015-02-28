@@ -149,6 +149,8 @@ AC_ARG_VAR(SED, [Location of preferred 'sed' utility.])
 AC_ARG_VAR(DD, [Location of 'dd'.])
 AC_ARG_VAR(MKTEMP, [Location of 'mktemp'.])
 AC_ARG_VAR(NETSTAT, [Location of 'netstat'.])
+AC_ARG_VAR(TARGET, [IP address used while testing. @<:@127.0.0.1@:>@])
+AC_ARG_VAR(TARGET6, [IPv6 address used while testing. @<:@::1@:>@])
 
 gl_INIT
 
@@ -1014,6 +1016,10 @@ case "$host" in
   # Known and needed work-arounds?
   ;;
 esac
+
+# Typically the loopback addresses, but can be set otherwise.
+TARGET=${TARGET:-127.0.0.1}
+TARGET6=${TARGET6:-::1}
 
 AC_CONFIG_FILES([
 Makefile

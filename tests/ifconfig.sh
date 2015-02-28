@@ -36,6 +36,7 @@ The following environment variables are used:
 VERBOSE		Be verbose, if set.
 FORMAT		Test only these output formats.  A list of
 		formats is excepted.
+TARGET		Loopback address; defaults to 127.0.0.1.
 
 HERE
     exit 0
@@ -47,6 +48,8 @@ fi
 [ -d src ] && [ -f tests/syslogd.sh ] && cd tests/
 
 . ./tools.sh
+
+TARGET=${TARGET:-127.0.0.1}
 
 # Executable under test.
 #
@@ -84,15 +87,17 @@ if test -z "$LO"; then
     exit 1
 fi
 
+target=`echo $TARGET | $SED -e 's,\.,\\\\&,g'`
+
 find_lo_addr () {
    $IFCONFIG ${1+--format=$1} -i $LO | \
-   eval $GREP '"inet .*127\.0\.0\.1"' $bucket 2>/dev/null
+   eval $GREP "'inet .*$target'" $bucket 2>/dev/null
 }
 
 errno=0
 
 # Check for loopback address in all formats displaying the
-# standard address 127.0.0.1.
+# standard address $TARGET, commonly 127.0.0.1.
 #
 for fmt in ${FORMAT:-gnu gnu-one-entry net-tools osf unix}; do
     $silence echo "Checking format $fmt."

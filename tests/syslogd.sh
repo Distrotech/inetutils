@@ -206,7 +206,7 @@ locate_port () {
 
 # Receivers for INET sockets.
 : ${TARGET:=127.0.0.1}
-: ${TARGET6:=[::1]}
+: ${TARGET6:=::1}
 
 # For testing of critical lengths for UNIX socket names,
 # we need a well defined base directory; choose $TMPDIR.
@@ -434,7 +434,7 @@ if $do_inet_socket; then
 	"Sending IPv4 message. (pid $$)"
     if test "$TEST_IPV6" != "no"; then
 	TESTCASES=`expr $TESTCASES + 1`
-	$LOGGER -6 -h "$TARGET6:$PORT" -p user.info -t "$TAG" \
+	$LOGGER -6 -h "[$TARGET6]:$PORT" -p user.info -t "$TAG" \
 	    "Sending IPv6 message. (pid $$)"
     fi
 fi
@@ -558,7 +558,7 @@ if $do_standard_port; then
 
     if test "$TEST_IPV6" != "no"; then
 	TESTCASES=`expr $TESTCASES + 1`
-	$LOGGER -6 -h "$TARGET6" -p user.info -t "$TAG" \
+	$LOGGER -6 -h "[$TARGET6]" -p user.info -t "$TAG" \
 	    "IPv6 to standard port. (pid $$)"
     fi
 fi
