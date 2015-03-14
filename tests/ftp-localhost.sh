@@ -250,6 +250,10 @@ fi
 
 cat <<EOT > "$TMPDIR/inetd.conf"
 $PORT stream tcp4 nowait $USER $PWD/$FTPD ftpd -A -l
+EOT
+
+test "$TEST_IPV6" = "no" ||
+    cat <<EOT >> "$TMPDIR/inetd.conf"
 $PORT stream tcp6 nowait $USER $PWD/$FTPD ftpd -A -l
 EOT
 

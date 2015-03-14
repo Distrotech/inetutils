@@ -209,6 +209,10 @@ fi
 write_conf () {
     cat > "$INETD_CONF" <<-EOF
 	$PORT dgram ${PROTO}4 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
+	EOF
+
+    test "$TEST_IPV6" = "no" ||
+	cat >> "$INETD_CONF" <<-EOF
 	$PORT dgram ${PROTO}6 wait $USER $TFTPD   tftpd -l $TMPDIR/tftp-test
 	EOF
 }
@@ -420,6 +424,10 @@ if $do_secure_setting; then
 
     cat > "$INETD_CONF" <<-EOF
 	$PORT dgram ${PROTO}4 wait $USER $TFTPD   tftpd -l -s $TMPDIR /tftp-test
+	EOF
+
+    test "$TEST_IPV6" = "no" ||
+	cat >> "$INETD_CONF" <<-EOF
 	$PORT dgram ${PROTO}6 wait $USER $TFTPD   tftpd -l -s $TMPDIR /tftp-test
 	EOF
 

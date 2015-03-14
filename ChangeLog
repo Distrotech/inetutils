@@ -1,5 +1,14 @@
 2015-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Complaints during IPv6-less testing.
+	Unused IPv6 directives cause logged complaints by inetd.
+
+	* tests/ftp-localhost.sh: Add a tcp6 listener to `inetd.conf'
+	only if TEST_IPV6 is not `no'.
+	* tests/tftp.sh: Likewise with udp6.
+
+2015-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Build failures while IPv6 is disabled.
 
 	* configure.ac (ENABLE_hstrerror): New conditional variable.
