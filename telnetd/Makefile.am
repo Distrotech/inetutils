@@ -31,6 +31,10 @@ LDADD = \
 	$(iu_LIBRARIES) \
 	$(LIBTERMCAP) $(LIBUTIL) $(LIBCRYPT) $(LIBAUTH)
 
+if ENABLE_hstrerror
+LDADD += $(LIBRESOLV)
+endif
+
 inetdaemondir = @inetdaemondir@
 
 inetdaemon_PROGRAMS = $(telnetd_BUILD)

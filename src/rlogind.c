@@ -333,8 +333,9 @@ check_host (struct sockaddr *sa, socklen_t len)
 
   if (sa->sa_family != AF_INET
 # ifdef IPV6
-      && sa->sa_family != AF_INET6)
+      && sa->sa_family != AF_INET6
 # endif
+     )
     return 1;
 
 # if HAVE_DECL_GETNAMEINFO

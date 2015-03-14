@@ -1,3 +1,16 @@
+2015-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Build failures while IPv6 is disabled.
+
+	* configure.ac (ENABLE_hstrerror): New conditional variable.
+
+	* src/rlogind.c [IPV6] (checkhost): Move right parenthesis
+	outside of precompiler conditional.
+
+	* telnetd/Makefile.am [ENABLE_hstrerror]: Add $(LIBRESOLV)
+	to LDADD.  With IPv6 disabled, the code in `telnetd/telnetd.c'
+	uses hstrerror(), so Solaris must link against libresolv.
+
 2015-02-28  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Fully configure testing without IPv6.

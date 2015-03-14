@@ -227,7 +227,7 @@ fi
 AC_SUBST(LIBLS)
 AC_SUBST(libls_BUILD)
 AC_SUBST(enable_libls)
-AM_CONDITIONAL([ENABLE_libls], test "$enable_libls" = yes)
+AM_CONDITIONAL([ENABLE_libls], [test "$enable_libls" = yes])
 
 # At least OpenSolaris is missing <protocols/talkd.h>.
 AC_CHECK_HEADER(protocols/talkd.h, , ,
@@ -1020,6 +1020,9 @@ esac
 # Typically the loopback addresses, but can be set otherwise.
 TARGET=${TARGET:-127.0.0.1}
 TARGET6=${TARGET6:-::1}
+
+# Work around code peculiarities.
+AM_CONDITIONAL([ENABLE_hstrerror], [test "$ipv6" = no])
 
 AC_CONFIG_FILES([
 Makefile
