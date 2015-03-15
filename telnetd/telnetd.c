@@ -662,14 +662,17 @@ telnetd_run (void)
       if (FD_ISSET (pty, &ibits))
 	{
 	  /* Something to read from the pty... */
-	  if (pty_read () < 0)
+	  if (pty_read () <= 0)
 	    break;
+
+	  /* The first byte is now TIOCPKT data.  Peek at it.  */
 	  c = pty_get_char (1);
+
 #if defined TIOCPKT_IOCTL
 	  if (c & TIOCPKT_IOCTL)
 	    {
 	      pty_get_char (0);
-	      copy_termbuf ();
+	      copy_termbuf ();	/* Pty buffer is now emptied.  */
 	      localstat ();
 	    }
 #endif
@@ -686,16 +689,16 @@ telnetd_run (void)
 	  if (his_state_is_will (TELOPT_LFLOW)
 	      && (c & (TIOCPKT_NOSTOP | TIOCPKT_DOSTOP)))
 	    {
-	      int newflow = c & TIOCPKT_DOSTOP ? 1 : 0;
+	      int newflow = (c & TIOCPKT_DOSTOP) ? 1 : 0;
 	      if (newflow != flowmode)
 		{
 		  net_output_data ("%c%c%c%c%c%c",
 				   IAC, SB, TELOPT_LFLOW,
 				   flowmode ? LFLOW_ON : LFLOW_OFF, IAC, SE);
 		}
-	      pty_get_char (0);
 	    }
 
+	  pty_get_char (0);	/* Discard the TIOCPKT preamble.  */
 	}
 
       while (pty_input_level () > 0)

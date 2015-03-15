@@ -1,3 +1,16 @@
+2015-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Suppress PTY packet data.
+	The server is receiving PTY input in packet mode, but is not
+	properly discarding PIOCPKT_DATA before handing over input
+	to the network socket.  Do this correctly.
+
+	* telnetd/telnetd.c (telnet_run) <input from pty>: Break the
+	loop also if pty_read() returns zero.  Add a final call to
+	pty_get_char() before ending FD_ISSET(pty, &ibits).  This call
+	was mistakenly located within the subcase where TIOCPKT_NOSTOP
+	or TIOCPKT_DOSTOP is handled.
+
 2015-03-14  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Complaints during IPv6-less testing.
