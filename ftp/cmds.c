@@ -279,8 +279,14 @@ setpeer (int argc, char **argv)
       port = (sp) ? ntohs (sp->s_port) : DEFPORT;
     }
 
-  host = hookup (host, port);
-  if (host)
+  /* After hookup(), the global variable `hostname' contains
+   * the canonical host name corresponding to the alias name
+   * contained in HOST.  The return value of hookup() is not
+   * NULL only if the server has answered our call.  The value
+   * of HOST should be preserved for reporting inside login(),
+   * which also detects a correct stanza of the netrc file.
+   */
+  if (hookup (host, port))
     {
       int overbose;
 

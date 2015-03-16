@@ -1,3 +1,14 @@
+2015-03-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Honour host aliases.
+	While establishing the connection, do not replace the desired
+	peer name with its canonical name.  This prevents correct use
+	of the netrc file.  Bug reported by John Sullivan in
+	http://lists.gnu.org/archive/html/bug-inetutils/2015-02/msg00000.html
+
+	* ftp/cmds.c (setpeer): Do not assign value from hookup()
+	to HOST.  Instead, only test if it is non-null.
+
 2015-03-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnetd: Suppress PTY packet data.
