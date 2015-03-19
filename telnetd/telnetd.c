@@ -52,14 +52,14 @@ char *login_invocation =
    *       `-u' takes the Kerberos principal name
    *       of the authenticating, remote user.
    */
-  PATH_LOGIN " -p -h %h %?T{-t %T} %?u{-u %u}"
+  PATH_LOGIN " -p -h %h %?T{-t %T} -d %L %?u{-u %u}{%U}"
 
 #elif defined SOLARIS
   /* At least for SunOS 5.8.  */
-  PATH_LOGIN " -h %h %?T{%T} %?u{-- %u}"
+  PATH_LOGIN " -h %h %?T{%T} %?u{-- %u}{%U}"
 
 #else /* !SOLARIS */
-  PATH_LOGIN " -p -h %h %?u{-f %u}"
+  PATH_LOGIN " -p -h %h %?u{-f %u}{%U}"
 #endif
   ;
 

@@ -695,7 +695,7 @@ _gettermname (void)
  * Changes terminaltype.
  */
 int
-getterminaltype (char *user_name, size_t len)
+getterminaltype (char *uname, size_t len)
 {
   int retval = -1;
 
@@ -721,10 +721,10 @@ getterminaltype (char *user_name, size_t len)
       ttloop (his_will_wont_is_changing (TELOPT_AUTHENTICATION));
 
       if (his_state_is_will (TELOPT_AUTHENTICATION))
-	retval = auth_wait (user_name, len);
+	retval = auth_wait (uname, len);
     }
 #else /* !AUTHENTICATION */
-  (void) user_name;	/* Silence warning.  */
+  (void) uname;	/* Silence warning.  */
 #endif
 
 #ifdef	ENCRYPTION
@@ -1680,6 +1680,9 @@ _var_short_name (struct line_expander *exp)
     case 'l':
       return xstrdup (local_hostname);
 
+    case 'L':
+      return xstrdup (line);
+
     case 't':
       q = strchr (line + 1, '/');
       if (q)
@@ -1693,6 +1696,9 @@ _var_short_name (struct line_expander *exp)
 
     case 'u':
       return user_name ? xstrdup (user_name) : NULL;
+
+    case 'U':
+      return getenv ("USER") ? xstrdup (getenv ("USER")) : xstrdup ("");
 
     default:
       exp->state = EXP_STATE_ERROR;

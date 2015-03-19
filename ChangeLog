@@ -1,3 +1,25 @@
+2015-03-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Enable autologin in legacy mode.
+	Without Kerberos authentication the autologin code was not
+	determining what user name to hand over to the login service.
+	Adding the user name, when applicable, resolves the issue.
+	Bug was reported by Kuaikuai Wu in
+	http://lists.gnu.org/archive/html/bug-inetutils/2014-12/msg00010.html
+
+	* telnetd/telnetd.c [SOLARIS10] (login_invocation):
+	Add device path "-d %L" and user name "%U", the latter
+	in the form of an else clause to the selector "%?u".
+	[!SOLARIS10] (login_invocation): Likewise for "%U" only.
+
+	* telnetd/utility.c (getterminaltype): Change the paramater
+	name `user_name' to `uname', as the former shadows a precious
+	and global variable name.
+	(_var_short_name) <case 'L'>: New case, returning full path
+	to the PTY device assigned to client.
+	<case 'U'>: New case, returning a copy of the environment
+	variable USER, or an empty string.
+
 2015-03-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Honour host aliases.
