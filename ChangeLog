@@ -1,3 +1,10 @@
+2015-03-20  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	telnetd: Texinfo documentation.
+
+	* doc/inetutils.texi (telnetd invocation): Add a section
+	on the use of replacement tokens in the execution string.
+
 2015-03-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnetd: Enable autologin in legacy mode.

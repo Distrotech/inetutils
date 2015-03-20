@@ -4980,6 +4980,112 @@ is to be disabled.  Standard choices are @samp{null},
 @samp{kerberos_v4}, and @samp{kerberos_v5}.
 @end table
 
+@section Crafting an execution string.
+
+The server @command{telnetd} contains a built-in execution string
+which invokes @command{login} with arguments suitable for the
+operating system at hand.  This preset choice corresponds to the
+standard use case of the service.  For specialized purposes
+this implementation also offers a command line option @option{-E},
+or @option{--exec-login}, to override the built-in execution of
+@command{login}, thus allowing almost any choice of handler.
+
+@noindent
+A custom execution string could look like
+
+@example
+telnetd -h -E '/usr/local/sbin/avrop  %t %U'
+@end example
+
+@noindent
+The execution string must as its first part provide an absolute
+path to an executable file.  After that may follow arbitrary
+additional arguments.
+For this latter part, @command{telnetd} offers some replacement
+tokens that dynamically are replaced by content.  All are of
+the form @code{%<var>}, where @samp{<var>} is a single letter
+from the following collection of selectors.
+A valid letter is called @dfn{variable}.
+The mark @emph{conditional}, appearing below, indicates that the
+corresponding variable is conditionally assigned a value.
+
+@table @code
+@item %a
+@opindex %a
+Returns @samp{ok} whenever authentication is complete. @emph{conditional}
+
+@item %d
+@opindex %d
+Produces a time and date string.
+
+@item %h
+@opindex %h
+Gives the remote host name in canonical form.
+
+@item %l
+@opindex %l
+States the local host name, also in canonical form.
+
+@item %L
+@opindex %L
+Returns the path of the pseudo terminal assigned to the client.
+
+@item %t
+@opindex %t
+Gives the terminal device stripped of the leading @samp{/dev/}.
+
+@item %T
+@opindex %T
+States the terminal type, like @samp{xterm}. @emph{conditional}
+
+@item %u
+@opindex %u
+Provides the authenticated user name. @emph{conditional}
+
+@item %U
+@opindex %U
+Returns the user name passed as an environment variable @env{USER}
+by the remote client software.  The value is empty, should the
+environment not provide a value.
+
+@end table
+
+In addition, a conditional construct is able to take one action
+in case a variable has an assigned value, and optionally to take
+another action in the opposite case.  The contruct is
+
+@example
+%?<var>@{true-stmt@}[@{false-stmt@}]
+@end example
+
+@noindent
+The braces are here mandatory, while the brackets enclose the optional
+else-clause and are not included in actual use.
+The initial, motivating example, could thus be expanded to read
+
+@example
+telnetd -h -E '/usr/local/sbin/avrop  %t %?a@{%u krb5@}@{%U@}'
+@end example
+
+@noindent
+In case authentication was completed as user @samp{sigge},
+the execution string would resolve to
+
+@smallexample
+/usr/local/sbin/avrop  pts/1 sigge krb5
+@end smallexample
+
+@noindent
+In all other cases the result would be
+
+@smallexample
+/usr/local/sbin/avrop  pts/1 $USER
+@end smallexample
+
+@noindent
+where @code{$USER} is the value of the corresponding environment
+variable and could possibly be empty.
+
 @node uucpd invocation
 @chapter @command{uucpd}: Unix to Unix Copy relay daemon.
 @cindex uucpd
