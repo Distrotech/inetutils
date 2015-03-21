@@ -1,3 +1,13 @@
+2015-03-21  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Portability of time format string.
+
+	* telnetd/utility.c (_var_short_name) <case 'd'>: Change `%P'
+	to `%p' in format string for strftime(), as the former is a
+	GNU exclusive extension of no portability at all.  Another
+	conversion specifier `%l' is not POSIX conforming, but seems
+	to be generally supported, so it is left untouched.
+
 2015-03-20  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	telnetd: Texinfo documentation.

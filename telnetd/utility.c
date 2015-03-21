@@ -1671,7 +1671,7 @@ _var_short_name (struct line_expander *exp)
     case 'd':
       time (&t);
       strftime (timebuf, sizeof (timebuf),
-		"%l:%M%P on %A, %d %B %Y", localtime (&t));
+		"%l:%M%p on %A, %d %B %Y", localtime (&t));
       return xstrdup (timebuf);
 
     case 'h':
