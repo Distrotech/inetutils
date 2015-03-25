@@ -9,6 +9,11 @@ Version 1.9.3:
 
 * ftp
 
+An old inability to allow other names than the canonical name has
+been corrected.  This means that a machine entry in the .netrc file
+will now be used as expected.  Previously any alias name was replaced
+by the corresponding canonical name, before reading the .netrc file.
+
 The internal command `hash' accepts a suffixed letter to the size
 argument, like `12k', instead of 12288.  Made a minor change to the
 syntax of the command itself, allowing size changes independently
@@ -44,6 +49,17 @@ In common with other syslogd implementations, rsyslogd and sysklogd,
 there has for a long time existed an attack vector based on large
 facility numbers, made public in CVE-2014-3684.  This is now mended
 in our code base.
+
+* telnetd
+
+The ability to autologin a client, without using authentication,
+is now functional in the expected manner, i.e., the prompt for a
+user name is suppressed in favour of an immediate password prompt.
+
+In a setting where the client is using a UTF-8 encoding, it was
+common to observe strange characters in most responses.  This was
+caused by the server daemon, due to incomplete purging of internal
+protocol data.  The issue should now be resolved.
 
 * whois
 
