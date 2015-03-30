@@ -377,9 +377,9 @@ Send messages to the given host or socket.  The @var{host} argument
 can be either a local UNIX socket name (containing a slash @samp{/}),
 or be of the form
 
-@smallexample
+@example
 @var{host}[:@var{port}]
-@end smallexample
+@end example
 
 @noindent
 where @var{host} is the remote host name or IP address, and the
@@ -1783,9 +1783,9 @@ and @file{myfile.myfile} from @file{.myfile}.
 
 Spaces may be included in @var{outpattern}, but are easily removed:
 
-@smallexample
+@example
 nmap $1 |sed "s/ *$//" > $1
-@end smallexample
+@end example
 
 Use a backslash @samp{\} to escape the characters
 @samp{$}, @samp{[}, @samp{]}, and @samp{,}.
@@ -2033,9 +2033,9 @@ includes spaces, the argument must be quoted; e.g.  @samp{"ls -lt"}.
 
 A particularly useful example of this mechanism in action, is
 
-@smallexample
+@example
 ftp> dir . |less
-@end smallexample
+@end example
 
 which allows the user to scroll through a long directory listing.
 
@@ -2396,9 +2396,9 @@ file @file{remotefile} to a file named @file{otherfile} again, but this
 time the file is located on the remote host.  The effect of quoting
 the redirection operator is to execute the command
 
-@smallexample
+@example
 cat remotefile >> localfile
-@end smallexample
+@end example
 
 @noindent
 entirely on the remote most, whence stdout at the remote host will
@@ -3078,9 +3078,9 @@ To avoid repeating an address that occurs frequently, a line with a
 host address specifier and colon, but no further fields is allowed,
 e.g.:
 
-@smallexample
+@example
 127.0.0.1,192.168.0.5:
-@end smallexample
+@end example
 
 The address specifier from such a line is remembered and used for all
 further lines lacking an explicit host specifier.  Such a default
@@ -3092,9 +3092,9 @@ When used in a normal configuration line, it causes the default address
 specifier to be ignored for that line.  When used in a default address
 specification, e.g.:
 
-@smallexample
+@example
 *:
-@end smallexample
+@end example
 
 it causes any previous default address specifier to be forgotten.
 
@@ -3235,11 +3235,11 @@ Here are several example service entries for the various types of
 services:
 
 @example
-ftp           stream  tcp   nowait root  /usr/libexec/ftpd       ftpd -l
-ntalk         dgram   udp   wait   nobody:tty  /usr/libexec/talkd  talkd
+ftp           stream  tcp   nowait root  /usr/libexec/ftpd     ftpd -l
+ntalk         dgram   udp   wait   nobody:tty /usr/libexec/talkd talkd
 tcpmux        stream  tcp   nowait root  internal
-tcpmux/+date  stream  tcp   nowait guest /bin/date               date
-tcpmux/phonebook stream tcp nowait guest /usr/bin/phonebook      phonebook
+tcpmux/+date  stream  tcp   nowait guest /bin/date             date
+tcpmux/phonebook stream tcp nowait guest /usr/bin/phonebook    phonebook
 @end example
 
 @node Inetd Environment
@@ -4092,13 +4092,13 @@ tftp dgram udp4 wait root /usr/sbin/tftpd \
 @noindent
 This would allow the TFTP client to use any of
 
-@smallexample
+@example
 get kernel
 get /tftpboot/kernel
 get kernel.alt
 get /altboot/kernel.alt
 get /etc/motd
-@end smallexample
+@end example
 
 @noindent
 given that @file{/tftpboot/kernel} and @file{/altboot/kernel.alt} exist.
@@ -4115,8 +4115,8 @@ tftp dgram udp4 wait root /usr/sbin/tftpd \
 @end example
 
 @noindent
-Supposing that the files @file{/srv/tftp-root/tftpboot/kernel}
-and @file{/srv/tftp-root/altboot/kernel.alt} were available,
+Supposing the files @file{kernel} and @file{kernel.alt} to exist
+in the common directory @file{/srv/tftp-root/altboot/},
 all the previously suggested client requests for a kernel would
 still be granted, but now any request for @file{/etc/motd}
 would be declined, and would get a reply `File not found' back.
@@ -5071,16 +5071,16 @@ telnetd -h -E '/usr/local/sbin/avrop  %t %?a@{%u krb5@}@{%U@}'
 In case authentication was completed as user @samp{sigge},
 the execution string would resolve to
 
-@smallexample
+@example
 /usr/local/sbin/avrop  pts/1 sigge krb5
-@end smallexample
+@end example
 
 @noindent
 In all other cases the result would be
 
-@smallexample
+@example
 /usr/local/sbin/avrop  pts/1 $USER
-@end smallexample
+@end example
 
 @noindent
 where @code{$USER} is the value of the corresponding environment

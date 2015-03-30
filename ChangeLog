@@ -1,3 +1,13 @@
+2015-03-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Texinfo: Improve typeset output.
+
+	* doc/inetutils.texi: Replace all @smallexample by @example.
+	<inetd invocation>: Make the multi-line example two spaces
+	narrower in order to fit into a rendered PDF page.
+	<tftpd invocation>: Rephrase a sentence for easier line breaks,
+	thus avoiding text extending into the right margin.
+
 2015-03-21  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Portability of time format string.
