@@ -1,11 +1,25 @@
 2015-03-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
+	Texinfo: Slight reordering of nodes.
+	This makes all chapters consistent in themselves.
+
+	* doc/inetutils.texi: Put direntry `dnsdomainname' first in
+	dircategory `Individual utilities', for alphabetic reasons.
+	Interchange nodes `dnsdomainname invocation' and `hostname
+	invocation' in response to that change.
+	(ftp invocation): In sub-menu, move `The .netrc file' to be
+	last entry in the list.  Move the node `Ftp environment' from
+	last to third relative position in this chapter.  Position
+	three comes from the ordering in the established sub-menu.
+
+2015-03-30  Mats Erik Andersson  <gnu@gisladisker.se>
+
 	Texinfo: Improve typeset output.
 
 	* doc/inetutils.texi: Replace all @smallexample by @example.
-	<inetd invocation>: Make the multi-line example two spaces
+	(inetd invocation): Make the multi-line example two spaces
 	narrower in order to fit into a rendered PDF page.
-	<tftpd invocation>: Rephrase a sentence for easier line breaks,
+	(tftpd invocation): Rephrase a sentence for easier line breaks,
 	thus avoiding text extending into the right margin.
 
 2015-03-21  Mats Erik Andersson  <gnu@gisladisker.se>

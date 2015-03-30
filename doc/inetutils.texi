@@ -29,10 +29,10 @@
 
 @dircategory Individual utilities
 @direntry
+* dnsdomainname: (inetutils)dnsdomainname invocation.       Show DNS domain name.
 * ftp: (inetutils)ftp invocation.                 FTP client.
 * ftpd: (inetutils)ftpd invocation.               FTP Daemon.
 * hostname: (inetutils)hostname invocation.       Show or set system host name.
-* dnsdomainname: (inetutils)dnsdomainname invocation.       Show DNS domain name.
 * inetd: (inetutils)inetd invocation.             Internet super-server.
 * logger: (inetutils)logger invocation.           Send messages to the system log.
 * ping: (inetutils)ping invocation.               Packets to network hosts.
@@ -229,6 +229,31 @@ Failure is indicated by a nonzero value --- typically @samp{1}, though
 it may differ on unusual platforms, as POSIX requires only that it be
 nonzero.
 
+@node dnsdomainname invocation
+@chapter @command{dnsdomainname}: Show DNS domain name
+@cindex dnsdomainname
+
+@command{dnsdomainname} is a program to show the domain part of the
+system's fully qualified domain name.  For example, if the FQDN of the
+system is @code{name.example.org} the command will show
+@code{example.org}.
+The output is not necessarily related to the NIS/YP domain name.
+
+The tool uses gethostname to get the host name of the system and
+then getaddrinfo to resolve it into a canonical name.
+The domain part of the canonical name is shown, i.e., the part
+after the first period@tie{}(@code{.}) of the official name.
+
+@noindent
+Synopsis:
+
+@example
+dnsdomainname [@var{option}@dots{}]
+@end example
+
+@noindent
+There is no command specific option.
+
 @node hostname invocation
 @chapter @command{hostname}: Show or set system host name.
 @cindex hostname
@@ -297,31 +322,6 @@ Get short host name.
 @opindex --nis
 Get NIS/YP domain name.
 @end table
-
-@node dnsdomainname invocation
-@chapter @command{dnsdomainname}: Show DNS domain name
-@cindex dnsdomainname
-
-@command{dnsdomainname} is a program to show the domain part of the
-system's fully qualified domain name.  For example, if the FQDN of the
-system is @code{name.example.org} the command will show
-@code{example.org}.
-The output is not necessarily related to the NIS/YP domain name.
-
-The tool uses gethostname to get the host name of the system and
-then getaddrinfo to resolve it into a canonical name.
-The domain part of the canonical name is shown, i.e., the part
-after the first period@tie{}(@code{.}) of the official name.
-
-@noindent
-Synopsis:
-
-@example
-dnsdomainname [@var{option}@dots{}]
-@end example
-
-@noindent
-There is no command specific option.
 
 @node logger invocation
 @chapter @command{logger}: Send messages to system log
@@ -1352,10 +1352,10 @@ of operation.
 * Ftp options::
 * Ftp commands::
 * Ftp environment::
-* The .netrc file::
 * Aborting a file transfer::
 * File naming conventions::
 * File transfer parameters::
+* The .netrc file::
 @end menu
 
 @node Ftp options
@@ -1991,6 +1991,23 @@ transfer are reported.  By default, verbose is on.
 Command arguments which have embedded spaces may be inclosed within
 citation characters @samp{"}.
 
+@node Ftp environment
+@section Environment variables in use
+
+@command{ftp} accesses the following environment variables.
+
+@table @env
+@item HOME
+Used for locating a @file{.netrc} file, if one exists.
+
+@item NETRC
+Alternate location of the @file{.netrc} file,
+taking precedence over the standard location.
+
+@item SHELL
+For determining the default shell interpreter.
+@end table
+
 @node Aborting a file transfer
 @section Aborting a file transfer
 
@@ -2142,23 +2159,6 @@ specified name; its contents begin with the next @file{.netrc} line
 and continue until a null line (consecutive new-line characters) is
 encountered.  If a macro named init is defined, it is automatically
 executed as the last step in the auto-login process.
-@end table
-
-@node Ftp environment
-@section Environment variables in use
-
-@command{ftp} accesses the following environment variables.
-
-@table @env
-@item HOME
-Used for locating a @file{.netrc} file, if one exists.
-
-@item NETRC
-Alternate location of the @file{.netrc} file,
-taking precedence over the standard location.
-
-@item SHELL
-For determining the default shell interpreter.
 @end table
 
 @node tftp invocation
