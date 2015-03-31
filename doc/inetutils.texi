@@ -19,8 +19,6 @@
 @syncodeindex pg cp
 @syncodeindex vr cp
 
-@set Francois Fran@,{c}ois
-
 @dircategory Basics
 @direntry
 * Inetutils: (inetutils).       GNU networking utilities.
@@ -35,8 +33,8 @@
 * hostname: (inetutils)hostname invocation.       Show or set system host name.
 * inetd: (inetutils)inetd invocation.             Internet super-server.
 * logger: (inetutils)logger invocation.           Send messages to the system log.
-* ping: (inetutils)ping invocation.               Packets to network hosts.
 * ping6: (inetutils)ping6 invocation.             Packets to IPv6 network hosts.
+* ping: (inetutils)ping invocation.               Packets to network hosts.
 * rcp: (inetutils)rcp invocation.                 Remote copy
 * rexec: (inetutils)rexec invocation.             Remote execution client.
 * rexecd: (inetutils)rexecd invocation.           Remote execution server.
@@ -93,8 +91,6 @@ Documentation License''.
 @insertcopying
 @end ifnottex
 
-@cindex networking utilities
-
 @menu
 * Introduction::                       Caveats, overview, and authors.
 * Common options::                     Common options.
@@ -122,16 +118,18 @@ Clients
 
 Daemons
 
-* ftpd invocation::                    FTP Daemon.
-* inetd invocation::                   Internet super-server.
-* rexecd invocation::                  Remote execution server.
-* rlogind invocation::                 Remote login server.
-* rshd invocation::                    Remote shell server.
-* syslogd invocation::                 Syslog server.
-* talkd invocation::                   Talk server.
-* telnetd invocation::                 Telnet server.
-* tftpd invocation::                   TFTP server.
-* uucpd invocation::                   Unix to Unix Copy.
+* inetd invocation::		       Internet super-server.
+* syslogd invocation::		       Syslog server.
+* ftpd invocation::		       FTP Daemon.
+* rexecd invocation::		       Remote execution server.
+* rlogind invocation::		       Remote login server.
+* rshd invocation::		       Remote shell server.
+* talkd invocation::		       Talk server.
+* telnetd invocation::		       Telnet server.
+* tftpd invocation::		       TFTP server.
+* uucpd invocation::		       Unix to Unix Copy.
+
+Appendix
 
 * GNU Free Documentation License::     The license for this manual.
 * Index::                              Index of manual.
@@ -228,10 +226,10 @@ majority of commands, an exit status of zero indicates success.
 Failure is indicated by a nonzero value --- typically @samp{1}, though
 it may differ on unusual platforms, as POSIX requires only that it be
 nonzero.
-
+
 @node dnsdomainname invocation
 @chapter @command{dnsdomainname}: Show DNS domain name
-@cindex dnsdomainname
+@pindex dnsdomainname
 
 @command{dnsdomainname} is a program to show the domain part of the
 system's fully qualified domain name.  For example, if the FQDN of the
@@ -253,10 +251,10 @@ dnsdomainname [@var{option}@dots{}]
 
 @noindent
 There is no command specific option.
-
+
 @node hostname invocation
 @chapter @command{hostname}: Show or set system host name.
-@cindex hostname
+@pindex hostname
 
 @command{hostname} is a program to show or to set the name of a
 host system.
@@ -322,10 +320,10 @@ Get short host name.
 @opindex --nis
 Get NIS/YP domain name.
 @end table
-
+
 @node logger invocation
 @chapter @command{logger}: Send messages to system log
-@cindex logger
+@pindex logger
 
 @command{logger} is a program to send entries to system log.  It
 provides a shell command interface similar to the system log module.
@@ -476,10 +474,10 @@ logger -p daemon.warn -h logger.runasimi.org -S 10.10.10.1  \
 @verb{|       |}--file warnings
 @end example
 @end enumerate
-
+
 @node ping invocation
 @chapter @command{ping}: Packets to network hosts
-@cindex ping
+@pindex ping
 
 @c FIXME: The text is far to detailed about the actual implementation
 @c of ping.  A user doesn't need to know that we are using TIMEVAL, or
@@ -863,10 +861,10 @@ Some BSD variants offer a kernel setting to inhibit all replies
 to ICMP_MASKREQ packets, but in general, Unices are designed either
 to answer the request with a valid netmask, or to drop the request,
 causing @command{ping} to wait for a timeout condition.
-
+
 @node ping6 invocation
 @chapter @command{ping6}: Packets to IPv6 network hosts
-@cindex ping6
+@pindex ping6
 
 @command{ping6} uses ICMPv6 datagrams to get a response
 from the chosen destination host.
@@ -1021,10 +1019,10 @@ the use of @command{ping6}.
 Keep in mind, though, that the differing address family
 causes some discrepancy.
 @xref{ping invocation}.
-
+
 @node traceroute invocation
 @chapter @command{traceroute}: Trace the route to a host
-@cindex traceroute
+@pindex traceroute
 
 @command{traceroute} prints a trace of the route
 IP@tie{}packets are travelling to a remote host.
@@ -1163,10 +1161,10 @@ Isolated host, not reachable.
 @item !X
 Forbidden by remote administration.
 @end table
-
+
 @node whois invocation
 @chapter @command{whois}: User interface to WHOIS data bases.
-@cindex whois
+@pindex whois
 
 The functionality of a world wide Internet is dependent on
 stored node information of different kinds.
@@ -1315,10 +1313,9 @@ When unset, @samp{whois.internic.net} is used as default server.
 
 @end table
 
-
 @node ftp invocation
 @chapter @command{ftp}: FTP client
-@cindex ftp
+@pindex ftp
 
 @command{ftp} is the user interface to FTP,
 the File Transfer Protocol.
@@ -2160,139 +2157,26 @@ and continue until a null line (consecutive new-line characters) is
 encountered.  If a macro named init is defined, it is automatically
 executed as the last step in the auto-login process.
 @end table
+
+@node rcp invocation
+@chapter @command{rcp}: Copy files between machines
+@pindex rcp
 
-@node tftp invocation
-@chapter @command{tftp}: TFTP client
-@cindex tftp
-
-@command{tftp} is the user interface to the Internet TFTP, Trivial
-File Transfer Protocol, which allows users to transfer files to and
-from a remote machine.  The remote host may be specified on the
-command line, in which case @command{tftp} uses host as the default
-host for future transfers.
+@command{rcp} copies files between machines.  Each file or directory
+argument is either a remote file name of the form
+@samp{rname@@rhost:path}, or a local file name (containing no @samp{:}
+characters, or a @samp{/} before any @samp{:}s).
 
 @noindent
 Synopsis:
 
 @example
-tftp [@var{option}]@dots{} @var{host}
+rcp [@var{option}]@dots{} @var{old-file} @var{new-file}
+rcp [@var{option}]@dots{} @var{files}@dots{} @var{directory}
 @end example
-
-@section Commands
-
-Once @command{tftp} is running, it issues the prompt and recognizes
-the following commands:
-
-@table @code
-@item ? @var{command-name}
-Print help information.
-
-@item ascii
-Shorthand for @code{mode ascii}
-
-@item binary
-Shorthand for @code{mode binary}
-
-@item connect @var{host-name} [@var{port}]
-Set the host (and optionally port) for transfers.  Note that the TFTP
-protocol, unlike the FTP protocol, does not maintain connections
-between transfers; thus, the connect command does not actually create
-a connection, but merely remembers what host is to be used for
-transfers.  You do not have to use the connect command; the remote
-host can be specified as part of the get or put commands.
-
-@item get @var{file-name}
-@itemx get @var{remotename} @var{localname}
-@itemx get @var{file}@dots{}
-Get a file, or a set of files, from the specified sources.  The source can
-be in one of two forms: a file name on the remote host, if the host has
-already been specified, or a string of the form @samp{host:filename}
-to specify both a host and file name at the same time.  If the latter
-form is used, the last hostname specified becomes the default for
-future transfers.  When specifying a numeric IPv6 address as host
-part, then this address must be enclosed between square brackets,
-since it contains colons and would interfere with the delimiter
-before the file name.  Brackets are optional for IPv4 addresses.
-
-@example
-tftp> get [2001:1234::12]:issue
-@end example
-
-@item mode @var{transfer-mode}
-Set the mode for transfers; @var{transfer-mode} may be one of
-@samp{ascii} or @samp{binary}.  The default is @samp{ascii}.
-
-@item put @var{file}
-@itemx put @var{localfile} @var{remotefile}
-@itemx put @var{file}@dots{} @var{remote-directory}
-Put a file or set of files to the specified remote file or directory.
-The destination can be in one of two forms: a filename on the remote
-host, if the host has already been specified, or a string of the form
-@samp{host:filename} to specify both a host and filename at the same
-time.  If the latter form is used, the hostname specified becomes the
-default for future transfers.  If the @file{remote-directory} form is
-used, the remote host is assumed to be a UNIX machine.  The same use
-of square brackets for enclosing numeric IPv6 addresses applies here,
-as was mentioned for the command @command{get}.
-
-@item quit
-Exit @command{tftp}.  An end of file also exits.
-
-@item rexmt @var{retransmission-timeout}
-Set the per-packet retransmission timeout, in seconds.
-
-@item status
-Show current status.
-
-@item timeout @var{total-transmission-timeout}
-Set the total transmission timeout, in seconds.
-
-@item trace
-Toggle packet tracing.
-
-@item verbose
-Toggle verbose mode.
-@end table
-
-Because there is no user-login or validation within the @command{tftp}
-protocol, the remote site will probably have some sort of file-access
-restrictions in place.  The exact methods are specific to each site
-and therefore difficult to document here.
-
-@node rsh invocation
-@chapter @command{rsh}: Remote shell
-@cindex rsh
-
-@command{rsh} executes commands on a remote host and copies its local
-standard input to that of the remote command, as well as the remote
-standard output to the local standard output, and the remote standard
-error to the local standard error.  Locally raised interrupt, quit and
-terminate signals are all propagated to the remote command. Normally
-@command{rsh} terminates when the remote command does so.
-
-When using the @command{rsh} command, you can for convenience create
-a link in your path, using a host name as name of the link.  For example:
-
-@example
-# ln -s /usr/bin/rsh @var{hostname}
-# @var{hostname} ls
-@end example
-
-@noindent
-Afterwards, @var{hostname} will be passed to @command{rsh} as host name
-whenever the command @var{hostname} is issued.
-
-@command{rsh} allows access to the remote host without the use of a
-password.  The prerequisite is a suitable specification in @file{~/.rhosts}.
-For details, @xref{rcmd, , rcmd, libc, The GNU C Library Reference Manual}.
-
-If no command is specified for @command{rsh} ar argument following the
-host name, then you will be logged in on the remote host using @command{rlogin}.
 
 @section Command line options
-@anchor{rsh options}
-
-The options are as follows :
+@anchor{rcp options}
 
 @table @option
 @item -4
@@ -2307,42 +2191,23 @@ Use only IPv4.
 @opindex --ipv6
 Use only IPv6.
 
-@item -d
-@itemx --debug
+@item -d @var{directory}
+@itemx --target-directory=@var{directory}
 @opindex -d
-@opindex --debug
-Turns on socket debugging used for communication with the remote host.
+@opindex --target-directory
+Copy all source arguments into @var{directory}.
 
-@item -l @var{user}
-@itemx --user=@var{user}
-@opindex -l
-@opindex --user
-By default, the remote username is the same as the local username.
-The @option{-l} option and the @samp{username@@host} format allow the
-remote user name to be specified.  Kerberos authentication is used,
-whenever available, and authorization is determined as in @command{rlogin}
-(@pxref{rlogin invocation}).
+@item -f
+@itemx --from
+@opindex -f
+@opindex --from
+(Server mode only.) Copying from remote host.
 
-@item -n
-@itemx --no-input
-@opindex -n
-@opindex --no-input
-Use @file{/dev/null} for all input, telling the server side that
-we send no material.  This can prevent the remote process from
-blocking, should it optionally accept more input.
-The option is void together with encryption.
-@end table
-
-@noindent
-The next three options are available only if the program
-has been compiled with support for Kerberos authentication.
-
-@table @option
 @item -k @var{realm}
 @itemx --realm=@var{realm}
 @opindex -k
 @opindex --realm
-The option requests rsh to obtain tickets for the remote host in
+The option requests rcp to obtain tickets for the remote host in
 realm @var{realm} instead of the remote host's realm.
 
 @item -K
@@ -2351,62 +2216,135 @@ realm @var{realm} instead of the remote host's realm.
 @opindex --kerberos
 Turns off all Kerberos authentication.
 
+@item -p
+@itemx --preserve
+@opindex -p
+@opindex --preserve
+Causes @code{rcp} to attempt to preserve (duplicate) in its copies the
+modification times and modes of the source files, ignoring the umask.
+By default, the mode and owner of the target file are preserved
+if the target itself already exists; otherwise the mode of the source
+file is modified by the @code{umask} setting on the destination host.
+
+@item -r
+@itemx --recursive
+@opindex -r
+@opindex --recursive
+If any of the source files are directories, @command{rcp} copies each
+subtree rooted at that name; in this case the destination must be a
+directory.
+
+@item -t
+@itemx --to
+@opindex -t
+@opindex --to
+(Server mode only.) Copying to remote host.
+
 @item -x
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on encryption for all data passed via the rsh session.  This
-may impact response time and CPU utilization, but provides increased
+Turns on encryption for all data passed via the @command{rcp} session.
+This may impact response time and CPU utilization, but provides increased
 security.
+
 @end table
 
+@command{rcp} doesn't detect all cases where the target of a copy
+might be a file in cases where only a directory should be legal.
+
+@command{rcp} can be confused by any output generated by commands in a
+@file{.login}, @file{.profile}, or @file{.cshrc} file on the remote
+host.
+
+The destination user and hostname may have to be specified as
+@samp{rhost.rname} when the destination machine is running the 4.2BSD
+version of @command{rcp}.
+
+@node rexec invocation
+@chapter @command{rexec}: a remote execution program
+@pindex rexec
+
+@command{rexec} is a program that executes a program on another host.
+
 @noindent
-Finally, some compatibility options are present:
+Synopsis:
+
+@example
+rexec --user=@var{login} --password=@var{pass} --host=@var{host}  \
+@verb{|      |}[OPTION] @var{command}
+@end example
+
+@section Command line options
+@anchor{rexec options}
 
 @table @option
-@item -8
-@itemx --8-bit
-@itemx -e @var{char}
-@itemx --escape=@var{char}
-@itemx -E
-@itemx --no-escape
-Ignored during normal operation, but passed on to @command{rlogin}
-when @command{rsh} is invoked without a command argument.
+@item -4
+@itemx --ipv4
+@opindex -4
+@opindex --ipv4
+Use only IPv4 connections as all times.
+
+@item -6
+@itemx --ipv6
+@opindex -6
+@opindex --ipv6
+Use only IPv6 connections.
+
+@item -a
+@itemx --ipany
+@opindex -a
+@opindex --ipany
+Allow any address family for connections.  This is the default.
+
+@item -e
+@itemx --error=@var{port}
+@opindex -e
+@opindex --error
+Specify the TCP port to use for stderr redirection, in case it is not
+specified a random port will be used.
+
+@item -h
+@item --host=@var{name}
+@opindex -h
+@opindex --host
+Specify the host with whom to connect: symbolic name or address.
+
+@item -n
+@itemx --noerr
+@opindex -n
+@opindex --noerr
+If specified, an error stream will not be created.
+
+@item -p
+@itemx --password=@var{passwd}
+@opindex -p
+@opindex --password
+Specify the password for logging-in.  The special value
+consisting of a single dash @samp{-} will make @command{rexec}
+read a single line from stdin.  This input is then used
+as password and is passed as such to the remote server.
+Thus it is possible to hide vital access information
+slightly better than the full disclosure implicit in
+the text of a command line option.
+
+@item -P
+@itemx --port=@var{num}
+@opindex -P
+@opindex --port
+Specify to which numerical port a connection shall be sought.
+If it is not specified, then use port 512/tcp by default.
+
+@item -u
+@itemx --user=@var{name}
+@opindex -u
+@opindex --user
+Specify the user with whom to log into the server.
 @end table
-
-@section Note on stream redirections
-
-Beware that non-quoted shell metacharacters are interpreted on the local
-machine, while quoted metacharacters are interpreted on the remote
-machine.  For example:
-
-@example
-rsh otherhost  cat remotefile >> localfile
-rsh otherhost  cat remotefile ">>" otherfile
-@end example
-
-@noindent
-The first command appends the contents of @file{remotefile}, as found
-on the remote host, to the file @file{localfile} on the local host,
-since the local shell will intercept the redirection and will thus
-receive whatever the remote process directs to stdout.
-
-In contrast, the second command will append the contents of the same
-file @file{remotefile} to a file named @file{otherfile} again, but this
-time the file is located on the remote host.  The effect of quoting
-the redirection operator is to execute the command
-
-@example
-cat remotefile >> localfile
-@end example
-
-@noindent
-entirely on the remote most, whence stdout at the remote host will
-have nothing to transmit to the listening local host!.
-
+
 @node rlogin invocation
 @chapter @command{rlogin}: Remote login
-@cindex rlogin
+@pindex rlogin
 
 The @command{rlogin} command starts a terminal session on the
 specified remote host, provided the required authentication
@@ -2589,26 +2527,41 @@ for on the remote machine as in @command{login}.  To avoid certain
 security problems, the @file{.k5login} file must be owned by the remote
 user.  If Kerberos authentication fails, a warning message is printed
 and the standard Berkeley rlogin is used instead.
+
+@node rsh invocation
+@chapter @command{rsh}: Remote shell
+@pindex rsh
 
-@node rcp invocation
-@chapter @command{rcp}: Copy files between machines
-@cindex rcp
+@command{rsh} executes commands on a remote host and copies its local
+standard input to that of the remote command, as well as the remote
+standard output to the local standard output, and the remote standard
+error to the local standard error.  Locally raised interrupt, quit and
+terminate signals are all propagated to the remote command. Normally
+@command{rsh} terminates when the remote command does so.
 
-@command{rcp} copies files between machines.  Each file or directory
-argument is either a remote file name of the form
-@samp{rname@@rhost:path}, or a local file name (containing no @samp{:}
-characters, or a @samp{/} before any @samp{:}s).
-
-@noindent
-Synopsis:
+When using the @command{rsh} command, you can for convenience create
+a link in your path, using a host name as name of the link.  For example:
 
 @example
-rcp [@var{option}]@dots{} @var{old-file} @var{new-file}
-rcp [@var{option}]@dots{} @var{files}@dots{} @var{directory}
+# ln -s /usr/bin/rsh @var{hostname}
+# @var{hostname} ls
 @end example
 
+@noindent
+Afterwards, @var{hostname} will be passed to @command{rsh} as host name
+whenever the command @var{hostname} is issued.
+
+@command{rsh} allows access to the remote host without the use of a
+password.  The prerequisite is a suitable specification in @file{~/.rhosts}.
+For details, @xref{rcmd, , rcmd, libc, The GNU C Library Reference Manual}.
+
+If no command is specified for @command{rsh} ar argument following the
+host name, then you will be logged in on the remote host using @command{rlogin}.
+
 @section Command line options
-@anchor{rcp options}
+@anchor{rsh options}
+
+The options are as follows :
 
 @table @option
 @item -4
@@ -2623,23 +2576,42 @@ Use only IPv4.
 @opindex --ipv6
 Use only IPv6.
 
-@item -d @var{directory}
-@itemx --target-directory=@var{directory}
+@item -d
+@itemx --debug
 @opindex -d
-@opindex --target-directory
-Copy all source arguments into @var{directory}.
+@opindex --debug
+Turns on socket debugging used for communication with the remote host.
 
-@item -f
-@itemx --from
-@opindex -f
-@opindex --from
-(Server mode only.) Copying from remote host.
+@item -l @var{user}
+@itemx --user=@var{user}
+@opindex -l
+@opindex --user
+By default, the remote username is the same as the local username.
+The @option{-l} option and the @samp{username@@host} format allow the
+remote user name to be specified.  Kerberos authentication is used,
+whenever available, and authorization is determined as in @command{rlogin}
+(@pxref{rlogin invocation}).
 
+@item -n
+@itemx --no-input
+@opindex -n
+@opindex --no-input
+Use @file{/dev/null} for all input, telling the server side that
+we send no material.  This can prevent the remote process from
+blocking, should it optionally accept more input.
+The option is void together with encryption.
+@end table
+
+@noindent
+The next three options are available only if the program
+has been compiled with support for Kerberos authentication.
+
+@table @option
 @item -k @var{realm}
 @itemx --realm=@var{realm}
 @opindex -k
 @opindex --realm
-The option requests rcp to obtain tickets for the remote host in
+The option requests rsh to obtain tickets for the remote host in
 realm @var{realm} instead of the remote host's realm.
 
 @item -K
@@ -2648,136 +2620,62 @@ realm @var{realm} instead of the remote host's realm.
 @opindex --kerberos
 Turns off all Kerberos authentication.
 
-@item -p
-@itemx --preserve
-@opindex -p
-@opindex --preserve
-Causes @code{rcp} to attempt to preserve (duplicate) in its copies the
-modification times and modes of the source files, ignoring the umask.
-By default, the mode and owner of the target file are preserved
-if the target itself already exists; otherwise the mode of the source
-file is modified by the @code{umask} setting on the destination host.
-
-@item -r
-@itemx --recursive
-@opindex -r
-@opindex --recursive
-If any of the source files are directories, @command{rcp} copies each
-subtree rooted at that name; in this case the destination must be a
-directory.
-
-@item -t
-@itemx --to
-@opindex -t
-@opindex --to
-(Server mode only.) Copying to remote host.
-
 @item -x
 @itemx --encrypt
 @opindex -x
 @opindex --encrypt
-Turns on encryption for all data passed via the @command{rcp} session.
-This may impact response time and CPU utilization, but provides increased
+Turns on encryption for all data passed via the rsh session.  This
+may impact response time and CPU utilization, but provides increased
 security.
-
 @end table
-
-@command{rcp} doesn't detect all cases where the target of a copy
-might be a file in cases where only a directory should be legal.
-
-@command{rcp} can be confused by any output generated by commands in a
-@file{.login}, @file{.profile}, or @file{.cshrc} file on the remote
-host.
-
-The destination user and hostname may have to be specified as
-@samp{rhost.rname} when the destination machine is running the 4.2BSD
-version of @command{rcp}.
-
-@node rexec invocation
-@chapter @command{rexec}: a remote execution program
-@cindex rexec
-
-@command{rexec} is a program that executes a program on another host.
 
 @noindent
-Synopsis:
-
-@example
-rexec --user=@var{login} --password=@var{pass} --host=@var{host}  \
-@verb{|      |}[OPTION] @var{command}
-@end example
-
-@section Command line options
-@anchor{rexec options}
+Finally, some compatibility options are present:
 
 @table @option
-@item -4
-@itemx --ipv4
-@opindex -4
-@opindex --ipv4
-Use only IPv4 connections as all times.
-
-@item -6
-@itemx --ipv6
-@opindex -6
-@opindex --ipv6
-Use only IPv6 connections.
-
-@item -a
-@itemx --ipany
-@opindex -a
-@opindex --ipany
-Allow any address family for connections.  This is the default.
-
-@item -e
-@itemx --error=@var{port}
-@opindex -e
-@opindex --error
-Specify the TCP port to use for stderr redirection, in case it is not
-specified a random port will be used.
-
-@item -h
-@item --host=@var{name}
-@opindex -h
-@opindex --host
-Specify the host with whom to connect: symbolic name or address.
-
-@item -n
-@itemx --noerr
-@opindex -n
-@opindex --noerr
-If specified, an error stream will not be created.
-
-@item -p
-@itemx --password=@var{passwd}
-@opindex -p
-@opindex --password
-Specify the password for logging-in.  The special value
-consisting of a single dash @samp{-} will make @command{rexec}
-read a single line from stdin.  This input is then used
-as password and is passed as such to the remote server.
-Thus it is possible to hide vital access information
-slightly better than the full disclosure implicit in
-the text of a command line option.
-
-@item -P
-@itemx --port=@var{num}
-@opindex -P
-@opindex --port
-Specify to which numerical port a connection shall be sought.
-If it is not specified, then use port 512/tcp by default.
-
-@item -u
-@itemx --user=@var{name}
-@opindex -u
-@opindex --user
-Specify the user with whom to log into the server.
+@item -8
+@itemx --8-bit
+@itemx -e @var{char}
+@itemx --escape=@var{char}
+@itemx -E
+@itemx --no-escape
+Ignored during normal operation, but passed on to @command{rlogin}
+when @command{rsh} is invoked without a command argument.
 @end table
 
+@section Note on stream redirections
 
+Beware that non-quoted shell metacharacters are interpreted on the local
+machine, while quoted metacharacters are interpreted on the remote
+machine.  For example:
+
+@example
+rsh otherhost  cat remotefile >> localfile
+rsh otherhost  cat remotefile ">>" otherfile
+@end example
+
+@noindent
+The first command appends the contents of @file{remotefile}, as found
+on the remote host, to the file @file{localfile} on the local host,
+since the local shell will intercept the redirection and will thus
+receive whatever the remote process directs to stdout.
+
+In contrast, the second command will append the contents of the same
+file @file{remotefile} to a file named @file{otherfile} again, but this
+time the file is located on the remote host.  The effect of quoting
+the redirection operator is to execute the command
+
+@example
+cat remotefile >> localfile
+@end example
+
+@noindent
+entirely on the remote most, whence stdout at the remote host will
+have nothing to transmit to the listening local host!.
+
 @node talk invocation
 @chapter @command{talk}: a communication program
-@cindex talk
+@pindex talk
 
 @command{talk} is a visual communication program which copies lines
 from your terminal to that of another user.
@@ -2847,10 +2745,10 @@ The ability to talk may be enabled or disabled by use of the
 this message passing is enabled at the outset of a terminal session.
 Certain commands, in particular @command{nroff} and @command{pr},
 disable messages in order to prevent messy output.
-
+
 @node telnet invocation
 @chapter @command{telnet}: User interface to TELNET
-@cindex telnet
+@pindex telnet
 
 Login to a remote system HOST, optionally using a (non-standard)
 service port PORT.
@@ -2966,10 +2864,108 @@ Use this option multiple times if more than one type
 is to be disabled.  Standard choices are @samp{null},
 @samp{kerberos_v4}, and @samp{kerberos_v5}.
 @end table
+
+@node tftp invocation
+@chapter @command{tftp}: TFTP client
+@pindex tftp
 
+@command{tftp} is the user interface to the Internet TFTP, Trivial
+File Transfer Protocol, which allows users to transfer files to and
+from a remote machine.  The remote host may be specified on the
+command line, in which case @command{tftp} uses host as the default
+host for future transfers.
+
+@noindent
+Synopsis:
+
+@example
+tftp [@var{option}]@dots{} @var{host}
+@end example
+
+@section Commands
+
+Once @command{tftp} is running, it issues the prompt and recognizes
+the following commands:
+
+@table @code
+@item ? @var{command-name}
+Print help information.
+
+@item ascii
+Shorthand for @code{mode ascii}
+
+@item binary
+Shorthand for @code{mode binary}
+
+@item connect @var{host-name} [@var{port}]
+Set the host (and optionally port) for transfers.  Note that the TFTP
+protocol, unlike the FTP protocol, does not maintain connections
+between transfers; thus, the connect command does not actually create
+a connection, but merely remembers what host is to be used for
+transfers.  You do not have to use the connect command; the remote
+host can be specified as part of the get or put commands.
+
+@item get @var{file-name}
+@itemx get @var{remotename} @var{localname}
+@itemx get @var{file}@dots{}
+Get a file, or a set of files, from the specified sources.  The source can
+be in one of two forms: a file name on the remote host, if the host has
+already been specified, or a string of the form @samp{host:filename}
+to specify both a host and file name at the same time.  If the latter
+form is used, the last hostname specified becomes the default for
+future transfers.  When specifying a numeric IPv6 address as host
+part, then this address must be enclosed between square brackets,
+since it contains colons and would interfere with the delimiter
+before the file name.  Brackets are optional for IPv4 addresses.
+
+@example
+tftp> get [2001:1234::12]:issue
+@end example
+
+@item mode @var{transfer-mode}
+Set the mode for transfers; @var{transfer-mode} may be one of
+@samp{ascii} or @samp{binary}.  The default is @samp{ascii}.
+
+@item put @var{file}
+@itemx put @var{localfile} @var{remotefile}
+@itemx put @var{file}@dots{} @var{remote-directory}
+Put a file or set of files to the specified remote file or directory.
+The destination can be in one of two forms: a filename on the remote
+host, if the host has already been specified, or a string of the form
+@samp{host:filename} to specify both a host and filename at the same
+time.  If the latter form is used, the hostname specified becomes the
+default for future transfers.  If the @file{remote-directory} form is
+used, the remote host is assumed to be a UNIX machine.  The same use
+of square brackets for enclosing numeric IPv6 addresses applies here,
+as was mentioned for the command @command{get}.
+
+@item quit
+Exit @command{tftp}.  An end of file also exits.
+
+@item rexmt @var{retransmission-timeout}
+Set the per-packet retransmission timeout, in seconds.
+
+@item status
+Show current status.
+
+@item timeout @var{total-transmission-timeout}
+Set the total transmission timeout, in seconds.
+
+@item trace
+Toggle packet tracing.
+
+@item verbose
+Toggle verbose mode.
+@end table
+
+Because there is no user-login or validation within the @command{tftp}
+protocol, the remote site will probably have some sort of file-access
+restrictions in place.  The exact methods are specific to each site
+and therefore difficult to document here.
+
 @node inetd invocation
 @chapter @command{inetd}: Internet super-server
-@cindex inetd
+@pindex inetd
 
 @command{inetd} program should be run at boot time by /etc/rc.  It
 then listens for connections on certain internet sockets.  When a
@@ -3317,10 +3313,10 @@ occurs when the service is invoked.
 @itemx service: can't set gid number
 The user or group ID for the entry's user is invalid.
 @end table
-
+
 @node syslogd invocation
 @chapter @command{syslogd}: system service logging faclity
-@cindex syslogd
+@pindex syslogd
 
 @command{syslogd} is a system service that provides error logging
 facility.  Messages are read from the UNIX domain socket
@@ -3636,10 +3632,10 @@ The effects of multiple selectors are sometimes not intuitive.  For
 example @samp{mail.crit,*.err} will select the @samp{mail} facility
 messages at the level of @samp{err} or higher, not at the level of
 @samp{crit} or higher.
-
+
 @node ftpd invocation
 @chapter @command{ftpd}: FTP daemon
-@cindex ftpd
+@pindex ftpd
 
 @command{ftpd} is the Internet File Transfer Protocol server process.
 The server uses the TCP protocol and listens at the port specified in
@@ -3972,391 +3968,124 @@ that a single @samp{@@} on a line by itself in
 @file{/etc/ftpchroot}, will enforce chrooting
 upon every user allowed to access the FTP service.
 This gives a Draconian, protective configuration.
+
+@node rexecd invocation
+@chapter @command{rexecd}: server for @code{rexec}
+@pindex rexecd
 
-@node tftpd invocation
-@chapter @command{tftpd}: TFTP server
-@cindex tftpd
-
-@command{tftpd} is intended to be invoked via @command{inetd}
-at all times.
-
-@noindent
-Synopsis:
-
-@example
-tftpd [@var{options}] [@var{directory} @dots{}]
-@end example
-
-@table @option
-@item -g @var{group}
-@itemx --group=@var{group}
-@opindex -g
-@opindex --group
-Specify group membership of the process owner.
-This is used only along with the option @option{-s},
-and replaces the group membership that comes from
-the process owner himself.
-
-@item -l
-@itemx --logging
-@opindex -l
-@opindex --logging
-Enable logging.
-
-@item -n
-@itemx --nonexistent
-@opindex -n
-@opindex --nonexistent
-Supress negative acknowledgement of requests for nonexistent relative
-filenames.
-
-@item -s @var{dir}
-@itemx --secure-dir=@var{dir}
-@opindex -s
-@opindex --secure-dir
-Let the serving process change its root directory to @var{dir}
-before attending to any requests.
-This directory is not observable by any client, but improves
-server isolation, since servable contents must be located
-below this chrooted directory @var{dir}.
-
-@item -u @var{user}
-@itemx --user=@var{user}
-@opindex -u
-@opindex --user
-Specify the process owner for serving requests.
-Only relevant along with the option @option{-s}.
-The default name is @samp{nobody}.
-@end table
-
-@section Directory prefixes
-@anchor{tftpd validation}
-
-In addition to options, an invocation of @command{tftpd} can
-specify an optional list of directory prefixes.
-These are approved of according to two principles:
-
-@itemize @bullet
-@item
-Relative pathnames are ignored.
-
-@item
-At most twenty prefixes are approved, the rest is discarded.
-@end itemize
-
-@noindent
-A request for a file is decided upon as a consequence
-of evaluating these criteria:
-
-@itemize @bullet
-@item
-Every file request containing the substring @samp{/../} is denied,
-as is a file name beginning with @samp{../}.
-
-@item
-Write requests must specify absolute locations.
-
-@item
-A file request, if specified as an @emph{absolute} pathname,
-must begin with one of the approved directory prefixes,
-should at least one such prefix have been accepted.
-
-@item
-In the absence of a prefix collection, any absolute pathname is
-accepted, should the corresponding file exist.
-
-@item
-A file request, if specified as a @emph{relative} name,
-will only be searched for below the acceptable prefixes,
-should at least one such prefix have been approved.
-
-@item
-A request for a relatively named file, is denied in the absence
-of approved directory prefixes.
-
-@item
-The resulting file must be world readable, or world writable,
-for a read request, or a write request, to succeed.
-@end itemize
-
-@section Use cases
-@anchor{tftpd setup cases}
-
-The standard use case is an entry in @file{/etc/inetd.conf} like
+@command{rexecd} is the server for the @code{rexec} routine.  The
+server provides remote execution facilities with authentication based
+on user names and passwords.  It passes error messages and notices
+to the @code{syslog} facility @samp{LOG_DAEMON}.
 
 @example
-tftp dgram udp4 wait root /usr/sbin/tftpd \
-@verb{        } tftpd /tftpboot /altboot
+rexecd [@var{option}]@dots{}
 @end example
 
-@noindent
-This would allow the TFTP client to use any of
-
-@example
-get kernel
-get /tftpboot/kernel
-get kernel.alt
-get /altboot/kernel.alt
-get /etc/motd
-@end example
-
-@noindent
-given that @file{/tftpboot/kernel} and @file{/altboot/kernel.alt} exist.
-Observe that also @file{/etc/motd} is accessible, inspite there being
-no explicit mention of standard file locations.
-
-A stronger mode of running a TFTP server is to use the `secure mode',
-meaning that the serving process is running in a chrooted mode.
-Then a suitable configuration could be
-
-@example
-tftp dgram udp4 wait root /usr/sbin/tftpd \
-@verb{        } tftpd --secure-dir=/srv/tftp-root  /tftpboot /altboot
-@end example
-
-@noindent
-Supposing the files @file{kernel} and @file{kernel.alt} to exist
-in the common directory @file{/srv/tftp-root/altboot/},
-all the previously suggested client requests for a kernel would
-still be granted, but now any request for @file{/etc/motd}
-would be declined, and would get a reply `File not found' back.
-
-The chrooted setting is denying access outside of
-@file{/srv/tftp-root}, yet is not indicating this lock-in
-to the client, and is thus improving server isolation.
-Since neither of @option{-u} and @option{-g} were specified,
-the configuration reproduced above will in fact have the
-transmitting server process running with the default
-owner set to @samp{nobody:nogroup}.
-
-@node rshd invocation
-@chapter @command{rshd}: Remote shell server
-@cindex rshd
-
-The @command{rshd} server is the server for the @code{rcmd} routine
-and, consequently, for the @command{rsh} (@pxref{rsh invocation})
-program.  The server provides remote execution facilities with
-authentication based on privileged port numbers from trusted hosts.
-The @command{rshd} server listens for service requests at the port
-indicated in the @samp{cmd} service specification.  When a service
-request is received the following protocol is initiated:
+@command{rexecd} listens for service requests at the port indicated in
+the @samp{exec} service specification.  When a service request is
+received the following protocol is initiated:
 
 @enumerate
-@item
-The server checks the client's source port.  If the port is not in the
-range 512--1023, the server aborts the connection.  However, this
-condition is not applied for Kerberized service.
-
 @item
 The server reads characters from the socket up to a NUL (@samp{\0})
 byte.  The resultant string is interpreted as an ASCII number, base
 10.
 
 @item
-If the number received in step 2 is non-zero, it is interpreted as the
+If the number received in step 1 is non-zero, it is interpreted as the
 port number of a secondary stream to be used for the stderr.  A second
 connection is then created to the specified port on the client's
-machine.  The source port of this second connection is also in the
-range 512--1023.
+machine.
 
 @item
-The server checks the client's source address and requests the
-corresponding host name.  If the hostname cannot be determined, the
-dot-notation representation of the host address is used.  If the
-hostname is in the same domain as the server (according to the last
-two components of the domain name), or if the @option{-a} option is
-given, the addresses for the hostname are requested, verifying that
-the name and address correspond.  If address verification fails, the
-connection is aborted with the message, @samp{Host address mismatch.}
+A NUL terminated user name of at most 16 characters is retrieved on
+the initial socket.
 
 @item
-A null terminated user name of at most 16 characters is retrieved on
-the initial socket.  This user name is interpreted as the user
-identity on the client's machine.
+A NUL terminated, unencrypted password of at most 16 characters is
+retrieved on the initial socket.
 
 @item
-A null terminated user name of at most 16 characters is retrieved on
-the initial socket.  This user name is interpreted as a user identity
-to use on the server's machine.
-
-@item
-A null terminated command to be passed to a shell is retrieved on the
+A NUL terminated command to be passed to a shell is retrieved on the
 initial socket.  The length of the command is limited by the upper
 bound on the size of the system's argument list.
 
 @item
-Rshd then validates the user using @code{ruserok}, which uses the file
-@file{/etc/hosts.equiv} and the @file{.rhosts} file found in the
-user's home directory.  The @option{-l} option prevents @code{ruserok}
-from doing any validation based on the user's @file{.rhosts} file,
-unless the user is the superuser.
+@command{rexecd} then validates the user as is done at login time and,
+if the authentication was successful, changes to the user's home
+directory, and establishes the user and group protections of the user.
+If any of these steps fail the connection is aborted with a diagnostic
+message returned.
 
 @item
-If the file @file{/etc/nologin} exists and the user is not the
-superuser, the connection is closed.
-
-@item
-A null byte is returned on the initial socket and the command line is
+A NUL byte is returned on the initial socket and the command line is
 passed to the normal login shell of the user.  The shell inherits the
-network connections established by @command{rshd}.
-
-@item
-Transport-level keepalive messages are enabled unless the @option{-n}
-option is present.  The use of keepalive messages allows sessions to
-be timed out if the client crashes or becomes unreachable.
-
-@item
-The @option{-L} option causes all successful accesses to be logged to
-@command{syslogd} (@pxref{syslogd invocation}) as @samp{auth.info}
-messages.
+network connections established by rexecd.
 @end enumerate
-
-@xref{ruserok, , ruserok, libc, The GNU C Library Reference Manual},
-for details.
 
 @section Invoking
 
-The options are as follows:
+The only option is as follows:
 
 @table @option
-@item -a
-@itemx --verify-hostname
-@opindex -a
-@opindex --verify-hostname
-Ask hostname for verification.
-
-@c @item -d
-@c @itemx --daemon
-@c @opindex -d
-@c @opindex --daemon
-@c Daemon mode.
-
-@item -k
-@itemx --kerberos
-@opindex -k
-@opindex --kerberos
-Use Kerberos authentication.
-
 @item -l
-@itemx --no-rhosts
+@itemx --logging
 @opindex -l
-@opindex --no-rhosts
-Ignore @file{.rhosts} file.
+@opindex --logging
+Raise logging level for this service; use more than once for
+increased verbosity.  The @code{syslog} facility in use is
+@samp{LOG_DAEMON}.
 
-@item -L
-@itemx --log-sessions
-@opindex -L
-@opindex --log-sessions
-Log successful logins.
-
-@item -n
-@itemx --no-keepalive
-@opindex -n
-@opindex --no-keepalive
-Do not set SO_KEEPALIVE.
-
-@item -S @var{name}
-@itemx --servername=@var{name}
-@opindex -S
-@opindex --servername
-Set Kerberos server name, overriding canonical hostname.
-
-@item -v
-@itemx --vacuous
-@opindex -v
-@opindex --vacuous
-Fail any call asking for non-Kerberos authentication.
-
-@c OBSOLETE?
-@c @item -x
-@c @itemx --encrypt
-@c @opindex -x
-@c @opindex --encrypt
-@c Turns on DES encryption for all data passed via the @command{rshd}
-@c session.  This may impact response time and CPU utilization, but
-@c provides increased security.
-
-@c @item -D[@var{level}]
-@c @itemx --debug[=@var{level}]
-@c @opindex -D
-@c @opindex -debug
-@c Set debug level, not implemented.
-
-@c @item -o
-@c @itemx --allow-root
-@c @opindex -o
-@c @opindex --allow-root
-@c Allow uid == 0 to login, disabled by default
-
-@c @item -p @var{port}
-@c @itemx --port=@var{port}
-@c @opindex -p
-@c @opindex --port
-@c Listen on given port (valid only in daemon mode).
-
-@item -r
-@itemx --reverse-required
-@opindex -r
-@opindex --reverse-required
-Demand that the client's IP address be resolvable
-as a host name.
 @end table
 
-Should @command{rshd} have been built with PAM support,
-it reads any setting specified for a service named either
-@samp{rsh} or @samp{krsh}, the latter name for clients
-seeking Kerberised authentication.
+Should @command{rexecd} have been built with PAM support,
+it reads any setting specified for a service named @samp{rexec}.
 
 @section Diagnostics
 
 Except for the last one listed below, all diagnostic messages are
 returned on the initial socket, after which any network connections
 are closed.  An error is indicated by a leading byte with a value of 1
-(0 is returned in step 10 above upon successful completion of all the
-steps prior to the execution of the login shell).
+(0 is returned in step 7 above upon successful completion of all the
+steps prior to the command execution).
 
 @table @samp
-@item Locuser too long
-The name of the user on the client's machine is longer than 16
-characters.
+@item username too long
+The name is longer than 16 characters.
 
-@item Ruser too long
-The name of the user on the remote machine is longer than 16
-characters.
+@item password too long
+The password is longer than 16 characters.
 
-@item Command too long
+@item command too long
 The command line passed exceeds the size of the argument list (as
 configured into the system).
 
-@item Login incorrect
+@item Login incorrect.
 No password file entry for the user name existed.
 
-@item Remote directory
+@item Password incorrect.
+The wrong password was supplied.
+
+@item No remote directory.
 The chdir command to the home directory failed.
 
-@item Permission denied
-The authentication procedure described above failed,
-or address resolution was insufficient.
-
-@item Can't make pipe.
-The pipe needed for the stderr, wasn't created.
-
-@item Can't fork; try again.
+@item Try again.
 A fork by the server failed.
 
 @item <shellname>: @dots{}
 The user's login shell could not be started.  This message is returned
-on the connection associated with the stderr, and is not preceded by a
-flag byte.
+on the connection associated with the stderr, and is not ...
+@c FIXME: Fill this out.
 @end table
 
-The authentication procedure used here assumes the integrity of each
-client machine and the connecting medium.  This is insecure, but is
-useful in an ``open'' environment.
-
+@emph{Note}, that indicating @samp{Login incorrect} as opposed to
+@samp{Password incorrect} is a security breach which allows people to
+probe a system for users with null passwords.
+
 @node rlogind invocation
 @chapter @command{rlogind}: Remote login server
-@cindex rlogind
+@pindex rlogind
 
 @command{rlogind} is the server for the @command{rlogin} client program
 (@pxref{rlogin invocation}).  The server provides a remote login
@@ -4582,125 +4311,235 @@ to pass the checks induced by options @option{-a} or @option{-r}.
 @item Try again.
 A fork by the server failed.
 @end table
+
+@node rshd invocation
+@chapter @command{rshd}: Remote shell server
+@pindex rshd
 
-@node rexecd invocation
-@chapter @command{rexecd}: server for @code{rexec}
-@cindex rexecd
-
-@command{rexecd} is the server for the @code{rexec} routine.  The
-server provides remote execution facilities with authentication based
-on user names and passwords.  It passes error messages and notices
-to the @code{syslog} facility @samp{LOG_DAEMON}.
-
-@example
-rexecd [@var{option}]@dots{}
-@end example
-
-@command{rexecd} listens for service requests at the port indicated in
-the @samp{exec} service specification.  When a service request is
-received the following protocol is initiated:
+The @command{rshd} server is the server for the @code{rcmd} routine
+and, consequently, for the @command{rsh} (@pxref{rsh invocation})
+program.  The server provides remote execution facilities with
+authentication based on privileged port numbers from trusted hosts.
+The @command{rshd} server listens for service requests at the port
+indicated in the @samp{cmd} service specification.  When a service
+request is received the following protocol is initiated:
 
 @enumerate
+@item
+The server checks the client's source port.  If the port is not in the
+range 512--1023, the server aborts the connection.  However, this
+condition is not applied for Kerberized service.
+
 @item
 The server reads characters from the socket up to a NUL (@samp{\0})
 byte.  The resultant string is interpreted as an ASCII number, base
 10.
 
 @item
-If the number received in step 1 is non-zero, it is interpreted as the
+If the number received in step 2 is non-zero, it is interpreted as the
 port number of a secondary stream to be used for the stderr.  A second
 connection is then created to the specified port on the client's
-machine.
+machine.  The source port of this second connection is also in the
+range 512--1023.
 
 @item
-A NUL terminated user name of at most 16 characters is retrieved on
-the initial socket.
+The server checks the client's source address and requests the
+corresponding host name.  If the hostname cannot be determined, the
+dot-notation representation of the host address is used.  If the
+hostname is in the same domain as the server (according to the last
+two components of the domain name), or if the @option{-a} option is
+given, the addresses for the hostname are requested, verifying that
+the name and address correspond.  If address verification fails, the
+connection is aborted with the message, @samp{Host address mismatch.}
 
 @item
-A NUL terminated, unencrypted password of at most 16 characters is
-retrieved on the initial socket.
+A null terminated user name of at most 16 characters is retrieved on
+the initial socket.  This user name is interpreted as the user
+identity on the client's machine.
 
 @item
-A NUL terminated command to be passed to a shell is retrieved on the
+A null terminated user name of at most 16 characters is retrieved on
+the initial socket.  This user name is interpreted as a user identity
+to use on the server's machine.
+
+@item
+A null terminated command to be passed to a shell is retrieved on the
 initial socket.  The length of the command is limited by the upper
 bound on the size of the system's argument list.
 
 @item
-@command{rexecd} then validates the user as is done at login time and,
-if the authentication was successful, changes to the user's home
-directory, and establishes the user and group protections of the user.
-If any of these steps fail the connection is aborted with a diagnostic
-message returned.
+Rshd then validates the user using @code{ruserok}, which uses the file
+@file{/etc/hosts.equiv} and the @file{.rhosts} file found in the
+user's home directory.  The @option{-l} option prevents @code{ruserok}
+from doing any validation based on the user's @file{.rhosts} file,
+unless the user is the superuser.
 
 @item
-A NUL byte is returned on the initial socket and the command line is
+If the file @file{/etc/nologin} exists and the user is not the
+superuser, the connection is closed.
+
+@item
+A null byte is returned on the initial socket and the command line is
 passed to the normal login shell of the user.  The shell inherits the
-network connections established by rexecd.
+network connections established by @command{rshd}.
+
+@item
+Transport-level keepalive messages are enabled unless the @option{-n}
+option is present.  The use of keepalive messages allows sessions to
+be timed out if the client crashes or becomes unreachable.
+
+@item
+The @option{-L} option causes all successful accesses to be logged to
+@command{syslogd} (@pxref{syslogd invocation}) as @samp{auth.info}
+messages.
 @end enumerate
+
+@xref{ruserok, , ruserok, libc, The GNU C Library Reference Manual},
+for details.
 
 @section Invoking
 
-The only option is as follows:
+The options are as follows:
 
 @table @option
-@item -l
-@itemx --logging
-@opindex -l
-@opindex --logging
-Raise logging level for this service; use more than once for
-increased verbosity.  The @code{syslog} facility in use is
-@samp{LOG_DAEMON}.
+@item -a
+@itemx --verify-hostname
+@opindex -a
+@opindex --verify-hostname
+Ask hostname for verification.
 
+@c @item -d
+@c @itemx --daemon
+@c @opindex -d
+@c @opindex --daemon
+@c Daemon mode.
+
+@item -k
+@itemx --kerberos
+@opindex -k
+@opindex --kerberos
+Use Kerberos authentication.
+
+@item -l
+@itemx --no-rhosts
+@opindex -l
+@opindex --no-rhosts
+Ignore @file{.rhosts} file.
+
+@item -L
+@itemx --log-sessions
+@opindex -L
+@opindex --log-sessions
+Log successful logins.
+
+@item -n
+@itemx --no-keepalive
+@opindex -n
+@opindex --no-keepalive
+Do not set SO_KEEPALIVE.
+
+@item -S @var{name}
+@itemx --servername=@var{name}
+@opindex -S
+@opindex --servername
+Set Kerberos server name, overriding canonical hostname.
+
+@item -v
+@itemx --vacuous
+@opindex -v
+@opindex --vacuous
+Fail any call asking for non-Kerberos authentication.
+
+@c OBSOLETE?
+@c @item -x
+@c @itemx --encrypt
+@c @opindex -x
+@c @opindex --encrypt
+@c Turns on DES encryption for all data passed via the @command{rshd}
+@c session.  This may impact response time and CPU utilization, but
+@c provides increased security.
+
+@c @item -D[@var{level}]
+@c @itemx --debug[=@var{level}]
+@c @opindex -D
+@c @opindex -debug
+@c Set debug level, not implemented.
+
+@c @item -o
+@c @itemx --allow-root
+@c @opindex -o
+@c @opindex --allow-root
+@c Allow uid == 0 to login, disabled by default
+
+@c @item -p @var{port}
+@c @itemx --port=@var{port}
+@c @opindex -p
+@c @opindex --port
+@c Listen on given port (valid only in daemon mode).
+
+@item -r
+@itemx --reverse-required
+@opindex -r
+@opindex --reverse-required
+Demand that the client's IP address be resolvable
+as a host name.
 @end table
 
-Should @command{rexecd} have been built with PAM support,
-it reads any setting specified for a service named @samp{rexec}.
+Should @command{rshd} have been built with PAM support,
+it reads any setting specified for a service named either
+@samp{rsh} or @samp{krsh}, the latter name for clients
+seeking Kerberised authentication.
 
 @section Diagnostics
 
 Except for the last one listed below, all diagnostic messages are
 returned on the initial socket, after which any network connections
 are closed.  An error is indicated by a leading byte with a value of 1
-(0 is returned in step 7 above upon successful completion of all the
-steps prior to the command execution).
+(0 is returned in step 10 above upon successful completion of all the
+steps prior to the execution of the login shell).
 
 @table @samp
-@item username too long
-The name is longer than 16 characters.
+@item Locuser too long
+The name of the user on the client's machine is longer than 16
+characters.
 
-@item password too long
-The password is longer than 16 characters.
+@item Ruser too long
+The name of the user on the remote machine is longer than 16
+characters.
 
-@item command too long
+@item Command too long
 The command line passed exceeds the size of the argument list (as
 configured into the system).
 
-@item Login incorrect.
+@item Login incorrect
 No password file entry for the user name existed.
 
-@item Password incorrect.
-The wrong password was supplied.
-
-@item No remote directory.
+@item Remote directory
 The chdir command to the home directory failed.
 
-@item Try again.
+@item Permission denied
+The authentication procedure described above failed,
+or address resolution was insufficient.
+
+@item Can't make pipe.
+The pipe needed for the stderr, wasn't created.
+
+@item Can't fork; try again.
 A fork by the server failed.
 
 @item <shellname>: @dots{}
 The user's login shell could not be started.  This message is returned
-on the connection associated with the stderr, and is not ...
-@c FIXME: Fill this out.
+on the connection associated with the stderr, and is not preceded by a
+flag byte.
 @end table
 
-@emph{Note}, that indicating @samp{Login incorrect} as opposed to
-@samp{Password incorrect} is a security breach which allows people to
-probe a system for users with null passwords.
-
-
+The authentication procedure used here assumes the integrity of each
+client machine and the connecting medium.  This is insecure, but is
+useful in an ``open'' environment.
+
 @node talkd invocation
 @chapter @command{talkd}: a server for communication between users
-@cindex talkd
+@pindex talkd
 
 @command{talkd} is a server that notifies users that someone else
 wants to initiate a conversation.  It acts as a repository of
@@ -4886,11 +4725,10 @@ The administrator must explicitly arrange some admitting rule,
 with an action @samp{allow}, and some suitable net list.
 Still, the individual user can arrange his private file
 for an even narrower selection of friends.
-
-
+
 @node telnetd invocation
 @chapter @command{telnetd}: Telnet server
-@cindex telnetd
+@pindex telnetd
 
 @example
 telnetd [@var{option}]@dots{}
@@ -5085,10 +4923,166 @@ In all other cases the result would be
 @noindent
 where @code{$USER} is the value of the corresponding environment
 variable and could possibly be empty.
+
+@node tftpd invocation
+@chapter @command{tftpd}: TFTP server
+@pindex tftpd
 
+@command{tftpd} is intended to be invoked via @command{inetd}
+at all times.
+
+@noindent
+Synopsis:
+
+@example
+tftpd [@var{options}] [@var{directory} @dots{}]
+@end example
+
+@table @option
+@item -g @var{group}
+@itemx --group=@var{group}
+@opindex -g
+@opindex --group
+Specify group membership of the process owner.
+This is used only along with the option @option{-s},
+and replaces the group membership that comes from
+the process owner himself.
+
+@item -l
+@itemx --logging
+@opindex -l
+@opindex --logging
+Enable logging.
+
+@item -n
+@itemx --nonexistent
+@opindex -n
+@opindex --nonexistent
+Supress negative acknowledgement of requests for nonexistent relative
+filenames.
+
+@item -s @var{dir}
+@itemx --secure-dir=@var{dir}
+@opindex -s
+@opindex --secure-dir
+Let the serving process change its root directory to @var{dir}
+before attending to any requests.
+This directory is not observable by any client, but improves
+server isolation, since servable contents must be located
+below this chrooted directory @var{dir}.
+
+@item -u @var{user}
+@itemx --user=@var{user}
+@opindex -u
+@opindex --user
+Specify the process owner for serving requests.
+Only relevant along with the option @option{-s}.
+The default name is @samp{nobody}.
+@end table
+
+@section Directory prefixes
+@anchor{tftpd validation}
+
+In addition to options, an invocation of @command{tftpd} can
+specify an optional list of directory prefixes.
+These are approved of according to two principles:
+
+@itemize @bullet
+@item
+Relative pathnames are ignored.
+
+@item
+At most twenty prefixes are approved, the rest is discarded.
+@end itemize
+
+@noindent
+A request for a file is decided upon as a consequence
+of evaluating these criteria:
+
+@itemize @bullet
+@item
+Every file request containing the substring @samp{/../} is denied,
+as is a file name beginning with @samp{../}.
+
+@item
+Write requests must specify absolute locations.
+
+@item
+A file request, if specified as an @emph{absolute} pathname,
+must begin with one of the approved directory prefixes,
+should at least one such prefix have been accepted.
+
+@item
+In the absence of a prefix collection, any absolute pathname is
+accepted, should the corresponding file exist.
+
+@item
+A file request, if specified as a @emph{relative} name,
+will only be searched for below the acceptable prefixes,
+should at least one such prefix have been approved.
+
+@item
+A request for a relatively named file, is denied in the absence
+of approved directory prefixes.
+
+@item
+The resulting file must be world readable, or world writable,
+for a read request, or a write request, to succeed.
+@end itemize
+
+@section Use cases
+@anchor{tftpd setup cases}
+
+The standard use case is an entry in @file{/etc/inetd.conf} like
+
+@example
+tftp dgram udp4 wait root /usr/sbin/tftpd \
+@verb{        } tftpd /tftpboot /altboot
+@end example
+
+@noindent
+This would allow the TFTP client to use any of
+
+@example
+get kernel
+get /tftpboot/kernel
+get kernel.alt
+get /altboot/kernel.alt
+get /etc/motd
+@end example
+
+@noindent
+given that @file{/tftpboot/kernel} and @file{/altboot/kernel.alt} exist.
+Observe that also @file{/etc/motd} is accessible, inspite there being
+no explicit mention of standard file locations.
+
+A stronger mode of running a TFTP server is to use the `secure mode',
+meaning that the serving process is running in a chrooted mode.
+Then a suitable configuration could be
+
+@example
+tftp dgram udp4 wait root /usr/sbin/tftpd \
+@verb{        } tftpd --secure-dir=/srv/tftp-root  /tftpboot /altboot
+@end example
+
+@noindent
+Supposing the files @file{kernel} and @file{kernel.alt} to exist
+in the common directory @file{/srv/tftp-root/altboot/},
+all the previously suggested client requests for a kernel would
+still be granted, but now any request for @file{/etc/motd}
+would be declined, and would get a reply `File not found' back.
+
+The chrooted setting is denying access outside of
+@file{/srv/tftp-root}, yet is not indicating this lock-in
+to the client, and is thus improving server isolation.
+Since neither of @option{-u} and @option{-g} were specified,
+the configuration reproduced above will in fact have the
+transmitting server process running with the default
+owner set to @samp{nobody:nogroup}.
+
 @node uucpd invocation
 @chapter @command{uucpd}: Unix to Unix Copy relay daemon.
-@cindex uucpd
+@pindex uucpd
 
 @command{uucpd} is a relay daemon responsible for accepting
 TCP transported connections for @command{uucico}.  It is started

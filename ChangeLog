@@ -1,3 +1,7 @@
+2015-03-31  Alfred M. Szmidt  <ams@gnu.org>
+
+	* doc/inetutils.texi: Re-order chapters.
+
 2015-03-30  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Texinfo: Slight reordering of nodes.
