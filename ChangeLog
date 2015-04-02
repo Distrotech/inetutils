@@ -1,3 +1,11 @@
+2015-04-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Testing of inetd service.
+
+	* tests/inetd.sh: In verbose mode, report the value of USER.
+	Include a printout of the configuration file when the SIGHUP
+	test loop fails.
+
 2015-03-31  Alfred M. Szmidt  <ams@gnu.org>
 
 	* doc/inetutils.texi: Re-order chapters.

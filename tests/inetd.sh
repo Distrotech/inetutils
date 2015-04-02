@@ -70,6 +70,9 @@ if test -n "$VERBOSE"; then
     $INETD --version | $SED '1q'
 fi
 
+# The value of USER is vital to the test configuration.
+$silence echo "Running test as user $USER."
+
 # For file creation below IU_TESTDIR.
 umask 0077
 
@@ -146,7 +149,14 @@ else
 	    grep "Your address is $TARGET." >/dev/null 2>&1 || errno=1
 
 	test $errno -eq 0 ||
-	    { echo >&2 "Repetition $nn failed."; break; }
+	    { cat >&2 <<-EOT
+		*** Repetition $nn of SIGHUP test has failed. ***
+		Configuration file:
+		##### $CONF
+		`cat $CONF`
+		###########
+		EOT
+	      break; }
 
 	# Update with new port for next round.
 	PORT=`expr $PORT + 1 + ${RANDOM:-$$} % 521`
