@@ -1837,7 +1837,6 @@ load_conffile (const char *filename, struct filed **nextp)
 {
   FILE *cf;
   struct filed *f;
-  char *p;
 #ifndef LINE_MAX
 # define LINE_MAX 2048
 #endif
@@ -1896,6 +1895,7 @@ load_conffile (const char *filename, struct filed **nextp)
      - deal with continuation lines, last char is '\' .  */
   while (fgets (cline, line_max - (cline - cbuf), cf) != NULL)
     {
+      char *p;
       size_t len = strlen (cline);
 
       /* If this is a continuation line, skip leading whitespace for
@@ -1989,7 +1989,7 @@ load_conffile (const char *filename, struct filed **nextp)
       if (*p == '\0' || *p == '#')
 	continue;
 
-      strcpy (cline, p);
+      memmove (cline, p, strlen (p) + 1);
 
       /* Cut the trailing spaces.  */
       for (p = strchr (cline, '\0'); isspace (*--p);)

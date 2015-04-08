@@ -1,3 +1,19 @@
+2015-04-08  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	syslogd: Overlapping string locations.
+	Configuration lines with leading white space are normalized
+	by copying a string to an overlapping location.  Issue found
+	by Alex Kost and reported to us in
+	http://lists.gnu.org/archive/html/bug-inetutils/2015-04/msg00001.html
+
+	* src/syslogd.c (load_conffile): Declare P in smallest
+	possible code block.  Use `memmove' instead of `strcpy'
+	to neutralize the effects of overlapping locations.
+
+	* tests/syslogd.sh: Add a new test case, checking resistance
+	to leading white space and wrapped lines in configuration file.
+	(OUT_NOTICE, COUNT_NOTICE, wrapped, COUNT_WRAP): New variables.
+
 2015-04-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Testing of inetd service.

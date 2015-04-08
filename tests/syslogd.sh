@@ -144,6 +144,7 @@ CONF="$IU_TESTDIR"/syslog.conf
 CONFD="$IU_TESTDIR"/syslog.d
 PID="$IU_TESTDIR"/syslogd.pid
 OUT="$IU_TESTDIR"/messages
+OUT_NOTICE="$IU_TESTDIR"/notice
 : ${SOCKET:=$IU_TESTDIR/log}
 
 mkdir -p "$CONFD"
@@ -277,7 +278,7 @@ fi
 TAG="syslogd-test"
 
 # Remove old files in use by daemon.
-rm -f "$OUT" "$PID" "$CONF"
+rm -f "$OUT" "$OUT_NOTICE" "$PID" "$CONF"
 
 # Full testing at the standard port needs a superuser.
 # Randomise if necessary to get an underprivileged port.
@@ -312,6 +313,9 @@ fi
 #
 cat > "$CONF" <<-EOT
 	*.*	$OUT
+	# Test the removal of leading blanks and correct line wrapping.
+	     *.notice \\
+	   $OUT_NOTICE
 	# Empty priority and action.
 	12345
 	# Missing action.
@@ -420,6 +424,11 @@ if $do_unix_socket; then
     TESTCASES=`expr $TESTCASES + 1`
     $LOGGER -h "$SOCKET" -p user.info -t "$TAG" \
 	"Sending BSD message. (pid $$)"
+
+    # Presence is checked in $OUT and $OUT_NOTICE, so merit value is 2.
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -h "$SOCKET" -p daemon.notice -t "$TAG" \
+	"Attemping to locate wrapped configuration. (pid $$)"
 fi
 
 if $do_socket_length; then
@@ -571,6 +580,14 @@ sleep 3
 # Initial message logging.
 COUNT=`$GREP -c "$TAG" "$OUT"`
 
+# All notices in $OUT_NOTICE should be present also in $OUT.
+# Assign value 1 to full outcome.
+COUNT_NOTICE=`$SED -n '$=' "$OUT_NOTICE"`
+wrapped=`$GREP -c -f "$OUT_NOTICE" "$OUT"`
+
+COUNT_WRAP=0
+test $COUNT_NOTICE -ne $wrapped || COUNT_WRAP=1
+
 # Second set-up after SIGHUP.
 COUNT2=`$GREP -c "$TAG2" "$OUT_USER"`
 COUNT3=`$GREP -c "$TAG2" "$OUT_DEBUG"`
@@ -597,7 +614,7 @@ COUNT5_user=`$GREP -c "$TAG2.*user" "$OUT_LOCAL0"`
 COUNT5_local=`cat "$OUT_USER" "$OUT_UNOTICE" "$OUT_DEBUG" | \
 	      $GREP -c "$TAG2.*local0"`
 
-SUCCESSES=`expr $SUCCESSES + $COUNT \
+SUCCESSES=`expr $SUCCESSES + $COUNT + $COUNT_WRAP \
 		+ 2 \* $COUNT2 - $COUNT2_debug \
 		+ 2 \* $COUNT3 - $COUNT3_info \
 		+ 2 \* $COUNT4 - $COUNT4_notice - $COUNT4_illegal \
@@ -611,6 +628,8 @@ if [ -n "${VERBOSE+yes}" ]; then
 			  "$OUT_LOCAL0"`
 	---------- Full message log for syslogd. ------------
 	`cat "$OUT"`
+	---------- Notices during first stage. --------------
+	`cat "$OUT_NOTICE"`
 	---------- User notice message log. -----------------
 	`cat "$OUT_UNOTICE"`
 	---------- User info message log. -------------------
