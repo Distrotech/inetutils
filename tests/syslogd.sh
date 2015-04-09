@@ -424,11 +424,6 @@ if $do_unix_socket; then
     TESTCASES=`expr $TESTCASES + 1`
     $LOGGER -h "$SOCKET" -p user.info -t "$TAG" \
 	"Sending BSD message. (pid $$)"
-
-    # Presence is checked in $OUT and $OUT_NOTICE, so merit value is 2.
-    TESTCASES=`expr $TESTCASES + 2`
-    $LOGGER -h "$SOCKET" -p daemon.notice -t "$TAG" \
-	"Attemping to locate wrapped configuration. (pid $$)"
 fi
 
 if $do_socket_length; then
@@ -446,6 +441,19 @@ if $do_inet_socket; then
 	$LOGGER -6 -h "[$TARGET6]:$PORT" -p user.info -t "$TAG" \
 	    "Sending IPv6 message. (pid $$)"
     fi
+fi
+
+# Send message of priority notice, either via local socket or IPv4,
+# but not both.  The presence is checked in $OUT and in $OUT_NOTICE,
+# so merit value is 2.
+if $do_unix_socket; then
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -h "$SOCKET" -p daemon.notice -t "$TAG" \
+	"Attemping to locate wrapped configuration. (pid $$)"
+elif $do_inet_socket; then
+    TESTCASES=`expr $TESTCASES + 2`
+    $LOGGER -4 -h "$TARGET:$PORT" -p daemon.notice -t "$TAG" \
+	"Attemping to locate wrapped configuration. (pid $$)"
 fi
 
 # Generate a more elaborate message routing, aimed at confirming
@@ -586,7 +594,9 @@ COUNT_NOTICE=`$SED -n '$=' "$OUT_NOTICE"`
 wrapped=`$GREP -c -f "$OUT_NOTICE" "$OUT"`
 
 COUNT_WRAP=0
-test $COUNT_NOTICE -ne $wrapped || COUNT_WRAP=1
+if $do_unix_socket || $do_inet_socket; then
+    test $COUNT_NOTICE -ne $wrapped || COUNT_WRAP=1
+fi
 
 # Second set-up after SIGHUP.
 COUNT2=`$GREP -c "$TAG2" "$OUT_USER"`

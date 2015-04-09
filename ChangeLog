@@ -1,3 +1,14 @@
+2015-04-09  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	Incomplete test of syslogd.
+	Whenever message passing via local socket is disabled,
+	the wrapping test caused a false negative.  Fix this by
+	letting it fall back to an INET socket.
+
+	* tests/syslogd.sh: Include the `wrapping message' whenever
+	either of $do_unix_socket or $do_inet_socket is true.  Fix the
+	counter COUNT_WRAP to be set under the same prerequisite only.
+
 2015-04-08  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	syslogd: Overlapping string locations.
