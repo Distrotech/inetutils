@@ -1,3 +1,9 @@
+2015-04-15  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* bootstrap: Updated from gnulib.
+	* doc/.gitignore: Add `/gendocs_template_min'.  The file
+	is added during bootstrap.
+
 2015-04-09  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	Incomplete test of syslogd.
