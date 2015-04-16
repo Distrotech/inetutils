@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+git-version-gen-tag-sed-script = 's/inetutils-/v/; s/_/./g'
+
 news-check-regexp = '^Version $(VERSION_REGEXP):'
 
 _makefile_at_at_check_exceptions = ' && !/PATHDEFS_MAKE/'

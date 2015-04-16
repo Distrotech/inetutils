@@ -1,5 +1,10 @@
 addrpeek
+identify
 localhost
+ls
 readutmp
+tcpget
 tools.sh
 waitdaemon
+*.log
+*.trs

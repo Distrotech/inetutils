@@ -1,3 +1,11 @@
+2015-04-16  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* cfg.mk (git-version-gen-tag-sed-script): New variable using
+	the same sed script as found in `configure.ac'.  It is needed
+	to get a more reliable target `dist'.
+
+	* tests/.gitignore: Add some generated test products.
+
 2015-04-15  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* bootstrap: Updated from gnulib.
