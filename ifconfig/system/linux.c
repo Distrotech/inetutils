@@ -433,7 +433,7 @@ pnd_read ()
 
   while (getline (&buf, &bufsize, fp) > 0)
     {
-      struct pnd_stats *stats = xzalloc (sizeof (*stats));;
+      struct pnd_stats *stats = xzalloc (sizeof (*stats));
       char *p = buf, *q;
       size_t len;
 

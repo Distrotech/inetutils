@@ -404,9 +404,9 @@ system_fh_media (format_data_t form, int argc _GL_UNUSED_PARAMETER,
 	      if (item->ifmt_word == IFM_SUBTYPE (ifm.ifm_active))
 		active_subtype = item->ifmt_string;
 	    }
-	  ;;
+	  ;
 	default:
-	  ;;
+	  ;
 	}
 
       /* Shared media sub-types.  Only works if the previous

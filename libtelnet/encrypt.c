@@ -1012,7 +1012,7 @@ encrypt_gen_printsub (unsigned char *data, int cnt,
   data += 2;
   buf[buflen - 1] = '\0';
   buf[buflen - 2] = '*';
-  buflen -= 2;;
+  buflen -= 2;
   for (; cnt > 0; cnt--, data++)
     {
       sprintf (tbuf, " %d", *data);

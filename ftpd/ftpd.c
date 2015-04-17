@@ -1206,7 +1206,7 @@ bad:
   /* Return the real value of errno (close may change it) */
   t = errno;
   if (seteuid ((uid_t) cred.uid) != 0)
-    _exit (EXIT_FAILURE);;
+    _exit (EXIT_FAILURE);
   close (s);
   errno = t;
   return NULL;

@@ -64,7 +64,7 @@ checkuser (const char *filename, const char *name)
   FILE *fp;
   int found = 0, ngroups = 0;
   char *p, line[BUFSIZ];
-  gid_t *groups = NULL;;
+  gid_t *groups = NULL;
   struct passwd *pwd = NULL;
 
   fp = fopen (filename, "r");

@@ -1,3 +1,9 @@
+2015-04-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* ftpd/conf.c, ftpd/ftpd.c, ifconfig/system/bsd.c,
+	ifconfig/system/linux.c, libtelnet/encrypt.c: Remove
+	duplicate semicolon.
+
 2015-04-16  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* cfg.mk (git-version-gen-tag-sed-script): New variable using
