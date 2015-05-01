@@ -1,3 +1,9 @@
+2015-05-02  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	* tests/inetd.sh (PASSWD, PWDDB, PROTOCOLS): New variables.
+	Check for system files required by `inetd'.  Skip test when
+	not found, which can happen in incomplete chroots.
+
 2015-04-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* ftpd/conf.c, ftpd/ftpd.c, ifconfig/system/bsd.c,

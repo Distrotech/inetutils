@@ -37,6 +37,30 @@ USER=${USER:-`func_id_user`}
 #
 $need_mktemp || exit_no_mktemp
 
+PASSWD=/etc/passwd
+PWDDB=/etc/pwd.db
+PROTOCOLS=/etc/protocols
+
+# Keep the following two tests separate for better diagnosis!
+#
+if test ! -r $PROTOCOLS; then
+    cat <<-EOT >&2
+	This test requires the availability of "$PROTOCOLS",
+	a file which can not be found in the current system.
+	Therefore skipping this test.
+	EOT
+    exit 77
+fi
+
+if test ! -r $PASSWD && test ! -r $PWDDB; then
+    cat <<-EOT >&2
+	This test requires availability of either "$PASSWD"
+	or "$PWDDB".  The requirement can not be met in the
+	current system.  Therefore skipping this test.
+	EOT
+    exit 77
+fi
+
 # Execution control.  Initialise early!
 #
 do_cleandir=false
