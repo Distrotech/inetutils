@@ -117,13 +117,23 @@ To make an release issue the following commands:
 
   make alpha        # or stable
 
-Finally, bump the version number in NEWS, and configure.ac.
-
-When doing a stable release, do not forget to:
+When doing a stable release:
 
  - record the release date in NEWS
- - create a tag (inetutils-N_M)
+
+ - create a tag:
+
+   $ git tag -s -a inetutils-N_M -m "inetutils N.M"
+
+ - make tarball release:
+
+   $ make stable
+
+ - upload tar ball to ftp.gnu.org (follow the instructions from 'make
+   stable')
+
  - post an announcment to info-gnu@gnu.org
+
  - update web manual and coverage testing
 
 ** Announcement template
