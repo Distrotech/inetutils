@@ -1,3 +1,7 @@
+2015-05-12  Alfred M. Szmidt  <ams@gnu.org>
+
+	* bootstrap.conf (gnulib_modules): Add announce-gen.
+
 2015-05-02  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	* tests/inetd.sh (PASSWD, PWDDB, PROTOCOLS): New variables.
