@@ -1,3 +1,15 @@
+2015-05-13  Guillem Jover  <guillem@hadrons.org>
+
+	ping, ping6: Always use line buffered output.
+	When stdout is redirected, libc will change the stream to
+	be fully buffered.  Suppress this, gaining the standard
+	behaviour of other implementations.  Issue was first reported
+	as a wishlist bug of Debian: https://bugs.debian.org/782727.
+
+	* ping/ping.c (main): Request line buffering on stdout, adding
+	a call to setvbuf().
+	* ping/ping6.c (main): Likewise.
+
 2015-05-12  Alfred M. Szmidt  <ams@gnu.org>
 
 	* bootstrap.conf (gnulib_modules): Add announce-gen.

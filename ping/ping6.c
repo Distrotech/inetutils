@@ -254,6 +254,9 @@ main (int argc, char **argv)
   /* Reset root privileges */
   setuid (getuid ());
 
+  /* Force line buffering regardless of output device.  */
+  setvbuf (stdout, NULL, _IOLBF, 0);
+
   argc -= index;
   argv += index;
 
