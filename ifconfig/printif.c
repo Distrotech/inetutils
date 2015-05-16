@@ -481,22 +481,29 @@ fh_ifdisplay_query (format_data_t form, int argc, char *argv[])
   int n;
 
 #ifdef SIOCGIFFLAGS
-  int f;
-  int rev;
-  unsigned int uflags = (unsigned short) form->ifr->ifr_flags;
+  /* Request for all, or for a specified interface?  */
+  n = all_option || ifs_cmdline;
+  if (!n)
+    {
+      /* Otherwise, only interfaces in state `UP' are displayed.  */
+      int rev = 0;
+      int f = if_nameztoflag ("UP", &rev);
+
+      n = f && ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) == 0;
+      if (n) {
+	unsigned int uflags = (unsigned short) form->ifr->ifr_flags;
 
 # ifdef ifr_flagshigh
-  uflags |= (unsigned short) form->ifr->ifr_flagshigh << 16;
+	uflags |= (unsigned short) form->ifr->ifr_flagshigh << 16;
 # endif /* ifr_flagshigh */
 
-  n = !(all_option || ifs_cmdline
-	|| ((f = if_nameztoflag ("UP", &rev))
-	    && ioctl (form->sfd, SIOCGIFFLAGS, form->ifr) == 0
-	    && (f & uflags)));
+	n = n && (f & uflags);
+      };
+    }
 #else
-  n = 0;
+  n = 1;	/* Display all of them.  */
 #endif
-  select_arg (form, argc, argv, n);
+  select_arg (form, argc, argv, !n);
 }
 
 void

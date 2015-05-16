@@ -1,3 +1,20 @@
+2015-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Regression during interface selection.
+	Without arguments, ifconfig is expected to print status
+	of all interfaces that are in state `UP'.  The mechanism
+	to detect this state was corrupted when 32-bit flags were
+	implemented.  The issue was reported by Juergen Daubert in
+	http://lists.gnu.org/archive/html/bug-inetutils/2015-05/msg00002.html
+
+	* ifconfig/printif.c (fh_ifdisplay_query): Logically invert
+	every use of N.
+	[SIOCGIFFLAGS] (fh_ifdisplay_query): Calculate UFLAGS after
+	executing `ioctl(SIOCGIFFLAGS)', since only then is the value
+	of `form->ifr->ifr_flags' valid.  This side effect of ioctl()
+	was not taken into account in previously committed code with
+	32-bit flags.
+
 2015-05-13  Guillem Jover  <guillem@hadrons.org>
 
 	ping, ping6: Always use line buffered output.
