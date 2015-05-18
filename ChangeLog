@@ -1,3 +1,10 @@
+2015-05-18  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ftp: Accept named, non-numerical ports.
+
+	* ftp/cmds.c (setpeer): Test whether port string looks
+	numerical.  Perform a look-up in the contrary case.
+
 2015-05-17  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Regression during interface selection.

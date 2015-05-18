@@ -262,10 +262,19 @@ setpeer (int argc, char **argv)
 
   if (argc == 3)
     {
-      port = atoi (argv[2]);
+      if (isdigit(argv[2][0]) || argv[2][0] == '-')
+	port = atoi (argv[2]);
+      else
+	{
+	  struct servent *sp;
+
+	  sp = getservbyname (argv[2], "tcp");
+	  port = (sp) ? ntohs (sp->s_port) : 0;
+	}
+
       if (port <= 0 || port > 65535)
 	{
-	  printf ("%s: bad port number-- %s\n", argv[1], argv[2]);
+	  printf ("%s: bad port -- %s\n", argv[1], argv[2]);
 	  printf ("usage: %s host-name [port]\n", argv[0]);
 	  code = -1;
 	  return;
