@@ -201,6 +201,60 @@ struct ifmediareq ifm;
 struct if_nameindex* (*system_if_nameindex) (void) = if_nameindex;
 
 void
+system_fh_brdaddr_query (format_data_t form, int argc, char *argv[])
+{
+  ESTABLISH_IFADDRS
+  if (!ifp)
+    select_arg (form, argc, argv, 1);
+  else
+    {
+      int missing = 1;
+      struct ifaddrs *fp;
+
+      for (fp = ifp; fp; fp = fp->ifa_next)
+	{
+	  if (fp->ifa_addr->sa_family != AF_INET ||
+	      strcmp (fp->ifa_name, form->ifr->ifr_name))
+	    continue;
+
+	  if (fp->ifa_netmask)
+	    missing = 0;
+	  break;
+	}
+      select_arg (form, argc, argv, missing);
+    }
+}
+
+void
+system_fh_brdaddr (format_data_t form, int argc, char *argv[])
+{
+  ESTABLISH_IFADDRS
+  if (!ifp)
+    put_string (form, "(unknown)");
+  else
+    {
+      int missing = 1;
+      struct ifaddrs *fp;
+
+      for (fp = ifp; fp; fp = fp->ifa_next)
+	{
+	  if (fp->ifa_addr->sa_family != AF_INET ||
+	      strcmp (fp->ifa_name, form->ifr->ifr_name))
+	    continue;
+
+	  if (fp->ifa_broadaddr)
+	    {
+	      missing = 0;
+	      put_addr (form, argc, argv, fp->ifa_broadaddr);
+	    }
+	  break;
+	}
+      if (missing)
+	put_string (form, "(unknown)");
+    }
+}
+
+void
 system_fh_hwaddr_query (format_data_t form, int argc, char *argv[])
 {
   ESTABLISH_IFADDRS
@@ -442,6 +496,60 @@ system_fh_media (format_data_t form, int argc _GL_UNUSED_PARAMETER,
   else
 #endif /* SIOCGIFMEDIA */
     put_string (form, "(not known)");
+}
+
+void
+system_fh_netmask_query (format_data_t form, int argc, char *argv[])
+{
+  ESTABLISH_IFADDRS
+  if (!ifp)
+    select_arg (form, argc, argv, 1);
+  else
+    {
+      int missing = 1;
+      struct ifaddrs *fp;
+
+      for (fp = ifp; fp; fp = fp->ifa_next)
+	{
+	  if (fp->ifa_addr->sa_family != AF_INET ||
+	      strcmp (fp->ifa_name, form->ifr->ifr_name))
+	    continue;
+
+	  if (fp->ifa_netmask)
+	    missing = 0;
+	  break;
+	}
+      select_arg (form, argc, argv, missing);
+    }
+}
+
+void
+system_fh_netmask (format_data_t form, int argc, char *argv[])
+{
+  ESTABLISH_IFADDRS
+  if (!ifp)
+    put_string (form, "(unknown)");
+  else
+    {
+      int missing = 1;
+      struct ifaddrs *fp;
+
+      for (fp = ifp; fp; fp = fp->ifa_next)
+	{
+	  if (fp->ifa_addr->sa_family != AF_INET ||
+	      strcmp (fp->ifa_name, form->ifr->ifr_name))
+	    continue;
+
+	  if (fp->ifa_netmask)
+	    {
+	      missing = 0;
+	      put_addr (form, argc, argv, fp->ifa_netmask);
+	    }
+	  break;
+	}
+      if (missing)
+	put_string (form, "(netmask unknown)");
+    }
 }
 
 void

@@ -60,21 +60,29 @@ struct system_ifconfig
 # define SYSTEM_FORMAT_HANDLER	\
   {"bsd", fh_nothing},		\
   {IU_BSD_TYPE, fh_nothing},	\
+  {"brdaddr?", system_fh_brdaddr_query}, \
+  {"brdaddr", system_fh_brdaddr}, \
   {"hwaddr?", system_fh_hwaddr_query}, \
   {"hwaddr", system_fh_hwaddr}, \
   {"hwtype?", system_fh_hwtype_query}, \
   {"hwtype", system_fh_hwtype},	\
   {"media?", system_fh_media_query}, \
   {"media", system_fh_media},	\
+  {"netmask?", system_fh_netmask_query}, \
+  {"netmask", system_fh_netmask},	\
   {"status?", system_fh_status_query}, \
   {"status", system_fh_status},
 
+void system_fh_brdaddr_query (format_data_t form, int argc, char *argv[]);
+void system_fh_brdaddr (format_data_t form, int argc, char *argv[]);
 void system_fh_hwaddr_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwaddr (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype_query (format_data_t form, int argc, char *argv[]);
 void system_fh_hwtype (format_data_t form, int argc, char *argv[]);
 void system_fh_media_query (format_data_t form, int argc, char *argv[]);
 void system_fh_media (format_data_t form, int argc, char *argv[]);
+void system_fh_netmask_query (format_data_t form, int argc, char *argv[]);
+void system_fh_netmask (format_data_t form, int argc, char *argv[]);
 void system_fh_status_query (format_data_t form, int argc, char *argv[]);
 void system_fh_status (format_data_t form, int argc, char *argv[]);
 

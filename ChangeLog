@@ -1,3 +1,19 @@
+2015-05-19  Mats Erik Andersson  <gnu@gisladisker.se>
+
+	ifconfig: Fix BSD-specific interface access.
+	Recently FreeBSD abandoned support for ioctl calls
+	with SIOCGIFNETMASK and SIOCGIFBRDADDR.  Instead the
+	use of `struct ifaddrs' is the only mechanism.  This
+	had already been put to use in other cases, and is
+	portably available in all BSD flavours.
+
+	* ifconfig/system/bsd.c (system_fh_brdaddr_query)
+	(system_fh_brdaddr, system_fh_netmask_query, system_fh_netmask):
+	New functions.
+	* ifconfig/system/bsd.h (SYSTEM_FORMAT_HANDLER): Add the new
+	functions to this list, thus replacing the default handlers.
+	Also add their prototypes.
+
 2015-05-18  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ftp: Accept named, non-numerical ports.
