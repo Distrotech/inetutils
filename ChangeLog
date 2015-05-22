@@ -1,3 +1,16 @@
+2015-05-22  Guillem Jover  <guillem@hadrons.org>
+
+	libls: Alignment issue on sparc systems.
+	The test suite executed by Debian's build daemon
+	uncovered a failure on sparc due to incomplete
+	alignment on word boundaries.
+
+	* libls/fts.c (ALIGNBYTES, ALIGN): New macros.
+	(fts_alloc): Add ALIGNBYTES to the size being allocated
+	to P, a structure FTSENT.  Then compose the assignment of
+	`P->fts_statp' with macro ALIGN to force correct alignment
+	for the pointer to `struct stat'.
+
 2015-05-19  Mats Erik Andersson  <gnu@gisladisker.se>
 
 	ifconfig: Fix BSD-specific interface access.

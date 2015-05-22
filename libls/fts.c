@@ -59,6 +59,19 @@
 
 #include "fts.h"
 
+/* Largest alignment size needed, minus one.
+ * It is used as value and as bit mask.
+ * Usually long double is the worst case.  */
+#ifndef ALIGNBYTES
+# define ALIGNBYTES	(__alignof__ (long double) - 1)
+#endif
+
+/* Align P to size ALIGNBYTES at adapted boundary.  */
+#ifndef ALIGN
+# define ALIGN(p)	(((unsigned long int) (p) + ALIGNBYTES) & ~ALIGNBYTES)
+#endif
+
+
 static FTSENT *fts_alloc (FTS *, const char *, int);
 static FTSENT *fts_build (FTS *, int);
 static void fts_lfree (FTSENT *);
@@ -1000,7 +1013,7 @@ fts_alloc (FTS *sp, const char *name, register int namelen)
    */
   len = sizeof (FTSENT) + namelen;
   if (!ISSET (FTS_NOSTAT))
-    len += sizeof (struct stat);
+    len += sizeof (struct stat) + ALIGNBYTES;
   if ((p = malloc (len)) == NULL)
     return (NULL);
 
@@ -1008,7 +1021,7 @@ fts_alloc (FTS *sp, const char *name, register int namelen)
   memmove (p->fts_name, name, namelen + 1);
 
   if (!ISSET (FTS_NOSTAT))
-    p->fts_statp = (struct stat *) (p->fts_name + namelen + 2);
+    p->fts_statp = (struct stat *) ALIGN (p->fts_name + namelen + 2);
   p->fts_namelen = namelen;
   p->fts_path = sp->fts_path;
   p->fts_errno = 0;
