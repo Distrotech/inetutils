@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see `http://www.gnu.org/licenses/'.
 
+ACLOCAL_AMFLAGS = -I am -I m4
+
 EXTRA_DIST = paths ChangeLog.0 summary.sh.in CHECKLIST
 
 SUBDIRS = lib \
