@@ -1,3 +1,7 @@
+2015-06-06  Guillem Jover  <guillem@hadrons.org>
+
+	* ftp/cmds.c (setpeer): Misspelled message.
+
 2015-05-22  Guillem Jover  <guillem@hadrons.org>
 
 	libls: Alignment issue on sparc systems.

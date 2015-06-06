@@ -363,7 +363,7 @@ setpeer (int argc, char **argv)
 	    unix_server = 0;
 	  if (overbose && !strncmp (reply_string, "215 TOPS20", 10))
 	    printf
-	      ("Remember to set tenex mode when transfering binary files from this machine.\n");
+	      ("Remember to set tenex mode when transferring binary files from this machine.\n");
 	}
       verbose = overbose;
 #endif /* (unix || __unix || __unix__) && (NBBY == 8) */
