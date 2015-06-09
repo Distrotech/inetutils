@@ -5,6 +5,13 @@ Foundation, Inc.  See the end of this file for license conditions.
 
 Please send inetutils bug reports to <bug-inetutils@gnu.org>.
 
+June 9, 2015
+Version 1.9.4:
+
+This is a minor bug release that fixes a regression in `ifconfig'.
+The issue was reported by Juergen Daubert in
+http://lists.gnu.org/archive/html/bug-inetutils/2015-05/msg00002.html
+
 May 12, 2015
 Version 1.9.3:
 
